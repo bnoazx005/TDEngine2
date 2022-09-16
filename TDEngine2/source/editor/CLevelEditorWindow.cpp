@@ -252,7 +252,7 @@ namespace TDEngine2
 
 		if (auto pSelectedEntity = pWorld->FindEntity(selectedEntity))
 		{
-			TMatrix4 matrix = Transpose(pSelectedEntity->GetComponent<CTransform>()->GetLocalToWorldTransform());
+			TMatrix4 matrix = Transpose(pSelectedEntity->GetComponent<CTransform>()->GetChildToParentTransform());
 
 			auto&& pCamera = GetCurrentActiveCamera(pWorld.Get());
 

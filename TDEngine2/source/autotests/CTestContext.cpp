@@ -1,6 +1,9 @@
 #include "../../include/autotests/CTestContext.h"
 #include "../../include/autotests/CBaseTestFixture.h"
 #include "../../include/autotests/ITestResultsReporter.h"
+#include "../../include/core/CProxyInputContext.h"
+#include "../../include/core/IWindowSystem.h"
+#include "../../include/core/IEngineCore.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -28,6 +31,21 @@ namespace TDEngine2
 		}
 
 		mpEngineCore = config.mpEngineCore;
+
+		E_RESULT_CODE result = RC_OK;
+
+		auto pInputContext = TPtr<IEngineSubsystem>(CreateProxyInputContext({ &mMousePosition }, mpEngineCore->GetSubsystem<IWindowSystem>(), result));
+		if (RC_OK != result || !pInputContext)
+		{
+			return result;
+		}
+
+		if (RC_OK != (result = mpEngineCore->RegisterSubsystem(pInputContext)))
+		{
+			return result;
+		}
+
+		mpProxyInputContext = DynamicPtrCast<IDesktopInputContext>(pInputContext);
 		
 		mIsInitialized = true;
 
@@ -128,6 +146,11 @@ namespace TDEngine2
 		mTestFixtures.erase(mTestFixtures.cbegin());
 
 		mIsRunning = !mTestFixtures.empty();
+	}
+
+	void CTestContext::SetMousePosition(const TVector3& position)
+	{
+		mMousePosition = position;
 	}
 
 	bool CTestContext::IsFinished() const

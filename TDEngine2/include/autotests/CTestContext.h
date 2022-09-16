@@ -8,6 +8,7 @@
 
 
 #include "../core/CBaseObject.h"
+#include "../math/TVector3.h"
 #include <unordered_map>
 #include <vector>
 #include <string>
@@ -22,11 +23,13 @@ namespace TDEngine2
 	class ITestFixture;
 	class IEngineCore;
 	class ITestResultsReporter;
+	class IDesktopInputContext;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IFileSystem);
 	TDE2_DECLARE_SCOPED_PTR(ITestFixture);
 	TDE2_DECLARE_SCOPED_PTR(ITestResultsReporter);
+	TDE2_DECLARE_SCOPED_PTR(IDesktopInputContext);
 
 
 	typedef struct TTestContextConfig
@@ -109,6 +112,8 @@ namespace TDEngine2
 
 			TDE2_API void Update(F32 dt);
 
+			TDE2_API void SetMousePosition(const TVector3& position);
+
 			/*!
 				\brief The function is replacement of factory method for instances of this type.
 				The only instance will be created per program's lifetime.
@@ -136,6 +141,9 @@ namespace TDEngine2
 			U32                                                mTotalTestsCount = 0;
 			U32                                                mPassedTestsCount = 0;
 			U32                                                mFailedTestsCount = 0;
+
+			TPtr<IDesktopInputContext>                         mpProxyInputContext;
+			TVector3                                           mMousePosition = ZeroVector3;
 	};
 }
 

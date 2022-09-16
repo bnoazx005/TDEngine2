@@ -124,8 +124,18 @@ namespace TDEngine2
 #endif
 
 
-	TDE2_API IInputContext* CreateProxyInputContext(TPtr<IWindowSystem> pWindowSystem, E_RESULT_CODE& result)
+	TDE2_API IInputContext* CreateProxyInputContext(const TProxyInputContextDesc& desc, TPtr<IWindowSystem> pWindowSystem, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IInputContext, CProxyInputContext, result, pWindowSystem);
+		return ::TDEngine2::CreateImpl<IInputContext, CProxyInputContext>(
+			[&desc] 
+			{ 
+				auto pPtr = new(std::nothrow) CProxyInputContext(); 
+				TDE2_REGISTER_BASE_OBJECT(CProxyInputContext, pPtr); 
+
+				pPtr->mpMousePosition = desc.mpMousePosition;
+				
+				return pPtr; 
+			},
+			[](CProxyInputContext*& pPtr) { TDE2_UNREGISTER_BASE_OBJECT(pPtr); delete pPtr; }, result, pWindowSystem);
 	}
 }

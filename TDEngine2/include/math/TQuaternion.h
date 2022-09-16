@@ -50,7 +50,7 @@ namespace TDEngine2
 			\param[in] eulerAngles Euler angles representation
 		*/
 
-		TDE2_API TQuaternion(const TVector3& eulerAngles);
+		TDE2_API explicit TQuaternion(const TVector3& eulerAngles);
 
 		TDE2_API TQuaternion(const TQuaternion& q);
 		

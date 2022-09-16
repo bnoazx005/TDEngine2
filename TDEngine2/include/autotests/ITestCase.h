@@ -14,6 +14,9 @@
 
 namespace TDEngine2
 {
+	struct TVector3;
+
+
 	/*!
 		interface ITestCase
 
@@ -35,6 +38,8 @@ namespace TDEngine2
 
 			TDE2_API virtual void Wait(F32 delay) = 0;
 			TDE2_API virtual void WaitForNextFrame() = 0;
+
+			TDE2_API virtual void SetCursorPosition(const TVector3& position) = 0;
 
 			TDE2_API virtual void Update(F32 dt) = 0;
 

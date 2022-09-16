@@ -1,4 +1,5 @@
 #include "../../include/autotests/CBaseTestCase.h"
+#include "../../include/autotests/CTestContext.h"
 #include <functional>
 
 
@@ -126,6 +127,39 @@ namespace TDEngine2
 	};
 
 
+	class CSetCursorPositionAction : public ITestAction
+	{
+		public:
+			TDE2_API CSetCursorPositionAction(const TVector3& mousePosition):
+				mMousePosition(mousePosition)
+			{
+			}
+
+			TDE2_API ~CSetCursorPositionAction() override
+			{
+			}
+
+			TDE2_API void Execute() override
+			{
+				CTestContext::Get()->SetMousePosition(mMousePosition);
+				mIsFinished = true;
+			}
+
+			TDE2_API void Update(F32 dt) override
+			{
+				Execute();
+			}
+
+			TDE2_API bool IsFinished() const override
+			{
+				return mIsFinished;
+			}
+		private:
+			TVector3 mMousePosition;
+			bool mIsFinished = false;
+	};
+
+
 	/*!
 		\brief CBaseTestCase's definition
 	*/
@@ -168,6 +202,11 @@ namespace TDEngine2
 	void CBaseTestCase::WaitForNextFrame()
 	{
 		mActions.emplace_back(std::make_unique<CWaitForNextFrameAction>());
+	}
+
+	void CBaseTestCase::SetCursorPosition(const TVector3& position)
+	{
+		mActions.emplace_back(std::make_unique<CSetCursorPositionAction>(position));
 	}
 
 	void CBaseTestCase::Update(F32 dt)

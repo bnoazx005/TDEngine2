@@ -51,8 +51,9 @@ namespace TDEngine2
 			TDE2_API void ExecuteAction(const std::function<void()>& action = nullptr) override;
 
 			TDE2_API void Wait(F32 delay) override;
-
 			TDE2_API void WaitForNextFrame() override;
+
+			TDE2_API void SetCursorPosition(const TVector3& position) override;
 
 			TDE2_API void Update(F32 dt) override;
 

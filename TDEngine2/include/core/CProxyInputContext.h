@@ -24,6 +24,11 @@ namespace TDEngine2
 	TDE2_DECLARE_SCOPED_PTR(IMouse)
 	TDE2_DECLARE_SCOPED_PTR(IGamepad)
 
+	struct TProxyInputContextDesc
+	{
+		TVector3* mpMousePosition = nullptr;
+	};
+
 
 	/*!
 		\brief A factory function for creation objects of CProxyInputContext's type
@@ -34,7 +39,7 @@ namespace TDEngine2
 		\return A pointer to CProxyInputContext's implementation
 	*/
 
-	TDE2_API IInputContext* CreateProxyInputContext(TPtr<IWindowSystem> pWindowSystem, E_RESULT_CODE& result);
+	TDE2_API IInputContext* CreateProxyInputContext(const TProxyInputContextDesc& desc, TPtr<IWindowSystem> pWindowSystem, E_RESULT_CODE& result);
 
 
 	/*!
@@ -46,7 +51,7 @@ namespace TDEngine2
 	class CProxyInputContext : public IDesktopInputContext, public CBaseObject, public IEventHandler
 	{
 		public:
-			friend TDE2_API IInputContext* CreateProxyInputContext(TPtr<IWindowSystem>, E_RESULT_CODE&);
+			friend TDE2_API IInputContext* CreateProxyInputContext(const TProxyInputContextDesc&, TPtr<IWindowSystem>, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes an internal state of an input context
@@ -188,5 +193,7 @@ namespace TDEngine2
 	#if TDE2_EDITORS_ENABLED
 			TOnCharActionCallback mOnCharInputCallback;
 	#endif
+
+			TVector3*             mpMousePosition;
 	};
 }
