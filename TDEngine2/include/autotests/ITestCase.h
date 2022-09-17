@@ -38,6 +38,7 @@ namespace TDEngine2
 
 			TDE2_API virtual void Wait(F32 delay) = 0;
 			TDE2_API virtual void WaitForNextFrame() = 0;
+			TDE2_API virtual void WaitForCondition(const std::function<bool()>& predicate = nullptr) = 0;
 
 			TDE2_API virtual void SetCursorPosition(const TVector3& position) = 0;
 

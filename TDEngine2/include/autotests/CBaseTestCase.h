@@ -52,6 +52,7 @@ namespace TDEngine2
 
 			TDE2_API void Wait(F32 delay) override;
 			TDE2_API void WaitForNextFrame() override;
+			TDE2_API void WaitForCondition(const std::function<bool()>& predicate = nullptr) override;
 
 			TDE2_API void SetCursorPosition(const TVector3& position) override;
 

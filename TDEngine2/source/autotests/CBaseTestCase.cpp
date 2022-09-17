@@ -20,9 +20,9 @@ namespace TDEngine2
 	class CFunctionalAction: public ITestAction
 	{
 		public:
-			typedef std::function<void()> TActionFunctor;
+			typedef std::function<bool()> TPredicate;
 		public:
-			TDE2_API CFunctionalAction(const TActionFunctor& action = nullptr):
+			TDE2_API CFunctionalAction(const TPredicate& action = nullptr):
 				mAction(action)
 			{
 			}
@@ -33,12 +33,7 @@ namespace TDEngine2
 
 			TDE2_API void Execute() override
 			{
-				if (mAction)
-				{
-					mAction();
-				}
-
-				mIsFinished = true;
+				mIsFinished = mAction ? mAction() : true;
 			}
 
 			TDE2_API void Update(F32 dt) override
@@ -51,7 +46,7 @@ namespace TDEngine2
 				return mIsFinished;
 			}
 		private:
-			TActionFunctor mAction = nullptr;
+			TPredicate mAction = nullptr;
 			bool mIsFinished = false;
 	};
 
@@ -191,7 +186,15 @@ namespace TDEngine2
 
 	void CBaseTestCase::ExecuteAction(const std::function<void()>& action)
 	{
-		mActions.emplace_back(std::make_unique<CFunctionalAction>(action));
+		mActions.emplace_back(std::make_unique<CFunctionalAction>([action] 
+		{ 
+			if (action)
+			{
+				action();
+			}
+
+			return true;
+		}));
 	}
 
 	void CBaseTestCase::Wait(F32 delay)
@@ -202,6 +205,11 @@ namespace TDEngine2
 	void CBaseTestCase::WaitForNextFrame()
 	{
 		mActions.emplace_back(std::make_unique<CWaitForNextFrameAction>());
+	}
+
+	void CBaseTestCase::WaitForCondition(const std::function<bool()>& predicate)
+	{
+		mActions.emplace_back(std::make_unique<CFunctionalAction>(predicate));
 	}
 
 	void CBaseTestCase::SetCursorPosition(const TVector3& position)
