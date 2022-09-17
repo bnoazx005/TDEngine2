@@ -22,6 +22,7 @@
 #include "../../include/core/CProxyGraphicsContext.h"
 #include "../../include/core/CResourcesRuntimeManifest.h"
 #include "../../include/core/CGameModesManager.h"
+#include "../../include/autotests/CTestContext.h"
 #include "../../include/game/CSaveManager.h"
 #include "../../include/platform/win32/CWin32WindowSystem.h"
 #include "../../include/platform/win32/CWin32FileSystem.h"
@@ -71,6 +72,7 @@
 #include "../../include/scene/CPrefabsRegistry.h"
 #include "../../include/ecs/CWorld.h"
 #include "../../include/ecs/CTransform.h"
+#include "../../include/utils/CProgramOptions.h"
 #include "deferOperation.hpp"
 #include <memory>
 #include <cstring>
@@ -393,17 +395,27 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
+		if (CProgramOptions::Get()->GetValueOrDefault<bool>("autotests-enabled", false))
+		{
+			if (RC_OK != (result = CTestContext::Get()->Init({ mpEngineCoreInstance.Get() })))
+			{
+				return result;
+			}			
+		}
+		else
+		{
 #if defined(TDE2_USE_WINPLATFORM)
-		if ((result = mpPluginManagerInstance->LoadPlugin("WindowsInputContext")) != RC_OK)
-		{
-			return result;
-		}
+			if ((result = mpPluginManagerInstance->LoadPlugin("WindowsInputContext")) != RC_OK)
+			{
+				return result;
+			}
 #elif defined(TDE2_USE_UNIXPLATFORM)
-		if ((result = mpPluginManagerInstance->LoadPlugin("./UnixInputContext")) != RC_OK)
-		{
-			return result;
-		}
+			if ((result = mpPluginManagerInstance->LoadPlugin("./UnixInputContext")) != RC_OK)
+			{
+				return result;
+			}
 #endif
+		}
 
 		return RC_OK;
 	}

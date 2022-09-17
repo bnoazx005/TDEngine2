@@ -8,6 +8,7 @@
 
 
 #include "../utils/Types.h"
+#include "../utils/CProgramOptions.h"
 #include "IEngineCoreBuilder.h"
 #include "IEngineListener.h"
 #include "CConfigFileEngineCoreBuilder.h"
@@ -27,10 +28,16 @@
 
 	extern std::unique_ptr<TDEngine2::IEngineListener> GetEngineListener();
 
+	extern TDEngine2::E_RESULT_CODE ParseOptions(int argc, const char** argv);
 
-	int main(int argc, char** argv)
+
+	int main(int argc, const char** argv)
 	{
-		TDEngine2::E_RESULT_CODE result = TDEngine2::RC_OK;
+		TDEngine2::E_RESULT_CODE result = ParseOptions(argc, argv);
+		if (TDEngine2::RC_OK != result)
+		{
+			return -1;
+		}
 
 		auto&& pEngineCoreBuilder = TDEngine2::TPtr<TDEngine2::IEngineCoreBuilder>(TDEngine2::CreateConfigFileEngineCoreBuilder({ TDEngine2::CreateEngineCore, GetProjectSettingsFilePath() }, result));
 

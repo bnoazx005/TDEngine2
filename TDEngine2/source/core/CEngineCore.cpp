@@ -159,7 +159,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		std::lock_guard<std::mutex> lock(mMutex);
+		//std::lock_guard<std::mutex> lock(mMutex);
 
 		E_RESULT_CODE result = RC_OK;
 
