@@ -13,6 +13,9 @@ namespace TDEngine2
 	TDE2_DEFINE_SCOPED_PTR(ITestResultsReporter)
 
 
+	static std::unique_ptr<TProxyInputContextDesc> pProxyInputContextDesc{ new TProxyInputContextDesc() };
+
+
 	CTestContext::CTestContext():
 		CBaseObject()
 	{
@@ -34,7 +37,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		auto pInputContext = TPtr<IEngineSubsystem>(CreateProxyInputContext({ &mMousePosition }, mpEngineCore->GetSubsystem<IWindowSystem>(), result));
+		auto pInputContext = TPtr<IEngineSubsystem>(CreateProxyInputContext(pProxyInputContextDesc.get(), mpEngineCore->GetSubsystem<IWindowSystem>(), result));
 		if (RC_OK != result || !pInputContext)
 		{
 			return result;
@@ -150,7 +153,23 @@ namespace TDEngine2
 
 	void CTestContext::SetMousePosition(const TVector3& position)
 	{
-		mMousePosition = position;
+		pProxyInputContextDesc->mMousePosition = position;
+	}
+
+	void CTestContext::NotifyOnKeyPressEvent(E_KEYCODES keyCode)
+	{
+		pProxyInputContextDesc->mKeyboardState[static_cast<U16>(keyCode)] = 0x1;
+	}
+	
+	void CTestContext::NotifyOnMouseButtonPressEvent(U8 buttonId)
+	{
+		if (buttonId >= pProxyInputContextDesc->mMouseButtonsCount)
+		{
+			TDE2_ASSERT(false);
+			return;
+		}
+
+		pProxyInputContextDesc->mMouseButtonsState[buttonId] = 0x1;
 	}
 
 	bool CTestContext::IsFinished() const

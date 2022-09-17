@@ -26,7 +26,19 @@ namespace TDEngine2
 
 	struct TProxyInputContextDesc
 	{
-		TVector3* mpMousePosition = nullptr;
+		TVector3             mPrevMousePosition = ZeroVector3;
+		TVector3             mMousePosition = ZeroVector3;
+
+		static constexpr U16 mKeysCount = 256;
+		static constexpr U16 mMouseButtonsCount = 8;
+
+		U8                   mKeyboardState[mKeysCount];
+		U8                   mPrevKeyboardState[mKeysCount];
+
+		U8                   mMouseButtonsState[mMouseButtonsCount];
+		U8                   mPrevMouseButtonsState[mMouseButtonsCount];
+
+
 	};
 
 
@@ -39,7 +51,7 @@ namespace TDEngine2
 		\return A pointer to CProxyInputContext's implementation
 	*/
 
-	TDE2_API IInputContext* CreateProxyInputContext(const TProxyInputContextDesc& desc, TPtr<IWindowSystem> pWindowSystem, E_RESULT_CODE& result);
+	TDE2_API IInputContext* CreateProxyInputContext(TProxyInputContextDesc* pDesc, TPtr<IWindowSystem> pWindowSystem, E_RESULT_CODE& result);
 
 
 	/*!
@@ -51,7 +63,7 @@ namespace TDEngine2
 	class CProxyInputContext : public IDesktopInputContext, public CBaseObject, public IEventHandler
 	{
 		public:
-			friend TDE2_API IInputContext* CreateProxyInputContext(const TProxyInputContextDesc&, TPtr<IWindowSystem>, E_RESULT_CODE&);
+			friend TDE2_API IInputContext* CreateProxyInputContext(TProxyInputContextDesc*, TPtr<IWindowSystem>, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes an internal state of an input context
@@ -191,9 +203,11 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CProxyInputContext)
 		protected:
 	#if TDE2_EDITORS_ENABLED
-			TOnCharActionCallback mOnCharInputCallback;
+			TOnCharActionCallback   mOnCharInputCallback;
 	#endif
 
-			TVector3*             mpMousePosition;
+			TPtr<IWindowSystem>     mpWindowSystem;
+
+			TProxyInputContextDesc* mpContextDesc;
 	};
 }

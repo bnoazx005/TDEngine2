@@ -25,6 +25,8 @@ namespace TDEngine2
 	class ITestResultsReporter;
 	class IDesktopInputContext;
 
+	enum class E_KEYCODES : U16;
+
 
 	TDE2_DECLARE_SCOPED_PTR(IFileSystem);
 	TDE2_DECLARE_SCOPED_PTR(ITestFixture);
@@ -113,6 +115,8 @@ namespace TDEngine2
 			TDE2_API void Update(F32 dt);
 
 			TDE2_API void SetMousePosition(const TVector3& position);
+			TDE2_API void NotifyOnKeyPressEvent(E_KEYCODES keyCode);
+			TDE2_API void NotifyOnMouseButtonPressEvent(U8 buttonId);
 
 			/*!
 				\brief The function is replacement of factory method for instances of this type.
@@ -143,7 +147,6 @@ namespace TDEngine2
 			U32                                                mFailedTestsCount = 0;
 
 			TPtr<IDesktopInputContext>                         mpProxyInputContext;
-			TVector3                                           mMousePosition = ZeroVector3;
 	};
 }
 

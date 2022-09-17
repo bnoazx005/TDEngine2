@@ -55,6 +55,8 @@ namespace TDEngine2
 			TDE2_API void WaitForCondition(const std::function<bool()>& predicate = nullptr) override;
 
 			TDE2_API void SetCursorPosition(const TVector3& position) override;
+			TDE2_API void AddPressKey(E_KEYCODES keyCode) override;
+			TDE2_API void AddPressMouseButton(U8 buttonId) override;
 
 			TDE2_API void Update(F32 dt) override;
 

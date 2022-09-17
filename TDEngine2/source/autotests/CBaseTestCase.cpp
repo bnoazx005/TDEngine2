@@ -22,7 +22,7 @@ namespace TDEngine2
 		public:
 			typedef std::function<bool()> TPredicate;
 		public:
-			TDE2_API CFunctionalAction(const TPredicate& action = nullptr):
+			TDE2_API explicit CFunctionalAction(const TPredicate& action = nullptr):
 				mAction(action)
 			{
 			}
@@ -54,7 +54,7 @@ namespace TDEngine2
 	class CWaitAction: public ITestAction
 	{
 		public:
-			TDE2_API CWaitAction(F32 delay) :
+			TDE2_API explicit CWaitAction(F32 delay) :
 				mCurrTime(0.0f), mDelay(delay)
 			{
 			}
@@ -125,7 +125,7 @@ namespace TDEngine2
 	class CSetCursorPositionAction : public ITestAction
 	{
 		public:
-			TDE2_API CSetCursorPositionAction(const TVector3& mousePosition):
+			TDE2_API explicit CSetCursorPositionAction(const TVector3& mousePosition):
 				mMousePosition(mousePosition)
 			{
 			}
@@ -151,6 +151,72 @@ namespace TDEngine2
 			}
 		private:
 			TVector3 mMousePosition;
+			bool mIsFinished = false;
+	};
+
+
+	class COnKeyPressAction : public ITestAction
+	{
+		public:
+			TDE2_API explicit COnKeyPressAction(E_KEYCODES keyCode) :
+				mKeyCode(keyCode)
+			{
+			}
+
+			TDE2_API ~COnKeyPressAction() override
+			{
+			}
+
+			TDE2_API void Execute() override
+			{
+				CTestContext::Get()->NotifyOnKeyPressEvent(mKeyCode);
+				mIsFinished = true;
+			}
+
+			TDE2_API void Update(F32 dt) override
+			{
+				Execute();
+			}
+
+			TDE2_API bool IsFinished() const override
+			{
+				return mIsFinished;
+			}
+		private:
+			E_KEYCODES mKeyCode;
+			bool mIsFinished = false;
+	};
+
+
+	class COnMouseButtonPressAction : public ITestAction
+	{
+		public:
+			TDE2_API explicit COnMouseButtonPressAction(U8 buttonId) :
+				mButtonId(buttonId)
+			{
+			}
+
+			TDE2_API ~COnMouseButtonPressAction() override
+			{
+			}
+
+			TDE2_API void Execute() override
+			{
+				CTestContext::Get()->NotifyOnMouseButtonPressEvent(mButtonId);
+				mIsFinished = true;
+			}
+
+			TDE2_API void Update(F32 dt) override
+			{
+				Execute();
+			}
+
+			TDE2_API bool IsFinished() const override
+			{
+				return mIsFinished;
+			}
+		private:
+			U8 mButtonId;
 			bool mIsFinished = false;
 	};
 
@@ -215,6 +281,16 @@ namespace TDEngine2
 	void CBaseTestCase::SetCursorPosition(const TVector3& position)
 	{
 		mActions.emplace_back(std::make_unique<CSetCursorPositionAction>(position));
+	}
+
+	void CBaseTestCase::AddPressKey(E_KEYCODES keyCode)
+	{
+		mActions.emplace_back(std::make_unique<COnKeyPressAction>(keyCode));
+	}
+		
+	void CBaseTestCase::AddPressMouseButton(U8 buttonId)
+	{
+		mActions.emplace_back(std::make_unique<COnMouseButtonPressAction>(buttonId));
 	}
 
 	void CBaseTestCase::Update(F32 dt)
