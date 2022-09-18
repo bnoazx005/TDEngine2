@@ -48,7 +48,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		mpProxyInputContext = DynamicPtrCast<IDesktopInputContext>(pInputContext);
+		mpProxyInputContext = dynamic_cast<IDesktopInputContext*>(pInputContext.Get());
 		
 		mIsInitialized = true;
 
@@ -158,7 +158,7 @@ namespace TDEngine2
 
 	void CTestContext::NotifyOnKeyPressEvent(E_KEYCODES keyCode)
 	{
-		pProxyInputContextDesc->mKeyboardState[static_cast<U16>(keyCode)] = 0x1;
+		pProxyInputContextDesc->mFrameKeysInputBuffer.insert(keyCode);
 	}
 	
 	void CTestContext::NotifyOnMouseButtonPressEvent(U8 buttonId)
@@ -169,7 +169,7 @@ namespace TDEngine2
 			return;
 		}
 
-		pProxyInputContextDesc->mMouseButtonsState[buttonId] = 0x1;
+		pProxyInputContextDesc->mFrameMouseButtonsInputBuffer.insert(buttonId);
 	}
 
 	bool CTestContext::IsFinished() const

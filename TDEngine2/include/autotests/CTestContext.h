@@ -146,7 +146,7 @@ namespace TDEngine2
 			U32                                                mPassedTestsCount = 0;
 			U32                                                mFailedTestsCount = 0;
 
-			TPtr<IDesktopInputContext>                         mpProxyInputContext;
+			IDesktopInputContext*                              mpProxyInputContext;
 	};
 }
 

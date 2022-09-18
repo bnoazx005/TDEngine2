@@ -30,9 +30,6 @@ TDE2_TEST_FIXTURE("CTransform Tests")
 
 			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pNewEntity->GetId()));
 		});
-
-		pTestCase->AddPressKey(E_KEYCODES::KC_TILDE);
-		pTestCase->Wait(10000.0f);
 	}
 
 	TDE2_TEST_CASE("TestCompoundTransformations_CreateNewTransformAndChangeItsRotationPosition_InstanceShouldBeCorrectlyPlacedAtScene")

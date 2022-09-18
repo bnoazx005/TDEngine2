@@ -11,6 +11,7 @@
 #include "../core/CBaseObject.h"
 #include "../core/Event.h"
 #include "../utils/Utils.h"
+#include <unordered_set>
 
 
 namespace TDEngine2
@@ -37,6 +38,9 @@ namespace TDEngine2
 
 		U8                   mMouseButtonsState[mMouseButtonsCount];
 		U8                   mPrevMouseButtonsState[mMouseButtonsCount];
+
+		std::unordered_set<E_KEYCODES> mFrameKeysInputBuffer;
+		std::unordered_set<U8>         mFrameMouseButtonsInputBuffer;
 
 
 	};

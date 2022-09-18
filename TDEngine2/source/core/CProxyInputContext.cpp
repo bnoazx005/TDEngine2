@@ -49,6 +49,34 @@ namespace TDEngine2
 
 		mpContextDesc->mPrevMousePosition = mpContextDesc->mMousePosition;
 
+		if (mpContextDesc->mFrameKeysInputBuffer.empty())
+		{
+			memset(mpContextDesc->mKeyboardState, 0, sizeof(U8) * mpContextDesc->mKeysCount);
+		}
+		else
+		{
+			for (auto&& currKeyCode : mpContextDesc->mFrameKeysInputBuffer)
+			{
+				mpContextDesc->mKeyboardState[static_cast<U16>(currKeyCode)] = 0x1;
+			}
+
+			mpContextDesc->mFrameKeysInputBuffer.clear();
+		}
+
+		if (mpContextDesc->mFrameMouseButtonsInputBuffer.empty())
+		{
+			memset(mpContextDesc->mMouseButtonsState, 0, sizeof(U8) * mpContextDesc->mMouseButtonsCount);
+		}
+		else
+		{
+			for (auto&& buttonId : mpContextDesc->mFrameMouseButtonsInputBuffer)
+			{
+				mpContextDesc->mMouseButtonsState[static_cast<U16>(buttonId)] = 0x1;
+			}
+
+			mpContextDesc->mFrameMouseButtonsInputBuffer.clear();
+		}
+
 		return RC_OK;
 	}
 
