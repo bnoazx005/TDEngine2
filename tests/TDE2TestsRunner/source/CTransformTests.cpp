@@ -35,7 +35,7 @@ TDE2_TEST_FIXTURE("CTransform Tests")
 	TDE2_TEST_CASE("TestCompoundTransformations_CreateNewTransformAndChangeItsRotationPosition_InstanceShouldBeCorrectlyPlacedAtScene")
 	{
 		static const TVector3 randPosition = RandVector3();
-		static const TVector3 rotationAngles = TVector3(45.0f, 0.0f, 0.0f);
+		static const TVector3 rotationAngles = CMathConstants::Deg2Rad * TVector3(45.0f, 0.0f, 0.0f);
 		
 		static CTransform* pTransform = nullptr;
 

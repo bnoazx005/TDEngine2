@@ -512,48 +512,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		auto data = pPackage->ReadFileBytes("test.txt");
 	}
 
-#if 1
-	if (auto&& pTestContext = CTestContext::Get())
-	{
-		/// \note Define the execution environment
-		pTestContext->Init({ mpEngineCoreInstance });
-		
-		/// \note Create a new test fixture which is a set of individual test cases. It could be loaded from YAML file or prepared manually
-		auto pTestFixture = TPtr<ITestFixture>(CreateBaseTestFixture("TestFixtureName", result));
-
-		/// \note AddTestCase manually or call Load(IArchiveReader) and load them from file
-		auto pTestCase = TPtr<ITestCase>(CreateBaseTestCase(result));
-
-		/// \note 
-		pTestCase->Wait(4.0f);
-		pTestCase->ExecuteAction([this]
-		{
-			CTestContext::Get()->TakeScreenshot("result.png");
-			TDE2_TEST_IS_TRUE(CMathUtils::Abs(2.0f - 0.0f) < 0.0f);
-		});
-
-		pTestCase->Wait(2.0f);
-		pTestCase->ExecuteAction([] 
-		{
-			TDE2_TEST_IS_TRUE(true);
-		});
-
-		auto pTestCase2 = TPtr<ITestCase>(CreateBaseTestCase(result));
-
-		/// \note 
-		pTestCase2->ExecuteAction([]
-		{
-		});
-
-		pTestFixture->AddTestCase("TestCaseName", pTestCase);
-		pTestFixture->AddTestCase("TestCaseNam2e", pTestCase2);
-
-		pTestContext->AddTestFixture(pTestFixture);
-		
-		pTestContext->RunAllTests();
-	}
-#endif
-
 	return RC_OK;
 }
 

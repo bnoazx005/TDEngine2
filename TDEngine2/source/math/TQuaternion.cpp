@@ -37,7 +37,7 @@ namespace TDEngine2
 		x = sinRoll * cosYaw * cosPitch + cosRoll * sinYaw * sinPitch;
 		y = cosRoll * cosYaw * sinPitch - sinRoll * sinYaw * cosPitch;
 		z = cosRoll * sinYaw * cosPitch + sinRoll * cosYaw * sinPitch;
-		w = cosRoll * cosYaw * cosPitch - sinRoll * sinYaw * sinPitch;
+		w = cosRoll * cosYaw * cosPitch + sinRoll * sinYaw * sinPitch;
 	}
 
 	TQuaternion::TQuaternion(const TQuaternion& q):
