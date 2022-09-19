@@ -501,6 +501,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Write(class ITexture2D* pTexture) = 0;
+
+			TDE2_API virtual E_RESULT_CODE Write(I32 width, I32 height, I8 numOfChannels, const std::vector<U8>& imageData) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IImageFileWriter)
 	};

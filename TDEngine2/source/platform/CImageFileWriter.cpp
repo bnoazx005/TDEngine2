@@ -30,21 +30,34 @@ namespace TDEngine2
 
 		std::lock_guard<std::mutex> lock(mMutex);
 
+		return _writeInternal(
+				static_cast<I32>(pTexture->GetWidth()),
+				static_cast<I32>(pTexture->GetHeight()),
+				CFormatUtils::GetNumOfChannelsOfFormat(pTexture->GetFormat()),
+				_getImageFileType(mName),
+				pTexture->GetInternalData());
+	}
+	
+	E_RESULT_CODE CImageFileWriter::Write(I32 width, I32 height, I8 numOfChannels, const std::vector<U8>& imageData)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		return _writeInternal(width, height, numOfChannels, _getImageFileType(mName), imageData);
+	}
+
+	E_RESULT_CODE CImageFileWriter::_onFree()
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CImageFileWriter::_writeInternal(I32 width, I32 height, I8 numOfChannels, E_IMAGE_FILE_TYPE imageType, const std::vector<U8>& imageData)
+	{
 		if (!mpStreamImpl->IsValid())
 		{
 			return RC_FAIL;
-		}		
+		}
 
-		E_IMAGE_FILE_TYPE imageType = _getImageFileType(mName);
+		const U8* pData = imageData.data();
 
-		I32 width  = static_cast<I32>(pTexture->GetWidth());
-		I32 height = static_cast<I32>(pTexture->GetHeight());
-
-		I8 numOfChannels = CFormatUtils::GetNumOfChannelsOfFormat(pTexture->GetFormat());
-
-		auto pTextureData = pTexture->GetInternalData();
-		U8* pData = &pTextureData[0];
-		
 		switch (imageType)
 		{
 			case E_IMAGE_FILE_TYPE::BMP:
@@ -55,10 +68,10 @@ namespace TDEngine2
 				break;
 			case E_IMAGE_FILE_TYPE::PNG:
 				stbi_write_png(mName.c_str(), width, height, numOfChannels, pData, width * numOfChannels);
-				break;	
+				break;
 			case E_IMAGE_FILE_TYPE::HDR:
 				stbi_write_hdr(mName.c_str(), width, height, numOfChannels, reinterpret_cast<const F32*>(pData));
-					break;
+				break;
 			default:
 				TDE2_UNIMPLEMENTED();
 				break;
@@ -69,11 +82,6 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		return RC_OK;
-	}
-	
-	E_RESULT_CODE CImageFileWriter::_onFree()
-	{
 		return RC_OK;
 	}
 

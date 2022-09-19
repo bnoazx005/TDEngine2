@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.11] 2022-09-16
+## [0.6.11] 2022-09-19
 
 ### Added
 
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new type of file's writer was added which is **CTextFileWriter** type.
 
 - A new proxy type for the input context was introduced.
+
+- A new overloaded version of IImageFileWriter::Write was added that allows to write raw array of bytes into the image file.
 
 ### Changed
 

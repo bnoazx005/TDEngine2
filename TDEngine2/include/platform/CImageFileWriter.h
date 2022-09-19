@@ -53,11 +53,15 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Write(class ITexture2D* pTexture) override;
+
+			TDE2_API E_RESULT_CODE Write(I32 width, I32 height, I8 numOfChannels, const std::vector<U8>& imageData) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CImageFileWriter)
 
 			TDE2_API E_RESULT_CODE _onFree() override;
 
 			TDE2_API E_IMAGE_FILE_TYPE _getImageFileType(const std::string& filename) const;
+
+			TDE2_API E_RESULT_CODE _writeInternal(I32 width, I32 height, I8 numOfChannels, E_IMAGE_FILE_TYPE imageType, const std::vector<U8>& imageData);
 	};
 }
