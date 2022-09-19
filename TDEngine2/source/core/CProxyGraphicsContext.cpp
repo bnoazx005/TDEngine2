@@ -196,6 +196,12 @@ namespace TDEngine2
 		return mpWindowSystem;
 	}
 
+	std::vector<U8> CProxyGraphicsContext::GetBackBufferData() const
+	{
+		std::vector<U8> backBufferData;
+		return std::move(backBufferData);
+	}
+
 
 	TDE2_API IGraphicsContext* CreateProxyGraphicsContext(TPtr<IWindowSystem> pWindowSystem, E_RESULT_CODE& result)
 	{

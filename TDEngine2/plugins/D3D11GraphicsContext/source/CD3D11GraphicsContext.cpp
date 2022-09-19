@@ -544,6 +544,57 @@ namespace TDEngine2
 		return mpWindowSystem;
 	}
 
+	std::vector<U8> CD3D11GraphicsContext::GetBackBufferData() const
+	{
+		std::vector<U8> backBufferData;
+
+		ID3D11Texture2D* pBackBuffer;
+
+		/// \note Retrieve back buffer's texture
+		if (FAILED(mpSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pBackBuffer))))
+		{
+			return std::move(backBufferData);
+		}
+
+		D3D11_TEXTURE2D_DESC backBufferDesc;
+		pBackBuffer->GetDesc(&backBufferDesc);
+
+		/// \note Create a new temporary texture that could be read
+		ID3D11Texture2D* pTempReadableTexture = nullptr;
+
+		backBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+		backBufferDesc.Usage = D3D11_USAGE_STAGING;
+		backBufferDesc.BindFlags = 0x0;
+
+		defer([pBackBuffer] { pBackBuffer->Release(); });
+
+		if (FAILED(mp3dDevice->CreateTexture2D(&backBufferDesc, nullptr, &pTempReadableTexture)))
+		{
+			return std::move(backBufferData);
+		}
+		
+		mp3dDeviceContext->CopyResource(pTempReadableTexture, pBackBuffer);
+
+		defer([pTempReadableTexture] { pTempReadableTexture->Release(); });
+
+		D3D11_MAPPED_SUBRESOURCE mappedData;
+
+		if (FAILED(mp3dDeviceContext->Map(pTempReadableTexture, 0, D3D11_MAP_READ, 0x0, &mappedData)))
+		{
+			return std::move(backBufferData);
+		}
+		
+		const size_t imageSize = backBufferDesc.Width * backBufferDesc.Height * sizeof(U32);
+		
+		/// \note Read the data of the texture
+		backBufferData.resize(imageSize);
+		memcpy(&backBufferData[0], mappedData.pData, imageSize);
+
+		mp3dDeviceContext->Unmap(pTempReadableTexture, 0);
+
+		return std::move(backBufferData);
+	}
+
 	IDXGIAdapter* CD3D11GraphicsContext::_getDXGIAdapter(ID3D11Device* p3dDevice) const
 	{
 		IDXGIDevice*  pDXGIDevice  = nullptr;

@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A new overloaded version of IImageFileWriter::Write was added that allows to write raw array of bytes into the image file.
 
+- A new public method GetBackBufferData() was added into **IGraphicsContext**.
+
 ### Changed
 
 - **TComponentTypeNameTrait** meta-function was removed and replaced with BaseComponent::GetClassId() static method which has same functionality.

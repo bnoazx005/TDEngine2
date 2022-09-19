@@ -378,6 +378,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TPtr<IWindowSystem> GetWindowSystem() const override;
+
+			TDE2_API std::vector<U8> GetBackBufferData() const override;
 		protected:
 			TDE2_API COGLGraphicsContext(TCreateGLContextFactoryCallback glContextFactoryCallback);
 			TDE2_API COGLGraphicsContext(const COGLGraphicsContext& graphicsCtx) = delete;

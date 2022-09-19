@@ -455,6 +455,12 @@ namespace TDEngine2
 		return mpWindowSystem;
 	}
 
+	std::vector<U8> COGLGraphicsContext::GetBackBufferData() const
+	{
+		std::vector<U8> data;
+		return std::move(data);
+	}
+
 	F32 COGLGraphicsContext::GetPositiveZAxisDirection() const
 	{
 		return 1.0f;
