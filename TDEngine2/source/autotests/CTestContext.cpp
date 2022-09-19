@@ -4,6 +4,9 @@
 #include "../../include/core/CProxyInputContext.h"
 #include "../../include/core/IWindowSystem.h"
 #include "../../include/core/IEngineCore.h"
+#include "../../include/core/IFileSystem.h"
+#include "../../include/core/IGraphicsContext.h"
+#include "../../include/core/IFile.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -170,6 +173,30 @@ namespace TDEngine2
 		}
 
 		pProxyInputContextDesc->mFrameMouseButtonsInputBuffer.insert(buttonId);
+	}
+
+	E_RESULT_CODE CTestContext::TakeScreenshot(const std::string& filename)
+	{
+		auto pFileSystem = mpEngineCore->GetSubsystem<IFileSystem>();
+
+		auto screenshotFileWriterResult = pFileSystem->Open<IImageFileWriter>(filename, true);
+		if (screenshotFileWriterResult.HasError())
+		{
+			return screenshotFileWriterResult.GetError();
+		}
+
+		if (IImageFileWriter* pImageWriter = pFileSystem->Get<IImageFileWriter>(screenshotFileWriterResult.Get()))
+		{
+			auto pGraphicsContext = mpEngineCore->GetSubsystem<IGraphicsContext>();
+			auto pWindowSystem = mpEngineCore->GetSubsystem<IWindowSystem>();
+
+			E_RESULT_CODE result = pImageWriter->Write(pWindowSystem->GetWidth(), pWindowSystem->GetHeight(), 4, pGraphicsContext->GetBackBufferData());
+			result = result | pImageWriter->Close();
+
+			return result;
+		}
+
+		return RC_OK;
 	}
 
 	bool CTestContext::IsFinished() const

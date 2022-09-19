@@ -118,6 +118,8 @@ namespace TDEngine2
 			TDE2_API void NotifyOnKeyPressEvent(E_KEYCODES keyCode);
 			TDE2_API void NotifyOnMouseButtonPressEvent(U8 buttonId);
 
+			TDE2_API E_RESULT_CODE TakeScreenshot(const std::string& filename);
+
 			/*!
 				\brief The function is replacement of factory method for instances of this type.
 				The only instance will be created per program's lifetime.

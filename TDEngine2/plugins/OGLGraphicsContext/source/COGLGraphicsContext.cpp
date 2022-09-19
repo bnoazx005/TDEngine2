@@ -457,8 +457,33 @@ namespace TDEngine2
 
 	std::vector<U8> COGLGraphicsContext::GetBackBufferData() const
 	{
-		std::vector<U8> data;
-		return std::move(data);
+		std::vector<U8> imageData;
+
+		const size_t imageDataSize = mpWindowSystem->GetWidth() * mpWindowSystem->GetHeight() * sizeof(U32);
+		imageData.resize(imageDataSize);
+
+		glPixelStorei(GL_PACK_ALIGNMENT, 1);
+		glReadPixels(0, 0, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), GL_RGBA, GL_UNSIGNED_BYTE, imageData.data());
+
+		constexpr I32 numOfChannels = 4;
+		C8 rgb[numOfChannels];
+
+		U8* pData = imageData.data();
+
+		for (I32 y = 0; y < static_cast<I32>(mpWindowSystem->GetHeight()) / 2; ++y)
+		{
+			for (I32 x = 0; x < static_cast<I32>(mpWindowSystem->GetWidth()); ++x)
+			{
+				const I32 top = (x + y * mpWindowSystem->GetWidth()) * numOfChannels;
+				const I32 bottom = (x + (mpWindowSystem->GetHeight() - y - 1) * mpWindowSystem->GetWidth()) * numOfChannels;
+
+				memcpy(rgb, pData + top, sizeof(rgb));
+				memcpy(pData + top, pData + bottom, sizeof(rgb));
+				memcpy(pData + bottom, rgb, sizeof(rgb));
+			}
+		}
+
+		return std::move(imageData);
 	}
 
 	F32 COGLGraphicsContext::GetPositiveZAxisDirection() const

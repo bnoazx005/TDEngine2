@@ -592,6 +592,13 @@ namespace TDEngine2
 
 		mp3dDeviceContext->Unmap(pTempReadableTexture, 0);
 
+		/// \note Remove alpha channel
+		/// \fixme Maybe there is a way to simplify this with proper format
+		for (USIZE i = 3; i < backBufferData.size(); i += 4)
+		{
+			backBufferData[i] = 0xff;
+		}
+
 		return std::move(backBufferData);
 	}
 

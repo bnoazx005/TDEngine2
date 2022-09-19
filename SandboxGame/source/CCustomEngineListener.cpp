@@ -525,10 +525,10 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		auto pTestCase = TPtr<ITestCase>(CreateBaseTestCase(result));
 
 		/// \note 
-		pTestCase->Wait(2.0f);
+		pTestCase->Wait(4.0f);
 		pTestCase->ExecuteAction([this]
 		{
-			mpGraphicsContext->GetBackBufferData();
+			CTestContext::Get()->TakeScreenshot("result.png");
 			TDE2_TEST_IS_TRUE(CMathUtils::Abs(2.0f - 0.0f) < 0.0f);
 		});
 
