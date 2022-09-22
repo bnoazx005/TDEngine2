@@ -153,7 +153,7 @@ namespace TDEngine2
 			{
 				E_RESULT_CODE result = RC_OK;
 
-				if (auto pAction = CreateTransformObjectAction(&editorContext.mWorld, editorContext.mCurrEntityId, { position, TQuaternion(rotation), scale }, result))
+				if (auto pAction = CreateTransformObjectAction(&editorContext.mWorld, editorContext.mCurrEntityId, { position, TQuaternion(rotation * CMathConstants::Deg2Rad), scale }, result))
 				{
 					PANIC_ON_FAILURE(actionsHistory.PushAndExecuteAction(pAction));
 				}
@@ -168,7 +168,7 @@ namespace TDEngine2
 			{
 				E_RESULT_CODE result = RC_OK;
 
-				if (auto pAction = CreateTransformObjectAction(&editorContext.mWorld, editorContext.mCurrEntityId, { position, TQuaternion(rotation), scale }, result))
+				if (auto pAction = CreateTransformObjectAction(&editorContext.mWorld, editorContext.mCurrEntityId, { position, TQuaternion(rotation * CMathConstants::Deg2Rad), scale }, result))
 				{
 					PANIC_ON_FAILURE(actionsHistory.PushAndExecuteAction(pAction));
 				}
@@ -183,7 +183,7 @@ namespace TDEngine2
 			{
 				E_RESULT_CODE result = RC_OK;
 
-				if (auto pAction = CreateTransformObjectAction(&editorContext.mWorld, editorContext.mCurrEntityId, { position, TQuaternion(rotation), scale }, result))
+				if (auto pAction = CreateTransformObjectAction(&editorContext.mWorld, editorContext.mCurrEntityId, { position, TQuaternion(rotation * CMathConstants::Deg2Rad), scale }, result))
 				{
 					PANIC_ON_FAILURE(actionsHistory.PushAndExecuteAction(pAction));
 				}

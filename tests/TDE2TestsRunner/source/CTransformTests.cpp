@@ -85,6 +85,67 @@ TDE2_TEST_FIXTURE("CTransform Tests")
 		});
 	}
 
+	TDE2_TEST_CASE("TestCompoundTransformations_ChangeRotationThenPosition_TransformShouldHaveCorrectMatrix")
+	{
+		static const TVector3 position = TVector3(50.0f, 0.0f, 0.0f);
+		static const TVector3 rotation = CMathConstants::Deg2Rad * TVector3(45.0f, 0.0f, 0.0f);
+
+		static CTransform* pTransform = nullptr;
+
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			CEntity* pEntity = pMainScene->CreateEntity("Entity1");
+			TDE2_TEST_IS_TRUE(pEntity);
+
+			pTransform = pEntity->GetComponent<CTransform>();
+			TDE2_TEST_IS_TRUE(pTransform);
+
+			pTransform->SetRotation(TQuaternion(rotation)); /// From Euler angles
+		});
+
+		/// Wait for a few mseconds to allow CTransformSystem compute new values
+		pTestCase->WaitForNextFrame();
+
+		pTestCase->ExecuteAction([&]
+		{
+			TDE2_TEST_IS_TRUE(pTransform->GetRotation() == TQuaternion(rotation));
+			TDE2_TEST_IS_TRUE(ToEulerAngles(pTransform->GetRotation()) == rotation);
+
+			pTransform->SetPosition(position);
+		});
+
+		pTestCase->WaitForNextFrame();
+
+		pTestCase->ExecuteAction([&]
+		{
+			TDE2_TEST_IS_TRUE(pTransform->GetPosition() == position);
+
+			TDE2_TEST_IS_TRUE(pTransform->GetRotation() == TQuaternion(rotation));
+			TDE2_TEST_IS_TRUE(ToEulerAngles(pTransform->GetRotation()) == rotation);
+		});
+
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pTransform->GetOwnerId()));
+		});
+	}
+
 	TDE2_TEST_CASE("TestGroupEntities_PassTwoEntitiesGroupThem_AllTransformsShouldBeInCorrectState")
 	{
 		static CTransform* pParentTransform = nullptr;
