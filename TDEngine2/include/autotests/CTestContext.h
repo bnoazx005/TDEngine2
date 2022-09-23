@@ -45,27 +45,27 @@ namespace TDEngine2
 	#define TDE2_TEST_IS_FALSE(...) do { TDEngine2::CTestContext::Get()->Assert(TDE2_STRINGIFY(__VA_ARGS__), __VA_ARGS__, false, __FILE__, __LINE__); } while (false)
 
 	#define TDE2_TEST_FIXTURE(Name)																										\
-		static void TestFixtureBody(TPtr<ITestFixture> pTestFixture);																	\
+		static void TestFixtureBody(TPtr<ITestFixture> pTestFixture, TPtr<ITestCase> pTestCase);										\
 		struct TTestFixtureEnvironment																									\
 		{																																\
 			TDE2_API TTestFixtureEnvironment()																							\
 			{																															\
 				E_RESULT_CODE result = RC_OK;																							\
 				TPtr<ITestFixture> pTestFixtureInstance = TPtr<ITestFixture>(CreateBaseTestFixture(Name, result));						\
-				TestFixtureBody(pTestFixtureInstance);																					\
+				TestFixtureBody(pTestFixtureInstance, nullptr);																					\
 				CTestContext::Get()->AddTestFixture(pTestFixtureInstance);																\
 			}																															\
 																																		\
 		};																																\
 		static TTestFixtureEnvironment registerTestFixture;																				\
-		static void TestFixtureBody(TPtr<ITestFixture> pTestFixture)
+		static void TestFixtureBody(TPtr<ITestFixture> pTestFixture, TPtr<ITestCase> pTestCase)
 
 	
 	#define TDE2_TEST_CASE_IMPL(Name, TestCaseVariableName, ResultVariableName)								\
 		E_RESULT_CODE ResultVariableName = RC_OK;															\
-		TPtr<ITestCase> TestCaseVariableName = TPtr<ITestCase>(CreateBaseTestCase(ResultVariableName));		\
-		pTestFixture->AddTestCase(Name, TestCaseVariableName);												\
-		if (TPtr<ITestCase> pTestCase = TestCaseVariableName)
+		pTestCase = TPtr<ITestCase>(CreateBaseTestCase(ResultVariableName));		\
+		pTestFixture->AddTestCase(Name, pTestCase);												\
+		if (pTestCase)
 
 	#define TDE2_TEST_CASE(Name) TDE2_TEST_CASE_IMPL(Name, TDE2_CONCAT(pTestCase, __COUNTER__), TDE2_CONCAT(result, __COUNTER__))
 

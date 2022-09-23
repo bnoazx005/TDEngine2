@@ -2,6 +2,7 @@
 #include "../../include/core/IEventManager.h"
 #include "../../include/core/Event.h"
 #include "../../include/core/IWindowSystem.h"
+#include "../../include/core/IInputDevice.h"
 
 
 namespace TDEngine2
