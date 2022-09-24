@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.11] 2022-09-22
+## [0.6.11] 2022-09-24
 
 ### Added
 
@@ -38,6 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The incorrect work of **CTransformSystem** was fixed.
 
 - The incorrect computations of transforms that are changed via inspector was fixed.
+
+- The incorrect work of **CImGUIContext::DrawGizmos** was fixed.
 
 ## [0.6.10] 2022-08-17
 
