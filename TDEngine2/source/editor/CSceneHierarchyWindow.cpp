@@ -51,6 +51,70 @@ namespace TDEngine2
 	static const std::string PrefabsSelectionMenuId = "Select a Prefab...##PrefabsSelectionWindow";
 
 
+	static std::function<bool()> DrawPrefabsSelectionWindow = nullptr;
+
+
+	static void LoadPrefab(IImGUIContext* pImGUIContext, ISceneManager* pSceneManager, IScene* pCurrScene)
+	{
+		if (!pCurrScene)
+		{
+			return;
+		}
+
+		static U32 SelectedPrefabIndex = 0;
+
+		if (auto pPrefabsRegistry = pSceneManager->GetPrefabsRegistry())
+		{
+			auto&& prefabsIdentifiers = pPrefabsRegistry->GetKnownPrefabsIdentifiers();
+
+			DrawPrefabsSelectionWindow = [prefabsIdentifiers, pCurrScene, pImGUIContext]
+			{
+				bool shouldQuit = false;
+
+				pImGUIContext->ShowModalWindow(PrefabsSelectionMenuId);
+
+				if (pImGUIContext->BeginModalWindow(PrefabsSelectionMenuId))
+				{
+					const TVector2 buttonSizes(100.0f, 25.0f);
+
+					pImGUIContext->BeginHorizontal();
+					{
+						if (pImGUIContext->BeginChildWindow("##PrefabsList", TVector2(400.0f, 250.0f)))
+						{
+							for (U32 i = 0; i < static_cast<U32>(prefabsIdentifiers.size()); ++i)
+							{
+								if (pImGUIContext->SelectableItem(prefabsIdentifiers[i], i == SelectedPrefabIndex))
+								{
+									SelectedPrefabIndex = i;
+								}
+							}
+
+							pImGUIContext->EndChildWindow();
+						}
+
+						if (pImGUIContext->Button("Add", buttonSizes))
+						{
+							pCurrScene->Spawn(prefabsIdentifiers[SelectedPrefabIndex]);
+							shouldQuit = true;
+						}
+
+						if (pImGUIContext->Button("Cancel", buttonSizes))
+						{
+							pImGUIContext->CloseCurrentModalWindow();
+							shouldQuit = true;
+						}
+					}
+					pImGUIContext->EndHorizontal();
+
+					pImGUIContext->EndModalWindow();
+				}
+
+				return !shouldQuit;
+			};
+		}
+	}
+
+
 	static void DrawEntityContextMenu(IImGUIContext* pImGUIContext, ISelectionManager* pSelectionManager, TPtr<IWorld> pWorld)
 	{
 		pImGUIContext->DisplayContextMenu(EntityContextMenuId, [pSelectionManager, pWorld](IImGUIContext& imguiContext)
@@ -86,9 +150,6 @@ namespace TDEngine2
 			});
 		});
 	}
-
-
-	static std::function<bool()> DrawPrefabsSelectionWindow = nullptr;
 
 
 	static void ProcessDragAndDropLogic(IImGUIContext* pImGUIContext, TPtr<IWorld> pWorld, TEntityId entityId, bool initializeSource = true)
@@ -191,62 +252,7 @@ namespace TDEngine2
 
 						imguiContext.MenuItem("Load Prefab", Wrench::StringUtils::GetEmptyStr(), [this, pCurrScene]
 						{
-							if (!pCurrScene)
-							{
-								return;
-							}
-
-							mSelectedPrefabIndex = 0;
-
-							if (auto pPrefabsRegistry = mpSceneManager->GetPrefabsRegistry())
-							{
-								auto&& prefabsIdentifiers = pPrefabsRegistry->GetKnownPrefabsIdentifiers();
-
-								DrawPrefabsSelectionWindow = [this, prefabsIdentifiers, pCurrScene]
-								{
-									bool shouldQuit = false;
-
-									mpImGUIContext->ShowModalWindow(PrefabsSelectionMenuId);
-
-									if (mpImGUIContext->BeginModalWindow(PrefabsSelectionMenuId))
-									{
-										const TVector2 buttonSizes(100.0f, 25.0f);
-
-										mpImGUIContext->BeginHorizontal();
-										{
-											if (mpImGUIContext->BeginChildWindow("##PrefabsList", TVector2(400.0f, 250.0f)))
-											{
-												for (U32 i = 0; i < static_cast<U32>(prefabsIdentifiers.size()); ++i)
-												{
-													if (mpImGUIContext->SelectableItem(prefabsIdentifiers[i], i == mSelectedPrefabIndex))
-													{
-														mSelectedPrefabIndex = i;
-													}
-												}
-
-												mpImGUIContext->EndChildWindow();
-											}
-
-											if (mpImGUIContext->Button("Add", buttonSizes))
-											{
-												pCurrScene->Spawn(prefabsIdentifiers[mSelectedPrefabIndex]);
-												shouldQuit = true;
-											}
-
-											if (mpImGUIContext->Button("Cancel", buttonSizes))
-											{
-												mpImGUIContext->CloseCurrentModalWindow();
-												shouldQuit = true;
-											}
-										}
-										mpImGUIContext->EndHorizontal();
-
-										mpImGUIContext->EndModalWindow();
-									}
-
-									return !shouldQuit;
-								};
-							}
+							LoadPrefab(mpImGUIContext, mpSceneManager, pCurrScene);
 						});
 					});
 
