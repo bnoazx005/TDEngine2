@@ -54,12 +54,20 @@ namespace TDEngine2
 	static std::function<bool()> DrawPrefabsSelectionWindow = nullptr;
 
 
-	static void LoadPrefab(IImGUIContext* pImGUIContext, ISceneManager* pSceneManager, IScene* pCurrScene)
+	static void LoadPrefab(IImGUIContext* pImGUIContext, ISceneManager* pSceneManager, IScene* pCurrScene, ISelectionManager* pSelectionManager)
 	{
 		if (!pCurrScene)
 		{
 			return;
 		}
+		
+		auto pWorld = pSceneManager->GetWorld();
+		if (!pWorld)
+		{
+			return;
+		}
+
+		CEntity* pParentEntity = pSelectionManager->GetSelectedEntities().empty() ? nullptr : pWorld->FindEntity(pSelectionManager->GetSelectedEntityId());
 
 		static U32 SelectedPrefabIndex = 0;
 
@@ -67,7 +75,7 @@ namespace TDEngine2
 		{
 			auto&& prefabsIdentifiers = pPrefabsRegistry->GetKnownPrefabsIdentifiers();
 
-			DrawPrefabsSelectionWindow = [prefabsIdentifiers, pCurrScene, pImGUIContext]
+			DrawPrefabsSelectionWindow = [prefabsIdentifiers, pCurrScene, pImGUIContext, pParentEntity]
 			{
 				bool shouldQuit = false;
 
@@ -94,7 +102,7 @@ namespace TDEngine2
 
 						if (pImGUIContext->Button("Add", buttonSizes))
 						{
-							pCurrScene->Spawn(prefabsIdentifiers[SelectedPrefabIndex]);
+							pCurrScene->Spawn(prefabsIdentifiers[SelectedPrefabIndex], pParentEntity);
 							shouldQuit = true;
 						}
 
@@ -115,9 +123,9 @@ namespace TDEngine2
 	}
 
 
-	static void DrawEntityContextMenu(IImGUIContext* pImGUIContext, ISelectionManager* pSelectionManager, TPtr<IWorld> pWorld)
+	static void DrawEntityContextMenu(IImGUIContext* pImGUIContext, ISceneManager* pSceneManager, ISelectionManager* pSelectionManager, IScene* pCurrScene, TPtr<IWorld> pWorld)
 	{
-		pImGUIContext->DisplayContextMenu(EntityContextMenuId, [pSelectionManager, pWorld](IImGUIContext& imguiContext)
+		pImGUIContext->DisplayContextMenu(EntityContextMenuId, [=](IImGUIContext& imguiContext)
 		{
 			imguiContext.MenuItem("Delete", "Del", [pSelectionManager, pWorld]
 			{
@@ -147,6 +155,11 @@ namespace TDEngine2
 						TDE2_ASSERT(RC_OK == result);
 					}
 				}				
+			});
+
+			imguiContext.MenuItem("Link Prefab", Wrench::StringUtils::GetEmptyStr(), [=]
+			{
+				LoadPrefab(pImGUIContext, pSceneManager, pCurrScene, pSelectionManager);
 			});
 		});
 	}
@@ -252,7 +265,8 @@ namespace TDEngine2
 
 						imguiContext.MenuItem("Load Prefab", Wrench::StringUtils::GetEmptyStr(), [this, pCurrScene]
 						{
-							LoadPrefab(mpImGUIContext, mpSceneManager, pCurrScene);
+							mpSelectionManager->ClearSelection(); /// \note Clear the selected entities list because the prefab will be instantiated into the root of the scene
+							LoadPrefab(mpImGUIContext, mpSceneManager, pCurrScene, mpSelectionManager);
 						});
 					});
 
@@ -263,7 +277,7 @@ namespace TDEngine2
 
 					TEntityId currParentId = TEntityId::Invalid;
 
-					std::function<void(CEntity*)> drawEntityHierarchy = [this, &drawEntityHierarchy, pWorld, &currParentId](CEntity* pEntity)
+					std::function<void(CEntity*)> drawEntityHierarchy = [this, &drawEntityHierarchy, pWorld, &currParentId, pCurrScene](CEntity* pEntity)
 					{
 						CTransform* pTransform = pEntity->GetComponent<CTransform>();
 
@@ -309,7 +323,7 @@ namespace TDEngine2
 							/// \note No matter of multiselection display context menu for last selected entity. It'll work for both cases 
 							if (mpSelectionManager->GetSelectedEntityId() == pEntity->GetId())
 							{
-								DrawEntityContextMenu(mpImGUIContext, mpSelectionManager, pWorld);
+								DrawEntityContextMenu(mpImGUIContext, mpSceneManager, mpSelectionManager, pCurrScene, pWorld);
 							}
 
 							return;
@@ -351,7 +365,7 @@ namespace TDEngine2
 
 						if (mpSelectionManager->IsEntityBeingSelected(pEntity->GetId()))
 						{
-							DrawEntityContextMenu(mpImGUIContext, mpSelectionManager, pWorld);
+							DrawEntityContextMenu(mpImGUIContext, mpSceneManager, mpSelectionManager, pCurrScene, pWorld);
 						}
 					};
 
