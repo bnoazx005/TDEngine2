@@ -61,7 +61,8 @@ namespace TDEngine2
 				desc.mpSceneManager, 
 				desc.mpWindowSystem, 
 				_getSelectionManager(),
-				mpInputContext
+				mpInputContext,
+				desc.mpFileSystem
 			}, result)) || result != RC_OK)
 		{
 			return result;

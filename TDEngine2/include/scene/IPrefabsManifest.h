@@ -61,6 +61,8 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, const std::string& name) = 0;
 
+			TDE2_API virtual E_RESULT_CODE AddPrefabInfo(const std::string& prefabId, const std::string& pathToPrefab) = 0;
+
 			TDE2_API virtual const std::string& GetPathToPrefabById(const std::string& prefabId) const = 0;
 
 			TDE2_API virtual std::vector<std::string> GetPrefabsIdentifiers() const = 0;

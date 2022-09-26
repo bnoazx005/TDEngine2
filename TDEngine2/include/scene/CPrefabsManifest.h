@@ -84,6 +84,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
+			TDE2_API E_RESULT_CODE AddPrefabInfo(const std::string& prefabId, const std::string& pathToPrefab) override;
+
 			TDE2_API const std::string& GetPathToPrefabById(const std::string& prefabId) const override;
 
 			TDE2_API std::vector<std::string> GetPrefabsIdentifiers() const override;

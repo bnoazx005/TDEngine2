@@ -2,6 +2,7 @@
 #include "../../include/editor/ecs/EditorComponents.h"
 #include "../../include/core/IImGUIContext.h"
 #include "../../include/core/IWindowSystem.h"
+#include "../../include/core/IFileSystem.h"
 #include "../../include/core/IInputContext.h"
 #include "../../include/scene/ISceneManager.h"
 #include "../../include/scene/IScene.h"
@@ -30,7 +31,7 @@ namespace TDEngine2
 			return RC_OK;
 		}
 
-		if (!params.mpSceneManager || !params.mpWindowSystem || !params.mpSelectionManager || !params.mpInputContext)
+		if (!params.mpSceneManager || !params.mpWindowSystem || !params.mpSelectionManager || !params.mpInputContext || !params.mpFileSystem)
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -39,6 +40,7 @@ namespace TDEngine2
 		mpWindowSystem     = params.mpWindowSystem;
 		mpSelectionManager = params.mpSelectionManager;
 		mpInputContext     = params.mpInputContext;
+		mpFileSystem       = params.mpFileSystem;
 		mpSelectedScene    = nullptr;
 
 		mIsInitialized = true;
@@ -54,12 +56,25 @@ namespace TDEngine2
 	static std::function<bool()> DrawPrefabsSelectionWindow = nullptr;
 
 
-	static void LoadPrefab(IImGUIContext* pImGUIContext, ISceneManager* pSceneManager, IScene* pCurrScene, ISelectionManager* pSelectionManager)
+	struct TEntityOperationsDesc
 	{
+		IImGUIContext*     mpImGUIContext;
+		ISceneManager*     mpSceneManager;
+		IScene*            mpCurrScene;
+		ISelectionManager* mpSelectionManager;
+	};
+
+
+	static void LoadPrefab(const TEntityOperationsDesc& desc)
+	{
+		auto pCurrScene = desc.mpCurrScene;
 		if (!pCurrScene)
 		{
 			return;
 		}
+
+		auto pSceneManager = desc.mpSceneManager;
+		auto pSelectionManager = desc.mpSelectionManager;
 		
 		auto pWorld = pSceneManager->GetWorld();
 		if (!pWorld)
@@ -74,6 +89,8 @@ namespace TDEngine2
 		if (auto pPrefabsRegistry = pSceneManager->GetPrefabsRegistry())
 		{
 			auto&& prefabsIdentifiers = pPrefabsRegistry->GetKnownPrefabsIdentifiers();
+
+			auto pImGUIContext = desc.mpImGUIContext;
 
 			DrawPrefabsSelectionWindow = [prefabsIdentifiers, pCurrScene, pImGUIContext, pParentEntity]
 			{
@@ -123,11 +140,63 @@ namespace TDEngine2
 	}
 
 
-	static void DrawEntityContextMenu(IImGUIContext* pImGUIContext, ISceneManager* pSceneManager, ISelectionManager* pSelectionManager, IScene* pCurrScene, TPtr<IWorld> pWorld)
+	struct TSaveHierarchyDesc
 	{
+		TEntityOperationsDesc mBase;
+
+		IWindowSystem* mpWindowSystem;
+		IFileSystem*   mpFileSystem;
+	};
+
+
+	static void SaveHierarchyToPrefab(const TSaveHierarchyDesc& params)
+	{
+		auto&& pWindowSystem = params.mpWindowSystem;
+		auto&& pSceneManager = params.mBase.mpSceneManager;
+
+		auto saveFileResult = pWindowSystem->ShowSaveFileDialog({ { "Prefabs", "*.prefab" } });
+		if (saveFileResult.HasError())
+		{
+			return;
+		}
+
+		auto pWorld = pSceneManager->GetWorld();
+		if (!pWorld)
+		{
+			return;
+		}
+
+		const std::string& prefabFilepath = saveFileResult.Get();
+		TDE2_ASSERT(!prefabFilepath.empty());
+
+		auto pPrefabsRegistry = pSceneManager->GetPrefabsRegistry();
+		if (!pPrefabsRegistry)
+		{
+			return;
+		}
+
+		auto&& pFileSystem = params.mpFileSystem;
+		auto&& pSelectionManager = params.mBase.mpSelectionManager;
+
+		/// \note Extract prefab's name from the file path
+		//std::string prefabId = desc.m
+
+
+#if TDE2_EDITORS_ENABLED
+		E_RESULT_CODE result = pPrefabsRegistry->SavePrefab("", prefabFilepath, pWorld->FindEntity(pSelectionManager->GetSelectedEntityId()));
+		TDE2_ASSERT(RC_OK == result);
+#endif
+	}
+
+
+	static void DrawEntityContextMenu(const TSaveHierarchyDesc& desc, TPtr<IWorld> pWorld)
+	{
+		auto&& pImGUIContext = desc.mBase.mpImGUIContext;
+		auto&& pSelectionManager = desc.mBase.mpSelectionManager;
+
 		pImGUIContext->DisplayContextMenu(EntityContextMenuId, [=](IImGUIContext& imguiContext)
 		{
-			imguiContext.MenuItem("Delete", "Del", [pSelectionManager, pWorld]
+			imguiContext.MenuItem("Delete", "Del", [&desc, pWorld, pSelectionManager]
 			{
 				std::stack<TEntityId> entitiesToDestroy;
 
@@ -157,9 +226,14 @@ namespace TDEngine2
 				}				
 			});
 
-			imguiContext.MenuItem("Link Prefab", Wrench::StringUtils::GetEmptyStr(), [=]
+			imguiContext.MenuItem("Link Prefab", Wrench::StringUtils::GetEmptyStr(), [&]
 			{
-				LoadPrefab(pImGUIContext, pSceneManager, pCurrScene, pSelectionManager);
+				LoadPrefab(desc.mBase);
+			});
+
+			imguiContext.MenuItem("Save To Prefab", Wrench::StringUtils::GetEmptyStr(), [=]
+			{
+				SaveHierarchyToPrefab(desc);
 			});
 		});
 	}
@@ -266,7 +340,7 @@ namespace TDEngine2
 						imguiContext.MenuItem("Load Prefab", Wrench::StringUtils::GetEmptyStr(), [this, pCurrScene]
 						{
 							mpSelectionManager->ClearSelection(); /// \note Clear the selected entities list because the prefab will be instantiated into the root of the scene
-							LoadPrefab(mpImGUIContext, mpSceneManager, pCurrScene, mpSelectionManager);
+							LoadPrefab({ mpImGUIContext, mpSceneManager, pCurrScene, mpSelectionManager });
 						});
 					});
 
@@ -323,7 +397,7 @@ namespace TDEngine2
 							/// \note No matter of multiselection display context menu for last selected entity. It'll work for both cases 
 							if (mpSelectionManager->GetSelectedEntityId() == pEntity->GetId())
 							{
-								DrawEntityContextMenu(mpImGUIContext, mpSceneManager, mpSelectionManager, pCurrScene, pWorld);
+								DrawEntityContextMenu({ mpImGUIContext, mpSceneManager, pCurrScene, mpSelectionManager, mpWindowSystem, mpFileSystem }, pWorld);
 							}
 
 							return;
@@ -365,7 +439,7 @@ namespace TDEngine2
 
 						if (mpSelectionManager->IsEntityBeingSelected(pEntity->GetId()))
 						{
-							DrawEntityContextMenu(mpImGUIContext, mpSceneManager, mpSelectionManager, pCurrScene, pWorld);
+							DrawEntityContextMenu({ mpImGUIContext, mpSceneManager, pCurrScene, mpSelectionManager, mpWindowSystem, mpFileSystem }, pWorld);
 						}
 					};
 

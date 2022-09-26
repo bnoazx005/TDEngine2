@@ -19,6 +19,7 @@ namespace TDEngine2
 	class IScene;
 	class IWindowSystem;
 	class IDesktopInputContext;
+	class IFileSystem;
 
 
 	struct TSceneHierarchyInitParams
@@ -27,6 +28,7 @@ namespace TDEngine2
 		IWindowSystem*        mpWindowSystem = nullptr;
 		ISelectionManager*    mpSelectionManager = nullptr;
 		IDesktopInputContext* mpInputContext = nullptr;
+		IFileSystem*          mpFileSystem = nullptr;
 	};
 
 
@@ -83,7 +85,7 @@ namespace TDEngine2
 			IWindowSystem*        mpWindowSystem;
 			ISelectionManager*    mpSelectionManager;
 			IDesktopInputContext* mpInputContext;
-
+			IFileSystem*          mpFileSystem;
 
 			IScene*               mpSelectedScene;
 

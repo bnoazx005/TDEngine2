@@ -257,6 +257,24 @@ namespace TDEngine2
 		return pPrefabInstance;
 	}
 
+#if TDE2_EDITORS_ENABLED
+
+	E_RESULT_CODE CPrefabsRegistry::SavePrefab(const std::string& id, const std::string& filePath, CEntity* pHierarchyRoot)
+	{
+		if (filePath.empty() || !pHierarchyRoot)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		/// \note Save the hierarchy into the file
+		
+		/// \note Update the manifest
+
+		return RC_OK;
+	}
+
+#endif
+
 	const std::vector<std::string>& CPrefabsRegistry::GetKnownPrefabsIdentifiers() const
 	{
 		static std::vector<std::string> prefabsList;

@@ -75,6 +75,16 @@ namespace TDEngine2
 
 			TDE2_API CEntity* Spawn(const std::string& id, CEntity* pParent = nullptr, const TEntityCallback & prefabEntityVisitor = nullptr) override;
 
+#if TDE2_EDITORS_ENABLED
+			/*!
+				\brief The method saves the given hierarchy at specified file path
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SavePrefab(const std::string& id, const std::string& filePath, CEntity* pHierarchyRoot) override;
+#endif
+
 			/*!
 				\brief The method returns an array of prefabs identifier that were declared in already loaded prefabs manifest
 			*/

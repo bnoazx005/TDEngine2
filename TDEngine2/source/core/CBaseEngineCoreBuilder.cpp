@@ -478,7 +478,15 @@ namespace TDEngine2
 			}
 		}
 
-		IEditorWindow* pLevelEditorWindow = CreateLevelEditorWindow({ pEditorsManager.Get(), pInputContext.Get(), mpWindowSystemInstance.Get(), pDebugUtility, pSceneManager.Get() }, result);
+		IEditorWindow* pLevelEditorWindow = CreateLevelEditorWindow(
+			{ 
+				pEditorsManager.Get(),
+				pInputContext.Get(), 
+				mpWindowSystemInstance.Get(), 
+				pDebugUtility, 
+				pSceneManager.Get(), 
+				mpFileSystemInstance.Get()
+			}, result);
 
 		std::tuple<std::string, IEditorWindow*> builtinEditors[]
 		{

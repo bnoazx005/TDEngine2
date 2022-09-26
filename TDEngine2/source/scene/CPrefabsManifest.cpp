@@ -106,6 +106,23 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CPrefabsManifest::AddPrefabInfo(const std::string& prefabId, const std::string& pathToPrefab)
+	{
+		if (prefabId.empty() || pathToPrefab.empty())
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		if (mPrefabsMappingsTable.find(prefabId) != mPrefabsMappingsTable.cend())
+		{
+			return RC_FAIL;
+		}
+
+		mPrefabsMappingsTable.insert({ prefabId, pathToPrefab });
+
+		return RC_OK;
+	}
+
 	const std::string& CPrefabsManifest::GetPathToPrefabById(const std::string& prefabId) const
 	{
 		auto it = mPrefabsMappingsTable.find(prefabId);

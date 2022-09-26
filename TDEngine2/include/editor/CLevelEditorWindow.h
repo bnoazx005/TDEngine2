@@ -31,6 +31,7 @@ namespace TDEngine2
 	class ISceneManager;
 	class IComponent;
 	class IWindowSystem;
+	class IFileSystem;
 	struct TEditorContext;
 
 
@@ -40,10 +41,11 @@ namespace TDEngine2
 	typedef struct TLevelEditorWindowDesc
 	{
 		IEditorsManager* mpEditorsManager;
-		IInputContext* mpInputContext;
-		IWindowSystem* mpWindowSystem;
-		IDebugUtility* mpDebugUtility;
-		ISceneManager* mpSceneManager;
+		IInputContext*   mpInputContext;
+		IWindowSystem*   mpWindowSystem;
+		IDebugUtility*   mpDebugUtility;
+		ISceneManager*   mpSceneManager;
+		IFileSystem*     mpFileSystem;
 	} TLevelEditorWindowDesc, *TLevelEditorWindowDescPtr;
 
 
