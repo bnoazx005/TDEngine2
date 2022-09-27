@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.12] 2022-09-24
+## [0.6.12] 2022-09-27
 
 ### Added
 
 - Now prefabs can be linked to any entity within scene's hierarchy.
+
+- The functionality for saving hierarchies into prefabs was implemented.
 
 ### Changed
 

@@ -179,11 +179,11 @@ namespace TDEngine2
 		auto&& pSelectionManager = params.mBase.mpSelectionManager;
 
 		/// \note Extract prefab's name from the file path
-		//std::string prefabId = desc.m
-
+		std::string prefabId = pFileSystem->ExtractFilename(prefabFilepath);
+		prefabId = prefabId.substr(0, prefabId.find_last_of('.')); /// \note remove the extension if it's defined
 
 #if TDE2_EDITORS_ENABLED
-		E_RESULT_CODE result = pPrefabsRegistry->SavePrefab("", prefabFilepath, pWorld->FindEntity(pSelectionManager->GetSelectedEntityId()));
+		E_RESULT_CODE result = pPrefabsRegistry->SavePrefab(prefabId, prefabFilepath, pWorld->FindEntity(pSelectionManager->GetSelectedEntityId()));
 		TDE2_ASSERT(RC_OK == result);
 #endif
 	}

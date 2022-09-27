@@ -2,6 +2,7 @@
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IFileSystem.h"
 #include "../../include/core/CEventManager.h"
+#include "../../include/core/IResource.h"
 #include "../../include/ecs/CWorld.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/CComponentManager.h"
@@ -12,6 +13,7 @@
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/editor/ecs/EditorComponents.h"
 #include <algorithm> 
+#include <stack>
 
 
 namespace TDEngine2
@@ -257,6 +259,76 @@ namespace TDEngine2
 		return pPrefabInstance;
 	}
 
+
+	static E_RESULT_CODE UpdatePrefabsRegistry(IResourceManager* pResourceManager, IFileSystem* pFileSystem, const std::string& prefabId, const std::string& prefabPath)
+	{
+		for (auto&& currResourceId : pResourceManager->GetResourcesListByType<CPrefabsManifest>())
+		{
+			if (auto pPrefabsCollection = pResourceManager->GetResource<IPrefabsManifest>(pResourceManager->GetResourceId(currResourceId)))
+			{
+				E_RESULT_CODE result = pPrefabsCollection->AddPrefabInfo(prefabId, prefabPath);
+
+				if (auto prefabsCollectionFileResult = pFileSystem->Open<IYAMLFileWriter>(dynamic_cast<IResource*>(pPrefabsCollection.Get())->GetName()))
+				{
+					if (auto pFileWriter = pFileSystem->Get<IYAMLFileWriter>(prefabsCollectionFileResult.Get()))
+					{
+						result = result | pPrefabsCollection->Save(pFileWriter);
+						result = result | pFileWriter->Close();
+					}
+				}
+				else
+				{
+					continue; /// If file's operation failed try to write in another manifest
+				}
+
+				return result;
+			}
+		}
+
+		return RC_FAIL;
+	}
+
+
+	static E_RESULT_CODE SavePrefabHierarchy(IYAMLFileWriter* pWriter, IWorld* pWorld, CEntity* pEntity)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		// \note Write entities
+		result = result | pWriter->BeginGroup("entities");
+		{
+			std::stack<TEntityId> entitiesToProcess;
+
+			/// \note push children's identifiers and then the identifier of the root node
+			if (auto pTransform = pEntity->GetComponent<CTransform>())
+			{
+				for (const TEntityId childId : pTransform->GetChildren())
+				{
+					entitiesToProcess.push(childId);
+				}
+
+			}
+			entitiesToProcess.push(pEntity->GetId());
+
+			while (!entitiesToProcess.empty())
+			{
+				const TEntityId currEntityId = entitiesToProcess.top();
+				entitiesToProcess.pop();
+
+				CEntity* pCurrEntity = pWorld->FindEntity(currEntityId);
+				if (!pCurrEntity)
+				{
+					continue;
+				}
+
+				result = result | pCurrEntity->Save(pWriter);
+			}
+		}
+		result = result | pWriter->EndGroup();
+
+		return RC_FAIL;
+	}
+
+
 #if TDE2_EDITORS_ENABLED
 
 	E_RESULT_CODE CPrefabsRegistry::SavePrefab(const std::string& id, const std::string& filePath, CEntity* pHierarchyRoot)
@@ -266,11 +338,23 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		/// \note Save the hierarchy into the file
-		
-		/// \note Update the manifest
+		E_RESULT_CODE result = RC_OK;
 
-		return RC_OK;
+		TResult<TFileEntryId> prefabFileId = mpFileSystem->Open<IYAMLFileWriter>(filePath);
+		if (prefabFileId.HasError())
+		{
+			return prefabFileId.GetError();
+		}
+
+		if (auto pFileWriter = mpFileSystem->Get<IYAMLFileWriter>(prefabFileId.Get()))
+		{
+			result = result | SavePrefabHierarchy(pFileWriter, mpWorld, pHierarchyRoot);
+			result = result | pFileWriter->Close();
+		}
+
+		result = result | UpdatePrefabsRegistry(mpResourceManager, mpFileSystem, id, filePath); /// \note Update the manifest
+
+		return result;
 	}
 
 #endif
