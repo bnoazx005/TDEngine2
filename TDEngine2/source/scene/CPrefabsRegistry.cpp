@@ -327,7 +327,7 @@ namespace TDEngine2
 		}
 		result = result | pWriter->EndGroup();
 
-		return RC_FAIL;
+		return result;
 	}
 
 
