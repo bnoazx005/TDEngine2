@@ -186,6 +186,17 @@ namespace TDEngine2
 
 			TDE2_API bool IsStreamingEnabled() const override;
 
+#if TDE2_EDITORS_ENABLED
+			/*!
+				\brief The method detects maximal sub-paths in both inputPath and relativeRootPath and returns the first
+				with replaced common part
+
+				\return The method returns a string with a relative path if inputPath and relativeRootPath has same sub-path
+			*/
+
+			TDE2_API std::string GetRelativePath(const std::string& inputPath, const std::string& relativeRootPath) override;
+#endif
+
 			/*!
 				\brief The method extracts extension from a given path
 

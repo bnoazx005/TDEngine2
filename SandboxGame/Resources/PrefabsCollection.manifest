@@ -1,8 +1,6 @@
 collection: 
   - path: ProjectResources/Prefabs/TestPrefab.prefab
     prefab_id: TestPrefab
-  - path: "C:\Users\ildar\Documents\Visual Studio 2017\Projects\TDEngine2\SandboxGame\Resources\Scenes\3"
-    prefab_id: 3
 meta: 
   resource_type: prefabs_manifest
   version_tag: 1

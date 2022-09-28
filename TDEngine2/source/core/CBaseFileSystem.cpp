@@ -107,6 +107,35 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
+		auto normalizeAbsolutePath = [this](const std::string& path) -> std::string
+		{
+			std::string delimiters;
+			delimiters.push_back(GetPathSeparatorChar());
+			delimiters.push_back(GetAltPathSeparatorChar());
+
+			auto pathElements = Wrench::StringUtils::Split(path, delimiters);
+
+			/// \note Remove all .. from the path
+			auto iter = std::find(pathElements.cbegin(), pathElements.cend(), "..");
+			
+			while (iter != pathElements.cend())
+			{
+				iter = pathElements.erase(iter - 1);
+				pathElements.erase(iter);
+
+				iter = std::find(pathElements.cbegin(), pathElements.cend(), "..");
+			}
+			
+			std::string outputPath = pathElements.empty() ? Wrench::StringUtils::GetEmptyStr() : pathElements.front();
+
+			for (auto it = pathElements.cbegin() + 1; it != pathElements.cend(); it++)
+			{
+				outputPath = CombinePath(outputPath, *it);
+			}
+
+			return outputPath;
+		};
+
 		const std::string filePath = _normalizePathView(path, isDirectory);
 
 		for (auto&& currMountPointEntry : mMountedStorages)
@@ -117,11 +146,11 @@ namespace TDEngine2
 			if (Wrench::StringUtils::StartsWith(filePath, alias))
 			{
 				auto&& resultPath = _normalizePathView(_resolveVirtualPathInternal(currMountPointEntry, filePath, isDirectory), isDirectory);
-				return resolveAbsolutePath ? fs::absolute(resultPath).string() : resultPath;
+				return resolveAbsolutePath ? normalizeAbsolutePath(fs::absolute(resultPath).string()) : resultPath;
 			}
 		}
 
-		return resolveAbsolutePath ? fs::absolute(path).string() : path;
+		return resolveAbsolutePath ? normalizeAbsolutePath(fs::absolute(path).string()) : path;
 	}
 
 	std::string CBaseFileSystem::ExtractFilename(const std::string& path) const
@@ -297,6 +326,18 @@ namespace TDEngine2
 	{
 		return mpJobManager != nullptr;
 	}
+
+#if TDE2_EDITORS_ENABLED
+
+	std::string CBaseFileSystem::GetRelativePath(const std::string& inputPath, const std::string& relativeRootPath)
+	{
+		const std::string resolvedInputPath = ResolveVirtualPath(inputPath, false);
+		const std::string resolvedBasePath = GetParentPath(ResolveVirtualPath(relativeRootPath, false, true));
+
+		return Wrench::StringUtils::ReplaceAll(resolvedInputPath, resolvedBasePath, ".");
+	}
+
+#endif
 
 	std::string CBaseFileSystem::GetExtension(const std::string& path) const
 	{

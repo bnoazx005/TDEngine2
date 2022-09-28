@@ -266,9 +266,11 @@ namespace TDEngine2
 		{
 			if (auto pPrefabsCollection = pResourceManager->GetResource<IPrefabsManifest>(pResourceManager->GetResourceId(currResourceId)))
 			{
-				E_RESULT_CODE result = pPrefabsCollection->AddPrefabInfo(prefabId, prefabPath);
+				const std::string& pathToPrefabsManifest = dynamic_cast<IResource*>(pPrefabsCollection.Get())->GetName();
 
-				if (auto prefabsCollectionFileResult = pFileSystem->Open<IYAMLFileWriter>(dynamic_cast<IResource*>(pPrefabsCollection.Get())->GetName()))
+				E_RESULT_CODE result = pPrefabsCollection->AddPrefabInfo(prefabId, pFileSystem->GetRelativePath(prefabPath, pathToPrefabsManifest));
+
+				if (auto prefabsCollectionFileResult = pFileSystem->Open<IYAMLFileWriter>(pathToPrefabsManifest))
 				{
 					if (auto pFileWriter = pFileSystem->Get<IYAMLFileWriter>(prefabsCollectionFileResult.Get()))
 					{
