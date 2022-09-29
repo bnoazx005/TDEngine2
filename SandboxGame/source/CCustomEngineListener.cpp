@@ -226,6 +226,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		}
 #endif
 
+#if 0
 #if 1 // note Test hierarchy of entities
 		pSceneManager->LoadSceneAsync("ProjectResources/Scenes/TestScene.scene", [pSceneManager, this](auto)
 		{
@@ -500,7 +501,9 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 #else
 		pSceneManager->LoadSceneAsync("ProjectResources/Scenes/TestScene2.scene", nullptr);
 #endif
+#endif
 
+		pSceneManager->LoadSceneAsync("ProjectResources/Scenes/TestPlayground.scene", nullptr);
 	}
 
 	mpResourceManager->Load<CBaseTexture2D, TResourceProviderInfo<CBaseTexture2D, CBaseTexture2D>>("test");

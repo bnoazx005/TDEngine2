@@ -206,15 +206,15 @@ namespace TDEngine2
 		// \note Process changes of current manipulator's type
 		if (mpInputContext->IsKey(E_KEYCODES::KC_LALT))
 		{
-			if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_W))
+			if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_Q))
 			{
 				mCurrManipulatorType = E_GIZMO_TYPE::TRANSLATION;
 			}
-			if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_E))
+			if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_W))
 			{
 				mCurrManipulatorType = E_GIZMO_TYPE::ROTATION;
 			}
-			if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_R))
+			if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_E))
 			{
 				mCurrManipulatorType = E_GIZMO_TYPE::SCALING;
 			}
@@ -253,18 +253,35 @@ namespace TDEngine2
 
 		if (auto pSelectedEntity = pWorld->FindEntity(selectedEntity))
 		{
-			TMatrix4 matrix = Transpose(pSelectedEntity->GetComponent<CTransform>()->GetChildToParentTransform());
+			auto pSelectedTransform = pSelectedEntity->GetComponent<CTransform>();
+
+			TMatrix4 matrix = Transpose(pSelectedTransform->GetLocalToWorldTransform());
 
 			auto&& pCamera = GetCurrentActiveCamera(pWorld.Get());
 
 			pImGUIContext->DrawGizmo(manipulatorType, Transpose(pCamera->GetViewMatrix()), Transpose(pCamera->GetProjMatrix()), matrix,
 				[=, &shouldRecordHistory, pWorldPtr = pWorld.Get()](const TVector3& pos, const TQuaternion& rot, const TVector3& scale)
 			{
+				TVector3 localPos    = pos;
+				TVector3 localScale  = scale;
+				TQuaternion localRot = rot;
+
+				if (CEntity* pParentEntity = pWorldPtr->FindEntity(pSelectedTransform->GetParent()))
+				{
+					CTransform* pParentTransform = pParentEntity->GetComponent<CTransform>();
+
+					const TMatrix4& world2Local = pParentTransform->GetWorldToLocalTransform();
+
+					localPos = (E_GIZMO_TYPE::TRANSLATION == manipulatorType) ? world2Local * localPos : pSelectedTransform->GetPosition();
+					localRot = (E_GIZMO_TYPE::ROTATION == manipulatorType) ? localRot : pSelectedTransform->GetRotation();
+					localScale = (E_GIZMO_TYPE::SCALING == manipulatorType) ? world2Local * TVector4(localScale, 0.0f) : pSelectedTransform->GetScale();
+				}
+
 				if (shouldRecordHistory)
 				{
 					E_RESULT_CODE result = RC_OK;
 
-					if (auto pAction = CreateTransformObjectAction(pWorldPtr, selectedEntity, {pos, rot, scale}, result))
+					if (auto pAction = CreateTransformObjectAction(pWorldPtr, selectedEntity, { localPos, localRot, localScale }, result))
 					{
 						PANIC_ON_FAILURE(pActionsHistory->PushAndExecuteAction(pAction));
 						pActionsHistory->Dump();
@@ -278,13 +295,13 @@ namespace TDEngine2
 					switch (manipulatorType)
 					{
 						case E_GIZMO_TYPE::TRANSLATION:
-							pTransform->SetPosition(pos);
+							pTransform->SetPosition(localPos);
 							break;
 						case E_GIZMO_TYPE::ROTATION:
-							pTransform->SetRotation(rot);
+							pTransform->SetRotation(localRot);
 							break;
 						case E_GIZMO_TYPE::SCALING:
-							pTransform->SetScale(scale);
+							pTransform->SetScale(localScale);
 							break;
 					}
 				}
