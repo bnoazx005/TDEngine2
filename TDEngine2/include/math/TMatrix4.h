@@ -179,6 +179,12 @@ namespace TDEngine2
 	TDE2_API F32 Det(const TMatrix4& mat4);
 
 	/*!
+		\brief The function makes orthonormal matrix from the input one 
+	*/
+
+	TDE2_API TMatrix4 Normalize(const TMatrix4& mat4);
+
+	/*!
 		\brief The function computes translation matrix for a given shift
 
 		\param[in] t A 3d vector that contains shift values

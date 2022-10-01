@@ -691,7 +691,7 @@ namespace TDEngine2
 
 			if (onUpdate)
 			{
-				onUpdate(TVector3(position), TQuaternion(TVector3(rotation) * CMathConstants::Deg2Rad), TVector3(scale));
+				onUpdate(TVector3(position), TQuaternion(Normalize(Transpose(TMatrix4(mat)))), TVector3(scale));
 			}
 
 			return true;

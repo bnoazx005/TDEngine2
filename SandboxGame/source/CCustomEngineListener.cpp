@@ -226,13 +226,23 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		}
 #endif
 
-#if 0
+#if 1
 #if 1 // note Test hierarchy of entities
 		pSceneManager->LoadSceneAsync("ProjectResources/Scenes/TestScene.scene", [pSceneManager, this](auto)
 		{
 			int x = 0;
 
 			auto pScene = pSceneManager->GetScene(pSceneManager->GetSceneId("Test")).Get();
+			
+			if (auto pTestObject = pScene->CreateEntity("TestObject"))
+			{
+				if (auto pMeshContainer = pTestObject->AddComponent<CStaticMeshContainer>())
+				{
+					pMeshContainer->SetMaterialName("ProjectResources/Materials/DefaultMaterial.material");
+					pMeshContainer->SetMeshName("Cube");
+				}
+			}
+			
 			auto pSpriteGroup = pScene->CreateEntity("Parent");
 
 			auto entities = mpWorld->FindEntitiesWithComponents<CQuadSprite>();
@@ -256,7 +266,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			pScene->CreateSkybox(mpResourceManager, "DefaultResources/Textures/DefaultSkybox");
 			pScene->CreatePointLight(TColorUtils::mWhite, 1.0f, 10.0f);
 
-#if 1 /// Test UI layout
+#if 0 /// Test UI layout
 			if (auto pCanvasEntity = pScene->CreateEntity("Canvas"))
 			{
 				if (auto pCanvas = pCanvasEntity->AddComponent<CCanvas>())
@@ -454,7 +464,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			}
 #endif
 
-#if 1
+#if 0
 			/// \note animated mesh entity
 			if (auto pAnimatedMeshEntity = pScene->CreateEntity("AnimatedMesh"))
 			{

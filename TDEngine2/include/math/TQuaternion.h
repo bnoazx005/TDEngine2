@@ -35,8 +35,7 @@ namespace TDEngine2
 		TDE2_API TQuaternion(F32 x, F32 y, F32 z, F32 w);
 
 		/*!
-			\brief The constructor creates a quaternion from direction v
-			and angle w. q = (w v.x v.y v.z)
+			\brief The constructor creates a quaternion from direction v and angle 
 
 			\param[in] v Rotation axis
 			\param[in] w Rotation angle
@@ -51,6 +50,8 @@ namespace TDEngine2
 		*/
 
 		TDE2_API explicit TQuaternion(const TVector3& eulerAngles);
+
+		TDE2_API explicit TQuaternion(const TMatrix4& rotationMatrix);
 
 		TDE2_API TQuaternion(const TQuaternion& q);
 		

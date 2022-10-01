@@ -361,6 +361,47 @@ namespace TDEngine2
 		return mat4.m[0][0] * minorDet00 - mat4.m[0][1] * minorDet01 + mat4.m[0][2] * minorDet02 - mat4.m[0][3] * minorDet03;
 	}
 
+	TDE2_API TMatrix4 Normalize(const TMatrix4& mat4)
+	{
+		TMatrix4 result = mat4;
+
+#if 1
+		const F32 invXAxisLength = 1.0f / sqrtf(mat4.m[0][0] * mat4.m[0][0] + mat4.m[1][0] * mat4.m[1][0] + mat4.m[2][0] * mat4.m[2][0]);
+		const F32 invYAxisLength = 1.0f / sqrtf(mat4.m[0][1] * mat4.m[0][1] + mat4.m[1][1] * mat4.m[1][1] + mat4.m[2][1] * mat4.m[2][1]);
+		const F32 invZAxisLength = 1.0f / sqrtf(mat4.m[0][2] * mat4.m[0][2] + mat4.m[1][2] * mat4.m[1][2] + mat4.m[2][2] * mat4.m[2][2]);
+
+		result.m[0][0] *= invXAxisLength;
+		result.m[1][0] *= invXAxisLength;
+		result.m[2][0] *= invXAxisLength;
+
+		result.m[0][1] *= invYAxisLength;
+		result.m[1][1] *= invYAxisLength;
+		result.m[2][1] *= invYAxisLength;
+
+		result.m[0][2] *= invZAxisLength;
+		result.m[1][2] *= invZAxisLength;
+		result.m[2][2] *= invZAxisLength;
+#else
+
+		const F32 invXAxisLength = 1.0f / sqrtf(mat4.m[0][0] * mat4.m[0][0] + mat4.m[0][1] * mat4.m[0][1] + mat4.m[0][2] * mat4.m[0][2]);
+		const F32 invYAxisLength = 1.0f / sqrtf(mat4.m[1][0] * mat4.m[1][0] + mat4.m[1][1] * mat4.m[1][1] + mat4.m[1][2] * mat4.m[1][2]);
+		const F32 invZAxisLength = 1.0f / sqrtf(mat4.m[2][0] * mat4.m[2][0] + mat4.m[2][1] * mat4.m[2][1] + mat4.m[2][2] * mat4.m[2][2]);
+
+		result.m[0][0] *= invXAxisLength;
+		result.m[0][1] *= invXAxisLength;
+		result.m[0][2] *= invXAxisLength;
+
+		result.m[1][0] *= invYAxisLength;
+		result.m[1][1] *= invYAxisLength;
+		result.m[1][2] *= invYAxisLength;
+
+		result.m[2][0] *= invZAxisLength;
+		result.m[2][1] *= invZAxisLength;
+		result.m[2][2] *= invZAxisLength;
+#endif
+		return result;
+	}
+
 	TDE2_API TMatrix4 TranslationMatrix(const TVector3& t)
 	{
 		TMatrix4 translationMat(IdentityMatrix4);

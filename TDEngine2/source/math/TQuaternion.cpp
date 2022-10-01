@@ -16,9 +16,17 @@ namespace TDEngine2
 	{
 	}
 	
-	TQuaternion::TQuaternion(const TVector3& v, F32 w) :
-		x(v.x), y(v.y), z(v.z), w(w)
+	TQuaternion::TQuaternion(const TVector3& v, F32 w)
 	{
+		const TVector3 normal = Normalize(v);
+
+		const F32 halfTheta = w * 0.5f;
+		const F32 sin = sinf(halfTheta);
+		
+		w = cosf(halfTheta);
+		x = normal.x * sin;
+		y = normal.y * sin;
+		z = normal.z * sin;
 	}
 
 	TQuaternion::TQuaternion(const TVector3& eulerAngles)
@@ -38,6 +46,63 @@ namespace TDEngine2
 		y = cosRoll * cosYaw * sinPitch - sinRoll * sinYaw * cosPitch;
 		z = cosRoll * sinYaw * cosPitch + sinRoll * cosYaw * sinPitch;
 		w = cosRoll * cosYaw * cosPitch + sinRoll * sinYaw * sinPitch;
+	}
+
+	TQuaternion::TQuaternion(const TMatrix4& rotationMatrix)
+	{
+		const auto& m = rotationMatrix.m;
+
+		F32 tr, s, q[4];
+		I32 i, j, k;
+
+		I32 nxt[3] = { 1, 2, 0 };
+
+		tr = m[0][0] + m[1][1] + m[2][2];
+
+		if (tr > 0.0f)
+		{
+			s = sqrtf(tr + 1.0f);
+			w = s * 0.5f;
+			s = 0.5f / s;
+			x = (m[2][1] - m[1][2]) * s;
+			y = (m[0][2] - m[2][0]) * s;
+			z = (m[1][0] - m[0][1]) * s;
+		}
+		else
+		{
+			i = 0;
+
+			if (m[1][1] > m[0][0]) 
+			{ 
+				i = 1;
+			}
+
+			if (m[2][2] > m[i][i]) 
+			{ 
+				i = 2; 
+			}
+
+			j = nxt[i];
+			k = nxt[j];
+
+			s = sqrtf((m[i][i] - (m[j][j] + m[k][k])) + 1.0f);
+
+			q[i] = s * 0.5f;
+
+			if (s != 0.0f)
+			{
+				s = 0.5f / s;
+			}
+
+			q[3] = (m[k][j] - m[j][k]) * s;
+			q[j] = (m[j][i] + m[i][j]) * s;
+			q[k] = (m[k][i] + m[i][k]) * s;
+
+			x = q[0];
+			y = q[1];
+			z = q[2];
+			w = q[3];
+		}
 	}
 
 	TQuaternion::TQuaternion(const TQuaternion& q):
@@ -198,13 +263,14 @@ namespace TDEngine2
 
 	TVector3 ToEulerAngles(const TQuaternion& q)
 	{
-		const TMatrix4 m = RotationMatrix(q);
+		const F32 sinp = -2.0f * (q.y * q.z - q.x * q.w);
 
-		const bool test = fabs(m.m[0][2]) < 0.99f;
+		if (CMathUtils::Abs(sinp) > 0.9f)
+		{
+			return TVector3(CMathConstants::Pi * 0.5f * sinp, atan2f(-q.x * q.z + q.w * q.y, 0.5f - q.y * q.y - q.z * q.z), 0.0f);
+		}
 
-		return TVector3(test ? atan2f(-m.m[1][2], m.m[2][2]) : atan2f(m.m[2][1], m.m[1][1]),
-						asinf(CMathUtils::Clamp(-1.0f, 1.0f, m.m[0][2])),
-						test ? atan2f(-m.m[0][1], m.m[0][0]) : 0.0f);
+		return TVector3(asin(sinp), atan2f(q.x * q.z + q.w * q.y, 0.5f - q.x * q.x - q.y * q.y), atan2f(q.x * q.y + q.w * q.z, 0.5f - q.x * q.x - q.z * q.z));
 	}
 
 
