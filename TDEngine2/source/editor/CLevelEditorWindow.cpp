@@ -264,7 +264,7 @@ namespace TDEngine2
 			{
 				TVector3 localPos    = pos;
 				TVector3 localScale  = scale;
-				TQuaternion localRot = rot;
+				TQuaternion localRot = Normalize(rot);
 
 				if (CEntity* pParentEntity = pWorldPtr->FindEntity(pSelectedTransform->GetParent()))
 				{
@@ -273,7 +273,7 @@ namespace TDEngine2
 					const TMatrix4& world2Local = pParentTransform->GetWorldToLocalTransform();
 
 					localPos = (E_GIZMO_TYPE::TRANSLATION == manipulatorType) ? world2Local * localPos : pSelectedTransform->GetPosition();
-					localRot = (E_GIZMO_TYPE::ROTATION == manipulatorType) ? pParentTransform->GetRotation() * localRot : pSelectedTransform->GetRotation();
+					localRot = (E_GIZMO_TYPE::ROTATION == manipulatorType) ? localRot : pSelectedTransform->GetRotation();
 					localScale = (E_GIZMO_TYPE::SCALING == manipulatorType) ? world2Local * TVector4(localScale, 0.0f) : pSelectedTransform->GetScale();
 				}
 

@@ -234,13 +234,35 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 			auto pScene = pSceneManager->GetScene(pSceneManager->GetSceneId("Test")).Get();
 			
-			if (auto pTestObject = pScene->CreateEntity("TestObject"))
 			{
-				if (auto pMeshContainer = pTestObject->AddComponent<CStaticMeshContainer>())
+				TEntityId id0, id1;
+
+				if (auto pTestObject = pScene->CreateEntity("TestObject1"))
 				{
-					pMeshContainer->SetMaterialName("ProjectResources/Materials/DefaultMaterial.material");
-					pMeshContainer->SetMeshName("Cube");
+					if (auto pMeshContainer = pTestObject->AddComponent<CStaticMeshContainer>())
+					{
+						pMeshContainer->SetMaterialName("ProjectResources/Materials/DefaultMaterial.material");
+						pMeshContainer->SetMeshName("Cube");
+					}
+
+					id0 = pTestObject->GetId();
 				}
+
+				if (auto pTestObject2 = pScene->CreateEntity("TestObject2"))
+				{
+					if (auto pMeshContainer = pTestObject2->AddComponent<CStaticMeshContainer>())
+					{
+						pMeshContainer->SetMaterialName("ProjectResources/Materials/DefaultMaterial.material");
+						pMeshContainer->SetMeshName("Cube");
+					}
+
+					auto pTransform = pTestObject2->GetComponent<CTransform>();
+					pTransform->SetPosition(RightVector3);
+
+					id1 = pTestObject2->GetId();
+				}
+
+				GroupEntities(mpWorld.Get(), id0, id1);
 			}
 			
 			auto pSpriteGroup = pScene->CreateEntity("Parent");
@@ -513,7 +535,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 #endif
 #endif
 
-		pSceneManager->LoadSceneAsync("ProjectResources/Scenes/TestPlayground.scene", nullptr);
+	//	pSceneManager->LoadSceneAsync("ProjectResources/Scenes/TestPlayground.scene", nullptr);
 	}
 
 	mpResourceManager->Load<CBaseTexture2D, TResourceProviderInfo<CBaseTexture2D, CBaseTexture2D>>("test");

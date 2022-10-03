@@ -139,7 +139,7 @@ namespace TDEngine2
 					const TMatrix4& parent2Child = Inverse(pParentTransform->GetChildToParentTransform());
 
 					pTransform->SetPosition(parent2Child * pTransform->GetPosition());
-					pTransform->SetRotation(pParentTransform->GetRotation() * pTransform->GetRotation());
+					pTransform->SetRotation( pTransform->GetRotation());
 					pTransform->SetScale(parent2Child * TVector4(pTransform->GetScale(), 0.0f));
 				}
 				else if (TEntityId::Invalid != pTransform->GetPrevParent())
@@ -148,7 +148,7 @@ namespace TDEngine2
 					const TMatrix4& child2Parent = pParentTransform->GetChildToParentTransform();
 
 					pTransform->SetPosition(child2Parent * pTransform->GetPosition());
-					pTransform->SetRotation(pParentTransform->GetRotation() * pTransform->GetRotation());
+					pTransform->SetRotation( pTransform->GetRotation());
 					pTransform->SetScale(child2Parent * TVector4(pTransform->GetScale(), 0.0f));
 				}
 
