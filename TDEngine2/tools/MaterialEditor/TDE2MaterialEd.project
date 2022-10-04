@@ -10,6 +10,9 @@ common_settings:
   additional_mounted_dirs:
     - alias: ProjectResources/
       path: ../../SandboxGame/Resources/
+    - alias: ProjectShaders/
+      path: ../../SandboxGame/Resources/Shaders/
+  base_resources_path: ../../Resources/
 
 graphics_settings:
   renderer_plugin: ./D3D11GraphicsContext

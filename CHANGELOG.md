@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.12] 2022-10-03
+## [0.6.12] 2022-10-04
 
 ### Added
 
@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - The implementation of transform's manipulators works more robust way.
+
+- The incomplete material's initialization was fixed.
 
 ## [0.6.11] 2022-09-24
 

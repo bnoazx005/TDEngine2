@@ -103,7 +103,20 @@ namespace TDEngine2
 				imguiContext.EndHorizontal();
 
 				/// \note Texture's preview
-				imguiContext.Image(pResource->GetId(), TVector2(imguiContext.GetWindowWidth() * 0.25f), pTextureResource->GetNormalizedTextureRect());
+
+				if (pResource) 
+				{
+					imguiContext.Image(pResource->GetId(), TVector2(imguiContext.GetWindowWidth() * 0.25f), pTextureResource->GetNormalizedTextureRect());
+				}
+				else
+				{
+					static constexpr F32 invalidImageSizes = 128.0f;
+
+					auto&& cursorPos = imguiContext.GetCursorScreenPos();
+					imguiContext.DrawRect(TRectF32(cursorPos.x, cursorPos.y, invalidImageSizes, invalidImageSizes), TColorUtils::mBlack, true);
+					imguiContext.DrawText(cursorPos + TVector2(invalidImageSizes * 0.25f, invalidImageSizes * 0.5f), TColorUtils::mWhite, "NO IMAGE");
+					imguiContext.SetCursorScreenPos(cursorPos + TVector2(invalidImageSizes));
+				}
 
 				imguiContext.EndTreeNode();
 			}

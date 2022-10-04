@@ -1020,6 +1020,13 @@ namespace TDEngine2
 			{
 				return RC_FAIL;
 			}
+
+			auto& instanceTextures = mInstancesAssignedTextures[DefaultMaterialInstanceId]; 
+
+			for (auto&& currResourceInfo : metadata.mShaderResourcesInfo)
+			{
+				instanceTextures[currResourceInfo.first] = nullptr;
+			}
 		}
 
 		return result;
