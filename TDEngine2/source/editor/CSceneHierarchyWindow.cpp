@@ -102,21 +102,21 @@ namespace TDEngine2
 				{
 					const TVector2 buttonSizes(100.0f, 25.0f);
 
-					pImGUIContext->BeginHorizontal();
+					if (pImGUIContext->BeginChildWindow("##PrefabsList", TVector2(400.0f, 250.0f)))
 					{
-						if (pImGUIContext->BeginChildWindow("##PrefabsList", TVector2(400.0f, 250.0f)))
+						for (U32 i = 0; i < static_cast<U32>(prefabsIdentifiers.size()); ++i)
 						{
-							for (U32 i = 0; i < static_cast<U32>(prefabsIdentifiers.size()); ++i)
+							if (pImGUIContext->SelectableItem(prefabsIdentifiers[i], i == SelectedPrefabIndex))
 							{
-								if (pImGUIContext->SelectableItem(prefabsIdentifiers[i], i == SelectedPrefabIndex))
-								{
-									SelectedPrefabIndex = i;
-								}
+								SelectedPrefabIndex = i;
 							}
-
-							pImGUIContext->EndChildWindow();
 						}
 
+						pImGUIContext->EndChildWindow();
+					}
+
+					pImGUIContext->BeginHorizontal();
+					{
 						if (pImGUIContext->Button("Add", buttonSizes))
 						{
 							pCurrScene->Spawn(prefabsIdentifiers[SelectedPrefabIndex], pParentEntity);
