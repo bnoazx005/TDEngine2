@@ -7,7 +7,7 @@
 
 namespace TDEngine2
 {
-	TDE2_DEFINE_FLAG_COMPONENT(SelectedEntityComponent)
+	TDE2_DEFINE_RUNTIME_ONLY_FLAG_COMPONENT(SelectedEntityComponent)
 
 	/*!
 		\brief CSceneInfoComponent's definition

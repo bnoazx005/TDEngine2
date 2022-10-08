@@ -52,6 +52,12 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper) = 0;
 
 			TDE2_API virtual TypeId GetComponentTypeId() const = 0;
+
+			/*!
+				\return The method returns true if the given component type is for runtime purposes only
+			*/
+
+			TDE2_API virtual bool IsRuntimeOnly() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IComponent)
 	};

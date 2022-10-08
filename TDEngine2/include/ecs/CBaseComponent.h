@@ -102,6 +102,12 @@ namespace TDEngine2
 		*/
 
 		TDE2_API const std::vector<std::string>& GetAllProperties() const override;
+
+		/*!
+			\return The method returns true if the given component type is for runtime purposes only
+		*/
+
+		TDE2_API bool IsRuntimeOnly() const override;
 	protected:
 		DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseComponent)
 	};
@@ -367,6 +373,7 @@ namespace TDEngine2
 			TDE2_API ::TDEngine2::E_RESULT_CODE Save(::TDEngine2::IArchiveWriter* pWriter) override;																\
 																																									\
 			TDE2_API const std::string& GetTypeName() const override;																								\
+			TDE2_API bool IsRuntimeOnly() const override;																											\
 		protected:																																					\
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(ComponentName)																									\
 	};																																								\
@@ -388,7 +395,7 @@ namespace TDEngine2
 		Note that the macro should be invoked only within *.cpp files to avoid circular dependencies
 	*/
 
-#define TDE2_DEFINE_FLAG_COMPONENT_IMPL(ComponentName, ComponentFuncName, ComponentFactoryName, ComponentFactoryFuncName)										\
+#define TDE2_DEFINE_FLAG_COMPONENT_IMPL(ComponentName, ComponentFuncName, ComponentFactoryName, ComponentFactoryFuncName, IsRuntimeOnlyFlag)					\
 	ComponentName::ComponentName() : ::TDEngine2::CBaseComponent() { }																							\
 																																								\
 	::TDEngine2::E_RESULT_CODE ComponentName::Init()																											\
@@ -422,6 +429,8 @@ namespace TDEngine2
 		return componentName;																																	\
 	}																																							\
 																																								\
+	bool ComponentName::IsRuntimeOnly() const { return IsRuntimeOnlyFlag; }																						\
+																																								\
 	::TDEngine2::IComponent* ComponentFuncName(::TDEngine2::E_RESULT_CODE& result)																				\
 	{																																							\
 		return CREATE_IMPL(::TDEngine2::IComponent, ComponentName, result);																						\
@@ -454,8 +463,12 @@ namespace TDEngine2
 #define TDE2_DEFINE_FLAG_COMPONENT(ComponentName) TDE2_DEFINE_FLAG_COMPONENT_IMPL(TDE2_COMPONENT_CLASS_NAME(ComponentName),					\
 																					TDE2_COMPONENT_FUNCTION_NAME(ComponentName),			\
 																					TDE2_COMPONENT_FACTORY_NAME(ComponentName),				\
-																					TDE2_COMPONENT_FACTORY_FUNCTION_NAME(ComponentName))
+																					TDE2_COMPONENT_FACTORY_FUNCTION_NAME(ComponentName), false)
 
 
+#define TDE2_DEFINE_RUNTIME_ONLY_FLAG_COMPONENT(ComponentName) TDE2_DEFINE_FLAG_COMPONENT_IMPL(TDE2_COMPONENT_CLASS_NAME(ComponentName),		  \
+																					TDE2_COMPONENT_FUNCTION_NAME(ComponentName),			      \
+																					TDE2_COMPONENT_FACTORY_NAME(ComponentName),				      \
+																					TDE2_COMPONENT_FACTORY_FUNCTION_NAME(ComponentName), true)
 
 }

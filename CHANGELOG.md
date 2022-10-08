@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The functionality for saving hierarchies into prefabs was implemented.
 
+- A new concept of runtime-only components that are not serialized was introduced.
+
 ### Changed
 
 ### Fixed

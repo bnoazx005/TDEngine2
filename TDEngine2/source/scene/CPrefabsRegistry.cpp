@@ -311,6 +311,11 @@ namespace TDEngine2
 			}
 			entitiesToProcess.push(pEntity->GetId());
 
+			CTransform* pRootTransform =pEntity->GetComponent<CTransform>();
+
+			const TEntityId parentEntityId = pRootTransform->GetParent();
+			pRootTransform->SetParent(TEntityId::Invalid); /// \note Don't save relationship for the root entity
+
 			while (!entitiesToProcess.empty())
 			{
 				pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
@@ -328,6 +333,8 @@ namespace TDEngine2
 				}
 				pWriter->EndGroup();
 			}
+
+			pRootTransform->SetParent(parentEntityId);
 		}
 		result = result | pWriter->EndGroup();
 

@@ -89,7 +89,7 @@ namespace TDEngine2
 				auto&& components = mpEntityManager->GetComponents(mId);
 				for (auto&& currComponent : components)
 				{
-					if (!currComponent)
+					if (!currComponent || currComponent->IsRuntimeOnly())
 					{
 						continue;
 					}

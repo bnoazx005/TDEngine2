@@ -68,6 +68,11 @@ namespace TDEngine2
 		return properties;
 	}
 
+	bool CBaseComponent::IsRuntimeOnly() const
+	{
+		return false;
+	}
+
 	
 	CComponentIterator CComponentIterator::mInvalidIterator = CComponentIterator();
 
