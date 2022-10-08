@@ -371,6 +371,7 @@ namespace TDEngine2
 																																									\
 			TDE2_API ::TDEngine2::E_RESULT_CODE Load(::TDEngine2::IArchiveReader* pReader) override;																\
 			TDE2_API ::TDEngine2::E_RESULT_CODE Save(::TDEngine2::IArchiveWriter* pWriter) override;																\
+			TDE2_API ::TDEngine2::E_RESULT_CODE Clone(class ::TDEngine2::IComponent*& pDestObject) const override;													\
 																																									\
 			TDE2_API const std::string& GetTypeName() const override;																								\
 			TDE2_API bool IsRuntimeOnly() const override;																											\
@@ -420,6 +421,11 @@ namespace TDEngine2
 		pWriter->SetUInt32("type_id", static_cast<::TDEngine2::U32>(ComponentName::GetTypeId()));																\
 		pWriter->EndGroup();																																	\
 																																								\
+		return ::TDEngine2::RC_OK;																																\
+	}																																							\
+																																								\
+	::TDEngine2::E_RESULT_CODE ComponentName::Clone(::TDEngine2::IComponent*& pDestObject) const																\
+	{																																							\
 		return ::TDEngine2::RC_OK;																																\
 	}																																							\
 																																								\

@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
+#include <functional>
 
 
 #if TDE2_EDITORS_ENABLED
@@ -40,27 +41,29 @@ namespace TDEngine2
 	} TTestContextConfig, *TTestContextConfigPtr;
 
 
-#if TDE2_EDITORS_ENABLED
+	struct TTestFixtureAutoRegister
+	{
+		TDE2_API TTestFixtureAutoRegister(std::function<void()> action);
+	};
+
+
 	#define TDE2_TEST_IS_TRUE(...) do { TDEngine2::CTestContext::Get()->Assert(TDE2_STRINGIFY(__VA_ARGS__), __VA_ARGS__, true, __FILE__, __LINE__); } while (false)
 	#define TDE2_TEST_IS_FALSE(...) do { TDEngine2::CTestContext::Get()->Assert(TDE2_STRINGIFY(__VA_ARGS__), __VA_ARGS__, false, __FILE__, __LINE__); } while (false)
 
-	#define TDE2_TEST_FIXTURE(Name)																										\
-		static void TestFixtureBody(TPtr<ITestFixture> pTestFixture);																	\
-		struct TTestFixtureEnvironment																									\
-		{																																\
-			TDE2_API TTestFixtureEnvironment()																							\
+	#define TDE2_TEST_FIXTURE_IMPL(Name, FixtureFunctorId, FixtureId)																	\
+		static void FixtureFunctorId(TPtr<ITestFixture> pTestFixture);																	\
+		static TTestFixtureAutoRegister FixtureId([=]																					\
 			{																															\
 				E_RESULT_CODE result = RC_OK;																							\
 				TPtr<ITestFixture> pTestFixtureInstance = TPtr<ITestFixture>(CreateBaseTestFixture(Name, result));						\
-				TestFixtureBody(pTestFixtureInstance);																					\
+				FixtureFunctorId(pTestFixtureInstance);																					\
 				CTestContext::Get()->AddTestFixture(pTestFixtureInstance);																\
-			}																															\
-																																		\
-		};																																\
-		static TTestFixtureEnvironment registerTestFixture;																				\
-		static void TestFixtureBody(TPtr<ITestFixture> pTestFixture)
+			});																															\
+		static void FixtureFunctorId(TPtr<ITestFixture> pTestFixture)
 
-	
+	#define TDE2_TEST_FIXTURE(Name) TDE2_TEST_FIXTURE_IMPL(Name, TDE2_CONCAT(TestFixtureBody, __COUNTER__), TDE2_CONCAT(registerTestFixture, __COUNTER__))
+
+
 	#define TDE2_TEST_CASE_IMPL(Name, TestCaseVariableName, ResultVariableName)								\
 		E_RESULT_CODE ResultVariableName = RC_OK;															\
 		TPtr<ITestCase> TestCaseVariableName = TPtr<ITestCase>(CreateBaseTestCase(ResultVariableName));		\
@@ -68,15 +71,6 @@ namespace TDEngine2
 		if (TPtr<ITestCase> pTestCase = TPtr<ITestCase>(TestCaseVariableName))
 
 	#define TDE2_TEST_CASE(Name) TDE2_TEST_CASE_IMPL(Name, TDE2_CONCAT(pTestCase, __COUNTER__), TDE2_CONCAT(result, __COUNTER__))
-
-
-#else
-	#define TDE2_TEST_IS_TRUE(...) (void)0
-	#define TDE2_TEST_IS_FALSE(...) (void)0
-
-	#define TDE2_TEST_FIXTURE(Name) static void TestFixtureBody(TPtr<ITestFixture> pTestFixture)
-	#define TDE2_TEST_CASE(Name) if (TPtr<ITestCase> pTestCase = nullptr)
-#endif
 
 
 	struct TTestResultEntity
@@ -152,4 +146,10 @@ namespace TDEngine2
 	};
 }
 
+#else
+	#define TDE2_TEST_IS_TRUE(...) (void)0
+	#define TDE2_TEST_IS_FALSE(...) (void)0
+
+	#define TDE2_TEST_FIXTURE(Name) static void TestFixtureBody(TPtr<ITestFixture> pTestFixture)
+	#define TDE2_TEST_CASE(Name) if (TPtr<ITestCase> pTestCase = nullptr)
 #endif

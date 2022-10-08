@@ -19,6 +19,15 @@ namespace TDEngine2
 	static std::unique_ptr<TProxyInputContextDesc> pProxyInputContextDesc{ new TProxyInputContextDesc() };
 
 
+	TTestFixtureAutoRegister::TTestFixtureAutoRegister(std::function<void()> action)
+	{
+		if (action) 
+		{
+			action(); 
+		}
+	}
+
+
 	CTestContext::CTestContext():
 		CBaseObject()
 	{

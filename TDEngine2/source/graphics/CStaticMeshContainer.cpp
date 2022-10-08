@@ -49,6 +49,28 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CStaticMeshContainer::Clone(IComponent*& pDestObject) const
+	{
+		if (CStaticMeshContainer* pDestComponent = dynamic_cast<CStaticMeshContainer*>(pDestObject))
+		{
+			pDestComponent->mMaterialName              = mMaterialName;
+			pDestComponent->mMeshName                  = mMeshName;
+			pDestComponent->mSubMeshId                 = mSubMeshId;
+			pDestComponent->mSubMeshInfo.mIndicesCount = mSubMeshInfo.mIndicesCount;
+			pDestComponent->mSubMeshInfo.mStartIndex   = mSubMeshInfo.mStartIndex;
+			pDestComponent->mSystemBuffersHandle       = mSystemBuffersHandle;
+
+#if TDE2_EDITORS_ENABLED
+			pDestComponent->mSubmeshesIdentifiers.clear();
+			std::copy(mSubmeshesIdentifiers.begin(), mSubmeshesIdentifiers.end(), std::back_inserter(pDestComponent->mSubmeshesIdentifiers));
+#endif
+
+			pDestComponent->mIsDirty = true;
+		}
+
+		return RC_OK;
+	}
+
 	void CStaticMeshContainer::SetMaterialName(const std::string& materialName)
 	{
 		mMaterialName = materialName;

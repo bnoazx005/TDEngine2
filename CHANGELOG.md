@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The serialization of prefabs collection resources was fixed.
 
+- The implementation of auto-tests' registration system was fixed.
+
 ## [0.6.11] 2022-09-24
 
 ### Added
