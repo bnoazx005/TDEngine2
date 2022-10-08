@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The incorrect layout for multiple prefab items in "Load prefab window" was fixed.
 
+- The serialization of prefabs collection resources was fixed.
+
 ## [0.6.11] 2022-09-24
 
 ### Added

@@ -267,8 +267,16 @@ namespace TDEngine2
 			if (auto pPrefabsCollection = pResourceManager->GetResource<IPrefabsManifest>(pResourceManager->GetResourceId(currResourceId)))
 			{
 				const std::string& pathToPrefabsManifest = dynamic_cast<IResource*>(pPrefabsCollection.Get())->GetName();
+				const std::string& baseDirectoryPath = pFileSystem->GetParentPath(pathToPrefabsManifest);
 
-				E_RESULT_CODE result = pPrefabsCollection->AddPrefabInfo(prefabId, pFileSystem->GetRelativePath(prefabPath, pathToPrefabsManifest));
+				const std::string& relativePrefabPath = pFileSystem->GetRelativePath(prefabPath, pathToPrefabsManifest);
+
+				/// \note For prefabs paths use / not \\ especially it's important for Windows
+				E_RESULT_CODE result = pPrefabsCollection->AddPrefabInfo(prefabId,
+					Wrench::StringUtils::ReplaceAll(
+						pFileSystem->CombinePath(baseDirectoryPath, relativePrefabPath.substr(2)), 
+						{ pFileSystem->GetPathSeparatorChar() }, 
+						{ pFileSystem->GetAltPathSeparatorChar() })); /// remove first two symbols which're ./
 
 				if (auto prefabsCollectionFileResult = pFileSystem->Open<IYAMLFileWriter>(pathToPrefabsManifest))
 				{

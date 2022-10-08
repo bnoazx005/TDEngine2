@@ -554,7 +554,7 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 {
 	TDE2_PROFILER_SCOPE("OnUpdate");
 
-#if 1
+#if 0
 	/// \note ImGUI tests
 	{
 		TDE2_PROFILER_SCOPE("Test");
