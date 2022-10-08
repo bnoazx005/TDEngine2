@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.12] 2022-10-04
+## [0.6.12] 2022-10-08
 
 ### Added
 
@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The implementation of transform's manipulators works more robust way.
 
 - The incomplete material's initialization was fixed.
+
+- The incorrect layout for multiple prefab items in "Load prefab window" was fixed.
 
 ## [0.6.11] 2022-09-24
 

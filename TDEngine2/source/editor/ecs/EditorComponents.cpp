@@ -130,6 +130,17 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CPrefabLinkInfoComponent::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pLinkInfo = dynamic_cast<CPrefabLinkInfoComponent*>(pDestObject))
+		{
+			pLinkInfo->mPrefabLinkId = mPrefabLinkId;
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
 	void CPrefabLinkInfoComponent::SetPrefabLinkId(const std::string& id)
 	{
 		mPrefabLinkId = id;

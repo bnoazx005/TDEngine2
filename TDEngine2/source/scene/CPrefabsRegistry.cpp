@@ -296,7 +296,7 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 		// \note Write entities
-		result = result | pWriter->BeginGroup("entities");
+		result = result | pWriter->BeginGroup("entities", true);
 		{
 			std::stack<TEntityId> entitiesToProcess;
 
@@ -313,16 +313,20 @@ namespace TDEngine2
 
 			while (!entitiesToProcess.empty())
 			{
-				const TEntityId currEntityId = entitiesToProcess.top();
-				entitiesToProcess.pop();
-
-				CEntity* pCurrEntity = pWorld->FindEntity(currEntityId);
-				if (!pCurrEntity)
+				pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
 				{
-					continue;
-				}
+					const TEntityId currEntityId = entitiesToProcess.top();
+					entitiesToProcess.pop();
 
-				result = result | pCurrEntity->Save(pWriter);
+					CEntity* pCurrEntity = pWorld->FindEntity(currEntityId);
+					if (!pCurrEntity)
+					{
+						continue;
+					}
+
+					result = result | pCurrEntity->Save(pWriter);
+				}
+				pWriter->EndGroup();
 			}
 		}
 		result = result | pWriter->EndGroup();

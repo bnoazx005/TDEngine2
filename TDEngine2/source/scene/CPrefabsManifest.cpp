@@ -115,7 +115,8 @@ namespace TDEngine2
 
 		if (mPrefabsMappingsTable.find(prefabId) != mPrefabsMappingsTable.cend())
 		{
-			return RC_FAIL;
+			mPrefabsMappingsTable[prefabId] = pathToPrefab;
+			return RC_OK;
 		}
 
 		mPrefabsMappingsTable.insert({ prefabId, pathToPrefab });
