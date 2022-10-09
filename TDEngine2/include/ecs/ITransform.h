@@ -9,6 +9,7 @@
 
 #include "../utils/Types.h"
 #include "../utils/Utils.h"
+#include "../core/IBaseObject.h"
 #include "../math/TVector3.h"
 #include "../math/TQuaternion.h"
 
@@ -23,7 +24,7 @@ namespace TDEngine2
 		the engine
 	*/
 
-	class ITransform
+	class ITransform: public virtual IBaseObject
 	{
 		public:
 			/*!
