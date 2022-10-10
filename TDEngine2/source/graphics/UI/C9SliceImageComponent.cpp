@@ -76,6 +76,24 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE C9SliceImage::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pComponent = dynamic_cast<C9SliceImage*>(pDestObject))
+		{
+			pComponent->mImageResourceId = mImageResourceId;
+			pComponent->mImageSpriteId = mImageSpriteId;
+			pComponent->mRelativeBorderSize = mRelativeBorderSize;
+			pComponent->mXEnd = mXEnd;
+			pComponent->mXStart = mXStart;
+			pComponent->mYEnd = mYEnd;
+			pComponent->mYStart = mYStart;
+
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
 	E_RESULT_CODE C9SliceImage::SetImageId(const std::string& id)
 	{
 		if (id.empty())

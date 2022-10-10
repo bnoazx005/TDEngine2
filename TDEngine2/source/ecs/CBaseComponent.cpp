@@ -46,7 +46,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseComponent::Clone(IComponent*& pDestObject) const
 	{
-		TDE2_UNIMPLEMENTED();
+		//TDE2_UNIMPLEMENTED();
 		return RC_NOT_IMPLEMENTED_YET;
 	}
 

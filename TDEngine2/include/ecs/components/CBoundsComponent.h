@@ -47,6 +47,15 @@ namespace TDEngine2
 			TDE2_API void SetBounds(const TAABB& aabbBounds);
 
 			/*!
+				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
+				The original state of the object stays the same
+
+				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
+			*/
+
+			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
+
+			/*!
 				\brief The method changes so called 'dirty' flag of the object that means that it was modified
 
 				\param[in] value A new state of the flag, true means that the object has been changed

@@ -64,6 +64,19 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CQuadSprite::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pComponent = dynamic_cast<CQuadSprite*>(pDestObject))
+		{
+			pComponent->mMaterialName = mMaterialName;
+			pComponent->mColor = mColor;
+
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
 	void CQuadSprite::SetMaterialName(const std::string& materialName)
 	{
 		mMaterialName = materialName;

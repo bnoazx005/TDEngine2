@@ -77,6 +77,22 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CGridGroupLayout::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pComponent = dynamic_cast<CGridGroupLayout*>(pDestObject))
+		{
+			pComponent->mAlignType = mAlignType;
+			pComponent->mCellSize = mCellSize;
+			pComponent->mSpaceBetweenElements = mSpaceBetweenElements;
+
+			pComponent->mIsDirty = true;
+
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
 	E_RESULT_CODE CGridGroupLayout::SetCellSize(const TVector2& value)
 	{
 		if (CMathUtils::IsLessOrEqual(value.x, 0.0f) || CMathUtils::IsLessOrEqual(value.y, 0.0f))

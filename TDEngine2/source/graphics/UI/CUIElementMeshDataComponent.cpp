@@ -33,6 +33,27 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CUIElementMeshData::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pComponent = dynamic_cast<CUIElementMeshData*>(pDestObject))
+		{
+			pComponent->mIndices.clear();
+			std::copy(mIndices.begin(), mIndices.end(), std::back_inserter(pComponent->mIndices));
+
+			pComponent->mIsFontMesh = mIsFontMesh;
+			pComponent->mMaxBounds = mMaxBounds;
+			pComponent->mMinBounds = mMinBounds;
+			pComponent->mTextureResourceId = mTextureResourceId;
+			
+			pComponent->mVertices.clear();
+			std::copy(mVertices.begin(), mVertices.end(), std::back_inserter(pComponent->mVertices));
+
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
 	void CUIElementMeshData::ResetMesh()
 	{
 		mVertices.clear();

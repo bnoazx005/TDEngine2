@@ -118,6 +118,28 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CLayoutElement::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pComponent = dynamic_cast<CLayoutElement*>(pDestObject))
+		{
+			pComponent->mAnchorWorldRect = mAnchorWorldRect;
+			pComponent->mCanvasEntityId = mCanvasEntityId;
+			pComponent->mMaxAnchor = mMaxAnchor;
+			pComponent->mMaxOffset = mMaxOffset;
+			pComponent->mMinAnchor = mMinAnchor;
+			pComponent->mMinOffset = mMinOffset;
+			pComponent->mParentWorldRect = mParentWorldRect;
+			pComponent->mPivot = mPivot;
+			pComponent->mWorldRect = mWorldRect;
+
+			pComponent->mIsDirty = true;
+
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
 	void CLayoutElement::SetWorldRect(const TRectF32& rect)
 	{
 		mWorldRect = rect;

@@ -54,6 +54,24 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CAudioSourceComponent::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pComponent = dynamic_cast<CAudioSourceComponent*>(pDestObject))
+		{
+			pComponent->mAudioClipId = mAudioClipId;
+			pComponent->mIsLooped = mIsLooped;
+			pComponent->mIsMuted = mIsMuted;
+			pComponent->mIsPaused = mIsPaused;
+			pComponent->mIsPlaying = mIsPlaying;
+			pComponent->mPanning = mPanning;
+			pComponent->mVolume = mVolume;
+
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
 	E_RESULT_CODE CAudioSourceComponent::SetAudioClipId(const std::string& id)
 	{
 		mAudioClipId = id;

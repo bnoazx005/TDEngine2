@@ -37,6 +37,21 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CLODStrategyComponent::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pComponent = dynamic_cast<CLODStrategyComponent*>(pDestObject))
+		{
+			pComponent->mLODInstances.clear();
+			std::copy(mLODInstances.begin(), mLODInstances.end(), std::back_inserter(pComponent->mLODInstances));
+
+			pComponent->mIsDirty = true;
+
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
 	E_RESULT_CODE CLODStrategyComponent::AddLODInstance(const TLODInstanceInfo& info)
 	{
 		mLODInstances.emplace_back(info);

@@ -29,6 +29,16 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CTrigger3D::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pComponent = dynamic_cast<CTrigger3D*>(pDestObject))
+		{
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
 
 	IComponent* CreateTrigger3D(E_RESULT_CODE& result)
 	{

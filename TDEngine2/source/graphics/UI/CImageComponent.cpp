@@ -64,6 +64,21 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CImage::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pComponent = dynamic_cast<CImage*>(pDestObject))
+		{
+			pComponent->mColor = mColor;
+			pComponent->mImageResourceId = mImageResourceId;
+			pComponent->mImageSpriteId = mImageSpriteId;
+			pComponent->mIsDirty = true;
+
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
 	E_RESULT_CODE CImage::SetImageId(const std::string& id)
 	{
 		if (id.empty())

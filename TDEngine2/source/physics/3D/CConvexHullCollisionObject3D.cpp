@@ -50,6 +50,21 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CConvexHullCollisionObject3D::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pComponent = dynamic_cast<CConvexHullCollisionObject3D*>(pDestObject))
+		{
+			pComponent->mType = mType;
+			pComponent->mMass = mMass;
+
+			pComponent->mHasChanged = true;
+
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
 	E_RESULT_CODE CConvexHullCollisionObject3D::SetVertices(const std::vector<TVector4>& vertices)
 	{
 		mpVertices = &vertices;

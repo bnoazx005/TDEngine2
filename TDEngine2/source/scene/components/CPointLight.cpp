@@ -37,6 +37,20 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CPointLight::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pComponent = dynamic_cast<CPointLight*>(pDestObject))
+		{
+			pComponent->mColor = mColor;
+			pComponent->mIntensity = mIntensity;
+			pComponent->mRange = mRange;
+
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
 	E_RESULT_CODE CPointLight::SetRange(F32 range)
 	{
 		if (range < 0.0f)

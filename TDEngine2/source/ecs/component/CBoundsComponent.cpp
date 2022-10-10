@@ -13,6 +13,17 @@ namespace TDEngine2
 		mBounds = aabbBounds;
 	}
 
+	E_RESULT_CODE CBoundsComponent::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pComponent = dynamic_cast<CBoundsComponent*>(pDestObject))
+		{
+			pComponent->mBounds = mBounds;
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
 	void CBoundsComponent::SetDirty(bool value)
 	{
 		mIsDirty = value;

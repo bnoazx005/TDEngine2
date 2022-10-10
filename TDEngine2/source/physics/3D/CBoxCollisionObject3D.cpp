@@ -50,6 +50,22 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CBoxCollisionObject3D::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pComponent = dynamic_cast<CBoxCollisionObject3D*>(pDestObject))
+		{
+			pComponent->mExtents = mExtents;
+			pComponent->mMass = mMass;
+			pComponent->mType = mType;
+
+			pComponent->mHasChanged = true;
+
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
 	void CBoxCollisionObject3D::SetSizes(const TVector3& extents)
 	{
 		mExtents = extents;

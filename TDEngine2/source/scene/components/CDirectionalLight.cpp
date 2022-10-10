@@ -47,6 +47,19 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
+
+	E_RESULT_CODE CDirectionalLight::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pComponent = dynamic_cast<CDirectionalLight*>(pDestObject))
+		{
+			pComponent->mColor = mColor;
+			pComponent->mIntensity = mIntensity;
+
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
 	
 
 	IComponent* CreateDirectionalLight(E_RESULT_CODE& result)

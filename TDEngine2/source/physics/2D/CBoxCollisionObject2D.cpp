@@ -41,6 +41,23 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CBoxCollisionObject2D::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pComponent = dynamic_cast<CBoxCollisionObject2D*>(pDestObject))
+		{
+			pComponent->mWidth = mWidth;
+			pComponent->mHeight = mHeight;
+			pComponent->mMass = mMass;
+			pComponent->mType = mType;
+
+			pComponent->mHasChanged = true;
+
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
 	void CBoxCollisionObject2D::SetWidth(F32 width)
 	{
 		mWidth = width;

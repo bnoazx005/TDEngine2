@@ -47,6 +47,21 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CParticleEmitter::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pComponent = dynamic_cast<CParticleEmitter*>(pDestObject))
+		{
+			pComponent->mIsPlaying = mIsPlaying;
+			pComponent->mParticleEffectId = mParticleEffectId;
+			pComponent->mParticleEffectName = mParticleEffectName;
+			pComponent->mResetStateOnNextFrame = mResetStateOnNextFrame;
+
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
 	E_RESULT_CODE CParticleEmitter::SetParticleEffect(const std::string& id)
 	{
 		if (id.empty())

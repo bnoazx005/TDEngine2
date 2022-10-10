@@ -49,6 +49,18 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CShadowCasterComponent::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pComponent = dynamic_cast<CShadowCasterComponent*>(pDestObject))
+		{
+			pComponent->mIsTransparent = mIsTransparent;
+
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
 	void CShadowCasterComponent::SetTransparentFlag(bool value)
 	{
 		mIsTransparent = value;

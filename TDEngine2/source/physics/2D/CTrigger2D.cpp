@@ -29,6 +29,16 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CTrigger2D::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pComponent = dynamic_cast<CTrigger2D*>(pDestObject))
+		{
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
 
 	IComponent* CreateTrigger2D(E_RESULT_CODE& result)
 	{

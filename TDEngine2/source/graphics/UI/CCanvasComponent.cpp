@@ -61,6 +61,22 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CCanvas::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pComponent = dynamic_cast<CCanvas*>(pDestObject))
+		{
+			pComponent->mWidth = mWidth;
+			pComponent->mHeight = mHeight;
+			pComponent->mInheritsSizesFromMainCamera = mInheritsSizesFromMainCamera;
+			
+			pComponent->mIsDirty = true;
+
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
 	void CCanvas::SetWidth(U32 value)
 	{
 		mWidth = value;

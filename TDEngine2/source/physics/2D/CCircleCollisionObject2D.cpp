@@ -39,6 +39,22 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CCircleCollisionObject2D::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pComponent = dynamic_cast<CCircleCollisionObject2D*>(pDestObject))
+		{
+			pComponent->mMass = mMass;
+			pComponent->mRadius = mRadius;
+			pComponent->mType = mType;
+
+			pComponent->mHasChanged = true;
+
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
 	void CCircleCollisionObject2D::SetRadius(F32 radius)
 	{
 		mRadius = radius;

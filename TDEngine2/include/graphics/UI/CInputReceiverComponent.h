@@ -62,6 +62,15 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
+			/*!
+				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
+				The original state of the object stays the same
+
+				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
+			*/
+
+			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
+
 			TDE2_API void SetPressedFlag(bool value);
 
 			TDE2_API void SetIgnoreInputFlag(bool value);

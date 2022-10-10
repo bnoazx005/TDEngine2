@@ -60,6 +60,33 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CSkinnedMeshContainer::Clone(IComponent*& pDestObject) const
+	{
+		if (CSkinnedMeshContainer* pDestComponent = dynamic_cast<CSkinnedMeshContainer*>(pDestObject))
+		{
+			pDestComponent->mMaterialName = mMaterialName;
+			pDestComponent->mMeshName = mMeshName;
+			pDestComponent->mSubMeshId = mSubMeshId;
+			pDestComponent->mSubMeshInfo.mIndicesCount = mSubMeshInfo.mIndicesCount;
+			pDestComponent->mSubMeshInfo.mStartIndex = mSubMeshInfo.mStartIndex;
+			pDestComponent->mSystemBuffersHandle = mSystemBuffersHandle;
+			pDestComponent->mSkeletonName = mSkeletonName;
+			pDestComponent->mShouldShowDebugSkeleton = mShouldShowDebugSkeleton;
+
+			pDestComponent->mCurrAnimationPose.clear();
+			std::copy(mCurrAnimationPose.begin(), mCurrAnimationPose.end(), std::back_inserter(pDestComponent->mCurrAnimationPose));
+
+#if TDE2_EDITORS_ENABLED
+			pDestComponent->mSubmeshesIdentifiers.clear();
+			std::copy(mSubmeshesIdentifiers.begin(), mSubmeshesIdentifiers.end(), std::back_inserter(pDestComponent->mSubmeshesIdentifiers));
+#endif
+
+			pDestComponent->mIsDirty = true;
+		}
+
+		return RC_OK;
+	}
+
 	void CSkinnedMeshContainer::SetMaterialName(const std::string& materialName)
 	{
 		mMaterialName = materialName;

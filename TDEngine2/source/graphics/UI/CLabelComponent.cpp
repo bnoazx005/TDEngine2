@@ -71,6 +71,24 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CLabel::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pComponent = dynamic_cast<CLabel*>(pDestObject))
+		{
+			pComponent->mAlignType = mAlignType;
+			pComponent->mFontDataVersionId = mFontDataVersionId;
+			pComponent->mFontResourceHandle = mFontResourceHandle;
+			pComponent->mFontResourceId = mFontResourceId;
+			pComponent->mOverflowPolicyType = mOverflowPolicyType;
+			pComponent->mPrevText = mPrevText;
+			pComponent->mText = mText;
+
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
 	void CLabel::SetText(const std::string& text)
 	{
 		mPrevText = mText;

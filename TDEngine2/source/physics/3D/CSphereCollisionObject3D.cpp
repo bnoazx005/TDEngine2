@@ -39,6 +39,22 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CSphereCollisionObject3D::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pComponent = dynamic_cast<CSphereCollisionObject3D*>(pDestObject))
+		{
+			pComponent->mRadius = mRadius;
+			pComponent->mType = mType;
+			pComponent->mMass = mMass;
+
+			pComponent->mHasChanged = true;
+
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
 	void CSphereCollisionObject3D::SetRadius(F32 radius)
 	{
 		mRadius = radius;

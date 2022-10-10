@@ -40,7 +40,22 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
-	
+
+	E_RESULT_CODE CPerspectiveCamera::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pComponent = dynamic_cast<CPerspectiveCamera*>(pDestObject))
+		{
+			pComponent->mAspectRatio = mAspectRatio;
+			pComponent->mFOV = mFOV;
+			pComponent->mZNear = mZNear;
+			pComponent->mZFar = mZFar;
+
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
 	E_RESULT_CODE CPerspectiveCamera::ComputeProjectionMatrix(const ICameraSystem* pCameraSystem)
 	{
 		if (!pCameraSystem)

@@ -71,6 +71,27 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CMeshAnimatorComponent::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pComponent = dynamic_cast<CMeshAnimatorComponent*>(pDestObject))
+		{
+			pComponent->mCurrAnimationPose.clear();
+			std::copy(mCurrAnimationPose.begin(), mCurrAnimationPose.end(), std::back_inserter(pComponent->mCurrAnimationPose));
+			
+			pComponent->mJointsCurrPositions.clear();
+			std::copy(mJointsCurrPositions.begin(), mJointsCurrPositions.end(), std::back_inserter(pComponent->mJointsCurrPositions));
+
+			pComponent->mJointsCurrRotation.clear();
+			std::copy(mJointsCurrRotation.begin(), mJointsCurrRotation.end(), std::back_inserter(pComponent->mJointsCurrRotation));
+
+			pComponent->mIsDirty = true;
+
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
 	void CMeshAnimatorComponent::SetDirtyFlag(bool value)
 	{
 		mIsDirty = value;

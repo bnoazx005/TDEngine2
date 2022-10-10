@@ -40,7 +40,22 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
-	
+
+	E_RESULT_CODE COrthoCamera::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pComponent = dynamic_cast<COrthoCamera*>(pDestObject))
+		{
+			pComponent->mWidth = mWidth;
+			pComponent->mHeight = mHeight;
+			pComponent->mZNear = mZNear;
+			pComponent->mZFar = mZFar;
+
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
 	E_RESULT_CODE COrthoCamera::ComputeProjectionMatrix(const ICameraSystem* pCameraSystem)
 	{
 		if (!pCameraSystem)

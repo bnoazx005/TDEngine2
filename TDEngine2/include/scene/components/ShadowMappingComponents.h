@@ -65,6 +65,15 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
 			/*!
+				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
+				The original state of the object stays the same
+
+				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
+			*/
+
+			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
+
+			/*!
 				\brief The method marks the object as transparent one
 
 				\param[in] value If the value is true, then the caster is supposed as a transparent object

@@ -59,6 +59,15 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
 			/*!
+				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
+				The original state of the object stays the same
+
+				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
+			*/
+
+			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
+
+			/*!
 				\brief The method sets up sizes of a box collider
 
 				\param[in] extents A vector each component defines width, height and depth of the box collider

@@ -58,6 +58,32 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CAnimationContainerComponent::Clone(IComponent*& pDestObject) const
+	{
+		if (auto pComponent = dynamic_cast<CAnimationContainerComponent*>(pDestObject))
+		{
+			pComponent->mAnimationClipId = mAnimationClipId;
+			pComponent->mAnimationClipResourceId = mAnimationClipResourceId;
+			pComponent->mCurrTime = mCurrTime;
+			pComponent->mDuration = mDuration;
+			pComponent->mIsPaused = mIsPaused;
+			pComponent->mIsPlaying = mIsPlaying;
+			pComponent->mIsStarted = mIsStarted;
+			pComponent->mIsStopped = mIsStopped;
+
+			pComponent->mCachedProperties.clear();
+
+			for (auto&& currProperty : mCachedProperties)
+			{
+				pComponent->mCachedProperties.insert({ currProperty.first, currProperty.second });
+			}
+
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
 	E_RESULT_CODE CAnimationContainerComponent::Play()
 	{
 		if (mIsStarted || mIsPlaying)
