@@ -87,16 +87,22 @@ namespace TDEngine2
 			pWriter->BeginGroup("components", true);
 			{
 				auto&& components = mpEntityManager->GetComponents(mId);
-				for (auto&& currComponent : components)
+				for (IComponent* pCurrComponent : components)
 				{
-					if (!currComponent || currComponent->IsRuntimeOnly())
+					if (!pCurrComponent)
+					{
+						continue;
+					}
+					TDE2_ASSERT(pCurrComponent);
+
+					if (pCurrComponent->IsRuntimeOnly())
 					{
 						continue;
 					}
 
 					pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
 					{
-						currComponent->Save(pWriter);
+						pCurrComponent->Save(pWriter);
 					}
 					pWriter->EndGroup();
 				}
