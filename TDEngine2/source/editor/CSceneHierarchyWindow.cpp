@@ -218,6 +218,19 @@ namespace TDEngine2
 							{
 								entitiesToDestroy.push(currChildId);
 							}
+
+							/// \note Try to remove the entity from the children list of its parent
+							const TEntityId parentId = pTransform->GetParent();
+							if (TEntityId::Invalid != parentId)
+							{
+								if (CEntity* pParentEntity = pWorld->FindEntity(parentId))
+								{
+									if (CTransform* pParentTransform = pParentEntity->GetComponent<CTransform>())
+									{
+										pParentTransform->DettachChild(id);
+									}
+								}
+							}
 						}
 
 						E_RESULT_CODE result = pWorld->Destroy(pEntity);
@@ -353,6 +366,11 @@ namespace TDEngine2
 
 					std::function<void(CEntity*)> drawEntityHierarchy = [this, &drawEntityHierarchy, pWorld, &currParentId, pCurrScene](CEntity* pEntity)
 					{
+						if (!pEntity)
+						{
+							return;
+						}
+
 						CTransform* pTransform = pEntity->GetComponent<CTransform>();
 
 						const TEntityId parentEntityId = pTransform->GetParent();
