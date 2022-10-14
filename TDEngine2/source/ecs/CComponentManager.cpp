@@ -556,6 +556,19 @@ namespace TDEngine2
 		}
 	}
 
+	void CComponentManager::ForEachFactory(const std::function<void(TPtr<IComponentFactory>)>& action)
+	{
+		if (!action)
+		{
+			return;
+		}
+
+		for (TPtr<IComponentFactory> pCurrFactory : mComponentFactories)
+		{
+			action(pCurrFactory);
+		}
+	}
+
 	std::vector<TEntityId> CComponentManager::FindEntitiesWithAll(const std::vector<TypeId>& types)
 	{
 		std::vector<TEntityId> filter;

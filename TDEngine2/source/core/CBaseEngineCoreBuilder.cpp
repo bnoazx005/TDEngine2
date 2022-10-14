@@ -535,7 +535,12 @@ namespace TDEngine2
 
 		// \todo load settings from  settings
 		auto pSceneManager = TPtr<ISceneManager>(CreateSceneManager(mpFileSystemInstance, pWorld,
-															TPtr<IPrefabsRegistry>(CreatePrefabsRegistry(mpResourceManagerInstance.Get(), mpFileSystemInstance.Get(), pWorld.Get(), result)),
+															TPtr<IPrefabsRegistry>(CreatePrefabsRegistry(
+																							mpResourceManagerInstance.Get(), 
+																							mpFileSystemInstance.Get(), 
+																							pWorld.Get(),
+																							mpEventManagerInstance.Get(),
+																							result)),
 															{ CProjectSettings::Get()->mScenesSettings.mMainLevelScenePath }, result));
 		if (result != RC_OK)
 		{

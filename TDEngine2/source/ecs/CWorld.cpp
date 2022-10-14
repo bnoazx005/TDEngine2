@@ -122,7 +122,16 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		return mpComponentManager->RegisterFactory(pFactory);
+		E_RESULT_CODE result = mpComponentManager->RegisterFactory(pFactory);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		TOnNewComponentFactoryRegistered event;
+		event.mpFactory = pFactory;
+
+		return mpEventManager->Notify(&event) | result;
 	}
 
 	E_RESULT_CODE CWorld::UnregisterComponentFactory(TypeId componentTypeId)
@@ -202,6 +211,11 @@ namespace TDEngine2
 	void CWorld::ForEachSystem(const std::function<void(TSystemId, const ISystem* const)> action) const
 	{
 		mpSystemManager->ForEachSystem(action);
+	}
+
+	void CWorld::ForEachComponentFactory(const std::function<void(TPtr<IComponentFactory>)>& action)
+	{
+		mpComponentManager->ForEachFactory(action);
 	}
 
 	void CWorld::SetTimeScaleFactor(F32 scaleFactor)

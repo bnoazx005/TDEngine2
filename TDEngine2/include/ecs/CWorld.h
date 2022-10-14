@@ -21,6 +21,10 @@ namespace TDEngine2
 	class IComponentManager;
 	class ISystemManager;
 	class IComponentIterator;
+	class IComponentFactory;
+
+
+	TDE2_DECLARE_SCOPED_PTR(IComponentFactory);
 
 
 	/*!
@@ -208,6 +212,8 @@ namespace TDEngine2
 
 			TDE2_API void ForEachSystem(const std::function<void(TSystemId, const ISystem* const)> action = nullptr) const override;
 
+			TDE2_API void ForEachComponentFactory(const std::function<void(TPtr<IComponentFactory>)>& action = nullptr) override;
+
 			/*!
 				\brief The method sets up time scale factor which impacts on update cycles of all entities and systems
 
@@ -286,6 +292,24 @@ namespace TDEngine2
 
 		TPtr<IWorld> mpWorldInstance;
 	} TOnNewWorldInstanceCreated, *TOnNewWorldInstanceCreatedPtr;
+
+
+	/*!
+		struct TOnNewComponentFactoryRegistered
+
+		\brief The structure represents an event which occurs when a new component's factory is registered
+	*/
+
+	typedef struct TOnNewComponentFactoryRegistered : TBaseEvent
+	{
+		virtual ~TOnNewComponentFactoryRegistered() = default;
+
+		TDE2_REGISTER_TYPE(TOnNewComponentFactoryRegistered)
+		REGISTER_EVENT_TYPE(TOnNewComponentFactoryRegistered)
+
+		TPtr<IComponentFactory> mpFactory = nullptr;
+	} TOnNewComponentFactoryRegistered, *TOnNewComponentFactoryRegisteredPtr;
+
 
 
 	/*!

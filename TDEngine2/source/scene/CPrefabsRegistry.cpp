@@ -23,14 +23,14 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CPrefabsRegistry::Init(IResourceManager* pResourceManager, IFileSystem* pFileSystem, IWorld* pWorld)
+	E_RESULT_CODE CPrefabsRegistry::Init(IResourceManager* pResourceManager, IFileSystem* pFileSystem, IWorld* pWorld, IEventManager* pEventManager)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pResourceManager || !pFileSystem || !pWorld)
+		if (!pResourceManager || !pFileSystem || !pWorld || !pEventManager)
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -38,11 +38,17 @@ namespace TDEngine2
 		mpResourceManager = pResourceManager;
 		mpFileSystem = pFileSystem;
 		mpWorld = pWorld;
+		mpMainEventManager = pEventManager;
 
 		E_RESULT_CODE result = RC_OK;
-
+		
 		mpComponentsManager = TPtr<IComponentManager>(CreateComponentManager(result));
 		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		if (RC_OK != (result = mpMainEventManager->Subscribe(TOnNewComponentFactoryRegistered::GetTypeId(), this)))
 		{
 			return result;
 		}
@@ -380,6 +386,24 @@ namespace TDEngine2
 
 #endif
 
+	E_RESULT_CODE CPrefabsRegistry::OnEvent(const TBaseEvent* pEvent)
+	{
+		const TOnNewComponentFactoryRegistered* pConcreteEvent = dynamic_cast<const TOnNewComponentFactoryRegistered*>(pEvent);
+		if (!pConcreteEvent)
+		{
+			TDE2_ASSERT(false);
+			return RC_FAIL;
+		}
+
+		/// \note Register all user's components factories to correctly spawn the prefabs that contains them
+		return mpComponentsManager->RegisterFactory(pConcreteEvent->mpFactory);
+	}
+
+	TEventListenerId CPrefabsRegistry::GetListenerId() const
+	{
+		return TEventListenerId(GetTypeId());
+	}
+
 	const std::vector<std::string>& CPrefabsRegistry::GetKnownPrefabsIdentifiers() const
 	{
 		static std::vector<std::string> prefabsList;
@@ -398,8 +422,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IPrefabsRegistry* CreatePrefabsRegistry(IResourceManager* pResourceManager, IFileSystem* pFileSystem, IWorld* pWorld, E_RESULT_CODE& result)
+	TDE2_API IPrefabsRegistry* CreatePrefabsRegistry(IResourceManager* pResourceManager, IFileSystem* pFileSystem, IWorld* pWorld, IEventManager* pEventManager, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IPrefabsRegistry, CPrefabsRegistry, result, pResourceManager, pFileSystem, pWorld);
+		return CREATE_IMPL(IPrefabsRegistry, CPrefabsRegistry, result, pResourceManager, pFileSystem, pWorld, pEventManager);
 	}
 }

@@ -124,7 +124,9 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void ForEach(TypeId componentTypeId, const std::function<void(TEntityId entityId, IComponent* pComponent)>& action) override;
-			
+
+			TDE2_API void ForEachFactory(const std::function<void(TPtr<IComponentFactory>)>& action = nullptr) override;
+
 			/*!
 				\brief The method returns an array of entities identifiers, which have all of
 				specified components

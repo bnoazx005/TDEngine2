@@ -202,6 +202,8 @@ namespace TDEngine2
 
 			TDE2_API virtual void ForEach(TypeId componentTypeId, const std::function<void(TEntityId entityId, IComponent* pComponent)>& action) = 0;
 
+			TDE2_API virtual void ForEachFactory(const std::function<void(TPtr<IComponentFactory>)>& action = nullptr) = 0;
+
 			/*!
 				\brief The method returns an array of entities identifiers, which have all of
 				specified components

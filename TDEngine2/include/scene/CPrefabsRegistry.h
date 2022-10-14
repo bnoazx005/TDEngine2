@@ -9,6 +9,7 @@
 
 #include "IPrefabsRegistry.h"
 #include "../core/CBaseObject.h"
+#include "../core/Event.h"
 #include <unordered_map>
 
 
@@ -33,13 +34,14 @@ namespace TDEngine2
 		\param[in, out] pResourceManager A pointer to IResourceManager's implementation
 		\param[in, out] pFileSystem A pointer to IFileSystem's implementation
 		\param[in, out] pWorld A pointer to IWorld's implementation
+				\param[in, out] pEventManager A pointer to IEventManager implementation
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to CStaticMeshFactory's implementation
 	*/
 
-	TDE2_API IPrefabsRegistry* CreatePrefabsRegistry(IResourceManager* pResourceManager, IFileSystem* pFileSystem, IWorld* pWorld, E_RESULT_CODE& result);
+	TDE2_API IPrefabsRegistry* CreatePrefabsRegistry(IResourceManager* pResourceManager, IFileSystem* pFileSystem, IWorld* pWorld, IEventManager* pEventManager, E_RESULT_CODE& result);
 
 
 	/*!
@@ -48,10 +50,10 @@ namespace TDEngine2
 		\brief The class is an implementation of a prefabs factory
 	*/
 
-	class CPrefabsRegistry : public CBaseObject, public IPrefabsRegistry
+	class CPrefabsRegistry : public CBaseObject, public IPrefabsRegistry, public IEventHandler
 	{
 		public:
-			friend TDE2_API IPrefabsRegistry* CreatePrefabsRegistry(IResourceManager*, IFileSystem*, IWorld*, E_RESULT_CODE&);
+			friend TDE2_API IPrefabsRegistry* CreatePrefabsRegistry(IResourceManager*, IFileSystem*, IWorld*, IEventManager*, E_RESULT_CODE&);
 		public:
 			struct TPrefabInfoEntity
 			{
@@ -61,17 +63,20 @@ namespace TDEngine2
 
 			typedef std::unordered_map<std::string, TPrefabInfoEntity> TPrefabsTable;
 		public:
+			TDE2_REGISTER_TYPE(CPrefabsRegistry);
+
 			/*!
 				\brief The method initializes the internal state of the object
 
 				\param[in, out] pResourceManager A pointer to IResourceManager implementation
 				\param[in, out] pFileSystem A pointer to IFileSystem implementation
 				\param[in, out] pWorld A pointer to IWorld implementation
+				\param[in, out] pEventManager A pointer to IEventManager implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IFileSystem* pFileSystem, IWorld* pWorld) override;
+			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IFileSystem* pFileSystem, IWorld* pWorld, IEventManager* pEventManager) override;
 
 			TDE2_API CEntity* Spawn(const std::string& id, CEntity* pParent = nullptr, const TEntityCallback & prefabEntityVisitor = nullptr) override;
 
@@ -84,6 +89,23 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE SavePrefab(const std::string& id, const std::string& filePath, CEntity* pHierarchyRoot) override;
 #endif
+			/*!
+				\brief The method receives a given event and processes it
+
+				\param[in] pEvent A pointer to event data
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE OnEvent(const TBaseEvent* pEvent) override;
+
+			/*!
+				\brief The method returns an identifier of a listener
+
+				\return The method returns an identifier of a listener
+			*/
+
+			TDE2_API TEventListenerId GetListenerId() const override;
 
 			/*!
 				\brief The method returns an array of prefabs identifier that were declared in already loaded prefabs manifest
@@ -98,6 +120,7 @@ namespace TDEngine2
 			IResourceManager*       mpResourceManager;
 			IFileSystem*            mpFileSystem;
 			IWorld*                 mpWorld;
+			IEventManager*          mpMainEventManager;
 			TPtr<IComponentManager> mpComponentsManager;
 			TPtr<CEntityManager>    mpEntitiesManager;
 			TPtr<IEventManager>     mpProxyEventsManager;

@@ -19,6 +19,7 @@ namespace TDEngine2
 	class IResourceManager;
 	class IWorld;
 	class CEntity;
+	class IEventManager;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IFileSystem)
@@ -53,11 +54,12 @@ namespace TDEngine2
 				\param[in, out] pResourceManager A pointer to IResourceManager implementation
 				\param[in, out] pFileSystem A pointer to IFileSystem implementation
 				\param[in, out] pWorld A pointer to IWorld implementation
+				\param[in, out] pEventManager A pointer to IEventManager implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IFileSystem* pFileSystem, IWorld* pWorld) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IFileSystem* pFileSystem, IWorld* pWorld, IEventManager* pEventManager) = 0;
 
 			/*!
 				\brief The method instantiates a new copy of specified prefab's hierarchy

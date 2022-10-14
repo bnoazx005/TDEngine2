@@ -280,6 +280,8 @@ namespace TDEngine2
 				return _forEach(T::GetTypeId(), action);
 			}
 
+			TDE2_API virtual void ForEachComponentFactory(const std::function<void(TPtr<IComponentFactory>)>& action = nullptr) = 0;
+
 			/*!
 				\brief The method returns an array of entities identifiers, which have all of
 				specified components
