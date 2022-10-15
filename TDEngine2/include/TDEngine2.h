@@ -224,6 +224,7 @@
 #include "editor/CProjectSettingsWindow.h"
 #include "editor/EditorUtils.h"
 #include "editor/CResourcesBuildManifest.h"
+#include "editor/CStatsViewerWindow.h"
 
 ///math
 #include "math/TVector2.h"

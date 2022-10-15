@@ -62,6 +62,7 @@
 #include "../../include/editor/CRenderTargetViewerWindow.h"
 #include "../../include/editor/CProjectSettingsWindow.h"
 #include "../../include/editor/Inspectors.h"
+#include "../../include/editor/CStatsViewerWindow.h"
 #include "../../include/graphics/CFramePostProcessor.h"
 #include "../../include/graphics/CBasePostProcessingProfile.h"
 #include "../../include/graphics/IDebugUtility.h"
@@ -488,21 +489,23 @@ namespace TDEngine2
 				mpFileSystemInstance.Get()
 			}, result);
 
-		std::tuple<std::string, IEditorWindow*> builtinEditors[]
+		/// \note The third parameter determines whether or not the window should be displayed in overlayed mode 
+		std::tuple<std::string, IEditorWindow*, bool> builtinEditors[]
 		{
-			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::TIME_PROFILER), CreateTimeProfilerEditorWindow(CPerfProfiler::Get(), result) },
-			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::MEMORY_PROFILER), CreateMemoryProfilerEditorWindow(DynamicPtrCast<IMemoryProfiler>(CMemoryProfiler::Get()), result) },
-			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::LEVEL_EDITOR), pLevelEditorWindow },
-			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::DEV_CONSOLE), CreateDevConsoleWindow(result) },
-			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::RENDER_TARGET_VIEWER), CreateRenderTargetViewerEditorWindow(mpResourceManagerInstance.Get(), result) },
-			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::PROJECT_SETTINGS_EDITOR), CreateProjectSettingsWindow(mpEventManagerInstance, result) },
+			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::TIME_PROFILER), CreateTimeProfilerEditorWindow(CPerfProfiler::Get(), result), false },
+			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::MEMORY_PROFILER), CreateMemoryProfilerEditorWindow(DynamicPtrCast<IMemoryProfiler>(CMemoryProfiler::Get()), result), false },
+			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::LEVEL_EDITOR), pLevelEditorWindow, false },
+			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::DEV_CONSOLE), CreateDevConsoleWindow(result), false },
+			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::RENDER_TARGET_VIEWER), CreateRenderTargetViewerEditorWindow(mpResourceManagerInstance.Get(), result), false },
+			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::PROJECT_SETTINGS_EDITOR), CreateProjectSettingsWindow(mpEventManagerInstance, result), false },
+			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::STATISTICS_OVERLAYED_VIEWER), CreateStatsViewerWindow(result), true },
 		};
 
 		dynamic_cast<CTimeProfilerEditorWindow*>(std::get<1>(builtinEditors[0]))->SetMainThreadID(mainThreadID);
 
 		for (auto& currEditorEntry : builtinEditors)
 		{
-			result = result | pEditorsManager->RegisterEditor(std::get<std::string>(currEditorEntry), std::get<IEditorWindow*>(currEditorEntry));
+			result = result | pEditorsManager->RegisterEditor(std::get<std::string>(currEditorEntry), std::get<IEditorWindow*>(currEditorEntry), false, std::get<bool>(currEditorEntry));
 		}
 
 		if (result != RC_OK)

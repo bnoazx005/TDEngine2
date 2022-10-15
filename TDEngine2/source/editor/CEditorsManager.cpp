@@ -29,6 +29,7 @@ namespace TDEngine2
 		{ E_EDITOR_TYPE::DEV_CONSOLE, "Console" },
 		{ E_EDITOR_TYPE::RENDER_TARGET_VIEWER, "RTs Viewer" },
 		{ E_EDITOR_TYPE::PROJECT_SETTINGS_EDITOR, "Project Settings" },
+		{ E_EDITOR_TYPE::STATISTICS_OVERLAYED_VIEWER, "Statistics Overlay" },
 	};
 
 
@@ -86,7 +87,7 @@ namespace TDEngine2
 		return result;
 	}
 
-	E_RESULT_CODE CEditorsManager::RegisterEditor(const std::string& commandName, IEditorWindow* pEditorWindow, bool isSeparate)
+	E_RESULT_CODE CEditorsManager::RegisterEditor(const std::string& commandName, IEditorWindow* pEditorWindow, bool isSeparate, bool isOverlayed)
 	{
 		if (commandName.empty() || !pEditorWindow)
 		{
@@ -101,7 +102,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mRegisteredEditors.emplace_back(commandName, pEditorWindow, isSeparate);
+		mRegisteredEditors.emplace_back(commandName, pEditorWindow, isSeparate, isOverlayed);
 
 		return RC_OK;
 	}
@@ -262,10 +263,27 @@ namespace TDEngine2
 		return mpWorld;
 	}
 
+
+	static inline void DrawAllWindows(IImGUIContext* pImGUIContext, CEditorsManager::TEditorsArray& editors, F32 dt, bool overlayedMode = false)
+	{
+		for (auto& currEditorEntry : editors)
+		{
+			IEditorWindow* pCurrEditorWindow = std::get<IEditorWindow*>(currEditorEntry);
+			if (!pCurrEditorWindow || (overlayedMode && !std::get<3>(currEditorEntry)))
+			{
+				continue;
+			}
+
+			pCurrEditorWindow->Draw(pImGUIContext, dt);
+		}
+	}
+
+
 	E_RESULT_CODE CEditorsManager::_showEditorWindows(F32 dt)
 	{
 		if (!mIsVisible)
 		{
+			DrawAllWindows(mpImGUIContext.Get(), mRegisteredEditors, dt, true); /// editor windows with overlay mode is drawn no matter on current state of the manager
 			return RC_OK;
 		}
 
@@ -283,12 +301,12 @@ namespace TDEngine2
 			{
 				std::string currCommandName;
 				IEditorWindow* pCurrEditorWindow = nullptr;
-				bool isSeparate = false;
+				bool isSeparate = false, isOverlayed = false;
 
 				// \todo Draw all buttons here, next step is to add sub-menus based on states
 				for (auto& pCurrEditorWindowEntry : mRegisteredEditors)
 				{
-					std::tie(currCommandName, pCurrEditorWindow, isSeparate) = pCurrEditorWindowEntry;
+					std::tie(currCommandName, pCurrEditorWindow, isSeparate, isOverlayed) = pCurrEditorWindowEntry;
 
 					if (isSeparate)
 					{
@@ -308,16 +326,7 @@ namespace TDEngine2
 			mpImGUIContext->EndWindow();
 		}
 
-		for (auto& currEditorEntry : mRegisteredEditors)
-		{
-			IEditorWindow* pCurrEditorWindow = std::get<IEditorWindow*>(currEditorEntry);
-			if (!pCurrEditorWindow)
-			{
-				continue;
-			}
-
-			pCurrEditorWindow->Draw(mpImGUIContext.Get(), dt);
-		}
+		DrawAllWindows(mpImGUIContext.Get(), mRegisteredEditors, dt, false);
 
 		return RC_OK;
 	}

@@ -184,6 +184,8 @@ namespace TDEngine2
 			std::string      mName;
 
 			std::atomic_bool mIsVisible;
+
+			F32              mCurrDelta = 0.0f;
 	};
 }
 

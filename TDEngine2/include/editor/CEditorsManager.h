@@ -31,6 +31,7 @@ namespace TDEngine2
 		DEV_CONSOLE,
 		RENDER_TARGET_VIEWER,
 		PROJECT_SETTINGS_EDITOR,
+		STATISTICS_OVERLAYED_VIEWER,
 	};
 
 
@@ -61,7 +62,7 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IEditorsManager* CreateEditorsManager(TPtr<IInputContext>, TPtr<IImGUIContext>, TPtr<IEventManager>, TPtr<IWorld>, E_RESULT_CODE&);
 		public:
-			typedef std::vector<std::tuple<std::string, IEditorWindow*, bool>> TEditorsArray;
+			typedef std::vector<std::tuple<std::string, IEditorWindow*, bool, bool>> TEditorsArray;
 		public:
 			TDE2_REGISTER_TYPE(CEditorsManager)
 
@@ -87,7 +88,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE RegisterEditor(const std::string& commandName, IEditorWindow* pEditorWindow, bool isSeparate = false) override;
+			TDE2_API E_RESULT_CODE RegisterEditor(const std::string& commandName, IEditorWindow* pEditorWindow, bool isSeparate = false, bool isOverlayed = false) override;
 
 			/*!
 				\brief The method registers inspector for the given component's type

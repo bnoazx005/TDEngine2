@@ -869,7 +869,7 @@ namespace TDEngine2
 			ImGui::SetNextWindowSize(ImVec2(sizes.x, sizes.y));
 		}
 
-		flags |= (params.mIsInputTransparent ? (ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoMouseInputs) : 0x0);
+		flags |= (params.mIsInputTransparent ? (ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoMouseInputs | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground) : 0x0);
 
 		if (params.mIsFullscreen)
 		{

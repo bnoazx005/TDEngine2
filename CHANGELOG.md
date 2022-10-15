@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.12] 2022-10-14
+## [0.6.12] 2022-10-15
 
 ### Added
 
@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The functionality for saving hierarchies into prefabs was implemented.
 
 - A new concept of runtime-only components that are not serialized was introduced.
+
+- Now editor windows can be drawn in overlayed mode.
+
+- A new editor window which is a statistics overlay window was added. 
 
 ### Changed
 

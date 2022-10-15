@@ -41,6 +41,7 @@ namespace TDEngine2
 
 	void CBaseEditorWindow::_onUpdate(F32 dt)
 	{
+		mCurrDelta = dt;
 	}
 }
 
