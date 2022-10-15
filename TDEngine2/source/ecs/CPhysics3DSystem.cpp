@@ -164,6 +164,33 @@ namespace TDEngine2
 		}
 	}
 
+
+	static void ProcessCollisions(IEventManager* pEventManager, btDiscreteDynamicsWorld* pPhysicsWorld)
+	{
+		btDispatcher* pCollisionsDispatcher = pPhysicsWorld->getDispatcher();
+
+		for (I32 i = 0; i < pCollisionsDispatcher->getNumManifolds(); i++)
+		{
+			auto pCurrManifold = pCollisionsDispatcher->getManifoldByIndexInternal(i);
+			if (!pCurrManifold)
+			{
+				continue;
+			}
+
+			if (!pCurrManifold->getNumContacts())
+			{
+				continue;
+			}
+
+			TOn3DCollisionRegisteredEvent collisionEventData;
+			collisionEventData.mEntities[0] = static_cast<TEntityId>(pCurrManifold->getBody0()->getUserIndex());
+			collisionEventData.mEntities[1] = static_cast<TEntityId>(pCurrManifold->getBody1()->getUserIndex());
+
+			pEventManager->Notify(&collisionEventData);
+		}
+	}
+
+
 	void CPhysics3DSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		TDE2_PROFILER_SCOPE("CPhysics3DSystem::Update");
@@ -176,6 +203,8 @@ namespace TDEngine2
 		}
 		
 		mpWorld->stepSimulation(mCurrTimeStep, mCurrPositionIterations);
+
+		ProcessCollisions(mpEventManager, mpWorld);
 
 #if 1
 		const btCollisionObject* pColliderObject = nullptr;
