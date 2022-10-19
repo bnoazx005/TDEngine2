@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.12] 2022-10-15
+## [0.6.12] 2022-10-19
 
 ### Added
 
@@ -36,6 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The implementation of auto-tests' registration system was fixed.
 
 - The prefabs registry's implementation was fixed to support spawning entities with non-built in component types. 
+
+- Intersection of kinematic/static 3d physics objects was fixed.
 
 ## [0.6.11] 2022-09-24
 

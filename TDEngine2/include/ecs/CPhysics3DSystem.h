@@ -75,6 +75,8 @@ namespace TDEngine2
 
 				std::vector<btMotionState*>          mpMotionHandlers;
 
+				std::vector<bool>                    mInUseTable;
+
 				void Clear();
 			} TPhysicsObjectsData;
 

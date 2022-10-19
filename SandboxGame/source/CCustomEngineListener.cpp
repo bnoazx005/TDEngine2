@@ -288,6 +288,52 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			pScene->CreateSkybox(mpResourceManager, "DefaultResources/Textures/DefaultSkybox");
 			pScene->CreatePointLight(TColorUtils::mWhite, 1.0f, 10.0f);
 
+#if 1 /// 3D Physics Tests
+			if (auto pPhysicsObject0 = pScene->CreateEntity("PhysicsObject1"))
+			{
+				if (auto pMeshContainer = pPhysicsObject0->AddComponent<CStaticMeshContainer>())
+				{
+					pMeshContainer->SetMaterialName("ProjectResources/Materials/DefaultMaterial.material");
+					pMeshContainer->SetMeshName("Cube");
+				}
+
+				if (auto pCollider = pPhysicsObject0->AddComponent<CBoxCollisionObject3D>())
+				{
+					pCollider->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_STATIC);
+					pCollider->SetSizes(TVector3(1.0f));
+				}
+
+				if (auto pTransform = pPhysicsObject0->AddComponent<CTransform>())
+				{
+					pTransform->SetPosition(TVector3(5.0f, 0.0f, 0.0f));
+				}
+
+				//pPhysicsObject0->AddComponent<CTrigger3D>();
+			}
+
+			if (auto pPhysicsObject0 = pScene->CreateEntity("PhysicsObject2"))
+			{
+				if (auto pMeshContainer = pPhysicsObject0->AddComponent<CStaticMeshContainer>())
+				{
+					pMeshContainer->SetMaterialName("ProjectResources/Materials/DefaultMaterial.material");
+					pMeshContainer->SetMeshName("Cube");
+				}
+
+				if (auto pCollider = pPhysicsObject0->AddComponent<CBoxCollisionObject3D>())
+				{
+					pCollider->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_KINEMATIC);
+					pCollider->SetSizes(TVector3(1.0f));
+				}
+
+				if (auto pTransform = pPhysicsObject0->AddComponent<CTransform>())
+				{
+					pTransform->SetPosition(TVector3(5.0f, 0.0f, 0.0f));
+				}
+
+				//pPhysicsObject0->AddComponent<CTrigger3D>();
+			}
+#endif 
+
 #if 0 /// Test UI layout
 			if (auto pCanvasEntity = pScene->CreateEntity("Canvas"))
 			{
