@@ -35,6 +35,18 @@ namespace TDEngine2
 		mInUseTable.clear();
 	}
 
+	void CPhysics3DSystem::TPhysicsObjectsData::EraseItem(USIZE index)
+	{
+		TDE2_ASSERT(mpTransforms.size() > index);
+
+		mpTransforms.erase(mpTransforms.begin() + index);
+		mpCollisionObjects.erase(mpCollisionObjects.begin() + index);
+		mpBulletColliderShapes.erase(mpBulletColliderShapes.begin() + index);
+		mpInternalCollisionObjects.erase(mpInternalCollisionObjects.begin() + index);
+		mpTriggers.erase(mpTriggers.begin() + index);
+		mInUseTable.erase(mInUseTable.begin() + index);
+	}
+
 
 	CPhysics3DSystem::TEntitiesMotionState::TEntitiesMotionState(CTransform* pEntityTransform, const btTransform& startTrans, const btTransform& centerOfMassOffset):
 		mpEntityTransform(pEntityTransform), mGraphicsWorldTrans(startTrans), mCenterOfMassOffset(centerOfMassOffset), mStartWorldTrans(startTrans),	mUserPointer(0)
@@ -136,7 +148,8 @@ namespace TDEngine2
 			auto it = std::find_if(transforms.begin(), transforms.end(), [currEntityId](auto&& element) { return element->GetOwnerId() == currEntityId; });
 			if (it != transforms.end())
 			{
-				/// \todo The entity's already registered, but parameters could be changed
+				/// \note The entity's already registered, but parameters could be changed
+				usageTable[static_cast<USIZE>(std::distance(transforms.begin(), it))] = true;
 
 				/// \todo Retrieve collision object and its 'dirty' flag
 				/// \todo If the flag is true that means we should recreate physics representation for the entity
@@ -175,6 +188,8 @@ namespace TDEngine2
 			{
 				std::tie(pCurrCollisionObject, pMotionHandler) = _createRigidbody(*pBaseCollisionObject, pTransform, pInternalColliderShape);
 				mpWorld->addRigidBody(btRigidBody::upcast(pCurrCollisionObject));
+
+				mPhysicsObjectsData.mpTriggers.push_back(nullptr);
 			}
 
 			pCurrCollisionObject->setUserIndex(static_cast<U32>(currEntityId));
@@ -185,6 +200,21 @@ namespace TDEngine2
 		}
 
 		/// \note Remove unused entities from the internal world
+		auto it = usageTable.begin();
+
+		while (it != usageTable.end())
+		{
+			if (*it)
+			{
+				it++;
+				continue;
+			}
+
+			const USIZE index = static_cast<USIZE>(std::distance(usageTable.begin(), it));
+			mPhysicsObjectsData.EraseItem(index);
+			
+			it = usageTable.begin() + index;
+		}
 	}
 
 
@@ -263,6 +293,11 @@ namespace TDEngine2
 
 		for (auto&& pCurrTrigger : mPhysicsObjectsData.mpTriggers)
 		{
+			if (!pCurrTrigger)
+			{
+				continue;
+			}
+
 			btManifoldArray manifoldArray;
 			auto&& overlappingPairs = pCurrTrigger->getOverlappingPairCache()->getOverlappingPairArray();
 

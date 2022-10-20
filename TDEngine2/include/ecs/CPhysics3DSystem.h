@@ -78,6 +78,8 @@ namespace TDEngine2
 				std::vector<bool>                    mInUseTable;
 
 				void Clear();
+
+				void EraseItem(USIZE index);
 			} TPhysicsObjectsData;
 
 			/// \fixme Replace this directive with alignas when corresponding functionality will be supported in tde2_introspector
