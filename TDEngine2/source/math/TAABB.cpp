@@ -43,6 +43,23 @@ namespace TDEngine2
 	}
 
 
+	bool ContainsAABB(const TAABB& aabb0, const TAABB& aabb1)
+	{
+		const TVector3& min0 = aabb0.min;
+		const TVector3& max0 = aabb0.max;
+
+		const TVector3& min1 = aabb1.min;
+		const TVector3& max1 = aabb1.max;
+
+		return CMathUtils::IsGreatOrEqual(min1.x, min0.x) && CMathUtils::IsLessOrEqual(min1.x, max0.x) &&
+			CMathUtils::IsGreatOrEqual(max1.x, min0.x) && CMathUtils::IsLessOrEqual(max1.x, max0.x) &&
+			CMathUtils::IsGreatOrEqual(min1.y, min0.y) && CMathUtils::IsLessOrEqual(min1.y, max0.y) &&
+			CMathUtils::IsGreatOrEqual(max1.y, min0.y) && CMathUtils::IsLessOrEqual(max1.y, max0.y) &&
+			CMathUtils::IsGreatOrEqual(min1.z, min0.z) && CMathUtils::IsLessOrEqual(min1.z, max0.z) &&
+			CMathUtils::IsGreatOrEqual(max1.z, min0.z) && CMathUtils::IsLessOrEqual(max1.z, max0.z);
+	}
+
+
 	TAABB UnionBoundingBoxes(const TAABB& left, const TAABB& right)
 	{
 		auto minVec3 = [](const TVector3& lvec3, const TVector3& rvec3)

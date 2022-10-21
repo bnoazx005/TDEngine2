@@ -66,6 +66,12 @@ namespace TDEngine2
 
 	TDE2_API bool ContainsPoint(const TAABB& aabb, const TVector3& point);
 
+	/*!
+		\brief The function returns true if aabb1 stays inside the volume aabb0
+	*/
+
+	TDE2_API bool ContainsAABB(const TAABB& aabb0, const TAABB& aabb1);
+
 	TDE2_API TAABB UnionBoundingBoxes(const TAABB& left, const TAABB& right);
 
 }

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.12] 2022-10-19
+## [0.6.12] 2022-10-21
 
 ### Added
 
@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Now editor windows can be drawn in overlayed mode.
 
 - A new editor window which is a statistics overlay window was added. 
+
+- A new function ContainsAABB for **TAABB** type was defined.
 
 ### Changed
 
