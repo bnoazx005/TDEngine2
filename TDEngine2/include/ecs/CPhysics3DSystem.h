@@ -260,11 +260,20 @@ namespace TDEngine2
 
 	typedef struct TOn3DCollisionRegisteredEvent : TBaseEvent
 	{
+		enum class E_COLLISION_EVENT_TYPE : U8
+		{
+			ON_ENTER,
+			ON_STAY,
+			ON_EXIT
+		};
+
 		virtual ~TOn3DCollisionRegisteredEvent() = default;
 
 		TDE2_REGISTER_TYPE(TOn3DCollisionRegisteredEvent)
 		REGISTER_EVENT_TYPE(TOn3DCollisionRegisteredEvent)
 
-		TEntityId mEntities[2]; ///< Two bodies that were collided
+		TEntityId              mEntities[2]; ///< Two bodies that were collided
+		TVector3               mContactNormal;
+		E_COLLISION_EVENT_TYPE mType;
 	} TOn3DCollisionRegisteredEvent, *TOn3DCollisionRegisteredEventPtr;
 }

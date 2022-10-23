@@ -14,6 +14,7 @@
 //#include "./../../deps/bullet3/src/BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include <algorithm>
+#include <unordered_set>
 
 
 namespace TDEngine2
@@ -221,36 +222,107 @@ namespace TDEngine2
 	struct TCollisionObjectTestCallback : btCollisionWorld::ContactResultCallback
 	{
 		public:
-			explicit TCollisionObjectTestCallback(IEventManager* pEventManager):
-				mpEventManager(pEventManager)
+			explicit TCollisionObjectTestCallback():
+				mCollidedPairs()
 			{
+				static_assert(2 * sizeof(U32) >= sizeof(U64), "U64 type should be at least two times bigger than U32");
+			}
+
+			void PreCollisionTests()
+			{
+				mPrevCollidedPairsHashTable.clear();
+				std::copy(mCurrCollidedPairsHashTable.begin(), mCurrCollidedPairsHashTable.end(), std::inserter(mPrevCollidedPairsHashTable, mPrevCollidedPairsHashTable.begin()));
+
+				mCurrCollidedPairsHashTable.clear();
+				mCollidedPairs.clear();
 			}
 
 			btScalar addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) override
 			{
-				TOn3DCollisionRegisteredEvent collisionEventData;
-				collisionEventData.mEntities[0] = static_cast<TEntityId>(colObj0Wrap->getCollisionObject()->getUserIndex());
-				collisionEventData.mEntities[1] = static_cast<TEntityId>(colObj1Wrap->getCollisionObject()->getUserIndex());
+				const U32 firstColliderId = static_cast<U32>(colObj0Wrap->getCollisionObject()->getUserIndex());
+				const U32 secondColliderId = static_cast<U32>(colObj1Wrap->getCollisionObject()->getUserIndex());
 
-				mpEventManager->Notify(&collisionEventData);
+				auto it = std::find_if(mCollidedPairs.begin(), mCollidedPairs.end(), [firstColliderId, secondColliderId](auto&& entity)
+				{
+					return (std::get<0>(entity) == firstColliderId && std::get<1>(entity) == secondColliderId) ||
+						(std::get<1>(entity) == firstColliderId && std::get<0>(entity) == secondColliderId);
+				});
+
+				/// \note Don't add duplicates
+				if (it == mCollidedPairs.end())
+				{
+					const btVector3& normal = cp.m_normalWorldOnB;
+					mCollidedPairs.emplace_back(std::make_tuple(firstColliderId, secondColliderId, Normalize(TVector3(normal.x(), normal.y(), normal.z()))));
+					
+					mCurrCollidedPairsHashTable.insert(static_cast<U64>(static_cast<U64>(firstColliderId) << sizeof(U32) | secondColliderId));
+				}
 
 				return 0.0f;
 			}
 
+			void NotifyPhysicsEvents(IEventManager* pEventManager)
+			{
+				U32 firstHandle = 0;
+				U32 secondHandle = 0;
+				TVector3 normal;
+
+				for (auto&& currPair : mCollidedPairs)
+				{
+					std::tie(firstHandle, secondHandle, normal) = currPair;
+
+					TOn3DCollisionRegisteredEvent collisionEventData;
+					collisionEventData.mEntities[0] = static_cast<TEntityId>(firstHandle);
+					collisionEventData.mEntities[1] = static_cast<TEntityId>(secondHandle);
+					collisionEventData.mContactNormal = normal;
+
+					const U64 hash = static_cast<U64>(static_cast<U64>(firstHandle) << sizeof(U32) | secondHandle);
+
+					collisionEventData.mType = mPrevCollidedPairsHashTable.find(hash) != mPrevCollidedPairsHashTable.end() ?
+						TOn3DCollisionRegisteredEvent::E_COLLISION_EVENT_TYPE::ON_STAY :
+						TOn3DCollisionRegisteredEvent::E_COLLISION_EVENT_TYPE::ON_ENTER;
+
+					pEventManager->Notify(&collisionEventData);
+				}
+
+				/// \note Check up exit events
+				if (!mPrevCollidedPairsHashTable.empty())
+				{
+					static std::vector<U64> diff;
+					diff.clear();
+
+					std::set_difference(mPrevCollidedPairsHashTable.begin(), mPrevCollidedPairsHashTable.cend(),
+						mCurrCollidedPairsHashTable.begin(), mCurrCollidedPairsHashTable.end(),
+						std::back_inserter(diff));
+
+					for (U64 currHash : diff)
+					{
+						TOn3DCollisionRegisteredEvent collisionEventData;
+						collisionEventData.mEntities[0] = static_cast<TEntityId>(currHash >> sizeof(U32));
+						collisionEventData.mEntities[1] = static_cast<TEntityId>(currHash & (std::numeric_limits<U32>::max)());
+						collisionEventData.mType = TOn3DCollisionRegisteredEvent::E_COLLISION_EVENT_TYPE::ON_EXIT;
+
+						pEventManager->Notify(&collisionEventData);
+					}
+				}
+			}
 		private:
-			IEventManager* mpEventManager = nullptr;
+			std::vector<std::tuple<U32, U32, TVector3>> mCollidedPairs;
+			std::unordered_set<U64>                     mPrevCollidedPairsHashTable;
+			std::unordered_set<U64>                     mCurrCollidedPairsHashTable;
 	};
 
 
 	static void UpdateKinematicObjects(std::vector<CTransform*>& transforms, std::vector<btCollisionObject*>& collisionObjects, btDiscreteDynamicsWorld* pPhysicsWorld, IEventManager* pEventManager)
 	{
-		TCollisionObjectTestCallback callback(pEventManager);
-
+		static TCollisionObjectTestCallback callback;
+		
+		callback.PreCollisionTests();
+		
 		for (USIZE i = 0; i < collisionObjects.size(); ++i)
 		{
 			auto& pCollisionObject = collisionObjects[i];
 
-			if (!pCollisionObject->isKinematicObject())
+			if (!pCollisionObject->isStaticOrKinematicObject())
 			{
 				continue;
 			}
@@ -270,6 +342,8 @@ namespace TDEngine2
 
 			pPhysicsWorld->contactTest(pCollisionObject, callback);
 		}
+
+		callback.NotifyPhysicsEvents(pEventManager);
 	}
 
 

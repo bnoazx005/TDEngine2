@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.12] 2022-10-21
+## [0.6.12] 2022-10-23
 
 ### Added
 
@@ -40,6 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The prefabs registry's implementation was fixed to support spawning entities with non-built in component types. 
 
 - Intersection of kinematic/static 3d physics objects was fixed.
+
+- Remove duplicated 3d collision events for static/kinematic objects.
 
 ## [0.6.11] 2022-09-24
 
