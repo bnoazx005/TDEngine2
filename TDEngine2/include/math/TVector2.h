@@ -7,9 +7,9 @@
 #pragma once
 
 
-#include "./../../include/utils/Types.h"
+#include "../../include/utils/Types.h"
 #include "../../include/core/Serialization.h"
-#include "./stringUtils.hpp"
+#include "stringUtils.hpp"
 #include <string>
 
 
@@ -182,6 +182,13 @@ namespace TDEngine2
 	*/
 
 	TDE2_API TVector2 Scale(const TVector2& vec2l, const TVector2& vec2r);
+
+
+	/*!
+		\brief The function reflects given vector vec relative to normal
+	*/
+
+	TDE2_API TVector2 Reflect(const TVector2& vec, const TVector2& normal);
 
 
 	/*!

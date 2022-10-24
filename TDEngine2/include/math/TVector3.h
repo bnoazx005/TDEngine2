@@ -223,6 +223,12 @@ namespace TDEngine2
 
 	TDE2_API TVector3 RandVector3(const TVector3& min, const TVector3& max);
 
+	/*!
+		\brief The function reflects given vector vec relative to normal
+	*/
+
+	TDE2_API TVector3 Reflect(const TVector3& vec, const TVector3& normal);
+
 
 	/*!
 		\brief TVector3's Serialization/Deserialization helpers

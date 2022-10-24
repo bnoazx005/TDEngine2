@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.12] 2022-10-23
+## [0.6.12] 2022-10-24
 
 ### Added
 
@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new editor window which is a statistics overlay window was added. 
 
 - A new function ContainsAABB for **TAABB** type was defined.
+
+- A new helper function Reflect was added for **TVector2**, **TVector3** math types.
 
 ### Changed
 

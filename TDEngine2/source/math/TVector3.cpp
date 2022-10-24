@@ -197,6 +197,12 @@ namespace TDEngine2
 	}
 
 
+	TVector3 Reflect(const TVector3& vec, const TVector3& normal)
+	{
+		return 2.0f * Dot(vec, normal) * Normalize(normal) - vec;
+	}
+
+
 	TResult<TVector3> LoadVector3(IArchiveReader* pReader)
 	{
 		if (!pReader)
