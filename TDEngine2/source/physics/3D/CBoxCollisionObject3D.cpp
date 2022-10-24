@@ -12,9 +12,10 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBoxCollisionObject3D::Load(IArchiveReader* pReader)
 	{
-		if (!pReader)
+		E_RESULT_CODE result = CBaseCollisionObject3D::Load(pReader);
+		if (RC_OK != result)
 		{
-			return RC_FAIL;
+			return result;
 		}
 
 		pReader->BeginGroup("extents");
@@ -33,11 +34,17 @@ namespace TDEngine2
 	{
 		if (!pWriter)
 		{
-			return RC_FAIL;
+			return RC_INVALID_ARGS;
 		}
 
 		pWriter->BeginGroup("component");
 		{
+			E_RESULT_CODE result = CBaseCollisionObject3D::Save(pWriter);
+			if (RC_OK != result)
+			{
+				return result;
+			}
+
 			pWriter->SetUInt32("type_id", static_cast<U32>(CBoxCollisionObject3D::GetTypeId()));
 			pWriter->BeginGroup("extents");
 			{

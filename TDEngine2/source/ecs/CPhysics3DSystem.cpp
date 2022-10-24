@@ -314,6 +314,7 @@ namespace TDEngine2
 
 	static void UpdateKinematicObjects(std::vector<CTransform*>& transforms, std::vector<btCollisionObject*>& collisionObjects, btDiscreteDynamicsWorld* pPhysicsWorld, IEventManager* pEventManager)
 	{
+		TDE2_PROFILER_SCOPE("CPhysics3DSystem::UpdateKinematicObjects");
 		static TCollisionObjectTestCallback callback;
 		
 		callback.PreCollisionTests();

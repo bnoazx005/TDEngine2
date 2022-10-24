@@ -1,9 +1,20 @@
 #include "../../../include/physics/3D/CBaseCollisionObject3D.h"
 #include "../../../include/math/MathUtils.h"
+#include "../../../include/metadata.h"
 
 
 namespace TDEngine2
 {
+	struct TBaseCollisionObjectArchiveKeys
+	{
+		static const std::string mMassKeyId;
+		static const std::string mTypeKeyId;
+	};
+
+	const std::string TBaseCollisionObjectArchiveKeys::mMassKeyId = "mass";
+	const std::string TBaseCollisionObjectArchiveKeys::mTypeKeyId = "type";
+
+
 	CBaseCollisionObject3D::CBaseCollisionObject3D() :
 		CBaseComponent(), mType(E_COLLISION_OBJECT_TYPE::COT_DYNAMIC), mMass(1.0f)
 	{
@@ -17,6 +28,32 @@ namespace TDEngine2
 		}
 
 		mIsInitialized = true;
+
+		return RC_OK;
+	}
+	
+	E_RESULT_CODE CBaseCollisionObject3D::Load(IArchiveReader* pReader)
+	{
+		if (!pReader)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mMass = pReader->GetFloat(TBaseCollisionObjectArchiveKeys::mMassKeyId);
+		mType = Meta::EnumTrait<E_COLLISION_OBJECT_TYPE>::FromString(pReader->GetString(TBaseCollisionObjectArchiveKeys::mTypeKeyId));
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CBaseCollisionObject3D::Save(IArchiveWriter* pWriter)
+	{
+		if (!pWriter)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		pWriter->SetFloat(TBaseCollisionObjectArchiveKeys::mMassKeyId, mMass);
+		pWriter->SetString(TBaseCollisionObjectArchiveKeys::mTypeKeyId, Meta::EnumTrait<E_COLLISION_OBJECT_TYPE>::ToString(mType));
 
 		return RC_OK;
 	}

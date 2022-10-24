@@ -69,6 +69,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Notify(const TBaseEvent* pEvent) = 0;
+
+			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_EVENT_MANAGER; }
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IEventManager)
 	};
