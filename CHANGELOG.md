@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.12] 2022-10-24
+## [0.6.12] 2022-10-25
 
 ### Added
 
@@ -24,6 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new function ContainsAABB for **TAABB** type was defined.
 
 - A new helper function Reflect was added for **TVector2**, **TVector3** math types.
+
+- The API of **ISystem** was extended with two new public methods **AddDefferedCommand** and **ExecuteDefferedCommands**. Now everything that should be executed after all updates
+should be wrapped up with a deffered action's call.
 
 ### Changed
 

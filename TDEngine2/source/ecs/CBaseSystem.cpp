@@ -7,6 +7,28 @@ namespace TDEngine2
 	{
 	}
 
+	E_RESULT_CODE CBaseSystem::AddDefferedCommand(const TCommandFunctor& action)
+	{
+		if (!action)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mDefferedCommandsBuffer.push_back(action);
+
+		return RC_OK;
+	}
+
+	void CBaseSystem::ExecuteDefferedCommands()
+	{
+		for (auto&& currCommand : mDefferedCommandsBuffer)
+		{
+			currCommand();
+		}
+
+		mDefferedCommandsBuffer.clear();
+	}
+
 	void CBaseSystem::OnDestroy()
 	{
 	}

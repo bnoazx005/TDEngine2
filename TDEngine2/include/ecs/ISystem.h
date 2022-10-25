@@ -10,6 +10,7 @@
 #include "../core/IBaseObject.h"
 #include "../utils/Utils.h"
 #include <string>
+#include <functional>
 
 
 namespace TDEngine2
@@ -42,6 +43,7 @@ namespace TDEngine2
 
 	class IWorld;
 
+
 	/*!
 		interface ISystem
 
@@ -51,6 +53,8 @@ namespace TDEngine2
 	class ISystem : public virtual IBaseObject
 	{
 		public:
+			typedef std::function<void()> TCommandFunctor;
+		public:
 			/*!
 				\brief The method inject components array into a system
 				
@@ -58,6 +62,22 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void InjectBindings(IWorld* pWorld) = 0;
+
+			/*!
+				\brief The method adds a command into the deffered executed buffer 
+
+				\param[in] action The callback that will be executed later after all systems'll invoke their Update
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE AddDefferedCommand(const TCommandFunctor& action = nullptr) = 0;
+
+			/*1
+				\brief The method executes all deffered commands that were accumulated in current frame
+			*/
+
+			TDE2_API virtual void ExecuteDefferedCommands() = 0;
 
 			/*!
 				\brief The main method that should be implemented in all derived classes.

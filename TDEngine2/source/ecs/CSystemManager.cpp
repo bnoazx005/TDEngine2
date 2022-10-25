@@ -208,6 +208,13 @@ namespace TDEngine2
 		}
 
 		mIsDirty = false;
+
+		/// \note Execute all deffered commands after all updates
+		for (auto currSystemDesc : mpActiveSystems)
+		{
+			pCurrSystem = currSystemDesc.mpSystem;
+			pCurrSystem->ExecuteDefferedCommands();
+		}
 	}
 
 	E_RESULT_CODE CSystemManager::DestroySystems()
