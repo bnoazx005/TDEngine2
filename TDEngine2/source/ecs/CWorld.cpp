@@ -2,6 +2,7 @@
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/ISystemManager.h"
 #include "../../include/ecs/CEntityManager.h"
+#include "../../include/ecs/ISystem.h"
 #include "../../include/ecs/CComponentManager.h"
 #include "../../include/ecs/CSystemManager.h"
 #include "../../include/core/IEventManager.h"
@@ -234,6 +235,20 @@ namespace TDEngine2
 		// \note reset all allocated raycasts results data
 		mpRaycastContext->Reset();
 	}
+
+#if TDE2_EDITORS_ENABLED
+	
+	void CWorld::DebugOutput(IDebugUtility* pDebugUtility, F32 dt)
+	{
+		TDE2_PROFILER_SCOPE("World::DebugOutput");
+
+		mpSystemManager->ForEachSystem([=](TSystemId currSystemHandle, const ISystem* pSystem)
+		{
+			pSystem->DebugOutput(pDebugUtility, dt);
+		});
+	}
+
+#endif
 
 	TPtr<IRaycastContext> CWorld::GetRaycastContext() const
 	{

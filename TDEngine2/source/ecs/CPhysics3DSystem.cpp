@@ -418,6 +418,17 @@ namespace TDEngine2
 #endif
 	}
 
+#if TDE2_EDITORS_ENABLED
+	
+	void CPhysics3DSystem::DebugOutput(IDebugUtility* pDebugUtility, F32 dt) const
+	{
+		for (auto&& pCurrCollisionObject : mPhysicsObjectsData.mpInternalCollisionObjects)
+		{
+		}
+	}
+
+#endif
+
 	btBoxShape* CPhysics3DSystem::CreateBoxCollisionShape(const CBoxCollisionObject3D& box) const
 	{
 		TVector3 halfExtents = box.GetSizes() * 0.5f;

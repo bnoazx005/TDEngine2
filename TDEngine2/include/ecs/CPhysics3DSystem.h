@@ -137,6 +137,16 @@ namespace TDEngine2
 
 			TDE2_API void Update(IWorld* pWorld, F32 dt) override;
 
+#if TDE2_EDITORS_ENABLED
+
+			/*!
+				\brief The method is targeted to draw debug information (textual or graphical) which is related with the given system
+			*/
+
+			TDE2_API void DebugOutput(IDebugUtility* pDebugUtility, F32 dt) const override;
+
+#endif
+
 			/*!
 				\brief The method returns a new created collision shape which is a box collider
 

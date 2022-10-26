@@ -413,6 +413,8 @@ namespace TDEngine2
 						{
 							mpEditorsManager->Update(dt);
 						}
+
+						mpWorldInstance->DebugOutput(mpDebugUtility, dt);
 #endif
 
 						/// \note The internal callback will be invoked when the execution process will go out of the scope
@@ -446,11 +448,9 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IDebugUtility* pDebugUtility = nullptr;
-
 		if (auto debugUtilityResult = pGraphicsObjectManager->CreateDebugUtility(pResourceManager, pRenderer))
 		{
-			pDebugUtility = debugUtilityResult.Get();
+			mpDebugUtility = debugUtilityResult.Get();
 		}
 
 		ISystem* p2dPhysics = nullptr;
@@ -460,7 +460,7 @@ namespace TDEngine2
 		{
 			CreateTransformSystem(pGraphicsContext, result),
 			CreateUIEventsSystem(_getSubsystemAs<IInputContext>(EST_INPUT_CONTEXT), result),
-			CreateBoundsUpdatingSystem(pResourceManager, pDebugUtility, _getSubsystemAs<ISceneManager>(EST_SCENE_MANAGER), result),
+			CreateBoundsUpdatingSystem(pResourceManager, mpDebugUtility, _getSubsystemAs<ISceneManager>(EST_SCENE_MANAGER), result),
 			CreateSpriteRendererSystem(TPtr<IAllocator>(CreateLinearAllocator(5 * SpriteInstanceDataBufferSize, result)),
 									   pRenderer, pGraphicsObjectManager, result),
 			CreateCameraSystem(pWindowSystem, pGraphicsContext, pRenderer, result),

@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A new helper function Reflect was added for **TVector2**, **TVector3** math types.
 
-- The API of **ISystem** was extended with two new public methods **AddDefferedCommand** and **ExecuteDefferedCommands**. Now everything that should be executed after all updates
+- The API of **ISystem** was extended with two new public methods **AddDefferedCommand**, **ExecuteDefferedCommands** and **DebugOutput**. Now everything that should be executed after all updates
 should be wrapped up with a deffered action's call.
 
 ### Changed

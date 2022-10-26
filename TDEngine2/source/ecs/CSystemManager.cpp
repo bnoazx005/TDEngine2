@@ -205,6 +205,9 @@ namespace TDEngine2
 			}
 
 			pCurrSystem->Update(pWorld, dt);
+
+#if TDE2_EDITORS_ENABLED
+#endif
 		}
 
 		mIsDirty = false;

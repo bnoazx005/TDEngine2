@@ -42,6 +42,7 @@ namespace TDEngine2
 
 
 	class IWorld;
+	class IDebugUtility;
 
 
 	/*!
@@ -95,6 +96,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void Update(IWorld* pWorld, F32 dt) = 0;
+
+#if TDE2_EDITORS_ENABLED
+
+			/*!
+				\brief The method is targeted to draw debug information (textual or graphical) which is related with the given system
+			*/
+
+			TDE2_API virtual void DebugOutput(IDebugUtility* pDebugUtility, F32 dt) const = 0;
+
+#endif
 
 			/*!
 				\brief The method is invoked when the system is destroyed

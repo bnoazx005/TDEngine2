@@ -232,6 +232,10 @@ namespace TDEngine2
 
 			TDE2_API void Update(F32 dt) override;
 
+#if TDE2_EDITORS_ENABLED
+			TDE2_API void DebugOutput(IDebugUtility* pDebugUtility, F32 dt) override;
+#endif
+
 			/*!
 				\brief The method returns a pointer to IRaycastContext, use
 

@@ -30,6 +30,7 @@ namespace TDEngine2
 	class IRaycastContext;
 	class CTransform;
 	class IComponentFactory;
+	class IDebugUtility;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IEventManager)
@@ -411,6 +412,10 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void Update(F32 dt) = 0;
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API virtual void DebugOutput(IDebugUtility* pDebugUtility, F32 dt) = 0;
+#endif
 
 			/*!
 				\brief The method returns a pointer to IRaycastContext, use

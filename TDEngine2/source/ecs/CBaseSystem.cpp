@@ -29,6 +29,14 @@ namespace TDEngine2
 		mDefferedCommandsBuffer.clear();
 	}
 
+#if TDE2_EDITORS_ENABLED
+	
+	void CBaseSystem::DebugOutput(IDebugUtility* pDebugUtility, F32 dt) const
+	{
+	}
+
+#endif
+
 	void CBaseSystem::OnDestroy()
 	{
 	}
