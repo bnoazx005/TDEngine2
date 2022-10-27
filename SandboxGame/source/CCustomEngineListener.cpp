@@ -305,7 +305,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 				if (auto pTransform = pPhysicsObject0->AddComponent<CTransform>())
 				{
-					pTransform->SetPosition(TVector3(5.0f, 0.0f, 0.0f));
+					pTransform->SetPosition(TVector3(0.0f, 0.0f, 0.0f));
 				}
 
 				//pPhysicsObject0->AddComponent<CTrigger3D>();
@@ -322,12 +322,13 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 				if (auto pCollider = pPhysicsObject0->AddComponent<CBoxCollisionObject3D>())
 				{
 					pCollider->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_KINEMATIC);
-					pCollider->SetSizes(TVector3(1.0f));
+					pCollider->SetSizes(TVector3(0.3f));
 				}
 
 				if (auto pTransform = pPhysicsObject0->AddComponent<CTransform>())
 				{
 					pTransform->SetPosition(TVector3(5.0f, 0.0f, 0.0f));
+					pTransform->SetScale(TVector3(0.3f));
 				}
 
 				//pPhysicsObject0->AddComponent<CTrigger3D>();

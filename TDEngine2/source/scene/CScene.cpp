@@ -31,12 +31,14 @@ namespace TDEngine2
 		{
 			static const std::string mPrefabIdKey;
 			static const std::string mParentIdKey;
+			static const std::string mOverridenPositionIdKey;
 		};
 	};
 
 	const std::string TSceneArchiveKeys::mPrefabLinkGroupId = "link";
 	const std::string TSceneArchiveKeys::TPrefabLinkGroupKeys::mPrefabIdKey = "prefab_id";
 	const std::string TSceneArchiveKeys::TPrefabLinkGroupKeys::mParentIdKey = "parent_id";
+	const std::string TSceneArchiveKeys::TPrefabLinkGroupKeys::mOverridenPositionIdKey = "position";
 
 
 	CScene::CScene() :
@@ -140,10 +142,25 @@ namespace TDEngine2
 					{
 						pReader->BeginGroup(TSceneArchiveKeys::mPrefabLinkGroupId);
 						{
+							pReader->BeginGroup(TSceneArchiveKeys::TPrefabLinkGroupKeys::mOverridenPositionIdKey);
+							auto positionResult = LoadVector3(pReader); /// \note Try to read overriden position for the link
+							pReader->EndGroup();
+
 							auto pInstance = Spawn(
 								pReader->GetString(TSceneArchiveKeys::TPrefabLinkGroupKeys::mPrefabIdKey),
 								mpWorld->FindEntity(static_cast<TEntityId>(
 									pReader->GetUInt32(TSceneArchiveKeys::TPrefabLinkGroupKeys::mParentIdKey, static_cast<U32>(TEntityId::Invalid)))));
+
+							if (positionResult.IsOk())
+							{
+								const TVector3& overridenPosition = positionResult.Get();
+
+								if (Length(overridenPosition) > FloatEpsilon)
+								{
+									CTransform* pTransform = pInstance->GetComponent<CTransform>();
+									pTransform->SetPosition(overridenPosition);
+								}
+							}
 
 							TDE2_ASSERT(pInstance);
 						}

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.12] 2022-10-25
+## [0.6.12] 2022-10-27
 
 ### Added
 
@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The API of **ISystem** was extended with two new public methods **AddDefferedCommand**, **ExecuteDefferedCommands** and **DebugOutput**. Now everything that should be executed after all updates
 should be wrapped up with a deffered action's call.
+
+- Prefabs linkage now supports overriding of a original position.
 
 ### Changed
 
