@@ -1,5 +1,6 @@
 #include "../../include/core/CProjectSettings.h"
 #include "../../include/core/IFile.h"
+#include "../../include/math/TVector3.h"
 #include "stringUtils.hpp"
 
 
@@ -14,6 +15,7 @@ namespace TDEngine2
 		static const std::string mWorldSettingsGroupId;
 		static const std::string mSceneManagerSettingsGroupId;
 		static const std::string mSplashScreenSettingsGroupId;
+		static const std::string m3DPhysicsSettingsGroupId;
 
 		struct TCommonSettingsKeys
 		{
@@ -80,6 +82,11 @@ namespace TDEngine2
 			static const std::string mIsEnabledKey;
 			static const std::string mShowDurationKey;
 		};
+
+		struct T3DPhysicsSettingsKeys
+		{
+			static const std::string mGravityKey;
+		};
 	};
 
 
@@ -90,6 +97,7 @@ namespace TDEngine2
 	const std::string TProjectSettingsArchiveKeys::mWorldSettingsGroupId = "world_settings";
 	const std::string TProjectSettingsArchiveKeys::mSceneManagerSettingsGroupId = "scenes_settings";
 	const std::string TProjectSettingsArchiveKeys::mSplashScreenSettingsGroupId = "splash_screen_settings";
+	const std::string TProjectSettingsArchiveKeys::m3DPhysicsSettingsGroupId = "3d_physics_settings";
 
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mApplicationIdKey = "application_id";
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mMaxThreadsCountKey = "max_worker_threads_count";
@@ -123,6 +131,8 @@ namespace TDEngine2
 
 	const std::string TProjectSettingsArchiveKeys::TSplashScreenSettingsKeys::mIsEnabledKey = "enabled";
 	const std::string TProjectSettingsArchiveKeys::TSplashScreenSettingsKeys::mShowDurationKey = "show_duration";
+
+	const std::string TProjectSettingsArchiveKeys::T3DPhysicsSettingsKeys::mGravityKey = "gravity";
 
 
 	CProjectSettings::CProjectSettings():
@@ -312,6 +322,36 @@ namespace TDEngine2
 	}
 
 
+	static E_RESULT_CODE Load3DPhysicsSettings(IArchiveReader* pFileReader, CProjectSettings& projectSettings)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		auto& settings = projectSettings.m3DPhysicsSettings;
+
+		result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::m3DPhysicsSettingsGroupId);
+		{
+			result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::T3DPhysicsSettingsKeys::mGravityKey);
+			
+			auto gravityResult = LoadVector3(pFileReader);
+			if (gravityResult.HasError())
+			{
+				return gravityResult.GetError();
+			}
+
+			const TVector3& gravity = gravityResult.Get();
+			if (Length(gravity) > FloatEpsilon)
+			{
+				settings.mGravity = gravity;
+			}
+
+			result = result | pFileReader->EndGroup();
+		}
+		result = result | pFileReader->EndGroup();
+
+		return result;
+	}
+
+
 	E_RESULT_CODE CProjectSettings::Init(IArchiveReader* pFileReader)
 	{
 		if (!pFileReader)
@@ -327,6 +367,7 @@ namespace TDEngine2
 		result = result | LoadLocaleSettings(pFileReader, *this);
 		result = result | LoadScenesSettings(pFileReader, *this);
 		result = result | LoadSplashScreenSettings(pFileReader, *this);
+		result = result | Load3DPhysicsSettings(pFileReader, *this);
 		
 		return RC_OK;
 	}

@@ -8,6 +8,7 @@
 
 
 #include "CBaseObject.h"
+#include "../math/TVector3.h"
 #include <thread>
 
 
@@ -118,5 +119,11 @@ namespace TDEngine2
 				bool mIsEnabled = false;
 				F32  mShowDuration = 4.0f;
 			} mSplashScreenSettings;
+
+
+			struct T3DPhysicsSettings
+			{
+				TVector3 mGravity = TVector3(0.0f, -10.0f, 0.0f);
+			} m3DPhysicsSettings;
 	};
 }

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.12] 2022-10-27
+## [0.6.12] 2022-10-28
 
 ### Added
 
@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 should be wrapped up with a deffered action's call.
 
 - Prefabs linkage now supports overriding of a original position.
+
+- Add 3d physics's settings into the project settings class.
 
 ### Changed
 

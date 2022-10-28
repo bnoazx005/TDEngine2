@@ -216,8 +216,6 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			static const TVector3                mDefaultGravity;
-
 			static const F32                     mDefaultTimeStep;
 
 			static const U32                     mDefaultPositionIterations;

@@ -11,6 +11,7 @@
 #include "../../deps/bullet3/src/btBulletCollisionCommon.h"
 #include "../../deps/bullet3/src/BulletCollision/CollisionDispatch/btGhostObject.h"
 #include "../../include/utils/CFileLogger.h"
+#include "../../include/core/CProjectSettings.h"
 //#include "./../../deps/bullet3/src/BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include <algorithm>
@@ -19,8 +20,6 @@
 
 namespace TDEngine2
 {
-	const TVector3 CPhysics3DSystem::mDefaultGravity = TVector3(0.0f, -10.0f, 0.0f);
-
 	const F32 CPhysics3DSystem::mDefaultTimeStep = 1.0f / 60.0f;
 
 	const U32 CPhysics3DSystem::mDefaultPositionIterations = 10;
@@ -85,7 +84,7 @@ namespace TDEngine2
 
 		mpEventManager = pEventManager;
 
-		mCurrGravity = mDefaultGravity;
+		mCurrGravity = CProjectSettings::Get()->m3DPhysicsSettings.mGravity;
 
 		mCurrTimeStep = mDefaultTimeStep;
 
