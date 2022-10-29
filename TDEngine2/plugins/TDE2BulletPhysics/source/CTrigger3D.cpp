@@ -1,4 +1,4 @@
-#include "../../../include/physics/3D/CTrigger3D.h"
+#include "../include/CTrigger3D.h"
 
 
 namespace TDEngine2

@@ -1,6 +1,6 @@
 /*!
-	\file CBoxCollisionObject3D.h
-	\date 20.02.2020
+	\file CSphereCollisionObject3D.h
+	\date 22.02.2020
 	\authors Kasimov Ildar
 */
 
@@ -8,35 +8,35 @@
 
 
 #include "CBaseCollisionObject3D.h"
-#include "../../math/TVector3.h"
+#include <math/TVector3.h>
 
 
 namespace TDEngine2
 {
 	/*!
-		\brief A factory function for creation objects of CBoxCollisionObject3D's type.
+		\brief A factory function for creation objects of CSphereCollisionObject3D's type.
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
-		\return A pointer to CBoxCollisionObject3D's implementation
+		\return A pointer to CSphereCollisionObject3D's implementation
 	*/
 
-	TDE2_API IComponent* CreateBoxCollisionObject3D(E_RESULT_CODE& result);
+	TDE2_API IComponent* CreateSphereCollisionObject3D(E_RESULT_CODE& result);
 
 
 	/*!
-		class CBoxCollisionObject3D
+		class CSphereCollisionObject3D
 
-		\brief The interface describes a functionality of a 3d box collision object
+		\brief The interface describes a functionality of a sphere collision object
 		which is controlled by Bullet3 physics engine
 	*/
 
-	class CBoxCollisionObject3D : public CBaseCollisionObject3D, public CPoolMemoryAllocPolicy<CBoxCollisionObject3D, 1 << 20>
+	class CSphereCollisionObject3D : public CBaseCollisionObject3D, public CPoolMemoryAllocPolicy<CSphereCollisionObject3D, 1 << 20>
 	{
 		public:
-			friend TDE2_API IComponent* CreateBoxCollisionObject3D(E_RESULT_CODE& result);
+			friend TDE2_API IComponent* CreateSphereCollisionObject3D(E_RESULT_CODE& result);
 		public:
-			TDE2_REGISTER_COMPONENT_TYPE(CBoxCollisionObject3D)
+			TDE2_REGISTER_COMPONENT_TYPE(CSphereCollisionObject3D)
 
 			/*!
 				\brief The method deserializes object's state from given reader
@@ -68,20 +68,20 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
 			/*!
-				\brief The method sets up sizes of a box collider
+				\brief The method sets up a radius of a collider
 
-				\param[in] extents A vector each component defines width, height and depth of the box collider
+				\param[in] radius A radius of a sphere collider
 			*/
 
-			TDE2_API virtual void SetSizes(const TVector3& extents);
+			TDE2_API virtual void SetRadius(F32 radius);
 
 			/*!
-				\brief The method returns sizes of a box collider
+				\brief The method returns a radius of a sphere collider
 
-				\return The method returns sizes of a box collider
+				\return The method returns a radius of a sphere collider
 			*/
 
-			TDE2_API virtual const TVector3& GetSizes() const;
+			TDE2_API virtual F32 GetRadius() const;
 
 			/*!
 				\brief The method returns a pointer to internal representation of a collision
@@ -95,23 +95,23 @@ namespace TDEngine2
 
 			TDE2_API btCollisionShape* GetCollisionShape(const ICollisionObjects3DVisitor* pVisitor) const override;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBoxCollisionObject3D)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSphereCollisionObject3D)
 		protected:
-			TVector3 mExtents;
+			F32 mRadius;
 	};
 
 
 	/*!
-		struct TBoxCollisionObject3DParameters
+		struct TSphereCollisionObject3DParameters
 
-		\brief The structure contains parameters for creation of CBoxCollisionObject3D
+		\brief The structure contains parameters for creation of CSphereCollisionObject3D
 	*/
 
-	typedef struct TBoxCollisionObject3DParameters : public TBaseComponentParameters
+	typedef struct TSphereCollisionObject3DParameters : public TBaseComponentParameters
 	{
-		TVector3 mExtents = TVector3(1.0f);
-	} TBoxCollisionObject3DParameters;
+		F32 mRadius = 1.0f;
+	} TSphereCollisionObject3DParameters;
 
 
-	TDE2_DECLARE_COMPONENT_FACTORY(BoxCollisionObject3D, TBoxCollisionObject3DParameters);
+	TDE2_DECLARE_COMPONENT_FACTORY(SphereCollisionObject3D, TSphereCollisionObject3DParameters);
 }

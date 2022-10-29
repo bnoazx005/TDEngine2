@@ -1,5 +1,5 @@
-#include "../../../include/physics/3D/CSphereCollisionObject3D.h"
-#include "../../../include/physics/3D/ICollisionObjects3DVisitor.h"
+#include "../include/CSphereCollisionObject3D.h"
+#include "../include/ICollisionObjects3DVisitor.h"
 #include "../../../deps/bullet3/src/btBulletDynamicsCommon.h"
 
 

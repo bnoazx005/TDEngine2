@@ -7,8 +7,8 @@
 #pragma once
 
 
-#include "../ICollisionObject.h"
-#include "../../ecs/IComponentFactory.h"
+#include <physics/ICollisionObject.h>
+#include <ecs/IComponentFactory.h>
 
 
 class btCollisionShape;

@@ -38,20 +38,20 @@ namespace TDEngine2
 	#endif
 
 	/// Platform-specific macroses are used to configure build in compile time
+	
+	#define TDE2_BUILD_OGL_GCTX_PLUGIN
+	#define TDE2_BUILD_YAML_FORMAT_SUPPORT_PLUGIN
+	#define TDE2_BUILD_FMOD_CTX_PLUGIN
+	#define TDE2_BUILD_BULLET_PHYSICS_PLUGIN
 
 	#if TDE2_WINDOWS
 		#define TDE2_USE_WINPLATFORM
 
 		#define TDE2_BUILD_D3D11_GCTX_PLUGIN
-		#define TDE2_BUILD_OGL_GCTX_PLUGIN
-		#define TDE2_BUILD_YAML_FORMAT_SUPPORT_PLUGIN
-		#define TDE2_BUILD_FMOD_CTX_PLUGIN
+
 	#elif defined(__unix__) || defined(__unix) || defined(unix)
 		#define TDE2_USE_UNIXPLATFORM
 
-		#define TDE2_BUILD_OGL_GCTX_PLUGIN
-		#define TDE2_BUILD_YAML_FORMAT_SUPPORT_PLUGIN
-		#define TDE2_BUILD_FMOD_CTX_PLUGIN
 	#else
 	#endif
 

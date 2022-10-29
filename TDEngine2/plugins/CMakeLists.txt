@@ -6,6 +6,8 @@ option(BUILD_GL3_0_GCTX_PLUGIN "Build GL3.0 Graphics context plugin" ON)
 option(BUILD_UNIX_INPUTCTX_PLUGIN "Build UNIX input context plugin" ON)
 option(BUILD_IMGUI_CTX_PLUGIN "Build IMGUI context plugin" ON)
 option(BUILD_FMOD_AUDIO_CTX_PLUGIN "Build FMOD audio context plugin" ON)
+option(BUILD_LEVEL_STREAMING_PLUGIN "Build level streaming implementation plugin" ON)
+option(BUILD_BULLET_PHYSICS_PLUGIN "Build Bullet physics plugin" ON)
 
 if (BUILD_D3D11_GCTX_PLUGIN)
 	if (MSVC)
@@ -54,3 +56,9 @@ if (BUILD_LEVEL_STREAMING_PLUGIN)
 
 	add_subdirectory(TDE2LevelStreamingUtils)
 endif (BUILD_LEVEL_STREAMING_PLUGIN)
+
+if (BUILD_BULLET_PHYSICS_PLUGIN)
+	message(STATUS "Bullet physics plugin's compilation is enabled")
+
+	add_subdirectory(TDE2BulletPhysics)
+endif (BUILD_BULLET_PHYSICS_PLUGIN)

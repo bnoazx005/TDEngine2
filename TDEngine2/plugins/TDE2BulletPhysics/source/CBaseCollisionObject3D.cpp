@@ -1,6 +1,6 @@
-#include "../../../include/physics/3D/CBaseCollisionObject3D.h"
-#include "../../../include/math/MathUtils.h"
-#include "../../../include/metadata.h"
+#include "../include/CBaseCollisionObject3D.h"
+#include <math/MathUtils.h>
+#include <metadata.h>
 
 
 namespace TDEngine2

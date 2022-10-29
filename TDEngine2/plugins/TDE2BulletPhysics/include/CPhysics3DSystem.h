@@ -7,12 +7,13 @@
 #pragma once
 
 
-#include "CBaseSystem.h"
-#include "../physics/3D/ICollisionObjects3DVisitor.h"
-#include "../physics/IRaycastContext.h"
-#include "../math/TVector3.h"
-#include "../core/Event.h"
-#include "../../deps/bullet3/src/LinearMath/btMotionState.h"
+#include <ecs/CBaseSystem.h>
+#include <physics/IPhysics3DSystem.h>
+#include <physics/IRaycastContext.h>
+#include <math/TVector3.h>
+#include <core/Event.h>
+#include "ICollisionObjects3DVisitor.h"
+#include "../deps/bullet3/src/LinearMath/btMotionState.h"
 #include <vector>
 #include <functional>
 
@@ -56,7 +57,7 @@ namespace TDEngine2
 		\brief The system implements an update step of 3D physics engine
 	*/
 
-	class CPhysics3DSystem : public CBaseSystem, public ICollisionObjects3DVisitor
+	class CPhysics3DSystem : public CBaseSystem, public ICollisionObjects3DVisitor, public IPhysics3DSystem
 	{
 		public:
 			friend TDE2_API ISystem* CreatePhysics3DSystem(IEventManager* pEventManager, E_RESULT_CODE& result);
@@ -104,7 +105,6 @@ namespace TDEngine2
 
 #pragma pack(pop)
 
-			typedef std::function<void(const TRaycastResult&)> TOnRaycastHitCallback;
 		public:
 			TDE2_SYSTEM(CPhysics3DSystem);
 

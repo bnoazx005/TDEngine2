@@ -15,7 +15,7 @@
 namespace TDEngine2
 {
 	class CPhysics2DSystem;
-	class CPhysics3DSystem;
+	class IPhysics3DSystem;
 	class IAllocator;
 
 
@@ -32,7 +32,7 @@ namespace TDEngine2
 		\return A pointer to CBaseRaycastContext's implementation
 	*/
 
-	TDE2_API IRaycastContext* CreateBaseRaycastContext(CPhysics2DSystem* p2DPhysicsSystem, CPhysics3DSystem* p3DPhysicsSystem, E_RESULT_CODE& result);
+	TDE2_API IRaycastContext* CreateBaseRaycastContext(CPhysics2DSystem* p2DPhysicsSystem, IPhysics3DSystem* p3DPhysicsSystem, E_RESULT_CODE& result);
 
 
 	/*!
@@ -44,7 +44,7 @@ namespace TDEngine2
 	class CBaseRaycastContext : public CBaseObject, public IRaycastContext
 	{
 		public:
-			friend TDE2_API IRaycastContext* CreateBaseRaycastContext(CPhysics2DSystem*, CPhysics3DSystem*, E_RESULT_CODE&);
+			friend TDE2_API IRaycastContext* CreateBaseRaycastContext(CPhysics2DSystem*, IPhysics3DSystem*, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes an internal state of a context
@@ -56,7 +56,9 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(CPhysics2DSystem* p2DPhysicsSystem, CPhysics3DSystem* p3DPhysicsSystem);
+			TDE2_API E_RESULT_CODE Init(CPhysics2DSystem* p2DPhysicsSystem, IPhysics3DSystem* p3DPhysicsSystem);
+
+			TDE2_API E_RESULT_CODE Register3DPhysics(IPhysics3DSystem* p3DPhysicsSystem) override;
 
 			/*!
 				\brief The method casts a ray into a scene and returns closest object which is intersected by that.
@@ -115,6 +117,6 @@ namespace TDEngine2
 			std::unique_ptr<U8[]> mpMemoryBlock;
 
 			CPhysics2DSystem*     mp2DPhysicsSystem;
-			CPhysics3DSystem*     mp3DPhysicsSystem;
+			IPhysics3DSystem*     mp3DPhysicsSystem;
 	};
 }

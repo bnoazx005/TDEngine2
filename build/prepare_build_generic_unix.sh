@@ -24,7 +24,7 @@ GENERATOR_NAME="Unix Makefiles"
 
 # "Build bullet3 first"
 
-pushd "../TDEngine2/deps/bullet3"
+pushd "../TDEngine2/plugins/TDE2BulletPhysics/deps/bullet3"
 	cmake -G "$GENERATOR_NAME"  -DBUILD_SHARED_LIBS=OFF -DUSE_GRAPHICAL_BENCHMARK=OFF -DCMAKE_GENERATOR_PLATFORM=$2 -DUSE_MSVC_RUNTIME_LIBRARY_DLL=ON -DCMAKE_BUILD_TYPE=$1 . && cmake --build . --config $1
 
 	# \fixme 

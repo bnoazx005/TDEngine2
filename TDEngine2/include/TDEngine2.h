@@ -93,7 +93,6 @@
 #include "ecs/CStaticMeshRendererSystem.h"
 #include "ecs/CSkinnedMeshRendererSystem.h"
 #include "ecs/CBaseSystem.h"
-#include "ecs/CPhysics3DSystem.h"
 #include "ecs/CObjectsSelectionSystem.h"
 #include "ecs/CBoundsUpdatingSystem.h"
 #include "ecs/CLightingSystem.h"
@@ -247,15 +246,6 @@
 #include "physics/2D/ICollisionObjectsVisitor.h"
 #include "physics/2D/ITrigger2D.h"
 #include "physics/2D/CTrigger2D.h"
-#include "physics/3D/ICollisionObject3D.h"
-#include "physics/3D/CBaseCollisionObject3D.h"
-#include "physics/3D/CBoxCollisionObject3D.h"
-#include "physics/3D/ICollisionObjects3DVisitor.h"
-#include "physics/3D/CSphereCollisionObject3D.h"
-#include "physics/3D/CConvexHullCollisionObject3D.h"
-#include "physics/3D/CCapsuleCollisionObject3D.h"
-#include "physics/3D/ITrigger3D.h"
-#include "physics/3D/CTrigger3D.h"
 #include "physics/ICollisionObject.h"
 #include "physics/IRaycastContext.h"
 #include "physics/CBaseRaycastContext.h"
@@ -328,4 +318,8 @@
 
 #if defined(TDE2_BUILD_FMOD_CTX_PLUGIN)
 	#include "../plugins/FmodAudioContext/include/CFmodAudioCtxPlugin.h"
+#endif
+
+#if defined (TDE2_BUILD_BULLET_PHYSICS_PLUGIN)
+	#include "../plugins/TDE2BulletPhysics/include/CBulletPhysicsPlugin.h"
 #endif

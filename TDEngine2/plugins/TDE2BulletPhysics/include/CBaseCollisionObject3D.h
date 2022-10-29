@@ -8,9 +8,9 @@
 
 
 #include "ICollisionObject3D.h"
-#include "../../ecs/CBaseComponent.h"
-#include "../../ecs/IComponentFactory.h"
-#include "../../math/TMatrix4.h"
+#include <ecs/CBaseComponent.h>
+#include <ecs/IComponentFactory.h>
+#include <math/TMatrix4.h>
 
 
 namespace TDEngine2

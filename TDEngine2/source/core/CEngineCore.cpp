@@ -22,7 +22,6 @@
 #include "../../include/ecs/CPhysics2DSystem.h"
 #include "../../include/ecs/CStaticMeshRendererSystem.h"
 #include "../../include/ecs/CSkinnedMeshRendererSystem.h"
-#include "../../include/ecs/CPhysics3DSystem.h"
 #include "../../include/ecs/CAnimationSystem.h"
 #include "../../include/ecs/CParticlesSimulationSystem.h"
 #include "../../include/ecs/CUIElementsProcessSystem.h"
@@ -477,7 +476,6 @@ namespace TDEngine2
 			CreateObjectsSelectionSystem(pRenderer, pGraphicsObjectManager, result),
 #endif
 			(p2dPhysics = CreatePhysics2DSystem(pEventManager, result)),
-			(p3dPhysics = CreatePhysics3DSystem(pEventManager, result)),
 		};
 
 		for (ISystem* pCurrSystem : builtinSystems)
@@ -496,7 +494,7 @@ namespace TDEngine2
 		}
 
 		auto pRaycastContextInstance = CreateBaseRaycastContext(dynamic_cast<CPhysics2DSystem*>(p2dPhysics), 
-																dynamic_cast<CPhysics3DSystem*>(p3dPhysics), 
+																nullptr, 
 																result);
 
 		if ((result != RC_OK) || (result = pWorldInstance->RegisterRaycastContext(TPtr<IRaycastContext>(pRaycastContextInstance))) != RC_OK)

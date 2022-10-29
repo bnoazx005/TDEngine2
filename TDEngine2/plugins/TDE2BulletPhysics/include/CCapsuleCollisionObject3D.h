@@ -8,7 +8,7 @@
 
 
 #include "CBaseCollisionObject3D.h"
-#include "../../math/TVector3.h"
+#include <math/TVector3.h>
 
 
 namespace TDEngine2

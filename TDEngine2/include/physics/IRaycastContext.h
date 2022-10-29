@@ -15,6 +15,9 @@
 
 namespace TDEngine2
 {
+	class IPhysics3DSystem;
+
+
 	/*!
 		struct TRaycastResult
 
@@ -39,6 +42,8 @@ namespace TDEngine2
 	class IRaycastContext: public virtual IBaseObject
 	{
 		public:
+			TDE2_API virtual E_RESULT_CODE Register3DPhysics(IPhysics3DSystem* p3DPhysicsSystem) = 0;
+
 			/*!
 				\brief The method casts a ray into a scene and returns closest object which is intersected by that.
 				If there wasn't intersections nullptr is returned. The method should be used for work with 2D physics objects

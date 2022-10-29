@@ -23,10 +23,6 @@
 #include "../../include/physics/2D/CBoxCollisionObject2D.h"
 #include "../../include/physics/2D/CCircleCollisionObject2D.h"
 #include "../../include/physics/2D/CTrigger2D.h"
-#include "../../include/physics/3D/CBoxCollisionObject3D.h"
-#include "../../include/physics/3D/CSphereCollisionObject3D.h"
-#include "../../include/physics/3D/CConvexHullCollisionObject3D.h"
-#include "../../include/physics/3D/CTrigger3D.h"
 #include "../../include/scene/components/CDirectionalLight.h"
 #include "../../include/scene/components/CPointLight.h"
 #include "../../include/scene/components/ShadowMappingComponents.h"
@@ -451,10 +447,6 @@ namespace TDEngine2
 			CreateMeshAnimatorComponentFactory,
 			CreateStaticMeshContainerFactory,
 			CreateSkinnedMeshContainerFactory,
-			CreateBoxCollisionObject3DFactory,
-			CreateSphereCollisionObject3DFactory,
-			CreateConvexHullCollisionObject3DFactory,
-			CreateTrigger3DFactory,
 			CreateBoundsComponentFactory,
 			CreateDirectionalLightFactory,
 			CreatePointLightFactory,

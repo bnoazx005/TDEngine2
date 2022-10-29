@@ -24,10 +24,6 @@
 #include "../../include/physics/2D/CBoxCollisionObject2D.h"
 #include "../../include/physics/2D/CCircleCollisionObject2D.h"
 #include "../../include/physics/2D/CTrigger2D.h"
-#include "../../include/physics/3D/CBoxCollisionObject3D.h"
-#include "../../include/physics/3D/CSphereCollisionObject3D.h"
-#include "../../include/physics/3D/CConvexHullCollisionObject3D.h"
-#include "../../include/physics/3D/CTrigger3D.h"
 #include "../../include/scene/components/ShadowMappingComponents.h"
 #include "../../include/scene/components/CPointLight.h"
 #include "../../include/scene/components/CDirectionalLight.h"
@@ -79,12 +75,6 @@ namespace TDEngine2
 		result = result | editor.RegisterInspector(CBoxCollisionObject2D::GetTypeId(), DrawBoxCollision2DGUI);
 		result = result | editor.RegisterInspector(CCircleCollisionObject2D::GetTypeId(), DrawCircleCollision2DGUI);
 		result = result | editor.RegisterInspector(CTrigger2D::GetTypeId(), DrawTrigger2DGUI);
-
-		/// 3D Physics
-		result = result | editor.RegisterInspector(CBoxCollisionObject3D::GetTypeId(), DrawBoxCollision3DGUI);
-		result = result | editor.RegisterInspector(CSphereCollisionObject3D::GetTypeId(), DrawSphereCollision3DGUI);
-		result = result | editor.RegisterInspector(CConvexHullCollisionObject3D::GetTypeId(), DrawConvexHullCollision3DGUI);
-		result = result | editor.RegisterInspector(CTrigger3D::GetTypeId(), DrawTrigger3DGUI);
 
 		/// Audio
 		result = result | editor.RegisterInspector(CAudioListenerComponent::GetTypeId(), DrawAudioListenerGUI);
@@ -1489,57 +1479,6 @@ namespace TDEngine2
 			// \todo Implement this drawer
 		});
 	}
-
-	void CDefaultInspectorsRegistry::DrawBoxCollision3DGUI(const TEditorContext& editorContext)
-	{
-		Header("BoxCollision3D", editorContext, [](const TEditorContext& editorContext)
-		{
-			IImGUIContext& imguiContext = editorContext.mImGUIContext;
-			IComponent& component = editorContext.mComponent;
-
-			CBaseCollisionObject3D& box3Dcollision = dynamic_cast<CBaseCollisionObject3D&>(component);
-
-			// \todo Implement this drawer
-		});
-	}
-
-	void CDefaultInspectorsRegistry::DrawSphereCollision3DGUI(const TEditorContext& editorContext)
-	{
-		Header("SphereCollision3D", editorContext, [](const TEditorContext& editorContext)
-		{
-			IImGUIContext& imguiContext = editorContext.mImGUIContext;
-			IComponent& component = editorContext.mComponent;
-
-			CSphereCollisionObject3D& sphereCollision = dynamic_cast<CSphereCollisionObject3D&>(component);
-
-			// \todo Implement this drawer
-		});
-	}
-
-	void CDefaultInspectorsRegistry::DrawConvexHullCollision3DGUI(const TEditorContext& editorContext)
-	{
-		Header("ConvexHullCollision3D", editorContext, [](const TEditorContext& editorContext)
-		{
-			IImGUIContext& imguiContext = editorContext.mImGUIContext;
-			IComponent& component = editorContext.mComponent;
-
-			CConvexHullCollisionObject3D& convexHullCollision = dynamic_cast<CConvexHullCollisionObject3D&>(component);
-
-			// \todo Implement this drawer
-		});
-	}
-
-	void CDefaultInspectorsRegistry::DrawTrigger3DGUI(const TEditorContext& editorContext)
-	{
-		Header("Trigger3D", editorContext, [](const TEditorContext& editorContext)
-		{
-			IImGUIContext& imguiContext = editorContext.mImGUIContext;
-			IComponent& component = editorContext.mComponent;
-
-			// \todo Implement this drawer
-		});
-	}
-
 
 	void CDefaultInspectorsRegistry::DrawAudioSourceGUI(const TEditorContext& editorContext)
 	{

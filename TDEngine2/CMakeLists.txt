@@ -130,7 +130,6 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CStaticMeshRendererSystem.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CSkinnedMeshRendererSystem.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CBaseSystem.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CPhysics3DSystem.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CObjectsSelectionSystem.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CBoundsUpdatingSystem.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CLightingSystem.h"
@@ -323,15 +322,6 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/2D/ICollisionObjectsVisitor.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/2D/ITrigger2D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/2D/CTrigger2D.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/3D/ICollisionObject3D.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/3D/CBaseCollisionObject3D.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/3D/CBoxCollisionObject3D.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/3D/ICollisionObjects3DVisitor.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/3D/CSphereCollisionObject3D.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/3D/CConvexHullCollisionObject3D.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/3D/CCapsuleCollisionObject3D.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/3D/ITrigger3D.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/3D/CTrigger3D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/ICollisionObject.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/IRaycastContext.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/CBaseRaycastContext.h"
@@ -384,7 +374,6 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/ecs/CPhysics2DSystem.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/ecs/CStaticMeshRendererSystem.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/ecs/CSkinnedMeshRendererSystem.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/ecs/CPhysics3DSystem.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/ecs/CObjectsSelectionSystem.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/ecs/CBoundsUpdatingSystem.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/ecs/CLightingSystem.cpp"	
@@ -515,12 +504,6 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/2D/CBoxCollisionObject2D.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/2D/CCircleCollisionObject2D.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/2D/CTrigger2D.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/3D/CBaseCollisionObject3D.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/3D/CBoxCollisionObject3D.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/3D/CSphereCollisionObject3D.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/3D/CConvexHullCollisionObject3D.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/3D/CCapsuleCollisionObject3D.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/3D/CTrigger3D.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/CBaseRaycastContext.cpp"
 	)
 
@@ -636,27 +619,8 @@ target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOU
 add_dependencies(${TDENGINE2_LIBRARY_NAME} "Box2D")
 target_link_libraries(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/Box2D/bin/$<CONFIGURATION>/Box2D${CMAKE_STATIC_LIBRARY_SUFFIX}" )
 
-#link Bullet3 library
-if (USE_EXTERNAL_BULLET_LIBRARY)	
-	message(STATUS "Bullet3 library's found")
-
-    find_package(Bullet REQUIRED)
-else ()
-	# use Bullet3 from deps/ directory
-	message(STATUS "Builtin bullet3 library is being used...")
-
-	set (BULLET_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/bullet/src/")
-	set (BULLET_LIBRARIES 
-		"${CMAKE_CURRENT_SOURCE_DIR}/deps/bullet3/lib/$<CONFIGURATION>/${CMAKE_STATIC_LIBRARY_PREFIX}BulletDynamics${CMAKE_STATIC_LIBRARY_SUFFIX}"
-		"${CMAKE_CURRENT_SOURCE_DIR}/deps/bullet3/lib/$<CONFIGURATION>/${CMAKE_STATIC_LIBRARY_PREFIX}BulletCollision${CMAKE_STATIC_LIBRARY_SUFFIX}"
-		"${CMAKE_CURRENT_SOURCE_DIR}/deps/bullet3/lib/$<CONFIGURATION>/${CMAKE_STATIC_LIBRARY_PREFIX}LinearMath${CMAKE_STATIC_LIBRARY_SUFFIX}")
-endif ()
-
 #set up rapidcsv header
 target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/rapidcsv")
-
-target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC ${BULLET_INCLUDE_DIR})
-target_link_libraries(${TDENGINE2_LIBRARY_NAME} PUBLIC ${BULLET_LIBRARIES})
 
 # link zlib
 if (USE_EXTERNAL_ZLIB_LIBRARY)	

@@ -75,12 +75,6 @@ namespace TDEngine2
 			TDE2_API static void DrawCircleCollision2DGUI(const TEditorContext& editorContext);
 			TDE2_API static void DrawTrigger2DGUI(const TEditorContext& editorContext);
 
-			/// 3D Physics components
-			TDE2_API static void DrawBoxCollision3DGUI(const TEditorContext& editorContext);
-			TDE2_API static void DrawSphereCollision3DGUI(const TEditorContext& editorContext);
-			TDE2_API static void DrawConvexHullCollision3DGUI(const TEditorContext& editorContext);
-			TDE2_API static void DrawTrigger3DGUI(const TEditorContext& editorContext);
-
 			/// Audio components
 			TDE2_API static void DrawAudioListenerGUI(const TEditorContext& editorContext);
 			TDE2_API static void DrawAudioSourceGUI(const TEditorContext& editorContext);

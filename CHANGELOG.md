@@ -34,6 +34,8 @@ should be wrapped up with a deffered action's call.
 
 - A new type of 3d physics collider **CCapsuleCollisionObject3D** was added.
 
+- 3D physics implementation via Bullet physics engine was moved into a separate plugin.
+
 ### Changed
 
 ### Fixed

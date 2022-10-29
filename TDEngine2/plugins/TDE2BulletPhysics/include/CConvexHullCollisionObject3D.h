@@ -8,7 +8,7 @@
 
 
 #include "CBaseCollisionObject3D.h"
-#include "../../math/TVector4.h"
+#include <math/TVector4.h>
 #include <vector>
 
 

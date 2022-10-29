@@ -16,7 +16,7 @@ rem "Build bullet3 first"
 
 set TDE2_USE_INSTALLED_BULLET="OFF"
 
-pushd "../TDEngine2/deps/bullet3"
+pushd "../TDEngine2/plugins/TDE2BulletPhysics/deps/bullet3"
 	cmake -G %1 -DBUILD_SHARED_LIBS=OFF -DUSE_GRAPHICAL_BENCHMARK=OFF -DCMAKE_GENERATOR_PLATFORM=%3 -DUSE_MSVC_RUNTIME_LIBRARY_DLL=ON -DCMAKE_BUILD_TYPE=%2 . && cmake --build . --config %2
 
 	if defined TDE2_INSTALL_BULLET3 (

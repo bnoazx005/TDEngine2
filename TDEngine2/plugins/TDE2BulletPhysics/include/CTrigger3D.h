@@ -7,8 +7,8 @@
 #pragma once
 
 
-#include "../../core/CBaseObject.h"
-#include "../../ecs/CBaseComponent.h"
+#include <core/CBaseObject.h>
+#include <ecs/CBaseComponent.h>
 #include "ITrigger3D.h"
 
 

@@ -1,6 +1,6 @@
 #include "../../include/physics/CBaseRaycastContext.h"
+#include "../../include/physics/IPhysics3DSystem.h"
 #include "../../include/ecs/CPhysics2DSystem.h"
-#include "../../include/ecs/CPhysics3DSystem.h"
 #include "../../include/core/memory/CPoolAllocator.h"
 
 
@@ -11,14 +11,14 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CBaseRaycastContext::Init(CPhysics2DSystem* p2DPhysicsSystem, CPhysics3DSystem* p3DPhysicsSystem)
+	E_RESULT_CODE CBaseRaycastContext::Init(CPhysics2DSystem* p2DPhysicsSystem, IPhysics3DSystem* p3DPhysicsSystem)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!p2DPhysicsSystem || !p3DPhysicsSystem)
+		if (!p2DPhysicsSystem)
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -36,6 +36,18 @@ namespace TDEngine2
 		mp3DPhysicsSystem = p3DPhysicsSystem;
 
 		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CBaseRaycastContext::Register3DPhysics(IPhysics3DSystem* p3DPhysicsSystem)
+	{
+		if (!p3DPhysicsSystem)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mp3DPhysicsSystem = p3DPhysicsSystem;
 
 		return RC_OK;
 	}
@@ -78,7 +90,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IRaycastContext* CreateBaseRaycastContext(CPhysics2DSystem* p2DPhysicsSystem, CPhysics3DSystem* p3DPhysicsSystem, E_RESULT_CODE& result)
+	TDE2_API IRaycastContext* CreateBaseRaycastContext(CPhysics2DSystem* p2DPhysicsSystem, IPhysics3DSystem* p3DPhysicsSystem, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IRaycastContext, CBaseRaycastContext, result, p2DPhysicsSystem, p3DPhysicsSystem);
 	}
