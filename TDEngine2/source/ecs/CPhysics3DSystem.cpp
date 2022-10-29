@@ -6,6 +6,7 @@
 #include "../../include/physics/3D/CBoxCollisionObject3D.h"
 #include "../../include/physics/3D/CSphereCollisionObject3D.h"
 #include "../../include/physics/3D/CConvexHullCollisionObject3D.h"
+#include "../../include/physics/3D/CCapsuleCollisionObject3D.h"
 #include "../../include/physics/3D/CTrigger3D.h"
 #include "../../deps/bullet3/src/btBulletDynamicsCommon.h"
 #include "../../deps/bullet3/src/btBulletCollisionCommon.h"
@@ -449,6 +450,11 @@ namespace TDEngine2
 		}
 
 		return pHullShape;
+	}
+
+	btCapsuleShape* CPhysics3DSystem::CreateCapsuleCollisionShape(const CCapsuleCollisionObject3D& capsule) const
+	{
+		return new btCapsuleShape(capsule.GetRadius(), capsule.GetHeight());
 	}
 
 	void CPhysics3DSystem::RaycastClosest(const TVector3& origin, const TVector3& direction, F32 maxDistance, const TOnRaycastHitCallback& onHitCallback)

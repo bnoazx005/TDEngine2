@@ -14,6 +14,7 @@
 class btBoxShape;
 class btSphereShape;
 class btConvexHullShape;
+class btCapsuleShape;
 
 
 namespace TDEngine2
@@ -21,6 +22,7 @@ namespace TDEngine2
 	class CBoxCollisionObject3D;
 	class CSphereCollisionObject3D;
 	class CConvexHullCollisionObject3D;
+	class CCapsuleCollisionObject3D;
 
 
 	/*!
@@ -63,6 +65,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual btConvexHullShape* CreateConvexHullCollisionShape(const CConvexHullCollisionObject3D& hull) const = 0;
+
+			/*!
+				\brief The method returns a new created collision shape which is a capsule collider
+
+				\param[in] sphere A reference to a sphere collision object
+
+				\return The method returns a new created collision shape of a capsule collider
+			*/
+
+			TDE2_API virtual btCapsuleShape* CreateCapsuleCollisionShape(const CCapsuleCollisionObject3D& capsule) const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ICollisionObjects3DVisitor)
 	};

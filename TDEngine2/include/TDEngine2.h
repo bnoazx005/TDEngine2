@@ -253,6 +253,7 @@
 #include "physics/3D/ICollisionObjects3DVisitor.h"
 #include "physics/3D/CSphereCollisionObject3D.h"
 #include "physics/3D/CConvexHullCollisionObject3D.h"
+#include "physics/3D/CCapsuleCollisionObject3D.h"
 #include "physics/3D/ITrigger3D.h"
 #include "physics/3D/CTrigger3D.h"
 #include "physics/ICollisionObject.h"
