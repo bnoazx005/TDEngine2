@@ -40,7 +40,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CBulletPhysicsPlugin::OnRegister(IEngineCore* pEngineCore, IWorld* pWorld)
+	E_RESULT_CODE CBulletPhysicsPlugin::OnRegisterComponents(IEngineCore* pEngineCore, IWorld* pWorld)
 	{
 		E_RESULT_CODE result = RC_OK;
 
@@ -68,6 +68,17 @@ namespace TDEngine2
 			}
 		}
 
+#if TDE2_EDITORS_ENABLED
+		result = result | RegisterComponentsInspector(pEngineCore->GetSubsystem<IEditorsManager>());
+#endif
+
+		return result;
+	}
+
+	E_RESULT_CODE CBulletPhysicsPlugin::OnRegisterSystems(IEngineCore* pEngineCore, IWorld* pWorld)
+	{
+		E_RESULT_CODE result = RC_OK;
+
 		auto pPhysicsSystem = CreatePhysics3DSystem(pEngineCore->GetSubsystem<IEventManager>().Get(), result);
 		pWorld->RegisterSystem(pPhysicsSystem);
 
@@ -76,11 +87,7 @@ namespace TDEngine2
 			result = result | pRaycastContext->Register3DPhysics(dynamic_cast<IPhysics3DSystem*>(pPhysicsSystem));
 		}
 
-#if TDE2_EDITORS_ENABLED
-		result = result | RegisterComponentsInspector(pEngineCore->GetSubsystem<IEditorsManager>());
-#endif
-
-		return RC_OK;
+		return result;
 	}
 
 	const TPluginInfo& CBulletPhysicsPlugin::GetInfo() const

@@ -56,7 +56,12 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CFMODAudioCtxPlugin::OnRegister(IEngineCore* pEngineCore, IWorld* pWorld)
+	E_RESULT_CODE CFMODAudioCtxPlugin::OnRegisterComponents(IEngineCore* pEngineCore, IWorld* pWorld)
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CFMODAudioCtxPlugin::OnRegisterSystems(IEngineCore* pEngineCore, IWorld* pWorld)
 	{
 		if (!pWorld)
 		{

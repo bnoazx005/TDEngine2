@@ -68,12 +68,20 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE UnloadAllPlugins() = 0;
 
 			/*!
-				\brief The method allows plugins to initialize and register ECS infrastructure like systems or components
+				\brief The method allows plugins to initialize and register ECS components
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
 			TDE2_API virtual E_RESULT_CODE RegisterECSComponents(TPtr<IWorld> pWorld) = 0;
+
+			/*!
+				\brief The method allows plugins to initialize and register ECS systems
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE RegisterECSSystems(TPtr<IWorld> pWorld) = 0;
 
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_PLUGIN_MANAGER; }
 		protected:

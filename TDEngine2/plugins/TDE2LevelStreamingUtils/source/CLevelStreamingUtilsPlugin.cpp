@@ -36,7 +36,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CLevelStreamingUtilsPlugin::OnRegister(IEngineCore* pEngineCore, IWorld* pWorld)
+	E_RESULT_CODE CLevelStreamingUtilsPlugin::OnRegisterSystems(IEngineCore* pEngineCore, IWorld* pWorld)
 	{
 		E_RESULT_CODE result = RC_OK;
 
@@ -46,7 +46,12 @@ namespace TDEngine2
 			return systemRegistrationResult.GetError();
 		}
 
-		result = result | pWorld->RegisterComponentFactory(TPtr<IComponentFactory>(CreateSceneLoadingTriggerComponentFactory(result)));
+		return result;
+	}
+
+	E_RESULT_CODE CLevelStreamingUtilsPlugin::OnRegisterComponents(IEngineCore* pEngineCore, IWorld* pWorld)
+	{
+		E_RESULT_CODE result = pWorld->RegisterComponentFactory(TPtr<IComponentFactory>(CreateSceneLoadingTriggerComponentFactory(result)));
 		if (RC_OK != result)
 		{
 			return result;

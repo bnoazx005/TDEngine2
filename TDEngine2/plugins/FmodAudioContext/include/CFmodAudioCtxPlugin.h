@@ -53,7 +53,18 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE OnRegister(IEngineCore* pEngineCore, IWorld* pWorld) override;
+			TDE2_API E_RESULT_CODE OnRegisterComponents(IEngineCore* pEngineCore, IWorld* pWorld) override;
+
+			/*!
+				\brief The method is called after OnStart method from IEngineListener and after IWorld is fully initialized and ready to run
+
+				\param[in, out] pEngineCore A pointer to IEngineCore's implementation
+				\param[in, out] pWorld A pointer to IWorld's implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE OnRegisterSystems(IEngineCore* pEngineCore, IWorld* pWorld) override;
 
 			/*!
 				\brief The method returns an object, which contains all the information

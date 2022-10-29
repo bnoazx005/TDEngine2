@@ -186,6 +186,11 @@ namespace TDEngine2
 
 		IWindowSystem* pWindowSystem = _getSubsystemAs<IWindowSystem>(EST_WINDOW);
 
+		if (IPluginManager* pPluginManager = _getSubsystemAs<IPluginManager>(EST_PLUGIN_MANAGER))
+		{
+			pPluginManager->RegisterECSComponents(mpWorldInstance);
+		}
+
 		/// \note we can proceed if the window wasn't initialized properly or some error has happened within user's code
 		if (!pWindowSystem || (_onNotifyEngineListeners(EET_ONSTART) != RC_OK))
 		{
@@ -207,7 +212,7 @@ namespace TDEngine2
 
 		if (IPluginManager* pPluginManager = _getSubsystemAs<IPluginManager>(EST_PLUGIN_MANAGER))
 		{
-			pPluginManager->RegisterECSComponents(mpWorldInstance);
+			pPluginManager->RegisterECSSystems(mpWorldInstance);
 		}
 
 		mpInternalTimer = pWindowSystem->GetTimer();

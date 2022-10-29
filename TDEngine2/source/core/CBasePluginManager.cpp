@@ -189,7 +189,27 @@ namespace TDEngine2
 		{
 			if (auto pECSPlugin = dynamic_cast<IECSPlugin*>(currPlugin.second.Get()))
 			{
-				result = result | pECSPlugin->OnRegister(mpEngineCore, pWorld.Get());
+				result = result | pECSPlugin->OnRegisterComponents(mpEngineCore, pWorld.Get());
+			}
+		}
+
+		return result;
+	}
+
+	E_RESULT_CODE CBasePluginManager::RegisterECSSystems(TPtr<IWorld> pWorld)
+	{
+		if (!pWorld)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		for (auto&& currPlugin : mLoadedPlugins)
+		{
+			if (auto pECSPlugin = dynamic_cast<IECSPlugin*>(currPlugin.second.Get()))
+			{
+				result = result | pECSPlugin->OnRegisterSystems(mpEngineCore, pWorld.Get());
 			}
 		}
 
