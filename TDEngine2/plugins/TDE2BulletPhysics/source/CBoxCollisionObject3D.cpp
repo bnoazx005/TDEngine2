@@ -1,6 +1,6 @@
 #include "../include/CBoxCollisionObject3D.h"
 #include "../include/ICollisionObjects3DVisitor.h"
-#include "../../../deps/bullet3/src/btBulletDynamicsCommon.h"
+#include "../deps/bullet3/src/btBulletDynamicsCommon.h"
 
 
 namespace TDEngine2
