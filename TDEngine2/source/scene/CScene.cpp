@@ -256,6 +256,10 @@ namespace TDEngine2
 									{
 										pWriter->SetUInt32(TSceneArchiveKeys::TPrefabLinkGroupKeys::mParentIdKey, static_cast<U32>(pTransform->GetParent()));
 									}
+
+									pWriter->BeginGroup(TSceneArchiveKeys::TPrefabLinkGroupKeys::mOverridenPositionIdKey);
+									SaveVector3(pWriter, pTransform->GetPosition());
+									pWriter->EndGroup();
 								}
 							}
 							pWriter->EndGroup();
