@@ -207,6 +207,8 @@ TDE2_TEST_FIXTURE("CTransform Tests")
 			TDE2_TEST_IS_TRUE(RC_OK == GroupEntities(pWorld.Get(), pParentTransform->GetOwnerId(), pChildTransform->GetOwnerId()));
 		});
 
+		pTestCase->WaitForNextFrame();
+
 		pTestCase->ExecuteAction([&]
 		{
 			TDE2_TEST_IS_TRUE(pParentTransform && pChildTransform);

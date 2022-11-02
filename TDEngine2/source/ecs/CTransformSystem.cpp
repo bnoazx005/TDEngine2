@@ -131,9 +131,9 @@ namespace TDEngine2
 				continue;
 			}
 
-			if (pTransform->HasHierarchyChanged() && !pTransform->IsFirstFrameAfterCreation())
+			if (pTransform->HasHierarchyChanged())
 			{
-				if (InvalidParentIndex != parentsTable[i])
+				if (InvalidParentIndex != parentsTable[i] && !pTransform->IsFirstFrameAfterCreation())
 				{
 					auto pParentTransform = transforms[parentsTable[i]];
 					const TMatrix4& parent2Child = Inverse(pParentTransform->GetChildToParentTransform());
@@ -141,8 +141,6 @@ namespace TDEngine2
 					pTransform->SetPosition(parent2Child * pTransform->GetPosition());
 					pTransform->SetRotation( pTransform->GetRotation());
 					pTransform->SetScale(parent2Child * TVector4(pTransform->GetScale(), 0.0f));
-
-					pTransform->ResetFirstFrameAfterCreationFlag();
 				}
 				else if (TEntityId::Invalid != pTransform->GetPrevParent())
 				{
@@ -178,6 +176,8 @@ namespace TDEngine2
 			{
 				pBounds->SetDirty(true);
 			}
+
+			pTransform->ResetFirstFrameAfterCreationFlag();
 		}
 
 		// \note Reset dirty flag for all transforms
