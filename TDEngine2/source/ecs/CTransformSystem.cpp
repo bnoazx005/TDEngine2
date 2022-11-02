@@ -131,7 +131,7 @@ namespace TDEngine2
 				continue;
 			}
 
-			if (pTransform->HasHierarchyChanged())
+			if (pTransform->HasHierarchyChanged() && !pTransform->IsFirstFrameAfterCreation())
 			{
 				if (InvalidParentIndex != parentsTable[i])
 				{
@@ -141,6 +141,8 @@ namespace TDEngine2
 					pTransform->SetPosition(parent2Child * pTransform->GetPosition());
 					pTransform->SetRotation( pTransform->GetRotation());
 					pTransform->SetScale(parent2Child * TVector4(pTransform->GetScale(), 0.0f));
+
+					pTransform->ResetFirstFrameAfterCreationFlag();
 				}
 				else if (TEntityId::Invalid != pTransform->GetPrevParent())
 				{

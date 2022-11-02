@@ -63,6 +63,8 @@ namespace TDEngine2
 		
 		mPrevParentEntityId = TEntityId::Invalid;
 
+		mIsFirstFrameAfterCreation = true;
+
 		return RC_OK;
 	}
 
@@ -178,6 +180,7 @@ namespace TDEngine2
 		mScale = TVector3(1.0f, 1.0f, 1.0f);
 
 		mHasChanged = true;
+		mIsFirstFrameAfterCreation = true;
 	}
 
 	void CTransform::SetPosition(const TVector3& position)
@@ -404,6 +407,17 @@ namespace TDEngine2
 
 		return properties;
 	}
+	
+	void CTransform::ResetFirstFrameAfterCreationFlag()
+	{
+		mIsFirstFrameAfterCreation = false;
+	}
+
+	bool CTransform::IsFirstFrameAfterCreation() const
+	{
+		return mIsFirstFrameAfterCreation;
+	}
+
 
 
 	IComponent* CreateTransform(E_RESULT_CODE& result)

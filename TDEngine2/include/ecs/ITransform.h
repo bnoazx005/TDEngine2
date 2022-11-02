@@ -184,6 +184,9 @@ namespace TDEngine2
 			TDE2_API virtual bool HasChanged() const = 0;
 
 			TDE2_API virtual bool HasHierarchyChanged() const = 0;
+
+			TDE2_API virtual void ResetFirstFrameAfterCreationFlag() = 0;
+			TDE2_API virtual bool IsFirstFrameAfterCreation() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ITransform)
 	};

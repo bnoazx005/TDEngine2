@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.12] 2022-10-29
+## [0.6.12] 2022-11-02
 
 ### Added
 
@@ -57,6 +57,8 @@ should be wrapped up with a deffered action's call.
 - Intersection of kinematic/static 3d physics objects was fixed.
 
 - Remove duplicated 3d collision events for static/kinematic objects.
+
+- The serialization/deserialization of **CTransform** component was fixed. Now local coordinates are stored instead of global ones.
 
 ## [0.6.11] 2022-09-24
 

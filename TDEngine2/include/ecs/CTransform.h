@@ -257,6 +257,9 @@ namespace TDEngine2
 			*/
 
 			TDE2_API const std::vector<std::string>& GetAllProperties() const override;
+
+			TDE2_API void ResetFirstFrameAfterCreationFlag() override;
+			TDE2_API bool IsFirstFrameAfterCreation() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTransform)
 		protected:
@@ -276,6 +279,7 @@ namespace TDEngine2
 			TMatrix4    mChild2ParentMatrix;
 
 			bool        mHasChanged;
+			bool        mIsFirstFrameAfterCreation = true;
 
 			std::vector<TEntityId> mChildrenEntities;
 	};
