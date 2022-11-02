@@ -8,6 +8,7 @@
 #include <ecs/IWorld.h>
 #include <editor/Inspectors.h>
 #include <core/IImGUIContext.h>
+#include <metadata.h>
 
 
 #if TDE2_EDITORS_ENABLED
@@ -43,6 +44,43 @@ namespace TDEngine2
 	}
 
 
+	template <typename T>
+	static void DrawCommonPhysicsFields(IImGUIContext& imguiContext, T& baseCollisionObject)
+	{
+		static std::vector<std::string> collisionTypes;
+		if (collisionTypes.empty())
+		{
+			for (auto&& currEnumFieldInfo : Meta::EnumTrait<E_COLLISION_OBJECT_TYPE>::GetFields())
+			{
+				collisionTypes.emplace_back(currEnumFieldInfo.name);
+			}
+		}
+
+		/// \note Collision type
+		{
+			I32 currCollisionType = static_cast<I32>(baseCollisionObject.GetCollisionType());
+
+			imguiContext.BeginHorizontal();
+			imguiContext.Label("Type: ");
+			currCollisionType = imguiContext.Popup("##CollisionType", currCollisionType, collisionTypes);
+			imguiContext.EndHorizontal();
+
+			baseCollisionObject.SetCollisionType(static_cast<E_COLLISION_OBJECT_TYPE>(currCollisionType));
+		}
+
+		/// \note mass
+		if (E_COLLISION_OBJECT_TYPE::COT_DYNAMIC == baseCollisionObject.GetCollisionType())
+		{
+			F32 mass = baseCollisionObject.GetMass();
+
+			imguiContext.BeginHorizontal();
+			imguiContext.Label("Mass: ");
+			imguiContext.FloatField("##Mass", mass, [&baseCollisionObject, &mass] { baseCollisionObject.SetMass(mass); });
+			imguiContext.EndHorizontal();
+		}
+	}
+
+
 	static void DrawBoxCollision3DGUI(const TEditorContext& editorContext)
 	{
 		Header("BoxCollision3D", editorContext, [](const TEditorContext& editorContext)
@@ -50,9 +88,19 @@ namespace TDEngine2
 			IImGUIContext& imguiContext = editorContext.mImGUIContext;
 			IComponent& component = editorContext.mComponent;
 
-			CBaseCollisionObject3D& box3Dcollision = dynamic_cast<CBaseCollisionObject3D&>(component);
+			CBoxCollisionObject3D& box3Dcollision = dynamic_cast<CBoxCollisionObject3D&>(component);
 
-			// \todo Implement this drawer
+			DrawCommonPhysicsFields(imguiContext, box3Dcollision);
+
+			/// \note Extents
+			{
+				TVector3 extents = box3Dcollision.GetSizes();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Extents: ");
+				imguiContext.Vector3Field("##Extents", extents, [&box3Dcollision, &extents] { box3Dcollision.SetSizes(extents); });
+				imguiContext.EndHorizontal();
+			}
 		});
 	}
 
@@ -65,7 +113,17 @@ namespace TDEngine2
 
 			CSphereCollisionObject3D& sphereCollision = dynamic_cast<CSphereCollisionObject3D&>(component);
 
-			// \todo Implement this drawer
+			DrawCommonPhysicsFields(imguiContext, sphereCollision);
+
+			/// \note Radius
+			{
+				F32 radius = sphereCollision.GetRadius();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Radius: ");
+				imguiContext.FloatField("##Radius", radius, [&sphereCollision, &radius] { sphereCollision.SetRadius(radius); });
+				imguiContext.EndHorizontal();
+			}	
 		});
 	}
 
@@ -78,7 +136,7 @@ namespace TDEngine2
 
 			CConvexHullCollisionObject3D& convexHullCollision = dynamic_cast<CConvexHullCollisionObject3D&>(component);
 
-			// \todo Implement this drawer
+			DrawCommonPhysicsFields(imguiContext, convexHullCollision);
 		});
 	}
 

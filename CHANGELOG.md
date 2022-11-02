@@ -40,6 +40,8 @@ should be wrapped up with a deffered action's call.
 
 - The API of **IECSPlugin** was changed OnRegister methods was splitted into OnRegisterComponents and OnRegisterSystems.
 
+- The inspectors for 3d physics components were updated.
+
 ### Fixed
 
 - The implementation of transform's manipulators works more robust way.
