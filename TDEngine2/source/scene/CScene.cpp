@@ -217,6 +217,29 @@ namespace TDEngine2
 		return result;
 	}
 
+
+	static TEntityId GetPrefabInstanceRootEntityId(const TPtr<IWorld>& pWorld, TEntityId entityId)
+	{
+		TEntityId currEntityId = entityId;
+		CEntity* pEntity = nullptr;
+
+		CTransform* pTransform = nullptr;
+
+		while ((pEntity = pWorld->FindEntity(currEntityId)))
+		{
+			if (pEntity->HasComponent<CPrefabLinkInfoComponent>())
+			{
+				return currEntityId;
+			}
+
+			pTransform = pEntity->GetComponent<CTransform>();
+			currEntityId = pTransform->GetParent();
+		}
+
+		return TEntityId::Invalid;
+	}
+
+
 	E_RESULT_CODE CScene::Save(IArchiveWriter* pWriter)
 	{
 		if (!pWriter)
@@ -239,6 +262,12 @@ namespace TDEngine2
 		{
 			for (TEntityId currEntityId : mEntities)
 			{
+				const TEntityId prefabEntityRootId = GetPrefabInstanceRootEntityId(mpWorld, currEntityId);
+				if (TEntityId::Invalid != prefabEntityRootId && prefabEntityRootId != currEntityId) /// \note If it's a part of a prefab but not it's root skip serialization process
+				{
+					continue;
+				}
+
 				if (CEntity* pCurrEntity = mpWorld->FindEntity(currEntityId))
 				{
 					pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
@@ -263,6 +292,8 @@ namespace TDEngine2
 								}
 							}
 							pWriter->EndGroup();
+							
+							continue;
 						}
 #endif
 

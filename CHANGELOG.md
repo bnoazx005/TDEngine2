@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The serialization logic for prefabs links was refactored and fixed.
+
 ## [0.6.12] 2022-11-02
 
 ### Added
