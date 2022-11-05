@@ -12,6 +12,8 @@
 #include <functional>
 
 
+#if TDE2_EDITORS_ENABLED
+
 namespace TDEngine2
 {
 	class CAnimationCurve;
@@ -113,3 +115,5 @@ namespace TDEngine2
 		TVector2 mCurrGridYAxisBounds; ///< x - min, y - max values for y axis of the grid
 	};
 }
+
+#endif

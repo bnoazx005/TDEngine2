@@ -14,11 +14,13 @@ I32 main(I32 argc, const C8** argv)
 {
 	E_RESULT_CODE result = RC_OK;
 
+#if TDE2_EDITORS_ENABLED
 	auto parseOptionsResult = ParseOptions(argc, argv);
 	if (parseOptionsResult.HasError())
 	{
 		return parseOptionsResult.GetError();
 	}
+#endif
 
 	TPtr<IEngineCoreBuilder> pEngineCoreBuilder = TPtr<IEngineCoreBuilder>(CreateConfigFileEngineCoreBuilder({ CreateEngineCore, "TDE2TexturesPacker.project" }, result));
 
@@ -28,8 +30,10 @@ I32 main(I32 argc, const C8** argv)
 	}
 
 	TPtr<IEngineCore> pEngineCore = TPtr<IEngineCore>(pEngineCoreBuilder->GetEngineCore());
-	
+
+#if TDE2_EDITORS_ENABLED
 	pEngineCore->RegisterListener(std::make_unique<CUtilityListener>(parseOptionsResult.Get()));
+#endif
 
 	pEngineCore->Run();
 

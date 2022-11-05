@@ -11,6 +11,8 @@
 	namespace fs = std::experimental::filesystem;
 #endif
 
+#if TDE2_EDITORS_ENABLED
+
 using namespace TDEngine2;
 
 
@@ -216,3 +218,5 @@ void CUtilityListener::SetEngineInstance(TDEngine2::IEngineCore* pEngineCore)
 
 	mpResourceManager = mpEngineCoreInstance->GetSubsystem<IResourceManager>();
 }
+
+#endif

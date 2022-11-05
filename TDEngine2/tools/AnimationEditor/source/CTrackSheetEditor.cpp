@@ -1,6 +1,8 @@
 #include "../include/CTrackSheetEditor.h"
 
 
+#if TDE2_EDITORS_ENABLED
+
 namespace TDEngine2
 {
 	static const TVector2 DiscreteTrackButtonSize(10.0f, 20.0f);
@@ -708,3 +710,5 @@ namespace TDEngine2
 		return CREATE_IMPL(CTrackSheetEditor, CTrackSheetEditor, result, pInputContext);
 	}
 }
+
+#endif

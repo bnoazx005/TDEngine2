@@ -21,6 +21,8 @@ using namespace TDEngine2;
 
 int main(int argc, const char** argv)
 {
+#if TDE2_EDITORS_ENABLED
+
 	TResult<TUtilityOptions> parseOptionsResult = ParseOptions(argc, argv);
 	if (parseOptionsResult.HasError())
 	{
@@ -40,4 +42,10 @@ int main(int argc, const char** argv)
 	CScopedPtr<IEngineCore> pEngineCore { pEngineCoreBuilder->GetEngineCore() };
 
 	return static_cast<int>(ProcessMeshFiles(pEngineCore.Get(), std::move(BuildFilesList(options.mInputFiles)), options));
+
+#else
+
+	return -1;
+
+#endif
 }

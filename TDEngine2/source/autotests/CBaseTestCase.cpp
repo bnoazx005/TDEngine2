@@ -3,6 +3,8 @@
 #include <functional>
 
 
+#if TDE2_EDITORS_ENABLED
+
 namespace TDEngine2
 {
 	class ITestAction
@@ -327,3 +329,5 @@ namespace TDEngine2
 		return CREATE_IMPL(ITestCase, CBaseTestCase, result);
 	}
 }
+
+#endif

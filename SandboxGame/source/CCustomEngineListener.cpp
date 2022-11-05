@@ -709,7 +709,9 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 		}
 	}
 
+#if TDE2_EDITORS_ENABLED
 	CTestContext::Get()->Update(dt);
+#endif
 	
 	//if (mpInputContext->IsMouseButtonPressed(0))
 	//{

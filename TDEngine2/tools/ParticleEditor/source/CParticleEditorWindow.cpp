@@ -2,6 +2,8 @@
 #include "../../include/metadata.h"
 
 
+#if TDE2_EDITORS_ENABLED
+
 namespace TDEngine2
 {
 	std::vector<std::string> CParticleEditorWindow::mColorTypesIds {};
@@ -816,3 +818,5 @@ namespace TDEngine2
 		return CREATE_IMPL(IEditorWindow, CParticleEditorWindow, result, pResourceManager, pInputContext);
 	}
 }
+
+#endif

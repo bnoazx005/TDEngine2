@@ -20,6 +20,9 @@
 	namespace fs = std::experimental::filesystem;
 #endif
 
+
+#if TDE2_EDITORS_ENABLED
+
 namespace TDEngine2
 {
 
@@ -1068,3 +1071,5 @@ namespace TDEngine2
 		return result;
 	}
 }
+
+#endif

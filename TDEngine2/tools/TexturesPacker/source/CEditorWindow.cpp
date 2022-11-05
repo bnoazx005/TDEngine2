@@ -4,6 +4,8 @@
 #include <string>
 
 
+#if TDE2_EDITORS_ENABLED
+
 namespace TDEngine2
 {
 	CEditorWindow::CEditorWindow() :
@@ -162,3 +164,5 @@ namespace TDEngine2
 		return CREATE_IMPL(IEditorWindow, CEditorWindow, result, pResourceManager, pInputContext, pWindowSystem);
 	}
 }
+
+#endif

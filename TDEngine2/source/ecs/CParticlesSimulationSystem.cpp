@@ -322,11 +322,13 @@ namespace TDEngine2
 
 				auto& particles = mParticles[i];
 
+#if TDE2_EDITORS_ENABLED
 				if (pEmitterComponent->mResetStateOnNextFrame)
 				{
 					std::fill(particles.begin(), particles.end(), TParticleInfo {});
 					pEmitterComponent->mResetStateOnNextFrame = false;
 				}
+#endif
 
 				// \note Process emission
 				if ((mActiveParticlesCount[i] < pCurrEffectResource->GetMaxParticlesCount()))

@@ -4,6 +4,8 @@
 #include <string>
 
 
+#if TDE2_EDITORS_ENABLED
+
 namespace TDEngine2
 {
 	CFontPreviewWindow::CFontPreviewWindow() :
@@ -71,3 +73,5 @@ namespace TDEngine2
 		return CREATE_IMPL(IEditorWindow, CFontPreviewWindow, result, pResourceManager, pInputContext, pWindowSystem);
 	}
 }
+
+#endif

@@ -12,6 +12,8 @@
 #include "CConfigWindow.h"
 
 
+#if TDE2_EDITORS_ENABLED
+
 class CUtilityListener : public TDEngine2::IEngineListener
 {
 	public:
@@ -63,3 +65,5 @@ class CUtilityListener : public TDEngine2::IEngineListener
 		TDEngine2::CScopedPtr<TDEngine2::IEditorWindow> mpConfigEditorWindow;
 
 };
+
+#endif

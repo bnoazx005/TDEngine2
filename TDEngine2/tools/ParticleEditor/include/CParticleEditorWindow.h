@@ -12,6 +12,8 @@
 #include <vector>
 
 
+#if TDE2_EDITORS_ENABLED
+
 namespace TDEngine2
 {
 	const std::string EditableEntityId         = "ParticleEffectEntity";
@@ -113,3 +115,5 @@ namespace TDEngine2
 
 	TDE2_DECLARE_SCOPED_PTR_INLINED(CParticleEditorWindow)
 }
+
+#endif

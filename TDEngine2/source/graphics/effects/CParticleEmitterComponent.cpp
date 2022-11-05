@@ -54,7 +54,10 @@ namespace TDEngine2
 			pComponent->mIsPlaying = mIsPlaying;
 			pComponent->mParticleEffectId = mParticleEffectId;
 			pComponent->mParticleEffectName = mParticleEffectName;
+
+#if TDE2_EDITORS_ENABLED
 			pComponent->mResetStateOnNextFrame = mResetStateOnNextFrame;
+#endif
 
 			return RC_OK;
 		}

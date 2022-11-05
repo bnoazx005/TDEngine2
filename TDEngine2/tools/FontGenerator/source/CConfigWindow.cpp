@@ -18,6 +18,8 @@
 #endif
 
 
+#if TDE2_EDITORS_ENABLED
+
 namespace TDEngine2
 {
 	typedef std::vector<std::tuple<std::string, std::string>> TFileFiltersArray;
@@ -473,3 +475,5 @@ namespace TDEngine2
 		return CREATE_IMPL(IEditorWindow, CConfigWindow, result, params);
 	}
 }
+
+#endif

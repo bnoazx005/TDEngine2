@@ -4,6 +4,8 @@
 using namespace TDEngine2;
 
 
+#if TDE2_EDITORS_ENABLED
+
 TDE2_TEST_FIXTURE("CTransform Tests")
 {
 	TDE2_TEST_CASE("TestInitialization_CreateNewTransform_InstanceShouldBeCorrectlyInitialized")
@@ -325,3 +327,5 @@ TDE2_TEST_FIXTURE("CTransform Tests")
 		});
 	}
 }
+
+#endif

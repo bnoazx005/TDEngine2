@@ -1,6 +1,8 @@
 #include "../include/CMaterialEditorWindow.h"
 
 
+#if TDE2_EDITORS_ENABLED
+
 namespace TDEngine2
 {
 	CMaterialEditorWindow::CMaterialEditorWindow() :
@@ -328,3 +330,5 @@ namespace TDEngine2
 		return CREATE_IMPL(IEditorWindow, CMaterialEditorWindow, result, pResourceManager, pInputContext);
 	}
 }
+
+#endif

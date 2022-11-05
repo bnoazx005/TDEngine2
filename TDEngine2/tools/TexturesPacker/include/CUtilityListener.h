@@ -14,6 +14,8 @@
 
 
 
+#if TDE2_EDITORS_ENABLED
+
 struct TUtilityOptions
 {
 	std::vector<std::string> mInputFiles;
@@ -107,3 +109,5 @@ static struct TVersion
 
 
 TDEngine2::TResult<TUtilityOptions> ParseOptions(int argc, const char** argv);
+
+#endif

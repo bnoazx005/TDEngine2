@@ -2,6 +2,8 @@
 #include "../../include/metadata.h"
 
 
+#if TDE2_EDITORS_ENABLED
+
 namespace TDEngine2
 {
 	const std::string CAnimationEditorWindow::mAddPropertyWindowId = "Add Property ...";
@@ -913,3 +915,5 @@ namespace TDEngine2
 		return CREATE_IMPL(IEditorWindow, CAnimationEditorWindow, result, pResourceManager, pWorld, pInputContext);
 	}
 }
+
+#endif

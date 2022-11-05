@@ -6,6 +6,8 @@
 #pragma warning(pop)
 
 
+#if TDE2_EDITORS_ENABLED
+
 using namespace TDEngine2;
 
 
@@ -67,3 +69,5 @@ void CUtilityListener::SetEngineInstance(TDEngine2::IEngineCore* pEngineCore)
 	mpFileSystem      = mpEngineCoreInstance->GetSubsystem<IFileSystem>();
 	mpInputContext    = mpEngineCoreInstance->GetSubsystem<IInputContext>();
 }
+
+#endif

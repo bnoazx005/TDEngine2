@@ -5,6 +5,8 @@
 #include "../../include/utils/CFileLogger.h"
 
 
+#if TDE2_EDITORS_ENABLED
+
 namespace TDEngine2
 {
 	static TVector2 ApplyCurveToScreenTransform(const CAnimationCurveEditorWindow::TCurveTransformParams& params, const TVector2& p)
@@ -362,3 +364,5 @@ namespace TDEngine2
 		return CREATE_IMPL(IEditorWindow, CAnimationCurveEditorWindow, result);
 	}
 }
+
+#endif

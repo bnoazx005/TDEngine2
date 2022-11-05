@@ -23,7 +23,9 @@ I32 main(I32 argc, C8** argv)
 
 	TPtr<IEngineCore> pEngineCore = TPtr<IEngineCore>(pEngineCoreBuilder->GetEngineCore());
 
+#if TDE2_EDITORS_ENABLED
 	pEngineCore->RegisterListener(std::make_unique<CUtilityListener>());
+#endif
 
 	pEngineCore->Run();
 

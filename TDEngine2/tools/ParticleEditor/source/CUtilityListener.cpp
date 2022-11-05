@@ -6,6 +6,8 @@
 #include <tuple>
 
 
+#if TDE2_EDITORS_ENABLED
+
 using namespace TDEngine2;
 
 
@@ -238,3 +240,5 @@ void CUtilityListener::_drawTimeControlBar()
 		pImGUIContext->EndWindow();
 	}
 }
+
+#endif

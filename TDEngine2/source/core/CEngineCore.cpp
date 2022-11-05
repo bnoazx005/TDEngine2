@@ -126,8 +126,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-
-#if defined TDE2_EDITORS_ENABLED
+#if TDE2_EDITORS_ENABLED
 
 	static void InitEditorCamera(IWindowSystem* pWindowSystem, ISceneManager* pSceneManager, TPtr<IWorld> pWorld)
 	{
@@ -219,7 +218,9 @@ namespace TDEngine2
 		mpInternalTimer->Start();
 
 		mpInputContext = _getSubsystemAs<IInputContext>(EST_INPUT_CONTEXT);
+#if TDE2_EDITORS_ENABLED
 		mpEditorsManager = _getSubsystemAs<IEditorsManager>(EST_EDITORS_MANAGER);
+#endif
 
 		LOG_MESSAGE("");
 		LOG_MESSAGE("[Engine Core] >>>=================================================");
@@ -336,7 +337,7 @@ namespace TDEngine2
 
 	void CEngineCore::_onFrameUpdateCallback()
 	{
-#if defined(TDE2_DEBUG_MODE) || TDE2_PRODUCTION_MODE
+#if TDE2_EDITORS_ENABLED
 		CPerfProfiler::Get()->BeginFrame();
 		CMemoryProfiler::Get()->BeginFrame();
 
@@ -372,7 +373,7 @@ namespace TDEngine2
 			pJobManager->ProcessMainThreadQueue();
 		}
 
-#if defined(TDE2_DEBUG_MODE) || TDE2_PRODUCTION_MODE
+#if TDE2_EDITORS_ENABLED
 		CPerfProfiler::Get()->EndFrame();
 		CMemoryProfiler::Get()->EndFrame();
 #endif

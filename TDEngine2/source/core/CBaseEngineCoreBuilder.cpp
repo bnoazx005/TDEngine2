@@ -398,10 +398,12 @@ namespace TDEngine2
 
 		if (CProgramOptions::Get()->GetValueOrDefault<bool>("autotests-enabled", false))
 		{
+#if TDE2_EDITORS_ENABLED
 			if (RC_OK != (result = CTestContext::Get()->Init({ mpEngineCoreInstance.Get() })))
 			{
 				return result;
-			}			
+			}	
+#endif
 		}
 		else
 		{

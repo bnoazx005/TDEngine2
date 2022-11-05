@@ -55,7 +55,9 @@ namespace TDEngine2
 
 		};
 
+#if TDE2_EDITORS_ENABLED
 		TOnCharInputEvent onCharInputEvent;
+#endif
 
 		switch (uMsg)
 		{
@@ -89,10 +91,14 @@ namespace TDEngine2
 
 				pEventManager->Notify(&onMovedEvent);
 				break;
+
+#if TDE2_EDITORS_ENABLED
 			case WM_CHAR:
 				onCharInputEvent.mCharCode = static_cast<U32>(wParam);
 				pEventManager->Notify(&onCharInputEvent);
 				break;
+#endif
+
 			default:
 				return DefWindowProc(hWnd, uMsg, wParam, lParam);
 		}

@@ -14,6 +14,8 @@
 #include <functional>
 
 
+#if TDE2_EDITORS_ENABLED
+
 namespace TDEngine2
 {
 	class CAnimationCurve;
@@ -107,3 +109,5 @@ namespace TDEngine2
 			CAnimationCurve* mpCurrTargetCurve;
 	};
 }
+
+#endif

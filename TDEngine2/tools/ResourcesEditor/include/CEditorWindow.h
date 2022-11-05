@@ -13,6 +13,8 @@
 #include "../include/CResourceInfoSelectionManager.h"
 
 
+#if TDE2_EDITORS_ENABLED
+
 namespace TDEngine2
 {
 	/*!
@@ -74,3 +76,5 @@ namespace TDEngine2
 			bool                                      mIsRenamingEnabled = false;
 	};
 }
+
+#endif

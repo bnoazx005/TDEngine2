@@ -12,6 +12,8 @@
 #include <vector>
 
 
+#if TDE2_EDITORS_ENABLED
+
 namespace TDEngine2
 {
 	typedef struct TConfigWindowParams
@@ -99,3 +101,5 @@ namespace TDEngine2
 			TResourceId mFontTextureAtlasId;
 	};
 }
+
+#endif

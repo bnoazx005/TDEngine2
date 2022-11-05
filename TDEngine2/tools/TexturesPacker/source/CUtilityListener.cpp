@@ -13,6 +13,7 @@
 
 using namespace TDEngine2;
 
+#if TDE2_EDITORS_ENABLED
 
 static const std::string AtlasParametrizationModalWindowName = "CreateNewAtlasWindow";
 
@@ -364,3 +365,5 @@ TDEngine2::TResult<TUtilityOptions> ParseOptions(int argc, const char** argv)
 
 	return Wrench::TOkValue<TUtilityOptions>(utilityOptions);
 }
+
+#endif

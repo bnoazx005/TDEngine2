@@ -266,6 +266,8 @@ namespace TDEngine2
 	}
 
 
+#if TDE2_EDITORS_ENABLED
+
 	static E_RESULT_CODE UpdatePrefabsRegistry(IResourceManager* pResourceManager, IFileSystem* pFileSystem, const std::string& prefabId, const std::string& prefabPath)
 	{
 		for (auto&& currResourceId : pResourceManager->GetResourcesListByType<CPrefabsManifest>())
@@ -304,6 +306,7 @@ namespace TDEngine2
 		return RC_FAIL;
 	}
 
+#endif
 
 	static E_RESULT_CODE SavePrefabHierarchy(IYAMLFileWriter* pWriter, IWorld* pWorld, CEntity* pEntity)
 	{

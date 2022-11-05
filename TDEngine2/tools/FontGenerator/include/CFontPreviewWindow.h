@@ -12,6 +12,8 @@
 #include <vector>
 
 
+#if TDE2_EDITORS_ENABLED
+
 namespace TDEngine2
 {
 	/*!
@@ -67,3 +69,5 @@ namespace TDEngine2
 			TResourceId           mAtlasResourceHandle;
 	};
 }
+
+#endif

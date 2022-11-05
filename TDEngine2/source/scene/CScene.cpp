@@ -68,6 +68,8 @@ namespace TDEngine2
 		mName = id;
 		mPath = scenePath;
 
+#if TDE2_EDITORS_ENABLED
+
 		if (auto pSceneInfoEntity = mpWorld->CreateEntity(id + "_SceneInfoEntity"))
 		{
 			mSceneInfoEntityId = pSceneInfoEntity->GetId();
@@ -77,6 +79,8 @@ namespace TDEngine2
 				pSceneInfo->SetSceneId(mName);
 			}
 		}
+
+#endif
 
 		mIsMainScene = isMainScene;
 
@@ -189,6 +193,8 @@ namespace TDEngine2
 		}
 		pReader->EndGroup();
 
+#if TDE2_EDITORS_ENABLED
+
 		if (auto pSceneInfoEntity = mpWorld->FindEntity(mSceneInfoEntityId))
 		{
 			if (CSceneInfoComponent* pSceneInfo = pSceneInfoEntity->AddComponent<CSceneInfoComponent>())
@@ -196,6 +202,8 @@ namespace TDEngine2
 				pSceneInfo->SetSceneId(mName);
 			}
 		}
+
+#endif
 
 		// \note Post load remapping stage
 		E_RESULT_CODE result = RC_OK;
@@ -240,7 +248,12 @@ namespace TDEngine2
 		{
 			for (TEntityId currEntityId : mEntities)
 			{
-				const TEntityId prefabEntityRootId = GetPrefabInstanceRootEntityId(mpWorld, currEntityId);
+				const TEntityId prefabEntityRootId =
+#if TDE2_EDITORS_ENABLED
+					GetPrefabInstanceRootEntityId(mpWorld, currEntityId);
+#else
+					TEntityId::Invalid;
+#endif
 				if (TEntityId::Invalid != prefabEntityRootId && prefabEntityRootId != currEntityId) /// \note If it's a part of a prefab but not it's root skip serialization process
 				{
 					continue;

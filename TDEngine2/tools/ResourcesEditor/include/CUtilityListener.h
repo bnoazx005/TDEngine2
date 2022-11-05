@@ -13,6 +13,8 @@
 #include <string>
 
 
+#if TDE2_EDITORS_ENABLED
+
 class CUtilityListener : public TDEngine2::IEngineListener
 {
 	public:
@@ -65,3 +67,5 @@ class CUtilityListener : public TDEngine2::IEngineListener
 
 		std::string mLastSavedPath;
 };
+
+#endif
