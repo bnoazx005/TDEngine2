@@ -317,7 +317,7 @@ namespace TDEngine2
 
 
 	/*!
-		\brief The method attaches given childEntity to parentEntity. It's basically, wrapper
+		\brief The function attaches given childEntity to parentEntity. It's basically, wrapper
 		around two calls of ITransform component SetParent and AttachChild
 
 		\param[in, out] pWorld A pointer to IWorld implementation
@@ -330,4 +330,15 @@ namespace TDEngine2
 	TDE2_API E_RESULT_CODE GroupEntities(IWorld* pWorld, TEntityId parentEntity, TEntityId childEntity);
 
 	TDE2_API class ICamera* GetCurrentActiveCamera(IWorld* pWorld);
+
+
+#if TDE2_EDITORS_ENABLED
+
+	/*!
+		\brief The function returns an identifier of the owning prefab if the given entityId belongs to that
+	*/
+
+	TDE2_API TEntityId GetPrefabInstanceRootEntityId(const TPtr<IWorld>& pWorld, TEntityId entityId);
+
+#endif
 }

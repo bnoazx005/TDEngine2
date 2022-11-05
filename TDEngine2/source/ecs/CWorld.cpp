@@ -12,6 +12,9 @@
 #include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/graphics/COrthoCamera.h"
 #include "../../include/ecs/CTransform.h"
+#if TDE2_EDITORS_ENABLED
+#include "../../include/editor/ecs/EditorComponents.h"
+#endif
 
 
 namespace TDEngine2
@@ -393,4 +396,29 @@ namespace TDEngine2
 
 		return nullptr;
 	}
+
+#if TDE2_EDITORS_ENABLED
+
+	TEntityId GetPrefabInstanceRootEntityId(const TPtr<IWorld>& pWorld, TEntityId entityId)
+	{
+		TEntityId currEntityId = entityId;
+		CEntity* pEntity = nullptr;
+
+		CTransform* pTransform = nullptr;
+
+		while ((pEntity = pWorld->FindEntity(currEntityId)))
+		{
+			if (pEntity->HasComponent<CPrefabLinkInfoComponent>())
+			{
+				return currEntityId;
+			}
+
+			pTransform = pEntity->GetComponent<CTransform>();
+			currEntityId = pTransform->GetParent();
+		}
+
+		return TEntityId::Invalid;
+	}
+
+#endif
 }

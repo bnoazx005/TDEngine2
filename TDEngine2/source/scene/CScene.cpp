@@ -1,5 +1,5 @@
 #include "../../include/scene/CScene.h"
-#include "../../include/ecs/IWorld.h"
+#include "../../include/ecs/CWorld.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/editor/CPerfProfiler.h"
@@ -29,6 +29,7 @@ namespace TDEngine2
 
 		struct TPrefabLinkGroupKeys
 		{
+			static const std::string mPrefabUIDKey;
 			static const std::string mPrefabIdKey;
 			static const std::string mParentIdKey;
 			static const std::string mOverridenPositionIdKey;
@@ -37,6 +38,7 @@ namespace TDEngine2
 
 	const std::string TSceneArchiveKeys::mPrefabLinkGroupId = "link";
 	const std::string TSceneArchiveKeys::TPrefabLinkGroupKeys::mPrefabIdKey = "prefab_id";
+	const std::string TSceneArchiveKeys::TPrefabLinkGroupKeys::mPrefabUIDKey = "id";
 	const std::string TSceneArchiveKeys::TPrefabLinkGroupKeys::mParentIdKey = "parent_id";
 	const std::string TSceneArchiveKeys::TPrefabLinkGroupKeys::mOverridenPositionIdKey = "position";
 
@@ -146,10 +148,7 @@ namespace TDEngine2
 							auto positionResult = LoadVector3(pReader); /// \note Try to read overriden position for the link
 							pReader->EndGroup();
 
-							auto pInstance = Spawn(
-								pReader->GetString(TSceneArchiveKeys::TPrefabLinkGroupKeys::mPrefabIdKey),
-								mpWorld->FindEntity(static_cast<TEntityId>(
-									pReader->GetUInt32(TSceneArchiveKeys::TPrefabLinkGroupKeys::mParentIdKey, static_cast<U32>(TEntityId::Invalid)))));
+							auto pInstance = Spawn(pReader->GetString(TSceneArchiveKeys::TPrefabLinkGroupKeys::mPrefabIdKey), nullptr);
 
 							if (positionResult.IsOk())
 							{
@@ -161,6 +160,8 @@ namespace TDEngine2
 									pTransform->SetPosition(overridenPosition);
 								}
 							}
+
+							entitiesIdsMap.emplace(static_cast<TEntityId>(pReader->GetUInt32("id", static_cast<U32>(TEntityId::Invalid))), pInstance->GetId());
 
 							TDE2_ASSERT(pInstance);
 						}
@@ -217,29 +218,6 @@ namespace TDEngine2
 		return result;
 	}
 
-
-	static TEntityId GetPrefabInstanceRootEntityId(const TPtr<IWorld>& pWorld, TEntityId entityId)
-	{
-		TEntityId currEntityId = entityId;
-		CEntity* pEntity = nullptr;
-
-		CTransform* pTransform = nullptr;
-
-		while ((pEntity = pWorld->FindEntity(currEntityId)))
-		{
-			if (pEntity->HasComponent<CPrefabLinkInfoComponent>())
-			{
-				return currEntityId;
-			}
-
-			pTransform = pEntity->GetComponent<CTransform>();
-			currEntityId = pTransform->GetParent();
-		}
-
-		return TEntityId::Invalid;
-	}
-
-
 	E_RESULT_CODE CScene::Save(IArchiveWriter* pWriter)
 	{
 		if (!pWriter)
@@ -278,6 +256,7 @@ namespace TDEngine2
 							pWriter->BeginGroup(TSceneArchiveKeys::mPrefabLinkGroupId);
 							{
 								pWriter->SetString(TSceneArchiveKeys::TPrefabLinkGroupKeys::mPrefabIdKey, pPrefabLinkInfo->GetPrefabLinkId());
+								pWriter->SetUInt32(TSceneArchiveKeys::TPrefabLinkGroupKeys::mPrefabUIDKey, static_cast<U32>(currEntityId));
 
 								if (auto pTransform = pCurrEntity->GetComponent<CTransform>())
 								{

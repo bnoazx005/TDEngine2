@@ -582,7 +582,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 #endif
 #endif
 
-		pSceneManager->LoadSceneAsync("ProjectResources/Scenes/TestPlayground.scene", nullptr);
+		pSceneManager->LoadSceneAsync("ProjectResources/Scenes/1.scene", nullptr);
 	}
 
 	mpResourceManager->Load<CBaseTexture2D, TResourceProviderInfo<CBaseTexture2D, CBaseTexture2D>>("test");
