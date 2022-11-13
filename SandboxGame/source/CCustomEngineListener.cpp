@@ -288,7 +288,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			pScene->CreateSkybox(mpResourceManager, "DefaultResources/Textures/DefaultSkybox");
 			pScene->CreatePointLight(TColorUtils::mWhite, 1.0f, 10.0f);
 
-#if 1 /// 3D Physics Tests
+#if 0 /// 3D Physics Tests
 			if (auto pPhysicsObject0 = pScene->CreateEntity("PhysicsObject1"))
 			{
 				if (auto pMeshContainer = pPhysicsObject0->AddComponent<CStaticMeshContainer>())

@@ -52,7 +52,7 @@ namespace TDEngine2
 
 	#define TDE2_TEST_FIXTURE_IMPL(Name, FixtureFunctorId, FixtureId)																	\
 		static void FixtureFunctorId(TPtr<ITestFixture> pTestFixture);																	\
-		static TTestFixtureAutoRegister FixtureId([=]																					\
+		static TTestFixtureAutoRegister FixtureId([]																					\
 			{																															\
 				E_RESULT_CODE result = RC_OK;																							\
 				TPtr<ITestFixture> pTestFixtureInstance = TPtr<ITestFixture>(CreateBaseTestFixture(Name, result));						\
