@@ -289,9 +289,10 @@ namespace TDEngine2
 					static std::vector<U64> diff;
 					diff.clear();
 
-					std::set_difference(mPrevCollidedPairsHashTable.begin(), mPrevCollidedPairsHashTable.cend(),
-						mCurrCollidedPairsHashTable.begin(), mCurrCollidedPairsHashTable.end(),
-						std::back_inserter(diff));
+					std::copy_if(mCurrCollidedPairsHashTable.begin(), mCurrCollidedPairsHashTable.end(), std::back_inserter(diff), [this](auto&& entity)
+					{
+						return mPrevCollidedPairsHashTable.find(entity) == mPrevCollidedPairsHashTable.end();
+					});
 
 					for (U64 currHash : diff)
 					{
