@@ -19,7 +19,6 @@
 #include "CSphereCollisionObject3D.h"
 #include "CConvexHullCollisionObject3D.h"
 #include "CCapsuleCollisionObject3D.h"
-#include "ITrigger3D.h"
 #include "CTrigger3D.h"
 #include "CPhysics3DSystem.h"
 

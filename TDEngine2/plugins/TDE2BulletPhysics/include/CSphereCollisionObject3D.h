@@ -9,6 +9,7 @@
 
 #include "CBaseCollisionObject3D.h"
 #include <math/TVector3.h>
+#include <physics/3D/ISphereCollisionObject3D.h>
 
 
 namespace TDEngine2
@@ -31,7 +32,7 @@ namespace TDEngine2
 		which is controlled by Bullet3 physics engine
 	*/
 
-	class CSphereCollisionObject3D : public CBaseCollisionObject3D, public CPoolMemoryAllocPolicy<CSphereCollisionObject3D, 1 << 20>
+	class CSphereCollisionObject3D : public CBaseCollisionObject3D, public CPoolMemoryAllocPolicy<CSphereCollisionObject3D, 1 << 20>, public virtual ISphereCollisionObject3D
 	{
 		public:
 			friend TDE2_API IComponent* CreateSphereCollisionObject3D(E_RESULT_CODE& result);
@@ -73,7 +74,7 @@ namespace TDEngine2
 				\param[in] radius A radius of a sphere collider
 			*/
 
-			TDE2_API virtual void SetRadius(F32 radius);
+			TDE2_API void SetRadius(F32 radius) override;
 
 			/*!
 				\brief The method returns a radius of a sphere collider
@@ -81,7 +82,7 @@ namespace TDEngine2
 				\return The method returns a radius of a sphere collider
 			*/
 
-			TDE2_API virtual F32 GetRadius() const;
+			TDE2_API F32 GetRadius() const override;
 
 			/*!
 				\brief The method returns a pointer to internal representation of a collision

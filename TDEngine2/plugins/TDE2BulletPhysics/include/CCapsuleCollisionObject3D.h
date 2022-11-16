@@ -9,6 +9,7 @@
 
 #include "CBaseCollisionObject3D.h"
 #include <math/TVector3.h>
+#include <physics/3D/ICapsuleCollisionObject3D.h>
 
 
 namespace TDEngine2
@@ -31,7 +32,7 @@ namespace TDEngine2
 		which is controlled by Bullet3 physics engine
 	*/
 
-	class CCapsuleCollisionObject3D : public CBaseCollisionObject3D, public CPoolMemoryAllocPolicy<CCapsuleCollisionObject3D, 1 << 20>
+	class CCapsuleCollisionObject3D : public CBaseCollisionObject3D, public CPoolMemoryAllocPolicy<CCapsuleCollisionObject3D, 1 << 20>, public virtual ICapsuleCollisionObject3D
 	{
 		public:
 			friend TDE2_API IComponent* CreateCapsuleCollisionObject3D(E_RESULT_CODE& result);
@@ -73,9 +74,9 @@ namespace TDEngine2
 				\param[in] radius A radius of a Capsule collider
 			*/
 
-			TDE2_API virtual E_RESULT_CODE SetRadius(F32 radius);
+			TDE2_API E_RESULT_CODE SetRadius(F32 radius) override;
 
-			TDE2_API virtual E_RESULT_CODE SetHeight(F32 height);
+			TDE2_API E_RESULT_CODE SetHeight(F32 height) override;
 
 			/*!
 				\brief The method returns a radius of a Capsule collider
@@ -83,13 +84,13 @@ namespace TDEngine2
 				\return The method returns a radius of a Capsule collider
 			*/
 
-			TDE2_API virtual F32 GetRadius() const;
+			TDE2_API F32 GetRadius() const override;
 
 			/*!
 				\brief The method returns a height of a Capsule collider
 			*/
 
-			TDE2_API virtual F32 GetHeight() const;
+			TDE2_API F32 GetHeight() const override;
 
 			/*!
 				\brief The method returns a pointer to internal representation of a collision

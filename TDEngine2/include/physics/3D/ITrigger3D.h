@@ -7,9 +7,9 @@
 #pragma once
 
 
-#include <utils/Types.h>
-#include <utils/Utils.h>
-#include <ecs/IComponentFactory.h>
+#include "../../utils/Types.h"
+#include "../../utils/Utils.h"
+#include "../../ecs/IComponentFactory.h"
 
 
 namespace TDEngine2
@@ -22,8 +22,8 @@ namespace TDEngine2
 
 	class ITrigger3D
 	{
-	public:
-	protected:
-		DECLARE_INTERFACE_PROTECTED_MEMBERS(ITrigger3D)
+		public:
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(ITrigger3D)
 	};
 }

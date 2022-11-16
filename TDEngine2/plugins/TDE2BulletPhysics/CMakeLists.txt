@@ -24,7 +24,6 @@ set(TDE2_BULLET_PHYSICS_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CSphereCollisionObject3D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CConvexHullCollisionObject3D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CCapsuleCollisionObject3D.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/ITrigger3D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CTrigger3D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ComponentsInspectors.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CPhysics3DSystem.h"

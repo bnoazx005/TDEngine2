@@ -10,6 +10,7 @@
 #include "CBaseCollisionObject3D.h"
 #include <math/TVector4.h>
 #include <vector>
+#include <physics/3D/IConvexHullCollisionObject3D.h>
 
 
 namespace TDEngine2
@@ -32,7 +33,7 @@ namespace TDEngine2
 		The main goal is to more accurate approximation of triangle meshes
 	*/
 
-	class CConvexHullCollisionObject3D : public CBaseCollisionObject3D, public CPoolMemoryAllocPolicy<CConvexHullCollisionObject3D, 1 << 20>
+	class CConvexHullCollisionObject3D : public CBaseCollisionObject3D, public CPoolMemoryAllocPolicy<CConvexHullCollisionObject3D, 1 << 20>, public virtual IConvexHullCollisionObject3D
 	{
 		public:
 			friend TDE2_API IComponent* CreateConvexHullCollisionObject3D(E_RESULT_CODE& result);
@@ -68,9 +69,9 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
-			TDE2_API virtual E_RESULT_CODE SetVertices(const std::vector<TVector4>& vertices);
+			TDE2_API E_RESULT_CODE SetVertices(const std::vector<TVector4>& vertices) override;
 
-			TDE2_API virtual const std::vector<TVector4>& GetVertices() const;
+			TDE2_API const std::vector<TVector4>& GetVertices() const override;
 
 			/*!
 				\brief The method returns a pointer to internal representation of a collision

@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- A new interface was defined which is **IBoxCollisionObject3D**.
+- New interfaces were defined which are **IBoxCollisionObject3D**, **ISphereCollisionObject3D**, **IConvexHullCollisionObject3D**, **ICapsuleCollisionObject3D**.
 
 ### Changed
 

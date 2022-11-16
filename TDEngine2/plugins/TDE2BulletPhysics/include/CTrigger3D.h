@@ -9,7 +9,7 @@
 
 #include <core/CBaseObject.h>
 #include <ecs/CBaseComponent.h>
-#include "ITrigger3D.h"
+#include <physics/3D/ITrigger3D.h>
 
 
 namespace TDEngine2
