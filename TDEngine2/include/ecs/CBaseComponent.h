@@ -33,7 +33,7 @@ namespace TDEngine2
 		The following statement is needed to implement proper registration of component's type
 	*/
 
-	class CBaseComponent : public IComponent, public CBaseObject
+	class CBaseComponent : public virtual IComponent, public CBaseObject
 	{
 	public:
 		TDE2_REGISTER_TYPE(CBaseComponent)

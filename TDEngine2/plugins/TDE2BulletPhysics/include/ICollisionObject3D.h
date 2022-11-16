@@ -25,7 +25,7 @@ namespace TDEngine2
 		\brief The interface represents a functionality of a 3D collision object that combines both collider and rigidbody's definition
 	*/
 
-	class ICollisionObject3D : public ICollisionObject
+	class ICollisionObject3D : public virtual ICollisionObject
 	{
 		public:
 			/*!

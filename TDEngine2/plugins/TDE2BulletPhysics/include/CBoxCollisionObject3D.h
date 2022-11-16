@@ -9,6 +9,7 @@
 
 #include "CBaseCollisionObject3D.h"
 #include <math/TVector3.h>
+#include <physics/3D/IBoxCollisionObject3D.h>
 
 
 namespace TDEngine2
@@ -31,12 +32,12 @@ namespace TDEngine2
 		which is controlled by Bullet3 physics engine
 	*/
 
-	class CBoxCollisionObject3D : public CBaseCollisionObject3D, public CPoolMemoryAllocPolicy<CBoxCollisionObject3D, 1 << 20>
+	class CBoxCollisionObject3D : public CBaseCollisionObject3D, public CPoolMemoryAllocPolicy<CBoxCollisionObject3D, 1 << 20>, public virtual IBoxCollisionObject3D
 	{
 		public:
 			friend TDE2_API IComponent* CreateBoxCollisionObject3D(E_RESULT_CODE& result);
 		public:
-			TDE2_REGISTER_COMPONENT_TYPE(CBoxCollisionObject3D)
+			TDE2_REGISTER_COMPONENT_TYPE(IBoxCollisionObject3D)
 
 			/*!
 				\brief The method deserializes object's state from given reader

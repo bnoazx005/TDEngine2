@@ -288,7 +288,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			pScene->CreateSkybox(mpResourceManager, "DefaultResources/Textures/DefaultSkybox");
 			pScene->CreatePointLight(TColorUtils::mWhite, 1.0f, 10.0f);
 
-#if 0 /// 3D Physics Tests
+#if 1 /// 3D Physics Tests
 			if (auto pPhysicsObject0 = pScene->CreateEntity("PhysicsObject1"))
 			{
 				if (auto pMeshContainer = pPhysicsObject0->AddComponent<CStaticMeshContainer>())
@@ -297,7 +297,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 					pMeshContainer->SetMeshName("Cube");
 				}
 
-				if (auto pCollider = pPhysicsObject0->AddComponent<CBoxCollisionObject3D>())
+				if (auto pCollider = pPhysicsObject0->AddComponent<IBoxCollisionObject3D>())
 				{
 					pCollider->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_STATIC);
 					pCollider->SetSizes(TVector3(1.0f));
@@ -319,7 +319,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 					pMeshContainer->SetMeshName("Cube");
 				}
 
-				if (auto pCollider = pPhysicsObject0->AddComponent<CBoxCollisionObject3D>())
+				if (auto pCollider = pPhysicsObject0->AddComponent<IBoxCollisionObject3D>())
 				{
 					pCollider->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_KINEMATIC);
 					pCollider->SetSizes(TVector3(0.3f));

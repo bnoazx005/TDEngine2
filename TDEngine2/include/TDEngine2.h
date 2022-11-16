@@ -246,6 +246,7 @@
 #include "physics/2D/ICollisionObjectsVisitor.h"
 #include "physics/2D/ITrigger2D.h"
 #include "physics/2D/CTrigger2D.h"
+#include "physics/3D/IBoxCollisionObject3D.h"
 #include "physics/ICollisionObject.h"
 #include "physics/IRaycastContext.h"
 #include "physics/CBaseRaycastContext.h"
