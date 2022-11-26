@@ -38,4 +38,10 @@ namespace Test
 
 	TDE2_DECLARE_FLAG_COMPONENT(Tag)
 	TDE2_DEFINE_FLAG_COMPONENT(Tag)
+
+
+	struct TEventTest : TDEngine2::TBaseEvent
+	{
+		REGISTER_EVENT_TYPE(TEventTest)
+	};
 }

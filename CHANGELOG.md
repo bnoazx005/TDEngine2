@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.13] 2022-11-16
+## [0.6.13] 2022-11-26
 
 ### Added
 
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - The serialization/deserialization logic for prefabs links was refactored and fixed.
+
+- TDE2_REGISTER_EVENT macro was updated for other namespaces usage
 
 ## [0.6.12] 2022-11-02
 

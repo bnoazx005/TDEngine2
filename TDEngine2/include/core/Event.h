@@ -18,10 +18,10 @@ namespace TDEngine2
 		event's type retrieving
 	*/
 
-	#define REGISTER_EVENT_TYPE(Type)					\
-		TDE2_API virtual TypeId GetEventType() const	\
-		{												\
-			return Type::GetTypeId();					\
+	#define REGISTER_EVENT_TYPE(Type)							\
+		TDE2_API virtual TDEngine2::TypeId GetEventType() const	\
+		{														\
+			return Type::GetTypeId();							\
 		}
 
 	/*!
