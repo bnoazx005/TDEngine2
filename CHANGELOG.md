@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Wrench** library's version was updated
+
 ### Fixed
 
 - The serialization/deserialization logic for prefabs links was refactored and fixed.
