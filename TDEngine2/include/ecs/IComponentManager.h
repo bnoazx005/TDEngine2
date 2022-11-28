@@ -268,6 +268,8 @@ namespace TDEngine2
 				return _hasComponent(T::GetTypeId(), id);
 			}
 
+			TDE2_API virtual bool HasComponent(TEntityId id, TypeId componentTypeId) = 0;
+
 #if TDE2_EDITORS_ENABLED
 			TDE2_API virtual const std::vector<TComponentTypeInfo>& GetRegisteredComponentsIdentifiers() const = 0;
 #endif

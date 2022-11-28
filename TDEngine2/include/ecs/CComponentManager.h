@@ -105,6 +105,8 @@ namespace TDEngine2
 
 			TDE2_API std::vector<IComponent*> GetComponents(TEntityId id) const override;
 
+			TDE2_API bool HasComponent(TEntityId id, TypeId componentTypeId) override;
+
 			/*!
 				\brief The method returns a one way iterator to an array of components of specified type
 

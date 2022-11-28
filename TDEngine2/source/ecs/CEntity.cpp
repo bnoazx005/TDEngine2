@@ -180,6 +180,11 @@ namespace TDEngine2
 		return mpEntityManager->RemoveComponents(mId);
 	}
 
+	bool CEntity::HasComponent(TypeId componentTypeId)
+	{
+		return mpEntityManager->HasComponent(mId, componentTypeId);
+	}
+
 	TEntityId CEntity::GetId() const
 	{
 		return mId;

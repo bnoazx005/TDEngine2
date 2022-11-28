@@ -165,6 +165,8 @@ namespace TDEngine2
 			template <typename T>
 			TDE2_API bool HasComponent();
 
+			TDE2_API bool HasComponent(TypeId componentTypeId);
+
 			/*!
 				\brief The method returns an entity's id
 

@@ -280,6 +280,11 @@ namespace TDEngine2
 		return components;
 	}
 
+	bool CComponentManager::HasComponent(TEntityId id, TypeId componentTypeId)
+	{
+		return _hasComponent(componentTypeId, id);
+	}
+
 	E_RESULT_CODE CComponentManager::RegisterFactory(TPtr<IComponentFactory> pFactory)
 	{
 		if (!mIsInitialized)

@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.13] 2022-11-26
+## [0.6.13] 2022-11-28
 
 ### Added
 
 - New interfaces were defined which are **IBoxCollisionObject3D**, **ISphereCollisionObject3D**, **IConvexHullCollisionObject3D**, **ICapsuleCollisionObject3D**.
+
+- New overloadings of HasComponent method were implemented for **CEntity**, **CEntityManager** and **CComponentManager**.
 
 ### Changed
 

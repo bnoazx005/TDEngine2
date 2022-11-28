@@ -187,6 +187,13 @@ namespace TDEngine2
 		return mpComponentManager->RemoveComponents(id);
 	}
 
+	bool CEntityManager::HasComponent(TEntityId entityId, TypeId componentTypeId)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		return mpComponentManager->HasComponent(entityId, componentTypeId);
+	}
+
 	std::vector<IComponent*> CEntityManager::GetComponents(TEntityId id) const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);

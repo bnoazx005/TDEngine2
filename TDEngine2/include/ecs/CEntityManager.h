@@ -178,6 +178,8 @@ namespace TDEngine2
 			template <typename T>
 			TDE2_API bool HasComponent(TEntityId id);
 
+			TDE2_API bool HasComponent(TEntityId entityId, TypeId componentTypeId);
+
 			TDE2_API std::vector<IComponent*> GetComponents(TEntityId id) const;
 
 			/*!
