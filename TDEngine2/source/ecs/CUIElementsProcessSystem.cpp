@@ -17,6 +17,7 @@
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IWindowSystem.h"
+#include "../../include/utils/CFileLogger.h"
 #include <algorithm>
 
 
@@ -377,8 +378,21 @@ namespace TDEngine2
 		/// \note Load font data if it's not loaded yet
 		if (TResourceId::Invalid == pLabelData->GetFontResourceHandle())
 		{
-			E_RESULT_CODE result = pLabelData->SetFontResourceHandle(pResourceManager->Load<IFont>(pLabelData->GetFontId()));
-			TDE2_ASSERT(RC_OK == result);
+			const std::string& fontId = pLabelData->GetFontId();
+			if (fontId.empty())
+			{
+				return; /// \note Just skip labels without font's settings
+			}
+
+			E_RESULT_CODE result = pLabelData->SetFontResourceHandle(pResourceManager->Load<IFont>(fontId));
+			
+			if (RC_OK != result)
+			{
+				LOG_ERROR(Wrench::StringUtils::Format("[ComputeTextMeshData] The font {0} couldn't be loaded", fontId));
+				TDE2_ASSERT(false);
+			}
+
+			return;
 		}
 
 		auto pFont = pResourceManager->GetResource<IFont>(pLabelData->GetFontResourceHandle());
@@ -408,6 +422,11 @@ namespace TDEngine2
 			pUIElementMeshData->AddIndex(index + 2); pUIElementMeshData->AddIndex(index + 1); pUIElementMeshData->AddIndex(index + 3);
 
 			index += 4;
+		}
+
+		if (!pFont->GetTexture())
+		{
+			return;
 		}
 
 		pUIElementMeshData->SetTextureResourceId(dynamic_cast<IResource*>(pFont->GetTexture())->GetId()); /// \todo Replace dynamic_cast with proper method in IFont
