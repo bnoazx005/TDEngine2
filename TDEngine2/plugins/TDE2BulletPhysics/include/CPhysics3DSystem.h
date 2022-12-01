@@ -13,7 +13,6 @@
 #include <math/TVector3.h>
 #include <core/Event.h>
 #include "ICollisionObjects3DVisitor.h"
-#include "../deps/bullet3/src/LinearMath/btMotionState.h"
 #include <vector>
 #include <functional>
 
@@ -28,6 +27,7 @@ class btCollisionShape;
 class btRigidBody;
 class btCollisionObject;
 class btPairCachingGhostObject;
+class btMotionState;
 
 
 namespace TDEngine2
@@ -82,28 +82,6 @@ namespace TDEngine2
 
 				void EraseItem(USIZE index);
 			} TPhysicsObjectsData;
-
-			/// \fixme Replace this directive with alignas when corresponding functionality will be supported in tde2_introspector
-#pragma pack(push, 16)
-			struct /*alignas(16) */TEntitiesMotionState : public btMotionState
-			{
-				btTransform mGraphicsWorldTrans;
-				btTransform mCenterOfMassOffset;
-				btTransform mStartWorldTrans;
-				
-				void*       mUserPointer;
-
-				CTransform* mpEntityTransform; // \todo Replace with entity id and pointer to CWorld*
-				
-				BT_DECLARE_ALIGNED_ALLOCATOR();
-
-				TEntitiesMotionState(CTransform* pEntityTransform, const btTransform& startTrans = btTransform::getIdentity(), const btTransform& centerOfMassOffset = btTransform::getIdentity());
-
-				TDE2_API void getWorldTransform(btTransform & centerOfMassWorldTrans) const override;
-				TDE2_API void setWorldTransform(const btTransform& centerOfMassWorldTrans) override;
-			};
-
-#pragma pack(pop)
 
 		public:
 			TDE2_SYSTEM(CPhysics3DSystem);

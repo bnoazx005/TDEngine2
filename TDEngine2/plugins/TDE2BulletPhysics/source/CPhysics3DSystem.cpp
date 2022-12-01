@@ -25,6 +25,46 @@ namespace TDEngine2
 	const U32 CPhysics3DSystem::mDefaultPositionIterations = 10;
 
 
+	/// \fixme Replace this directive with alignas when corresponding functionality will be supported in tde2_introspector
+#pragma pack(push, 16)
+	struct /*alignas(16) */TEntitiesMotionState : public btMotionState
+	{
+		btTransform mGraphicsWorldTrans;
+		btTransform mCenterOfMassOffset;
+		btTransform mStartWorldTrans;
+
+		void* mUserPointer;
+
+		CTransform* mpEntityTransform; // \todo Replace with entity id and pointer to CWorld*
+
+		BT_DECLARE_ALIGNED_ALLOCATOR();
+
+		TEntitiesMotionState(CTransform* pEntityTransform, const btTransform& startTrans = btTransform::getIdentity(), const btTransform& centerOfMassOffset = btTransform::getIdentity()) :
+			mpEntityTransform(pEntityTransform), mGraphicsWorldTrans(startTrans), mCenterOfMassOffset(centerOfMassOffset), mStartWorldTrans(startTrans), mUserPointer(0)
+		{
+		}
+
+		void getWorldTransform(btTransform& centerOfMassWorldTrans) const
+		{
+			centerOfMassWorldTrans = mGraphicsWorldTrans * mCenterOfMassOffset.inverse();
+		}
+
+		void setWorldTransform(const btTransform& centerOfMassWorldTrans)
+		{
+			mGraphicsWorldTrans = centerOfMassWorldTrans * mCenterOfMassOffset;
+
+			const auto& pos = mGraphicsWorldTrans.getOrigin();
+			mpEntityTransform->SetPosition({ pos.x(), pos.y(), pos.z() });
+
+			const auto& orientation = mGraphicsWorldTrans.getRotation();
+			mpEntityTransform->SetRotation(TQuaternion(orientation.x(), orientation.y(), orientation.z(), orientation.w()));
+		}
+	};
+
+#pragma pack(pop)
+
+
+
 	void CPhysics3DSystem::TPhysicsObjectsData::Clear()
 	{
 		mpTransforms.clear();
@@ -46,29 +86,6 @@ namespace TDEngine2
 		mpTriggers.erase(mpTriggers.begin() + index);
 		mInUseTable.erase(mInUseTable.begin() + index);
 	}
-
-
-	CPhysics3DSystem::TEntitiesMotionState::TEntitiesMotionState(CTransform* pEntityTransform, const btTransform& startTrans, const btTransform& centerOfMassOffset):
-		mpEntityTransform(pEntityTransform), mGraphicsWorldTrans(startTrans), mCenterOfMassOffset(centerOfMassOffset), mStartWorldTrans(startTrans),	mUserPointer(0)
-	{
-	}
-
-	void CPhysics3DSystem::TEntitiesMotionState::getWorldTransform(btTransform & centerOfMassWorldTrans) const
-	{
-		centerOfMassWorldTrans = mGraphicsWorldTrans * mCenterOfMassOffset.inverse();
-	}
-
-	void CPhysics3DSystem::TEntitiesMotionState::setWorldTransform(const btTransform& centerOfMassWorldTrans)
-	{
-		mGraphicsWorldTrans = centerOfMassWorldTrans * mCenterOfMassOffset;
-
-		const auto& pos = mGraphicsWorldTrans.getOrigin();
-		mpEntityTransform->SetPosition({ pos.x(), pos.y(), pos.z() });
-
-		const auto& orientation = mGraphicsWorldTrans.getRotation();
-		mpEntityTransform->SetRotation(TQuaternion(orientation.x(), orientation.y(), orientation.z(), orientation.w()));
-	}
-
 
 	CPhysics3DSystem::CPhysics3DSystem() :
 		CBaseSystem()
