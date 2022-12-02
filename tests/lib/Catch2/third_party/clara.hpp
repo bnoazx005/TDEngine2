@@ -110,6 +110,9 @@ namespace clara { namespace TextFlow {
                 m_suffix = false;
                 auto width = m_column.m_width-indent();
                 m_end = m_pos;
+                if (line()[m_pos] == '\n') {
+                    ++m_end;
+                }
                 while( m_end < line().size() && line()[m_end] != '\n' )
                     ++m_end;
 
@@ -664,7 +667,7 @@ namespace detail {
     }
     inline auto convertInto( std::string const &source, bool &target ) -> ParserResult {
         std::string srcLC = source;
-        std::transform( srcLC.begin(), srcLC.end(), srcLC.begin(), []( char c ) { return static_cast<char>( ::tolower(c) ); } );
+        std::transform( srcLC.begin(), srcLC.end(), srcLC.begin(), []( unsigned char c ) { return static_cast<char>( ::tolower( c ) ); } );
         if (srcLC == "y" || srcLC == "1" || srcLC == "true" || srcLC == "yes" || srcLC == "on")
             target = true;
         else if (srcLC == "n" || srcLC == "0" || srcLC == "false" || srcLC == "no" || srcLC == "off")

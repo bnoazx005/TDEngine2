@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.13] 2022-11-30
+## [0.6.13] 2022-12-02
 
 ### Added
 
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Wrench** library's version was updated
+
+- The Catch2 was updated to 3rd version.
 
 ### Fixed
 

@@ -31,7 +31,7 @@ add_subdirectory(TDE2TestsRunner)
 
 
 # include Catch2
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/lib/Catch2/contrib/")
+#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/lib/Catch2/contrib/")
 add_subdirectory(lib/Catch2)
 
 set(HEADERS )
@@ -100,7 +100,7 @@ if (UNIX)
 	set_target_properties(${TDENGINE2_TESTS_NAME} PROPERTIES LINK_FLAGS "-Wl,-rpath,./")
 endif ()
 
-target_link_libraries(${TDENGINE2_TESTS_NAME} PUBLIC ${TDENGINE2_LIBRARY_NAME} Catch2::Catch2)
+target_link_libraries(${TDENGINE2_TESTS_NAME} PUBLIC ${TDENGINE2_LIBRARY_NAME} Catch2::Catch2WithMain)
 
 include(CTest)
 include(Catch)
