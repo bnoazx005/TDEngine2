@@ -170,23 +170,23 @@ namespace TDEngine2
 							TDE2_ASSERT(pInstance);
 						}
 						pReader->EndGroup();
-
-						continue;
 					}
-
-					CEntity* pNewEntity = mpWorld->CreateEntity();
-
-					pReader->BeginGroup("entity");
+					else
 					{
-						// \todo Implement remapping of entity's identifiers
-						entitiesIdsMap.emplace(entityId, pNewEntity->GetId());
-						nonPrefabEntitiesSet.emplace(pNewEntity->GetId());
+						CEntity* pNewEntity = mpWorld->CreateEntity();
+
+						pReader->BeginGroup("entity");
+						{
+							// \todo Implement remapping of entity's identifiers
+							entitiesIdsMap.emplace(entityId, pNewEntity->GetId());
+							nonPrefabEntitiesSet.emplace(pNewEntity->GetId());
+						}
+						pReader->EndGroup();
+
+						pNewEntity->Load(pReader);
+
+						mEntities.push_back(pNewEntity->GetId());
 					}
-					pReader->EndGroup();
-
-					pNewEntity->Load(pReader);
-
-					mEntities.push_back(pNewEntity->GetId());
 				}
 				pReader->EndGroup();
 			}
