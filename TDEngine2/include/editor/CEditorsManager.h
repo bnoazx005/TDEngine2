@@ -84,6 +84,8 @@ namespace TDEngine2
 
 				\param[in] commandName A name of a command within the development menu's which the editor will be linked to
 				\param[in, out] pEditorWindow A pointer to IEditorWindow implementation
+				\param[in] isSeparate The flag determines whether or not the registered editor be launched from 'dev menu' or as a separate entity
+				\param[in] isOverlayed The flag determines whether the editor can be drawn all the time and support transparent background
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
