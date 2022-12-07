@@ -5,7 +5,7 @@
 namespace TDEngine2
 {
 	CBaseJobManager::CBaseJobManager():
-		mIsInitialized(false)
+		CBaseObject()
 	{
 	}
 
@@ -64,6 +64,46 @@ namespace TDEngine2
 		return MainThreadId == std::this_thread::get_id();
 	}
 
+	E_RESULT_CODE CBaseJobManager::SubmitJob(TJobCounter* pCounter, const TJobCallback& job)
+	{
+		if (!job)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		TJobDecl jobDecl;
+		jobDecl.mJob = job;
+		jobDecl.mpCounter = pCounter;
+
+		if (pCounter)
+		{
+			pCounter->mValue.fetch_add(1);
+		}
+
+		std::lock_guard<std::mutex> lock(mQueueMutex);
+
+		mJobs.emplace(std::move(jobDecl));
+
+		mHasNewJobAdded.notify_one();
+
+		return RC_OK;
+	}
+
+	void CBaseJobManager::WaitForJobCounter(const TJobCounter& counter)
+	{
+		if (!counter.mValue)
+		{
+			return;
+		}
+
+		mHasNewJobAdded.notify_all();
+
+		while (counter.mValue)
+		{
+			std::this_thread::yield();
+		}
+	}
+
 	E_RESULT_CODE CBaseJobManager::ExecuteInMainThread(const std::function<void()>& action)
 	{
 		if (!action)
@@ -110,7 +150,7 @@ namespace TDEngine2
 
 	void CBaseJobManager::_executeTasksLoop()
 	{
-		std::unique_ptr<IJob> pJob;
+		TJobDecl jobDecl;
 
 		while (true)
 		{
@@ -124,29 +164,21 @@ namespace TDEngine2
 					return;
 				}
 
-				pJob = std::move(mJobs.front());
+				jobDecl = std::move(mJobs.front());
 
 				mJobs.pop();
 			}
 
-			(*pJob)();
+			TJobArgs args;
+			args.mJobIndex = jobDecl.mJobIndex;
+
+			(jobDecl.mJob)(args);
+
+			if (auto pCounter = jobDecl.mpCounter)
+			{
+				pCounter->mValue.fetch_sub(1);
+			}
 		}
-	}
-
-	E_RESULT_CODE CBaseJobManager::_submitJob(std::unique_ptr<IJob> pJob)
-	{
-		if (!pJob)
-		{
-			return RC_INVALID_ARGS;
-		}
-
-		std::lock_guard<std::mutex> lock(mQueueMutex);
-
-		mJobs.emplace(std::move(pJob));
-
-		mHasNewJobAdded.notify_one();
-
-		return RC_OK;
 	}
 
 

@@ -87,7 +87,7 @@ namespace TDEngine2
 	{
 		auto pCubeMeshResource = pResourceManager->GetResource<IStaticMesh>(pResourceManager->Create<IStaticMesh>("Cube", TMeshParameters{}));
 
-		auto meshGenerationRoutine = std::function<void()>([pCubeMeshResource, pJobManager]
+		auto meshGenerationRoutine = [pCubeMeshResource, pJobManager](auto&&)
 		{
 			auto addVertex = [](auto&& pMesh, const TVector4& pos, const TVector2& texcoords, const TVector4& normal, const TVector4& tangent)
 			{
@@ -159,18 +159,18 @@ namespace TDEngine2
 			{
 				PANIC_ON_FAILURE(pCubeMeshResource->PostLoad());
 			});
-		});
+		};
 
 		if (auto pResource = dynamic_cast<IResource*>(pCubeMeshResource.Get()))
 		{
 			if (E_RESOURCE_LOADING_POLICY::STREAMING != pResource->GetLoadingPolicy())
 			{
-				meshGenerationRoutine();
+				meshGenerationRoutine(TJobArgs{});
 				return pCubeMeshResource.Get();
 			}
 		}
 
-		pJobManager->SubmitJob(meshGenerationRoutine);
+		pJobManager->SubmitJob(nullptr, meshGenerationRoutine);
 
 		return pCubeMeshResource.Get();
 	}
@@ -179,7 +179,7 @@ namespace TDEngine2
 	{
 		auto pPlaneMeshResource = pResourceManager->GetResource<IStaticMesh>(pResourceManager->Create<IStaticMesh>("Plane", TMeshParameters{}));
 
-		auto meshGenerationRoutine = std::function<void()>([pPlaneMeshResource, pJobManager]
+		auto meshGenerationRoutine = [pPlaneMeshResource, pJobManager](auto&&)
 		{
 			E_RESULT_CODE result = RC_OK;
 
@@ -221,18 +221,18 @@ namespace TDEngine2
 			{
 				PANIC_ON_FAILURE(pPlaneMeshResource->PostLoad());
 			});
-		});
+		};
 
 		if (auto pResource = dynamic_cast<IResource*>(pPlaneMeshResource.Get()))
 		{
 			if (E_RESOURCE_LOADING_POLICY::STREAMING != pResource->GetLoadingPolicy())
 			{
-				meshGenerationRoutine();
+				meshGenerationRoutine(TJobArgs{});
 				return pPlaneMeshResource.Get();
 			}
 		}
 
-		pJobManager->SubmitJob(meshGenerationRoutine);
+		pJobManager->SubmitJob(nullptr, meshGenerationRoutine);
 
 		return pPlaneMeshResource.Get();
 	}
@@ -243,7 +243,7 @@ namespace TDEngine2
 		
 		auto pSphereMeshResource = pResourceManager->GetResource<IStaticMesh>(pResourceManager->Create<IStaticMesh>("Sphere", TMeshParameters{}));
 
-		auto meshGenerationRoutine = std::function<void()>([pSphereMeshResource, pJobManager, sphereRadius]
+		auto meshGenerationRoutine = [pSphereMeshResource, pJobManager, sphereRadius](auto&&)
 		{
 			E_RESULT_CODE result = RC_OK;
 
@@ -308,18 +308,18 @@ namespace TDEngine2
 			{
 				PANIC_ON_FAILURE(pSphereMeshResource->PostLoad());
 			});
-		});
+		};
 
 		if (auto pResource = dynamic_cast<IResource*>(pSphereMeshResource.Get()))
 		{
 			if (E_RESOURCE_LOADING_POLICY::STREAMING != pResource->GetLoadingPolicy())
 			{
-				meshGenerationRoutine();
+				meshGenerationRoutine(TJobArgs{});
 				return pSphereMeshResource.Get();
 			}
 		}
 
-		pJobManager->SubmitJob(meshGenerationRoutine);
+		pJobManager->SubmitJob(nullptr, meshGenerationRoutine);
 
 		return pSphereMeshResource.Get();
 	}
@@ -425,7 +425,7 @@ namespace TDEngine2
 
 		IBinaryMeshFileReader* pMeshFileReader = mpFileSystem->Get<IBinaryMeshFileReader>(meshFileId.Get());		
 
-		auto loadMeshRoutine = [pJobManager, pMeshFileReader, pResource]
+		auto loadMeshRoutine = [pJobManager, pMeshFileReader, pResource](auto&&)
 		{
 			E_RESULT_CODE result = RC_OK;
 
@@ -453,11 +453,11 @@ namespace TDEngine2
 		
 		if (E_RESOURCE_LOADING_POLICY::STREAMING != pResource->GetLoadingPolicy())
 		{
-			loadMeshRoutine();
+			loadMeshRoutine(TJobArgs{});
 			return RC_OK;
 		}
 
-		pJobManager->SubmitJob(std::function<void()>(loadMeshRoutine));
+		pJobManager->SubmitJob(nullptr, loadMeshRoutine);
 
 		return RC_OK;
 	}

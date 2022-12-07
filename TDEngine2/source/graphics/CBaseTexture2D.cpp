@@ -254,7 +254,7 @@ namespace TDEngine2
 			return RC_FILE_NOT_FOUND;
 		}
 
-		auto loadTextureRoutine = [pResource, pJobManager, w = width, h = height, fmt = format, filename, this]
+		auto loadTextureRoutine = [pResource, pJobManager, w = width, h = height, fmt = format, filename, this](auto&&)
 		{
 			U8* pTextureData = nullptr;
 
@@ -281,7 +281,7 @@ namespace TDEngine2
 					break;
 			}
 
-			pJobManager->ExecuteInMainThread([pResource, pTextureData, width, height, internalFormat, this]
+			pJobManager->ExecuteInMainThread([pResource, pTextureData, width, height, internalFormat, this]()
 			{
 				/// reset old texture data
 				E_RESULT_CODE result = pResource->Reset();
@@ -336,11 +336,11 @@ namespace TDEngine2
 
 		if (E_RESOURCE_LOADING_POLICY::STREAMING != pResource->GetLoadingPolicy())
 		{
-			loadTextureRoutine();
+			loadTextureRoutine(TJobArgs{});
 			return RC_OK;
 		}
 
-		pJobManager->SubmitJob(std::function<void()>(loadTextureRoutine));
+		pJobManager->SubmitJob(nullptr, loadTextureRoutine);
 		
 		return RC_OK;
 	}

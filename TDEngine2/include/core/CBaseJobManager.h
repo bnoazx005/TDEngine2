@@ -20,6 +20,14 @@
 
 namespace TDEngine2
 {
+	struct TJobDecl
+	{
+		IJobManager::TJobCallback mJob = nullptr;
+		TJobCounter* mpCounter = nullptr;
+		U32 mJobIndex = 0;
+	};
+
+
 	/*!
 		\brief A factory function for creation objects of CResourceManager's type.
 
@@ -41,8 +49,9 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IJobManager* CreateBaseJobManager(U32 maxNumOfThreads, E_RESULT_CODE& result);
 		protected:
+
 			typedef std::vector<std::thread>          TThreadsArray;
-			typedef std::queue<std::unique_ptr<IJob>> TJobQueue;
+			typedef std::queue<TJobDecl>              TJobQueue;
 			typedef std::queue<std::function<void()>> TCallbacksQueue;
 		public:
 			/*!
@@ -54,6 +63,25 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init(U32 maxNumOfThreads) override;
+			
+			/*!
+				\brief The method pushes specified job into a queue for an execution
+
+				\param[in] pCounter A pointer to created object of counter. Can be nullptr if synchronization isn't needed
+				\param[in] job A callback with the task that will be executed
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SubmitJob(TJobCounter* pCounter, const TJobCallback& job) override;
+
+			/*!
+				\brief The function represents an execution barrier to make sure that any dependencies are finished to the point
+
+				\param[in] counter A reference to syncronization context
+			*/
+
+			TDE2_API void WaitForJobCounter(const TJobCounter& counter) override;
 
 			/*!
 				\brief The method allows to execute some code from main thread nomatter from which thread it's called
@@ -85,13 +113,9 @@ namespace TDEngine2
 
 			TDE2_API void _executeTasksLoop();
 
-			TDE2_API E_RESULT_CODE _submitJob(std::unique_ptr<IJob> pJob) override;
-
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			static constexpr U8     mUpdateTickRate = 60; // \note Single update every 60 frames
-
-			bool                    mIsInitialized;
 
 			U32                     mNumOfThreads;
 

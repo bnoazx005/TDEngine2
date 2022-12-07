@@ -12,65 +12,28 @@
 #include "IEngineSubsystem.h"
 #include <functional>
 #include <memory>
+#include <atomic>
 
 
 namespace TDEngine2
 {
 	/*!
-		interface IJob
+		struct TJobCounter
 
-		\brief The interface represents a single job's functionality
+		\brief The type is used to create a syncronization points within the main thread to explicitly schedule dependencies
 	*/
 
-	struct IJob
+	struct TJobCounter
 	{
-		/*!
-			\brief The operator executes current job
-		*/
-
-		TDE2_API virtual void operator()() = 0;
+		std::atomic<U32> mValue { 0 };
 	};
 
 
-	template <typename... TArgs>
-	struct TJob: public IJob
+	struct TJobArgs
 	{
-		protected:
-			typedef std::function<void(TArgs...)> TJobCallback;
-			typedef std::tuple<TArgs...>          TArguments;
-		public:
-			/*!
-				\brief The main constructor of the type
-
-				\param[in] callback A job's callback
-				\param[in] args An arguments that should be passed into a job
-			*/
-
-			TDE2_API TJob(const TJobCallback& callback, TArgs... args);
-
-			/*!
-				\brief The operator executes current job
-			*/
-
-			TDE2_API void operator()() override;
-		protected:
-			TJobCallback mJobCallback;
-			TArguments   mArguments;
+		U32 mJobIndex = 0;
 	};
-
-	
-	template <typename... TArgs>
-	TJob<TArgs...>::TJob(const TJobCallback& callback, TArgs... args) :
-		mJobCallback(callback), mArguments(args...)
-	{
-	}
-
-	template <typename... TArgs>
-	void TJob<TArgs...>::operator() ()
-	{
-		mJobCallback(std::get<TArgs>(mArguments)...);
-	}
-	
+		
 
 	/*!
 		interface IJobManager
@@ -80,6 +43,8 @@ namespace TDEngine2
 
 	class IJobManager : public IEngineSubsystem
 	{
+		public:
+			typedef std::function<void(const TJobArgs&)> TJobCallback;
 		public:
 			/*!
 				\brief The method initializes an inner state of a resource manager
@@ -94,16 +59,21 @@ namespace TDEngine2
 			/*!
 				\brief The method pushes specified job into a queue for an execution
 
-				\param[in] pJob A pointer to IJob's implementation
+				\param[in] pCounter A pointer to created object of counter. Can be nullptr if synchronization isn't needed
+				\param[in] job A callback with the task that will be executed
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			template <typename... TArgs>
-			TDE2_API E_RESULT_CODE SubmitJob(std::function<void (TArgs...)> jobCallback, TArgs... args)
-			{
-				return _submitJob(std::make_unique<TJob<TArgs...>>(jobCallback, std::forward<TArgs>(args)...));
-			}
+			TDE2_API virtual E_RESULT_CODE SubmitJob(TJobCounter* pCounter, const TJobCallback& job) = 0;
+			
+			/*!
+				\brief The function represents an execution barrier to make sure that any dependencies are finished to the point
+
+				\param[in] counter A reference to syncronization context
+			*/
+
+			TDE2_API virtual void WaitForJobCounter(const TJobCounter& counter) = 0;
 
 			/*!
 				\brief The method allows to execute some code from main thread nomatter from which thread it's called
@@ -124,8 +94,6 @@ namespace TDEngine2
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_JOB_MANAGER; }
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IJobManager)
-
-			TDE2_API virtual E_RESULT_CODE _submitJob(std::unique_ptr<IJob> pJob) = 0;
 	};
 
 

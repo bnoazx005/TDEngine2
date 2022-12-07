@@ -150,7 +150,7 @@ namespace TDEngine2
 		// \note Wait while package is loaded and then retrieve information from it
 		if (IJobManager* pJobManager = mpFileSystem->GetJobManager())
 		{
-			pJobManager->SubmitJob(std::function<void()>([this]() {
+			pJobManager->SubmitJob(nullptr, [this](auto&&) {
 				if (TPtr<IResource> pResource = mpResourceManager->GetResource<IResource>(mCurrLocalePackageId))
 				{
 					while (pResource->GetState() != E_RESOURCE_STATE_TYPE::RST_LOADED) {}
@@ -166,7 +166,7 @@ namespace TDEngine2
 						}
 					}
 				}				
-			}));			
+			});			
 		}
 		
 		return RC_OK;

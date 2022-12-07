@@ -228,7 +228,7 @@ namespace TDEngine2
 
 		IBinaryMeshFileReader* pMeshFileReader = mpFileSystem->Get<IBinaryMeshFileReader>(meshFileId.Get());		
 
-		auto loadMeshRoutine = [pJobManager, pMeshFileReader, pResource]
+		auto loadMeshRoutine = [pJobManager, pMeshFileReader, pResource](auto&&)
 		{
 			E_RESULT_CODE result = RC_OK;
 
@@ -256,11 +256,11 @@ namespace TDEngine2
 
 		if (E_RESOURCE_LOADING_POLICY::SYNCED == pResource->GetLoadingPolicy())
 		{
-			loadMeshRoutine();
+			loadMeshRoutine(TJobArgs{});
 			return RC_OK;
 		}
 
-		pJobManager->SubmitJob(std::function<void()>(loadMeshRoutine));
+		pJobManager->SubmitJob(nullptr, loadMeshRoutine);
 
 		return RC_OK;
 	}

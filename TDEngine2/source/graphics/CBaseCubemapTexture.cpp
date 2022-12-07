@@ -279,7 +279,7 @@ namespace TDEngine2
 
 		IJobManager* pJobManager = mpFileSystem->GetJobManager();
 
-		auto loadTextureRoutine = [this, pJobManager, pCubemapTexture, info, face, filename, w = width, h = height, fmt = format] 
+		auto loadTextureRoutine = [this, pJobManager, pCubemapTexture, info, face, filename, w = width, h = height, fmt = format](auto&&)
 		{
 			I32 width = w, height = h, format = fmt;
 
@@ -324,11 +324,11 @@ namespace TDEngine2
 		{
 			if (E_RESOURCE_LOADING_POLICY::STREAMING != pResource->GetLoadingPolicy())
 			{
-				loadTextureRoutine();
+				loadTextureRoutine(TJobArgs{});
 				return RC_OK;
 			}
 
-			pJobManager->SubmitJob(std::function<void()>(loadTextureRoutine));
+			pJobManager->SubmitJob(nullptr, loadTextureRoutine);
 		}
 		
 		return RC_OK;

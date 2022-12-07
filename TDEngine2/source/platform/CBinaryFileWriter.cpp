@@ -111,18 +111,18 @@ namespace TDEngine2
 		IJobManager* pJobManager = pFileSystem->GetJobManager();
 
 		/// \note Is it safe to work with pBuffer without lock
-		pJobManager->SubmitJob(std::function<void (CBinaryFileWriter*, TSizeType)>([successCallback, errorCallback, pBuffer](CBinaryFileWriter* pFileWriter, TSizeType size)
+		pJobManager->SubmitJob(nullptr, [this, pBuffer, bufferSize, successCallback, errorCallback](auto&&)
 		{
 			E_RESULT_CODE result = RC_OK;
 
-			if ((result = pFileWriter->Write(pBuffer, size)) != RC_OK)
+			if ((result = Write(pBuffer, bufferSize)) != RC_OK)
 			{
 				errorCallback(result);
 			}
 
 			successCallback();
 
-		}), this, bufferSize);
+		});
 	}
 
 	E_RESULT_CODE CBinaryFileWriter::Flush()

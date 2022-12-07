@@ -118,7 +118,7 @@ namespace TDEngine2
 			return;
 		}
 
-		pJobManager->SubmitJob(std::function<void()>([this, scenePath, onResultCallback, pJobManager]()
+		pJobManager->SubmitJob(nullptr, [this, scenePath, onResultCallback, pJobManager](auto&&)
 		{
 			const std::string& sceneName = mpFileSystem->ExtractFilename(scenePath);
 
@@ -191,7 +191,7 @@ namespace TDEngine2
 					onResultCallback(result);
 				}
 			});
-		}));
+		});
 	}
 
 	E_RESULT_CODE CSceneManager::UnloadScene(TSceneId id)

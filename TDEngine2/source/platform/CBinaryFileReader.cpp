@@ -156,13 +156,13 @@ namespace TDEngine2
 
 		IJobManager* pJobManager = pFileSystem->GetJobManager();
 		
-		pJobManager->SubmitJob(std::function<void(CBinaryFileReader*, TSizeType)>([successCallback, errorCallback](CBinaryFileReader* pFileReader, TSizeType size)
+		pJobManager->SubmitJob(nullptr, [this, size, successCallback, errorCallback](auto&&)
 		{
 			E_RESULT_CODE result = RC_OK;
 
 			C8* pBuffer = new C8[size];
 
-			if ((result = pFileReader->Read(pBuffer, size)) != RC_OK)
+			if ((result = Read(pBuffer, size)) != RC_OK)
 			{
 				errorCallback(result);
 
@@ -175,7 +175,7 @@ namespace TDEngine2
 
 			delete[] pBuffer;
 			
-		}), this, size);
+		});
 	}
 
 	E_RESULT_CODE CBinaryFileReader::SetPosition(TSizeType pos)
