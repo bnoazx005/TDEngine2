@@ -1,5 +1,6 @@
 #include "./../../include/core/CBaseJobManager.h"
 #include "./../../include/utils/CFileLogger.h"
+#include <cmath>
 
 
 namespace TDEngine2
@@ -89,6 +90,41 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CBaseJobManager::SubmitMultipleJobs(TJobCounter* pCounter, U32 jobsCount, U32 groupSize, const TJobCallback& job)
+	{
+		if (!job || !groupSize || groupSize > jobsCount)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		const U32 groupsCount = static_cast<U32>(::ceilf(jobsCount / static_cast<F32>(groupSize)));
+
+		if (pCounter)
+		{
+			pCounter->mValue.fetch_add(jobsCount);
+		}
+
+		std::lock_guard<std::mutex> lock(mQueueMutex);
+
+		for (U32 groupId = 0; groupId < groupsCount; groupId++)
+		{
+			for (U32 jobIndex = groupId * groupSize; jobIndex < (groupId + 1) * groupSize && jobIndex < jobsCount; jobIndex++)
+			{
+				TJobDecl jobDecl;
+				jobDecl.mJob = job;
+				jobDecl.mpCounter = pCounter;
+				jobDecl.mJobIndex = jobIndex;
+				jobDecl.mGroupIndex = groupId;
+
+				mJobs.emplace(std::move(jobDecl));
+			}			
+		}
+
+		mHasNewJobAdded.notify_all();
+
+		return RC_OK;
+	}
+
 	void CBaseJobManager::WaitForJobCounter(const TJobCounter& counter)
 	{
 		if (!counter.mValue)
@@ -171,6 +207,7 @@ namespace TDEngine2
 
 			TJobArgs args;
 			args.mJobIndex = jobDecl.mJobIndex;
+			args.mGroupIndex = jobDecl.mGroupIndex;
 
 			(jobDecl.mJob)(args);
 

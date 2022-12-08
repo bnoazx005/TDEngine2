@@ -21,7 +21,7 @@ TEST_CASE("CBaseJobManager Tests")
 
 	SECTION("TestSubmitJob_PassSimpleJob_ExecutesThatAndArgumentIndexEqualsToZero")
 	{
-		std::atomic_bool isExecuted = false;
+		std::atomic_bool isExecuted{ false };
 
 		TJobCounter counter;
 
@@ -61,5 +61,25 @@ TEST_CASE("CBaseJobManager Tests")
 		REQUIRE(duration.count() > expectedDuration.count() - 0.1f);
 
 		LOG_MESSAGE("Final Job");
+	}
+
+	SECTION("TestSubmitMultipleJobs_PassArrayAndMakeParallelFor_CorreclyProcess")
+	{
+		TJobCounter counter;
+
+		std::vector<U32> testVector(static_cast<USIZE>(rand() % 42));
+		const U32 groupSize = static_cast<U32>(rand() % 10);
+
+		pJobManager->SubmitMultipleJobs(&counter, static_cast<U32>(testVector.size()), groupSize, [&testVector](const TJobArgs& args)
+		{
+			testVector[args.mJobIndex] = args.mJobIndex;
+		});
+
+		pJobManager->WaitForJobCounter(counter);
+
+		for (USIZE i = 0; i < testVector.size(); i++)
+		{
+			REQUIRE(testVector[i] == i);
+		}
 	}
 }

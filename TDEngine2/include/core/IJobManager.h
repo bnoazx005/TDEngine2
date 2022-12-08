@@ -32,6 +32,7 @@ namespace TDEngine2
 	struct TJobArgs
 	{
 		U32 mJobIndex = 0;
+		U32 mGroupIndex = 0;
 	};
 		
 
@@ -67,6 +68,18 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE SubmitJob(TJobCounter* pCounter, const TJobCallback& job) = 0;
 			
+			/*!
+				\brief The method is an equvivalent for "parallel_for" algorithm that splits some complex work between groups and
+				executes the given job for all of them
+
+				\param[in] pCounter A pointer to created object of counter. Can be nullptr if synchronization isn't needed
+				\param[in] job A callback with the task that will be executed
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SubmitMultipleJobs(TJobCounter* pCounter, U32 jobsCount, U32 groupSize, const TJobCallback& job) = 0;
+
 			/*!
 				\brief The function represents an execution barrier to make sure that any dependencies are finished to the point
 
