@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.13] 2022-12-08
+## [0.6.13] 2022-12-09
 
 ### Added
 
 - New interfaces were defined which are **IBoxCollisionObject3D**, **ISphereCollisionObject3D**, **IConvexHullCollisionObject3D**, **ICapsuleCollisionObject3D**.
 
 - New overloadings of HasComponent method were implemented for **CEntity**, **CEntityManager** and **CComponentManager**.
+
+- A new dependency library which is **Tina** was added.
 
 ### Changed
 

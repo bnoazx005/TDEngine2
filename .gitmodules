@@ -13,3 +13,6 @@
 [submodule "TDEngine2/deps/argparse"]
 	path = TDEngine2/deps/argparse
 	url = https://github.com/cofyc/argparse.git
+[submodule "TDEngine2/deps/tina"]
+	path = TDEngine2/deps/tina
+	url = git@github.com:slembcke/Tina.git
