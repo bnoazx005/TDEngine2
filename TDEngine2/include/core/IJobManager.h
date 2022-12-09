@@ -84,9 +84,10 @@ namespace TDEngine2
 				\brief The function represents an execution barrier to make sure that any dependencies are finished to the point
 
 				\param[in] counter A reference to syncronization context
+				\param[in] counterThreshold A value to compare with context's one
 			*/
 
-			TDE2_API virtual void WaitForJobCounter(const TJobCounter& counter) = 0;
+			TDE2_API virtual void WaitForJobCounter(const TJobCounter& counter, U32 counterThreshold = 0) = 0;
 
 			/*!
 				\brief The method allows to execute some code from main thread nomatter from which thread it's called

@@ -94,7 +94,7 @@ namespace TDEngine2
 				\param[in] counter A reference to syncronization context
 			*/
 
-			TDE2_API void WaitForJobCounter(const TJobCounter& counter) override;
+			TDE2_API void WaitForJobCounter(const TJobCounter& counter, U32 counterThreshold = 0) override;
 
 			/*!
 				\brief The method allows to execute some code from main thread nomatter from which thread it's called

@@ -125,16 +125,16 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void CBaseJobManager::WaitForJobCounter(const TJobCounter& counter)
+	void CBaseJobManager::WaitForJobCounter(const TJobCounter& counter, U32 counterThreshold)
 	{
-		if (!counter.mValue)
+		if (counter.mValue <= counterThreshold)
 		{
 			return;
 		}
 
 		mHasNewJobAdded.notify_all();
 
-		while (counter.mValue)
+		while (counter.mValue > counterThreshold)
 		{
 			std::this_thread::yield();
 		}
