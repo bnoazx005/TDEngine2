@@ -1,5 +1,6 @@
 #include "./../../include/core/CBaseJobManager.h"
 #include "./../../include/utils/CFileLogger.h"
+#include "tina.h"
 #include <cmath>
 
 
