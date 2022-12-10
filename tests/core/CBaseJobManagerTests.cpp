@@ -11,7 +11,7 @@ TEST_CASE("CBaseJobManager Tests")
 {
 	E_RESULT_CODE result = RC_OK;
 
-	TPtr<IJobManager> pJobManager = TPtr<IJobManager>(CreateBaseJobManager(std::thread::hardware_concurrency(), result));
+	TPtr<IJobManager> pJobManager = TPtr<IJobManager>(CreateBaseJobManager({ std::thread::hardware_concurrency(), CreateLinearAllocator }, result));
 	REQUIRE((pJobManager && RC_OK == result));
 
 	SECTION("TestSubmitJob_PassEmptyJob_ReturnsError")
@@ -39,7 +39,7 @@ TEST_CASE("CBaseJobManager Tests")
 	{
 		using namespace std::chrono_literals;
 
-		const std::chrono::duration<F32, std::milli> expectedDuration = 200ms;
+		const std::chrono::duration<F32, std::milli> expectedDuration = 2000ms;
 
 		TJobCounter counter;
 
@@ -81,5 +81,31 @@ TEST_CASE("CBaseJobManager Tests")
 		{
 			REQUIRE(testVector[i] == i);
 		}
+	}
+
+	SECTION("TestWaitJobCounter_JobEmitsSubTask_JobManagerCorrectlyProcessThemBoth")
+	{
+		std::string expectedResult = "ABBA";
+		std::string actualString;
+
+		TJobCounter counter;
+
+		E_RESULT_CODE result = pJobManager->SubmitJob(&counter, [&actualString, pJobManager](const TJobArgs& jobArgs)
+		{
+			auto pJob = jobArgs.mpCurrJob;
+
+			pJobManager->SubmitJob(pJob->mpCounter, [&actualString](auto)
+			{
+				actualString += "AB";
+			});
+
+			pJobManager->WaitForJobCounter(*pJob->mpCounter, 0, pJob);
+
+			actualString += "BA";
+		});
+
+		pJobManager->WaitForJobCounter(counter);
+
+		REQUIRE(actualString == expectedResult);
 	}
 }

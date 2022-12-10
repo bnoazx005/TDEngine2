@@ -18,6 +18,9 @@
 #include <memory>
 
 
+struct tina;
+
+
 namespace TDEngine2
 {
 	struct TJobDecl
@@ -26,6 +29,22 @@ namespace TDEngine2
 		TJobCounter* mpCounter = nullptr;
 		U32 mJobIndex = 0;
 		U32 mGroupIndex = 0;
+		tina* mpFiber = nullptr;
+		TJobDecl* mpNextAwaitingJob = nullptr;  ///< The field is used to implement linked list of awaiting jobs
+	};
+
+
+	/*!
+		struct TJobCounter
+
+		\brief The type is used to create a syncronization points within the main thread to explicitly schedule dependencies
+	*/
+
+	struct TJobCounter
+	{
+		std::atomic<TJobDecl*> mpWaitingJobList{ nullptr }; ///< Public, but private (should not be changed manually)
+
+		std::atomic<U32> mValue{ 0 };
 	};
 
 
@@ -35,7 +54,7 @@ namespace TDEngine2
 		\return A pointer to CResourceManager's implementation
 	*/
 
-	TDE2_API IJobManager* CreateBaseJobManager(U32 maxNumOfThreads, E_RESULT_CODE& result);
+	TDE2_API IJobManager* CreateBaseJobManager(const TJobManagerInitParams& desc, E_RESULT_CODE& result);
 
 
 	/*!
@@ -48,22 +67,23 @@ namespace TDEngine2
 	class CBaseJobManager : public IJobManager, public CBaseObject
 	{
 		public:
-			friend TDE2_API IJobManager* CreateBaseJobManager(U32 maxNumOfThreads, E_RESULT_CODE& result);
+			friend TDE2_API IJobManager* CreateBaseJobManager(const TJobManagerInitParams& desc, E_RESULT_CODE& result);
 		protected:
 
 			typedef std::vector<std::thread>          TThreadsArray;
+			typedef std::queue<tina*>                 TFibersPool;
 			typedef std::queue<TJobDecl>              TJobQueue;
 			typedef std::queue<std::function<void()>> TCallbacksQueue;
 		public:
 			/*!
-				\brief The method initializes an inner state of a manager
+				\brief The method initializes an inner state of a resource manager
 
-				\param[in] maxNumOfThreads A maximum number of threads that will be created and processed by the manager
+				\param[in] desc A configuration of the job system
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(U32 maxNumOfThreads) override;
+			TDE2_API E_RESULT_CODE Init(const TJobManagerInitParams& desc) override;
 			
 			/*!
 				\brief The method pushes specified job into a queue for an execution
@@ -91,10 +111,12 @@ namespace TDEngine2
 			/*!
 				\brief The function represents an execution barrier to make sure that any dependencies are finished to the point
 
-				\param[in] counter A reference to syncronization context
+				\param[in, out] counter A reference to syncronization context
+				\param[in] counterThreshold A value to compare with context's one
+				\param[in] pAwaitingJob There is should be a pointer to a job that emits another one and should wait for its completion. In other cases pass nullptr
 			*/
 
-			TDE2_API void WaitForJobCounter(const TJobCounter& counter, U32 counterThreshold = 0) override;
+			TDE2_API void WaitForJobCounter(TJobCounter& counter, U32 counterThreshold = 0, TJobDecl* pAwaitingJob = nullptr) override;
 
 			/*!
 				\brief The method allows to execute some code from main thread nomatter from which thread it's called
@@ -137,15 +159,18 @@ namespace TDEngine2
 			std::atomic_uint8_t     mUpdateCounter;
 
 			TThreadsArray           mWorkerThreads;
+			TFibersPool             mFreeFibersPool;
 
 			TCallbacksQueue         mMainThreadCallbacksQueue;
 
 			mutable std::mutex      mQueueMutex;
-
 			mutable std::mutex      mMainThreadCallbacksQueueMutex;
+			mutable std::mutex      mFreeFibersPoolMutex;
 
 			TJobQueue               mJobs;
 
 			std::condition_variable mHasNewJobAdded;
+
+			TPtr<IAllocator>        mpFibersStackAllocator;
 	};
 }

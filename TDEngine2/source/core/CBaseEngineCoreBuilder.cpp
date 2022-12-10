@@ -294,7 +294,7 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 #if defined (TDE2_USE_WINPLATFORM) || defined (TDE2_USE_UNIXPLATFORM)
-		mpJobManagerInstance = TPtr<IJobManager>(CreateBaseJobManager(maxNumOfThreads, result));
+		mpJobManagerInstance = TPtr<IJobManager>(CreateBaseJobManager({ maxNumOfThreads, CreateLinearAllocator }, result));
 #else
 #endif
 

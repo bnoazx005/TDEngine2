@@ -6,25 +6,83 @@
 
 namespace TDEngine2
 {
+	enum class E_JOB_EXECUTION_STATUS : U8
+	{
+		COMPLETED,
+		PENDING,
+		AWAKEN
+	};
+
+
 	CBaseJobManager::CBaseJobManager():
 		CBaseObject()
 	{
 	}
 
-	E_RESULT_CODE CBaseJobManager::Init(U32 maxNumOfThreads)
+
+	static void* ProcessFiberRoutine(tina* pCoroutine, void* pData)
+	{
+		static const E_JOB_EXECUTION_STATUS completedStatus = E_JOB_EXECUTION_STATUS::COMPLETED;
+
+		while (true)
+		{
+			TJobDecl* pJobDecl = reinterpret_cast<TJobDecl*>(pData);
+
+			TJobArgs args;
+			args.mJobIndex = pJobDecl->mJobIndex;
+			args.mGroupIndex = pJobDecl->mGroupIndex;
+			args.mpCurrJob = pJobDecl;
+
+			(pJobDecl->mJob)(args);
+
+			pData = tina_yield(pCoroutine, reinterpret_cast<void*>(completedStatus));
+		}
+
+		TDE2_UNREACHABLE();
+		return nullptr;
+	}
+
+	E_RESULT_CODE CBaseJobManager::Init(const TJobManagerInitParams& desc)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
-		
-		mNumOfThreads = maxNumOfThreads;
 
+		if (desc.mMaxNumOfThreads < 1 || !desc.mAllocatorFactoryFunctor)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		mpFibersStackAllocator = TPtr<IAllocator>((desc.mAllocatorFactoryFunctor)((desc.mFibersPoolSize + 1) * desc.mFiberStackSize, result));
+
+		if (!mpFibersStackAllocator || RC_OK != result)
+		{
+			return result;
+		}
+
+		mNumOfThreads = desc.mMaxNumOfThreads;
 		mIsRunning = true;
 
 		for (U32 i = 0; i < mNumOfThreads; ++i)
 		{
 			mWorkerThreads.emplace_back(&CBaseJobManager::_executeTasksLoop, this);
+		}
+
+		/// \note Create fibers 
+		{
+			void* pFibersStackBlock = mpFibersStackAllocator->Allocate(desc.mFibersPoolSize * desc.mFiberStackSize, __alignof(U32));
+			U8* pCurrFiberStack = reinterpret_cast<U8*>(pFibersStackBlock);
+
+			for (U32 i = 0; i < desc.mFibersPoolSize; i++)
+			{
+				mFreeFibersPool.push(tina_init(pCurrFiberStack, desc.mFiberStackSize, ProcessFiberRoutine, nullptr));
+				pCurrFiberStack += desc.mFiberStackSize;
+
+				TDE2_ASSERT(mFreeFibersPool.back());
+			}
 		}
 
 		mUpdateCounter = 0;
@@ -126,19 +184,36 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void CBaseJobManager::WaitForJobCounter(const TJobCounter& counter, U32 counterThreshold)
+	void CBaseJobManager::WaitForJobCounter(TJobCounter& counter, U32 counterThreshold, TJobDecl* pAwaitingJob)
 	{
 		if (counter.mValue <= counterThreshold)
 		{
 			return;
 		}
 
-		mHasNewJobAdded.notify_all();
-
-		while (counter.mValue > counterThreshold)
+		if (!pAwaitingJob)
 		{
-			std::this_thread::yield();
+			mHasNewJobAdded.notify_all();
+
+			while (counter.mValue > counterThreshold)
+			{
+				std::this_thread::yield();
+			}
+
+			return;
 		}
+
+		/// \note Push waiting job into the TJobCounter's awating list
+		{
+			pAwaitingJob->mpNextAwaitingJob = counter.mpWaitingJobList;
+
+			while (!counter.mpWaitingJobList.compare_exchange_weak(pAwaitingJob->mpNextAwaitingJob, pAwaitingJob))
+			{
+			}
+		}
+
+		static const E_JOB_EXECUTION_STATUS pendingJobStatus = E_JOB_EXECUTION_STATUS::PENDING;
+		tina_yield(pAwaitingJob->mpFiber, reinterpret_cast<void*>(pendingJobStatus));
 	}
 
 	E_RESULT_CODE CBaseJobManager::ExecuteInMainThread(const std::function<void()>& action)
@@ -206,22 +281,64 @@ namespace TDEngine2
 				mJobs.pop();
 			}
 
-			TJobArgs args;
-			args.mJobIndex = jobDecl.mJobIndex;
-			args.mGroupIndex = jobDecl.mGroupIndex;
-
-			(jobDecl.mJob)(args);
-
-			if (auto pCounter = jobDecl.mpCounter)
 			{
-				pCounter->mValue.fetch_sub(1);
+				std::unique_lock<std::mutex> lock(mFreeFibersPoolMutex);
+				if (!jobDecl.mpFiber && !mFreeFibersPool.empty())
+				{
+					jobDecl.mpFiber = mFreeFibersPool.front();
+					mFreeFibersPool.pop();
+				}
+			}
+
+			const E_JOB_EXECUTION_STATUS execStatus = (E_JOB_EXECUTION_STATUS)reinterpret_cast<TDEngine2::U32Ptr>(tina_resume(jobDecl.mpFiber, reinterpret_cast<void*>(&jobDecl)));
+			switch (execStatus)
+			{
+				case E_JOB_EXECUTION_STATUS::COMPLETED:
+
+					if (auto pCounter = jobDecl.mpCounter)
+					{
+						pCounter->mValue.fetch_sub(1);
+
+						/// \note Push awaiting job back to the queue if that one exists
+						if (pCounter->mpWaitingJobList)
+						{
+							TJobDecl* pAwaitingJobDecl = pCounter->mpWaitingJobList;
+
+							/// \note Remove the current extracted job from the awaiting list
+							while (!pCounter->mpWaitingJobList.compare_exchange_weak(pAwaitingJobDecl, pAwaitingJobDecl->mpNextAwaitingJob))
+							{
+							}
+
+							pAwaitingJobDecl->mpNextAwaitingJob = nullptr;
+
+							std::unique_lock<std::mutex> lock(mQueueMutex);
+							mJobs.emplace(*pAwaitingJobDecl);
+
+							mHasNewJobAdded.notify_one();
+						}
+					}
+					
+					mFreeFibersPool.push(jobDecl.mpFiber);
+					jobDecl.mpFiber = nullptr;
+
+					break;
+				case E_JOB_EXECUTION_STATUS::PENDING:
+					/*{
+						std::unique_lock<std::mutex> lock(mQueueMutex);
+						mJobs.emplace(std::move(jobDecl));
+
+						mHasNewJobAdded.notify_one();
+					}*/
+					break;
+				case E_JOB_EXECUTION_STATUS::AWAKEN:
+					break;
 			}
 		}
 	}
 
 
-	IJobManager* CreateBaseJobManager(U32 maxNumOfThreads, E_RESULT_CODE& result)
+	IJobManager* CreateBaseJobManager(const TJobManagerInitParams& desc, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IJobManager, CBaseJobManager, result, maxNumOfThreads);
+		return CREATE_IMPL(IJobManager, CBaseJobManager, result, desc);
 	}
 }

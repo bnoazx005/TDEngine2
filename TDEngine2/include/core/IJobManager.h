@@ -10,6 +10,7 @@
 #include "../utils/Types.h"
 #include "../utils/Utils.h"
 #include "IEngineSubsystem.h"
+#include "memory/CBaseAllocator.h"
 #include <functional>
 #include <memory>
 #include <atomic>
@@ -17,24 +18,26 @@
 
 namespace TDEngine2
 {
-	/*!
-		struct TJobCounter
-
-		\brief The type is used to create a syncronization points within the main thread to explicitly schedule dependencies
-	*/
-
-	struct TJobCounter
-	{
-		std::atomic<U32> mValue { 0 };
-	};
+	struct TJobDecl;
+	struct TJobCounter;
 
 
 	struct TJobArgs
 	{
 		U32 mJobIndex = 0;
 		U32 mGroupIndex = 0;
+		TJobDecl* mpCurrJob = nullptr;
 	};
 		
+
+	typedef struct TJobManagerInitParams
+	{
+		U32                      mMaxNumOfThreads;								///< A maximum number of threads that will be created and processed by the manager
+		TAllocatorFactoryFunctor mAllocatorFactoryFunctor;						///< Allocator's factory, used to allocate buffers for fibers stacks
+		USIZE                    mFiberStackSize = 64 * 1024;					///< A stack's size for a single allocated fiber
+		U32                      mFibersPoolSize = 128;							///< Amount of created fibers that will be used by the manager
+	} TJobManagerInitParams, *TJobManagerInitParamsPtr;
+
 
 	/*!
 		interface IJobManager
@@ -50,12 +53,12 @@ namespace TDEngine2
 			/*!
 				\brief The method initializes an inner state of a resource manager
 
-				\param[in] maxNumOfThreads A maximum number of threads that will be created and processed by the manager
+				\param[in] desc A configuration of the job system 
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(U32 maxNumOfThreads) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(const TJobManagerInitParams& desc) = 0;
 
 			/*!
 				\brief The method pushes specified job into a queue for an execution
@@ -83,11 +86,12 @@ namespace TDEngine2
 			/*!
 				\brief The function represents an execution barrier to make sure that any dependencies are finished to the point
 
-				\param[in] counter A reference to syncronization context
+				\param[in, out] counter A reference to syncronization context
 				\param[in] counterThreshold A value to compare with context's one
+				\param[in] pAwaitingJob There is should be a pointer to a job that emits another one and should wait for its completion. In other cases pass nullptr
 			*/
 
-			TDE2_API virtual void WaitForJobCounter(const TJobCounter& counter, U32 counterThreshold = 0) = 0;
+			TDE2_API virtual void WaitForJobCounter(TJobCounter& counter, U32 counterThreshold = 0, TJobDecl* pAwaitingJob = nullptr) = 0;
 
 			/*!
 				\brief The method allows to execute some code from main thread nomatter from which thread it's called
