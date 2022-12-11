@@ -212,14 +212,22 @@ namespace TDEngine2
 			return;
 		}
 
+		pAwaitingJob->mWaitingCounterThreshold = counterThreshold;
+
 		/// \note Push waiting job into the TJobCounter's awating list
 		{
-			pAwaitingJob->mpNextAwaitingJob = counter.mpWaitingJobList;
+			std::lock_guard<std::mutex> lock(counter.mWaitingJobListMutex);
+			counter.mpWaitingJobList.emplace(*pAwaitingJob); /// \fixme Copying, not optimal solution
+		}
+#if 0
+		{
+			pAwaitingJob->mpNextAwaitingJob = counter.mpWaitingJobList.load();
 
 			while (!counter.mpWaitingJobList.compare_exchange_weak(pAwaitingJob->mpNextAwaitingJob, pAwaitingJob))
 			{
 			}
 		}
+#endif
 
 #if TDE2_JOB_MANAGER_VERBOSE_LOG_ENABLED
 		LOG_MESSAGE(Wrench::StringUtils::Format("[Job Manager] The job pushed to waiting list, id: {0}, counter_value: {1}", 
@@ -324,26 +332,55 @@ namespace TDEngine2
 						pCounter->mValue.fetch_sub(1);
 
 						/// \note Push awaiting job back to the queue if that one exists
+						{
+							std::lock_guard<std::mutex> lock(pCounter->mWaitingJobListMutex);
+
+							if (!pCounter->mpWaitingJobList.empty())
+							{
+								TJobDecl* pAwaitingJobDecl = &pCounter->mpWaitingJobList.front();
+
+								if (pCounter->mValue <= pAwaitingJobDecl->mWaitingCounterThreshold)
+								{
+#if TDE2_JOB_MANAGER_VERBOSE_LOG_ENABLED
+									LOG_MESSAGE(Wrench::StringUtils::Format("[Job Manager] The job {0} continues its execution", pAwaitingJobDecl->mpJobName));
+#endif
+
+									std::lock_guard<std::mutex> lock(mQueueMutex);
+									mJobs.emplace(*pAwaitingJobDecl);
+
+									mHasNewJobAdded.notify_one();
+
+									/// \note Remove the current extracted job from the awaiting list
+									pCounter->mpWaitingJobList.pop();
+								}
+							}
+						}
+
+#if 0
 						if (pCounter->mpWaitingJobList)
 						{
 							TJobDecl* pAwaitingJobDecl = pCounter->mpWaitingJobList;
 
-							/// \note Remove the current extracted job from the awaiting list
-							while (!pCounter->mpWaitingJobList.compare_exchange_weak(pAwaitingJobDecl, pAwaitingJobDecl->mpNextAwaitingJob))
+							if (pCounter->mValue <= pAwaitingJobDecl->mWaitingCounterThreshold)
 							{
-							}
+								/// \note Remove the current extracted job from the awaiting list
+								while (!pCounter->mpWaitingJobList.compare_exchange_weak(pAwaitingJobDecl, pAwaitingJobDecl->mpNextAwaitingJob))
+								{
+								}
 
-							pAwaitingJobDecl->mpNextAwaitingJob = nullptr;
+								pAwaitingJobDecl->mpNextAwaitingJob = nullptr;
 
 #if TDE2_JOB_MANAGER_VERBOSE_LOG_ENABLED
-							LOG_MESSAGE(Wrench::StringUtils::Format("[Job Manager] The job {0} continues its execution", pAwaitingJobDecl->mpJobName));
+								LOG_MESSAGE(Wrench::StringUtils::Format("[Job Manager] The job {0} continues its execution", pAwaitingJobDecl->mpJobName));
 #endif
 
-							std::lock_guard<std::mutex> lock(mQueueMutex);
-							mJobs.emplace(*pAwaitingJobDecl);
+								std::lock_guard<std::mutex> lock(mQueueMutex);
+								mJobs.emplace(*pAwaitingJobDecl);
 
-							mHasNewJobAdded.notify_one();
+								mHasNewJobAdded.notify_one();
+							}
 						}
+#endif
 					}
 
 					{

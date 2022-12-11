@@ -29,8 +29,11 @@ namespace TDEngine2
 		TJobCounter* mpCounter = nullptr;
 		U32 mJobIndex = 0;
 		U32 mGroupIndex = 0;
+		U32 mWaitingCounterThreshold = 0;
 		tina* mpFiber = nullptr;
+#if 0
 		TJobDecl* mpNextAwaitingJob = nullptr;  ///< The field is used to implement linked list of awaiting jobs
+#endif
 		const C8* mpJobName = "TDE2Job";
 	};
 
@@ -43,7 +46,8 @@ namespace TDEngine2
 
 	struct TJobCounter
 	{
-		std::atomic<TJobDecl*> mpWaitingJobList{ nullptr }; ///< Public, but private (should not be changed manually)
+		mutable std::mutex mWaitingJobListMutex; ///< \todo For now use lock based waiting list, but should be replaced with lock-free struct
+		std::queue<TJobDecl> mpWaitingJobList; ///< Public, but private (should not be changed manually)
 
 		std::atomic<U32> mValue{ 0 };
 	};

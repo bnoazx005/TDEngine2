@@ -10,8 +10,8 @@ using namespace TDEngine2;
 TEST_CASE("CBaseJobManager Tests")
 {
 	E_RESULT_CODE result = RC_OK;
-
-	TPtr<IJobManager> pJobManager = TPtr<IJobManager>(CreateBaseJobManager({ std::thread::hardware_concurrency(), CreateLinearAllocator }, result));
+	
+	TPtr<IJobManager> pJobManager = TPtr<IJobManager>(CreateBaseJobManager({ std::thread::hardware_concurrency(), CreateLinearAllocator}, result));
 	REQUIRE((pJobManager && RC_OK == result));
 
 	SECTION("TestSubmitJob_PassEmptyJob_ReturnsError")
@@ -63,13 +63,14 @@ TEST_CASE("CBaseJobManager Tests")
 		LOG_MESSAGE("Final Job");
 	}
 
-#if 1
 	SECTION("TestSubmitMultipleJobs_PassArrayAndMakeParallelFor_CorreclyProcess")
 	{
 		TJobCounter counter;
 
-		std::vector<U32> testVector(static_cast<USIZE>(rand() % 42));
-		const U32 groupSize = static_cast<U32>(rand() % 10);
+		std::vector<U32> testVector(static_cast<USIZE>(rand() % 42 + 1));
+		const U32 groupSize = static_cast<U32>(rand() % 10 + 1);
+
+		REQUIRE(testVector.size() >= static_cast<USIZE>(groupSize));
 
 		pJobManager->SubmitMultipleJobs(&counter, static_cast<U32>(testVector.size()), groupSize, [&testVector](const TJobArgs& args)
 		{
@@ -83,31 +84,39 @@ TEST_CASE("CBaseJobManager Tests")
 			REQUIRE(testVector[i] == i);
 		}
 	}
-#endif
 
 	SECTION("TestWaitJobCounter_JobEmitsSubTask_JobManagerCorrectlyProcessThemBoth")
 	{
-		std::string expectedResult = "ABBA";
-		std::string actualString;
+		const std::string expectedResult = "ABCCBA";
 
-		TJobCounter counter;
-
-		E_RESULT_CODE result = pJobManager->SubmitJob(&counter, [&actualString, pJobManager](const TJobArgs& jobArgs)
+		//for (I32 i = 0; i < 10; ++i)
 		{
-			auto pJob = jobArgs.mpCurrJob;
+			std::string actualString;
 
-			pJobManager->SubmitJob(pJob->mpCounter, [&actualString](auto)
+			TJobCounter counter;
+
+			E_RESULT_CODE result = pJobManager->SubmitJob(&counter, [&actualString, pJobManager](const TJobArgs& jobArgs)
 			{
-				actualString += "AB";
-			}, "TDE2SecondJob");
+				auto pJob = jobArgs.mpCurrJob;
 
-			pJobManager->WaitForJobCounter(*pJob->mpCounter, 0, pJob);
+				pJobManager->SubmitJob(pJob->mpCounter, [&actualString](auto)
+				{
+					actualString += "AB";
+				}, "TDE2SecondJob");
 
-			actualString += "BA";
-		}, "TDE2FirstJob");
+				pJobManager->SubmitJob(pJob->mpCounter, [&actualString](auto)
+				{
+					actualString += "CC";
+				}, "TDE2ThirdJob");
 
-		pJobManager->WaitForJobCounter(counter);
+				pJobManager->WaitForJobCounter(*pJob->mpCounter, 1, pJob);
 
-		REQUIRE(actualString == expectedResult);
+				actualString += "BA";
+			}, "TDE2FirstJob");
+
+			pJobManager->WaitForJobCounter(counter);
+
+			REQUIRE(actualString == expectedResult);
+		}
 	}
 }
