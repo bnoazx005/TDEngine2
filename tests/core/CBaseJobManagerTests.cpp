@@ -63,6 +63,7 @@ TEST_CASE("CBaseJobManager Tests")
 		LOG_MESSAGE("Final Job");
 	}
 
+#if 1
 	SECTION("TestSubmitMultipleJobs_PassArrayAndMakeParallelFor_CorreclyProcess")
 	{
 		TJobCounter counter;
@@ -82,6 +83,7 @@ TEST_CASE("CBaseJobManager Tests")
 			REQUIRE(testVector[i] == i);
 		}
 	}
+#endif
 
 	SECTION("TestWaitJobCounter_JobEmitsSubTask_JobManagerCorrectlyProcessThemBoth")
 	{
@@ -97,12 +99,12 @@ TEST_CASE("CBaseJobManager Tests")
 			pJobManager->SubmitJob(pJob->mpCounter, [&actualString](auto)
 			{
 				actualString += "AB";
-			});
+			}, "TDE2SecondJob");
 
 			pJobManager->WaitForJobCounter(*pJob->mpCounter, 0, pJob);
 
 			actualString += "BA";
-		});
+		}, "TDE2FirstJob");
 
 		pJobManager->WaitForJobCounter(counter);
 

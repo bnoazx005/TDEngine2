@@ -31,6 +31,7 @@ namespace TDEngine2
 		U32 mGroupIndex = 0;
 		tina* mpFiber = nullptr;
 		TJobDecl* mpNextAwaitingJob = nullptr;  ///< The field is used to implement linked list of awaiting jobs
+		const C8* mpJobName = "TDE2Job";
 	};
 
 
@@ -94,7 +95,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE SubmitJob(TJobCounter* pCounter, const TJobCallback& job) override;
+			TDE2_API E_RESULT_CODE SubmitJob(TJobCounter* pCounter, const TJobCallback& job, const C8* jobName = "TDE2Job") override;
 
 			/*!
 				\brief The method is an equvivalent for "parallel_for" algorithm that splits some complex work between groups and

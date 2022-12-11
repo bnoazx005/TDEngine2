@@ -1,7 +1,11 @@
 #include "./../../include/core/CBaseJobManager.h"
 #include "./../../include/utils/CFileLogger.h"
 #include "tina.h"
+#include "stringUtils.hpp"
 #include <cmath>
+
+
+#define TDE2_JOB_MANAGER_VERBOSE_LOG_ENABLED 1
 
 
 namespace TDEngine2
@@ -124,7 +128,7 @@ namespace TDEngine2
 		return MainThreadId == std::this_thread::get_id();
 	}
 
-	E_RESULT_CODE CBaseJobManager::SubmitJob(TJobCounter* pCounter, const TJobCallback& job)
+	E_RESULT_CODE CBaseJobManager::SubmitJob(TJobCounter* pCounter, const TJobCallback& job, const C8* jobName)
 	{
 		if (!job)
 		{
@@ -134,11 +138,16 @@ namespace TDEngine2
 		TJobDecl jobDecl;
 		jobDecl.mJob = job;
 		jobDecl.mpCounter = pCounter;
+		jobDecl.mpJobName = jobName;
 
 		if (pCounter)
 		{
 			pCounter->mValue.fetch_add(1);
 		}
+
+#if TDE2_JOB_MANAGER_VERBOSE_LOG_ENABLED
+		LOG_MESSAGE(Wrench::StringUtils::Format("[Job Manager] Submit a new job, id: {0}, counter_value: {1}", jobName, (pCounter ? pCounter->mValue.load() : 0)));
+#endif
 
 		std::lock_guard<std::mutex> lock(mQueueMutex);
 
@@ -212,6 +221,11 @@ namespace TDEngine2
 			}
 		}
 
+#if TDE2_JOB_MANAGER_VERBOSE_LOG_ENABLED
+		LOG_MESSAGE(Wrench::StringUtils::Format("[Job Manager] The job pushed to waiting list, id: {0}, counter_value: {1}", 
+			pAwaitingJob->mpJobName, counter.mValue.load()));
+#endif
+
 		static const E_JOB_EXECUTION_STATUS pendingJobStatus = E_JOB_EXECUTION_STATUS::PENDING;
 		tina_yield(pAwaitingJob->mpFiber, reinterpret_cast<void*>(pendingJobStatus));
 	}
@@ -282,11 +296,17 @@ namespace TDEngine2
 			}
 
 			{
-				std::unique_lock<std::mutex> lock(mFreeFibersPoolMutex);
+				std::lock_guard<std::mutex> lock(mFreeFibersPoolMutex);
 				if (!jobDecl.mpFiber && !mFreeFibersPool.empty())
 				{
 					jobDecl.mpFiber = mFreeFibersPool.front();
 					mFreeFibersPool.pop();
+
+					jobDecl.mpFiber->name = jobDecl.mpJobName;
+
+#if TDE2_JOB_MANAGER_VERBOSE_LOG_ENABLED
+					LOG_MESSAGE(Wrench::StringUtils::Format("[Job Manager] A new fiber is created, addr: {0}, id: {1}", jobDecl.mpFiber->_stack_pointer, jobDecl.mpJobName));
+#endif
 				}
 			}
 
@@ -294,6 +314,10 @@ namespace TDEngine2
 			switch (execStatus)
 			{
 				case E_JOB_EXECUTION_STATUS::COMPLETED:
+
+#if TDE2_JOB_MANAGER_VERBOSE_LOG_ENABLED
+					LOG_MESSAGE(Wrench::StringUtils::Format("[Job Manager] The job {0} is completed", jobDecl.mpJobName));
+#endif
 
 					if (auto pCounter = jobDecl.mpCounter)
 					{
@@ -311,18 +335,30 @@ namespace TDEngine2
 
 							pAwaitingJobDecl->mpNextAwaitingJob = nullptr;
 
-							std::unique_lock<std::mutex> lock(mQueueMutex);
+#if TDE2_JOB_MANAGER_VERBOSE_LOG_ENABLED
+							LOG_MESSAGE(Wrench::StringUtils::Format("[Job Manager] The job {0} continues its execution", pAwaitingJobDecl->mpJobName));
+#endif
+
+							std::lock_guard<std::mutex> lock(mQueueMutex);
 							mJobs.emplace(*pAwaitingJobDecl);
 
 							mHasNewJobAdded.notify_one();
 						}
 					}
-					
-					mFreeFibersPool.push(jobDecl.mpFiber);
+
+					{
+						std::lock_guard<std::mutex> lock(mFreeFibersPoolMutex);
+						mFreeFibersPool.push(jobDecl.mpFiber);
+					}
+
 					jobDecl.mpFiber = nullptr;
 
 					break;
 				case E_JOB_EXECUTION_STATUS::PENDING:
+
+#if TDE2_JOB_MANAGER_VERBOSE_LOG_ENABLED
+					LOG_MESSAGE(Wrench::StringUtils::Format("[Job Manager] The job {0} is pending", jobDecl.mpJobName));
+#endif
 					/*{
 						std::unique_lock<std::mutex> lock(mQueueMutex);
 						mJobs.emplace(std::move(jobDecl));
@@ -331,6 +367,11 @@ namespace TDEngine2
 					}*/
 					break;
 				case E_JOB_EXECUTION_STATUS::AWAKEN:
+
+#if TDE2_JOB_MANAGER_VERBOSE_LOG_ENABLED
+					LOG_MESSAGE(Wrench::StringUtils::Format("[Job Manager] The job {0} has awaken", jobDecl.mpJobName));
+#endif
+
 					break;
 			}
 		}
