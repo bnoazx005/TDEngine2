@@ -68,9 +68,7 @@ TEST_CASE("CBaseJobManager Tests")
 		TJobCounter counter;
 
 		std::vector<U32> testVector(static_cast<USIZE>(rand() % 42 + 1));
-		const U32 groupSize = static_cast<U32>(rand() % 10 + 1);
-
-		REQUIRE(testVector.size() >= static_cast<USIZE>(groupSize));
+		const U32 groupSize = static_cast<U32>(rand() % (testVector.size() / 2) + 1);
 
 		pJobManager->SubmitMultipleJobs(&counter, static_cast<U32>(testVector.size()), groupSize, [&testVector](const TJobArgs& args)
 		{
