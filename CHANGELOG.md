@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.13] 2022-12-12
+## [0.6.13] 2022-12-14
 
 ### Added
 
@@ -33,7 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The crases caused with CFont's creation with empty font's settings were fixed.
 
-- The incorrect loading of scene's prefabs was fixed. 
+- The incorrect loading/saving of scene's prefabs was fixed. 
 
 ## [0.6.12] 2022-11-02
 

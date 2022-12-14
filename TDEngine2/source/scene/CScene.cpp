@@ -19,6 +19,7 @@
 #include "../../include/ecs/CTransform.h"
 #include <unordered_map>
 #include <unordered_set>
+#include <queue>
 
 
 namespace TDEngine2
@@ -129,6 +130,18 @@ namespace TDEngine2
 		std::unordered_map<TEntityId, TEntityId> entitiesIdsMap;
 		std::unordered_set<TEntityId> nonPrefabEntitiesSet;
 
+
+		struct TPrefabLinkInfo
+		{
+			TVector3 mPosition = ZeroVector3;
+			TEntityId mId = TEntityId::Invalid;
+			TEntityId mParentId = TEntityId::Invalid;
+			std::string mPrefabId;
+		};
+
+
+		std::queue<TPrefabLinkInfo> prefabsDefferedSpawnQueue; /// all prefabs are spawned after all the scene has been read
+
 		// \note Read entities
 		pReader->BeginGroup("entities");
 		{
@@ -152,22 +165,23 @@ namespace TDEngine2
 							auto positionResult = LoadVector3(pReader); /// \note Try to read overriden position for the link
 							pReader->EndGroup();
 
-							auto pInstance = Spawn(pReader->GetString(TSceneArchiveKeys::TPrefabLinkGroupKeys::mPrefabIdKey), nullptr);
+							TEntityId originalParentEntityId = static_cast<TEntityId>(
+								pReader->GetUInt32(TSceneArchiveKeys::TPrefabLinkGroupKeys::mParentIdKey, static_cast<U32>(TEntityId::Invalid)));
+
+							TVector3 overridenPosition = ZeroVector3;
 
 							if (positionResult.IsOk())
 							{
-								const TVector3& overridenPosition = positionResult.Get();
-
-								if (Length(overridenPosition) > FloatEpsilon)
-								{
-									CTransform* pTransform = pInstance->GetComponent<CTransform>();
-									pTransform->SetPosition(overridenPosition);
-								}
+								overridenPosition = positionResult.Get();
 							}
 
-							entitiesIdsMap.emplace(static_cast<TEntityId>(pReader->GetUInt32("id", static_cast<U32>(TEntityId::Invalid))), pInstance->GetId());
-
-							TDE2_ASSERT(pInstance);
+							prefabsDefferedSpawnQueue.push(
+								{ 
+									overridenPosition, 
+									static_cast<TEntityId>(pReader->GetUInt32("id", static_cast<U32>(TEntityId::Invalid))), 
+									originalParentEntityId, 
+									pReader->GetString(TSceneArchiveKeys::TPrefabLinkGroupKeys::mPrefabIdKey) 
+								});
 						}
 						pReader->EndGroup();
 					}
@@ -221,6 +235,41 @@ namespace TDEngine2
 
 				TDE2_ASSERT(RC_OK == result);
 			}
+		}
+
+		/// \note Spawn prefabs
+		while (!prefabsDefferedSpawnQueue.empty())
+		{
+			const auto& currPrefabInfo = prefabsDefferedSpawnQueue.front();
+
+			TEntityId parentEntityId = currPrefabInfo.mParentId;
+
+			if (TEntityId::Invalid != parentEntityId)
+			{
+				auto it = entitiesIdsMap.find(parentEntityId); /// \note Convert the serialized value to the runtime one
+				if (it != entitiesIdsMap.end())
+				{
+					parentEntityId = it->second;
+				}
+			}
+
+			auto pInstance = Spawn(currPrefabInfo.mPrefabId, mpWorld->FindEntity(parentEntityId));
+			TDE2_ASSERT(pInstance);
+			if (!pInstance)
+			{
+				prefabsDefferedSpawnQueue.pop();
+				continue;
+			}
+
+			if (Length(currPrefabInfo.mPosition) > FloatEpsilon)
+			{
+				CTransform* pTransform = pInstance->GetComponent<CTransform>();
+				pTransform->SetPosition(currPrefabInfo.mPosition);
+			}
+
+			prefabsDefferedSpawnQueue.pop();
+
+			entitiesIdsMap.emplace(currPrefabInfo.mId, pInstance->GetId());
 		}
 
 		return result;
@@ -284,12 +333,12 @@ namespace TDEngine2
 								}
 							}
 							pWriter->EndGroup();
-							
-							continue;
 						}
+						else
 #endif
-
-						pCurrEntity->Save(pWriter);
+						{
+							pCurrEntity->Save(pWriter);
+						}
 					}
 					pWriter->EndGroup();
 				}
