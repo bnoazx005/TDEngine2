@@ -119,48 +119,12 @@ namespace TDEngine2
 		\brief The class implements a functionality of a prefabs manifest loader
 	*/
 
-	class CPrefabsManifestLoader : public CBaseObject, public IPrefabsManifestLoader
+	class CPrefabsManifestLoader : public CBaseResourceLoader<IPrefabsManifest>
 	{
 		public:
 			friend TDE2_API IResourceLoader* CreatePrefabsManifestLoader(IResourceManager* pResourceManager, IFileSystem* pFileSystem, E_RESULT_CODE& result);
-		public:
-			/*!
-				\brief The method initializes an inner state of an object
-
-				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
-				\param[in, out] pFileSystem A pointer to IFileSystem's implementation
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IFileSystem* pFileSystem) override;
-
-			/*!
-				\brief The method loads data into the specified resource based on its
-				internal information
-
-				\param[in, out] pResource A pointer to an allocated resource
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE LoadResource(IResource* pResource) const override;
-
-			/*!
-				\brief The method returns an identifier of a resource's type, which
-				the loader serves
-
-				\return The method returns an identifier of a resource's type, which
-				the loader serves
-			*/
-
-			TDE2_API TypeId GetResourceTypeId() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPrefabsManifestLoader)
-		protected:
-			IResourceManager* mpResourceManager;
-
-			IFileSystem*      mpFileSystem;
 	};
 
 
@@ -183,32 +147,11 @@ namespace TDEngine2
 		is used by a resource manager
 	*/
 
-	class CPrefabsManifestFactory : public CBaseObject, public IPrefabsManifestFactory
+	class CPrefabsManifestFactory : public CBaseResourceFactory<IPrefabsManifest>
 	{
 		public:
 			friend TDE2_API IResourceFactory* CreatePrefabsManifestFactory(IResourceManager* pResourceManager, E_RESULT_CODE& result);
 		public:
-			/*!
-				\brief The method initializes an internal state of a material factory
-
-				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager) override;
-
-			/*!
-				\brief The method creates a new instance of a resource based on passed parameters
-
-				\param[in] name A name of a resource
-				\param[in] params An object that contains parameters that are needed for the resource's creation
-
-				\return A pointer to a new instance of IResource type
-			*/
-
-			TDE2_API IResource* Create(const std::string& name, const TBaseResourceParameters& params) const override;
-
 			/*!
 				\brief The method creates a new instance of a resource based on passed parameters
 
@@ -219,19 +162,7 @@ namespace TDEngine2
 			*/
 
 			TDE2_API IResource* CreateDefault(const std::string& name, const TBaseResourceParameters& params) const override;
-
-			/*!
-				\brief The method returns an identifier of a resource's type, which
-				the factory serves
-
-				\return The method returns an identifier of a resource's type, which
-				the factory serves
-			*/
-
-			TDE2_API TypeId GetResourceTypeId() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPrefabsManifestFactory)
-		protected:
-			IResourceManager* mpResourceManager;
 	};
 }

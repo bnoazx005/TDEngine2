@@ -155,49 +155,8 @@ namespace TDEngine2
 
 
 	CPrefabsManifestLoader::CPrefabsManifestLoader() :
-		CBaseObject()
+		CBaseResourceLoader()
 	{
-	}
-
-	E_RESULT_CODE CPrefabsManifestLoader::Init(IResourceManager* pResourceManager, IFileSystem* pFileSystem)
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		if (!pResourceManager || !pFileSystem)
-		{
-			return RC_INVALID_ARGS;
-		}
-
-		mpResourceManager = pResourceManager;
-
-		mpFileSystem = pFileSystem;
-
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CPrefabsManifestLoader::LoadResource(IResource* pResource) const
-	{
-		if (!mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		if (TResult<TFileEntryId> prefabsManifestFileId = mpFileSystem->Open<IYAMLFileReader>(pResource->GetName()))
-		{
-			return dynamic_cast<IPrefabsManifest*>(pResource)->Load(mpFileSystem->Get<IYAMLFileReader>(prefabsManifestFileId.Get()));
-		}
-
-		return RC_FILE_NOT_FOUND;
-	}
-
-	TypeId CPrefabsManifestLoader::GetResourceTypeId() const
-	{
-		return IPrefabsManifest::GetTypeId();
 	}
 
 
@@ -208,36 +167,8 @@ namespace TDEngine2
 
 
 	CPrefabsManifestFactory::CPrefabsManifestFactory() :
-		CBaseObject()
+		CBaseResourceFactory()
 	{
-	}
-
-	E_RESULT_CODE CPrefabsManifestFactory::Init(IResourceManager* pResourceManager)
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		if (!pResourceManager)
-		{
-			return RC_INVALID_ARGS;
-		}
-
-		mpResourceManager = pResourceManager;
-
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	IResource* CPrefabsManifestFactory::Create(const std::string& name, const TBaseResourceParameters& params) const
-	{
-		const TPrefabsManifestParameters& PrefabsManifestParams = dynamic_cast<const TPrefabsManifestParameters&>(params);
-
-		auto pResource = CreateDefault(name, params);
-
-		return pResource;
 	}
 
 	IResource* CPrefabsManifestFactory::CreateDefault(const std::string& name, const TBaseResourceParameters& params) const
@@ -245,11 +176,6 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 		return dynamic_cast<IResource*>(CreatePrefabsManifest(mpResourceManager, name, result));
-	}
-
-	TypeId CPrefabsManifestFactory::GetResourceTypeId() const
-	{
-		return IPrefabsManifest::GetTypeId();
 	}
 
 

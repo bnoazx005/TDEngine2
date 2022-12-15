@@ -69,8 +69,4 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPrefabsManifest)
 	};
-
-
-	class IPrefabsManifestLoader : public IGenericResourceLoader<IResourceManager*, IFileSystem*> {};
-	class IPrefabsManifestFactory : public IGenericResourceFactory<IResourceManager*> {};
 }

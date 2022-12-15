@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.13] 2022-12-14
+## [0.6.13] 2022-12-15
 
 ### Added
 
@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New overloadings of HasComponent method were implemented for **CEntity**, **CEntityManager** and **CComponentManager**.
 
 - A new dependency library which is **Tina** was added.
+
+- Two template classes **CBaseResourceLoader<T>** and **CBaseResourceFactory<T>** were introduced to simplify declaration of a new simple resources types.
 
 ### Changed
 
