@@ -467,7 +467,7 @@ namespace TDEngine2
 	{
 	}
 
-#if 0
+
 #define TDE2_RESOURCE_CLASS_NAME(ResourceName)				C ## ResourceName
 #define TDE2_RESOURCE_FUNCTION_NAME(ResourceName)			Create ## ResourceName
 #define TDE2_RESOURCE_LOADER_NAME(ResourceName)				C ## ResourceName ## Loader
@@ -476,47 +476,65 @@ namespace TDEngine2
 #define TDE2_RESOURCE_FACTORY_FUNCTION_NAME(ResourceName)	Create ## ResourceName ## Factory
 
 
-#define TDE2_DECLARE_DEFAULT_RESOURCE_LOADER_IMPL(ResourceName, ResourceLoaderName, ResourceLoaderFactoryName)					\
-	TDE2_API IResourceLoader* ResourceLoaderFactoryName(IResourceManager*, IFileSystem*, E_RESULT_CODE&);						\
-																																\
-	class ResourceLoaderName : public CBaseResourceLoader<ResourceName>															\
-	{																															\
-		public:																													\
-			friend TDE2_API IResourceLoader* ResourceLoaderFactoryName(IResourceManager*, IFileSystem*, E_RESULT_CODE&);		\
-		protected:																												\
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(ResourceLoaderName)														\
+#define TDE2_DECLARE_DEFAULT_RESOURCE_LOADER_IMPL(ResourceName, ResourceLoaderName, ResourceLoaderFactoryName)																		\
+	TDE2_API ::TDEngine2::IResourceLoader* ResourceLoaderFactoryName(::TDEngine2::IResourceManager*, ::TDEngine2::IFileSystem*, ::TDEngine2::E_RESULT_CODE&);						\
+																																													\
+	class ResourceLoaderName : public ::TDEngine2::CBaseResourceLoader<ResourceName>																								\
+	{																																												\
+		public:																																										\
+			friend TDE2_API ::TDEngine2::IResourceLoader* ResourceLoaderFactoryName(::TDEngine2::IResourceManager*, ::TDEngine2::IFileSystem*, ::TDEngine2::E_RESULT_CODE&);		\
+		protected:																																									\
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(ResourceLoaderName)																											\
 	};
 
 #define TDE2_DECLARE_DEFAULT_RESOURCE_LOADER(ResourceType)	\
 	TDE2_DECLARE_DEFAULT_RESOURCE_LOADER_IMPL(ResourceType, TDE2_RESOURCE_LOADER_NAME(ResourceType), TDE2_RESOURCE_LOADER_FUNCTION_NAME(ResourceType))
 
 
-#define TDE2_DEFINE_DEFAULT_RESOURCE_LOADER_IMPL(ResourceLoaderName, ResourceLoaderFactoryName)													\
-	ResourceLoaderName::ResourceLoaderName() : CBaseResourceLoader() { }																		\
-																																				\
-	TDE2_API IResourceLoader* ResourceLoaderFactoryName(IResourceManager* pResourceManager, IFileSystem* pFileSystem, E_RESULT_CODE& result)	\
-	{																																			\
-		return CREATE_IMPL(IResourceLoader, ResourceLoaderName, result, pResourceManager, pFileSystem);											\
+#define TDE2_DEFINE_DEFAULT_RESOURCE_LOADER_IMPL(ResourceLoaderName, ResourceLoaderFactoryName)																										\
+	ResourceLoaderName::ResourceLoaderName() : ::TDEngine2::CBaseResourceLoader() { }																												\
+																																																	\
+	TDE2_API ::TDEngine2::IResourceLoader* ResourceLoaderFactoryName(::TDEngine2::IResourceManager* pResourceManager, ::TDEngine2::IFileSystem* pFileSystem, ::TDEngine2::E_RESULT_CODE& result)	\
+	{																																																\
+		return CREATE_IMPL(::TDEngine2::IResourceLoader, ResourceLoaderName, result, pResourceManager, pFileSystem);																				\
 	}
 
 #define TDE2_DEFINE_DEFAULT_RESOURCE_LOADER(ResourceType) TDE2_DEFINE_DEFAULT_RESOURCE_LOADER_IMPL(TDE2_RESOURCE_LOADER_NAME(ResourceType), TDE2_RESOURCE_LOADER_FUNCTION_NAME(ResourceType))
 
 
-#define TDE2_DECLARE_DEFAULT_RESOURCE_FACTORY_IMPL(ResourceName, ResourceFactoryName, ResourceFactoryTypeFactoryName)						\
-	TDE2_API IResourceFactory* ResourceFactoryTypeFactoryName(IResourceManager*, E_RESULT_CODE&);											\
-																																			\
-	class ResourceFactoryName : public CBaseResourceFactory<ResourceName>																	\
-	{																																		\
-		public:																																\
-			friend TDE2_API IResourceFactory* ResourceFactoryTypeFactoryName(IResourceManager*, E_RESULT_CODE&);							\
-		public:																																\
-			TDE2_API IResource* CreateDefault(const std::string& name, const TBaseResourceParameters& params) const override;				\
-		protected:																															\
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(ResourceFactoryName)																	\
+#define TDE2_DECLARE_DEFAULT_RESOURCE_FACTORY_IMPL(ResourceName, ResourceFactoryName, ResourceFactoryTypeFactoryName)														\
+	TDE2_API ::TDEngine2::IResourceFactory* ResourceFactoryTypeFactoryName(::TDEngine2::IResourceManager*, ::TDEngine2::E_RESULT_CODE&);									\
+																																											\
+	class ResourceFactoryName : public ::TDEngine2::CBaseResourceFactory<ResourceName>																						\
+	{																																										\
+		public:																																								\
+			friend TDE2_API ::TDEngine2::IResourceFactory* ResourceFactoryTypeFactoryName(::TDEngine2::IResourceManager*, ::TDEngine2::E_RESULT_CODE&);						\
+		public:																																								\
+			TDE2_API ::TDEngine2::IResource* CreateDefault(const std::string& name, const ::TDEngine2::TBaseResourceParameters& params) const override;						\
+		protected:																																							\
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(ResourceFactoryName)																									\
 	};
 
 #define TDE2_DECLARE_DEFAULT_RESOURCE_FACTORY(ResourceType)	\
 	TDE2_DECLARE_DEFAULT_RESOURCE_LOADER_IMPL(ResourceType, TDE2_RESOURCE_FACTORY_NAME(ResourceType), TDE2_RESOURCE_FACTORY_FUNCTION_NAME(ResourceType))
 
-#endif
+
+#define TDE2_DEFINE_DEFAULT_RESOURCE_FACTORY_IMPL(ResourceTypeFactoryFunction, ResourceFactoryName, ResourceFactoryTypeFactoryName)											\
+	ResourceFactoryName::ResourceFactoryName() : ::TDEngine2::CBaseResourceFactory() { }																					\
+																																											\
+	::TDEngine2::IResource* ResourceFactoryName::CreateDefault(const std::string& name, const ::TDEngine2::TBaseResourceParameters& params) const							\
+	{																																										\
+		::TDEngine2::E_RESULT_CODE result = RC_OK;																															\
+		return dynamic_cast<::TDEngine2::IResource*>(ResourceTypeFactoryFunction(mpResourceManager, name, result));															\
+	}																																										\
+																																											\
+																																											\
+	TDE2_API ::TDEngine2::IResourceFactory* ResourceFactoryTypeFactoryName(::TDEngine2::IResourceManager* pResourceManager, ::TDEngine2::E_RESULT_CODE& result)				\
+	{																																										\
+		return CREATE_IMPL(::TDEngine2::IResourceFactory, ResourceFactoryName, result, pResourceManager);																	\
+	}
+
+#define TDE2_DEFINE_DEFAULT_RESOURCE_FACTORY(ResourceType) \
+	TDE2_DEFINE_DEFAULT_RESOURCE_FACTORY_IMPL(TDE2_RESOURCE_FUNCTION_NAME(ResourceType), TDE2_RESOURCE_FACTORY_NAME(ResourceType), TDE2_RESOURCE_FACTORY_FUNCTION_NAME(ResourceType))
+
 }
