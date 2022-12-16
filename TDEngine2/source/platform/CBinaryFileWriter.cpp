@@ -3,6 +3,7 @@
 #include "../../include/core/IJobManager.h"
 #include "../../include/platform/IOStreams.h"
 #include "../../include/platform/MountableStorages.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include <functional>
 
 
@@ -113,6 +114,8 @@ namespace TDEngine2
 		/// \note Is it safe to work with pBuffer without lock
 		pJobManager->SubmitJob(nullptr, [this, pBuffer, bufferSize, successCallback, errorCallback](auto&&)
 		{
+			TDE2_PROFILER_SCOPE("WriteAsyncBinaryFileJob");
+
 			E_RESULT_CODE result = RC_OK;
 
 			if ((result = Write(pBuffer, bufferSize)) != RC_OK)

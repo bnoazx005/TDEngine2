@@ -4,6 +4,7 @@
 #include "../../include/scene/CScene.h"
 #include "../../include/core/IFile.h"
 #include "../../include/core/IJobManager.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include <algorithm>
 
 
@@ -120,6 +121,8 @@ namespace TDEngine2
 
 		pJobManager->SubmitJob(nullptr, [this, scenePath, onResultCallback, pJobManager](auto&&)
 		{
+			TDE2_PROFILER_SCOPE("LoadSceneAsyncJob");
+
 			const std::string& sceneName = mpFileSystem->ExtractFilename(scenePath);
 
 			// \note If there is loaded scene then just return its handle

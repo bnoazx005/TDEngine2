@@ -6,6 +6,7 @@
 #include "../../include/core/IJobManager.h"
 #include "../../include/platform/CYAMLFile.h"
 #include "../../include/utils/Utils.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include "stringUtils.hpp"
 #include <stb_image.h>
 #include <string>
@@ -281,6 +282,8 @@ namespace TDEngine2
 
 		auto loadTextureRoutine = [this, pJobManager, pCubemapTexture, info, face, filename, w = width, h = height, fmt = format](auto&&)
 		{
+			TDE2_PROFILER_SCOPE("LoadCubemapTextureJob");
+
 			I32 width = w, height = h, format = fmt;
 
 			U8* pTextureData = stbi_load(filename.c_str(), &width, &height, &format, (format < 3 ? format : 4));/// D3D11 doesn't work with 24 bits textures

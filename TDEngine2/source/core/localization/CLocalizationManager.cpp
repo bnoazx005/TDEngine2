@@ -5,6 +5,7 @@
 #include "../../include/core/IResourceManager.h"
 #include "../../include/platform/CYAMLFile.h"
 #include "../../include/utils/CFileLogger.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include <stringUtils.hpp>
 
 
@@ -151,6 +152,8 @@ namespace TDEngine2
 		if (IJobManager* pJobManager = mpFileSystem->GetJobManager())
 		{
 			pJobManager->SubmitJob(nullptr, [this](auto&&) {
+				TDE2_PROFILER_SCOPE("LoadLocalizationPackageJob");
+
 				if (TPtr<IResource> pResource = mpResourceManager->GetResource<IResource>(mCurrLocalePackageId))
 				{
 					while (pResource->GetState() != E_RESOURCE_STATE_TYPE::RST_LOADED) {}

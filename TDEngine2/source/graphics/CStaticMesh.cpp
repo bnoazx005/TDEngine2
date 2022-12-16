@@ -6,6 +6,7 @@
 #include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/graphics/CGeometryBuilder.h"
 #include "../../include/utils/CFileLogger.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include "deferOperation.hpp"
 #include <cstring>
 #include <climits>
@@ -427,6 +428,8 @@ namespace TDEngine2
 
 		auto loadMeshRoutine = [pJobManager, pMeshFileReader, pResource](auto&&)
 		{
+			TDE2_PROFILER_SCOPE("LoadStaticMeshJob");
+
 			E_RESULT_CODE result = RC_OK;
 
 			IMesh* pMesh = dynamic_cast<IMesh*>(pResource);

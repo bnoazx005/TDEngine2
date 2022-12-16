@@ -4,6 +4,10 @@
 #include "stringUtils.hpp"
 #include <cmath>
 
+#ifdef TDE2_USE_WINPLATFORM
+#include "optick.h"
+#endif
+
 
 #define TDE2_JOB_MANAGER_VERBOSE_LOG_ENABLED 1
 
@@ -285,6 +289,10 @@ namespace TDEngine2
 	void CBaseJobManager::_executeTasksLoop()
 	{
 		TJobDecl jobDecl;
+
+#ifdef TDE2_USE_WINPLATFORM
+		OPTICK_THREAD("Worker");
+#endif
 
 		while (true)
 		{

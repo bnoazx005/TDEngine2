@@ -5,6 +5,7 @@
 #include "../../include/core/IJobManager.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/metadata.h"
+#include "../../include/editor/CPerfProfiler.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <string>
@@ -256,6 +257,8 @@ namespace TDEngine2
 
 		auto loadTextureRoutine = [pResource, pJobManager, w = width, h = height, fmt = format, filename, this](auto&&)
 		{
+			TDE2_PROFILER_SCOPE("LoadTextureRoutineJob");
+
 			U8* pTextureData = nullptr;
 
 			I32 width = w;

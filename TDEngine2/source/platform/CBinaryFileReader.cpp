@@ -3,6 +3,7 @@
 #include "../../include/core/IJobManager.h"
 #include "../../include/platform/IOStreams.h"
 #include "../../include/platform/MountableStorages.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include <functional>
 #include <limits>
 
@@ -158,6 +159,8 @@ namespace TDEngine2
 		
 		pJobManager->SubmitJob(nullptr, [this, size, successCallback, errorCallback](auto&&)
 		{
+			TDE2_PROFILER_SCOPE("ReadAsyncBinaryFileJob");
+
 			E_RESULT_CODE result = RC_OK;
 
 			C8* pBuffer = new C8[size];
