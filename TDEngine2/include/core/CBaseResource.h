@@ -14,6 +14,7 @@
 #include "IResourceLoader.h"
 #include "IResourceFactory.h"
 #include "IFile.h"
+#include "IFileSystem.h"
 #include <mutex>
 
 

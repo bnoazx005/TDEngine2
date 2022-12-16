@@ -167,6 +167,19 @@ namespace TDEngine2
 				return RC_OK;
 			}
 
+			TSizeType FindIndex(const T& element, TSizeType startIndex = 0) const
+			{
+				std::lock_guard<std::mutex> lock(mMutex);
+
+				auto it = std::find(mElements.cbegin() + startIndex, mElements.cend(), element);
+				if (it == mElements.cend())
+				{
+					return mInvalidIndex;
+				}
+
+				return std::distance(mElements.cbegin(), it);
+			}
+
 			/*!
 				\brief The operator returns an element which is placed at a given 
 				position
@@ -232,6 +245,10 @@ namespace TDEngine2
 
 				return iter - mElements.cbegin();
 			}
+
+		public:
+			static constexpr TSizeType mInvalidIndex = (std::numeric_limits<TSizeType>::max)();
+
 		protected:
 			TElementsArray         mElements;
 			
@@ -239,6 +256,5 @@ namespace TDEngine2
 			
 			mutable std::mutex     mMutex;
 
-			static const TSizeType mInvalidIndex = (std::numeric_limits<TSizeType>::max)();
 	};
 }

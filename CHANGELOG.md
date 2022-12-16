@@ -37,6 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The incorrect loading/saving of scene's prefabs was fixed. 
 
+- (Fixed issue #92) Duplicates of states that cause asserts were fixed.
+
 ## [0.6.12] 2022-11-02
 
 ### Added

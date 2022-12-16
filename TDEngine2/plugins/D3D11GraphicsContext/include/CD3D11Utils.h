@@ -32,7 +32,15 @@ namespace TDEngine2
 		U64 refCount = (*pPtr) ? (*pPtr)->Release() : 0;
 		*pPtr = nullptr;
 
-		TDE2_ASSERT(isLastExpected && !refCount);
+		if (isLastExpected)
+		{
+			TDE2_ASSERT(!refCount);
+		}
+		else
+		{
+			TDE2_ASSERT(refCount);
+		}
+
 		return (isLastExpected && !refCount) ? RC_OK : RC_FAIL;
 	}
 }

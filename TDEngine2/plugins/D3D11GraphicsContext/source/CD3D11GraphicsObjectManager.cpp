@@ -766,10 +766,12 @@ namespace TDEngine2
 	{
 		ID3D11DepthStencilState* pCurrState = nullptr;
 
-		for (U32 i = 0; i < mpDepthStencilStatesArray.GetSize(); ++i)
+		for (USIZE i = 0; i < mpDepthStencilStatesArray.GetSize(); ++i)
 		{
 			pCurrState = mpDepthStencilStatesArray[i].GetOrDefault(nullptr);
-			SafeReleaseCOMPtr<ID3D11DepthStencilState>(&pCurrState);
+			mpDepthStencilStatesArray.RemoveAt(i);
+
+			SafeReleaseCOMPtr<ID3D11DepthStencilState>(&pCurrState, mpDepthStencilStatesArray.FindIndex(pCurrState, i + 1) == decltype(mpDepthStencilStatesArray)::mInvalidIndex);
 		}
 
 		mpDepthStencilStatesArray.RemoveAll();
