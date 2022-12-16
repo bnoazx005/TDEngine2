@@ -13,6 +13,7 @@
 #include "IResourceManager.h"
 #include "IResourceLoader.h"
 #include "IResourceFactory.h"
+#include "IFile.h"
 #include <mutex>
 
 
