@@ -21,10 +21,10 @@ namespace TDEngine2
 		\brief The macro is used to declare virtual method for resource's type retrieving
 	*/
 
-#define TDE2_REGISTER_RESOURCE_TYPE(Type)						\
-		TDE2_API virtual TypeId GetResourceTypeId() const		\
-		{														\
-			return Type::GetTypeId();							\
+#define TDE2_REGISTER_RESOURCE_TYPE(Type)									\
+		TDE2_API virtual ::TDEngine2::TypeId GetResourceTypeId() const		\
+		{																	\
+			return Type::GetTypeId();										\
 		}
 
 

@@ -488,18 +488,19 @@ namespace TDEngine2
 	};
 
 #define TDE2_DECLARE_DEFAULT_RESOURCE_LOADER(ResourceType)	\
-	TDE2_DECLARE_DEFAULT_RESOURCE_LOADER_IMPL(ResourceType, TDE2_RESOURCE_LOADER_NAME(ResourceType), TDE2_RESOURCE_LOADER_FUNCTION_NAME(ResourceType))
+	TDE2_DECLARE_DEFAULT_RESOURCE_LOADER_IMPL(TDE2_RESOURCE_CLASS_NAME(ResourceType), TDE2_RESOURCE_LOADER_NAME(ResourceType), TDE2_RESOURCE_LOADER_FUNCTION_NAME(ResourceType))
 
 
-#define TDE2_DEFINE_DEFAULT_RESOURCE_LOADER_IMPL(ResourceLoaderName, ResourceLoaderFactoryName)																										\
-	ResourceLoaderName::ResourceLoaderName() : ::TDEngine2::CBaseResourceLoader() { }																												\
+#define TDE2_DEFINE_DEFAULT_RESOURCE_LOADER_IMPL(ResourceName, ResourceLoaderName, ResourceLoaderFactoryName)																										\
+	ResourceLoaderName::ResourceLoaderName() : ::TDEngine2::CBaseResourceLoader<ResourceName>() { }																												\
 																																																	\
 	TDE2_API ::TDEngine2::IResourceLoader* ResourceLoaderFactoryName(::TDEngine2::IResourceManager* pResourceManager, ::TDEngine2::IFileSystem* pFileSystem, ::TDEngine2::E_RESULT_CODE& result)	\
 	{																																																\
 		return CREATE_IMPL(::TDEngine2::IResourceLoader, ResourceLoaderName, result, pResourceManager, pFileSystem);																				\
 	}
 
-#define TDE2_DEFINE_DEFAULT_RESOURCE_LOADER(ResourceType) TDE2_DEFINE_DEFAULT_RESOURCE_LOADER_IMPL(TDE2_RESOURCE_LOADER_NAME(ResourceType), TDE2_RESOURCE_LOADER_FUNCTION_NAME(ResourceType))
+#define TDE2_DEFINE_DEFAULT_RESOURCE_LOADER(ResourceType) \
+	TDE2_DEFINE_DEFAULT_RESOURCE_LOADER_IMPL(TDE2_RESOURCE_CLASS_NAME(ResourceType), TDE2_RESOURCE_LOADER_NAME(ResourceType), TDE2_RESOURCE_LOADER_FUNCTION_NAME(ResourceType))
 
 
 #define TDE2_DECLARE_DEFAULT_RESOURCE_FACTORY_IMPL(ResourceName, ResourceFactoryName, ResourceFactoryTypeFactoryName)														\
@@ -516,11 +517,11 @@ namespace TDEngine2
 	};
 
 #define TDE2_DECLARE_DEFAULT_RESOURCE_FACTORY(ResourceType)	\
-	TDE2_DECLARE_DEFAULT_RESOURCE_LOADER_IMPL(ResourceType, TDE2_RESOURCE_FACTORY_NAME(ResourceType), TDE2_RESOURCE_FACTORY_FUNCTION_NAME(ResourceType))
+	TDE2_DECLARE_DEFAULT_RESOURCE_FACTORY_IMPL(TDE2_RESOURCE_CLASS_NAME(ResourceType), TDE2_RESOURCE_FACTORY_NAME(ResourceType), TDE2_RESOURCE_FACTORY_FUNCTION_NAME(ResourceType))
 
 
-#define TDE2_DEFINE_DEFAULT_RESOURCE_FACTORY_IMPL(ResourceTypeFactoryFunction, ResourceFactoryName, ResourceFactoryTypeFactoryName)											\
-	ResourceFactoryName::ResourceFactoryName() : ::TDEngine2::CBaseResourceFactory() { }																					\
+#define TDE2_DEFINE_DEFAULT_RESOURCE_FACTORY_IMPL(ResourceType, ResourceTypeFactoryFunction, ResourceFactoryName, ResourceFactoryTypeFactoryName)											\
+	ResourceFactoryName::ResourceFactoryName() : ::TDEngine2::CBaseResourceFactory<ResourceType>() { }																					\
 																																											\
 	::TDEngine2::IResource* ResourceFactoryName::CreateDefault(const std::string& name, const ::TDEngine2::TBaseResourceParameters& params) const							\
 	{																																										\
@@ -535,6 +536,6 @@ namespace TDEngine2
 	}
 
 #define TDE2_DEFINE_DEFAULT_RESOURCE_FACTORY(ResourceType) \
-	TDE2_DEFINE_DEFAULT_RESOURCE_FACTORY_IMPL(TDE2_RESOURCE_FUNCTION_NAME(ResourceType), TDE2_RESOURCE_FACTORY_NAME(ResourceType), TDE2_RESOURCE_FACTORY_FUNCTION_NAME(ResourceType))
+	TDE2_DEFINE_DEFAULT_RESOURCE_FACTORY_IMPL(TDE2_RESOURCE_CLASS_NAME(ResourceType), TDE2_RESOURCE_FUNCTION_NAME(ResourceType), TDE2_RESOURCE_FACTORY_NAME(ResourceType), TDE2_RESOURCE_FACTORY_FUNCTION_NAME(ResourceType))
 
 }

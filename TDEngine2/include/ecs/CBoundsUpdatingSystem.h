@@ -7,8 +7,8 @@
 #pragma once
 
 
-#include "./../utils/Types.h"
-#include "./../utils/Utils.h"
+#include "../utils/Types.h"
+#include "../utils/Utils.h"
 #include "CBaseSystem.h"
 #include <vector>
 #include <functional>
@@ -21,6 +21,7 @@ namespace TDEngine2
 	class IDebugUtility;
 	class IResourceManager;
 	class ISceneManager;
+	class IJobManager;
 	class CQuadSprite;
 	class CStaticMeshContainer;
 	class CSkinnedMeshContainer;
@@ -111,6 +112,8 @@ namespace TDEngine2
 			IDebugUtility*              mpDebugUtility;
 
 			ISceneManager*              mpSceneManager;
+
+			IJobManager*                mpJobManager;
 
 			F32                         mCurrTimer = 0.0f;
 	};
