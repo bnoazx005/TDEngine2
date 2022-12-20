@@ -11,6 +11,7 @@
 #include "../core/CBaseObject.h"
 #include <mutex>
 #include <vector>
+#include <unordered_map>
 
 
 namespace TDEngine2
@@ -33,6 +34,8 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API ISceneManager* CreateSceneManager(TPtr<IFileSystem>, TPtr<IWorld>, TPtr<IPrefabsRegistry>, const TSceneManagerSettings&, E_RESULT_CODE&);
+		public:
+			typedef std::unordered_map<std::string, TSceneId> TScenesHandlesMap;
 		public:
 			/*!
 				\brief The method initializes the internal state of the object
@@ -146,5 +149,6 @@ namespace TDEngine2
 			TSceneManagerSettings  mSettings;
 
 			TScenesArray           mpScenes;
+			TScenesHandlesMap      mpScenesHandlesTable;
 	};
 }

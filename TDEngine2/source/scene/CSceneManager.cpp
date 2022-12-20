@@ -50,6 +50,7 @@ namespace TDEngine2
 		}
 
 		mpScenes.clear();
+		mpScenesHandlesTable.clear();
 
 		return result;
 	}
@@ -66,10 +67,10 @@ namespace TDEngine2
 		const std::string& sceneName = mpFileSystem->ExtractFilename(scenePath);
 
 		// \note If there is loaded scene then just return its handle
-		auto iter = std::find_if(mpScenes.cbegin(), mpScenes.cend(), [&sceneName](const IScene* pScene) { return pScene->GetName() == sceneName; });
-		if (iter != mpScenes.cend())
+		auto iter = mpScenesHandlesTable.find(sceneName);
+		if (iter != mpScenesHandlesTable.cend())
 		{
-			return Wrench::TOkValue<TSceneId>(static_cast<TSceneId>(std::distance(mpScenes.cbegin(), iter)));
+			return Wrench::TOkValue<TSceneId>(iter->second);
 		}
 
 		E_RESULT_CODE result = RC_OK;
@@ -126,7 +127,7 @@ namespace TDEngine2
 			const std::string& sceneName = mpFileSystem->ExtractFilename(scenePath);
 
 			// \note If there is loaded scene then just return its handle
-			auto iter = std::find_if(mpScenes.cbegin(), mpScenes.cend(), [&scenePath](const IScene* pScene) { return pScene->GetScenePath() == scenePath; });
+			auto iter = std::find_if(mpScenes.cbegin(), mpScenes.cend(), [&scenePath](const IScene* pScene) { return pScene && pScene->GetScenePath() == scenePath; });
 			if (onResultCallback && iter != mpScenes.cend())
 			{
 				/// \note This callback should be executed in the main thread
@@ -203,8 +204,8 @@ namespace TDEngine2
 		{
 			if (IScene* pScene = findSceneResult.Get())
 			{
-				E_RESULT_CODE result = pScene->Free();
-				result = result | _unregisterSceneInternal(id);
+				E_RESULT_CODE result = _unregisterSceneInternal(id);
+				result = result | pScene->Free();
 
 				return result;
 			}
@@ -265,13 +266,8 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		auto iter = std::find_if(mpScenes.cbegin(), mpScenes.cend(), [&id](const IScene* pScene) { return pScene->GetName() == id; });
-		if (iter == mpScenes.cend())
-		{
-			return TSceneId::Invalid;
-		}
-
-		return static_cast<TSceneId>(std::distance(mpScenes.cbegin(), iter));
+		auto it = mpScenesHandlesTable.find(id);
+		return (it == mpScenesHandlesTable.cend()) ? TSceneId::Invalid : it->second;
 	}
 
 	TPtr<IWorld> CSceneManager::GetWorld() const
@@ -309,31 +305,48 @@ namespace TDEngine2
 
 	TResult<TSceneId> CSceneManager::_registerSceneInternal(const std::string& name, IScene* pScene)
 	{
-		auto iter = std::find_if(mpScenes.cbegin(), mpScenes.cend(), [&name](const IScene* pSceneEntity)
-		{
-			return pSceneEntity->GetName() == name;
-		});
-
-		if (iter != mpScenes.cend())
+		auto iter = mpScenesHandlesTable.find(name);
+		if (iter != mpScenesHandlesTable.cend())
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
-		const TSceneId id = static_cast<TSceneId>(mpScenes.size());
+		/// \note seek for the first free place
+		auto it = std::find(mpScenes.begin(), mpScenes.end(), nullptr);
+		
+		const TSceneId sceneHandle = TSceneId(std::distance(mpScenes.begin(), it));
 
-		mpScenes.push_back(pScene);
+		if (it == mpScenes.end())
+		{
+			mpScenes.push_back(pScene);
+		}
+		else
+		{
+			*it = pScene;
+		}
+		
+		mpScenesHandlesTable.emplace(pScene->GetName(), sceneHandle);
 
-		return Wrench::TOkValue<TSceneId>(id);
+		return Wrench::TOkValue<TSceneId>(sceneHandle);
 	}
 
 	E_RESULT_CODE CSceneManager::_unregisterSceneInternal(TSceneId id)
 	{
-		if (TSceneId::Invalid == id)
+		const USIZE index = static_cast<USIZE>(id);
+
+		if (TSceneId::Invalid == id || index >= mpScenes.size())
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		mpScenes.erase(mpScenes.cbegin() + static_cast<U32>(id));
+		IScene* pSceneToRemove = mpScenes[index];
+		if (!pSceneToRemove)
+		{
+			return RC_FAIL;
+		}
+
+		mpScenes[index] = nullptr;
+		mpScenesHandlesTable.erase(pSceneToRemove->GetName());
 
 		return RC_OK;
 	}
