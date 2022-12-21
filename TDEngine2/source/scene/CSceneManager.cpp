@@ -46,6 +46,11 @@ namespace TDEngine2
 
 		for (IScene* pCurrScene : mpScenes)
 		{
+			if (!pCurrScene)
+			{
+				continue;
+			}
+
 			result = result | pCurrScene->Free();
 		}
 
