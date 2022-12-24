@@ -39,20 +39,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEntityManager::_onFreeInternal()
 	{
-		E_RESULT_CODE result = DestroyAllEntities();
-
-		/// \note Remove all reserved entities
-		while (!mDestroyedEntities.empty())
-		{
-			if (CEntity* pReservedEntity = mDestroyedEntities.front())
-			{
-				pReservedEntity->Free();
-			}
-
-			mDestroyedEntities.pop_front();
-		}
-
-		return result;
+		return DestroyAllEntities();
 	}
 
 	CEntity* CEntityManager::Create()
@@ -101,8 +88,7 @@ namespace TDEngine2
 
 			//mActiveEntities.erase(mActiveEntities.begin() + static_cast<USIZE>(id));
 			mActiveEntities[static_cast<USIZE>(id)] = nullptr;
-			mDestroyedEntities.push_back(pEntity);
-
+		
 			mEntitiesHashTable.erase(id);
 		}
 
@@ -117,20 +103,12 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		for (CEntity* pEntity : mActiveEntities)
+		for (auto pEntity : mActiveEntities)
 		{
-			if (!pEntity)
-			{
-				continue;
-			}
-
-			if ((result = _destroyInternal(pEntity)) != RC_OK)
-			{
-				return result;
-			}
+			result = result | _destroyInternal(pEntity);
 		}
 
-		return RC_OK;
+		return result;
 	}
 
 	IComponent* CEntityManager::AddComponent(TEntityId entityId, TypeId componentTypeId)

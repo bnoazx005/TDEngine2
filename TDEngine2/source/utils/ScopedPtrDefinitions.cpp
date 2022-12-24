@@ -16,6 +16,7 @@
 #include "../../include/platform/MountableStorages.h"
 #include "../../include/platform/IOStreams.h"
 #include "../../include/ecs/IComponentManager.h"
+#include "../../include/ecs/CEntity.h"
 #include "../../include/physics/IRaycastContext.h"
 #include "../../include/graphics/IMaterial.h"
 #include "../../include/graphics/ITexture2D.h"
@@ -66,4 +67,5 @@ namespace TDEngine2
 	TDE2_DEFINE_SCOPED_PTR(IShaderCompiler)
 	TDE2_DEFINE_SCOPED_PTR(ITestFixture)
 	TDE2_DEFINE_SCOPED_PTR(ITestCase)
+	TDE2_DEFINE_SCOPED_PTR(CEntity)
 }

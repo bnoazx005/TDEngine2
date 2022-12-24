@@ -7,8 +7,8 @@
 #pragma once
 
 
-#include "./../core/CBaseObject.h"
-#include "./../utils/Utils.h"
+#include "../core/CBaseObject.h"
+#include "../utils/Utils.h"
 #include "IComponentManager.h"
 #include <vector>
 #include <list>
@@ -189,8 +189,6 @@ namespace TDEngine2
 			mutable std::mutex    mMutex;
 
 			std::vector<CEntity*> mActiveEntities;
-
-			std::list<CEntity*>   mDestroyedEntities;
 
 			TEntitiesHashTable    mEntitiesHashTable;
 
