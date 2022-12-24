@@ -17,7 +17,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CSystemManager::Init(IWorld* pWorld, IEventManager* pEventManager)
+	E_RESULT_CODE CSystemManager::Init(IWorld* pWorld, IEventManager* pEventManager, TPtr<IJobManager> pJobManager)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -26,7 +26,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		if (!pEventManager || !pWorld)
+		if (!pEventManager || !pWorld || !pJobManager)
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -34,7 +34,8 @@ namespace TDEngine2
 		mpWorld = pWorld;
 
 		mpEventManager = pEventManager;
-		
+		mpJobManager = pJobManager;
+
 		/// subscribe the manager onto events of ECS
 		mpEventManager->Subscribe(TOnEntityCreatedEvent::GetTypeId(), this);
 		mpEventManager->Subscribe(TOnEntityRemovedEvent::GetTypeId(), this);
@@ -64,6 +65,7 @@ namespace TDEngine2
 		}
 
 		/// inject bindings for the first time when the system is registered
+		pSystem->OnInit(mpJobManager);
 		pSystem->InjectBindings(mpWorld);
 
 		auto duplicateIter = std::find_if(mpActiveSystems.begin(), mpActiveSystems.end(), [&pSystem](const TSystemDesc& sysDesc)
@@ -158,7 +160,7 @@ namespace TDEngine2
 		{
 			pCurrSystem = currSystemDesc.mpSystem;
 
-			pCurrSystem->OnInit();
+			pCurrSystem->OnInit(mpJobManager);
 			pCurrSystem->OnActivated();
 		}
 
@@ -322,8 +324,8 @@ namespace TDEngine2
 	}
 
 
-	ISystemManager* CreateSystemManager(IWorld* pWorld, IEventManager* pEventManager, E_RESULT_CODE& result)
+	ISystemManager* CreateSystemManager(IWorld* pWorld, IEventManager* pEventManager, TPtr<IJobManager> pJobManager, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(ISystemManager, CSystemManager, result, pWorld, pEventManager);
+		return CREATE_IMPL(ISystemManager, CSystemManager, result, pWorld, pEventManager, pJobManager);
 	}
 }

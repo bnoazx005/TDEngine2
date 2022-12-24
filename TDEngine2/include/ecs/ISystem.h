@@ -15,6 +15,12 @@
 
 namespace TDEngine2
 {
+	class IJobManager;
+
+
+	TDE2_DECLARE_SCOPED_PTR(IJobManager)
+
+
 	/*!
 		\brief The macro is used to declare virtual method for
 		system's type retrieving
@@ -85,7 +91,7 @@ namespace TDEngine2
 				A user can place initialization logic within this method
 			*/
 
-			TDE2_API virtual void OnInit() = 0;
+			TDE2_API virtual void OnInit(TPtr<IJobManager> pJobManager) = 0;
 
 			/*!
 				\brief The main method that should be implemented in all derived classes.

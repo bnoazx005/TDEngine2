@@ -24,7 +24,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CWorld::Init(TPtr<IEventManager> pEventManager)
+	E_RESULT_CODE CWorld::Init(TPtr<IEventManager> pEventManager, TPtr<IJobManager> pJobManager)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -33,7 +33,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		if (!pEventManager)
+		if (!pEventManager || !pJobManager)
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -56,7 +56,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		mpSystemManager = CreateSystemManager(this, pEventManager.Get(), result);
+		mpSystemManager = CreateSystemManager(this, pEventManager.Get(), pJobManager, result);
 
 		if (result != RC_OK)
 		{
@@ -64,6 +64,8 @@ namespace TDEngine2
 		}
 
 		mpEventManager = pEventManager;
+		mpJobManager = pJobManager;
+
 		mpRaycastContext = nullptr;
 
 		mIsInitialized = true;
@@ -325,9 +327,9 @@ namespace TDEngine2
 	}
 	
 
-	IWorld* CreateWorld(TPtr<IEventManager> pEventManager, E_RESULT_CODE& result)
+	IWorld* CreateWorld(TPtr<IEventManager> pEventManager, TPtr<IJobManager> pJobManager, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IWorld, CWorld, result, pEventManager);
+		return CREATE_IMPL(IWorld, CWorld, result, pEventManager, pJobManager);
 	}
 
 

@@ -37,7 +37,7 @@ namespace TDEngine2
 		\return A pointer to CWorld's implementation
 	*/
 
-	TDE2_API IWorld* CreateWorld(TPtr<IEventManager> pEventManager, E_RESULT_CODE& result);
+	TDE2_API IWorld* CreateWorld(TPtr<IEventManager> pEventManager, TPtr<IJobManager> pJobManager, E_RESULT_CODE& result);
 
 
 	/*!
@@ -50,7 +50,7 @@ namespace TDEngine2
 	class CWorld : public CBaseObject, public IWorld
 	{
 		public:
-			friend TDE2_API IWorld* CreateWorld(TPtr<IEventManager>, E_RESULT_CODE&);
+			friend TDE2_API IWorld* CreateWorld(TPtr<IEventManager>, TPtr<IJobManager>, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes a world's instance
@@ -60,7 +60,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(TPtr<IEventManager> pEventManager) override;
+			TDE2_API E_RESULT_CODE Init(TPtr<IEventManager> pEventManager, TPtr<IJobManager> pJobManager) override;
 			
 			/*!
 				\brief The method creates a new instance of CEntity
@@ -264,6 +264,8 @@ namespace TDEngine2
 			ISystemManager*       mpSystemManager;
 
 			TPtr<IEventManager>   mpEventManager;
+
+			TPtr<IJobManager>     mpJobManager;
 
 			TPtr<IRaycastContext> mpRaycastContext;
 

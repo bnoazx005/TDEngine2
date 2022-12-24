@@ -3,8 +3,9 @@
 
 namespace TDEngine2
 {
-	void CBaseSystem::OnInit()
+	void CBaseSystem::OnInit(TPtr<IJobManager> pJobManager)
 	{
+		mpJobManager = pJobManager;
 	}
 
 	E_RESULT_CODE CBaseSystem::AddDefferedCommand(const TCommandFunctor& action)

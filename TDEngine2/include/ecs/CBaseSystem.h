@@ -30,7 +30,7 @@ namespace TDEngine2
 				A user can place initialization logic within this method
 			*/
 
-			TDE2_API void OnInit() override;
+			TDE2_API void OnInit(TPtr<IJobManager> pJobManager) override;
 
 			/*!
 				\brief The method adds a command into the deffered executed buffer
@@ -74,6 +74,8 @@ namespace TDEngine2
 			TDE2_API bool IsActive() const override;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(CBaseSystem)
+		protected:
+			TPtr<IJobManager>            mpJobManager;
 		private:
 			std::vector<TCommandFunctor> mDefferedCommandsBuffer;
 			bool                         mIsActive;

@@ -536,7 +536,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		auto pWorld = TPtr<IWorld>(CreateWorld(mpWindowSystemInstance->GetEventManager(), result));
+		auto pWorld = TPtr<IWorld>(CreateWorld(mpWindowSystemInstance->GetEventManager(), mpJobManagerInstance, result));
 
 		// \todo load settings from  settings
 		auto pSceneManager = TPtr<ISceneManager>(CreateSceneManager(mpFileSystemInstance, pWorld,

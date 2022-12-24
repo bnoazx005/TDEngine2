@@ -36,7 +36,7 @@ namespace TDEngine2
 		\return A pointer to CSystemManager's implementation
 	*/
 
-	TDE2_API ISystemManager* CreateSystemManager(IWorld* pWorld, IEventManager* pEventManager, E_RESULT_CODE& result);
+	TDE2_API ISystemManager* CreateSystemManager(IWorld* pWorld, IEventManager* pEventManager, TPtr<IJobManager> pJobManager, E_RESULT_CODE& result);
 
 
 	/*!
@@ -49,7 +49,7 @@ namespace TDEngine2
 	class CSystemManager : public CBaseObject, public ISystemManager, public IEventHandler
 	{
 		public:
-			friend TDE2_API ISystemManager* CreateSystemManager(IWorld* pWorld, IEventManager* pEventManager, E_RESULT_CODE& result);
+			friend TDE2_API ISystemManager* CreateSystemManager(IWorld*, IEventManager*, TPtr<IJobManager>, E_RESULT_CODE&);
 		protected:
 			typedef struct TSystemDesc
 			{
@@ -76,7 +76,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IWorld* pWorld, IEventManager* pEventManager) override;
+			TDE2_API E_RESULT_CODE Init(IWorld* pWorld, IEventManager* pEventManager, TPtr<IJobManager> pJobManager) override;
 
 			/*!
 				\brief The method registers specified system
@@ -221,6 +221,8 @@ namespace TDEngine2
 			IEventManager*       mpEventManager;
 
 			IWorld*              mpWorld;
+
+			TPtr<IJobManager>    mpJobManager;
 
 			TSystemsAccountTable mSystemsIdentifiersTable;
 
