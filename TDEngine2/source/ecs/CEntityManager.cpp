@@ -39,7 +39,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEntityManager::_onFreeInternal()
 	{
-		E_RESULT_CODE result = DestroyAllImmediately();
+		E_RESULT_CODE result = DestroyAllEntities();
 
 		/// \note Remove all reserved entities
 		while (!mDestroyedEntities.empty())
@@ -69,6 +69,12 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEntityManager::Destroy(CEntity* pEntity)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		return _destroyInternal(pEntity);
+	}
+
+	E_RESULT_CODE CEntityManager::_destroyInternal(CEntity* pEntity)
+	{
 		if (!pEntity)
 		{
 			return RC_INVALID_ARGS;
@@ -84,14 +90,17 @@ namespace TDEngine2
 		TOnEntityRemovedEvent onEntityRemoved;
 
 		{
-			std::lock_guard<std::mutex> lock(mMutex);
-
 			TEntityId id = pEntity->GetId();
+
+			if (RC_OK != (result = pEntity->Free())) /// \note Release the memory 
+			{
+				return result;
+			}
 
 			onEntityRemoved.mRemovedEntityId = id;
 
-			mActiveEntities[static_cast<U32>(id)] = nullptr;
-
+			//mActiveEntities.erase(mActiveEntities.begin() + static_cast<USIZE>(id));
+			mActiveEntities[static_cast<USIZE>(id)] = nullptr;
 			mDestroyedEntities.push_back(pEntity);
 
 			mEntitiesHashTable.erase(id);
@@ -100,13 +109,6 @@ namespace TDEngine2
 		mpEventManager->Notify(&onEntityRemoved);
 
 		return RC_OK;
-	}
-
-	E_RESULT_CODE CEntityManager::DestroyImmediately(CEntity* pEntity)
-	{
-		std::lock_guard<std::mutex> lock(mMutex);
-
-		return _destroyImmediatelyInternal(pEntity);
 	}
 
 	E_RESULT_CODE CEntityManager::DestroyAllEntities()
@@ -122,29 +124,7 @@ namespace TDEngine2
 				continue;
 			}
 
-			if ((result = Destroy(pEntity)) != RC_OK)
-			{
-				return result;
-			}
-		}
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CEntityManager::DestroyAllImmediately()
-	{
-		std::lock_guard<std::mutex> lock(mMutex);
-
-		E_RESULT_CODE result = RC_OK;
-
-		for (CEntity* pEntity : mActiveEntities)
-		{
-			if (!pEntity)
-			{
-				continue;
-			}
-
-			if ((result = _destroyImmediatelyInternal(pEntity)) != RC_OK)
+			if ((result = _destroyInternal(pEntity)) != RC_OK)
 			{
 				return result;
 			}
@@ -257,40 +237,6 @@ namespace TDEngine2
 		mpEventManager->Notify(&onEntityCreated);
 
 		return pEntity;
-	}
-
-	E_RESULT_CODE CEntityManager::_destroyImmediatelyInternal(CEntity* pEntity)
-	{
-		if (!pEntity)
-		{
-			return RC_INVALID_ARGS;
-		}
-
-		E_RESULT_CODE result = mpComponentManager->RemoveComponents(pEntity->GetId());
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		TEntityId id = pEntity->GetId();
-
-		TOnEntityRemovedEvent onEntityRemoved;
-
-		onEntityRemoved.mRemovedEntityId = id;
-
-		if (RC_OK != (result = pEntity->Free())) /// \note Release the memory 
-		{
-			return result;
-		}
-
-		mActiveEntities[static_cast<U32>(id)] = nullptr;
-
-		mEntitiesHashTable.erase(id);
-
-		mpEventManager->Notify(&onEntityRemoved);
-
-		return RC_OK;
 	}
 
 	void CEntityManager::_notifyOnAddComponent(TEntityId entityId, TypeId componentTypeId)

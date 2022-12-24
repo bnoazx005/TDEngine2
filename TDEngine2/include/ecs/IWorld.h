@@ -126,17 +126,6 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE Destroy(CEntity* pEntity) = 0;
 
 			/*!
-				\brief The method destroys specified entity
-				and frees the memory, that it occupies
-
-				\param[in] pEntity A pointer to an entity
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE DestroyImmediately(CEntity* pEntity) = 0;
-
-			/*!
 				\brief The method registers specified resource factory within a manager
 
 				\param[in] pFactory A pointer to IComponentFactory's implementation

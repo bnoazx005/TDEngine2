@@ -98,17 +98,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Destroy(CEntity* pEntity);
 
 			/*!
-				\brief The method destroys specified entity
-				and frees the memory, that it occupies
-
-				\param[in] pEntity A pointer to an entity
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE DestroyImmediately(CEntity* pEntity);
-
-			/*!
 				\brief The method destroys all created entities, but
 				at the same moment a piece of memory won't be freed.
 				if you want to free memory immediately use
@@ -118,15 +107,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE DestroyAllEntities();
-
-			/*!
-				\brief The method destroys all created entities and
-				frees memory they occupy
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE DestroyAllImmediately();
 
 			/*!
 				\brief The method creates a new component and connects it with
@@ -198,13 +178,13 @@ namespace TDEngine2
 
 			TDE2_API CEntity* _createEntity(const std::string& name);
 
-			TDE2_API E_RESULT_CODE _destroyImmediatelyInternal(CEntity* pEntity);
-
 			TDE2_API void _notifyOnAddComponent(TEntityId entityId, TypeId componentTypeId);
 
 			TDE2_API void _notifyOnRemovedComponent(TEntityId entityId, TypeId componentTypeId);
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
+
+			TDE2_API E_RESULT_CODE _destroyInternal(CEntity* pEntity);
 		protected:
 			mutable std::mutex    mMutex;
 

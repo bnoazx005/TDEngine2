@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.13] 2022-12-20
+## [0.6.13] 2022-12-24
 
 ### Added
 
@@ -28,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The current implementation of the job manager was refactored to support better synchronization mechanisms and tasks' batches.
 
 - The internal implementation of **CSceneManager** was refactored to fix loading issues.
+
+- The APIs of **CEntityManager** and **IWorld** were changed. DestroyAllImediately, DestroyImmediately methods were removed.
 
 ### Fixed
 

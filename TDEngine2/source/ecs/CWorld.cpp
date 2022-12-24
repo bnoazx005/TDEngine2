@@ -112,13 +112,6 @@ namespace TDEngine2
 		return mpEntityManager->Destroy(pEntity);
 	}
 
-	E_RESULT_CODE CWorld::DestroyImmediately(CEntity* pEntity)
-	{
-		std::lock_guard<std::mutex> lock(mMutex);
-
-		return mpEntityManager->DestroyImmediately(pEntity);
-	}
-
 	E_RESULT_CODE CWorld::RegisterComponentFactory(TPtr<IComponentFactory> pFactory)
 	{
 		if (!pFactory)
