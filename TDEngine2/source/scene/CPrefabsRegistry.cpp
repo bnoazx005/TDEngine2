@@ -100,7 +100,7 @@ namespace TDEngine2
 		{
 			while (pReader->HasNextItem())
 			{
-				CEntity* pNewEntity = pEntityManager->Create();
+				auto pNewEntity = pEntityManager->Create();
 				createdEntities.push_back(pNewEntity->GetId());
 
 				result = result | pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
@@ -123,7 +123,7 @@ namespace TDEngine2
 		// \note First time we resolve references within the prefab's hierarchy. The second time we do it when the instance of the prototype is created
 		for (TEntityId currEntityId : createdEntities)
 		{
-			if (CEntity* pEntity = pEntityManager->GetEntity(currEntityId))
+			if (auto pEntity = pEntityManager->GetEntity(currEntityId))
 			{
 				result = result | pEntity->PostLoad(pEntityManager.Get(), entitiesIdsMap);
 				TDE2_ASSERT(RC_OK == result);

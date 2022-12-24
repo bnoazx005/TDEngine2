@@ -42,32 +42,32 @@ namespace TDEngine2
 		return DestroyAllEntities();
 	}
 
-	CEntity* CEntityManager::Create()
+	TPtr<CEntity> CEntityManager::Create()
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 		return _createEntity(_constructDefaultEntityName(mNextIdValue));
 	}
 
-	CEntity* CEntityManager::Create(const std::string& name)
+	TPtr<CEntity> CEntityManager::Create(const std::string& name)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 		return _createEntity(name);
 	}
 
-	E_RESULT_CODE CEntityManager::Destroy(CEntity* pEntity)
+	E_RESULT_CODE CEntityManager::Destroy(TEntityId entityId)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _destroyInternal(pEntity);
+		return _destroyInternal(entityId);
 	}
 
-	E_RESULT_CODE CEntityManager::_destroyInternal(CEntity* pEntity)
+	E_RESULT_CODE CEntityManager::_destroyInternal(TEntityId entityId)
 	{
-		if (!pEntity)
+		if (TEntityId::Invalid == entityId)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		E_RESULT_CODE result = mpComponentManager->RemoveComponents(pEntity->GetId());
+		E_RESULT_CODE result = mpComponentManager->RemoveComponents(entityId);
 
 		if (result != RC_OK)
 		{
@@ -77,19 +77,12 @@ namespace TDEngine2
 		TOnEntityRemovedEvent onEntityRemoved;
 
 		{
-			TEntityId id = pEntity->GetId();
-
-			if (RC_OK != (result = pEntity->Free())) /// \note Release the memory 
-			{
-				return result;
-			}
-
-			onEntityRemoved.mRemovedEntityId = id;
+			onEntityRemoved.mRemovedEntityId = entityId;
 
 			//mActiveEntities.erase(mActiveEntities.begin() + static_cast<USIZE>(id));
-			mActiveEntities[static_cast<USIZE>(id)] = nullptr;
+			mActiveEntities[static_cast<USIZE>(entityId)] = nullptr;
 		
-			mEntitiesHashTable.erase(id);
+			mEntitiesHashTable.erase(entityId);
 		}
 
 		mpEventManager->Notify(&onEntityRemoved);
@@ -105,7 +98,7 @@ namespace TDEngine2
 
 		for (auto pEntity : mActiveEntities)
 		{
-			result = result | _destroyInternal(pEntity);
+			result = result | _destroyInternal(pEntity ? pEntity->GetId() : TEntityId::Invalid);
 		}
 
 		return result;
@@ -159,7 +152,7 @@ namespace TDEngine2
 		return mpComponentManager->GetComponents(id);
 	}
 
-	CEntity* CEntityManager::GetEntity(TEntityId entityId) const
+	TPtr<CEntity> CEntityManager::GetEntity(TEntityId entityId) const
 	{
 		TDE2_PROFILER_SCOPE("CEntityManager::GetEntity");
 
@@ -180,13 +173,13 @@ namespace TDEngine2
 		return std::move(std::string("Entity").append(std::to_string(id)));
 	}
 
-	CEntity* CEntityManager::_createEntity(const std::string& name)
+	TPtr<CEntity> CEntityManager::_createEntity(const std::string& name)
 	{
 		E_RESULT_CODE result = RC_OK;
 
 		TEntityId id = TEntityId(mNextIdValue);
 
-		CEntity* pEntity = CreateEntity(id, name, this, result);
+		auto pEntity = TPtr<CEntity>(CreateEntity(id, name, this, result));
 		
 		if (result != RC_OK)
 		{

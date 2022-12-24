@@ -85,12 +85,12 @@ namespace TDEngine2
 				Note that the entity won't be deleted, it will be
 				reused later, so a pointer will be valid.
 
-				\param[in] pEntity A pointer to an entity
+				\param[in] entityId An identifier of existing entity
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Destroy(CEntity* pEntity) override;
+			TDE2_API E_RESULT_CODE Destroy(TEntityId entityId) override;
 
 			/*!
 				\brief The method registers specified resource factory within a manager

@@ -99,17 +99,17 @@ namespace TDEngine2
 
 	CEntity* CWorld::CreateEntity()
 	{
-		return mpEntityManager->Create();
+		return mpEntityManager->Create().Get();
 	}
 
 	CEntity* CWorld::CreateEntity(const std::string& name)
 	{
-		return mpEntityManager->Create(name);
+		return mpEntityManager->Create(name).Get();
 	}
 
-	E_RESULT_CODE CWorld::Destroy(CEntity* pEntity)
+	E_RESULT_CODE CWorld::Destroy(TEntityId entityId)
 	{
-		return mpEntityManager->Destroy(pEntity);
+		return mpEntityManager->Destroy(entityId);
 	}
 
 	E_RESULT_CODE CWorld::RegisterComponentFactory(TPtr<IComponentFactory> pFactory)
@@ -202,7 +202,7 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		return mpEntityManager->GetEntity(entityId);
+		return mpEntityManager->GetEntity(entityId).Get();
 	}
 
 	void CWorld::ForEachSystem(const std::function<void(TSystemId, const ISystem* const)> action) const
@@ -302,7 +302,7 @@ namespace TDEngine2
 		TEntityId entityId = mpComponentManager->FindEntityWithUniqueComponent(typeId);
 		if (TEntityId::Invalid == entityId) /// \note Create a new instance because it doesn't exist yet
 		{
-			CEntity* pNewEntity = mpEntityManager->Create();
+			auto pNewEntity = mpEntityManager->Create();
 			if (!pNewEntity)
 			{
 				return TEntityId::Invalid;

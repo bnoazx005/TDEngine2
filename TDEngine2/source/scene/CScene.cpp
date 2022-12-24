@@ -97,11 +97,11 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mpWorld->Destroy(mpWorld->FindEntity(mSceneInfoEntityId));
+		mpWorld->Destroy(mSceneInfoEntityId);
 
 		for (TEntityId currEntityId : mEntities)
 		{
-			mpWorld->Destroy(mpWorld->FindEntity(currEntityId));
+			mpWorld->Destroy(currEntityId);
 		}
 
 		return RC_OK;
@@ -385,7 +385,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		if (RC_OK != (result = mpWorld->Destroy(mpWorld->FindEntity(id))))
+		if (RC_OK != (result = mpWorld->Destroy(id)))
 		{
 			return result;
 		}

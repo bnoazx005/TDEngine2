@@ -24,6 +24,9 @@ namespace TDEngine2
 	class CEntityManager;
 
 
+	TDE2_DECLARE_SCOPED_PTR(CEntity)
+
+
 	/*!
 		\brief A factory function for creation objects of CEntityManager's type.
 
@@ -73,7 +76,7 @@ namespace TDEngine2
 				\return A pointer to a new instance of CEntity, nullptr may be returned
 			*/
 
-			TDE2_API CEntity* Create();
+			TDE2_API TPtr<CEntity> Create();
 
 			/*!
 				\brief The method creates a new instance of CEntity
@@ -83,7 +86,7 @@ namespace TDEngine2
 				\return A pointer to a new instance of CEntity, nullptr may be returned
 			*/
 
-			TDE2_API CEntity* Create(const std::string& name);
+			TDE2_API TPtr<CEntity> Create(const std::string& name);
 
 			/*!
 				\brief The method destroys specified entity.
@@ -95,7 +98,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Destroy(CEntity* pEntity);
+			TDE2_API E_RESULT_CODE Destroy(TEntityId entityId);
 
 			/*!
 				\brief The method destroys all created entities, but
@@ -170,13 +173,13 @@ namespace TDEngine2
 				\return The method seeks out an entity and either return it or return nullptr
 			*/
 
-			TDE2_API CEntity* GetEntity(TEntityId entityId) const;
+			TDE2_API TPtr<CEntity> GetEntity(TEntityId entityId) const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEntityManager)
 
 			std::string _constructDefaultEntityName(U32 id) const;
 
-			TDE2_API CEntity* _createEntity(const std::string& name);
+			TDE2_API TPtr<CEntity> _createEntity(const std::string& name);
 
 			TDE2_API void _notifyOnAddComponent(TEntityId entityId, TypeId componentTypeId);
 
@@ -184,11 +187,11 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 
-			TDE2_API E_RESULT_CODE _destroyInternal(CEntity* pEntity);
+			TDE2_API E_RESULT_CODE _destroyInternal(TEntityId entityId);
 		protected:
 			mutable std::mutex    mMutex;
 
-			std::vector<CEntity*> mActiveEntities;
+			std::vector<TPtr<CEntity>> mActiveEntities;
 
 			TEntitiesHashTable    mEntitiesHashTable;
 

@@ -137,7 +137,7 @@ namespace TDEngine2
 
 			currChildId = it->second;
 
-			if (CEntity* pChildEntity = pEntityManager->GetEntity(currChildId))
+			if (auto pChildEntity = pEntityManager->GetEntity(currChildId))
 			{
 				if (auto pTransform = pChildEntity->GetComponent<CTransform>())
 				{

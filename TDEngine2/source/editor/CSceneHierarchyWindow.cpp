@@ -233,7 +233,7 @@ namespace TDEngine2
 							}
 						}
 
-						E_RESULT_CODE result = pWorld->Destroy(pEntity);
+						E_RESULT_CODE result = pWorld->Destroy(pEntity->GetId());
 						TDE2_ASSERT(RC_OK == result);
 					}
 				}				
