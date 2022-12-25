@@ -12,7 +12,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CEntityManager::Init(IEventManager* pEventManager, IComponentManager* pComponentManager)
+	E_RESULT_CODE CEntityManager::Init(IEventManager* pEventManager, IComponentManager* pComponentManager, bool createWithPredefinedComponents)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -27,8 +27,9 @@ namespace TDEngine2
 		}
 
 		mpComponentManager = pComponentManager;
-
 		mpEventManager = pEventManager;
+
+		mCreateEntitiesWithPredefinedComponents = createWithPredefinedComponents;
 
 		mNextIdValue = 0;
 
@@ -235,8 +236,11 @@ namespace TDEngine2
 		mActiveEntities[mNextIdValue++] = pEntity;
 
 		/// create basic component CTransform
-		CTransform* pTransform = pEntity->AddComponent<CTransform>();
-		pTransform->SetOwnerId(id);
+		if (mCreateEntitiesWithPredefinedComponents)
+		{
+			CTransform* pTransform = pEntity->AddComponent<CTransform>();
+			pTransform->SetOwnerId(id);
+		}
 
 		mpEventManager->Notify(&onEntityCreated);
 
@@ -264,8 +268,8 @@ namespace TDEngine2
 	}
 	
 
-	CEntityManager* CreateEntityManager(IEventManager* pEventManager, IComponentManager* pComponentManager, E_RESULT_CODE& result)
+	CEntityManager* CreateEntityManager(IEventManager* pEventManager, IComponentManager* pComponentManager, bool createWithPredefinedComponents, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(CEntityManager, CEntityManager, result, pEventManager, pComponentManager);
+		return CREATE_IMPL(CEntityManager, CEntityManager, result, pEventManager, pComponentManager, createWithPredefinedComponents);
 	}
 }

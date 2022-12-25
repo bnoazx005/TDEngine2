@@ -49,7 +49,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		mpEntityManager = CreateEntityManager(pEventManager.Get(), mpComponentManager, result);
+		mpEntityManager = CreateEntityManager(pEventManager.Get(), mpComponentManager, true, result);
 
 		if (result != RC_OK)
 		{

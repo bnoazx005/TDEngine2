@@ -59,7 +59,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		mpEntitiesManager = TPtr<CEntityManager>(CreateEntityManager(mpProxyEventsManager.Get(), mpComponentsManager.Get(), result));
+		mpEntitiesManager = TPtr<CEntityManager>(CreateEntityManager(mpProxyEventsManager.Get(), mpComponentsManager.Get(), true, result));
 		if (RC_OK != result)
 		{
 			return result;

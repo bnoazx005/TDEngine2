@@ -134,6 +134,23 @@ namespace
 }
 
 
+struct TFinalizer
+{
+	TPtr<CMemoryProfiler> mpMemProfiler = nullptr;
+
+	TFinalizer()
+	{
+		mpMemProfiler = CMemoryProfiler::Get();
+	}
+
+	~TFinalizer()
+	{
+		CPoolAllocatorsRegistry::ClearAllAllocators(); /// As we work with components we should clear up their allocators
+		mpMemProfiler = nullptr;
+	}
+} Finalizer;
+
+
 TEST_CASE("CEntityManager Tests")
 {
 	E_RESULT_CODE result = RC_OK;

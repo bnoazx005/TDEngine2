@@ -39,7 +39,7 @@ namespace TDEngine2
 		\return A pointer to CEntityManager's implementation
 	*/
 
-	TDE2_API CEntityManager* CreateEntityManager(IEventManager* pEventManager, IComponentManager* pComponentManager, E_RESULT_CODE& result);
+	TDE2_API CEntityManager* CreateEntityManager(IEventManager* pEventManager, IComponentManager* pComponentManager, bool createWithPredefinedComponents, E_RESULT_CODE& result);
 
 
 	/*!
@@ -54,7 +54,7 @@ namespace TDEngine2
 	class CEntityManager: public CBaseObject
 	{
 		public:
-			friend TDE2_API CEntityManager* CreateEntityManager(IEventManager*, IComponentManager*, E_RESULT_CODE& result);
+			friend TDE2_API CEntityManager* CreateEntityManager(IEventManager*, IComponentManager*, bool, E_RESULT_CODE&);
 		protected:
 			typedef std::unordered_map<TEntityId, U32> TEntitiesHashTable;
 		public:
@@ -68,7 +68,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IEventManager* pEventManager, IComponentManager* pComponentManager);
+			TDE2_API virtual E_RESULT_CODE Init(IEventManager* pEventManager, IComponentManager* pComponentManager, bool createWithPredefinedComponents = true);
 
 			/*!
 				\brief The method creates a new instance of CEntity
@@ -212,6 +212,8 @@ namespace TDEngine2
 			IComponentManager*    mpComponentManager;
 
 			IEventManager*        mpEventManager;
+
+			bool                  mCreateEntitiesWithPredefinedComponents = false;
 	};
 	
 
