@@ -13,6 +13,7 @@
 #include "../math/TMatrix4.h"
 #include <vector>
 #include <unordered_map>
+#include <mutex>
 
 
 namespace TDEngine2
@@ -237,5 +238,7 @@ namespace TDEngine2
 			IGeometryBuilder*        mpGeometryBuilder;
 
 			TGizmoTypesMap           mGizmosTypesMap;
+
+			mutable std::mutex       mMutex;
 	};
 }

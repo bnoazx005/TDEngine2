@@ -225,6 +225,8 @@ namespace TDEngine2
 			return;
 		}
 
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		// \note Top line
 		mLinesDataBuffer.push_back({ { rect.x, rect.y, 0.0f, 1.0f }, color });
 		mLinesDataBuffer.push_back({ { rect.x + rect.width, rect.y, 0.0f, 1.0f }, color });
@@ -248,6 +250,8 @@ namespace TDEngine2
 		{
 			return;
 		}
+
+		std::lock_guard<std::mutex> lock(mMutex);
 
 		TVector3 min = aabb.min;
 		TVector3 max = aabb.max;
