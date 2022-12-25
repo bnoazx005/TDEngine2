@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.13] 2022-12-24
+## [0.6.13] 2022-12-25
 
 ### Added
 
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new dependency library which is **Tina** was added.
 
 - Two template classes **CBaseResourceLoader<T>** and **CBaseResourceFactory<T>** were introduced to simplify declaration of a new simple resources types.
+
+- Now game entities have activation/deactivation ability to exclude them from a processing step.
 
 ### Changed
 

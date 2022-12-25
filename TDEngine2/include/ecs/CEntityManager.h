@@ -112,6 +112,16 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE DestroyAllEntities();
 
 			/*!
+				\brief The method allows to activate/deactivate entity in the game world. Deactivation means that
+				the given entity becomes invisible for all the systems
+
+				\param[in] entityId The identifier of an entity that should be activated/deactivated
+				\param[in] state Pass true if you want to activate entity, false in other case
+			*/
+
+			TDE2_API void SetEntityActive(TEntityId entityId, bool state);
+
+			/*!
 				\brief The method creates a new component and connects it with
 				the entity
 
@@ -174,6 +184,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TPtr<CEntity> GetEntity(TEntityId entityId) const;
+
+			TDE2_API bool IsEntityActive(TEntityId entityId) const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEntityManager)
 

@@ -125,6 +125,12 @@ namespace TDEngine2
 		return result;
 	}
 
+	void CEntityManager::SetEntityActive(TEntityId entityId, bool state)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		TDE2_UNIMPLEMENTED();
+	}
+
 	IComponent* CEntityManager::AddComponent(TEntityId entityId, TypeId componentTypeId)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
@@ -187,6 +193,12 @@ namespace TDEngine2
 		}
 
 		return mActiveEntities[(*entityIter).second];
+	}
+
+	bool CEntityManager::IsEntityActive(TEntityId entityId) const
+	{
+		TDE2_UNIMPLEMENTED();
+		return false;
 	}
 
 	std::string CEntityManager::_constructDefaultEntityName(U32 id) const

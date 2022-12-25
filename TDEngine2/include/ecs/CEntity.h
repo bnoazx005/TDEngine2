@@ -103,6 +103,13 @@ namespace TDEngine2
 			TDE2_API virtual void SetName(const std::string& name);
 
 			/*!
+				\brief The method allows to activate/deactivate entity in the game world. Deactivation means that
+				the given entity becomes invisible for all the systems
+			*/
+
+			TDE2_API void SetActive(bool state);
+
+			/*!
 				\brief The method resets current state of an entity
 				to default one
 			*/
@@ -182,6 +189,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual const std::string& GetName() const;
+
+			TDE2_API bool IsActive() const;
 
 			TDE2_API virtual bool operator== (const CEntity* pEntity) const;
 
