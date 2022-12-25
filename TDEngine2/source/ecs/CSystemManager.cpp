@@ -197,7 +197,7 @@ namespace TDEngine2
 
 		ISystem* pCurrSystem = nullptr;
 
-		for (auto currSystemDesc : mpActiveSystems)
+		for (auto&& currSystemDesc : mpActiveSystems)
 		{
 			pCurrSystem = currSystemDesc.mpSystem;
 

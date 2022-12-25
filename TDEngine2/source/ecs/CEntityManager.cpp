@@ -60,11 +60,17 @@ namespace TDEngine2
 		return _destroyInternal(entityId);
 	}
 
-	E_RESULT_CODE CEntityManager::_destroyInternal(TEntityId entityId)
+	E_RESULT_CODE CEntityManager::_destroyInternal(TEntityId entityId, bool recomputeHandles)
 	{
 		if (TEntityId::Invalid == entityId)
 		{
 			return RC_INVALID_ARGS;
+		}
+
+		auto it = mEntitiesHashTable.find(entityId);
+		if (it == mEntitiesHashTable.cend())
+		{
+			return RC_FAIL;
 		}
 
 		E_RESULT_CODE result = mpComponentManager->RemoveComponents(entityId);
@@ -79,8 +85,20 @@ namespace TDEngine2
 		{
 			onEntityRemoved.mRemovedEntityId = entityId;
 
-			//mActiveEntities.erase(mActiveEntities.begin() + static_cast<USIZE>(id));
-			mActiveEntities[static_cast<USIZE>(entityId)] = nullptr;
+			const USIZE entityIndex = static_cast<USIZE>(it->second);
+
+			mActiveEntities.erase(mActiveEntities.begin() + entityIndex);
+
+			if (recomputeHandles) /// \note Update the table of handles for entities that're stored after the removed entity
+			{
+				for (auto&& currEntityInfo : mEntitiesHashTable)
+				{
+					if (currEntityInfo.second > entityIndex)
+					{
+						currEntityInfo.second--;
+					}
+				}
+			}
 		
 			mEntitiesHashTable.erase(entityId);
 		}
@@ -96,9 +114,12 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		for (auto pEntity : mActiveEntities)
+		while (!mActiveEntities.empty())
 		{
-			result = result | _destroyInternal(pEntity ? pEntity->GetId() : TEntityId::Invalid);
+			auto& pEntity = mActiveEntities.back(); /// \note Remove from the back to prevent recomputation of handles 
+			TDE2_ASSERT(pEntity);
+
+			result = result | _destroyInternal(pEntity ? pEntity->GetId() : TEntityId::Invalid, false);
 		}
 
 		return result;
@@ -190,7 +211,7 @@ namespace TDEngine2
 
 		if (mNextIdValue + 1 >= currStorageSize)
 		{
-			mActiveEntities.resize(currStorageSize + 10); /// \todo 10 is just a magic constant that should be replaced in some way
+			mActiveEntities.resize(currStorageSize + 1);
 		}
 		
 		TOnEntityCreatedEvent onEntityCreated;

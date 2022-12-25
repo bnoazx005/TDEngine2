@@ -187,7 +187,7 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 
-			TDE2_API E_RESULT_CODE _destroyInternal(TEntityId entityId);
+			TDE2_API E_RESULT_CODE _destroyInternal(TEntityId entityId, bool recomputeHandles = true);
 		protected:
 			mutable std::mutex    mMutex;
 
