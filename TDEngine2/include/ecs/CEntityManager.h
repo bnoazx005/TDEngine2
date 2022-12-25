@@ -54,7 +54,7 @@ namespace TDEngine2
 	class CEntityManager: public CBaseObject
 	{
 		public:
-			friend TDE2_API CEntityManager* CreateEntityManager(IEventManager* pEventManager, IComponentManager* pComponentManager, E_RESULT_CODE& result);
+			friend TDE2_API CEntityManager* CreateEntityManager(IEventManager*, IComponentManager*, E_RESULT_CODE& result);
 		protected:
 			typedef std::unordered_map<TEntityId, U32> TEntitiesHashTable;
 		public:
