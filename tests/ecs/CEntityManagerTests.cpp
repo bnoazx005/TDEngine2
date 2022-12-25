@@ -30,12 +30,31 @@ namespace
 
 			E_RESULT_CODE Notify(const TBaseEvent* pEvent) override
 			{
+				for (auto&& currListener : mListeners)
+				{
+					if (currListener.first == pEvent->GetEventType())
+					{
+						if (!currListener.second)
+						{
+							continue;
+						}
+
+						(currListener.second)();
+					}
+				}
+
 				return RC_OK;
+			}
+
+			void AddSimpleListener(TypeId eventType, const std::function<void()>& callback)
+			{
+				mListeners.emplace(eventType, callback);
 			}
 
 			E_ENGINE_SUBSYSTEM_TYPE GetType() const { return GetTypeID(); }
 			static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_EVENT_MANAGER; }
 		private:
+			std::unordered_map<TypeId, std::function<void()>> mListeners;
 	};
 
 	CStubEventManager::CStubEventManager() :
@@ -163,9 +182,19 @@ TEST_CASE("CEntityManager Tests")
 	TPtr<CEntityManager> pEntityManager = TPtr<CEntityManager>(CreateEntityManager(pEventManager.Get(), pComponentManager.Get(), false, result));
 	REQUIRE(pEntityManager);
 
+	auto pStubEventManager = DynamicPtrCast<CStubEventManager>(pEventManager);
+
 	SECTION("TestCreate_PassNothing_ReturnsNewEntityWithDefaultName")
 	{
-		for (U32 i = 0; i < 1; i++)
+		const U32 expectedEntitiesCount = 10;
+		U32 actualEntitiesCount = 0;
+
+		pStubEventManager->AddSimpleListener(TOnEntityCreatedEvent::GetTypeId(), [&actualEntitiesCount]
+		{
+			actualEntitiesCount++;
+		});
+
+		for (U32 i = 0; i < expectedEntitiesCount; i++)
 		{
 			auto pEntity = pEntityManager->Create();
 			REQUIRE(pEntity);
@@ -173,5 +202,111 @@ TEST_CASE("CEntityManager Tests")
 			REQUIRE(pEntity->GetId() != TEntityId::Invalid);
 			REQUIRE(pEntity->GetName() == Wrench::StringUtils::Format("Entity{0}", i));
 		}
+
+		REQUIRE(expectedEntitiesCount == actualEntitiesCount);
 	}
+
+	SECTION("TestCreate_PassUniqueName_ReturnsNewEntityWithTheGivenIdentifier")
+	{
+		const std::string identifiers[] =
+		{
+			"FirstEntity", "SecondEntity", "ThirdEntity"
+		};
+
+		const U32 expectedEntitiesCount = sizeof(identifiers) / sizeof(identifiers[0]);
+		U32 actualEntitiesCount = 0;
+
+		pStubEventManager->AddSimpleListener(TOnEntityCreatedEvent::GetTypeId(), [&actualEntitiesCount]
+		{
+			actualEntitiesCount++;
+		});
+
+		for (const std::string& name : identifiers)
+		{
+			auto pEntity = pEntityManager->Create(name);
+			REQUIRE(pEntity);
+
+			REQUIRE(pEntity->GetId() != TEntityId::Invalid);
+			REQUIRE(pEntity->GetName() == name);
+		}
+
+		REQUIRE(expectedEntitiesCount == actualEntitiesCount);
+	}
+
+	SECTION("TestDestroy_CreateSingleEntityAndDestroyThat_ItCorrectlyDestroyedAndNotifiesListeners")
+	{
+		bool hasEntityBeenDestroyed = false;
+
+		pStubEventManager->AddSimpleListener(TOnEntityRemovedEvent::GetTypeId(), [&hasEntityBeenDestroyed]
+		{
+			hasEntityBeenDestroyed = true;
+		});
+
+		auto pEntity = pEntityManager->Create();
+		REQUIRE(pEntity);
+
+		E_RESULT_CODE result = pEntityManager->Destroy(pEntity->GetId());
+		REQUIRE((RC_OK == result && hasEntityBeenDestroyed));
+	}
+
+	SECTION("TestDestroy_CreateFewEntitiesDestroyTheFirstOne_AllExistingEntitiesShouldBeValid")
+	{
+		const U32 entitiesCount = 15;
+
+		for (U32 i = 0; i < entitiesCount; i++)
+		{
+			pEntityManager->Create();
+		}
+
+		/// \note Destroy some entity in between
+		const TEntityId entityToDestroy = TEntityId(0);
+
+		E_RESULT_CODE result = pEntityManager->Destroy(entityToDestroy);
+		REQUIRE(RC_OK == result);
+
+		/// \note Now all the entities except the destroyed one should exist and be accessible by their handles
+		for (U32 i = 0; i < entitiesCount; i++)
+		{
+			auto pEntity = pEntityManager->GetEntity(TEntityId(i));
+
+			if (i == static_cast<U32>(entityToDestroy))
+			{
+				REQUIRE(!pEntity);
+				continue;
+			}
+
+			REQUIRE(pEntity);
+		}
+	}
+
+	SECTION("TestDestroy_CreateFewEntitiesDestroySomeInBetween_AllExistingEntitiesShouldBeValid")
+	{
+		const U32 entitiesCount = 15;
+
+		for (U32 i = 0; i < entitiesCount; i++)
+		{
+			pEntityManager->Create();
+		}
+
+		/// \note Destroy some entity in between
+		const TEntityId entityToDestroy = TEntityId(rand() % (entitiesCount - 1) + 1);
+
+		E_RESULT_CODE result = pEntityManager->Destroy(entityToDestroy);
+		REQUIRE(RC_OK == result);
+
+		/// \note Now all the entities except the destroyed one should exist and be accessible by their handles
+		for (U32 i = 0; i < entitiesCount; i++)
+		{
+			auto pEntity = pEntityManager->GetEntity(TEntityId(i));
+			
+			if (i == static_cast<U32>(entityToDestroy))
+			{
+				REQUIRE(!pEntity);
+				continue;
+			}
+
+			REQUIRE(pEntity);
+		}
+	}
+
 }
