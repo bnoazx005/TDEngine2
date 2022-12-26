@@ -155,11 +155,6 @@ namespace TDEngine2
 		mName = name;
 	}
 
-	void CEntity::SetActive(bool state)
-	{
-		mpEntityManager->SetEntityActive(mId, state);
-	}
-
 	void CEntity::Reset()
 	{
 		mId = TEntityId::Invalid;
@@ -198,11 +193,6 @@ namespace TDEngine2
 	const std::string& CEntity::GetName() const
 	{
 		return mName;
-	}
-
-	bool CEntity::IsActive() const
-	{
-		return mpEntityManager->IsEntityActive(mId);
 	}
 
 	bool CEntity::operator== (const CEntity* pEntity) const

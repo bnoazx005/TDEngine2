@@ -56,6 +56,7 @@ namespace TDEngine2
 		public:
 			friend TDE2_API CEntityManager* CreateEntityManager(IEventManager*, IComponentManager*, bool, E_RESULT_CODE&);
 		protected:
+			typedef std::vector<TPtr<CEntity>>         TEntitiesArray;
 			typedef std::unordered_map<TEntityId, U32> TEntitiesHashTable;
 		public:
 			/*!
@@ -110,16 +111,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE DestroyAllEntities();
-
-			/*!
-				\brief The method allows to activate/deactivate entity in the game world. Deactivation means that
-				the given entity becomes invisible for all the systems
-
-				\param[in] entityId The identifier of an entity that should be activated/deactivated
-				\param[in] state Pass true if you want to activate entity, false in other case
-			*/
-
-			TDE2_API void SetEntityActive(TEntityId entityId, bool state);
 
 			/*!
 				\brief The method creates a new component and connects it with
@@ -184,8 +175,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TPtr<CEntity> GetEntity(TEntityId entityId) const;
-
-			TDE2_API bool IsEntityActive(TEntityId entityId) const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEntityManager)
 
@@ -201,19 +190,18 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _destroyInternal(TEntityId entityId, bool recomputeHandles = true);
 		protected:
-			mutable std::mutex    mMutex;
+			mutable std::mutex mMutex;
 
-			std::vector<TPtr<CEntity>> mActiveEntities;
+			TEntitiesArray     mActiveEntities;
+			TEntitiesHashTable mEntitiesHashTable;
 
-			TEntitiesHashTable    mEntitiesHashTable;
+			U32                mNextIdValue;
 
-			U32                   mNextIdValue;
+			IComponentManager* mpComponentManager;
 
-			IComponentManager*    mpComponentManager;
+			IEventManager*     mpEventManager;
 
-			IEventManager*        mpEventManager;
-
-			bool                  mCreateEntitiesWithPredefinedComponents = false;
+			bool               mCreateEntitiesWithPredefinedComponents = false;
 	};
 	
 

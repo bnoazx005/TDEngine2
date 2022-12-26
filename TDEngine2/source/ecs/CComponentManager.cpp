@@ -442,6 +442,7 @@ namespace TDEngine2
 		auto builtinComponentFactories =
 		{
 			CreateTransformFactory,
+			CreateDeactivatedComponentFactory,
 			CreateQuadSpriteFactory,
 			CreatePerspectiveCameraFactory,
 			CreateOrthoCameraFactory,
@@ -580,6 +581,11 @@ namespace TDEngine2
 
 			containsAll = true;
 
+			if (_hasComponent(CDeactivatedComponent::GetTypeId(), entityComponentsTablePair.first))
+			{
+				continue; /// If the entity marked with CDeactivatedComponent component it means that is should be skipped from processing
+			}
+
 			for (auto typeIter = types.cbegin(); typeIter != types.cend(); ++typeIter)
 			{
 				containsAll = containsAll && (entityComponentsTable.find(*typeIter) != entityComponentsTable.cend());
@@ -610,7 +616,12 @@ namespace TDEngine2
 		for (auto entityComponentsTablePair : mEntityComponentMap)
 		{
 			entityComponentsTable = entityComponentsTablePair.second;
-			
+
+			if (_hasComponent(CDeactivatedComponent::GetTypeId(), entityComponentsTablePair.first))
+			{
+				continue; /// If the entity marked with CDeactivatedComponent component it means that is should be skipped from processing
+			}
+
 			for (auto typeIter = types.cbegin(); typeIter != types.cend(); ++typeIter)
 			{
 				if (entityComponentsTable.find(*typeIter) != entityComponentsTable.cend())

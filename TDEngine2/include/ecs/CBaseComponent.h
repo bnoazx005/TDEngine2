@@ -477,4 +477,11 @@ namespace TDEngine2
 																					TDE2_COMPONENT_FACTORY_NAME(ComponentName),				      \
 																					TDE2_COMPONENT_FACTORY_FUNCTION_NAME(ComponentName), true)
 
+
+
+	/*!
+		\brief The component is used to hide the entity from the processing
+	*/
+
+	TDE2_DECLARE_FLAG_COMPONENT(DeactivatedComponent)
 }

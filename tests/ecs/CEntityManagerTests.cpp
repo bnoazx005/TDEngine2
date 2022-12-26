@@ -308,5 +308,4 @@ TEST_CASE("CEntityManager Tests")
 			REQUIRE(pEntity);
 		}
 	}
-
 }

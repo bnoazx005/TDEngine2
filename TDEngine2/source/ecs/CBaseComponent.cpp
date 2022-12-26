@@ -152,4 +152,7 @@ namespace TDEngine2
 
 		return false;
 	}
+
+
+	TDE2_DEFINE_FLAG_COMPONENT(DeactivatedComponent)
 }
