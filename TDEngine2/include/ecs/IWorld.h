@@ -385,6 +385,7 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE RegisterRaycastContext(TPtr<IRaycastContext> pRaycastContext) = 0;
 
 			TDE2_API virtual E_RESULT_CODE NotifyOnHierarchyChanged(TEntityId parentEntityId, TEntityId childEntityId) = 0;
+			TDE2_API virtual E_RESULT_CODE NotifyOnEntityActivityChanged(TEntityId entityId, bool state) = 0;
 
 			/*!
 				\brief The method sets up time scale factor which impacts on update cycles of all entities and systems

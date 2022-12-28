@@ -184,6 +184,7 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE RegisterRaycastContext(TPtr<IRaycastContext> pRaycastContext) override;
 
 			TDE2_API E_RESULT_CODE NotifyOnHierarchyChanged(TEntityId parentEntityId, TEntityId childEntityId) override;
+			TDE2_API E_RESULT_CODE NotifyOnEntityActivityChanged(TEntityId entityId, bool state) override;
 
 			/*!
 				\brief The method seeks out an entity and either return it or return nullptr
@@ -319,6 +320,20 @@ namespace TDEngine2
 	*/
 
 	TDE2_API E_RESULT_CODE GroupEntities(IWorld* pWorld, TEntityId parentEntity, TEntityId childEntity);
+
+	/*!
+		\brief The function allows to activate/deactivate some entity. The deactivation means that the entity would be skipped during 
+		processing of systems. 
+
+		\param[in, out] pWorld A pointer to IWorld implementation
+		\param[in] entityId An identifier of the entity that should be activated/deactivated
+		\param[in] state Pass true to activate entity, false in other case
+
+		\return RC_OK if everything went ok, or some other code, which describes an error
+	*/
+
+	TDE2_API E_RESULT_CODE SetEntityActive(IWorld* pWorld, TEntityId entityId, bool state);
+
 
 	TDE2_API class ICamera* GetCurrentActiveCamera(IWorld* pWorld);
 

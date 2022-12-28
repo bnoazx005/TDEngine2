@@ -443,6 +443,7 @@ namespace TDEngine2
 		{
 			CreateTransformFactory,
 			CreateDeactivatedComponentFactory,
+			CreateDeactivatedGroupComponentFactory,
 			CreateQuadSpriteFactory,
 			CreatePerspectiveCameraFactory,
 			CreateOrthoCameraFactory,
@@ -581,7 +582,8 @@ namespace TDEngine2
 
 			containsAll = true;
 
-			if (_hasComponent(CDeactivatedComponent::GetTypeId(), entityComponentsTablePair.first))
+			if (_hasComponent(CDeactivatedComponent::GetTypeId(), entityComponentsTablePair.first) || 
+				_hasComponent(CDeactivatedGroupComponent::GetTypeId(), entityComponentsTablePair.first))
 			{
 				continue; /// If the entity marked with CDeactivatedComponent component it means that is should be skipped from processing
 			}
@@ -617,7 +619,8 @@ namespace TDEngine2
 		{
 			entityComponentsTable = entityComponentsTablePair.second;
 
-			if (_hasComponent(CDeactivatedComponent::GetTypeId(), entityComponentsTablePair.first))
+			if (_hasComponent(CDeactivatedComponent::GetTypeId(), entityComponentsTablePair.first) ||
+				_hasComponent(CDeactivatedGroupComponent::GetTypeId(), entityComponentsTablePair.first))
 			{
 				continue; /// If the entity marked with CDeactivatedComponent component it means that is should be skipped from processing
 			}

@@ -155,4 +155,5 @@ namespace TDEngine2
 
 
 	TDE2_DEFINE_FLAG_COMPONENT(DeactivatedComponent)
+	TDE2_DEFINE_FLAG_COMPONENT(DeactivatedGroupComponent)
 }

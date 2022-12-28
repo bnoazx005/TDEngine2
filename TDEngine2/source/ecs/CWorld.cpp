@@ -15,6 +15,7 @@
 #if TDE2_EDITORS_ENABLED
 #include "../../include/editor/ecs/EditorComponents.h"
 #endif
+#include <queue>
 
 
 namespace TDEngine2
@@ -200,6 +201,22 @@ namespace TDEngine2
 		return mpEventManager->Notify(&onHierarchyChangedEvent);
 	}
 
+	E_RESULT_CODE CWorld::NotifyOnEntityActivityChanged(TEntityId entityId, bool state)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		if (TEntityId::Invalid == entityId)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		TOnEntityActivityChangedEvent onActivityChangedEvent;
+		onActivityChangedEvent.mEntityId = entityId;
+		onActivityChangedEvent.mNewActivityState = state;
+
+		return mpEventManager->Notify(&onActivityChangedEvent);
+	}
+
 	CEntity* CWorld::FindEntity(TEntityId entityId) const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
@@ -374,6 +391,112 @@ namespace TDEngine2
 		pParentEntity->GetComponent<CTransform>()->AttachChild(childEntity);
 
 		return pWorld->NotifyOnHierarchyChanged(parentEntity, childEntity);
+	}
+
+	E_RESULT_CODE SetEntityActive(IWorld* pWorld, TEntityId entityId, bool state)
+	{
+		if (!pWorld || TEntityId::Invalid == entityId)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		CEntity* pEntity = pWorld->FindEntity(entityId);
+		if (!pEntity)
+		{
+			return RC_FAIL;
+		}
+
+		const bool currEntityActivity = pEntity->HasComponent<CDeactivatedComponent>() || pEntity->HasComponent<CDeactivatedGroupComponent>();
+		if (state == currEntityActivity)
+		{
+			return RC_OK;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		/// \note Update local activity's state
+		if (state)
+		{
+			result = pEntity->RemoveComponent<CDeactivatedComponent>();
+		}
+		else
+		{
+			auto pDeactivatedTag = pEntity->AddComponent<CDeactivatedComponent>();
+			TDE2_ASSERT(pDeactivatedTag);
+
+			result = pDeactivatedTag ? RC_OK : RC_FAIL;
+		}
+
+		/// \note Update global activity's state
+		{
+			std::queue<CEntity*> processingList;
+
+			bool shouldRemoveGroupDeactivationTag = false;
+
+			{
+				auto pTransform = pEntity->GetComponent<CTransform>();
+				if (!pTransform)
+				{
+					TDE2_ASSERT(pTransform);
+					return result | RC_FAIL;
+				}
+
+				for (const TEntityId childId : pTransform->GetChildren())
+				{
+					processingList.push(pWorld->FindEntity(childId));
+				}
+
+				if (state) /// \note If we activate the entity firstly we should check up the hierarchy up to the root to determine whether parent is active or not
+				{
+					CEntity* pParentEntity = pWorld->FindEntity(pTransform->GetParent());
+
+					while (pParentEntity)
+					{
+						auto pParentTransform = pParentEntity->GetComponent<CTransform>();
+						auto pNextParentEntity = pWorld->FindEntity(pParentTransform->GetParent());
+						if (!pNextParentEntity)
+						{
+							break;
+						}
+
+						pParentEntity = pNextParentEntity;
+					}
+
+					shouldRemoveGroupDeactivationTag = !pParentEntity->HasComponent<CDeactivatedComponent>();
+				}
+			}
+
+			while (!processingList.empty())
+			{
+				CEntity* pCurrEntity = processingList.front();
+				processingList.pop();
+
+				if (!state)
+				{
+					auto pDeactivatedTag = pCurrEntity->AddComponent<CDeactivatedGroupComponent>();
+					TDE2_ASSERT(pDeactivatedTag);
+				}
+				else if (state && shouldRemoveGroupDeactivationTag) /// \note We should remove the tag if and only if parent is activated
+				{
+					result = result | pCurrEntity->RemoveComponent<CDeactivatedGroupComponent>();
+				}
+
+				auto pTransform = pCurrEntity->GetComponent<CTransform>();
+				if (!pTransform)
+				{
+					TDE2_ASSERT(pTransform);
+					continue;
+				}
+
+				for (const TEntityId childId : pTransform->GetChildren())
+				{
+					processingList.push(pWorld->FindEntity(childId));
+				}
+			}
+		}
+
+		/// \note Notify listeners that some entity's activity has been changed
+		return result | pWorld->NotifyOnEntityActivityChanged(entityId, state);
 	}
 
 	ICamera* GetCurrentActiveCamera(IWorld* pWorld)
