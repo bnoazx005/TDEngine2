@@ -44,6 +44,7 @@ set(SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/graphics/CAnimationCurveTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/ecs/CBaseComponentsTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/ecs/CEntityManagerTests.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/ecs/CWorldTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/utils/UtilsTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/platform/CTimerTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/platform/FileSystemTests.cpp"

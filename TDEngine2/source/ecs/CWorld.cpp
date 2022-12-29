@@ -406,7 +406,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		const bool currEntityActivity = pEntity->HasComponent<CDeactivatedComponent>() || pEntity->HasComponent<CDeactivatedGroupComponent>();
+		const bool currEntityActivity = !pEntity->HasComponent<CDeactivatedComponent>() && !pEntity->HasComponent<CDeactivatedGroupComponent>();
 		if (state == currEntityActivity)
 		{
 			return RC_OK;
@@ -462,8 +462,13 @@ namespace TDEngine2
 						pParentEntity = pNextParentEntity;
 					}
 
-					shouldRemoveGroupDeactivationTag = !pParentEntity->HasComponent<CDeactivatedComponent>();
+					shouldRemoveGroupDeactivationTag = !pParentEntity || (pParentEntity && !pParentEntity->HasComponent<CDeactivatedComponent>());
 				}
+			}
+
+			if (shouldRemoveGroupDeactivationTag)
+			{
+				result = result | pEntity->RemoveComponent<CDeactivatedGroupComponent>();
 			}
 
 			while (!processingList.empty())
