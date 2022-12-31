@@ -43,9 +43,16 @@
 
 namespace TDEngine2
 {
+	static void DrawEmptyGUI(const TEditorContext& editorContext)
+	{
+	}
+
+
 	E_RESULT_CODE CDefaultInspectorsRegistry::RegisterBuiltinInspectors(CLevelEditorWindow& editor)
 	{
 		E_RESULT_CODE result = editor.RegisterInspector(CTransform::GetTypeId(), DrawTransformGUI);
+		result = result | editor.RegisterInspector(CDeactivatedComponent::GetTypeId(), DrawEmptyGUI);
+		result = result | editor.RegisterInspector(CDeactivatedGroupComponent::GetTypeId(), DrawEmptyGUI);
 		result = result | editor.RegisterInspector(CBoundsComponent::GetTypeId(), DrawBoundsGUI);
 
 		/// Graphics
@@ -1235,7 +1242,7 @@ namespace TDEngine2
 			bool isFontSectionOpened = false;
 			bool isFontSectionSelected = false;
 
-			if (std::get<0>(std::tie(isFontSectionOpened, isFontSectionSelected) = imguiContext.BeginTreeNode("Font Parameters", false)))
+			if (std::get<0>(std::tie(isFontSectionOpened, isFontSectionSelected) = imguiContext.BeginTreeNode("Font Parameters", TColorUtils::mWhite, false)))
 			{
 				{
 					std::string fontId = label.GetFontId();

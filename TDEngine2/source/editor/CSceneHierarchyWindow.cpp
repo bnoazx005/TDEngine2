@@ -382,10 +382,12 @@ namespace TDEngine2
 						const bool isLeafEntity = pTransform->GetChildren().empty();
 
 						const std::string fieldStr = Wrench::StringUtils::Format("{0}##{1}", pEntity->GetName(), static_cast<U32>(pEntity->GetId()));
+						
+						const bool isActive = !pEntity->HasComponent<CDeactivatedComponent>() && !pEntity->HasComponent<CDeactivatedGroupComponent>();
 
 						if (isLeafEntity)
-						{
-							if (mpImGUIContext->SelectableItem(fieldStr, mpSelectionManager->IsEntityBeingSelected(pEntity->GetId())))
+						{							
+							if (mpImGUIContext->SelectableItem(fieldStr, isActive ? TColorUtils::mWhite : TColorUtils::mGray, mpSelectionManager->IsEntityBeingSelected(pEntity->GetId())))
 							{
 								if (mpInputContext->IsKey(E_KEYCODES::KC_LCONTROL))
 								{
@@ -424,7 +426,7 @@ namespace TDEngine2
 						bool isOpened = false;
 						bool isSelected = false;
 
-						std::tie(isOpened, isSelected) = mpImGUIContext->BeginTreeNode(fieldStr, mpSelectionManager->IsEntityBeingSelected(pEntity->GetId()));
+						std::tie(isOpened, isSelected) = mpImGUIContext->BeginTreeNode(fieldStr, isActive ? TColorUtils::mWhite : TColorUtils::mGray, mpSelectionManager->IsEntityBeingSelected(pEntity->GetId()));
 						ProcessDragAndDropLogic(mpImGUIContext, pWorld, pEntity->GetId());
 
 						if (isOpened)

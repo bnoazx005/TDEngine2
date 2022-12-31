@@ -164,9 +164,9 @@ namespace TDEngine2
 		return EST_IMGUI_CONTEXT;
 	}
 
-	void CImGUIContext::Label(const std::string& text)
+	void CImGUIContext::Label(const std::string& text, bool useDisabledStyle)
 	{
-		ImGui::Text(text.c_str());
+		(useDisabledStyle ? ImGui::TextDisabled : ImGui::Text)(text.c_str());
 		_prepareLayout();
 	}
 
@@ -817,10 +817,14 @@ namespace TDEngine2
 		return result;
 	}
 
-	std::tuple<bool, bool> CImGUIContext::BeginTreeNode(const std::string& id, bool isSelected)
+	std::tuple<bool, bool> CImGUIContext::BeginTreeNode(const std::string& id, const TColor32F& color, bool isSelected)
 	{
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(color.r, color.g, color.b, color.a));
+
 		auto&& result = std::tuple<bool, bool>{ ImGui::TreeNodeEx(id.c_str(), isSelected ? ImGuiTreeNodeFlags_Selected : 0x0), ImGui::IsItemClicked() };
 		_prepareLayout();
+
+		ImGui::PopStyleColor();
 
 		return result;
 	}

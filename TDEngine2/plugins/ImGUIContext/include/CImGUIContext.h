@@ -116,7 +116,7 @@ namespace TDEngine2
 				\param[in] text A string which should be rendered onto the screen
 			*/
 
-			TDE2_API void Label(const std::string& text) override;
+			TDE2_API void Label(const std::string& text, bool useDisabledStyle = false) override;
 
 			/*!
 				\brief The method creates a label within current active window
@@ -427,7 +427,7 @@ namespace TDEngine2
 				\return A tuple the first argument is opened/hidden state of a node, the second is whether selected or not the node
 			*/
 
-			TDE2_API std::tuple<bool, bool> BeginTreeNode(const std::string& id, bool isSelected = false) override;
+			TDE2_API std::tuple<bool, bool> BeginTreeNode(const std::string& id, const TColor32F& color = TColorUtils::mWhite, bool isSelected = false) override;
 
 			/*!
 				\brief The method should be called after BeginTreeNode

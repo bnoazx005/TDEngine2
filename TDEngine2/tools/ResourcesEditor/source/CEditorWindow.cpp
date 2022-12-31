@@ -417,7 +417,7 @@ namespace TDEngine2
 						currItemId = "##directory_hidden_name";
 					}
 
-					std::tie(isDirectoryUnwrapped, isDirectorySelected) = pImGUIContext->BeginTreeNode(currItemId, pSelectionManager->IsSelected(currPath.string()));
+					std::tie(isDirectoryUnwrapped, isDirectorySelected) = pImGUIContext->BeginTreeNode(currItemId, TColorUtils::mWhite, pSelectionManager->IsSelected(currPath.string()));
 					pImGUIContext->EndHorizontal();
 
 					DrawItemContextMenu(currPath.string(), { pImGUIContext, pResourcesManifest, pSelectionManager, pResourcesManager, nullptr, pFileSystem, pIsRenamingModeEnabled });
@@ -544,7 +544,7 @@ namespace TDEngine2
 				{
 					imgui.DisplayIDGroup(index, [&imgui, &currAnimationClip, &shouldInterruptLoop, index, pMeshInfo]
 					{
-						if (std::get<0>(imgui.BeginTreeNode("Clip Info", false)))
+						if (std::get<0>(imgui.BeginTreeNode("Clip Info", TColorUtils::mWhite, false)))
 						{
 							imgui.BeginHorizontal();
 							imgui.Label("Output clip path:");

@@ -494,6 +494,12 @@ namespace TDEngine2
 		{
 			std::string entityName = pSelectedEntity->GetName();
 
+			bool isActive = !pSelectedEntity->HasComponent<CDeactivatedComponent>();
+			if (mpImGUIContext->Checkbox("##IsActive", isActive))
+			{
+				SetEntityActive(mpSceneManager->GetWorld().Get(), pSelectedEntity->GetId(), isActive);
+			}
+
 			mpImGUIContext->TextField("##entityId", entityName, [pSelectedEntity](auto&& value){ pSelectedEntity->SetName(value); });
 			mpImGUIContext->Label(ToString<TEntityId>(mSelectedEntityId));
 		}
