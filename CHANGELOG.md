@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.14] 2022-12-31
+## [0.6.14] 2023-01-03
 
 ### Added
 
 ### Changed
 
 ### Fixed
+
+- The logic of **IWorld::CreateLocalComponentsSlice** was fixed to support hierarchies of entities.
 
 ## [0.6.13] 2022-12-31
 

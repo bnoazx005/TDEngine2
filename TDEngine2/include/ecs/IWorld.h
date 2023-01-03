@@ -339,14 +339,38 @@ namespace TDEngine2
 						}
 					}
 
-					entities.clear();
-
 					std::stack<std::tuple<TEntityId, USIZE>> entitiesToProcess;
-
+										
 					for (TEntityId currEntityId : parentToChildRelations[TEntityId::Invalid])
 					{
 						entitiesToProcess.push({ currEntityId, TComponentsQueryLocalSlice<TArgs...>::mInvalidParentIndex });
 					}
+
+					std::vector<TEntityId> parentsWithoutSpecifiedComponents;
+
+					/// \note Process the case when an entity has parent but the one has no specified component
+					const USIZE originalEntitiesCount = entities.size();
+					USIZE index = 0;
+
+					for (TEntityId currEntityId : entities)
+					{
+						if (CEntity* pEntity = FindEntity(currEntityId))
+						{
+							CTransform* pTransform = pEntity->GetComponent<CTransform>();
+							const TEntityId parentId = pTransform->GetParent();
+
+							/// \note Skip all the entities've already been added from parentToChildRelations[TEntityId::Invalid] and intermediate entities
+							if (TEntityId::Invalid == parentId || !pTransform->GetChildren().empty())
+							{
+								continue;
+							}
+
+							parentsWithoutSpecifiedComponents.emplace_back(parentId);
+							entitiesToProcess.push({ currEntityId, originalEntitiesCount + index++ });
+						}
+					}
+
+					entities.clear();
 
 					TEntityId currEntityId;
 					USIZE currParentElementIndex = 0;
@@ -366,8 +390,13 @@ namespace TDEngine2
 							entitiesToProcess.push({ currEntityId, parentIndex });
 						}
 					}
+
+					for (TEntityId parentId : parentsWithoutSpecifiedComponents)
+					{
+						result.mParentsToChildMapping.push_back(decltype(result)::mInvalidParentIndex);
+					}
 				}
-				
+												
 				result.mComponentsSlice = std::make_tuple(_getComponentsOfTypeFromEntities<TArgs>(entities)...);
 				result.mComponentsCount = entities.size();
 

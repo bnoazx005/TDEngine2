@@ -1,5 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 #include <TDEngine2.h>
+#include <unordered_set>
 
 
 using namespace TDEngine2;
@@ -91,6 +92,10 @@ namespace
 		CBaseObject()
 	{
 	}
+
+
+	TDE2_DECLARE_FLAG_COMPONENT(TestComponent);
+	TDE2_DEFINE_FLAG_COMPONENT(TestComponent);
 }
 
 
@@ -104,6 +109,8 @@ TEST_CASE("CWorld Tests")
 
 	TPtr<IWorld> pWorld = TPtr<IWorld>(CreateWorld(pEventManager, pJobManager, result));
 	REQUIRE(pWorld);
+
+	REQUIRE((RC_OK == pWorld->RegisterComponentFactory(TPtr<IComponentFactory>(CreateTestComponentFactory(result)))));
 
 	auto pStubEventManager = DynamicPtrCast<CStubEventManager>(pEventManager);
 
@@ -289,5 +296,82 @@ TEST_CASE("CWorld Tests")
 		{
 			REQUIRE(pCurrEntity->HasComponent<CDeactivatedGroupComponent>());
 		}
+	}
+
+	SECTION("TestFindEntitiesWithComponents_DeactivateOneOfTheEntities_MehtodReturnsAllEntitiesExceptDeactivated")
+	{
+		const U32 entitiesCount = 10;
+		const U32 deactivatedEntitiesCount = 3;
+
+		for (U32 i = 0; i < entitiesCount; i++)
+		{
+			pWorld->CreateEntity();
+		}
+
+		std::unordered_set<TEntityId> deactivatedEntities;
+
+		for (U32 i = 0; i < deactivatedEntitiesCount; i++)
+		{
+			CEntity* pEntity = pWorld->FindEntity(TEntityId(std::rand() % (entitiesCount - 1) + 1));
+			if (!pEntity)
+			{
+				continue;
+			}
+
+			REQUIRE(RC_OK == SetEntityActive(pWorld.Get(), pEntity->GetId(), false));
+			deactivatedEntities.emplace(pEntity->GetId());
+		}
+
+		auto&& activeEntities = pWorld->FindEntitiesWithComponents<CTransform>();
+		REQUIRE(activeEntities.size() == static_cast<USIZE>(entitiesCount - deactivatedEntitiesCount));
+
+		for (const TEntityId currEntityId : activeEntities)
+		{
+			REQUIRE((deactivatedEntities.find(currEntityId) == deactivatedEntities.cend()));
+		}
+	}
+
+	SECTION("TestCreateLocalComponentsSlice_TryToGetSliceOfComponentsForTwoEntitiesHierarchies_TheSliceContainsParentsEvenIfTheyDontHaveSpecifiedComponents")
+	{
+		CEntity* pParent1Entity = pWorld->CreateEntity("Parent1");
+		CEntity* pParent2Entity = pWorld->CreateEntity("Parent2");
+		CEntity* pChild1Entity = pWorld->CreateEntity("Child1");
+		CEntity* pChild2Entity = pWorld->CreateEntity("Child2");
+
+		REQUIRE(RC_OK == GroupEntities(pWorld.Get(), pParent1Entity->GetId(), pChild1Entity->GetId()));
+		REQUIRE(RC_OK == GroupEntities(pWorld.Get(), pParent2Entity->GetId(), pChild2Entity->GetId()));
+
+		pChild1Entity->AddComponent<CTestComponent>();
+		pChild2Entity->AddComponent<CTestComponent>();
+
+		auto slice = pWorld->CreateLocalComponentsSlice<CTestComponent, CTransform>();
+		REQUIRE(slice.mComponentsCount == 2);
+
+		auto& componentsSlice = std::get<std::vector<CTestComponent*>>(slice.mComponentsSlice);
+		REQUIRE(componentsSlice.size() == slice.mComponentsCount);
+
+		auto& transformsMappings = slice.mParentsToChildMapping;
+		REQUIRE(transformsMappings.size() == slice.mComponentsCount + 2);
+	}
+
+	SECTION("TestCreateLocalComponentsSlice_TryToGetSliceOfComponentsForEntitiesHierarchy_TheSliceContainsParentsEvenIfTheyDontHaveSpecifiedComponents")
+	{
+		CEntity* pParent1Entity = pWorld->CreateEntity("Parent1");
+		CEntity* pChild1Entity = pWorld->CreateEntity("Child1");
+		CEntity* pSeparateEntity = pWorld->CreateEntity("Entity3");
+
+		REQUIRE(RC_OK == GroupEntities(pWorld.Get(), pParent1Entity->GetId(), pChild1Entity->GetId()));
+
+		pChild1Entity->AddComponent<CTestComponent>();
+		pSeparateEntity->AddComponent<CTestComponent>();
+
+		auto slice = pWorld->CreateLocalComponentsSlice<CTestComponent, CTransform>();
+		REQUIRE(slice.mComponentsCount == 2);
+
+		auto& componentsSlice = std::get<std::vector<CTestComponent*>>(slice.mComponentsSlice);
+		REQUIRE(componentsSlice.size() == slice.mComponentsCount);
+
+		auto& transformsMappings = slice.mParentsToChildMapping;
+		REQUIRE(transformsMappings.size() == slice.mComponentsCount + 1);
 	}
 }
