@@ -323,7 +323,7 @@ TEST_CASE("CWorld Tests")
 		}
 
 		auto&& activeEntities = pWorld->FindEntitiesWithComponents<CTransform>();
-		REQUIRE(activeEntities.size() == static_cast<USIZE>(entitiesCount - deactivatedEntitiesCount));
+		REQUIRE(activeEntities.size() == static_cast<USIZE>(entitiesCount - deactivatedEntities.size()));
 
 		for (const TEntityId currEntityId : activeEntities)
 		{
