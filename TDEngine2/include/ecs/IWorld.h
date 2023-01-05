@@ -13,6 +13,7 @@
 #include "../utils/Types.h"
 #include "CEntity.h"
 #include "CBaseComponent.h"
+#include "CTransform.h"
 #include <functional>
 #include <string>
 #include <vector>
@@ -29,7 +30,6 @@ namespace TDEngine2
 	class IEventManager;
 	class IJobManager;
 	class IRaycastContext;
-	class CTransform;
 	class IComponentFactory;
 	class IDebugUtility;
 
