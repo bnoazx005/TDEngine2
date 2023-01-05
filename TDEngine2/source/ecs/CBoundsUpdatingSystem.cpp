@@ -5,6 +5,7 @@
 #include "../../include/ecs/components/CBoundsComponent.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/CProjectSettings.h"
+#include "../../include/core/CBaseJobManager.h"
 #include "../../include/graphics/CStaticMesh.h"
 #include "../../include/graphics/CStaticMeshContainer.h"
 #include "../../include/graphics/CSkinnedMesh.h"
@@ -76,6 +77,8 @@ namespace TDEngine2
 
 	void CBoundsUpdatingSystem::InjectBindings(IWorld* pWorld)
 	{
+		TDE2_PROFILER_SCOPE("CBoundsUpdatingSystem::InjectBindings");
+
 		InitContext<CBoundsUpdatingSystem::TStaticMeshesBoundsContext, CStaticMeshContainer>(mStaticMeshesContext, pWorld);
 		InitContext<CBoundsUpdatingSystem::TSkinnedMeshesBoundsContext, CSkinnedMeshContainer>(mSkinnedMeshesContext, pWorld);
 		InitContext<CBoundsUpdatingSystem::TSpritesBoundsContext, CQuadSprite>(mSpritesContext, pWorld);
@@ -273,6 +276,8 @@ namespace TDEngine2
 
 	void CBoundsUpdatingSystem::Update(IWorld* pWorld, F32 dt)
 	{
+		TDE2_PROFILER_SCOPE("CBoundsUpdatingSystem::Update");
+
 		const bool isUpdateNeeded = mCurrTimer >= CProjectSettings::Get()->mWorldSettings.mEntitiesBoundsUpdateInterval;
 
 		if (isUpdateNeeded)
@@ -280,11 +285,21 @@ namespace TDEngine2
 			mCurrTimer = 0.0f;
 		}
 
-		TDE2_PROFILER_SCOPE("CBoundsUpdatingSystem::Update");
+		mpJobManager->SubmitJob(nullptr, [this, isUpdateNeeded](auto) {
+			TDE2_PROFILER_SCOPE("CBoundsUpdatingSystem::UpdateJob");
 
-		ProcessMeshesBounds(mpResourceManager, mpDebugUtility, mStaticMeshesContext, isUpdateNeeded, ComputeStaticMeshBounds);
-		ProcessMeshesBounds(mpResourceManager, mpDebugUtility, mSkinnedMeshesContext, isUpdateNeeded, ComputeSkinnedMeshBounds);
-		ProcessSpritesBounds(mpDebugUtility, mSpritesContext, isUpdateNeeded);
+			mpJobManager->SubmitJob(nullptr, [this, isUpdateNeeded](auto) {
+				ProcessMeshesBounds(mpResourceManager, mpDebugUtility, mStaticMeshesContext, isUpdateNeeded, ComputeStaticMeshBounds);
+			}, "ProcessStaticMeshesBoundsJob");
+
+			mpJobManager->SubmitJob(nullptr, [this, isUpdateNeeded](auto) {
+				ProcessMeshesBounds(mpResourceManager, mpDebugUtility, mSkinnedMeshesContext, isUpdateNeeded, ComputeSkinnedMeshBounds);
+			}, "ProcessSkinnedMeshesBoundsJob");
+
+			mpJobManager->SubmitJob(nullptr, [this, isUpdateNeeded](auto) {
+				ProcessSpritesBounds(mpDebugUtility, mSpritesContext, isUpdateNeeded);
+			}, "ProcessSpritesBoundsJob");
+		});
 
 		mCurrTimer += dt;
 	}
