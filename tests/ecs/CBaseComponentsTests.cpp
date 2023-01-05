@@ -5,7 +5,6 @@
 using namespace TDEngine2;
 
 
-#if 1 /// \fixme Fix these tests, Create X Component throws exception
 TEST_CASE("CBaseComponentCloneable Tests")
 {
 	E_RESULT_CODE result = RC_OK;
@@ -44,7 +43,6 @@ TEST_CASE("CBaseComponentCloneable Tests")
 		}
 	}
 
-#if 0
 	SECTION("TestClone_TryCloneQuadSprite_ANewInstanceCreatedWithSameParametersValues")
 	{
 		auto pSourceComponent = TPtr<IComponent>(CreateQuadSprite(result));
@@ -153,6 +151,7 @@ TEST_CASE("CBaseComponentCloneable Tests")
 		REQUIRE(RC_OK == pSourceComponent->Clone(pDestPtr));
 	}
 
+#if 0
 	SECTION("TestClone_TryCloneBoxCollisionObject3D_ANewInstanceCreatedWithSameParametersValues")
 	{
 		auto pSourceComponent = TPtr<IComponent>(CreateBoxCollisionObject3D(result));
@@ -212,6 +211,7 @@ TEST_CASE("CBaseComponentCloneable Tests")
 		IComponent* pDestPtr = pDestComponent.Get();
 		REQUIRE(RC_OK == pSourceComponent->Clone(pDestPtr));
 	}
+#endif
 
 	SECTION("TestClone_TryCloneBounds_ANewInstanceCreatedWithSameParametersValues")
 	{
@@ -440,6 +440,4 @@ TEST_CASE("CBaseComponentCloneable Tests")
 		IComponent* pDestPtr = pDestComponent.Get();
 		REQUIRE(RC_OK == pSourceComponent->Clone(pDestPtr));
 	}
-	#endif
 }
-#endif
