@@ -9,6 +9,7 @@
 
 #include "./../utils/Config.h"
 #include "./../utils/Types.h"
+#include "../core/Serialization.h"
 
 
 namespace TDEngine2
@@ -97,6 +98,75 @@ namespace TDEngine2
 
 
 	typedef TRange<F32> TRangeF32;
+
+
+	/*!
+		\brief TRange<T>'s Serialization/Deserialization helpers
+	*/
+
+
+	template <typename T>
+	TResult<TRange<T>> LoadRange(class IArchiveReader* pReader)
+	{
+		TRange<T> outputRange;
+
+		E_RESULT_CODE result = RC_OK;
+
+		{
+			result = result | pReader->BeginGroup("left");
+
+			auto getLeftResult = Deserialize<T>(pReader);
+			if (getLeftResult.HasError())
+			{
+				result = result | getLeftResult.GetError();
+			}
+
+			result = result | pReader->EndGroup();
+
+			outputRange.mLeft = getLeftResult.Get();
+		}
+		
+		{
+			result = result | pReader->BeginGroup("right");
+
+			auto getRightResult = Deserialize<T>(pReader);
+			if (getRightResult.HasError())
+			{
+				result = result | getRightResult.GetError();
+			}
+
+			result = result | pReader->EndGroup();
+
+			outputRange.mRight = getRightResult.Get();
+		}
+
+		if (RC_OK != result)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
+		}
+
+		return Wrench::TOkValue<TRange<T>>(outputRange);
+	}
+
+	template <typename T>
+	E_RESULT_CODE SaveRange(class IArchiveWriter* pWriter, const TRange<T>& range)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		{
+			result = result | pWriter->BeginGroup("left");
+			result = result | Serialize<T>(pWriter, range.mRight);
+			result = result | pWriter->EndGroup();
+		}
+
+		{
+			result = result | pWriter->BeginGroup("right");
+			result = result | Serialize<T>(pWriter, range.mLeft);
+			result = result | pWriter->EndGroup();
+		}
+
+		return result;
+	}
 
 
 	class CRandomUtils

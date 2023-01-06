@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Serialization/Deserialization functions were defined for **TRange<T>** type.
+
 ### Changed
 
 - The API of **IComponentManager** was changed. RemoveComponentImmediately and RemoveComponentsImmediately were removed from the class.
