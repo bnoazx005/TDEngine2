@@ -146,11 +146,74 @@ TEST_CASE("CComponentManager Tests")
 		REQUIRE(RC_OK == pComponentManager->RemoveComponents(entityId));
 	}
 
-	/// GetComponents
-	/// FindComponentsOfType
-	/// FindEntitiesWithAll
-	/// FindEntitiesWithAny
-	/// FindEntityWithUniqueComponent
-	/// HasComponent
-	/// GetComponent
+	SECTION("TestGetComponents_TryToGetComponentsOfInvalidEntity_ReturnsEmptyArray")
+	{
+		REQUIRE(pComponentManager->GetComponents(TEntityId::Invalid).empty());
+	}
+
+	SECTION("TestFindComponentsOfType_TryToGetComponentsForEmptyWorld_ReturnsInvalidIterator")
+	{
+		auto it = pComponentManager->FindComponentsOfType<CTestComponent>();
+		REQUIRE(!it.HasNext());
+	}
+
+	SECTION("TestFindEntityWithUniqueComponent_TryToGetUniqueComponent_ReturnsEntityId")
+	{
+		auto pFactory = TPtr<IComponentFactory>(CreateUniqueComponentFactory(result));
+		REQUIRE((pFactory && RC_OK == pComponentManager->RegisterFactory(pFactory)));
+
+		const TEntityId entityId = TEntityId(1);
+
+		pComponentManager->CreateComponent<CUniqueComponent>(entityId);
+
+		REQUIRE(entityId == pComponentManager->FindEntityWithUniqueComponent(CUniqueComponent::GetTypeId()));
+	}
+
+	SECTION("TestFindEntityWithUniqueComponent_TryToGetNonUniqueComponentThroughThisInvokation_ReturnsInvalidEntity")
+	{
+		auto pFactory = TPtr<IComponentFactory>(CreateTestComponentFactory(result));
+		REQUIRE((pFactory && RC_OK == pComponentManager->RegisterFactory(pFactory)));
+
+		const TEntityId entityId = TEntityId(1);
+
+		pComponentManager->CreateComponent<CTestComponent>(entityId);
+		
+		REQUIRE(TEntityId::Invalid == pComponentManager->FindEntityWithUniqueComponent(CTestComponent::GetTypeId()));
+	}
+
+	SECTION("TestHasComponent_TryToCheckForInvalidEntity_ReturnsFalse")
+	{
+		REQUIRE(!pComponentManager->HasComponent<CTestComponent>(TEntityId::Invalid));
+	}
+
+	SECTION("TestGetComponent_TryToRetrieveForInvalidEntity_ReturnsNullptr")
+	{
+		REQUIRE(!pComponentManager->GetComponent<CTestComponent>(TEntityId::Invalid));
+	}
+
+	SECTION("TestGetComponent_TryToRetrieveInexistingComponentFromEntity_ReturnsNullptr")
+	{
+		auto pFactory = TPtr<IComponentFactory>(CreateTestComponentFactory(result));
+		REQUIRE((pFactory && RC_OK == pComponentManager->RegisterFactory(pFactory)));
+
+		const TEntityId entityId = TEntityId(1);
+
+		auto pCreatedComponent = pComponentManager->CreateComponent<CTestComponent>(entityId); 
+		auto pRetrievedComponent = pComponentManager->GetComponent<CTestComponent>(entityId);
+
+		REQUIRE((pCreatedComponent && pCreatedComponent == pRetrievedComponent));
+	}
+
+	SECTION("TestGetComponent_TryToRetrieveUniqueComponentFromEntity_ReturnsInstance")
+	{
+		auto pFactory = TPtr<IComponentFactory>(CreateUniqueComponentFactory(result));
+		REQUIRE((pFactory && RC_OK == pComponentManager->RegisterFactory(pFactory)));
+
+		const TEntityId entityId = TEntityId(1);
+
+		auto pCreatedComponent = pComponentManager->CreateComponent<CUniqueComponent>(entityId);
+		auto pRetrievedComponent = pComponentManager->GetComponent<CUniqueComponent>(entityId);
+
+		REQUIRE((pCreatedComponent && pCreatedComponent == pRetrievedComponent));
+	}
 }

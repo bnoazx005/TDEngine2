@@ -202,7 +202,8 @@ namespace TDEngine2
 
 			/*!
 				\param[in] types An array that contains types identifiers that an entity should have. Note that the method
-				isn't responsible for creating a new instances of unqiue components.
+				isn't responsible for creating a new instances of unqiue components. Note that typeId should be a type of a unique component.
+				If non-unique component's type-id is passed TEntityId::Invalid is returned from the method.
 				
 				\return The method returns an entity which holds a unique component
 			*/
