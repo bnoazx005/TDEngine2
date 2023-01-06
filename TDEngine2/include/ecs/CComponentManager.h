@@ -91,15 +91,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE RemoveComponents(TEntityId id) override;
 
 			/*!
-			\brief The method removes all components that are related with the entity and
-			frees the memory occupied by them.
-
-			\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE RemoveComponentsImmediately(TEntityId id) override;
-
-			/*!
 				\return The method returns an array of components that belong to given entity
 			*/
 
@@ -173,8 +164,6 @@ namespace TDEngine2
 			TDE2_API IComponent* _createComponent(TypeId componentTypeId, TEntityId entityId) override;
 
 			TDE2_API IComponent* _getComponent(TypeId componentTypeId, TEntityId entityId) override;
-
-			TDE2_API E_RESULT_CODE _removeComponentImmediately(TypeId componentTypeId, TEntityId entityId) override;
 
 			TDE2_API E_RESULT_CODE _removeComponentWithAction(TypeId componentTypeId, TEntityId entityId,
 															  const std::function<E_RESULT_CODE(IComponent*&)>& action);

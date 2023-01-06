@@ -116,15 +116,6 @@ namespace TDEngine2
 		return result;
 	}
 
-	E_RESULT_CODE CComponentManager::_removeComponentImmediately(TypeId componentTypeId, TEntityId entityId)
-	{
-		return _removeComponentWithAction(componentTypeId, entityId, [](IComponent*& pComponent) -> E_RESULT_CODE
-		{
-			return pComponent->Free();
-		});
-	}
-
-
 	E_RESULT_CODE CComponentManager::_removeComponentWithAction(TypeId componentTypeId, TEntityId entityId,
 																const std::function<E_RESULT_CODE(IComponent*&)>& action)
 	{
@@ -188,14 +179,6 @@ namespace TDEngine2
 		mDestroyedComponents.insert(mDestroyedComponents.end(), removedComponents.begin(), removedComponents.end());
 
 		return result;
-	}
-
-	E_RESULT_CODE CComponentManager::RemoveComponentsImmediately(TEntityId id)
-	{
-		return _removeComponentsWithAction(id, [](IComponent*& pComponent) -> E_RESULT_CODE
-		{
-			return pComponent->Free();
-		});
 	}
 
 	E_RESULT_CODE CComponentManager::_removeComponentsWithAction(TEntityId entityId, const std::function<E_RESULT_CODE(IComponent*&)>& action)
@@ -366,6 +349,11 @@ namespace TDEngine2
 
 	IComponent* CComponentManager::_createComponent(TypeId componentTypeId, TEntityId entityId)
 	{
+		if (TEntityId::Invalid == entityId)
+		{
+			return nullptr;
+		}
+
 		IComponent* pNewComponent = _getComponent(componentTypeId, entityId);
 
 		if (pNewComponent)

@@ -122,25 +122,6 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE RemoveComponent(TypeId componentTypeId, TEntityId entityId) = 0;
 
 			/*!
-				\brief The method removes a component of specified T type and
-				frees the memory occupied by it
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			template <typename T>
-			TDE2_API
-	#if _HAS_CXX17
-			std::enable_if_t<std::is_base_of_v<IComponent, T>, E_RESULT_CODE>
-	#else
-			typename std::enable_if<std::is_base_of<IComponent, T>::value, E_RESULT_CODE>::type
-	#endif
-			RemoveComponentImmediately(TEntityId id)
-			{
-				return _removeComponentImmediately(T::GetTypeId(), id);
-			}
-
-			/*!
 				\brief The method removes all components that are related with the entity.
 				This method doesn't free the memory that is occupied by components.
 
@@ -155,15 +136,6 @@ namespace TDEngine2
 
 			TDE2_API virtual std::vector<IComponent*> GetComponents(TEntityId id) const = 0;
 
-			/*!
-				\brief The method removes all components that are related with the entity and
-				frees the memory occupied by them.
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE RemoveComponentsImmediately(TEntityId id) = 0;
-			
 			/*!
 				\brief The method returns a one way iterator to an array of components of specified type
 
@@ -279,8 +251,6 @@ namespace TDEngine2
 			TDE2_API virtual IComponent* _createComponent(TypeId componentTypeId, TEntityId entityId) = 0;
 
 			TDE2_API virtual IComponent* _getComponent(TypeId componentTypeId, TEntityId entityId) = 0;
-
-			TDE2_API virtual E_RESULT_CODE _removeComponentImmediately(TypeId componentTypeId, TEntityId entityId) = 0;
 
 			TDE2_API virtual bool _hasComponent(TypeId componentTypeId, TEntityId entityId) = 0;
 	};

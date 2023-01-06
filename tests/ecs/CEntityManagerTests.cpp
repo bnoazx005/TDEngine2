@@ -99,8 +99,6 @@ namespace
 
 			E_RESULT_CODE RemoveComponents(TEntityId id) override { return RC_OK; }
 
-			E_RESULT_CODE RemoveComponentsImmediately(TEntityId id) override { return RC_OK; }
-
 			std::vector<IComponent*> GetComponents(TEntityId id) const override { return {}; }
 
 			bool HasComponent(TEntityId id, TypeId componentTypeId) override { return false; }
@@ -131,8 +129,6 @@ namespace
 		}
 
 		IComponent* _getComponent(TypeId componentTypeId, TEntityId entityId) override { return nullptr; }
-
-		E_RESULT_CODE _removeComponentImmediately(TypeId componentTypeId, TEntityId entityId) override { return RC_OK; }
 
 		E_RESULT_CODE _removeComponentWithAction(TypeId componentTypeId, TEntityId entityId,
 			const std::function<E_RESULT_CODE(IComponent*&)>& action)

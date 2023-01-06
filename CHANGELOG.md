@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The API of **IComponentManager** was changed. RemoveComponentImmediately and RemoveComponentsImmediately were removed from the class.
+
 ### Fixed
 
 - The logic of **IWorld::CreateLocalComponentsSlice** was fixed to support hierarchies of entities.
