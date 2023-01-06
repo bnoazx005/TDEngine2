@@ -82,7 +82,7 @@ namespace TDEngine2
 	}
 
 	CComponentIterator::CComponentIterator(TComponentsArray& components, U32 index):
-		mBegin(components.begin()), mEnd(components.end()), mCurrIndex(index)
+		mBegin(components.begin()), mEnd(components.end()), mCurrIndex(index), mIsValid(true)
 	{
 	}
 
@@ -99,7 +99,7 @@ namespace TDEngine2
 
 	bool CComponentIterator::HasNext() const
 	{
-		return (mBegin + mCurrIndex + 1) != mEnd;
+		return mIsValid && (mBegin + mCurrIndex + 1) != mEnd;
 	}
 
 	void CComponentIterator::Reset()

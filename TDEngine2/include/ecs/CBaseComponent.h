@@ -121,87 +121,89 @@ namespace TDEngine2
 
 	class CComponentIterator
 	{
-	protected:
-		typedef std::vector<IComponent*> TComponentsArray;
-	public:
-		static CComponentIterator mInvalidIterator;
-	public:
-		/*!
-			\brief The constructor creates a correct iterator using begin and end iterators of a collection
-			and index that specifies an initial offset from the beginning
+		protected:
+			typedef std::vector<IComponent*> TComponentsArray;
+		public:
+			static CComponentIterator mInvalidIterator;
+		public:
+			/*!
+				\brief The constructor creates a correct iterator using begin and end iterators of a collection
+				and index that specifies an initial offset from the beginning
 
-			\param[in, out] components An array of components
+				\param[in, out] components An array of components
 
-			\param[in] index An offset from a beginning of a collection where a result iterator
-			will be placed at
-		*/
+				\param[in] index An offset from a beginning of a collection where a result iterator
+				will be placed at
+			*/
 
-		TDE2_API CComponentIterator(TComponentsArray& components, U32 index);
+			TDE2_API CComponentIterator(TComponentsArray& components, U32 index);
 
-		TDE2_API ~CComponentIterator();
+			TDE2_API ~CComponentIterator();
 
-		/*!
-			\brief The method increments current iterator so it point to next
-			entity within a collection
+			/*!
+				\brief The method increments current iterator so it point to next
+				entity within a collection
 
-			\return A reference to an iterator to next entity within a collection
-		*/
+				\return A reference to an iterator to next entity within a collection
+			*/
 
-		TDE2_API CComponentIterator& Next();
+			TDE2_API CComponentIterator& Next();
 
-		/*!
-			\brief The method is a predicate that is true if there is at least one
-			entity next to the current position of the iterator
+			/*!
+				\brief The method is a predicate that is true if there is at least one
+				entity next to the current position of the iterator
 
-			\return The method returns true if there is at least one
-			entity next to the current position of the iterator
-		*/
+				\return The method returns true if there is at least one
+				entity next to the current position of the iterator
+			*/
 
-		TDE2_API bool HasNext() const;
+			TDE2_API bool HasNext() const;
 
-		/*!
-			\brief The method resets current state of the iterator to the beginnning of
-			a collection
-		*/
+			/*!
+				\brief The method resets current state of the iterator to the beginnning of
+				a collection
+			*/
 
-		TDE2_API void Reset();
+			TDE2_API void Reset();
 
-		/*!
-			\brief The method returns an entity that is pointed by the iterator
+			/*!
+				\brief The method returns an entity that is pointed by the iterator
 
-			\return  The method returns a pointer to specific IComponent that is pointed by the iterator
-		*/
+				\return  The method returns a pointer to specific IComponent that is pointed by the iterator
+			*/
 
-		TDE2_API IComponent* Get() const;
+			TDE2_API IComponent* Get() const;
 
-		/*!
-			\brief The method returns an entity that is pointed by the iterator
+			/*!
+				\brief The method returns an entity that is pointed by the iterator
 
-			\return  The method returns a pointer to specific IComponent that is pointed by the iterator
-		*/
+				\return  The method returns a pointer to specific IComponent that is pointed by the iterator
+			*/
 
-		TDE2_API IComponent* operator* () const;
+			TDE2_API IComponent* operator* () const;
 
-		/*!
-			\brief The method increments current iterator so it point to next
-			entity within a collection
+			/*!
+				\brief The method increments current iterator so it point to next
+				entity within a collection
 
-			\return A reference to an iterator to next entity within a collection
-		*/
+				\return A reference to an iterator to next entity within a collection
+			*/
 
-		TDE2_API CComponentIterator& operator++ ();
+			TDE2_API CComponentIterator& operator++ ();
 
-		TDE2_API bool operator== (const CComponentIterator& iter) const;
+			TDE2_API bool operator== (const CComponentIterator& iter) const;
 
-		TDE2_API bool operator!= (const CComponentIterator& iter) const;
-	protected:
-		TDE2_API CComponentIterator();
-	protected:
-		TComponentsArray::iterator mBegin;
+			TDE2_API bool operator!= (const CComponentIterator& iter) const;
+		protected:
+			TDE2_API CComponentIterator();
+		protected:
+			TComponentsArray::iterator mBegin;
 
-		TComponentsArray::iterator mEnd;
+			TComponentsArray::iterator mEnd;
 
-		U32                        mCurrIndex;
+			U32                        mCurrIndex;
+
+			bool                       mIsValid = false;
 	};
 
 
