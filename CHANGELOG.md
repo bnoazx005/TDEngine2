@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Serialization/Deserialization functions were defined for **TRange<T>** type.
 
+- Now the engine support switching between text/binary types of assets. To enable usage of binary versions of assets the project settings' file should be also binary one.
+
 ### Changed
 
 - The API of **IComponentManager** was changed. RemoveComponentImmediately and RemoveComponentsImmediately were removed from the class.

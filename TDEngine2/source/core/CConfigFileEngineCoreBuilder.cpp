@@ -47,6 +47,30 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+
+	template <typename TReader>
+	E_RESULT_CODE TryLoadProjectSettingsAs(TPtr<IFileSystem> pFileSystem, const TResult<TFileEntryId>& fileReadResult)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		if (fileReadResult.IsOk())
+		{
+			/// \note Read project's settings
+			if (IArchiveReader* pProjectSettingsReader = pFileSystem->Get<TReader>(fileReadResult.Get()))
+			{
+				if (RC_OK != (result = CProjectSettings::Get()->Init(pProjectSettingsReader)))
+				{
+					return result;
+				}
+			}
+
+			return result;
+		}
+
+		return fileReadResult.GetError();
+	}
+
+
 	E_RESULT_CODE CConfigFileEngineCoreBuilder::_initEngineSettings()
 	{
 		E_RESULT_CODE result = RC_OK;
@@ -76,26 +100,26 @@ namespace TDEngine2
 
 		/// \note Load project settings
 		auto loadProjectSettingsResult = mpFileSystemInstance->Open<IYAMLFileReader>(mProjectConfigFilepath, false);
-		
-		if (loadProjectSettingsResult.IsOk())
+		if (loadProjectSettingsResult.HasError())
 		{
-			TFileEntryId projectSettingsFileHandle = loadProjectSettingsResult.Get();
-
-			/// \note Read project's settings
-			if (IArchiveReader* pProjectSettingsReader = mpFileSystemInstance->Get<IYAMLFileReader>(projectSettingsFileHandle))
+			///\note May be we work with binarized resources. In this case the project settings' file is binarized too. Try to load it thourgh IBinaryArchiveReader
+			if (RC_OK != (result = TryLoadProjectSettingsAs<IBinaryArchiveReader>(mpFileSystemInstance, mpFileSystemInstance->Open<IBinaryArchiveReader>(mProjectConfigFilepath, false))))
 			{
-				if (RC_OK != (result = CProjectSettings::Get()->Init(pProjectSettingsReader)))
-				{
-					return result;
-				}
+				LOG_WARNING(Wrench::StringUtils::Format("[CConfigFileEngineCoreBuilder] The project config file {0} wasn't found, use default settings instead...", mProjectConfigFilepath));
+				return result;
 			}
+
+			CProjectSettings::Get()->mCommonSettings.mBinaryResourcesActive = true;
+
+			return result;
 		}
-		else
+
+		if (RC_OK != (result = TryLoadProjectSettingsAs<IYAMLFileReader>(mpFileSystemInstance, loadProjectSettingsResult)))
 		{
 			LOG_WARNING(Wrench::StringUtils::Format("[CConfigFileEngineCoreBuilder] The project config file {0} wasn't found, use default settings instead...", mProjectConfigFilepath));
 		}
 
-		return RC_OK;
+		return result;
 	}
 
 

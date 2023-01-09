@@ -85,6 +85,8 @@ namespace TDEngine2
 				std::string mBaseResourcesPath = "../../Resources/";
 
 				std::string mPathToDefaultPrefabsManifest = "ProjectResources/PrefabsCollection.manifest";
+
+				bool mBinaryResourcesActive = false; ///< If the given project settings are stored as text the field is false, for binarized version it's true
 			} mCommonSettings;
 
 

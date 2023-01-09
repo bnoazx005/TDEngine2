@@ -610,6 +610,10 @@ namespace TDEngine2
 			result = result | pFileSystem->MountPhysicalPath(currUserMountDirectory.mPath, currUserMountDirectory.mAlias);
 		}
 
+		/// \note Register two aliases for archives reader/writer 
+		/// It's prefered to use IArchiveReader and IArchiveWriter for access to archives instead of IYAMLFileReader/Writer and IBinaryArchiveReader/Writer
+		
+
 		return result;
 	}
 
