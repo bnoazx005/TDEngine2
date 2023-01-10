@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.14] 2023-01-03
+## [0.6.14] 2023-01-10
 
 ### Added
 
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - The API of **IComponentManager** was changed. RemoveComponentImmediately and RemoveComponentsImmediately were removed from the class.
+
+- Now all instances of **CBaseFile** can be created without specifing a mounting storage. It's useful when you want to create memory mapped files for some reasons.
 
 ### Fixed
 

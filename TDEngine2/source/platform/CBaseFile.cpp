@@ -2,6 +2,7 @@
 #include "../../include/platform/MountableStorages.h"
 #include "../../include/platform/IOStreams.h"
 #include "../../include/core/IFileSystem.h"
+#include "../../include/utils/CFileLogger.h"
 
 
 namespace TDEngine2
@@ -16,9 +17,14 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		if (!pStorage || !pStream)
+		if (!pStream)
 		{
 			return RC_INVALID_ARGS;
+		}
+
+		if (!pStorage)
+		{
+			LOG_MESSAGE("[CBaseFile] pStorage is nullptr, the file's instance is created out of the file system");
 		}
 
 		mpStreamImpl = pStream;
@@ -65,9 +71,12 @@ namespace TDEngine2
 
 			mpStreamImpl = nullptr;
 
-			if ((result = mpStorage->CloseFile(mName)) != RC_OK)
+			if (mpStorage)
 			{
-				return result;
+				if ((result = mpStorage->CloseFile(mName)) != RC_OK)
+				{
+					return result;
+				}
 			}
 		}
 
