@@ -13,14 +13,15 @@ TEST_CASE("File System Tests")
 {
 	E_RESULT_CODE result = RC_OK;
 
-	IFileSystem* pFileSystem = nullptr;
-
+	TPtr<IFileSystem> pFileSystem = TPtr<IFileSystem>
+		(
 #if defined (TDE2_USE_WINPLATFORM)
-	pFileSystem = CreateWin32FileSystem(result);
+		CreateWin32FileSystem(result)
 #elif defined (TDE2_USE_UNIXPLATFORM)
-	pFileSystem = CreateUnixFileSystem(result);
+		CreateUnixFileSystem(result)
 #else
 #endif
+		);
 
 	REQUIRE(pFileSystem);
 	REQUIRE(result == RC_OK);
@@ -111,10 +112,5 @@ TEST_CASE("File System Tests")
 		{
 			REQUIRE(pFileSystem->ResolveVirtualPath(std::get<0>(currPath), std::get<2>(currPath)) == std::get<1>(currPath));
 		}
-	}
-
-	if (pFileSystem)
-	{
-		pFileSystem->Free();
 	}
 }
