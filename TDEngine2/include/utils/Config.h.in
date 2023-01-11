@@ -82,14 +82,8 @@ namespace TDEngine2
 	constexpr unsigned int PreCreatedNumOfVertexBuffers = 5;
 	
 	constexpr unsigned int SpriteInstanceDataBufferSize = 1024 * 1024 * 4; /// 4 MiB
-
-
-	#if TDE2_DEBUG_MODE || TDE2_PRODUCTION_MODE
-		#define TDE2_EDITORS_ENABLED 1
-	#else
-		#define TDE2_EDITORS_ENABLED 0
-	#endif
-
+ 
+	#cmakedefine01 TDE2_EDITORS_ENABLED
 
 	#define TDE2_RESOURCES_STREAMING_ENABLED 1
 	#define TDE2_MEM_PROFILER_BASE_OBJECT_SAVE_STACKTRACE 0

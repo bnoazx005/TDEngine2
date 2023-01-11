@@ -11,7 +11,7 @@ option(BUILD_WINDOWS_INPUTCTX_PLUGIN "Build Windows input context plugin" ON)
 option(BUILD_GL3_0_GCTX_PLUGIN "Build GL3.0 Graphics context plugin" ON)
 option(BUILD_UNIX_INPUTCTX_PLUGIN "Build UNIX input context plugin" ON)
 option(BUILD_LEVEL_STREAMING_PLUGIN "Build Level streaming utils plugin" ON)
-option(IS_TOOLS_BUILDING_ENABLED "The option shows whether engine's toolset should be built or not" ON)
+option(TDE2_EDITORS_ENABLED "The option shows whether engine's toolset should be built or not" ON)
 option(USE_EXTERNAL_BULLET_LIBRARY "The options determines whether bullet from deps/ directory or system one will be used" OFF)
 option(USE_EXTERNAL_ZLIB_LIBRARY "The options determines whether zlib from deps/ directory or system one will be used" OFF)
 option(OPTICK_PROFILER_ENABLED "The option enables/disables usage of optick as a main profiler" ON)
@@ -655,7 +655,7 @@ if (IS_PLUGIN_BUILDING_ENABLED)
 endif ()
 
 #build engine's toolset
-if (IS_TOOLS_BUILDING_ENABLED)
+if (TDE2_EDITORS_ENABLED)
 	add_subdirectory(tools)
 endif ()
 

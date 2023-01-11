@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.14] 2023-01-10
+## [0.6.14] 2023-01-11
 
 ### Added
 
@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The API of **IComponentManager** was changed. RemoveComponentImmediately and RemoveComponentsImmediately were removed from the class.
 
 - Now all instances of **CBaseFile** can be created without specifing a mounting storage. It's useful when you want to create memory mapped files for some reasons.
+
+- Now macro **TDE2_EDITORS_ENABLED** doesn't depend on **TDE2_DEBUG_MODE** one. And all the code that's related with editors can be disabled via corresponding CMake's option.
+
+- The option **IS_TOOLS_BUILDING_ENABLED** was removed.
 
 ### Fixed
 

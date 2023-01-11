@@ -190,6 +190,7 @@ TEST_CASE("CYAMLFileOperations Tests")
 						{
 							pYAMLFileReader->BeginGroup(Wrench::StringUtils::GetEmptyStr()); 
 							{
+								REQUIRE(index < (sizeof(actualObject.mArray) / sizeof(actualObject.mArray[0])));
 								actualObject.mArray[index++] = pYAMLFileReader->GetInt32("element");
 							}
 							pYAMLFileReader->EndGroup();
