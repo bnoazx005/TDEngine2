@@ -305,6 +305,11 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		if (mData.empty() || mPointer >= mData.size())
+		{
+			return RC_FAIL;
+		}
+
 		TSizeType size = std::min<TSizeType>(bufferSize, std::max<TSizeType>(mData.size() - mPointer, 0));
 
 		memcpy(pBuffer, static_cast<void*>(&mData[mPointer]), size);
@@ -344,6 +349,17 @@ namespace TDEngine2
 
 	E_RESULT_CODE CMemoryIOStream::Write(const void* pBuffer, TSizeType bufferSize)
 	{
+		if (!pBuffer || !bufferSize)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mData.resize(mData.size() + bufferSize);
+		
+		memcpy(&mData.front() + mPointer, pBuffer, bufferSize);
+
+		mPointer += bufferSize;
+
 		return RC_OK;
 	}
 

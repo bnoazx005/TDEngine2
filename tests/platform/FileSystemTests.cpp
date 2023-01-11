@@ -114,3 +114,15 @@ TEST_CASE("File System Tests")
 		}
 	}
 }
+
+
+TEST_CASE("CYAMLFileOperations Tests")
+{
+	E_RESULT_CODE result = RC_OK;
+
+	SECTION("TestWriteReadYAML_WriteSomeYAMLIntoMemoryRegionThenTryToReadBack_AllTheDataShouldBeCorrectlySerializedDeserialized")
+	{		
+		auto pMemoryMappedFile = TPtr<TDEngine2::IStream>(CreateMemoryIOStream(Wrench::StringUtils::GetEmptyStr(), {}, result));
+		REQUIRE(pMemoryMappedFile);
+	}
+}
