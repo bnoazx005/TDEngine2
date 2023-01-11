@@ -391,7 +391,7 @@ namespace TDEngine2
 
 	bool CMemoryIOStream::IsValid() const
 	{
-		return !mData.empty();
+		return true;
 	}
 
 	bool CMemoryIOStream::IsEndOfStream() const

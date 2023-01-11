@@ -120,9 +120,97 @@ TEST_CASE("CYAMLFileOperations Tests")
 {
 	E_RESULT_CODE result = RC_OK;
 
+	auto pMemoryMappedStream = TPtr<TDEngine2::IStream>(CreateMemoryIOStream(Wrench::StringUtils::GetEmptyStr(), {}, result));
+	REQUIRE(pMemoryMappedStream);
+
 	SECTION("TestWriteReadYAML_WriteSomeYAMLIntoMemoryRegionThenTryToReadBack_AllTheDataShouldBeCorrectlySerializedDeserialized")
-	{		
-		auto pMemoryMappedFile = TPtr<TDEngine2::IStream>(CreateMemoryIOStream(Wrench::StringUtils::GetEmptyStr(), {}, result));
-		REQUIRE(pMemoryMappedFile);
+	{
+		struct TObject
+		{
+			I32 mValue;
+			I32 mArray[2];
+			std::string mStr;
+		} expectedObject{ 42, { 0, 1}, "Hello, World!" };
+
+		/// \note Try to write
+		{
+			IYAMLFileWriter* pYAMLFileWriter = dynamic_cast<IYAMLFileWriter*>(CreateYAMLFileWriter(nullptr, pMemoryMappedStream, result));
+			REQUIRE(pYAMLFileWriter);
+
+			/*!
+				YAML file will be something like that
+
+				test: 
+					value: 42
+					array:
+						- element: 0
+						- element: 1
+					str: "Hello, World!"
+			*/
+
+			pYAMLFileWriter->BeginGroup("test");
+			{
+				pYAMLFileWriter->SetInt32("value", expectedObject.mValue);
+				{
+					pYAMLFileWriter->BeginGroup("array", true);
+					{
+						for (USIZE i = 0; i < sizeof(expectedObject.mArray) / sizeof(expectedObject.mArray[0]); i++)
+						{
+							pYAMLFileWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr(), false); /// \note Each array's element should be wrapped with empty string group
+							{
+								pYAMLFileWriter->SetInt32("element", expectedObject.mArray[i]);
+							}
+							pYAMLFileWriter->EndGroup();
+						}
+					}
+					pYAMLFileWriter->EndGroup();
+				}
+				pYAMLFileWriter->SetString("str", expectedObject.mStr);
+			}
+			pYAMLFileWriter->EndGroup();
+
+			REQUIRE(RC_OK == pYAMLFileWriter->Close());
+		}
+
+		TObject actualObject;
+
+		/// \note Try to read
+		{
+			IYAMLFileReader* pYAMLFileReader = dynamic_cast<IYAMLFileReader*>(CreateYAMLFileReader(nullptr, pMemoryMappedStream, result));
+			REQUIRE(pYAMLFileReader);
+
+			pYAMLFileReader->BeginGroup("test");
+			{
+				actualObject.mValue = pYAMLFileReader->GetInt32("value");
+				{
+					pYAMLFileReader->BeginGroup("array");
+					{
+						USIZE index = 0;
+						while (pYAMLFileReader->HasNextItem())
+						{
+							pYAMLFileReader->BeginGroup(Wrench::StringUtils::GetEmptyStr()); 
+							{
+								actualObject.mArray[index++] = pYAMLFileReader->GetInt32("element");
+							}
+							pYAMLFileReader->EndGroup();
+						}
+					}
+					pYAMLFileReader->EndGroup();
+				}
+				actualObject.mStr = pYAMLFileReader->GetString("str");
+			}
+			pYAMLFileReader->EndGroup();
+
+			REQUIRE(RC_OK == pYAMLFileReader->Close());
+		}
+
+		REQUIRE(expectedObject.mValue == actualObject.mValue);
+
+		for (USIZE i = 0; i < sizeof(expectedObject.mArray) / sizeof(expectedObject.mArray[0]); i++)
+		{
+			REQUIRE(expectedObject.mArray[i] == actualObject.mArray[i]);
+		}
+
+		REQUIRE(expectedObject.mStr == actualObject.mStr);
 	}
 }
