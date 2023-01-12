@@ -1,5 +1,6 @@
 #include "../../include/editor/EditorUtils.h"
 #include "../../include/graphics/IDebugUtility.h"
+#include "../../include/ecs/IWorld.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -37,6 +38,16 @@ namespace TDEngine2
 		pDebugUtility->DrawLine(TVector3(0.0f, 0.0f, -halfHeight), TVector3(0.0f, 0.0f, halfHeight), TColorUtils::mRed);
 	}
 
+
+	E_RESULT_CODE CEntitiesCommands::CopyEntitiesHierarchy(IWorld* pWorld, TEntityId entityId)
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CEntitiesCommands::PasteEntitiesHierarchy(IWorld* pWorld, TEntityId parentEntityId)
+	{
+		return RC_OK;
+	}
 }
 
 #endif

@@ -15,16 +15,11 @@
 
 namespace TDEngine2
 {
-	enum class TEntityId : U32;
-
-
 	class IComponentManager;
-	class CEntityManager;
 	class IEventManager;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IComponentManager)
-	TDE2_DECLARE_SCOPED_PTR(CEntityManager)
 	TDE2_DECLARE_SCOPED_PTR(IEventManager)
 
 
@@ -55,12 +50,6 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IPrefabsRegistry* CreatePrefabsRegistry(IResourceManager*, IFileSystem*, IWorld*, IEventManager*, E_RESULT_CODE&);
 		public:
-			struct TPrefabInfoEntity
-			{
-				TEntityId mRootEntityId = TEntityId::Invalid;
-				std::vector<TEntityId> mRelatedEntities;
-			};
-
 			typedef std::unordered_map<std::string, TPrefabInfoEntity> TPrefabsTable;
 		public:
 			TDE2_REGISTER_TYPE(CPrefabsRegistry);
@@ -88,7 +77,27 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE SavePrefab(const std::string& id, const std::string& filePath, CEntity* pHierarchyRoot) override;
+
+			/*!
+				\brief The method is a part of SavePrefab method and can be used to serialize entities hierarchy into the archive
+
+				\param[in, out] pWriter A pointer to an archive object
+				\param[in] pWorld A pointer to the game world
+				\param[in] pEntity A root of the hierarchy that should be serialized
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SavePrefabHierarchy(IArchiveWriter* pWriter, IWorld* pWorld, CEntity* pEntity) override;
+
 #endif
+			/*!
+				\brief The method loads prefab's data from the given archive reader. The method is public but private and should
+				not be used in user's runtime code
+			*/
+
+			TDE2_API TPrefabInfoEntity LoadPrefabHierarchy(IArchiveReader* pReader, TPtr<CEntityManager>& pEntityManager) override;
+
 			/*!
 				\brief The method receives a given event and processes it
 

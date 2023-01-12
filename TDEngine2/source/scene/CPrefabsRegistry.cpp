@@ -86,64 +86,7 @@ namespace TDEngine2
 	}
 
 
-	static CPrefabsRegistry::TPrefabInfoEntity LoadPrefabHierarchy(IYAMLFileReader* pReader, TPtr<CEntityManager>& pEntityManager)
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		CPrefabsRegistry::TPrefabInfoEntity prefabInfo;
-
-		std::unordered_map<TEntityId, TEntityId> entitiesIdsMap;
-		auto& createdEntities = prefabInfo.mRelatedEntities;
-
-		// \note Read entities
-		result = result | pReader->BeginGroup("entities");
-		{
-			while (pReader->HasNextItem())
-			{
-				auto pNewEntity = pEntityManager->Create();
-				createdEntities.push_back(pNewEntity->GetId());
-
-				result = result | pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
-				{
-					result = result | pReader->BeginGroup("entity");
-					{
-						entitiesIdsMap.emplace(static_cast<TEntityId>(pReader->GetUInt32("id")), pNewEntity->GetId());
-					}
-					result = result | pReader->EndGroup();
-
-					result = result | pNewEntity->Load(pReader);
-				}
-				result = result | pReader->EndGroup();
-
-				//mEntities.push_back(pNewEntity->GetId());
-			}
-		}
-		result = result | pReader->EndGroup();
-
-		// \note First time we resolve references within the prefab's hierarchy. The second time we do it when the instance of the prototype is created
-		for (TEntityId currEntityId : createdEntities)
-		{
-			if (auto pEntity = pEntityManager->GetEntity(currEntityId))
-			{
-				result = result | pEntity->PostLoad(pEntityManager.Get(), entitiesIdsMap);
-				TDE2_ASSERT(RC_OK == result);
-
-				if (auto pTransform = pEntity->GetComponent<CTransform>())
-				{
-					if (TEntityId::Invalid == pTransform->GetParent())
-					{
-						prefabInfo.mRootEntityId = pEntity->GetId();
-					}
-				}
-			}
-		}
-
-		TDE2_ASSERT(RC_OK == result);
-		return std::move(prefabInfo);
-	}
-
-
-	static CPrefabsRegistry::TPrefabInfoEntity LoadPrefabInfoFromManifest(IResourceManager* pResourceManager, IFileSystem* pFileSystem,
+	static CPrefabsRegistry::TPrefabInfoEntity LoadPrefabInfoFromManifest(IPrefabsRegistry* pPrefabsRegistry, IResourceManager* pResourceManager, IFileSystem* pFileSystem,
 																			TPtr<CEntityManager>& pEntityManager, IWorld* pWorld, const std::string& id)
 	{
 		/// \note Iterate over all CPrefabsManifest resources and try to find the corresponding prefab's path
@@ -173,7 +116,7 @@ namespace TDEngine2
 		/// \todo Make it more dependency free and type agnostic
 		if (TResult<TFileEntryId> prefabFileId = pFileSystem->Open<IYAMLFileReader>(pathToPrefab))
 		{
-			return std::move(LoadPrefabHierarchy(pFileSystem->Get<IYAMLFileReader>(prefabFileId.Get()), pEntityManager));
+			return std::move(pPrefabsRegistry->LoadPrefabHierarchy(pFileSystem->Get<IYAMLFileReader>(prefabFileId.Get()), pEntityManager));
 		}
 
 		return {};
@@ -234,7 +177,7 @@ namespace TDEngine2
 		auto pPrefabInfo = TryGetLoadedPrefabEntity(mpWorld, mPrefabsToEntityTable, id);
 		if (!pPrefabInfo)
 		{
-			auto&& loadedPrefabInfo = LoadPrefabInfoFromManifest(mpResourceManager, mpFileSystem, mpEntitiesManager, mpWorld, id);
+			auto&& loadedPrefabInfo = LoadPrefabInfoFromManifest(this, mpResourceManager, mpFileSystem, mpEntitiesManager, mpWorld, id);
 			mPrefabsToEntityTable.emplace(id, std::move(loadedPrefabInfo));
 
 			pPrefabInfo = &mPrefabsToEntityTable[id];
@@ -308,56 +251,6 @@ namespace TDEngine2
 
 #endif
 
-	static E_RESULT_CODE SavePrefabHierarchy(IYAMLFileWriter* pWriter, IWorld* pWorld, CEntity* pEntity)
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		// \note Write entities
-		result = result | pWriter->BeginGroup("entities", true);
-		{
-			std::stack<TEntityId> entitiesToProcess;
-
-			/// \note push children's identifiers and then the identifier of the root node
-			if (auto pTransform = pEntity->GetComponent<CTransform>())
-			{
-				for (const TEntityId childId : pTransform->GetChildren())
-				{
-					entitiesToProcess.push(childId);
-				}
-
-			}
-			entitiesToProcess.push(pEntity->GetId());
-
-			CTransform* pRootTransform =pEntity->GetComponent<CTransform>();
-
-			const TEntityId parentEntityId = pRootTransform->GetParent();
-			pRootTransform->SetParent(TEntityId::Invalid); /// \note Don't save relationship for the root entity
-
-			while (!entitiesToProcess.empty())
-			{
-				pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
-				{
-					const TEntityId currEntityId = entitiesToProcess.top();
-					entitiesToProcess.pop();
-
-					CEntity* pCurrEntity = pWorld->FindEntity(currEntityId);
-					if (!pCurrEntity)
-					{
-						continue;
-					}
-
-					result = result | pCurrEntity->Save(pWriter);
-				}
-				pWriter->EndGroup();
-			}
-
-			pRootTransform->SetParent(parentEntityId);
-		}
-		result = result | pWriter->EndGroup();
-
-		return result;
-	}
-
 
 #if TDE2_EDITORS_ENABLED
 
@@ -387,7 +280,113 @@ namespace TDEngine2
 		return result;
 	}
 
+	E_RESULT_CODE CPrefabsRegistry::SavePrefabHierarchy(IArchiveWriter* pWriter, IWorld* pWorld, CEntity* pEntity)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		// \note Write entities
+		result = result | pWriter->BeginGroup("entities", true);
+		{
+			std::stack<TEntityId> entitiesToProcess;
+
+			/// \note push children's identifiers and then the identifier of the root node
+			if (auto pTransform = pEntity->GetComponent<CTransform>())
+			{
+				for (const TEntityId childId : pTransform->GetChildren())
+				{
+					entitiesToProcess.push(childId);
+				}
+
+			}
+			entitiesToProcess.push(pEntity->GetId());
+
+			CTransform* pRootTransform = pEntity->GetComponent<CTransform>();
+
+			const TEntityId parentEntityId = pRootTransform->GetParent();
+			pRootTransform->SetParent(TEntityId::Invalid); /// \note Don't save relationship for the root entity
+
+			while (!entitiesToProcess.empty())
+			{
+				pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+				{
+					const TEntityId currEntityId = entitiesToProcess.top();
+					entitiesToProcess.pop();
+
+					CEntity* pCurrEntity = pWorld->FindEntity(currEntityId);
+					if (!pCurrEntity)
+					{
+						continue;
+					}
+
+					result = result | pCurrEntity->Save(pWriter);
+				}
+				pWriter->EndGroup();
+			}
+
+			pRootTransform->SetParent(parentEntityId);
+		}
+		result = result | pWriter->EndGroup();
+
+		return result;
+	}
+
 #endif
+
+	CPrefabsRegistry::TPrefabInfoEntity CPrefabsRegistry::LoadPrefabHierarchy(IArchiveReader* pReader, TPtr<CEntityManager>& pEntityManager)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		CPrefabsRegistry::TPrefabInfoEntity prefabInfo;
+
+		std::unordered_map<TEntityId, TEntityId> entitiesIdsMap;
+		auto& createdEntities = prefabInfo.mRelatedEntities;
+
+		// \note Read entities
+		result = result | pReader->BeginGroup("entities");
+		{
+			while (pReader->HasNextItem())
+			{
+				auto pNewEntity = pEntityManager->Create();
+				createdEntities.push_back(pNewEntity->GetId());
+
+				result = result | pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+				{
+					result = result | pReader->BeginGroup("entity");
+					{
+						entitiesIdsMap.emplace(static_cast<TEntityId>(pReader->GetUInt32("id")), pNewEntity->GetId());
+					}
+					result = result | pReader->EndGroup();
+
+					result = result | pNewEntity->Load(pReader);
+				}
+				result = result | pReader->EndGroup();
+
+				//mEntities.push_back(pNewEntity->GetId());
+			}
+		}
+		result = result | pReader->EndGroup();
+
+		// \note First time we resolve references within the prefab's hierarchy. The second time we do it when the instance of the prototype is created
+		for (TEntityId currEntityId : createdEntities)
+		{
+			if (auto pEntity = pEntityManager->GetEntity(currEntityId))
+			{
+				result = result | pEntity->PostLoad(pEntityManager.Get(), entitiesIdsMap);
+				TDE2_ASSERT(RC_OK == result);
+
+				if (auto pTransform = pEntity->GetComponent<CTransform>())
+				{
+					if (TEntityId::Invalid == pTransform->GetParent())
+					{
+						prefabInfo.mRootEntityId = pEntity->GetId();
+					}
+				}
+			}
+		}
+
+		TDE2_ASSERT(RC_OK == result);
+		return std::move(prefabInfo);
+	}
 
 	E_RESULT_CODE CPrefabsRegistry::OnEvent(const TBaseEvent* pEvent)
 	{

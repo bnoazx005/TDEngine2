@@ -16,6 +16,7 @@
 namespace TDEngine2
 {
 	class IDebugUtility;
+	class IWorld;
 
 
 	/*!
@@ -23,6 +24,14 @@ namespace TDEngine2
 	*/
 
 	TDE2_API void DrawEditorGrid(IDebugUtility* pDebugUtility, I32 rows, I32 cols, F32 cellSize = 1.0f);
+
+
+	class CEntitiesCommands
+	{
+		public:
+			TDE2_API static E_RESULT_CODE CopyEntitiesHierarchy(IWorld* pWorld, TEntityId entityId);
+			TDE2_API static E_RESULT_CODE PasteEntitiesHierarchy(IWorld* pWorld, TEntityId parentEntityId);
+	};
 }
 
 #endif

@@ -15,16 +15,23 @@
 
 namespace TDEngine2
 {
+	enum class TEntityId : U32;
+
+
 	class IFileSystem;
 	class IResourceManager;
 	class IWorld;
 	class CEntity;
 	class IEventManager;
+	class IArchiveReader;
+	class IArchiveWriter;
+	class CEntityManager;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IFileSystem)
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
 	TDE2_DECLARE_SCOPED_PTR(IWorld)
+	TDE2_DECLARE_SCOPED_PTR(CEntityManager)
 
 
 	/*!
@@ -47,6 +54,12 @@ namespace TDEngine2
 	{
 		public:
 			typedef std::function<void(TEntityId)> TEntityCallback;
+
+			struct TPrefabInfoEntity
+			{
+				TEntityId              mRootEntityId = TEntityId::Invalid;
+				std::vector<TEntityId> mRelatedEntities;
+			};
 		public:
 			/*!
 				\brief The method initializes the internal state of the object
@@ -81,7 +94,25 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE SavePrefab(const std::string& id, const std::string& filePath, CEntity* pHierarchyRoot) = 0;
+
+			/*!
+				\brief The method is a part of SavePrefab method and can be used to serialize entities hierarchy into the archive
+
+				\param[in, out] pWriter A pointer to an archive object
+				\param[in] pWorld A pointer to the game world 
+				\param[in] pEntity A root of the hierarchy that should be serialized
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SavePrefabHierarchy(IArchiveWriter* pWriter, IWorld* pWorld, CEntity* pEntity) = 0;
 #endif
+
+			/*!
+				\brief The method loads prefab's data from the given archive reader. The method is allowed only in editors builds
+			*/
+
+			TDE2_API virtual TPrefabInfoEntity LoadPrefabHierarchy(IArchiveReader* pReader, TPtr<CEntityManager>& pEntityManager) = 0;
 
 			/*!
 				\brief The method returns an array of prefabs identifier that were declared in already loaded prefabs manifest 

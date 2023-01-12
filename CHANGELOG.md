@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.14] 2023-01-11
+## [0.6.14] 2023-01-12
 
 ### Added
 
 - Serialization/Deserialization functions were defined for **TRange<T>** type.
 
 - Now the engine support switching between text/binary types of assets. To enable usage of binary versions of assets the project settings' file should be also binary one.
+
+- For editor's stuffs a new library **clip** was added into deps directory.
 
 ### Changed
 
