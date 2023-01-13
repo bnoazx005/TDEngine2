@@ -112,7 +112,7 @@ namespace TDEngine2
 				\brief The method loads prefab's data from the given archive reader. The method is allowed only in editors builds
 			*/
 
-			TDE2_API virtual TPrefabInfoEntity LoadPrefabHierarchy(IArchiveReader* pReader, TPtr<CEntityManager>& pEntityManager) = 0;
+			TDE2_API virtual TPrefabInfoEntity LoadPrefabHierarchy(IArchiveReader* pReader, CEntityManager* pEntityManager) = 0;
 
 			/*!
 				\brief The method returns an array of prefabs identifier that were declared in already loaded prefabs manifest 

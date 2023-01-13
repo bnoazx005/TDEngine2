@@ -17,6 +17,11 @@ namespace TDEngine2
 {
 	class IDebugUtility;
 	class IWorld;
+	class IPrefabsRegistry;
+
+
+	TDE2_DECLARE_SCOPED_PTR(IWorld);
+	TDE2_DECLARE_SCOPED_PTR(IPrefabsRegistry);
 
 
 	/*!
@@ -29,8 +34,8 @@ namespace TDEngine2
 	class CEntitiesCommands
 	{
 		public:
-			TDE2_API static E_RESULT_CODE CopyEntitiesHierarchy(IWorld* pWorld, TEntityId entityId);
-			TDE2_API static E_RESULT_CODE PasteEntitiesHierarchy(IWorld* pWorld, TEntityId parentEntityId);
+			TDE2_API static E_RESULT_CODE CopyEntitiesHierarchy(TPtr<IPrefabsRegistry> pPrefabsRegistry, TPtr<IWorld> pWorld, TEntityId entityId);
+			TDE2_API static E_RESULT_CODE PasteEntitiesHierarchy(TPtr<IPrefabsRegistry> pPrefabsRegistry, TPtr<IWorld> pWorld, TEntityId parentEntityId);
 	};
 }
 

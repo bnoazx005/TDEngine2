@@ -1,6 +1,10 @@
 #include "../../include/editor/EditorUtils.h"
 #include "../../include/graphics/IDebugUtility.h"
-#include "../../include/ecs/IWorld.h"
+#include "../../include/ecs/CWorld.h"
+#include "../../include/platform/IOStreams.h"
+#include "../../include/platform/CYAMLFile.h"
+#include "../../include/scene/IPrefabsRegistry.h"
+#include <clip.h>
 
 
 #if TDE2_EDITORS_ENABLED
@@ -39,14 +43,83 @@ namespace TDEngine2
 	}
 
 
-	E_RESULT_CODE CEntitiesCommands::CopyEntitiesHierarchy(IWorld* pWorld, TEntityId entityId)
+	E_RESULT_CODE CEntitiesCommands::CopyEntitiesHierarchy(TPtr<IPrefabsRegistry> pPrefabsRegistry, TPtr<IWorld> pWorld, TEntityId entityId)
 	{
-		return RC_OK;
+		E_RESULT_CODE result = RC_OK;
+
+		if (!pPrefabsRegistry || !pWorld || TEntityId::Invalid == entityId)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		auto pMemoryMappedStream = TPtr<IStream>(CreateMemoryIOStream(Wrench::StringUtils::GetEmptyStr(), {}, result));
+		if (!pMemoryMappedStream)
+		{
+			return result;
+		}
+
+		IYAMLFileWriter* pFileWriter = dynamic_cast<IYAMLFileWriter*>(CreateYAMLFileWriter(nullptr, pMemoryMappedStream, result));
+		if (!pFileWriter)
+		{
+			return result;
+		}
+
+		result = result | pPrefabsRegistry->SavePrefabHierarchy(pFileWriter, pWorld.Get(), pWorld->FindEntity(entityId));
+		result = result | pFileWriter->Close();
+
+		if (auto pInputSream = DynamicPtrCast<IInputStream>(pMemoryMappedStream))
+		{
+			if (!clip::set_text(pInputSream->ReadToEnd()))
+			{
+				return RC_FAIL;
+			}
+
+			return result;
+		}
+		
+		return RC_FAIL;
 	}
 
-	E_RESULT_CODE CEntitiesCommands::PasteEntitiesHierarchy(IWorld* pWorld, TEntityId parentEntityId)
+	E_RESULT_CODE CEntitiesCommands::PasteEntitiesHierarchy(TPtr<IPrefabsRegistry> pPrefabsRegistry, TPtr<IWorld> pWorld, TEntityId parentEntityId)
 	{
-		return RC_OK;
+		if (!pPrefabsRegistry || !pWorld)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		if (clip::has(clip::text_format())) /// \note Nothing to paste because of the empty clipboard
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		std::string clipboardData;
+		
+		if (!clip::get_text(clipboardData))
+		{
+			return RC_FAIL;
+		}
+
+		std::vector<U8> serializedBuffer;
+		std::transform(clipboardData.begin(), clipboardData.end(), std::back_inserter(serializedBuffer), [](const C8 ch) { return static_cast<U8>(ch); });
+
+		auto pMemoryMappedStream = TPtr<IStream>(CreateMemoryIOStream(Wrench::StringUtils::GetEmptyStr(), serializedBuffer, result));
+		if (!pMemoryMappedStream)
+		{
+			return result;
+		}
+
+		IYAMLFileReader* pFileReader = dynamic_cast<IYAMLFileReader*>(CreateYAMLFileReader(nullptr, pMemoryMappedStream, result));
+		if (!pFileReader)
+		{
+			return result;
+		}
+
+		auto&& duplicateRootEntityInfo = pPrefabsRegistry->LoadPrefabHierarchy(pFileReader, pWorld->GetEntityManager());
+		result = result | GroupEntities(pWorld.Get(), parentEntityId, duplicateRootEntityInfo.mRootEntityId);
+
+		return result;
 	}
 }
 

@@ -96,7 +96,7 @@ namespace TDEngine2
 				not be used in user's runtime code
 			*/
 
-			TDE2_API TPrefabInfoEntity LoadPrefabHierarchy(IArchiveReader* pReader, TPtr<CEntityManager>& pEntityManager) override;
+			TDE2_API TPrefabInfoEntity LoadPrefabHierarchy(IArchiveReader* pReader, CEntityManager* pEntityManager) override;
 
 			/*!
 				\brief The method receives a given event and processes it

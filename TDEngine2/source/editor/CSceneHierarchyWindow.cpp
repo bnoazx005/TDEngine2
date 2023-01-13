@@ -12,6 +12,7 @@
 #include "../../include/ecs/CTransform.h"
 #include "../../include/editor/CSelectionManager.h"
 #include "../../include/editor/ecs/EditorComponents.h"
+#include "../../include/editor/EditorUtils.h"
 #include <stack>
 
 
@@ -144,8 +145,8 @@ namespace TDEngine2
 	{
 		TEntityOperationsDesc mBase;
 
-		IWindowSystem* mpWindowSystem;
-		IFileSystem*   mpFileSystem;
+		IWindowSystem*    mpWindowSystem;
+		IFileSystem*      mpFileSystem;
 	};
 
 
@@ -193,7 +194,7 @@ namespace TDEngine2
 	{
 		auto&& pImGUIContext = desc.mBase.mpImGUIContext;
 		auto&& pSelectionManager = desc.mBase.mpSelectionManager;
-
+		
 		pImGUIContext->DisplayContextMenu(EntityContextMenuId, [=](IImGUIContext& imguiContext)
 		{
 			imguiContext.MenuItem("Delete", "Del", [&desc, pWorld, pSelectionManager]
@@ -247,6 +248,18 @@ namespace TDEngine2
 			imguiContext.MenuItem("Save To Prefab", Wrench::StringUtils::GetEmptyStr(), [=]
 			{
 				SaveHierarchyToPrefab(desc);
+			});
+
+			imguiContext.MenuItem("Copy", Wrench::StringUtils::GetEmptyStr(), [=]
+			{
+				/// \todo For now only single selected entity's copy is supported
+				CEntitiesCommands::CopyEntitiesHierarchy(desc.mBase.mpSceneManager->GetPrefabsRegistry(), pWorld, pSelectionManager->GetSelectedEntityId());
+			});
+
+			imguiContext.MenuItem("Paste", Wrench::StringUtils::GetEmptyStr(), [=]
+			{
+				/// \todo For now only single selected entity's paste is supported
+				CEntitiesCommands::PasteEntitiesHierarchy(desc.mBase.mpSceneManager->GetPrefabsRegistry(), pWorld, pSelectionManager->GetSelectedEntityId());
 			});
 		});
 	}

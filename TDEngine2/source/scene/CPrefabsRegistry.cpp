@@ -116,7 +116,7 @@ namespace TDEngine2
 		/// \todo Make it more dependency free and type agnostic
 		if (TResult<TFileEntryId> prefabFileId = pFileSystem->Open<IYAMLFileReader>(pathToPrefab))
 		{
-			return std::move(pPrefabsRegistry->LoadPrefabHierarchy(pFileSystem->Get<IYAMLFileReader>(prefabFileId.Get()), pEntityManager));
+			return std::move(pPrefabsRegistry->LoadPrefabHierarchy(pFileSystem->Get<IYAMLFileReader>(prefabFileId.Get()), pEntityManager.Get()));
 		}
 
 		return {};
@@ -332,7 +332,7 @@ namespace TDEngine2
 
 #endif
 
-	CPrefabsRegistry::TPrefabInfoEntity CPrefabsRegistry::LoadPrefabHierarchy(IArchiveReader* pReader, TPtr<CEntityManager>& pEntityManager)
+	CPrefabsRegistry::TPrefabInfoEntity CPrefabsRegistry::LoadPrefabHierarchy(IArchiveReader* pReader, CEntityManager* pEntityManager)
 	{
 		E_RESULT_CODE result = RC_OK;
 
@@ -371,7 +371,7 @@ namespace TDEngine2
 		{
 			if (auto pEntity = pEntityManager->GetEntity(currEntityId))
 			{
-				result = result | pEntity->PostLoad(pEntityManager.Get(), entitiesIdsMap);
+				result = result | pEntity->PostLoad(pEntityManager, entitiesIdsMap);
 				TDE2_ASSERT(RC_OK == result);
 
 				if (auto pTransform = pEntity->GetComponent<CTransform>())

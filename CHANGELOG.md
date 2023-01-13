@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - For editor's stuffs a new library **clip** was added into deps directory.
 
+- The implementation of copy/paste editor utilities for scene's hierarchy was added.
+
 ### Changed
 
 - The API of **IComponentManager** was changed. RemoveComponentImmediately and RemoveComponentsImmediately were removed from the class.
