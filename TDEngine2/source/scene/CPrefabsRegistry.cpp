@@ -332,7 +332,7 @@ namespace TDEngine2
 
 #endif
 
-	CPrefabsRegistry::TPrefabInfoEntity CPrefabsRegistry::LoadPrefabHierarchy(IArchiveReader* pReader, CEntityManager* pEntityManager)
+	CPrefabsRegistry::TPrefabInfoEntity CPrefabsRegistry::LoadPrefabHierarchy(IArchiveReader* pReader, CEntityManager* pEntityManager, const TEntityFactoryFunctor& entityCustomFactory)
 	{
 		E_RESULT_CODE result = RC_OK;
 
@@ -346,7 +346,7 @@ namespace TDEngine2
 		{
 			while (pReader->HasNextItem())
 			{
-				auto pNewEntity = pEntityManager->Create();
+				auto pNewEntity = entityCustomFactory ? entityCustomFactory() : pEntityManager->Create().Get();
 				createdEntities.push_back(pNewEntity->GetId());
 
 				result = result | pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());

@@ -18,6 +18,7 @@ namespace TDEngine2
 	class IDebugUtility;
 	class IWorld;
 	class IPrefabsRegistry;
+	class IScene;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IWorld);
@@ -35,7 +36,7 @@ namespace TDEngine2
 	{
 		public:
 			TDE2_API static E_RESULT_CODE CopyEntitiesHierarchy(TPtr<IPrefabsRegistry> pPrefabsRegistry, TPtr<IWorld> pWorld, TEntityId entityId);
-			TDE2_API static E_RESULT_CODE PasteEntitiesHierarchy(TPtr<IPrefabsRegistry> pPrefabsRegistry, TPtr<IWorld> pWorld, TEntityId parentEntityId);
+			TDE2_API static TResult<TEntityId> PasteEntitiesHierarchy(TPtr<IPrefabsRegistry> pPrefabsRegistry, TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId);
 	};
 }
 

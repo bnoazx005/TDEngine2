@@ -4,6 +4,7 @@
 #include "../../include/platform/IOStreams.h"
 #include "../../include/platform/CYAMLFile.h"
 #include "../../include/scene/IPrefabsRegistry.h"
+#include "../../include/scene/IScene.h"
 #include <clip.h>
 
 
@@ -80,16 +81,16 @@ namespace TDEngine2
 		return RC_FAIL;
 	}
 
-	E_RESULT_CODE CEntitiesCommands::PasteEntitiesHierarchy(TPtr<IPrefabsRegistry> pPrefabsRegistry, TPtr<IWorld> pWorld, TEntityId parentEntityId)
+	TResult<TEntityId> CEntitiesCommands::PasteEntitiesHierarchy(TPtr<IPrefabsRegistry> pPrefabsRegistry, TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId)
 	{
 		if (!pPrefabsRegistry || !pWorld)
 		{
-			return RC_INVALID_ARGS;
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
-		if (clip::has(clip::text_format())) /// \note Nothing to paste because of the empty clipboard
+		if (!clip::has(clip::text_format())) /// \note Nothing to paste because of the empty clipboard
 		{
-			return RC_FAIL;
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
 		E_RESULT_CODE result = RC_OK;
@@ -98,7 +99,7 @@ namespace TDEngine2
 		
 		if (!clip::get_text(clipboardData))
 		{
-			return RC_FAIL;
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
 		std::vector<U8> serializedBuffer;
@@ -107,19 +108,28 @@ namespace TDEngine2
 		auto pMemoryMappedStream = TPtr<IStream>(CreateMemoryIOStream(Wrench::StringUtils::GetEmptyStr(), serializedBuffer, result));
 		if (!pMemoryMappedStream)
 		{
-			return result;
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
 		IYAMLFileReader* pFileReader = dynamic_cast<IYAMLFileReader*>(CreateYAMLFileReader(nullptr, pMemoryMappedStream, result));
 		if (!pFileReader)
 		{
-			return result;
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
-		auto&& duplicateRootEntityInfo = pPrefabsRegistry->LoadPrefabHierarchy(pFileReader, pWorld->GetEntityManager());
-		result = result | GroupEntities(pWorld.Get(), parentEntityId, duplicateRootEntityInfo.mRootEntityId);
+		auto&& duplicateRootEntityInfo = pPrefabsRegistry->LoadPrefabHierarchy(pFileReader, pWorld->GetEntityManager(), [pCurrScene] 
+		{ 
+			return pCurrScene->CreateEntity(Wrench::StringUtils::GetEmptyStr()); 
+		});
 
-		return result;
+		result = result | GroupEntities(pWorld.Get(), parentEntityId, duplicateRootEntityInfo.mRootEntityId);
+		
+		if (RC_OK != result)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
+		}
+
+		return Wrench::TOkValue<TEntityId>(duplicateRootEntityInfo.mRootEntityId);
 	}
 }
 

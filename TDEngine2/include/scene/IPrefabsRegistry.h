@@ -32,6 +32,7 @@ namespace TDEngine2
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
 	TDE2_DECLARE_SCOPED_PTR(IWorld)
 	TDE2_DECLARE_SCOPED_PTR(CEntityManager)
+	TDE2_DECLARE_SCOPED_PTR(CEntity)
 
 
 	/*!
@@ -54,6 +55,7 @@ namespace TDEngine2
 	{
 		public:
 			typedef std::function<void(TEntityId)> TEntityCallback;
+			typedef std::function<CEntity*()> TEntityFactoryFunctor;
 
 			struct TPrefabInfoEntity
 			{
@@ -112,7 +114,7 @@ namespace TDEngine2
 				\brief The method loads prefab's data from the given archive reader. The method is allowed only in editors builds
 			*/
 
-			TDE2_API virtual TPrefabInfoEntity LoadPrefabHierarchy(IArchiveReader* pReader, CEntityManager* pEntityManager) = 0;
+			TDE2_API virtual TPrefabInfoEntity LoadPrefabHierarchy(IArchiveReader* pReader, CEntityManager* pEntityManager, const TEntityFactoryFunctor& entityCustomFactory = nullptr) = 0;
 
 			/*!
 				\brief The method returns an array of prefabs identifier that were declared in already loaded prefabs manifest 

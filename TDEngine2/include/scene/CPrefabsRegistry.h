@@ -11,6 +11,7 @@
 #include "../core/CBaseObject.h"
 #include "../core/Event.h"
 #include <unordered_map>
+#include <functional>
 
 
 namespace TDEngine2
@@ -96,7 +97,7 @@ namespace TDEngine2
 				not be used in user's runtime code
 			*/
 
-			TDE2_API TPrefabInfoEntity LoadPrefabHierarchy(IArchiveReader* pReader, CEntityManager* pEntityManager) override;
+			TDE2_API TPrefabInfoEntity LoadPrefabHierarchy(IArchiveReader* pReader, CEntityManager* pEntityManager, const TEntityFactoryFunctor& entityCustomFactory = nullptr) override;
 
 			/*!
 				\brief The method receives a given event and processes it

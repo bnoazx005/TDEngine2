@@ -147,6 +147,7 @@ namespace TDEngine2
 
 		IWindowSystem*    mpWindowSystem;
 		IFileSystem*      mpFileSystem;
+		IDesktopInputContext* mpInputContext;
 	};
 
 
@@ -190,11 +191,33 @@ namespace TDEngine2
 	}
 
 
+	static void PasteEntityImpl(ISceneManager* pSceneManager, ISelectionManager* pSelectionManager, TPtr<IWorld> pWorld, IScene* pCurrScene)
+	{
+		/// \todo For now only single selected entity's paste is supported
+		auto pastedEntityResult = CEntitiesCommands::PasteEntitiesHierarchy(pSceneManager->GetPrefabsRegistry(), pWorld, pCurrScene, TEntityId::Invalid);
+		if (pastedEntityResult.IsOk())
+		{
+			pSelectionManager->SetSelectedEntity(pastedEntityResult.Get());
+		}
+	}
+
+
 	static void DrawEntityContextMenu(const TSaveHierarchyDesc& desc, TPtr<IWorld> pWorld)
 	{
 		auto&& pImGUIContext = desc.mBase.mpImGUIContext;
 		auto&& pSelectionManager = desc.mBase.mpSelectionManager;
 		
+		auto&& copyEntitiesHierarchy = [=]
+		{
+			/// \todo For now only single selected entity's copy is supported
+			CEntitiesCommands::CopyEntitiesHierarchy(desc.mBase.mpSceneManager->GetPrefabsRegistry(), pWorld, pSelectionManager->GetSelectedEntityId());
+		};
+
+		auto&& pasteEntitiesHierarchy = [=]
+		{
+			PasteEntityImpl(desc.mBase.mpSceneManager, pSelectionManager, pWorld, desc.mBase.mpCurrScene);
+		};
+
 		pImGUIContext->DisplayContextMenu(EntityContextMenuId, [=](IImGUIContext& imguiContext)
 		{
 			imguiContext.MenuItem("Delete", "Del", [&desc, pWorld, pSelectionManager]
@@ -250,18 +273,23 @@ namespace TDEngine2
 				SaveHierarchyToPrefab(desc);
 			});
 
-			imguiContext.MenuItem("Copy", Wrench::StringUtils::GetEmptyStr(), [=]
-			{
-				/// \todo For now only single selected entity's copy is supported
-				CEntitiesCommands::CopyEntitiesHierarchy(desc.mBase.mpSceneManager->GetPrefabsRegistry(), pWorld, pSelectionManager->GetSelectedEntityId());
-			});
-
-			imguiContext.MenuItem("Paste", Wrench::StringUtils::GetEmptyStr(), [=]
-			{
-				/// \todo For now only single selected entity's paste is supported
-				CEntitiesCommands::PasteEntitiesHierarchy(desc.mBase.mpSceneManager->GetPrefabsRegistry(), pWorld, pSelectionManager->GetSelectedEntityId());
-			});
+			imguiContext.MenuItem("Copy", Wrench::StringUtils::GetEmptyStr(), copyEntitiesHierarchy);
+			imguiContext.MenuItem("Paste", Wrench::StringUtils::GetEmptyStr(), pasteEntitiesHierarchy);
 		});
+
+		if (auto pInputContext = desc.mpInputContext)
+		{
+			/// \todo Replace with configurable key bindings and command execution
+			if (pInputContext->IsKey(E_KEYCODES::KC_LCONTROL) && pInputContext->IsKeyPressed(E_KEYCODES::KC_C))
+			{
+				copyEntitiesHierarchy();
+			}
+
+			if (pInputContext->IsKey(E_KEYCODES::KC_LCONTROL) && pInputContext->IsKeyPressed(E_KEYCODES::KC_V))
+			{
+				pasteEntitiesHierarchy();
+			}
+		}
 	}
 
 
@@ -325,10 +353,12 @@ namespace TDEngine2
 			{
 				sceneName = pCurrScene->GetName();
 
-				if (mpImGUIContext->CollapsingHeader(sceneName, true, (mpSelectedScene == pCurrScene), [&isInvalidState, pCurrScene, sceneName, this] { mpSelectedScene = pCurrScene; }))
+				if (mpImGUIContext->CollapsingHeader(sceneName, true, (mpSelectedScene == pCurrScene), 
+					[&isInvalidState, pCurrScene, sceneName, pWorld, this] { mpSelectedScene = pCurrScene; }))
 				{
 					// \note Display context menu of the scene's header					
-					mpImGUIContext->DisplayContextMenu(Wrench::StringUtils::Format("{0}##Context_Menu", sceneName), [&isInvalidState, this, sceneName, pCurrScene](IImGUIContext& imguiContext)
+					mpImGUIContext->DisplayContextMenu(Wrench::StringUtils::Format("{0}##Context_Menu", sceneName), 
+						[&isInvalidState, this, sceneName, pCurrScene, pWorld](IImGUIContext& imguiContext)
 					{
 						if (!pCurrScene->IsMainScene()) // \note The main scene cannot be deleted by a user
 						{
@@ -367,6 +397,11 @@ namespace TDEngine2
 						{
 							mpSelectionManager->ClearSelection(); /// \note Clear the selected entities list because the prefab will be instantiated into the root of the scene
 							LoadPrefab({ mpImGUIContext, mpSceneManager, pCurrScene, mpSelectionManager });
+						});
+
+						imguiContext.MenuItem("Paste", Wrench::StringUtils::GetEmptyStr(), [=]
+						{
+							PasteEntityImpl(mpSceneManager, mpSelectionManager, pWorld, pCurrScene);
 						});
 					});
 
@@ -430,7 +465,7 @@ namespace TDEngine2
 							/// \note No matter of multiselection display context menu for last selected entity. It'll work for both cases 
 							if (mpSelectionManager->GetSelectedEntityId() == pEntity->GetId())
 							{
-								DrawEntityContextMenu({ mpImGUIContext, mpSceneManager, pCurrScene, mpSelectionManager, mpWindowSystem, mpFileSystem }, pWorld);
+								DrawEntityContextMenu({ mpImGUIContext, mpSceneManager, pCurrScene, mpSelectionManager, mpWindowSystem, mpFileSystem, mpInputContext }, pWorld);
 							}
 
 							return;
@@ -472,7 +507,7 @@ namespace TDEngine2
 
 						if (mpSelectionManager->IsEntityBeingSelected(pEntity->GetId()))
 						{
-							DrawEntityContextMenu({ mpImGUIContext, mpSceneManager, pCurrScene, mpSelectionManager, mpWindowSystem, mpFileSystem }, pWorld);
+							DrawEntityContextMenu({ mpImGUIContext, mpSceneManager, pCurrScene, mpSelectionManager, mpWindowSystem, mpFileSystem, mpInputContext }, pWorld);
 						}
 					};
 
