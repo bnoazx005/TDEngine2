@@ -1,0 +1,65 @@
+entities: 
+  - entity: 
+      components: 
+        - component: 
+            Children: 
+              - child_id: 24
+            owner_id: 22
+            parent_id: 4294967295
+            position: 
+              y: 0.265626
+              z: "-4.338742"
+            rotation: 
+              w: 1.000000
+            scale: 
+              x: 1.200000
+              y: 0.300000
+              z: 0.250000
+            type_id: 3864726948
+        - component: 
+            material: ProjectResources/Materials/DefaultMaterial.material
+            mesh: Cube
+            sub_mesh_id: 
+            type_id: 780504096
+      id: 22
+      name: Paddle
+  - entity: 
+      components: 
+        - component: 
+            owner_id: 24
+            parent_id: 22
+            position: 
+              y: 0.004580
+              z: 1.354969
+            rotation: 
+              w: 1.000000
+            scale: 
+              x: 0.250000
+              y: 1.000000
+              z: 1.200000
+            type_id: 3864726948
+        - component: 
+            material: ProjectResources/Materials/DefaultMaterial.material
+            mesh: Cube
+            sub_mesh_id: 
+            type_id: 780504096
+      id: 24
+      name: Ball
+  - link: 
+      id: 28
+      parent_id: 22
+      position: 
+        x: 0.000000
+      prefab_id: 1
+  - link: 
+      id: 29
+      parent_id: 28
+      position: 
+        x: 4.131809
+        y: 3.633381
+        z: 9.559008
+      prefab_id: TestPrefab
+name: TestPlayground.scene
+scene_properties: 
+  is_main: 0
+version: 0
