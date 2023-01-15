@@ -127,85 +127,7 @@ namespace TDEngine2
 		}
 		pReader->EndGroup();
 
-		std::unordered_map<TEntityId, TEntityId> entitiesIdsMap;
-		std::unordered_set<TEntityId> nonPrefabEntitiesSet;
-
-
-		struct TPrefabLinkInfo
-		{
-			TVector3 mPosition = ZeroVector3;
-			TEntityId mId = TEntityId::Invalid;
-			TEntityId mParentId = TEntityId::Invalid;
-			std::string mPrefabId;
-		};
-
-
-		std::queue<TPrefabLinkInfo> prefabsDefferedSpawnQueue; /// all prefabs are spawned after all the scene has been read
-
-		// \note Read entities
-		pReader->BeginGroup("entities");
-		{
-			while (pReader->HasNextItem())
-			{
-				pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
-				{
-					TEntityId entityId = TEntityId::Invalid;
-
-					pReader->BeginGroup("entity"); /// \note Read id first, it's a tag which data block we should read next
-					{
-						entityId = static_cast<TEntityId>(pReader->GetUInt32("id", static_cast<U32>(TEntityId::Invalid)));
-					}
-					pReader->EndGroup();
-
-					if (TEntityId::Invalid == entityId) /// \note If the entityId is empty then try to read prefab
-					{
-						pReader->BeginGroup(TSceneArchiveKeys::mPrefabLinkGroupId);
-						{
-							pReader->BeginGroup(TSceneArchiveKeys::TPrefabLinkGroupKeys::mOverridenPositionIdKey);
-							auto positionResult = LoadVector3(pReader); /// \note Try to read overriden position for the link
-							pReader->EndGroup();
-
-							TEntityId originalParentEntityId = static_cast<TEntityId>(
-								pReader->GetUInt32(TSceneArchiveKeys::TPrefabLinkGroupKeys::mParentIdKey, static_cast<U32>(TEntityId::Invalid)));
-
-							TVector3 overridenPosition = ZeroVector3;
-
-							if (positionResult.IsOk())
-							{
-								overridenPosition = positionResult.Get();
-							}
-
-							prefabsDefferedSpawnQueue.push(
-								{ 
-									overridenPosition, 
-									static_cast<TEntityId>(pReader->GetUInt32("id", static_cast<U32>(TEntityId::Invalid))), 
-									originalParentEntityId, 
-									pReader->GetString(TSceneArchiveKeys::TPrefabLinkGroupKeys::mPrefabIdKey) 
-								});
-						}
-						pReader->EndGroup();
-					}
-					else
-					{
-						CEntity* pNewEntity = mpWorld->CreateEntity();
-
-						pReader->BeginGroup("entity");
-						{
-							// \todo Implement remapping of entity's identifiers
-							entitiesIdsMap.emplace(entityId, pNewEntity->GetId());
-							nonPrefabEntitiesSet.emplace(pNewEntity->GetId());
-						}
-						pReader->EndGroup();
-
-						pNewEntity->Load(pReader);
-
-						mEntities.push_back(pNewEntity->GetId());
-					}
-				}
-				pReader->EndGroup();
-			}
-		}
-		pReader->EndGroup();
+		E_RESULT_CODE result = CSceneLoader::LoadScene(pReader, mpWorld.Get(), this);
 
 #if TDE2_EDITORS_ENABLED
 
@@ -218,59 +140,6 @@ namespace TDEngine2
 		}
 
 #endif
-
-		// \note Post load remapping stage
-		E_RESULT_CODE result = RC_OK;
-
-		for (TEntityId currEntityId : mEntities)
-		{
-			if (nonPrefabEntitiesSet.find(currEntityId) == nonPrefabEntitiesSet.cend())
-			{
-				continue; // \note If there is no information about the entity's identifier that means it's a prefab. It's been already resolved so there is no need for post-process step
-			}
-
-			if (CEntity* pEntity = mpWorld->FindEntity(currEntityId))
-			{
-				result = result | pEntity->PostLoad(mpWorld->GetEntityManager(), entitiesIdsMap);
-
-				TDE2_ASSERT(RC_OK == result);
-			}
-		}
-
-		/// \note Spawn prefabs
-		while (!prefabsDefferedSpawnQueue.empty())
-		{
-			const auto& currPrefabInfo = prefabsDefferedSpawnQueue.front();
-
-			TEntityId parentEntityId = currPrefabInfo.mParentId;
-
-			if (TEntityId::Invalid != parentEntityId)
-			{
-				auto it = entitiesIdsMap.find(parentEntityId); /// \note Convert the serialized value to the runtime one
-				if (it != entitiesIdsMap.end())
-				{
-					parentEntityId = it->second;
-				}
-			}
-
-			auto pInstance = Spawn(currPrefabInfo.mPrefabId, mpWorld->FindEntity(parentEntityId));
-			TDE2_ASSERT(pInstance);
-			if (!pInstance)
-			{
-				prefabsDefferedSpawnQueue.pop();
-				continue;
-			}
-
-			if (Length(currPrefabInfo.mPosition) > FloatEpsilon)
-			{
-				CTransform* pTransform = pInstance->GetComponent<CTransform>();
-				pTransform->SetPosition(currPrefabInfo.mPosition);
-			}
-
-			prefabsDefferedSpawnQueue.pop();
-
-			entitiesIdsMap.emplace(currPrefabInfo.mId, pInstance->GetId());
-		}
 
 		return result;
 	}
@@ -558,5 +427,235 @@ namespace TDEngine2
 	TDE2_API IScene* CreateScene(TPtr<IWorld> pWorld, TPtr<IPrefabsRegistry> pPrefabsRegistry, const std::string& id, const std::string& scenePath, bool isMainScene, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IScene, CScene, result, pWorld, pPrefabsRegistry, id, scenePath, isMainScene);
+	}
+
+	
+	/*!
+		\brief The CSceneLoader's implementation
+	*/
+
+
+	struct TLoadEntitiesInfo
+	{
+		std::vector<TEntityId> mCreatedEntities;
+		std::vector<TEntityId> mRootEntities;
+	};
+
+
+	static TResult<TLoadEntitiesInfo> LoadEntitiesImpl(
+		IArchiveReader* pReader, 
+		CEntityManager* pEntityManager, 
+		const std::function<CEntity*()>& entityFactory, 
+		const std::function<CEntity*(const std::string&, CEntity*)>& prefabLinkFactory)
+	{
+		TDE2_ASSERT(pReader);
+		TDE2_ASSERT(pEntityManager);
+		TDE2_ASSERT(entityFactory);
+		TDE2_ASSERT(prefabLinkFactory);
+
+		TLoadEntitiesInfo output;
+
+		E_RESULT_CODE result = RC_OK;
+
+		std::unordered_map<TEntityId, TEntityId> entitiesIdsMap;
+		std::unordered_set<TEntityId> nonPrefabEntitiesSet;
+
+
+		struct TPrefabLinkInfo
+		{
+			TVector3 mPosition = ZeroVector3;
+			TEntityId mId = TEntityId::Invalid;
+			TEntityId mParentId = TEntityId::Invalid;
+			std::string mPrefabId;
+		};
+
+
+		std::queue<TPrefabLinkInfo> prefabsDefferedSpawnQueue; /// all prefabs are spawned after all the scene has been read
+
+		auto& createdEntities = output.mCreatedEntities;
+
+		// \note Read entities
+		pReader->BeginGroup("entities");
+		{
+			while (pReader->HasNextItem())
+			{
+				pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+				{
+					TEntityId entityId = TEntityId::Invalid;
+
+					pReader->BeginGroup("entity"); /// \note Read id first, it's a tag which data block we should read next
+					{
+						entityId = static_cast<TEntityId>(pReader->GetUInt32("id", static_cast<U32>(TEntityId::Invalid)));
+					}
+					pReader->EndGroup();
+
+					if (TEntityId::Invalid == entityId) /// \note If the entityId is empty then try to read prefab
+					{
+						pReader->BeginGroup(TSceneArchiveKeys::mPrefabLinkGroupId);
+						{
+							pReader->BeginGroup(TSceneArchiveKeys::TPrefabLinkGroupKeys::mOverridenPositionIdKey);
+							auto positionResult = LoadVector3(pReader); /// \note Try to read overriden position for the link
+							pReader->EndGroup();
+
+							TEntityId originalParentEntityId = static_cast<TEntityId>(
+								pReader->GetUInt32(TSceneArchiveKeys::TPrefabLinkGroupKeys::mParentIdKey, static_cast<U32>(TEntityId::Invalid)));
+
+							TVector3 overridenPosition = ZeroVector3;
+
+							if (positionResult.IsOk())
+							{
+								overridenPosition = positionResult.Get();
+							}
+
+							prefabsDefferedSpawnQueue.push(
+								{
+									overridenPosition,
+									static_cast<TEntityId>(pReader->GetUInt32("id", static_cast<U32>(TEntityId::Invalid))),
+									originalParentEntityId,
+									pReader->GetString(TSceneArchiveKeys::TPrefabLinkGroupKeys::mPrefabIdKey)
+								});
+						}
+						pReader->EndGroup();
+					}
+					else
+					{
+						CEntity* pNewEntity = entityFactory();
+						createdEntities.emplace_back(pNewEntity->GetId());
+
+						pReader->BeginGroup("entity");
+						{
+							// \todo Implement remapping of entity's identifiers
+							entitiesIdsMap.emplace(entityId, pNewEntity->GetId());
+							nonPrefabEntitiesSet.emplace(pNewEntity->GetId());
+						}
+						pReader->EndGroup();
+
+						pNewEntity->Load(pReader);
+					}
+				}
+				pReader->EndGroup();
+			}
+		}
+		pReader->EndGroup();
+
+		// \note Post load remapping stage
+		auto& rootEntities = output.mRootEntities;
+
+		for (TEntityId currEntityId : createdEntities)
+		{
+			if (nonPrefabEntitiesSet.find(currEntityId) == nonPrefabEntitiesSet.cend())
+			{
+				rootEntities.push_back(currEntityId);
+				continue; // \note If there is no information about the entity's identifier that means it's a prefab. It's been already resolved so there is no need for post-process step
+			}
+
+			if (auto pEntity = pEntityManager->GetEntity(currEntityId))
+			{
+				result = result | pEntity->PostLoad(pEntityManager, entitiesIdsMap);
+
+				TDE2_ASSERT(RC_OK == result);
+
+				if (auto pTransform = pEntity->GetComponent<CTransform>())
+				{
+					if (TEntityId::Invalid == pTransform->GetParent())
+					{
+						rootEntities.push_back(pEntity->GetId());
+					}
+				}
+			}
+		}
+
+		/// \note Spawn prefabs
+		while (!prefabsDefferedSpawnQueue.empty())
+		{
+			const auto& currPrefabInfo = prefabsDefferedSpawnQueue.front();
+
+			TEntityId parentEntityId = currPrefabInfo.mParentId;
+
+			if (TEntityId::Invalid != parentEntityId)
+			{
+				auto it = entitiesIdsMap.find(parentEntityId); /// \note Convert the serialized value to the runtime one
+				if (it != entitiesIdsMap.end())
+				{
+					parentEntityId = it->second;
+				}
+			}
+
+			auto pInstance = prefabLinkFactory(currPrefabInfo.mPrefabId, pEntityManager->GetEntity(parentEntityId).Get());
+			TDE2_ASSERT(pInstance);
+			if (!pInstance)
+			{
+				prefabsDefferedSpawnQueue.pop();
+				continue;
+			}
+
+			if (Length(currPrefabInfo.mPosition) > FloatEpsilon)
+			{
+				CTransform* pTransform = pInstance->GetComponent<CTransform>();
+				pTransform->SetPosition(currPrefabInfo.mPosition);
+			}
+
+			prefabsDefferedSpawnQueue.pop();
+
+			entitiesIdsMap.emplace(currPrefabInfo.mId, pInstance->GetId());
+		}
+
+		if (RC_OK != result)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
+		}
+
+		return Wrench::TOkValue<TLoadEntitiesInfo>(output);
+	}
+
+
+	E_RESULT_CODE CSceneLoader::LoadScene(IArchiveReader* pReader, IWorld* pWorld, IScene* pScene)
+	{
+		auto&& loadResult = LoadEntitiesImpl(
+			pReader,
+			pWorld->GetEntityManager(),
+			[pScene]
+			{
+				return pScene->CreateEntity(Wrench::StringUtils::GetEmptyStr());
+			},
+			[pScene](const std::string& prefabId, CEntity* pParentEntity)
+			{
+				return pScene->Spawn(prefabId, pParentEntity);
+			});
+
+		return loadResult.IsOk() ? RC_OK : loadResult.GetError();
+	}
+
+	TResult<IPrefabsRegistry::TPrefabInfoEntity> CSceneLoader::LoadPrefab(
+		IArchiveReader* pReader,
+		CEntityManager* pEntityManager,
+		const IPrefabsRegistry::TEntityFactoryFunctor& entityFactory,
+		const IPrefabsRegistry::TPrefabFactoryFunctor& prefabFactory)
+	{
+		TDE2_ASSERT(pReader);
+		TDE2_ASSERT(pEntityManager);
+		TDE2_ASSERT(entityFactory);
+		TDE2_ASSERT(prefabFactory);
+
+		IPrefabsRegistry::TPrefabInfoEntity output;
+
+		auto&& loadResult = LoadEntitiesImpl(pReader, pEntityManager, entityFactory, prefabFactory);
+		if (loadResult.HasError())
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(loadResult.GetError());
+		}
+
+		auto&& loadInfo = loadResult.Get();
+		TDE2_ASSERT(!loadInfo.mRootEntities.empty());
+
+		if (loadInfo.mRootEntities.empty())
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		output.mRelatedEntities = std::move(loadInfo.mCreatedEntities);
+		output.mRootEntityId = loadInfo.mRootEntities.front();
+
+		return Wrench::TOkValue<IPrefabsRegistry::TPrefabInfoEntity>(output);
 	}
 }

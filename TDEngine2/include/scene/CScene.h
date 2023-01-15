@@ -9,6 +9,7 @@
 
 #include "IScene.h"
 #include "../core/CBaseObject.h"
+#include "IPrefabsRegistry.h"
 #include <mutex>
 #include <vector>
 
@@ -185,5 +186,18 @@ namespace TDEngine2
 			TEntityId mSceneInfoEntityId;
 
 			TEntitiesRegistry mEntities;
+	};
+
+
+	class CSceneLoader
+	{
+		public:
+			TDE2_API static E_RESULT_CODE LoadScene(IArchiveReader* pReader, IWorld* pWorld, IScene* pScene);
+
+			TDE2_API static TResult<IPrefabsRegistry::TPrefabInfoEntity> LoadPrefab(
+				IArchiveReader* pReader,
+				CEntityManager* pEntityManager,
+				const IPrefabsRegistry::TEntityFactoryFunctor& entityFactory, 
+				const IPrefabsRegistry::TPrefabFactoryFunctor& prefabFactory);
 	};
 }

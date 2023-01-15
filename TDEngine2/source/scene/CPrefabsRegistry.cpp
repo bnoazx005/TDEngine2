@@ -9,6 +9,7 @@
 #include "../../include/ecs/CEntityManager.h"
 #include "../../include/ecs/CTransform.h"
 #include "../../include/scene/CPrefabsManifest.h"
+#include "../../include/scene/CScene.h"
 #include "../../include/platform/CYAMLFile.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/editor/ecs/EditorComponents.h"
@@ -113,10 +114,17 @@ namespace TDEngine2
 		}
 
 		/// \note If we've found one try to read archive's data
+		/// 
 		/// \todo Make it more dependency free and type agnostic
+		/// \todo For now nested prefab links are not supported
+		/// 
 		if (TResult<TFileEntryId> prefabFileId = pFileSystem->Open<IYAMLFileReader>(pathToPrefab))
 		{
-			return std::move(pPrefabsRegistry->LoadPrefabHierarchy(pFileSystem->Get<IYAMLFileReader>(prefabFileId.Get()), pEntityManager.Get()));
+			return std::move(pPrefabsRegistry->LoadPrefabHierarchy(
+				pFileSystem->Get<IYAMLFileReader>(prefabFileId.Get()), 
+				pEntityManager.Get(),
+				[pEntityManager] { return pEntityManager->Create().Get(); },
+				[pPrefabsRegistry](const std::string& prefabId, CEntity* pParentEntity) { TDE2_UNIMPLEMENTED(); return nullptr; }));
 		}
 
 		return {};
@@ -332,60 +340,10 @@ namespace TDEngine2
 
 #endif
 
-	CPrefabsRegistry::TPrefabInfoEntity CPrefabsRegistry::LoadPrefabHierarchy(IArchiveReader* pReader, CEntityManager* pEntityManager, const TEntityFactoryFunctor& entityCustomFactory)
+	CPrefabsRegistry::TPrefabInfoEntity CPrefabsRegistry::LoadPrefabHierarchy(IArchiveReader* pReader, CEntityManager* pEntityManager, 
+		const TEntityFactoryFunctor& entityCustomFactory, const TPrefabFactoryFunctor& prefabCustomFactory)
 	{
-		E_RESULT_CODE result = RC_OK;
-
-		CPrefabsRegistry::TPrefabInfoEntity prefabInfo;
-
-		std::unordered_map<TEntityId, TEntityId> entitiesIdsMap;
-		auto& createdEntities = prefabInfo.mRelatedEntities;
-
-		// \note Read entities
-		result = result | pReader->BeginGroup("entities");
-		{
-			while (pReader->HasNextItem())
-			{
-				auto pNewEntity = entityCustomFactory ? entityCustomFactory() : pEntityManager->Create().Get();
-				createdEntities.push_back(pNewEntity->GetId());
-
-				result = result | pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
-				{
-					result = result | pReader->BeginGroup("entity");
-					{
-						entitiesIdsMap.emplace(static_cast<TEntityId>(pReader->GetUInt32("id")), pNewEntity->GetId());
-					}
-					result = result | pReader->EndGroup();
-
-					result = result | pNewEntity->Load(pReader);
-				}
-				result = result | pReader->EndGroup();
-
-				//mEntities.push_back(pNewEntity->GetId());
-			}
-		}
-		result = result | pReader->EndGroup();
-
-		// \note First time we resolve references within the prefab's hierarchy. The second time we do it when the instance of the prototype is created
-		for (TEntityId currEntityId : createdEntities)
-		{
-			if (auto pEntity = pEntityManager->GetEntity(currEntityId))
-			{
-				result = result | pEntity->PostLoad(pEntityManager, entitiesIdsMap);
-				TDE2_ASSERT(RC_OK == result);
-
-				if (auto pTransform = pEntity->GetComponent<CTransform>())
-				{
-					if (TEntityId::Invalid == pTransform->GetParent())
-					{
-						prefabInfo.mRootEntityId = pEntity->GetId();
-					}
-				}
-			}
-		}
-
-		TDE2_ASSERT(RC_OK == result);
-		return std::move(prefabInfo);
+		return CSceneLoader::LoadPrefab(pReader, pEntityManager, entityCustomFactory, prefabCustomFactory).Get();
 	}
 
 	E_RESULT_CODE CPrefabsRegistry::OnEvent(const TBaseEvent* pEvent)

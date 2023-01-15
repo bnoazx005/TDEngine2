@@ -117,10 +117,15 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
-		auto&& duplicateRootEntityInfo = pPrefabsRegistry->LoadPrefabHierarchy(pFileReader, pWorld->GetEntityManager(), [pCurrScene] 
-		{ 
-			return pCurrScene->CreateEntity(Wrench::StringUtils::GetEmptyStr()); 
-		});
+		auto&& duplicateRootEntityInfo = pPrefabsRegistry->LoadPrefabHierarchy(pFileReader, pWorld->GetEntityManager(), 
+			[pCurrScene] 
+			{ 
+				return pCurrScene->CreateEntity(Wrench::StringUtils::GetEmptyStr()); 
+			},
+			[pCurrScene](const std::string& prefabId, CEntity* pParentEntity) 
+			{
+				return pCurrScene->Spawn(prefabId, pParentEntity);
+			});
 
 		result = result | GroupEntities(pWorld.Get(), parentEntityId, duplicateRootEntityInfo.mRootEntityId);
 		
