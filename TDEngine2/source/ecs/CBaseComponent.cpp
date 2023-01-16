@@ -99,7 +99,7 @@ namespace TDEngine2
 
 	bool CComponentIterator::HasNext() const
 	{
-		return mIsValid && (mBegin + mCurrIndex + 1) != mEnd;
+		return mIsValid && (mBegin != mEnd) && (mBegin + mCurrIndex + 1) != mEnd;
 	}
 
 	void CComponentIterator::Reset()

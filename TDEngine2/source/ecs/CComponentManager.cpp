@@ -207,8 +207,7 @@ namespace TDEngine2
 			componentType = currEntityComponentPair.first;
 			hashValue = currEntityComponentPair.second - 1;
 
-			/// \note Don't remove Transforms from entities
-			if (componentType == CTransform::GetTypeId() || hashValue == (std::numeric_limits<U32>::max)()) // \note this means that there is no component of given type on this entity
+			if (hashValue == (std::numeric_limits<U32>::max)()) // \note this means that there is no component of given type on this entity
 			{
 				continue;
 			}

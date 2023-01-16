@@ -89,6 +89,7 @@ namespace TDEngine2
 			const USIZE entityIndex = static_cast<USIZE>(it->second);
 
 			mActiveEntities.erase(mActiveEntities.begin() + entityIndex);
+			mFreeElementsIndices.push(static_cast<U32>(entityIndex));
 
 			if (recomputeHandles) /// \note Update the table of handles for entities that're stored after the removed entity
 			{
@@ -199,8 +200,8 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		TEntityId id = TEntityId(mNextIdValue);
-
+		TEntityId id = TEntityId(mFreeElementsIndices.empty() ? mNextIdValue : mFreeElementsIndices.front());
+		
 		auto pEntity = TPtr<CEntity>(CreateEntity(id, name, this, result));
 		
 		if (result != RC_OK)
@@ -208,20 +209,21 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		size_t currStorageSize = mActiveEntities.size();
-
-		if (mNextIdValue + 1 >= currStorageSize)
-		{
-			mActiveEntities.resize(currStorageSize + 1);
-		}
-		
 		TOnEntityCreatedEvent onEntityCreated;
 
 		onEntityCreated.mCreatedEntityId = id;
 
-		mEntitiesHashTable[id] = mNextIdValue;
+		mEntitiesHashTable[id] = static_cast<U32>(mActiveEntities.size());
+		mActiveEntities.emplace_back(pEntity);
 
-		mActiveEntities[mNextIdValue++] = pEntity;
+		if (!mFreeElementsIndices.empty())
+		{
+			mFreeElementsIndices.pop();
+		}
+		else
+		{
+			mNextIdValue++;
+		}
 
 		/// create basic component CTransform
 		if (mCreateEntitiesWithPredefinedComponents)

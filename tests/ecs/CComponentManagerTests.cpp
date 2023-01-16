@@ -216,4 +216,16 @@ TEST_CASE("CComponentManager Tests")
 
 		REQUIRE((pCreatedComponent && pCreatedComponent == pRetrievedComponent));
 	}
+
+	SECTION("TestRemoveComponents_CreateEntityAddComponentThenRemoveAllOfThem_ComponentsIteratorShouldBeInvalid")
+	{
+		auto pFactory = TPtr<IComponentFactory>(CreateTestComponentFactory(result));
+		REQUIRE((pFactory && RC_OK == pComponentManager->RegisterFactory(pFactory)));
+
+		const TEntityId entityId = TEntityId(1);
+
+		REQUIRE(pComponentManager->CreateComponent<CTestComponent>(entityId));
+		REQUIRE(RC_OK == pComponentManager->RemoveComponents(entityId));
+		REQUIRE(!pComponentManager->FindComponentsOfType<CTestComponent>().HasNext());
+	}
 }
