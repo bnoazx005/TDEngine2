@@ -11,7 +11,6 @@
 #include "../utils/Utils.h"
 #include "IComponentManager.h"
 #include <vector>
-#include <queue>
 #include <string>
 #include <unordered_map>
 #include <mutex>
@@ -194,8 +193,6 @@ namespace TDEngine2
 
 			TEntitiesArray     mActiveEntities;
 			TEntitiesHashTable mEntitiesHashTable;
-
-			std::queue<U32>    mFreeElementsIndices;
 
 			U32                mNextIdValue;
 
