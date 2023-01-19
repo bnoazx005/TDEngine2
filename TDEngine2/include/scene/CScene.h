@@ -16,6 +16,13 @@
 
 namespace TDEngine2
 {
+	class IWorld;
+	class IScene;
+
+
+	TDE2_DECLARE_SCOPED_PTR(IWorld);
+
+
 	/*!
 		\brief A factory function for creation objects of CScene's type
 
@@ -166,6 +173,8 @@ namespace TDEngine2
 			TDE2_API const std::string& GetScenePath() const override;
 
 			TDE2_API bool IsMainScene() const override;
+
+			TDE2_API const std::vector<TEntityId>& GetEntities() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CScene)
 			
@@ -199,5 +208,13 @@ namespace TDEngine2
 				CEntityManager* pEntityManager,
 				const IPrefabsRegistry::TEntityFactoryFunctor& entityFactory, 
 				const IPrefabsRegistry::TPrefabFactoryFunctor& prefabFactory);
+	};
+
+
+	class CSceneSerializer
+	{
+		public:
+			TDE2_API static E_RESULT_CODE SaveScene(IArchiveWriter* pWriter, TPtr<IWorld> pWorld, IScene* pScene);
+			TDE2_API static E_RESULT_CODE SavePrefab(IArchiveWriter* pWriter, TPtr<IWorld> pWorld, CEntity* pRootEntity);
 	};
 }

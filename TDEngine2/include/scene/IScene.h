@@ -153,6 +153,8 @@ namespace TDEngine2
 			TDE2_API virtual const std::string& GetScenePath() const = 0;
 
 			TDE2_API virtual bool IsMainScene() const = 0;
+
+			TDE2_API virtual const std::vector<TEntityId>& GetEntities() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IScene)
 	};

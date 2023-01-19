@@ -792,6 +792,19 @@ namespace TDEngine2
 	}
 
 
+	template <typename T, typename U>
+	CScopedPtr<T> MakeScopedFromRawPtr(U* pPtr)
+	{
+		if (!pPtr)
+		{
+			return nullptr;
+		}
+
+		pPtr->AddRef();
+		return CScopedPtr<T>(pPtr);
+	}
+
+
 	template <typename T> CScopedPtr<T> GetValidPtrOrDefault(CScopedPtr<T> ptr, CScopedPtr<T> defaultPtr) { return ptr ? ptr : defaultPtr; }
 
 

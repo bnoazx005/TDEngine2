@@ -128,7 +128,8 @@ namespace TDEngine2
 			});
 
 		result = result | GroupEntities(pWorld.Get(), parentEntityId, duplicateRootEntityInfo.mRootEntityId);
-		
+		result = result | pFileReader->Close();
+
 		if (RC_OK != result)
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(result);

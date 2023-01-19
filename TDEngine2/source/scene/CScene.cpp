@@ -162,58 +162,7 @@ namespace TDEngine2
 		pWriter->EndGroup();
 
 		// \note Write down entities
-		pWriter->BeginGroup("entities", true);
-		{
-			for (TEntityId currEntityId : mEntities)
-			{
-				const TEntityId prefabEntityRootId =
-#if TDE2_EDITORS_ENABLED
-					GetPrefabInstanceRootEntityId(mpWorld, currEntityId);
-#else
-					TEntityId::Invalid;
-#endif
-				if (TEntityId::Invalid != prefabEntityRootId && prefabEntityRootId != currEntityId) /// \note If it's a part of a prefab but not it's root skip serialization process
-				{
-					continue;
-				}
-
-				if (CEntity* pCurrEntity = mpWorld->FindEntity(currEntityId))
-				{
-					pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
-					{
-#if TDE2_EDITORS_ENABLED
-						if (auto pPrefabLinkInfo = pCurrEntity->GetComponent<CPrefabLinkInfoComponent>())
-						{
-							pWriter->BeginGroup(TSceneArchiveKeys::mPrefabLinkGroupId);
-							{
-								pWriter->SetString(TSceneArchiveKeys::TPrefabLinkGroupKeys::mPrefabIdKey, pPrefabLinkInfo->GetPrefabLinkId());
-								pWriter->SetUInt32(TSceneArchiveKeys::TPrefabLinkGroupKeys::mPrefabUIDKey, static_cast<U32>(currEntityId));
-
-								if (auto pTransform = pCurrEntity->GetComponent<CTransform>())
-								{
-									if (TEntityId::Invalid != pTransform->GetParent())
-									{
-										pWriter->SetUInt32(TSceneArchiveKeys::TPrefabLinkGroupKeys::mParentIdKey, static_cast<U32>(pTransform->GetParent()));
-									}
-
-									pWriter->BeginGroup(TSceneArchiveKeys::TPrefabLinkGroupKeys::mOverridenPositionIdKey);
-									SaveVector3(pWriter, pTransform->GetPosition());
-									pWriter->EndGroup();
-								}
-							}
-							pWriter->EndGroup();
-						}
-						else
-#endif
-						{
-							pCurrEntity->Save(pWriter);
-						}
-					}
-					pWriter->EndGroup();
-				}
-			}
-		}
-		pWriter->EndGroup();
+		CSceneSerializer::SaveScene(pWriter, mpWorld, this);
 
 		return RC_OK;
 	}
@@ -421,6 +370,12 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 		return mIsMainScene;
+	}
+
+	const std::vector<TEntityId>& CScene::GetEntities() const
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		return mEntities;
 	}
 
 
@@ -657,5 +612,145 @@ namespace TDEngine2
 		output.mRootEntityId = loadInfo.mRootEntities.front();
 
 		return Wrench::TOkValue<IPrefabsRegistry::TPrefabInfoEntity>(output);
+	}
+
+
+	/*!
+		\brief CSceneSerializer's definition
+	*/
+
+
+	static E_RESULT_CODE SaveSingleEntityImpl(IArchiveWriter* pWriter, TPtr<IWorld> pWorld, TEntityId currEntityId)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		CEntity* pCurrEntity = pWorld->FindEntity(currEntityId);
+		if (!pCurrEntity)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		result = result | pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+		{
+#if TDE2_EDITORS_ENABLED
+			if (auto pPrefabLinkInfo = pCurrEntity->GetComponent<CPrefabLinkInfoComponent>())
+			{
+				result = result | pWriter->BeginGroup(TSceneArchiveKeys::mPrefabLinkGroupId);
+				{
+					result = result | pWriter->SetString(TSceneArchiveKeys::TPrefabLinkGroupKeys::mPrefabIdKey, pPrefabLinkInfo->GetPrefabLinkId());
+					result = result | pWriter->SetUInt32(TSceneArchiveKeys::TPrefabLinkGroupKeys::mPrefabUIDKey, static_cast<U32>(currEntityId));
+
+					if (auto pTransform = pCurrEntity->GetComponent<CTransform>())
+					{
+						if (TEntityId::Invalid != pTransform->GetParent())
+						{
+							pWriter->SetUInt32(TSceneArchiveKeys::TPrefabLinkGroupKeys::mParentIdKey, static_cast<U32>(pTransform->GetParent()));
+						}
+
+						result = result | pWriter->BeginGroup(TSceneArchiveKeys::TPrefabLinkGroupKeys::mOverridenPositionIdKey);
+						result = result | SaveVector3(pWriter, pTransform->GetPosition());
+						result = result | pWriter->EndGroup();
+					}
+				}
+				result = result | pWriter->EndGroup();
+			}
+			else
+#endif
+			{
+				result = result | pCurrEntity->Save(pWriter);
+			}
+		}
+		result = result | pWriter->EndGroup();
+
+		return RC_OK;
+	}
+
+
+	E_RESULT_CODE CSceneSerializer::SaveScene(IArchiveWriter* pWriter, TPtr<IWorld> pWorld, IScene* pScene)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		if (!pWriter || !pScene || !pWorld)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		result = result | pWriter->BeginGroup("entities", true);
+		{
+			for (TEntityId currEntityId : pScene->GetEntities())
+			{
+				const TEntityId prefabEntityRootId =
+#if TDE2_EDITORS_ENABLED
+					GetPrefabInstanceRootEntityId(pWorld, currEntityId);
+#else
+					TEntityId::Invalid;
+#endif
+				if (TEntityId::Invalid != prefabEntityRootId && prefabEntityRootId != currEntityId) /// \note If it's a part of a prefab but not it's root skip serialization process
+				{
+					continue;
+				}
+
+				result = result | SaveSingleEntityImpl(pWriter, pWorld, currEntityId);
+			}
+		}
+		result = result | pWriter->EndGroup();
+
+		return result;
+	}
+
+	E_RESULT_CODE CSceneSerializer::SavePrefab(IArchiveWriter* pWriter, TPtr<IWorld> pWorld, CEntity* pRootEntity)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		// \note Write entities
+		result = result | pWriter->BeginGroup("entities", true);
+		{
+			std::stack<TEntityId> entitiesToProcess;
+
+			/// \note push children's identifiers and then the identifier of the root node
+			if (auto pTransform = pRootEntity->GetComponent<CTransform>())
+			{
+				for (const TEntityId childId : pTransform->GetChildren())
+				{
+					entitiesToProcess.push(childId);
+				}
+
+			}
+			entitiesToProcess.push(pRootEntity->GetId());
+
+			CTransform* pRootTransform = pRootEntity->GetComponent<CTransform>();
+
+			const TEntityId parentEntityId = pRootTransform->GetParent();
+			pRootTransform->SetParent(TEntityId::Invalid); /// \note Don't save relationship for the root entity
+
+			while (!entitiesToProcess.empty())
+			{
+				const TEntityId currEntityId = entitiesToProcess.top();
+				entitiesToProcess.pop();
+
+				result = result | SaveSingleEntityImpl(pWriter, pWorld, currEntityId);
+
+				if (CEntity* pCurrEntity = pWorld->FindEntity(currEntityId))
+				{
+					if (auto pTransform = pCurrEntity->GetComponent<CTransform>())
+					{
+						if (pRootTransform == pTransform)
+						{
+							continue;
+						}
+
+						for (const TEntityId childId : pTransform->GetChildren())
+						{
+							entitiesToProcess.push(childId);
+						}
+					}
+				}				
+			}
+
+			pRootTransform->SetParent(parentEntityId);
+		}
+		result = result | pWriter->EndGroup();
+
+		return result;
 	}
 }

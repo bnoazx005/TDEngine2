@@ -290,52 +290,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CPrefabsRegistry::SavePrefabHierarchy(IArchiveWriter* pWriter, IWorld* pWorld, CEntity* pEntity)
 	{
-		E_RESULT_CODE result = RC_OK;
-
-		// \note Write entities
-		result = result | pWriter->BeginGroup("entities", true);
-		{
-			std::stack<TEntityId> entitiesToProcess;
-
-			/// \note push children's identifiers and then the identifier of the root node
-			if (auto pTransform = pEntity->GetComponent<CTransform>())
-			{
-				for (const TEntityId childId : pTransform->GetChildren())
-				{
-					entitiesToProcess.push(childId);
-				}
-
-			}
-			entitiesToProcess.push(pEntity->GetId());
-
-			CTransform* pRootTransform = pEntity->GetComponent<CTransform>();
-
-			const TEntityId parentEntityId = pRootTransform->GetParent();
-			pRootTransform->SetParent(TEntityId::Invalid); /// \note Don't save relationship for the root entity
-
-			while (!entitiesToProcess.empty())
-			{
-				pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
-				{
-					const TEntityId currEntityId = entitiesToProcess.top();
-					entitiesToProcess.pop();
-
-					CEntity* pCurrEntity = pWorld->FindEntity(currEntityId);
-					if (!pCurrEntity)
-					{
-						continue;
-					}
-
-					result = result | pCurrEntity->Save(pWriter);
-				}
-				pWriter->EndGroup();
-			}
-
-			pRootTransform->SetParent(parentEntityId);
-		}
-		result = result | pWriter->EndGroup();
-
-		return result;
+		return CSceneSerializer::SavePrefab(pWriter, MakeScopedFromRawPtr<IWorld, IWorld>(pWorld), pEntity);
 	}
 
 #endif
