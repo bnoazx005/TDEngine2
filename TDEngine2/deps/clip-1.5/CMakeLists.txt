@@ -38,6 +38,8 @@ elseif(UNIX)
   include(CheckIncludeFiles)
   check_include_files(xcb/xcb.h HAVE_XCB_XLIB_H)
 
+  set(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS} -std=c++14 -fPIC")
+
   if(HAVE_XCB_XLIB_H)
     add_definitions(-DHAVE_XCB_XLIB_H)
 
