@@ -511,7 +511,10 @@ namespace TDEngine2
 						}
 					};
 
-					pCurrScene->ForEachEntity(drawEntityHierarchy);
+					for (const TEntityId currEntityId : pCurrScene->GetEntities())
+					{
+						drawEntityHierarchy(pWorld->FindEntity(currEntityId));
+					}
 				}
 			}
 
