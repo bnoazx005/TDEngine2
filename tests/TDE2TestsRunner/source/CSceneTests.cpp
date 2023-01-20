@@ -100,6 +100,43 @@ TDE2_TEST_FIXTURE("EntitiesOperationsTests")
 		});
 	}
 
+	TDE2_TEST_CASE("TestCopyPasteCase_SpawnAPrefabAndTryToDuplicateThat_ThePrefabIsCorrectlyDuplicated")
+	{
+		static CEntity* pPrefabEntity = nullptr;
+
+		/// \note Spawn a prefab
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			pPrefabEntity = pMainScene->Spawn("TestPrefab");
+		});
+
+		pTestCase->WaitForNextFrame();
+
+		/// \note Copy and paste that
+		pTestCase->ExecuteAction([&]
+		{
+			TDE2_TEST_IS_TRUE(pPrefabEntity);
+
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+
+			TDE2_TEST_IS_TRUE(RC_OK == CEntitiesCommands::CopyEntitiesHierarchy(pSceneManager->GetPrefabsRegistry(), pSceneManager->GetWorld(), pPrefabEntity->GetId()));
+
+			TDE2_TEST_IS_TRUE(CEntitiesCommands::PasteEntitiesHierarchy(
+				pSceneManager->GetPrefabsRegistry(),
+				pSceneManager->GetWorld(),
+				pSceneManager->GetScene(MainScene).Get(),
+				pPrefabEntity->GetId()).IsOk());
+		});
+	}
 }
 
 #endif

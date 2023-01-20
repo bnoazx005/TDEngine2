@@ -544,6 +544,11 @@ namespace TDEngine2
 				continue;
 			}
 
+			if (TEntityId::Invalid == parentEntityId)
+			{
+				rootEntities.push_back(pInstance->GetId());
+			}
+
 			if (Length(currPrefabInfo.mPosition) > FloatEpsilon)
 			{
 				CTransform* pTransform = pInstance->GetComponent<CTransform>();
@@ -727,6 +732,18 @@ namespace TDEngine2
 			{
 				const TEntityId currEntityId = entitiesToProcess.top();
 				entitiesToProcess.pop();
+
+				const TEntityId prefabEntityRootId =
+#if TDE2_EDITORS_ENABLED
+					GetPrefabInstanceRootEntityId(pWorld, currEntityId);
+#else
+					TEntityId::Invalid;
+#endif
+
+				if (TEntityId::Invalid != prefabEntityRootId && prefabEntityRootId != currEntityId) /// \note If it's a part of a prefab but not it's root skip serialization process
+				{
+					continue;
+				}
 
 				result = result | SaveSingleEntityImpl(pWriter, pWorld, currEntityId);
 
