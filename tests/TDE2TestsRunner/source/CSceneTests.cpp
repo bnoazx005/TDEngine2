@@ -137,6 +137,51 @@ TDE2_TEST_FIXTURE("EntitiesOperationsTests")
 				pPrefabEntity->GetId()).IsOk());
 		});
 	}
+
+	TDE2_TEST_CASE("TestCopyPasteCase_TryToDuplicateHierarchyWithNestedPrefabs_DuplicationShouldBeSuccessful")
+	{
+		static TSceneId testSceneHandle = TSceneId::Invalid;
+
+		/// \note Spawn a prefab
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			pSceneManager->LoadSceneAsync("ProjectResources/Scenes/1.scene", [&](const TResult<TSceneId>& sceneIdResult)
+			{
+				testSceneHandle = sceneIdResult.Get();
+			});
+		});
+
+		pTestCase->WaitForCondition([&] { return TSceneId::Invalid != testSceneHandle; });
+
+		/// \note Copy and paste that
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+
+			auto pTestScene = pSceneManager->GetScene(testSceneHandle).Get();
+			TDE2_TEST_IS_TRUE(pTestScene);
+
+			auto sceneEntities = pTestScene->GetEntities();
+			TDE2_TEST_IS_TRUE(!sceneEntities.empty());
+
+			/// \note Copy the first entity because of it's a root
+			TDE2_TEST_IS_TRUE(RC_OK == CEntitiesCommands::CopyEntitiesHierarchy(pSceneManager->GetPrefabsRegistry(), pSceneManager->GetWorld(), sceneEntities.front()));
+
+			TDE2_TEST_IS_TRUE(CEntitiesCommands::PasteEntitiesHierarchy(
+				pSceneManager->GetPrefabsRegistry(),
+				pSceneManager->GetWorld(),
+				pTestScene,
+				TEntityId::Invalid).IsOk());
+
+			TDE2_TEST_IS_TRUE(RC_OK == pSceneManager->UnloadScene(pSceneManager->GetSceneId(pTestScene->GetName())));
+		});
+	}
 }
 
 #endif

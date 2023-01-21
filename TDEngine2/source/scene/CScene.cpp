@@ -506,16 +506,41 @@ namespace TDEngine2
 
 			if (auto pEntity = pEntityManager->GetEntity(currEntityId))
 			{
+				auto pTransform = pEntity->GetComponent<CTransform>();
+				TDE2_ASSERT(pTransform);
+
+				if (!pTransform)
+				{
+					continue;
+				}
+
+#if TDE2_EDITORS_ENABLED
+				/// \note Remove all child which are prefabs links. They'll be attached later after spawning
+				std::vector<TEntityId> childrenToExclude;
+					
+				for (const TEntityId& currChildId : pTransform->GetChildren())
+				{
+					if (entitiesIdsMap.find(currChildId) != entitiesIdsMap.end())
+					{
+						continue;
+					}
+
+					childrenToExclude.push_back(currChildId);
+				}
+
+				for (const TEntityId& currPrefabLinkId : childrenToExclude)
+				{
+					pTransform->DettachChild(currPrefabLinkId);
+				}
+#endif
+
 				result = result | pEntity->PostLoad(pEntityManager, entitiesIdsMap);
 
 				TDE2_ASSERT(RC_OK == result);
 
-				if (auto pTransform = pEntity->GetComponent<CTransform>())
+				if (TEntityId::Invalid == pTransform->GetParent())
 				{
-					if (TEntityId::Invalid == pTransform->GetParent())
-					{
-						rootEntities.push_back(pEntity->GetId());
-					}
+					rootEntities.push_back(pEntity->GetId());
 				}
 			}
 		}
