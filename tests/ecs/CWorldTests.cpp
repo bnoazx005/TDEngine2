@@ -75,9 +75,9 @@ namespace
 			return RC_OK;
 		}
 
-		E_RESULT_CODE SubmitJob(TJobCounter* pCounter, const TJobCallback& job, const C8* jobName = "TDE2Job") override { return RC_OK; }
+		E_RESULT_CODE SubmitJob(TJobCounter* pCounter, const TJobCallback& job, E_JOB_PRIORITY_TYPE priority = E_JOB_PRIORITY_TYPE::NORMAL, const C8* jobName = "TDE2Job") override { return RC_OK; }
 
-		E_RESULT_CODE SubmitMultipleJobs(TJobCounter* pCounter, U32 jobsCount, U32 groupSize, const TJobCallback& job) override { return RC_OK; }
+		E_RESULT_CODE SubmitMultipleJobs(TJobCounter* pCounter, U32 jobsCount, U32 groupSize, const TJobCallback& job, E_JOB_PRIORITY_TYPE priority = E_JOB_PRIORITY_TYPE::NORMAL) override { return RC_OK; }
 
 		void WaitForJobCounter(TJobCounter& counter, U32 counterThreshold = 0, TJobDecl* pAwaitingJob = nullptr) override { }
 

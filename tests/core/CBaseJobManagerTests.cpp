@@ -7,11 +7,15 @@
 using namespace TDEngine2;
 
 
+constexpr U32 SamplesCount = 1000;
+const U32 NumOfWorkerThreads = 2; //std::thread::hardware_concurrency();
+
+
 TEST_CASE("CBaseJobManager Tests")
 {
 	E_RESULT_CODE result = RC_OK;
 	
-	TPtr<IJobManager> pJobManager = TPtr<IJobManager>(CreateBaseJobManager({ std::thread::hardware_concurrency(), CreateLinearAllocator}, result));
+	TPtr<IJobManager> pJobManager = TPtr<IJobManager>(CreateBaseJobManager({ NumOfWorkerThreads, CreateLinearAllocator}, result));
 	REQUIRE((pJobManager && RC_OK == result));
 
 	SECTION("TestSubmitJob_PassEmptyJob_ReturnsError")
@@ -21,18 +25,21 @@ TEST_CASE("CBaseJobManager Tests")
 
 	SECTION("TestSubmitJob_PassSimpleJob_ExecutesThatAndArgumentIndexEqualsToZero")
 	{
-		std::atomic_bool isExecuted{ false };
-
-		TJobCounter counter;
-
-		E_RESULT_CODE result = pJobManager->SubmitJob(&counter, [&isExecuted](auto)
+		for (U32 i = 0; i < SamplesCount; i++)
 		{
-			isExecuted = true;
-		});
+			std::atomic_bool isExecuted{ false };
 
-		pJobManager->WaitForJobCounter(counter);
+			TJobCounter counter;
 
-		REQUIRE((RC_OK == result && isExecuted));
+			E_RESULT_CODE result = pJobManager->SubmitJob(&counter, [&isExecuted](auto)
+			{
+				isExecuted = true;
+			});
+
+			pJobManager->WaitForJobCounter(counter);
+
+			REQUIRE((RC_OK == result && isExecuted));
+		}
 	}
 
 	SECTION("TestWaitForJobCounter_PassTwoJobs_FinalPartExecutedOnlyAfterDependencies")
@@ -100,17 +107,17 @@ TEST_CASE("CBaseJobManager Tests")
 				pJobManager->SubmitJob(pJob->mpCounter, [&actualString](auto)
 				{
 					actualString += "AB";
-				}, "TDE2SecondJob");
+				}, E_JOB_PRIORITY_TYPE::NORMAL, "TDE2SecondJob");
 
 				pJobManager->SubmitJob(pJob->mpCounter, [&actualString](auto)
 				{
 					actualString += "CC";
-				}, "TDE2ThirdJob");
+				}, E_JOB_PRIORITY_TYPE::NORMAL, "TDE2ThirdJob");
 
 				pJobManager->WaitForJobCounter(*pJob->mpCounter, 1, pJob);
 
 				actualString += "BA";
-			}, "TDE2FirstJob");
+			}, E_JOB_PRIORITY_TYPE::NORMAL, "TDE2FirstJob");
 
 			pJobManager->WaitForJobCounter(counter);
 

@@ -95,11 +95,13 @@ namespace TDEngine2
 
 				\param[in] pCounter A pointer to created object of counter. Can be nullptr if synchronization isn't needed
 				\param[in] job A callback with the task that will be executed
+				\param[in] priority The value determines into which queue the given job will be submited
+				\param[in] jobName An optional identifier for the job
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE SubmitJob(TJobCounter* pCounter, const TJobCallback& job, const C8* jobName = "TDE2Job") override;
+			TDE2_API E_RESULT_CODE SubmitJob(TJobCounter* pCounter, const TJobCallback& job, E_JOB_PRIORITY_TYPE priority = E_JOB_PRIORITY_TYPE::NORMAL, const C8* jobName = "TDE2Job") override;
 
 			/*!
 				\brief The method is an equvivalent for "parallel_for" algorithm that splits some complex work between groups and
@@ -107,11 +109,12 @@ namespace TDEngine2
 
 				\param[in] pCounter A pointer to created object of counter. Can be nullptr if synchronization isn't needed
 				\param[in] job A callback with the task that will be executed
+				\param[in] priority The value determines into which queue the given job will be submited
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE SubmitMultipleJobs(TJobCounter* pCounter, U32 jobsCount, U32 groupSize, const TJobCallback& job) override;
+			TDE2_API E_RESULT_CODE SubmitMultipleJobs(TJobCounter* pCounter, U32 jobsCount, U32 groupSize, const TJobCallback& job, E_JOB_PRIORITY_TYPE priority = E_JOB_PRIORITY_TYPE::NORMAL) override;
 
 			/*!
 				\brief The function represents an execution barrier to make sure that any dependencies are finished to the point

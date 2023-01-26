@@ -132,7 +132,7 @@ namespace TDEngine2
 		return MainThreadId == std::this_thread::get_id();
 	}
 
-	E_RESULT_CODE CBaseJobManager::SubmitJob(TJobCounter* pCounter, const TJobCallback& job, const C8* jobName)
+	E_RESULT_CODE CBaseJobManager::SubmitJob(TJobCounter* pCounter, const TJobCallback& job, E_JOB_PRIORITY_TYPE priority, const C8* jobName)
 	{
 		if (!job)
 		{
@@ -162,7 +162,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CBaseJobManager::SubmitMultipleJobs(TJobCounter* pCounter, U32 jobsCount, U32 groupSize, const TJobCallback& job)
+	E_RESULT_CODE CBaseJobManager::SubmitMultipleJobs(TJobCounter* pCounter, U32 jobsCount, U32 groupSize, const TJobCallback& job, E_JOB_PRIORITY_TYPE priority)
 	{
 		if (!job || !groupSize || groupSize > jobsCount)
 		{
