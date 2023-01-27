@@ -337,8 +337,6 @@ namespace TDEngine2
 
 					if (auto pCounter = jobDecl.mpCounter)
 					{
-						pCounter->mValue.fetch_sub(1);
-
 						/// \note Push awaiting job back to the queue if that one exists
 						{
 							std::lock_guard<std::mutex> lock(pCounter->mWaitingJobListMutex);
@@ -347,7 +345,7 @@ namespace TDEngine2
 							{
 								TJobDecl* pAwaitingJobDecl = &pCounter->mpWaitingJobList.front();
 
-								if (pCounter->mValue <= pAwaitingJobDecl->mWaitingCounterThreshold)
+								if (pCounter->mValue - 1 <= pAwaitingJobDecl->mWaitingCounterThreshold)
 								{
 #if TDE2_JOB_MANAGER_VERBOSE_LOG_ENABLED
 									LOG_MESSAGE(Wrench::StringUtils::Format("[Job Manager] The job {0} continues its execution", pAwaitingJobDecl->mpJobName));
@@ -363,6 +361,8 @@ namespace TDEngine2
 								}
 							}
 						}
+
+						pCounter->mValue.fetch_sub(1);
 
 #if 0
 						if (pCounter->mpWaitingJobList)

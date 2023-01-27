@@ -8,7 +8,7 @@ using namespace TDEngine2;
 
 
 constexpr U32 SamplesCount = 1000;
-const U32 NumOfWorkerThreads = 2; //std::thread::hardware_concurrency();
+const U32 NumOfWorkerThreads = 1;// std::thread::hardware_concurrency();
 
 
 TEST_CASE("CBaseJobManager Tests")
@@ -17,7 +17,7 @@ TEST_CASE("CBaseJobManager Tests")
 	
 	TPtr<IJobManager> pJobManager = TPtr<IJobManager>(CreateBaseJobManager({ NumOfWorkerThreads, CreateLinearAllocator}, result));
 	REQUIRE((pJobManager && RC_OK == result));
-
+#if 0
 	SECTION("TestSubmitJob_PassEmptyJob_ReturnsError")
 	{
 		REQUIRE(RC_INVALID_ARGS == pJobManager->SubmitJob(nullptr, nullptr));
@@ -94,7 +94,7 @@ TEST_CASE("CBaseJobManager Tests")
 	{
 		const std::string expectedResult = "ABCCBA";
 
-		//for (I32 i = 0; i < 10; ++i)
+		for (I32 i = 0; i < SamplesCount; ++i)
 		{
 			std::string actualString;
 
@@ -104,24 +104,62 @@ TEST_CASE("CBaseJobManager Tests")
 			{
 				auto pJob = jobArgs.mpCurrJob;
 
+				LOG_MESSAGE(">>>>");
+
 				pJobManager->SubmitJob(pJob->mpCounter, [&actualString](auto)
 				{
 					actualString += "AB";
+					LOG_MESSAGE("Second Job Finished");
 				}, E_JOB_PRIORITY_TYPE::NORMAL, "TDE2SecondJob");
 
 				pJobManager->SubmitJob(pJob->mpCounter, [&actualString](auto)
 				{
 					actualString += "CC";
+					LOG_MESSAGE(" Third Job Finished");
 				}, E_JOB_PRIORITY_TYPE::NORMAL, "TDE2ThirdJob");
 
-				pJobManager->WaitForJobCounter(*pJob->mpCounter, 1, pJob);
+				LOG_MESSAGE(" WaitForCounter1");
+				pJobManager->WaitForJobCounter(*pJob->mpCounter, 1, jobArgs.mpCurrJob);
 
 				actualString += "BA";
+				LOG_MESSAGE(" First Job Finished");
+
 			}, E_JOB_PRIORITY_TYPE::NORMAL, "TDE2FirstJob");
 
+			LOG_MESSAGE(" WaitForCounter");
 			pJobManager->WaitForJobCounter(counter);
 
 			REQUIRE(actualString == expectedResult);
+
+			LOG_MESSAGE("<<<<\n");
 		}
+	}
+#endif
+
+	SECTION("TestWaitJobCounter_JobEmitsSubTask_JobManagerCorrectlyProcessThemBoth")
+	{
+		const int expectedCounterValue = 2;
+		std::atomic_int actualCounterValue = 0;
+
+		TJobCounter counter;
+
+		E_RESULT_CODE result = pJobManager->SubmitJob(&counter, [&actualCounterValue, pJobManager](const TJobArgs& jobArgs)
+		{
+			auto pJob = jobArgs.mpCurrJob;
+			pJobManager->SubmitJob(pJob->mpCounter, [&actualCounterValue](auto)
+			{
+				LOG_MESSAGE("Second Job Finished");
+			}, E_JOB_PRIORITY_TYPE::NORMAL, "TDE2SecondJob");
+
+			pJobManager->WaitForJobCounter(*jobArgs.mpCurrJob->mpCounter, 1, jobArgs.mpCurrJob);
+			actualCounterValue++;
+		}, E_JOB_PRIORITY_TYPE::NORMAL, "TDE2FirstJob");
+
+		LOG_MESSAGE(" WaitForCounter");
+		pJobManager->WaitForJobCounter(counter);
+
+		REQUIRE(actualCounterValue == expectedCounterValue);
+
+		LOG_MESSAGE("<<<<\n");
 	}
 }

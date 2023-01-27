@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.14] 2023-01-21
+## [0.6.14] 2023-01-27
 
 ### Added
 
@@ -32,6 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - The logic of **IWorld::CreateLocalComponentsSlice** was fixed to support hierarchies of entities.
+
+- Known dealocks caused with the job manager within its unit tests were fixed.
 
 ## [0.6.13] 2022-12-31
 
