@@ -25,12 +25,18 @@ namespace TDEngine2
 {
 	struct TJobDecl
 	{
+		IJobManager* mpJobManager = nullptr;
+
 		IJobManager::TJobCallback mJob = nullptr;
 		TJobCounter* mpCounter = nullptr;
 		U32 mJobIndex = 0;
 		U32 mGroupIndex = 0;
 		U32 mWaitingCounterThreshold = 0;
+		bool mIsCompleted = false;
+		
 		tina* mpFiber = nullptr;
+		tina* mpThreadFiber = nullptr;
+
 #if 0
 		TJobDecl* mpNextAwaitingJob = nullptr;  ///< The field is used to implement linked list of awaiting jobs
 #endif

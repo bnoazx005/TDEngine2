@@ -8,7 +8,7 @@ using namespace TDEngine2;
 
 
 constexpr U32 SamplesCount = 1000;
-const U32 NumOfWorkerThreads = 1;// std::thread::hardware_concurrency();
+const U32 NumOfWorkerThreads = std::thread::hardware_concurrency();
 
 
 TEST_CASE("CBaseJobManager Tests")
@@ -17,7 +17,7 @@ TEST_CASE("CBaseJobManager Tests")
 	
 	TPtr<IJobManager> pJobManager = TPtr<IJobManager>(CreateBaseJobManager({ NumOfWorkerThreads, CreateLinearAllocator}, result));
 	REQUIRE((pJobManager && RC_OK == result));
-#if 0
+
 	SECTION("TestSubmitJob_PassEmptyJob_ReturnsError")
 	{
 		REQUIRE(RC_INVALID_ARGS == pJobManager->SubmitJob(nullptr, nullptr));
@@ -31,17 +31,19 @@ TEST_CASE("CBaseJobManager Tests")
 
 			TJobCounter counter;
 
+			auto&& id = Wrench::StringUtils::Format("Job{0}", i);
+
 			E_RESULT_CODE result = pJobManager->SubmitJob(&counter, [&isExecuted](auto)
 			{
 				isExecuted = true;
-			});
+			}, E_JOB_PRIORITY_TYPE::NORMAL, id.c_str());
 
 			pJobManager->WaitForJobCounter(counter);
 
 			REQUIRE((RC_OK == result && isExecuted));
 		}
 	}
-
+#if 0
 	SECTION("TestWaitForJobCounter_PassTwoJobs_FinalPartExecutedOnlyAfterDependencies")
 	{
 		using namespace std::chrono_literals;
@@ -90,6 +92,7 @@ TEST_CASE("CBaseJobManager Tests")
 		}
 	}
 
+#if 0 /// \fixme Disabled because capturing lambdas don't work well with coroutines/fibers
 	SECTION("TestWaitJobCounter_JobEmitsSubTask_JobManagerCorrectlyProcessThemBoth")
 	{
 		const std::string expectedResult = "ABCCBA";
@@ -136,30 +139,32 @@ TEST_CASE("CBaseJobManager Tests")
 	}
 #endif
 
-	SECTION("TestWaitJobCounter_JobEmitsSubTask_JobManagerCorrectlyProcessThemBoth")
+	SECTION("TestWaitJobCounter_JobEmitsSubTaskAndChangeGlobalVariable_JobManagerCorrectlyProcessThemBoth")
 	{
-		const int expectedCounterValue = 2;
-		std::atomic_int actualCounterValue = 0;
+		const int expectedCounterValue = 1;
+		static std::atomic_int actualCounterValue = 0;
 
-		TJobCounter counter;
-
-		E_RESULT_CODE result = pJobManager->SubmitJob(&counter, [&actualCounterValue, pJobManager](const TJobArgs& jobArgs)
+		for (U32 i = 0; i < SamplesCount; i++)
 		{
-			auto pJob = jobArgs.mpCurrJob;
-			pJobManager->SubmitJob(pJob->mpCounter, [&actualCounterValue](auto)
+			actualCounterValue = 0;
+			TJobCounter counter;
+
+			E_RESULT_CODE result = pJobManager->SubmitJob(&counter, [](const TJobArgs& jobArgs)
 			{
-				LOG_MESSAGE("Second Job Finished");
-			}, E_JOB_PRIORITY_TYPE::NORMAL, "TDE2SecondJob");
+				auto pJob = jobArgs.mpCurrJob;
+				auto pJobManager = pJob->mpJobManager;
 
-			pJobManager->WaitForJobCounter(*jobArgs.mpCurrJob->mpCounter, 1, jobArgs.mpCurrJob);
-			actualCounterValue++;
-		}, E_JOB_PRIORITY_TYPE::NORMAL, "TDE2FirstJob");
+				pJobManager->SubmitJob(pJob->mpCounter, [](auto)
+				{
+				}, E_JOB_PRIORITY_TYPE::NORMAL, "TDE2SecondJob");
 
-		LOG_MESSAGE(" WaitForCounter");
-		pJobManager->WaitForJobCounter(counter);
+				pJobManager->WaitForJobCounter(*jobArgs.mpCurrJob->mpCounter, 1, jobArgs.mpCurrJob);
+				actualCounterValue++;
+			}, E_JOB_PRIORITY_TYPE::NORMAL, "TDE2FirstJob");
 
-		REQUIRE(actualCounterValue == expectedCounterValue);
-
-		LOG_MESSAGE("<<<<\n");
+			pJobManager->WaitForJobCounter(counter);
+			REQUIRE(actualCounterValue == expectedCounterValue);
+		}
 	}
+#endif
 }

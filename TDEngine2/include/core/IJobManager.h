@@ -20,6 +20,7 @@ namespace TDEngine2
 {
 	struct TJobDecl;
 	struct TJobCounter;
+	class IJobManager;
 
 
 	struct TJobArgs
@@ -27,6 +28,7 @@ namespace TDEngine2
 		U32 mJobIndex = 0;
 		U32 mGroupIndex = 0;
 		TJobDecl* mpCurrJob = nullptr;
+		IJobManager* mpJobManager = nullptr;
 	};
 		
 
