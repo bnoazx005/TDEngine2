@@ -15,7 +15,7 @@ TEST_CASE("CBaseJobManager Tests")
 {
 	E_RESULT_CODE result = RC_OK;
 	
-	TPtr<IJobManager> pJobManager = TPtr<IJobManager>(CreateBaseJobManager({ NumOfWorkerThreads, CreateLinearAllocator}, result));
+	TPtr<IJobManager> pJobManager = TPtr<IJobManager>(CreateBaseJobManager({ NumOfWorkerThreads }, result));
 	REQUIRE((pJobManager && RC_OK == result));
 
 	SECTION("TestSubmitJob_PassEmptyJob_ReturnsError")
@@ -43,34 +43,6 @@ TEST_CASE("CBaseJobManager Tests")
 			REQUIRE((RC_OK == result && isExecuted));
 		}
 	}
-#if 0
-	SECTION("TestWaitForJobCounter_PassTwoJobs_FinalPartExecutedOnlyAfterDependencies")
-	{
-		using namespace std::chrono_literals;
-
-		const std::chrono::duration<F32, std::milli> expectedDuration = 2000ms;
-
-		TJobCounter counter;
-
-		auto start = std::chrono::high_resolution_clock::now();
-
-		pJobManager->SubmitJob(&counter, [expectedDuration](auto&&)
-		{
-			std::this_thread::sleep_for(expectedDuration);
-			LOG_MESSAGE("First Test Job");
-		});
-		pJobManager->SubmitJob(&counter, [](auto&&)
-		{
-			LOG_MESSAGE("Second Test Job");
-		});
-
-		pJobManager->WaitForJobCounter(counter);
-
-		std::chrono::duration<F32, std::milli> duration = std::chrono::high_resolution_clock::now() - start;
-		REQUIRE(duration.count() > expectedDuration.count() - 0.1f);
-
-		LOG_MESSAGE("Final Job");
-	}
 
 	SECTION("TestSubmitMultipleJobs_PassArrayAndMakeParallelFor_CorreclyProcess")
 	{
@@ -92,7 +64,6 @@ TEST_CASE("CBaseJobManager Tests")
 		}
 	}
 
-#if 0 /// \fixme Disabled because capturing lambdas don't work well with coroutines/fibers
 	SECTION("TestWaitJobCounter_JobEmitsSubTask_JobManagerCorrectlyProcessThemBoth")
 	{
 		const std::string expectedResult = "ABCCBA";
@@ -105,39 +76,30 @@ TEST_CASE("CBaseJobManager Tests")
 
 			E_RESULT_CODE result = pJobManager->SubmitJob(&counter, [&actualString, pJobManager](const TJobArgs& jobArgs)
 			{
-				auto pJob = jobArgs.mpCurrJob;
+				TJobCounter nestedCounter;
 
-				LOG_MESSAGE(">>>>");
-
-				pJobManager->SubmitJob(pJob->mpCounter, [&actualString](auto)
+				pJobManager->SubmitJob(&nestedCounter, [&actualString](auto)
 				{
 					actualString += "AB";
-					LOG_MESSAGE("Second Job Finished");
 				}, E_JOB_PRIORITY_TYPE::NORMAL, "TDE2SecondJob");
 
-				pJobManager->SubmitJob(pJob->mpCounter, [&actualString](auto)
+				pJobManager->SubmitJob(&nestedCounter, [&actualString](auto)
 				{
 					actualString += "CC";
-					LOG_MESSAGE(" Third Job Finished");
 				}, E_JOB_PRIORITY_TYPE::NORMAL, "TDE2ThirdJob");
 
 				LOG_MESSAGE(" WaitForCounter1");
-				pJobManager->WaitForJobCounter(*pJob->mpCounter, 1, jobArgs.mpCurrJob);
+				pJobManager->WaitForJobCounter(nestedCounter);
 
 				actualString += "BA";
-				LOG_MESSAGE(" First Job Finished");
 
 			}, E_JOB_PRIORITY_TYPE::NORMAL, "TDE2FirstJob");
 
-			LOG_MESSAGE(" WaitForCounter");
 			pJobManager->WaitForJobCounter(counter);
 
 			REQUIRE(actualString == expectedResult);
-
-			LOG_MESSAGE("<<<<\n");
 		}
 	}
-#endif
 
 	SECTION("TestWaitJobCounter_JobEmitsSubTaskAndChangeGlobalVariable_JobManagerCorrectlyProcessThemBoth")
 	{
@@ -149,16 +111,15 @@ TEST_CASE("CBaseJobManager Tests")
 			actualCounterValue = 0;
 			TJobCounter counter;
 
-			E_RESULT_CODE result = pJobManager->SubmitJob(&counter, [](const TJobArgs& jobArgs)
+			E_RESULT_CODE result = pJobManager->SubmitJob(&counter, [=](const TJobArgs& jobArgs)
 			{
-				auto pJob = jobArgs.mpCurrJob;
-				auto pJobManager = pJob->mpJobManager;
+				TJobCounter nestedCounter;
 
-				pJobManager->SubmitJob(pJob->mpCounter, [](auto)
+				pJobManager->SubmitJob(&nestedCounter, [](auto)
 				{
 				}, E_JOB_PRIORITY_TYPE::NORMAL, "TDE2SecondJob");
 
-				pJobManager->WaitForJobCounter(*jobArgs.mpCurrJob->mpCounter, 1, jobArgs.mpCurrJob);
+				pJobManager->WaitForJobCounter(nestedCounter);
 				actualCounterValue++;
 			}, E_JOB_PRIORITY_TYPE::NORMAL, "TDE2FirstJob");
 
@@ -166,5 +127,4 @@ TEST_CASE("CBaseJobManager Tests")
 			REQUIRE(actualCounterValue == expectedCounterValue);
 		}
 	}
-#endif
 }

@@ -18,7 +18,11 @@
 #include <memory>
 
 
-struct tina;
+namespace marl
+{
+	class Scheduler;
+	class WaitGroup;
+}
 
 
 namespace TDEngine2
@@ -32,30 +36,7 @@ namespace TDEngine2
 		U32 mJobIndex = 0;
 		U32 mGroupIndex = 0;
 		U32 mWaitingCounterThreshold = 0;
-		bool mIsCompleted = false;
-		
-		tina* mpFiber = nullptr;
-		tina* mpThreadFiber = nullptr;
-
-#if 0
-		TJobDecl* mpNextAwaitingJob = nullptr;  ///< The field is used to implement linked list of awaiting jobs
-#endif
 		const C8* mpJobName = "TDE2Job";
-	};
-
-
-	/*!
-		struct TJobCounter
-
-		\brief The type is used to create a syncronization points within the main thread to explicitly schedule dependencies
-	*/
-
-	struct TJobCounter
-	{
-		mutable std::mutex mWaitingJobListMutex; ///< \todo For now use lock based waiting list, but should be replaced with lock-free struct
-		std::queue<TJobDecl> mpWaitingJobList; ///< Public, but private (should not be changed manually)
-
-		std::atomic<U32> mValue{ 0 };
 	};
 
 
@@ -80,9 +61,6 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IJobManager* CreateBaseJobManager(const TJobManagerInitParams& desc, E_RESULT_CODE& result);
 		protected:
-
-			typedef std::vector<std::thread>          TThreadsArray;
-			typedef std::queue<tina*>                 TFibersPool;
 			typedef std::queue<TJobDecl>              TJobQueue;
 			typedef std::queue<std::function<void()>> TCallbacksQueue;
 		public:
@@ -126,11 +104,9 @@ namespace TDEngine2
 				\brief The function represents an execution barrier to make sure that any dependencies are finished to the point
 
 				\param[in, out] counter A reference to syncronization context
-				\param[in] counterThreshold A value to compare with context's one
-				\param[in] pAwaitingJob There is should be a pointer to a job that emits another one and should wait for its completion. In other cases pass nullptr
 			*/
 
-			TDE2_API void WaitForJobCounter(TJobCounter& counter, U32 counterThreshold = 0, TJobDecl* pAwaitingJob = nullptr) override;
+			TDE2_API void WaitForJobCounter(TJobCounter& counter) override;
 
 			/*!
 				\brief The method allows to execute some code from main thread nomatter from which thread it's called
@@ -158,33 +134,21 @@ namespace TDEngine2
 
 			TDE2_API static bool IsMainThread();
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseJobManager)
-
-			TDE2_API void _executeTasksLoop();
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS_NO_DCTR(CBaseJobManager)
+			virtual ~CBaseJobManager();
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			static constexpr U8     mUpdateTickRate = 60; // \note Single update every 60 frames
 
-			U32                     mNumOfThreads;
-
-			std::atomic<bool>       mIsRunning;
-
 			std::atomic_uint8_t     mUpdateCounter;
 
-			TThreadsArray           mWorkerThreads;
-			TFibersPool             mFreeFibersPool;
-
 			TCallbacksQueue         mMainThreadCallbacksQueue;
-
-			mutable std::mutex      mQueueMutex;
 			mutable std::mutex      mMainThreadCallbacksQueueMutex;
-			mutable std::mutex      mFreeFibersPoolMutex;
 
-			TJobQueue               mJobs;
+			std::unique_ptr<marl::Scheduler> mpScheduler;
 
-			std::condition_variable mHasNewJobAdded;
-
-			TPtr<IAllocator>        mpFibersStackAllocator;
+			std::vector<std::unique_ptr<marl::WaitGroup>> mpWaitCountersPool;
+			std::atomic<USIZE>                            mNextFreeCounterIndex;
 	};
 }

@@ -19,25 +19,31 @@
 namespace TDEngine2
 {
 	struct TJobDecl;
-	struct TJobCounter;
 	class IJobManager;
+
+
+	/*!
+		struct TJobCounter
+
+		\brief The type is used to create a syncronization points within the main thread to explicitly schedule dependencies
+	*/
+
+	TDE2_DECLARE_HANDLE_TYPE(TJobCounterId);
+	typedef std::atomic<TJobCounterId> TJobCounter;
 
 
 	struct TJobArgs
 	{
 		U32 mJobIndex = 0;
 		U32 mGroupIndex = 0;
-		TJobDecl* mpCurrJob = nullptr;
-		IJobManager* mpJobManager = nullptr;
 	};
 		
 
 	typedef struct TJobManagerInitParams
 	{
 		U32                      mMaxNumOfThreads;								///< A maximum number of threads that will be created and processed by the manager
-		TAllocatorFactoryFunctor mAllocatorFactoryFunctor;						///< Allocator's factory, used to allocate buffers for fibers stacks
 		USIZE                    mFiberStackSize = 64 * 1024;					///< A stack's size for a single allocated fiber
-		U32                      mFibersPoolSize = 128;							///< Amount of created fibers that will be used by the manager
+		U32                      mCountersPoolSize = 128;						///< Amount of precreated counters that will be used by the manager
 	} TJobManagerInitParams, *TJobManagerInitParamsPtr;
 
 
@@ -102,11 +108,9 @@ namespace TDEngine2
 				\brief The function represents an execution barrier to make sure that any dependencies are finished to the point
 
 				\param[in, out] counter A reference to syncronization context
-				\param[in] counterThreshold A value to compare with context's one
-				\param[in] pAwaitingJob There is should be a pointer to a job that emits another one and should wait for its completion. In other cases pass nullptr
 			*/
 
-			TDE2_API virtual void WaitForJobCounter(TJobCounter& counter, U32 counterThreshold = 0, TJobDecl* pAwaitingJob = nullptr) = 0;
+			TDE2_API virtual void WaitForJobCounter(TJobCounter& counter) = 0;
 
 			/*!
 				\brief The method allows to execute some code from main thread nomatter from which thread it's called

@@ -79,7 +79,7 @@ namespace
 
 		E_RESULT_CODE SubmitMultipleJobs(TJobCounter* pCounter, U32 jobsCount, U32 groupSize, const TJobCallback& job, E_JOB_PRIORITY_TYPE priority = E_JOB_PRIORITY_TYPE::NORMAL) override { return RC_OK; }
 
-		void WaitForJobCounter(TJobCounter& counter, U32 counterThreshold = 0, TJobDecl* pAwaitingJob = nullptr) override { }
+		void WaitForJobCounter(TJobCounter& counter) override { }
 
 		E_RESULT_CODE ExecuteInMainThread(const std::function<void()>& action = nullptr) override { return RC_OK; }
 				

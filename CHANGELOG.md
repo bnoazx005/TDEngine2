@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.14] 2023-01-27
+## [0.6.14] 2023-01-29
 
 ### Added
 
@@ -28,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Now macro **TDE2_EDITORS_ENABLED** doesn't depend on **TDE2_DEBUG_MODE** one. And all the code that's related with editors can be disabled via corresponding CMake's option.
 
 - The option **IS_TOOLS_BUILDING_ENABLED** was removed.
+
+- **tina** library was excluded **marl** fiber-based scheduler's library is added instead.
 
 ### Fixed
 
