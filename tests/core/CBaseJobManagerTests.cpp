@@ -104,7 +104,7 @@ TEST_CASE("CBaseJobManager Tests")
 	SECTION("TestWaitJobCounter_JobEmitsSubTaskAndChangeGlobalVariable_JobManagerCorrectlyProcessThemBoth")
 	{
 		const int expectedCounterValue = 1;
-		static std::atomic_int actualCounterValue = 0;
+		static std::atomic_int actualCounterValue{ 0 };
 
 		for (U32 i = 0; i < SamplesCount; i++)
 		{
