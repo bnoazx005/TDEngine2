@@ -23,7 +23,8 @@
 	#include <Windows.h>
 	#include <d3d11.h>
 #elif defined (TDE2_USE_UNIXPLATFORM)
-	#include <X11/Xlib.h>
+	struct _XDisplay;
+	typedef unsigned long TX11WindowType;
 #else
 #endif
 
@@ -190,10 +191,10 @@ namespace TDEngine2
 
 	typedef struct TUnixInternalWindowData
 	{
-		Display* mpDisplayHandler;
-		Window   mRootWindowHandler;
-		Window   mWindowHandler;
-		I32      mScreenId;
+		_XDisplay*     mpDisplayHandler;
+		TX11WindowType mRootWindowHandler;
+		TX11WindowType mWindowHandler;
+		I32            mScreenId;
 	} TUnixInternalWindowData;
 
 	typedef TUnixInternalWindowData TWindowSystemInternalData; 

@@ -106,11 +106,11 @@ namespace TDEngine2
 		args.mJobIndex = 0;
 		args.mGroupIndex = 0;
 
-		marl::schedule<std::function<void()>>(std::function<void()>([=]
+		marl::schedule([=]
 		{
 			job(args);
 			pWaitGroup->done();
-		}));
+		});
 
 #if TDE2_JOB_MANAGER_VERBOSE_LOG_ENABLED
 		LOG_MESSAGE(Wrench::StringUtils::Format("[Job Manager] Submit a new job, id: {0}", jobName));
@@ -141,7 +141,7 @@ namespace TDEngine2
 
 		for (U32 groupId = 0; groupId < groupsCount; groupId++)
 		{
-			marl::schedule<std::function<void()>>(std::function<void()>([=]()
+			marl::schedule([=]()
 			{
 				TJobArgs args;
 
@@ -153,7 +153,7 @@ namespace TDEngine2
 					job(args);	
 					pWaitGroup->done();
 				}
-			}));
+			});
 		}
 
 #if TDE2_JOB_MANAGER_VERBOSE_LOG_ENABLED

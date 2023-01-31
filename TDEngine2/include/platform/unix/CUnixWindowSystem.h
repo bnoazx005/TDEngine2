@@ -15,10 +15,13 @@
 
 #if defined(TDE2_USE_UNIXPLATFORM)
 
-
+#include <X11/Xutil.h>
 #include "../../core/IWindowSystem.h"
 #include "../../core/CBaseObject.h"
-#include <X11/Xutil.h>
+
+
+struct _XDisplay;
+struct _XIC;
 
 
 namespace TDEngine2
@@ -268,13 +271,13 @@ namespace TDEngine2
 
 			TDE2_API void _disableWindowResizing();
 		protected:
-			Display*                  mpDisplayHandler;
+			_XDisplay*                mpDisplayHandler;
 
-			Window                    mRootWindowHandler;
+			TX11WindowType            mRootWindowHandler;
 
-			Window                    mWindowHandler;
+			TX11WindowType            mWindowHandler;
 
-			XIC                       mInputContext;
+			_XIC*                     mInputContext;
 
 			U32                       mWidth;
 			

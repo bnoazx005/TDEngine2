@@ -12,6 +12,8 @@
 
 #if defined (TDE2_USE_UNIXPLATFORM)
 
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
 #include <sys/types.h>
 #include <unistd.h>
 
