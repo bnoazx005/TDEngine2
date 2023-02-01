@@ -765,7 +765,9 @@ namespace TDEngine2
 					TEntityId::Invalid;
 #endif
 
-				if (TEntityId::Invalid != prefabEntityRootId && prefabEntityRootId != currEntityId) /// \note If it's a part of a prefab but not it's root skip serialization process
+				if (TEntityId::Invalid != prefabEntityRootId 
+					&& prefabEntityRootId != currEntityId
+					&& prefabEntityRootId != pRootEntity->GetId()) /// \note If it's a part of a prefab but not it's root skip serialization process
 				{
 					continue;
 				}
