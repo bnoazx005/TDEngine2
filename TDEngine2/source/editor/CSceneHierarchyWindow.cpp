@@ -202,6 +202,26 @@ namespace TDEngine2
 	}
 
 
+	static void CreateNewEntity(ISelectionManager* pSelectionManager, TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentId = TEntityId::Invalid)
+	{
+		if (!pCurrScene)
+		{
+			return;
+		}
+
+		/// \note Also a new created entity becomes selected at the same time
+		if (CEntity* pEntity = pCurrScene->CreateEntity("NewEntity"))
+		{
+			pSelectionManager->SetSelectedEntity(pEntity->GetId());
+
+			if (TEntityId::Invalid != parentId)
+			{
+				GroupEntities(pWorld.Get(), parentId, pEntity->GetId());
+			}
+		}
+	}
+
+
 	static void DrawEntityContextMenu(const TSaveHierarchyDesc& desc, TPtr<IWorld> pWorld)
 	{
 		auto&& pImGUIContext = desc.mBase.mpImGUIContext;
@@ -220,6 +240,11 @@ namespace TDEngine2
 
 		pImGUIContext->DisplayContextMenu(EntityContextMenuId, [=](IImGUIContext& imguiContext)
 		{
+			imguiContext.MenuItem("Create New Entity", Wrench::StringUtils::GetEmptyStr(), [pSelectionManager, pWorld, pCurrScene = desc.mBase.mpCurrScene]
+			{
+				CreateNewEntity(pSelectionManager, pWorld, pCurrScene, pSelectionManager->GetSelectedEntityId());
+			});
+
 			imguiContext.MenuItem("Delete", "Del", [&desc, pWorld, pSelectionManager]
 			{
 				std::stack<TEntityId> entitiesToDestroy;
@@ -379,18 +404,9 @@ namespace TDEngine2
 #endif
 						});
 
-						imguiContext.MenuItem("Create New Entity", Wrench::StringUtils::GetEmptyStr(), [this, pCurrScene]
+						imguiContext.MenuItem("Create New Entity", Wrench::StringUtils::GetEmptyStr(), [this, pCurrScene, pWorld]
 						{
-							if (!pCurrScene) 
-							{
-								return;
-							}
-
-							/// \note Also a new created entity becomes selected at the same time
-							if (CEntity* pEntity = pCurrScene->CreateEntity("NewEntity"))
-							{
-								mpSelectionManager->SetSelectedEntity(pEntity->GetId());
-							}
+							CreateNewEntity(mpSelectionManager, pWorld, pCurrScene);
 						});
 
 						imguiContext.MenuItem("Load Prefab", Wrench::StringUtils::GetEmptyStr(), [this, pCurrScene]
