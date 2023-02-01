@@ -11,7 +11,7 @@
 #endif
 
 
-#define TDE2_JOB_MANAGER_VERBOSE_LOG_ENABLED 1
+#define TDE2_JOB_MANAGER_VERBOSE_LOG_ENABLED 0
 
 
 namespace TDEngine2

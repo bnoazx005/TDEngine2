@@ -78,17 +78,20 @@ TEST_CASE("CBaseJobManager Tests")
 			{
 				TJobCounter nestedCounter;
 
-				pJobManager->SubmitJob(&nestedCounter, [&actualString](auto)
+				pJobManager->SubmitJob(&nestedCounter, [&actualString, pJobManager](auto)
 				{
 					actualString += "AB";
+
+					TJobCounter nestedCounter1;
+
+					pJobManager->SubmitJob(&nestedCounter1, [&actualString](auto)
+					{
+						actualString += "CC";
+					}, E_JOB_PRIORITY_TYPE::NORMAL, "TDE2ThirdJob");
+
+					pJobManager->WaitForJobCounter(nestedCounter1);
 				}, E_JOB_PRIORITY_TYPE::NORMAL, "TDE2SecondJob");
 
-				pJobManager->SubmitJob(&nestedCounter, [&actualString](auto)
-				{
-					actualString += "CC";
-				}, E_JOB_PRIORITY_TYPE::NORMAL, "TDE2ThirdJob");
-
-				LOG_MESSAGE(" WaitForCounter1");
 				pJobManager->WaitForJobCounter(nestedCounter);
 
 				actualString += "BA";
