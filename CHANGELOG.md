@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.14] 2023-02-01
+## [0.6.14] 2023-02-02
 
 ### Added
 
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For editor's stuffs a new library **clip** was added into deps directory.
 
 - The implementation of copy/paste editor utilities for scene's hierarchy was added.
+
+- Add support of blocking calls for **IJobManager** interface.
 
 ### Changed
 

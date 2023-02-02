@@ -36,7 +36,7 @@ TEST_CASE("CBaseJobManager Tests")
 			E_RESULT_CODE result = pJobManager->SubmitJob(&counter, [&isExecuted](auto)
 			{
 				isExecuted = true;
-			}, E_JOB_PRIORITY_TYPE::NORMAL, id.c_str());
+			}, { E_JOB_PRIORITY_TYPE::NORMAL, false, id.c_str() });
 
 			pJobManager->WaitForJobCounter(counter);
 
@@ -87,16 +87,16 @@ TEST_CASE("CBaseJobManager Tests")
 					pJobManager->SubmitJob(&nestedCounter1, [&actualString](auto)
 					{
 						actualString += "CC";
-					}, E_JOB_PRIORITY_TYPE::NORMAL, "TDE2ThirdJob");
+					}, { E_JOB_PRIORITY_TYPE::NORMAL, false, "TDE2ThirdJob" });
 
 					pJobManager->WaitForJobCounter(nestedCounter1);
-				}, E_JOB_PRIORITY_TYPE::NORMAL, "TDE2SecondJob");
+				}, { E_JOB_PRIORITY_TYPE::NORMAL, false, "TDE2SecondJob" });
 
 				pJobManager->WaitForJobCounter(nestedCounter);
 
 				actualString += "BA";
 
-			}, E_JOB_PRIORITY_TYPE::NORMAL, "TDE2FirstJob");
+			}, { E_JOB_PRIORITY_TYPE::NORMAL, false, "TDE2FirstJob" });
 
 			pJobManager->WaitForJobCounter(counter);
 
@@ -120,11 +120,11 @@ TEST_CASE("CBaseJobManager Tests")
 
 				pJobManager->SubmitJob(&nestedCounter, [](auto)
 				{
-				}, E_JOB_PRIORITY_TYPE::NORMAL, "TDE2SecondJob");
+				}, { E_JOB_PRIORITY_TYPE::NORMAL, false, "TDE2SecondJob" });
 
 				pJobManager->WaitForJobCounter(nestedCounter);
 				actualCounterValue++;
-			}, E_JOB_PRIORITY_TYPE::NORMAL, "TDE2FirstJob");
+			}, { E_JOB_PRIORITY_TYPE::NORMAL, false, "TDE2FirstJob" });
 
 			pJobManager->WaitForJobCounter(counter);
 			REQUIRE(actualCounterValue == expectedCounterValue);

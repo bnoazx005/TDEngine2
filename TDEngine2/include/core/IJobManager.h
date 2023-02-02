@@ -57,6 +57,14 @@ namespace TDEngine2
 	};
 
 
+	typedef struct TSubmitJobParams
+	{
+		E_JOB_PRIORITY_TYPE mPriority = E_JOB_PRIORITY_TYPE::NORMAL;
+		bool mBlockingCallsAwaited = false; ///< If the flag is true the task will be executed in separate thread to prevent incorrect synchronization with other fibers
+		const C8* mpJobName = "TDE2Job";
+	} TSubmitJobParams, * TSubmitJobParamsPtr;
+
+
 	/*!
 		interface IJobManager
 
@@ -83,13 +91,12 @@ namespace TDEngine2
 
 				\param[in] pCounter A pointer to created object of counter. Can be nullptr if synchronization isn't needed
 				\param[in] job A callback with the task that will be executed
-				\param[in] priority The value determines into which queue the given job will be submited
-				\param[in] jobName An optional identifier for the job
+				\param[in] params An optional parameters that can be specified for the job
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE SubmitJob(TJobCounter* pCounter, const TJobCallback& job, E_JOB_PRIORITY_TYPE priority = E_JOB_PRIORITY_TYPE::NORMAL, const C8* jobName = "TDE2Job") = 0;
+			TDE2_API virtual E_RESULT_CODE SubmitJob(TJobCounter* pCounter, const TJobCallback& job, const TSubmitJobParams& params = { E_JOB_PRIORITY_TYPE::NORMAL, false }) = 0;
 			
 			/*!
 				\brief The method is an equvivalent for "parallel_for" algorithm that splits some complex work between groups and

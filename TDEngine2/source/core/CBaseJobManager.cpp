@@ -2,9 +2,9 @@
 #include "./../../include/utils/CFileLogger.h"
 #include "stringUtils.hpp"
 #include <cmath>
-#include "marl/task.h"
 #include "marl/scheduler.h"
 #include "marl/waitgroup.h"
+#include "marl/blockingcall.h"
 
 #ifdef TDE2_USE_WINPLATFORM
 #include "optick.h"
@@ -84,7 +84,7 @@ namespace TDEngine2
 		return MainThreadId == std::this_thread::get_id();
 	}
 
-	E_RESULT_CODE CBaseJobManager::SubmitJob(TJobCounter* pCounter, const TJobCallback& job, E_JOB_PRIORITY_TYPE priority, const C8* jobName)
+	E_RESULT_CODE CBaseJobManager::SubmitJob(TJobCounter* pCounter, const TJobCallback& job, const TSubmitJobParams& params)
 	{
 		if (!job)
 		{
@@ -106,11 +106,20 @@ namespace TDEngine2
 		args.mJobIndex = 0;
 		args.mGroupIndex = 0;
 
-		marl::schedule([=]
+		auto task = [=]
 		{
 			job(args);
 			pWaitGroup->done();
-		});
+		};
+
+		if (params.mBlockingCallsAwaited)
+		{
+			marl::blocking_call(task);
+		}
+		else
+		{
+			marl::schedule(task);
+		}
 
 #if TDE2_JOB_MANAGER_VERBOSE_LOG_ENABLED
 		LOG_MESSAGE(Wrench::StringUtils::Format("[Job Manager] Submit a new job, id: {0}", jobName));

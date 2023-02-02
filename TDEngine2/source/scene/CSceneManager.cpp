@@ -200,7 +200,7 @@ namespace TDEngine2
 					onResultCallback(result);
 				}
 			});
-		});
+		}, { E_JOB_PRIORITY_TYPE::NORMAL, true });
 	}
 
 	E_RESULT_CODE CSceneManager::UnloadScene(TSceneId id)

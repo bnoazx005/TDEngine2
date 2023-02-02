@@ -343,7 +343,7 @@ namespace TDEngine2
 			return RC_OK;
 		}
 
-		pJobManager->SubmitJob(nullptr, loadTextureRoutine);
+		pJobManager->SubmitJob(nullptr, loadTextureRoutine, { E_JOB_PRIORITY_TYPE::NORMAL, true });
 		
 		return RC_OK;
 	}
