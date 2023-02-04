@@ -650,7 +650,7 @@ namespace TDEngine2
 	*/
 
 
-	static E_RESULT_CODE SaveSingleEntityImpl(IArchiveWriter* pWriter, TPtr<IWorld> pWorld, TEntityId currEntityId)
+	static E_RESULT_CODE SaveSingleEntityImpl(IArchiveWriter* pWriter, TPtr<IWorld> pWorld, TEntityId currEntityId, bool savePrefabAsSimpleEntity = false)
 	{
 		E_RESULT_CODE result = RC_OK;
 
@@ -663,7 +663,8 @@ namespace TDEngine2
 		result = result | pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
 		{
 #if TDE2_EDITORS_ENABLED
-			if (auto pPrefabLinkInfo = pCurrEntity->GetComponent<CPrefabLinkInfoComponent>())
+			auto pPrefabLinkInfo = pCurrEntity->GetComponent<CPrefabLinkInfoComponent>();
+			if (!savePrefabAsSimpleEntity && pPrefabLinkInfo)
 			{
 				result = result | pWriter->BeginGroup(TSceneArchiveKeys::mPrefabLinkGroupId);
 				{
@@ -765,14 +766,14 @@ namespace TDEngine2
 					TEntityId::Invalid;
 #endif
 
-				if (TEntityId::Invalid != prefabEntityRootId 
-					&& prefabEntityRootId != currEntityId
-					&& prefabEntityRootId != pRootEntity->GetId()) /// \note If it's a part of a prefab but not it's root skip serialization process
+				if (TEntityId::Invalid != prefabEntityRootId && 
+					prefabEntityRootId != currEntityId && 
+					prefabEntityRootId != pRootEntity->GetId()) /// \note If it's a part of a prefab but not it's root skip serialization process
 				{
 					continue;
 				}
 
-				result = result | SaveSingleEntityImpl(pWriter, pWorld, currEntityId);
+				result = result | SaveSingleEntityImpl(pWriter, pWorld, currEntityId, currEntityId == pRootEntity->GetId());
 
 				if (CEntity* pCurrEntity = pWorld->FindEntity(currEntityId))
 				{

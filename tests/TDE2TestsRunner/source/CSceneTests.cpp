@@ -1,4 +1,6 @@
 #include <TDEngine2.h>
+#define DEFER_IMPLEMENTATION
+#include "deferOperation.hpp"
 
 
 using namespace TDEngine2;
@@ -249,8 +251,9 @@ TDE2_TEST_FIXTURE("EntitiesOperationsTests")
 			*/
 
 			const std::string textData{ DynamicPtrCast<IInputStream>(pMemoryMappedStream)->ReadToEnd() };
-
 			USIZE entitiesCount = 0;
+
+			defer([=] { pFileReader->Close(); });
 
 			pFileReader->BeginGroup("entities");
 			{
@@ -280,6 +283,110 @@ TDE2_TEST_FIXTURE("EntitiesOperationsTests")
 			pFileReader->EndGroup();
 
 			TDE2_TEST_IS_TRUE(entitiesCount == 3);
+		});
+	}
+
+	TDE2_TEST_CASE("TestSaveEntitiesHierarchy_CreateNewEntityLinkTestPrefabAndTryToSaveIt_CorrectlySavesNestedLink")
+	{
+		static CEntity* pHierarchyRootEntity = nullptr;
+
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			pHierarchyRootEntity = pMainScene->CreateEntity("HierarchyWithNestedPrefab");
+			CEntity* pPrefab = pMainScene->Spawn("TestPrefab");
+
+			TDE2_TEST_IS_TRUE(RC_OK == GroupEntities(pSceneManager->GetWorld().Get(), pHierarchyRootEntity->GetId(), pPrefab->GetId()));
+		});
+
+		pTestCase->WaitForNextFrame();
+
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+
+			E_RESULT_CODE result = RC_OK;
+
+			auto pMemoryMappedStream = TPtr<TDEngine2::IStream>(CreateMemoryIOStream(Wrench::StringUtils::GetEmptyStr(), {}, result));
+			if (!pMemoryMappedStream)
+			{
+				TDE2_TEST_IS_TRUE(false);
+				return result;
+			}
+
+			if (auto pPrefabsRegistry = pSceneManager->GetPrefabsRegistry())
+			{
+				IYAMLFileWriter* pFileWriter = dynamic_cast<IYAMLFileWriter*>(CreateYAMLFileWriter(nullptr, pMemoryMappedStream, result));
+				if (!pFileWriter)
+				{
+					TDE2_TEST_IS_TRUE(false);
+					return result;
+				}
+
+				result = result | pPrefabsRegistry->SavePrefabHierarchy(pFileWriter, pSceneManager->GetWorld().Get(), pHierarchyRootEntity);
+				result = result | pFileWriter->Close();
+
+				TDE2_TEST_IS_TRUE(RC_OK == result);
+			}
+
+			/// \note Read back the structure of the archive
+			IYAMLFileReader* pFileReader = dynamic_cast<IYAMLFileReader*>(CreateYAMLFileReader(nullptr, pMemoryMappedStream, result));
+			if (!pFileReader)
+			{
+				TDE2_TEST_IS_TRUE(false);
+				return result;
+			}
+
+			/*!
+				\brief The structure of the hierarchy looks like the following
+				- entities:
+					- entity:
+						- component:
+					- link
+						prefab_id: TestPrefab
+			*/
+
+			const std::string textData{ DynamicPtrCast<IInputStream>(pMemoryMappedStream)->ReadToEnd() };
+			USIZE entitiesCount = 0;
+			USIZE linksCount = 0;
+
+			defer([=] { pFileReader->Close(); });
+
+			pFileReader->BeginGroup("entities");
+			{
+				TEntityId currEntityId = TEntityId::Invalid;
+
+				while (pFileReader->HasNextItem())
+				{
+					pFileReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+					{
+						pFileReader->BeginGroup("entity");
+
+						currEntityId = static_cast<TEntityId>(pFileReader->GetUInt32("id", static_cast<U32>(TEntityId::Invalid)));
+						if (TEntityId::Invalid != currEntityId)
+						{
+							entitiesCount++;
+						}
+						else
+						{
+							linksCount++;
+						}
+
+						pFileReader->EndGroup();
+					}
+					pFileReader->EndGroup();
+				}
+			}
+			pFileReader->EndGroup();
+
+			TDE2_TEST_IS_TRUE(entitiesCount == 1);
+			TDE2_TEST_IS_TRUE(linksCount == 1);
 		});
 	}
 }
