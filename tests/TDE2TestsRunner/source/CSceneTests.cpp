@@ -182,6 +182,106 @@ TDE2_TEST_FIXTURE("EntitiesOperationsTests")
 			TDE2_TEST_IS_TRUE(RC_OK == pSceneManager->UnloadScene(pSceneManager->GetSceneId(pTestScene->GetName())));
 		});
 	}
+
+	TDE2_TEST_CASE("TestSaveEntitiesHierarchy_TryToSerializePrefabRoot_SavesAllEntitiesThatPartOfTheHierarchy")
+	{
+		static CEntity* pPrefabEntity = nullptr;
+
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			pPrefabEntity = pMainScene->Spawn("TestPrefab");
+		});
+
+		pTestCase->WaitForNextFrame();
+
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+
+			E_RESULT_CODE result = RC_OK;
+
+			auto pMemoryMappedStream = TPtr<TDEngine2::IStream>(CreateMemoryIOStream(Wrench::StringUtils::GetEmptyStr(), {}, result));
+			if (!pMemoryMappedStream)
+			{
+				TDE2_TEST_IS_TRUE(false);
+				return result;
+			}
+
+			if (auto pPrefabsRegistry = pSceneManager->GetPrefabsRegistry())
+			{
+				IYAMLFileWriter* pFileWriter = dynamic_cast<IYAMLFileWriter*>(CreateYAMLFileWriter(nullptr, pMemoryMappedStream, result));
+				if (!pFileWriter)
+				{
+					TDE2_TEST_IS_TRUE(false);
+					return result;
+				}
+
+				result = result | pPrefabsRegistry->SavePrefabHierarchy(pFileWriter, pSceneManager->GetWorld().Get(), pPrefabEntity);
+				result = result | pFileWriter->Close();
+
+				TDE2_TEST_IS_TRUE(RC_OK == result);
+			}
+
+			/// \note Read back the structure of the archive
+			IYAMLFileReader* pFileReader = dynamic_cast<IYAMLFileReader*>(CreateYAMLFileReader(nullptr, pMemoryMappedStream, result));
+			if (!pFileReader)
+			{
+				TDE2_TEST_IS_TRUE(false);
+				return result;
+			}
+
+			/*!
+				\brief The structure of TestPrefab looks like the following
+				- entities:
+					- entity:
+						- component:
+					- entity:
+						- component:
+					- entity:
+						- component:
+			*/
+
+			const std::string textData{ DynamicPtrCast<IInputStream>(pMemoryMappedStream)->ReadToEnd() };
+
+			USIZE entitiesCount = 0;
+
+			pFileReader->BeginGroup("entities");
+			{
+				TEntityId currEntityId = TEntityId::Invalid;
+
+				while (pFileReader->HasNextItem())
+				{
+					pFileReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+					{
+						pFileReader->BeginGroup("entity");
+						
+						currEntityId = static_cast<TEntityId>(pFileReader->GetUInt32("id", static_cast<U32>(TEntityId::Invalid)));
+						if (TEntityId::Invalid != currEntityId)
+						{
+							entitiesCount++;
+						}
+						else
+						{
+							TDE2_TEST_IS_TRUE(false);
+						}
+
+						pFileReader->EndGroup();
+					}
+					pFileReader->EndGroup();
+				}
+			}
+			pFileReader->EndGroup();
+
+			TDE2_TEST_IS_TRUE(entitiesCount == 3);
+		});
+	}
 }
 
 #endif
