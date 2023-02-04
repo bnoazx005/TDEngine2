@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.14] 2023-02-02
+## [0.6.14] 2023-02-04
 
 ### Added
 
@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The implementation of copy/paste editor utilities for scene's hierarchy was added.
 
 - Add support of blocking calls for **IJobManager** interface.
+
+- Now **TDE2_ASSERT** macro is supported within auto-tests runner's implementation.
 
 ### Changed
 

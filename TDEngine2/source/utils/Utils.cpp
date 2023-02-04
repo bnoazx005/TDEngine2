@@ -4,6 +4,7 @@
 #include "backward.hpp"
 #define STR_UTILS_IMPLEMENTATION
 #include "stringUtils.hpp"
+#include "../../include/autotests/CTestContext.h"
 #define MEM_TRACKER_IMPLEMENTATION
 #include "memTracker.hpp"
 #include <algorithm>
@@ -398,6 +399,13 @@ namespace TDEngine2
 		}
 
 		LOG_ERROR(GetStackTrace());
+		
+		if (!CTestContext::Get()->IsFinished())
+		{
+			CTestContext::Get()->Assert(message, false, true, file, line);
+			return;
+		}
+
 		debug_break();
 	}
 }
