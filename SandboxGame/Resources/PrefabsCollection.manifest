@@ -3,6 +3,8 @@ collection:
     prefab_id: TestPrefab
   - path: ProjectResources/Prefabs/1.prefab
     prefab_id: 1
+  - path: ProjectResources/Prefabs/TestCanvas.prefab
+    prefab_id: TestCanvas
 meta: 
   resource_type: prefabs_manifest
   version_tag: 1

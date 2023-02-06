@@ -31,6 +31,7 @@ set(SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CCustomEngineListener.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CTransformTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CSceneTests.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/CUIElementsTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
 
 source_group("includes" FILES ${HEADERS})
