@@ -20,6 +20,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <queue>
+#include <algorithm>
 
 
 namespace TDEngine2
@@ -208,7 +209,11 @@ namespace TDEngine2
 			return result;
 		}
 
-		mEntities.erase(std::find(mEntities.cbegin(), mEntities.cend(), id));
+		/// \note Destroy can remove all the child entities so we should check all entities of the scene
+		mEntities.erase(std::remove_if(mEntities.begin(), mEntities.end(), [this, entityIdToRemove = id](const TEntityId& entityId)
+		{
+			return entityIdToRemove == entityId || !mpWorld->FindEntity(entityId);
+		}), mEntities.cend());
 
 		return RC_OK;
 	}

@@ -374,4 +374,31 @@ TEST_CASE("CWorld Tests")
 		auto& transformsMappings = slice.mParentsToChildMapping;
 		REQUIRE(transformsMappings.size() == slice.mComponentsCount + 1);
 	}
+
+	SECTION("TestDestroyEntity_CreateEntitiesHierarchyAndTryToRemoveItsRoot_AllTheEntitiesOfTheHierarchyShouldBeDeleted")
+	{
+		/*
+			x Parent1
+			x	Child1
+			x		Child2
+		*/
+
+		auto pParentEntity = pWorld->CreateEntity("Parent");
+		auto pChild1Entity = pWorld->CreateEntity("Child1");
+		auto pChild2Entity = pWorld->CreateEntity("Child2");
+
+		REQUIRE(RC_OK == GroupEntities(pWorld.Get(), pParentEntity->GetId(), pChild1Entity->GetId()));
+		REQUIRE(RC_OK == GroupEntities(pWorld.Get(), pChild1Entity->GetId(), pChild2Entity->GetId()));
+
+		const TEntityId entities[]{ pParentEntity->GetId(), pChild1Entity->GetId(), pChild2Entity->GetId() };
+
+		REQUIRE(RC_OK == pWorld->Destroy(pParentEntity->GetId()));
+
+		/// \note Check the existance of the entities
+		for (const TEntityId currEntityId : entities)
+		{
+			REQUIRE(!pWorld->FindEntity(currEntityId));
+		}
+
+	}
 }

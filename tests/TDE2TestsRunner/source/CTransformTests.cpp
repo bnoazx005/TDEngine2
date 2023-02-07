@@ -230,7 +230,6 @@ TDE2_TEST_FIXTURE("CTransform Tests")
 			TDE2_TEST_IS_TRUE(pMainScene);
 
 			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pParentTransform->GetOwnerId()));
-			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pChildTransform->GetOwnerId()));
 		});
 	}
 

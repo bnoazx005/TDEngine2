@@ -74,7 +74,20 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		E_RESULT_CODE result = mpComponentManager->RemoveComponents(entityId);
+		E_RESULT_CODE result = RC_OK;
+
+		if (mCreateEntitiesWithPredefinedComponents)
+		{
+			if (auto pTransform = mpComponentManager->GetComponent<CTransform>(entityId)) /// \note Firstly remove all the children if they exist
+			{
+				for (const TEntityId currChildId : pTransform->GetChildren())
+				{
+					result = result | _destroyInternal(currChildId);
+				}
+			}
+		}
+
+		result = result | mpComponentManager->RemoveComponents(entityId);
 
 		if (result != RC_OK)
 		{
