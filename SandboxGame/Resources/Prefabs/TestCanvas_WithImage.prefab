@@ -1,0 +1,77 @@
+entities: 
+  - entity: 
+      components: 
+        - component: 
+            Children: 
+              - child_id: 42
+            owner_id: 41
+            parent_id: 4294967295
+            position: 
+              x: 0.000000
+            rotation: 
+              w: 1.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            max_anchor: 
+              x: 1.000000
+              y: 1.000000
+            max_offset: 
+              x: 0.000000
+            min_anchor: 
+              x: 0.000000
+            min_offset: 
+              x: 0.000000
+            pivot: 
+              x: 0.000000
+            type_id: 2172495824
+        - component: 
+            height: 768
+            inherit_camera_sizes: 0
+            type_id: 3433087876
+            width: 1024
+        - component: 
+            type_id: 1930024581
+      id: 41
+      name: Canvas
+  - entity: 
+      components: 
+        - component: 
+            color: 
+              a: 1.000000
+              b: 1.000000
+              g: 1.000000
+              r: 1.000000
+            sprite_id: DefaultResources/Textures/DefaultUIWhite_Sprite.png
+            type_id: 2844726091
+        - component: 
+            owner_id: 42
+            parent_id: 41
+            position: 
+              x: 0.000000
+            rotation: 
+              w: 1.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            max_anchor: 
+              x: 1.000000
+              y: 1.000000
+            max_offset: 
+              x: 0.000000
+              y: 0.000000
+            min_anchor: 
+              x: 0.000000
+            min_offset: 
+              x: 0.000000
+            pivot: 
+              x: 0.000000
+            type_id: 2172495824
+      id: 42
+      name: Image
