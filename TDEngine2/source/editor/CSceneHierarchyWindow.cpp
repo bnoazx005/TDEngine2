@@ -376,6 +376,11 @@ namespace TDEngine2
 
 			for (IScene* pCurrScene : mpSceneManager->GetLoadedScenes())
 			{
+				if (!pCurrScene)
+				{
+					continue;
+				}
+
 				sceneName = pCurrScene->GetName();
 
 				if (mpImGUIContext->CollapsingHeader(sceneName, true, (mpSelectedScene == pCurrScene), 

@@ -106,6 +106,96 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pCanvasEntity->GetId()));
 		});
 	}
+
+	TDE2_TEST_CASE("TestLayoutElementPresets_SwitchBetweenLayoutElementPresetsAndCheckUpValuesInInspector_PresetsValuesShouldBeRelevant")
+	{
+		static CLayoutElement* pImageLayoutElement = nullptr;
+
+		/// \note Load test canvas and create an image
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			auto pCanvasEntity = pMainScene->Spawn("TestCanvas");
+			TDE2_TEST_IS_TRUE(pCanvasEntity);
+
+			auto pImageEntity = pMainScene->CreateEntity("Image");
+			pImageEntity->AddComponent<CImage>();
+			pImageLayoutElement = pImageEntity->AddComponent<CLayoutElement>();
+
+			GroupEntities(pWorld.Get(), pCanvasEntity->GetId(), pImageEntity->GetId());
+		});
+
+		/// \todo Replace particular positions with access through identifiers of buttons
+		pTestCase->WaitForNextFrame();
+		pTestCase->AddPressKey(E_KEYCODES::KC_TILDE); /// Open dev menu
+
+		pTestCase->SetCursorPosition(TVector3(166.0f, 277.0f, 0.0f));
+		pTestCase->AddPressMouseButton(0); /// Open the level editor
+
+		pTestCase->SetCursorPosition(TVector3(116.0f, 488.0f, 0.0f));
+		pTestCase->AddPressMouseButton(0); /// Open the hierarchy window
+
+		pTestCase->SetCursorPosition(TVector3(860.0f, 304.0f, 0.0f));
+		pTestCase->AddPressMouseButton(0); /// Select the canvas entity
+
+		pTestCase->SetCursorPosition(TVector3(860.0f, 270.0f, 0.0f));
+		pTestCase->AddPressMouseButton(0); /// Select the Image entity
+
+		/// tuple's args: particlular preset pos, min anchor, max anchor, min offset, max offset
+		const std::vector<std::tuple<F32, TVector2, TVector2, TVector2, TVector2>> layoutPresetsTests
+		{
+			{ 471.0f, TVector2(0.0f, 1.0f), TVector2(0.0f, 1.0f), TVector2(0.0f, -100.0f), TVector2(100.0f) },
+			{ 453.0f, TVector2(1.0f), TVector2(1.0f), TVector2(-100.0f), TVector2(100.0f) },
+			{ 437.0f, ZeroVector2, ZeroVector2, ZeroVector2, TVector2(100.0f) },
+			{ 419.0f, TVector2(1.0f, 0.0f), TVector2(1.0f, 0.0f), TVector2(-100.0f, 0.0f), TVector2(100.0f) },
+
+			{ 398.0f, TVector2(0.0f, 0.5f), TVector2(0.0f, 0.5f), ZeroVector2, TVector2(100.0f) },
+			{ 385.0f, TVector2(0.5f, 1.0f), TVector2(0.5f, 1.0f), TVector2(-50.0f, -100.0f), TVector2(100.0f) },
+			{ 365.0f, TVector2(1.0f, 0.5f), TVector2(1.0f, 0.5f), TVector2(-100.0f, -50.0f), TVector2(100.0f) },
+			{ 345.0f, TVector2(0.5f, 0.0f), TVector2(0.5f, 0.0f), TVector2(-50.0f, 0.0f), TVector2(100.0f) },
+			
+			{ 345.0f, TVector2(0.5f), TVector2(0.5f), TVector2(-50.0f, -50.0f), TVector2(100.0f) },
+
+			{ 325.0f, ZeroVector2, TVector2(0.0f, 1.0f), ZeroVector2, TVector2(100.0f, 0.0f) },
+			{ 305.0f, TVector2(0.5f, 0.0f), TVector2(0.5f, 1.0f), TVector2(-50.0f, 0.0f), TVector2(100.0f, 0.0f) },
+			{ 285.0f, TVector2(0.0f, 0.5f), TVector2(1.0f, 0.5f), ZeroVector2, TVector2(0.0f, 100.0f) },
+			{ 265.0f, TVector2(1.0f, 0.0f), TVector2(1.0f, 1.0f), TVector2(-100.0f, 0.0f), TVector2(100.0f, 0.0f) },
+
+			{ 238.0f, TVector2(0.0f, 1.0f), TVector2(1.0f, 1.0f), ZeroVector2, TVector2(0.0f, 100.0f)},
+			{ 216.0f, ZeroVector2, TVector2(1.0f, 0.0f), ZeroVector2, TVector2(0.0f, 100.0f) },
+			{ 201.0f, ZeroVector2, TVector2(1.0f), ZeroVector2, ZeroVector2 },
+		};
+
+		F32 layoutPresetYPos;
+		TVector2 minAnchor, maxAnchor, minOffset, maxOffset;
+
+		for (const auto& currTestCase : layoutPresetsTests)
+		{
+			std::tie(layoutPresetYPos, minAnchor, maxAnchor, minOffset, maxOffset) = currTestCase;
+
+			pTestCase->SetCursorPosition(TVector3(725.0f, 488.0f, 0.0f));
+			pTestCase->AddPressMouseButton(0); /// Click over layout preset
+
+			pTestCase->SetCursorPosition(TVector3(744.0f, layoutPresetYPos, 0.0f));
+			pTestCase->AddPressMouseButton(0); /// Change the layout preset
+
+			pTestCase->ExecuteAction([=]
+			{
+				TDE2_TEST_IS_TRUE(pImageLayoutElement->GetMinAnchor() == minAnchor);
+				TDE2_TEST_IS_TRUE(pImageLayoutElement->GetMaxAnchor() == maxAnchor);
+
+				TDE2_TEST_IS_TRUE(pImageLayoutElement->GetMinOffset() == minOffset);
+				TDE2_TEST_IS_TRUE(pImageLayoutElement->GetMaxOffset() == maxOffset);
+			});
+		}
+	}
 }
 
 #endif

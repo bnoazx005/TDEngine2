@@ -601,6 +601,7 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 {
 	TDE2_PROFILER_SCOPE("OnUpdate");
 
+	LOG_MESSAGE(mpInputContext->GetMousePosition().ToString());
 #if 0
 	/// \note ImGUI tests
 	{

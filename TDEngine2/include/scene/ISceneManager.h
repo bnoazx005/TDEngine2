@@ -139,7 +139,7 @@ namespace TDEngine2
 			TDE2_API virtual TPtr<IPrefabsRegistry> GetPrefabsRegistry() const = 0;
 
 			/*!
-				\return The method returns an array of currently loaded chunks
+				\return The method returns an array of currently loaded chunks. An individual elements can be nullptr if there was unload operation's invocations
 			*/
 
 			TDE2_API virtual const TScenesArray& GetLoadedScenes() const = 0;

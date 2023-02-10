@@ -923,12 +923,13 @@ namespace TDEngine2
 	};
 
 
+	/// \brief Min anchor, max anchor, max offset, min offset
 	static const std::array<std::tuple<TVector2, TVector2, TVector2, TVector2>, LayoutPresetsCount> LayoutAnchorsPresets
 	{
-		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 0.0f, 1.0f }, { 0.0f, 1.0f }, { 100.0f }, { 0.0f, -100.0f }),       ///< Top Left
-		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 1.0f }, { 1.0f }, { 100.0f }, { -100.0f }),                   ///< Top Right
-		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 0.0f }, { 0.0f }, { 100.0f }, { 0.0f, 0.0f }),                   ///< Bottom Left
-		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 1.0f, 0.0f }, { 1.0f, 0.0f }, { 100.0f }, { -100.0f, 0.0f }),       ///< Bottom Right
+		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 0.0f, 1.0f }, { 0.0f, 1.0f }, { 100.0f }, { 0.0f, -100.0f }),    ///< Top Left
+		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 1.0f }, { 1.0f }, { 100.0f }, { -100.0f }),					   ///< Top Right
+		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 0.0f }, { 0.0f }, { 100.0f }, { 0.0f }),						   ///< Bottom Left
+		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 1.0f, 0.0f }, { 1.0f, 0.0f }, { 100.0f }, { -100.0f, 0.0f }),    ///< Bottom Right
 		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 0.0f, 0.5f }, { 0.0f, 0.5f }, { 100.0f }, { 0.0f, 0.0f }),       ///< Center Left
 		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 0.5f, 1.0f }, { 0.5f, 1.0f }, { 100.0f }, { 0.0f, 0.0f }),       ///< Center Top
 		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 1.0f, 0.5f }, { 1.0f, 0.5f }, { 100.0f }, { 0.0f, 0.0f }),       ///< Center Right
@@ -940,7 +941,7 @@ namespace TDEngine2
 		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 1.0f, 0.0f }, { 1.0f }, { 100.0f, 0.0f }, { 0.0f, 0.0f }),       ///< Right Wide
 		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 0.0f, 1.0f }, { 1.0f }, { 0.0f, 100.0f }, { 0.0f, 0.0f }),       ///< Top Wide
 		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 0.0f }, { 1.0f, 0.0f }, { 0.0f, 100.0f }, { 0.0f, 0.0f }),       ///< Bottom Wide
-		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 0.0f }, { 1.0f }, { 100.0f }, { 0.0f, 0.0f }),                   ///< Full Rect
+		std::make_tuple<TVector2, TVector2, TVector2, TVector2>({ 0.0f }, { 1.0f }, { 0.0f }, { 0.0f }),						   ///< Full Rect
 	};
 
 
