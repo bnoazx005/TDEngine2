@@ -117,6 +117,11 @@ namespace TDEngine2
 		return mTestCases.empty();
 	}
 
+	const std::string& CBaseTestFixture::GetName() const
+	{
+		return mName;
+	}
+
 
 	TDE2_API ITestFixture* CreateBaseTestFixture(const std::string& name, E_RESULT_CODE& result)
 	{

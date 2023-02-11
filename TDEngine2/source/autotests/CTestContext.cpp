@@ -184,6 +184,11 @@ namespace TDEngine2
 		pProxyInputContextDesc->mFrameMouseButtonsInputBuffer.insert(buttonId);
 	}
 
+	E_RESULT_CODE CTestContext::TakeScreenshot()
+	{
+		return TakeScreenshot("");
+	}
+
 	E_RESULT_CODE CTestContext::TakeScreenshot(const std::string& filename)
 	{
 		auto pFileSystem = mpEngineCore->GetSubsystem<IFileSystem>();

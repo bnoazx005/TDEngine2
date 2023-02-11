@@ -68,6 +68,7 @@ namespace TDEngine2
 		E_RESULT_CODE ResultVariableName = RC_OK;															\
 		TPtr<ITestCase> TestCaseVariableName = TPtr<ITestCase>(CreateBaseTestCase(ResultVariableName));		\
 		pTestFixture->AddTestCase(Name, TestCaseVariableName);												\
+		TestCaseVariableName->SetInfo(pTestFixture->GetName(), Name);										\
 		if (TPtr<ITestCase> pTestCase = TPtr<ITestCase>(TestCaseVariableName))
 
 	#define TDE2_TEST_CASE(Name) TDE2_TEST_CASE_IMPL(Name, TDE2_CONCAT(pTestCase, __COUNTER__), TDE2_CONCAT(result, __COUNTER__))
@@ -111,6 +112,13 @@ namespace TDEngine2
 			TDE2_API void SetMousePosition(const TVector3& position);
 			TDE2_API void NotifyOnKeyPressEvent(E_KEYCODES keyCode);
 			TDE2_API void NotifyOnMouseButtonPressEvent(U8 buttonId);
+
+			/*!
+				\brief The method captures a screenshot of a current test case and saves it into file. The filepath
+				consists of <output_screens_dir>/<test fixture name>/<test case>/<index>
+			*/
+
+			TDE2_API E_RESULT_CODE TakeScreenshot();
 
 			TDE2_API E_RESULT_CODE TakeScreenshot(const std::string& filename);
 

@@ -324,6 +324,23 @@ namespace TDEngine2
 		return mActions.empty();
 	}
 
+	void CBaseTestCase::SetInfo(const std::string& fixtureName, const std::string& name)
+	{
+		mOwningFixtureName = fixtureName;
+		mName = name;
+	}
+
+	const std::string& CBaseTestCase::GetOwningFixtureName() const
+	{
+		return mOwningFixtureName;
+	}
+
+	const std::string& CBaseTestCase::GetName() const
+	{
+		return mName;
+	}
+
+
 	TDE2_API ITestCase* CreateBaseTestCase(E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(ITestCase, CBaseTestCase, result);

@@ -47,6 +47,8 @@ namespace TDEngine2
 			TDE2_API virtual void Update(F32 dt) = 0;
 
 			TDE2_API virtual bool IsFinished() const = 0;
+
+			TDE2_API virtual const std::string& GetName() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ITestFixture)
 	};

@@ -65,6 +65,8 @@ namespace TDEngine2
 			TDE2_API void Update(F32 dt) override;
 
 			TDE2_API bool IsFinished() const override;
+
+			TDE2_API const std::string& GetName() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseTestFixture)
 		protected:

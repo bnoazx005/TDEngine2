@@ -51,6 +51,10 @@ namespace TDEngine2
 			TDE2_API virtual bool IsStarted() const = 0;
 
 			TDE2_API virtual bool IsFinished() const = 0;
+
+			TDE2_API virtual void SetInfo(const std::string& fixtureName, const std::string& name) = 0;
+			TDE2_API virtual const std::string& GetOwningFixtureName() const = 0;
+			TDE2_API virtual const std::string& GetName() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ITestCase)
 	};
