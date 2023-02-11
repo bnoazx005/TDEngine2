@@ -161,14 +161,14 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 			{ 365.0f, TVector2(1.0f, 0.5f), TVector2(1.0f, 0.5f), TVector2(-100.0f, -50.0f), TVector2(100.0f) },
 			{ 345.0f, TVector2(0.5f, 0.0f), TVector2(0.5f, 0.0f), TVector2(-50.0f, 0.0f), TVector2(100.0f) },
 			
-			{ 345.0f, TVector2(0.5f), TVector2(0.5f), TVector2(-50.0f, -50.0f), TVector2(100.0f) },
+			{ 325.0f, TVector2(0.5f), TVector2(0.5f), TVector2(-50.0f, -50.0f), TVector2(100.0f) },
 
-			{ 325.0f, ZeroVector2, TVector2(0.0f, 1.0f), ZeroVector2, TVector2(100.0f, 0.0f) },
-			{ 305.0f, TVector2(0.5f, 0.0f), TVector2(0.5f, 1.0f), TVector2(-50.0f, 0.0f), TVector2(100.0f, 0.0f) },
-			{ 285.0f, TVector2(0.0f, 0.5f), TVector2(1.0f, 0.5f), ZeroVector2, TVector2(0.0f, 100.0f) },
-			{ 265.0f, TVector2(1.0f, 0.0f), TVector2(1.0f, 1.0f), TVector2(-100.0f, 0.0f), TVector2(100.0f, 0.0f) },
+			{ 315.0f, ZeroVector2, TVector2(0.0f, 1.0f), ZeroVector2, TVector2(100.0f, 0.0f) },
+			{ 295.0f, TVector2(0.5f, 0.0f), TVector2(0.5f, 1.0f), TVector2(-50.0f, 0.0f), TVector2(100.0f, 0.0f) },
+			{ 270.0f, TVector2(0.0f, 0.5f), TVector2(1.0f, 0.5f), TVector2(0.0f, -50.0f), TVector2(0.0f, 100.0f)},
+			{ 255.0f, TVector2(1.0f, 0.0f), TVector2(1.0f, 1.0f), TVector2(-100.0f, 0.0f), TVector2(100.0f, 0.0f) },
 
-			{ 238.0f, TVector2(0.0f, 1.0f), TVector2(1.0f, 1.0f), ZeroVector2, TVector2(0.0f, 100.0f)},
+			{ 238.0f, TVector2(0.0f, 1.0f), TVector2(1.0f, 1.0f), TVector2(0.0f, -100.0f), TVector2(0.0f, 100.0f)},
 			{ 216.0f, ZeroVector2, TVector2(1.0f, 0.0f), ZeroVector2, TVector2(0.0f, 100.0f) },
 			{ 201.0f, ZeroVector2, TVector2(1.0f), ZeroVector2, ZeroVector2 },
 		};
