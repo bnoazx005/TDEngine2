@@ -113,14 +113,8 @@ namespace TDEngine2
 			TDE2_API void NotifyOnKeyPressEvent(E_KEYCODES keyCode);
 			TDE2_API void NotifyOnMouseButtonPressEvent(U8 buttonId);
 
-			/*!
-				\brief The method captures a screenshot of a current test case and saves it into file. The filepath
-				consists of <output_screens_dir>/<test fixture name>/<test case>/<index>
-			*/
-
-			TDE2_API E_RESULT_CODE TakeScreenshot();
-
 			TDE2_API E_RESULT_CODE TakeScreenshot(const std::string& filename);
+			TDE2_API E_RESULT_CODE TakeScreenshot(const std::string& testFixture, const std::string& testCase);
 
 			/*!
 				\brief The function is replacement of factory method for instances of this type.
@@ -134,6 +128,10 @@ namespace TDEngine2
 			TDE2_API IEngineCore* GetEngineCore() const;
 
 			TDE2_API bool IsFinished() const;
+
+			TDE2_API E_RESULT_CODE SetArtifactsOutputDirectory(const std::string& path);
+			TDE2_API const std::string& GetArtifactsOutputDirectory() const;
+
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTestContext);
 
@@ -151,6 +149,8 @@ namespace TDEngine2
 			U32                                                mFailedTestsCount = 0;
 
 			IDesktopInputContext*                              mpProxyInputContext;
+
+			std::string                                        mArtifactsOutputDirectoryPath;
 	};
 }
 

@@ -314,6 +314,14 @@ namespace TDEngine2
 		mActions.erase(mActions.cbegin());
 	}
 
+	void CBaseTestCase::TakeScreenshot()
+	{
+		ExecuteAction([this]
+		{
+			CTestContext::Get()->TakeScreenshot(mOwningFixtureName, mName);
+		});
+	}
+		
 	bool CBaseTestCase::IsStarted() const
 	{
 		return mIsStarted;

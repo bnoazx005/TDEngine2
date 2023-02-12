@@ -186,6 +186,8 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 			pTestCase->SetCursorPosition(TVector3(744.0f, layoutPresetYPos, 0.0f));
 			pTestCase->AddPressMouseButton(0); /// Change the layout preset
 
+			//pTestCase->TakeScreenshot();
+
 			pTestCase->ExecuteAction([=]
 			{
 				TDE2_TEST_IS_TRUE(pImageLayoutElement->GetMinAnchor() == minAnchor);

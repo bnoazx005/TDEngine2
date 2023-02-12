@@ -7,6 +7,8 @@
 #include "../../include/core/IFileSystem.h"
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IFile.h"
+#include <chrono>
+#include <ctime>
 
 
 #if TDE2_EDITORS_ENABLED
@@ -184,11 +186,6 @@ namespace TDEngine2
 		pProxyInputContextDesc->mFrameMouseButtonsInputBuffer.insert(buttonId);
 	}
 
-	E_RESULT_CODE CTestContext::TakeScreenshot()
-	{
-		return TakeScreenshot("");
-	}
-
 	E_RESULT_CODE CTestContext::TakeScreenshot(const std::string& filename)
 	{
 		auto pFileSystem = mpEngineCore->GetSubsystem<IFileSystem>();
@@ -213,9 +210,51 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CTestContext::TakeScreenshot(const std::string& testFixture, const std::string& testCase)
+	{
+		auto pFileSystem = mpEngineCore->GetSubsystem<IFileSystem>();
+		if (!pFileSystem)
+		{
+			return RC_FAIL;
+		}
+
+		static const std::string filenamePattern { "{0}_{1}{2}{3}.png" };
+
+		/// \note Extract current time
+		const auto& timePoint = std::chrono::system_clock::now();
+		const std::time_t currTime = std::chrono::system_clock::to_time_t(timePoint);
+		const auto& localTime = std::localtime(&currTime);
+		
+		return TakeScreenshot(
+			pFileSystem->CombinePath(mArtifactsOutputDirectoryPath, 
+			pFileSystem->CombinePath(testFixture, Wrench::StringUtils::Format(filenamePattern, testCase, localTime->tm_hour, localTime->tm_min, localTime->tm_sec))));
+	}
+
 	bool CTestContext::IsFinished() const
 	{
 		return !mIsRunning && mTestFixtures.empty();
+	}
+
+	E_RESULT_CODE CTestContext::SetArtifactsOutputDirectory(const std::string& path)
+	{
+		if (auto pFileSystem = mpEngineCore->GetSubsystem<IFileSystem>())
+		{
+			if (!pFileSystem->IsPathValid(path))
+			{
+				return RC_INVALID_ARGS;
+			}
+
+			mArtifactsOutputDirectoryPath = path;
+
+			return RC_OK;
+		}
+
+		return RC_FAIL;
+	}
+
+	const std::string& CTestContext::GetArtifactsOutputDirectory() const
+	{
+		return mArtifactsOutputDirectoryPath;
 	}
 
 	TPtr<CTestContext> CTestContext::Get()
