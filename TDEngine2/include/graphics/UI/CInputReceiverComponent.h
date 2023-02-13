@@ -71,18 +71,12 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
-			TDE2_API void SetPressedFlag(bool value);
-
-			TDE2_API void SetIgnoreInputFlag(bool value);
-
-			TDE2_API bool IsPressed() const;
-
-			TDE2_API bool IsIgnoreInputFlag() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CInputReceiver)
-		protected:
-			bool mIsClicked;
-			bool mIsIgnoreInput;
+		public:
+			bool mPrevState     : 1;
+			bool mCurrState     : 1;
+			bool mIsIgnoreInput : 1;
 	};
 
 

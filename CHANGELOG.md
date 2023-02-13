@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.14] 2023-02-12
+## [0.6.14] 2023-02-13
 
 ### Added
 
@@ -34,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The option **IS_TOOLS_BUILDING_ENABLED** was removed.
 
 - **tina** library was excluded **marl** fiber-based scheduler's library is added instead.
+
+- The structure of **CInputReceiverComponent** was changed.
 
 ### Fixed
 

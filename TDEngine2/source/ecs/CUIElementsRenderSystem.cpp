@@ -77,7 +77,7 @@ namespace TDEngine2
 		{
 			CTransform* pTransform = pWorld->FindEntity(currCanvasEntity)->GetComponent<CTransform>();
 
-			/// \note Sort all entities based on computed priority (children're first)
+			/// \note Sort all entities based on `d priority (children're first)
 			std::stack<TEntityId> entitiesToVisit;
 
 			for (TEntityId id : pTransform->GetChildren())

@@ -101,7 +101,7 @@ namespace TDEngine2
 
 				if (auto pInputReceiver = pEntity->GetComponent<CInputReceiver>())
 				{
-					if (!pInputReceiver->IsIgnoreInputFlag())
+					if (!pInputReceiver->mIsIgnoreInput)
 					{
 						inputReceivers.push_back(pInputReceiver);
 						transforms.push_back(pEntity->GetComponent<CTransform>());
@@ -142,15 +142,18 @@ namespace TDEngine2
 			pInputReceiver = inputReceivers[i];
 			pLayoutElement = layoutElements[i];
 
-			if (pInputReceiver->IsIgnoreInputFlag())
+			if (pInputReceiver->mIsIgnoreInput)
 			{
-				pInputReceiver->SetPressedFlag(false); // reset state
+				pInputReceiver->mPrevState = pInputReceiver->mCurrState; // reset state
+				pInputReceiver->mCurrState = false;
 				continue;
 			}
 
 			/// \fixme For now it's the simplest solution for checking buttons 
-			pInputReceiver->SetPressedFlag(ContainsPoint(pLayoutElement->GetWorldRect(), mousePosition) && mpDesktopInputContext->IsMouseButton(0));
-			if (pInputReceiver->IsPressed())
+			pInputReceiver->mPrevState = pInputReceiver->mCurrState;
+			pInputReceiver->mCurrState = ContainsPoint(pLayoutElement->GetWorldRect(), mousePosition) && mpDesktopInputContext->IsMouseButton(0);
+
+			if (pInputReceiver->mCurrState)
 			{
 				return;
 			}

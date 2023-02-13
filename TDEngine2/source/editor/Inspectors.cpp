@@ -1204,20 +1204,20 @@ namespace TDEngine2
 			CInputReceiver& inputReceiver = dynamic_cast<CInputReceiver&>(component);
 
 			{
-				bool ignoreInput = inputReceiver.IsIgnoreInputFlag();
+				bool ignoreInput = inputReceiver.mIsIgnoreInput;
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Ignore Input");
 				imguiContext.Checkbox("##IgnoreInput", ignoreInput);
 				imguiContext.EndHorizontal();
 
-				if (inputReceiver.IsIgnoreInputFlag() != ignoreInput)
+				if (inputReceiver.mIsIgnoreInput != ignoreInput)
 				{
-					inputReceiver.SetIgnoreInputFlag(ignoreInput);
+					inputReceiver.mIsIgnoreInput = ignoreInput;
 				}
 			}
 
-			imguiContext.Label(Wrench::StringUtils::Format("On Pressed: {0}", inputReceiver.IsPressed()));
+			imguiContext.Label(Wrench::StringUtils::Format("On Pressed: {0}", inputReceiver.mCurrState ? "pressed" : "none"));
 		});
 	}
 

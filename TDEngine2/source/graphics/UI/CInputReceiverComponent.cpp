@@ -13,7 +13,7 @@ namespace TDEngine2
 
 
 	CInputReceiver::CInputReceiver() :
-		CBaseComponent(), mIsClicked(false), mIsIgnoreInput(false)
+		CBaseComponent(), mPrevState(false), mCurrState(false), mIsIgnoreInput(false)
 	{
 	}
 
@@ -57,26 +57,6 @@ namespace TDEngine2
 		}
 
 		return RC_FAIL;
-	}
-
-	void CInputReceiver::SetPressedFlag(bool value)
-	{
-		mIsClicked = value;
-	}
-
-	void CInputReceiver::SetIgnoreInputFlag(bool value)
-	{
-		mIsIgnoreInput = value;
-	}
-
-	bool CInputReceiver::IsPressed() const
-	{
-		return mIsClicked;
-	}
-
-	bool CInputReceiver::IsIgnoreInputFlag() const
-	{
-		return mIsIgnoreInput;
 	}
 
 
