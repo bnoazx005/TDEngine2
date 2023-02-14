@@ -5,6 +5,7 @@
 #include "../../include/platform/CYAMLFile.h"
 #include "../../include/scene/IPrefabsRegistry.h"
 #include "../../include/scene/IScene.h"
+#include "../../include/core/IImGUIContext.h"
 #include <clip.h>
 
 
@@ -136,6 +137,41 @@ namespace TDEngine2
 		}
 
 		return Wrench::TOkValue<TEntityId>(duplicateRootEntityInfo.mRootEntityId);
+	}
+
+
+	/*!
+		\brief CImGUIExtensions's definition
+	*/
+
+	E_RESULT_CODE CImGUIExtensions::EntityRefField(TPtr<IImGUIContext> pImGUIContext, TPtr<IWorld> pWorld, const std::string& text, TEntityId& entityRef, const std::function<void()>& onValueChanged)
+	{
+		if (!pImGUIContext || !pWorld)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		static const std::string InvalidEntityValue = "None";
+
+		CEntity* pEntity = pWorld->FindEntity(entityRef);
+		std::string value = pEntity ? pEntity->GetName() : InvalidEntityValue;
+
+		pImGUIContext->TextField(text, value, nullptr, nullptr, false, true);
+
+		pImGUIContext->RegisterDragAndDropTarget([pImGUIContext, pWorld, &entityRef, onValueChanged]
+		{
+			if (auto pChildEntityId = pImGUIContext->GetDragAndDropData<TEntityId>("DRAGGED_ENTITY_ID"))
+			{
+				entityRef = *pChildEntityId;
+
+				if (onValueChanged)
+				{
+					onValueChanged();
+				}
+			}
+		});
+
+		return RC_OK;
 	}
 }
 

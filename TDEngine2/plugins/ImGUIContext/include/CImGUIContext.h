@@ -220,7 +220,7 @@ namespace TDEngine2
 			*/
 
 			TDE2_API bool TextField(const std::string& text, std::string& value, const TImGUIContextParamAction<std::string>& onValueChanged = nullptr, 
-									const TImGUIContextAction& onCancel = nullptr, bool setFocus = false) override;
+									const TImGUIContextAction& onCancel = nullptr, bool setFocus = false, bool isReadonly = false) override;
 
 			/*!
 				\brief The method creates a field for TVector2 type

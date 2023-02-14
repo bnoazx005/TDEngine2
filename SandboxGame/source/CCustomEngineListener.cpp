@@ -601,7 +601,18 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 {
 	TDE2_PROFILER_SCOPE("OnUpdate");
 
-	LOG_MESSAGE(mpInputContext->GetMousePosition().ToString());
+#if 0
+	auto imgui = mpEngineCoreInstance->GetSubsystem<IImGUIContext>();
+	static bool isOpened = true;
+	if (imgui->BeginWindow("Hello, World!", isOpened, {}))
+	{
+		static TEntityId entityId = TEntityId::Invalid;
+		CImGUIExtensions::EntityRefField(imgui, mpEngineCoreInstance->GetSubsystem<ISceneManager>()->GetWorld(), "Object ", entityId);
+
+		imgui->EndWindow();
+	}
+#endif
+
 #if 0
 	/// \note ImGUI tests
 	{

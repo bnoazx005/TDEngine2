@@ -252,12 +252,16 @@ namespace TDEngine2
 	}
 
 	bool CImGUIContext::TextField(const std::string& text, std::string& value, const TImGUIContextParamAction<std::string>& onValueChanged, 
-								const TImGUIContextAction& onCancel, bool setFocus)
+								const TImGUIContextAction& onCancel, bool setFocus, bool isReadonly)
 	{
 		C8 buffer[512]{ '\0' };
 		memcpy(buffer, value.c_str(), value.size());
 
-		bool hasValueChanged = ImGui::InputText(text.c_str(), buffer, sizeof(buffer), onValueChanged ? ImGuiInputTextFlags_EnterReturnsTrue : ImGuiInputTextFlags_None);
+		const ImGuiInputTextFlags flags = 
+			(onValueChanged ? ImGuiInputTextFlags_EnterReturnsTrue : ImGuiInputTextFlags_None) |
+			(isReadonly ? ImGuiInputTextFlags_ReadOnly : ImGuiInputTextFlags_None);
+
+		bool hasValueChanged = ImGui::InputText(text.c_str(), buffer, sizeof(buffer), flags);
 
 		value.assign(buffer);
 

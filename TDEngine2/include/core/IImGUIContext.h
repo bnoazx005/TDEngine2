@@ -265,7 +265,7 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual bool TextField(const std::string& text, std::string& value, const TImGUIContextParamAction<std::string>& onValueChanged = nullptr, 
-											const TImGUIContextAction& onCancel = nullptr, bool setFocus = false) = 0;
+											const TImGUIContextAction& onCancel = nullptr, bool setFocus = false, bool isReadonly = false) = 0;
 
 			/*!
 				\brief The method creates a field for TVector2 type
