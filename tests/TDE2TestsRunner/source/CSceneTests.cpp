@@ -389,6 +389,90 @@ TDE2_TEST_FIXTURE("EntitiesOperationsTests")
 			TDE2_TEST_IS_TRUE(linksCount == 1);
 		});
 	}
+
+	TDE2_TEST_CASE("TestSpawnPrefab_TryToSpawnPrefabWithNestedLinkage_CorrectlySpawnNestedPrefabWithTheGivenOne")
+	{
+		static CEntity* pPrefab = nullptr;
+
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			pPrefab = pMainScene->Spawn("TestNestedPrefab");
+			TDE2_TEST_IS_TRUE(pPrefab);
+		});
+
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			/*!
+				\note the structure of TestNestedPrefab
+
+				Entity0
+					Entity1
+					Entity2
+						Entity0 <---- Here the nested prefab starts
+							Entity2
+							Entity2
+			*/
+
+			std::array<std::string, 2> childrenIdentifiers
+			{
+				"Entity1", "Entity2"
+			};
+
+			if (auto pRootTransform = pPrefab->GetComponent<CTransform>())
+			{
+				auto& children = pRootTransform->GetChildren();
+				TDE2_TEST_IS_TRUE(childrenIdentifiers.size() == children.size());
+
+				CEntity* pNestedPrefabRoot = nullptr;
+
+				for (USIZE i = 0; i < children.size(); i++)
+				{
+					CEntity* pEntity = pWorld->FindEntity(children[i]);
+					TDE2_TEST_IS_TRUE(pEntity);
+
+					TDE2_TEST_IS_TRUE(pEntity->GetName() == childrenIdentifiers[i]);
+
+					if (i == children.size() - 1)
+					{
+						auto pTransform = pEntity->GetComponent<CTransform>();
+						TDE2_TEST_IS_TRUE(pTransform->GetChildren().size() == 1);
+
+						pNestedPrefabRoot = pWorld->FindEntity(pTransform->GetChildren().front());
+					}
+				}
+
+				/// \note Nested prefabs checks
+				if (auto pNestedRootTransform = pNestedPrefabRoot->GetComponent<CTransform>())
+				{
+					auto& children = pNestedRootTransform->GetChildren();
+					TDE2_TEST_IS_TRUE(childrenIdentifiers.size() == children.size());
+
+					for (USIZE i = 0; i < children.size(); i++)
+					{
+						CEntity* pEntity = pWorld->FindEntity(children[i]);
+						TDE2_TEST_IS_TRUE(pEntity);
+
+						TDE2_TEST_IS_TRUE(pEntity->GetName() == childrenIdentifiers[i]);
+					}
+				}
+			}
+
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pPrefab->GetId()));
+		});
+	}
 }
 
 #endif
