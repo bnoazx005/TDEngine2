@@ -114,7 +114,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CEntity::PostLoad(CEntityManager* pEntityManager, const std::unordered_map<TEntityId, TEntityId>& entitiesIdentifiersRemapper)
+	E_RESULT_CODE CEntity::PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper)
 	{
 		E_RESULT_CODE result = RC_OK;
 
@@ -224,5 +224,16 @@ namespace TDEngine2
 	CEntity* CreateEntity(TEntityId id, const std::string& name, CEntityManager* pEntityManager, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(CEntity, CEntity, result, id, name, pEntityManager);
+	}
+
+
+	/*!
+		\brief TEntitiesMapper's definition
+	*/
+
+	TEntityId TEntitiesMapper::Resolve(TEntityId input) const
+	{
+		auto&& it = mSerializedToRuntimeIdsTable.find(input);
+		return it == mSerializedToRuntimeIdsTable.cend() ? input : it->second;
 	}
 }

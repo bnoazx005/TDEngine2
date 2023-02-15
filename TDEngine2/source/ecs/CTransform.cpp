@@ -120,22 +120,11 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		auto ownerEntityIt = entitiesIdentifiersRemapper.find(mOwnerId);
-		if (ownerEntityIt != entitiesIdentifiersRemapper.cend())
-		{
-			mOwnerId = ownerEntityIt->second;
-		}
+		mOwnerId = entitiesIdentifiersRemapper.Resolve(mOwnerId);
 
 		for (TEntityId& currChildId : mChildrenEntities)
 		{
-			auto it = entitiesIdentifiersRemapper.find(currChildId);
-			if (it == entitiesIdentifiersRemapper.cend())
-			{
-				TDE2_ASSERT(false);
-				continue;
-			}
-
-			currChildId = it->second;
+			currChildId = entitiesIdentifiersRemapper.Resolve(currChildId);
 
 			if (auto pChildEntity = pEntityManager->GetEntity(currChildId))
 			{

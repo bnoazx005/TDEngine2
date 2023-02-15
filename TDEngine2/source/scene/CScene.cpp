@@ -417,7 +417,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		std::unordered_map<TEntityId, TEntityId> entitiesIdsMap;
+		TEntitiesMapper entitiesIdsMap;
 		std::unordered_set<TEntityId> nonPrefabEntitiesSet;
 
 
@@ -485,7 +485,7 @@ namespace TDEngine2
 						pReader->BeginGroup("entity");
 						{
 							// \todo Implement remapping of entity's identifiers
-							entitiesIdsMap.emplace(entityId, pNewEntity->GetId());
+							entitiesIdsMap.mSerializedToRuntimeIdsTable.emplace(entityId, pNewEntity->GetId());
 							nonPrefabEntitiesSet.emplace(pNewEntity->GetId());
 						}
 						pReader->EndGroup();
@@ -525,7 +525,7 @@ namespace TDEngine2
 					
 				for (const TEntityId& currChildId : pTransform->GetChildren())
 				{
-					if (entitiesIdsMap.find(currChildId) != entitiesIdsMap.end())
+					if (entitiesIdsMap.mSerializedToRuntimeIdsTable.find(currChildId) != entitiesIdsMap.mSerializedToRuntimeIdsTable.end())
 					{
 						continue;
 					}
@@ -559,11 +559,7 @@ namespace TDEngine2
 
 			if (TEntityId::Invalid != parentEntityId)
 			{
-				auto it = entitiesIdsMap.find(parentEntityId); /// \note Convert the serialized value to the runtime one
-				if (it != entitiesIdsMap.end())
-				{
-					parentEntityId = it->second;
-				}
+				parentEntityId = entitiesIdsMap.Resolve(parentEntityId);  /// \note Convert the serialized value to the runtime one
 			}
 
 			auto pInstance = prefabLinkFactory(currPrefabInfo.mPrefabId, pEntityManager->GetEntity(parentEntityId).Get());
@@ -587,7 +583,7 @@ namespace TDEngine2
 
 			prefabsDefferedSpawnQueue.pop();
 
-			entitiesIdsMap.emplace(currPrefabInfo.mId, pInstance->GetId());
+			entitiesIdsMap.mSerializedToRuntimeIdsTable.emplace(currPrefabInfo.mId, pInstance->GetId());
 		}
 
 		if (RC_OK != result)

@@ -22,6 +22,8 @@ namespace TDEngine2
 	class IComponent;
 	class IWorld;
 
+	struct TEntitiesMapper;
+
 	/*!
 		class CEntity
 
@@ -74,7 +76,7 @@ namespace TDEngine2
 				make them correctly corresponds to saved state
 			*/
 
-			TDE2_API E_RESULT_CODE PostLoad(CEntityManager* pEntityManager, const std::unordered_map<TEntityId, TEntityId>& entitiesIdentifiersRemapper);
+			TDE2_API E_RESULT_CODE PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper);
 
 			/*!
 				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
@@ -273,4 +275,21 @@ namespace TDEngine2
 
 		TEntityId mRemovedEntityId;
 	} TOnEntityRemovedEvent, *TOnEntityRemovedEventPtr;
+
+
+	/*!
+		\brief The type is used to resolve entities identifiers when they're deserialized
+	*/
+
+	struct TEntitiesMapper
+	{
+		std::unordered_map<TEntityId, TEntityId> mSerializedToRuntimeIdsTable;
+
+		/*!
+			\return The method returns resolved identifier's value if it exists in mSerializedToRuntimeIdsTable hash table. If there is no
+			such pair the input identifier is returned
+		*/
+
+		TDE2_API TEntityId Resolve(TEntityId input) const;
+	};
 }

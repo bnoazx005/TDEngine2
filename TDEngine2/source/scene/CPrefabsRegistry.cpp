@@ -136,7 +136,7 @@ namespace TDEngine2
 	{
 		CEntity* pPrefabInstance = nullptr;
 
-		std::unordered_map<TEntityId, TEntityId> entitiesIdsMap;
+		TEntitiesMapper entitiesIdsMap;
 
 		for (auto&& currEntityId : prefabInfo.mRelatedEntities)
 		{
@@ -157,7 +157,7 @@ namespace TDEngine2
 						pPrefabInstance = pNewEntity;
 					}
 
-					entitiesIdsMap.emplace(pOriginalEntity->GetId(), pNewEntity->GetId());
+					entitiesIdsMap.mSerializedToRuntimeIdsTable.emplace(pOriginalEntity->GetId(), pNewEntity->GetId());
 				}
 			}
 		}
@@ -169,7 +169,7 @@ namespace TDEngine2
 
 		for (TEntityId currEntityId : prefabInfo.mRelatedEntities)
 		{
-			if (CEntity* pEntity = pWorld->FindEntity(entitiesIdsMap[currEntityId]))
+			if (CEntity* pEntity = pWorld->FindEntity(entitiesIdsMap.mSerializedToRuntimeIdsTable[currEntityId]))
 			{
 				result = result | pEntity->PostLoad(pWorld->GetEntityManager(), entitiesIdsMap);
 				TDE2_ASSERT(RC_OK == result);

@@ -19,6 +19,8 @@ namespace TDEngine2
 	class IWorld;
 	class CEntityManager;
 
+	struct TEntitiesMapper;
+
 
 	/*!
 		interface IComponent
@@ -30,8 +32,6 @@ namespace TDEngine2
 
 	class IComponent: public virtual IBaseObject, public ISerializable, public IIntrospectable, public INonAllocCloneable<IComponent>
 	{
-		public:
-			typedef std::unordered_map<TEntityId, TEntityId> TEntitiesMapper;
 		public:
 			/*!
 				\brief The method initializes an internal state of an object
