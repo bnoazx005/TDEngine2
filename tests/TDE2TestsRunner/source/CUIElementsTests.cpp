@@ -198,6 +198,78 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 			});
 		}
 	}
+
+	TDE2_TEST_CASE("TestGridLayoutGroup_AddGridGroupLayoutOntoRootOfEntities_TheComponentShouldHaveCorrectDefaultState")
+	{
+		static CEntity* pCanvasEntity = nullptr;
+		static CEntity* pGridRootEntity = nullptr;
+
+		auto prepareGridElement = [](CEntity* pEntity)
+		{
+			auto pLayout = pEntity->AddComponent<CLayoutElement>();
+		};
+
+		/// \note Create an entity
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			pCanvasEntity = pMainScene->Spawn("TestCanvas");
+			TDE2_TEST_IS_TRUE(pCanvasEntity);
+
+			pGridRootEntity = pMainScene->CreateEntity("GridRoot");
+			pGridRootEntity->AddComponent<CLayoutElement>();
+
+			CEntity* pGridElement01Entity = pMainScene->CreateEntity("GridElement01");
+			prepareGridElement(pGridElement01Entity);
+
+			CEntity* pGridElement02Entity = pMainScene->CreateEntity("GridElement02");
+			prepareGridElement(pGridElement02Entity);
+
+			/*!
+				\brief The hierarchy looks like the following
+
+				Canvas
+					GridRoot
+						GridElement01
+						GridElement02
+			*/
+
+			TDE2_TEST_IS_TRUE(RC_OK == GroupEntities(pWorld.Get(), pGridRootEntity->GetId(), pGridElement01Entity->GetId()));
+			TDE2_TEST_IS_TRUE(RC_OK == GroupEntities(pWorld.Get(), pGridRootEntity->GetId(), pGridElement02Entity->GetId()));
+			TDE2_TEST_IS_TRUE(RC_OK == GroupEntities(pWorld.Get(), pCanvasEntity->GetId(), pGridRootEntity->GetId()));
+		});
+
+		pTestCase->WaitForNextFrame();
+
+		pTestCase->ExecuteAction([&]
+		{
+			/// Add CGridLayoutGroup component onto the root
+			auto pGridGroupLayout = pGridRootEntity->AddComponent<CGridGroupLayout>();
+			TDE2_TEST_IS_TRUE(pGridGroupLayout);
+		});
+
+		/// \note Destroy the canvas entity
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pCanvasEntity->GetId()));
+		});
+
+	}
 }
 
 #endif
