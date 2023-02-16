@@ -114,24 +114,21 @@ namespace TDEngine2
 		}
 
 		/// \note If we've found one try to read archive's data
-		/// 
 		/// \todo Make it more dependency free and type agnostic
-		/// \todo For now nested prefab links are not supported
-		/// 
 		if (TResult<TFileEntryId> prefabFileId = pFileSystem->Open<IYAMLFileReader>(pathToPrefab))
 		{
 			return std::move(pPrefabsRegistry->LoadPrefabHierarchy(
 				pFileSystem->Get<IYAMLFileReader>(prefabFileId.Get()), 
 				pEntityManager.Get(),
 				[pEntityManager] { return pEntityManager->Create().Get(); },
-				[pPrefabsRegistry](const std::string& prefabId, CEntity* pParentEntity) { TDE2_UNIMPLEMENTED(); return nullptr; }));
+				[pPrefabsRegistry](const std::string& prefabId, CEntity* pParentEntity) { return nullptr; }));
 		}
 
 		return {};
 	}
 
 
-	static CEntity* ClonePrefabHierarchy(const CPrefabsRegistry::TPrefabInfoEntity& prefabInfo, TPtr<CEntityManager>& pEntityManager, IWorld* pWorld,
+	static CEntity* ClonePrefabHierarchy(IPrefabsRegistry* pPrefabsRegistry, const CPrefabsRegistry::TPrefabInfoEntity& prefabInfo, TPtr<CEntityManager>& pEntityManager, IWorld* pWorld,
 										const IPrefabsRegistry::TEntityCallback& prefabEntityVisitor)
 	{
 		CEntity* pPrefabInstance = nullptr;
@@ -176,6 +173,24 @@ namespace TDEngine2
 			}
 		}
 
+		/// \note Spawn all nested prefabs and configure them
+		for (const auto& currLinkInfo : prefabInfo.mNestedPrefabsLinks)
+		{
+			CEntity* pNestedPrefabLinkRoot = pPrefabsRegistry->Spawn(currLinkInfo.mPrefabId, pWorld->FindEntity(entitiesIdsMap.Resolve(currLinkInfo.mParentId)), prefabEntityVisitor);
+			if (!pNestedPrefabLinkRoot)
+			{
+				TDE2_ASSERT(false);
+				continue;
+			}
+
+			if (Length(currLinkInfo.mPosition) > FloatEpsilon)
+			{
+				CTransform* pTransform = pNestedPrefabLinkRoot->GetComponent<CTransform>();
+				pTransform->SetPosition(currLinkInfo.mPosition);
+			}
+		}
+
+
 		return pPrefabInstance;
 	}
 
@@ -199,7 +214,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		CEntity* pPrefabInstance = ClonePrefabHierarchy(*pPrefabInfo, mpEntitiesManager, mpWorld, prefabEntityVisitor);
+		CEntity* pPrefabInstance = ClonePrefabHierarchy(this, *pPrefabInfo, mpEntitiesManager, mpWorld, prefabEntityVisitor);
 
 #if TDE2_EDITORS_ENABLED
 		if (auto pPrefabLinkInfo = pPrefabInstance->AddComponent<CPrefabLinkInfoComponent>())

@@ -10,6 +10,7 @@
 #include "../utils/Utils.h"
 #include "../utils/Types.h"
 #include "../core/IBaseObject.h"
+#include "../math/TVector3.h"
 #include <functional>
 
 
@@ -60,8 +61,19 @@ namespace TDEngine2
 
 			struct TPrefabInfoEntity
 			{
-				TEntityId              mRootEntityId = TEntityId::Invalid;
-				std::vector<TEntityId> mRelatedEntities;
+				struct TPrefabLinkInfo
+				{
+					TVector3    mPosition = ZeroVector3;
+					TEntityId   mId = TEntityId::Invalid;
+					TEntityId   mParentId = TEntityId::Invalid;
+					std::string mPrefabId;
+				};
+
+
+				TEntityId                    mRootEntityId = TEntityId::Invalid;
+				std::vector<TEntityId>       mRelatedEntities;
+
+				std::vector<TPrefabLinkInfo> mNestedPrefabsLinks;
 			};
 		public:
 			/*!

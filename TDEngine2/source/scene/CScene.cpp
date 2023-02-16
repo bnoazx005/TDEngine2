@@ -397,8 +397,9 @@ namespace TDEngine2
 
 	struct TLoadEntitiesInfo
 	{
-		std::vector<TEntityId> mCreatedEntities;
-		std::vector<TEntityId> mRootEntities;
+		std::vector<TEntityId>                                            mCreatedEntities;
+		std::vector<TEntityId>                                            mRootEntities;
+		std::vector<IPrefabsRegistry::TPrefabInfoEntity::TPrefabLinkInfo> mPrefabsLinks;
 	};
 
 
@@ -420,17 +421,7 @@ namespace TDEngine2
 		TEntitiesMapper entitiesIdsMap;
 		std::unordered_set<TEntityId> nonPrefabEntitiesSet;
 
-
-		struct TPrefabLinkInfo
-		{
-			TVector3 mPosition = ZeroVector3;
-			TEntityId mId = TEntityId::Invalid;
-			TEntityId mParentId = TEntityId::Invalid;
-			std::string mPrefabId;
-		};
-
-
-		std::queue<TPrefabLinkInfo> prefabsDefferedSpawnQueue; /// all prefabs are spawned after all the scene has been read
+		std::queue<IPrefabsRegistry::TPrefabInfoEntity::TPrefabLinkInfo> prefabsDefferedSpawnQueue; /// all prefabs are spawned after all the scene has been read
 
 		auto& createdEntities = output.mCreatedEntities;
 
@@ -553,24 +544,23 @@ namespace TDEngine2
 		/// \note Spawn prefabs
 		while (!prefabsDefferedSpawnQueue.empty())
 		{
-			const auto& currPrefabInfo = prefabsDefferedSpawnQueue.front();
+			auto& currPrefabInfo = prefabsDefferedSpawnQueue.front();
 
-			TEntityId parentEntityId = currPrefabInfo.mParentId;
-
-			if (TEntityId::Invalid != parentEntityId)
+			if (TEntityId::Invalid != currPrefabInfo.mParentId)
 			{
-				parentEntityId = entitiesIdsMap.Resolve(parentEntityId);  /// \note Convert the serialized value to the runtime one
+				currPrefabInfo.mParentId = entitiesIdsMap.Resolve(currPrefabInfo.mParentId);  /// \note Convert the serialized value to the runtime one
 			}
 
-			auto pInstance = prefabLinkFactory(currPrefabInfo.mPrefabId, pEntityManager->GetEntity(parentEntityId).Get());
-			TDE2_ASSERT(pInstance);
+			output.mPrefabsLinks.push_back(currPrefabInfo);
+
+			auto pInstance = prefabLinkFactory(currPrefabInfo.mPrefabId, pEntityManager->GetEntity(currPrefabInfo.mParentId).Get());
 			if (!pInstance)
 			{
 				prefabsDefferedSpawnQueue.pop();
 				continue;
 			}
 
-			if (TEntityId::Invalid == parentEntityId)
+			if (TEntityId::Invalid == currPrefabInfo.mParentId)
 			{
 				rootEntities.push_back(pInstance->GetId());
 			}
@@ -641,6 +631,7 @@ namespace TDEngine2
 
 		output.mRelatedEntities = std::move(loadInfo.mCreatedEntities);
 		output.mRootEntityId = loadInfo.mRootEntities.front();
+		output.mNestedPrefabsLinks = std::move(loadInfo.mPrefabsLinks);
 
 		return Wrench::TOkValue<IPrefabsRegistry::TPrefabInfoEntity>(output);
 	}
