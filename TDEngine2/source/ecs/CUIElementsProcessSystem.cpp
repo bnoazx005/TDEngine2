@@ -38,7 +38,6 @@ namespace TDEngine2
 		CLayoutElement* pParentLayoutElement = layoutElementsContext.mpLayoutElements[layoutElementsContext.mChildToParentTable[id]];
 		if (!pParentLayoutElement)
 		{
-			TDE2_ASSERT(false);
 			return;
 		}
 
