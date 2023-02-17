@@ -87,8 +87,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CGridGroupLayout)
 		protected:
-			TVector2                    mCellSize;
-			TVector2                    mSpaceBetweenElements;
+			TVector2                    mCellSize = TVector2(100.0f);
+			TVector2                    mSpaceBetweenElements = TVector2(10.0f);
 			
 			E_UI_ELEMENT_ALIGNMENT_TYPE mAlignType;
 

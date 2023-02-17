@@ -224,8 +224,9 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 			TDE2_TEST_IS_TRUE(pCanvasEntity);
 
 			pGridRootEntity = pMainScene->CreateEntity("GridRoot");
-			pGridRootEntity->AddComponent<CLayoutElement>();
-
+			
+			auto pGridRootElement = pGridRootEntity->AddComponent<CLayoutElement>();
+			
 			CEntity* pGridElement01Entity = pMainScene->CreateEntity("GridElement01");
 			prepareGridElement(pGridElement01Entity);
 
@@ -268,7 +269,6 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 
 			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pCanvasEntity->GetId()));
 		});
-
 	}
 }
 

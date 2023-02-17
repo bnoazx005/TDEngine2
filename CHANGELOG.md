@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Assertion caused by GridLayoutGroup component with default parameters of relative CLayoutElement was fixed.
+
 ## [0.6.14] 2023-02-14
 
 ### Added

@@ -25,7 +25,13 @@ namespace TDEngine2
 
 
 	CLayoutElement::CLayoutElement() :
-		CBaseComponent(), mCanvasEntityId(TEntityId::Invalid), mIsDirty(true)
+		CBaseComponent(), 
+		mCanvasEntityId(TEntityId::Invalid), 
+		mIsDirty(true),
+		mMinAnchor(ZeroVector2),
+		mMaxAnchor(ZeroVector2),
+		mMinOffset(ZeroVector2),
+		mMaxOffset(TVector2(100.0f))
 	{
 	}
 
