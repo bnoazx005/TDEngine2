@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The stability of CGridLayoutGroup component was increased.
 
+- Behaviour of **CGameModesManager::PopMode** was changed to prevent redundant call of OnEnter for an underlying state.
+
 ## [0.6.14] 2023-02-14
 
 ### Added

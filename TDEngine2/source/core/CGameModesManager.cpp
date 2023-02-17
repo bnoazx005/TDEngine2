@@ -71,10 +71,6 @@ namespace TDEngine2
 
 		/// \note Extract the latter mode if it exists
 		pCurrActiveMode = _getCurrentGameMode();
-		if (pCurrActiveMode)
-		{
-			pCurrActiveMode->OnEnter();
-		}
 
 		return RC_OK;
 	}
