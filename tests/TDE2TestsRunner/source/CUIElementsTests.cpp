@@ -270,6 +270,54 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pCanvasEntity->GetId()));
 		});
 	}
+
+	TDE2_TEST_CASE("TestGridLayoutGroup_AddGridGroupLayoutThenCreateEmptyChildEntity_NoAssertsAndExceptionsHappen")
+	{
+		static CEntity* pCanvasEntity = nullptr;
+		static CEntity* pGridRootEntity = nullptr;
+
+		/// \note Create an entity
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			pCanvasEntity = pMainScene->Spawn("TestCanvas");
+			TDE2_TEST_IS_TRUE(pCanvasEntity);
+
+			pGridRootEntity = pMainScene->CreateEntity("GridRoot");
+			
+			pGridRootEntity->AddComponent<CLayoutElement>();
+			pGridRootEntity->AddComponent<CGridGroupLayout>();
+			
+			TDE2_TEST_IS_TRUE(RC_OK == GroupEntities(pWorld.Get(), pCanvasEntity->GetId(), pGridRootEntity->GetId()));
+
+			/// \note Create an empty child
+			auto pEntity = pMainScene->CreateEntity("EmptyChild");
+			TDE2_TEST_IS_TRUE(RC_OK == GroupEntities(pWorld.Get(), pGridRootEntity->GetId(), pEntity->GetId()));
+		});
+
+		pTestCase->WaitForNextFrame();
+
+		/// \note Destroy the canvas entity
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pCanvasEntity->GetId()));
+		});
+	}
 }
 
 #endif

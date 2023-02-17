@@ -151,7 +151,6 @@ namespace TDEngine2
 			auto it = std::find(layoutElements.mEntities.cbegin(), layoutElements.mEntities.cend(), currChildId);
 			if (it == layoutElements.mEntities.cend())
 			{
-				TDE2_UNREACHABLE();
 				continue;
 			}
 
