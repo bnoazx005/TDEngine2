@@ -44,4 +44,9 @@ namespace Test
 	{
 		REGISTER_EVENT_TYPE(TEventTest)
 	};
+
+	void Foo()
+	{
+		TDE2_ASSERT(true);
+	}
 }

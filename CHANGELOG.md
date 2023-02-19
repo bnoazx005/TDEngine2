@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.15] 2023-02-16
+## [0.6.15] 2023-02-19
 
 ### Added
 
@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The stability of CGridLayoutGroup component was increased.
 
 - Behaviour of **CGameModesManager::PopMode** was changed to prevent redundant call of OnEnter for an underlying state.
+
+- **TDE2_ASSERT**'s usage out of TDEngine2's namespace was fixed.
 
 ## [0.6.14] 2023-02-14
 
