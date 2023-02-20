@@ -7,13 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.15] 2023-02-19
+## [0.6.15] 2023-02-20
 
 ### Added
 
 - Support of nested prefabs was introduced.
 
 ### Changed
+
+- Breaking changes: Now entities identifiers are generated randomly instead of the monotonically increased fashion. Entities ids within scenes and prefabs aren't changed
+between runtime sessions. 
 
 ### Fixed
 

@@ -183,6 +183,21 @@ namespace TDEngine2
 		return pEntity;
 	}
 
+	CEntity* CScene::CreateEntityWithUUID(TEntityId id)
+	{
+		if (!mpWorld)
+		{
+			return nullptr;
+		}
+
+		CEntity* pEntity = mpWorld->CreateEntityWithUUID(id);
+		TDE2_ASSERT(pEntity);
+
+		mEntities.push_back(id);
+
+		return pEntity;
+	}
+
 	E_RESULT_CODE CScene::RemoveEntity(TEntityId id)
 	{
 		if (id == TEntityId::Invalid)
@@ -406,7 +421,7 @@ namespace TDEngine2
 	static TResult<TLoadEntitiesInfo> LoadEntitiesImpl(
 		IArchiveReader* pReader, 
 		CEntityManager* pEntityManager, 
-		const std::function<CEntity*()>& entityFactory, 
+		const std::function<CEntity*(TEntityId)>& entityFactory, 
 		const std::function<CEntity*(const std::string&, CEntity*)>& prefabLinkFactory)
 	{
 		TDE2_ASSERT(pReader);
@@ -470,7 +485,7 @@ namespace TDEngine2
 					}
 					else
 					{
-						CEntity* pNewEntity = entityFactory();
+						CEntity* pNewEntity = entityFactory(entityId);
 						createdEntities.emplace_back(pNewEntity->GetId());
 
 						pReader->BeginGroup("entity");
@@ -590,9 +605,9 @@ namespace TDEngine2
 		auto&& loadResult = LoadEntitiesImpl(
 			pReader,
 			pWorld->GetEntityManager(),
-			[pScene]
+			[pScene](TEntityId id)
 			{
-				return pScene->CreateEntity(Wrench::StringUtils::GetEmptyStr());
+				return pScene->CreateEntityWithUUID(id);
 			},
 			[pScene](const std::string& prefabId, CEntity* pParentEntity)
 			{

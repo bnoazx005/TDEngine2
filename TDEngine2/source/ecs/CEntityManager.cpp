@@ -3,6 +3,8 @@
 #include "../../include/ecs/CTransform.h"
 #include "../../include/core/IEventManager.h"
 #include "../../include/editor/CPerfProfiler.h"
+#include <unordered_set>
+#include "randomUtils.hpp"
 
 
 namespace TDEngine2
@@ -30,9 +32,8 @@ namespace TDEngine2
 		mpEventManager = pEventManager;
 
 		mCreateEntitiesWithPredefinedComponents = createWithPredefinedComponents;
-
+		
 		mNextIdValue = 0;
-
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -46,13 +47,19 @@ namespace TDEngine2
 	TPtr<CEntity> CEntityManager::Create()
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _createEntity(_constructDefaultEntityName(mNextIdValue));
+		return _createEntity(_constructDefaultEntityName(mNextIdValue++), GetNextUniqueIdentifier());
 	}
 
 	TPtr<CEntity> CEntityManager::Create(const std::string& name)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _createEntity(name);
+		return _createEntity(name, GetNextUniqueIdentifier());
+	}
+
+	TPtr<CEntity> CEntityManager::CreateWithUUID(TEntityId id)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		return _createEntity(_constructDefaultEntityName(mNextIdValue++), id);
 	}
 
 	E_RESULT_CODE CEntityManager::Destroy(TEntityId entityId)
@@ -209,12 +216,12 @@ namespace TDEngine2
 		return std::move(std::string("Entity").append(std::to_string(id)));
 	}
 
-	TPtr<CEntity> CEntityManager::_createEntity(const std::string& name)
+	TPtr<CEntity> CEntityManager::_createEntity(const std::string& name, TEntityId id)
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		TEntityId id = TEntityId(mNextIdValue++);
-		
+		TDE2_ASSERT(mEntitiesHashTable.find(id) == mEntitiesHashTable.cend());
+
 		auto pEntity = TPtr<CEntity>(CreateEntity(id, name, this, result));
 		
 		if (result != RC_OK)
@@ -265,5 +272,24 @@ namespace TDEngine2
 	CEntityManager* CreateEntityManager(IEventManager* pEventManager, IComponentManager* pComponentManager, bool createWithPredefinedComponents, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(CEntityManager, CEntityManager, result, pEventManager, pComponentManager, createWithPredefinedComponents);
+	}
+
+
+	TEntityId GetNextUniqueIdentifier()
+	{
+		static Wrench::Random<U32, F32> randGenerator(static_cast<U32>(time(NULL)));
+		static std::unordered_set<U32> generatedIdentifiers;
+
+		U32 value = 0;
+
+		do
+		{
+			value = randGenerator.Get(0, std::numeric_limits<U32>::max() - 1);
+		} 
+		while (generatedIdentifiers.find(value) != generatedIdentifiers.cend());
+
+		generatedIdentifiers.emplace(value);
+
+		return static_cast<TEntityId>(value);
 	}
 }

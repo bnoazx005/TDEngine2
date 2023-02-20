@@ -105,6 +105,8 @@ namespace TDEngine2
 
 			TDE2_API virtual CEntity* CreateEntity() = 0;
 
+			TDE2_API virtual CEntity* CreateEntityWithUUID(TEntityId id) = 0;
+
 			/*!
 				\brief The method creates a new instance of CEntity
 				

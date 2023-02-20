@@ -56,7 +56,7 @@ namespace TDEngine2
 	{
 		public:
 			typedef std::function<void(TEntityId)>                        TEntityCallback;
-			typedef std::function<CEntity*()>                             TEntityFactoryFunctor;
+			typedef std::function<CEntity*(TEntityId)>                    TEntityFactoryFunctor;
 			typedef std::function<CEntity*(const std::string&, CEntity*)> TPrefabFactoryFunctor;
 
 			struct TPrefabInfoEntity

@@ -120,7 +120,7 @@ namespace TDEngine2
 			return std::move(pPrefabsRegistry->LoadPrefabHierarchy(
 				pFileSystem->Get<IYAMLFileReader>(prefabFileId.Get()), 
 				pEntityManager.Get(),
-				[pEntityManager] { return pEntityManager->Create().Get(); },
+				[pEntityManager](TEntityId id) { return pEntityManager->CreateWithUUID(id).Get(); },
 				[pPrefabsRegistry](const std::string& prefabId, CEntity* pParentEntity) { return nullptr; }));
 		}
 

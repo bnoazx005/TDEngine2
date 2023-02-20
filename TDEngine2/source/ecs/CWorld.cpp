@@ -105,6 +105,11 @@ namespace TDEngine2
 		return mpEntityManager->Create().Get();
 	}
 
+	CEntity* CWorld::CreateEntityWithUUID(TEntityId id)
+	{
+		return mpEntityManager->CreateWithUUID(id).Get();
+	}
+
 	CEntity* CWorld::CreateEntity(const std::string& name)
 	{
 		return mpEntityManager->Create(name).Get();

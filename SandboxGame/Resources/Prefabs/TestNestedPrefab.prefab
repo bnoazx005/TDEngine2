@@ -3,9 +3,9 @@ entities:
       components: 
         - component: 
             Children: 
-              - child_id: 42
-              - child_id: 43
-            owner_id: 41
+              - child_id: 1342
+              - child_id: 1343
+            owner_id: 1341
             parent_id: 4294967295
             position: 
               x: 4.131809
@@ -20,15 +20,15 @@ entities:
             type_id: 3864726948
         - component: 
             type_id: 1930024581
-      id: 41
+      id: 1341
       name: Entity0
   - entity: 
       components: 
         - component: 
             Children: 
-              - child_id: 44
-            owner_id: 43
-            parent_id: 41
+              - child_id: 1344
+            owner_id: 1343
+            parent_id: 1341
             position: 
               x: 4.035676
               y: 1.048006
@@ -40,11 +40,11 @@ entities:
               y: 1.000000
               z: 1.000000
             type_id: 3864726948
-      id: 43
+      id: 1343
       name: Entity2
   - link: 
-      id: 44
-      parent_id: 43
+      id: 1344
+      parent_id: 1343
       position: 
         x: 4.131809
         y: 3.633381
@@ -53,8 +53,8 @@ entities:
   - entity: 
       components: 
         - component: 
-            owner_id: 42
-            parent_id: 41
+            owner_id: 1342
+            parent_id: 1341
             position: 
               x: 1.775475
               y: 0.711692
@@ -66,5 +66,5 @@ entities:
               y: 1.000000
               z: 1.000000
             type_id: 3864726948
-      id: 42
+      id: 1342
       name: Entity1

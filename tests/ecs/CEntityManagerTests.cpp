@@ -249,23 +249,25 @@ TEST_CASE("CEntityManager Tests")
 	{
 		const U32 entitiesCount = 15;
 
+		std::unordered_set<TEntityId> createdEntities;
+
 		for (U32 i = 0; i < entitiesCount; i++)
 		{
-			pEntityManager->Create();
+			createdEntities.emplace(pEntityManager->Create()->GetId());
 		}
 
 		/// \note Destroy some entity in between
-		const TEntityId entityToDestroy = TEntityId(0);
+		const TEntityId entityToDestroy = TEntityId(*createdEntities.begin());
 
 		E_RESULT_CODE result = pEntityManager->Destroy(entityToDestroy);
 		REQUIRE(RC_OK == result);
 
 		/// \note Now all the entities except the destroyed one should exist and be accessible by their handles
-		for (U32 i = 0; i < entitiesCount; i++)
+		for (auto it = createdEntities.begin(); it != createdEntities.end(); it++)
 		{
-			auto pEntity = pEntityManager->GetEntity(TEntityId(i));
+			auto pEntity = pEntityManager->GetEntity(TEntityId(*it));
 
-			if (i == static_cast<U32>(entityToDestroy))
+			if (it == createdEntities.begin())
 			{
 				REQUIRE(!pEntity);
 				continue;
@@ -279,23 +281,30 @@ TEST_CASE("CEntityManager Tests")
 	{
 		const U32 entitiesCount = 15;
 
+		std::unordered_set<TEntityId> createdEntities;
+		TEntityId entityToDestroy;
+
 		for (U32 i = 0; i < entitiesCount; i++)
 		{
-			pEntityManager->Create();
+			auto id = pEntityManager->Create()->GetId();
+			createdEntities.emplace(id);
+
+			if (i == entitiesCount / 2)
+			{
+				entityToDestroy = id;
+			}
 		}
 
 		/// \note Destroy some entity in between
-		const TEntityId entityToDestroy = TEntityId(rand() % (entitiesCount - 1) + 1);
-
 		E_RESULT_CODE result = pEntityManager->Destroy(entityToDestroy);
 		REQUIRE(RC_OK == result);
 
 		/// \note Now all the entities except the destroyed one should exist and be accessible by their handles
-		for (U32 i = 0; i < entitiesCount; i++)
+		for (TEntityId currEntityId : createdEntities)
 		{
-			auto pEntity = pEntityManager->GetEntity(TEntityId(i));
+			auto pEntity = pEntityManager->GetEntity(currEntityId);
 			
-			if (i == static_cast<U32>(entityToDestroy))
+			if (entityToDestroy == currEntityId)
 			{
 				REQUIRE(!pEntity);
 				continue;

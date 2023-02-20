@@ -70,6 +70,7 @@ namespace TDEngine2
 
 			TDE2_API CEntity* CreateEntity() override;
 
+			TDE2_API CEntity* CreateEntityWithUUID(TEntityId id) override;
 			/*!
 				\brief The method creates a new instance of CEntity
 

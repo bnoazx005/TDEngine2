@@ -3,8 +3,8 @@ entities:
       components: 
         - component: 
             Children: 
-              - child_id: 42
-            owner_id: 41
+              - child_id: 1242
+            owner_id: 1241
             parent_id: 4294967295
             position: 
               x: 0.000000
@@ -33,13 +33,13 @@ entities:
             inherit_camera_sizes: 0
             type_id: 3433087876
             width: 1024
-      id: 41
+      id: 1241
       name: Canvas
   - entity: 
       components: 
         - component: 
-            owner_id: 42
-            parent_id: 41
+            owner_id: 1242
+            parent_id: 1241
             position: 
               x: 512.000000
               y: 384.000000
@@ -71,5 +71,5 @@ entities:
             overflow_policy_type: NO_BREAK
             text: New Text
             type_id: 2847853640
-      id: 42
+      id: 1242
       name: Label

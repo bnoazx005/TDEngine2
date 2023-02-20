@@ -119,7 +119,7 @@ namespace TDEngine2
 		}
 
 		auto&& duplicateRootEntityInfo = pPrefabsRegistry->LoadPrefabHierarchy(pFileReader, pWorld->GetEntityManager(), 
-			[pCurrScene] 
+			[pCurrScene](TEntityId id)
 			{ 
 				return pCurrScene->CreateEntity(Wrench::StringUtils::GetEmptyStr()); 
 			},

@@ -16,11 +16,11 @@ entities:
                 y: 1.000000
                 z: 1.000000
               Children:
-                - child_id: 18
-                - child_id: 19
-              owner_id: 17
+                - child_id: 2318
+                - child_id: 2319
+              owner_id: 2317
               type_id: 3864726948
-        id: 17
+        id: 2317
         name: Entity0
   - entity: 
       components: 
@@ -38,10 +38,10 @@ entities:
               x: 1.000000
               y: 1.000000
               z: 1.000000
-            parent_id: 17
-            owner_id: 18
+            parent_id: 2317
+            owner_id: 2318
             type_id: 3864726948
-      id: 18
+      id: 2318
       name: Entity1
   - entity: 
       components: 
@@ -59,8 +59,8 @@ entities:
               x: 1.000000
               y: 1.000000
               z: 1.000000
-            parent_id: 17
-            owner_id: 19
+            parent_id: 2317
+            owner_id: 2319
             type_id: 3864726948
-      id: 19
+      id: 2319
       name: Entity2

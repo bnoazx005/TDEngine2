@@ -89,6 +89,8 @@ namespace TDEngine2
 
 			TDE2_API CEntity* CreateEntity(const std::string& name) override;
 
+			TDE2_API CEntity* CreateEntityWithUUID(TEntityId id) override;
+
 			/*!
 				\brief The method removes an entity if there is one that belongs to the scene
 

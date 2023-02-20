@@ -88,6 +88,8 @@ namespace TDEngine2
 
 			TDE2_API TPtr<CEntity> Create(const std::string& name);
 
+			TDE2_API TPtr<CEntity> CreateWithUUID(TEntityId id);
+
 			/*!
 				\brief The method destroys specified entity.
 				Note that the entity won't be deleted, it will be
@@ -179,7 +181,7 @@ namespace TDEngine2
 
 			std::string _constructDefaultEntityName(U32 id) const;
 
-			TDE2_API TPtr<CEntity> _createEntity(const std::string& name);
+			TDE2_API TPtr<CEntity> _createEntity(const std::string& name, TEntityId id);
 
 			TDE2_API void _notifyOnAddComponent(TEntityId entityId, TypeId componentTypeId);
 
@@ -234,4 +236,7 @@ namespace TDEngine2
 
 
 	TDE2_DECLARE_SCOPED_PTR_INLINED(CEntityManager)
+
+
+	TDE2_API TEntityId GetNextUniqueIdentifier();
 }
