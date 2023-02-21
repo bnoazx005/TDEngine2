@@ -55,9 +55,9 @@ namespace TDEngine2
 	class IPrefabsRegistry: public virtual IBaseObject
 	{
 		public:
-			typedef std::function<void(TEntityId)>                        TEntityCallback;
-			typedef std::function<CEntity*(TEntityId)>                    TEntityFactoryFunctor;
-			typedef std::function<CEntity*(const std::string&, CEntity*)> TPrefabFactoryFunctor;
+			typedef std::function<void(TEntityId)>                                   TEntityCallback;
+			typedef std::function<CEntity*(TEntityId)>                               TEntityFactoryFunctor;
+			typedef std::function<CEntity*(TEntityId, const std::string&, CEntity*)> TPrefabFactoryFunctor;
 
 			struct TPrefabInfoEntity
 			{
@@ -99,7 +99,7 @@ namespace TDEngine2
 				\return A pointer to a root entity of a prefab's instance
 			*/
 
-			TDE2_API virtual CEntity* Spawn(const std::string& id, CEntity* pParent = nullptr, const TEntityCallback& prefabEntityVisitor = nullptr) = 0;
+			TDE2_API virtual CEntity* Spawn(const std::string& id, CEntity* pParent = nullptr, const TEntityCallback& prefabEntityVisitor = nullptr, TEntityId prefabLinkUUID = TEntityId::Invalid) = 0;
 
 #if TDE2_EDITORS_ENABLED
 			/*!

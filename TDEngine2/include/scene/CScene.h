@@ -152,7 +152,7 @@ namespace TDEngine2
 				\return A pointer to a root entity of a prefab's instance
 			*/
 
-			TDE2_API CEntity* Spawn(const std::string& prefabId, CEntity* pParentEntity = nullptr) override;
+			TDE2_API CEntity* Spawn(const std::string& prefabId, CEntity* pParentEntity = nullptr, TEntityId prefabLinkUUID = TEntityId::Invalid) override;
 
 			/*!
 				\brief The method iterates over each entity which is linked to current scene

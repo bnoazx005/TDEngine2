@@ -342,14 +342,14 @@ namespace TDEngine2
 		return nullptr;
 	}
 
-	CEntity* CScene::Spawn(const std::string& prefabId, CEntity* pParentEntity)
+	CEntity* CScene::Spawn(const std::string& prefabId, CEntity* pParentEntity, TEntityId prefabLinkUUID)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
 		return mpPrefabsRegistry->Spawn(prefabId, pParentEntity, [this](const TEntityId& id)
 		{
 			mEntities.push_back(id);
-		});
+		}, prefabLinkUUID);
 	}
 
 	void CScene::ForEachEntity(const std::function<void(CEntity*)>& action)
@@ -422,7 +422,7 @@ namespace TDEngine2
 		IArchiveReader* pReader, 
 		CEntityManager* pEntityManager, 
 		const std::function<CEntity*(TEntityId)>& entityFactory, 
-		const std::function<CEntity*(const std::string&, CEntity*)>& prefabLinkFactory)
+		const std::function<CEntity*(TEntityId, const std::string&, CEntity*)>& prefabLinkFactory)
 	{
 		TDE2_ASSERT(pReader);
 		TDE2_ASSERT(pEntityManager);
@@ -568,7 +568,7 @@ namespace TDEngine2
 
 			output.mPrefabsLinks.push_back(currPrefabInfo);
 
-			auto pInstance = prefabLinkFactory(currPrefabInfo.mPrefabId, pEntityManager->GetEntity(currPrefabInfo.mParentId).Get());
+			auto pInstance = prefabLinkFactory(currPrefabInfo.mId, currPrefabInfo.mPrefabId, pEntityManager->GetEntity(currPrefabInfo.mParentId).Get());
 			if (!pInstance)
 			{
 				prefabsDefferedSpawnQueue.pop();
@@ -609,9 +609,9 @@ namespace TDEngine2
 			{
 				return pScene->CreateEntityWithUUID(id);
 			},
-			[pScene](const std::string& prefabId, CEntity* pParentEntity)
+			[pScene](TEntityId linkId, const std::string& prefabId, CEntity* pParentEntity)
 			{
-				return pScene->Spawn(prefabId, pParentEntity);
+				return pScene->Spawn(prefabId, pParentEntity, linkId);
 			});
 
 		return loadResult.IsOk() ? RC_OK : loadResult.GetError();

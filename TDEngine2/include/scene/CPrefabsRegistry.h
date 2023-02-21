@@ -68,7 +68,7 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IFileSystem* pFileSystem, IWorld* pWorld, IEventManager* pEventManager) override;
 
-			TDE2_API CEntity* Spawn(const std::string& id, CEntity* pParent = nullptr, const TEntityCallback & prefabEntityVisitor = nullptr) override;
+			TDE2_API CEntity* Spawn(const std::string& id, CEntity* pParent = nullptr, const TEntityCallback & prefabEntityVisitor = nullptr, TEntityId prefabLinkUUID = TEntityId::Invalid) override;
 
 #if TDE2_EDITORS_ENABLED
 			/*!

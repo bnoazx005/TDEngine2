@@ -121,7 +121,7 @@ namespace TDEngine2
 				pFileSystem->Get<IYAMLFileReader>(prefabFileId.Get()), 
 				pEntityManager.Get(),
 				[pEntityManager](TEntityId id) { return pEntityManager->CreateWithUUID(id).Get(); },
-				[pPrefabsRegistry](const std::string& prefabId, CEntity* pParentEntity) { return nullptr; }));
+				[pPrefabsRegistry](TEntityId linkId, const std::string& prefabId, CEntity* pParentEntity) { return nullptr; }));
 		}
 
 		return {};
@@ -129,7 +129,7 @@ namespace TDEngine2
 
 
 	static CEntity* ClonePrefabHierarchy(IPrefabsRegistry* pPrefabsRegistry, const CPrefabsRegistry::TPrefabInfoEntity& prefabInfo, TPtr<CEntityManager>& pEntityManager, IWorld* pWorld,
-										const IPrefabsRegistry::TEntityCallback& prefabEntityVisitor)
+										const IPrefabsRegistry::TEntityCallback& prefabEntityVisitor, TEntityId prefabLinkUUID)
 	{
 		CEntity* pPrefabInstance = nullptr;
 
@@ -139,8 +139,14 @@ namespace TDEngine2
 		{
 			if (auto pOriginalEntity = pEntityManager->GetEntity(currEntityId))
 			{
-				if (auto pNewEntity = pWorld->CreateEntity(pOriginalEntity->GetName()))
+				auto pNewEntity = (currEntityId == prefabInfo.mRootEntityId && TEntityId::Invalid != prefabLinkUUID) ? 
+					pWorld->CreateEntityWithUUID(prefabLinkUUID) :
+					pWorld->CreateEntity(pOriginalEntity->GetName());
+
+				if (pNewEntity)
 				{
+					pNewEntity->SetName(pOriginalEntity->GetName());
+
 					if (prefabEntityVisitor)
 					{
 						prefabEntityVisitor(pNewEntity->GetId());
@@ -195,7 +201,7 @@ namespace TDEngine2
 	}
 
 
-	CEntity* CPrefabsRegistry::Spawn(const std::string& id, CEntity* pParent, const TEntityCallback& prefabEntityVisitor)
+	CEntity* CPrefabsRegistry::Spawn(const std::string& id, CEntity* pParent, const TEntityCallback& prefabEntityVisitor, TEntityId prefabLinkUUID)
 	{
 		auto pPrefabInfo = TryGetLoadedPrefabEntity(mpWorld, mPrefabsToEntityTable, id);
 		if (!pPrefabInfo)
@@ -214,7 +220,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		CEntity* pPrefabInstance = ClonePrefabHierarchy(this, *pPrefabInfo, mpEntitiesManager, mpWorld, prefabEntityVisitor);
+		CEntity* pPrefabInstance = ClonePrefabHierarchy(this, *pPrefabInfo, mpEntitiesManager, mpWorld, prefabEntityVisitor, prefabLinkUUID);
 
 #if TDE2_EDITORS_ENABLED
 		if (auto pPrefabLinkInfo = pPrefabInstance->AddComponent<CPrefabLinkInfoComponent>())

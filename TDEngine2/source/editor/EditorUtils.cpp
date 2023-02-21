@@ -123,9 +123,9 @@ namespace TDEngine2
 			{ 
 				return pCurrScene->CreateEntity(Wrench::StringUtils::GetEmptyStr()); 
 			},
-			[pCurrScene](const std::string& prefabId, CEntity* pParentEntity) 
+			[pCurrScene](TEntityId linkId, const std::string& prefabId, CEntity* pParentEntity) 
 			{
-				return pCurrScene->Spawn(prefabId, pParentEntity);
+				return pCurrScene->Spawn(prefabId, pParentEntity, TEntityId::Invalid);
 			});
 
 		result = result | GroupEntities(pWorld.Get(), parentEntityId, duplicateRootEntityInfo.mRootEntityId);
