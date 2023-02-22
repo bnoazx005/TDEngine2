@@ -501,9 +501,10 @@ namespace TDEngine2
 			}
 
 			mpImGUIContext->TextField("##entityId", entityName, [pSelectedEntity](auto&& value){ pSelectedEntity->SetName(value); });
-			mpImGUIContext->Label(ToString<TEntityId>(mSelectedEntityId));
 		}
 		mpImGUIContext->EndHorizontal();
+
+		mpImGUIContext->Label(ToString<TEntityId>(mSelectedEntityId));
 
 		for (IComponent* pCurrComponent : pSelectedEntity->GetComponents())
 		{

@@ -24,6 +24,10 @@ namespace TDEngine2
 
 	struct TEntitiesMapper;
 
+
+	TDE2_DECLARE_SCOPED_PTR(IWorld)
+
+
 	/*!
 		class CEntity
 
@@ -278,6 +282,43 @@ namespace TDEngine2
 
 
 	/*!
+		\brief The type is used to store reference to some entity within a component. It allows to
+		access entities within nested prefabs. Simple TEntityId doesn't support resolving this case
+	*/
+
+	class CEntityRef: public ISerializable
+	{
+		public:
+			TDE2_API CEntityRef(TPtr<IWorld> pWorld, TEntityId entityRef);
+
+			/*!
+				\brief The method deserializes object's state from given reader
+
+				\param[in, out] pReader An input stream of data that contains information about the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
+
+			/*!
+				\brief The method serializes object's state into given stream
+
+				\param[in, out] pWriter An output stream of data that writes information about the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
+		private:
+			TPtr<IWorld> mpWorld;
+
+			TEntityId mEntityRef = TEntityId::Invalid;
+			std::string mRefStr;
+	};
+
+
+	/*!
 		\brief The type is used to resolve entities identifiers when they're deserialized
 	*/
 
@@ -291,5 +332,7 @@ namespace TDEngine2
 		*/
 
 		TDE2_API TEntityId Resolve(TEntityId input) const;
+
+		TDE2_API TEntityId Resolve(const CEntityRef& entityRef) const;
 	};
 }

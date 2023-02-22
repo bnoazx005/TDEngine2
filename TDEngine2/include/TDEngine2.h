@@ -263,6 +263,7 @@
 #include "scene/components/CPointLight.h"
 #include "scene/components/AudioComponents.h"
 #include "scene/components/CLODStrategyComponent.h"
+#include "scene/components/CObjIdComponent.h"
 #include "scene/ISceneManager.h"
 #include "scene/CSceneManager.h"
 #include "scene/IScene.h"

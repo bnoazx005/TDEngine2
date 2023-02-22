@@ -9,6 +9,7 @@
 #include "../../include/ecs/CEntityManager.h"
 #include "../../include/ecs/CTransform.h"
 #include "../../include/scene/CPrefabsManifest.h"
+#include "../../include/scene/components/CObjIdComponent.h"
 #include "../../include/scene/CScene.h"
 #include "../../include/platform/CYAMLFile.h"
 #include "../../include/utils/CFileLogger.h"
@@ -145,6 +146,11 @@ namespace TDEngine2
 
 				if (pNewEntity)
 				{
+					if (auto pObjIdComponent = pNewEntity->AddComponent<CObjIdComponent>())
+					{
+						pObjIdComponent->mId = static_cast<U32>(currEntityId);
+					}
+
 					pNewEntity->SetName(pOriginalEntity->GetName());
 
 					if (prefabEntityVisitor)
@@ -167,18 +173,6 @@ namespace TDEngine2
 
 		TDE2_ASSERT(pPrefabInstance);
 
-		/// \note Run post-clone resolving of internal references
-		E_RESULT_CODE result = RC_OK;
-
-		for (TEntityId currEntityId : prefabInfo.mRelatedEntities)
-		{
-			if (CEntity* pEntity = pWorld->FindEntity(entitiesIdsMap.mSerializedToRuntimeIdsTable[currEntityId]))
-			{
-				result = result | pEntity->PostLoad(pWorld->GetEntityManager(), entitiesIdsMap);
-				TDE2_ASSERT(RC_OK == result);
-			}
-		}
-
 		/// \note Spawn all nested prefabs and configure them
 		for (const auto& currLinkInfo : prefabInfo.mNestedPrefabsLinks)
 		{
@@ -196,6 +190,17 @@ namespace TDEngine2
 			}
 		}
 
+		/// \note Run post-clone resolving of internal references
+		E_RESULT_CODE result = RC_OK;
+
+		for (TEntityId currEntityId : prefabInfo.mRelatedEntities)
+		{
+			if (CEntity* pEntity = pWorld->FindEntity(entitiesIdsMap.mSerializedToRuntimeIdsTable[currEntityId]))
+			{
+				result = result | pEntity->PostLoad(pWorld->GetEntityManager(), entitiesIdsMap);
+				TDE2_ASSERT(RC_OK == result);
+			}
+		}
 
 		return pPrefabInstance;
 	}

@@ -1,6 +1,8 @@
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/CEntityManager.h"
+#include "../../include/ecs/IWorld.h"
 #include <memory>
+#include "stringUtils.hpp"
 
 
 namespace TDEngine2
@@ -228,6 +230,90 @@ namespace TDEngine2
 
 
 	/*!
+		\brief CEntityRef's definition
+	*/
+
+	CEntityRef::CEntityRef(TPtr<IWorld> pWorld, TEntityId entityRef):
+		ISerializable(), mpWorld(pWorld), mEntityRef(entityRef)
+	{
+	}
+
+	E_RESULT_CODE CEntityRef::Load(IArchiveReader* pReader)
+	{
+		if (!pReader)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		if (!mpWorld)
+		{
+			return RC_FAIL;
+		}
+
+		mEntityRef = TEntityId::Invalid;
+		mRefStr = pReader->GetString("ref_path");
+
+		auto&& identifiers = Wrench::StringUtils::Split(mRefStr, ".");
+		if (identifiers.empty())
+		{
+			return RC_OK;
+		}
+
+		CEntity* pCurrEntity = mpWorld->FindEntity(static_cast<TEntityId>(atoll(identifiers.front().c_str())));
+
+		for (auto it = identifiers.cbegin() + 1; it != std::prev(identifiers.cend()); it++)
+		{
+			CTransform* pTransform = pCurrEntity->GetComponent<CTransform>();
+
+			bool hasChildFound = false;
+
+			for (TEntityId childEntityId : pTransform->GetChildren())
+			{
+				if (CEntity* pChildEntity = mpWorld->FindEntity(childEntityId))
+				{
+					if (pChildEntity->GetId() == static_cast<TEntityId>(atoll(identifiers.front().c_str())))
+					{
+						pCurrEntity = pChildEntity;
+						mEntityRef = pChildEntity->GetId();
+
+						break;
+					}
+				}
+			}
+		}
+
+		return RC_OK;
+	}
+	
+	E_RESULT_CODE CEntityRef::Save(IArchiveWriter* pWriter)
+	{
+		if (!pWriter)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		if (!mpWorld)
+		{
+			return RC_FAIL;
+		}
+
+		std::string serializedRefStr;
+
+		CEntity* pCurrEntity = mpWorld->FindEntity(mEntityRef);
+		
+		while (pCurrEntity)
+		{
+			serializedRefStr = serializedRefStr + "." + std::to_string(static_cast<U32>(pCurrEntity->GetId()));
+
+			CTransform* pTransform = pCurrEntity->GetComponent<CTransform>();
+			pCurrEntity = mpWorld->FindEntity(pTransform->GetParent());
+		}
+
+		return pWriter->SetString("ref_path", serializedRefStr);
+	}
+
+
+	/*!
 		\brief TEntitiesMapper's definition
 	*/
 
@@ -235,5 +321,11 @@ namespace TDEngine2
 	{
 		auto&& it = mSerializedToRuntimeIdsTable.find(input);
 		return it == mSerializedToRuntimeIdsTable.cend() ? input : it->second;
+	}
+
+	TEntityId TEntitiesMapper::Resolve(const CEntityRef& entityRef) const
+	{
+		TDE2_UNIMPLEMENTED();
+		return TEntityId::Invalid;
 	}
 }
