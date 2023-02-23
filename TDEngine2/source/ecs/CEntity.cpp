@@ -1,7 +1,10 @@
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/CEntityManager.h"
 #include "../../include/ecs/IWorld.h"
+#include "../../include/scene/components/CObjIdComponent.h"
+#include "../../include/editor/ecs/EditorComponents.h"
 #include <memory>
+#include <queue>
 #include "stringUtils.hpp"
 
 
@@ -253,37 +256,48 @@ namespace TDEngine2
 		mEntityRef = TEntityId::Invalid;
 		mRefStr = pReader->GetString("ref_path");
 
-		auto&& identifiers = Wrench::StringUtils::Split(mRefStr, ".");
-		if (identifiers.empty())
+		mPathIdentifiers.clear();
+
+		for (auto&& currId : Wrench::StringUtils::Split(mRefStr, "."))
 		{
-			return RC_OK;
-		}
-
-		CEntity* pCurrEntity = mpWorld->FindEntity(static_cast<TEntityId>(atoll(identifiers.front().c_str())));
-
-		for (auto it = identifiers.cbegin() + 1; it != std::prev(identifiers.cend()); it++)
-		{
-			CTransform* pTransform = pCurrEntity->GetComponent<CTransform>();
-
-			bool hasChildFound = false;
-
-			for (TEntityId childEntityId : pTransform->GetChildren())
-			{
-				if (CEntity* pChildEntity = mpWorld->FindEntity(childEntityId))
-				{
-					if (pChildEntity->GetId() == static_cast<TEntityId>(atoll(identifiers.front().c_str())))
-					{
-						pCurrEntity = pChildEntity;
-						mEntityRef = pChildEntity->GetId();
-
-						break;
-					}
-				}
-			}
+			mPathIdentifiers.push_back(static_cast<U32>(atoll(currId.c_str())));
 		}
 
 		return RC_OK;
 	}
+
+
+	static inline void AppendPath(CEntity* pCurrEntity, std::string& pathOutput)
+	{
+		static const std::string delimiter = ".";
+
+		const bool isPathEmpty = pathOutput.empty();
+
+		if (auto pObjIdComponent = pCurrEntity->GetComponent<CObjIdComponent>())
+		{
+			pathOutput = std::to_string(pObjIdComponent->mId) + (isPathEmpty ? Wrench::StringUtils::GetEmptyStr() : delimiter) + pathOutput;
+			return;
+		}
+
+		pathOutput = std::to_string(static_cast<U32>(pCurrEntity->GetId())) + (isPathEmpty ? Wrench::StringUtils::GetEmptyStr() : delimiter) + pathOutput;
+	}
+
+
+	static CEntity* TraverseUpToNextLink(TPtr<IWorld> pWorld, CEntity* pCurrEntity)
+	{
+		CEntity* pLinkEntity = pCurrEntity;
+
+#if TDE2_EDITORS_ENABLED
+		while (pLinkEntity && !pLinkEntity->HasComponent<CPrefabLinkInfoComponent>())
+		{
+			auto pTransform = pLinkEntity->GetComponent<CTransform>();
+			pLinkEntity = pWorld->FindEntity(pTransform->GetParent());
+		}
+#endif
+
+		return pLinkEntity;
+	}
+
 	
 	E_RESULT_CODE CEntityRef::Save(IArchiveWriter* pWriter)
 	{
@@ -297,19 +311,103 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		std::string serializedRefStr;
+		if (TEntityId::Invalid == mEntityRef)
+		{
+			return RC_OK;
+		}
 
 		CEntity* pCurrEntity = mpWorld->FindEntity(mEntityRef);
+		std::string serializedRefStr;
 		
+		/// \note Traverse the hierarchy up to a root and add identifiers of links to the path
 		while (pCurrEntity)
 		{
-			serializedRefStr = serializedRefStr + "." + std::to_string(static_cast<U32>(pCurrEntity->GetId()));
-
-			CTransform* pTransform = pCurrEntity->GetComponent<CTransform>();
-			pCurrEntity = mpWorld->FindEntity(pTransform->GetParent());
+			AppendPath(pCurrEntity, serializedRefStr);
+			pCurrEntity = TraverseUpToNextLink(mpWorld, pCurrEntity);
 		}
 
 		return pWriter->SetString("ref_path", serializedRefStr);
+	}
+
+
+	static CEntity* FindEntityWithObjId(TPtr<IWorld> pWorld, CEntity* pRootEntity, U32 objectId)
+	{
+		std::queue<CEntity*> entitiesToProcess;
+
+		if (CTransform* pTransform = pRootEntity->GetComponent<CTransform>())
+		{
+			for (auto&& currChildId : pTransform->GetChildren())
+			{
+				entitiesToProcess.emplace(pWorld->FindEntity(currChildId));
+			}
+		}
+
+		while (!entitiesToProcess.empty())
+		{
+			CEntity* pCurrEntity = entitiesToProcess.front();
+			entitiesToProcess.pop();
+
+			if (auto pObjIdComponent = pCurrEntity->GetComponent<CObjIdComponent>())
+			{
+				if (pObjIdComponent->mId == objectId)
+				{
+					return pCurrEntity;
+				}
+			}
+
+			if (auto pTransform = pCurrEntity->GetComponent<CTransform>())
+			{
+				for (auto&& currChildId : pTransform->GetChildren())
+				{
+					entitiesToProcess.emplace(pWorld->FindEntity(currChildId));
+				}
+			}
+		}
+
+		return nullptr;
+	}
+
+
+	void CEntityRef::Set(TEntityId ref)
+	{
+		mEntityRef = ref;
+	}
+
+	TDE2_API TEntityId CEntityRef::Get()
+	{
+		if (TEntityId::Invalid != mEntityRef)
+		{
+			return mEntityRef;
+		}
+
+		/// \note Firstly we try to find the rightmost identifier that could be found using IWorld::FindEntity
+		auto it = mPathIdentifiers.begin();
+
+		CEntity* pLastAccessibleEntity = nullptr;
+		CEntity* pCurrEntity = nullptr;
+
+		while (it != mPathIdentifiers.end() && (pCurrEntity = mpWorld->FindEntity(static_cast<TEntityId>(*it))))
+		{
+			pLastAccessibleEntity = pCurrEntity;
+			it++;
+		}
+
+		pCurrEntity = pLastAccessibleEntity;
+
+		/// \note Beginning from that we iterate over children in topdown manner and check either via IWorld::FindEntity or CObjIdComponent's component
+		for (; it != mPathIdentifiers.cend(); it++)
+		{
+			pCurrEntity = FindEntityWithObjId(mpWorld, pCurrEntity, *it);
+			if (!pCurrEntity)
+			{
+				return TEntityId::Invalid; /// \note If we haven't found entity it means resolving failed 
+			}
+		}
+
+		TDE2_ASSERT(pCurrEntity);
+		mEntityRef = pCurrEntity ? pCurrEntity->GetId() : TEntityId::Invalid;
+
+		return mEntityRef;
 	}
 
 

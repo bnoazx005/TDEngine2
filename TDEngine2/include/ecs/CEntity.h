@@ -289,6 +289,7 @@ namespace TDEngine2
 	class CEntityRef: public ISerializable
 	{
 		public:
+			TDE2_API CEntityRef() = default;
 			TDE2_API CEntityRef(TPtr<IWorld> pWorld, TEntityId entityRef);
 
 			/*!
@@ -310,11 +311,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
+
+			TDE2_API void Set(TEntityId ref);
+			TDE2_API TEntityId Get();
 		private:
 			TPtr<IWorld> mpWorld;
 
 			TEntityId mEntityRef = TEntityId::Invalid;
+
 			std::string mRefStr;
+			std::vector<U32> mPathIdentifiers;
 	};
 
 

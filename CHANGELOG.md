@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.15] 2023-02-20
+## [0.6.15] 2023-02-23
 
 ### Added
 
 - Support of nested prefabs was introduced.
+
+- A reference type for entities which is **CEntityRef** was introduced. That allows to save paths to some specific entities within components.
 
 ### Changed
 
