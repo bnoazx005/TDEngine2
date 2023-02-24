@@ -236,8 +236,8 @@ namespace TDEngine2
 		\brief CEntityRef's definition
 	*/
 
-	CEntityRef::CEntityRef(TPtr<IWorld> pWorld, TEntityId entityRef):
-		ISerializable(), mpWorld(pWorld), mEntityRef(entityRef)
+	CEntityRef::CEntityRef(CEntityManager* pEntityManager, TEntityId entityRef):
+		ISerializable(), mpEntityManager(pEntityManager), mEntityRef(entityRef)
 	{
 	}
 
@@ -248,7 +248,7 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		if (!mpWorld)
+		if (!mpEntityManager)
 		{
 			return RC_FAIL;
 		}
@@ -283,7 +283,7 @@ namespace TDEngine2
 	}
 
 
-	static CEntity* TraverseUpToNextLink(TPtr<IWorld> pWorld, CEntity* pCurrEntity)
+	static CEntity* TraverseUpToNextLink(CEntityManager* pEntityManager, CEntity* pCurrEntity)
 	{
 		CEntity* pLinkEntity = pCurrEntity;
 
@@ -291,7 +291,7 @@ namespace TDEngine2
 		while (pLinkEntity && !pLinkEntity->HasComponent<CPrefabLinkInfoComponent>())
 		{
 			auto pTransform = pLinkEntity->GetComponent<CTransform>();
-			pLinkEntity = pWorld->FindEntity(pTransform->GetParent());
+			pLinkEntity = pEntityManager->GetEntity(pTransform->GetParent()).Get();
 		}
 #endif
 
@@ -306,7 +306,7 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		if (!mpWorld)
+		if (!mpEntityManager)
 		{
 			return RC_FAIL;
 		}
@@ -316,21 +316,21 @@ namespace TDEngine2
 			return RC_OK;
 		}
 
-		CEntity* pCurrEntity = mpWorld->FindEntity(mEntityRef);
+		CEntity* pCurrEntity = mpEntityManager->GetEntity(mEntityRef).Get();
 		std::string serializedRefStr;
 		
 		/// \note Traverse the hierarchy up to a root and add identifiers of links to the path
 		while (pCurrEntity)
 		{
 			AppendPath(pCurrEntity, serializedRefStr);
-			pCurrEntity = TraverseUpToNextLink(mpWorld, pCurrEntity);
+			pCurrEntity = TraverseUpToNextLink(mpEntityManager, pCurrEntity);
 		}
 
 		return pWriter->SetString("ref_path", serializedRefStr);
 	}
 
 
-	static CEntity* FindEntityWithObjId(TPtr<IWorld> pWorld, CEntity* pRootEntity, U32 objectId)
+	static CEntity* FindEntityWithObjId(CEntityManager* pEntityManager, CEntity* pRootEntity, U32 objectId)
 	{
 		std::queue<CEntity*> entitiesToProcess;
 
@@ -338,7 +338,7 @@ namespace TDEngine2
 		{
 			for (auto&& currChildId : pTransform->GetChildren())
 			{
-				entitiesToProcess.emplace(pWorld->FindEntity(currChildId));
+				entitiesToProcess.emplace(pEntityManager->GetEntity(currChildId).Get());
 			}
 		}
 
@@ -359,7 +359,7 @@ namespace TDEngine2
 			{
 				for (auto&& currChildId : pTransform->GetChildren())
 				{
-					entitiesToProcess.emplace(pWorld->FindEntity(currChildId));
+					entitiesToProcess.emplace(pEntityManager->GetEntity(currChildId).Get());
 				}
 			}
 		}
@@ -367,6 +367,18 @@ namespace TDEngine2
 		return nullptr;
 	}
 
+
+	E_RESULT_CODE CEntityRef::SetEntityManager(CEntityManager* pEntityManager)
+	{
+		if (!pEntityManager)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpEntityManager = pEntityManager;
+
+		return RC_OK;
+	}
 
 	void CEntityRef::Set(TEntityId ref)
 	{
@@ -386,7 +398,7 @@ namespace TDEngine2
 		CEntity* pLastAccessibleEntity = nullptr;
 		CEntity* pCurrEntity = nullptr;
 
-		while (it != mPathIdentifiers.end() && (pCurrEntity = mpWorld->FindEntity(static_cast<TEntityId>(*it))))
+		while (it != mPathIdentifiers.end() && (pCurrEntity = mpEntityManager->GetEntity(static_cast<TEntityId>(*it)).Get()))
 		{
 			pLastAccessibleEntity = pCurrEntity;
 			it++;
@@ -397,17 +409,47 @@ namespace TDEngine2
 		/// \note Beginning from that we iterate over children in topdown manner and check either via IWorld::FindEntity or CObjIdComponent's component
 		for (; it != mPathIdentifiers.cend(); it++)
 		{
-			pCurrEntity = FindEntityWithObjId(mpWorld, pCurrEntity, *it);
+			pCurrEntity = FindEntityWithObjId(mpEntityManager, pCurrEntity, *it);
 			if (!pCurrEntity)
 			{
 				return TEntityId::Invalid; /// \note If we haven't found entity it means resolving failed 
 			}
 		}
 
-		TDE2_ASSERT(pCurrEntity);
 		mEntityRef = pCurrEntity ? pCurrEntity->GetId() : TEntityId::Invalid;
 
 		return mEntityRef;
+	}
+
+	bool CEntityRef::IsResolved() const
+	{
+		return mpEntityManager && TEntityId::Invalid != mEntityRef;
+	}
+
+
+	CEntityRef LoadEntityRef(IArchiveReader* pReader, const std::string& id)
+	{
+		CEntityRef ref(nullptr, TEntityId::Invalid);
+
+		pReader->BeginGroup(id);
+		ref.Load(pReader);
+		pReader->EndGroup();
+
+		return ref;
+	}
+
+	E_RESULT_CODE SaveEntityRef(IArchiveWriter* pWriter, const std::string& id, CEntityRef& entityRef)
+	{
+		if (!pWriter)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		E_RESULT_CODE result = pWriter->BeginGroup(id);
+		result = result | entityRef.Save(pWriter);
+		result = result | pWriter->EndGroup();
+
+		return result;
 	}
 
 
@@ -419,11 +461,5 @@ namespace TDEngine2
 	{
 		auto&& it = mSerializedToRuntimeIdsTable.find(input);
 		return it == mSerializedToRuntimeIdsTable.cend() ? input : it->second;
-	}
-
-	TEntityId TEntitiesMapper::Resolve(const CEntityRef& entityRef) const
-	{
-		TDE2_UNIMPLEMENTED();
-		return TEntityId::Invalid;
 	}
 }

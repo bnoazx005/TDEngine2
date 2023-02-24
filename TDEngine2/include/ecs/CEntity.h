@@ -290,7 +290,7 @@ namespace TDEngine2
 	{
 		public:
 			TDE2_API CEntityRef() = default;
-			TDE2_API CEntityRef(TPtr<IWorld> pWorld, TEntityId entityRef);
+			TDE2_API CEntityRef(CEntityManager* pEntityManager, TEntityId entityRef);
 
 			/*!
 				\brief The method deserializes object's state from given reader
@@ -312,16 +312,24 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
+			TDE2_API E_RESULT_CODE SetEntityManager(CEntityManager* pEntityManager);
+
 			TDE2_API void Set(TEntityId ref);
 			TDE2_API TEntityId Get();
+
+			TDE2_API bool IsResolved() const;
 		private:
-			TPtr<IWorld> mpWorld;
+			CEntityManager* mpEntityManager;
 
 			TEntityId mEntityRef = TEntityId::Invalid;
 
 			std::string mRefStr;
 			std::vector<U32> mPathIdentifiers;
 	};
+
+
+	TDE2_API CEntityRef LoadEntityRef(IArchiveReader* pReader, const std::string& id);
+	TDE2_API E_RESULT_CODE SaveEntityRef(IArchiveWriter* pWriter, const std::string& id, CEntityRef& entityRef);
 
 
 	/*!
@@ -338,7 +346,5 @@ namespace TDEngine2
 		*/
 
 		TDE2_API TEntityId Resolve(TEntityId input) const;
-
-		TDE2_API TEntityId Resolve(const CEntityRef& entityRef) const;
 	};
 }
