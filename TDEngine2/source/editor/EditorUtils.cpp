@@ -173,6 +173,23 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
+
+	E_RESULT_CODE CImGUIExtensions::EntityRefField(TPtr<IImGUIContext> pImGUIContext, TPtr<IWorld> pWorld, const std::string& text, CEntityRef& entityRef, const std::function<void()>& onValueChanged)
+	{
+		TEntityId resolvedRefId = entityRef.Get();
+
+		E_RESULT_CODE result = EntityRefField(pImGUIContext, pWorld, text, resolvedRefId, [onValueChanged, &entityRef, &resolvedRefId]
+		{
+			if (onValueChanged)
+			{
+				onValueChanged();
+			}
+
+			entityRef.Set(resolvedRefId);
+		});
+
+		return result;
+	}
 }
 
 #endif

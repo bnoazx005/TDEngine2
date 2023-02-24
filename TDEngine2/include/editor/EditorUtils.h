@@ -21,6 +21,7 @@ namespace TDEngine2
 	class IPrefabsRegistry;
 	class IScene;
 	class IImGUIContext;
+	class CEntityRef;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IWorld);
@@ -47,6 +48,7 @@ namespace TDEngine2
 	{
 		public:
 			TDE2_API static E_RESULT_CODE EntityRefField(TPtr<IImGUIContext> pImGUIContext, TPtr<IWorld> pWorld, const std::string& text, TEntityId& entityRef, const std::function<void()>& onValueChanged = {});
+			TDE2_API static E_RESULT_CODE EntityRefField(TPtr<IImGUIContext> pImGUIContext, TPtr<IWorld> pWorld, const std::string& text, CEntityRef& entityRef, const std::function<void()>& onValueChanged = {});
 	};
 }
 
