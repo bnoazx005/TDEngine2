@@ -248,11 +248,6 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		if (!mpEntityManager)
-		{
-			return RC_FAIL;
-		}
-
 		mEntityRef = TEntityId::Invalid;
 		mRefStr = pReader->GetString("ref_path");
 
@@ -326,10 +321,50 @@ namespace TDEngine2
 		std::string serializedRefStr;
 		
 		/// \note Traverse the hierarchy up to a root and add identifiers of links to the path
-		while (pCurrEntity)
 		{
-			AppendPath(pCurrEntity, serializedRefStr);
-			pCurrEntity = TraverseUpToNextLink(mpEntityManager, pCurrEntity);
+			std::vector<TEntityId> pathEntities;
+
+			while (pCurrEntity)
+			{
+				pathEntities.emplace(pathEntities.begin(), pCurrEntity->GetId());
+				pCurrEntity = TraverseUpToNextLink(mpEntityManager, pCurrEntity);
+			}
+
+			auto it = pathEntities.begin();
+
+			for (; it != pathEntities.end(); it++)
+			{
+				pCurrEntity = mpEntityManager->GetEntity(*it).Get();
+
+				if (pCurrEntity && pCurrEntity->HasComponent<CObjIdComponent>())
+				{
+					break;
+				}
+			}
+
+			static const std::string delimiter(".");
+
+			for (auto realPathIt = it; realPathIt != pathEntities.end(); realPathIt++)
+			{
+				pCurrEntity = mpEntityManager->GetEntity(*realPathIt).Get();
+				
+				if (realPathIt == it)
+				{
+					serializedRefStr.append(std::to_string(static_cast<U32>(pCurrEntity->GetId())));
+				}
+				else
+				{
+					if (auto pObjIdComponent = pCurrEntity->GetComponent<CObjIdComponent>())
+					{
+						serializedRefStr.append(std::to_string(pObjIdComponent->mId));
+					}
+				}
+
+				if (realPathIt + 1 != pathEntities.end())
+				{
+					serializedRefStr.append(delimiter);
+				}
+			}
 		}
 
 #if TDE2_EDITORS_ENABLED

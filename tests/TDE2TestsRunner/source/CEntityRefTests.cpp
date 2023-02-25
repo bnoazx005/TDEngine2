@@ -34,7 +34,7 @@ TDE2_TEST_FIXTURE("EntityRefTests")
 			auto pTestScene = pSceneManager->GetScene(pSceneManager->GetSceneId("TestEntityRefs.scene")).Get();
 			TDE2_TEST_IS_TRUE(pTestScene);
 
-			auto&& prefabRootEntity = pWorld->FindEntity(pTestScene->GetEntities().front());
+			auto&& prefabRootEntity = pWorld->FindEntity(pTestScene->GetEntities()[1]);
 			TDE2_TEST_IS_TRUE(prefabRootEntity);
 
 			auto pTransform = prefabRootEntity->GetComponent<CTransform>();
@@ -52,14 +52,14 @@ TDE2_TEST_FIXTURE("EntityRefTests")
 				if (!pMemoryMappedStream)
 				{
 					TDE2_TEST_IS_TRUE(false);
-					return result;
+					return;
 				}
 
 				IYAMLFileWriter* pFileWriter = dynamic_cast<IYAMLFileWriter*>(CreateYAMLFileWriter(nullptr, pMemoryMappedStream, result));
 				if (!pFileWriter)
 				{
 					TDE2_TEST_IS_TRUE(false);
-					return result;
+					return;
 				}
 
 				result = result | ref.Save(pFileWriter);
@@ -75,7 +75,6 @@ TDE2_TEST_FIXTURE("EntityRefTests")
 			}
 		});
 	}
-
 }
 
 #endif
