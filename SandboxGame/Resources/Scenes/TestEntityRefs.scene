@@ -1,0 +1,19 @@
+entities: 
+  - link: 
+      id: 10302
+      position: 
+        x: 4.131809
+        y: 3.633381
+        z: 9.559008
+      prefab_id: TestPrefab
+  - link: 
+      id: 10312
+      position: 
+        x: 4.131809
+        y: 3.633381
+        z: 9.559008
+      prefab_id: TestPrefab
+name: TestEntityRefs.scene
+scene_properties: 
+  is_main: 0
+version: 0

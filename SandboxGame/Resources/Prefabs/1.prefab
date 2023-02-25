@@ -1,0 +1,7 @@
+entities: 
+  - entity: 
+      components: 
+        - component: 
+            type_id: 4238380769
+      id: 11
+      name: Entity0

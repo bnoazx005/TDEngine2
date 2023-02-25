@@ -473,6 +473,42 @@ TDE2_TEST_FIXTURE("EntitiesOperationsTests")
 			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pPrefab->GetId()));
 		});
 	}
+
+	TDE2_TEST_CASE("TestPrefabsLinks_LoadSceneWithLinks_TheRootEntitiesOfPrefabsShouldHaveIdentifiersOfLinks")
+	{
+		static TSceneId testSceneHandle = TSceneId::Invalid;
+
+		/// \note Spawn a prefab
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			pSceneManager->LoadSceneAsync("ProjectResources/Scenes/TestEntityRefs.scene", [&](const TResult<TSceneId>& sceneIdResult)
+			{
+				testSceneHandle = sceneIdResult.Get();
+			});
+		});
+
+		pTestCase->WaitForCondition([&] { return TSceneId::Invalid != testSceneHandle; });
+
+		/// \note Copy and paste that
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pTestScene = pSceneManager->GetScene(testSceneHandle).Get();
+			TDE2_TEST_IS_TRUE(pTestScene);
+
+			//TDE2_TEST_IS_TRUE(false);
+
+			TDE2_TEST_IS_TRUE(RC_OK == pSceneManager->UnloadScene(pSceneManager->GetSceneId(pTestScene->GetName())));
+		});
+	}
 }
 
 #endif

@@ -273,10 +273,15 @@ namespace TDEngine2
 
 		const bool isPathEmpty = pathOutput.empty();
 
+		auto pTransform = pCurrEntity->GetComponent<CTransform>();
+
 		if (auto pObjIdComponent = pCurrEntity->GetComponent<CObjIdComponent>())
 		{
-			pathOutput = std::to_string(pObjIdComponent->mId) + (isPathEmpty ? Wrench::StringUtils::GetEmptyStr() : delimiter) + pathOutput;
-			return;
+			if (TEntityId::Invalid != pTransform->GetParent())
+			{
+				pathOutput = std::to_string(pObjIdComponent->mId) + (isPathEmpty ? Wrench::StringUtils::GetEmptyStr() : delimiter) + pathOutput;
+				return;
+			}
 		}
 
 		pathOutput = std::to_string(static_cast<U32>(pCurrEntity->GetId())) + (isPathEmpty ? Wrench::StringUtils::GetEmptyStr() : delimiter) + pathOutput;
@@ -288,11 +293,12 @@ namespace TDEngine2
 		CEntity* pLinkEntity = pCurrEntity;
 
 #if TDE2_EDITORS_ENABLED
-		while (pLinkEntity && !pLinkEntity->HasComponent<CPrefabLinkInfoComponent>())
+		do
 		{
 			auto pTransform = pLinkEntity->GetComponent<CTransform>();
 			pLinkEntity = pEntityManager->GetEntity(pTransform->GetParent()).Get();
 		}
+		while (pLinkEntity && !pLinkEntity->HasComponent<CPrefabLinkInfoComponent>());
 #endif
 
 		return pLinkEntity;
@@ -325,6 +331,20 @@ namespace TDEngine2
 			AppendPath(pCurrEntity, serializedRefStr);
 			pCurrEntity = TraverseUpToNextLink(mpEntityManager, pCurrEntity);
 		}
+
+#if TDE2_EDITORS_ENABLED
+		/// \note Actualize path identifiers field
+		{
+			mRefStr = serializedRefStr;
+
+			mPathIdentifiers.clear();
+
+			for (auto&& currId : Wrench::StringUtils::Split(mRefStr, "."))
+			{
+				mPathIdentifiers.push_back(static_cast<U32>(atoll(currId.c_str())));
+			}
+		}
+#endif
 
 		return pWriter->SetString("ref_path", serializedRefStr);
 	}
@@ -425,6 +445,15 @@ namespace TDEngine2
 	{
 		return mpEntityManager && TEntityId::Invalid != mEntityRef;
 	}
+
+#if TDE2_EDITORS_ENABLED
+
+	const std::vector<U32>& CEntityRef::GetPath() const
+	{
+		return mPathIdentifiers;
+	}
+
+#endif
 
 
 	CEntityRef LoadEntityRef(IArchiveReader* pReader, const std::string& id)

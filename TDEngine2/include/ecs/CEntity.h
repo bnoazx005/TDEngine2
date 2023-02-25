@@ -317,6 +317,10 @@ namespace TDEngine2
 			TDE2_API void Set(TEntityId ref);
 			TDE2_API TEntityId Get();
 
+#if TDE2_EDITORS_ENABLED
+			TDE2_API const std::vector<U32>& GetPath() const;
+#endif
+
 			TDE2_API bool IsResolved() const;
 		private:
 			CEntityManager* mpEntityManager;

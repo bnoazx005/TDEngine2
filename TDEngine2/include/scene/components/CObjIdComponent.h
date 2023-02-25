@@ -75,6 +75,11 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
+			/*!
+				\return The method returns true if the given component type is for runtime purposes only
+			*/
+
+			TDE2_API bool IsRuntimeOnly() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CObjIdComponent)
 		public:

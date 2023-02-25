@@ -48,6 +48,11 @@ namespace TDEngine2
 
 		return RC_FAIL;
 	}
+	
+	bool CObjIdComponent::IsRuntimeOnly() const
+	{
+		return true;
+	}
 
 
 	IComponent* CreateObjIdComponent(E_RESULT_CODE& result)
