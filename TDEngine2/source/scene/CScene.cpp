@@ -374,6 +374,58 @@ namespace TDEngine2
 		}
 	}
 
+	CEntity* CScene::FindEntityByPath(const std::string& path, CEntity* pRoot)
+	{
+		if (pRoot && std::find(mEntities.cbegin(), mEntities.cend(), pRoot->GetId()) == mEntities.cend())
+		{
+			return nullptr; /// pRoot should be a part of current scene
+		}
+
+		static const std::string delimiter = "/";
+		auto&& pathParts = Wrench::StringUtils::Split(path, delimiter);
+
+		if (pathParts.empty())
+		{
+			return pRoot;
+		}
+
+		CEntity* pCurrEntity = pRoot;
+
+		if (!pRoot) /// \note if there is no specified entity to start from we use first identifier in path as the starting point
+		{
+			ForEachEntity([&id = pathParts.front(), &pCurrEntity](CEntity* pEntity)
+			{
+				if (id == pEntity->GetName())
+				{
+					pCurrEntity = pEntity;
+				}
+			});
+		}
+
+		for (auto it = pathParts.cbegin() + (pRoot ? 0 : 1); it != pathParts.cend(); it++)
+		{
+			if (!pCurrEntity)
+			{
+				return pCurrEntity;
+			}
+
+			auto pTransform = pCurrEntity->GetComponent<CTransform>();
+			
+			for (const TEntityId currChildId : pTransform->GetChildren())
+			{
+				CEntity* pEntity = mpWorld->FindEntity(currChildId);
+				
+				if (pEntity && pEntity->GetName() == *it)
+				{
+					pCurrEntity = pEntity;
+					break;
+				}
+			}
+		}
+
+		return pCurrEntity;
+	}
+
 	const std::string& CScene::GetName() const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);

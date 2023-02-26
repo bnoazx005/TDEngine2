@@ -143,6 +143,14 @@ namespace TDEngine2
 			TDE2_API virtual void ForEachEntity(const std::function<void(CEntity*)>& action = nullptr) = 0;
 
 			/*!
+				\brief The method traverses the hierarchy of the scene beginning from pRoot entity based on path's value.
+				The path consists of entities names separated with slashes for instance
+				entity_1/entity_2/.../entity_N
+			*/
+
+			TDE2_API virtual CEntity* FindEntityByPath(const std::string& path, CEntity* pRoot) = 0;
+
+			/*!
 				\return The method returns name of the scene
 			*/
 

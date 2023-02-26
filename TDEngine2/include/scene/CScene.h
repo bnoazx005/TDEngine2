@@ -161,6 +161,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void ForEachEntity(const std::function<void(CEntity*)>& action = nullptr) override;
+			
+			/*!
+				\brief The method traverses the hierarchy of the scene beginning from pRoot entity based on path's value.
+				The path consists of entities names separated with slashes for instance
+				entity_1/entity_2/.../entity_N
+			*/
+
+			TDE2_API CEntity* FindEntityByPath(const std::string& path, CEntity* pRoot) override;
 
 			/*!
 				\return The method returns name of the scene
