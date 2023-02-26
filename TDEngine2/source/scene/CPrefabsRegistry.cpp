@@ -176,7 +176,11 @@ namespace TDEngine2
 		/// \note Spawn all nested prefabs and configure them
 		for (const auto& currLinkInfo : prefabInfo.mNestedPrefabsLinks)
 		{
-			CEntity* pNestedPrefabLinkRoot = pPrefabsRegistry->Spawn(currLinkInfo.mPrefabId, pWorld->FindEntity(entitiesIdsMap.Resolve(currLinkInfo.mParentId)), prefabEntityVisitor);
+			CEntity* pNestedPrefabLinkRoot = pPrefabsRegistry->Spawn(
+				currLinkInfo.mPrefabId, 
+				pWorld->FindEntity(entitiesIdsMap.Resolve(currLinkInfo.mParentId)), 
+				prefabEntityVisitor, currLinkInfo.mId);
+
 			if (!pNestedPrefabLinkRoot)
 			{
 				TDE2_ASSERT(false);

@@ -348,7 +348,7 @@ namespace TDEngine2
 			{
 				pCurrEntity = mpEntityManager->GetEntity(*realPathIt).Get();
 				
-				if (realPathIt == it)
+				if (realPathIt == it || pCurrEntity->HasComponent<CPrefabLinkInfoComponent>())
 				{
 					serializedRefStr.append(std::to_string(static_cast<U32>(pCurrEntity->GetId())));
 				}
@@ -457,6 +457,11 @@ namespace TDEngine2
 		{
 			pLastAccessibleEntity = pCurrEntity;
 			it++;
+		}
+
+		if (!pLastAccessibleEntity)
+		{
+			return mEntityRef;
 		}
 
 		pCurrEntity = pLastAccessibleEntity;
