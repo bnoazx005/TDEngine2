@@ -150,15 +150,14 @@ TDE2_TEST_FIXTURE("EntityRefTests")
 					return;
 				}
 
-				///  X.1344.1867944444
+				///  1344.1867944444
 				result = result | ref.Save(pFileWriter);
 				result = result | pFileWriter->Close();
 
 				auto&& pathParts = ref.GetPath();
 
-				TDE2_TEST_IS_TRUE(pathParts.size() == 3);
-				TDE2_TEST_IS_TRUE(static_cast<TEntityId>(pathParts.front()) == pNestedPrefabRoot->GetId());
-				TDE2_TEST_IS_TRUE(static_cast<TEntityId>(pathParts[1]) == pTestScene->FindEntityByPath("Entity2/Entity0", pNestedPrefabRoot)->GetId());
+				TDE2_TEST_IS_TRUE(pathParts.size() == 2);
+				TDE2_TEST_IS_TRUE(static_cast<TEntityId>(pathParts.front()) == pTestScene->FindEntityByPath("Entity2/Entity0", pNestedPrefabRoot)->GetId());
 				TDE2_TEST_IS_TRUE(pathParts.back() == pTargetEntity->GetComponent<CObjIdComponent>()->mId);
 
 				TDE2_TEST_IS_TRUE(RC_OK == result);
