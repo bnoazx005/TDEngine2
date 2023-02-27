@@ -618,7 +618,7 @@ namespace TDEngine2
 				currPrefabInfo.mParentId = entitiesIdsMap.Resolve(currPrefabInfo.mParentId);  /// \note Convert the serialized value to the runtime one
 			}
 
-			output.mPrefabsLinks.push_back(currPrefabInfo);
+			output.mPrefabsLinks.emplace(output.mPrefabsLinks.begin(), currPrefabInfo);
 
 			auto pInstance = prefabLinkFactory(currPrefabInfo.mId, currPrefabInfo.mPrefabId, pEntityManager->GetEntity(currPrefabInfo.mParentId).Get());
 			if (!pInstance)

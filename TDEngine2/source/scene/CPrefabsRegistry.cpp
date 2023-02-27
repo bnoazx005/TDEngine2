@@ -179,7 +179,8 @@ namespace TDEngine2
 			CEntity* pNestedPrefabLinkRoot = pPrefabsRegistry->Spawn(
 				currLinkInfo.mPrefabId, 
 				pWorld->FindEntity(entitiesIdsMap.Resolve(currLinkInfo.mParentId)), 
-				prefabEntityVisitor, currLinkInfo.mId);
+				prefabEntityVisitor, 
+				currLinkInfo.mId);
 
 			if (!pNestedPrefabLinkRoot)
 			{
