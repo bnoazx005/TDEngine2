@@ -60,7 +60,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		auto eventListenersGroup = mListeners[(*handlersGroupIter).second];
+		auto& eventListenersGroup = mListeners[(*handlersGroupIter).second];
 
 		auto listenerIter = std::find(eventListenersGroup.cbegin(), eventListenersGroup.cend(), pEventListener);
 
