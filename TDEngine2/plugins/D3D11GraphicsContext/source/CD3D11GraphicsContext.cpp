@@ -237,6 +237,10 @@ namespace TDEngine2
 		mpSwapChain->Present(mIsVSyncEnabled, 0);
 		
 		mCurrNumOfActiveRenderTargets = 1;
+
+		/// \note Restore texture slots
+		ID3D11ShaderResourceView* pNullSRV[]{ nullptr, nullptr };
+		mp3dDeviceContext->PSSetShaderResources(0, 2, pNullSRV);
 	}
 
 	void CD3D11GraphicsContext::SetViewport(F32 x, F32 y, F32 width, F32 height, F32 minDepth, F32 maxDepth)
