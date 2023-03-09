@@ -126,6 +126,7 @@ namespace TDEngine2
 		CEntity* pCanvasEntity = nullptr;
 
 		CCanvas* pCurrCanvas = nullptr;
+		CCanvas* pPrevCanvas = nullptr;
 
 		mVertices.clear();
 		mIndices.clear();
@@ -183,6 +184,7 @@ namespace TDEngine2
 					return;
 				}
 
+				pPrevCanvas = pCurrCanvas;
 				pCurrCanvas = pCanvasEntity->GetComponent<CCanvas>();
 			}
 
@@ -217,9 +219,10 @@ namespace TDEngine2
 			std::copy(vertices.cbegin(), vertices.cend(), std::back_inserter(mIntermediateVertsBuffer));
 			
 			/// \note Flush current buffers when the batch is splitted
-			if (shouldBatchBeFlushed(currMaterialId, currMaterialInstance, i))
+			if (shouldBatchBeFlushed(currMaterialId, currMaterialInstance, i) || (pCurrCanvas && pPrevCanvas != pCurrCanvas))
 			{
-				auto pCurrCommand = mpUIElementsRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(static_cast<U32>(layoutElements.size() - index));
+				auto pCurrCommand = mpUIElementsRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(
+					((0xFFFF - (pCurrCanvas->GetPriority() + (0xFFFF >> 1))) << 16) | index);
 
 				pCurrCommand->mpVertexBuffer = mpVertexBuffer;
 				pCurrCommand->mpIndexBuffer = mpIndexBuffer;

@@ -505,6 +505,13 @@ namespace TDEngine2
 			imguiContext.Label("Height");
 			imguiContext.IntField("##Height", height, [&canvas, &height, inheritSizesFlag] { if (inheritSizesFlag) return; canvas.SetHeight(static_cast<U32>(std::max<I32>(0, height))); });
 			imguiContext.EndHorizontal();
+
+			I32 priority = canvas.GetPriority();
+
+			imguiContext.BeginHorizontal();
+			imguiContext.Label("Priority");
+			imguiContext.IntField("##Priority", priority, [&canvas, &priority] { canvas.SetPriority(priority); });
+			imguiContext.EndHorizontal();
 		});
 	}
 

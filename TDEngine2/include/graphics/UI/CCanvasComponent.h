@@ -76,6 +76,8 @@ namespace TDEngine2
 
 			TDE2_API void SetInheritSizesFromMainCamera(bool value);
 
+			TDE2_API void SetPriority(int value);
+
 			TDE2_API U32 GetWidth() const;
 			TDE2_API U32 GetHeight() const;
 
@@ -83,6 +85,8 @@ namespace TDEngine2
 			TDE2_API bool DoesInheritSizesFromMainCamera() const;
 
 			TDE2_API const TMatrix4& GetProjMatrix() const;
+
+			TDE2_API int GetPriority() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CCanvas)
 		protected:
@@ -93,6 +97,8 @@ namespace TDEngine2
 			bool mInheritsSizesFromMainCamera;
 
 			TMatrix4 mProjMatrix;
+
+			int mPriority = 0;
 	};
 
 
