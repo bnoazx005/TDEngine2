@@ -635,6 +635,15 @@ namespace TDEngine2
 
 			TDE2_API virtual TVector2 GetTextSizes(const std::string& text) const = 0;
 
+			/*!
+				\brief The method allows to retrieve position in a window space for an element that's placed at given path
+
+				\param[in] path The path to element in the following format "Window Name"/"Element_0 Name"/.../"Target Element Name". Element's name
+				should be full including ## separator and numerical identifier if there're exist
+			*/
+
+			TDE2_API virtual TVector2 GetUIElementPosition(const std::string& path) const = 0;
+
 			TDE2_API virtual bool IsItemActive() const = 0;
 
 			/*!

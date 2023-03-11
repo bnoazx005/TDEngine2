@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.15] 2023-03-09
+## [0.6.15] 2023-03-11
 
 ### Added
 
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Now entities could be found using **IScene::FindEntityByPath**.
 
 - Support of priorities for canvases was added.
+
+- The API of IImGUIContext was extended with a new public method **GetUIElementPosition**.
 
 ### Changed
 

@@ -315,7 +315,7 @@ namespace TDEngine2
 
 					bool isEditorEnabled = pCurrEditorWindow->IsVisible();
 
-					mpImGUIContext->Button(Wrench::StringUtils::Format("{0} {1}", isEditorEnabled ? "Hide " : "Show ", currCommandName),
+					mpImGUIContext->Button(Wrench::StringUtils::Format("{0} {1}", isEditorEnabled ? "Hide" : "Show", currCommandName),
 						buttonSizes, [isEditorEnabled, pCurrEditorWindow]()
 					{
 						pCurrEditorWindow->SetVisible(!isEditorEnabled);

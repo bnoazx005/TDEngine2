@@ -1,5 +1,6 @@
 #include "../include/CImGUIContext.h"
 #include "../deps/imgui-1.85/imgui.h"
+#include "../deps/imgui-1.85/imgui_internal.h"
 #include "../deps/imgui-1.85/ImGuizmo.h"
 #include <utils/Types.h>
 #include <core/IWindowSystem.h>
@@ -27,6 +28,7 @@
 #include "deferOperation.hpp"
 #define META_IMPLEMENTATION
 #include "metadata.h"
+#include "stringUtils.hpp"
 
 
 namespace TDEngine2
@@ -1030,6 +1032,30 @@ namespace TDEngine2
 		return ImGui::CalcTextSize(&text.front(), &text.front() + text.length());
 	}
 
+	TVector2 CImGUIContext::GetUIElementPosition(const std::string& path) const
+	{
+		if (path.empty())
+		{
+			return ZeroVector2;
+		}
+
+		auto&& elements = Wrench::StringUtils::Split(path, "/");
+		if (elements.empty())
+		{
+			return ZeroVector2;
+		}
+
+		auto pWindow = ImGui::FindWindowByName(elements.front().c_str());
+		if (!pWindow)
+		{
+			return ZeroVector2;
+		}
+
+		auto it = mElementsPositionMap.find(pWindow->GetID(elements.back().c_str()));
+
+		return it == mElementsPositionMap.cend() ? ZeroVector2 : it->second;
+	}
+
 	bool CImGUIContext::IsItemActive() const
 	{
 		return ImGui::IsItemActive();
@@ -1394,6 +1420,8 @@ namespace TDEngine2
 
 	void CImGUIContext::_prepareLayout()
 	{
+		mElementsPositionMap[ImGui::GetItemID()] = ImGui::GetCursorScreenPos() + 0.5f * ImGui::GetItemRectSize();
+
 		if (mIsHorizontalGroupEnabled)
 		{
 			ImGui::SameLine();

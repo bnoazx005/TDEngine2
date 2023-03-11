@@ -578,6 +578,15 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TVector2 GetTextSizes(const std::string& text) const override;
+			
+			/*!
+				\brief The method allows to retrieve position in a window space for an element that's placed at given path
+
+				\param[in] path The path to element in the following format "Window Name"/"Element_0 Name"/.../"Target Element Name". Element's name
+				should be full including ## separator and numerical identifier if there're exist
+			*/
+
+			TDE2_API TVector2 GetUIElementPosition(const std::string& path) const override;
 
 			TDE2_API bool IsItemActive() const override;
 
@@ -659,6 +668,8 @@ namespace TDEngine2
 			TDrawListsStack         mpDrawListsContext;
 
 			std::unordered_map<uintptr_t, TMaterialInstanceId> mUsingMaterials;
+
+			std::unordered_map<U32, TVector2> mElementsPositionMap;
 
 			// \todo Refactor this later
 			bool                    mIsGradientColorEditorOpened = false;
