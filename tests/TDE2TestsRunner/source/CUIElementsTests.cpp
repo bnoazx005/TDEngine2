@@ -136,10 +136,10 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 		pTestCase->WaitForNextFrame();
 		pTestCase->AddPressKey(E_KEYCODES::KC_TILDE); /// Open dev menu
 
-		pTestCase->SetCursorPosition(TVector3(166.0f, 277.0f, 0.0f));
+		pTestCase->SetCursorAtUIElement("Development Menu/Show Level Editor");
 		pTestCase->AddPressMouseButton(0); /// Open the level editor
 
-		pTestCase->SetCursorPosition(TVector3(116.0f, 488.0f, 0.0f));
+		pTestCase->SetCursorAtUIElement("Level Editor/Show Hierarchy");
 		pTestCase->AddPressMouseButton(0); /// Open the hierarchy window
 
 		pTestCase->SetCursorPosition(TVector3(860.0f, 304.0f, 0.0f));

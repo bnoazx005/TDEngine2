@@ -1420,7 +1420,10 @@ namespace TDEngine2
 
 	void CImGUIContext::_prepareLayout()
 	{
-		mElementsPositionMap[ImGui::GetItemID()] = ImGui::GetCursorScreenPos() + 0.5f * ImGui::GetItemRectSize();
+		auto&& halfSizes = 0.5f * ImGui::GetItemRectSize();
+		auto&& pos = ImGui::GetCursorScreenPos();
+
+		mElementsPositionMap[ImGui::GetItemID()] = TVector2(pos.x + halfSizes.x, ImGui::GetIO().DisplaySize.y - (pos.y - halfSizes.y));
 
 		if (mIsHorizontalGroupEnabled)
 		{

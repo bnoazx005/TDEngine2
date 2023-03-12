@@ -1,5 +1,7 @@
 #include "../../include/autotests/CBaseTestCase.h"
 #include "../../include/autotests/CTestContext.h"
+#include "../../include/core/IEngineCore.h"
+#include "../../include/core/IImGUIContext.h"
 #include <functional>
 
 
@@ -283,6 +285,20 @@ namespace TDEngine2
 	void CBaseTestCase::SetCursorPosition(const TVector3& position)
 	{
 		mActions.emplace_back(std::make_unique<CSetCursorPositionAction>(position));
+	}
+
+	void CBaseTestCase::SetCursorAtUIElement(const std::string& path)
+	{
+		ExecuteAction([path]
+		{
+			auto pEngineCore = CTestContext::Get()->GetEngineCore();
+			
+			if (auto pImGUIContext = pEngineCore->GetSubsystem<IImGUIContext>())
+			{
+				const TVector2& pos = pImGUIContext->GetUIElementPosition(path);
+				CTestContext::Get()->SetMousePosition(TVector3(pos.x, pos.y, 0.0f));				
+			}
+		});
 	}
 
 	void CBaseTestCase::AddPressKey(E_KEYCODES keyCode)

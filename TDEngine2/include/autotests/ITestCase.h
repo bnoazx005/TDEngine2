@@ -43,6 +43,7 @@ namespace TDEngine2
 			TDE2_API virtual void WaitForCondition(const std::function<bool()>& predicate = nullptr) = 0;
 
 			TDE2_API virtual void SetCursorPosition(const TVector3& position) = 0;
+			TDE2_API virtual void SetCursorAtUIElement(const std::string& path) = 0;
 			TDE2_API virtual void AddPressKey(E_KEYCODES keyCode) = 0;
 			TDE2_API virtual void AddPressMouseButton(U8 buttonId) = 0;
 
