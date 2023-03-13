@@ -34,6 +34,11 @@ namespace TDEngine2
 	{
 	}
 
+	TVector3::TVector3(const TVector2& vec2):
+		x(vec2.x), y(vec2.y), z(0.0f)
+	{
+	}
+
 	TVector3::TVector3(float x, float y, float z) :
 		x(x), y(y), z(z)
 	{

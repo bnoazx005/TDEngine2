@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.15] 2023-03-11
+## [0.6.15] 2023-03-13
 
 ### Added
 
@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support of priorities for canvases was added.
 
 - The API of IImGUIContext was extended with a new public method **GetUIElementPosition**.
+
+- An overloaded version of **TVector3**'s constructor was added. Now it can be constructed from **TVector2** type.
 
 ### Changed
 

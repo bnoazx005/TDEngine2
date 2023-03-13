@@ -9,6 +9,7 @@
 
 #include "../../include/utils/Types.h"
 #include "../../include/core/Serialization.h"
+#include "TVector2.h"
 #include "stringUtils.hpp"
 #include <string>
 
@@ -56,6 +57,8 @@ namespace TDEngine2
 		*/
 
 		TDE2_API TVector3(const F32 pArray[3]);
+
+		explicit TDE2_API TVector3(const TVector2& vec2);
 
 		/*!
 			\brief The constructor with separate arguments for 
