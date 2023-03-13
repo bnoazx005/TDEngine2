@@ -148,6 +148,8 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 		pTestCase->SetCursorPosition(TVector3(860.0f, 270.0f, 0.0f));
 		pTestCase->AddPressMouseButton(0); /// Select the Image entity
 
+		constexpr F32 yOffset = -20;
+
 		/// tuple's args: particlular preset pos, min anchor, max anchor, min offset, max offset
 		const std::vector<std::tuple<F32, TVector2, TVector2, TVector2, TVector2>> layoutPresetsTests
 		{
@@ -180,10 +182,10 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 		{
 			std::tie(layoutPresetYPos, minAnchor, maxAnchor, minOffset, maxOffset) = currTestCase;
 
-			pTestCase->SetCursorPosition(TVector3(725.0f, 488.0f, 0.0f));
+			pTestCase->SetCursorPosition(TVector3(725.0f, yOffset + 488.0f, 0.0f));
 			pTestCase->AddPressMouseButton(0); /// Click over layout preset
-
-			pTestCase->SetCursorPosition(TVector3(744.0f, layoutPresetYPos, 0.0f));
+			
+			pTestCase->SetCursorPosition(TVector3(744.0f, yOffset + layoutPresetYPos, 0.0f));
 			pTestCase->AddPressMouseButton(0); /// Change the layout preset
 
 			//pTestCase->TakeScreenshot();
