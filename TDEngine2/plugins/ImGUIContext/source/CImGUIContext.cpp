@@ -1039,6 +1039,12 @@ namespace TDEngine2
 			return ZeroVector2;
 		}
 
+		if (path.find("/") == std::string::npos)
+		{
+			auto it = mElementsPositionMap.find(ImGui::GetID(path.c_str()));
+			return it == mElementsPositionMap.cend() ? ZeroVector2 : it->second;
+		}
+
 		auto&& elements = Wrench::StringUtils::Split(path, "/");
 		if (elements.empty())
 		{
@@ -1051,7 +1057,14 @@ namespace TDEngine2
 			return ZeroVector2;
 		}
 
-		auto it = mElementsPositionMap.find(pWindow->GetID(elements.back().c_str()));
+		ImGuiID currSeed = pWindow->IDStack.back();
+
+		for (auto it = elements.begin() + 1; it != elements.end(); it++)
+		{
+			currSeed = ImHashStr(it->data(), it->size(), currSeed);
+		}
+
+		auto it = mElementsPositionMap.find(currSeed);
 
 		return it == mElementsPositionMap.cend() ? ZeroVector2 : it->second;
 	}
