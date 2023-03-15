@@ -110,6 +110,8 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 	TDE2_TEST_CASE("TestLayoutElementPresets_SwitchBetweenLayoutElementPresetsAndCheckUpValuesInInspector_PresetsValuesShouldBeRelevant")
 	{
 		static CLayoutElement* pImageLayoutElement = nullptr;
+		static CEntity* pCanvasEntity = nullptr;
+		static CEntity* pImageEntity = nullptr;
 
 		/// \note Load test canvas and create an image
 		pTestCase->ExecuteAction([&]
@@ -122,10 +124,10 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
 			TDE2_TEST_IS_TRUE(pMainScene);
 
-			auto pCanvasEntity = pMainScene->Spawn("TestCanvas");
+			pCanvasEntity = pMainScene->Spawn("TestCanvas");
 			TDE2_TEST_IS_TRUE(pCanvasEntity);
 
-			auto pImageEntity = pMainScene->CreateEntity("Image");
+			pImageEntity = pMainScene->CreateEntity("Image");
 			pImageEntity->AddComponent<CImage>();
 			pImageLayoutElement = pImageEntity->AddComponent<CLayoutElement>();
 
@@ -142,12 +144,24 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 		pTestCase->SetCursorAtUIElement("Level Editor/Show Hierarchy");
 		pTestCase->AddPressMouseButton(0); /// Open the hierarchy window
 
-		pTestCase->SetCursorPosition(TVector3(860.0f, 304.0f, 0.0f));
+		pTestCase->WaitForNextFrame();
+		pTestCase->SetCursorAtUIElement([&]
+		{
+			return Wrench::StringUtils::Format("Scene Hierarchy/{0}##{1}", pCanvasEntity->GetName(), static_cast<U32>(pCanvasEntity->GetId()));
+		});
+
 		pTestCase->AddPressMouseButton(0); /// Select the canvas entity
 
-		pTestCase->SetCursorPosition(TVector3(860.0f, 270.0f, 0.0f));
-		pTestCase->AddPressMouseButton(0); /// Select the Image entity
+		pTestCase->WaitForNextFrame();
+		pTestCase->SetCursorAtUIElement([&]
+		{
+			return Wrench::StringUtils::Format("Scene Hierarchy/{0}##{1}/{2}##{3}",
+				pCanvasEntity->GetName(), static_cast<U32>(pCanvasEntity->GetId()),
+				pImageEntity->GetName(), static_cast<U32>(pImageEntity->GetId()));
+		});
 
+		pTestCase->AddPressMouseButton(0); /// Select the Image entity
+		
 		constexpr F32 yOffset = -20;
 
 		/// tuple's args: particlular preset pos, min anchor, max anchor, min offset, max offset
@@ -182,10 +196,11 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 		{
 			std::tie(layoutPresetYPos, minAnchor, maxAnchor, minOffset, maxOffset) = currTestCase;
 
-			pTestCase->SetCursorPosition(TVector3(725.0f, yOffset + 488.0f, 0.0f));
+			pTestCase->WaitForNextFrame();
+			pTestCase->SetCursorAtUIElement("Object Inspector/##LayoutPresetButton");
 			pTestCase->AddPressMouseButton(0); /// Click over layout preset
 			
-			pTestCase->SetCursorPosition(TVector3(744.0f, yOffset + layoutPresetYPos, 0.0f));
+			pTestCase->SetCursorPosition(TVector3(790.0f, yOffset + layoutPresetYPos, 0.0f));
 			pTestCase->AddPressMouseButton(0); /// Change the layout preset
 
 			//pTestCase->TakeScreenshot();

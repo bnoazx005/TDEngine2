@@ -952,7 +952,7 @@ namespace TDEngine2
 	};
 
 
-	static void DrawLayoutPresetIcon(const TEditorContext& editorContext, const std::string& text, const TLayoutPresetParams& params = {})
+	static void DrawLayoutPresetIcon(const TEditorContext& editorContext, const std::string& text, const TLayoutPresetParams& params = {}, bool isCurrentSelectedPreset = false)
 	{
 		constexpr F32 iconSize = 14.0f;
 		constexpr F32 iconBorderSize = 1.0f;
@@ -1009,7 +1009,7 @@ namespace TDEngine2
 				}, TColorUtils::mWhite);
 		}
 
-		imguiContext.Button(text + "##Button", TVector2(imguiContext.GetWindowWidth() * 0.4f, iconSize), params.mOnClick, true);
+		imguiContext.Button(isCurrentSelectedPreset ? "##LayoutPresetButton" : text + "##Button", TVector2(imguiContext.GetWindowWidth() * 0.4f, iconSize), params.mOnClick, true);
 
 		imguiContext.SetCursorScreenPos(cursorPos + TVector2(iconSize + 5.0f, 0.0f));
 		imguiContext.Label(text);
@@ -1054,7 +1054,7 @@ namespace TDEngine2
 					{
 						imguiContext.ShowModalWindow(anchorPresetsPopupId);
 					} 
-				});
+				}, true);
 			
 			if (imguiContext.BeginModalWindow(anchorPresetsPopupId, true))
 			{
