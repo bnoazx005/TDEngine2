@@ -295,8 +295,25 @@ namespace TDEngine2
 			
 			if (auto pImGUIContext = pEngineCore->GetSubsystem<IImGUIContext>())
 			{
-				const TVector2& pos = pImGUIContext->GetUIElementPosition(path);
-				CTestContext::Get()->SetMousePosition(TVector3(pos.x, pos.y, 0.0f));				
+				CTestContext::Get()->SetMousePosition(TVector3(pImGUIContext->GetUIElementPosition(path)));
+			}
+		});
+	}
+
+	void CBaseTestCase::SetCursorAtUIElement(const std::function<std::string()>& pathProvider)
+	{
+		if (!pathProvider)
+		{
+			return;
+		}
+
+		ExecuteAction([pathProvider]
+		{
+			auto pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			if (auto pImGUIContext = pEngineCore->GetSubsystem<IImGUIContext>())
+			{
+				CTestContext::Get()->SetMousePosition(TVector3(pImGUIContext->GetUIElementPosition(pathProvider())));
 			}
 		});
 	}
