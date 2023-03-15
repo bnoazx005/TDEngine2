@@ -17,6 +17,7 @@
 #include "../../include/graphics/UI/CLabelComponent.h"
 #include "../../include/graphics/UI/C9SliceImageComponent.h"
 #include "../../include/graphics/UI/GroupLayoutComponents.h"
+#include "../../include/graphics/UI/CToggleComponent.h"
 #include "../../include/graphics/animation/CAnimationContainerComponent.h"
 #include "../../include/graphics/animation/CMeshAnimatorComponent.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
@@ -74,6 +75,7 @@ namespace TDEngine2
 		result = result | editor.RegisterInspector(CLabel::GetTypeId(), DrawLabelGUI);
 		result = result | editor.RegisterInspector(C9SliceImage::GetTypeId(), Draw9SliceImageGUI);
 		result = result | editor.RegisterInspector(CGridGroupLayout::GetTypeId(), DrawGridGroupLayoutGUI);
+		result = result | editor.RegisterInspector(CToggle::GetTypeId(), DrawToggleGUI);
 		result = result | editor.RegisterInspector(CMeshAnimatorComponent::GetTypeId(), DrawMeshAnimatorGUI);
 		result = result | editor.RegisterInspector(CPerspectiveCamera::GetTypeId(), DrawPerspectiveCameraGUI);
 		result = result | editor.RegisterInspector(COrthoCamera::GetTypeId(), DrawOrthographicCameraGUI);
@@ -1453,6 +1455,18 @@ namespace TDEngine2
 
 				imguiContext.EndHorizontal();
 			}
+
+		});
+	}
+
+	void CDefaultInspectorsRegistry::DrawToggleGUI(const TEditorContext& editorContext)
+	{
+		Header("Toggle", editorContext, [](const TEditorContext& editorContext)
+		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
+			CInputReceiver& inputReceiver = dynamic_cast<CInputReceiver&>(component);
 
 		});
 	}

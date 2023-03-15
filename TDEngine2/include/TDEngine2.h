@@ -187,6 +187,7 @@
 #include "graphics/UI/CLabelComponent.h"
 #include "graphics/UI/C9SliceImageComponent.h"
 #include "graphics/UI/GroupLayoutComponents.h"
+#include "graphics/UI/CToggleComponent.h"
 
 /// audio
 #include "audio/IAudioSource.h"

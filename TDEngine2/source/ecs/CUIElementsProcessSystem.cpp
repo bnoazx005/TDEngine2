@@ -1,5 +1,5 @@
 #include "../../include/ecs/CUIElementsProcessSystem.h"
-#include "../../include/ecs/IWorld.h"
+#include "../../include/ecs/CWorld.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/CTransform.h"
 #include "../../include/graphics/UI/CCanvasComponent.h"
@@ -688,6 +688,8 @@ namespace TDEngine2
 		mCanvasesContext         = CreateCanvasesContext(pWorld, checkAndAssignLayoutElements);
 		mGridGroupLayoutsContext = CreateGridGroupLayoutsContext(pWorld, checkAndAssignLayoutElements);
 
+		mTogglesContext = pWorld->CreateLocalComponentsSlice<CToggle, CInputReceiver>();
+
 		mImagesContext       = CreateUIRenderableContext<CImage>(pWorld);
 		mSlicedImagesContext = CreateUIRenderableContext<C9SliceImage>(pWorld);
 		mLabelsContext       = CreateUIRenderableContext<CLabel>(pWorld);
@@ -722,6 +724,34 @@ namespace TDEngine2
 		for (USIZE i = 0; i < gridGroupsContext.mpTransforms.size(); ++i)
 		{
 			UpdateGridGroupLayoutElementData(pWorld, gridGroupsContext, i, layoutElements);
+		}
+	}
+
+
+	static inline void UpdateToggleElements(CUIElementsProcessSystem::TTogglesContext& togglesContext, IWorld* pWorld)
+	{
+		auto&& toggles = std::get<std::vector<CToggle*>>(togglesContext.mComponentsSlice);
+		auto&& inputReceivers = std::get<std::vector<CInputReceiver*>>(togglesContext.mComponentsSlice);
+
+		for (USIZE i = 0; i < togglesContext.mComponentsCount; i++)
+		{
+			CToggle* pCurrToggle = toggles[i];
+			if (!pCurrToggle)
+			{
+				continue;
+			}
+
+			CInputReceiver* pCurrInputReceiver = inputReceivers[i];
+			if (!pCurrInputReceiver)
+			{
+				continue;
+			}
+
+			if (!pCurrInputReceiver->mPrevState && pCurrInputReceiver->mCurrState)
+			{
+				pCurrToggle->SetState(!pCurrToggle->GetState());
+				SetEntityActive(pWorld, pCurrToggle->GetMarkerEntityId(), pCurrToggle->GetState());
+			}
 		}
 	}
 
@@ -818,6 +848,8 @@ namespace TDEngine2
 
 		UpdateGridGroupLayoutElements(mGridGroupLayoutsContext, mLayoutElementsContext, pWorld);
 		DiscardDirtyFlagForElements(mGridGroupLayoutsContext);
+
+		UpdateToggleElements(mTogglesContext, pWorld);
 	}
 
 

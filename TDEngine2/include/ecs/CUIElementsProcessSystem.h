@@ -8,6 +8,9 @@
 
 
 #include "CBaseSystem.h"
+#include "IWorld.h"
+#include "../graphics/UI/CToggleComponent.h"
+#include "../graphics/UI/CInputReceiverComponent.h"
 #include <vector>
 
 
@@ -79,6 +82,8 @@ namespace TDEngine2
 				std::vector<USIZE>           mChildToParentTable;
 				std::vector<TEntityId>       mEntities;
 			};
+
+			typedef TComponentsQueryLocalSlice<CToggle, CInputReceiver> TTogglesContext;
 		public:
 			TDE2_SYSTEM(CUIElementsProcessSystem);
 
@@ -117,6 +122,7 @@ namespace TDEngine2
 			TLayoutElementsContext                     mLayoutElementsContext;
 			TCanvasesContext                           mCanvasesContext;
 			TGridGroupsContext                         mGridGroupLayoutsContext;
+			TTogglesContext                            mTogglesContext;
 
 			TUIRenderableElementsContext<CImage>       mImagesContext;
 			TUIRenderableElementsContext<C9SliceImage> mSlicedImagesContext;

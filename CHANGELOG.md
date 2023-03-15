@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - An overloaded version of **TVector3**'s constructor was added. Now it can be constructed from **TVector2** type.
 
+- A new UI component **CToggle** was added that implements in-game UI checkboxes.
+
 ### Changed
 
 - Breaking changes: Now entities identifiers are generated randomly instead of the monotonically increased fashion. Entities ids within scenes and prefabs aren't changed
