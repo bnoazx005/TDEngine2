@@ -33,6 +33,7 @@
 #include "../../include/editor/ecs/EditorComponents.h"
 #include "../../include/editor/CLevelEditorWindow.h"
 #include "../../include/editor/CEditorActionsManager.h"
+#include "../../include/editor/EditorUtils.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/metadata.h"
 #include <array>
@@ -1466,8 +1467,29 @@ namespace TDEngine2
 			IImGUIContext& imguiContext = editorContext.mImGUIContext;
 			IComponent& component = editorContext.mComponent;
 
-			CInputReceiver& inputReceiver = dynamic_cast<CInputReceiver&>(component);
+			CToggle& toggle = dynamic_cast<CToggle&>(component);
 
+			/// \note State of a toggle
+			{
+				bool isOn = toggle.GetState();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Is On: ");
+
+				if (imguiContext.Checkbox("##state", isOn))
+				{
+					toggle.SetState(isOn);
+				}
+
+				imguiContext.EndHorizontal();
+			}
+
+			{
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Marker Entity: ");
+				CImGUIExtensions::EntityRefField(imguiContext, editorContext.mWorld, Wrench::StringUtils::GetEmptyStr(), toggle.GetMarkerEntityRef());
+				imguiContext.EndHorizontal();
+			}
 		});
 	}
 

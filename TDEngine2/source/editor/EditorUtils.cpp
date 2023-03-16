@@ -144,23 +144,18 @@ namespace TDEngine2
 		\brief CImGUIExtensions's definition
 	*/
 
-	E_RESULT_CODE CImGUIExtensions::EntityRefField(TPtr<IImGUIContext> pImGUIContext, TPtr<IWorld> pWorld, const std::string& text, TEntityId& entityRef, const std::function<void()>& onValueChanged)
+	E_RESULT_CODE CImGUIExtensions::EntityRefField(IImGUIContext& imGUIContext, IWorld& world, const std::string& text, TEntityId& entityRef, const std::function<void()>& onValueChanged)
 	{
-		if (!pImGUIContext || !pWorld)
-		{
-			return RC_INVALID_ARGS;
-		}
-
 		static const std::string InvalidEntityValue = "None";
 
-		CEntity* pEntity = pWorld->FindEntity(entityRef);
+		CEntity* pEntity = world.FindEntity(entityRef);
 		std::string value = pEntity ? pEntity->GetName() : InvalidEntityValue;
 
-		pImGUIContext->TextField(text, value, nullptr, nullptr, false, true);
+		imGUIContext.TextField(text, value, nullptr, nullptr, false, true);
 
-		pImGUIContext->RegisterDragAndDropTarget([pImGUIContext, pWorld, &entityRef, onValueChanged]
+		imGUIContext.RegisterDragAndDropTarget([&imGUIContext, &world, &entityRef, onValueChanged]
 		{
-			if (auto pChildEntityId = pImGUIContext->GetDragAndDropData<TEntityId>("DRAGGED_ENTITY_ID"))
+			if (auto pChildEntityId = imGUIContext.GetDragAndDropData<TEntityId>("DRAGGED_ENTITY_ID"))
 			{
 				entityRef = *pChildEntityId;
 
@@ -174,11 +169,11 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CImGUIExtensions::EntityRefField(TPtr<IImGUIContext> pImGUIContext, TPtr<IWorld> pWorld, const std::string& text, CEntityRef& entityRef, const std::function<void()>& onValueChanged)
+	E_RESULT_CODE CImGUIExtensions::EntityRefField(IImGUIContext& imGUIContext, IWorld& world, const std::string& text, CEntityRef& entityRef, const std::function<void()>& onValueChanged)
 	{
 		TEntityId resolvedRefId = entityRef.Get();
 
-		E_RESULT_CODE result = EntityRefField(pImGUIContext, pWorld, text, resolvedRefId, [onValueChanged, &entityRef, &resolvedRefId]
+		E_RESULT_CODE result = EntityRefField(imGUIContext, world, text, resolvedRefId, [onValueChanged, &entityRef, &resolvedRefId]
 		{
 			if (onValueChanged)
 			{
@@ -189,6 +184,26 @@ namespace TDEngine2
 		});
 
 		return result;
+	}
+
+	E_RESULT_CODE CImGUIExtensions::EntityRefField(TPtr<IImGUIContext> pImGUIContext, TPtr<IWorld> pWorld, const std::string& text, TEntityId& entityRef, const std::function<void()>& onValueChanged)
+	{
+		if (!pImGUIContext || !pWorld)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		return EntityRefField(*pImGUIContext.Get(), *pWorld.Get(), text, entityRef, onValueChanged);
+	}
+
+	E_RESULT_CODE CImGUIExtensions::EntityRefField(TPtr<IImGUIContext> pImGUIContext, TPtr<IWorld> pWorld, const std::string& text, CEntityRef& entityRef, const std::function<void()>& onValueChanged)
+	{
+		if (!pImGUIContext || !pWorld)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		return EntityRefField(*pImGUIContext.Get(), *pWorld.Get(), text, entityRef, onValueChanged);
 	}
 }
 
