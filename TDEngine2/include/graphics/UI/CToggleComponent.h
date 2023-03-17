@@ -77,17 +77,14 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
 			void SetState(bool state);
+			void SetMarkerEntityId(TEntityId markerId);
 
 			bool GetState() const;
 			TEntityId GetMarkerEntityId() const;
-
-#if TDE2_EDITORS_ENABLED
-			CEntityRef& GetMarkerEntityRef();
-#endif
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CToggle)
 		protected:
-			mutable CEntityRef mMarkerEntityRef;
+			TEntityId mMarkerEntityRef;
 			bool mCurrState = true;
 	};
 

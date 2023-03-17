@@ -93,6 +93,10 @@ namespace TDEngine2
 				entitiesToVisit.pop();
 
 				pEntity = pWorld->FindEntity(currEntityId);
+				if (pEntity->HasComponent<CDeactivatedComponent>() || pEntity->HasComponent<CDeactivatedGroupComponent>())
+				{
+					continue;
+				}
 
 				if (pEntity->HasComponent<CUIElementMeshData>())
 				{

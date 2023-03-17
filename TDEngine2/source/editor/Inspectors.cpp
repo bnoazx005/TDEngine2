@@ -1485,9 +1485,16 @@ namespace TDEngine2
 			}
 
 			{
+				TEntityId currMarkerEntityId = toggle.GetMarkerEntityId();
+
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Marker Entity: ");
-				CImGUIExtensions::EntityRefField(imguiContext, editorContext.mWorld, Wrench::StringUtils::GetEmptyStr(), toggle.GetMarkerEntityRef());
+				
+				CImGUIExtensions::EntityRefField(imguiContext, editorContext.mWorld, Wrench::StringUtils::GetEmptyStr(), currMarkerEntityId, [&currMarkerEntityId, &toggle]
+				{
+					toggle.SetMarkerEntityId(currMarkerEntityId);
+				});
+
 				imguiContext.EndHorizontal();
 			}
 		});

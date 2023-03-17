@@ -1,0 +1,88 @@
+entities: 
+  - entity: 
+      components: 
+        - component: 
+            Children: 
+              - child_id: 454949978
+            owner_id: 1750459074
+            parent_id: 4294967295
+            position: 
+              x: 428.000000
+              y: 301.000000
+            rotation: 
+              w: 1.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            color: 
+              a: 0.392157
+              b: 1.000000
+              g: 1.000000
+              r: 1.000000
+            sprite_id: DefaultResources/Textures/DefaultUIWhite_Sprite.png
+            type_id: 2844726091
+        - component: 
+            ignore_input: 0
+            type_id: 751163885
+        - component: 
+            max_anchor: 
+              x: 0.000000
+            max_offset: 
+              x: 35.000000
+              y: 35.000000
+            min_anchor: 
+              x: 0.000000
+            min_offset: 
+              x: 428.000000
+              y: 301.000000
+            pivot: 
+              x: 0.000000
+            type_id: 2172495824
+        - component: 
+            state: 1
+            marker_entity_ref: 454949978
+            type_id: 4114724906
+        - component: 
+            type_id: 1930024581
+      id: 1750459074
+      name: Checkbox
+  - entity: 
+      components: 
+        - component: 
+            color: 
+              a: 1.000000
+            sprite_id: DefaultResources/Textures/DefaultUIWhite_Sprite.png
+            type_id: 2844726091
+        - component: 
+            owner_id: 454949978
+            parent_id: 1750459074
+            position: 
+              x: 433.000000
+              y: 306.000000
+            rotation: 
+              w: 1.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            max_anchor: 
+              x: 1.000000
+              y: 1.000000
+            max_offset: 
+              x: 5.000000
+              y: 5.000000
+            min_anchor: 
+              x: 0.000000
+            min_offset: 
+              x: 5.000000
+              y: 5.000000
+            pivot: 
+              x: 0.000000
+            type_id: 2172495824
+      id: 454949978
+      name: Marker

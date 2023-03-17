@@ -728,7 +728,7 @@ namespace TDEngine2
 	}
 
 
-	static inline void UpdateToggleElements(CUIElementsProcessSystem::TTogglesContext& togglesContext, IWorld* pWorld)
+	static inline void UpdateToggleElements(CUIElementsProcessSystem::TTogglesContext& togglesContext, IWorld* pWorld, ISystem* pSystem)
 	{
 		auto&& toggles = std::get<std::vector<CToggle*>>(togglesContext.mComponentsSlice);
 		auto&& inputReceivers = std::get<std::vector<CInputReceiver*>>(togglesContext.mComponentsSlice);
@@ -750,7 +750,11 @@ namespace TDEngine2
 			if (!pCurrInputReceiver->mPrevState && pCurrInputReceiver->mCurrState)
 			{
 				pCurrToggle->SetState(!pCurrToggle->GetState());
-				SetEntityActive(pWorld, pCurrToggle->GetMarkerEntityId(), pCurrToggle->GetState());
+
+				pSystem->AddDefferedCommand([pWorld, pCurrToggle]
+				{
+					SetEntityActive(pWorld, pCurrToggle->GetMarkerEntityId(), pCurrToggle->GetState());
+				});
 			}
 		}
 	}
@@ -849,7 +853,7 @@ namespace TDEngine2
 		UpdateGridGroupLayoutElements(mGridGroupLayoutsContext, mLayoutElementsContext, pWorld);
 		DiscardDirtyFlagForElements(mGridGroupLayoutsContext);
 
-		UpdateToggleElements(mTogglesContext, pWorld);
+		UpdateToggleElements(mTogglesContext, pWorld, this);
 	}
 
 

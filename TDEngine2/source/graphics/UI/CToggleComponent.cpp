@@ -26,7 +26,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mMarkerEntityRef = LoadEntityRef(pReader, TToggleArchiveKeys::mMarkerEntityRefKey);
+		mMarkerEntityRef = static_cast<TEntityId>(pReader->GetUInt32(TToggleArchiveKeys::mMarkerEntityRefKey));
 		mCurrState = pReader->GetBool(TToggleArchiveKeys::mStateKey);
 
 		return RC_OK;
@@ -43,8 +43,7 @@ namespace TDEngine2
 		{
 			pWriter->SetUInt32("type_id", static_cast<U32>(CToggle::GetTypeId()));
 
-			SaveEntityRef(pWriter, TToggleArchiveKeys::mMarkerEntityRefKey, mMarkerEntityRef);
-			
+			pWriter->SetUInt32(TToggleArchiveKeys::mMarkerEntityRefKey, static_cast<U32>(mMarkerEntityRef));			
 			pWriter->SetBool(TToggleArchiveKeys::mStateKey, mCurrState);
 		}
 		pWriter->EndGroup();
@@ -54,7 +53,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CToggle::PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper)
 	{
-		mMarkerEntityRef.SetEntityManager(pEntityManager);
+		mMarkerEntityRef = entitiesIdentifiersRemapper.Resolve(mMarkerEntityRef);
 
 		return CBaseComponent::PostLoad(pEntityManager, entitiesIdentifiersRemapper);
 	}
@@ -76,6 +75,11 @@ namespace TDEngine2
 		mCurrState = state;
 	}
 
+	void CToggle::SetMarkerEntityId(TEntityId markerId)
+	{
+		mMarkerEntityRef = markerId;
+	}
+
 	bool CToggle::GetState() const
 	{
 		return mCurrState;
@@ -83,17 +87,8 @@ namespace TDEngine2
 
 	TEntityId CToggle::GetMarkerEntityId() const
 	{
-		return mMarkerEntityRef.Get();
-	}
-
-#if TDE2_EDITORS_ENABLED
-	
-	CEntityRef& CToggle::GetMarkerEntityRef()
-	{
 		return mMarkerEntityRef;
 	}
-
-#endif
 
 
 	IComponent* CreateToggle(E_RESULT_CODE& result)
