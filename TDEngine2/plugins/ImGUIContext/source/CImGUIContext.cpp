@@ -811,7 +811,7 @@ namespace TDEngine2
 		const bool result = ImGui::Selectable(id.c_str(), isSelected, shouldClosePopup ? 0x0 : ImGuiSelectableFlags_DontClosePopups);
 		_prepareLayout();
 
-		return result;
+		return result || ImGui::IsItemClicked(1);
 	}
 
 	bool CImGUIContext::SelectableItem(const std::string& id, const TColor32F& color, bool isSelected, bool shouldClosePopup)
@@ -827,7 +827,7 @@ namespace TDEngine2
 	{
 		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(color.r, color.g, color.b, color.a));
 
-		auto&& result = std::tuple<bool, bool>{ ImGui::TreeNodeEx(id.c_str(), isSelected ? ImGuiTreeNodeFlags_Selected : 0x0), ImGui::IsItemClicked() };
+		auto&& result = std::tuple<bool, bool>{ ImGui::TreeNodeEx(id.c_str(), isSelected ? ImGuiTreeNodeFlags_Selected : 0x0), ImGui::IsItemClicked() || ImGui::IsItemClicked(1) };
 		_prepareLayout();
 
 		ImGui::PopStyleColor();
