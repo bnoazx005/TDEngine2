@@ -44,9 +44,9 @@ TDE2_TEST_FIXTURE("EntitiesOperationsTests")
 			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
 			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
 
-			TDE2_TEST_IS_TRUE(RC_OK == CEntitiesCommands::CopyEntitiesHierarchy(pSceneManager->GetPrefabsRegistry(), pSceneManager->GetWorld(), pParentEntity->GetId()));
+			TDE2_TEST_IS_TRUE(RC_OK == CSceneHierarchyUtils::CopyEntitiesHierarchy(pSceneManager->GetPrefabsRegistry(), pSceneManager->GetWorld(), pParentEntity->GetId()));
 			
-			TDE2_TEST_IS_TRUE(CEntitiesCommands::PasteEntitiesHierarchy(
+			TDE2_TEST_IS_TRUE(CSceneHierarchyUtils::PasteEntitiesHierarchy(
 				pSceneManager->GetPrefabsRegistry(), 
 				pSceneManager->GetWorld(), 
 				pSceneManager->GetScene(MainScene).Get(),
@@ -92,9 +92,9 @@ TDE2_TEST_FIXTURE("EntitiesOperationsTests")
 			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
 			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
 
-			TDE2_TEST_IS_TRUE(RC_OK == CEntitiesCommands::CopyEntitiesHierarchy(pSceneManager->GetPrefabsRegistry(), pSceneManager->GetWorld(), pParentEntity->GetId()));
+			TDE2_TEST_IS_TRUE(RC_OK == CSceneHierarchyUtils::CopyEntitiesHierarchy(pSceneManager->GetPrefabsRegistry(), pSceneManager->GetWorld(), pParentEntity->GetId()));
 
-			TDE2_TEST_IS_TRUE(CEntitiesCommands::PasteEntitiesHierarchy(
+			TDE2_TEST_IS_TRUE(CSceneHierarchyUtils::PasteEntitiesHierarchy(
 				pSceneManager->GetPrefabsRegistry(),
 				pSceneManager->GetWorld(),
 				pSceneManager->GetScene(MainScene).Get(),
@@ -130,9 +130,9 @@ TDE2_TEST_FIXTURE("EntitiesOperationsTests")
 			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
 			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
 
-			TDE2_TEST_IS_TRUE(RC_OK == CEntitiesCommands::CopyEntitiesHierarchy(pSceneManager->GetPrefabsRegistry(), pSceneManager->GetWorld(), pPrefabEntity->GetId()));
+			TDE2_TEST_IS_TRUE(RC_OK == CSceneHierarchyUtils::CopyEntitiesHierarchy(pSceneManager->GetPrefabsRegistry(), pSceneManager->GetWorld(), pPrefabEntity->GetId()));
 
-			TDE2_TEST_IS_TRUE(CEntitiesCommands::PasteEntitiesHierarchy(
+			TDE2_TEST_IS_TRUE(CSceneHierarchyUtils::PasteEntitiesHierarchy(
 				pSceneManager->GetPrefabsRegistry(),
 				pSceneManager->GetWorld(),
 				pSceneManager->GetScene(MainScene).Get(),
@@ -173,9 +173,9 @@ TDE2_TEST_FIXTURE("EntitiesOperationsTests")
 			TDE2_TEST_IS_TRUE(!sceneEntities.empty());
 
 			/// \note Copy the first entity because of it's a root
-			TDE2_TEST_IS_TRUE(RC_OK == CEntitiesCommands::CopyEntitiesHierarchy(pSceneManager->GetPrefabsRegistry(), pSceneManager->GetWorld(), sceneEntities.front()));
+			TDE2_TEST_IS_TRUE(RC_OK == CSceneHierarchyUtils::CopyEntitiesHierarchy(pSceneManager->GetPrefabsRegistry(), pSceneManager->GetWorld(), sceneEntities.front()));
 
-			TDE2_TEST_IS_TRUE(CEntitiesCommands::PasteEntitiesHierarchy(
+			TDE2_TEST_IS_TRUE(CSceneHierarchyUtils::PasteEntitiesHierarchy(
 				pSceneManager->GetPrefabsRegistry(),
 				pSceneManager->GetWorld(),
 				pTestScene,

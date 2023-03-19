@@ -191,34 +191,25 @@ namespace TDEngine2
 	}
 
 
-	static void PasteEntityImpl(ISceneManager* pSceneManager, ISelectionManager* pSelectionManager, TPtr<IWorld> pWorld, IScene* pCurrScene)
+	static void DrawCreateMenuGroup(IImGUIContext& imguiContext, TPtr<IWorld> pWorld, ISelectionManager* pSelectionManager, IScene* pCurrScene, TEntityId parentEntityId)
 	{
-		/// \todo For now only single selected entity's paste is supported
-		auto pastedEntityResult = CEntitiesCommands::PasteEntitiesHierarchy(pSceneManager->GetPrefabsRegistry(), pWorld, pCurrScene, TEntityId::Invalid);
-		if (pastedEntityResult.IsOk())
+		auto updateSelection = [pSelectionManager](TEntityId createdEntityId) { pSelectionManager->SetSelectedEntity(createdEntityId); };
+
+		imguiContext.MenuGroup("Create", [&](auto&&)
 		{
-			pSelectionManager->SetSelectedEntity(pastedEntityResult.Get());
-		}
-	}
-
-
-	static void CreateNewEntity(ISelectionManager* pSelectionManager, TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentId = TEntityId::Invalid)
-	{
-		if (!pCurrScene)
-		{
-			return;
-		}
-
-		/// \note Also a new created entity becomes selected at the same time
-		if (CEntity* pEntity = pCurrScene->CreateEntity("NewEntity"))
-		{
-			pSelectionManager->SetSelectedEntity(pEntity->GetId());
-
-			if (TEntityId::Invalid != parentId)
+			imguiContext.MenuItem("New Entity", Wrench::StringUtils::GetEmptyStr(), [=]
 			{
-				GroupEntities(pWorld.Get(), parentId, pEntity->GetId());
-			}
-		}
+				CSceneHierarchyUtils::CreateNewEntity(pWorld, pCurrScene, pSelectionManager->GetSelectedEntityId(), updateSelection);
+			});
+
+			imguiContext.MenuGroup("UI", [&](auto&&)
+			{
+				imguiContext.MenuItem("Toggle", Wrench::StringUtils::GetEmptyStr(), [=]
+				{
+					CSceneHierarchyUtils::CreateToggleUIElement(pWorld, pCurrScene, pSelectionManager->GetSelectedEntityId(), updateSelection);
+				});
+			});
+		});
 	}
 
 
@@ -230,20 +221,21 @@ namespace TDEngine2
 		auto&& copyEntitiesHierarchy = [=]
 		{
 			/// \todo For now only single selected entity's copy is supported
-			CEntitiesCommands::CopyEntitiesHierarchy(desc.mBase.mpSceneManager->GetPrefabsRegistry(), pWorld, pSelectionManager->GetSelectedEntityId());
+			CSceneHierarchyUtils::CopyEntitiesHierarchy(desc.mBase.mpSceneManager->GetPrefabsRegistry(), pWorld, pSelectionManager->GetSelectedEntityId());
 		};
 
 		auto&& pasteEntitiesHierarchy = [=]
 		{
-			PasteEntityImpl(desc.mBase.mpSceneManager, pSelectionManager, pWorld, desc.mBase.mpCurrScene);
+			CSceneHierarchyUtils::PasteEntitiesHierarchy(desc.mBase.mpSceneManager->GetPrefabsRegistry(), pWorld, desc.mBase.mpCurrScene, TEntityId::Invalid,
+				[pSelectionManager](TEntityId id)
+			{
+				pSelectionManager->SetSelectedEntity(id);
+			});
 		};
 
 		pImGUIContext->DisplayContextMenu(EntityContextMenuId, [=](IImGUIContext& imguiContext)
 		{
-			imguiContext.MenuItem("Create New Entity", Wrench::StringUtils::GetEmptyStr(), [pSelectionManager, pWorld, pCurrScene = desc.mBase.mpCurrScene]
-			{
-				CreateNewEntity(pSelectionManager, pWorld, pCurrScene, pSelectionManager->GetSelectedEntityId());
-			});
+			DrawCreateMenuGroup(imguiContext, pWorld, pSelectionManager, desc.mBase.mpCurrScene, pSelectionManager->GetSelectedEntityId());
 
 			imguiContext.MenuItem("Delete", "Del", [&desc, pWorld, pSelectionManager]
 			{
@@ -409,11 +401,8 @@ namespace TDEngine2
 #endif
 						});
 
-						imguiContext.MenuItem("Create New Entity", Wrench::StringUtils::GetEmptyStr(), [this, pCurrScene, pWorld]
-						{
-							CreateNewEntity(mpSelectionManager, pWorld, pCurrScene);
-						});
-
+						DrawCreateMenuGroup(imguiContext, pWorld, mpSelectionManager, pCurrScene, mpSelectionManager->GetSelectedEntityId());
+						
 						imguiContext.MenuItem("Load Prefab", Wrench::StringUtils::GetEmptyStr(), [this, pCurrScene]
 						{
 							mpSelectionManager->ClearSelection(); /// \note Clear the selected entities list because the prefab will be instantiated into the root of the scene
@@ -422,7 +411,10 @@ namespace TDEngine2
 
 						imguiContext.MenuItem("Paste", Wrench::StringUtils::GetEmptyStr(), [=]
 						{
-							PasteEntityImpl(mpSceneManager, mpSelectionManager, pWorld, pCurrScene);
+							CSceneHierarchyUtils::PasteEntitiesHierarchy(mpSceneManager->GetPrefabsRegistry(), pWorld, pCurrScene, TEntityId::Invalid, [this](TEntityId id)
+							{
+								mpSelectionManager->SetSelectedEntity(id);
+							});
 						});
 					});
 

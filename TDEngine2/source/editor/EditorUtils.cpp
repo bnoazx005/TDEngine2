@@ -45,7 +45,7 @@ namespace TDEngine2
 	}
 
 
-	E_RESULT_CODE CEntitiesCommands::CopyEntitiesHierarchy(TPtr<IPrefabsRegistry> pPrefabsRegistry, TPtr<IWorld> pWorld, TEntityId entityId)
+	E_RESULT_CODE CSceneHierarchyUtils::CopyEntitiesHierarchy(TPtr<IPrefabsRegistry> pPrefabsRegistry, TPtr<IWorld> pWorld, TEntityId entityId)
 	{
 		E_RESULT_CODE result = RC_OK;
 
@@ -82,7 +82,7 @@ namespace TDEngine2
 		return RC_FAIL;
 	}
 
-	TResult<TEntityId> CEntitiesCommands::PasteEntitiesHierarchy(TPtr<IPrefabsRegistry> pPrefabsRegistry, TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId)
+	TResult<TEntityId> CSceneHierarchyUtils::PasteEntitiesHierarchy(TPtr<IPrefabsRegistry> pPrefabsRegistry, TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op)
 	{
 		if (!pPrefabsRegistry || !pWorld)
 		{
@@ -136,7 +136,37 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
+		op(duplicateRootEntityInfo.mRootEntityId);
+
 		return Wrench::TOkValue<TEntityId>(duplicateRootEntityInfo.mRootEntityId);
+	}
+
+	TResult<TEntityId> CSceneHierarchyUtils::CreateNewEntity(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op)
+	{
+		if (!pWorld || !pCurrScene)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+		}
+
+		/// \note Also a new created entity becomes selected at the same time
+		if (CEntity* pEntity = pCurrScene->CreateEntity("NewEntity"))
+		{
+			if (TEntityId::Invalid != parentEntityId)
+			{
+				GroupEntities(pWorld.Get(), parentEntityId, pEntity->GetId());
+			}
+
+			op(pEntity->GetId());
+
+			return Wrench::TOkValue<TEntityId>(pEntity->GetId());
+		}
+
+		return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+	}
+
+	TResult<TEntityId> CSceneHierarchyUtils::CreateToggleUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op)
+	{
+		return Wrench::TOkValue<TEntityId>(TEntityId::Invalid);
 	}
 
 

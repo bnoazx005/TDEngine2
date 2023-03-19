@@ -36,11 +36,16 @@ namespace TDEngine2
 	TDE2_API void DrawEditorGrid(IDebugUtility* pDebugUtility, I32 rows, I32 cols, F32 cellSize = 1.0f);
 
 
-	class CEntitiesCommands
+	class CSceneHierarchyUtils
 	{
 		public:
+			typedef std::function<void(TEntityId)> TEntityOperation;
+		public:
 			TDE2_API static E_RESULT_CODE CopyEntitiesHierarchy(TPtr<IPrefabsRegistry> pPrefabsRegistry, TPtr<IWorld> pWorld, TEntityId entityId);
-			TDE2_API static TResult<TEntityId> PasteEntitiesHierarchy(TPtr<IPrefabsRegistry> pPrefabsRegistry, TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId);
+			TDE2_API static TResult<TEntityId> PasteEntitiesHierarchy(TPtr<IPrefabsRegistry> pPrefabsRegistry, TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
+
+			TDE2_API static TResult<TEntityId> CreateNewEntity(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
+			TDE2_API static TResult<TEntityId> CreateToggleUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
 	};
 
 
