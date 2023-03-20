@@ -1403,6 +1403,15 @@ namespace TDEngine2
 				imguiContext.FloatSlider("##yEnd", yEnd, 0.0f, 1.0f, [&yEnd, &slicedImage] { slicedImage.SetTopYSlicer(yEnd); });
 				imguiContext.EndHorizontal();
 			}
+
+			{
+				TColor32F color = slicedImage.GetColor();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Color: ");
+				imguiContext.ColorPickerField("##ImageId", color, [&slicedImage, &color]() { slicedImage.SetColor(color); });
+				imguiContext.EndHorizontal();
+			}
 		});
 	}
 

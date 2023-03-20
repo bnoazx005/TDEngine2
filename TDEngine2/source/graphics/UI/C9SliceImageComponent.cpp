@@ -19,6 +19,8 @@ namespace TDEngine2
 		static const std::string mTopSliceKey;
 
 		static const std::string mMarginKey;
+
+		static const std::string mColorKey;
 	};
 
 
@@ -30,6 +32,8 @@ namespace TDEngine2
 	const std::string T9SliceImageArchiveKeys::mTopSliceKey = "top_slice";
 
 	const std::string T9SliceImageArchiveKeys::mMarginKey = "margin";
+
+	const std::string T9SliceImageArchiveKeys::mColorKey = "color";
 
 
 	E_RESULT_CODE C9SliceImage::Load(IArchiveReader* pReader)
@@ -47,6 +51,15 @@ namespace TDEngine2
 		mXEnd   = pReader->GetFloat(T9SliceImageArchiveKeys::mRightSliceKey);
 		mYStart = pReader->GetFloat(T9SliceImageArchiveKeys::mBottomSliceKey);
 		mYEnd   = pReader->GetFloat(T9SliceImageArchiveKeys::mTopSliceKey);
+
+		pReader->BeginGroup(T9SliceImageArchiveKeys::mColorKey);
+
+		if (auto colorLoadResult = LoadColor32F(pReader))
+		{
+			mColor = colorLoadResult.Get();
+		}
+
+		pReader->EndGroup();
 
 		return RC_OK;
 	}
@@ -70,6 +83,10 @@ namespace TDEngine2
 			pWriter->SetFloat(T9SliceImageArchiveKeys::mRightSliceKey, mXEnd);
 			pWriter->SetFloat(T9SliceImageArchiveKeys::mBottomSliceKey, mYStart);
 			pWriter->SetFloat(T9SliceImageArchiveKeys::mTopSliceKey, mYEnd);
+
+			pWriter->BeginGroup(T9SliceImageArchiveKeys::mColorKey);
+			SaveColor32F(pWriter, mColor);
+			pWriter->EndGroup();
 		}
 		pWriter->EndGroup();
 
@@ -148,6 +165,11 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	void C9SliceImage::SetColor(const TColor32F& value)
+	{
+		mColor = value;
+	}
+
 	const std::string& C9SliceImage::GetImageId() const
 	{
 		return mImageSpriteId;
@@ -182,6 +204,12 @@ namespace TDEngine2
 	{
 		return mRelativeBorderSize;
 	}
+
+	const TColor32F& C9SliceImage::GetColor() const
+	{
+		return mColor;
+	}
+
 
 	IComponent* Create9SliceImage(E_RESULT_CODE& result)
 	{

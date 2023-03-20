@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A new UI component **CToggle** was added that implements in-game UI checkboxes.
 
+- Now **9ImageSlice** component can specify its color.
+
 ### Changed
 
 - Breaking changes: Now entities identifiers are generated randomly instead of the monotonically increased fashion. Entities ids within scenes and prefabs aren't changed

@@ -179,7 +179,7 @@ namespace TDEngine2
 	}
 
 	
-	static void Setup9ImageSliceComponent(CEntity* pEntity, const std::string& imageId)
+	static void Setup9ImageSliceComponent(CEntity* pEntity, const std::string& imageId, const TColor32F& color = TColorUtils::mWhite)
 	{
 		auto pImage = pEntity->AddComponent<C9SliceImage>();
 		if (!pImage)
@@ -192,6 +192,7 @@ namespace TDEngine2
 		pImage->SetRightXSlicer(0.75f);
 		pImage->SetBottomYSlicer(0.25f);
 		pImage->SetTopYSlicer(0.75f);
+		pImage->SetColor(color);
 	}
 
 
@@ -227,7 +228,7 @@ namespace TDEngine2
 					pLayoutElement->SetMaxOffset(TVector2(5.0f));
 				}
 
-				Setup9ImageSliceComponent(pMarkerEntity, DefaultSpritePathId);
+				Setup9ImageSliceComponent(pMarkerEntity, DefaultSpritePathId, TColorUtils::mBlack);
 			}
 
 			if (auto pToggle = pToggleEntity->AddComponent<CToggle>())

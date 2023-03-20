@@ -10,6 +10,7 @@
 #include "../../ecs/CBaseComponent.h"
 #include "../../math/TVector2.h"
 #include "../../math/TRect.h"
+#include "../../utils/Color.h"
 
 
 namespace TDEngine2
@@ -86,6 +87,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE SetRelativeBorderSize(F32 value);
 
+			TDE2_API void SetColor(const TColor32F& value);
+
 			TDE2_API const std::string& GetImageId() const;
 			TDE2_API TResourceId GetImageResourceId() const;
 
@@ -95,6 +98,8 @@ namespace TDEngine2
 			TDE2_API F32 GetTopYSlicer() const;
 
 			TDE2_API F32 GetRelativeBorderSize() const;
+
+			TDE2_API const TColor32F& GetColor() const;
 
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(C9SliceImage)
@@ -106,6 +111,8 @@ namespace TDEngine2
 			F32         mYStart = 0.0f, mYEnd = 1.0f;
 
 			F32         mRelativeBorderSize = 0.1f;
+
+			TColor32F   mColor;
 	};
 
 

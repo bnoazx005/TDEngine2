@@ -343,12 +343,13 @@ namespace TDEngine2
 			uvCoordsRect.y,
 		};
 
-		/// \todo Add support of specifying color data
+		const auto& color = pSlicedImageData->GetColor();
+
 		for (USIZE i = 0; i < 4; ++i)
 		{
 			for (USIZE j = 0; j < 4; ++j)
 			{
-				pUIElementMeshData->AddVertex({ TVector4(horizontalRectCoords[j], verticalRectCoords[i], horizontalUvCoords[j], verticalUvCoords[i]), TColorUtils::mWhite });
+				pUIElementMeshData->AddVertex({ TVector4(horizontalRectCoords[j], verticalRectCoords[i], horizontalUvCoords[j], verticalUvCoords[i]), color });
 			}
 		}
 
