@@ -5,6 +5,10 @@
 #include "../../include/platform/CYAMLFile.h"
 #include "../../include/scene/IPrefabsRegistry.h"
 #include "../../include/scene/IScene.h"
+#include "../../include/graphics/UI/CLayoutElementComponent.h"
+#include "../../include/graphics/UI/CInputReceiverComponent.h"
+#include "../../include/graphics/UI/CToggleComponent.h"
+#include "../../include/graphics/UI/C9SliceImageComponent.h"
 #include "../../include/core/IImGUIContext.h"
 #include <clip.h>
 
@@ -43,6 +47,9 @@ namespace TDEngine2
 		pDebugUtility->DrawLine(TVector3(-halfWidth, 0.0f, 0.0f), TVector3(halfWidth, 0.0f, 0.0f), TColorUtils::mRed);
 		pDebugUtility->DrawLine(TVector3(0.0f, 0.0f, -halfHeight), TVector3(0.0f, 0.0f, halfHeight), TColorUtils::mRed);
 	}
+
+
+	static const std::string DefaultSpritePathId = "ProjectResources/Textures/DefaultSprite.tga";
 
 
 	E_RESULT_CODE CSceneHierarchyUtils::CopyEntitiesHierarchy(TPtr<IPrefabsRegistry> pPrefabsRegistry, TPtr<IWorld> pWorld, TEntityId entityId)
@@ -141,7 +148,8 @@ namespace TDEngine2
 		return Wrench::TOkValue<TEntityId>(duplicateRootEntityInfo.mRootEntityId);
 	}
 
-	TResult<TEntityId> CSceneHierarchyUtils::CreateNewEntity(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op)
+
+	static TResult<TEntityId> CreateNewEntityInternal(const std::string& id, TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const CSceneHierarchyUtils::TEntityOperation& op)
 	{
 		if (!pWorld || !pCurrScene)
 		{
@@ -149,7 +157,7 @@ namespace TDEngine2
 		}
 
 		/// \note Also a new created entity becomes selected at the same time
-		if (CEntity* pEntity = pCurrScene->CreateEntity("NewEntity"))
+		if (CEntity* pEntity = pCurrScene->CreateEntity(id))
 		{
 			if (TEntityId::Invalid != parentEntityId)
 			{
@@ -164,9 +172,73 @@ namespace TDEngine2
 		return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 	}
 
+
+	TResult<TEntityId> CSceneHierarchyUtils::CreateNewEntity(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op)
+	{
+		return CreateNewEntityInternal("NewEntity", pWorld, pCurrScene, parentEntityId, op);
+	}
+
+	
+	static void Setup9ImageSliceComponent(CEntity* pEntity, const std::string& imageId)
+	{
+		auto pImage = pEntity->AddComponent<C9SliceImage>();
+		if (!pImage)
+		{
+			return;
+		}
+
+		pImage->SetImageId(imageId);
+		pImage->SetLeftXSlicer(0.25f);
+		pImage->SetRightXSlicer(0.75f);
+		pImage->SetBottomYSlicer(0.25f);
+		pImage->SetTopYSlicer(0.75f);
+	}
+
+
 	TResult<TEntityId> CSceneHierarchyUtils::CreateToggleUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op)
 	{
-		return Wrench::TOkValue<TEntityId>(TEntityId::Invalid);
+		auto rootEntityResult = CreateNewEntityInternal("Toggle", pWorld, pCurrScene, parentEntityId, op);
+		if (rootEntityResult.HasError())
+		{
+			return rootEntityResult;
+		}
+
+		if (auto pToggleEntity = pWorld->FindEntity(rootEntityResult.Get()))
+		{
+			pToggleEntity->AddComponent<CInputReceiver>();
+			
+			if (auto pLayoutElement = pToggleEntity->AddComponent<CLayoutElement>())
+			{
+				pLayoutElement->SetMinAnchor(ZeroVector2);
+				pLayoutElement->SetMaxAnchor(ZeroVector2);
+				pLayoutElement->SetMinOffset(ZeroVector2);
+				pLayoutElement->SetMaxOffset(TVector2(35.0f));
+			}
+			
+			Setup9ImageSliceComponent(pToggleEntity, DefaultSpritePathId);
+
+			auto pMarkerEntity = pCurrScene->CreateEntity("Marker");
+			{
+				if (auto pLayoutElement = pMarkerEntity->AddComponent<CLayoutElement>())
+				{
+					pLayoutElement->SetMinAnchor(ZeroVector2);
+					pLayoutElement->SetMaxAnchor(TVector2(1.0f));
+					pLayoutElement->SetMinOffset(TVector2(5.0f));
+					pLayoutElement->SetMaxOffset(TVector2(5.0f));
+				}
+
+				Setup9ImageSliceComponent(pMarkerEntity, DefaultSpritePathId);
+			}
+
+			if (auto pToggle = pToggleEntity->AddComponent<CToggle>())
+			{
+				pToggle->SetMarkerEntityId(pMarkerEntity->GetId());
+			}
+
+			GroupEntities(pWorld.Get(), pToggleEntity->GetId(), pMarkerEntity->GetId());
+		}
+
+		return rootEntityResult;
 	}
 
 
