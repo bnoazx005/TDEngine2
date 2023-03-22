@@ -207,6 +207,11 @@ namespace TDEngine2
 				imguiContext.MenuItem("Toggle", Wrench::StringUtils::GetEmptyStr(), [=]
 				{
 					CSceneHierarchyUtils::CreateToggleUIElement(pWorld, pCurrScene, pSelectionManager->GetSelectedEntityId(), updateSelection);
+				}); 
+				
+				imguiContext.MenuItem("Slider", Wrench::StringUtils::GetEmptyStr(), [=]
+				{
+					CSceneHierarchyUtils::CreateSliderUIElement(pWorld, pCurrScene, pSelectionManager->GetSelectedEntityId(), updateSelection);
 				});
 			});
 		});

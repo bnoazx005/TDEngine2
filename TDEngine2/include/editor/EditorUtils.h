@@ -46,6 +46,7 @@ namespace TDEngine2
 
 			TDE2_API static TResult<TEntityId> CreateNewEntity(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
 			TDE2_API static TResult<TEntityId> CreateToggleUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
+			TDE2_API static TResult<TEntityId> CreateSliderUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
 	};
 
 

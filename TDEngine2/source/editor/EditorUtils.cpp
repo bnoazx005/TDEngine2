@@ -9,6 +9,7 @@
 #include "../../include/graphics/UI/CInputReceiverComponent.h"
 #include "../../include/graphics/UI/CToggleComponent.h"
 #include "../../include/graphics/UI/C9SliceImageComponent.h"
+#include "../../include/graphics/UI/CUISliderComponent.h"
 #include "../../include/core/IImGUIContext.h"
 #include <clip.h>
 
@@ -237,6 +238,55 @@ namespace TDEngine2
 			}
 
 			GroupEntities(pWorld.Get(), pToggleEntity->GetId(), pMarkerEntity->GetId());
+		}
+
+		return rootEntityResult;
+	}
+
+	TResult<TEntityId> CSceneHierarchyUtils::CreateSliderUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op)
+	{
+		static constexpr F32 sliderHeight = 15.0f;
+
+		auto rootEntityResult = CreateNewEntityInternal("Slider", pWorld, pCurrScene, parentEntityId, op);
+		if (rootEntityResult.HasError())
+		{
+			return rootEntityResult;
+		}
+
+		if (auto pSliderEntity = pWorld->FindEntity(rootEntityResult.Get()))
+		{
+			pSliderEntity->AddComponent<CInputReceiver>();
+
+			if (auto pLayoutElement = pSliderEntity->AddComponent<CLayoutElement>())
+			{
+				pLayoutElement->SetMinAnchor(ZeroVector2);
+				pLayoutElement->SetMaxAnchor(ZeroVector2);
+				pLayoutElement->SetMinOffset(ZeroVector2);
+				pLayoutElement->SetMaxOffset(TVector2(100.0f, sliderHeight));
+			}
+
+			Setup9ImageSliceComponent(pSliderEntity, DefaultSpritePathId, TColor32F(0.35f));
+
+			auto pMarkerEntity = pCurrScene->CreateEntity("Marker");
+			{
+				if (auto pLayoutElement = pMarkerEntity->AddComponent<CLayoutElement>())
+				{
+					pLayoutElement->SetMinAnchor(ZeroVector2);
+					pLayoutElement->SetMaxAnchor(ZeroVector2);
+					pLayoutElement->SetMinOffset(ZeroVector2);
+					pLayoutElement->SetMaxOffset(TVector2(sliderHeight + 4.0f));
+				}
+
+				Setup9ImageSliceComponent(pMarkerEntity, DefaultSpritePathId, TColorUtils::mWhite);
+			}
+
+			if (auto pSlider = pSliderEntity->AddComponent<CUISlider>())
+			{
+				pSlider->SetMarkerEntityId(pMarkerEntity->GetId());
+				pSlider->SetValue(0.5f);
+			}
+
+			GroupEntities(pWorld.Get(), pSliderEntity->GetId(), pMarkerEntity->GetId());
 		}
 
 		return rootEntityResult;

@@ -690,6 +690,7 @@ namespace TDEngine2
 		mGridGroupLayoutsContext = CreateGridGroupLayoutsContext(pWorld, checkAndAssignLayoutElements);
 
 		mTogglesContext = pWorld->CreateLocalComponentsSlice<CToggle, CInputReceiver>();
+		mSlidersContext = pWorld->CreateLocalComponentsSlice<CUISlider, CLayoutElement, CInputReceiver>();
 
 		mImagesContext       = CreateUIRenderableContext<CImage>(pWorld);
 		mSlicedImagesContext = CreateUIRenderableContext<C9SliceImage>(pWorld);
@@ -756,6 +757,45 @@ namespace TDEngine2
 				{
 					SetEntityActive(pWorld, pCurrToggle->GetMarkerEntityId(), pCurrToggle->GetState());
 				});
+			}
+		}
+	}
+
+
+	static inline void UpdateSlidersElements(CUIElementsProcessSystem::TSlidersContext& slidersContext, IWorld* pWorld, ISystem* pSystem)
+	{
+		auto&& sliders = std::get<std::vector<CUISlider*>>(slidersContext.mComponentsSlice);
+		auto&& sliderLayoutElements = std::get<std::vector<CLayoutElement*>>(slidersContext.mComponentsSlice);
+		auto&& inputReceivers = std::get<std::vector<CInputReceiver*>>(slidersContext.mComponentsSlice);
+
+		for (USIZE i = 0; i < slidersContext.mComponentsCount; i++)
+		{
+			CUISlider* pCurrSlider = sliders[i];
+			if (!pCurrSlider)
+			{
+				continue;
+			}
+
+			CInputReceiver* pCurrInputReceiver = inputReceivers[i];
+			if (!pCurrInputReceiver)
+			{
+				continue;
+			}
+
+			if (!pCurrInputReceiver->mCurrState)
+			{
+				continue;
+			}
+
+			auto& currPosition = pCurrInputReceiver->mNormalizedInputPosition;
+			pCurrSlider->SetValue(CMathUtils::Lerp(pCurrSlider->GetMinValue(), pCurrSlider->GetMaxValue(), currPosition.x));
+
+			if (auto pMarkerEntity = pWorld->FindEntity(pCurrSlider->GetMarkerEntityId()))
+			{
+				if (CLayoutElement* pMarkerLayout = pMarkerEntity->GetComponent<CLayoutElement>())
+				{
+					pMarkerLayout->SetMinOffset(TVector2(sliderLayoutElements[i]->GetMaxOffset().x * pCurrSlider->GetValue() - 0.5f * pMarkerLayout->GetMaxOffset().x, 0.0f));
+				}
 			}
 		}
 	}
@@ -855,6 +895,7 @@ namespace TDEngine2
 		DiscardDirtyFlagForElements(mGridGroupLayoutsContext);
 
 		UpdateToggleElements(mTogglesContext, pWorld, this);
+		UpdateSlidersElements(mSlidersContext, pWorld, this);
 	}
 
 

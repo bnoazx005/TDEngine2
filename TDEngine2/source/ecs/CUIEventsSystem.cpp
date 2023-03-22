@@ -153,6 +153,8 @@ namespace TDEngine2
 			pInputReceiver->mPrevState = pInputReceiver->mCurrState;
 			pInputReceiver->mCurrState = ContainsPoint(pLayoutElement->GetWorldRect(), mousePosition) && mpDesktopInputContext->IsMouseButton(0);
 
+			pInputReceiver->mNormalizedInputPosition = PointToNormalizedCoords(pLayoutElement->GetWorldRect(), mousePosition);
+
 			if (pInputReceiver->mCurrState)
 			{
 				return;

@@ -188,6 +188,7 @@
 #include "graphics/UI/C9SliceImageComponent.h"
 #include "graphics/UI/GroupLayoutComponents.h"
 #include "graphics/UI/CToggleComponent.h"
+#include "graphics/UI/CUISliderComponent.h"
 
 /// audio
 #include "audio/IAudioSource.h"

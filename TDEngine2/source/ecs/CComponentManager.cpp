@@ -19,6 +19,7 @@
 #include "../../include/graphics/UI/C9SliceImageComponent.h"
 #include "../../include/graphics/UI/GroupLayoutComponents.h"
 #include "../../include/graphics/UI/CToggleComponent.h"
+#include "../../include/graphics/UI/CUISliderComponent.h"
 #include "../../include/graphics/animation/CAnimationContainerComponent.h"
 #include "../../include/graphics/animation/CMeshAnimatorComponent.h"
 #include "../../include/physics/2D/CBoxCollisionObject2D.h"
@@ -462,6 +463,7 @@ namespace TDEngine2
 			Create9SliceImageFactory,
 			CreateGridGroupLayoutFactory,
 			CreateToggleFactory,
+			CreateUISliderFactory,
 			CreateLODStrategyComponentFactory,
 			CreateObjIdComponentFactory,
 #if TDE2_EDITORS_ENABLED

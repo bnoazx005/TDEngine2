@@ -10,6 +10,8 @@
 #include "CBaseSystem.h"
 #include "IWorld.h"
 #include "../graphics/UI/CToggleComponent.h"
+#include "../graphics/UI/CUISliderComponent.h"
+#include "../graphics/UI/CLayoutElementComponent.h"
 #include "../graphics/UI/CInputReceiverComponent.h"
 #include <vector>
 
@@ -84,6 +86,7 @@ namespace TDEngine2
 			};
 
 			typedef TComponentsQueryLocalSlice<CToggle, CInputReceiver> TTogglesContext;
+			typedef TComponentsQueryLocalSlice<CUISlider, CLayoutElement, CInputReceiver> TSlidersContext;
 		public:
 			TDE2_SYSTEM(CUIElementsProcessSystem);
 
@@ -123,6 +126,7 @@ namespace TDEngine2
 			TCanvasesContext                           mCanvasesContext;
 			TGridGroupsContext                         mGridGroupLayoutsContext;
 			TTogglesContext                            mTogglesContext;
+			TSlidersContext                            mSlidersContext;
 
 			TUIRenderableElementsContext<CImage>       mImagesContext;
 			TUIRenderableElementsContext<C9SliceImage> mSlicedImagesContext;

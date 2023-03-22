@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.15] 2023-03-20
+## [0.6.15] 2023-03-22
 
 ### Added
 
@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new UI component **CToggle** was added that implements in-game UI checkboxes.
 
 - Now **9ImageSlice** component can specify its color.
+
+- A new UI component **UISlider** was added that provides implementation of UI in-game element with sliding marker.
 
 ### Changed
 

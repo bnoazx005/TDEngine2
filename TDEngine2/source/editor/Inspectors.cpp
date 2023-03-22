@@ -18,6 +18,7 @@
 #include "../../include/graphics/UI/C9SliceImageComponent.h"
 #include "../../include/graphics/UI/GroupLayoutComponents.h"
 #include "../../include/graphics/UI/CToggleComponent.h"
+#include "../../include/graphics/UI/CUISliderComponent.h"
 #include "../../include/graphics/animation/CAnimationContainerComponent.h"
 #include "../../include/graphics/animation/CMeshAnimatorComponent.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
@@ -77,6 +78,7 @@ namespace TDEngine2
 		result = result | editor.RegisterInspector(C9SliceImage::GetTypeId(), Draw9SliceImageGUI);
 		result = result | editor.RegisterInspector(CGridGroupLayout::GetTypeId(), DrawGridGroupLayoutGUI);
 		result = result | editor.RegisterInspector(CToggle::GetTypeId(), DrawToggleGUI);
+		result = result | editor.RegisterInspector(CUISlider::GetTypeId(), DrawUISliderGUI);
 		result = result | editor.RegisterInspector(CMeshAnimatorComponent::GetTypeId(), DrawMeshAnimatorGUI);
 		result = result | editor.RegisterInspector(CPerspectiveCamera::GetTypeId(), DrawPerspectiveCameraGUI);
 		result = result | editor.RegisterInspector(COrthoCamera::GetTypeId(), DrawOrthographicCameraGUI);
@@ -1227,7 +1229,15 @@ namespace TDEngine2
 				}
 			}
 
-			imguiContext.Label(Wrench::StringUtils::Format("On Pressed: {0}", inputReceiver.mCurrState ? "pressed" : "none"));
+			if (std::get<0>(imguiContext.BeginTreeNode("Debug Info")))
+			{
+				imguiContext.Label(Wrench::StringUtils::Format("On Pressed: {0}\nNormalized Input Pos: ({1}; {2})\n",
+					inputReceiver.mCurrState ? "pressed" : "none",
+					inputReceiver.mNormalizedInputPosition.x, 
+					inputReceiver.mNormalizedInputPosition.y));
+
+				imguiContext.EndTreeNode();
+			}
 		});
 	}
 
@@ -1506,6 +1516,46 @@ namespace TDEngine2
 
 				imguiContext.EndHorizontal();
 			}
+		});
+	}
+
+	void CDefaultInspectorsRegistry::DrawUISliderGUI(const TEditorContext& editorContext)
+	{
+		Header("UI Slider", editorContext, [](const TEditorContext& editorContext)
+		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
+			CUISlider& slider = dynamic_cast<CUISlider&>(component);
+
+			/// \note State of a toggle
+			/*{
+				bool isOn = slider.GetState();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Is On: ");
+
+				if (imguiContext.Checkbox("##state", isOn))
+				{
+					toggle.SetState(isOn);
+				}
+
+				imguiContext.EndHorizontal();
+			}
+
+			{
+				TEntityId currMarkerEntityId = toggle.GetMarkerEntityId();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Marker Entity: ");
+
+				CImGUIExtensions::EntityRefField(imguiContext, editorContext.mWorld, Wrench::StringUtils::GetEmptyStr(), currMarkerEntityId, [&currMarkerEntityId, &toggle]
+				{
+					toggle.SetMarkerEntityId(currMarkerEntityId);
+				});
+
+				imguiContext.EndHorizontal();
+			}*/
 		});
 	}
 
