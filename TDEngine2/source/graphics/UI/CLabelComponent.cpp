@@ -13,6 +13,8 @@ namespace TDEngine2
 
 		static const std::string mAlignTextKeyId;
 		static const std::string mOverflowPolicyKeyId;
+
+		static const std::string mColorKeyId;
 	};
 
 
@@ -21,6 +23,8 @@ namespace TDEngine2
 
 	const std::string TLabelArchiveKeys::mAlignTextKeyId = "align_type";
 	const std::string TLabelArchiveKeys::mOverflowPolicyKeyId = "overflow_policy_type";
+	
+	const std::string TLabelArchiveKeys::mColorKeyId = "color";
 
 
 	CLabel::CLabel() :
@@ -45,7 +49,16 @@ namespace TDEngine2
 
 		mAlignType = Meta::EnumTrait<E_FONT_ALIGN_POLICY>::FromString(pReader->GetString(TLabelArchiveKeys::mAlignTextKeyId));
 		mOverflowPolicyType = Meta::EnumTrait<E_TEXT_OVERFLOW_POLICY>::FromString(pReader->GetString(TLabelArchiveKeys::mOverflowPolicyKeyId));
-		
+
+		pReader->BeginGroup(TLabelArchiveKeys::mColorKeyId);
+
+		if (auto colorLoadResult = LoadColor32F(pReader))
+		{
+			mFontVertexColor = colorLoadResult.Get();
+		}
+
+		pReader->EndGroup();
+
 		return RC_OK;
 	}
 
@@ -65,6 +78,10 @@ namespace TDEngine2
 			
 			pWriter->SetString(TLabelArchiveKeys::mAlignTextKeyId, Meta::EnumTrait<E_FONT_ALIGN_POLICY>::ToString(mAlignType));
 			pWriter->SetString(TLabelArchiveKeys::mOverflowPolicyKeyId, Meta::EnumTrait<E_TEXT_OVERFLOW_POLICY>::ToString(mOverflowPolicyType));
+
+			pWriter->BeginGroup(TLabelArchiveKeys::mColorKeyId);
+			SaveColor32F(pWriter, mFontVertexColor);
+			pWriter->EndGroup();
 		}
 		pWriter->EndGroup();
 		
@@ -82,6 +99,7 @@ namespace TDEngine2
 			pComponent->mOverflowPolicyType = mOverflowPolicyType;
 			pComponent->mPrevText = mPrevText;
 			pComponent->mText = mText;
+			pComponent->mFontVertexColor = mFontVertexColor;
 
 			return RC_OK;
 		}
@@ -134,6 +152,12 @@ namespace TDEngine2
 		mFontDataVersionId = value;
 	}
 
+	void CLabel::SetColor(const TColor32F& color)
+	{
+		mFontVertexColor = color;
+		mPrevText = Wrench::StringUtils::GetEmptyStr();
+	}
+
 	void CLabel::ResetDirtyFlag()
 	{
 		mPrevText = mText;
@@ -167,6 +191,11 @@ namespace TDEngine2
 	U32 CLabel::GetFontDataVersionId() const
 	{
 		return mFontDataVersionId;
+	}
+
+	const TColor32F& CLabel::GetColor() const
+	{
+		return mFontVertexColor;
 	}
 
 	bool CLabel::IsDirty() const

@@ -40,7 +40,7 @@ void main(void)
 
 	float d = TEX2D(Texture, TexCoords).r;
 
-	FragColor = float4(1.0, 1.0, 1.0, clamp((d-params.x)*params.y, 0.0, 1.0));
+	FragColor = VertColor * float4(1.0, 1.0, 1.0, clamp((d-params.x)*params.y, 0.0, 1.0));
 }
 
 #endprogram

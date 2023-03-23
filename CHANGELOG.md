@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.15] 2023-03-22
+## [0.6.15] 2023-03-23
 
 ### Added
 
@@ -28,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Now **9ImageSlice** component can specify its color.
 
 - A new UI component **UISlider** was added that provides implementation of UI in-game element with sliding marker.
+
+- Now **CLabel** components support colorizing of text using respective field in the inspector.
 
 ### Changed
 

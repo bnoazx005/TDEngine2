@@ -1303,6 +1303,16 @@ namespace TDEngine2
 				imguiContext.EndHorizontal();
 			}
 
+			/// text color
+			{
+				TColor32F color = label.GetColor();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Text Color: ");
+				imguiContext.ColorPickerField("##TextColor", color, [&label, &color]() { label.SetColor(color); });
+				imguiContext.EndHorizontal();
+			}
+
 			/// \note Text overflow policy
 			{
 				static std::vector<std::string> overflowPolicies;

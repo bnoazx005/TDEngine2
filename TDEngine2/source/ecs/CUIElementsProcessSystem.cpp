@@ -410,7 +410,7 @@ namespace TDEngine2
 
 		for (const TVector4& currVertex : textMeshVertsData.mVerts)
 		{
-			pUIElementMeshData->AddVertex({ currVertex, TColorUtils::mWhite });
+			pUIElementMeshData->AddVertex({ currVertex, pLabelData->GetColor() });
 		}
 
 		U16 index = 0;

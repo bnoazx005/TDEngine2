@@ -45,7 +45,7 @@ float4 mainPS(VertexOut input): SV_TARGET0
 
 	float d = TEX2D(Texture, input.mUV).r;
 
-	return float4(1.0, 1.0, 1.0, clamp((d-params.x)*params.y, 0.0, 1.0));
+	return input.mColor * float4(1.0, 1.0, 1.0, clamp((d-params.x)*params.y, 0.0, 1.0));
 }
 
 #endprogram

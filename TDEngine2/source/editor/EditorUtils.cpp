@@ -1,4 +1,7 @@
 #include "../../include/editor/EditorUtils.h"
+
+#if TDE2_EDITORS_ENABLED
+
 #include "../../include/graphics/IDebugUtility.h"
 #include "../../include/ecs/CWorld.h"
 #include "../../include/platform/IOStreams.h"
@@ -10,11 +13,10 @@
 #include "../../include/graphics/UI/CToggleComponent.h"
 #include "../../include/graphics/UI/C9SliceImageComponent.h"
 #include "../../include/graphics/UI/CUISliderComponent.h"
+#include "../../include/graphics/UI/CCanvasComponent.h"
 #include "../../include/core/IImGUIContext.h"
 #include <clip.h>
 
-
-#if TDE2_EDITORS_ENABLED
 
 namespace TDEngine2
 {
@@ -238,6 +240,25 @@ namespace TDEngine2
 			}
 
 			GroupEntities(pWorld.Get(), pToggleEntity->GetId(), pMarkerEntity->GetId());
+		}
+
+		return rootEntityResult;
+	}
+
+	TResult<TEntityId> CSceneHierarchyUtils::CreateCanvasUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op)
+	{
+		auto rootEntityResult = CreateNewEntityInternal("Canvas", pWorld, pCurrScene, parentEntityId, op);
+		if (rootEntityResult.HasError())
+		{
+			return rootEntityResult;
+		}
+
+		if (auto pCanvasEntity = pWorld->FindEntity(rootEntityResult.Get()))
+		{
+			if (auto pCanvas = pCanvasEntity->AddComponent<CCanvas>())
+			{
+				pCanvas->SetInheritSizesFromMainCamera(true);
+			}
 		}
 
 		return rootEntityResult;
