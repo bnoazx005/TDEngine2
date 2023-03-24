@@ -38,6 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Breaking changes: Now entities identifiers are generated randomly instead of the monotonically increased fashion. Entities ids within scenes and prefabs aren't changed
 between runtime sessions. 
 
+- Now **CTextureAtlas** objects by default use linear filtering for their underlying textures.
+
 ### Fixed
 
 - The stability of CGridLayoutGroup component was increased.

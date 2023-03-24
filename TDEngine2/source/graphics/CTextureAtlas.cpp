@@ -84,6 +84,15 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		if (auto pTexture = pResourceManager->GetResource<ITexture2D>(mTextureResourceHandle))
+		{
+			pTexture->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
+
+			pTexture->SetUWrapMode(E_ADDRESS_MODE_TYPE::AMT_CLAMP);
+			pTexture->SetVWrapMode(E_ADDRESS_MODE_TYPE::AMT_CLAMP);
+			pTexture->SetWWrapMode(E_ADDRESS_MODE_TYPE::AMT_CLAMP);
+		}
+
 		mWidth  = params.mWidth;
 		mHeight = params.mHeight;
 
