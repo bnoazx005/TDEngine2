@@ -47,6 +47,8 @@ namespace TDEngine2
 
 		PANIC_ON_FAILURE(pWriter->SetString("name", mName));
 
+		pWriter->SetFloat("size", mFontHeight);
+
 		E_RESULT_CODE result = RC_OK;
 
 		{
@@ -107,6 +109,8 @@ namespace TDEngine2
 		}
 
 		mName = pReader->GetString("name");
+
+		mFontHeight = pReader->GetFloat("size", 14.0f);
 
 		E_RESULT_CODE result = RC_OK;
 
@@ -188,6 +192,18 @@ namespace TDEngine2
 		}
 
 		mFontTextureAtlasHandle = atlasHandle;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CFont::SetFontHeight(F32 height)
+	{
+		if (height < 0.0f)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mFontHeight = height;
 
 		return RC_OK;
 	}
@@ -346,6 +362,11 @@ namespace TDEngine2
 	U32 CFont::GetDataVersionNumber() const
 	{
 		return 0x1;
+	}
+
+	F32 CFont::GetFontHeight() const
+	{
+		return mFontHeight;
 	}
 
 

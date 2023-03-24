@@ -1303,6 +1303,16 @@ namespace TDEngine2
 				imguiContext.EndHorizontal();
 			}
 
+			/// text height
+			{
+				I32 textHeight = label.GetTextHeight();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Text Height: ");
+				imguiContext.IntField("##TextHeight", textHeight, [&label, &textHeight]() { label.SetTextHeight(static_cast<U32>(std::max<I32>(0, textHeight))); });
+				imguiContext.EndHorizontal();
+			}
+
 			/// text color
 			{
 				TColor32F color = label.GetColor();

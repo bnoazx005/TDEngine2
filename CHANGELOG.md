@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.15] 2023-03-23
+## [0.6.15] 2023-03-24
 
 ### Added
 
@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new UI component **UISlider** was added that provides implementation of UI in-game element with sliding marker.
 
 - Now **CLabel** components support colorizing of text using respective field in the inspector.
+
+- The API of **IFont** was extended with new methods for retrieving/assigning font's size.
 
 ### Changed
 

@@ -406,7 +406,14 @@ namespace TDEngine2
 		pUIElementMeshData->ResetMesh();
 		
 		/// \note Transfer vertices from pFont->GenerateMesh into UIMeshData component
-		auto&& textMeshVertsData = pFont->GenerateMesh({ pLayoutData->GetWorldRect(), 1.0f, pLabelData->GetOverflowPolicyType(), pLabelData->GetAlignType() }, pLabelData->GetText());
+		auto&& textMeshVertsData = pFont->GenerateMesh(
+			{ 
+				pLayoutData->GetWorldRect(),
+				pLabelData->GetTextHeight() / std::max(1e-3f, pFont->GetFontHeight()),
+				pLabelData->GetOverflowPolicyType(),
+				pLabelData->GetAlignType()
+			}, 
+			pLabelData->GetText());
 
 		for (const TVector4& currVertex : textMeshVertsData.mVerts)
 		{

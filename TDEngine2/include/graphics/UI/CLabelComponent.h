@@ -85,6 +85,8 @@ namespace TDEngine2
 
 			TDE2_API void SetFontDataVersionId(U32 value);
 
+			TDE2_API void SetTextHeight(U32 height);
+
 			TDE2_API void SetColor(const TColor32F& color);
 
 			TDE2_API void ResetDirtyFlag();
@@ -103,6 +105,8 @@ namespace TDEngine2
 
 			TDE2_API const TColor32F& GetColor() const;
 
+			TDE2_API U32 GetTextHeight() const;
+
 			TDE2_API bool IsDirty() const;
 
 		protected:
@@ -120,6 +124,7 @@ namespace TDEngine2
 			TResourceId mFontResourceHandle;
 
 			U32         mFontDataVersionId = 0;
+			U32         mTextHeight = 12;
 
 			TColor32F   mFontVertexColor = TColorUtils::mWhite;
 	};

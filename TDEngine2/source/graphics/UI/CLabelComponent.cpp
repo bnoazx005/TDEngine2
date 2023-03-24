@@ -13,6 +13,7 @@ namespace TDEngine2
 
 		static const std::string mAlignTextKeyId;
 		static const std::string mOverflowPolicyKeyId;
+		static const std::string mTextHeightKeyId;
 
 		static const std::string mColorKeyId;
 	};
@@ -23,6 +24,7 @@ namespace TDEngine2
 
 	const std::string TLabelArchiveKeys::mAlignTextKeyId = "align_type";
 	const std::string TLabelArchiveKeys::mOverflowPolicyKeyId = "overflow_policy_type";
+	const std::string TLabelArchiveKeys::mTextHeightKeyId = "text_height";
 	
 	const std::string TLabelArchiveKeys::mColorKeyId = "color";
 
@@ -49,6 +51,7 @@ namespace TDEngine2
 
 		mAlignType = Meta::EnumTrait<E_FONT_ALIGN_POLICY>::FromString(pReader->GetString(TLabelArchiveKeys::mAlignTextKeyId));
 		mOverflowPolicyType = Meta::EnumTrait<E_TEXT_OVERFLOW_POLICY>::FromString(pReader->GetString(TLabelArchiveKeys::mOverflowPolicyKeyId));
+		mTextHeight = pReader->GetUInt32(TLabelArchiveKeys::mTextHeightKeyId);
 
 		pReader->BeginGroup(TLabelArchiveKeys::mColorKeyId);
 
@@ -78,6 +81,7 @@ namespace TDEngine2
 			
 			pWriter->SetString(TLabelArchiveKeys::mAlignTextKeyId, Meta::EnumTrait<E_FONT_ALIGN_POLICY>::ToString(mAlignType));
 			pWriter->SetString(TLabelArchiveKeys::mOverflowPolicyKeyId, Meta::EnumTrait<E_TEXT_OVERFLOW_POLICY>::ToString(mOverflowPolicyType));
+			pWriter->SetUInt32(TLabelArchiveKeys::mTextHeightKeyId, mTextHeight);
 
 			pWriter->BeginGroup(TLabelArchiveKeys::mColorKeyId);
 			SaveColor32F(pWriter, mFontVertexColor);
@@ -100,6 +104,7 @@ namespace TDEngine2
 			pComponent->mPrevText = mPrevText;
 			pComponent->mText = mText;
 			pComponent->mFontVertexColor = mFontVertexColor;
+			pComponent->mTextHeight = mTextHeight;
 
 			return RC_OK;
 		}
@@ -158,6 +163,12 @@ namespace TDEngine2
 		mPrevText = Wrench::StringUtils::GetEmptyStr();
 	}
 
+	void CLabel::SetTextHeight(U32 height)
+	{
+		mTextHeight = height;
+		mPrevText = Wrench::StringUtils::GetEmptyStr();
+	}
+
 	void CLabel::ResetDirtyFlag()
 	{
 		mPrevText = mText;
@@ -196,6 +207,11 @@ namespace TDEngine2
 	const TColor32F& CLabel::GetColor() const
 	{
 		return mFontVertexColor;
+	}
+
+	U32 CLabel::GetTextHeight() const
+	{
+		return mTextHeight;
 	}
 
 	bool CLabel::IsDirty() const

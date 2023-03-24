@@ -146,6 +146,8 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE SetTextureAtlasHandle(TResourceId atlasHandle) = 0;
 
+			TDE2_API virtual E_RESULT_CODE SetFontHeight(F32 height) = 0;
+
 			/*!
 				\brief The method generates 2D mesh for a given text based on font's settings
 
@@ -170,6 +172,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual U32 GetDataVersionNumber() const = 0;
+
+			TDE2_API virtual F32 GetFontHeight() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IFont)
 	};
@@ -211,15 +215,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE LoadFontInfo(IBinaryFileReader* pFontFile) = 0;
-
-			/*!
-				\brief The method sets up glyph's height. Should be invoked only after LoadFontInfo. In 
-				other cases will return RC_FAIL
-			*/
-
-			TDE2_API virtual E_RESULT_CODE SetFontHeight(F32 value) = 0;
-
-			TDE2_API virtual F32 GetFontHeight() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IRuntimeFont)
 	};
