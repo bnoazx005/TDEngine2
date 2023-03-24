@@ -405,10 +405,23 @@ namespace TDEngine2
 		auto pUIElementMeshData = labelsContext.mpUIMeshes[id];
 		pUIElementMeshData->ResetMesh();
 		
+		auto&& worldRect = pLayoutData->GetWorldRect();
+
+		auto pTransform = labelsContext.mpTransforms[id];
+		auto pivot = worldRect.GetLeftBottom() + worldRect.GetSizes() * pLayoutData->GetPivot();
+		auto pivotTranslation = TranslationMatrix(TVector3{ pivot.x, pivot.y, 0.0f });
+
+		/// \todo Move the computations into the shader
+		const TMatrix4 localObjectTransform = RotationMatrix(pTransform->GetRotation()) * ScaleMatrix(pTransform->GetScale()) * pivotTranslation;
+
+		TRectF32 localAnchorRect = pLayoutData->GetWorldRect(); ///< Text is computed in local rect's space. All the translations are performed via CLayoutElement
+		localAnchorRect.x = 0.0f;
+		localAnchorRect.y = 0.0f;
+
 		/// \note Transfer vertices from pFont->GenerateMesh into UIMeshData component
 		auto&& textMeshVertsData = pFont->GenerateMesh(
 			{ 
-				pLayoutData->GetWorldRect(),
+				localAnchorRect,
 				pLabelData->GetTextHeight() / std::max(1e-3f, pFont->GetFontHeight()),
 				pLabelData->GetOverflowPolicyType(),
 				pLabelData->GetAlignType()
@@ -417,7 +430,9 @@ namespace TDEngine2
 
 		for (const TVector4& currVertex : textMeshVertsData.mVerts)
 		{
-			pUIElementMeshData->AddVertex({ currVertex, pLabelData->GetColor() });
+			auto&& worldPos = localObjectTransform * TVector4(currVertex.x, currVertex.y, 0.0f, 1.0f); /// \todo Move the computations into the shader
+
+			pUIElementMeshData->AddVertex({ TVector4(worldPos.x, worldPos.y, currVertex.z, currVertex.w), pLabelData->GetColor()});
 		}
 
 		U16 index = 0;
