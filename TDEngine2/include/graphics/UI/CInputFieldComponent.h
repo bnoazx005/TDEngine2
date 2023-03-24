@@ -1,6 +1,6 @@
 /*!
-	\file CUISliderComponent.h
-	\date 21.03.2023
+	\file CInputFieldComponent.h
+	\date 24.03.2023
 	\authors Kasimov Ildar
 */
 
@@ -14,28 +14,28 @@
 namespace TDEngine2
 {
 	/*!
-		\brief A factory function for creation objects of CUISlider's type.
+		\brief A factory function for creation objects of CInputField's type.
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
-		\return A pointer to CUISlider's implementation
+		\return A pointer to CInputField's implementation
 	*/
 
-	TDE2_API IComponent* CreateUISlider(E_RESULT_CODE& result);
+	TDE2_API IComponent* CreateInputField(E_RESULT_CODE& result);
 
 
 	/*!
-		class CUISlider
+		class CInputField
 
-		\brief The implementation of UI element that allows to change its state via dragging/clicking over it
+		\brief The implementation of a UI editable element
 	*/
 
-	class CUISlider : public CBaseComponent, public CPoolMemoryAllocPolicy<CUISlider, 1 << 20>
+	class CInputField : public CBaseComponent, public CPoolMemoryAllocPolicy<CInputField, 1 << 20>
 	{
 		public:
-			friend TDE2_API IComponent* CreateUISlider(E_RESULT_CODE& result);
+			friend TDE2_API IComponent* CreateInputField(E_RESULT_CODE& result);
 		public:
-			TDE2_REGISTER_COMPONENT_TYPE(CUISlider)
+			TDE2_REGISTER_COMPONENT_TYPE(CInputField)
 
 			/*!
 				\brief The method deserializes object's state from given reader
@@ -76,38 +76,38 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
-			void SetValue(F32 value);
-			void SetMinValue(F32 value);
-			void SetMaxValue(F32 value);
+			void SetValue(const std::string& value);
+			void SetCursorEntityId(TEntityId cursorId);
+			void SetLabelEntityId(TEntityId labelId);
 
-			void SetMarkerEntityId(TEntityId markerId);
+			void SetEditingFlag(bool state);
 
-			F32 GetValue() const;
-			F32 GetMinValue() const;
-			F32 GetMaxValue() const;
+			const std::string& GetValue() const;
+			TEntityId GetCursorEntityId() const;
+			TEntityId GetLabelEntityId() const;
 
-			TEntityId GetMarkerEntityId() const;
+			bool IsEditing() const;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUISlider)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CInputField)
 		protected:
-			TEntityId mMarkerEntityRef;
+			TEntityId   mCursorEntityRef;
+			TEntityId   mLabelEntityRef;
+			std::string mValue;
 
-			F32 mMinValue = 0.0f;
-			F32 mMaxValue = 1.0f;
-			F32 mValue = 0.0f;
+			bool        mIsEditing = false;
 	};
 
 
 	/*!
-		struct TUISliderParameters
+		struct TInputFieldParameters
 
-		\brief The structure contains parameters for creation of CUISlider
+		\brief The structure contains parameters for creation of CInputField
 	*/
 
-	typedef struct TUISliderParameters : public TBaseComponentParameters
+	typedef struct TInputFieldParameters : public TBaseComponentParameters
 	{
-	} TUISliderParameters;
+	} TInputFieldParameters;
 
 
-	TDE2_DECLARE_COMPONENT_FACTORY(UISlider, TUISliderParameters);
+	TDE2_DECLARE_COMPONENT_FACTORY(InputField, TInputFieldParameters);
 }

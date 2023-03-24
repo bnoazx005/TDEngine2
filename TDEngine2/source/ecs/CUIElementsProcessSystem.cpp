@@ -713,6 +713,7 @@ namespace TDEngine2
 
 		mTogglesContext = pWorld->CreateLocalComponentsSlice<CToggle, CInputReceiver>();
 		mSlidersContext = pWorld->CreateLocalComponentsSlice<CUISlider, CLayoutElement, CInputReceiver>();
+		mInputFieldsContext = pWorld->CreateLocalComponentsSlice<CInputField, CLayoutElement, CInputReceiver>();
 
 		mImagesContext       = CreateUIRenderableContext<CImage>(pWorld);
 		mSlicedImagesContext = CreateUIRenderableContext<C9SliceImage>(pWorld);
@@ -823,6 +824,38 @@ namespace TDEngine2
 	}
 
 
+	static inline void UpdateInputFieldsElements(CUIElementsProcessSystem::TInputFieldsContext& inputFieldsContext, IWorld* pWorld, ISystem* pSystem)
+	{
+		auto&& inputFields = std::get<std::vector<CInputField*>>(inputFieldsContext.mComponentsSlice);
+		auto&& inputReceivers = std::get<std::vector<CInputReceiver*>>(inputFieldsContext.mComponentsSlice);
+
+		for (USIZE i = 0; i < inputFieldsContext.mComponentsCount; i++)
+		{
+			CInputField* pCurrInputField = inputFields[i];
+			if (!pCurrInputField)
+			{
+				continue;
+			}
+
+			CInputReceiver* pCurrInputReceiver = inputReceivers[i];
+			if (!pCurrInputReceiver)
+			{
+				continue;
+			}
+
+			if (!pCurrInputReceiver->mCurrState)
+			{
+				continue;
+			}
+
+			/*if (!pCurrInputReceiver->mCurrState && pCurrInputReceiver->mPrevState)
+			{
+				pCurrInputField->SetEditingFlag(true);
+			}*/
+		}
+	}
+
+
 	template <typename T>
 	static inline void DiscardDirtyFlagForElements(T& context)
 	{
@@ -918,6 +951,7 @@ namespace TDEngine2
 
 		UpdateToggleElements(mTogglesContext, pWorld, this);
 		UpdateSlidersElements(mSlidersContext, pWorld, this);
+		UpdateInputFieldsElements(mInputFieldsContext, pWorld, this);
 	}
 
 

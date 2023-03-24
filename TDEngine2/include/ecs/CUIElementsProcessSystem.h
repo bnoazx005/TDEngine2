@@ -13,6 +13,7 @@
 #include "../graphics/UI/CUISliderComponent.h"
 #include "../graphics/UI/CLayoutElementComponent.h"
 #include "../graphics/UI/CInputReceiverComponent.h"
+#include "../graphics/UI/CInputFieldComponent.h"
 #include <vector>
 
 
@@ -85,8 +86,9 @@ namespace TDEngine2
 				std::vector<TEntityId>       mEntities;
 			};
 
-			typedef TComponentsQueryLocalSlice<CToggle, CInputReceiver> TTogglesContext;
-			typedef TComponentsQueryLocalSlice<CUISlider, CLayoutElement, CInputReceiver> TSlidersContext;
+			typedef TComponentsQueryLocalSlice<CToggle, CInputReceiver>                     TTogglesContext;
+			typedef TComponentsQueryLocalSlice<CUISlider, CLayoutElement, CInputReceiver>   TSlidersContext;
+			typedef TComponentsQueryLocalSlice<CInputField, CLayoutElement, CInputReceiver> TInputFieldsContext;
 		public:
 			TDE2_SYSTEM(CUIElementsProcessSystem);
 
@@ -127,6 +129,7 @@ namespace TDEngine2
 			TGridGroupsContext                         mGridGroupLayoutsContext;
 			TTogglesContext                            mTogglesContext;
 			TSlidersContext                            mSlidersContext;
+			TInputFieldsContext                        mInputFieldsContext;
 
 			TUIRenderableElementsContext<CImage>       mImagesContext;
 			TUIRenderableElementsContext<C9SliceImage> mSlicedImagesContext;

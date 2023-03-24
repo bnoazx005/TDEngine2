@@ -189,6 +189,7 @@
 #include "graphics/UI/GroupLayoutComponents.h"
 #include "graphics/UI/CToggleComponent.h"
 #include "graphics/UI/CUISliderComponent.h"
+#include "graphics/UI/CInputFieldComponent.h"
 
 /// audio
 #include "audio/IAudioSource.h"
