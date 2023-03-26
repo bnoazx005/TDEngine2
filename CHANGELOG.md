@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.15] 2023-03-24
+## [0.6.15] 2023-03-26
 
 ### Added
 
@@ -53,6 +53,8 @@ between runtime sessions.
 - Memory corruption caused by **CEventManager::Unsubscribe** was fixed.
 
 - The previously bound texture resources issue in materials with no specified texture slots was fixed. 
+
+- The incorrect UI elements' rendering order was fixed.
 
 ## [0.6.14] 2023-02-14
 
