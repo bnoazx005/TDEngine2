@@ -1,6 +1,7 @@
 #include "../../include/core/CProjectSettings.h"
 #include "../../include/core/IFile.h"
 #include "../../include/math/TVector3.h"
+#include "../../include/metadata.h"
 #include "stringUtils.hpp"
 
 
@@ -16,6 +17,7 @@ namespace TDEngine2
 		static const std::string mSceneManagerSettingsGroupId;
 		static const std::string mSplashScreenSettingsGroupId;
 		static const std::string m3DPhysicsSettingsGroupId;
+		static const std::string mQualityPresetsGroupId;
 
 		struct TCommonSettingsKeys
 		{
@@ -45,12 +47,6 @@ namespace TDEngine2
 			static const std::string mGraphicsTypeKey;
 			static const std::string mRendererSettingsGroupKey;
 			static const std::string mDefaultSkyboxMaterialKey;
-
-			struct TRendererSettingsKeys
-			{
-				static const std::string mShadowMapSizesKey;
-				static const std::string mIsShadowMapEnabledKey;
-			};
 		};
 
 		struct TAudioSettingsKeys
@@ -87,6 +83,12 @@ namespace TDEngine2
 		{
 			static const std::string mGravityKey;
 		};
+
+		struct TQualityPresetKeys
+		{
+			static const std::string mShadowMapSizesKey;
+			static const std::string mIsShadowMapEnabledKey;
+		};
 	};
 
 
@@ -98,6 +100,7 @@ namespace TDEngine2
 	const std::string TProjectSettingsArchiveKeys::mSceneManagerSettingsGroupId = "scenes_settings";
 	const std::string TProjectSettingsArchiveKeys::mSplashScreenSettingsGroupId = "splash_screen_settings";
 	const std::string TProjectSettingsArchiveKeys::m3DPhysicsSettingsGroupId = "3d_physics_settings";
+	const std::string TProjectSettingsArchiveKeys::mQualityPresetsGroupId = "quality_presets";
 
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mApplicationIdKey = "application_id";
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::mMaxThreadsCountKey = "max_worker_threads_count";
@@ -112,10 +115,7 @@ namespace TDEngine2
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::TPluginArchiveKeys::mId = "id";
 
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mGraphicsTypeKey = "renderer_plugin";
-	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mRendererSettingsGroupKey = "renderer_settings";
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mDefaultSkyboxMaterialKey = "default_skybox_mat_id";
-	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::TRendererSettingsKeys::mShadowMapSizesKey = "shadow_maps_size";
-	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::TRendererSettingsKeys::mIsShadowMapEnabledKey = "shadow_maps_enabled";
 
 	const std::string TProjectSettingsArchiveKeys::TAudioSettingsKeys::mAudioTypeKey = "audio_plugin";
 
@@ -134,6 +134,8 @@ namespace TDEngine2
 
 	const std::string TProjectSettingsArchiveKeys::T3DPhysicsSettingsKeys::mGravityKey = "gravity";
 
+	const std::string TProjectSettingsArchiveKeys::TQualityPresetKeys::mShadowMapSizesKey = "shadow_maps_size";
+	const std::string TProjectSettingsArchiveKeys::TQualityPresetKeys::mIsShadowMapEnabledKey = "shadow_maps_enabled";
 
 	CProjectSettings::CProjectSettings():
 		CBaseObject()
@@ -217,14 +219,6 @@ namespace TDEngine2
 			{
 				graphicsSettings.mDefaultSkyboxMaterial = skyboxMaterialId;
 			}
-
-			/// \note Shadow maps settings
-			result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mRendererSettingsGroupKey);
-			{
-				graphicsSettings.mRendererSettings.mShadowMapSizes = pFileReader->GetUInt32(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::TRendererSettingsKeys::mShadowMapSizesKey);
-				graphicsSettings.mRendererSettings.mIsShadowMappingEnabled = pFileReader->GetBool(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::TRendererSettingsKeys::mIsShadowMapEnabledKey);
-			}
-			result = result | pFileReader->EndGroup();
 		}
 		result = result | pFileReader->EndGroup();
 
@@ -352,6 +346,39 @@ namespace TDEngine2
 	}
 
 
+	static E_RESULT_CODE LoadQualityPresets(IArchiveReader* pFileReader, CProjectSettings& projectSettings)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		auto& qualityPresets = projectSettings.mQualityPresets;
+
+		auto&& enumFields = Meta::EnumTrait<E_QUALITY_PRESET_TYPE>::GetFields(); /// \fixme Reflection in production version should not be used at all
+
+		result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::mQualityPresetsGroupId);
+		{
+			for (auto&& currEnumField : enumFields)
+			{
+				if (E_QUALITY_PRESET_TYPE::PRESETS_COUNT == currEnumField.value)
+				{
+					continue;
+				}
+
+				auto& currPreset = qualityPresets[static_cast<U32>(currEnumField.value)];
+
+				result = result | pFileReader->BeginGroup(currEnumField.name);
+
+				currPreset.mIsShadowMappingEnabled = pFileReader->GetBool(TProjectSettingsArchiveKeys::TQualityPresetKeys::mIsShadowMapEnabledKey, true);
+				currPreset.mShadowMapSizes = pFileReader->GetUInt32(TProjectSettingsArchiveKeys::TQualityPresetKeys::mShadowMapSizesKey, 1024);
+
+				result = result | pFileReader->EndGroup();
+			}
+		}
+		result = result | pFileReader->EndGroup();
+
+		return result;
+	}
+
+
 	E_RESULT_CODE CProjectSettings::Init(IArchiveReader* pFileReader)
 	{
 		if (!pFileReader)
@@ -368,6 +395,7 @@ namespace TDEngine2
 		result = result | LoadScenesSettings(pFileReader, *this);
 		result = result | LoadSplashScreenSettings(pFileReader, *this);
 		result = result | Load3DPhysicsSettings(pFileReader, *this);
+		result = result | LoadQualityPresets(pFileReader, *this);
 		
 		return RC_OK;
 	}

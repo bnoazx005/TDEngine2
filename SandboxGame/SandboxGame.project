@@ -18,9 +18,21 @@ common_settings:
 
 graphics_settings:
   renderer_plugin: ./D3D11GraphicsContext
-  renderer_settings:
+  
+quality_presets:
+  LOW:
+    shadow_maps_size: 512
+    shadow_maps_enabled: true
+  MEDIUM:
     shadow_maps_size: 1024
     shadow_maps_enabled: true
+  HIGH:
+    shadow_maps_size: 2048
+    shadow_maps_enabled: true
+  ULTRA:
+    shadow_maps_size: 2048
+    shadow_maps_enabled: true
+
 
 audio_settings:
   audio_plugin: ./FmodAudioContext

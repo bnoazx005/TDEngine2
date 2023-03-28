@@ -15,7 +15,7 @@
 #include "../../include/graphics/CBaseRenderTarget.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IGraphicsContext.h"
-#include "../../include/core/CProjectSettings.h"
+#include "../../include/core/CGameUserSettings.h"
 #include "../../include/scene/components/CDirectionalLight.h"
 #include "../../include/scene/components/CPointLight.h"
 #include "../../include/scene/components/ShadowMappingComponents.h"
@@ -248,7 +248,7 @@ namespace TDEngine2
 			lightingData.mSunLightPosition       = TVector4(pLightTransform->GetPosition(), 1.0f);
 			lightingData.mSunLightColor          = pCurrLight->GetColor();
 			lightingData.mSunLightMatrix         = ConstructSunLightMatrix(pGraphicsContext, pLightTransform);
-			lightingData.mIsShadowMappingEnabled = static_cast<U32>(CProjectSettings::Get()->mGraphicsSettings.mRendererSettings.mIsShadowMappingEnabled);
+			lightingData.mIsShadowMappingEnabled = static_cast<U32>(CGameUserSettings::Get()->mCurrent.mIsShadowMappingEnabled);
 		}
 	}
 
@@ -328,7 +328,7 @@ namespace TDEngine2
 			}
 		}
 
-		if (CProjectSettings::Get()->mGraphicsSettings.mRendererSettings.mIsShadowMappingEnabled)
+		if (CGameUserSettings::Get()->mCurrent.mIsShadowMappingEnabled)
 		{
 			TDE2_PROFILER_SCOPE("CLightingSystem::ProcessShadowReceivers");
 

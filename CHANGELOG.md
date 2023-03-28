@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.15] 2023-03-26
+## [0.6.15] 2023-03-28
 
 ### Added
 
@@ -39,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 between runtime sessions. 
 
 - Now **CTextureAtlas** objects by default use linear filtering for their underlying textures.
+
+- Now **CProjectSettings** doesn't store graphics settings directly. But it defines quality presets that can be used within an application. All graphics tweaks're now stored in **CGameUserSettings**.
 
 ### Fixed
 

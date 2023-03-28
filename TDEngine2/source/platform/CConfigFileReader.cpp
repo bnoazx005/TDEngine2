@@ -74,7 +74,8 @@ namespace TDEngine2
 		}
 
 		/// if needed entity already exists just return it
-		if (!(value = paramsMap[group][paramName]).empty())
+		auto it = paramsMap.find(group);
+		if (it != paramsMap.cend() && it->second.find(paramName) != it->second.cend())
 		{
 			return RC_OK;
 		}
@@ -133,7 +134,7 @@ namespace TDEngine2
 			}
 		}
 
-		return RC_OK;
+		return RC_FAIL;
 	}
 
 	E_RESULT_CODE CConfigFileReader::_onFree()

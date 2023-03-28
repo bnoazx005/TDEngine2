@@ -7,7 +7,7 @@
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IWindowSystem.h"
-#include "../../include/core/CProjectSettings.h"
+#include "../../include/core/CGameUserSettings.h"
 #include "../../include/graphics/CGlobalShaderProperties.h"
 #include "../../include/graphics/InternalShaderData.h"
 #include "../../include/graphics/CDebugUtility.h"
@@ -30,7 +30,7 @@ namespace TDEngine2
 
 	static TResult<TResourceId> GetOrCreateShadowMap(TPtr<IResourceManager> pResourceManager)
 	{
-		const U32 shadowMapSizes = CProjectSettings::Get()->mGraphicsSettings.mRendererSettings.mShadowMapSizes;
+		const U32 shadowMapSizes = CGameUserSettings::Get()->mCurrent.mShadowMapSizes;
 		TDE2_ASSERT(shadowMapSizes > 0 && shadowMapSizes < 65536);
 
 		const TTexture2DParameters shadowMapParams{ shadowMapSizes, shadowMapSizes, FT_D32, 1, 1, 0 };
@@ -125,7 +125,7 @@ namespace TDEngine2
 
 		mpDebugUtility = debugUtilityResult.Get();
 
-		if (CProjectSettings::Get()->mGraphicsSettings.mRendererSettings.mIsShadowMappingEnabled)
+		if (CGameUserSettings::Get()->mCurrent.mIsShadowMappingEnabled)
 		{
 			GetOrCreateShadowMap(mpResourceManager).Get(); /// \note Create a shadow map's texture before any Update will be executed
 		}
@@ -177,7 +177,7 @@ namespace TDEngine2
 
 	static void RenderShadowCasters(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TResourceId shadowMapHandle, const std::function<void()> action)
 	{
-		const F32 shadowMapSizes = static_cast<F32>(CProjectSettings::Get()->mGraphicsSettings.mRendererSettings.mShadowMapSizes);
+		const F32 shadowMapSizes = static_cast<F32>(CGameUserSettings::Get()->mCurrent.mShadowMapSizes);
 
 		pGraphicsContext->SetViewport(0.0f, 0.0f, shadowMapSizes, shadowMapSizes, 0.0f, 1.0f);
 		{
@@ -333,7 +333,7 @@ namespace TDEngine2
 		ProcessEditorSelectionBuffer(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpSelectionManager, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)]);
 #endif
 
-		if (CProjectSettings::Get()->mGraphicsSettings.mRendererSettings.mIsShadowMappingEnabled)
+		if (CGameUserSettings::Get()->mCurrent.mIsShadowMappingEnabled)
 		{
 			ProcessShadowPass(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)]);
 		}

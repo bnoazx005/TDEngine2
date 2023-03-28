@@ -19,6 +19,9 @@ namespace TDEngine2
 		mWindowWidth  = pConfigFileReader->GetInt("main", "width", 640);
 		mWindowHeight = pConfigFileReader->GetInt("main", "height", 480);
 
+		mCurrent.mIsShadowMappingEnabled = pConfigFileReader->GetBool("graphics", "shadows", true);
+		mCurrent.mShadowMapSizes = static_cast<U32>(pConfigFileReader->GetInt("graphics", "shadow_map_size", 512));
+
 		return RC_OK;
 	}
 

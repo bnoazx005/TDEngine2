@@ -20,10 +20,22 @@ namespace TDEngine2
 	enum class TLocaleId : U32;
 
 
+	ENUM_META()
+	enum class E_QUALITY_PRESET_TYPE : U8
+	{
+		LOW,
+		MEDIUM,
+		HIGH,
+		ULTRA,
+		PRESETS_COUNT
+	};
+
+
 	/*!
 		class CProjectSettings
 
-		\brief The class is a singleton which contains all bunch of project related settings 
+		\brief The class is a singleton which contains all bunch of project related settings.
+		Consider this values as build time settings for the project when CGameUserSettings as current applied ones
 	*/
 
 	class CProjectSettings : public CBaseObject
@@ -42,6 +54,17 @@ namespace TDEngine2
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CProjectSettings)
 		public:
+			/*!
+				\brief The type contains all settings that define a particular quality level for graphical part of the application
+			*/
+			struct TQualityPreset
+			{
+				U32  mShadowMapSizes = 512;
+				bool mIsShadowMappingEnabled = true;
+			};
+
+			std::array<TQualityPreset, static_cast<U32>(E_QUALITY_PRESET_TYPE::PRESETS_COUNT)> mQualityPresets;
+
 			struct
 			{
 #if defined(TDE2_USE_UNIXPLATFORM)
@@ -49,12 +72,6 @@ namespace TDEngine2
 #else
 				std::string mRendererPluginFilePath = "D3D11GraphicsContext";
 #endif
-
-				struct
-				{
-					U32  mShadowMapSizes = 512;
-					bool mIsShadowMappingEnabled = true;
-				} mRendererSettings;
 
 				std::string mDefaultSkyboxMaterial = "DefaultResources/Materials/DefaultSkybox.material";
 			} mGraphicsSettings;

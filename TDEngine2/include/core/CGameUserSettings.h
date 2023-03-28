@@ -8,6 +8,7 @@
 
 
 #include "CBaseObject.h"
+#include "CProjectSettings.h"
 
 
 namespace TDEngine2
@@ -20,6 +21,8 @@ namespace TDEngine2
 
 		\brief The class is a singleton which contains all bunch of user related settings that
 		vary from project to project.
+
+		This is runtime settings of the application in contrast with CProjectSettings
 	*/
 
 	class CGameUserSettings : public CBaseObject
@@ -40,5 +43,7 @@ namespace TDEngine2
 		public:
 			I32 mWindowWidth = 800;
 			I32 mWindowHeight = 600;
+
+			CProjectSettings::TQualityPreset mCurrent;
 	};
 }
