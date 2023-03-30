@@ -679,7 +679,7 @@ namespace TDEngine2
 
 					float4 mainVS(float4 lPos : POSITION0): SV_POSITION
 					{
-						return mul(SunLightMat, mul(ModelMat, lPos));
+						return mul(SunLightMat[0], mul(ModelMat, lPos));
 					}
 
 					#endprogram
@@ -709,7 +709,7 @@ namespace TDEngine2
 
 					float4 mainVS(in VertexIn input): SV_POSITION
 					{
-						return mul(SunLightMat, mul(ModelMat, ComputeSkinnedVertexPos(input.mPos, input.mJointWeights, input.mJointIndices)));
+						return mul(SunLightMat[0], mul(ModelMat, ComputeSkinnedVertexPos(input.mPos, input.mJointWeights, input.mJointIndices)));
 					}
 
 					#endprogram

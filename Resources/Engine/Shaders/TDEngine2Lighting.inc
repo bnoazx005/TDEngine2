@@ -9,15 +9,17 @@
 
 
 #define MAX_POINT_LIGHTS_COUNT 8
+#define MAX_SHADOW_CASCADES_COUNT 4
 
 
 struct PointLightData
 {
-	float4 mPosition;
-	float4 mColor;
-	float  mRange;
-	float  mIntensity;
-	float2 mUnused;	
+	float4   mPosition;
+	float4   mColor;
+	float    mRange;
+	float    mIntensity;
+	float2   mUnused;
+	float4x4 mLightMats[6];
 };
 
 

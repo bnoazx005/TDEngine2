@@ -1,8 +1,9 @@
 #include "../../include/ecs/CLightingSystem.h"
-#include "../../include/ecs/IWorld.h"
+#include "../../include/ecs/CWorld.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/CTransform.h"
 #include "../../include/graphics/CStaticMesh.h"
+#include "../../include/graphics/ICamera.h"
 #include "../../include/graphics/CStaticMeshContainer.h"
 #include "../../include/graphics/CSkinnedMesh.h"
 #include "../../include/graphics/CSkinnedMeshContainer.h"
@@ -194,9 +195,9 @@ namespace TDEngine2
 	}
 
 
-	static TMatrix4 ConstructSunLightMatrix(IGraphicsContext* pGraphicsContext, CTransform* pLightTransform)
+	static TMatrix4 ConstructSunLightMatrix(IGraphicsContext* pGraphicsContext, ICamera* pActiveCamera, CTransform* pLightTransform)
 	{
-		if (!pLightTransform)
+		if (!pLightTransform || !pActiveCamera)
 		{
 			TDE2_ASSERT(false);
 			return IdentityMatrix4;
@@ -204,9 +205,21 @@ namespace TDEngine2
 
 		const F32 handedness = pGraphicsContext->GetPositiveZAxisDirection();
 
-		TMatrix4 viewMatrix = LookAt(handedness * pLightTransform->GetPosition(), UpVector3, ZeroVector3, -handedness);
+		TVector3 frustumCenter;
 
-		const F32 halfSize = 10.0f;
+		for (auto&& v : pActiveCamera->GetFrustum()->GetVertices(pActiveCamera->GetInverseViewProjMatrix(), pGraphicsContext->GetContextInfo().mNDCBox.min.z))
+		{
+			frustumCenter = frustumCenter + v;
+		}
+
+		frustumCenter = frustumCenter * 0.125f;
+
+		//const TVector3& frustumCenter = pActiveCamera->GetFrustumCenter(pGraphicsContext->GetContextInfo().mNDCBox.min.z);
+		//LOG_MESSAGE(Wrench::StringUtils::Format("Frustum center: {0}", frustumCenter.ToString()));
+
+		TMatrix4 viewMatrix = LookAt(pActiveCamera->GetPosition() + handedness * pLightTransform->GetPosition(), UpVector3, pActiveCamera->GetPosition(), -handedness);
+
+		const F32 halfSize = 50.0f;
 
 		TMatrix4 projMatrix = pGraphicsContext->CalcOrthographicMatrix(-halfSize, halfSize, halfSize, -halfSize, 0.001f, 1000.0f); // \todo Refactor
 
@@ -214,7 +227,7 @@ namespace TDEngine2
 	}
 
 
-	static void ProcessDirectionalLights(IGraphicsContext* pGraphicsContext, TLightingShaderData& lightingData, CLightingSystem::TDirLightsContext& directionalLightsContext)
+	static void ProcessDirectionalLights(IGraphicsContext* pGraphicsContext, ICamera* pCamera, TLightingShaderData& lightingData, CLightingSystem::TDirLightsContext& directionalLightsContext)
 	{
 		TDE2_PROFILER_SCOPE("CLightingSystem::ProcessDirectionalLights");
 
@@ -231,6 +244,7 @@ namespace TDEngine2
 			lightingData.mSunLightDirection      = Normalize(TVector4(-0.5f, -0.5f, 0.0f, 0.0f));
 			lightingData.mSunLightPosition       = Normalize(TVector4(0.0f, 10.0f, 0.0f, 1.0f));
 			lightingData.mSunLightColor          = TColorUtils::mWhite;
+			lightingData.mShadowCascadesCount    = 1;
 
 			return;
 		}
@@ -247,13 +261,44 @@ namespace TDEngine2
 			lightingData.mSunLightDirection      = Normalize(TVector4(pLightTransform->GetForwardVector(), 0.0f)); //TVector4(Normalize(pSunLight->GetDirection()), 0.0f);
 			lightingData.mSunLightPosition       = TVector4(pLightTransform->GetPosition(), 1.0f);
 			lightingData.mSunLightColor          = pCurrLight->GetColor();
-			lightingData.mSunLightMatrix         = ConstructSunLightMatrix(pGraphicsContext, pLightTransform);
+			lightingData.mSunLightMatrix[0]      = ConstructSunLightMatrix(pGraphicsContext, pCamera, pLightTransform);
+			lightingData.mShadowCascadesCount    = 1;
 			lightingData.mIsShadowMappingEnabled = static_cast<U32>(CGameUserSettings::Get()->mCurrent.mIsShadowMappingEnabled);
 		}
 	}
 
 
-	static void ProcessPointLights(TLightingShaderData& lightingData, CLightingSystem::TPointLightsContext& pointLightsContext)
+	static TMatrix4 ConstructPointLightMatrix(IGraphicsContext* pGraphicsContext, IPointLight* pPointLight, const TVector3& lightPos, USIZE i)
+	{
+		const F32 handedness = pGraphicsContext->GetPositiveZAxisDirection();
+		auto&& ndcInfo = pGraphicsContext->GetContextInfo().mNDCBox;
+
+		static const std::array<TVector3, 6> lightUpVectors
+		{
+			TVector3(0.0f, -1.0f, 0.0f),
+			TVector3(0.0f, -1.0f, 0.0f),
+			TVector3(0.0f, 0.0f, -1.0f),
+			TVector3(0.0f, 0.0f, -1.0f),
+			TVector3(-1.0f, 0.0f, 0.0f),
+			TVector3(-1.0f, 0.0f, 0.0f)
+		};
+
+		static const std::array<TVector3, 6> lightPosOffsets
+		{
+			TVector3(1.0f, 0.0f, 0.0f), 
+			TVector3(-1.0f, 0.0f, 0.0f),
+			TVector3(0.0f, 1.0f, 0.0f),
+			TVector3(0.0f, -1.0f, 0.0f),
+			TVector3(0.0f, 0.0f, 1.0f),
+			TVector3(0.0f, 0.0f, -1.0f)
+		};
+
+		return PerspectiveProj(90.0f * CMathConstants::Deg2Rad, 1.0f, 1.0f, pPointLight->GetRange() + 1.0f, ndcInfo.min.z, ndcInfo.max.z, handedness) *
+			LookAt(lightPos, lightUpVectors[i], lightPos + lightPosOffsets[i], handedness);
+	}
+
+
+	static void ProcessPointLights(IGraphicsContext* pGraphicsContext, TLightingShaderData& lightingData, CLightingSystem::TPointLightsContext& pointLightsContext)
 	{
 		TDE2_PROFILER_SCOPE("CLightingSystem::ProcessPointLights");
 
@@ -275,6 +320,11 @@ namespace TDEngine2
 			currPointLight.mColor = pLight->GetColor();
 			currPointLight.mIntensity = pLight->GetIntensity();
 			currPointLight.mRange = pLight->GetRange();
+
+			for (USIZE sideIndex = 0; sideIndex < 6; sideIndex++)
+			{
+				currPointLight.mLightMatrix[sideIndex] = ConstructPointLightMatrix(pGraphicsContext, pLight, pLightTransform->GetPosition(), sideIndex);
+			}
 		}
 	}
 
@@ -300,11 +350,11 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("CLightingSystem::Update");
 		TDE2_ASSERT(mpRenderer);
-
+		
 		TLightingShaderData lightingData;
 
-		ProcessDirectionalLights(mpGraphicsContext, lightingData, mDirectionalLightsContext);
-		ProcessPointLights(lightingData, mPointLightsContext);
+		ProcessDirectionalLights(mpGraphicsContext, GetCurrentActiveCamera(pWorld), lightingData, mDirectionalLightsContext);
+		ProcessPointLights(mpGraphicsContext, lightingData, mPointLightsContext);
 
 		if (mpRenderer)
 		{

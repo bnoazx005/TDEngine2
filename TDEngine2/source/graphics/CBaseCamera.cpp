@@ -135,23 +135,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CFrustum::ComputeBounds(const TMatrix4& invViewProj, F32 zMin)
 	{
-		std::array<TVector4, 8> frustumVertices
-		{
-			invViewProj * TVector4(-1.0f,  1.0f, zMin, 1.0f), // near plane of the cube
-			invViewProj * TVector4( 1.0f,  1.0f, zMin, 1.0f),
-			invViewProj * TVector4(-1.0f, -1.0f, zMin, 1.0f),
-			invViewProj * TVector4( 1.0f, -1.0f, zMin, 1.0f),
-
-			invViewProj * TVector4(-1.0f,  1.0f, 1.0f, 1.0f),
-			invViewProj * TVector4(1.0f,  1.0f, 1.0f, 1.0f),
-			invViewProj * TVector4(-1.0f, -1.0f, 1.0f, 1.0f),
-			invViewProj * TVector4( 1.0f, -1.0f, 1.0f, 1.0f),
-		};
-
-		for (TVector4& currVertex : frustumVertices)
-		{
-			currVertex = currVertex * (1.0f / currVertex.w);
-		}
+		auto&& frustumVertices = GetVertices(invViewProj, zMin);
 
 		TVector3 planePoints[][3]
 		{
@@ -169,6 +153,29 @@ namespace TDEngine2
 		}
 
 		return RC_OK;
+	}
+
+	std::array<TVector4, 8> CFrustum::GetVertices(const TMatrix4& invViewProj, F32 zMin) const
+	{
+		std::array<TVector4, 8> frustumVertices
+		{
+			invViewProj * TVector4(-1.0f,  1.0f, zMin, 1.0f), // near plane of the cube
+			invViewProj * TVector4(1.0f,  1.0f, zMin, 1.0f),
+			invViewProj * TVector4(-1.0f, -1.0f, zMin, 1.0f),
+			invViewProj * TVector4(1.0f, -1.0f, zMin, 1.0f),
+
+			invViewProj * TVector4(-1.0f,  1.0f, 1.0f, 1.0f),
+			invViewProj * TVector4(1.0f,  1.0f, 1.0f, 1.0f),
+			invViewProj * TVector4(-1.0f, -1.0f, 1.0f, 1.0f),
+			invViewProj * TVector4(1.0f, -1.0f, 1.0f, 1.0f),
+		};
+
+		for (TVector4& currVertex : frustumVertices)
+		{
+			currVertex = currVertex * (1.0f / currVertex.w);
+		}
+
+		return std::move(frustumVertices);
 	}
 
 	bool CFrustum::TestPoint(const TVector3& point) const

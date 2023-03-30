@@ -329,6 +329,17 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE ComputeBounds(const TMatrix4& invViewProj, F32 zMin) = 0;
 
 			/*!
+				\brief The method computes vertices of the frustum
+
+				\param[in] invViewProj Inverted view-projection matrix of the camera
+				\param[in] zMin A minimal value for z component of frustum cube vertices in NDC space (either -1 or 0)
+
+				\return The first 4 vertices form near plane. The order is clockwise starting from left top corner
+			*/
+
+			TDE2_API virtual std::array<TVector4, 8> GetVertices(const TMatrix4& invViewProj, F32 zMin) const = 0;
+
+			/*!
 				\brief The method tests given point for inclusion within the frustum
 
 				\param[in] point A point in world space

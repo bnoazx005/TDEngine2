@@ -19,6 +19,7 @@ namespace TDEngine2
 
 
 	constexpr U32 MaxPointLightsCount = 8;
+	constexpr U32 MaxShadowCascadesCount = 4;
 
 
 	typedef struct TPointLightData
@@ -27,7 +28,8 @@ namespace TDEngine2
 		TColor32F mColor;
 		F32       mRange;
 		F32       mIntensity;
-		F32       mPadding[2];
+		F32       mUnused[2];
+		TMatrix4  mLightMatrix[6]; /// For each side of a cubemap
 	} TPointLightData, *TPointLightDataPtr;
 
 
@@ -40,14 +42,16 @@ namespace TDEngine2
 		TVector4        mSunLightDirection;
 		TVector4        mSunLightPosition;
 		TColor32F       mSunLightColor;
-		TMatrix4        mSunLightMatrix = IdentityMatrix4;
+		TVector4        mShadowCascadesSplits;
+		TMatrix4        mSunLightMatrix[MaxShadowCascadesCount];
 
 		TPointLightData mPointLights[MaxPointLightsCount];
 
 		U32             mPointLightsCount;
+		U32             mShadowCascadesCount;
 		U32             mIsShadowMappingEnabled;
 
-		U32             mPadding[2];
+		U32             mPadding[1];
 	};
 
 	/*!
