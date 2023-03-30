@@ -130,8 +130,7 @@ namespace TDEngine2
 	}
 
 
-	E_RESULT_CODE CD3D11DepthBufferTarget::_createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
-		U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality, bool isWriteable)
+	E_RESULT_CODE CD3D11DepthBufferTarget::_createInternalTextureHandler(IGraphicsContext* pGraphicsContext, const TRenderTargetParameters& params)
 	{
 		TGraphicsCtxInternalData graphicsInternalData = mpGraphicsContext->GetInternalData();
 
@@ -149,18 +148,23 @@ namespace TDEngine2
 
 		memset(&textureDesc, 0, sizeof(textureDesc));
 
-		textureDesc.Width              = width;
-		textureDesc.Height             = height;
-		textureDesc.Format             = CD3D11Mappings::GetTypelessVersionOfFormat(format);
-		textureDesc.SampleDesc.Count   = samplesCount;
-		textureDesc.SampleDesc.Quality = samplingQuality;
-		textureDesc.MipLevels          = mipLevelsCount;
-		textureDesc.ArraySize          = 1; //single texture
+		textureDesc.Width              = params.mWidth;
+		textureDesc.Height             = params.mHeight;
+		textureDesc.Format             = CD3D11Mappings::GetTypelessVersionOfFormat(params.mFormat);
+		textureDesc.SampleDesc.Count   = params.mNumOfSamples;
+		textureDesc.SampleDesc.Quality = params.mSamplingQuality;
+		textureDesc.MipLevels          = params.mNumOfMipLevels;
+		textureDesc.ArraySize          = params.mCreateAsCubemap ? 6 : 1; 
 		textureDesc.BindFlags          = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_DEPTH_STENCIL;
 		textureDesc.CPUAccessFlags     = 0; // \note for now we deny access to depth buffer on CPU side
 		textureDesc.Usage              = D3D11_USAGE_DEFAULT; /// \todo replace it with corresponding mapping
 
-		if (isWriteable)
+		if (params.mCreateAsCubemap)
+		{
+			textureDesc.MiscFlags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
+		}
+
+		if (params.mIsWriteable)
 		{
 			textureDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 		}
@@ -180,7 +184,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		if (isWriteable)
+		if (params.mIsWriteable)
 		{
 			auto uavResourceCreationResult = CreateUnorderedAccessView(mpDepthBufferTexture, mp3dDevice, mFormat);
 			if (uavResourceCreationResult.HasError())
@@ -191,7 +195,7 @@ namespace TDEngine2
 			mpUavDepthBufferView = uavResourceCreationResult.Get();
 		}
 
-		return _createShaderTextureView(mp3dDevice, CD3D11Mappings::GetBestFitStrongTypeFormat(format), mNumOfMipLevels);
+		return _createShaderTextureView(mp3dDevice, CD3D11Mappings::GetBestFitStrongTypeFormat(params.mFormat), mNumOfMipLevels);
 	}
 
 	E_RESULT_CODE CD3D11DepthBufferTarget::_createShaderTextureView(ID3D11Device* p3dDevice, E_FORMAT_TYPE format, U32 mipLevelsCount)
@@ -234,7 +238,7 @@ namespace TDEngine2
 
 
 	TDE2_API IDepthBufferTarget* CreateD3D11DepthBufferTarget(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
-															  const TTexture2DParameters& params, E_RESULT_CODE& result)
+															  const TRenderTargetParameters& params, E_RESULT_CODE& result)
 	{
 		CD3D11DepthBufferTarget* pDepthBufferTargetInstance = new (std::nothrow) CD3D11DepthBufferTarget();
 
@@ -288,7 +292,7 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		const TTexture2DParameters& texParams = static_cast<const TTexture2DParameters&>(params);
+		const TRenderTargetParameters& texParams = static_cast<const TRenderTargetParameters&>(params);
 
 		return dynamic_cast<IResource*>(CreateD3D11DepthBufferTarget(mpResourceManager, mpGraphicsContext, name, texParams, result));
 	}
@@ -297,7 +301,7 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		const TTexture2DParameters& texParams = static_cast<const TTexture2DParameters&>(params);
+		const TRenderTargetParameters& texParams = static_cast<const TRenderTargetParameters&>(params);
 
 		return dynamic_cast<IResource*>(CreateD3D11DepthBufferTarget(mpResourceManager, mpGraphicsContext, name, texParams, result));
 	}

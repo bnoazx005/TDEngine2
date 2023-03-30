@@ -86,15 +86,14 @@ namespace TDEngine2
 		return mTextureHandler;
 	}
 	
-	E_RESULT_CODE COGLRenderTarget::_createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
-																  U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality, bool isWriteable)
+	E_RESULT_CODE COGLRenderTarget::_createInternalTextureHandler(IGraphicsContext* pGraphicsContext, const TRenderTargetParameters& params)
 	{
 		GL_SAFE_CALL(glGenTextures(1, &mTextureHandler));
 
 		GL_SAFE_CALL(glBindTexture(GL_TEXTURE_2D, mTextureHandler));
 
 		GL_SAFE_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0));
-		GL_SAFE_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipLevelsCount));
+		GL_SAFE_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, params.mNumOfMipLevels));
 		GL_SAFE_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_NEVER));
 		GL_SAFE_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE));
 
@@ -104,10 +103,10 @@ namespace TDEngine2
 		GL_SAFE_CALL(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
 
 		/// GL_UNSIGNED_BYTE is used explicitly, because of stb_image stores data as unsigned char array
-		GL_SAFE_CALL(glTexImage2D(GL_TEXTURE_2D, 0, COGLMappings::GetInternalFormat(format), width, height, 0,
-								  COGLMappings::GetPixelDataFormat(format), GL_UNSIGNED_BYTE, nullptr));
+		GL_SAFE_CALL(glTexImage2D(GL_TEXTURE_2D, 0, COGLMappings::GetInternalFormat(params.mFormat), params.mWidth, params.mHeight, 0,
+								  COGLMappings::GetPixelDataFormat(params.mFormat), GL_UNSIGNED_BYTE, nullptr));
 
-		if (mipLevelsCount > 1)
+		if (params.mNumOfMipLevels > 1)
 		{
 			GL_SAFE_CALL(glGenerateMipmap(GL_TEXTURE_2D));
 		}
@@ -121,7 +120,7 @@ namespace TDEngine2
 		GL_SAFE_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTextureHandler, 0));
 		GL_SAFE_CALL(glReadBuffer(GL_COLOR_ATTACHMENT0));
 
-		if (isWriteable)
+		if (params.mIsWriteable)
 		{
 			TDE2_UNIMPLEMENTED();
 		}
@@ -133,7 +132,7 @@ namespace TDEngine2
 
 
 	TDE2_API IRenderTarget* CreateOGLRenderTarget(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
-												  const TTexture2DParameters& params, E_RESULT_CODE& result)
+												  const TRenderTargetParameters& params, E_RESULT_CODE& result)
 	{
 		COGLRenderTarget* pRenderTargetInstance = new (std::nothrow) COGLRenderTarget();
 
@@ -187,7 +186,7 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		const TTexture2DParameters& texParams = static_cast<const TTexture2DParameters&>(params);
+		const TRenderTargetParameters& texParams = static_cast<const TRenderTargetParameters&>(params);
 
 		return dynamic_cast<IResource*>(CreateOGLRenderTarget(mpResourceManager, mpGraphicsContext, name, texParams, result));
 	}
@@ -196,7 +195,7 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		const TTexture2DParameters& texParams = static_cast<const TTexture2DParameters&>(params);
+		const TRenderTargetParameters& texParams = static_cast<const TRenderTargetParameters&>(params);
 
 		return dynamic_cast<IResource*>(CreateOGLRenderTarget(mpResourceManager, mpGraphicsContext, name, texParams, result));
 	}

@@ -40,7 +40,7 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, 
-										const TTexture2DParameters& params) override;
+										const TRenderTargetParameters& params) override;
 
 			/*!
 				\brief The method binds a texture object to a given slot
@@ -112,8 +112,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseRenderTarget)
 
-			TDE2_API virtual E_RESULT_CODE _createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
-																		 U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality, bool isWriteable) = 0;
+			TDE2_API virtual E_RESULT_CODE _createInternalTextureHandler(IGraphicsContext* pGraphicsContext, const TRenderTargetParameters& params) = 0;
 
 			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
 		protected:
@@ -138,6 +137,7 @@ namespace TDEngine2
 			TTextureSamplerId   mCurrTextureSamplerHandle = TTextureSamplerId::Invalid;
 
 			bool                mIsRandomlyWriteable = false;
+			bool                mIsCreatedAsCubemap = false;
 	};
 
 

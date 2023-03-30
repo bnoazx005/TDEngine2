@@ -35,7 +35,7 @@ namespace TDEngine2
 	*/
 
 	TDE2_API IRenderTarget* CreateD3D11RenderTarget(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
-													const TTexture2DParameters& params, E_RESULT_CODE& result);
+													const TRenderTargetParameters& params, E_RESULT_CODE& result);
 
 
 	/*!
@@ -48,7 +48,7 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API IRenderTarget* CreateD3D11RenderTarget(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
-																   const TTexture2DParameters& params, E_RESULT_CODE& result);
+																   const TRenderTargetParameters& params, E_RESULT_CODE& result);
 		public:
 			TDE2_REGISTER_TYPE(CD3D11RenderTarget)
 				
@@ -105,8 +105,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11RenderTarget)
 
-			TDE2_API E_RESULT_CODE _createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
-																 U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality, bool isWriteable) override;
+			TDE2_API E_RESULT_CODE _createInternalTextureHandler(IGraphicsContext* pGraphicsContext, const TRenderTargetParameters& params) override;
 
 			TDE2_API E_RESULT_CODE _createShaderTextureView(ID3D11Device* p3dDevice, E_FORMAT_TYPE format, U32 mipLevelsCount);
 

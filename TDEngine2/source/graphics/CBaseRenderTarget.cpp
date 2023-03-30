@@ -11,7 +11,7 @@ namespace TDEngine2
 	}
 	
 	E_RESULT_CODE CBaseRenderTarget::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, 
-										  const TTexture2DParameters& params)
+										  const TRenderTargetParameters& params)
 	{
 		E_RESULT_CODE result = _init(pResourceManager, name);
 
@@ -35,13 +35,13 @@ namespace TDEngine2
 		mSamplingQuality      = params.mSamplingQuality;
 		mTextureSamplerParams = params.mTexSamplerDesc;
 		mIsRandomlyWriteable  = params.mIsWriteable; 
+		mIsCreatedAsCubemap   = params.mCreateAsCubemap;
 
 		mTextureSamplerParams.mUseMipMaps = mNumOfMipLevels > 1;
 
 		mIsInitialized = true;
 
-		return _createInternalTextureHandler(mpGraphicsContext, mWidth, mHeight, mFormat,
-											 mNumOfMipLevels, mNumOfSamples, mSamplingQuality, mIsRandomlyWriteable); /// create a texture's object within video memory using GAPI
+		return _createInternalTextureHandler(mpGraphicsContext, params); /// create a texture's object within video memory using GAPI
 	}
 
 	void CBaseRenderTarget::Bind(U32 slot)
@@ -64,7 +64,17 @@ namespace TDEngine2
 		mWidth  = width;
 		mHeight = height;
 
-		result = result | _createInternalTextureHandler(mpGraphicsContext, mWidth, mHeight, mFormat, mNumOfMipLevels, mNumOfSamples, mSamplingQuality, mIsRandomlyWriteable);
+		TRenderTargetParameters params;
+		params.mWidth = width;
+		params.mHeight = height;
+		params.mFormat = mFormat;
+		params.mNumOfMipLevels = mNumOfMipLevels;
+		params.mNumOfSamples = mNumOfSamples;
+		params.mSamplingQuality = mSamplingQuality;
+		params.mIsWriteable = mIsRandomlyWriteable;
+		params.mCreateAsCubemap = mIsCreatedAsCubemap;
+
+		result = result | _createInternalTextureHandler(mpGraphicsContext, params);
 
 		return result;
 	}

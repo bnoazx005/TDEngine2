@@ -139,8 +139,7 @@ namespace TDEngine2
 	}
 
 
-	E_RESULT_CODE CD3D11RenderTarget::_createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
-																	U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality, bool isWriteable)
+	E_RESULT_CODE CD3D11RenderTarget::_createInternalTextureHandler(IGraphicsContext* pGraphicsContext, const TRenderTargetParameters& params)
 	{
 		TGraphicsCtxInternalData graphicsInternalData = mpGraphicsContext->GetInternalData();
 
@@ -158,18 +157,18 @@ namespace TDEngine2
 
 		memset(&textureDesc, 0, sizeof(textureDesc));
 
-		textureDesc.Width              = width;
-		textureDesc.Height             = height;
-		textureDesc.Format             = CD3D11Mappings::GetDXGIFormat(format);
-		textureDesc.SampleDesc.Count   = samplesCount;
-		textureDesc.SampleDesc.Quality = samplingQuality;
-		textureDesc.MipLevels          = mipLevelsCount;
+		textureDesc.Width              = params.mWidth;
+		textureDesc.Height             = params.mHeight;
+		textureDesc.Format             = CD3D11Mappings::GetDXGIFormat(params.mFormat);
+		textureDesc.SampleDesc.Count   = params.mNumOfSamples;
+		textureDesc.SampleDesc.Quality = params.mSamplingQuality;
+		textureDesc.MipLevels          = params.mNumOfMipLevels;
 		textureDesc.ArraySize          = 1; //single texture
 		textureDesc.BindFlags          = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
 		textureDesc.CPUAccessFlags     = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
 		textureDesc.Usage              = D3D11_USAGE_DEFAULT; /// \todo replace it with corresponding mapping
 
-		if (isWriteable)
+		if (params.mIsWriteable)
 		{
 			textureDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 		}
@@ -189,7 +188,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		if (isWriteable)
+		if (params.mIsWriteable)
 		{
 			auto uavResourceCreationResult = CreateUnorderedAccessView(mpRenderTexture, mp3dDevice, mFormat);
 			if (uavResourceCreationResult.HasError())
@@ -243,7 +242,7 @@ namespace TDEngine2
 
 
 	TDE2_API IRenderTarget* CreateD3D11RenderTarget(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
-													const TTexture2DParameters& params, E_RESULT_CODE& result)
+													const TRenderTargetParameters& params, E_RESULT_CODE& result)
 	{
 		CD3D11RenderTarget* pRenderTargetInstance = new (std::nothrow) CD3D11RenderTarget();
 
@@ -297,7 +296,7 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		const TTexture2DParameters& texParams = static_cast<const TTexture2DParameters&>(params);
+		const TRenderTargetParameters& texParams = static_cast<const TRenderTargetParameters&>(params);
 
 		return dynamic_cast<IResource*>(CreateD3D11RenderTarget(mpResourceManager, mpGraphicsContext, name, texParams, result));
 	}
@@ -306,7 +305,7 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		const TTexture2DParameters& texParams = static_cast<const TTexture2DParameters&>(params);
+		const TRenderTargetParameters& texParams = static_cast<const TRenderTargetParameters&>(params);
 
 		return dynamic_cast<IResource*>(CreateD3D11RenderTarget(mpResourceManager, mpGraphicsContext, name, texParams, result));
 	}

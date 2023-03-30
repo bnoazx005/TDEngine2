@@ -26,7 +26,7 @@ namespace TDEngine2
 	*/
 
 	TDE2_API IDepthBufferTarget* CreateOGLDepthBufferTarget(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
-		const TTexture2DParameters& params, E_RESULT_CODE& result);
+		const TRenderTargetParameters& params, E_RESULT_CODE& result);
 
 
 	/*!
@@ -39,7 +39,7 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API IDepthBufferTarget* CreateOGLDepthBufferTarget(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
-				const TTexture2DParameters& params, E_RESULT_CODE& result);
+				const TRenderTargetParameters& params, E_RESULT_CODE& result);
 		public:
 			TDE2_REGISTER_TYPE(COGLDepthBufferTarget)
 
@@ -96,8 +96,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLDepthBufferTarget)
 
-			TDE2_API E_RESULT_CODE _createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
-				U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality, bool isWriteable) override;
+			TDE2_API E_RESULT_CODE _createInternalTextureHandler(IGraphicsContext* pGraphicsContext, const TRenderTargetParameters& params) override;
 
 		protected:
 			GLuint mDepthBufferHandle;
