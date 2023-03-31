@@ -571,6 +571,23 @@ namespace TDEngine2
 			};
 	}
 
+
+	static std::string RemoveSourceRegions(const std::string& source, const std::vector<std::tuple<U32, U32>>& regionsToRemove)
+	{
+		std::string output = source;
+
+		auto sortedRegions(regionsToRemove);
+		std::sort(sortedRegions.begin(), sortedRegions.end(), [](auto&& left, auto&& right) { return std::get<0>(left) > std::get<1>(right); });
+
+		for (auto&& currRegion : sortedRegions)
+		{
+			output = output.erase(std::get<0>(currRegion), std::get<1>(currRegion) - std::get<0>(currRegion));
+		}
+
+		return std::move(output);
+	}
+
+
 	std::string CBaseShaderCompiler::_enableShaderStage(E_SHADER_STAGE_TYPE shaderStage, const TStagesRegionsMap& stagesRegionsInfo, const std::string& source) const
 	{
 		std::string processedSource{ source };
@@ -582,16 +599,13 @@ namespace TDEngine2
 		switch (shaderStage)
 		{
 			case E_SHADER_STAGE_TYPE::SST_VERTEX:
-				processedSource.erase(std::get<0>(pixelRegions), std::get<1>(pixelRegions) - std::get<0>(pixelRegions));
-				processedSource.erase(std::get<0>(geometryRegions), std::get<1>(geometryRegions) - std::get<0>(geometryRegions));
+				processedSource = RemoveSourceRegions(processedSource, { pixelRegions , geometryRegions });
 				break;
 			case E_SHADER_STAGE_TYPE::SST_PIXEL:
-				processedSource.erase(std::get<0>(vertexRegions), std::get<1>(vertexRegions) - std::get<0>(vertexRegions));
-				processedSource.erase(std::get<0>(geometryRegions), std::get<1>(geometryRegions) - std::get<0>(geometryRegions));
+				processedSource = RemoveSourceRegions(processedSource, { vertexRegions , geometryRegions });
 				break;
 			case E_SHADER_STAGE_TYPE::SST_GEOMETRY:
-				processedSource.erase(std::get<0>(vertexRegions), std::get<1>(vertexRegions) - std::get<0>(vertexRegions));
-				processedSource.erase(std::get<0>(pixelRegions), std::get<1>(pixelRegions) - std::get<0>(pixelRegions));
+				processedSource = RemoveSourceRegions(processedSource, { vertexRegions , pixelRegions });
 				break;
 		}
 
