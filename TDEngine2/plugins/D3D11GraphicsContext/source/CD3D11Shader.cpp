@@ -59,21 +59,10 @@ namespace TDEngine2
 			return;
 		}
 
-		if (mpVertexShader)
-		{
-			mp3dDeviceContext->VSSetShader(mpVertexShader, nullptr, 0);
-		}
-
-		if (mpPixelShader)
-		{
-			mp3dDeviceContext->PSSetShader(mpPixelShader, nullptr, 0);
-		}
-
-		if (mpGeometryShader)
-		{
-			mp3dDeviceContext->GSSetShader(mpGeometryShader, nullptr, 0);
-		}
-
+		mp3dDeviceContext->VSSetShader(mpVertexShader, nullptr, 0);
+		mp3dDeviceContext->PSSetShader(mpPixelShader, nullptr, 0);
+		mp3dDeviceContext->GSSetShader(mpGeometryShader, nullptr, 0);
+		
 		if (mpComputeShader)
 		{
 			mp3dDeviceContext->CSSetShader(mpComputeShader, nullptr, 0);
@@ -189,8 +178,8 @@ namespace TDEngine2
 
 			pConstantBuffer = CreateD3D11ConstantBuffer(mpGraphicsContext, BUT_DYNAMIC, currDesc.mSize, nullptr, result);
 
-			const U32 index = static_cast<U32>(std::distance(uniformBuffersInfo.cbegin(), iter) - TotalNumberOfInternalConstantBuffers);
-			TDE2_ASSERT(index >= 0);
+			const U32 index = static_cast<U32>(iter->second.mSlot - TotalNumberOfInternalConstantBuffers);
+			TDE2_ASSERT(index >= 0 && index <= 1024);
 
 			/// \note Ensure that we compute correct size of the constant buffer. We use ID3D11ShaderReflection to retrieve accurate information
 

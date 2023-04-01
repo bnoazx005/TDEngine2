@@ -672,21 +672,91 @@ namespace TDEngine2
 				return  R"(
 					#define VERTEX_ENTRY mainVS
 					#define PIXEL_ENTRY mainPS
+					#define GEOMETRY_ENTRY mainGS
 
 					#include <TDEngine2Globals.inc>
 
-					#program vertex
-
-					float4 mainVS(float4 lPos : POSITION0): SV_POSITION
+					struct VertexOutput
 					{
-						return mul(SunLightMat[0], mul(ModelMat, lPos));
+						float4 mPos : POSITION0;
+					};
+
+					struct GeometryOutput
+					{
+						float4 mLPos : POSITION;
+						float4 mPos : SV_POSITION;
+						uint mFaceIndex : SV_RenderTargetArrayIndex;
+					};
+					
+					CBUFFER_SECTION_EX(Parameters, 4)
+						int mIsSunLight;
+					CBUFFER_ENDSECTION
+
+
+					#program vertex
+					
+					VertexOutput mainVS(float4 lPos : POSITION0)
+					{
+						VertexOutput output;
+						output.mPos = mul(ModelMat, lPos);
+						
+						return output;
 					}
 
 					#endprogram
 
+					#program geometry
+
+					[maxvertexcount(18)]				
+					void mainGS(triangle VertexOutput gin[3], inout TriangleStream<GeometryOutput> triStream)
+					{
+						GeometryOutput output;
+
+						if (mIsSunLight == 1)
+						{
+							for (int i = 0; i < 3; i++)
+							{
+								output.mPos = mul(SunLightMat[0], gin[i].mPos);
+								output.mLPos = gin[i].mPos;
+								output.mFaceIndex = 0;
+								
+								triStream.Append(output);
+							}
+
+							return;
+						}
+
+						[unroll]
+						for (int faceIndex = 0; faceIndex < 6; faceIndex++)
+						{
+							output.mFaceIndex = faceIndex;
+
+							[unroll]
+							for (int i = 0; i < 3; i++)
+							{
+								output.mPos = mul(PointLights[0].mLightMats[faceIndex], gin[i].mPos);
+								output.mLPos = gin[i].mPos;
+								triStream.Append(output);
+							}
+
+							triStream.RestartStrip();
+						}						
+					}
+		
+					#endprogram
+
 					#program pixel
 
-					void mainPS(float4 wPos : SV_POSITION) {}
+					void mainPS(GeometryOutput input, out float depth : SV_Depth) 
+					{
+						if (mIsSunLight == 1)
+						{
+							depth = input.mPos.z / input.mPos.w;
+							return;
+						}
+
+						depth = length(input.mLPos.xyz - PointLights[0].mPosition.xyz) / 20.0;
+					}
 					#endprogram
 				)";
 			case E_DEFAULT_SHADER_TYPE::DST_SHADOW_SKINNED_PASS:

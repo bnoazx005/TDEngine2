@@ -205,9 +205,17 @@ namespace TDEngine2
 		memset(&viewDesc, 0, sizeof(viewDesc));
 
 		viewDesc.Format        = CD3D11Mappings::GetDXGIFormat(format);
-		viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		viewDesc.ViewDimension = mIsCreatedAsCubemap ? D3D11_SRV_DIMENSION_TEXTURECUBE : D3D11_SRV_DIMENSION_TEXTURE2D;
 
-		viewDesc.Texture2D.MipLevels = 1;
+		if (mIsCreatedAsCubemap)
+		{
+			viewDesc.TextureCube.MipLevels = 1;
+			viewDesc.TextureCube.MostDetailedMip = 0;
+		}
+		else
+		{
+			viewDesc.Texture2D.MipLevels = 1;
+		}
 
 		if (FAILED(p3dDevice->CreateShaderResourceView(mpDepthBufferTexture, &viewDesc, &mpShaderTextureView)))
 		{
@@ -224,9 +232,18 @@ namespace TDEngine2
 		memset(&viewDesc, 0, sizeof(viewDesc));
 
 		viewDesc.Format        = CD3D11Mappings::GetDXGIFormat(format);
-		viewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-
-		viewDesc.Texture2D.MipSlice = 0;
+		viewDesc.ViewDimension = mIsCreatedAsCubemap ? D3D11_DSV_DIMENSION_TEXTURE2DARRAY : D3D11_DSV_DIMENSION_TEXTURE2D;
+		
+		if (mIsCreatedAsCubemap)
+		{
+			viewDesc.Texture2DArray.ArraySize = 6;
+			viewDesc.Texture2DArray.MipSlice = 0;
+			viewDesc.Texture2DArray.FirstArraySlice = 0;
+		}
+		else
+		{
+			viewDesc.Texture2D.MipSlice = 0;
+		}
 
 		if (FAILED(p3dDevice->CreateDepthStencilView(mpDepthBufferTexture, &viewDesc, &mpDepthBufferTargetView)))
 		{
