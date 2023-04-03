@@ -690,6 +690,7 @@ namespace TDEngine2
 					
 					CBUFFER_SECTION_EX(Parameters, 4)
 						int mIsSunLight;
+						int mPointLightIndex;
 					CBUFFER_ENDSECTION
 
 
@@ -734,7 +735,7 @@ namespace TDEngine2
 							[unroll]
 							for (int i = 0; i < 3; i++)
 							{
-								output.mPos = mul(PointLights[0].mLightMats[faceIndex], gin[i].mPos);
+								output.mPos = mul(PointLights[mPointLightIndex].mLightMats[faceIndex], gin[i].mPos);
 								output.mLPos = gin[i].mPos;
 								triStream.Append(output);
 							}
@@ -755,7 +756,7 @@ namespace TDEngine2
 							return;
 						}
 
-						depth = length(input.mLPos.xyz - PointLights[0].mPosition.xyz) / 20.0;
+						depth = length(input.mLPos.xyz - PointLights[mPointLightIndex].mPosition.xyz) / PointLights[mPointLightIndex].mRange;
 					}
 					#endprogram
 				)";

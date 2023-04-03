@@ -11,10 +11,12 @@
 #include "../../include/graphics/CGlobalShaderProperties.h"
 #include "../../include/graphics/InternalShaderData.h"
 #include "../../include/graphics/CDebugUtility.h"
+#include "../../include/graphics/IMaterial.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include "../../include/graphics/IFramePostProcessor.h"
 #include "../../include/graphics/CBaseRenderTarget.h"
+#include "../../include/graphics/CBaseCubemapTexture.h"
 #if TDE2_EDITORS_ENABLED
 	#include "../../include/editor/ISelectionManager.h"
 #endif
@@ -28,12 +30,19 @@ namespace TDEngine2
 	}
 
 
-	static TResult<TResourceId> GetOrCreateShadowMap(TPtr<IResourceManager> pResourceManager)
+	static TResult<TResourceId> GetOrCreateDirectionalShadowMap(TPtr<IResourceManager> pResourceManager)
 	{
 		const U32 shadowMapSizes = CGameUserSettings::Get()->mCurrent.mShadowMapSizes;
 		TDE2_ASSERT(shadowMapSizes > 0 && shadowMapSizes < 65536);
 
-		const TTexture2DParameters shadowMapParams{ shadowMapSizes, shadowMapSizes, FT_D32, 1, 1, 0 };
+		TRenderTargetParameters shadowMapParams;
+		shadowMapParams.mWidth = shadowMapSizes;
+		shadowMapParams.mHeight = shadowMapSizes;
+		shadowMapParams.mFormat = FT_D32;
+		shadowMapParams.mNumOfMipLevels = 1;
+		shadowMapParams.mNumOfSamples = 1;
+		shadowMapParams.mSamplingQuality = 0;
+		shadowMapParams.mCreateAsCubemap = false;
 
 		const TResourceId shadowMapHandle = pResourceManager->Create<IDepthBufferTarget>("ShadowMap", shadowMapParams);
 		if (shadowMapHandle == TResourceId::Invalid)
@@ -46,6 +55,45 @@ namespace TDEngine2
 		{
 			pShadowMapBuffer->SetUWrapMode(E_ADDRESS_MODE_TYPE::AMT_CLAMP);
 			pShadowMapBuffer->SetVWrapMode(E_ADDRESS_MODE_TYPE::AMT_CLAMP);
+			pShadowMapBuffer->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
+
+			if (pShadowMapBuffer->GetWidth() != shadowMapSizes)
+			{
+				LOG_MESSAGE(Wrench::StringUtils::Format("[CForwardRenderer] The shadow map sizes has been changed, from {0}x{0} to {1}x{1}", pShadowMapBuffer->GetWidth(), shadowMapSizes));
+				pShadowMapBuffer->Resize(shadowMapSizes, shadowMapSizes);
+			}
+		}
+
+		return Wrench::TOkValue<TResourceId>(shadowMapHandle);
+	}
+
+
+	static TResult<TResourceId> GetOrCreatePointShadowMap(TPtr<IResourceManager> pResourceManager, USIZE pointLightIndex)
+	{
+		const U32 shadowMapSizes = CGameUserSettings::Get()->mCurrent.mShadowMapSizes;
+		TDE2_ASSERT(shadowMapSizes > 0 && shadowMapSizes < 65536);
+
+		TRenderTargetParameters shadowMapParams;
+		shadowMapParams.mWidth = shadowMapSizes;
+		shadowMapParams.mHeight = shadowMapSizes;
+		shadowMapParams.mFormat = FT_D32;
+		shadowMapParams.mNumOfMipLevels = 1;
+		shadowMapParams.mNumOfSamples = 1;
+		shadowMapParams.mSamplingQuality = 0;
+		shadowMapParams.mCreateAsCubemap = true;
+
+		const TResourceId shadowMapHandle = pResourceManager->Create<IDepthBufferTarget>("PointShadowMap", shadowMapParams);
+		if (shadowMapHandle == TResourceId::Invalid)
+		{
+			TDE2_ASSERT(false);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		if (auto pShadowMapBuffer = pResourceManager->GetResource<IDepthBufferTarget>(shadowMapHandle))
+		{
+			pShadowMapBuffer->SetUWrapMode(E_ADDRESS_MODE_TYPE::AMT_CLAMP);
+			pShadowMapBuffer->SetVWrapMode(E_ADDRESS_MODE_TYPE::AMT_CLAMP);
+			pShadowMapBuffer->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
 
 			if (pShadowMapBuffer->GetWidth() != shadowMapSizes)
 			{
@@ -127,7 +175,8 @@ namespace TDEngine2
 
 		if (CGameUserSettings::Get()->mCurrent.mIsShadowMappingEnabled)
 		{
-			GetOrCreateShadowMap(mpResourceManager).Get(); /// \note Create a shadow map's texture before any Update will be executed
+			GetOrCreateDirectionalShadowMap(mpResourceManager).Get(); /// \note Create a shadow map's texture before any Update will be executed
+			GetOrCreatePointShadowMap(mpResourceManager, 0).Get();
 		}
 
 		mIsInitialized = true;
@@ -211,18 +260,35 @@ namespace TDEngine2
 
 		TDE2_PROFILER_SCOPE("Renderer::RenderShadows");
 
-		const TResourceId shadowMapHandle = GetOrCreateShadowMap(pResourceManager).Get();
+		static std::vector<TResourceId> shadowMapHandles;
+		shadowMapHandles.clear();
 
-		if (!pShadowCastersRenderGroup->IsEmpty())
+		shadowMapHandles.push_back(GetOrCreateDirectionalShadowMap(pResourceManager).Get());
+		shadowMapHandles.push_back(GetOrCreatePointShadowMap(pResourceManager, 0).Get());
+
+		/// \todo Replace hardcoded identifiers
+		const TResourceId shadowPassMaterialHandle = pResourceManager->Load<IMaterial>("ShadowPassMaterial.material");
+
+		for (const TResourceId currShadowMapHandle : shadowMapHandles)
 		{
-			RenderShadowCasters(pGraphicsContext, pResourceManager, shadowMapHandle, [&]
+			/// \todo Assign "ShadowPass" material's variables that defines which type of a light casts shadows
+			if (auto pMaterial = pResourceManager->GetResource<IMaterial>(shadowPassMaterialHandle))
 			{
-				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pShadowCastersRenderGroup, true);
-			});
-		}
-		else
-		{
-			RenderShadowCasters(pGraphicsContext, pResourceManager, shadowMapHandle, nullptr);
+				pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, "mIsSunLight", shadowMapHandles.front() == currShadowMapHandle);
+				pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, "mPointLightIndex", 0);
+			}
+
+			if (!pShadowCastersRenderGroup->IsEmpty())
+			{
+				RenderShadowCasters(pGraphicsContext, pResourceManager, currShadowMapHandle, [&]
+				{
+					ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pShadowCastersRenderGroup, shadowMapHandles.back() == currShadowMapHandle);
+				});
+			}
+			else
+			{
+				RenderShadowCasters(pGraphicsContext, pResourceManager, currShadowMapHandle, nullptr);
+			}
 		}
 
 		return RC_OK;

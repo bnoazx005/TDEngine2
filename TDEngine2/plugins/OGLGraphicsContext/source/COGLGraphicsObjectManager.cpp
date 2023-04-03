@@ -543,6 +543,7 @@ namespace TDEngine2
 					{
 						if (mIsSunLight == 1)
 						{
+							gl_FragDepth = gl_FragCoord.z;
 							return;
 						}
 

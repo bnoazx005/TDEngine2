@@ -77,6 +77,7 @@ int getRandomIndex(vec4 seed, int minValue, int maxValue)
 
 
 DECLARE_TEX2D(DirectionalShadowMapTexture);
+DECLARE_CUBETEX_EX(PointLightShadowMapTexture_0, 1);
 
 
 /*!
@@ -85,7 +86,7 @@ DECLARE_TEX2D(DirectionalShadowMapTexture);
 
 #ifdef TDE2_HLSL_SHADER
 
-float ComputeShadowFactor(float4 lightSpaceFragPos, float bias)
+float ComputeSunShadowFactor(float4 lightSpaceFragPos, float bias)
 {
 	float3 projectedPos = lightSpaceFragPos.xyz / lightSpaceFragPos.w;
 
@@ -101,7 +102,7 @@ float ComputeShadowFactor(float4 lightSpaceFragPos, float bias)
 }
 
 
-float ComputeShadowFactorPCF(uint samplesCount, float4 lightSpaceFragPos, float bias, float spread)
+float ComputeSunShadowFactorPCF(uint samplesCount, float4 lightSpaceFragPos, float bias, float spread)
 {
 	samplesCount = clamp(samplesCount, 0, PoissonDiskSamplesCount); //clamp samplesCount to [0; maxSamplesCount] range
 
@@ -141,7 +142,7 @@ float ComputeShadowFactorPCF(uint samplesCount, float4 lightSpaceFragPos, float 
 
 #ifdef TDE2_GLSL_SHADER
 
-float ComputeShadowFactor(vec4 lightSpaceFragPos, float bias)
+float ComputeSunShadowFactor(vec4 lightSpaceFragPos, float bias)
 {
 	vec3 projectedPos = lightSpaceFragPos.xyz / lightSpaceFragPos.w;
 
@@ -156,7 +157,7 @@ float ComputeShadowFactor(vec4 lightSpaceFragPos, float bias)
 }
 
 
-float ComputeShadowFactorPCF(int samplesCount, vec4 lightSpaceFragPos, float bias, float spread)
+float ComputeSunShadowFactorPCF(int samplesCount, vec4 lightSpaceFragPos, float bias, float spread)
 {
 	samplesCount = clamp(samplesCount, 0, PoissonDiskSamplesCount); //clamp samplesCount to [0; maxSamplesCount] range
 
@@ -186,5 +187,13 @@ float ComputeShadowFactorPCF(int samplesCount, vec4 lightSpaceFragPos, float bia
 }
 
 #endif
+
+
+float ComputePointLightShadowFactor(in PointLightData pointLight, float4 fragPos, float bias)
+{	
+	float3 lightDir = (fragPos - pointLight.mPosition).xyz;
+	float closestDepth = pointLight.mRange * TEXCUBE(PointLightShadowMapTexture_0, lightDir).r;
+	return (length(lightDir) - bias) >  closestDepth ? 1.0 : 0.0;
+}
 
 #endif

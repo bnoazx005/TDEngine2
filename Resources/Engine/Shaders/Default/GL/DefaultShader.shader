@@ -25,7 +25,7 @@ out vec3 OutTangentViewDir;
 void main(void)
 {
 	gl_Position = ProjMat * ViewMat * ModelMat * inlPos;
-	LightSpaceVertPos = SunLightMat * ModelMat * inlPos;
+	LightSpaceVertPos = SunLightMat[0] * ModelMat * inlPos;
 
 	VertOutColor = inColor;
 
@@ -92,10 +92,10 @@ void main(void)
 
 	for (int i = 0; i < ActivePointLightsCount; ++i)
 	{
-		pointLightsContribution += CalcPointLightContribution(PointLights[i], lightingData);
+		pointLightsContribution += CalcPointLightContribution(PointLights[i], lightingData) * (1.0 - ComputePointLightShadowFactor(PointLights[i], VertOutWorldPos, 0.1));
 	}
 
-	FragColor = (sunLight + pointLightsContribution) * (1.0 - ComputeShadowFactorPCF(8, LightSpaceVertPos, 0.0001, 1000.0)) * VertOutColor;
+	FragColor = (sunLight + pointLightsContribution) * (1.0 - ComputeSunShadowFactorPCF(8, LightSpaceVertPos, 0.0001, 1000.0)) * VertOutColor;
 }
 
 #endprogram

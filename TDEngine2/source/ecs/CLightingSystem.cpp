@@ -270,17 +270,17 @@ namespace TDEngine2
 
 	static TMatrix4 ConstructPointLightMatrix(IGraphicsContext* pGraphicsContext, IPointLight* pPointLight, const TVector3& lightPos, USIZE i)
 	{
-		const F32 handedness = pGraphicsContext->GetPositiveZAxisDirection();
+		const F32 handedness = -pGraphicsContext->GetPositiveZAxisDirection();
 		auto&& ndcInfo = pGraphicsContext->GetContextInfo().mNDCBox;
 
 		static const std::array<TVector3, 6> lightUpVectors
 		{
-			TVector3(0.0f, -1.0f, 0.0f),
-			TVector3(0.0f, -1.0f, 0.0f),
+			TVector3(0.0f, 1.0f, 0.0f),
+			TVector3(0.0f, 1.0f, 0.0f),
 			TVector3(0.0f, 0.0f, -1.0f),
-			TVector3(0.0f, 0.0f, -1.0f),
-			TVector3(-1.0f, 0.0f, 0.0f),
-			TVector3(-1.0f, 0.0f, 0.0f)
+			TVector3(0.0f, 0.0f, 1.0f),
+			TVector3(0.0f, 1.0f, 0.0f),
+			TVector3(0.0f, 1.0f, 0.0f)
 		};
 
 		static const std::array<TVector3, 6> lightPosOffsets
@@ -293,8 +293,8 @@ namespace TDEngine2
 			TVector3(0.0f, 0.0f, -1.0f)
 		};
 
-		return PerspectiveProj(90.0f * CMathConstants::Deg2Rad, 1.0f, 1.0f, pPointLight->GetRange() + 1.0f, ndcInfo.min.z, ndcInfo.max.z, handedness) *
-			LookAt(lightPos, lightUpVectors[i], lightPos + lightPosOffsets[i], handedness);
+		return Transpose(Mul(PerspectiveProj(90.0f * CMathConstants::Deg2Rad, 1.0f, 1.0f, pPointLight->GetRange(), ndcInfo.min.z, ndcInfo.max.z, handedness),
+			LookAt(lightPos, lightUpVectors[i], lightPos + lightPosOffsets[i], handedness)));
 	}
 
 
@@ -330,7 +330,8 @@ namespace TDEngine2
 
 
 	template <typename TRenderable>
-	static void ProcessShadowReceivers(TPtr<IResourceManager> pResourceManager, const std::vector<TRenderable*> shadowReceivers, TPtr<ITexture> pShadowMapTexture)
+	static void ProcessShadowReceivers(TPtr<IResourceManager> pResourceManager, const std::vector<TRenderable*> shadowReceivers,
+		TPtr<ITexture> pSunLightShadowMap, TPtr<ITexture> pPointLightShadowMap)
 	{
 		// \note Inject shadow map buffer into materials 
 		for (USIZE i = 0; i < shadowReceivers.size(); ++i)
@@ -339,7 +340,8 @@ namespace TDEngine2
 			{
 				if (auto pMaterial = pResourceManager->GetResource<IMaterial>(pResourceManager->Load<IMaterial>(pMeshContainer->GetMaterialName())))
 				{
-					pMaterial->SetTextureResource("DirectionalShadowMapTexture", pShadowMapTexture.Get());
+					pMaterial->SetTextureResource("DirectionalShadowMapTexture", pSunLightShadowMap.Get());
+					pMaterial->SetTextureResource("PointLightShadowMapTexture_0", pPointLightShadowMap.Get());
 				}
 			}
 		}
@@ -383,9 +385,10 @@ namespace TDEngine2
 			TDE2_PROFILER_SCOPE("CLightingSystem::ProcessShadowReceivers");
 
 			auto pShadowMapTexture = mpResourceManager->GetResource<ITexture>(mpResourceManager->Load<IDepthBufferTarget>("ShadowMap"));
+			auto pPointLightShadowMapTexture = mpResourceManager->GetResource<ITexture>(mpResourceManager->Load<IDepthBufferTarget>("PointShadowMap"));
 
-			ProcessShadowReceivers(mpResourceManager, std::get<std::vector<CStaticMeshContainer*>>(mStaticShadowReceiversContext.mComponentsSlice), pShadowMapTexture);
-			ProcessShadowReceivers(mpResourceManager, std::get<std::vector<CSkinnedMeshContainer*>>(mSkinnedShadowReceiversContext.mComponentsSlice), pShadowMapTexture);
+			ProcessShadowReceivers(mpResourceManager, std::get<std::vector<CStaticMeshContainer*>>(mStaticShadowReceiversContext.mComponentsSlice), pShadowMapTexture, pPointLightShadowMapTexture);
+			ProcessShadowReceivers(mpResourceManager, std::get<std::vector<CSkinnedMeshContainer*>>(mSkinnedShadowReceiversContext.mComponentsSlice), pShadowMapTexture, pPointLightShadowMapTexture);
 		}
 	}
 

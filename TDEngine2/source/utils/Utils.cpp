@@ -351,13 +351,11 @@ namespace TDEngine2
 
 	template <> TDE2_API U32 ComputeStateDescHash<TTextureSamplerDesc>(const TTextureSamplerDesc& object)
 	{
-		std::array<C8, sizeof(U32) * 4> data;
-		memcpy(&data[0], &object.mFilteringType, sizeof(U32));
-		memcpy(&data[4], &object.mUAddressMode, sizeof(U32));
-		memcpy(&data[8], &object.mVAddressMode, sizeof(U32));
-		memcpy(&data[12], &object.mWAddressMode, sizeof(U32));
-
-		return ComputeHash(&data.front());
+		return static_cast<U8>(object.mFilteringType) |
+			static_cast<U8>(object.mUAddressMode) << 3 |
+			static_cast<U8>(object.mVAddressMode) << 6 |
+			static_cast<U8>(object.mWAddressMode) << 9 |
+			static_cast<U8>(object.mUseMipMaps) << 12;
 	}
 
 

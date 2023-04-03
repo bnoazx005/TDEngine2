@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.15] 2023-03-28
+## [0.6.15] 2023-04-03
 
 ### Added
 
@@ -32,6 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Now **CLabel** components support colorizing of text using respective field in the inspector.
 
 - The API of **IFont** was extended with new methods for retrieving/assigning font's size.
+
+- Add the first iteration of point lights shadow maps.
 
 ### Changed
 
