@@ -91,6 +91,7 @@ namespace TDEngine2
 			glGetProgramInfoLog(mShaderHandler, messageLength, &messageLength, &tmpErrorMsgBuffer[0]);
 
 			std::string errorMessageStr(tmpErrorMsgBuffer.begin(), tmpErrorMsgBuffer.end());
+			LOG_ERROR(Wrench::StringUtils::Format("[OGLShader] Some error happened during compilation: \n{0}", errorMessageStr));
 
 			GL_SAFE_CALL(glDeleteProgram(mShaderHandler));
 

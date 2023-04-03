@@ -472,6 +472,14 @@ namespace TDEngine2
 
 					#define VERTEX_ENTRY main
 					#define PIXEL_ENTRY main
+					#define GEOMETRY_ENTRY main
+
+
+					CBUFFER_SECTION_EX(Parameters, 4)
+						int mIsSunLight;
+						int mPointLightIndex;
+					CBUFFER_ENDSECTION
+
 
 					#program vertex
 
@@ -479,13 +487,68 @@ namespace TDEngine2
 
 					void main(void)
 					{
-						gl_Position = SunLightMat * ModelMat * inlPos;
+						gl_Position = ModelMat * inlPos;
+					}
+
+					#endprogram
+
+					#program geometry
+
+					layout (triangles) in;		
+					layout (triangle_strip, max_vertices = 18) out;
+
+					out vec4 FragPos;
+
+					void main() 
+					{
+						if (mIsSunLight == 1)
+						{
+							for (int i = 0; i < 3; i++)
+							{
+								gl_Position = mul(SunLightMat[0], gl_in[i].gl_Position);
+								FragPos = gl_in[i].gl_Position;
+								gl_Layer = 0;
+								
+								EmitVertex();
+							}
+
+							EndPrimitive();
+
+							return;
+						}
+
+						for (int faceIndex = 0; faceIndex < 6; faceIndex++)
+						{
+							gl_Layer = faceIndex;
+
+							for (int i = 0; i < 3; i++)
+							{
+								gl_Position = mul(PointLights[mPointLightIndex].mLightMats[faceIndex], gl_in[i].gl_Position);
+								FragPos = gl_in[i].gl_Position;
+
+								EmitVertex();
+							}
+
+							EndPrimitive();
+						}	
 					}
 
 					#endprogram
 
 					#program pixel
-					void main(void) {}
+
+					in vec4 FragPos;
+
+					void main(void) 
+					{
+						if (mIsSunLight == 1)
+						{
+							return;
+						}
+
+						gl_FragDepth = length(FragPos.xyz - PointLights[mPointLightIndex].mPosition.xyz) / PointLights[mPointLightIndex].mRange;
+					}
+
 					#endprogram
 					)";
 
@@ -508,7 +571,7 @@ namespace TDEngine2
 
 					void main(void)
 					{
-						gl_Position = SunLightMat * ModelMat * ComputeSkinnedVertexPos(inlPos, inJointWeights, inJointIndices);
+						gl_Position = SunLightMat[0] * ModelMat * ComputeSkinnedVertexPos(inlPos, inJointWeights, inJointIndices);
 					}
 
 					#endprogram

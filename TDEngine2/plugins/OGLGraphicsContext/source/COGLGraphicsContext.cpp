@@ -417,7 +417,7 @@ namespace TDEngine2
 		COGLDepthBufferTarget* pGLDepthBuffer = dynamic_cast<COGLDepthBufferTarget*>(pDepthBufferTarget);
 
 		GL_SAFE_VOID_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, 0));
-		GL_SAFE_VOID_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mCurrDepthBufferHandle = pGLDepthBuffer->GetInternalHandler(), 0));
+		GL_SAFE_VOID_CALL(glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, mCurrDepthBufferHandle = pGLDepthBuffer->GetInternalHandler(), 0));
 
 		if (disableRTWrite)
 		{

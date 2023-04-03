@@ -52,7 +52,7 @@ namespace TDEngine2
 		CBaseDepthBufferTarget::Bind(slot);
 
 		GL_SAFE_VOID_CALL(glActiveTexture(GL_TEXTURE0 + slot));
-		GL_SAFE_VOID_CALL(glBindTexture(GL_TEXTURE_2D, mDepthBufferHandle));
+		GL_SAFE_VOID_CALL(glBindTexture(mIsCreatedAsCubemap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, mDepthBufferHandle));
 	}
 
 	void COGLDepthBufferTarget::UnbindFromShader()
@@ -80,21 +80,33 @@ namespace TDEngine2
 	{
 		GL_SAFE_CALL(glGenTextures(1, &mDepthBufferHandle));
 
-		GL_SAFE_CALL(glBindTexture(GL_TEXTURE_2D, mDepthBufferHandle));
+		const GLenum targetType = params.mCreateAsCubemap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
 
-		GL_SAFE_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0));
-		GL_SAFE_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, params.mNumOfMipLevels));
-		GL_SAFE_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_NEVER));
-		GL_SAFE_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE));
+		GL_SAFE_CALL(glBindTexture(targetType, mDepthBufferHandle));
 
-		GL_SAFE_CALL(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
-		GL_SAFE_CALL(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
-		GL_SAFE_CALL(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-		GL_SAFE_CALL(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+		GL_SAFE_CALL(glTexParameteri(targetType, GL_TEXTURE_BASE_LEVEL, 0));
+		GL_SAFE_CALL(glTexParameteri(targetType, GL_TEXTURE_MAX_LEVEL, params.mNumOfMipLevels));
+		GL_SAFE_CALL(glTexParameteri(targetType, GL_TEXTURE_COMPARE_FUNC, GL_NEVER));
+		GL_SAFE_CALL(glTexParameteri(targetType, GL_TEXTURE_COMPARE_MODE, GL_NONE));
+
+		GL_SAFE_CALL(glTexParameterf(targetType, GL_TEXTURE_WRAP_S, GL_REPEAT));
+		GL_SAFE_CALL(glTexParameterf(targetType, GL_TEXTURE_WRAP_T, GL_REPEAT));
+		GL_SAFE_CALL(glTexParameterf(targetType, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+		GL_SAFE_CALL(glTexParameterf(targetType, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
 
 		/// GL_UNSIGNED_BYTE is used explicitly, because of stb_image stores data as unsigned char array
-		GL_SAFE_CALL(glTexImage2D(GL_TEXTURE_2D, 0, COGLMappings::GetInternalFormat(params.mFormat), params.mWidth, params.mHeight, 0, COGLMappings::GetPixelDataFormat(params.mFormat), GL_UNSIGNED_BYTE, nullptr));
-
+		if (params.mCreateAsCubemap)
+		{
+			for (U8 i = 0; i < 6; i++)
+			{
+				GL_SAFE_CALL(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, COGLMappings::GetInternalFormat(params.mFormat), params.mWidth, params.mHeight, 0, COGLMappings::GetPixelDataFormat(params.mFormat), GL_UNSIGNED_BYTE, nullptr));
+			}
+		}
+		else
+		{
+			GL_SAFE_CALL(glTexImage2D(GL_TEXTURE_2D, 0, COGLMappings::GetInternalFormat(params.mFormat), params.mWidth, params.mHeight, 0, COGLMappings::GetPixelDataFormat(params.mFormat), GL_UNSIGNED_BYTE, nullptr));
+		}
+		
 		if (params.mIsWriteable)
 		{
 			TDE2_UNIMPLEMENTED();
