@@ -23,7 +23,14 @@ namespace TDEngine2
 
 	struct TRenderTargetParameters : public TTexture2DParameters
 	{
-		bool mCreateAsCubemap = false;
+		enum class E_TARGET_TYPE : U8
+		{
+			CUBEMAP,
+			TEXTURE2D_ARRAY,
+			TEXTURE2D
+		} mType = E_TARGET_TYPE::TEXTURE2D;
+
+		U32 mArraySize = 1;
 	};
 
 

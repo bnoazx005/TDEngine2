@@ -80,7 +80,7 @@ namespace TDEngine2
 	{
 		GL_SAFE_CALL(glGenTextures(1, &mDepthBufferHandle));
 
-		const GLenum targetType = params.mCreateAsCubemap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
+		const GLenum targetType = TRenderTargetParameters::E_TARGET_TYPE::CUBEMAP == params.mType ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
 
 		GL_SAFE_CALL(glBindTexture(targetType, mDepthBufferHandle));
 
@@ -95,7 +95,7 @@ namespace TDEngine2
 		GL_SAFE_CALL(glTexParameterf(targetType, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
 
 		/// GL_UNSIGNED_BYTE is used explicitly, because of stb_image stores data as unsigned char array
-		if (params.mCreateAsCubemap)
+		if (TRenderTargetParameters::E_TARGET_TYPE::CUBEMAP == params.mType)
 		{
 			for (U8 i = 0; i < 6; i++)
 			{

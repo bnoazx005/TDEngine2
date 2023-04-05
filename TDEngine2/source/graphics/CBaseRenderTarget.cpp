@@ -35,7 +35,7 @@ namespace TDEngine2
 		mSamplingQuality      = params.mSamplingQuality;
 		mTextureSamplerParams = params.mTexSamplerDesc;
 		mIsRandomlyWriteable  = params.mIsWriteable; 
-		mIsCreatedAsCubemap   = params.mCreateAsCubemap;
+		mIsCreatedAsCubemap   = TRenderTargetParameters::E_TARGET_TYPE::CUBEMAP == params.mType;
 
 		mTextureSamplerParams.mUseMipMaps = mNumOfMipLevels > 1;
 
@@ -72,7 +72,7 @@ namespace TDEngine2
 		params.mNumOfSamples = mNumOfSamples;
 		params.mSamplingQuality = mSamplingQuality;
 		params.mIsWriteable = mIsRandomlyWriteable;
-		params.mCreateAsCubemap = mIsCreatedAsCubemap;
+		params.mType = mIsCreatedAsCubemap ? TRenderTargetParameters::E_TARGET_TYPE::CUBEMAP : TRenderTargetParameters::E_TARGET_TYPE::TEXTURE2D;
 
 		result = result | _createInternalTextureHandler(mpGraphicsContext, params);
 

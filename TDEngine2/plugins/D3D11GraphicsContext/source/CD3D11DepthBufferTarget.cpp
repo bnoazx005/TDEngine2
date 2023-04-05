@@ -154,12 +154,12 @@ namespace TDEngine2
 		textureDesc.SampleDesc.Count   = params.mNumOfSamples;
 		textureDesc.SampleDesc.Quality = params.mSamplingQuality;
 		textureDesc.MipLevels          = params.mNumOfMipLevels;
-		textureDesc.ArraySize          = params.mCreateAsCubemap ? 6 : 1; 
+		textureDesc.ArraySize          = TRenderTargetParameters::E_TARGET_TYPE::CUBEMAP == params.mType ? 6 : 1;
 		textureDesc.BindFlags          = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_DEPTH_STENCIL;
 		textureDesc.CPUAccessFlags     = 0; // \note for now we deny access to depth buffer on CPU side
 		textureDesc.Usage              = D3D11_USAGE_DEFAULT; /// \todo replace it with corresponding mapping
 
-		if (params.mCreateAsCubemap)
+		if (TRenderTargetParameters::E_TARGET_TYPE::CUBEMAP == params.mType)
 		{
 			textureDesc.MiscFlags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
 		}
