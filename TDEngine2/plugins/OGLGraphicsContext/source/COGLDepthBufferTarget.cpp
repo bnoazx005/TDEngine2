@@ -52,7 +52,7 @@ namespace TDEngine2
 		CBaseDepthBufferTarget::Bind(slot);
 
 		GL_SAFE_VOID_CALL(glActiveTexture(GL_TEXTURE0 + slot));
-		GL_SAFE_VOID_CALL(glBindTexture(mIsCreatedAsCubemap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, mDepthBufferHandle));
+		GL_SAFE_VOID_CALL(glBindTexture(mIsCreatedAsCubemap ? GL_TEXTURE_CUBE_MAP : (mArraySize > 1 ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D), mDepthBufferHandle));
 	}
 
 	void COGLDepthBufferTarget::UnbindFromShader()
@@ -80,7 +80,17 @@ namespace TDEngine2
 	{
 		GL_SAFE_CALL(glGenTextures(1, &mDepthBufferHandle));
 
-		const GLenum targetType = TRenderTargetParameters::E_TARGET_TYPE::CUBEMAP == params.mType ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
+		GLenum targetType = GL_TEXTURE_2D;
+
+		switch (params.mType)
+		{
+			case TRenderTargetParameters::E_TARGET_TYPE::CUBEMAP:
+				targetType = GL_TEXTURE_CUBE_MAP;
+				break;
+			case TRenderTargetParameters::E_TARGET_TYPE::TEXTURE2D_ARRAY:
+				targetType = GL_TEXTURE_2D_ARRAY;
+				break;
+		}
 
 		GL_SAFE_CALL(glBindTexture(targetType, mDepthBufferHandle));
 
@@ -95,16 +105,34 @@ namespace TDEngine2
 		GL_SAFE_CALL(glTexParameterf(targetType, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
 
 		/// GL_UNSIGNED_BYTE is used explicitly, because of stb_image stores data as unsigned char array
-		if (TRenderTargetParameters::E_TARGET_TYPE::CUBEMAP == params.mType)
+		switch (params.mType)
 		{
-			for (U8 i = 0; i < 6; i++)
-			{
-				GL_SAFE_CALL(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, COGLMappings::GetInternalFormat(params.mFormat), params.mWidth, params.mHeight, 0, COGLMappings::GetPixelDataFormat(params.mFormat), GL_UNSIGNED_BYTE, nullptr));
-			}
-		}
-		else
-		{
-			GL_SAFE_CALL(glTexImage2D(GL_TEXTURE_2D, 0, COGLMappings::GetInternalFormat(params.mFormat), params.mWidth, params.mHeight, 0, COGLMappings::GetPixelDataFormat(params.mFormat), GL_UNSIGNED_BYTE, nullptr));
+			case TRenderTargetParameters::E_TARGET_TYPE::TEXTURE2D:
+				GL_SAFE_CALL(glTexImage2D(GL_TEXTURE_2D, 0, COGLMappings::GetInternalFormat(params.mFormat), 
+					params.mWidth, params.mHeight, 0, 
+					COGLMappings::GetPixelDataFormat(params.mFormat), 
+					GL_UNSIGNED_BYTE, nullptr));
+				break;
+
+			case TRenderTargetParameters::E_TARGET_TYPE::TEXTURE2D_ARRAY:
+				GL_SAFE_CALL(glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, COGLMappings::GetInternalFormat(params.mFormat),
+					params.mWidth, params.mHeight, params.mArraySize, 0,
+					COGLMappings::GetPixelDataFormat(params.mFormat),
+					GL_UNSIGNED_BYTE, nullptr));
+
+				mArraySize = params.mArraySize;
+				break;
+
+			case TRenderTargetParameters::E_TARGET_TYPE::CUBEMAP:
+				for (U8 i = 0; i < 6; i++)
+				{
+					GL_SAFE_CALL(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, 
+						COGLMappings::GetInternalFormat(params.mFormat), 
+						params.mWidth, params.mHeight, 0, 
+						COGLMappings::GetPixelDataFormat(params.mFormat), 
+						GL_UNSIGNED_BYTE, nullptr));
+				}
+				break;
 		}
 		
 		if (params.mIsWriteable)

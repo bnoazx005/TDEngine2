@@ -138,6 +138,7 @@ namespace TDEngine2
 
 			bool                mIsRandomlyWriteable = false;
 			bool                mIsCreatedAsCubemap = false;
+			U32                 mArraySize = 1;
 	};
 
 

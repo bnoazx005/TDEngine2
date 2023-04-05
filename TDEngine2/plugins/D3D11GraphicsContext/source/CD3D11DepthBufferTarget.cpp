@@ -154,7 +154,8 @@ namespace TDEngine2
 		textureDesc.SampleDesc.Count   = params.mNumOfSamples;
 		textureDesc.SampleDesc.Quality = params.mSamplingQuality;
 		textureDesc.MipLevels          = params.mNumOfMipLevels;
-		textureDesc.ArraySize          = TRenderTargetParameters::E_TARGET_TYPE::CUBEMAP == params.mType ? 6 : 1;
+		textureDesc.ArraySize          = TRenderTargetParameters::E_TARGET_TYPE::CUBEMAP == params.mType ? 6 : 
+			(TRenderTargetParameters::E_TARGET_TYPE::TEXTURE2D_ARRAY == params.mType ? params.mArraySize : 1);
 		textureDesc.BindFlags          = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_DEPTH_STENCIL;
 		textureDesc.CPUAccessFlags     = 0; // \note for now we deny access to depth buffer on CPU side
 		textureDesc.Usage              = D3D11_USAGE_DEFAULT; /// \todo replace it with corresponding mapping
@@ -174,6 +175,8 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+
+		mArraySize = params.mArraySize;
 
 		E_RESULT_CODE result = _createDepthBufferTargetView(mp3dDevice, mFormat);
 
@@ -205,16 +208,23 @@ namespace TDEngine2
 		memset(&viewDesc, 0, sizeof(viewDesc));
 
 		viewDesc.Format        = CD3D11Mappings::GetDXGIFormat(format);
-		viewDesc.ViewDimension = mIsCreatedAsCubemap ? D3D11_SRV_DIMENSION_TEXTURECUBE : D3D11_SRV_DIMENSION_TEXTURE2D;
+		viewDesc.ViewDimension = mIsCreatedAsCubemap ? D3D11_SRV_DIMENSION_TEXTURECUBE : (mArraySize > 1 ? D3D11_SRV_DIMENSION_TEXTURE2DARRAY : D3D11_SRV_DIMENSION_TEXTURE2D);
 
-		if (mIsCreatedAsCubemap)
+		switch (viewDesc.ViewDimension)
 		{
-			viewDesc.TextureCube.MipLevels = 1;
-			viewDesc.TextureCube.MostDetailedMip = 0;
-		}
-		else
-		{
-			viewDesc.Texture2D.MipLevels = 1;
+			case D3D11_SRV_DIMENSION_TEXTURECUBE:
+				viewDesc.TextureCube.MipLevels = 1;
+				viewDesc.TextureCube.MostDetailedMip = 0;
+				break;
+			case D3D11_SRV_DIMENSION_TEXTURE2DARRAY:
+				viewDesc.Texture2DArray.FirstArraySlice = 0;
+				viewDesc.Texture2DArray.MostDetailedMip = 0;
+				viewDesc.Texture2DArray.MipLevels = 1;
+				viewDesc.Texture2DArray.ArraySize = mArraySize;
+				break;
+			default:
+				viewDesc.Texture2D.MipLevels = 1;
+				break;
 		}
 
 		if (FAILED(p3dDevice->CreateShaderResourceView(mpDepthBufferTexture, &viewDesc, &mpShaderTextureView)))
@@ -232,11 +242,11 @@ namespace TDEngine2
 		memset(&viewDesc, 0, sizeof(viewDesc));
 
 		viewDesc.Format        = CD3D11Mappings::GetDXGIFormat(format);
-		viewDesc.ViewDimension = mIsCreatedAsCubemap ? D3D11_DSV_DIMENSION_TEXTURE2DARRAY : D3D11_DSV_DIMENSION_TEXTURE2D;
+		viewDesc.ViewDimension = (mIsCreatedAsCubemap || mArraySize > 1) ? D3D11_DSV_DIMENSION_TEXTURE2DARRAY : D3D11_DSV_DIMENSION_TEXTURE2D;
 		
-		if (mIsCreatedAsCubemap)
+		if (mIsCreatedAsCubemap || mArraySize > 1)
 		{
-			viewDesc.Texture2DArray.ArraySize = 6;
+			viewDesc.Texture2DArray.ArraySize = mIsCreatedAsCubemap ? 6 : mArraySize;
 			viewDesc.Texture2DArray.MipSlice = 0;
 			viewDesc.Texture2DArray.FirstArraySlice = 0;
 		}

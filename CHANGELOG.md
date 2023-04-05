@@ -35,6 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add the first iteration of point lights shadow maps.
 
+- Now depth buffers can be used in a 2d textures array mode.
+
 ### Changed
 
 - Breaking changes: Now entities identifiers are generated randomly instead of the monotonically increased fashion. Entities ids within scenes and prefabs aren't changed
