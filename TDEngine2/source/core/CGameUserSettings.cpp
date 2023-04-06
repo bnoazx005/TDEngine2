@@ -21,6 +21,12 @@ namespace TDEngine2
 
 		mCurrent.mIsShadowMappingEnabled = pConfigFileReader->GetBool("graphics", "shadows", true);
 		mCurrent.mShadowMapSizes = static_cast<U32>(pConfigFileReader->GetInt("graphics", "shadow_map_size", 512));
+		mCurrent.mShadowCascadesCount = static_cast<U32>(pConfigFileReader->GetInt("graphics", "shadow_cascades_count", 3));
+
+		mCurrent.mShadowCascadesSplits.x = static_cast<F32>(pConfigFileReader->GetFloat("graphics", "shadow_cascades_splits.0", 0.0f));
+		mCurrent.mShadowCascadesSplits.y = static_cast<F32>(pConfigFileReader->GetFloat("graphics", "shadow_cascades_splits.1", 0.25f));
+		mCurrent.mShadowCascadesSplits.z = static_cast<F32>(pConfigFileReader->GetFloat("graphics", "shadow_cascades_splits.2", 0.75f));
+		mCurrent.mShadowCascadesSplits.w = static_cast<F32>(pConfigFileReader->GetFloat("graphics", "shadow_cascades_splits.3", 1.0f));
 
 		return RC_OK;
 	}

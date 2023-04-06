@@ -9,6 +9,7 @@
 
 #include "CBaseObject.h"
 #include "../math/TVector3.h"
+#include "../math/TVector4.h"
 #include <thread>
 
 
@@ -59,8 +60,10 @@ namespace TDEngine2
 			*/
 			struct TQualityPreset
 			{
-				U32  mShadowMapSizes = 512;
 				bool mIsShadowMappingEnabled = true;
+				U32  mShadowMapSizes = 512;
+				U32  mShadowCascadesCount = 4;
+				TVector4 mShadowCascadesSplits = TVector4(0.0f, 0.25f, 0.75f, 1.0f);
 			};
 
 			std::array<TQualityPreset, static_cast<U32>(E_QUALITY_PRESET_TYPE::PRESETS_COUNT)> mQualityPresets;

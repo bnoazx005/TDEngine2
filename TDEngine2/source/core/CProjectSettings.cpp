@@ -88,6 +88,8 @@ namespace TDEngine2
 		{
 			static const std::string mShadowMapSizesKey;
 			static const std::string mIsShadowMapEnabledKey;
+			static const std::string mShadowCascadesCountKey;
+			static const std::string mShadowCascadesSplitsKey;
 		};
 	};
 
@@ -136,6 +138,8 @@ namespace TDEngine2
 
 	const std::string TProjectSettingsArchiveKeys::TQualityPresetKeys::mShadowMapSizesKey = "shadow_maps_size";
 	const std::string TProjectSettingsArchiveKeys::TQualityPresetKeys::mIsShadowMapEnabledKey = "shadow_maps_enabled";
+	const std::string TProjectSettingsArchiveKeys::TQualityPresetKeys::mShadowCascadesCountKey = "shadow_cascades_count";
+	const std::string TProjectSettingsArchiveKeys::TQualityPresetKeys::mShadowCascadesSplitsKey = "shadow_cascades_splits";
 
 	CProjectSettings::CProjectSettings():
 		CBaseObject()
@@ -369,6 +373,24 @@ namespace TDEngine2
 
 				currPreset.mIsShadowMappingEnabled = pFileReader->GetBool(TProjectSettingsArchiveKeys::TQualityPresetKeys::mIsShadowMapEnabledKey, true);
 				currPreset.mShadowMapSizes = pFileReader->GetUInt32(TProjectSettingsArchiveKeys::TQualityPresetKeys::mShadowMapSizesKey, 1024);
+				currPreset.mShadowCascadesCount = pFileReader->GetUInt32(TProjectSettingsArchiveKeys::TQualityPresetKeys::mShadowCascadesCountKey, 3);
+				
+				result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::TQualityPresetKeys::mShadowCascadesSplitsKey);
+				{
+					auto splitsResult = LoadVector4(pFileReader);
+					if (splitsResult.HasError())
+					{
+						continue;
+					}
+
+					const TVector4& cascadesSplits = splitsResult.Get();
+					if (Length(cascadesSplits) > FloatEpsilon)
+					{
+						currPreset.mShadowCascadesSplits = cascadesSplits;
+					}
+
+					result = result | pFileReader->EndGroup();
+				}
 
 				result = result | pFileReader->EndGroup();
 			}
