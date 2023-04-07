@@ -503,16 +503,20 @@ namespace TDEngine2
 					{
 						if (mIsSunLight == 1)
 						{
-							for (int i = 0; i < 3; i++)
+							for (int cascadeIndex = 0; cascadeIndex < ShadowCascadesCount; cascadeIndex++)
 							{
-								gl_Position = mul(SunLightMat[0], gl_in[i].gl_Position);
-								FragPos = gl_in[i].gl_Position;
-								gl_Layer = 0;
-								
-								EmitVertex();
-							}
+								gl_Layer = cascadeIndex;
 
-							EndPrimitive();
+								for (int i = 0; i < 3; i++)
+								{
+									gl_Position = mul(SunLightMat[cascadeIndex], gl_in[i].gl_Position);
+									FragPos = gl_in[i].gl_Position;
+								
+									EmitVertex();
+								}
+
+								EndPrimitive();
+							}
 
 							return;
 						}

@@ -195,7 +195,72 @@ namespace TDEngine2
 	}
 
 
-	static TMatrix4 ConstructSunLightMatrix(IGraphicsContext* pGraphicsContext, ICamera* pActiveCamera, CTransform* pLightTransform)
+	static std::vector<F32> CalcShadowSplitsPlane(IGraphicsContext* pGraphicsContext, ICamera* pActiveCamera)
+	{
+		const auto& gameSettings = CGameUserSettings::Get()->mCurrent;
+
+		const std::array<F32, 4> splitCoeffs
+		{
+			gameSettings.mShadowCascadesSplits.x,
+			gameSettings.mShadowCascadesSplits.y,
+			gameSettings.mShadowCascadesSplits.z,
+			gameSettings.mShadowCascadesSplits.w,
+		};
+
+		std::vector<F32> output;
+		output.resize(gameSettings.mShadowCascadesCount + 1);
+
+		const F32 zn = pActiveCamera->GetNearPlane();
+		const F32 zf = pActiveCamera->GetFarPlane();
+
+		output.front() = zn;
+		
+		for (USIZE i = 1; i < output.size() - 1; i++)
+		{
+			output[i] = CMathUtils::Lerp(zn, zf, splitCoeffs[i - 1]);
+		}
+
+		output.back() = zf;
+
+		return std::move(output);
+	}
+
+
+	static std::array<TVector4, 8> GetCascadeFrustumVertices(IGraphicsContext* pGraphicsContext, IPerspectiveCamera* pActiveCamera, F32 zn, F32 zf) /// zMin - least value for Z axis in NDC space (depends on GAPI)
+	{
+		if (!pActiveCamera)
+		{
+			TDE2_ASSERT(pActiveCamera);
+			return {};
+		}
+
+		auto&& ndcBox = pGraphicsContext->GetContextInfo().mNDCBox;
+
+		auto&& invViewProj = Inverse(pGraphicsContext->CalcPerspectiveMatrix(pActiveCamera->GetFOV(), pActiveCamera->GetAspect(), zn, zf) * pActiveCamera->GetViewMatrix());
+
+		std::array<TVector4, 8> frustumVertices
+		{
+			invViewProj * TVector4(-1.0f,  1.0f, ndcBox.min.z, 1.0f), // near plane of the cube
+			invViewProj * TVector4(1.0f,  1.0f, ndcBox.min.z, 1.0f),
+			invViewProj * TVector4(-1.0f, -1.0f, ndcBox.min.z, 1.0f),
+			invViewProj * TVector4(1.0f, -1.0f, ndcBox.min.z, 1.0f),
+
+			invViewProj * TVector4(-1.0f,  1.0f, 1.0f, 1.0f),
+			invViewProj * TVector4(1.0f,  1.0f, 1.0f, 1.0f),
+			invViewProj * TVector4(-1.0f, -1.0f, 1.0f, 1.0f),
+			invViewProj * TVector4(1.0f, -1.0f, 1.0f, 1.0f),
+		};
+
+		for (TVector4& currVertex : frustumVertices)
+		{
+			currVertex = currVertex * (1.0f / currVertex.w);
+		}
+
+		return std::move(frustumVertices);
+	}
+
+
+	static TMatrix4 ConstructSunLightMatrix(IGraphicsContext* pGraphicsContext, ICamera* pActiveCamera, CTransform* pLightTransform, F32 zn, F32 zf)
 	{
 		if (!pLightTransform || !pActiveCamera)
 		{
@@ -205,25 +270,60 @@ namespace TDEngine2
 
 		const F32 handedness = pGraphicsContext->GetPositiveZAxisDirection();
 
-		TVector3 frustumCenter;
+		auto&& cascadeFrustumCorners = GetCascadeFrustumVertices(pGraphicsContext, dynamic_cast<IPerspectiveCamera*>(pActiveCamera), zn, zf);
 
-		for (auto&& v : pActiveCamera->GetFrustum()->GetVertices(pActiveCamera->GetInverseViewProjMatrix(), pGraphicsContext->GetContextInfo().mNDCBox.min.z))
+		TVector3 frustumCenter;
 		{
-			frustumCenter = frustumCenter + v;
+			for (auto&& v : cascadeFrustumCorners)
+			{
+				frustumCenter = frustumCenter + v;
+			}
+
+			frustumCenter = frustumCenter * 0.125f;
 		}
 
-		frustumCenter = frustumCenter * 0.125f;
+		const TMatrix4 viewMatrix = LookAt(frustumCenter + handedness * pLightTransform->GetPosition(), UpVector3, frustumCenter, -handedness);
 
-		//const TVector3& frustumCenter = pActiveCamera->GetFrustumCenter(pGraphicsContext->GetContextInfo().mNDCBox.min.z);
-		//LOG_MESSAGE(Wrench::StringUtils::Format("Frustum center: {0}", frustumCenter.ToString()));
+		F32 minX = std::numeric_limits<F32>::max();
+		F32 maxX = std::numeric_limits<F32>::lowest();
+		F32 minY = std::numeric_limits<F32>::max();
+		F32 maxY = std::numeric_limits<F32>::lowest();
+		F32 minZ = std::numeric_limits<F32>::max();
+		F32 maxZ = std::numeric_limits<F32>::lowest();
 
-		TMatrix4 viewMatrix = LookAt(pActiveCamera->GetPosition() + handedness * pLightTransform->GetPosition(), UpVector3, pActiveCamera->GetPosition(), -handedness);
+		for (const auto& v : cascadeFrustumCorners)
+		{
+			const auto& lightSpaceVert = viewMatrix * v;
 
-		const F32 halfSize = 50.0f;
+			minX = std::min(minX, lightSpaceVert.x);
+			maxX = std::max(maxX, lightSpaceVert.x);
+			minY = std::min(minY, lightSpaceVert.y);
+			maxY = std::max(maxY, lightSpaceVert.y);
+			minZ = std::min(minZ, lightSpaceVert.z);
+			maxZ = std::max(maxZ, lightSpaceVert.z);
+		}
 
-		TMatrix4 projMatrix = pGraphicsContext->CalcOrthographicMatrix(-halfSize, halfSize, halfSize, -halfSize, 0.001f, 1000.0f); // \todo Refactor
+		constexpr F32 zMult = 10.0f;
+
+		minZ = (minZ < 0) ? minZ * zMult : minZ / zMult;
+		maxZ = (maxZ < 0) ? maxZ / zMult : maxZ * zMult;
+
+		TMatrix4 projMatrix = pGraphicsContext->CalcOrthographicMatrix(minX, maxY, maxX, minY, minZ, maxZ); 
 
 		return Transpose(Mul(projMatrix, viewMatrix));
+	}
+
+
+	static std::vector<TMatrix4> CalcSunLightCascadesMatrices(IGraphicsContext* pGraphicsContext, ICamera* pActiveCamera, CTransform* pLightTransform, const std::vector<F32>& cascadesSplits)
+	{
+		std::vector<TMatrix4> cascadesMats;
+
+		for (U32 cascadeIndex = 0; cascadeIndex < CGameUserSettings::Get()->mCurrent.mShadowCascadesCount; cascadeIndex++)
+		{
+			cascadesMats.emplace_back(ConstructSunLightMatrix(pGraphicsContext, pActiveCamera, pLightTransform, cascadesSplits[cascadeIndex], cascadesSplits[cascadeIndex + 1]));
+		}
+
+		return std::move(cascadesMats);
 	}
 
 
@@ -244,7 +344,8 @@ namespace TDEngine2
 			lightingData.mSunLightDirection      = Normalize(TVector4(-0.5f, -0.5f, 0.0f, 0.0f));
 			lightingData.mSunLightPosition       = Normalize(TVector4(0.0f, 10.0f, 0.0f, 1.0f));
 			lightingData.mSunLightColor          = TColorUtils::mWhite;
-			lightingData.mShadowCascadesCount    = 1;
+			lightingData.mShadowCascadesCount    = CGameUserSettings::Get()->mCurrent.mShadowCascadesCount;
+			lightingData.mShadowCascadesSplits   = CGameUserSettings::Get()->mCurrent.mShadowCascadesSplits;
 
 			return;
 		}
@@ -252,18 +353,28 @@ namespace TDEngine2
 		CDirectionalLight* pCurrLight = nullptr;
 		CTransform* pLightTransform = nullptr;
 
+		auto&& cascadesSplitsPlanes = CalcShadowSplitsPlane(pGraphicsContext, pCamera);
+
 		// \note Prepare lighting data
 		for (USIZE i = 0; i < transforms.size(); ++i)
 		{
 			pLightTransform = transforms[i];
 			pCurrLight = dirLights[i];
 
-			lightingData.mSunLightDirection      = Normalize(TVector4(pLightTransform->GetForwardVector(), 0.0f)); //TVector4(Normalize(pSunLight->GetDirection()), 0.0f);
-			lightingData.mSunLightPosition       = TVector4(pLightTransform->GetPosition(), 1.0f);
-			lightingData.mSunLightColor          = pCurrLight->GetColor();
-			lightingData.mSunLightMatrix[0]      = ConstructSunLightMatrix(pGraphicsContext, pCamera, pLightTransform);
-			lightingData.mShadowCascadesCount    = 1;
+			lightingData.mSunLightDirection = Normalize(TVector4(pLightTransform->GetForwardVector(), 0.0f)); //TVector4(Normalize(pSunLight->GetDirection()), 0.0f);
+			lightingData.mSunLightPosition  = TVector4(pLightTransform->GetPosition(), 1.0f);
+			lightingData.mSunLightColor     = pCurrLight->GetColor();
+
+			auto&& sunLightMatrices = CalcSunLightCascadesMatrices(pGraphicsContext, pCamera, pLightTransform, cascadesSplitsPlanes);
+
+			for (USIZE cascadeIndex = 0; cascadeIndex < sunLightMatrices.size(); cascadeIndex++)
+			{
+				lightingData.mSunLightMatrix[cascadeIndex] = sunLightMatrices[cascadeIndex];
+			}
+
 			lightingData.mIsShadowMappingEnabled = static_cast<U32>(CGameUserSettings::Get()->mCurrent.mIsShadowMappingEnabled);
+			lightingData.mShadowCascadesCount    = CGameUserSettings::Get()->mCurrent.mShadowCascadesCount;
+			lightingData.mShadowCascadesSplits   = TVector4(&cascadesSplitsPlanes[1]);
 		}
 	}
 
@@ -331,7 +442,7 @@ namespace TDEngine2
 
 	template <typename TRenderable>
 	static void ProcessShadowReceivers(TPtr<IResourceManager> pResourceManager, const std::vector<TRenderable*> shadowReceivers,
-		TPtr<ITexture> pSunLightShadowMap, TPtr<ITexture> pPointLightShadowMap)
+		TPtr<ITexture> pSunLightShadowMap)
 	{
 		// \note Inject shadow map buffer into materials 
 		for (USIZE i = 0; i < shadowReceivers.size(); ++i)
@@ -341,7 +452,7 @@ namespace TDEngine2
 				if (auto pMaterial = pResourceManager->GetResource<IMaterial>(pResourceManager->Load<IMaterial>(pMeshContainer->GetMaterialName())))
 				{
 					pMaterial->SetTextureResource("DirectionalShadowMapTexture", pSunLightShadowMap.Get());
-					pMaterial->SetTextureResource("PointLightShadowMapTexture_0", pPointLightShadowMap.Get());
+					pMaterial->SetTextureResource("PointLightShadowMapTexture_0", pResourceManager->GetResource<ITexture>(pResourceManager->Load<IDepthBufferTarget>("PointShadowMap0")).Get());
 				}
 			}
 		}
@@ -385,10 +496,9 @@ namespace TDEngine2
 			TDE2_PROFILER_SCOPE("CLightingSystem::ProcessShadowReceivers");
 
 			auto pShadowMapTexture = mpResourceManager->GetResource<ITexture>(mpResourceManager->Load<IDepthBufferTarget>("ShadowMap"));
-			auto pPointLightShadowMapTexture = mpResourceManager->GetResource<ITexture>(mpResourceManager->Load<IDepthBufferTarget>("PointShadowMap"));
 
-			ProcessShadowReceivers(mpResourceManager, std::get<std::vector<CStaticMeshContainer*>>(mStaticShadowReceiversContext.mComponentsSlice), pShadowMapTexture, pPointLightShadowMapTexture);
-			ProcessShadowReceivers(mpResourceManager, std::get<std::vector<CSkinnedMeshContainer*>>(mSkinnedShadowReceiversContext.mComponentsSlice), pShadowMapTexture, pPointLightShadowMapTexture);
+			ProcessShadowReceivers(mpResourceManager, std::get<std::vector<CStaticMeshContainer*>>(mStaticShadowReceiversContext.mComponentsSlice), pShadowMapTexture);
+			ProcessShadowReceivers(mpResourceManager, std::get<std::vector<CSkinnedMeshContainer*>>(mSkinnedShadowReceiversContext.mComponentsSlice), pShadowMapTexture);
 		}
 	}
 

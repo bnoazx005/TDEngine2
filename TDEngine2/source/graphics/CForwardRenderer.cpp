@@ -42,7 +42,8 @@ namespace TDEngine2
 		shadowMapParams.mNumOfMipLevels = 1;
 		shadowMapParams.mNumOfSamples = 1;
 		shadowMapParams.mSamplingQuality = 0;
-		shadowMapParams.mCreateAsCubemap = false;
+		shadowMapParams.mType = TRenderTargetParameters::E_TARGET_TYPE::TEXTURE2D_ARRAY;
+		shadowMapParams.mArraySize = CGameUserSettings::Get()->mCurrent.mShadowCascadesCount;
 
 		const TResourceId shadowMapHandle = pResourceManager->Create<IDepthBufferTarget>("ShadowMap", shadowMapParams);
 		if (shadowMapHandle == TResourceId::Invalid)
@@ -80,9 +81,9 @@ namespace TDEngine2
 		shadowMapParams.mNumOfMipLevels = 1;
 		shadowMapParams.mNumOfSamples = 1;
 		shadowMapParams.mSamplingQuality = 0;
-		shadowMapParams.mCreateAsCubemap = true;
+		shadowMapParams.mType = TRenderTargetParameters::E_TARGET_TYPE::CUBEMAP;
 
-		const TResourceId shadowMapHandle = pResourceManager->Create<IDepthBufferTarget>("PointShadowMap", shadowMapParams);
+		const TResourceId shadowMapHandle = pResourceManager->Create<IDepthBufferTarget>("PointShadowMap" + std::to_string(pointLightIndex), shadowMapParams);
 		if (shadowMapHandle == TResourceId::Invalid)
 		{
 			TDE2_ASSERT(false);

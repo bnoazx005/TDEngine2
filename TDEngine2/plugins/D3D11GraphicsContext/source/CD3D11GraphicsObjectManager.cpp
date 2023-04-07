@@ -715,13 +715,20 @@ namespace TDEngine2
 
 						if (mIsSunLight == 1)
 						{
-							for (int i = 0; i < 3; i++)
+							[unroll]
+							for (int cascadeIndex = 0; cascadeIndex < ShadowCascadesCount; cascadeIndex++)
 							{
-								output.mPos = mul(SunLightMat[0], gin[i].mPos);
-								output.mLPos = gin[i].mPos;
-								output.mFaceIndex = 0;
+								[unroll]
+								for (int i = 0; i < 3; i++)
+								{
+									output.mPos = mul(SunLightMat[cascadeIndex], gin[i].mPos);
+									output.mLPos = gin[i].mPos;
+									output.mFaceIndex = cascadeIndex;
 								
-								triStream.Append(output);
+									triStream.Append(output);
+								}
+
+								triStream.RestartStrip();
 							}
 
 							return;

@@ -16,13 +16,15 @@ layout (location = 0) in vec4 inlPos;
 layout (location = 1) in vec4 inColor;
 
 out vec4 VertOutColor;
-out vec4 LightSpaceVertPos;
+out vec4 VertViewWorldPos;
+out vec4 VertWorldPos;
 
 
 void main(void)
 {
 	gl_Position = ProjMat * ViewMat * ModelMat * inlPos;
-	LightSpaceVertPos = SunLightMat * ModelMat * inlPos;
+	VertWorldPos = ModelMat * inlPos;
+	VertViewWorldPos = ViewMat * VertWorldPos;
 
 	VertOutColor = inColor;
 }
@@ -34,13 +36,14 @@ void main(void)
 #include <TDEngine2ShadowMappingUtils.inc>
 
 in vec4 VertOutColor;
-in vec4 LightSpaceVertPos;
+in vec4 VertViewWorldPos;
+in vec4 VertWorldPos;
 
 out vec4 FragColor;
 
 void main(void)
 {
-	FragColor = (1.0 - ComputeShadowFactorPCF(8, LightSpaceVertPos, 0.0001, 1000.0)) * VertOutColor;
+	FragColor = (1.0 - ComputeSunShadowFactorPCF(8, GetSunShadowCascadeIndex(VertViewWorldPos), VertWorldPos, 0.0001, 1000.0)) * VertOutColor;
 }
 
 #endprogram

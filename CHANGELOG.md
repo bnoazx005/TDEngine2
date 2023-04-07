@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.15] 2023-04-05
+## [0.6.15] 2023-04-07
 
 ### Added
 
@@ -36,6 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add the first iteration of point lights shadow maps.
 
 - Now depth buffers can be used in a 2d textures array mode.
+
+- Now shadow maps for the directional light use CSM algorithm for achieving precise results
 
 ### Changed
 

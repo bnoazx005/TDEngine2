@@ -8,7 +8,7 @@
 struct VertexOut
 {
 	float4 mPos              : SV_POSITION;
-	float4 mLightPos         : POSITION1;
+	float4 mViewWorldPos     : POSITION1;
 	float4 mWorldPos         : POSITION2;
 	float4 mColor            : COLOR;
 	float2 mUV               : TEXCOORD;
@@ -35,8 +35,8 @@ VertexOut mainVS(in VertexIn input)
 	VertexOut output;
 
 	output.mPos      = mul(mul(ProjMat, mul(ViewMat, ModelMat)), input.mPos);
-	output.mLightPos = mul(mul(SunLightMat, ModelMat), input.mPos);
 	output.mWorldPos = mul(ModelMat, input.mPos);
+	output.mViewWorldPos = mul(ViewMat, output.mWorldPos);
 	output.mNormal   = normalize(mul(transpose(InvModelMat), input.mNormal));
 	output.mUV       = input.mUV;
 	output.mColor    = input.mColor;
@@ -59,9 +59,9 @@ VertexOut mainVS(in VertexIn input)
 #include <TDEngine2ShadowMappingUtils.inc>
 
 
-DECLARE_TEX2D_EX(AlbedoMap, 1);
-DECLARE_TEX2D_EX(NormalMap, 2);
-DECLARE_TEX2D_EX(PropertiesMap, 3);
+DECLARE_TEX2D_EX(AlbedoMap, 2);
+DECLARE_TEX2D_EX(NormalMap, 3);
+DECLARE_TEX2D_EX(PropertiesMap, 4);
 
 
 TDE2_ENABLE_PARALLAX_MAPPING
@@ -74,8 +74,8 @@ CBUFFER_ENDSECTION
 
 float4 mainPS(VertexOut input): SV_TARGET0
 {
-	float2 uv = lerp(input.mUV, CalcParallaxMappingOffset(input.mUV, normalize(input.mTangentViewDir).xyz, normalize(input.mNormal), 0.2, 8.0, 32.0), parallaxMappingEnabled);
-	TDE2_DISCARD_PIXELS(uv);
+	float2 uv = input.mUV;//lerp(input.mUV, CalcParallaxMappingOffset(input.mUV, normalize(input.mTangentViewDir).xyz, normalize(input.mNormal), 0.2, 8.0, 32.0), parallaxMappingEnabled);
+	//TDE2_DISCARD_PIXELS(uv);
 
 	float3 normal = mul(input.mTangentToWorld, 2.0 * TEX2D(NormalMap, uv).xyz - 1.0);
 
@@ -90,10 +90,10 @@ float4 mainPS(VertexOut input): SV_TARGET0
 
 	for (int i = 0; i < ActivePointLightsCount; ++i)
 	{
-		pointLightsContribution += CalcPointLightContribution(PointLights[i], lightingData);
+		pointLightsContribution += CalcPointLightContribution(PointLights[i], lightingData) * (1.0 - ComputePointLightShadowFactor(PointLights[i], input.mWorldPos, 0.1));
 	}
 
-	return (sunLight + pointLightsContribution)	* (1.0 - ComputeShadowFactorPCF(8, input.mLightPos, 0.0001, 1000.0)) * input.mColor;
+	return (sunLight * (1.0 - ComputeSunShadowFactorPCF(8, GetSunShadowCascadeIndex(input.mViewWorldPos), input.mWorldPos, 0.0001, 1000.0)) + pointLightsContribution) * input.mColor;
 }
 
 #endprogram

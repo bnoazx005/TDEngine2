@@ -31,6 +31,7 @@
 
 	#define DECLARE_TEX2D(SamplerName)	uniform sampler2D SamplerName
 	#define DECLARE_CUBETEX_EX(SamplerName, slot) uniform samplerCube SamplerName
+	#define DECLARE_TEX2DARRAY_EX(SamplerName, slot) uniform sampler2DArray SamplerName
 
 	#define TEX2D(SamplerName, uv)		texture(SamplerName, uv)
 	#define TEXCUBE(SamplerName, uv) 	TEX2D(SamplerName, uv)
@@ -51,6 +52,10 @@
 
 	#define DECLARE_CUBETEX_EX(SamplerName, slot)			\
 				TextureCube SamplerName : register(t#slot); \
+				SamplerState SamplerName ## _SamplerState;
+
+	#define DECLARE_TEX2DARRAY_EX(SamplerName, slot)			\
+				Texture2DArray SamplerName : register(t#slot); 	\
 				SamplerState SamplerName ## _SamplerState;
 
 	#define TEX2D(SamplerName, uv) SamplerName.Sample(SamplerName ## _SamplerState, uv)

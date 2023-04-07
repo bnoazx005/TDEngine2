@@ -63,7 +63,7 @@ namespace TDEngine2
 				bool mIsShadowMappingEnabled = true;
 				U32  mShadowMapSizes = 512;
 				U32  mShadowCascadesCount = 4;
-				TVector4 mShadowCascadesSplits = TVector4(0.0f, 0.25f, 0.75f, 1.0f);
+				TVector4 mShadowCascadesSplits = TVector4(0.25f, 0.5f, 0.75f, 1.0f);
 			};
 
 			std::array<TQualityPreset, static_cast<U32>(E_QUALITY_PRESET_TYPE::PRESETS_COUNT)> mQualityPresets;

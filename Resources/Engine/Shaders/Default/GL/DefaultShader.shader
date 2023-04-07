@@ -14,7 +14,7 @@ layout (location = 3) in vec4 inNormal;
 layout (location = 4) in vec4 inTangent;
 
 out vec4 VertOutColor;
-out vec4 LightSpaceVertPos;
+out vec4 VertOutViewWorldPos;
 out vec4 VertOutWorldPos;
 out vec2 VertOutUV;
 out vec4 VertOutNormal;
@@ -25,11 +25,11 @@ out vec3 OutTangentViewDir;
 void main(void)
 {
 	gl_Position = ProjMat * ViewMat * ModelMat * inlPos;
-	LightSpaceVertPos = SunLightMat[0] * ModelMat * inlPos;
 
 	VertOutColor = inColor;
 
 	VertOutWorldPos = ModelMat * inlPos;
+	VertOutViewWorldPos = ViewMat * VertOutWorldPos;
 	VertOutNormal = transpose(InvModelMat) * inNormal;
 	VertOutUV = inUV;
 
@@ -55,7 +55,7 @@ DECLARE_TEX2D(PropertiesMap);
 
 
 in vec4 VertOutColor;
-in vec4 LightSpaceVertPos;
+in vec4 VertOutViewWorldPos;
 in vec4 VertOutWorldPos;
 in vec2 VertOutUV;
 in vec4 VertOutNormal;
@@ -95,7 +95,7 @@ void main(void)
 		pointLightsContribution += CalcPointLightContribution(PointLights[i], lightingData) * (1.0 - ComputePointLightShadowFactor(PointLights[i], VertOutWorldPos, 0.1));
 	}
 
-	FragColor = (sunLight + pointLightsContribution) * (1.0 - ComputeSunShadowFactorPCF(8, LightSpaceVertPos, 0.0001, 1000.0)) * VertOutColor;
+	FragColor = (sunLight + pointLightsContribution) * (1.0 - ComputeSunShadowFactorPCF(8, GetSunShadowCascadeIndex(VertOutViewWorldPos), VertOutWorldPos, 0.0001, 1000.0)) * VertOutColor;
 }
 
 #endprogram
