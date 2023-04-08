@@ -213,7 +213,7 @@ TDE2_TEST_FIXTURE("EntitiesOperationsTests")
 			if (!pMemoryMappedStream)
 			{
 				TDE2_TEST_IS_TRUE(false);
-				return result;
+				return;
 			}
 
 			if (auto pPrefabsRegistry = pSceneManager->GetPrefabsRegistry())
@@ -222,7 +222,7 @@ TDE2_TEST_FIXTURE("EntitiesOperationsTests")
 				if (!pFileWriter)
 				{
 					TDE2_TEST_IS_TRUE(false);
-					return result;
+					return;
 				}
 
 				result = result | pPrefabsRegistry->SavePrefabHierarchy(pFileWriter, pSceneManager->GetWorld().Get(), pPrefabEntity);
@@ -236,7 +236,7 @@ TDE2_TEST_FIXTURE("EntitiesOperationsTests")
 			if (!pFileReader)
 			{
 				TDE2_TEST_IS_TRUE(false);
-				return result;
+				return;
 			}
 
 			/*!
@@ -317,7 +317,7 @@ TDE2_TEST_FIXTURE("EntitiesOperationsTests")
 			if (!pMemoryMappedStream)
 			{
 				TDE2_TEST_IS_TRUE(false);
-				return result;
+				return;
 			}
 
 			if (auto pPrefabsRegistry = pSceneManager->GetPrefabsRegistry())
@@ -326,7 +326,7 @@ TDE2_TEST_FIXTURE("EntitiesOperationsTests")
 				if (!pFileWriter)
 				{
 					TDE2_TEST_IS_TRUE(false);
-					return result;
+					return;
 				}
 
 				result = result | pPrefabsRegistry->SavePrefabHierarchy(pFileWriter, pSceneManager->GetWorld().Get(), pHierarchyRootEntity);
@@ -340,7 +340,7 @@ TDE2_TEST_FIXTURE("EntitiesOperationsTests")
 			if (!pFileReader)
 			{
 				TDE2_TEST_IS_TRUE(false);
-				return result;
+				return;
 			}
 
 			/*!
