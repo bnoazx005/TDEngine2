@@ -26,12 +26,10 @@ namespace TDEngine2
 
 		mpWindowSystem = pWindowSystem;
 
-#if TDE2_EDITORS_ENABLED /// This subscription is needed only with editor mode's enabled
 		if (auto pEventManager = pWindowSystem->GetEventManager())
 		{
 			pEventManager->Subscribe(TOnCharInputEvent::GetTypeId(), this);
 		}
-#endif
 
 		mIsInitialized = true;
 
@@ -149,7 +147,6 @@ namespace TDEngine2
 
 	E_RESULT_CODE CProxyInputContext::OnEvent(const TBaseEvent* pEvent)
 	{
-#if TDE2_EDITORS_ENABLED
 		if (mOnCharInputCallback)
 		{
 			if (auto pInputEvent = dynamic_cast<const TOnCharInputEvent*>(pEvent))
@@ -157,7 +154,7 @@ namespace TDEngine2
 				mOnCharInputCallback(static_cast<TUtf8CodePoint>(pInputEvent->mCharCode));
 			}
 		}
-#endif
+
 		return RC_OK;
 	}
 
@@ -198,14 +195,10 @@ namespace TDEngine2
 		return nullptr;
 	}
 
-#if TDE2_EDITORS_ENABLED
-
 	void CProxyInputContext::SetOnCharInputCallback(const TOnCharActionCallback& onEventAction)
 	{
 		mOnCharInputCallback = onEventAction;
 	}
-
-#endif
 
 
 	TDE2_API IInputContext* CreateProxyInputContext(TProxyInputContextDesc* pDesc, TPtr<IWindowSystem> pWindowSystem, E_RESULT_CODE& result)

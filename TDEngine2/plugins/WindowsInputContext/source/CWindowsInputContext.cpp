@@ -57,12 +57,10 @@ namespace TDEngine2
 			}
 		}
 
-#if TDE2_EDITORS_ENABLED /// This subscription is needed only with editor mode's enabled
 		if (auto pEventManager = pWindowSystem->GetEventManager())
 		{
 			pEventManager->Subscribe(TOnCharInputEvent::GetTypeId(), this);
 		}
-#endif
 
 		mIsInitialized = true;
 
@@ -128,15 +126,11 @@ namespace TDEngine2
 
 	E_RESULT_CODE CWindowsInputContext::OnEvent(const TBaseEvent* pEvent)
 	{
-#if TDE2_EDITORS_ENABLED
-		if (mOnCharInputCallback)
+		if (auto pInputEvent = dynamic_cast<const TOnCharInputEvent*>(pEvent))
 		{
-			if (auto pInputEvent = dynamic_cast<const TOnCharInputEvent*>(pEvent))
-			{
-				mOnCharInputCallback(static_cast<TUtf8CodePoint>(pInputEvent->mCharCode));
-			}
+			mOnCharInputCallback(static_cast<TUtf8CodePoint>(pInputEvent->mCharCode));
 		}
-#endif
+
 		return RC_OK;
 	}
 
@@ -180,14 +174,10 @@ namespace TDEngine2
 		return mpGamepads[gamepadId];
 	}
 
-#if TDE2_EDITORS_ENABLED
-
 	void CWindowsInputContext::SetOnCharInputCallback(const TOnCharActionCallback& onEventAction)
 	{
-		mOnCharInputCallback = onEventAction;
+		mOnCharInputCallback.Subscribe(onEventAction);
 	}
-
-#endif
 
 	E_RESULT_CODE CWindowsInputContext::_createInputInternalHandler(HINSTANCE windowHandler)
 	{

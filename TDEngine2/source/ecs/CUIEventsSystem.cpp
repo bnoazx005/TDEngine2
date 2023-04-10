@@ -32,6 +32,11 @@ namespace TDEngine2
 		mpInputContext = pInputContext;
 		mpDesktopInputContext = dynamic_cast<IDesktopInputContext*>(mpInputContext);
 
+		mpDesktopInputContext->SetOnCharInputCallback([this](TUtf8CodePoint codePoint)
+		{
+			mInputBuffer.append(CU8String::UTF8CodePointToString(codePoint));
+		});
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -162,13 +167,27 @@ namespace TDEngine2
 				if (pInputReceiver->mCurrState && pInputReceiver->mIsHovered && !pInputReceiver->mIsFocused)
 				{
 					pInputReceiver->mIsFocused = true;
+					mInputBuffer = pInputReceiver->mInputBuffer;
+					mPrevInputBuffer = mInputBuffer;
+				}
+
+				if (pInputReceiver->mIsFocused)
+				{
+					pInputReceiver->mInputBuffer = mInputBuffer;
 				}
 
 				const bool isCancelAction = mpDesktopInputContext->IsKeyPressed(E_KEYCODES::KC_ESCAPE);
 
-				if (!pInputReceiver->mIsHovered && (mpDesktopInputContext->IsMouseButton(0) || isCancelAction) || mpDesktopInputContext->IsKeyPressed(E_KEYCODES::KC_RETURN))
+				if (!pInputReceiver->mIsHovered && (mpDesktopInputContext->IsMouseButtonPressed(0) || isCancelAction) || mpDesktopInputContext->IsKeyPressed(E_KEYCODES::KC_RETURN))
 				{
+					if (isCancelAction)
+					{
+						pInputReceiver->mInputBuffer = mPrevInputBuffer;
+					}
+
 					pInputReceiver->mIsFocused = false;
+
+					mInputBuffer.clear();
 				}
 			}
 

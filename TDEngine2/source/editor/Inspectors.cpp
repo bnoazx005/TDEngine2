@@ -1231,12 +1231,14 @@ namespace TDEngine2
 
 			if (std::get<0>(imguiContext.BeginTreeNode("Debug Info")))
 			{
-				imguiContext.Label(Wrench::StringUtils::Format("On Pressed: {0}\nNormalized Input Pos: ({1}; {2})\nHovered: {3}\nFocused: {4}",
+				imguiContext.Label(Wrench::StringUtils::Format(
+					"On Pressed: {0}\nNormalized Input Pos: ({1}; {2})\nHovered: {3}\nFocused: {4}\nInput Text: {5}",
 					inputReceiver.mCurrState ? "pressed" : "none",
 					inputReceiver.mNormalizedInputPosition.x, 
 					inputReceiver.mNormalizedInputPosition.y,
 					inputReceiver.mIsHovered ? "true" : "false",
-					inputReceiver.mIsFocused ? "true" : "false"));
+					inputReceiver.mIsFocused ? "true" : "false",
+					inputReceiver.mInputBuffer));
 
 				imguiContext.EndTreeNode();
 			}

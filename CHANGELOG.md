@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Now events of **TOnCharInputEvent** type can be processed in a production builds too.
+
 ### Fixed
 
 ## [0.6.15] 2023-04-07

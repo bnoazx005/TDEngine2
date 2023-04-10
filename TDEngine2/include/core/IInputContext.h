@@ -26,8 +26,6 @@ namespace TDEngine2
 	TDE2_DECLARE_SCOPED_PTR(IGamepad)
 
 
-#if TDE2_EDITORS_ENABLED
-
 	/*!
 		struct TOnCharInputEvent
 
@@ -45,7 +43,6 @@ namespace TDEngine2
 		U32 mCharCode = 0x0;
 	} TOnCharInputEvent, *TOnCharInputEventPtr;
 
-#endif
 
 
 	/*!
@@ -219,9 +216,7 @@ namespace TDEngine2
 
 			TDE2_API virtual bool IsMouseButtonUnpressed(U8 button) = 0;
 
-#if TDE2_EDITORS_ENABLED
 			TDE2_API virtual void SetOnCharInputCallback(const TOnCharActionCallback& onEventAction) = 0;
-#endif
 
 			/*!
 				\brief The method returns a position of a cursor

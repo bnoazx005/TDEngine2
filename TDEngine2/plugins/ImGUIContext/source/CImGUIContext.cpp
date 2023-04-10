@@ -1147,6 +1147,16 @@ namespace TDEngine2
 
 		_initInputMappings(io);
 
+#if TDE2_EDITORS_ENABLED
+		if (auto pDesktopInputCtx = DynamicPtrCast<IDesktopInputContext>(mpInputContext))
+		{
+			pDesktopInputCtx->SetOnCharInputCallback([this, &io](TUtf8CodePoint characterCode)
+			{
+				io.AddInputCharactersUTF8(reinterpret_cast<const C8*>(&characterCode));
+			});
+		}
+#endif
+
 		return RC_OK;
 	}
 
@@ -1186,13 +1196,6 @@ namespace TDEngine2
 
 			io.KeysDown[keyCode] = pDesktopInputCtx->IsKey(internalKeyCode);
 		}
-
-#if TDE2_EDITORS_ENABLED
-		pDesktopInputCtx->SetOnCharInputCallback([this, &io](TUtf8CodePoint characterCode)
-		{
-			io.AddInputCharactersUTF8(reinterpret_cast<const C8*>(&characterCode));
-		});
-#endif
 
 		io.MouseWheel += CMathUtils::Clamp(-1.0f, 1.0f, pDesktopInputCtx->GetMouseShiftVec().z);
 		// \todo Implement support of gamepads

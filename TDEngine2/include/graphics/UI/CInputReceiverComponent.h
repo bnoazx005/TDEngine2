@@ -81,6 +81,8 @@ namespace TDEngine2
 			bool mIsIgnoreInput : 1;
 
 			TVector2 mNormalizedInputPosition; ///< Position of an input event that's normalized relative to receiver's rectangle
+
+			std::string mInputBuffer;
 	};
 
 

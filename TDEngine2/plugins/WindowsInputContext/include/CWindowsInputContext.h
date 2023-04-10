@@ -11,6 +11,7 @@
 #include <core/CBaseObject.h>
 #include <core/Event.h>
 #include <utils/Utils.h>
+#include <delegate.hpp>
 
 
 #if defined (TDE2_USE_WINPLATFORM)
@@ -214,9 +215,7 @@ namespace TDEngine2
 
 			TDE2_API TPtr<IGamepad> GetGamepad(U8 gamepadId) const override;
 
-#if TDE2_EDITORS_ENABLED
 			TDE2_API void SetOnCharInputCallback(const TOnCharActionCallback& onEventAction) override;
-#endif
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWindowsInputContext)
 
@@ -238,9 +237,7 @@ namespace TDEngine2
 
 			TInternalInputData mInternalData;
 
-#if TDE2_EDITORS_ENABLED
-			TOnCharActionCallback mOnCharInputCallback;
-#endif
+			Wrench::Delegate<TUtf8CodePoint> mOnCharInputCallback;
 	};
 }
 
