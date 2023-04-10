@@ -76,6 +76,8 @@ namespace TDEngine2
 		public:
 			bool mPrevState     : 1;
 			bool mCurrState     : 1;
+			bool mIsHovered     : 1;
+			bool mIsFocused     : 1;
 			bool mIsIgnoreInput : 1;
 
 			TVector2 mNormalizedInputPosition; ///< Position of an input event that's normalized relative to receiver's rectangle

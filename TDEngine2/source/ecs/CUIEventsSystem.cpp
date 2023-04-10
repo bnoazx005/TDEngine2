@@ -142,19 +142,38 @@ namespace TDEngine2
 			pInputReceiver = inputReceivers[i];
 			pLayoutElement = layoutElements[i];
 
+			pInputReceiver->mIsHovered = false;
+
 			if (pInputReceiver->mIsIgnoreInput)
 			{
 				pInputReceiver->mPrevState = pInputReceiver->mCurrState; // reset state
 				pInputReceiver->mCurrState = false;
+
 				continue;
 			}
 
 			/// \fixme For now it's the simplest solution for checking buttons 
+			pInputReceiver->mIsHovered = ContainsPoint(pLayoutElement->GetWorldRect(), mousePosition);
 			pInputReceiver->mPrevState = pInputReceiver->mCurrState;
-			pInputReceiver->mCurrState = ContainsPoint(pLayoutElement->GetWorldRect(), mousePosition) && mpDesktopInputContext->IsMouseButton(0);
+			pInputReceiver->mCurrState = pInputReceiver->mIsHovered && mpDesktopInputContext->IsMouseButton(0);
+
+			/// focus/unfocus logic
+			{
+				if (pInputReceiver->mCurrState && pInputReceiver->mIsHovered && !pInputReceiver->mIsFocused)
+				{
+					pInputReceiver->mIsFocused = true;
+				}
+
+				const bool isCancelAction = mpDesktopInputContext->IsKeyPressed(E_KEYCODES::KC_ESCAPE);
+
+				if (!pInputReceiver->mIsHovered && (mpDesktopInputContext->IsMouseButton(0) || isCancelAction) || mpDesktopInputContext->IsKeyPressed(E_KEYCODES::KC_RETURN))
+				{
+					pInputReceiver->mIsFocused = false;
+				}
+			}
 
 			pInputReceiver->mNormalizedInputPosition = PointToNormalizedCoords(pLayoutElement->GetWorldRect(), mousePosition);
-
+			
 			if (pInputReceiver->mCurrState)
 			{
 				return;
