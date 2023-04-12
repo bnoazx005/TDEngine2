@@ -204,6 +204,11 @@ namespace TDEngine2
 
 			imguiContext.MenuGroup("UI", [&](auto&&)
 			{
+				imguiContext.MenuItem("Canvas", Wrench::StringUtils::GetEmptyStr(), [=]
+				{
+					CSceneHierarchyUtils::CreateCanvasUIElement(pWorld, pCurrScene, pSelectionManager->GetSelectedEntityId(), updateSelection);
+				});
+
 				imguiContext.MenuItem("Toggle", Wrench::StringUtils::GetEmptyStr(), [=]
 				{
 					CSceneHierarchyUtils::CreateToggleUIElement(pWorld, pCurrScene, pSelectionManager->GetSelectedEntityId(), updateSelection);
@@ -212,6 +217,11 @@ namespace TDEngine2
 				imguiContext.MenuItem("Slider", Wrench::StringUtils::GetEmptyStr(), [=]
 				{
 					CSceneHierarchyUtils::CreateSliderUIElement(pWorld, pCurrScene, pSelectionManager->GetSelectedEntityId(), updateSelection);
+				});
+
+				imguiContext.MenuItem("Input Field", Wrench::StringUtils::GetEmptyStr(), [=]
+				{
+					CSceneHierarchyUtils::CreateInputFieldUIElement(pWorld, pCurrScene, pSelectionManager->GetSelectedEntityId(), updateSelection);
 				});
 			});
 		});
@@ -237,7 +247,7 @@ namespace TDEngine2
 				pSelectionManager->SetSelectedEntity(id);
 			});
 		};
-
+		
 		pImGUIContext->DisplayContextMenu(EntityContextMenuId, [=](IImGUIContext& imguiContext)
 		{
 			DrawCreateMenuGroup(imguiContext, pWorld, pSelectionManager, desc.mBase.mpCurrScene, pSelectionManager->GetSelectedEntityId());

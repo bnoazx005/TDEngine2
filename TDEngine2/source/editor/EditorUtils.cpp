@@ -13,7 +13,10 @@
 #include "../../include/graphics/UI/CToggleComponent.h"
 #include "../../include/graphics/UI/C9SliceImageComponent.h"
 #include "../../include/graphics/UI/CUISliderComponent.h"
+#include "../../include/graphics/UI/CInputFieldComponent.h"
 #include "../../include/graphics/UI/CCanvasComponent.h"
+#include "../../include/graphics/UI/CLabelComponent.h"
+#include "../../include/core/IFont.h"
 #include "../../include/core/IImGUIContext.h"
 #include <clip.h>
 
@@ -308,6 +311,76 @@ namespace TDEngine2
 			}
 
 			GroupEntities(pWorld.Get(), pSliderEntity->GetId(), pMarkerEntity->GetId());
+		}
+
+		return rootEntityResult;
+	}
+
+	TResult<TEntityId> CSceneHierarchyUtils::CreateInputFieldUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op)
+	{
+		static constexpr F32 sliderHeight = 32.0f;
+
+		auto rootEntityResult = CreateNewEntityInternal("InputField", pWorld, pCurrScene, parentEntityId, op);
+		if (rootEntityResult.HasError())
+		{
+			return rootEntityResult;
+		}
+
+		if (auto pInputFieldEntity = pWorld->FindEntity(rootEntityResult.Get()))
+		{
+			pInputFieldEntity->AddComponent<CInputReceiver>();
+
+			if (auto pLayoutElement = pInputFieldEntity->AddComponent<CLayoutElement>())
+			{
+				pLayoutElement->SetMinAnchor(ZeroVector2);
+				pLayoutElement->SetMaxAnchor(ZeroVector2);
+				pLayoutElement->SetMinOffset(ZeroVector2);
+				pLayoutElement->SetMaxOffset(TVector2(250.0f, sliderHeight));
+			}
+
+			Setup9ImageSliceComponent(pInputFieldEntity, DefaultSpritePathId, TColor32F(0.35f));
+
+			auto pCursorEntity = pCurrScene->CreateEntity("Cursor");
+			{
+				if (auto pLayoutElement = pCursorEntity->AddComponent<CLayoutElement>())
+				{
+					pLayoutElement->SetMinAnchor(ZeroVector2);
+					pLayoutElement->SetMaxAnchor(TVector2(0.0f, 1.0f));
+					pLayoutElement->SetMinOffset(ZeroVector2);
+					pLayoutElement->SetMaxOffset(TVector2(2.0f, 0.0f));
+				}
+
+				Setup9ImageSliceComponent(pCursorEntity, DefaultSpritePathId, TColorUtils::mBlack);
+			}
+
+			auto pLabelEntity = pCurrScene->CreateEntity("Text");
+			{
+				if (auto pLayoutElement = pLabelEntity->AddComponent<CLayoutElement>())
+				{
+					pLayoutElement->SetMinAnchor(ZeroVector2);
+					pLayoutElement->SetMaxAnchor(TVector2(1.0f));
+					pLayoutElement->SetMinOffset(ZeroVector2);
+					pLayoutElement->SetMaxOffset(ZeroVector2);
+				}
+
+				if (auto pLabel = pLabelEntity->AddComponent<CLabel>())
+				{
+					pLabel->SetFontId("OpenSans.font");
+					pLabel->SetTextHeight(24);
+					pLabel->SetColor(TColorUtils::mBlack);
+					pLabel->SetAlignType(E_FONT_ALIGN_POLICY::LEFT_CENTER);
+				}
+			}
+
+			if (auto pInputField = pInputFieldEntity->AddComponent<CInputField>())
+			{
+				pInputField->SetCursorEntityId(pCursorEntity->GetId());
+				pInputField->SetLabelEntityId(pLabelEntity->GetId());
+				
+			}
+
+			GroupEntities(pWorld.Get(), pInputFieldEntity->GetId(), pCursorEntity->GetId());
+			GroupEntities(pWorld.Get(), pInputFieldEntity->GetId(), pLabelEntity->GetId());
 		}
 
 		return rootEntityResult;

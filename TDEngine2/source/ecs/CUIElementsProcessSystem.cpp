@@ -824,7 +824,7 @@ namespace TDEngine2
 	}
 
 
-	static inline void UpdateInputFieldsElements(CUIElementsProcessSystem::TInputFieldsContext& inputFieldsContext, IWorld* pWorld, ISystem* pSystem)
+	static inline void UpdateInputFieldsElements(CUIElementsProcessSystem::TInputFieldsContext& inputFieldsContext, IWorld* pWorld, ISystem* pSystem, F32 dt)
 	{
 		auto&& inputFields = std::get<std::vector<CInputField*>>(inputFieldsContext.mComponentsSlice);
 		auto&& inputReceivers = std::get<std::vector<CInputReceiver*>>(inputFieldsContext.mComponentsSlice);
@@ -838,20 +838,27 @@ namespace TDEngine2
 			}
 
 			CInputReceiver* pCurrInputReceiver = inputReceivers[i];
-			if (!pCurrInputReceiver)
+			if (!pCurrInputReceiver || !pCurrInputReceiver->mIsFocused)
 			{
+				SetEntityActive(pWorld, pCurrInputField->GetCursorEntityId(), false);
+
 				continue;
 			}
 
-			if (!pCurrInputReceiver->mCurrState)
+			SetEntityActive(pWorld, pCurrInputField->GetCursorEntityId(), true);
+
+			pCurrInputField->SetEditingFlag(true);
+
+			if (pCurrInputField->GetValue() == pCurrInputReceiver->mInputBuffer)
 			{
 				continue;
 			}
-
-			/*if (!pCurrInputReceiver->mCurrState && pCurrInputReceiver->mPrevState)
+						
+			if (auto pLabelEntity = pWorld->FindEntity(pCurrInputField->GetLabelEntityId()))
 			{
-				pCurrInputField->SetEditingFlag(true);
-			}*/
+				auto pLabel = pLabelEntity->GetComponent<CLabel>();
+				pLabel->SetText(pCurrInputReceiver->mInputBuffer);
+			}
 		}
 	}
 
@@ -951,7 +958,7 @@ namespace TDEngine2
 
 		UpdateToggleElements(mTogglesContext, pWorld, this);
 		UpdateSlidersElements(mSlidersContext, pWorld, this);
-		UpdateInputFieldsElements(mInputFieldsContext, pWorld, this);
+		UpdateInputFieldsElements(mInputFieldsContext, pWorld, this, dt);
 	}
 
 
