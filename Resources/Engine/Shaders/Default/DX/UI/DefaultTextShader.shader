@@ -43,9 +43,12 @@ float4 mainPS(VertexOut input): SV_TARGET0
 {
 	static const float2 params = float2(0.9, 20.0);
 
-	float d = TEX2D(Texture, input.mUV).r;
+	static const float smoothing = 1.0 / 16.0;
 
-	return input.mColor * float4(1.0, 1.0, 1.0, clamp((d-params.x)*params.y, 0.0, 1.0));
+	float d = TEX2D(Texture, input.mUV).r;
+	float alpha = smoothstep(0.5 - smoothing, 0.5 + smoothing, d);
+
+	return float4(input.mColor.rgb, input.mColor.a * alpha);
 }
 
 #endprogram

@@ -185,7 +185,7 @@ namespace TDEngine2
 		{
 			const U32 cp = static_cast<U32>(currCodepoint);
 
-			U8* pBitmap = stbtt_GetCodepointSDF(pFontInfo, scale, cp, 10, 255, 20.0f, &width, &height, &xoff, &yoff); /// \note Replace magic constants
+			U8* pBitmap = stbtt_GetCodepointSDF(pFontInfo, scale, cp, 10, 128, 12.7f, &width, &height, &xoff, &yoff); /// \note Replace magic constants
 
 			const C8* pStr = reinterpret_cast<const C8*>(&cp);
 
