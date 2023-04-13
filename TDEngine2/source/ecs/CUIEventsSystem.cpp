@@ -34,6 +34,11 @@ namespace TDEngine2
 
 		mpDesktopInputContext->SetOnCharInputCallback([this](TUtf8CodePoint codePoint)
 		{
+			if (static_cast<C8>(codePoint) == '\b')
+			{
+				return;
+			}
+
 			mInputBuffer.append(CU8String::UTF8CodePointToString(codePoint));
 		});
 
@@ -125,6 +130,20 @@ namespace TDEngine2
 		}
 	}
 
+
+	static E_INPUT_ACTIONS GetActionType(IDesktopInputContext* pInputContext)
+	{
+		if (pInputContext->IsKeyPressed(E_KEYCODES::KC_LEFT)) { return E_INPUT_ACTIONS::MOVE_LEFT; }
+		if (pInputContext->IsKeyPressed(E_KEYCODES::KC_RIGHT)) { return E_INPUT_ACTIONS::MOVE_RIGHT; }
+		if (pInputContext->IsKeyPressed(E_KEYCODES::KC_DOWN)) { return E_INPUT_ACTIONS::MOVE_DOWN; }
+		if (pInputContext->IsKeyPressed(E_KEYCODES::KC_UP)) { return E_INPUT_ACTIONS::MOVE_UP; }
+		if (pInputContext->IsKeyPressed(E_KEYCODES::KC_DELETE)) { return E_INPUT_ACTIONS::DELETE_CHAR; }
+		if (pInputContext->IsKeyPressed(E_KEYCODES::KC_BACKSPACE)) { return E_INPUT_ACTIONS::BACKSPACE; }
+
+		return E_INPUT_ACTIONS::MOVE_LEFT;
+	}
+
+
 	void CUIEventsSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		TDE2_PROFILER_SCOPE("CUIEventsSystem::Update");
@@ -161,6 +180,10 @@ namespace TDEngine2
 			pInputReceiver->mIsHovered = ContainsPoint(pLayoutElement->GetWorldRect(), mousePosition);
 			pInputReceiver->mPrevState = pInputReceiver->mCurrState;
 			pInputReceiver->mCurrState = pInputReceiver->mIsHovered && mpDesktopInputContext->IsMouseButton(0);
+
+			pInputReceiver->mIsControlModifierActive = mpDesktopInputContext->IsKey(E_KEYCODES::KC_LCONTROL) || mpDesktopInputContext->IsKey(E_KEYCODES::KC_RCONTROL);
+			pInputReceiver->mIsShiftModifierActive = mpDesktopInputContext->IsKey(E_KEYCODES::KC_LSHIFT) || mpDesktopInputContext->IsKey(E_KEYCODES::KC_RSHIFT);
+			pInputReceiver->mActionType = GetActionType(mpDesktopInputContext);
 
 			/// focus/unfocus logic
 			{

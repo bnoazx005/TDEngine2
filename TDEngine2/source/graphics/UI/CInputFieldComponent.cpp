@@ -14,12 +14,14 @@ namespace TDEngine2
 		static const std::string mCursorEntityRefKeyId;
 		static const std::string mLabelEntityRefKeyId;
 		static const std::string mValueKeyId;
+		static const std::string mCaretBlinkKeyId;
 	};
 
 
 	const std::string TInputFieldArchiveKeys::mCursorEntityRefKeyId = "cursor_entity_ref";
 	const std::string TInputFieldArchiveKeys::mLabelEntityRefKeyId = "label_entity_ref";
 	const std::string TInputFieldArchiveKeys::mValueKeyId = "value";
+	const std::string TInputFieldArchiveKeys::mCaretBlinkKeyId = "caret_blink_rate";
 
 	E_RESULT_CODE CInputField::Load(IArchiveReader* pReader)
 	{
@@ -31,6 +33,7 @@ namespace TDEngine2
 		mCursorEntityRef = static_cast<TEntityId>(pReader->GetUInt32(TInputFieldArchiveKeys::mCursorEntityRefKeyId));
 		mLabelEntityRef = static_cast<TEntityId>(pReader->GetUInt32(TInputFieldArchiveKeys::mLabelEntityRefKeyId));
 		mValue = pReader->GetString(TInputFieldArchiveKeys::mValueKeyId);
+		mCaretBlinkRate = pReader->GetFloat(TInputFieldArchiveKeys::mCaretBlinkKeyId, 1.0f);
 
 		return RC_OK;
 	}
@@ -49,6 +52,7 @@ namespace TDEngine2
 			pWriter->SetUInt32(TInputFieldArchiveKeys::mCursorEntityRefKeyId, static_cast<U32>(mCursorEntityRef));			
 			pWriter->SetUInt32(TInputFieldArchiveKeys::mLabelEntityRefKeyId, static_cast<U32>(mLabelEntityRef));			
 			pWriter->SetString(TInputFieldArchiveKeys::mValueKeyId, mValue);
+			pWriter->SetFloat(TInputFieldArchiveKeys::mCaretBlinkKeyId, mCaretBlinkRate);
 		}
 		pWriter->EndGroup();
 
@@ -97,6 +101,21 @@ namespace TDEngine2
 		mIsEditing = state;
 	}
 
+	void CInputField::SetCaretPosition(U32 value)
+	{
+		mCurrCaretPosition = value;
+	}
+
+	void CInputField::SetCaretBlinkRate(F32 value)
+	{
+		mCaretBlinkRate = value;
+	}
+
+	void CInputField::SetCaretBlinkTimer(F32 value)
+	{
+		mCaretBlinkTimer = value;
+	}
+
 	const std::string& CInputField::GetValue() const
 	{
 		return mValue;
@@ -115,6 +134,21 @@ namespace TDEngine2
 	bool CInputField::IsEditing() const
 	{
 		return mIsEditing;
+	}
+
+	U32 CInputField::GetCaretPosition() const
+	{
+		return mCurrCaretPosition;
+	}
+
+	F32 CInputField::GetCaretBlinkRate() const
+	{
+		return mCaretBlinkRate;
+	}
+
+	F32 CInputField::GetCaretBlinkTimer() const
+	{
+		return mCaretBlinkTimer;
 	}
 
 

@@ -82,11 +82,19 @@ namespace TDEngine2
 
 			void SetEditingFlag(bool state);
 
+			void SetCaretPosition(U32 value);
+			void SetCaretBlinkRate(F32 value);
+			void SetCaretBlinkTimer(F32 value);
+
 			const std::string& GetValue() const;
 			TEntityId GetCursorEntityId() const;
 			TEntityId GetLabelEntityId() const;
 
 			bool IsEditing() const;
+
+			U32 GetCaretPosition() const;
+			F32 GetCaretBlinkRate() const;
+			F32 GetCaretBlinkTimer() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CInputField)
 		protected:
@@ -95,6 +103,11 @@ namespace TDEngine2
 			std::string mValue;
 
 			bool        mIsEditing = false;
+			
+			U32         mCurrCaretPosition = 0;
+
+			F32 mCaretBlinkRate = 1.0f;
+			F32 mCaretBlinkTimer = 0.0f;
 	};
 
 

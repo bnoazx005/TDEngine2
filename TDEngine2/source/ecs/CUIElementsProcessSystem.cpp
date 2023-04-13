@@ -828,6 +828,7 @@ namespace TDEngine2
 	{
 		auto&& inputFields = std::get<std::vector<CInputField*>>(inputFieldsContext.mComponentsSlice);
 		auto&& inputReceivers = std::get<std::vector<CInputReceiver*>>(inputFieldsContext.mComponentsSlice);
+		auto&& inputFieldLayouts = std::get<std::vector<CLayoutElement*>>(inputFieldsContext.mComponentsSlice);
 
 		for (USIZE i = 0; i < inputFieldsContext.mComponentsCount; i++)
 		{
@@ -841,11 +842,25 @@ namespace TDEngine2
 			if (!pCurrInputReceiver || !pCurrInputReceiver->mIsFocused)
 			{
 				SetEntityActive(pWorld, pCurrInputField->GetCursorEntityId(), false);
+				pCurrInputField->SetEditingFlag(false);
 
 				continue;
 			}
 
 			SetEntityActive(pWorld, pCurrInputField->GetCursorEntityId(), true);
+
+			if (auto pCaretEntity = pWorld->FindEntity(pCurrInputField->GetCursorEntityId())) /// \todo Replace with simple tween animation or AnimationContainer component on a caret's entity
+			{
+				if (auto pCaretImage = pCaretEntity->GetComponent<C9SliceImage>())
+				{
+					auto color = pCaretImage->GetColor();
+					color.a = fabsf(sinf(pCurrInputField->GetCaretBlinkTimer() * pCurrInputField->GetCaretBlinkRate() * 4.0f));
+					pCaretImage->SetColor(color);
+				}
+
+				pCurrInputField->SetCaretBlinkTimer(pCurrInputField->GetCaretBlinkTimer() + dt);
+				inputFieldLayouts[i]->SetDirty(true); /// \todo Replace with passing color as uniform variable without reconstruction of image's mesh
+			}
 
 			pCurrInputField->SetEditingFlag(true);
 
@@ -853,6 +868,8 @@ namespace TDEngine2
 			{
 				continue;
 			}
+
+			pCurrInputField->SetValue(pCurrInputReceiver->mInputBuffer);
 						
 			if (auto pLabelEntity = pWorld->FindEntity(pCurrInputField->GetLabelEntityId()))
 			{

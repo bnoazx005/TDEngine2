@@ -17,6 +17,19 @@ namespace TDEngine2
 	enum class TResourceId : U32;
 
 
+	enum class E_INPUT_ACTIONS : U32
+	{
+		MOVE_LEFT,
+		MOVE_RIGHT,
+		MOVE_UP,
+		MOVE_DOWN,
+		DELETE_CHAR,
+		BACKSPACE,
+		MOVE_HOME,
+		MOVE_END,
+	};
+
+
 	/*!
 		\brief A factory function for creation objects of CInputReceiver's type.
 
@@ -78,7 +91,13 @@ namespace TDEngine2
 			bool mCurrState     : 1;
 			bool mIsHovered     : 1;
 			bool mIsFocused     : 1;
+			
+			bool mIsControlModifierActive : 1;
+			bool mIsShiftModifierActive : 1;
+			
 			bool mIsIgnoreInput : 1;
+
+			E_INPUT_ACTIONS mActionType;
 
 			TVector2 mNormalizedInputPosition; ///< Position of an input event that's normalized relative to receiver's rectangle
 

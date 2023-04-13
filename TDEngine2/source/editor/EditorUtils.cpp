@@ -369,6 +369,7 @@ namespace TDEngine2
 					pLabel->SetTextHeight(24);
 					pLabel->SetColor(TColorUtils::mBlack);
 					pLabel->SetAlignType(E_FONT_ALIGN_POLICY::LEFT_CENTER);
+					pLabel->SetText(Wrench::StringUtils::GetEmptyStr());
 				}
 			}
 
