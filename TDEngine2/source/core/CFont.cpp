@@ -369,6 +369,42 @@ namespace TDEngine2
 		return mFontHeight;
 	}
 
+	F32 CFont::GetTextLength(const TTextMeshBuildParams& params, const std::string& text, USIZE pos, USIZE count) const
+	{
+		const F32 scale = params.mScale;
+		F32 textLength = 0.0f;
+
+		TUtf8CodePoint currCodePoint = TUtf8CodePoint::Invalid;
+		auto&& it = text.cbegin();
+
+		USIZE counter = 0;
+
+		if (!count)
+		{
+			return textLength;
+		}
+
+		while (CU8String::MoveNext(it, text.cend(), currCodePoint))
+		{
+			if (pos > counter || counter >= count || mGlyphsMap.find(currCodePoint) == mGlyphsMap.cend())
+			{
+				continue;
+			}
+
+			counter++;
+
+			auto pCurrGlyphInfo = &mGlyphsMap.at(currCodePoint);
+			if (!pCurrGlyphInfo)
+			{
+				continue;
+			}
+
+			textLength += scale * ((currCodePoint != TUtf8CodePoint(' ')) ? pCurrGlyphInfo->mAdvance : 20.0f); /// 20.0f is a constant for spacing \todo replace it later
+		}
+
+		return textLength;
+	}
+
 
 	TVector2 CFont::GetPositionFromAlignType(E_FONT_ALIGN_POLICY type)
 	{

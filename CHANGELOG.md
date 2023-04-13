@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.16] 2023-04-10
+## [0.6.16] 2023-04-13
 
 ### Added
+
+- The API of **IFont** was extended with a new method **GetTextLength**.
 
 ### Changed
 

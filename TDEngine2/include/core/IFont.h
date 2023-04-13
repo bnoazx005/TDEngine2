@@ -174,6 +174,12 @@ namespace TDEngine2
 			TDE2_API virtual U32 GetDataVersionNumber() const = 0;
 
 			TDE2_API virtual F32 GetFontHeight() const = 0;
+
+			/*!
+				\brief The method returns a length of a text based on specified parameters
+			*/
+
+			TDE2_API virtual F32 GetTextLength(const TTextMeshBuildParams& params, const std::string& text, USIZE pos = 0, USIZE count = (std::numeric_limits<USIZE>::max)()) const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IFont)
 	};

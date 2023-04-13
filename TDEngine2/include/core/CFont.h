@@ -146,6 +146,12 @@ namespace TDEngine2
 			TDE2_API F32 GetFontHeight() const override;
 
 			TDE2_API static TVector2 GetPositionFromAlignType(E_FONT_ALIGN_POLICY type);
+
+			/*!
+			\brief The method returns a length of a text based on specified parameters
+		*/
+
+			TDE2_API F32 GetTextLength(const TTextMeshBuildParams& params, const std::string& text, USIZE pos, USIZE count) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFont)
 
