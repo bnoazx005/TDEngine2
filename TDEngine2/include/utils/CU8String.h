@@ -94,6 +94,8 @@ namespace TDEngine2
 
 			TDE2_API static U32 GetCodePointLength(C8 ch);
 
+			TDE2_API static std::string EraseAt(const std::string& str, USIZE codePointIndex);
+
 			TDE2_API static TUtf8CodePoint StringToUTF8CodePoint(std::string&& str);
 
 			TDE2_API static std::string UTF8CodePointToString(TUtf8CodePoint cp);

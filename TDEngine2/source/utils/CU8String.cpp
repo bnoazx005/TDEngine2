@@ -35,6 +35,26 @@ namespace TDEngine2
 		return 1;
 	}
 
+	std::string CU8String::EraseAt(const std::string& str, USIZE codePointIndex)
+	{
+		USIZE pos = 0;
+
+		std::string result = str;
+
+		for (auto it = result.begin(); it != result.end(); it += GetCodePointLength(*it))
+		{
+			if (pos == codePointIndex)
+			{
+				result.erase(it, it + GetCodePointLength(*it));
+				return result;
+			}
+
+			pos++;
+		}
+
+		return result;
+	}
+
 	TUtf8CodePoint CU8String::StringToUTF8CodePoint(std::string&& str)
 	{
 		TUtf8CodePoint cp = TUtf8CodePoint::Invalid;
@@ -186,5 +206,44 @@ namespace TDEngine2
 		return (keyCode >= E_KEYCODES::KC_A && keyCode <= E_KEYCODES::KC_Z) ||
 			(keyCode >= E_KEYCODES::KC_ALPHA0 && keyCode <= E_KEYCODES::KC_NUMPAD9) ||
 			(keyCode >= E_KEYCODES::KC_EXCLAIM && keyCode <= E_KEYCODES::KC_TILDE);
+	}
+	 
+
+	template <typename TFunc>
+	bool ForEachKeyCode(E_KEYCODES first, E_KEYCODES last, TFunc&& action)
+	{
+		for (U32 i = static_cast<U32>(first); i <= static_cast<U32>(last); i++)
+		{
+			if (!action(static_cast<E_KEYCODES>(i)))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+
+	void ForEachAlphaNumericKeyCode(const std::function<bool(E_KEYCODES)>& action)
+	{
+		if (!action)
+		{
+			return;
+		}
+
+		if (!ForEachKeyCode(E_KEYCODES::KC_A, E_KEYCODES::KC_Z, action))
+		{
+			return;
+		}
+
+		if (!ForEachKeyCode(E_KEYCODES::KC_ALPHA0, E_KEYCODES::KC_NUMPAD9, action))
+		{
+			return;
+		}
+
+		if (!ForEachKeyCode(E_KEYCODES::KC_EXCLAIM, E_KEYCODES::KC_TILDE, action))
+		{
+			return;
+		}
 	}
 }

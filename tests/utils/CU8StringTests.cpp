@@ -61,4 +61,26 @@ TEST_CASE("CU8String Tests")
 		REQUIRE(actualCodePointsCount == expectedCodePointsCount);
 	}
 
+	SECTION("TestEraseAt_PassStringWithSomeUtf8codePoint_ReturnsNewStringWithRemovedCodePoint")
+	{
+		std::vector<std::tuple<std::string, USIZE, std::string>> testCases
+		{
+			{ "", 0, ""},
+			{ u8"\u2660", 0, u8"" },
+			{ u8"Hello!", 2, u8"Helo!" },
+			{ u8"Hello😀!", 5, u8"Hello!" },
+			{ u8"Hello!😀", 6, u8"Hello!" },
+			{ u8"😀Hello!", 0, u8"Hello!" },
+		};
+
+		std::string str, expectedResult;
+		USIZE codePointIndex;
+
+		for (auto&& currTest : testCases)
+		{
+			std::tie(str, codePointIndex, expectedResult) = currTest;
+
+			REQUIRE(CU8String::EraseAt(str, codePointIndex) == expectedResult);
+		}
+	}
 }
