@@ -81,9 +81,19 @@ namespace TDEngine2
 		return RC_FAIL;
 	}
 
+	void CInputField::ResetChanges()
+	{
+		if (!mIsEditing)
+		{
+			return;
+		}
+
+		std::swap(mTempValue, mValue);
+	}
+
 	void CInputField::SetValue(const std::string& value)
 	{
-		mValue = value;
+		(mIsEditing ? mTempValue : mValue) = value;
 	}
 
 	void CInputField::SetCursorEntityId(TEntityId cursorId)
@@ -106,6 +116,11 @@ namespace TDEngine2
 		mCurrCaretPosition = value;
 	}
 
+	void CInputField::SetFirstVisibleCharPosition(U32 value)
+	{
+		mFirstVisibleCharPosition = value;
+	}
+
 	void CInputField::SetCaretBlinkRate(F32 value)
 	{
 		mCaretBlinkRate = value;
@@ -118,7 +133,7 @@ namespace TDEngine2
 
 	const std::string& CInputField::GetValue() const
 	{
-		return mValue;
+		return mIsEditing ? mTempValue : mValue;
 	}
 
 	TEntityId CInputField::GetCursorEntityId() const
@@ -139,6 +154,11 @@ namespace TDEngine2
 	U32 CInputField::GetCaretPosition() const
 	{
 		return mCurrCaretPosition;
+	}
+
+	U32 CInputField::GetFirstVisibleCharPosition() const
+	{
+		return mFirstVisibleCharPosition;
 	}
 
 	F32 CInputField::GetCaretBlinkRate() const

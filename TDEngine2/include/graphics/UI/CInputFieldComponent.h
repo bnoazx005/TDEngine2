@@ -81,8 +81,10 @@ namespace TDEngine2
 			void SetLabelEntityId(TEntityId labelId);
 
 			void SetEditingFlag(bool state);
+			void ResetChanges();
 
 			void SetCaretPosition(U32 value);
+			void SetFirstVisibleCharPosition(U32 value);
 			void SetCaretBlinkRate(F32 value);
 			void SetCaretBlinkTimer(F32 value);
 
@@ -93,6 +95,7 @@ namespace TDEngine2
 			bool IsEditing() const;
 
 			U32 GetCaretPosition() const;
+			U32 GetFirstVisibleCharPosition() const;
 			F32 GetCaretBlinkRate() const;
 			F32 GetCaretBlinkTimer() const;
 		protected:
@@ -100,11 +103,14 @@ namespace TDEngine2
 		protected:
 			TEntityId   mCursorEntityRef;
 			TEntityId   mLabelEntityRef;
+			
 			std::string mValue;
+			std::string mTempValue; ///< Used to revert previous changes when a user cancels input
 
 			bool        mIsEditing = false;
 			
 			U32         mCurrCaretPosition = 0;
+			U32         mFirstVisibleCharPosition = 0;
 
 			F32 mCaretBlinkRate = 1.0f;
 			F32 mCaretBlinkTimer = 0.0f;

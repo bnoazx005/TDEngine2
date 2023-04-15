@@ -39,7 +39,7 @@ namespace TDEngine2
 				return;
 			}
 
-			mInputBuffer.append(CU8String::UTF8CodePointToString(codePoint));
+			mInputBuffer = CU8String::UTF8CodePointToString(codePoint);
 		});
 
 		mIsInitialized = true;
@@ -139,8 +139,24 @@ namespace TDEngine2
 		if (pInputContext->IsKeyPressed(E_KEYCODES::KC_UP)) { return E_INPUT_ACTIONS::MOVE_UP; }
 		if (pInputContext->IsKeyPressed(E_KEYCODES::KC_DELETE)) { return E_INPUT_ACTIONS::DELETE_CHAR; }
 		if (pInputContext->IsKeyPressed(E_KEYCODES::KC_BACKSPACE)) { return E_INPUT_ACTIONS::BACKSPACE; }
+		if (pInputContext->IsKeyPressed(E_KEYCODES::KC_HOME)) { return E_INPUT_ACTIONS::MOVE_HOME; }
+		if (pInputContext->IsKeyPressed(E_KEYCODES::KC_END)) { return E_INPUT_ACTIONS::MOVE_END; }
+		if (pInputContext->IsKeyPressed(E_KEYCODES::KC_ESCAPE)) { return E_INPUT_ACTIONS::CANCEL_INPUT; }
 
-		return E_INPUT_ACTIONS::MOVE_LEFT;
+		bool isAlphaCharKeyPressed = false;
+
+		ForEachAlphaNumericKeyCode([pInputContext, &isAlphaCharKeyPressed](E_KEYCODES keyCode)
+		{
+			isAlphaCharKeyPressed = pInputContext->IsKeyPressed(keyCode);
+			return !isAlphaCharKeyPressed;
+		});
+
+		if (isAlphaCharKeyPressed)
+		{
+			return E_INPUT_ACTIONS::CHAR_INPUT;
+		}
+
+		return E_INPUT_ACTIONS::NONE;
 	}
 
 
@@ -190,8 +206,6 @@ namespace TDEngine2
 				if (pInputReceiver->mCurrState && pInputReceiver->mIsHovered && !pInputReceiver->mIsFocused)
 				{
 					pInputReceiver->mIsFocused = true;
-					mInputBuffer = pInputReceiver->mInputBuffer;
-					mPrevInputBuffer = mInputBuffer;
 				}
 
 				if (pInputReceiver->mIsFocused)
@@ -203,11 +217,6 @@ namespace TDEngine2
 
 				if (!pInputReceiver->mIsHovered && (mpDesktopInputContext->IsMouseButtonPressed(0) || isCancelAction) || mpDesktopInputContext->IsKeyPressed(E_KEYCODES::KC_RETURN))
 				{
-					if (isCancelAction)
-					{
-						pInputReceiver->mInputBuffer = mPrevInputBuffer;
-					}
-
 					pInputReceiver->mIsFocused = false;
 
 					mInputBuffer.clear();

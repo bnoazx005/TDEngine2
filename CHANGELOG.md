@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.16] 2023-04-14
+## [0.6.16] 2023-04-15
 
 ### Added
 
 - The API of **IFont** was extended with a new method **GetTextLength**.
 
 - The API of **CU8String** was extended with new methods **EraseAt**.
+
+- The first iteration of an input field for UI was introduced via **CInputField** component.
 
 ### Changed
 

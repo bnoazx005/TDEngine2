@@ -824,7 +824,16 @@ namespace TDEngine2
 	}
 
 
-	static inline void UpdateInputFieldsElements(CUIElementsProcessSystem::TInputFieldsContext& inputFieldsContext, IWorld* pWorld, ISystem* pSystem, F32 dt)
+	static void SetInputFieldMarkerPos(CInputField* pInputField, I32 pos)
+	{
+		const I32 textLength = static_cast<I32>(CU8String::Length(pInputField->GetValue().cbegin(), pInputField->GetValue().cend()));
+		U32 caretPos = static_cast<U32>(std::max(0, std::min(pos, textLength)));
+
+		pInputField->SetCaretPosition(static_cast<U32>(caretPos));
+	}
+
+
+	static inline void UpdateInputFieldsElements(CUIElementsProcessSystem::TInputFieldsContext& inputFieldsContext, IWorld* pWorld, ISystem* pSystem, IResourceManager* pResourceManager, F32 dt)
 	{
 		auto&& inputFields = std::get<std::vector<CInputField*>>(inputFieldsContext.mComponentsSlice);
 		auto&& inputReceivers = std::get<std::vector<CInputReceiver*>>(inputFieldsContext.mComponentsSlice);
@@ -847,9 +856,80 @@ namespace TDEngine2
 				continue;
 			}
 
+			pCurrInputField->SetEditingFlag(true);
+
+			/// \note Process input events
+			switch (pCurrInputReceiver->mActionType)
+			{
+				case E_INPUT_ACTIONS::MOVE_LEFT:
+					SetInputFieldMarkerPos(pCurrInputField, static_cast<I32>(pCurrInputField->GetCaretPosition()) - 1);
+					break;
+
+				case E_INPUT_ACTIONS::BACKSPACE:
+					if (pCurrInputField->GetCaretPosition() > 0)
+					{
+						SetInputFieldMarkerPos(pCurrInputField, static_cast<I32>(pCurrInputField->GetCaretPosition()) - 1);
+						pCurrInputField->SetValue(CU8String::EraseAt(pCurrInputField->GetValue(), pCurrInputField->GetCaretPosition()));
+					}
+					break;
+
+				case E_INPUT_ACTIONS::DELETE_CHAR:
+					pCurrInputField->SetValue(CU8String::EraseAt(pCurrInputField->GetValue(), pCurrInputField->GetCaretPosition()));
+					break;
+
+				case E_INPUT_ACTIONS::CHAR_INPUT:
+					pCurrInputField->SetValue(pCurrInputField->GetValue() + pCurrInputReceiver->mInputBuffer);
+					SetInputFieldMarkerPos(pCurrInputField, static_cast<I32>(pCurrInputField->GetCaretPosition()) + 1);
+					break;
+
+				case E_INPUT_ACTIONS::MOVE_RIGHT:
+					SetInputFieldMarkerPos(pCurrInputField, static_cast<I32>(pCurrInputField->GetCaretPosition()) + 1);
+					break;
+
+				case E_INPUT_ACTIONS::MOVE_HOME:
+					SetInputFieldMarkerPos(pCurrInputField, 0);
+					break;
+
+				case E_INPUT_ACTIONS::MOVE_END:
+					SetInputFieldMarkerPos(pCurrInputField, (std::numeric_limits<I32>::max)());
+					break;
+
+				case E_INPUT_ACTIONS::CANCEL_INPUT:
+					pCurrInputField->ResetChanges();
+					break;
+
+				default:
+					break;
+			}
+
 			SetEntityActive(pWorld, pCurrInputField->GetCursorEntityId(), true);
 
-			if (auto pCaretEntity = pWorld->FindEntity(pCurrInputField->GetCursorEntityId())) /// \todo Replace with simple tween animation or AnimationContainer component on a caret's entity
+			auto pCaretEntity = pWorld->FindEntity(pCurrInputField->GetCursorEntityId()); 
+			auto pLabelEntity = pWorld->FindEntity(pCurrInputField->GetLabelEntityId());
+
+			if (pLabelEntity)
+			{
+				if (auto pLabel = pLabelEntity->GetComponent<CLabel>())
+				{
+					pLabel->SetText(pCurrInputField->GetValue());
+				
+					if (auto pFontResource = pResourceManager->GetResource<IFont>(pLabel->GetFontResourceHandle()))
+					{
+						/// \note Positioning of the caret
+						if (auto pCaretLayout = pCaretEntity->GetComponent<CLayoutElement>())
+						{
+							const F32 textLength = pFontResource->GetTextLength(
+								{ {}, pLabel->GetTextHeight() / std::max(1e-3f, pFontResource->GetFontHeight()) }, 
+								pCurrInputField->GetValue(), 0, pCurrInputField->GetCaretPosition());
+
+							pCaretLayout->SetMinOffset(TVector2(textLength, 0.0f));
+							pCaretLayout->SetMaxOffset(TVector2(2.0f - textLength, 0.0f)); /// \note 2.0 - width of a caret
+						}
+					}
+				}
+			}
+
+			if (pCaretEntity) /// \todo Replace with simple tween animation or AnimationContainer component on a caret's entity
 			{
 				if (auto pCaretImage = pCaretEntity->GetComponent<C9SliceImage>())
 				{
@@ -860,21 +940,6 @@ namespace TDEngine2
 
 				pCurrInputField->SetCaretBlinkTimer(pCurrInputField->GetCaretBlinkTimer() + dt);
 				inputFieldLayouts[i]->SetDirty(true); /// \todo Replace with passing color as uniform variable without reconstruction of image's mesh
-			}
-
-			pCurrInputField->SetEditingFlag(true);
-
-			if (pCurrInputField->GetValue() == pCurrInputReceiver->mInputBuffer)
-			{
-				continue;
-			}
-
-			pCurrInputField->SetValue(pCurrInputReceiver->mInputBuffer);
-						
-			if (auto pLabelEntity = pWorld->FindEntity(pCurrInputField->GetLabelEntityId()))
-			{
-				auto pLabel = pLabelEntity->GetComponent<CLabel>();
-				pLabel->SetText(pCurrInputReceiver->mInputBuffer);
 			}
 		}
 	}
@@ -975,7 +1040,7 @@ namespace TDEngine2
 
 		UpdateToggleElements(mTogglesContext, pWorld, this);
 		UpdateSlidersElements(mSlidersContext, pWorld, this);
-		UpdateInputFieldsElements(mInputFieldsContext, pWorld, this, dt);
+		UpdateInputFieldsElements(mInputFieldsContext, pWorld, this, mpResourceManager, dt);
 	}
 
 

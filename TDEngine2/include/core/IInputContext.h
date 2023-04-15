@@ -14,6 +14,7 @@
 #include "../math/TVector2.h"
 #include "../math/TVector3.h"
 #include "../utils/CU8String.h"
+#include <functional>
 
 
 namespace TDEngine2
@@ -103,6 +104,7 @@ namespace TDEngine2
 	TDE2_API TUtf8CodePoint KeyCodeToUTF8Char(const E_KEYCODES& keyCode);
 
 	TDE2_API bool IsAlphaNumericKeyCode(const E_KEYCODES& keyCode);
+	TDE2_API void ForEachAlphaNumericKeyCode(const std::function<bool(E_KEYCODES)>& action);
 
 
 	/*!

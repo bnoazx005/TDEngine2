@@ -27,6 +27,9 @@ namespace TDEngine2
 		BACKSPACE,
 		MOVE_HOME,
 		MOVE_END,
+		CHAR_INPUT,
+		CANCEL_INPUT,
+		NONE
 	};
 
 
