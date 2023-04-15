@@ -35,6 +35,42 @@ namespace TDEngine2
 		return 1;
 	}
 
+	std::string CU8String::InsertAt(const std::string& str, USIZE codePointIndex, TUtf8CodePoint cp)
+	{
+		std::string result = str;
+		USIZE pos = 0;
+
+		if (!codePointIndex)
+		{
+			auto&& codePointStr = CU8String::UTF8CodePointToString(cp);
+			result.insert(result.begin(), codePointStr.begin(), codePointStr.end());
+
+			return result;
+		}
+
+		auto&& codePointStr = UTF8CodePointToString(cp);
+
+		auto it = result.begin();
+
+		for (; it != result.end(); it += GetCodePointLength(*it))
+		{
+			if (pos == codePointIndex)
+			{
+				result.insert(it, codePointStr.begin(), codePointStr.end());
+				return result;
+			}
+
+			pos++;
+		}
+
+		if (pos == codePointIndex)
+		{
+			result.append(codePointStr.begin(), codePointStr.end());
+		}
+
+		return result;
+	}
+
 	std::string CU8String::EraseAt(const std::string& str, USIZE codePointIndex)
 	{
 		USIZE pos = 0;
@@ -55,7 +91,7 @@ namespace TDEngine2
 		return result;
 	}
 
-	TUtf8CodePoint CU8String::StringToUTF8CodePoint(std::string&& str)
+	TUtf8CodePoint CU8String::StringToUTF8CodePoint(const std::string& str)
 	{
 		TUtf8CodePoint cp = TUtf8CodePoint::Invalid;
 
@@ -74,7 +110,7 @@ namespace TDEngine2
 	{
 		std::string str;
 
-		if (static_cast<C8>(cp) < 0x7F)
+		if (static_cast<U16>(cp) < 0x7F)
 		{
 			str.push_back(static_cast<C8>(cp));
 			return str;

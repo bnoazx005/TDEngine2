@@ -58,7 +58,7 @@ namespace TDEngine2
 
 				for (U32 i = 0; i < codePointLength; ++i)
 				{
-					result |= static_cast<U8>(*(curr + static_cast<USIZE>(codePointLength - i - 1)) << (8 * i));
+					result |= static_cast<U8>(*(curr + static_cast<USIZE>(codePointLength - i - 1))) << (8 * i);
 				}
 
 				/// \note If possible move iterator to next code point
@@ -94,9 +94,11 @@ namespace TDEngine2
 
 			TDE2_API static U32 GetCodePointLength(C8 ch);
 
+			TDE2_API static std::string InsertAt(const std::string& str, USIZE codePointIndex, TUtf8CodePoint cp);
+
 			TDE2_API static std::string EraseAt(const std::string& str, USIZE codePointIndex);
 
-			TDE2_API static TUtf8CodePoint StringToUTF8CodePoint(std::string&& str);
+			TDE2_API static TUtf8CodePoint StringToUTF8CodePoint(const std::string& str);
 
 			TDE2_API static std::string UTF8CodePointToString(TUtf8CodePoint cp);
 

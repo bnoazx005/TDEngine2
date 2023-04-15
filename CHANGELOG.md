@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The API of **IFont** was extended with a new method **GetTextLength**.
 
-- The API of **CU8String** was extended with new methods **EraseAt**.
+- The API of **CU8String** was extended with new methods **InsertAt, EraseAt**.
 
 - The first iteration of an input field for UI was introduced via **CInputField** component.
 

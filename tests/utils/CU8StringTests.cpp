@@ -61,6 +61,26 @@ TEST_CASE("CU8String Tests")
 		REQUIRE(actualCodePointsCount == expectedCodePointsCount);
 	}
 
+	SECTION("TestStringToUTF8CodePoint_ConvertUtf8StringToCodePointTypeAndBack_InitialStringAndConvertedShouldBeSame")
+	{
+		std::vector<std::string> testCases
+		{
+			u8"\u2660",
+			" ",
+			u8"😀"
+		};
+
+		for (auto&& currString : testCases)
+		{
+			auto expectedResult = currString;
+
+			auto codePoint = CU8String::StringToUTF8CodePoint(std::move(currString));
+			auto actualResult = CU8String::UTF8CodePointToString(codePoint);
+
+			REQUIRE(actualResult == expectedResult);
+		}
+	}
+
 	SECTION("TestEraseAt_PassStringWithSomeUtf8codePoint_ReturnsNewStringWithRemovedCodePoint")
 	{
 		std::vector<std::tuple<std::string, USIZE, std::string>> testCases
@@ -81,6 +101,28 @@ TEST_CASE("CU8String Tests")
 			std::tie(str, codePointIndex, expectedResult) = currTest;
 
 			REQUIRE(CU8String::EraseAt(str, codePointIndex) == expectedResult);
+		}
+	}
+
+	SECTION("TestInsertAt_AddSomeCodePointToCurrentString_ReturnsNewStringWithNewCodePointThere")
+	{
+		std::vector<std::tuple<std::string, TUtf8CodePoint, USIZE, std::string>> testCases
+		{
+			{ "", CU8String::StringToUTF8CodePoint(u8"😀"), 0, u8"😀" },
+			{ "", CU8String::StringToUTF8CodePoint(u8"😀"), 4, "" }, /// If position goes out of range nothing happens and original string is returned
+			{ u8"Hello!", CU8String::StringToUTF8CodePoint(u8"😀"), 2, u8"He😀llo!" },
+		};
+
+		std::string str, expectedResult;
+		TUtf8CodePoint codePoint;
+		USIZE codePointIndex;
+
+		for (auto&& currTest : testCases)
+		{
+			std::tie(str, codePoint, codePointIndex, expectedResult) = currTest;
+
+			auto&& actualResult = CU8String::InsertAt(str, codePointIndex, codePoint);
+			REQUIRE(actualResult == expectedResult);
 		}
 	}
 }
