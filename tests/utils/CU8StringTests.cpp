@@ -125,4 +125,26 @@ TEST_CASE("CU8String Tests")
 			REQUIRE(actualResult == expectedResult);
 		}
 	}
+
+	SECTION("TestSubstr_CopyPartOfString_ReturnsSpecifiedStringRegion")
+	{
+		std::vector<std::tuple<std::string, USIZE, USIZE, std::string>> testCases
+		{
+			{ "", 0, 0, ""},
+			{ "", 2, 0, ""},
+			{ "", 0, 3, ""},
+			{ u8"😀Hello!", 0, 3, u8"😀He" },
+			{ u8"😀Hello!", 1, 2, u8"He" },
+			{ u8"😀Hello!", 1, 42, u8"Hello!" },
+		};
+
+		std::string str, expectedResult;
+		USIZE pos, count;
+
+		for (auto&& currTest : testCases)
+		{
+			std::tie(str, pos, count, expectedResult) = currTest;
+			REQUIRE(CU8String::Substr(str, pos, count) == expectedResult);
+		}
+	}
 }

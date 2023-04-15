@@ -91,6 +91,40 @@ namespace TDEngine2
 		return result;
 	}
 
+	std::string CU8String::Substr(const std::string& str, USIZE pos, USIZE count)
+	{
+		USIZE index = 0;
+
+		std::string result = str;
+
+		auto first = result.begin();
+
+		for (auto it = result.begin(); it != result.end(); it += GetCodePointLength(*it))
+		{
+			if (index == pos)
+			{
+				first = it;
+				break;
+			}
+
+			index++;
+		}
+
+		index = 0;
+
+		for (auto it = first; it != result.end(); it += GetCodePointLength(*it))
+		{
+			if (index == count)
+			{
+				return result.substr(std::distance(result.begin(), first), std::distance(first, it));
+			}
+
+			index++;
+		}
+
+		return result.substr(std::distance(result.begin(), first));
+	}
+
 	TUtf8CodePoint CU8String::StringToUTF8CodePoint(const std::string& str)
 	{
 		TUtf8CodePoint cp = TUtf8CodePoint::Invalid;

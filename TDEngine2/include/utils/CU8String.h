@@ -98,6 +98,8 @@ namespace TDEngine2
 
 			TDE2_API static std::string EraseAt(const std::string& str, USIZE codePointIndex);
 
+			TDE2_API static std::string Substr(const std::string& str, USIZE pos = 0, USIZE count = std::string::npos);
+
 			TDE2_API static TUtf8CodePoint StringToUTF8CodePoint(const std::string& str);
 
 			TDE2_API static std::string UTF8CodePointToString(TUtf8CodePoint cp);
