@@ -856,15 +856,13 @@ namespace TDEngine2
 				continue;
 			}
 
+			const F32 maxWidth = inputFieldLayouts[i]->GetWorldRect().width;
+
 			pCurrInputField->SetEditingFlag(true);
 
 			/// \note Process input events
 			switch (pCurrInputReceiver->mActionType)
 			{
-				case E_INPUT_ACTIONS::MOVE_LEFT:
-					SetInputFieldMarkerPos(pCurrInputField, static_cast<I32>(pCurrInputField->GetCaretPosition()) - 1);
-					break;
-
 				case E_INPUT_ACTIONS::BACKSPACE:
 					if (pCurrInputField->GetCaretPosition() > 0)
 					{
@@ -878,20 +876,18 @@ namespace TDEngine2
 					break;
 
 				case E_INPUT_ACTIONS::CHAR_INPUT:
-					pCurrInputField->SetValue(pCurrInputField->GetValue() + pCurrInputReceiver->mInputBuffer);
+					pCurrInputField->SetValue(CU8String::InsertAt(pCurrInputField->GetValue(), pCurrInputField->GetCaretPosition(), CU8String::StringToUTF8CodePoint(pCurrInputReceiver->mInputBuffer)));
 					SetInputFieldMarkerPos(pCurrInputField, static_cast<I32>(pCurrInputField->GetCaretPosition()) + 1);
 					break;
 
+				case E_INPUT_ACTIONS::MOVE_LEFT:
 				case E_INPUT_ACTIONS::MOVE_RIGHT:
-					SetInputFieldMarkerPos(pCurrInputField, static_cast<I32>(pCurrInputField->GetCaretPosition()) + 1);
+					SetInputFieldMarkerPos(pCurrInputField, static_cast<I32>(pCurrInputField->GetCaretPosition()) + (E_INPUT_ACTIONS::MOVE_LEFT == pCurrInputReceiver->mActionType ? -1 : 1));
 					break;
 
 				case E_INPUT_ACTIONS::MOVE_HOME:
-					SetInputFieldMarkerPos(pCurrInputField, 0);
-					break;
-
 				case E_INPUT_ACTIONS::MOVE_END:
-					SetInputFieldMarkerPos(pCurrInputField, (std::numeric_limits<I32>::max)());
+					SetInputFieldMarkerPos(pCurrInputField, E_INPUT_ACTIONS::MOVE_HOME == pCurrInputReceiver->mActionType ? 0 : (std::numeric_limits<I32>::max)());
 					break;
 
 				case E_INPUT_ACTIONS::CANCEL_INPUT:
