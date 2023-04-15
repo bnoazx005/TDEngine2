@@ -833,6 +833,40 @@ namespace TDEngine2
 	}
 
 
+	static U32 GetFirstVisibleGlyphIndex(CInputField* pInputField, TPtr<IFont> pFont, U32 textHeight, F32 rectWidth)
+	{
+		const auto& textValue = pInputField->GetValue();
+		
+		const IFont::TTextMeshBuildParams fontParams { {}, textHeight / std::max(1e-3f, pFont->GetFontHeight()) };
+
+		F32 textLength = pFont->GetTextLength(fontParams, textValue);
+		if (textLength < FloatEpsilon || textLength < rectWidth)
+		{
+			return 0;
+		}
+
+		auto it = textValue.rbegin();
+		TUtf8CodePoint currCodePoint;
+
+		U32 index = 0;
+
+		while (CU8String::MoveNext(it, textValue.rend(), currCodePoint))
+		{
+			const F32 glyphWidth = pFont->GetTextLength(fontParams, CU8String::UTF8CodePointToString(currCodePoint)); /// \todo More optimal add overloaded version that returns width of a single glyph
+			textLength -= glyphWidth;
+			
+			if (textLength < rectWidth)
+			{
+				return index;
+			}
+
+			index++;
+		}
+
+		return index;
+	}
+
+
 	static inline void UpdateInputFieldsElements(CUIElementsProcessSystem::TInputFieldsContext& inputFieldsContext, IWorld* pWorld, ISystem* pSystem, IResourceManager* pResourceManager, F32 dt)
 	{
 		auto&& inputFields = std::get<std::vector<CInputField*>>(inputFieldsContext.mComponentsSlice);
@@ -847,18 +881,48 @@ namespace TDEngine2
 				continue;
 			}
 
+			auto pLabelEntity = pWorld->FindEntity(pCurrInputField->GetLabelEntityId());
+			if (!pLabelEntity)
+			{
+				TDE2_ASSERT(false);
+				continue;
+			}
+
+			auto pLabel = pLabelEntity->GetComponent<CLabel>();
+			if (!pLabel)
+			{
+				TDE2_ASSERT(false);
+				continue;
+			}
+
 			CInputReceiver* pCurrInputReceiver = inputReceivers[i];
 			if (!pCurrInputReceiver || !pCurrInputReceiver->mIsFocused)
 			{
 				SetEntityActive(pWorld, pCurrInputField->GetCursorEntityId(), false);
-				pCurrInputField->SetEditingFlag(false);
+
+				if (pCurrInputField->IsEditing())
+				{
+					const auto& textValue = pCurrInputField->GetValue();
+
+					pLabel->SetText(CU8String::Substr(pCurrInputField->GetValue(), 0, CU8String::Length(textValue.begin(), textValue.end()) - pCurrInputField->GetFirstVisibleCharPosition() - 1));
+
+					pCurrInputField->SetFirstVisibleCharPosition(0);
+					pCurrInputField->SetEditingFlag(false);
+				}
 
 				continue;
 			}
 
-			const F32 maxWidth = inputFieldLayouts[i]->GetWorldRect().width;
-
 			pCurrInputField->SetEditingFlag(true);
+
+			auto pFontResource = pResourceManager->GetResource<IFont>(pLabel->GetFontResourceHandle());
+			if (!pFontResource)
+			{
+				TDE2_ASSERT(false);
+				continue;
+			}
+
+			pCurrInputField->SetFirstVisibleCharPosition(GetFirstVisibleGlyphIndex(pCurrInputField, pFontResource, pLabel->GetTextHeight(), inputFieldLayouts[i]->GetWorldRect().width));
 
 			/// \note Process input events
 			switch (pCurrInputReceiver->mActionType)
@@ -901,28 +965,19 @@ namespace TDEngine2
 			SetEntityActive(pWorld, pCurrInputField->GetCursorEntityId(), true);
 
 			auto pCaretEntity = pWorld->FindEntity(pCurrInputField->GetCursorEntityId()); 
-			auto pLabelEntity = pWorld->FindEntity(pCurrInputField->GetLabelEntityId());
 
-			if (pLabelEntity)
+			auto&& visibleText = CU8String::Substr(pCurrInputField->GetValue(), pCurrInputField->GetFirstVisibleCharPosition());
+			pLabel->SetText(visibleText);
+
+			/// \note Positioning of the caret
+			if (auto pCaretLayout = pCaretEntity->GetComponent<CLayoutElement>())
 			{
-				if (auto pLabel = pLabelEntity->GetComponent<CLabel>())
-				{
-					pLabel->SetText(pCurrInputField->GetValue());
-				
-					if (auto pFontResource = pResourceManager->GetResource<IFont>(pLabel->GetFontResourceHandle()))
-					{
-						/// \note Positioning of the caret
-						if (auto pCaretLayout = pCaretEntity->GetComponent<CLayoutElement>())
-						{
-							const F32 textLength = pFontResource->GetTextLength(
-								{ {}, pLabel->GetTextHeight() / std::max(1e-3f, pFontResource->GetFontHeight()) }, 
-								pCurrInputField->GetValue(), 0, pCurrInputField->GetCaretPosition());
+				const F32 textLength = pFontResource->GetTextLength(
+					{ {}, pLabel->GetTextHeight() / std::max(1e-3f, pFontResource->GetFontHeight()) },
+					visibleText, 0, pCurrInputField->GetCaretPosition());
 
-							pCaretLayout->SetMinOffset(TVector2(textLength, 0.0f));
-							pCaretLayout->SetMaxOffset(TVector2(2.0f - textLength, 0.0f)); /// \note 2.0 - width of a caret
-						}
-					}
-				}
+				pCaretLayout->SetMinOffset(TVector2(textLength, 0.0f));
+				pCaretLayout->SetMaxOffset(TVector2(2.0f - textLength, 0.0f)); /// \note 2.0 - width of a caret
 			}
 
 			if (pCaretEntity) /// \todo Replace with simple tween animation or AnimationContainer component on a caret's entity
