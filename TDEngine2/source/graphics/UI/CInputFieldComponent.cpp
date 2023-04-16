@@ -111,12 +111,12 @@ namespace TDEngine2
 		mIsEditing = state;
 	}
 
-	void CInputField::SetCaretPosition(U32 value)
+	void CInputField::SetCaretPosition(I32 value)
 	{
 		mCurrCaretPosition = value;
 	}
 
-	void CInputField::SetFirstVisibleCharPosition(U32 value)
+	void CInputField::SetFirstVisibleCharPosition(I32 value)
 	{
 		mFirstVisibleCharPosition = value;
 	}
@@ -151,12 +151,12 @@ namespace TDEngine2
 		return mIsEditing;
 	}
 
-	U32 CInputField::GetCaretPosition() const
+	I32 CInputField::GetCaretPosition() const
 	{
 		return mCurrCaretPosition;
 	}
 
-	U32 CInputField::GetFirstVisibleCharPosition() const
+	I32 CInputField::GetFirstVisibleCharPosition() const
 	{
 		return mFirstVisibleCharPosition;
 	}

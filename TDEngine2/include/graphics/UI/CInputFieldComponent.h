@@ -83,8 +83,8 @@ namespace TDEngine2
 			void SetEditingFlag(bool state);
 			void ResetChanges();
 
-			void SetCaretPosition(U32 value);
-			void SetFirstVisibleCharPosition(U32 value);
+			void SetCaretPosition(I32 value);
+			void SetFirstVisibleCharPosition(I32 value);
 			void SetCaretBlinkRate(F32 value);
 			void SetCaretBlinkTimer(F32 value);
 
@@ -94,8 +94,8 @@ namespace TDEngine2
 
 			bool IsEditing() const;
 
-			U32 GetCaretPosition() const;
-			U32 GetFirstVisibleCharPosition() const;
+			I32 GetCaretPosition() const;
+			I32 GetFirstVisibleCharPosition() const;
 			F32 GetCaretBlinkRate() const;
 			F32 GetCaretBlinkTimer() const;
 		protected:
@@ -109,8 +109,8 @@ namespace TDEngine2
 
 			bool        mIsEditing = false;
 			
-			U32         mCurrCaretPosition = 0;
-			U32         mFirstVisibleCharPosition = 0;
+			I32         mCurrCaretPosition = 0;
+			I32         mFirstVisibleCharPosition = 0;
 
 			F32 mCaretBlinkRate = 1.0f;
 			F32 mCaretBlinkTimer = 0.0f;
