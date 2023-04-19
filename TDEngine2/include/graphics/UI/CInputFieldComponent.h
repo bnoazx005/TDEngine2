@@ -85,6 +85,7 @@ namespace TDEngine2
 
 			void SetCaretPosition(I32 value);
 			void SetFirstVisibleCharPosition(I32 value);
+			void SetLastVisibleCharPosition(I32 value);
 			void SetCaretBlinkRate(F32 value);
 			void SetCaretBlinkTimer(F32 value);
 
@@ -96,6 +97,7 @@ namespace TDEngine2
 
 			I32 GetCaretPosition() const;
 			I32 GetFirstVisibleCharPosition() const;
+			I32 GetLastVisibleCharPosition() const;
 			F32 GetCaretBlinkRate() const;
 			F32 GetCaretBlinkTimer() const;
 		protected:
@@ -111,6 +113,7 @@ namespace TDEngine2
 			
 			I32         mCurrCaretPosition = 0;
 			I32         mFirstVisibleCharPosition = 0;
+			I32         mLastVisibleCharPosition = 0;
 
 			F32 mCaretBlinkRate = 1.0f;
 			F32 mCaretBlinkTimer = 0.0f;

@@ -121,6 +121,11 @@ namespace TDEngine2
 		mFirstVisibleCharPosition = value;
 	}
 
+	void CInputField::SetLastVisibleCharPosition(I32 value)
+	{
+		mLastVisibleCharPosition = value;
+	}
+
 	void CInputField::SetCaretBlinkRate(F32 value)
 	{
 		mCaretBlinkRate = value;
@@ -159,6 +164,11 @@ namespace TDEngine2
 	I32 CInputField::GetFirstVisibleCharPosition() const
 	{
 		return mFirstVisibleCharPosition;
+	}
+
+	I32 CInputField::GetLastVisibleCharPosition() const
+	{
+		return mLastVisibleCharPosition;
 	}
 
 	F32 CInputField::GetCaretBlinkRate() const

@@ -858,11 +858,17 @@ namespace TDEngine2
 	}
 
 
-	static void SetInputFieldMarkerPos(CInputField* pInputField, CLabel* pTextLabel, TPtr<IFont> pFont, I32 pos, F32 maxWidth)
+	static void SetInputFieldMarkerPos(CInputField* pInputField, CLabel* pTextLabel, TPtr<IFont> pFont, I32 pos, F32 maxWidth, bool skipFirstVisibleCharUpdate = false)
 	{
 		const I32 textLength = static_cast<I32>(CU8String::Length(pInputField->GetValue().cbegin(), pInputField->GetValue().cend()));
-	
-		pInputField->SetFirstVisibleCharPosition(GetFirstVisibleGlyphIndex(pInputField, pFont, pTextLabel->GetTextHeight(), maxWidth));
+		const I32 firstVisibleGlyphIndex = GetFirstVisibleGlyphIndex(pInputField, pFont, pTextLabel->GetTextHeight(), maxWidth);
+
+		if (!skipFirstVisibleCharUpdate)
+		{
+			pInputField->SetFirstVisibleCharPosition(firstVisibleGlyphIndex);
+		}
+
+		pInputField->SetLastVisibleCharPosition(firstVisibleGlyphIndex);
 		pInputField->SetCaretPosition(std::max(0, std::min(pos, textLength - static_cast<I32>(pInputField->GetFirstVisibleCharPosition()))));
 	}
 
@@ -904,7 +910,7 @@ namespace TDEngine2
 				{
 					const auto& textValue = pCurrInputField->GetValue();
 
-					pLabel->SetText(CU8String::Substr(pCurrInputField->GetValue(), 0, CU8String::Length(textValue.begin(), textValue.end()) - pCurrInputField->GetFirstVisibleCharPosition() - 1));
+					pLabel->SetText(CU8String::Substr(pCurrInputField->GetValue(), 0, CU8String::Length(textValue.begin(), textValue.end()) - pCurrInputField->GetFirstVisibleCharPosition()));
 
 					pCurrInputField->SetFirstVisibleCharPosition(0);
 					pCurrInputField->SetEditingFlag(false);
@@ -923,19 +929,31 @@ namespace TDEngine2
 			}
 			
 			const F32 maxTextWidth = inputFieldLayouts[i]->GetWorldRect().width;
-			const I32 currLabelTextLength = static_cast<I32>(CU8String::Length(pCurrInputField->GetValue().cbegin(), pCurrInputField->GetValue().cend()));
 
+			const I32 currLabelTextLength = static_cast<I32>(CU8String::Length(pCurrInputField->GetValue().cbegin(), pCurrInputField->GetValue().cend()));
 			const I32 physicalCaretPosition = pCurrInputField->GetFirstVisibleCharPosition() + pCurrInputField->GetCaretPosition();
+
+			I32 newCaretPosition = 0;
 
 			/// \note Process input events
 			switch (pCurrInputReceiver->mActionType)
 			{
-				case E_INPUT_ACTIONS::BACKSPACE:
-					SetInputFieldMarkerPos(pCurrInputField, pLabel, pFontResource, pCurrInputField->GetCaretPosition() - 1, maxTextWidth);
-					pCurrInputField->SetValue(CU8String::EraseAt(pCurrInputField->GetValue(), physicalCaretPosition));
+				case E_INPUT_ACTIONS::BACKSPACE: /// \note Done
+					if (pCurrInputField->GetCaretPosition() > 0)
+					{
+						pCurrInputField->SetValue(CU8String::EraseAt(pCurrInputField->GetValue(), physicalCaretPosition - 1));
+						
+						SetInputFieldMarkerPos(
+							pCurrInputField,
+							pLabel,
+							pFontResource,
+							pCurrInputField->GetCaretPosition() + (pCurrInputField->GetFirstVisibleCharPosition() > 0 ? 0 : -1),
+							maxTextWidth);
+					}
+
 					break;
 
-				case E_INPUT_ACTIONS::DELETE_CHAR:
+				case E_INPUT_ACTIONS::DELETE_CHAR: /// \note Done
 					pCurrInputField->SetValue(CU8String::EraseAt(pCurrInputField->GetValue(), physicalCaretPosition));
 					
 					if (pCurrInputField->GetFirstVisibleCharPosition() > 0)
@@ -950,7 +968,7 @@ namespace TDEngine2
 
 					break;
 
-				case E_INPUT_ACTIONS::CHAR_INPUT:
+				case E_INPUT_ACTIONS::CHAR_INPUT: /// \note Done
 					pCurrInputField->SetValue(CU8String::InsertAt(pCurrInputField->GetValue(), std::min(currLabelTextLength, physicalCaretPosition), CU8String::StringToUTF8CodePoint(pCurrInputReceiver->mInputBuffer)));
 					SetInputFieldMarkerPos(
 						pCurrInputField,
@@ -963,12 +981,22 @@ namespace TDEngine2
 
 				case E_INPUT_ACTIONS::MOVE_LEFT:
 				case E_INPUT_ACTIONS::MOVE_RIGHT:
-					SetInputFieldMarkerPos(
-						pCurrInputField, 
-						pLabel, 
-						pFontResource, 
-						pCurrInputField->GetCaretPosition() + (E_INPUT_ACTIONS::MOVE_LEFT == pCurrInputReceiver->mActionType ? -1 : 1),
-						maxTextWidth);
+					newCaretPosition = pCurrInputField->GetCaretPosition() + (E_INPUT_ACTIONS::MOVE_LEFT == pCurrInputReceiver->mActionType ? -1 : 1);
+					
+					/// \todo Refactor this spaghetti
+					if (newCaretPosition < 0 && pCurrInputField->GetFirstVisibleCharPosition() > 0)
+					{
+						pCurrInputField->SetFirstVisibleCharPosition(pCurrInputField->GetFirstVisibleCharPosition() - 1);
+					}
+					else if (E_INPUT_ACTIONS::MOVE_RIGHT == pCurrInputReceiver->mActionType &&
+						static_cast<U32>(pCurrInputField->GetFirstVisibleCharPosition()) < GetFirstVisibleGlyphIndex(pCurrInputField, pFontResource, pLabel->GetTextHeight(), maxTextWidth))
+					{
+						pCurrInputField->SetFirstVisibleCharPosition(pCurrInputField->GetFirstVisibleCharPosition() + 1);
+					}
+					else
+					{
+						pCurrInputField->SetCaretPosition(std::max(0, std::min(newCaretPosition, currLabelTextLength - static_cast<I32>(pCurrInputField->GetFirstVisibleCharPosition()))));
+					}
 
 					break;
 
@@ -978,8 +1006,14 @@ namespace TDEngine2
 						pCurrInputField, 
 						pLabel, 
 						pFontResource,
-						E_INPUT_ACTIONS::MOVE_HOME == pCurrInputReceiver->mActionType ? 0 : (std::numeric_limits<I32>::max)(),
-						maxTextWidth);
+						E_INPUT_ACTIONS::MOVE_HOME == pCurrInputReceiver->mActionType ? 0 : currLabelTextLength,
+						maxTextWidth, 
+						E_INPUT_ACTIONS::MOVE_HOME == pCurrInputReceiver->mActionType);
+
+					if (E_INPUT_ACTIONS::MOVE_HOME == pCurrInputReceiver->mActionType)
+					{
+						pCurrInputField->SetFirstVisibleCharPosition(0);
+					}
 
 					break;
 
@@ -991,11 +1025,6 @@ namespace TDEngine2
 					break;
 			}
 
-			LOG_MESSAGE(Wrench::StringUtils::Format("first_visible: {0} curr_pos: {1} textLength: {2}", 
-				pCurrInputField->GetFirstVisibleCharPosition(), 
-				pCurrInputField->GetCaretPosition(), 
-				currLabelTextLength));
-
 			SetEntityActive(pWorld, pCurrInputField->GetCursorEntityId(), true);
 
 			auto pCaretEntity = pWorld->FindEntity(pCurrInputField->GetCursorEntityId()); 
@@ -1003,7 +1032,7 @@ namespace TDEngine2
 			auto&& visibleText = 
 				CU8String::Substr(
 					pCurrInputField->GetValue(), 
-					pCurrInputField->GetFirstVisibleCharPosition(), currLabelTextLength);
+					pCurrInputField->GetFirstVisibleCharPosition(), currLabelTextLength - pCurrInputField->GetLastVisibleCharPosition());
 			pLabel->SetText(visibleText);
 
 			/// \note Positioning of the caret
