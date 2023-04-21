@@ -36,11 +36,12 @@ out vec4 FragColor;
 
 void main(void)
 {	
-	const float2 params = float2(0.9, 20.0);
+	const float smoothing = 1.0 / 32.0;
 
 	float d = TEX2D(Texture, TexCoords).r;
+	float alpha = smoothstep(0.5 - smoothing, 0.5 + smoothing, d);
 
-	FragColor = VertColor * float4(1.0, 1.0, 1.0, clamp((d-params.x)*params.y, 0.0, 1.0));
+	FragColor = vec4(VertColor.rgb, VertColor.a * alpha);
 }
 
 #endprogram
