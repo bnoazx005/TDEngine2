@@ -69,15 +69,19 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SetProcessingProfile(const IPostProcessingProfile* pProfileResource) override;
 
 			/*!
-				\brief The method implements all the logic that should be done when all geometry is rendered and
-				post processing effects are applied
+				\brief he method renders all the geometry into an off-screen target that later will be used as post-processing
+				source
 
 				\param[in] onRenderFrameCallback A callback in which all the geometry of the scene should be rendered
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Render(const TRenderFrameCallback& onRenderFrameCallback) override;
+			TDE2_API E_RESULT_CODE Render(const TRenderFrameCallback& onRenderFrameCallback, bool clearRenderTarget = true) override;
+
+			TDE2_API E_RESULT_CODE PreRender() override;
+			TDE2_API E_RESULT_CODE RunPostProcess() override;
+			TDE2_API E_RESULT_CODE PostRender() override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFramePostProcessor)
 
@@ -91,6 +95,7 @@ namespace TDEngine2
 
 			TDE2_API TResourceId _getRenderTarget(U32 width, U32 height, bool isHDRSupport = false, bool isMainTarget = true);
 		protected:
+			CRenderQueue*                 mpPreUIRenderQueue;
 			CRenderQueue*                 mpOverlayRenderQueue;
 
 			const IPostProcessingProfile* mpCurrPostProcessingProfile;

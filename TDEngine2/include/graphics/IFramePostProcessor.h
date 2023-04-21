@@ -62,15 +62,40 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE SetProcessingProfile(const IPostProcessingProfile* pProfileResource) = 0;
 
 			/*!
-				\brief The method implements all the logic that should be done when all geometry is rendered and
-				post processing effects are applied
+				\brief The method renders all the geometry into an off-screen target that later will be used as post-processing
+				source. It could be used multiple times during single frame to accumulate new draw calls on top previous ones
 
 				\param[in] onRenderFrameCallback A callback in which all the geometry of the scene should be rendered
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Render(const TRenderFrameCallback& onRenderFrameCallback) = 0;
+			TDE2_API virtual E_RESULT_CODE Render(const TRenderFrameCallback& onRenderFrameCallback, bool clearRenderTarget = true) = 0;
+
+			/*!
+				\brief The method prepares render targets and materials that're involved into post-processings
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE PreRender() = 0;
+
+			/*!
+				\brief The actual post-processing stages (bloom, AA) are run through this call
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE RunPostProcess() = 0;
+			
+			/*!
+				\brief The method prepares last draw call with full-screen quad with tone mapping material
+				to output result onto the screen
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE PostRender() = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IFramePostProcessor)
 	};

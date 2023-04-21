@@ -37,10 +37,11 @@ namespace TDEngine2
 		mpResourceManager = desc.mpRenderer->GetResourceManager();
 		mpGlobalShaderProperties = desc.mpRenderer->GetGlobalShaderProperties().Get();
 
-		mpOverlayRenderQueue              = desc.mpRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_OVERLAY);
-		mpWindowSystem                    = desc.mpWindowSystem;
-		mpGraphicsContext                 = desc.mpGraphicsObjectManager->GetGraphicsContext();
-		mRenderTargetHandle               = TResourceId::Invalid;
+		mpPreUIRenderQueue   = desc.mpRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_SPRITES);
+		mpOverlayRenderQueue = desc.mpRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_OVERLAY);
+		mpWindowSystem       = desc.mpWindowSystem;
+		mpGraphicsContext    = desc.mpGraphicsObjectManager->GetGraphicsContext();
+		mRenderTargetHandle  = TResourceId::Invalid;
 
 		// Used materials 
 		// \todo Refactor this later
@@ -89,7 +90,7 @@ namespace TDEngine2
 	static const std::string BackFrameTextureUniformId = "FrameTexture1";
 
 
-	E_RESULT_CODE CFramePostProcessor::Render(const TRenderFrameCallback& onRenderFrameCallback)
+	E_RESULT_CODE CFramePostProcessor::Render(const TRenderFrameCallback& onRenderFrameCallback, bool clearRenderTarget)
 	{
 		if (!onRenderFrameCallback)
 		{
@@ -97,6 +98,25 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		TPtr<IRenderTarget> pCurrRenderTarget  = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
+
+		{
+			mpGraphicsContext->BindRenderTarget(0, pCurrRenderTarget.Get());
+			
+			if (clearRenderTarget)
+			{
+				mpGraphicsContext->ClearRenderTarget(pCurrRenderTarget.Get(), TColor32F{});
+			}
+
+			onRenderFrameCallback();
+			mpGraphicsContext->BindRenderTarget(0, nullptr);
+		}
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CFramePostProcessor::PreRender()
+	{
 		const U32 width = mpWindowSystem->GetWidth();
 		const U32 height = mpWindowSystem->GetHeight();
 
@@ -113,18 +133,22 @@ namespace TDEngine2
 
 		_prepareRenderTargetsChain(width, height, isHDREnabled);
 
-		TPtr<IRenderTarget> pCurrRenderTarget  = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
-		TPtr<IRenderTarget> pBloomRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mBloomRenderTargetHandle);
-		TPtr<IRenderTarget> pTempRenderTarget  = mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle);
+		return RC_OK;
+	}
 
-		{
-			mpGraphicsContext->BindRenderTarget(0, pCurrRenderTarget.Get());
-			mpGraphicsContext->ClearRenderTarget(pCurrRenderTarget.Get(), TColor32F{});
-			onRenderFrameCallback();
-			mpGraphicsContext->BindRenderTarget(0, nullptr);
-		}
+	E_RESULT_CODE CFramePostProcessor::RunPostProcess()
+	{
+		TPtr<IRenderTarget> pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
+		TPtr<IRenderTarget> pBloomRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mBloomRenderTargetHandle);
+		TPtr<IRenderTarget> pTempRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle);
 
 		_processBloomPass(pCurrRenderTarget, pTempRenderTarget, pBloomRenderTarget);
+
+		return RC_OK;
+	}
+	
+	E_RESULT_CODE CFramePostProcessor::PostRender()
+	{
 		_submitFullScreenTriangle(mpOverlayRenderQueue, mToneMappingPassMaterialHandle);
 
 		return RC_OK;
@@ -240,7 +264,7 @@ namespace TDEngine2
 		_renderTargetToTarget(pFrontTarget, pBloomTarget, pBackTarget, mBloomFinalPassMaterialHandle); // Compose
 		_renderTargetToTarget(pBackTarget, nullptr, pFrontTarget, mDefaultScreenSpaceMaterialHandle); // Blit Temp -> Main render target
 
-		mpOverlayRenderQueue->Clear(); // commands above are executed immediately, so we don't need to store them anymore
+		mpPreUIRenderQueue->Clear(); // commands above are executed immediately, so we don't need to store them anymore
 	}
 
 	void CFramePostProcessor::_submitFullScreenTriangle(CRenderQueue* pRenderQueue, TResourceId materialHandle, bool drawImmediately)
@@ -275,7 +299,7 @@ namespace TDEngine2
 			}
 		}
 
-		_submitFullScreenTriangle(mpOverlayRenderQueue, materialHandle, true);
+		_submitFullScreenTriangle(mpPreUIRenderQueue, materialHandle, true);
 
 		mpGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(mpWindowSystem->GetWidth()), static_cast<F32>(mpWindowSystem->GetHeight()), 0.0f, 1.0f);
 		mpGraphicsContext->SetDepthBufferEnabled(true);

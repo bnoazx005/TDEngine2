@@ -332,6 +332,8 @@ namespace TDEngine2
 	{
 		pGraphicsContext->ClearDepthBuffer(1.0f);
 
+		pFramePostProcessor->PreRender();
+
 		pFramePostProcessor->Render([&]
 		{
 			TDE2_PROFILER_SCOPE("Renderer::RenderAll");
@@ -345,15 +347,12 @@ namespace TDEngine2
 			{
 				pCurrCommandBuffer = pRenderQueues[currGroup];
 
-				if (!pCurrCommandBuffer || pCurrCommandBuffer->IsEmpty())
+				if (!pCurrCommandBuffer || pCurrCommandBuffer->IsEmpty() || static_cast<E_RENDER_QUEUE_GROUP>(currGroup) == E_RENDER_QUEUE_GROUP::RQG_OVERLAY)
 				{
 					continue;
 				}
 
-				const bool isOverlayCommandBuffer = (static_cast<E_RENDER_QUEUE_GROUP>(currGroup) == E_RENDER_QUEUE_GROUP::RQG_OVERLAY);
-
-				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pCurrCommandBuffer, true,
-					isOverlayCommandBuffer ? static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::IMAGE_EFFECTS) : (std::numeric_limits<U32>::max)());
+				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pCurrCommandBuffer, true, (std::numeric_limits<U32>::max)());
 			}
 		});
 
@@ -362,7 +361,7 @@ namespace TDEngine2
 
 
 	static E_RESULT_CODE RenderOverlayAndPostEffects(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties,
-													TPtr<CRenderQueue> pRenderGroup)
+		TPtr<IFramePostProcessor> pFramePostProcessor, TPtr<CRenderQueue> pRenderGroup)
 	{
 		if (!pRenderGroup)
 		{
@@ -372,13 +371,21 @@ namespace TDEngine2
 
 		TDE2_PROFILER_SCOPE("Renderer::UI");
 
+		pFramePostProcessor->RunPostProcess();
+
+		pFramePostProcessor->Render([&] /// Render UI elements
+		{
+			ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pRenderGroup, true);
+		}, false);
+
+		pFramePostProcessor->PostRender();
+
 		if (pRenderGroup->IsEmpty())
 		{
 			return RC_FAIL;
 		}
 
 		pGraphicsContext->ClearDepthBuffer(1.0f);
-
 		ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pRenderGroup, true);
 
 		return RC_OK;
@@ -406,7 +413,7 @@ namespace TDEngine2
 		}
 		
 		RenderMainPasses(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpFramePostProcessor, mpRenderQueues);
-		RenderOverlayAndPostEffects(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OVERLAY)]);
+		RenderOverlayAndPostEffects(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpFramePostProcessor, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OVERLAY)]);
 
 		mpGraphicsContext->Present();
 

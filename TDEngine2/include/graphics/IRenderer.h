@@ -58,7 +58,7 @@ namespace TDEngine2
 		BASE              = 0x0,
 		SKYBOX            = 0x1000,
 		SELECTION_OUTLINE = 0xFFFFFFF0,
-		IMAGE_EFFECTS     = 0xFFFF0000,
+		IMAGE_EFFECTS     = 0x0000FFFF,
 	};
 
 
