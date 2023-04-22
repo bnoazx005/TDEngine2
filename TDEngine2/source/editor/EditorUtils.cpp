@@ -149,7 +149,10 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
-		op(duplicateRootEntityInfo.mRootEntityId);
+		if (op)
+		{
+			op(duplicateRootEntityInfo.mRootEntityId);
+		}
 
 		return Wrench::TOkValue<TEntityId>(duplicateRootEntityInfo.mRootEntityId);
 	}

@@ -163,46 +163,46 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 		pTestCase->AddPressMouseButton(0); /// Select the Image entity
 		
 		constexpr F32 yOffset = -20;
-
+		
 		/// tuple's args: particlular preset pos, min anchor, max anchor, min offset, max offset
-		const std::vector<std::tuple<F32, TVector2, TVector2, TVector2, TVector2>> layoutPresetsTests
+		const std::vector<std::tuple<std::string, TVector2, TVector2, TVector2, TVector2>> layoutPresetsTests
 		{
-			{ 471.0f, TVector2(0.0f, 1.0f), TVector2(0.0f, 1.0f), TVector2(0.0f, -100.0f), TVector2(100.0f) },
-			{ 453.0f, TVector2(1.0f), TVector2(1.0f), TVector2(-100.0f), TVector2(100.0f) },
-			{ 437.0f, ZeroVector2, ZeroVector2, ZeroVector2, TVector2(100.0f) },
-			{ 419.0f, TVector2(1.0f, 0.0f), TVector2(1.0f, 0.0f), TVector2(-100.0f, 0.0f), TVector2(100.0f) },
+			{ "Top Left", TVector2(0.0f, 1.0f), TVector2(0.0f, 1.0f), TVector2(0.0f, -100.0f), TVector2(100.0f) },
+			{ "Top Right", TVector2(1.0f), TVector2(1.0f), TVector2(-100.0f), TVector2(100.0f) },
+			{ "Bottom Left", ZeroVector2, ZeroVector2, ZeroVector2, TVector2(100.0f) },
+			{ "Bottom Right", TVector2(1.0f, 0.0f), TVector2(1.0f, 0.0f), TVector2(-100.0f, 0.0f), TVector2(100.0f) },
 
-			{ 398.0f, TVector2(0.0f, 0.5f), TVector2(0.0f, 0.5f), ZeroVector2, TVector2(100.0f) },
-			{ 385.0f, TVector2(0.5f, 1.0f), TVector2(0.5f, 1.0f), TVector2(-50.0f, -100.0f), TVector2(100.0f) },
-			{ 365.0f, TVector2(1.0f, 0.5f), TVector2(1.0f, 0.5f), TVector2(-100.0f, -50.0f), TVector2(100.0f) },
-			{ 345.0f, TVector2(0.5f, 0.0f), TVector2(0.5f, 0.0f), TVector2(-50.0f, 0.0f), TVector2(100.0f) },
+			{ "Center Left", TVector2(0.0f, 0.5f), TVector2(0.0f, 0.5f), ZeroVector2, TVector2(100.0f) },
+			{ "Center Top", TVector2(0.5f, 1.0f), TVector2(0.5f, 1.0f), TVector2(-50.0f, -100.0f), TVector2(100.0f) },
+			{ "Center Right", TVector2(1.0f, 0.5f), TVector2(1.0f, 0.5f), TVector2(-100.0f, -50.0f), TVector2(100.0f) },
+			{ "Center Bottom", TVector2(0.5f, 0.0f), TVector2(0.5f, 0.0f), TVector2(-50.0f, 0.0f), TVector2(100.0f) },
 			
-			{ 325.0f, TVector2(0.5f), TVector2(0.5f), TVector2(-50.0f, -50.0f), TVector2(100.0f) },
+			{ "Center", TVector2(0.5f), TVector2(0.5f), TVector2(-50.0f, -50.0f), TVector2(100.0f) },
 
-			{ 315.0f, ZeroVector2, TVector2(0.0f, 1.0f), ZeroVector2, TVector2(100.0f, 0.0f) },
-			{ 295.0f, TVector2(0.5f, 0.0f), TVector2(0.5f, 1.0f), TVector2(-50.0f, 0.0f), TVector2(100.0f, 0.0f) },
-			{ 270.0f, TVector2(0.0f, 0.5f), TVector2(1.0f, 0.5f), TVector2(0.0f, -50.0f), TVector2(0.0f, 100.0f)},
-			{ 255.0f, TVector2(1.0f, 0.0f), TVector2(1.0f, 1.0f), TVector2(-100.0f, 0.0f), TVector2(100.0f, 0.0f) },
+			{ "Left Wide", ZeroVector2, TVector2(0.0f, 1.0f), ZeroVector2, TVector2(100.0f, 0.0f) },
+			{ "VCenter Wide", TVector2(0.5f, 0.0f), TVector2(0.5f, 1.0f), TVector2(-50.0f, 0.0f), TVector2(100.0f, 0.0f) },
+			{ "HCenter Wide", TVector2(0.0f, 0.5f), TVector2(1.0f, 0.5f), TVector2(0.0f, -50.0f), TVector2(0.0f, 100.0f)},
+			{ "Right Wide", TVector2(1.0f, 0.0f), TVector2(1.0f, 1.0f), TVector2(-100.0f, 0.0f), TVector2(100.0f, 0.0f) },
 
-			{ 238.0f, TVector2(0.0f, 1.0f), TVector2(1.0f, 1.0f), TVector2(0.0f, -100.0f), TVector2(0.0f, 100.0f)},
-			{ 216.0f, ZeroVector2, TVector2(1.0f, 0.0f), ZeroVector2, TVector2(0.0f, 100.0f) },
-			{ 201.0f, ZeroVector2, TVector2(1.0f), ZeroVector2, ZeroVector2 },
+			{ "Top Wide", TVector2(0.0f, 1.0f), TVector2(1.0f, 1.0f), TVector2(0.0f, -100.0f), TVector2(0.0f, 100.0f)},
+			{ "Bottom Wide", ZeroVector2, TVector2(1.0f, 0.0f), ZeroVector2, TVector2(0.0f, 100.0f) },
+			{ "Full Rect", ZeroVector2, TVector2(1.0f), ZeroVector2, ZeroVector2 },
 		};
 
-		F32 layoutPresetYPos;
+		std::string currPresetName;
 		TVector2 minAnchor, maxAnchor, minOffset, maxOffset;
 
 		for (const auto& currTestCase : layoutPresetsTests)
 		{
-			std::tie(layoutPresetYPos, minAnchor, maxAnchor, minOffset, maxOffset) = currTestCase;
+			std::tie(currPresetName, minAnchor, maxAnchor, minOffset, maxOffset) = currTestCase;
 
 			pTestCase->WaitForNextFrame();
 			pTestCase->SetCursorAtUIElement("Object Inspector/##LayoutPresetButton");
 			pTestCase->AddPressMouseButton(0); /// Click over layout preset
 			
-			pTestCase->SetCursorPosition(TVector3(790.0f, yOffset + layoutPresetYPos, 0.0f));
+			pTestCase->SetCursorAtUIElement(Wrench::StringUtils::Format("##Popup_9e0ca471/{0}##Button", currPresetName));
 			pTestCase->AddPressMouseButton(0); /// Change the layout preset
-
+			
 			//pTestCase->TakeScreenshot();
 
 			pTestCase->ExecuteAction([=]
