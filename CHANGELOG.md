@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.16] 2023-04-21
+## [0.6.16] 2023-04-24
 
 ### Added
 
@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Now events of **TOnCharInputEvent** type can be processed in a production builds too.
 
 - The API of **IFramePostProcessor** was refactored due to fix bloom pass artifacts on UI elements.
+
+- The signature of **IGraphicsContext::BindDepthStencilState** was changed to modify the stencil buffer's values.
 
 ### Fixed
 

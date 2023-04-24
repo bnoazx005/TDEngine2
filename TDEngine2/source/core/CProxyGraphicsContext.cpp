@@ -125,7 +125,7 @@ namespace TDEngine2
 		LOG_MESSAGE("[ProxyGraphicsContext] BindBlendState(TBlendStateId)");
 	}
 
-	void CProxyGraphicsContext::BindDepthStencilState(TDepthStencilStateId depthStencilStateId)
+	void CProxyGraphicsContext::BindDepthStencilState(TDepthStencilStateId depthStencilStateId, U8 stencilRef)
 	{
 		LOG_MESSAGE("[ProxyGraphicsContext] BindDepthStencilState(TDepthStencilStateId)");
 	}

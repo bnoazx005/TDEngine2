@@ -297,7 +297,7 @@ namespace TDEngine2
 								COGLMappings::GetBlendOpType(blendStateDesc.mAlphaOpType)));
 	}
 
-	void COGLGraphicsContext::BindDepthStencilState(TDepthStencilStateId depthStencilStateId)
+	void COGLGraphicsContext::BindDepthStencilState(TDepthStencilStateId depthStencilStateId, U8 stencilRef)
 	{
 		if (depthStencilStateId == TDepthStencilStateId::Invalid)
 		{

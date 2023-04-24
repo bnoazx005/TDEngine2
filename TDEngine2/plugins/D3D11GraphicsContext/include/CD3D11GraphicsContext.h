@@ -254,9 +254,10 @@ namespace TDEngine2
 				\brief The method binds a given depth-stencil state to rendering pipeline
 
 				\param[in] depthStencilStateId An identifier of a depth-stencil state
+				\param[in] stencilRef A reference value to perform against when doing a depth-stencil test
 			*/
 
-			TDE2_API void BindDepthStencilState(TDepthStencilStateId depthStencilStateId) override;
+			TDE2_API void BindDepthStencilState(TDepthStencilStateId depthStencilStateId, U8 stencilRef = 0x0) override;
 
 			/*!
 				\brief The method binds a given rasteriazer state to rendering pipeline

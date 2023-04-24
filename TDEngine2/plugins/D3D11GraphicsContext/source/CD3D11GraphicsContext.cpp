@@ -349,18 +349,18 @@ namespace TDEngine2
 		mp3dDeviceContext->OMSetBlendState(pBlendState, nullptr, 0xFFFFFFFF);
 	}
 
-	void CD3D11GraphicsContext::BindDepthStencilState(TDepthStencilStateId depthStencilStateId)
+	void CD3D11GraphicsContext::BindDepthStencilState(TDepthStencilStateId depthStencilStateId, U8 stencilRef)
 	{
 		if (depthStencilStateId == TDepthStencilStateId::Invalid)
 		{
-			mp3dDeviceContext->OMSetDepthStencilState(nullptr, 0xFF);
+			mp3dDeviceContext->OMSetDepthStencilState(nullptr, stencilRef);
 			return;
 		}
 
 		ID3D11DepthStencilState* pDepthStencilState = dynamic_cast<CD3D11GraphicsObjectManager*>(mpGraphicsObjectManager)->GetDepthStencilState(depthStencilStateId).Get();
 
 		// \todo replace 0xff with second argument for the method
-		mp3dDeviceContext->OMSetDepthStencilState(pDepthStencilState, 0xFF);
+		mp3dDeviceContext->OMSetDepthStencilState(pDepthStencilState, stencilRef);
 	}
 
 	void CD3D11GraphicsContext::BindRasterizerState(TRasterizerStateId rasterizerStateId)

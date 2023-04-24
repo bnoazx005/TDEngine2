@@ -670,7 +670,7 @@ namespace TDEngine2
 			mDepthStencilStateHandle = mpGraphicsObjectManager->CreateDepthStencilState(mDepthStencilStateParams).Get();
 		}
 
-		mpGraphicsContext->BindDepthStencilState(mDepthStencilStateHandle);
+		mpGraphicsContext->BindDepthStencilState(mDepthStencilStateHandle, mDepthStencilStateParams.mStencilRefValue);
 
 		if (mRasterizerStateHandle == TRasterizerStateId::Invalid)
 		{
