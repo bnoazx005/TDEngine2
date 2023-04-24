@@ -753,6 +753,11 @@ namespace TDEngine2
 		mDepthStencilStateParams.mStencilWriteMaskValue = value;
 	}
 
+	void CBaseMaterial::SetStencilRefValue(U8 value)
+	{
+		mDepthStencilStateParams.mStencilRefValue = value;
+	}
+
 	void CBaseMaterial::SetStencilFrontOp(const TStencilOperationDesc& op)
 	{
 		mDepthStencilStateParams.mStencilFrontFaceOp = op;

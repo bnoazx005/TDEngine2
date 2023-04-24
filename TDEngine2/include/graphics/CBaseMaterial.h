@@ -262,6 +262,12 @@ namespace TDEngine2
 
 			TDE2_API void SetStencilWriteMask(U8 value) override;
 
+			/*!
+				\brief The method specifies reference value for stencil
+			*/
+
+			TDE2_API void SetStencilRefValue(U8 value) override;
+
 			TDE2_API void SetStencilFrontOp(const TStencilOperationDesc& op) override;
 			TDE2_API void SetStencilBackOp(const TStencilOperationDesc& op) override;
 

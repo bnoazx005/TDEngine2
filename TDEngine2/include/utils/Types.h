@@ -768,7 +768,8 @@ namespace TDEngine2
 
 		U8                mStencilReadMaskValue = 0xFF;
 		U8                mStencilWriteMaskValue = 0xFF;
-
+		U8                mStencilRefValue = 0x0;
+		
 		TStencilOpDesc    mStencilFrontFaceOp;
 		TStencilOpDesc    mStencilBackFaceOp;
 	} TDepthStencilStateDesc, *TDepthStencilStateDescPtr;

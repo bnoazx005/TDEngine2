@@ -241,6 +241,12 @@ namespace TDEngine2
 			TDE2_API virtual void SetStencilReadMask(U8 value) = 0;
 
 			/*!
+				\brief The method specifies reference value for stencil 
+			*/
+
+			TDE2_API virtual void SetStencilRefValue(U8 value) = 0;
+
+			/*!
 				\brief The method specifies write mask for stencil operations
 
 				\param[in] value A value of the stencil write mask
