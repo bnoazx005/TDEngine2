@@ -1,4 +1,5 @@
 #include "../../../include/graphics/UI/CUIElementMeshDataComponent.h"
+#include "../../../include/ecs/CUIElementsRenderSystem.h"
 
 
 namespace TDEngine2
@@ -9,7 +10,7 @@ namespace TDEngine2
 
 
 	CUIElementMeshData::CUIElementMeshData() :
-		CBaseComponent(), mTextureResourceId(TResourceId::Invalid), mIsFontMesh(false)
+		CBaseComponent(), mTextureResourceId(TResourceId::Invalid), mIsFontMesh(false), mUIMaterialType(E_UI_MATERIAL_TYPE::DEFAULT)
 	{
 	}
 
@@ -83,6 +84,11 @@ namespace TDEngine2
 		mIsFontMesh = value;
 	}
 
+	void CUIElementMeshData::SetMaterialType(E_UI_MATERIAL_TYPE type)
+	{
+		mUIMaterialType = type;
+	}
+
 	E_RESULT_CODE CUIElementMeshData::SetTextureResourceId(TResourceId resourceId)
 	{
 		if (TResourceId::Invalid == resourceId)
@@ -118,6 +124,11 @@ namespace TDEngine2
 	bool CUIElementMeshData::IsTextMesh() const
 	{
 		return mIsFontMesh;
+	}
+
+	E_UI_MATERIAL_TYPE CUIElementMeshData::GetMaterialType() const
+	{
+		return mUIMaterialType;
 	}
 
 	TResourceId CUIElementMeshData::GetTextureResourceId() const

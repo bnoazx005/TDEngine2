@@ -344,4 +344,7 @@ namespace TDEngine2
 		TDE2_UNREACHABLE();
 		return ZeroVector2;
 	}
+
+
+	TDE2_DEFINE_FLAG_COMPONENT(UIMaskComponent);
 }

@@ -163,4 +163,7 @@ namespace TDEngine2
 
 
 	TDE2_DECLARE_COMPONENT_FACTORY(LayoutElement, TLayoutElementParameters);
+
+
+	TDE2_DECLARE_FLAG_COMPONENT(UIMaskComponent)
 }

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.16] 2023-04-24
+## [0.6.16] 2023-04-26
 
 ### Added
 
@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The API of **CU8String** was extended with new methods **InsertAt, EraseAt, Substr**.
 
 - The first iteration of an input field for UI was introduced via **CInputField** component.
+
+- A new component **UIMask** was introduced that provides masking of UI elements based on parent's graphics.
 
 ### Changed
 

@@ -79,6 +79,7 @@ namespace TDEngine2
 		result = result | editor.RegisterInspector(CGridGroupLayout::GetTypeId(), DrawGridGroupLayoutGUI);
 		result = result | editor.RegisterInspector(CToggle::GetTypeId(), DrawToggleGUI);
 		result = result | editor.RegisterInspector(CUISlider::GetTypeId(), DrawUISliderGUI);
+		result = result | editor.RegisterInspector(CUIMaskComponent::GetTypeId(), DrawUIMaskGUI);
 		result = result | editor.RegisterInspector(CMeshAnimatorComponent::GetTypeId(), DrawMeshAnimatorGUI);
 		result = result | editor.RegisterInspector(CPerspectiveCamera::GetTypeId(), DrawPerspectiveCameraGUI);
 		result = result | editor.RegisterInspector(COrthoCamera::GetTypeId(), DrawOrthographicCameraGUI);
@@ -1580,6 +1581,13 @@ namespace TDEngine2
 
 				imguiContext.EndHorizontal();
 			}*/
+		});
+	}
+
+	void CDefaultInspectorsRegistry::DrawUIMaskGUI(const TEditorContext& editorContext)
+	{
+		Header("UI Mask", editorContext, [](const TEditorContext& editorContext)
+		{
 		});
 	}
 

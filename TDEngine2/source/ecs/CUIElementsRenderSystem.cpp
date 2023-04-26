@@ -20,6 +20,7 @@
 #include "../../include/core/IResourceManager.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include <stack>
+#include <tuple>
 
 
 namespace TDEngine2
@@ -78,15 +79,18 @@ namespace TDEngine2
 			CTransform* pTransform = pWorld->FindEntity(currCanvasEntity)->GetComponent<CTransform>();
 
 			/// \note Sort all entities based on their priority (children're first)
-			std::stack<TEntityId> entitiesToVisit;
+			std::stack<std::tuple<TEntityId, bool>> entitiesToVisit;
 
-			entitiesToVisit.push(currCanvasEntity);
+			entitiesToVisit.emplace(currCanvasEntity, false);
 
 			CEntity* pEntity = nullptr;
+			
+			TEntityId currEntityId = TEntityId::Invalid;
+			bool hasUIMaskApplied = false;
 
 			while (!entitiesToVisit.empty())
 			{
-				const TEntityId currEntityId = entitiesToVisit.top();
+				std::tie(currEntityId, hasUIMaskApplied) = entitiesToVisit.top();
 				entitiesToVisit.pop();
 
 				pEntity = pWorld->FindEntity(currEntityId);
@@ -99,14 +103,24 @@ namespace TDEngine2
 				{
 					transforms.insert(transforms.begin(), pEntity->GetComponent<CTransform>());
 					layoutElements.insert(layoutElements.begin(), pEntity->GetComponent<CLayoutElement>());
-					uiMeshData.insert(uiMeshData.begin(), pEntity->GetComponent<CUIElementMeshData>());
+
+					auto pUIMeshData = pEntity->GetComponent<CUIElementMeshData>();
+					uiMeshData.insert(uiMeshData.begin(), pUIMeshData);
+
+					pUIMeshData->SetMaterialType(pEntity->HasComponent<CUIMaskComponent>() ? E_UI_MATERIAL_TYPE::MASK_EMITTER :
+						(hasUIMaskApplied ? E_UI_MATERIAL_TYPE::MASK_USER : E_UI_MATERIAL_TYPE::DEFAULT));
+
+					if (!hasUIMaskApplied)
+					{
+						hasUIMaskApplied = pEntity->HasComponent<CUIMaskComponent>();
+					}
 				}
 
 				if (pTransform = pEntity->GetComponent<CTransform>())
 				{
 					for (TEntityId id : pTransform->GetChildren())
 					{
-						entitiesToVisit.push(id);
+						entitiesToVisit.emplace(id, hasUIMaskApplied);
 					}
 				}
 			}
@@ -150,7 +164,9 @@ namespace TDEngine2
 
 			if (CUIElementMeshData* pMeshData = uiMeshData[index + 1])
 			{
-				const TResourceId nextMaterialId = pMeshData->IsTextMesh() ? mDefaultFontMaterialId : mDefaultUIMaterialId;
+				const TResourceId nextMaterialId = pMeshData->IsTextMesh() ? 
+					mDefaultFontMaterialId[static_cast<USIZE>(pMeshData->GetMaterialType())] : mDefaultUIMaterialId[static_cast<USIZE>(pMeshData->GetMaterialType())];
+
 				if (nextMaterialId != currMaterialId)
 				{
 					return true;
@@ -193,7 +209,7 @@ namespace TDEngine2
 
 			const bool isTextMesh = pMeshData->IsTextMesh();
 
-			const TResourceId currMaterialId = isTextMesh ? mDefaultFontMaterialId : mDefaultUIMaterialId;
+			const TResourceId currMaterialId = isTextMesh ? mDefaultFontMaterialId[static_cast<USIZE>(pMeshData->GetMaterialType())] : mDefaultUIMaterialId[static_cast<USIZE>(pMeshData->GetMaterialType())];
 			const TResourceId currTextureId = pMeshData->GetTextureResourceId();
 
 			auto pMaterial = mpResourceManager->GetResource<IMaterial>(currMaterialId);
@@ -284,16 +300,63 @@ namespace TDEngine2
 		mpDefaultUIVertexDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_COLOR });
 
 		// \note load default editor's material (depth test and writing to the depth buffer are disabled)
-		TMaterialParameters editorUIMaterialParams{ "DefaultEditorUI", true, { false, false }, { E_CULL_MODE::BACK } };
+		{
+			TMaterialParameters editorUIMaterialParams{ "DefaultEditorUI", true, { false, false }, { E_CULL_MODE::BACK } };
 
-		auto& blendingParams = editorUIMaterialParams.mBlendingParams;
-		blendingParams.mScrValue       = E_BLEND_FACTOR_VALUE::SOURCE_ALPHA;
-		blendingParams.mDestValue      = E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA;
-		blendingParams.mScrAlphaValue  = E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA;
-		blendingParams.mDestAlphaValue = E_BLEND_FACTOR_VALUE::ZERO;
+			auto& blendingParams = editorUIMaterialParams.mBlendingParams;
+			blendingParams.mScrValue = E_BLEND_FACTOR_VALUE::SOURCE_ALPHA;
+			blendingParams.mDestValue = E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA;
+			blendingParams.mScrAlphaValue = E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA;
+			blendingParams.mDestAlphaValue = E_BLEND_FACTOR_VALUE::ZERO;
 
-		mDefaultUIMaterialId = mpResourceManager->Create<IMaterial>("DefaultInGameUI.material", editorUIMaterialParams);
-		mDefaultFontMaterialId = mpResourceManager->Load<IMaterial>("DefaultResources/Materials/UI/DefaultTextMaterial.material");
+			mDefaultUIMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::DEFAULT)] = mpResourceManager->Create<IMaterial>("DefaultInGameUI.material", editorUIMaterialParams);
+
+			auto& depthStencilParams = editorUIMaterialParams.mDepthStencilParams;
+			depthStencilParams.mIsStencilTestEnabled = true;
+			depthStencilParams.mStencilReadMaskValue = 0xFF;
+			depthStencilParams.mStencilWriteMaskValue = 0xFF;
+			depthStencilParams.mStencilFrontFaceOp.mFunc = E_COMPARISON_FUNC::ALWAYS;
+			depthStencilParams.mStencilFrontFaceOp.mFailOp = E_STENCIL_OP::KEEP;
+			depthStencilParams.mStencilFrontFaceOp.mPassOp = E_STENCIL_OP::REPLACE;
+			depthStencilParams.mStencilRefValue = 0x1;
+
+			mDefaultUIMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::MASK_EMITTER)] = mpResourceManager->Create<IMaterial>("DefaultInGameUI_Mask.material", editorUIMaterialParams);
+
+			depthStencilParams.mStencilFrontFaceOp.mFunc = E_COMPARISON_FUNC::EQUAL;
+			depthStencilParams.mStencilFrontFaceOp.mFailOp = E_STENCIL_OP::KEEP;
+			depthStencilParams.mStencilFrontFaceOp.mPassOp = E_STENCIL_OP::KEEP;
+			depthStencilParams.mStencilReadMaskValue = 0x1;
+			depthStencilParams.mStencilWriteMaskValue = 0x0; /// Maskable elements are allowed only to read values
+
+			mDefaultUIMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::MASK_USER)] = mpResourceManager->Create<IMaterial>("DefaultInGameUI_Maskable.material", editorUIMaterialParams);
+		}
+
+		mDefaultFontMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::DEFAULT)] = mpResourceManager->Load<IMaterial>("DefaultResources/Materials/UI/DefaultTextMaterial.material");
+
+		if (auto pDefaultTextMaterial = mpResourceManager->GetResource<IMaterial>(mDefaultFontMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::DEFAULT)]))
+		{
+			if (auto pTextMaskMaterial = pDefaultTextMaterial->Clone())
+			{
+				pTextMaskMaterial->SetStencilBufferEnabled(true);
+				pTextMaskMaterial->SetStencilReadMask(0xFF); 
+				pTextMaskMaterial->SetStencilWriteMask(0xFF); 
+				pTextMaskMaterial->SetStencilRefValue(0x1); 
+				pTextMaskMaterial->SetStencilFrontOp({ E_COMPARISON_FUNC::ALWAYS, E_STENCIL_OP::REPLACE, E_STENCIL_OP::REPLACE });
+
+				mDefaultFontMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::MASK_EMITTER)] = DynamicPtrCast<IResource>(pTextMaskMaterial)->GetId();
+			}
+
+			if (auto pTextMaskableMaterial = pDefaultTextMaterial->Clone())
+			{
+				pTextMaskableMaterial->SetStencilBufferEnabled(true);
+				pTextMaskableMaterial->SetStencilReadMask(0x1);
+				pTextMaskableMaterial->SetStencilWriteMask(0x0);
+				pTextMaskableMaterial->SetStencilRefValue(0x1);
+				pTextMaskableMaterial->SetStencilFrontOp({ E_COMPARISON_FUNC::EQUAL, E_STENCIL_OP::KEEP, E_STENCIL_OP::KEEP });
+
+				mDefaultFontMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::MASK_USER)] = DynamicPtrCast<IResource>(pTextMaskableMaterial)->GetId();
+			}
+		}
 
 		/// \note Create a default vertex declaration for fonts
 		auto createFontVertDeclResult = mpGraphicsObjectManager->CreateVertexDeclaration();

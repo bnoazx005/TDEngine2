@@ -17,7 +17,8 @@
 
 namespace TDEngine2
 {
-	enum class TResourceId : U32;
+	enum class TResourceId : U32; 
+	enum class E_UI_MATERIAL_TYPE : U8;
 
 
 	typedef struct TUIElementsVertex
@@ -87,6 +88,7 @@ namespace TDEngine2
 			TDE2_API void AddIndex(U16 value);
 
 			TDE2_API void SetTextMeshFlag(bool value);
+			TDE2_API void SetMaterialType(E_UI_MATERIAL_TYPE type);
 
 			TDE2_API E_RESULT_CODE SetTextureResourceId(TResourceId resourceId);
 
@@ -99,6 +101,7 @@ namespace TDEngine2
 			TDE2_API TResourceId GetTextureResourceId() const;
 
 			TDE2_API bool IsTextMesh() const;
+			TDE2_API E_UI_MATERIAL_TYPE GetMaterialType() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUIElementMeshData)
 		protected:
@@ -109,6 +112,7 @@ namespace TDEngine2
 			TVector2     mMaxBounds;
 
 			bool mIsFontMesh;
+			E_UI_MATERIAL_TYPE mUIMaterialType;
 
 			TResourceId mTextureResourceId;
 	};

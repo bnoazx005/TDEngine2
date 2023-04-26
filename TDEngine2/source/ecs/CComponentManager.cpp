@@ -466,6 +466,7 @@ namespace TDEngine2
 			CreateToggleFactory,
 			CreateUISliderFactory,
 			CreateInputFieldFactory,
+			CreateUIMaskComponentFactory,
 			CreateLODStrategyComponentFactory,
 			CreateObjIdComponentFactory,
 #if TDE2_EDITORS_ENABLED

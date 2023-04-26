@@ -1088,20 +1088,8 @@ namespace TDEngine2
 											   blendingParams.mScrAlphaValue, blendingParams.mDestAlphaValue);
 			pMaterialInstance->SetBlendOp(blendingParams.mOpType, blendingParams.mAlphaOpType);
 
-			// \note depth-stencil group of parameters
-			auto&& depthStencilParams = params.mDepthStencilParams;
-
-			pMaterialInstance->SetDepthBufferEnabled(depthStencilParams.mIsDepthTestEnabled);
-			pMaterialInstance->SetDepthWriteEnabled(depthStencilParams.mIsDepthWritingEnabled);
-			pMaterialInstance->SetDepthComparisonFunc(depthStencilParams.mDepthCmpFunc);
-			pMaterialInstance->SetStencilBufferEnabled(depthStencilParams.mIsStencilTestEnabled);
-
-			// \note rasterizer state parameters
-			auto&& rasterizerStateParams = params.mRasterizerParams;
-
-			pMaterialInstance->SetCullMode(rasterizerStateParams.mCullMode);
-			pMaterialInstance->SetWireframeMode(rasterizerStateParams.mIsWireframeModeEnabled);
-			pMaterialInstance->SetScissorEnabled(rasterizerStateParams.mIsScissorTestEnabled);
+			pMaterialInstance->mDepthStencilStateParams = params.mDepthStencilParams;
+			pMaterialInstance->mRasterizerStateParams = params.mRasterizerParams;
 		}
 
 		return pMaterialInstance;
