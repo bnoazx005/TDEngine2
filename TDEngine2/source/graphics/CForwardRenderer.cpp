@@ -507,6 +507,7 @@ namespace TDEngine2
 
 		mpGraphicsContext->ClearBackBuffer(TColor32F(0.0f, 0.0f, 0.5f, 1.0f));
 		mpGraphicsContext->ClearDepthBuffer(1.0f);
+		mpGraphicsContext->ClearStencilBuffer(0x0);
 
 		mpDebugUtility->PreRender();
 	}

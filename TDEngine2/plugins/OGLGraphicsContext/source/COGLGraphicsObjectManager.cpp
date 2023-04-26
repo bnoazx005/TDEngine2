@@ -243,6 +243,10 @@ namespace TDEngine2
 
 					#program pixel
 
+					CBUFFER_SECTION_EX(Parameters, 4)
+						int mIsAlphaClipEnabled;
+					CBUFFER_ENDSECTION
+
 					in vec2 VertOutUV;
 					in vec4 VertOutColor;
 
@@ -252,7 +256,14 @@ namespace TDEngine2
 
 					void main(void)
 					{
-						FragColor = VertOutColor * TEX2D(Texture, VertOutUV);
+						vec4 base = TEX2D(Texture, VertOutUV);
+						
+						if (mIsAlphaClipEnabled == 1)
+						{
+							clip(base.a - 0.001);
+						}
+
+						FragColor = VertOutColor * base;
 					}
 					#endprogram
 					)";

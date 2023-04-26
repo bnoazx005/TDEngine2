@@ -371,11 +371,22 @@ namespace TDEngine2
 
 					#program pixel
 
+					CBUFFER_SECTION_EX(Parameters, 4)
+						int mIsAlphaClipEnabled;
+					CBUFFER_ENDSECTION
+
 					DECLARE_TEX2D(Texture);
 
 					float4 mainPS(VertexOut input): SV_TARGET0
 					{
-						return GammaToLinear(input.mColor * TEX2D(Texture, MainTexture_TransformDesc.zw * (input.mUV + MainTexture_TransformDesc.xy)));
+						float4 base = TEX2D(Texture, MainTexture_TransformDesc.zw * (input.mUV + MainTexture_TransformDesc.xy));
+						
+						if (mIsAlphaClipEnabled == 1)
+						{
+							clip(base.a - 0.001);
+						}
+
+						return GammaToLinear(input.mColor * base);
 					}
 					#endprogram
 				)";

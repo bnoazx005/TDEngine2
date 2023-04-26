@@ -134,6 +134,12 @@ namespace TDEngine2
 	}
 
 
+	static U64 ComputeTextureMaterialHash(TResourceId materialId, TResourceId textureId)
+	{
+		return static_cast<U32>(textureId) | (static_cast<U32>(materialId) << (sizeof(U32) * 8 - 1));
+	}
+
+
 	void CUIElementsRenderSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		TDE2_PROFILER_SCOPE("CUIElementsRenderSystem::Update");
@@ -174,7 +180,7 @@ namespace TDEngine2
 
 				const TResourceId nextTextureId = pMeshData->GetTextureResourceId();
 
-				auto it = mUsingMaterials.find(nextTextureId);
+				auto it = mUsingMaterials.find(ComputeTextureMaterialHash(nextMaterialId, nextTextureId));
 				if (it == mUsingMaterials.cend())
 				{
 					return true;
@@ -214,16 +220,23 @@ namespace TDEngine2
 
 			auto pMaterial = mpResourceManager->GetResource<IMaterial>(currMaterialId);
 
-			if (mUsingMaterials.find(currTextureId) == mUsingMaterials.cend()) // \note create a new instance if it doesn't exist yet
+			const U64 textureMaterialHash = ComputeTextureMaterialHash(currMaterialId, currTextureId);
+
+			if (mUsingMaterials.find(textureMaterialHash) == mUsingMaterials.cend()) // \note create a new instance if it doesn't exist yet
 			{
-				mUsingMaterials.emplace(currTextureId, pMaterial->CreateInstance()->GetInstanceId());
+				mUsingMaterials.emplace(textureMaterialHash, pMaterial->CreateInstance()->GetInstanceId());
 			}
 
 			auto pTexture = mpResourceManager->GetResource<ITexture>(currTextureId);
 
-			const TMaterialInstanceId currMaterialInstance = mUsingMaterials[currTextureId];
+			const TMaterialInstanceId currMaterialInstance = mUsingMaterials[textureMaterialHash];
 
 			pMaterial->SetTextureResource("Texture", pTexture.Get(), currMaterialInstance);
+			
+			if (!isTextMesh)
+			{
+				pMaterial->SetVariableForInstance<I32>(currMaterialInstance, "mIsAlphaClipEnabled", E_UI_MATERIAL_TYPE::MASK_EMITTER == pMeshData->GetMaterialType());
+			}
 
 			auto&& vertices = pMeshData->GetVertices();
 			auto&& indices = pMeshData->GetIndices();
@@ -335,16 +348,8 @@ namespace TDEngine2
 
 		if (auto pDefaultTextMaterial = mpResourceManager->GetResource<IMaterial>(mDefaultFontMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::DEFAULT)]))
 		{
-			if (auto pTextMaskMaterial = pDefaultTextMaterial->Clone())
-			{
-				pTextMaskMaterial->SetStencilBufferEnabled(true);
-				pTextMaskMaterial->SetStencilReadMask(0xFF); 
-				pTextMaskMaterial->SetStencilWriteMask(0xFF); 
-				pTextMaskMaterial->SetStencilRefValue(0x1); 
-				pTextMaskMaterial->SetStencilFrontOp({ E_COMPARISON_FUNC::ALWAYS, E_STENCIL_OP::REPLACE, E_STENCIL_OP::REPLACE });
-
-				mDefaultFontMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::MASK_EMITTER)] = DynamicPtrCast<IResource>(pTextMaskMaterial)->GetId();
-			}
+			/// \note Text can't be a mask but can be a maskable item
+			mDefaultFontMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::MASK_EMITTER)] = mDefaultFontMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::DEFAULT)];
 
 			if (auto pTextMaskableMaterial = pDefaultTextMaterial->Clone())
 			{

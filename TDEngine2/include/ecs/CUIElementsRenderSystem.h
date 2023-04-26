@@ -69,7 +69,7 @@ namespace TDEngine2
 		public:
 			friend TDE2_API ISystem* CreateUIElementsRenderSystem(IRenderer*, IGraphicsObjectManager*, E_RESULT_CODE&);
 		public:
-			typedef std::unordered_map<TResourceId, TMaterialInstanceId> TMaterialsMap;
+			typedef std::unordered_map<U64, TMaterialInstanceId> TMaterialsMap;
 
 			struct TSystemContext
 			{
