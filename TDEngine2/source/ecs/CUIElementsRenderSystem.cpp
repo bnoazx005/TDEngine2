@@ -324,6 +324,8 @@ namespace TDEngine2
 
 			mDefaultUIMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::DEFAULT)] = mpResourceManager->Create<IMaterial>("DefaultInGameUI.material", editorUIMaterialParams);
 
+			blendingParams.mWriteMask = 0x8;
+
 			auto& depthStencilParams = editorUIMaterialParams.mDepthStencilParams;
 			depthStencilParams.mIsStencilTestEnabled = true;
 			depthStencilParams.mStencilReadMaskValue = 0xFF;

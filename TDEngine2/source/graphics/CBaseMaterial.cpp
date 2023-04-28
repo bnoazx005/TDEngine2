@@ -1087,6 +1087,7 @@ namespace TDEngine2
 			pMaterialInstance->SetBlendFactors(blendingParams.mScrValue, blendingParams.mDestValue, 
 											   blendingParams.mScrAlphaValue, blendingParams.mDestAlphaValue);
 			pMaterialInstance->SetBlendOp(blendingParams.mOpType, blendingParams.mAlphaOpType);
+			pMaterialInstance->mBlendStateParams.mWriteMask = blendingParams.mWriteMask;
 
 			pMaterialInstance->mDepthStencilStateParams = params.mDepthStencilParams;
 			pMaterialInstance->mRasterizerStateParams = params.mRasterizerParams;
