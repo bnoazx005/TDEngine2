@@ -328,7 +328,8 @@ namespace TDEngine2
 				static_cast<U32>(object.mDestValue) << 9 |
 				static_cast<U32>(object.mOpType) << 6 |
 				static_cast<U32>(object.mScrAlphaValue) << 3 |
-				static_cast<U32>(object.mScrValue);
+				static_cast<U32>(object.mScrValue) |
+				static_cast<U32>(object.mWriteMask) << 30;
 	}
 
 	template <> TDE2_API U32 ComputeStateDescHash<TDepthStencilStateDesc>(const TDepthStencilStateDesc& object)

@@ -686,6 +686,8 @@ namespace TDEngine2
 		E_BLEND_FACTOR_VALUE mScrAlphaValue = E_BLEND_FACTOR_VALUE::ONE;
 		E_BLEND_FACTOR_VALUE mDestAlphaValue;
 		E_BLEND_OP_TYPE      mAlphaOpType = E_BLEND_OP_TYPE::ADD;
+
+		U8                   mWriteMask = 15;
 	} TBlendStateDesc, *TBlendStateDescPtr;
 
 

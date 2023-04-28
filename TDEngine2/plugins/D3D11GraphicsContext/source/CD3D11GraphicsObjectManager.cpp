@@ -176,7 +176,7 @@ namespace TDEngine2
 		rtBlendStateDesc.SrcBlendAlpha         = CD3D11Mappings::GetBlendFactorValue(blendStateDesc.mScrAlphaValue);
 		rtBlendStateDesc.DestBlendAlpha        = CD3D11Mappings::GetBlendFactorValue(blendStateDesc.mDestAlphaValue);
 		rtBlendStateDesc.BlendOpAlpha          = CD3D11Mappings::GetBlendOpType(blendStateDesc.mAlphaOpType);
-		rtBlendStateDesc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+		rtBlendStateDesc.RenderTargetWriteMask = blendStateDesc.mWriteMask;
 
 		if (FAILED(p3dDevice->CreateBlendState(&desc, &pBlendState)))
 		{

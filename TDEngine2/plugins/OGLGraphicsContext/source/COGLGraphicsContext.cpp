@@ -295,6 +295,8 @@ namespace TDEngine2
 
 		GL_SAFE_VOID_CALL(glBlendEquationSeparate(COGLMappings::GetBlendOpType(blendStateDesc.mOpType),
 								COGLMappings::GetBlendOpType(blendStateDesc.mAlphaOpType)));
+
+		GL_SAFE_VOID_CALL(glColorMask(blendStateDesc.mWriteMask & 0x8, blendStateDesc.mWriteMask & 0x4, blendStateDesc.mWriteMask & 0x2, blendStateDesc.mWriteMask & 0x1));
 	}
 
 	void COGLGraphicsContext::BindDepthStencilState(TDepthStencilStateId depthStencilStateId, U8 stencilRef)

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.16] 2023-04-26
+## [0.6.16] 2023-04-28
 
 ### Added
 
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The first iteration of an input field for UI was introduced via **CInputField** component.
 
 - A new component **UIMask** was introduced that provides masking of UI elements based on parent's graphics.
+
+- Add support of color masking for frame buffers for both GAPI D3D11 and GL 3.x
 
 ### Changed
 
