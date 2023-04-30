@@ -209,9 +209,14 @@ namespace TDEngine2
 	}
 
 
-	static bool IsCenterizeAlignPolicy(E_FONT_ALIGN_POLICY type)
+	static bool IsHorCenterizeAlignPolicy(E_FONT_ALIGN_POLICY type)
 	{
 		return (E_FONT_ALIGN_POLICY::CENTER == type) || (E_FONT_ALIGN_POLICY::CENTER_BOTTOM == type) || (E_FONT_ALIGN_POLICY::CENTER_TOP == type);
+	}
+
+	static bool IsVertCenterizeAlignPolicy(E_FONT_ALIGN_POLICY type)
+	{
+		return (E_FONT_ALIGN_POLICY::LEFT_CENTER == type) || (E_FONT_ALIGN_POLICY::CENTER == type) || (E_FONT_ALIGN_POLICY::RIGHT_CENTER == type);
 	}
 
 	static bool IsRightsidedAlignPolicy(E_FONT_ALIGN_POLICY type)
@@ -320,9 +325,14 @@ namespace TDEngine2
 
 		TVector2 textOffsetPosition = CFont::GetPositionFromAlignType(params.mAlignMode) * rectSizes;
 
-		if (IsCenterizeAlignPolicy(params.mAlignMode))
+		if (IsHorCenterizeAlignPolicy(params.mAlignMode))
 		{
-			textOffsetPosition = textOffsetPosition - sizes * 0.5f;
+			textOffsetPosition.x -= sizes.x * 0.5f;
+		}
+
+		if (IsVertCenterizeAlignPolicy(params.mAlignMode))
+		{
+			textOffsetPosition.y -= sizes.y * 0.25f;
 		}
 
 		if (IsRightsidedAlignPolicy(params.mAlignMode))
@@ -332,7 +342,7 @@ namespace TDEngine2
 
 		if (IsTopsidedAlignPolicy(params.mAlignMode))
 		{
-			textOffsetPosition.y -= sizes.y;
+			textOffsetPosition.y -= sizes.y * 0.5f;
 		}
 
 		for (auto& v : textMesh)

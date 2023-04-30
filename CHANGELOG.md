@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.16] 2023-04-28
+## [0.6.16] 2023-04-30
 
 ### Added
 
@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The signature of **IGraphicsContext::BindDepthStencilState** was changed to modify the stencil buffer's values.
 
 ### Fixed
+
+- Text alignment for **CLabelComponent** was fixed.
 
 ## [0.6.15] 2023-04-07
 
