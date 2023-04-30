@@ -127,6 +127,7 @@ namespace TDEngine2
 		E_ADDRESS_MODE_TYPE   mAddressMode = E_ADDRESS_MODE_TYPE::AMT_CLAMP;
 
 		bool                  mGenerateMipMaps = true;
+		bool                  mIsDynamicRangeEnabled = false; /// HDR formats
 	} TTexture2DResourceBuildInfo, *TTexture2DResourceBuildInfoPtr;
 
 

@@ -250,6 +250,7 @@ namespace TDEngine2
 
 		U8* pTextureData = nullptr;
 
+		/// \todo Reimplement this later using reading from in-memory block rather than using explicit file I/O
 		if (!stbi_info(filename.c_str(), &width, &height, &format))
 		{
 			return RC_FILE_NOT_FOUND;
@@ -265,22 +266,31 @@ namespace TDEngine2
 			I32 height = h;
 			I32 format = fmt;
 
-			pTextureData = stbi_load(filename.c_str(), &width, &height, &format, (format < 3 ? format : 4));/// D3D11 doesn't work with 24 bits textures
+			const bool isHDREnabled = stbi_is_hdr(filename.c_str());
 
+			if (isHDREnabled)
+			{
+				pTextureData = reinterpret_cast<U8*>(stbi_loadf(filename.c_str(), &width, &height, &format, (format < 3 ? format : 4))); /// D3D11 doesn't work with 24 bits textures
+			}
+			else
+			{
+				pTextureData = stbi_load(filename.c_str(), &width, &height, &format, (format < 3 ? format : 4)); /// D3D11 doesn't work with 24 bits textures
+			}
+			
 			if (!pTextureData)
 			{
 				return;
 			}
 
-			E_FORMAT_TYPE internalFormat = FT_NORM_UBYTE4;
+			E_FORMAT_TYPE internalFormat = isHDREnabled ? FT_FLOAT4 : FT_NORM_UBYTE4;
 
 			switch (format)
 			{
 				case 1:
-					internalFormat = FT_NORM_UBYTE1;
+					internalFormat = isHDREnabled ? FT_FLOAT1 : FT_NORM_UBYTE1;
 					break;
 				case 2:
-					internalFormat = FT_NORM_UBYTE2;
+					internalFormat = isHDREnabled ? FT_FLOAT2 : FT_NORM_UBYTE2;
 					break;
 			}
 

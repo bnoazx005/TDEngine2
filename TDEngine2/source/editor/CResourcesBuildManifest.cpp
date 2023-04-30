@@ -72,12 +72,14 @@ namespace TDEngine2
 		static const std::string mFilterTypeKeyId;
 		static const std::string mAddressModeKeyId;
 		static const std::string mGenerateMipMapsKeyId;
+		static const std::string mUseHDRFormatKeyId;
 	};
 
 
 	const std::string TTexture2DResourceBuildInfoArchiveKeys::mFilterTypeKeyId = "filter_type";
 	const std::string TTexture2DResourceBuildInfoArchiveKeys::mAddressModeKeyId = "address_mode";
 	const std::string TTexture2DResourceBuildInfoArchiveKeys::mGenerateMipMapsKeyId = "mipmaps_generation";
+	const std::string TTexture2DResourceBuildInfoArchiveKeys::mUseHDRFormatKeyId = "hdr_format";
 
 
 	static std::unique_ptr<TResourceBuildInfo> Deserialize(IArchiveReader* pReader)
@@ -216,6 +218,7 @@ namespace TDEngine2
 		mFilteringType = Meta::EnumTrait<E_TEXTURE_FILTER_TYPE>::FromString(pReader->GetString(TTexture2DResourceBuildInfoArchiveKeys::mFilterTypeKeyId));
 		mAddressMode = Meta::EnumTrait<E_ADDRESS_MODE_TYPE>::FromString(pReader->GetString(TTexture2DResourceBuildInfoArchiveKeys::mAddressModeKeyId));
 		mGenerateMipMaps = pReader->GetBool(TTexture2DResourceBuildInfoArchiveKeys::mGenerateMipMapsKeyId);
+		mIsDynamicRangeEnabled = pReader->GetBool(TTexture2DResourceBuildInfoArchiveKeys::mUseHDRFormatKeyId, false);
 
 		return result;
 	}
@@ -229,6 +232,7 @@ namespace TDEngine2
 		result = result | pWriter->SetString(TTexture2DResourceBuildInfoArchiveKeys::mFilterTypeKeyId, Meta::EnumTrait<E_TEXTURE_FILTER_TYPE>::ToString(mFilteringType));
 		result = result | pWriter->SetString(TTexture2DResourceBuildInfoArchiveKeys::mAddressModeKeyId, Meta::EnumTrait<E_ADDRESS_MODE_TYPE>::ToString(mAddressMode));
 		result = result | pWriter->SetBool(TTexture2DResourceBuildInfoArchiveKeys::mGenerateMipMapsKeyId, mGenerateMipMaps);
+		result = result | pWriter->SetBool(TTexture2DResourceBuildInfoArchiveKeys::mUseHDRFormatKeyId, mIsDynamicRangeEnabled);
 
 		return result;
 	}
@@ -474,7 +478,8 @@ namespace TDEngine2
 
 		if (Wrench::StringUtils::EndsWith(resourceFileExtension, "png") ||
 			Wrench::StringUtils::EndsWith(resourceFileExtension, "jpg") ||
-			Wrench::StringUtils::EndsWith(resourceFileExtension, "tga"))
+			Wrench::StringUtils::EndsWith(resourceFileExtension, "tga") ||
+			Wrench::StringUtils::EndsWith(resourceFileExtension, "hdr"))
 		{
 			return std::make_unique<TTexture2DResourceBuildInfo>();
 		}

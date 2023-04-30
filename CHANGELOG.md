@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add support of color masking for frame buffers for both GAPI D3D11 and GL 3.x
 
+- Experimental basic support of HDR textures was introduced.
+
 ### Changed
 
 - Now events of **TOnCharInputEvent** type can be processed in a production builds too.
