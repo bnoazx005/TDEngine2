@@ -142,6 +142,11 @@ namespace TDEngine2
 		if (pInputContext->IsKeyPressed(E_KEYCODES::KC_HOME)) { return E_INPUT_ACTIONS::MOVE_HOME; }
 		if (pInputContext->IsKeyPressed(E_KEYCODES::KC_END)) { return E_INPUT_ACTIONS::MOVE_END; }
 		if (pInputContext->IsKeyPressed(E_KEYCODES::KC_ESCAPE)) { return E_INPUT_ACTIONS::CANCEL_INPUT; }
+		
+		if (CMathUtils::Abs(pInputContext->GetMouseShiftVec().z) > FloatEpsilon) 
+		{
+			return E_INPUT_ACTIONS::SCROLL; 
+		}
 
 		bool isAlphaCharKeyPressed = false;
 
@@ -200,6 +205,8 @@ namespace TDEngine2
 			pInputReceiver->mIsControlModifierActive = mpDesktopInputContext->IsKey(E_KEYCODES::KC_LCONTROL) || mpDesktopInputContext->IsKey(E_KEYCODES::KC_RCONTROL);
 			pInputReceiver->mIsShiftModifierActive = mpDesktopInputContext->IsKey(E_KEYCODES::KC_LSHIFT) || mpDesktopInputContext->IsKey(E_KEYCODES::KC_RSHIFT);
 			pInputReceiver->mActionType = GetActionType(mpDesktopInputContext);
+
+			pInputReceiver->mScrollDelta = mpDesktopInputContext->GetMouseShiftVec().z;
 
 			/// focus/unfocus logic
 			{

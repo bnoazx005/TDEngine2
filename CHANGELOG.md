@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.16] 2023-04-30
+## [0.6.16] 2023-05-01
 
 ### Added
 
@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add support of color masking for frame buffers for both GAPI D3D11 and GL 3.x
 
 - Experimental basic support of HDR textures was introduced.
+
+- Scroller component **CScrollableUIArea** with basic functionality was added.
 
 ### Changed
 

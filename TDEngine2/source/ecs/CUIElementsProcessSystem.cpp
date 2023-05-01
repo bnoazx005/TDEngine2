@@ -714,6 +714,7 @@ namespace TDEngine2
 		mTogglesContext = pWorld->CreateLocalComponentsSlice<CToggle, CInputReceiver>();
 		mSlidersContext = pWorld->CreateLocalComponentsSlice<CUISlider, CLayoutElement, CInputReceiver>();
 		mInputFieldsContext = pWorld->CreateLocalComponentsSlice<CInputField, CLayoutElement, CInputReceiver>();
+		mScrollAreasContext = pWorld->CreateLocalComponentsSlice<CScrollableUIArea, CLayoutElement, CInputReceiver>();
 
 		mImagesContext       = CreateUIRenderableContext<CImage>(pWorld);
 		mSlicedImagesContext = CreateUIRenderableContext<C9SliceImage>(pWorld);
@@ -1062,6 +1063,73 @@ namespace TDEngine2
 	}
 
 
+	static inline void UpdateScrollableAreasElements(CUIElementsProcessSystem::TScrollableAreasContext& context, IWorld* pWorld, ISystem* pSystem, F32 dt)
+	{
+		auto&& scrollers = std::get<std::vector<CScrollableUIArea*>>(context.mComponentsSlice);
+		auto&& scrollersLayoutElements = std::get<std::vector<CLayoutElement*>>(context.mComponentsSlice);
+		auto&& inputReceivers = std::get<std::vector<CInputReceiver*>>(context.mComponentsSlice);
+
+		for (USIZE i = 0; i < context.mComponentsCount; i++)
+		{
+			auto pCurrScroller = scrollers[i];
+			if (!pCurrScroller)
+			{
+				continue;
+			}
+
+			auto pScrollLayoutElement = scrollersLayoutElements[i];
+			if (!pScrollLayoutElement)
+			{
+				continue;
+			}
+
+			CInputReceiver* pCurrInputReceiver = inputReceivers[i];
+			if (!pCurrInputReceiver)
+			{
+				continue;
+			}
+
+			auto pContentEntity = pWorld->FindEntity(pCurrScroller->GetContentEntityId());
+			if (!pContentEntity)
+			{
+				continue;
+			}
+
+			auto pContentLayout = pContentEntity->GetComponent<CLayoutElement>();
+			if (!pContentLayout)
+			{
+				continue;
+			}
+
+			if (!pCurrScroller->IsLayoutInitialized())
+			{
+				if (CMathUtils::Abs(pScrollLayoutElement->GetWorldRect().height) < FloatEpsilon)
+				{
+					continue;
+				}
+
+				pContentLayout->SetMinAnchor(TVector2(0.0f, 1.0f));
+				pContentLayout->SetMaxAnchor(TVector2(1.0f));
+
+				pContentLayout->SetMinOffset(TVector2(0.0f, -pScrollLayoutElement->GetWorldRect().height));
+				pContentLayout->SetMaxOffset(pContentLayout->GetMinOffset() * 2.0f);
+
+				pCurrScroller->SetLayoutPrepared(true);
+			}
+
+			TVector2 currPosition = pContentLayout->GetMinOffset();
+			
+			if (E_INPUT_ACTIONS::SCROLL == pCurrInputReceiver->mActionType)
+			{
+				currPosition.y += pCurrInputReceiver->mScrollDelta * dt;
+			}
+
+			pContentLayout->SetMinOffset(currPosition);
+			pContentLayout->SetMaxOffset(-currPosition + TVector2(0.0f, pScrollLayoutElement->GetWorldRect().height));
+		}
+	}
+
+
 	template <typename T>
 	static inline void DiscardDirtyFlagForElements(T& context)
 	{
@@ -1158,6 +1226,7 @@ namespace TDEngine2
 		UpdateToggleElements(mTogglesContext, pWorld, this);
 		UpdateSlidersElements(mSlidersContext, pWorld, this);
 		UpdateInputFieldsElements(mInputFieldsContext, pWorld, this, mpResourceManager, dt);
+		UpdateScrollableAreasElements(mScrollAreasContext, pWorld, this, dt);
 	}
 
 

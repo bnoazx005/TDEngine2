@@ -190,6 +190,7 @@
 #include "graphics/UI/CToggleComponent.h"
 #include "graphics/UI/CUISliderComponent.h"
 #include "graphics/UI/CInputFieldComponent.h"
+#include "graphics/UI/CScrollableUIAreaComponent.h"
 
 /// audio
 #include "audio/IAudioSource.h"

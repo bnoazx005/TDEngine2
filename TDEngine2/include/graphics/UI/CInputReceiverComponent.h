@@ -29,6 +29,7 @@ namespace TDEngine2
 		MOVE_END,
 		CHAR_INPUT,
 		CANCEL_INPUT,
+		SCROLL,
 		NONE
 	};
 
@@ -103,6 +104,8 @@ namespace TDEngine2
 			E_INPUT_ACTIONS mActionType;
 
 			TVector2 mNormalizedInputPosition; ///< Position of an input event that's normalized relative to receiver's rectangle
+			
+			F32 mScrollDelta = 0.0f;
 
 			std::string mInputBuffer;
 	};

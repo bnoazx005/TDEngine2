@@ -21,6 +21,7 @@
 #include "../../include/graphics/UI/CToggleComponent.h"
 #include "../../include/graphics/UI/CUISliderComponent.h"
 #include "../../include/graphics/UI/CInputFieldComponent.h"
+#include "../../include/graphics/UI/CScrollableUIAreaComponent.h"
 #include "../../include/graphics/animation/CAnimationContainerComponent.h"
 #include "../../include/graphics/animation/CMeshAnimatorComponent.h"
 #include "../../include/physics/2D/CBoxCollisionObject2D.h"
@@ -467,6 +468,7 @@ namespace TDEngine2
 			CreateUISliderFactory,
 			CreateInputFieldFactory,
 			CreateUIMaskComponentFactory,
+			CreateScrollableUIAreaFactory,
 			CreateLODStrategyComponentFactory,
 			CreateObjIdComponentFactory,
 #if TDE2_EDITORS_ENABLED

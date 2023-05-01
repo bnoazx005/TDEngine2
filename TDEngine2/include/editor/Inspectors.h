@@ -70,6 +70,7 @@ namespace TDEngine2
 			TDE2_API static void DrawToggleGUI(const TEditorContext& editorContext);
 			TDE2_API static void DrawUISliderGUI(const TEditorContext& editorContext);
 			TDE2_API static void DrawUIMaskGUI(const TEditorContext& editorContext);
+			TDE2_API static void DrawScrollUIAreaGUI(const TEditorContext& editorContext);
 			TDE2_API static void DrawPerspectiveCameraGUI(const TEditorContext& editorContext);
 			TDE2_API static void DrawOrthographicCameraGUI(const TEditorContext& editorContext);
 

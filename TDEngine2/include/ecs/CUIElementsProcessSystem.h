@@ -14,6 +14,7 @@
 #include "../graphics/UI/CLayoutElementComponent.h"
 #include "../graphics/UI/CInputReceiverComponent.h"
 #include "../graphics/UI/CInputFieldComponent.h"
+#include "../graphics/UI/CScrollableUIAreaComponent.h"
 #include <vector>
 
 
@@ -89,6 +90,7 @@ namespace TDEngine2
 			typedef TComponentsQueryLocalSlice<CToggle, CInputReceiver>                     TTogglesContext;
 			typedef TComponentsQueryLocalSlice<CUISlider, CLayoutElement, CInputReceiver>   TSlidersContext;
 			typedef TComponentsQueryLocalSlice<CInputField, CLayoutElement, CInputReceiver> TInputFieldsContext;
+			typedef TComponentsQueryLocalSlice<CScrollableUIArea, CLayoutElement, CInputReceiver> TScrollableAreasContext;
 		public:
 			TDE2_SYSTEM(CUIElementsProcessSystem);
 
@@ -130,6 +132,7 @@ namespace TDEngine2
 			TTogglesContext                            mTogglesContext;
 			TSlidersContext                            mSlidersContext;
 			TInputFieldsContext                        mInputFieldsContext;
+			TScrollableAreasContext                    mScrollAreasContext;
 
 			TUIRenderableElementsContext<CImage>       mImagesContext;
 			TUIRenderableElementsContext<C9SliceImage> mSlicedImagesContext;

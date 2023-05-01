@@ -16,6 +16,7 @@
 #include "../../include/graphics/UI/CInputFieldComponent.h"
 #include "../../include/graphics/UI/CCanvasComponent.h"
 #include "../../include/graphics/UI/CLabelComponent.h"
+#include "../../include/graphics/UI/CScrollableUIAreaComponent.h"
 #include "../../include/core/IFont.h"
 #include "../../include/core/IImGUIContext.h"
 #include <clip.h>
@@ -385,6 +386,50 @@ namespace TDEngine2
 
 			GroupEntities(pWorld.Get(), pInputFieldEntity->GetId(), pCursorEntity->GetId());
 			GroupEntities(pWorld.Get(), pInputFieldEntity->GetId(), pLabelEntity->GetId());
+		}
+
+		return rootEntityResult;
+	}
+
+	TResult<TEntityId> CSceneHierarchyUtils::CreateScrollUIArea(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op)
+	{
+		auto rootEntityResult = CreateNewEntityInternal("ScrollArea", pWorld, pCurrScene, parentEntityId, op);
+		if (rootEntityResult.HasError())
+		{
+			return rootEntityResult;
+		}
+
+		if (auto pScrollableEntity = pWorld->FindEntity(rootEntityResult.Get()))
+		{
+			pScrollableEntity->AddComponent<CInputReceiver>();
+
+			if (auto pLayoutElement = pScrollableEntity->AddComponent<CLayoutElement>())
+			{
+				pLayoutElement->SetMinAnchor(ZeroVector2);
+				pLayoutElement->SetMaxAnchor(ZeroVector2);
+				pLayoutElement->SetMinOffset(ZeroVector2);
+				pLayoutElement->SetMaxOffset(TVector2(400.0f));
+			}
+
+			auto pContentEntity = pCurrScene->CreateEntity("Content");
+			{
+				if (auto pLayoutElement = pContentEntity->AddComponent<CLayoutElement>())
+				{
+					pLayoutElement->SetMinAnchor(ZeroVector2);
+					pLayoutElement->SetMaxAnchor(ZeroVector2);
+					pLayoutElement->SetMinOffset(ZeroVector2);
+					pLayoutElement->SetMaxOffset(TVector2(400.0f));
+				}
+			}
+
+			if (auto pScrollArea = pScrollableEntity->AddComponent<CScrollableUIArea>())
+			{
+				pScrollArea->SetContentEntityId(pContentEntity->GetId());
+			}
+
+			pScrollableEntity->AddComponent<CUIMaskComponent>();
+
+			GroupEntities(pWorld.Get(), pScrollableEntity->GetId(), pContentEntity->GetId());
 		}
 
 		return rootEntityResult;

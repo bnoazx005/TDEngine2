@@ -19,6 +19,7 @@
 #include "../../include/graphics/UI/GroupLayoutComponents.h"
 #include "../../include/graphics/UI/CToggleComponent.h"
 #include "../../include/graphics/UI/CUISliderComponent.h"
+#include "../../include/graphics/UI/CScrollableUIAreaComponent.h"
 #include "../../include/graphics/animation/CAnimationContainerComponent.h"
 #include "../../include/graphics/animation/CMeshAnimatorComponent.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
@@ -80,6 +81,7 @@ namespace TDEngine2
 		result = result | editor.RegisterInspector(CToggle::GetTypeId(), DrawToggleGUI);
 		result = result | editor.RegisterInspector(CUISlider::GetTypeId(), DrawUISliderGUI);
 		result = result | editor.RegisterInspector(CUIMaskComponent::GetTypeId(), DrawUIMaskGUI);
+		result = result | editor.RegisterInspector(CScrollableUIArea::GetTypeId(), DrawScrollUIAreaGUI);
 		result = result | editor.RegisterInspector(CMeshAnimatorComponent::GetTypeId(), DrawMeshAnimatorGUI);
 		result = result | editor.RegisterInspector(CPerspectiveCamera::GetTypeId(), DrawPerspectiveCameraGUI);
 		result = result | editor.RegisterInspector(COrthoCamera::GetTypeId(), DrawOrthographicCameraGUI);
@@ -1233,13 +1235,13 @@ namespace TDEngine2
 			if (std::get<0>(imguiContext.BeginTreeNode("Debug Info")))
 			{
 				imguiContext.Label(Wrench::StringUtils::Format(
-					"On Pressed: {0}\nNormalized Input Pos: ({1}; {2})\nHovered: {3}\nFocused: {4}\nInput Text: {5}",
+					"On Pressed: {0}\nNormalized Input Pos: ({1}; {2})\nHovered: {3}\nFocused: {4}\nScroll Delta: {5}",
 					inputReceiver.mCurrState ? "pressed" : "none",
 					inputReceiver.mNormalizedInputPosition.x, 
 					inputReceiver.mNormalizedInputPosition.y,
 					inputReceiver.mIsHovered ? "true" : "false",
 					inputReceiver.mIsFocused ? "true" : "false",
-					inputReceiver.mInputBuffer));
+					inputReceiver.mScrollDelta));
 
 				imguiContext.EndTreeNode();
 			}
@@ -1587,6 +1589,13 @@ namespace TDEngine2
 	void CDefaultInspectorsRegistry::DrawUIMaskGUI(const TEditorContext& editorContext)
 	{
 		Header("UI Mask", editorContext, [](const TEditorContext& editorContext)
+		{
+		});
+	}
+
+	void CDefaultInspectorsRegistry::DrawScrollUIAreaGUI(const TEditorContext& editorContext)
+	{
+		Header("Scroll UI Area", editorContext, [](const TEditorContext& editorContext)
 		{
 		});
 	}
