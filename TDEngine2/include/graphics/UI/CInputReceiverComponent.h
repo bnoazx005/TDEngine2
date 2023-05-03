@@ -104,8 +104,7 @@ namespace TDEngine2
 			E_INPUT_ACTIONS mActionType;
 
 			TVector2 mNormalizedInputPosition; ///< Position of an input event that's normalized relative to receiver's rectangle
-			
-			F32 mScrollDelta = 0.0f;
+			TVector3 mMouseShiftVec = ZeroVector3; ///< z contains scroll delta
 
 			std::string mInputBuffer;
 	};

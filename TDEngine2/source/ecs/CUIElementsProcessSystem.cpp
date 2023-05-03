@@ -1101,6 +1101,9 @@ namespace TDEngine2
 				continue;
 			}
 
+			const auto& viewWorldRect = pScrollLayoutElement->GetWorldRect();
+			const auto& contentWorldRect = pContentLayout->GetWorldRect();
+
 			if (!pCurrScroller->IsLayoutInitialized())
 			{
 				if (CMathUtils::Abs(pScrollLayoutElement->GetWorldRect().height) < FloatEpsilon)
@@ -1109,23 +1112,35 @@ namespace TDEngine2
 				}
 
 				pContentLayout->SetMinAnchor(TVector2(0.0f, 1.0f));
-				pContentLayout->SetMaxAnchor(TVector2(1.0f));
+				pContentLayout->SetMaxAnchor(TVector2(0.0f, 1.0f));
 
-				pContentLayout->SetMinOffset(TVector2(0.0f, -pScrollLayoutElement->GetWorldRect().height));
-				pContentLayout->SetMaxOffset(pContentLayout->GetMinOffset() * 2.0f);
+				pContentLayout->SetMinOffset(TVector2(0.0f, -viewWorldRect.height));
 
 				pCurrScroller->SetLayoutPrepared(true);
 			}
 
 			TVector2 currPosition = pContentLayout->GetMinOffset();
 			
-			if (E_INPUT_ACTIONS::SCROLL == pCurrInputReceiver->mActionType)
-			{
-				currPosition.y += pCurrInputReceiver->mScrollDelta * dt;
-			}
+			const F32 widthRatio = contentWorldRect.width / CMathUtils::Max(1e-3f, viewWorldRect.width);
+			const F32 heightRatio = contentWorldRect.height / CMathUtils::Max(1e-3f, viewWorldRect.height);
 
+			if ((pCurrScroller->IsVertical() && heightRatio > 1.0f) || (pCurrScroller->IsHorizontal() && widthRatio > 1.0f))
+			{
+				if (E_INPUT_ACTIONS::SCROLL == pCurrInputReceiver->mActionType)
+				{
+					auto& scrollComponent = pCurrScroller->IsVertical() ? currPosition.y : currPosition.x;
+					scrollComponent += (pCurrScroller->IsVertical() ? -1.0f : 1.0f) * pCurrInputReceiver->mMouseShiftVec.z * pCurrScroller->GetScrollSpeedFactor() * dt;
+				}
+				else if (pCurrInputReceiver->mCurrState)
+				{
+					currPosition = currPosition + TVector2(pCurrInputReceiver->mMouseShiftVec.x, -pCurrInputReceiver->mMouseShiftVec.y);
+				}
+
+				currPosition.x = CMathUtils::Clamp(-viewWorldRect.width, 0.0f, currPosition.x);
+				currPosition.y = CMathUtils::Clamp(-viewWorldRect.height, 0.0f, currPosition.y);
+			}
+			
 			pContentLayout->SetMinOffset(currPosition);
-			pContentLayout->SetMaxOffset(-currPosition + TVector2(0.0f, pScrollLayoutElement->GetWorldRect().height));
 		}
 	}
 

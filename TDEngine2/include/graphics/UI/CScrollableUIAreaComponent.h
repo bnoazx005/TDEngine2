@@ -74,24 +74,31 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
-			void SetContentEntityId(TEntityId cursorId);
+			TDE2_API void SetContentEntityId(TEntityId cursorId);
 
-			void SetNormalizedScrollPosition(const TVector2& pos);
+			TDE2_API void SetScrollSpeedFactor(F32 value);
 
-			void SetLayoutPrepared(bool value);
+			TDE2_API void SetLayoutPrepared(bool value);
+			TDE2_API void SetHorizontal(bool state);
+			TDE2_API void SetVertical(bool state);
 
-			TEntityId GetContentEntityId() const;
+			TDE2_API TEntityId GetContentEntityId() const;
 
-			const TVector2& GetNormalizedScrollPosition() const;
-			bool IsLayoutInitialized() const;
+			TDE2_API F32 GetScrollSpeedFactor() const;
+			
+			TDE2_API bool IsLayoutInitialized() const;
+			TDE2_API bool IsHorizontal() const;
+			TDE2_API bool IsVertical() const;
 
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CScrollableUIArea)
 		protected:
 			TEntityId mContentEntityRef;
-			TVector2 mNormalizedScrollPosition = ZeroVector2;
+			F32 mScrollSpeedFactor = 100.0f;
 
 			bool mIsLayoutPrepared = false;
+			bool mIsHorizontal = true;
+			bool mIsVertical = true;
 	};
 
 
