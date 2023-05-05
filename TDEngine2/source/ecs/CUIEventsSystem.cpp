@@ -8,6 +8,7 @@
 #include "../../include/core/IInputContext.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include <stack>
+#include <unordered_set>
 
 
 namespace TDEngine2
@@ -94,6 +95,7 @@ namespace TDEngine2
 
 			/// \note Sort all entities based on computed priority (children're first)
 			std::stack<TEntityId> entitiesToVisit;
+			std::unordered_set<TEntityId> visitedEntities;
 
 			for (TEntityId id : pTransform->GetChildren())
 			{
@@ -105,26 +107,36 @@ namespace TDEngine2
 			while (!entitiesToVisit.empty())
 			{
 				const TEntityId currEntityId = entitiesToVisit.top();
-				entitiesToVisit.pop();
 
 				pEntity = pWorld->FindEntity(currEntityId);
+				pTransform = pEntity->GetComponent<CTransform>();
 
-				if (auto pInputReceiver = pEntity->GetComponent<CInputReceiver>())
+				if (!pTransform->GetChildren().empty())
 				{
-					if (!pInputReceiver->mIsIgnoreInput)
+					USIZE prevEntitiesToVisitCount = entitiesToVisit.size();
+
+					for (TEntityId id : pTransform->GetChildren())
 					{
-						inputReceivers.push_back(pInputReceiver);
-						transforms.push_back(pEntity->GetComponent<CTransform>());
-						layoutElements.push_back(pEntity->GetComponent<CLayoutElement>());
+						if (visitedEntities.find(id) == visitedEntities.cend())
+						{
+							entitiesToVisit.push(id);
+						}
+					}
+
+					if (prevEntitiesToVisitCount != entitiesToVisit.size())
+					{
+						continue;
 					}
 				}
 
-				if (pTransform = pEntity->GetComponent<CTransform>())
+				visitedEntities.emplace(currEntityId);
+				entitiesToVisit.pop();
+
+				if (auto pInputReceiver = pEntity->GetComponent<CInputReceiver>())
 				{
-					for (TEntityId id : pTransform->GetChildren())
-					{
-						entitiesToVisit.push(id);
-					}
+					inputReceivers.push_back(pInputReceiver);
+					transforms.push_back(pEntity->GetComponent<CTransform>());
+					layoutElements.push_back(pEntity->GetComponent<CLayoutElement>());
 				}
 			}
 		}
@@ -210,7 +222,7 @@ namespace TDEngine2
 
 			/// focus/unfocus logic
 			{
-				if (pInputReceiver->mCurrState && pInputReceiver->mIsHovered && !pInputReceiver->mIsFocused)
+				if (mpDesktopInputContext->IsMouseButtonPressed(0) && pInputReceiver->mIsHovered && !pInputReceiver->mIsFocused)
 				{
 					pInputReceiver->mIsFocused = true;
 				}
