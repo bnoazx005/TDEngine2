@@ -241,6 +241,11 @@ namespace TDEngine2
 			auto&& vertices = pMeshData->GetVertices();
 			auto&& indices = pMeshData->GetIndices();
 
+			if (vertices.empty() || indices.empty())
+			{
+				continue;
+			}
+
 			for (U16 index : indices)
 			{
 				mIntermediateIndexBuffer.push_back(static_cast<U16>(mIntermediateVertsBuffer.empty() ? 0 : mIntermediateVertsBuffer.size()) + index);

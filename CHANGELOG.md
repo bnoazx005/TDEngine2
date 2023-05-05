@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.16] 2023-05-03
+## [0.6.16] 2023-05-05
 
 ### Added
 
@@ -36,6 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Text alignment for **CLabelComponent** was fixed.
+
+- The incorrect order of processing of a few layout elements of same canvas was fixed.
 
 ## [0.6.15] 2023-04-07
 

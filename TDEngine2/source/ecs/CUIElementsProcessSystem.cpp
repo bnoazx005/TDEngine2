@@ -282,8 +282,9 @@ namespace TDEngine2
 
 	static void Compute9SliceImageMeshData(IResourceManager* pResourceManager, const CUIElementsProcessSystem::TUIRenderableElementsContext<C9SliceImage>& slicedImagesContext, USIZE index)
 	{
-		CLayoutElement* pLayoutData    = slicedImagesContext.mpLayoutElements[index];
-		C9SliceImage* pSlicedImageData = slicedImagesContext.mpRenderables[index];
+		auto pLayoutData        = slicedImagesContext.mpLayoutElements[index];
+		auto pSlicedImageData   = slicedImagesContext.mpRenderables[index];
+		auto pUIElementMeshData = slicedImagesContext.mpUIMeshes[index];
 
 		/// \note Load image's asset if it's not done yet
 		if (TResourceId::Invalid == pSlicedImageData->GetImageResourceId())
@@ -303,8 +304,7 @@ namespace TDEngine2
 		{
 			return;
 		}
-
-		auto pUIElementMeshData = slicedImagesContext.mpUIMeshes[index];
+		
 		pUIElementMeshData->ResetMesh();
 
 		auto&& worldRect = pLayoutData->GetWorldRect();
@@ -513,7 +513,7 @@ namespace TDEngine2
 		/// \note Fill up relationships table to sort entities based on their dependencies 
 		std::unordered_map<TEntityId, std::vector<TEntityId>> parentToChildRelations;
 
-		std::vector<std::tuple<TEntityId, TEntityId, USIZE>> parentEntities;
+		std::unordered_map<TEntityId, std::vector<TEntityId>> parentEntities;
 
 		for (TEntityId currEntityId : entities)
 		{
@@ -527,7 +527,7 @@ namespace TDEngine2
 
 				if (std::find(entities.cbegin(), entities.cend(), parentId) == entities.cend()) /// \note Mark this entity as root
 				{
-					parentEntities.push_back({ currEntityId, parentId, parentEntities.size() });					
+					parentEntities[parentId].push_back(currEntityId);
 				}
 
 				parentToChildRelations[parentId].push_back(pEntity->GetId());
@@ -543,8 +543,12 @@ namespace TDEngine2
 
 		for (auto currEntityPair : parentEntities)
 		{
-			entitiesToProcess.push({ std::get<0>(currEntityPair), entities.size() });
-			entitiesToProcess.push({ std::get<1>(currEntityPair), TComponentsQueryLocalSlice<CTransform>::mInvalidParentIndex });
+			for (auto&& canvasEntities : currEntityPair.second)
+			{
+				entitiesToProcess.push({ canvasEntities, entities.size() });
+			}
+
+			entitiesToProcess.push({ currEntityPair.first, TComponentsQueryLocalSlice<CTransform>::mInvalidParentIndex });
 
 			while (!entitiesToProcess.empty())
 			{

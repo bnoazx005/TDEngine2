@@ -115,7 +115,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			cameraParams.mAspect = static_cast<F32>(mpWindowSystem->GetWidth() / mpWindowSystem->GetHeight());
 			cameraParams.mFOV    = 0.5f * CMathConstants::Pi;
 			cameraParams.mZNear  = 0.1f;
-			cameraParams.mZFar   = 1000.0f;
+			cameraParams.mZFar   = 500.0f;
 
 			if (auto pCameraEntity = pMainScene->CreateCamera("MainCamera", E_CAMERA_PROJECTION_TYPE::PERSPECTIVE, cameraParams))
 			{
@@ -333,6 +333,23 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 				//pPhysicsObject0->AddComponent<CTrigger3D>();
 			}
+
+#if 0
+			if (auto pSponzaEntity = pScene->CreateEntity("Sponza"))
+			{
+				if (auto pMeshContainer = pSponzaEntity->AddComponent<CStaticMeshContainer>())
+				{
+					pMeshContainer->SetMaterialName("ProjectResources/Materials/DefaultMaterial.material");
+					pMeshContainer->SetMeshName("ProjectResources/Models/sponza.mesh");
+				}
+
+				if (auto pTransform = pSponzaEntity->AddComponent<CTransform>())
+				{
+					pTransform->SetPosition(TVector3(5.0f, 0.0f, 0.0f));
+					pTransform->SetScale(TVector3(0.1f));
+				}
+			}
+#endif
 #endif 
 
 #if 0 /// Test UI layout
@@ -565,6 +582,27 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			}
 #endif
 
+			auto canvasEntityResult = CSceneHierarchyUtils::CreateCanvasUIElement(mpWorld, pScene, TEntityId::Invalid, [](auto) {});
+			CSceneHierarchyUtils::CreateInputFieldUIElement(mpWorld, pScene, canvasEntityResult.Get(), [](auto) {}).Get();
+#if 1
+			if (auto pEntity = mpWorld->FindEntity(CSceneHierarchyUtils::CreateScrollUIArea(mpWorld, pScene, canvasEntityResult.Get(), [](auto) {}).Get()))
+			{
+				CSceneHierarchyUtils::CreateInputFieldUIElement(mpWorld, pScene, pEntity->GetComponent<CTransform>()->GetChildren().front(), [](auto) {}).Get();
+
+				if (auto pLayout = pEntity->AddComponent<CLayoutElement>())
+				{
+					pLayout->SetMinAnchor(ZeroVector2);
+					pLayout->SetMaxAnchor(ZeroVector2);
+					pLayout->SetMinOffset(TVector2(400.0f));
+				}
+
+				if (auto pScrollArea = pEntity->GetComponent<CScrollableUIArea>())
+				{
+					pScrollArea->SetVertical(true);
+				}
+			}
+#endif
+
 			/*if (auto result = mpFileSystem->Open<IYAMLFileWriter>("TestScene2.scene", true))
 			{
 				if (auto pFileWriter = mpFileSystem->Get<IYAMLFileWriter>(result.Get()))
@@ -582,11 +620,16 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 #endif
 #endif
 
-		pSceneManager->LoadSceneAsync("ProjectResources/Scenes/1.scene", nullptr);
+		pSceneManager->LoadSceneAsync("ProjectResources/Scenes/1.scene", [this](auto)
+		{
+			CEntityRef ref(mpWorld->GetEntityManager(), TEntityId::Invalid);
+			ref.Get();
+		});
 	}
 
 	mpResourceManager->Load<CBaseTexture2D, TResourceProviderInfo<CBaseTexture2D, CBaseTexture2D>>("test");
-	
+	//mpResourceManager->Load<ITexture2D>("HDR_sky.hdr");
+
 	auto s = mpFileSystem->GetUserDirectory();
 
 	if (auto pPackage = mpFileSystem->Get<IPackageFileReader>(mpFileSystem->Open<IPackageFileReader>("ProjectResources/Misc/NewArchive.pak").Get()))
@@ -604,7 +647,7 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 #if 0
 	auto imgui = mpEngineCoreInstance->GetSubsystem<IImGUIContext>();
 	static bool isOpened = true;
-	if (imgui->BeginWindow("Hello, World!", isOpened, {}))
+	if (imgui->BeginWindow("Test", isOpened, {}))
 	{
 		static TEntityId entityId = TEntityId::Invalid;
 		CImGUIExtensions::EntityRefField(imgui, mpEngineCoreInstance->GetSubsystem<ISceneManager>()->GetWorld(), "Object ", entityId);
@@ -612,6 +655,11 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 		imgui->EndWindow();
 	}
 #endif
+
+	if (auto pImGUIContext = mpEngineCoreInstance->GetSubsystem<IImGUIContext>())
+	{
+		pImGUIContext->GetUIElementPosition("Scene Hierarchy/Label");
+	}
 
 #if 0
 	/// \note ImGUI tests

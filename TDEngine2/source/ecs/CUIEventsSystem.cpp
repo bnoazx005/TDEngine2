@@ -232,7 +232,7 @@ namespace TDEngine2
 
 			pInputReceiver->mNormalizedInputPosition = PointToNormalizedCoords(pLayoutElement->GetWorldRect(), mousePosition);
 			
-			if (pInputReceiver->mCurrState)
+			if (pInputReceiver->mCurrState && pInputReceiver->mIsHovered)
 			{
 				return;
 			}
