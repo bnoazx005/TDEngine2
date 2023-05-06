@@ -20,6 +20,7 @@
 #include "../../include/graphics/UI/CToggleComponent.h"
 #include "../../include/graphics/UI/CUISliderComponent.h"
 #include "../../include/graphics/UI/CScrollableUIAreaComponent.h"
+#include "../../include/graphics/UI/CDropDownComponent.h"
 #include "../../include/graphics/animation/CAnimationContainerComponent.h"
 #include "../../include/graphics/animation/CMeshAnimatorComponent.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
@@ -47,62 +48,6 @@
 
 namespace TDEngine2
 {
-	static void DrawEmptyGUI(const TEditorContext& editorContext)
-	{
-	}
-
-
-	E_RESULT_CODE CDefaultInspectorsRegistry::RegisterBuiltinInspectors(CLevelEditorWindow& editor)
-	{
-		E_RESULT_CODE result = editor.RegisterInspector(CTransform::GetTypeId(), DrawTransformGUI);
-		result = result | editor.RegisterInspector(CDeactivatedComponent::GetTypeId(), DrawEmptyGUI);
-		result = result | editor.RegisterInspector(CDeactivatedGroupComponent::GetTypeId(), DrawEmptyGUI);
-		result = result | editor.RegisterInspector(CBoundsComponent::GetTypeId(), DrawBoundsGUI);
-
-		/// Graphics
-		result = result | editor.RegisterInspector(CQuadSprite::GetTypeId(), DrawQuadSpriteGUI);
-		result = result | editor.RegisterInspector(CStaticMeshContainer::GetTypeId(), DrawStaticMeshContainerGUI);
-		result = result | editor.RegisterInspector(CSkinnedMeshContainer::GetTypeId(), DrawSkinnedMeshContainerGUI);
-		result = result | editor.RegisterInspector(CShadowReceiverComponent::GetTypeId(), DrawShadowReceiverGUI);
-		result = result | editor.RegisterInspector(CShadowCasterComponent::GetTypeId(), DrawShadowCasterGUI);
-		result = result | editor.RegisterInspector(CDirectionalLight::GetTypeId(), DrawDirectionalLightGUI);
-		result = result | editor.RegisterInspector(CPointLight::GetTypeId(), DrawPointLightGUI);
-		result = result | editor.RegisterInspector(CAnimationContainerComponent::GetTypeId(), DrawAnimationContainerGUI);
-		result = result | editor.RegisterInspector(CSkyboxComponent::GetTypeId(), DrawSkyboxGUI);
-		result = result | editor.RegisterInspector(CParticleEmitter::GetTypeId(), DrawParticleEmitterGUI);
-		result = result | editor.RegisterInspector(CCanvas::GetTypeId(), DrawCanvasGUI);
-		result = result | editor.RegisterInspector(CLayoutElement::GetTypeId(), DrawLayoutElementGUI);
-		result = result | editor.RegisterInspector(CUIElementMeshData::GetTypeId(), DrawUIElementMeshDataGUI);
-		result = result | editor.RegisterInspector(CImage::GetTypeId(), DrawImageGUI);
-		result = result | editor.RegisterInspector(CInputReceiver::GetTypeId(), DrawInputReceiverGUI);
-		result = result | editor.RegisterInspector(CLabel::GetTypeId(), DrawLabelGUI);
-		result = result | editor.RegisterInspector(C9SliceImage::GetTypeId(), Draw9SliceImageGUI);
-		result = result | editor.RegisterInspector(CGridGroupLayout::GetTypeId(), DrawGridGroupLayoutGUI);
-		result = result | editor.RegisterInspector(CToggle::GetTypeId(), DrawToggleGUI);
-		result = result | editor.RegisterInspector(CUISlider::GetTypeId(), DrawUISliderGUI);
-		result = result | editor.RegisterInspector(CUIMaskComponent::GetTypeId(), DrawUIMaskGUI);
-		result = result | editor.RegisterInspector(CScrollableUIArea::GetTypeId(), DrawScrollUIAreaGUI);
-		result = result | editor.RegisterInspector(CMeshAnimatorComponent::GetTypeId(), DrawMeshAnimatorGUI);
-		result = result | editor.RegisterInspector(CPerspectiveCamera::GetTypeId(), DrawPerspectiveCameraGUI);
-		result = result | editor.RegisterInspector(COrthoCamera::GetTypeId(), DrawOrthographicCameraGUI);
-
-		/// 2D Physics
-		result = result | editor.RegisterInspector(CBoxCollisionObject2D::GetTypeId(), DrawBoxCollision2DGUI);
-		result = result | editor.RegisterInspector(CCircleCollisionObject2D::GetTypeId(), DrawCircleCollision2DGUI);
-		result = result | editor.RegisterInspector(CTrigger2D::GetTypeId(), DrawTrigger2DGUI);
-
-		/// Audio
-		result = result | editor.RegisterInspector(CAudioListenerComponent::GetTypeId(), DrawAudioListenerGUI);
-		result = result | editor.RegisterInspector(CAudioSourceComponent::GetTypeId(), DrawAudioSourceGUI);
-
-		/// Scenes
-		result = result | editor.RegisterInspector(CSelectedEntityComponent::GetTypeId(), [](auto) { /* Do nothing for hidden components */ });
-		result = result | editor.RegisterInspector(CLODStrategyComponent::GetTypeId(), DrawLODStrategyGUI);
-
-		return result;
-	}
-
-
 	template <typename TFunctionType>
 	void Header(const std::string& headerText, const TEditorContext& editorContext, TFunctionType action)
 	{
@@ -132,13 +77,11 @@ namespace TDEngine2
 	}
 
 
-	void CDefaultInspectorsRegistry::DrawInspectorHeader(const std::string& headerText, const TEditorContext& editorContext, const std::function<void(const TEditorContext&)>& action)
+	static void DrawEmptyGUI(const TEditorContext& editorContext)
 	{
-		Header(headerText, editorContext, action);
 	}
 
-
-	void CDefaultInspectorsRegistry::DrawTransformGUI(const TEditorContext& editorContext)
+	static void DrawTransformGUI(const TEditorContext& editorContext)
 	{
 		Header("Transform", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -199,7 +142,7 @@ namespace TDEngine2
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawBoundsGUI(const TEditorContext& editorContext)
+	static void DrawBoundsGUI(const TEditorContext& editorContext)
 	{
 		Header("Bounds", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -212,7 +155,7 @@ namespace TDEngine2
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawQuadSpriteGUI(const TEditorContext& editorContext)
+	static void DrawQuadSpriteGUI(const TEditorContext& editorContext)
 	{
 		Header("QuadSprite", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -226,7 +169,7 @@ namespace TDEngine2
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawStaticMeshContainerGUI(const TEditorContext& editorContext)
+	static void DrawStaticMeshContainerGUI(const TEditorContext& editorContext)
 	{
 		Header("Static Mesh Container", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -286,7 +229,7 @@ namespace TDEngine2
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawSkinnedMeshContainerGUI(const TEditorContext& editorContext)
+	static void DrawSkinnedMeshContainerGUI(const TEditorContext& editorContext)
 	{
 		Header("Skinned Mesh Container", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -347,7 +290,7 @@ namespace TDEngine2
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawShadowReceiverGUI(const TEditorContext& editorContext)
+	static void DrawShadowReceiverGUI(const TEditorContext& editorContext)
 	{
 		Header("Shadow Receiver", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -360,7 +303,7 @@ namespace TDEngine2
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawShadowCasterGUI(const TEditorContext& editorContext)
+	static void DrawShadowCasterGUI(const TEditorContext& editorContext)
 	{
 		Header("Shadow Caster", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -371,7 +314,7 @@ namespace TDEngine2
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawDirectionalLightGUI(const TEditorContext& editorContext)
+	static void DrawDirectionalLightGUI(const TEditorContext& editorContext)
 	{
 		Header("Directional Light", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -381,11 +324,11 @@ namespace TDEngine2
 			CDirectionalLight& dirLight = dynamic_cast<CDirectionalLight&>(component);
 
 			// \todo Implement this drawer
-			
+
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawPointLightGUI(const TEditorContext& editorContext)
+	static void DrawPointLightGUI(const TEditorContext& editorContext)
 	{
 		Header("Point Light", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -398,7 +341,7 @@ namespace TDEngine2
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawAnimationContainerGUI(const TEditorContext& editorContext)
+	static void DrawAnimationContainerGUI(const TEditorContext& editorContext)
 	{
 		Header("Animation Container", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -444,7 +387,7 @@ namespace TDEngine2
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawSkyboxGUI(const TEditorContext& editorContext)
+	static void DrawSkyboxGUI(const TEditorContext& editorContext)
 	{
 		IImGUIContext& imguiContext = editorContext.mImGUIContext;
 		IComponent& component = editorContext.mComponent;
@@ -452,7 +395,7 @@ namespace TDEngine2
 		Header("Skybox", editorContext, [](const TEditorContext& editorContext) {});
 	}
 
-	void CDefaultInspectorsRegistry::DrawParticleEmitterGUI(const TEditorContext& editorContext)
+	static void DrawParticleEmitterGUI(const TEditorContext& editorContext)
 	{
 		Header("Particle Emitter", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -481,7 +424,7 @@ namespace TDEngine2
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawCanvasGUI(const TEditorContext& editorContext)
+	static void DrawCanvasGUI(const TEditorContext& editorContext)
 	{
 		Header("Canvas", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -489,7 +432,7 @@ namespace TDEngine2
 			IComponent& component = editorContext.mComponent;
 
 			CCanvas& canvas = dynamic_cast<CCanvas&>(component);
-			
+
 			I32 width = canvas.GetWidth();
 			I32 height = canvas.GetHeight();
 
@@ -503,7 +446,7 @@ namespace TDEngine2
 					canvas.SetInheritSizesFromMainCamera(inheritSizesFlag);
 				}
 			}
-			
+
 			imguiContext.BeginHorizontal();
 			imguiContext.Label("Width");
 			imguiContext.IntField("##Width", width, [&canvas, &width, inheritSizesFlag] { if (inheritSizesFlag) return; canvas.SetWidth(static_cast<U32>(std::max<I32>(0, width))); });
@@ -523,7 +466,7 @@ namespace TDEngine2
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawMeshAnimatorGUI(const TEditorContext& editorContext)
+	static void DrawMeshAnimatorGUI(const TEditorContext& editorContext)
 	{
 		Header("Mesh Animator", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -564,7 +507,7 @@ namespace TDEngine2
 	}
 
 
-	void CDefaultInspectorsRegistry::DrawPerspectiveCameraGUI(const TEditorContext& editorContext)
+	static void DrawPerspectiveCameraGUI(const TEditorContext& editorContext)
 	{
 		Header("Perspective Camera", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -572,7 +515,7 @@ namespace TDEngine2
 			IComponent& component = editorContext.mComponent;
 
 			CPerspectiveCamera& camera = dynamic_cast<CPerspectiveCamera&>(component);
-			
+
 			/// \note Fov
 			{
 				F32 fov = camera.GetFOV() * CMathConstants::Rad2Deg;
@@ -597,7 +540,7 @@ namespace TDEngine2
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawOrthographicCameraGUI(const TEditorContext& editorContext)
+	static void DrawOrthographicCameraGUI(const TEditorContext& editorContext)
 	{
 		Header("Orthographic Camera", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -783,10 +726,10 @@ namespace TDEngine2
 				if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
 				{
 					auto normalizedAnchorPos = PointToNormalizedCoords(parentWorldRect, imguiContext.GetInvertedMousePosition());
-					
+
 					auto&& minAnchor = layoutElement.GetMinAnchor();
 					auto&& maxAnchor = layoutElement.GetMaxAnchor();
-					
+
 					switch (static_cast<E_ANCHOR_TYPE>(i))
 					{
 						case E_ANCHOR_TYPE::LEFT_BOTTOM:
@@ -993,7 +936,7 @@ namespace TDEngine2
 		TVector2 cursorPos = imguiContext.GetCursorScreenPos();
 
 		imguiContext.BeginHorizontal();
-		
+
 		imguiContext.DrawRect({ cursorPos.x, cursorPos.y, iconSize, iconSize }, TColorUtils::mGray);
 		imguiContext.DrawRect({ cursorPos.x + iconBorderSize, cursorPos.y + iconBorderSize, iconSize - 2.0f * iconBorderSize, iconSize - 2.0f * iconBorderSize }, TColorUtils::mBlack);
 
@@ -1009,11 +952,11 @@ namespace TDEngine2
 			const TVector2& rectSizes = presetsRectSizes[i];
 
 			imguiContext.DrawRect(
-				{ 
+				{
 					cursorPos.x + iconBorderSize + minAnchor.x * innerRectSize - ((minAnchor.x > 0.5f) ? rectSizes.x : 0.0f) - (std::abs(minAnchor.x - 0.5f) < 1e-3f ? presetRectSize * 0.5f : 0.0f),
 					cursorPos.y + iconBorderSize + (1.0f - minAnchor.y) * innerRectSize - ((minAnchor.y < 0.5f) ? rectSizes.y : 0.0f) - (std::abs(minAnchor.y - 0.5f) < 1e-3f ? presetRectSize * 0.5f : 0.0f),
-					rectSizes.x, 
-					rectSizes.y 
+					rectSizes.x,
+					rectSizes.y
 				}, TColorUtils::mWhite);
 		}
 
@@ -1025,7 +968,7 @@ namespace TDEngine2
 		imguiContext.EndHorizontal();
 	}
 
-	
+
 	static U32 FindPresetIndexByAnchors(const TVector2& minAnchor, const TVector2& maxAnchor)
 	{
 		for (U32 i = 0; i < LayoutPresetsCount; ++i)
@@ -1040,7 +983,7 @@ namespace TDEngine2
 	}
 
 
-	void CDefaultInspectorsRegistry::DrawLayoutElementGUI(const TEditorContext& editorContext)
+	static void DrawLayoutElementGUI(const TEditorContext& editorContext)
 	{
 		Header("Layout Element", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -1056,21 +999,21 @@ namespace TDEngine2
 
 			/// \note Anchors presets
 			DrawLayoutPresetIcon(editorContext, LayoutPresetsList[FindPresetIndexByAnchors(layoutElement.GetMinAnchor(), layoutElement.GetMaxAnchor())],
-				{ 
-					layoutElement.GetMinAnchor(), layoutElement.GetMaxAnchor(), 
+				{
+					layoutElement.GetMinAnchor(), layoutElement.GetMaxAnchor(),
 					[&imguiContext]
 					{
 						imguiContext.ShowModalWindow(anchorPresetsPopupId);
-					} 
+					}
 				}, true);
-			
+
 			if (imguiContext.BeginModalWindow(anchorPresetsPopupId, true))
 			{
 				for (U32 i = 0; i < LayoutPresetsCount - 1; ++i)
 				{
-					DrawLayoutPresetIcon(editorContext, LayoutPresetsList[i], 
-						{ 
-							std::get<0>(LayoutAnchorsPresets[i]), 
+					DrawLayoutPresetIcon(editorContext, LayoutPresetsList[i],
+						{
+							std::get<0>(LayoutAnchorsPresets[i]),
 							std::get<1>(LayoutAnchorsPresets[i]),
 							[&imguiContext, &layoutElement, i]
 							{
@@ -1116,7 +1059,7 @@ namespace TDEngine2
 					imguiContext.BeginHorizontal();
 					imguiContext.Label("maxOffX"); /// \todo Replace it 
 					imguiContext.FloatField("##maxOffsetX", maxOffset.x, [&maxOffset, &layoutElement] { layoutElement.SetMaxOffset(maxOffset); });
-					
+
 					imguiContext.Label("maxOffY"); /// \todo Replace it 
 					imguiContext.FloatField("##maxOffsetY", maxOffset.y, [&maxOffset, &layoutElement] { layoutElement.SetMaxOffset(maxOffset); });
 					imguiContext.EndHorizontal();
@@ -1131,7 +1074,7 @@ namespace TDEngine2
 					imguiContext.BeginHorizontal();
 					imguiContext.Label("Min Anchor:\tX"); /// \todo Replace it 
 					imguiContext.FloatField("##minAnchorX", minAnchor.x, [&minAnchor, &layoutElement] { layoutElement.SetMinAnchor(minAnchor); });
-					
+
 					imguiContext.Label("Y"); /// \todo Replace it 
 					imguiContext.FloatField("##minAnchorY", minAnchor.y, [&minAnchor, &layoutElement] { layoutElement.SetMinAnchor(minAnchor); });
 					imguiContext.EndHorizontal();
@@ -1164,7 +1107,7 @@ namespace TDEngine2
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawUIElementMeshDataGUI(const TEditorContext& editorContext)
+	static void DrawUIElementMeshDataGUI(const TEditorContext& editorContext)
 	{
 		Header("UI Element Mesh Data", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -1177,7 +1120,7 @@ namespace TDEngine2
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawImageGUI(const TEditorContext& editorContext)
+	static void DrawImageGUI(const TEditorContext& editorContext)
 	{
 		Header("Image", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -1209,7 +1152,7 @@ namespace TDEngine2
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawInputReceiverGUI(const TEditorContext& editorContext)
+	static void DrawInputReceiverGUI(const TEditorContext& editorContext)
 	{
 		Header("Input Receiver", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -1237,7 +1180,7 @@ namespace TDEngine2
 				imguiContext.Label(Wrench::StringUtils::Format(
 					"On Pressed: {0}\nNormalized Input Pos: ({1}; {2})\nHovered: {3}\nFocused: {4}\nMouse delta: {5}",
 					inputReceiver.mCurrState ? "pressed" : "none",
-					inputReceiver.mNormalizedInputPosition.x, 
+					inputReceiver.mNormalizedInputPosition.x,
 					inputReceiver.mNormalizedInputPosition.y,
 					inputReceiver.mIsHovered ? "true" : "false",
 					inputReceiver.mIsFocused ? "true" : "false",
@@ -1248,7 +1191,7 @@ namespace TDEngine2
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawLabelGUI(const TEditorContext& editorContext)
+	static void DrawLabelGUI(const TEditorContext& editorContext)
 	{
 		Header("Label", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -1358,7 +1301,7 @@ namespace TDEngine2
 		});
 	}
 
-	void CDefaultInspectorsRegistry::Draw9SliceImageGUI(const TEditorContext& editorContext)
+	static void Draw9SliceImageGUI(const TEditorContext& editorContext)
 	{
 		Header("9SliceImage", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -1380,7 +1323,7 @@ namespace TDEngine2
 			const F32 previewSizes = imguiContext.GetWindowWidth() * 0.7f;
 
 			imguiContext.Label("Image Preview:");
-			
+
 			const TVector2 cursorPos = imguiContext.GetCursorScreenPos();
 
 			imguiContext.Image(slicedImage.GetImageResourceId(), TVector2(previewSizes));
@@ -1399,7 +1342,7 @@ namespace TDEngine2
 
 				const TVector2 topYSlicerStart = cursorPos + TVector2(0.0f, previewSizes * (1.0f - slicedImage.GetTopYSlicer()));
 				imguiContext.DrawLine(topYSlicerStart, topYSlicerStart + TVector2(previewSizes, 0.0f), TColorUtils::mGreen);
-			}			
+			}
 
 			/// \note left x slicer's slider
 			{
@@ -1452,7 +1395,7 @@ namespace TDEngine2
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawGridGroupLayoutGUI(const TEditorContext& editorContext)
+	static void DrawGridGroupLayoutGUI(const TEditorContext& editorContext)
 	{
 		Header("Grid Group Layout", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -1506,7 +1449,7 @@ namespace TDEngine2
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawToggleGUI(const TEditorContext& editorContext)
+	static void DrawToggleGUI(const TEditorContext& editorContext)
 	{
 		Header("Toggle", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -1535,7 +1478,7 @@ namespace TDEngine2
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Marker Entity: ");
-				
+
 				CImGUIExtensions::EntityRefField(imguiContext, editorContext.mWorld, Wrench::StringUtils::GetEmptyStr(), currMarkerEntityId, [&currMarkerEntityId, &toggle]
 				{
 					toggle.SetMarkerEntityId(currMarkerEntityId);
@@ -1546,7 +1489,7 @@ namespace TDEngine2
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawUISliderGUI(const TEditorContext& editorContext)
+	static void DrawUISliderGUI(const TEditorContext& editorContext)
 	{
 		Header("UI Slider", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -1586,21 +1529,30 @@ namespace TDEngine2
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawUIMaskGUI(const TEditorContext& editorContext)
+	static void DrawUIMaskGUI(const TEditorContext& editorContext)
 	{
 		Header("UI Mask", editorContext, [](const TEditorContext& editorContext)
 		{
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawScrollUIAreaGUI(const TEditorContext& editorContext)
+	static void DrawScrollUIAreaGUI(const TEditorContext& editorContext)
 	{
 		Header("Scroll UI Area", editorContext, [](const TEditorContext& editorContext)
 		{
+			/// \todo implement later
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawBoxCollision2DGUI(const TEditorContext& editorContext)
+	static void DrawDropDownGUI(const TEditorContext& editorContext)
+	{
+		Header("Drop Down", editorContext, [](const TEditorContext& editorContext)
+		{
+			/// \todo implement later
+		});
+	}
+
+	static void DrawBoxCollision2DGUI(const TEditorContext& editorContext)
 	{
 		Header("BoxCollision2D", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -1613,7 +1565,7 @@ namespace TDEngine2
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawCircleCollision2DGUI(const TEditorContext& editorContext)
+	static void DrawCircleCollision2DGUI(const TEditorContext& editorContext)
 	{
 		Header("CircleCollision2D", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -1625,7 +1577,7 @@ namespace TDEngine2
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawTrigger2DGUI(const TEditorContext& editorContext)
+	static void DrawTrigger2DGUI(const TEditorContext& editorContext)
 	{
 		Header("Trigger2D", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -1638,7 +1590,7 @@ namespace TDEngine2
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawAudioSourceGUI(const TEditorContext& editorContext)
+	static void DrawAudioSourceGUI(const TEditorContext& editorContext)
 	{
 		Header("Audio Source", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -1667,7 +1619,7 @@ namespace TDEngine2
 		});
 	}
 
-	void CDefaultInspectorsRegistry::DrawAudioListenerGUI(const TEditorContext& editorContext)
+	static void DrawAudioListenerGUI(const TEditorContext& editorContext)
 	{
 		Header("Audio Listener", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -1676,8 +1628,8 @@ namespace TDEngine2
 
 		});
 	}
-	
-	void CDefaultInspectorsRegistry::DrawLODStrategyGUI(const TEditorContext& editorContext)
+
+	static void DrawLODStrategyGUI(const TEditorContext& editorContext)
 	{
 		Header("LOD Strategy", editorContext, [](const TEditorContext& editorContext)
 		{
@@ -1697,7 +1649,7 @@ namespace TDEngine2
 						imguiContext.BeginHorizontal();
 						imguiContext.Label("Switch Distance: ");
 						imguiContext.FloatField("##SwitchDistance", distance, [&lodStrategy, &distance, &lodInfo]
-						{ 
+						{
 							if (distance != lodInfo.mSwitchDistance)
 							{
 								lodInfo.mSwitchDistance = distance;
@@ -1773,7 +1725,7 @@ namespace TDEngine2
 				{
 					E_RESULT_CODE result = lodStrategy.RemoveLODInstance(static_cast<U32>(id));
 					TDE2_ASSERT(RC_OK == result);
-					
+
 					return false; /// Interrupt the iteration loop to prevent corruption of the iterator
 				}
 
@@ -1785,6 +1737,64 @@ namespace TDEngine2
 				lodStrategy.AddLODInstance({});
 			}
 		});
+	}
+
+
+	E_RESULT_CODE CDefaultInspectorsRegistry::RegisterBuiltinInspectors(CLevelEditorWindow& editor)
+	{
+		E_RESULT_CODE result = editor.RegisterInspector(CTransform::GetTypeId(), DrawTransformGUI);
+		result = result | editor.RegisterInspector(CDeactivatedComponent::GetTypeId(), DrawEmptyGUI);
+		result = result | editor.RegisterInspector(CDeactivatedGroupComponent::GetTypeId(), DrawEmptyGUI);
+		result = result | editor.RegisterInspector(CBoundsComponent::GetTypeId(), DrawBoundsGUI);
+
+		/// Graphics
+		result = result | editor.RegisterInspector(CQuadSprite::GetTypeId(), DrawQuadSpriteGUI);
+		result = result | editor.RegisterInspector(CStaticMeshContainer::GetTypeId(), DrawStaticMeshContainerGUI);
+		result = result | editor.RegisterInspector(CSkinnedMeshContainer::GetTypeId(), DrawSkinnedMeshContainerGUI);
+		result = result | editor.RegisterInspector(CShadowReceiverComponent::GetTypeId(), DrawShadowReceiverGUI);
+		result = result | editor.RegisterInspector(CShadowCasterComponent::GetTypeId(), DrawShadowCasterGUI);
+		result = result | editor.RegisterInspector(CDirectionalLight::GetTypeId(), DrawDirectionalLightGUI);
+		result = result | editor.RegisterInspector(CPointLight::GetTypeId(), DrawPointLightGUI);
+		result = result | editor.RegisterInspector(CAnimationContainerComponent::GetTypeId(), DrawAnimationContainerGUI);
+		result = result | editor.RegisterInspector(CSkyboxComponent::GetTypeId(), DrawSkyboxGUI);
+		result = result | editor.RegisterInspector(CParticleEmitter::GetTypeId(), DrawParticleEmitterGUI);
+		result = result | editor.RegisterInspector(CMeshAnimatorComponent::GetTypeId(), DrawMeshAnimatorGUI);
+		result = result | editor.RegisterInspector(CPerspectiveCamera::GetTypeId(), DrawPerspectiveCameraGUI);
+		result = result | editor.RegisterInspector(COrthoCamera::GetTypeId(), DrawOrthographicCameraGUI);
+
+		result = result | editor.RegisterInspector(CCanvas::GetTypeId(), DrawCanvasGUI);
+		result = result | editor.RegisterInspector(CLayoutElement::GetTypeId(), DrawLayoutElementGUI);
+		result = result | editor.RegisterInspector(CUIElementMeshData::GetTypeId(), DrawUIElementMeshDataGUI);
+		result = result | editor.RegisterInspector(CImage::GetTypeId(), DrawImageGUI);
+		result = result | editor.RegisterInspector(CInputReceiver::GetTypeId(), DrawInputReceiverGUI);
+		result = result | editor.RegisterInspector(CLabel::GetTypeId(), DrawLabelGUI);
+		result = result | editor.RegisterInspector(C9SliceImage::GetTypeId(), Draw9SliceImageGUI);
+		result = result | editor.RegisterInspector(CGridGroupLayout::GetTypeId(), DrawGridGroupLayoutGUI);
+		result = result | editor.RegisterInspector(CToggle::GetTypeId(), DrawToggleGUI);
+		result = result | editor.RegisterInspector(CUISlider::GetTypeId(), DrawUISliderGUI);
+		result = result | editor.RegisterInspector(CUIMaskComponent::GetTypeId(), DrawUIMaskGUI);
+		result = result | editor.RegisterInspector(CScrollableUIArea::GetTypeId(), DrawScrollUIAreaGUI);
+		result = result | editor.RegisterInspector(CDropDown::GetTypeId(), DrawDropDownGUI);
+
+		/// 2D Physics
+		result = result | editor.RegisterInspector(CBoxCollisionObject2D::GetTypeId(), DrawBoxCollision2DGUI);
+		result = result | editor.RegisterInspector(CCircleCollisionObject2D::GetTypeId(), DrawCircleCollision2DGUI);
+		result = result | editor.RegisterInspector(CTrigger2D::GetTypeId(), DrawTrigger2DGUI);
+
+		/// Audio
+		result = result | editor.RegisterInspector(CAudioListenerComponent::GetTypeId(), DrawAudioListenerGUI);
+		result = result | editor.RegisterInspector(CAudioSourceComponent::GetTypeId(), DrawAudioSourceGUI);
+
+		/// Scenes
+		result = result | editor.RegisterInspector(CSelectedEntityComponent::GetTypeId(), [](auto) { /* Do nothing for hidden components */ });
+		result = result | editor.RegisterInspector(CLODStrategyComponent::GetTypeId(), DrawLODStrategyGUI);
+
+		return result;
+	}
+
+	void CDefaultInspectorsRegistry::DrawInspectorHeader(const std::string& headerText, const TEditorContext& editorContext, const std::function<void(const TEditorContext&)>& action)
+	{
+		Header(headerText, editorContext, action);
 	}
 }
 
