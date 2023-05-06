@@ -11,6 +11,7 @@
 #include "../../include/graphics/UI/CLayoutElementComponent.h"
 #include "../../include/graphics/UI/CInputReceiverComponent.h"
 #include "../../include/graphics/UI/CToggleComponent.h"
+#include "../../include/graphics/UI/CImageComponent.h"
 #include "../../include/graphics/UI/C9SliceImageComponent.h"
 #include "../../include/graphics/UI/CUISliderComponent.h"
 #include "../../include/graphics/UI/CInputFieldComponent.h"
@@ -247,6 +248,58 @@ namespace TDEngine2
 			}
 
 			GroupEntities(pWorld.Get(), pToggleEntity->GetId(), pMarkerEntity->GetId());
+		}
+
+		return rootEntityResult;
+	}
+
+	TResult<TEntityId> CSceneHierarchyUtils::CreateImageUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op)
+	{
+		auto rootEntityResult = CreateNewEntityInternal("Image", pWorld, pCurrScene, parentEntityId, op);
+		if (rootEntityResult.HasError())
+		{
+			return rootEntityResult;
+		}
+
+		if (auto pImageEntity = pWorld->FindEntity(rootEntityResult.Get()))
+		{
+			if (auto pLayoutElement = pImageEntity->AddComponent<CLayoutElement>())
+			{
+				pLayoutElement->SetMinAnchor(ZeroVector2);
+				pLayoutElement->SetMaxAnchor(ZeroVector2);
+				pLayoutElement->SetMinOffset(ZeroVector2);
+				pLayoutElement->SetMaxOffset(TVector2(100.0f));
+			}
+
+			if (auto pImage = pImageEntity->AddComponent<CImage>())
+			{
+				pImage->SetImageId(DefaultSpritePathId);
+				pImage->SetColor(TColorUtils::mWhite);
+			}
+		}
+
+		return rootEntityResult;
+	}
+
+	TResult<TEntityId> CSceneHierarchyUtils::Create9SliceImageUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op)
+	{
+		auto rootEntityResult = CreateNewEntityInternal("9SlicedImage", pWorld, pCurrScene, parentEntityId, op);
+		if (rootEntityResult.HasError())
+		{
+			return rootEntityResult;
+		}
+
+		if (auto pImageEntity = pWorld->FindEntity(rootEntityResult.Get()))
+		{
+			if (auto pLayoutElement = pImageEntity->AddComponent<CLayoutElement>())
+			{
+				pLayoutElement->SetMinAnchor(ZeroVector2);
+				pLayoutElement->SetMaxAnchor(ZeroVector2);
+				pLayoutElement->SetMinOffset(ZeroVector2);
+				pLayoutElement->SetMaxOffset(TVector2(100.0f));
+			}
+
+			Setup9ImageSliceComponent(pImageEntity, DefaultSpritePathId, TColorUtils::mWhite);
 		}
 
 		return rootEntityResult;

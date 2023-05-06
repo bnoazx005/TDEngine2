@@ -204,25 +204,24 @@ namespace TDEngine2
 
 			imguiContext.MenuGroup("UI", [&](auto&&)
 			{
-				imguiContext.MenuItem("Canvas", Wrench::StringUtils::GetEmptyStr(), [=]
+				static auto operations =
 				{
-					CSceneHierarchyUtils::CreateCanvasUIElement(pWorld, pCurrScene, pSelectionManager->GetSelectedEntityId(), updateSelection);
-				});
+					std::make_tuple("Canvas", CSceneHierarchyUtils::CreateCanvasUIElement),
+					std::make_tuple("Image", CSceneHierarchyUtils::CreateImageUIElement),
+					std::make_tuple("9Slice Image", CSceneHierarchyUtils::Create9SliceImageUIElement),
+					std::make_tuple("Toggle", CSceneHierarchyUtils::CreateToggleUIElement),
+					std::make_tuple("Slider", CSceneHierarchyUtils::CreateSliderUIElement),
+					std::make_tuple("Input Field", CSceneHierarchyUtils::CreateInputFieldUIElement),
+					std::make_tuple("Scroll Area", CSceneHierarchyUtils::CreateScrollUIArea),
+				};
 
-				imguiContext.MenuItem("Toggle", Wrench::StringUtils::GetEmptyStr(), [=]
+				for (auto&& currOperation : operations)
 				{
-					CSceneHierarchyUtils::CreateToggleUIElement(pWorld, pCurrScene, pSelectionManager->GetSelectedEntityId(), updateSelection);
-				}); 
-				
-				imguiContext.MenuItem("Slider", Wrench::StringUtils::GetEmptyStr(), [=]
-				{
-					CSceneHierarchyUtils::CreateSliderUIElement(pWorld, pCurrScene, pSelectionManager->GetSelectedEntityId(), updateSelection);
-				});
-
-				imguiContext.MenuItem("Input Field", Wrench::StringUtils::GetEmptyStr(), [=]
-				{
-					CSceneHierarchyUtils::CreateInputFieldUIElement(pWorld, pCurrScene, pSelectionManager->GetSelectedEntityId(), updateSelection);
-				});
+					imguiContext.MenuItem(std::get<0>(currOperation), Wrench::StringUtils::GetEmptyStr(), [=]
+					{
+						std::get<1>(currOperation)(pWorld, pCurrScene, pSelectionManager->GetSelectedEntityId(), updateSelection);
+					});
+				}
 			});
 		});
 	}

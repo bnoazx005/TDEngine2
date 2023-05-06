@@ -581,13 +581,13 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 				}
 			}
 #endif
-
+#if 0
 			auto canvasEntityResult = CSceneHierarchyUtils::CreateCanvasUIElement(mpWorld, pScene, TEntityId::Invalid, [](auto) {});
-			CSceneHierarchyUtils::CreateInputFieldUIElement(mpWorld, pScene, canvasEntityResult.Get(), [](auto) {}).Get();
-#if 1
+			CSceneHierarchyUtils::CreateInputFieldUIElement(mpWorld, pScene, canvasEntityResult.Get(), [](auto) {});
+
 			if (auto pEntity = mpWorld->FindEntity(CSceneHierarchyUtils::CreateScrollUIArea(mpWorld, pScene, canvasEntityResult.Get(), [](auto) {}).Get()))
 			{
-				CSceneHierarchyUtils::CreateInputFieldUIElement(mpWorld, pScene, pEntity->GetComponent<CTransform>()->GetChildren().front(), [](auto) {}).Get();
+				CSceneHierarchyUtils::CreateInputFieldUIElement(mpWorld, pScene, pEntity->GetComponent<CTransform>()->GetChildren().front(), [](auto) {});
 
 				if (auto pLayout = pEntity->AddComponent<CLayoutElement>())
 				{

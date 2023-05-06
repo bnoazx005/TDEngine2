@@ -45,7 +45,11 @@ namespace TDEngine2
 			TDE2_API static TResult<TEntityId> PasteEntitiesHierarchy(TPtr<IPrefabsRegistry> pPrefabsRegistry, TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
 
 			TDE2_API static TResult<TEntityId> CreateNewEntity(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
+
+			/// \note UI basic elements
 			TDE2_API static TResult<TEntityId> CreateCanvasUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
+			TDE2_API static TResult<TEntityId> CreateImageUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
+			TDE2_API static TResult<TEntityId> Create9SliceImageUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
 			TDE2_API static TResult<TEntityId> CreateToggleUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
 			TDE2_API static TResult<TEntityId> CreateSliderUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
 			TDE2_API static TResult<TEntityId> CreateInputFieldUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
