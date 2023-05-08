@@ -76,30 +76,30 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
-			void SetValue(const std::string& value);
-			void SetCursorEntityId(TEntityId cursorId);
-			void SetLabelEntityId(TEntityId labelId);
+			TDE2_API void SetValue(const std::string& value);
+			TDE2_API void SetCursorEntityId(TEntityId cursorId);
+			TDE2_API void SetLabelEntityId(TEntityId labelId);
 
-			void SetEditingFlag(bool state);
-			void ResetChanges();
+			TDE2_API void SetEditingFlag(bool state);
+			TDE2_API void ResetChanges();
 
-			void SetCaretPosition(I32 value);
-			void SetFirstVisibleCharPosition(I32 value);
-			void SetLastVisibleCharPosition(I32 value);
-			void SetCaretBlinkRate(F32 value);
-			void SetCaretBlinkTimer(F32 value);
+			TDE2_API void SetCaretPosition(I32 value);
+			TDE2_API void SetFirstVisibleCharPosition(I32 value);
+			TDE2_API void SetLastVisibleCharPosition(I32 value);
+			TDE2_API void SetCaretBlinkRate(F32 value);
+			TDE2_API void SetCaretBlinkTimer(F32 value);
 
-			const std::string& GetValue() const;
-			TEntityId GetCursorEntityId() const;
-			TEntityId GetLabelEntityId() const;
+			TDE2_API const std::string& GetValue() const;
+			TDE2_API TEntityId GetCursorEntityId() const;
+			TDE2_API TEntityId GetLabelEntityId() const;
 
-			bool IsEditing() const;
+			TDE2_API bool IsEditing() const;
 
-			I32 GetCaretPosition() const;
-			I32 GetFirstVisibleCharPosition() const;
-			I32 GetLastVisibleCharPosition() const;
-			F32 GetCaretBlinkRate() const;
-			F32 GetCaretBlinkTimer() const;
+			TDE2_API I32 GetCaretPosition() const;
+			TDE2_API I32 GetFirstVisibleCharPosition() const;
+			TDE2_API I32 GetLastVisibleCharPosition() const;
+			TDE2_API F32 GetCaretBlinkRate() const;
+			TDE2_API F32 GetCaretBlinkTimer() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CInputField)
 		protected:
