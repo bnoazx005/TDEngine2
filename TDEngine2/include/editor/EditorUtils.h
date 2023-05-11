@@ -49,11 +49,13 @@ namespace TDEngine2
 			/// \note UI basic elements
 			TDE2_API static TResult<TEntityId> CreateCanvasUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
 			TDE2_API static TResult<TEntityId> CreateImageUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
+			TDE2_API static TResult<TEntityId> CreateLabelElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
 			TDE2_API static TResult<TEntityId> Create9SliceImageUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
 			TDE2_API static TResult<TEntityId> CreateToggleUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
 			TDE2_API static TResult<TEntityId> CreateSliderUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
 			TDE2_API static TResult<TEntityId> CreateInputFieldUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
 			TDE2_API static TResult<TEntityId> CreateScrollUIArea(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
+			TDE2_API static TResult<TEntityId> CreateDropDownUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
 	};
 
 

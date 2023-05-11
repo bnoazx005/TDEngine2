@@ -715,10 +715,11 @@ namespace TDEngine2
 		mCanvasesContext         = CreateCanvasesContext(pWorld, checkAndAssignLayoutElements);
 		mGridGroupLayoutsContext = CreateGridGroupLayoutsContext(pWorld, checkAndAssignLayoutElements);
 
-		mTogglesContext = pWorld->CreateLocalComponentsSlice<CToggle, CInputReceiver>();
-		mSlidersContext = pWorld->CreateLocalComponentsSlice<CUISlider, CLayoutElement, CInputReceiver>();
-		mInputFieldsContext = pWorld->CreateLocalComponentsSlice<CInputField, CLayoutElement, CInputReceiver>();
-		mScrollAreasContext = pWorld->CreateLocalComponentsSlice<CScrollableUIArea, CLayoutElement, CInputReceiver>();
+		mTogglesContext          = pWorld->CreateLocalComponentsSlice<CToggle, CInputReceiver>();
+		mSlidersContext          = pWorld->CreateLocalComponentsSlice<CUISlider, CLayoutElement, CInputReceiver>();
+		mInputFieldsContext      = pWorld->CreateLocalComponentsSlice<CInputField, CLayoutElement, CInputReceiver>();
+		mScrollAreasContext      = pWorld->CreateLocalComponentsSlice<CScrollableUIArea, CLayoutElement, CInputReceiver>();
+		mDropDownElementsContext = pWorld->CreateLocalComponentsSlice<CDropDown, CLayoutElement, CInputReceiver>();
 
 		mImagesContext       = CreateUIRenderableContext<CImage>(pWorld);
 		mSlicedImagesContext = CreateUIRenderableContext<C9SliceImage>(pWorld);
@@ -1149,6 +1150,70 @@ namespace TDEngine2
 	}
 
 
+	static inline void UpdateDropDownElements(CUIElementsProcessSystem::TDropDownElementsContext& context, IWorld* pWorld, ISystem* pSystem)
+	{
+		auto&& dropDownElements = std::get<std::vector<CDropDown*>>(context.mComponentsSlice);
+		auto&& dropDownLayoutElements = std::get<std::vector<CLayoutElement*>>(context.mComponentsSlice);
+		auto&& inputReceivers = std::get<std::vector<CInputReceiver*>>(context.mComponentsSlice);
+
+		for (USIZE i = 0; i < context.mComponentsCount; i++)
+		{
+			auto pCurrDropDown = dropDownElements[i];
+			if (!pCurrDropDown)
+			{
+				continue;
+			}
+
+			auto pDropDownLayoutElement = dropDownLayoutElements[i];
+			if (!pDropDownLayoutElement)
+			{
+				continue;
+			}
+
+			CInputReceiver* pCurrInputReceiver = inputReceivers[i];
+			if (!pCurrInputReceiver)
+			{
+				continue;
+			}
+
+			auto pLabelEntity = pWorld->FindEntity(pCurrDropDown->GetLabelEntityId());
+			if (!pLabelEntity)
+			{
+				continue;
+			}
+
+			auto pLabel = pLabelEntity->GetComponent<CLabel>();
+			if (!pLabel)
+			{
+				continue;
+			}
+
+			auto&& items = pCurrDropDown->GetItems();
+			U32 selectedItemIndex = pCurrDropDown->GetSelectedItem();
+
+			pLabel->SetText(selectedItemIndex < items.size() ? items[selectedItemIndex] : Wrench::StringUtils::GetEmptyStr());
+
+			SetEntityActive(pWorld, pCurrDropDown->GetContentEntityId(), pCurrDropDown->IsExpanded());
+
+			if (!pCurrInputReceiver->mIsFocused || items.empty())
+			{
+				pCurrDropDown->SetExpanded(false);
+
+				continue;
+			}
+
+			pCurrDropDown->SetExpanded(true);
+
+			auto&& itemEntities = pCurrDropDown->GetItemsEntities();
+
+			if (itemEntities.empty())
+			{
+
+			}
+		}
+	}
+
+
 	template <typename T>
 	static inline void DiscardDirtyFlagForElements(T& context)
 	{
@@ -1246,6 +1311,7 @@ namespace TDEngine2
 		UpdateSlidersElements(mSlidersContext, pWorld, this);
 		UpdateInputFieldsElements(mInputFieldsContext, pWorld, this, mpResourceManager, dt);
 		UpdateScrollableAreasElements(mScrollAreasContext, pWorld, this, dt);
+		UpdateDropDownElements(mDropDownElementsContext, pWorld, this);
 	}
 
 

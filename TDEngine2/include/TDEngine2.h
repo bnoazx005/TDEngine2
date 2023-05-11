@@ -191,6 +191,7 @@
 #include "graphics/UI/CUISliderComponent.h"
 #include "graphics/UI/CInputFieldComponent.h"
 #include "graphics/UI/CScrollableUIAreaComponent.h"
+#include "graphics/UI/CDropDownComponent.h"
 
 /// audio
 #include "audio/IAudioSource.h"

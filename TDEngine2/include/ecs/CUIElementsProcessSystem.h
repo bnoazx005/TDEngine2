@@ -15,6 +15,7 @@
 #include "../graphics/UI/CInputReceiverComponent.h"
 #include "../graphics/UI/CInputFieldComponent.h"
 #include "../graphics/UI/CScrollableUIAreaComponent.h"
+#include "../graphics/UI/CDropDownComponent.h"
 #include <vector>
 
 
@@ -87,10 +88,11 @@ namespace TDEngine2
 				std::vector<TEntityId>       mEntities;
 			};
 
-			typedef TComponentsQueryLocalSlice<CToggle, CInputReceiver>                     TTogglesContext;
-			typedef TComponentsQueryLocalSlice<CUISlider, CLayoutElement, CInputReceiver>   TSlidersContext;
-			typedef TComponentsQueryLocalSlice<CInputField, CLayoutElement, CInputReceiver> TInputFieldsContext;
+			typedef TComponentsQueryLocalSlice<CToggle, CInputReceiver>                           TTogglesContext;
+			typedef TComponentsQueryLocalSlice<CUISlider, CLayoutElement, CInputReceiver>         TSlidersContext;
+			typedef TComponentsQueryLocalSlice<CInputField, CLayoutElement, CInputReceiver>       TInputFieldsContext;
 			typedef TComponentsQueryLocalSlice<CScrollableUIArea, CLayoutElement, CInputReceiver> TScrollableAreasContext;
+			typedef TComponentsQueryLocalSlice<CDropDown, CLayoutElement, CInputReceiver>         TDropDownElementsContext;
 		public:
 			TDE2_SYSTEM(CUIElementsProcessSystem);
 
@@ -133,6 +135,7 @@ namespace TDEngine2
 			TSlidersContext                            mSlidersContext;
 			TInputFieldsContext                        mInputFieldsContext;
 			TScrollableAreasContext                    mScrollAreasContext;
+			TDropDownElementsContext                   mDropDownElementsContext;
 
 			TUIRenderableElementsContext<CImage>       mImagesContext;
 			TUIRenderableElementsContext<C9SliceImage> mSlicedImagesContext;

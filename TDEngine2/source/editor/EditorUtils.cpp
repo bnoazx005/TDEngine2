@@ -18,6 +18,7 @@
 #include "../../include/graphics/UI/CCanvasComponent.h"
 #include "../../include/graphics/UI/CLabelComponent.h"
 #include "../../include/graphics/UI/CScrollableUIAreaComponent.h"
+#include "../../include/graphics/UI/CDropDownComponent.h"
 #include "../../include/core/IFont.h"
 #include "../../include/core/IImGUIContext.h"
 #include <clip.h>
@@ -207,6 +208,19 @@ namespace TDEngine2
 	}
 
 
+	static void SetupImageComponent(CEntity* pEntity, const std::string& imageId, const TColor32F& color = TColorUtils::mWhite)
+	{
+		auto pImage = pEntity->AddComponent<CImage>();
+		if (!pImage)
+		{
+			return;
+		}
+
+		pImage->SetImageId(imageId);
+		pImage->SetColor(color);
+	}
+
+
 	TResult<TEntityId> CSceneHierarchyUtils::CreateToggleUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op)
 	{
 		auto rootEntityResult = CreateNewEntityInternal("Toggle", pWorld, pCurrScene, parentEntityId, op);
@@ -253,6 +267,37 @@ namespace TDEngine2
 		return rootEntityResult;
 	}
 
+	TResult<TEntityId> CSceneHierarchyUtils::CreateLabelElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op)
+	{
+		auto rootEntityResult = CreateNewEntityInternal("Text", pWorld, pCurrScene, parentEntityId, op);
+		if (rootEntityResult.HasError())
+		{
+			return rootEntityResult;
+		}
+
+		if (auto pLabelEntity = pWorld->FindEntity(rootEntityResult.Get()))
+		{
+			if (auto pLayoutElement = pLabelEntity->AddComponent<CLayoutElement>())
+			{
+				pLayoutElement->SetMinAnchor(ZeroVector2);
+				pLayoutElement->SetMaxAnchor(TVector2(1.0f));
+				pLayoutElement->SetMinOffset(ZeroVector2);
+				pLayoutElement->SetMaxOffset(ZeroVector2);
+			}
+
+			if (auto pLabel = pLabelEntity->AddComponent<CLabel>())
+			{
+				pLabel->SetFontId("OpenSans.font");
+				pLabel->SetTextHeight(24);
+				pLabel->SetColor(TColorUtils::mBlack);
+				pLabel->SetAlignType(E_FONT_ALIGN_POLICY::LEFT_CENTER);
+				pLabel->SetText(Wrench::StringUtils::GetEmptyStr());
+			}
+		}
+
+		return rootEntityResult;
+	}
+
 	TResult<TEntityId> CSceneHierarchyUtils::CreateImageUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op)
 	{
 		auto rootEntityResult = CreateNewEntityInternal("Image", pWorld, pCurrScene, parentEntityId, op);
@@ -271,11 +316,7 @@ namespace TDEngine2
 				pLayoutElement->SetMaxOffset(TVector2(100.0f));
 			}
 
-			if (auto pImage = pImageEntity->AddComponent<CImage>())
-			{
-				pImage->SetImageId(DefaultSpritePathId);
-				pImage->SetColor(TColorUtils::mWhite);
-			}
+			SetupImageComponent(pImageEntity, DefaultSpritePathId, TColorUtils::mWhite);
 		}
 
 		return rootEntityResult;
@@ -407,38 +448,18 @@ namespace TDEngine2
 					pLayoutElement->SetMaxOffset(TVector2(2.0f, 0.0f));
 				}
 
-				Setup9ImageSliceComponent(pCursorEntity, DefaultSpritePathId, TColorUtils::mBlack);
+				SetupImageComponent(pCursorEntity, DefaultSpritePathId, TColorUtils::mBlack);
 			}
 
-			auto pLabelEntity = pCurrScene->CreateEntity("Text");
-			{
-				if (auto pLayoutElement = pLabelEntity->AddComponent<CLayoutElement>())
-				{
-					pLayoutElement->SetMinAnchor(ZeroVector2);
-					pLayoutElement->SetMaxAnchor(TVector2(1.0f));
-					pLayoutElement->SetMinOffset(ZeroVector2);
-					pLayoutElement->SetMaxOffset(ZeroVector2);
-				}
-
-				if (auto pLabel = pLabelEntity->AddComponent<CLabel>())
-				{
-					pLabel->SetFontId("OpenSans.font");
-					pLabel->SetTextHeight(24);
-					pLabel->SetColor(TColorUtils::mBlack);
-					pLabel->SetAlignType(E_FONT_ALIGN_POLICY::LEFT_CENTER);
-					pLabel->SetText(Wrench::StringUtils::GetEmptyStr());
-				}
-			}
+			auto&& labelResult = CreateLabelElement(pWorld, pCurrScene, pInputFieldEntity->GetId(), [](auto) {});
 
 			if (auto pInputField = pInputFieldEntity->AddComponent<CInputField>())
 			{
 				pInputField->SetCursorEntityId(pCursorEntity->GetId());
-				pInputField->SetLabelEntityId(pLabelEntity->GetId());
-				
+				pInputField->SetLabelEntityId(labelResult.Get());
 			}
 
 			GroupEntities(pWorld.Get(), pInputFieldEntity->GetId(), pCursorEntity->GetId());
-			GroupEntities(pWorld.Get(), pInputFieldEntity->GetId(), pLabelEntity->GetId());
 		}
 
 		return rootEntityResult;
@@ -483,6 +504,70 @@ namespace TDEngine2
 			pScrollableEntity->AddComponent<CUIMaskComponent>();
 
 			GroupEntities(pWorld.Get(), pScrollableEntity->GetId(), pContentEntity->GetId());
+		}
+
+		return rootEntityResult;
+	}
+
+	TResult<TEntityId> CSceneHierarchyUtils::CreateDropDownUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op)
+	{
+		static constexpr F32 elementHeight = 32.0f;
+
+		auto rootEntityResult = CreateNewEntityInternal("DropDown", pWorld, pCurrScene, parentEntityId, op);
+		if (rootEntityResult.HasError())
+		{
+			return rootEntityResult;
+		}
+
+		if (auto pDropDownEntity = pWorld->FindEntity(rootEntityResult.Get()))
+		{
+			pDropDownEntity->AddComponent<CInputReceiver>();
+
+			if (auto pLayoutElement = pDropDownEntity->AddComponent<CLayoutElement>())
+			{
+				pLayoutElement->SetMinAnchor(ZeroVector2);
+				pLayoutElement->SetMaxAnchor(ZeroVector2);
+				pLayoutElement->SetMinOffset(ZeroVector2);
+				pLayoutElement->SetMaxOffset(TVector2(250.0f, elementHeight));
+			}
+
+			Setup9ImageSliceComponent(pDropDownEntity, DefaultSpritePathId, TColor32F(0.35f));
+
+			auto&& labelResult = CreateLabelElement(pWorld, pCurrScene, pDropDownEntity->GetId(), [](auto) {});
+
+			auto pContentEntity = pCurrScene->CreateEntity("Content");
+			{
+				if (auto pLayoutElement = pContentEntity->AddComponent<CLayoutElement>())
+				{
+					pLayoutElement->SetMinAnchor(ZeroVector2);
+					pLayoutElement->SetMaxAnchor(TVector2(1.0f, 0.0f));
+					pLayoutElement->SetMinOffset(TVector2(0.0f, -120.0f));
+					pLayoutElement->SetMaxOffset(TVector2(0.0f, 10.0f));
+				}
+
+				Setup9ImageSliceComponent(pContentEntity, DefaultSpritePathId, TColor32F(0.35f));
+
+				auto&& scrollerResult = CreateScrollUIArea(pWorld, pCurrScene, pContentEntity->GetId(), [](auto) {});
+
+				if (auto pScrollerEntity = pWorld->FindEntity(scrollerResult.Get()))
+				{
+					if (auto pScrollerLayoutElement = pScrollerEntity->GetComponent<CLayoutElement>())
+					{
+						pScrollerLayoutElement->SetMinAnchor(ZeroVector2);
+						pScrollerLayoutElement->SetMaxAnchor(TVector2(1.0f));
+						pScrollerLayoutElement->SetMinOffset(ZeroVector2);
+						pScrollerLayoutElement->SetMaxOffset(ZeroVector2);
+					}
+				}
+			}
+
+			if (auto pDropDown = pDropDownEntity->AddComponent<CDropDown>())
+			{
+				pDropDown->SetLabelEntityId(labelResult.Get());
+				pDropDown->SetContentEntityId(pContentEntity->GetId());
+			}
+
+			GroupEntities(pWorld.Get(), pDropDownEntity->GetId(), pContentEntity->GetId());
 		}
 
 		return rootEntityResult;

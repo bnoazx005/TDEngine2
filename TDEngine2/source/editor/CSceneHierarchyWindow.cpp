@@ -207,12 +207,14 @@ namespace TDEngine2
 				static auto operations =
 				{
 					std::make_tuple("Canvas", CSceneHierarchyUtils::CreateCanvasUIElement),
+					std::make_tuple("Label", CSceneHierarchyUtils::CreateLabelElement),
 					std::make_tuple("Image", CSceneHierarchyUtils::CreateImageUIElement),
 					std::make_tuple("9Slice Image", CSceneHierarchyUtils::Create9SliceImageUIElement),
 					std::make_tuple("Toggle", CSceneHierarchyUtils::CreateToggleUIElement),
 					std::make_tuple("Slider", CSceneHierarchyUtils::CreateSliderUIElement),
 					std::make_tuple("Input Field", CSceneHierarchyUtils::CreateInputFieldUIElement),
 					std::make_tuple("Scroll Area", CSceneHierarchyUtils::CreateScrollUIArea),
+					std::make_tuple("Drop Down", CSceneHierarchyUtils::CreateDropDownUIElement),
 				};
 
 				for (auto&& currOperation : operations)
