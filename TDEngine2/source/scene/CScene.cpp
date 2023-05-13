@@ -352,6 +352,16 @@ namespace TDEngine2
 		}, prefabLinkUUID);
 	}
 
+	CEntity* CScene::Spawn(CEntity* pObject, CEntity* pParentEntity)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		return mpPrefabsRegistry->Spawn(pObject, pParentEntity, [this](const TEntityId& id)
+		{
+			mEntities.push_back(id);
+		});
+	}
+
 	void CScene::ForEachEntity(const std::function<void(CEntity*)>& action)
 	{
 		TDE2_PROFILER_SCOPE("CScene::ForEachEntity");

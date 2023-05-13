@@ -43,7 +43,7 @@ namespace TDEngine2
 		mpMainEventManager = pEventManager;
 
 		E_RESULT_CODE result = RC_OK;
-		
+
 		mpComponentsManager = TPtr<IComponentManager>(CreateComponentManager(result));
 		if (RC_OK != result)
 		{
@@ -89,11 +89,11 @@ namespace TDEngine2
 
 
 	static CPrefabsRegistry::TPrefabInfoEntity LoadPrefabInfoFromManifest(IPrefabsRegistry* pPrefabsRegistry, IResourceManager* pResourceManager, IFileSystem* pFileSystem,
-																			TPtr<CEntityManager>& pEntityManager, IWorld* pWorld, const std::string& id)
+		TPtr<CEntityManager>& pEntityManager, IWorld* pWorld, const std::string& id)
 	{
 		/// \note Iterate over all CPrefabsManifest resources and try to find the corresponding prefab's path
 		std::string pathToPrefab;
-		
+
 		for (auto&& currResourceId : pResourceManager->GetResourcesListByType<CPrefabsManifest>())
 		{
 			if (auto pPrefabsCollection = pResourceManager->GetResource<IPrefabsManifest>(pResourceManager->GetResourceId(currResourceId)))
@@ -119,7 +119,7 @@ namespace TDEngine2
 		if (TResult<TFileEntryId> prefabFileId = pFileSystem->Open<IYAMLFileReader>(pathToPrefab))
 		{
 			return std::move(pPrefabsRegistry->LoadPrefabHierarchy(
-				pFileSystem->Get<IYAMLFileReader>(prefabFileId.Get()), 
+				pFileSystem->Get<IYAMLFileReader>(prefabFileId.Get()),
 				pEntityManager.Get(),
 				[pEntityManager](TEntityId id) { return pEntityManager->CreateWithUUID(id).Get(); },
 				[pPrefabsRegistry](TEntityId linkId, const std::string& prefabId, CEntity* pParentEntity) { return nullptr; }));
@@ -130,7 +130,7 @@ namespace TDEngine2
 
 
 	static CEntity* ClonePrefabHierarchy(IPrefabsRegistry* pPrefabsRegistry, const CPrefabsRegistry::TPrefabInfoEntity& prefabInfo, TPtr<CEntityManager>& pEntityManager, IWorld* pWorld,
-										const IPrefabsRegistry::TEntityCallback& prefabEntityVisitor, TEntityId prefabLinkUUID)
+		const IPrefabsRegistry::TEntityCallback& prefabEntityVisitor, TEntityId prefabLinkUUID)
 	{
 		CEntity* pPrefabInstance = nullptr;
 
@@ -140,7 +140,7 @@ namespace TDEngine2
 		{
 			if (auto pOriginalEntity = pEntityManager->GetEntity(currEntityId))
 			{
-				auto pNewEntity = (currEntityId == prefabInfo.mRootEntityId && TEntityId::Invalid != prefabLinkUUID) ? 
+				auto pNewEntity = (currEntityId == prefabInfo.mRootEntityId && TEntityId::Invalid != prefabLinkUUID) ?
 					pWorld->CreateEntityWithUUID(prefabLinkUUID) :
 					pWorld->CreateEntity(pOriginalEntity->GetName());
 
@@ -177,9 +177,9 @@ namespace TDEngine2
 		for (const auto& currLinkInfo : prefabInfo.mNestedPrefabsLinks)
 		{
 			CEntity* pNestedPrefabLinkRoot = pPrefabsRegistry->Spawn(
-				currLinkInfo.mPrefabId, 
-				pWorld->FindEntity(entitiesIdsMap.Resolve(currLinkInfo.mParentId)), 
-				prefabEntityVisitor, 
+				currLinkInfo.mPrefabId,
+				pWorld->FindEntity(entitiesIdsMap.Resolve(currLinkInfo.mParentId)),
+				prefabEntityVisitor,
 				currLinkInfo.mId);
 
 			if (!pNestedPrefabLinkRoot)
@@ -238,6 +238,54 @@ namespace TDEngine2
 			pPrefabLinkInfo->SetPrefabLinkId(id);
 		}
 #endif
+
+		if (pParent)
+		{
+			GroupEntities(mpWorld, pParent->GetId(), pPrefabInstance->GetId());
+		}
+
+		return pPrefabInstance;
+	}
+
+	CEntity* CPrefabsRegistry::Spawn(CEntity* pObject, CEntity* pParent, const TEntityCallback& prefabEntityVisitor)
+	{
+		if (!pObject)
+		{
+			return pObject;
+		}
+
+		IPrefabsRegistry::TPrefabInfoEntity hierarchyInfo;
+
+		std::vector<TEntityId> entities;
+		std::stack<TEntityId> entitiesToVisit;
+
+		entitiesToVisit.push(pObject->GetId());
+
+		while (!entitiesToVisit.empty())
+		{
+			const auto id = entitiesToVisit.top();
+			entitiesToVisit.pop();
+
+			entities.push_back(id);
+
+			if (auto pEntity = mpWorld->FindEntity(id))
+			{
+				if (auto pTransform = pEntity->GetComponent<CTransform>())
+				{
+					for (auto&& currChildId : pTransform->GetChildren())
+					{
+						entitiesToVisit.push(currChildId);
+					}
+				}
+			}
+		}
+
+		hierarchyInfo.mRelatedEntities = std::move(entities);
+		hierarchyInfo.mRootEntityId = pObject->GetId();
+
+		auto pEntityManager = MakeScopedFromRawPtr<CEntityManager>(mpWorld->GetEntityManager());
+
+		CEntity* pPrefabInstance = ClonePrefabHierarchy(this, hierarchyInfo, pEntityManager, mpWorld, prefabEntityVisitor, TEntityId::Invalid);
 
 		if (pParent)
 		{

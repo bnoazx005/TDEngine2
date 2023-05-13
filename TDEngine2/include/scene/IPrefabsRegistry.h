@@ -100,6 +100,7 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual CEntity* Spawn(const std::string& id, CEntity* pParent = nullptr, const TEntityCallback& prefabEntityVisitor = nullptr, TEntityId prefabLinkUUID = TEntityId::Invalid) = 0;
+			TDE2_API virtual CEntity* Spawn(CEntity* pObject, CEntity* pParent = nullptr, const TEntityCallback& prefabEntityVisitor = nullptr) = 0;
 
 #if TDE2_EDITORS_ENABLED
 			/*!

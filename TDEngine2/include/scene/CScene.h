@@ -155,6 +155,17 @@ namespace TDEngine2
 			TDE2_API CEntity* Spawn(const std::string& prefabId, CEntity* pParentEntity = nullptr, TEntityId prefabLinkUUID = TEntityId::Invalid) override;
 
 			/*!
+				\brief The method instantiates a deep copy of given hierarchy
+
+				\param[in] pObject Source hierarchy that should be cloned
+				\param[in, out] pParentEntity A pointer which the new instantiated tree will be attached to
+
+				\return A pointer to a root entity of duplicated entity
+			*/
+
+			TDE2_API CEntity* Spawn(CEntity* pObject, CEntity* pParentEntity = nullptr) override;
+
+			/*!
 				\brief The method iterates over each entity which is linked to current scene
 
 				\param[in] action A predicate that's executed for each valid entity. All expired or invalid entities are skipped

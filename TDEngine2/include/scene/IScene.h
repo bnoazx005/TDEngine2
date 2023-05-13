@@ -127,12 +127,24 @@ namespace TDEngine2
 				\brief The method instantiates a new copy of specified prefab's hierarchy
 
 				\param[in] id An identifier of a prefab which is defined in prefabs collection
-				\param[in, out] pParent A pointer which the new instantiated tree will be attached to
+				\param[in, out] pParentEntity A pointer which the new instantiated tree will be attached to
+				\param[in] prefabLinkUUID An integer identifier that will be assigned to created entity. Should not be used manually in usual cases
 
 				\return A pointer to a root entity of a prefab's instance
 			*/
 
 			TDE2_API virtual CEntity* Spawn(const std::string& prefabId, CEntity* pParentEntity = nullptr, TEntityId prefabLinkUUID = TEntityId::Invalid) = 0;
+
+			/*!
+				\brief The method instantiates a deep copy of given hierarchy
+
+				\param[in] pObject Source hierarchy that should be cloned
+				\param[in, out] pParentEntity A pointer which the new instantiated tree will be attached to
+
+				\return A pointer to a root entity of duplicated entity
+			*/
+
+			TDE2_API virtual CEntity* Spawn(CEntity* pObject, CEntity* pParentEntity = nullptr) = 0;
 
 			/*!
 				\brief The method iterates over each entity which is linked to current scene

@@ -509,6 +509,53 @@ TDE2_TEST_FIXTURE("EntitiesOperationsTests")
 			TDE2_TEST_IS_TRUE(RC_OK == pSceneManager->UnloadScene(pSceneManager->GetSceneId(pTestScene->GetName())));
 		});
 	}
+
+	TDE2_TEST_CASE("TestSpawn_SpawnAPrefabAndThenCloneItUsingOverloadedSpawnVersion_TheHierarchyShouldBeDuplicated")
+	{
+		static CEntity* pPrefabEntity = nullptr;
+
+		/// \note Spawn a prefab
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			pPrefabEntity = pMainScene->Spawn("TestPrefab");
+		});
+
+		pTestCase->WaitForNextFrame();
+
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			auto pClonedHierarchy = pMainScene->Spawn(pPrefabEntity);
+			TDE2_TEST_IS_TRUE(pClonedHierarchy != nullptr && pClonedHierarchy->GetName() == "Entity0");
+
+			auto pTransform = pClonedHierarchy->GetComponent<CTransform>();
+			TDE2_TEST_IS_TRUE(pTransform != nullptr);
+
+			auto&& children = pTransform->GetChildren();
+			TDE2_TEST_IS_TRUE(children.size() == 2);
+
+			auto pFirstChild = pWorld->FindEntity(children.front());
+			auto pSecondChild = pWorld->FindEntity(children.back());
+
+			TDE2_TEST_IS_TRUE(pFirstChild && pFirstChild->GetName() == "Entity1");
+			TDE2_TEST_IS_TRUE(pSecondChild && pSecondChild->GetName() == "Entity2");
+		});
+	}
 }
 
 #endif

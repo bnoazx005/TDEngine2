@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.16] 2023-05-06
+## [0.6.16] 2023-05-13
 
 ### Added
 
@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Experimental basic support of HDR textures was introduced.
 
 - Scroller component **CScrollableUIArea** with basic functionality was added.
+
+- A new component **CDropDown** which is a UI combo box element was added.
+
+- Now **IScene::Spawn** method has overloaded version that allows to clone entities hierarchies in runtime.
 
 ### Changed
 
