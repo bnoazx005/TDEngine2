@@ -107,6 +107,12 @@ namespace TDEngine2
 			TDE2_API TSceneId GetSceneId(const std::string& id) const override;
 
 			/*!
+				\return The method returns scene's pointer by entity's identifier if it belongs to the scene.
+			*/
+
+			TDE2_API IScene* GetSceneByEntityId(TEntityId entityId) const override;
+
+			/*!
 				\brief The method returns a type of the subsystem
 
 				\return A type, which is represented with E_ENGINE_SUBSYSTEM_TYPE's value

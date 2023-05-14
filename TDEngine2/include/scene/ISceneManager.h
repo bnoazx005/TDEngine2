@@ -23,6 +23,7 @@ namespace TDEngine2
 	class IPrefabsRegistry;
 
 	enum class TSceneId : U32;
+	enum class TEntityId : U32;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IFileSystem)
@@ -129,6 +130,12 @@ namespace TDEngine2
 			TDE2_API virtual TResult<IScene*> GetScene(TSceneId id) const = 0;
 
 			TDE2_API virtual TSceneId GetSceneId(const std::string& id) const = 0;
+
+			/*!
+				\return The method returns scene's pointer by entity's identifier if it belongs to the scene.
+			*/
+
+			TDE2_API virtual IScene* GetSceneByEntityId(TEntityId entityId) const = 0;
 
 			/*!
 				\return The method returns a pointer to instance of IWorld

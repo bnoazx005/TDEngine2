@@ -179,6 +179,7 @@ namespace TDEngine2
 		TDE2_ASSERT(pEntity);
 
 		mEntities.push_back(pEntity->GetId());
+		mRegisteredEntities.emplace(pEntity->GetId());
 
 		return pEntity;
 	}
@@ -194,6 +195,7 @@ namespace TDEngine2
 		TDE2_ASSERT(pEntity);
 
 		mEntities.push_back(id);
+		mRegisteredEntities.emplace(id);
 
 		return pEntity;
 	}
@@ -205,7 +207,7 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		const bool entityBelongsToScene = std::find(mEntities.cbegin(), mEntities.cend(), id) != mEntities.cend();
+		const bool entityBelongsToScene = mRegisteredEntities.find(id) != mRegisteredEntities.cend();
 
 		if (!mpWorld || !entityBelongsToScene)
 		{
@@ -229,6 +231,18 @@ namespace TDEngine2
 		{
 			return entityIdToRemove == entityId || !mpWorld->FindEntity(entityId);
 		}), mEntities.cend());
+
+		for (auto it = mRegisteredEntities.begin(); it != mRegisteredEntities.end();)
+		{
+			if (*it == id || !mpWorld->FindEntity(*it))
+			{
+				it = mRegisteredEntities.erase(it);
+			}
+			else
+			{
+				++it;
+			}
+		}
 
 		return RC_OK;
 	}
@@ -348,6 +362,7 @@ namespace TDEngine2
 
 		return mpPrefabsRegistry->Spawn(prefabId, pParentEntity, [this](const TEntityId& id)
 		{
+			mRegisteredEntities.emplace(id);
 			mEntities.push_back(id);
 		}, prefabLinkUUID);
 	}
@@ -358,6 +373,7 @@ namespace TDEngine2
 
 		return mpPrefabsRegistry->Spawn(pObject, pParentEntity, [this](const TEntityId& id)
 		{
+			mRegisteredEntities.emplace(id);
 			mEntities.push_back(id);
 		});
 	}
@@ -382,6 +398,12 @@ namespace TDEngine2
 
 			action(pCurrEntity);
 		}
+	}
+
+	bool CScene::ContainsEntity(TEntityId entityId) const
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		return mRegisteredEntities.find(entityId) != mRegisteredEntities.cend();
 	}
 
 	CEntity* CScene::FindEntityByPath(const std::string& path, CEntity* pRoot)

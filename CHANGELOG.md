@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.16] 2023-05-13
+## [0.6.16] 2023-05-14
 
 ### Added
 
@@ -28,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new component **CDropDown** which is a UI combo box element was added.
 
 - Now **IScene::Spawn** method has overloaded version that allows to clone entities hierarchies in runtime.
+
+- The APIs of **IScene** and **ISceneManager** were extended with new methods ContainsEntity and GetSceneByEntityId respectively.
 
 ### Changed
 

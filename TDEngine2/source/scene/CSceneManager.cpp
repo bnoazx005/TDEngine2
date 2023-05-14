@@ -275,6 +275,21 @@ namespace TDEngine2
 		return (it == mpScenesHandlesTable.cend()) ? TSceneId::Invalid : it->second;
 	}
 
+	IScene* CSceneManager::GetSceneByEntityId(TEntityId entityId) const
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		for (auto&& pCurrScene : mpScenes)
+		{
+			if (pCurrScene->ContainsEntity(entityId))
+			{
+				return pCurrScene;
+			}
+		}
+
+		return nullptr;
+	}
+
 	TPtr<IWorld> CSceneManager::GetWorld() const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);

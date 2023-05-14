@@ -12,6 +12,7 @@
 #include "IPrefabsRegistry.h"
 #include <mutex>
 #include <vector>
+#include <unordered_set>
 
 
 namespace TDEngine2
@@ -173,6 +174,8 @@ namespace TDEngine2
 
 			TDE2_API void ForEachEntity(const std::function<void(CEntity*)>& action = nullptr) override;
 			
+			TDE2_API bool ContainsEntity(TEntityId entityId) const override;
+
 			/*!
 				\brief The method traverses the hierarchy of the scene beginning from pRoot entity based on path's value.
 				The path consists of entities names separated with slashes for instance
@@ -216,6 +219,7 @@ namespace TDEngine2
 			TEntityId mSceneInfoEntityId;
 
 			TEntitiesRegistry mEntities;
+			std::unordered_set<TEntityId> mRegisteredEntities;
 	};
 
 
