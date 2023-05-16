@@ -19,6 +19,7 @@
 #include "../../include/graphics/UI/CLabelComponent.h"
 #include "../../include/graphics/UI/CScrollableUIAreaComponent.h"
 #include "../../include/graphics/UI/CDropDownComponent.h"
+#include "../../include/graphics/UI/GroupLayoutComponents.h"
 #include "../../include/core/IFont.h"
 #include "../../include/core/IImGUIContext.h"
 #include <clip.h>
@@ -535,6 +536,8 @@ namespace TDEngine2
 
 			auto&& labelResult = CreateLabelElement(pWorld, pCurrScene, pDropDownEntity->GetId(), [](auto) {});
 
+			TEntityId contentId = TEntityId::Invalid;
+
 			auto pContentEntity = pCurrScene->CreateEntity("Content");
 			{
 				if (auto pLayoutElement = pContentEntity->AddComponent<CLayoutElement>())
@@ -558,13 +561,43 @@ namespace TDEngine2
 						pScrollerLayoutElement->SetMinOffset(ZeroVector2);
 						pScrollerLayoutElement->SetMaxOffset(ZeroVector2);
 					}
+
+					if (auto pScrollerContentEntity = pWorld->FindEntity(pScrollerEntity->GetComponent<CTransform>()->GetChildren().front()))
+					{
+						contentId = pScrollerContentEntity->GetId();
+
+						if (auto pGridGroupLayout = pScrollerContentEntity->AddComponent<CGridGroupLayout>())
+						{
+							pGridGroupLayout->SetElementsAlignType(E_UI_ELEMENT_ALIGNMENT_TYPE::LEFT_TOP);
+							pGridGroupLayout->SetCellSize(TVector2(256.0f, elementHeight)); /// \todo Replace the value later
+						}
+					}
+				}
+			}
+
+			/// \note Option's item template
+			auto&& itemPrefabResult = CreateLabelElement(pWorld, pCurrScene, pDropDownEntity->GetId(), [](auto) {});
+			if (auto pItemPrefabEntity = pWorld->FindEntity(itemPrefabResult.Get()))
+			{
+				pItemPrefabEntity->AddComponent<CInputReceiver>();
+
+				SetEntityActive(pWorld.Get(), pItemPrefabEntity->GetId(), false);
+
+				if (auto pLayoutElement = pItemPrefabEntity->GetComponent<CLayoutElement>())
+				{
+					/*pLayoutElement->SetMinAnchor(ZeroVector2);
+					pLayoutElement->SetMaxAnchor(TVector2(1.0f));
+					pLayoutElement->SetMinOffset(ZeroVector2);
+					pLayoutElement->SetMaxOffset(ZeroVector2);*/
 				}
 			}
 
 			if (auto pDropDown = pDropDownEntity->AddComponent<CDropDown>())
 			{
 				pDropDown->SetLabelEntityId(labelResult.Get());
-				pDropDown->SetContentEntityId(pContentEntity->GetId());
+				pDropDown->SetPopupRootEntityId(pContentEntity->GetId());
+				pDropDown->SetContentEntityId(contentId);
+				pDropDown->SetItemPrefabEntityId(itemPrefabResult.Get());
 			}
 
 			GroupEntities(pWorld.Get(), pDropDownEntity->GetId(), pContentEntity->GetId());

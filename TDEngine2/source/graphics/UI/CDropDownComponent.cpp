@@ -13,7 +13,9 @@ namespace TDEngine2
 	struct TDropDownArchiveKeys
 	{
 		static const std::string mLabelEntityRefKeyId;
+		static const std::string mPopupRootEntityRefKeyId;
 		static const std::string mContentEntityRefKeyId;
+		static const std::string mItemPrefabEntityRefKeyId;
 		static const std::string mItemsKeyId;
 		static const std::string mSingleItemKeyId;
 		static const std::string mSelectedItemKeyId;
@@ -21,7 +23,9 @@ namespace TDEngine2
 
 
 	const std::string TDropDownArchiveKeys::mLabelEntityRefKeyId = "label_entity_ref";
+	const std::string TDropDownArchiveKeys::mPopupRootEntityRefKeyId = "popup_root_entity_ref";
 	const std::string TDropDownArchiveKeys::mContentEntityRefKeyId = "content_entity_ref";
+	const std::string TDropDownArchiveKeys::mItemPrefabEntityRefKeyId = "item_prefab_ref";
 	const std::string TDropDownArchiveKeys::mItemsKeyId = "items";
 	const std::string TDropDownArchiveKeys::mSingleItemKeyId = "item";
 	const std::string TDropDownArchiveKeys::mSelectedItemKeyId = "selected_item";
@@ -35,7 +39,9 @@ namespace TDEngine2
 		}
 
 		mLabelEntityRef = static_cast<TEntityId>(pReader->GetUInt32(TDropDownArchiveKeys::mLabelEntityRefKeyId));
+		mPopupRootEntityRef = static_cast<TEntityId>(pReader->GetUInt32(TDropDownArchiveKeys::mPopupRootEntityRefKeyId));
 		mContentEntityRef = static_cast<TEntityId>(pReader->GetUInt32(TDropDownArchiveKeys::mContentEntityRefKeyId));
+		mItemPrefabEntityRef = static_cast<TEntityId>(pReader->GetUInt32(TDropDownArchiveKeys::mItemPrefabEntityRefKeyId));
 
 		mSelectedItemIndex = pReader->GetUInt32(TDropDownArchiveKeys::mSelectedItemKeyId, 0);
 
@@ -67,7 +73,9 @@ namespace TDEngine2
 			pWriter->SetUInt32("type_id", static_cast<U32>(CDropDown::GetTypeId()));
 
 			pWriter->SetUInt32(TDropDownArchiveKeys::mLabelEntityRefKeyId, static_cast<U32>(mLabelEntityRef));
+			pWriter->SetUInt32(TDropDownArchiveKeys::mPopupRootEntityRefKeyId, static_cast<U32>(mPopupRootEntityRef));
 			pWriter->SetUInt32(TDropDownArchiveKeys::mContentEntityRefKeyId, static_cast<U32>(mContentEntityRef));
+			pWriter->SetUInt32(TDropDownArchiveKeys::mItemPrefabEntityRefKeyId, static_cast<U32>(mItemPrefabEntityRef));
 
 			pWriter->SetUInt32(TDropDownArchiveKeys::mSelectedItemKeyId, mSelectedItemIndex);
 
@@ -90,7 +98,9 @@ namespace TDEngine2
 	E_RESULT_CODE CDropDown::PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper)
 	{
 		mLabelEntityRef = entitiesIdentifiersRemapper.Resolve(mLabelEntityRef);
+		mPopupRootEntityRef = entitiesIdentifiersRemapper.Resolve(mPopupRootEntityRef);
 		mContentEntityRef = entitiesIdentifiersRemapper.Resolve(mContentEntityRef);
+		mItemPrefabEntityRef = entitiesIdentifiersRemapper.Resolve(mItemPrefabEntityRef);
 
 		return CBaseComponent::PostLoad(pEntityManager, entitiesIdentifiersRemapper);
 	}
@@ -100,7 +110,9 @@ namespace TDEngine2
 		if (auto pComponent = dynamic_cast<CDropDown*>(pDestObject))
 		{
 			pComponent->mLabelEntityRef = mLabelEntityRef;
+			pComponent->mPopupRootEntityRef = mPopupRootEntityRef;
 			pComponent->mContentEntityRef = mContentEntityRef;
+			pComponent->mItemPrefabEntityRef = mItemPrefabEntityRef;
 			pComponent->mSelectedItemIndex = mSelectedItemIndex;
 
 			pComponent->mItems.clear();
@@ -117,9 +129,19 @@ namespace TDEngine2
 		mLabelEntityRef = labelId;
 	}
 
+	void CDropDown::SetPopupRootEntityId(TEntityId entityId)
+	{
+		mPopupRootEntityRef = entityId;
+	}
+
 	void CDropDown::SetContentEntityId(TEntityId contentEntityId)
 	{
 		mContentEntityRef = contentEntityId;
+	}
+
+	void CDropDown::SetItemPrefabEntityId(TEntityId entityId)
+	{
+		mItemPrefabEntityRef = entityId;
 	}
 
 	E_RESULT_CODE CDropDown::SetSelectedItem(U32 index)
@@ -149,9 +171,19 @@ namespace TDEngine2
 		return mLabelEntityRef;
 	}
 
+	TEntityId CDropDown::GetPopupRootEntityId() const
+	{
+		return mPopupRootEntityRef;
+	}
+
 	TEntityId CDropDown::GetContentEntityId() const
 	{
 		return mContentEntityRef;
+	}
+
+	TEntityId CDropDown::GetItemPrefabEntityId() const
+	{
+		return mItemPrefabEntityRef;
 	}
 
 	const CDropDown::TOptionsArray& CDropDown::GetItems() const
@@ -164,7 +196,7 @@ namespace TDEngine2
 		return mSelectedItemIndex;
 	}
 
-	std::vector<TEntityId> CDropDown::GetItemsEntities()
+	std::vector<TEntityId>& CDropDown::GetItemsEntities()
 	{
 		return mItemsEntities;
 	}

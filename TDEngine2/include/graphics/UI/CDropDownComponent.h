@@ -81,7 +81,9 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
 			TDE2_API void SetLabelEntityId(TEntityId labelId);
+			TDE2_API void SetPopupRootEntityId(TEntityId entityId);
 			TDE2_API void SetContentEntityId(TEntityId contentEntityId);
+			TDE2_API void SetItemPrefabEntityId(TEntityId entityId);
 
 			TDE2_API E_RESULT_CODE SetSelectedItem(U32 index);
 			TDE2_API void SetItems(const TOptionsArray& items);
@@ -89,12 +91,14 @@ namespace TDEngine2
 			TDE2_API void SetExpanded(bool state);
 
 			TDE2_API TEntityId GetLabelEntityId() const;
+			TDE2_API TEntityId GetPopupRootEntityId() const;
 			TDE2_API TEntityId GetContentEntityId() const;
+			TDE2_API TEntityId GetItemPrefabEntityId() const;
 
 			TDE2_API const TOptionsArray& GetItems() const;
 			TDE2_API U32 GetSelectedItem() const;
 
-			TDE2_API std::vector<TEntityId> GetItemsEntities();
+			TDE2_API std::vector<TEntityId>& GetItemsEntities();
 
 			TDE2_API bool IsExpanded() const;
 		protected:
@@ -103,7 +107,9 @@ namespace TDEngine2
 			TOptionsArray mItems;
 
 			TEntityId     mLabelEntityRef;
+			TEntityId     mPopupRootEntityRef;
 			TEntityId     mContentEntityRef;
+			TEntityId     mItemPrefabEntityRef;
 			
 			std::vector<TEntityId> mItemsEntities;
 

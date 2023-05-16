@@ -23,6 +23,7 @@ namespace TDEngine2
 {
 	class IGraphicsContext;
 	class IResourceManager;
+	class ISceneManager;
 	class CUIElementMeshData;
 	class CLayoutElement;
 	class CTransform;
@@ -43,7 +44,7 @@ namespace TDEngine2
 		\return A pointer to CUIElementsProcessSystem's implementation
 	*/
 
-	TDE2_API ISystem* CreateUIElementsProcessSystem(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, E_RESULT_CODE& result);
+	TDE2_API ISystem* CreateUIElementsProcessSystem(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, ISceneManager* pSceneManager, E_RESULT_CODE& result);
 
 
 	/*!
@@ -55,7 +56,7 @@ namespace TDEngine2
 	class CUIElementsProcessSystem : public CBaseSystem
 	{
 		public:
-			friend TDE2_API ISystem* CreateUIElementsProcessSystem(IGraphicsContext*, IResourceManager*, E_RESULT_CODE&);
+			friend TDE2_API ISystem* CreateUIElementsProcessSystem(IGraphicsContext*, IResourceManager*, ISceneManager*, E_RESULT_CODE&);
 		public:
 			template <typename TComponentType>
 			struct TUIRenderableElementsContext
@@ -105,7 +106,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager);
+			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, ISceneManager* pSceneManager);
 
 			/*!
 				\brief The method inject components array into a system
@@ -144,5 +145,7 @@ namespace TDEngine2
 			IGraphicsContext*                          mpGraphicsContext;
 
 			IResourceManager*                          mpResourceManager;
+			
+			ISceneManager*                             mpSceneManager;
 	};
 }

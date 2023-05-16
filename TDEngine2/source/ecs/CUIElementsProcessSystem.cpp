@@ -17,6 +17,8 @@
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IWindowSystem.h"
+#include "../../include/scene/ISceneManager.h"
+#include "../../include/scene/IScene.h"
 #include "../../include/utils/CFileLogger.h"
 #include <algorithm>
 
@@ -464,20 +466,21 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CUIElementsProcessSystem::Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager)
+	E_RESULT_CODE CUIElementsProcessSystem::Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, ISceneManager* pSceneManager)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pGraphicsContext || !pResourceManager)
+		if (!pGraphicsContext || !pResourceManager || !pSceneManager)
 		{
 			return RC_INVALID_ARGS;
 		}
 
 		mpGraphicsContext = pGraphicsContext;
 		mpResourceManager = pResourceManager;
+		mpSceneManager    = pSceneManager;
 
 		mIsInitialized = true;
 
@@ -1150,7 +1153,7 @@ namespace TDEngine2
 	}
 
 
-	static inline void UpdateDropDownElements(CUIElementsProcessSystem::TDropDownElementsContext& context, IWorld* pWorld, ISystem* pSystem)
+	static inline void UpdateDropDownElements(CUIElementsProcessSystem::TDropDownElementsContext& context, IWorld* pWorld, ISceneManager* pSceneManager, ISystem* pSystem)
 	{
 		auto&& dropDownElements = std::get<std::vector<CDropDown*>>(context.mComponentsSlice);
 		auto&& dropDownLayoutElements = std::get<std::vector<CLayoutElement*>>(context.mComponentsSlice);
@@ -1193,7 +1196,7 @@ namespace TDEngine2
 
 			pLabel->SetText(selectedItemIndex < items.size() ? items[selectedItemIndex] : Wrench::StringUtils::GetEmptyStr());
 
-			SetEntityActive(pWorld, pCurrDropDown->GetContentEntityId(), pCurrDropDown->IsExpanded());
+			SetEntityActive(pWorld, pCurrDropDown->GetPopupRootEntityId(), pCurrDropDown->IsExpanded());
 
 			if (!pCurrInputReceiver->mIsFocused || items.empty())
 			{
@@ -1208,7 +1211,52 @@ namespace TDEngine2
 
 			if (itemEntities.empty())
 			{
+				pSystem->AddDefferedCommand([&itemEntities, pWorld, pCurrDropDown, contentEntityId = pCurrDropDown->GetContentEntityId(), prefabId = pCurrDropDown->GetItemPrefabEntityId(), pSceneManager]
+				{
+					auto pScene = pSceneManager->GetSceneByEntityId(contentEntityId);
+					if (!pScene)
+					{
+						TDE2_ASSERT(false);
+						return;
+					}
 
+					for (auto&& currOption : pCurrDropDown->GetItems())
+					{
+						/// \note spawn a template
+						CEntity* pItemInstance = pScene->Spawn(pWorld->FindEntity(prefabId), pWorld->FindEntity(contentEntityId));
+						TDE2_ASSERT(pItemInstance);
+
+						if (auto pLabel = pItemInstance->GetComponent<CLabel>())
+						{
+							pLabel->SetText(currOption);
+						}
+
+						itemEntities.push_back(pItemInstance->GetId());
+
+						/// \note activate the node
+						SetEntityActive(pWorld, pItemInstance->GetId(), true);
+					}
+				});
+
+				continue;
+			}
+
+			/// \note iterate over all elements and check their states (not optimal but pretty ok for now)
+			for (U32 i = 0; i < itemEntities.size(); i++)
+			{
+				CEntity* pCurrItemEntity = pWorld->FindEntity(itemEntities[i]);
+				if (!pCurrItemEntity)
+				{
+					continue;
+				}
+
+				CInputReceiver* pCurrInputReceiver = pCurrItemEntity->GetComponent<CInputReceiver>();
+				if (!pCurrInputReceiver || !pCurrInputReceiver->mCurrState)
+				{
+					continue;
+				}
+
+				pCurrDropDown->SetSelectedItem(i);
 			}
 		}
 	}
@@ -1311,12 +1359,12 @@ namespace TDEngine2
 		UpdateSlidersElements(mSlidersContext, pWorld, this);
 		UpdateInputFieldsElements(mInputFieldsContext, pWorld, this, mpResourceManager, dt);
 		UpdateScrollableAreasElements(mScrollAreasContext, pWorld, this, dt);
-		UpdateDropDownElements(mDropDownElementsContext, pWorld, this);
+		UpdateDropDownElements(mDropDownElementsContext, pWorld, mpSceneManager, this);
 	}
 
 
-	TDE2_API ISystem* CreateUIElementsProcessSystem(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, E_RESULT_CODE& result)
+	TDE2_API ISystem* CreateUIElementsProcessSystem(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, ISceneManager* pSceneManager, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(ISystem, CUIElementsProcessSystem, result, pGraphicsContext, pResourceManager);
+		return CREATE_IMPL(ISystem, CUIElementsProcessSystem, result, pGraphicsContext, pResourceManager, pSceneManager);
 	}
 }

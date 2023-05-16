@@ -476,7 +476,7 @@ namespace TDEngine2
 			CreateSkinnedMeshRendererSystem(pRenderer, pGraphicsObjectManager, result),
 			CreateLightingSystem(pRenderer, pGraphicsObjectManager, result),
 			CreateParticlesSimulationSystem(pRenderer, pGraphicsObjectManager, result),
-			CreateUIElementsProcessSystem(pGraphicsContext, pResourceManager, result),
+			CreateUIElementsProcessSystem(pGraphicsContext, pResourceManager,_getSubsystemAs<ISceneManager>(EST_SCENE_MANAGER), result),
 			CreateUIElementsRenderSystem(pRenderer, pGraphicsObjectManager, result),
 #if TDE2_EDITORS_ENABLED
 			CreateObjectsSelectionSystem(pRenderer, pGraphicsObjectManager, result),
