@@ -11,6 +11,7 @@
 #include "../utils/Types.h"
 #include "../utils/Utils.h"
 #include <string>
+#include <memory>
 
 
 namespace TDEngine2
@@ -248,4 +249,129 @@ namespace TDEngine2
 									   
 	template <> TDE2_API TResult<bool> Deserialize<bool>(IArchiveReader* pReader);
 	template <> TDE2_API TResult<std::string> Deserialize<std::string>(IArchiveReader* pReader);
+
+
+	/*!
+		class CValueWrapper
+
+		\brief The class allows to store values of many in-engine types and work with them in common fashion.
+
+		Two requirements should be satisfied:
+			- type should provide implementation of meta-function GetTypeId
+			- type should be serializable (either Serialize/Deserialize overloads provided or type derives ISerializable
+	*/
+
+	class CValueWrapper: public ISerializable
+	{
+		public:
+			TDE2_API CValueWrapper() = default;
+			TDE2_API CValueWrapper(const CValueWrapper& object);
+			TDE2_API CValueWrapper(CValueWrapper&& object);
+
+			template <typename T>
+			explicit CValueWrapper(T&& value):
+				mpImpl(new CTypedValue<T>(std::forward<T>(value)))
+			{
+			}
+
+			/*!
+				\brief The method deserializes object's state from given reader
+
+				\param[in, out] pReader An input stream of data that contains information about the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
+
+			/*!
+				\brief The method serializes object's state into given stream
+
+				\param[in, out] pWriter An output stream of data that writes information about the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
+
+			TDE2_API TypeId GetTypeId() const;
+
+			TDE2_API CValueWrapper& operator= (CValueWrapper object);
+
+		private:
+			struct IValueConcept: ISerializable
+			{
+				TDE2_API virtual ~IValueConcept() = default;
+
+				TDE2_API virtual std::unique_ptr<IValueConcept> Clone() = 0;
+
+				TDE2_API virtual TypeId GetTypeId() const = 0;
+			};
+
+			template <typename T>
+			struct CTypedValue : IValueConcept
+			{
+				explicit CTypedValue(T&& value) :
+					mValue(std::forward<T>(value)), mTypeId(::TDEngine2::GetTypeId<T>::mValue)
+				{
+				}
+
+				std::unique_ptr<IValueConcept> Clone() override
+				{
+					return std::make_unique<CTypedValue<T>>(std::forward<T>(mValue));
+				}
+
+				/*!
+					\brief The method deserializes object's state from given reader
+
+					\param[in, out] pReader An input stream of data that contains information about the object
+
+					\return RC_OK if everything went ok, or some other code, which describes an error
+				*/
+
+				E_RESULT_CODE Load(IArchiveReader* pReader) override
+				{
+					auto result = Deserialize<T>(pReader);
+					if (result.HasError())
+					{
+						return result.GetError();
+					}
+
+					return RC_OK;
+				}
+
+				/*!
+					\brief The method serializes object's state into given stream
+
+					\param[in, out] pWriter An output stream of data that writes information about the object
+
+					\return RC_OK if everything went ok, or some other code, which describes an error
+				*/
+
+				E_RESULT_CODE Save(IArchiveWriter* pWriter) override
+				{
+					pWriter->SetUInt32("type_id", static_cast<U32>(mTypeId));
+					return Serialize<T>(pWriter, mValue);
+				}
+
+				TypeId GetTypeId() const override
+				{
+					return mTypeId;
+				}
+
+				T mValue;
+				TypeId mTypeId;
+			};
+
+		private:
+			std::unique_ptr<IValueConcept> mpImpl = nullptr;
+	};
+
+
+	/*!
+		\brief The function tries to read value and create its representation in CValueWrapper. That one
+		simplifies work with values that can have different types
+	*/
+
+	TDE2_API TResult<CValueWrapper> DeserializeValue(IArchiveReader* pReader);
 }

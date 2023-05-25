@@ -289,9 +289,11 @@ namespace TDEngine2
 
 
 	template <> struct GetTypeId<F32> { TDE2_API TDE2_STATIC_CONSTEXPR TypeId mValue = TDE2_TYPE_ID(F32); };
+	template <> struct GetTypeId<F64> { TDE2_API TDE2_STATIC_CONSTEXPR TypeId mValue = TDE2_TYPE_ID(F64); };
 	template <> struct GetTypeId<I32> { TDE2_API TDE2_STATIC_CONSTEXPR TypeId mValue = TDE2_TYPE_ID(I32); };
 	template <> struct GetTypeId<U32> { TDE2_API TDE2_STATIC_CONSTEXPR TypeId mValue = TDE2_TYPE_ID(U32); };
 	template <> struct GetTypeId<bool> { TDE2_API TDE2_STATIC_CONSTEXPR TypeId mValue = TDE2_TYPE_ID(bool); };
+	template <> struct GetTypeId<std::string> { TDE2_API TDE2_STATIC_CONSTEXPR TypeId mValue = TDE2_TYPE_ID(std::string); };
 
 
 

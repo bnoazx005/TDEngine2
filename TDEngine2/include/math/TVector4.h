@@ -195,6 +195,8 @@ namespace TDEngine2
 	TDE2_API TVector4 Max(const TVector4& lvec4, const TVector4& rvec4);
 
 
+	template <> struct GetTypeId<TVector4> { TDE2_API TDE2_STATIC_CONSTEXPR TypeId mValue = TDE2_TYPE_ID(TVector4); };
+
 	/*!
 		\brief TVector4's Serialization/Deserialization helpers
 	*/

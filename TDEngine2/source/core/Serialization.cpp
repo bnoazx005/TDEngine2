@@ -1,4 +1,6 @@
 #include "../../include/core/Serialization.h"
+#include "../../include/math/TVector4.h"
+#include "../../include/utils/Color.h"
 
 
 namespace TDEngine2
@@ -47,4 +49,93 @@ namespace TDEngine2
 	template <> TDE2_API TResult<bool> Deserialize<bool>(IArchiveReader* pReader) { return Wrench::TOkValue<bool>(pReader->GetBool("value")); }
 	template <> TDE2_API TResult<std::string> Deserialize<std::string>(IArchiveReader* pReader) { return Wrench::TOkValue<std::string>(pReader->GetString("value")); }
   
+
+	/*!
+		\brief CValueWrapper's definition
+	*/
+
+	CValueWrapper::CValueWrapper(const CValueWrapper& object):
+		mpImpl(object.mpImpl->Clone())
+	{
+	}
+
+	CValueWrapper::CValueWrapper(CValueWrapper&& object):
+		mpImpl(std::move(object.mpImpl))
+	{
+		object.mpImpl = nullptr;
+	}
+
+	E_RESULT_CODE CValueWrapper::Load(IArchiveReader* pReader)
+	{
+		if (!pReader)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		return mpImpl ? mpImpl->Load(pReader) : RC_FAIL;
+	}
+
+	E_RESULT_CODE CValueWrapper::Save(IArchiveWriter* pWriter)
+	{
+		if (!pWriter)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		return mpImpl ? mpImpl->Save(pWriter) : RC_FAIL;
+	}
+
+	CValueWrapper& CValueWrapper::operator= (CValueWrapper object)
+	{
+		this->mpImpl = std::move(object.mpImpl);
+		return *this;
+	}
+
+	TypeId CValueWrapper::GetTypeId() const
+	{
+		return mpImpl ? mpImpl->GetTypeId() : TypeId::Invalid;
+	}
+
+
+	TResult<CValueWrapper> DeserializeValue(IArchiveReader* pReader)
+	{
+		auto typeId = static_cast<TypeId>(pReader->GetUInt32("type_id"));
+		if (TypeId::Invalid == typeId)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		/// \todo \fixme Replace with common engine registry of types maybe it should be implemented in Meta.h
+		static const std::unordered_map<TypeId, std::function<CValueWrapper()>> TypedDeserializers
+		{
+			{ TDE2_TYPE_ID(I32), []() { return CValueWrapper{ 0 }; }},
+			{ TDE2_TYPE_ID(U32), []() { return CValueWrapper{ 0u }; }},
+
+			{ TDE2_TYPE_ID(F32), []() { return CValueWrapper{ 0.0f }; }},
+			{ TDE2_TYPE_ID(F64), []() { return CValueWrapper{ 0.0 }; }},
+
+			{ TDE2_TYPE_ID(bool), []() { return CValueWrapper{ false }; }},
+
+			{ TDE2_TYPE_ID(std::string), []() { return CValueWrapper{ std::string() }; }},
+
+			{ TDE2_TYPE_ID(TVector2), []() { return CValueWrapper{ TVector2() }; }},
+			{ TDE2_TYPE_ID(TVector3), []() { return CValueWrapper{ TVector3() }; }},
+			{ TDE2_TYPE_ID(TVector4), []() { return CValueWrapper{ TVector4() }; }},
+
+			{ TDE2_TYPE_ID(TColor32F), []() { return CValueWrapper{ TColor32F() }; }},
+		};
+
+		auto it = TypedDeserializers.find(typeId);
+		if (it == TypedDeserializers.cend())
+		{
+			TDE2_ASSERT(false);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		auto wrappedObject = (it->second)();
+
+		wrappedObject.Load(pReader);
+
+		return Wrench::TOkValue<CValueWrapper>(wrappedObject);
+	}
 }
