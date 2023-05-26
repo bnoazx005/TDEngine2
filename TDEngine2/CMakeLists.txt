@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.8)
 
 project (TDEngine2 
-	VERSION 0.6.16
+	VERSION 0.6.17
 	LANGUAGES CXX)
 
 # The options which are related with plugins are placed here
@@ -157,6 +157,7 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/scene/IPrefabsManifest.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/scene/CPrefabsRegistry.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/scene/CPrefabsManifest.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/scene/CPrefabChangesList.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/IBuffer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/IVertexBuffer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/IIndexBuffer.h"
@@ -408,6 +409,7 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/scene/CScene.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/scene/CPrefabsManifest.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/scene/CPrefabsRegistry.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/scene/CPrefabChangesList.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/CBaseShader.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/CBaseShaderLoader.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/graphics/CQuadSprite.cpp"
