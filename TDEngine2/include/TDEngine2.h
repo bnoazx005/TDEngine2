@@ -277,6 +277,7 @@
 #include "scene/IPrefabsManifest.h"
 #include "scene/CPrefabsRegistry.h"
 #include "scene/CPrefabsManifest.h"
+#include "scene/CPrefabChangesList.h"
 
 ///platform
 #include "platform/win32/CWin32WindowSystem.h"
