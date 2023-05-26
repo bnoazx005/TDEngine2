@@ -274,6 +274,12 @@ namespace TDEngine2
 			{
 			}
 
+			template <typename U>
+			const U* CastTo() const
+			{
+				return mpImpl ? mpImpl->Get<U>() : nullptr;
+			}
+
 			/*!
 				\brief The method deserializes object's state from given reader
 
@@ -303,9 +309,17 @@ namespace TDEngine2
 			{
 				TDE2_API virtual ~IValueConcept() = default;
 
+				template <typename U>
+				const U* Get() const
+				{
+					return static_cast<const U*>(GetInternal(::TDEngine2::GetTypeId<U>::mValue));
+				}
+
 				TDE2_API virtual std::unique_ptr<IValueConcept> Clone() = 0;
 
 				TDE2_API virtual TypeId GetTypeId() const = 0;
+
+				TDE2_API virtual const void* GetInternal(TypeId inputTypeId) const = 0;
 			};
 
 			template <typename T>
@@ -319,6 +333,17 @@ namespace TDEngine2
 				std::unique_ptr<IValueConcept> Clone() override
 				{
 					return std::make_unique<CTypedValue<T>>(std::forward<T>(mValue));
+				}
+
+				const void* GetInternal(TypeId inputTypeId) const
+				{
+					if (::TDEngine2::GetTypeId<T>::mValue != inputTypeId)
+					{
+						TDE2_ASSERT(::TDEngine2::GetTypeId<T>::mValue != inputTypeId);
+						return nullptr;
+					}
+
+					return static_cast<const void*>(&mValue);
 				}
 
 				/*!
@@ -336,6 +361,8 @@ namespace TDEngine2
 					{
 						return result.GetError();
 					}
+
+					mValue = result.Get();
 
 					return RC_OK;
 				}

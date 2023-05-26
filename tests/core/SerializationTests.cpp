@@ -72,4 +72,15 @@ TEST_CASE("CValueWrapper Tests")
 		TestDeserializationForType<TVector4>([](IYAMLFileWriter* pFileWriter) { SaveVector4(pFileWriter, TVector4(1.0f)); });
 		TestDeserializationForType<TColor32F>([](IYAMLFileWriter* pFileWriter) { SaveColor32F(pFileWriter, TColorUtils::mBlue); });
 	}
+
+	SECTION("TestCastTo_PassCorrectValuesTryToCastToTheirOriginalTypes_AllValuesShouldBeCorrectlyRetrived")
+	{
+		REQUIRE(*CValueWrapper(-42).CastTo<I32>() == -42);
+		REQUIRE(*CValueWrapper(0x42u).CastTo<U32>() == 0x42);
+		REQUIRE(*CValueWrapper(std::string("Hello, World")).CastTo<std::string>() == "Hello, World");
+		REQUIRE(*CValueWrapper(4.2f).CastTo<F32>() == 4.2f);
+		REQUIRE(*CValueWrapper(false).CastTo<bool>() == false);
+		REQUIRE(*CValueWrapper(TVector2(1.0f)).CastTo<TVector2>() == TVector2(1.0f));
+		REQUIRE(*CValueWrapper(TVector3(1.0f)).CastTo<TVector3>() == TVector3(1.0f));
+	}
 }
