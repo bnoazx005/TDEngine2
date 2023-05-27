@@ -39,14 +39,14 @@ TEST_CASE("CValueWrapper Tests")
 	{
 		auto objectsAndTypes =
 		{
-			std::tuple { TDE2_TYPE_ID(I32), CValueWrapper(-42) },
-			std::tuple { TDE2_TYPE_ID(U32), CValueWrapper(0x42u) },
-			std::tuple { TDE2_TYPE_ID(std::string), CValueWrapper(std::string("Hello, World")) },
-			std::tuple { TDE2_TYPE_ID(F32), CValueWrapper(4.2f) },
-			std::tuple { TDE2_TYPE_ID(bool), CValueWrapper(false) },
-			std::tuple { TDE2_TYPE_ID(TVector2), CValueWrapper(TVector2(1.0f)) },
-			std::tuple { TDE2_TYPE_ID(TVector3), CValueWrapper(TVector3(1.0f)) },
-			std::tuple { TDE2_TYPE_ID(TColor32F), CValueWrapper(TColor32F(1.0f, 0.0f, 0.0f, 1.0f)) },
+			std::tuple<TypeId, CValueWrapper> { TDE2_TYPE_ID(I32), CValueWrapper(-42) },
+			std::tuple<TypeId, CValueWrapper> { TDE2_TYPE_ID(U32), CValueWrapper(0x42u) },
+			std::tuple<TypeId, CValueWrapper> { TDE2_TYPE_ID(std::string), CValueWrapper(std::string("Hello, World")) },
+			std::tuple<TypeId, CValueWrapper> { TDE2_TYPE_ID(F32), CValueWrapper(4.2f) },
+			std::tuple<TypeId, CValueWrapper> { TDE2_TYPE_ID(bool), CValueWrapper(false) },
+			std::tuple<TypeId, CValueWrapper> { TDE2_TYPE_ID(TVector2), CValueWrapper(TVector2(1.0f)) },
+			std::tuple<TypeId, CValueWrapper> { TDE2_TYPE_ID(TVector3), CValueWrapper(TVector3(1.0f)) },
+			std::tuple<TypeId, CValueWrapper> { TDE2_TYPE_ID(TColor32F), CValueWrapper(TColor32F(1.0f, 0.0f, 0.0f, 1.0f)) },
 		};
 
 		TypeId currTypeId;
@@ -82,5 +82,16 @@ TEST_CASE("CValueWrapper Tests")
 		REQUIRE(*CValueWrapper(false).CastTo<bool>() == false);
 		REQUIRE(*CValueWrapper(TVector2(1.0f)).CastTo<TVector2>() == TVector2(1.0f));
 		REQUIRE(*CValueWrapper(TVector3(1.0f)).CastTo<TVector3>() == TVector3(1.0f));
+	}
+
+	SECTION("TestCastTo_PassCorrectValuesTryToCastToIncorrectType_ReturnNullptr")
+	{
+		REQUIRE(!CValueWrapper(-42).CastTo<U32>());
+		REQUIRE(!CValueWrapper(0x42u).CastTo<I32>());
+		REQUIRE(!CValueWrapper(std::string("Hello, World")).CastTo<C8*>());
+		REQUIRE(!CValueWrapper(4.2f).CastTo<I32>());
+		REQUIRE(!CValueWrapper(false).CastTo<F32>());
+		REQUIRE(!CValueWrapper(TVector2(1.0f)).CastTo<TVector3>());
+		REQUIRE(!CValueWrapper(TVector3(1.0f)).CastTo<TVector2>());
 	}
 }
