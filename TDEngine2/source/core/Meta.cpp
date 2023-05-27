@@ -22,6 +22,11 @@ namespace TDEngine2
 
 	TDE2_API IPropertyWrapperPtr ResolveBinding(IWorld* pWorld, CEntity* pEntity, const std::string& path)
 	{
+		return ResolveBinding(pWorld->GetEntityManager(), pEntity, path);
+	}
+
+	TDE2_API IPropertyWrapperPtr ResolveBinding(CEntityManager* pEntityManager, CEntity* pEntity, const std::string& path)
+	{
 		TDE2_PROFILER_SCOPE("ResolveBinding, binding: " + path);
 
 		std::string binding = Wrench::StringUtils::RemoveAllWhitespaces(path);
@@ -40,7 +45,7 @@ namespace TDEngine2
 
 			for (TEntityId childEntityId : pTransform->GetChildren())
 			{
-				if (CEntity* pChildEntity = pWorld->FindEntity(childEntityId))
+				if (CEntity* pChildEntity = pEntityManager->GetEntity(childEntityId).Get())
 				{
 					if (pChildEntity->GetName() == *it)
 					{

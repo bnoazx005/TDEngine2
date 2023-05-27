@@ -10,6 +10,7 @@
 #include "../utils/Config.h"
 #include "../utils/Types.h"
 #include "../utils/Utils.h"
+#include "Meta.h"
 #include <string>
 #include <memory>
 
@@ -274,6 +275,8 @@ namespace TDEngine2
 			{
 			}
 
+			TDE2_API E_RESULT_CODE Apply(TPtr<IPropertyWrapper> pPropertyWrapper);
+
 			template <typename U>
 			const U* CastTo() const
 			{
@@ -315,6 +318,8 @@ namespace TDEngine2
 					return static_cast<const U*>(GetInternal(::TDEngine2::GetTypeId<U>::mValue));
 				}
 
+				TDE2_API virtual E_RESULT_CODE Apply(TPtr<IPropertyWrapper> pPropertyWrapper) = 0;
+
 				TDE2_API virtual std::unique_ptr<IValueConcept> Clone() = 0;
 
 				TDE2_API virtual TypeId GetTypeId() const = 0;
@@ -333,6 +338,11 @@ namespace TDEngine2
 				std::unique_ptr<IValueConcept> Clone() override
 				{
 					return std::make_unique<CTypedValue<T>>(std::forward<T>(mValue));
+				}
+
+				E_RESULT_CODE Apply(TPtr<IPropertyWrapper> pPropertyWrapper)
+				{
+					return pPropertyWrapper->Set<T>(mValue);
 				}
 
 				const void* GetInternal(TypeId inputTypeId) const

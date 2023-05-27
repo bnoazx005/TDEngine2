@@ -85,6 +85,16 @@ namespace TDEngine2
 		return mpImpl ? mpImpl->Save(pWriter) : RC_FAIL;
 	}
 
+	E_RESULT_CODE CValueWrapper::Apply(TPtr<IPropertyWrapper> pPropertyWrapper)
+	{
+		if (!pPropertyWrapper)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		return mpImpl ? mpImpl->Apply(pPropertyWrapper) : RC_FAIL;
+	}
+
 	CValueWrapper& CValueWrapper::operator= (CValueWrapper object)
 	{
 		this->mpImpl = std::move(object.mpImpl);

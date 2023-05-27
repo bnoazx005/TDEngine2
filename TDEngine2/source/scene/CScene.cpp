@@ -7,6 +7,7 @@
 #include "../../include/scene/components/CPointLight.h"
 #include "../../include/scene/components/ShadowMappingComponents.h"
 #include "../../include/scene/IPrefabsRegistry.h"
+#include "../../include/scene/CPrefabChangesList.h"
 #include "../../include/editor/ecs/EditorComponents.h"
 #include "../../include/graphics/CStaticMeshContainer.h"
 #include "../../include/graphics/CStaticMesh.h"
@@ -674,6 +675,16 @@ namespace TDEngine2
 
 			entitiesIdsMap.mSerializedToRuntimeIdsTable.emplace(currPrefabInfo.mId, pInstance->GetId());
 		}
+
+		/// \note Last stage (applying of local changes to entities of the scene)
+		auto pChangesList = TPtr<CPrefabChangesList>(CreatePrefabChangesList(result));
+		if (!pChangesList)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
+		}
+
+		result = result | pChangesList->Load(pReader);
+		result = result | pChangesList->ApplyChanges(pEntityManager, entitiesIdsMap);
 
 		if (RC_OK != result)
 		{

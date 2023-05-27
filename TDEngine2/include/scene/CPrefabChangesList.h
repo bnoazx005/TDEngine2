@@ -10,17 +10,17 @@
 #include "../core/Serialization.h"
 #include "../core/CBaseObject.h"
 #include "../core/Meta.h"
+#include "../ecs/CEntity.h"
 #include <vector>
 #include <string>
 
 
 namespace TDEngine2
 {
-	class CPrefabChangesList;
-	class IWorld;
+	class CPrefabChangesList; 
+	class CEntityManager;
 
-
-	TDE2_DECLARE_SCOPED_PTR(IWorld)
+	struct TEntitiesMapper;
 
 
 	enum class TEntityId : U32;
@@ -46,11 +46,11 @@ namespace TDEngine2
 	class CPrefabChangesList: public CBaseObject, public ISerializable
 	{
 		public:
-			friend 	TDE2_API CPrefabChangesList* CreatePrefabChangesList(E_RESULT_CODE&);
+			friend TDE2_API CPrefabChangesList* CreatePrefabChangesList(E_RESULT_CODE&);
 		public:
 			struct TChangeDesc
 			{
-				TEntityId     mTargetLinkEntityId;
+				CEntityRef    mTargetLinkEntityId;
 				std::string   mPropertyBinding;
 				CValueWrapper mValue;
 			};
@@ -85,7 +85,7 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
-			TDE2_API E_RESULT_CODE ApplyChanges(TPtr<IWorld> pWorld);
+			TDE2_API E_RESULT_CODE ApplyChanges(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesMappings);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPrefabChangesList)
 		private:

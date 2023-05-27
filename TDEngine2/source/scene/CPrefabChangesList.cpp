@@ -1,4 +1,7 @@
 #include "../../include/scene/CPrefabChangesList.h"
+#include "../../include/ecs/CEntity.h"
+#include "../../include/ecs/CEntityManager.h"
+#include "../../include/utils/CFileLogger.h"
 #include "stringUtils.hpp"
 
 
@@ -52,7 +55,7 @@ namespace TDEngine2
 			{
 				pWriter->BeginGroup(TPrefabChangesListArchiveKeys::mChangesArrayElementGroupKey);
 
-				pWriter->SetUInt32(TPrefabChangesListArchiveKeys::mTargetIdLey, static_cast<U32>(currDesc.mTargetLinkEntityId));
+				SaveEntityRef(pWriter, TPrefabChangesListArchiveKeys::mTargetIdLey, currDesc.mTargetLinkEntityId);
 				pWriter->SetString(TPrefabChangesListArchiveKeys::mPropertyBindingKey, currDesc.mPropertyBinding);
 
 				pWriter->BeginGroup(TPrefabChangesListArchiveKeys::mValueKey);
@@ -91,7 +94,7 @@ namespace TDEngine2
 			{
 				pReader->BeginGroup(TPrefabChangesListArchiveKeys::mChangesArrayElementGroupKey);
 
-				currDesc.mTargetLinkEntityId = static_cast<TEntityId>(pReader->GetUInt32(TPrefabChangesListArchiveKeys::mTargetIdLey, static_cast<U32>(TEntityId::Invalid)));
+				currDesc.mTargetLinkEntityId = LoadEntityRef(pReader,TPrefabChangesListArchiveKeys::mTargetIdLey);
 				currDesc.mPropertyBinding = pReader->GetString(TPrefabChangesListArchiveKeys::mPropertyBindingKey);
 				
 				pReader->BeginGroup(TPrefabChangesListArchiveKeys::mValueKey);
@@ -119,16 +122,29 @@ namespace TDEngine2
 		return result;
 	}
 
-	E_RESULT_CODE CPrefabChangesList::ApplyChanges(TPtr<IWorld> pWorld)
+	E_RESULT_CODE CPrefabChangesList::ApplyChanges(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesMappings)
 	{
-		if (!pWorld)
+		if (!pEntityManager)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		TDE2_UNIMPLEMENTED();
+		E_RESULT_CODE result = RC_OK;
 
-		return RC_OK;
+		for (auto&& currChangeEntry : mChanges)
+		{
+			currChangeEntry.mTargetLinkEntityId.SetEntityManager(pEntityManager);
+			
+			auto pProperty = ResolveBinding(pEntityManager, pEntityManager->GetEntity(currChangeEntry.mTargetLinkEntityId.Get()).Get(), currChangeEntry.mPropertyBinding);
+			if (!pProperty)
+			{
+				LOG_WARNING(Wrench::StringUtils::Format("[CPrefabChangesList][ApplyChanges] Can't resolve binding {0}", currChangeEntry.mPropertyBinding));
+			}
+
+			result = result | currChangeEntry.mValue.Apply(pProperty);
+		}
+
+		return result;
 	}
 
 

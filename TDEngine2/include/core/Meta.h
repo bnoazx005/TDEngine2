@@ -131,6 +131,7 @@ namespace TDEngine2
 
 	class IWorld;
 	class CEntity;
+	class CEntityManager;
 
 	/*!
 	*	
@@ -143,4 +144,5 @@ namespace TDEngine2
 	*/ 
 
 	TDE2_API IPropertyWrapperPtr ResolveBinding(IWorld* pWorld, CEntity* pEntity, const std::string& path);
+	TDE2_API IPropertyWrapperPtr ResolveBinding(CEntityManager* pEntityManager, CEntity* pEntity, const std::string& path);
 }
