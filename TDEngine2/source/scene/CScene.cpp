@@ -641,6 +641,8 @@ namespace TDEngine2
 			}
 		}
 
+		std::vector<CEntity*> prefabInstancesRoots;
+
 		/// \note Spawn prefabs
 		while (!prefabsDefferedSpawnQueue.empty())
 		{
@@ -674,17 +676,26 @@ namespace TDEngine2
 			prefabsDefferedSpawnQueue.pop();
 
 			entitiesIdsMap.mSerializedToRuntimeIdsTable.emplace(currPrefabInfo.mId, pInstance->GetId());
+			prefabInstancesRoots.emplace_back(pInstance);
 		}
 
 		/// \note Last stage (applying of local changes to entities of the scene)
-		auto pChangesList = TPtr<CPrefabChangesList>(CreatePrefabChangesList(result));
-		if (!pChangesList)
+		for (CEntity* pCurrPrefabInstance : prefabInstancesRoots)
 		{
-			return Wrench::TErrValue<E_RESULT_CODE>(result);
-		}
+			auto pPrefabLinkInfo = pCurrPrefabInstance->GetComponent<CPrefabLinkInfoComponent>();
+			if (!pPrefabLinkInfo)
+			{
+				continue;				
+			}
 
-		result = result | pChangesList->Load(pReader);
-		result = result | pChangesList->ApplyChanges(pEntityManager, entitiesIdsMap);
+			auto pPrefabChanges = pPrefabLinkInfo->GetPrefabsChangesList();
+			if (!pPrefabChanges)
+			{
+				continue;
+			}
+
+			result = result | pPrefabChanges->ApplyChanges(pEntityManager, entitiesIdsMap);
+		}		
 
 		if (RC_OK != result)
 		{
@@ -798,7 +809,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-
 	E_RESULT_CODE CSceneSerializer::SaveScene(IArchiveWriter* pWriter, TPtr<IWorld> pWorld, IScene* pScene)
 	{
 		E_RESULT_CODE result = RC_OK;
@@ -897,6 +907,8 @@ namespace TDEngine2
 			pRootTransform->SetParent(parentEntityId);
 		}
 		result = result | pWriter->EndGroup();
+
+		result = result | SaveSceneChanges(pWriter, pWorld, {});
 
 		return result;
 	}

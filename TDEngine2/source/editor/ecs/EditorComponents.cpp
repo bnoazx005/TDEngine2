@@ -1,4 +1,5 @@
 #include "../../../include/editor/ecs/EditorComponents.h"
+#include "../../../include/scene/CPrefabChangesList.h"
 #include "../../include/scene/IScene.h"
 #include <stringUtils.hpp>
 
@@ -111,7 +112,17 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		return RC_OK;
+		E_RESULT_CODE result = RC_OK;
+
+		mpChangesList = TPtr<CPrefabChangesList>(CreatePrefabChangesList(result));
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		result = result | mpChangesList->Load(pReader);
+
+		return result;
 	}
 
 	E_RESULT_CODE CPrefabLinkInfoComponent::Save(IArchiveWriter* pWriter)
@@ -124,6 +135,11 @@ namespace TDEngine2
 		pWriter->BeginGroup("component");
 		{
 			pWriter->SetUInt32("type_id", static_cast<U32>(CPrefabLinkInfoComponent::GetTypeId()));
+
+			if (mpChangesList)
+			{
+				mpChangesList->Save(pWriter);
+			}
 		}
 		pWriter->EndGroup();
 
@@ -135,6 +151,8 @@ namespace TDEngine2
 		if (auto pLinkInfo = dynamic_cast<CPrefabLinkInfoComponent*>(pDestObject))
 		{
 			pLinkInfo->mPrefabLinkId = mPrefabLinkId;
+			pLinkInfo->mpChangesList = mpChangesList->Clone();
+
 			return RC_OK;
 		}
 
@@ -149,6 +167,11 @@ namespace TDEngine2
 	const std::string& CPrefabLinkInfoComponent::GetPrefabLinkId() const
 	{
 		return mPrefabLinkId;
+	}
+
+	TPtr<CPrefabChangesList> CPrefabLinkInfoComponent::GetPrefabsChangesList() const
+	{
+		return mpChangesList;
 	}
 
 

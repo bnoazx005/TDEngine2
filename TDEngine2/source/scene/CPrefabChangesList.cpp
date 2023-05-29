@@ -47,6 +47,11 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		if (mChanges.empty())
+		{
+			return RC_OK; /// \note Do nothing 'cause there are no changes
+		}
+
 		pWriter->BeginGroup(TPrefabChangesListArchiveKeys::mChangesArrayGroupKey);
 		
 		for (TChangeDesc& currDesc : mChanges)
@@ -120,6 +125,17 @@ namespace TDEngine2
 		pReader->EndGroup();
 
 		return result;
+	}
+
+	TPtr<CPrefabChangesList> CPrefabChangesList::Clone() const
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		auto pChangesList = TPtr<CPrefabChangesList>(CreatePrefabChangesList(result));
+
+		std::copy(mChanges.begin(), mChanges.end(), std::back_inserter(pChangesList->mChanges));
+
+		return pChangesList;
 	}
 
 	E_RESULT_CODE CPrefabChangesList::ApplyChanges(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesMappings)

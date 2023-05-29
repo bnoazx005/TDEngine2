@@ -43,7 +43,7 @@ namespace TDEngine2
 		\brief The class stores list of properties of a prefab's instance that differ from the original template
 	*/
 
-	class CPrefabChangesList: public CBaseObject, public ISerializable
+	class CPrefabChangesList: public CBaseObject, public ISerializable, public ICloneable<CPrefabChangesList>
 	{
 		public:
 			friend TDE2_API CPrefabChangesList* CreatePrefabChangesList(E_RESULT_CODE&);
@@ -85,10 +85,20 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
+			/*!
+				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
+				The original state of the object stays the same
+			*/
+
+			TDE2_API TPtr<CPrefabChangesList> Clone() const override;
+
 			TDE2_API E_RESULT_CODE ApplyChanges(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesMappings);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPrefabChangesList)
 		private:
 			TChangesArray mChanges;
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR_INLINED(CPrefabChangesList)
 }

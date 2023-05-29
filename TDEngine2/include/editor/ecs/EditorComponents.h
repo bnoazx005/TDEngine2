@@ -79,6 +79,10 @@ namespace TDEngine2
 	TDE2_DECLARE_COMPONENT_FACTORY(SceneInfoComponent, TSceneInfoComponentParameters);
 
 
+	class CPrefabChangesList;
+	TDE2_DECLARE_SCOPED_PTR(CPrefabChangesList)
+
+
 	/*!
 		\brief A factory function for creation objects of CPrefabLinkInfoComponent's type.
 
@@ -129,9 +133,13 @@ namespace TDEngine2
 			TDE2_API void SetPrefabLinkId(const std::string& id);
 
 			TDE2_API const std::string& GetPrefabLinkId() const;
+
+			TDE2_API TPtr<CPrefabChangesList> GetPrefabsChangesList() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPrefabLinkInfoComponent)
 		protected:
+			TPtr<CPrefabChangesList> mpChangesList;
+
 			std::string mPrefabLinkId;
 	};
 

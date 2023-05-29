@@ -232,12 +232,10 @@ namespace TDEngine2
 
 		CEntity* pPrefabInstance = ClonePrefabHierarchy(this, *pPrefabInfo, mpEntitiesManager, mpWorld, prefabEntityVisitor, prefabLinkUUID);
 
-#if TDE2_EDITORS_ENABLED
 		if (auto pPrefabLinkInfo = pPrefabInstance->AddComponent<CPrefabLinkInfoComponent>())
 		{
 			pPrefabLinkInfo->SetPrefabLinkId(id);
 		}
-#endif
 
 		if (pParent)
 		{
