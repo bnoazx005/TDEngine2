@@ -2,7 +2,7 @@
 #include "../../include/ecs/CEntityManager.h"
 #include "../../include/ecs/IWorld.h"
 #include "../../include/scene/components/CObjIdComponent.h"
-#include "../../include/editor/ecs/EditorComponents.h"
+#include "../../include/scene/components/CPrefabLinkInfoComponent.h"
 #include <memory>
 #include <queue>
 #include "stringUtils.hpp"

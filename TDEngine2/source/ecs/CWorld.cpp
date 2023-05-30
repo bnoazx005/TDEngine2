@@ -12,6 +12,7 @@
 #include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/graphics/COrthoCamera.h"
 #include "../../include/ecs/CTransform.h"
+#include "../../include/scene/components/CPrefabLinkInfoComponent.h"
 #if TDE2_EDITORS_ENABLED
 #include "../../include/editor/ecs/EditorComponents.h"
 #endif

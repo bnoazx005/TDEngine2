@@ -10,6 +10,7 @@
 #include "../../include/ecs/CTransform.h"
 #include "../../include/scene/CPrefabsManifest.h"
 #include "../../include/scene/components/CObjIdComponent.h"
+#include "../../include/scene/components/CPrefabLinkInfoComponent.h"
 #include "../../include/scene/CScene.h"
 #include "../../include/platform/CYAMLFile.h"
 #include "../../include/utils/CFileLogger.h"

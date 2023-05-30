@@ -34,6 +34,7 @@
 #include "../../include/scene/components/AudioComponents.h"
 #include "../../include/scene/components/CLODStrategyComponent.h"
 #include "../../include/scene/components/CObjIdComponent.h"
+#include "../../include/scene/components/CPrefabLinkInfoComponent.h"
 #include "../../include/editor/ecs/EditorComponents.h"
 #include "../../include/editor/CPerfProfiler.h"
 
@@ -473,10 +474,10 @@ namespace TDEngine2
 			CreateDropDownFactory,
 			CreateLODStrategyComponentFactory,
 			CreateObjIdComponentFactory,
+			CreatePrefabLinkInfoComponentFactory,
 #if TDE2_EDITORS_ENABLED
 			CreateSelectedEntityComponentFactory,
 			CreateSceneInfoComponentFactory,
-			CreatePrefabLinkInfoComponentFactory,
 			CreateEditorCameraFactory,
 #endif
 			//etc

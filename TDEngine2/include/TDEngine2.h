@@ -269,6 +269,7 @@
 #include "scene/components/AudioComponents.h"
 #include "scene/components/CLODStrategyComponent.h"
 #include "scene/components/CObjIdComponent.h"
+#include "scene/components/CPrefabLinkInfoComponent.h"
 #include "scene/ISceneManager.h"
 #include "scene/CSceneManager.h"
 #include "scene/IScene.h"

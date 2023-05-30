@@ -6,6 +6,7 @@
 #include "../../include/scene/components/CDirectionalLight.h"
 #include "../../include/scene/components/CPointLight.h"
 #include "../../include/scene/components/ShadowMappingComponents.h"
+#include "../../include/scene/components/CPrefabLinkInfoComponent.h"
 #include "../../include/scene/IPrefabsRegistry.h"
 #include "../../include/scene/CPrefabChangesList.h"
 #include "../../include/editor/ecs/EditorComponents.h"
@@ -907,8 +908,6 @@ namespace TDEngine2
 			pRootTransform->SetParent(parentEntityId);
 		}
 		result = result | pWriter->EndGroup();
-
-		result = result | SaveSceneChanges(pWriter, pWorld, {});
 
 		return result;
 	}
