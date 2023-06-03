@@ -351,7 +351,7 @@ namespace TDEngine2
 	{
 		imguiContext.MenuGroup("Sample Mode", [pTrack](IImGUIContext& imgui)
 		{
-			for (auto&& enumField : Meta::EnumTrait<E_ANIMATION_INTERPOLATION_MODE_TYPE>::GetFields())
+			for (auto&& enumField : Meta::EnumTrait<E_ANIMATION_INTERPOLATION_MODE_TYPE>::fields)
 			{
 				imgui.MenuItem(enumField.name, Wrench::StringUtils::GetEmptyStr(), [pTrack, value = enumField.value]{ pTrack->SetInterpolationMode(value); });
 			}

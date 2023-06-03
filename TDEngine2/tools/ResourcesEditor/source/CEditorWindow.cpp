@@ -606,7 +606,7 @@ namespace TDEngine2
 		
 		if (filterTypes.empty())
 		{
-			for (auto&& enumFieldInfo : Meta::EnumTrait<E_TEXTURE_FILTER_TYPE>::GetFields())
+			for (auto&& enumFieldInfo : Meta::EnumTrait<E_TEXTURE_FILTER_TYPE>::fields)
 			{
 				filterTypes.push_back(enumFieldInfo.name);
 			}
@@ -616,7 +616,7 @@ namespace TDEngine2
 		
 		if (addressModes.empty())
 		{
-			for (auto&& enumFieldInfo : Meta::EnumTrait<E_ADDRESS_MODE_TYPE>::GetFields())
+			for (auto&& enumFieldInfo : Meta::EnumTrait<E_ADDRESS_MODE_TYPE>::fields)
 			{
 				addressModes.push_back(enumFieldInfo.name);
 			}

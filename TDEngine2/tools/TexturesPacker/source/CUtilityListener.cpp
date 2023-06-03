@@ -44,7 +44,7 @@ E_RESULT_CODE CUtilityListener::OnStart()
 	mpEditorWindow = dynamic_cast<CEditorWindow*>(TDEngine2::CreateEditorWindow(mpResourceManager.Get(), mpEngineCoreInstance->GetSubsystem<IInputContext>().Get(), mpWindowSystem.Get(), result));
 	mpEditorWindow->SetTextureAtlasResourceHandle(mCurrEditableAtlasId);
 
-	for (auto&& currFieldInfo : Meta::EnumTrait<E_FORMAT_TYPE>::GetFields())
+	for (auto&& currFieldInfo : Meta::EnumTrait<E_FORMAT_TYPE>::fields)
 	{
 		mAvailableFormats.push_back(currFieldInfo.name);
 	}

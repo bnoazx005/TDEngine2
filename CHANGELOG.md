@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.17] 2023-05-30
+## [0.6.17] 2023-06-02
 
 ### Added
 
 ### Changed
 
 - **CPrefabLinkInfoComponent** type was moved from editor's section. Now it's a runtime component which is used to store prefab's changes
+
+- A new version of **tde2_introspector** utility was integrated to provide constexprs for the metadata.
 
 ### Fixed
 

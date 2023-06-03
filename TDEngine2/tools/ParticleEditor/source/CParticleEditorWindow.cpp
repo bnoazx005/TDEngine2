@@ -53,17 +53,17 @@ namespace TDEngine2
 
 		mpCurrParticleEffect = nullptr;
 
-		for (auto&& currField : Meta::EnumTrait<E_PARTICLE_COLOR_PARAMETER_TYPE>::GetFields())
+		for (auto&& currField : Meta::EnumTrait<E_PARTICLE_COLOR_PARAMETER_TYPE>::fields)
 		{
 			mColorTypesIds.push_back(currField.name);
 		}
 
-		for (auto&& currField : Meta::EnumTrait<E_PARTICLE_SIMULATION_SPACE>::GetFields())
+		for (auto&& currField : Meta::EnumTrait<E_PARTICLE_SIMULATION_SPACE>::fields)
 		{
 			mSimulationSpaceTypesIds.push_back(currField.name);
 		}
 
-		for (auto&& currField : Meta::EnumTrait<E_PARTICLE_VELOCITY_PARAMETER_TYPE>::GetFields())
+		for (auto&& currField : Meta::EnumTrait<E_PARTICLE_VELOCITY_PARAMETER_TYPE>::fields)
 		{
 			mVelocityParamTypesIds.push_back(currField.name);
 		}

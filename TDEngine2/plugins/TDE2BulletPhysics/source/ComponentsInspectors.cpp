@@ -50,7 +50,7 @@ namespace TDEngine2
 		static std::vector<std::string> collisionTypes;
 		if (collisionTypes.empty())
 		{
-			for (auto&& currEnumFieldInfo : Meta::EnumTrait<E_COLLISION_OBJECT_TYPE>::GetFields())
+			for (auto&& currEnumFieldInfo : Meta::EnumTrait<E_COLLISION_OBJECT_TYPE>::fields)
 			{
 				collisionTypes.emplace_back(currEnumFieldInfo.name);
 			}

@@ -1235,7 +1235,7 @@ namespace TDEngine2
 				static std::vector<std::string> textAlignTypes;
 				if (textAlignTypes.empty())
 				{
-					for (auto&& currValueInfo : Meta::EnumTrait<E_FONT_ALIGN_POLICY>::GetFields())
+					for (auto&& currValueInfo : Meta::EnumTrait<E_FONT_ALIGN_POLICY>::fields)
 					{
 						textAlignTypes.push_back(currValueInfo.name);
 					}
@@ -1278,7 +1278,7 @@ namespace TDEngine2
 				static std::vector<std::string> overflowPolicies;
 				if (overflowPolicies.empty())
 				{
-					for (auto&& currValueInfo : Meta::EnumTrait<E_TEXT_OVERFLOW_POLICY>::GetFields())
+					for (auto&& currValueInfo : Meta::EnumTrait<E_TEXT_OVERFLOW_POLICY>::fields)
 					{
 						overflowPolicies.push_back(currValueInfo.name);
 					}
@@ -1428,7 +1428,7 @@ namespace TDEngine2
 				static std::vector<std::string> alignTypes;
 				if (alignTypes.empty())
 				{
-					for (auto&& currValueInfo : Meta::EnumTrait<E_UI_ELEMENT_ALIGNMENT_TYPE>::GetFields())
+					for (auto&& currValueInfo : Meta::EnumTrait<E_UI_ELEMENT_ALIGNMENT_TYPE>::fields)
 					{
 						alignTypes.push_back(currValueInfo.name);
 					}

@@ -356,7 +356,7 @@ namespace TDEngine2
 
 		auto& qualityPresets = projectSettings.mQualityPresets;
 
-		auto&& enumFields = Meta::EnumTrait<E_QUALITY_PRESET_TYPE>::GetFields(); /// \fixme Reflection in production version should not be used at all
+		auto&& enumFields = Meta::EnumTrait<E_QUALITY_PRESET_TYPE>::fields; /// \fixme Reflection in production version should not be used at all
 
 		result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::mQualityPresetsGroupId);
 		{
