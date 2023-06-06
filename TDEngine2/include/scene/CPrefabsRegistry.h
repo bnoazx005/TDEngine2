@@ -113,6 +113,13 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE OnEvent(const TBaseEvent* pEvent) override;
 
 			/*!
+				\brief The method tries to extract information about prefab with given identifier and returns it. If there is no
+				one that satisfies to that condition nullptr is returned
+			*/
+
+			TDE2_API const TPrefabInfoEntity* GetPrefabInfo(const std::string& prefabId) const override;
+
+			/*!
 				\brief The method returns an identifier of a listener
 
 				\return The method returns an identifier of a listener

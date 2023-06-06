@@ -392,6 +392,12 @@ namespace TDEngine2
 		return mpComponentsManager->RegisterFactory(pConcreteEvent->mpFactory);
 	}
 
+	const CPrefabsRegistry::TPrefabInfoEntity* CPrefabsRegistry::GetPrefabInfo(const std::string& prefabId) const
+	{
+		auto it = mPrefabsToEntityTable.find(prefabId);
+		return it == mPrefabsToEntityTable.cend() ? nullptr : &it->second;
+	}
+
 	TEventListenerId CPrefabsRegistry::GetListenerId() const
 	{
 		return TEventListenerId(GetTypeId());

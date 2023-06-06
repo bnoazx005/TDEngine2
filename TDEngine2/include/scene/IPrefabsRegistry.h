@@ -69,6 +69,7 @@ namespace TDEngine2
 					std::string mPrefabId;
 				};
 
+				CEntityManager*              mpEntityOwner = nullptr;
 
 				TEntityId                    mRootEntityId = TEntityId::Invalid;
 				std::vector<TEntityId>       mRelatedEntities;
@@ -131,6 +132,13 @@ namespace TDEngine2
 			TDE2_API virtual TPrefabInfoEntity LoadPrefabHierarchy(IArchiveReader* pReader, CEntityManager* pEntityManager, 
 				const TEntityFactoryFunctor& entityCustomFactory = nullptr,
 				const TPrefabFactoryFunctor& prefabCustomFactory = nullptr) = 0;
+
+			/*!
+				\brief The method tries to extract information about prefab with given identifier and returns it. If there is no
+				one that satisfies to that condition nullptr is returned
+			*/
+
+			TDE2_API virtual const TPrefabInfoEntity* GetPrefabInfo(const std::string& prefabId) const = 0;
 
 			/*!
 				\brief The method returns an array of prefabs identifier that were declared in already loaded prefabs manifest 
