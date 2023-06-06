@@ -451,6 +451,11 @@ namespace TDEngine2
 		return mpEntityManager && TEntityId::Invalid != mEntityRef;
 	}
 
+	bool CEntityRef::operator== (const CEntityRef& ref) const
+	{
+		return mRefStr == ref.mRefStr;
+	}
+
 #if TDE2_EDITORS_ENABLED
 
 	const std::vector<U32>& CEntityRef::GetPath() const
@@ -495,5 +500,62 @@ namespace TDEngine2
 	{
 		auto&& it = mSerializedToRuntimeIdsTable.find(input);
 		return it == mSerializedToRuntimeIdsTable.cend() ? input : it->second;
+	}
+
+
+	TDE2_API E_RESULT_CODE TraverseEntityHierarchy(CEntityManager* pEntityManager, TEntityId rootEntityId, const std::function<bool(TPtr<CEntity>)>& functor)
+	{
+		if (!pEntityManager || TEntityId::Invalid == rootEntityId || !functor)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		auto pCurrEntity = pEntityManager->GetEntity(rootEntityId);
+		if (!pCurrEntity)
+		{
+			return RC_FAIL;
+		}
+
+		CTransform* pTransform = pCurrEntity->GetComponent<CTransform>();
+		if (!pTransform)
+		{
+			return RC_FAIL;
+		}
+
+		std::queue<TPtr<CEntity>> entitiesToProcess;
+
+		for (auto&& currChildId : pTransform->GetChildren())
+		{
+			entitiesToProcess.emplace(pEntityManager->GetEntity(currChildId));
+		}
+
+		while (!entitiesToProcess.empty())
+		{
+			pCurrEntity = entitiesToProcess.front();
+			entitiesToProcess.pop();
+
+			if (!pCurrEntity)
+			{
+				continue;
+			}
+
+			if (!functor(pCurrEntity))
+			{
+				break;
+			}
+
+			pTransform = pCurrEntity->GetComponent<CTransform>();
+			if (!pTransform)
+			{
+				continue;
+			}
+			
+			for (auto&& currChildId : pTransform->GetChildren())
+			{
+				entitiesToProcess.emplace(pEntityManager->GetEntity(currChildId));
+			}
+		}
+
+		return RC_OK;
 	}
 }
