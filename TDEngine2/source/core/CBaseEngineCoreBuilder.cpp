@@ -966,6 +966,7 @@ namespace TDEngine2
 		/// \todo Move this into another place later
 		TRuntimeFontParameters fontParams;
 		fontParams.mTrueTypeFontFilePath = "DefaultResources/Fonts/OpenSans-Regular.ttf";
+		fontParams.mGlyphHeight = 24.0f;
 
 		mpResourceManagerInstance->Create<IRuntimeFont>("OpenSans.font", fontParams);
 
