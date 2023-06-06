@@ -192,6 +192,8 @@ namespace TDEngine2
 		auto& layoutElements = mContext.mpLayoutElements;
 		auto& inputReceivers = mContext.mpInputReceivers;
 
+		CEntity* pCurrEntity = nullptr;
+
 		/// \note Update is executed in order of existing hierarchy of elements
 		for (USIZE i = 0; i < transforms.size(); ++i)
 		{		
@@ -206,6 +208,12 @@ namespace TDEngine2
 				pInputReceiver->mPrevState = pInputReceiver->mCurrState; // reset state
 				pInputReceiver->mCurrState = false;
 
+				continue;
+			}
+
+			pCurrEntity = pWorld->FindEntity(pTransform->GetOwnerId());
+			if (!pCurrEntity || pCurrEntity->HasComponent<CDeactivatedComponent>() || pCurrEntity->HasComponent<CDeactivatedGroupComponent>())
+			{
 				continue;
 			}
 
