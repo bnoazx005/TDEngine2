@@ -38,6 +38,9 @@ namespace TDEngine2
 
 			TDE2_API virtual TypeId GetValueType() const = 0;
 
+			TDE2_API virtual bool operator== (const CScopedPtr<IPropertyWrapper>& property) const = 0;
+			TDE2_API virtual bool operator!= (const CScopedPtr<IPropertyWrapper>& property) const = 0;
+
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPropertyWrapper)
 
@@ -74,6 +77,27 @@ namespace TDEngine2
 			{
 				return GetTypeId<TValueType>::mValue;
 			}
+
+			TDE2_API bool operator== (const IPropertyWrapperPtr& property) const override
+			{
+				if (!property)
+				{
+					return false;
+				}
+
+				if (property->GetValueType() != GetValueType())
+				{
+					return false;
+				}
+
+				return property->Get<TValueType>() == Get<TValueType>();
+			}
+
+			TDE2_API bool operator!= (const IPropertyWrapperPtr& property) const override
+			{
+				return !(*this == property);
+			}
+
 		protected:
 			CBasePropertyWrapper(const TPropertySetterFunctor& setter, const TPropertyGetterFunctor& getter) : CBaseObject(), mSetterFunc(setter), mGetterFunc(getter) 
 			{
