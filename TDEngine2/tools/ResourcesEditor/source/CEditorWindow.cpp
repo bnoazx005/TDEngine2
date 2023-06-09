@@ -4,6 +4,7 @@
 #include <string>
 #define DEFER_IMPLEMENTATION
 #include "deferOperation.hpp"
+#define META_EXPORT_GRAPHICS_SECTION
 #include "../include/metadata.h"
 
 #if _HAS_CXX17

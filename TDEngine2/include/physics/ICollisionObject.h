@@ -19,7 +19,7 @@ namespace TDEngine2
 		\brief The class contains all allowed types which a collision object can have
 	*/
 
-	ENUM_META()
+	ENUM_META(SECTION=physics)
 	enum class E_COLLISION_OBJECT_TYPE : U16
 	{
 		COT_STATIC,

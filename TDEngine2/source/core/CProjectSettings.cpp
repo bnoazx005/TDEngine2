@@ -1,6 +1,7 @@
 #include "../../include/core/CProjectSettings.h"
 #include "../../include/core/IFile.h"
 #include "../../include/math/TVector3.h"
+#define META_EXPORT_CORE_SECTION
 #include "../../include/metadata.h"
 #include "stringUtils.hpp"
 

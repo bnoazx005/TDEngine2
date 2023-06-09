@@ -38,6 +38,7 @@
 #include "../../include/editor/CEditorActionsManager.h"
 #include "../../include/editor/EditorUtils.h"
 #include "../../include/utils/CFileLogger.h"
+#define META_EXPORT_UI_SECTION
 #include "../../include/metadata.h"
 #include <array>
 #include <tuple>

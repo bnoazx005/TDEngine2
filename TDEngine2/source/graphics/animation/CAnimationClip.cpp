@@ -5,6 +5,7 @@
 #include "../../../include/core/IFile.h"
 #include "../../../include/graphics/animation/IAnimationTrack.h"
 #include "../../../include/graphics/animation/AnimationTracks.h"
+#define META_EXPORT_ANIMATION_SECTION
 #include "../../../include/metadata.h"
 
 

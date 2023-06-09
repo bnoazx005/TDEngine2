@@ -4,6 +4,7 @@
 #include <functional>
 #include <algorithm>
 #include "stringUtils.hpp"
+#define META_EXPORT_GRAPHICS_SECTION
 #include "../../include/metadata.h"
 
 #if _HAS_CXX17

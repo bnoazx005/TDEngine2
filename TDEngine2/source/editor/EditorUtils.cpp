@@ -554,6 +554,8 @@ namespace TDEngine2
 
 				if (auto pScrollerEntity = pWorld->FindEntity(scrollerResult.Get()))
 				{
+					pScrollerEntity->RemoveComponent<CScrollableUIArea>();
+
 					if (auto pScrollerLayoutElement = pScrollerEntity->GetComponent<CLayoutElement>())
 					{
 						pScrollerLayoutElement->SetMinAnchor(ZeroVector2);

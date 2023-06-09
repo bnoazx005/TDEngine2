@@ -1,5 +1,6 @@
 #include "../include/CBaseCollisionObject3D.h"
 #include <math/MathUtils.h>
+#define META_EXPORT_PHYSICS_SECTION
 #include <metadata.h>
 
 

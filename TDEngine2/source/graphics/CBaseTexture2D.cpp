@@ -4,6 +4,7 @@
 #include "../../include/core/IFileSystem.h"
 #include "../../include/core/IJobManager.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
+#define META_EXPORT_GRAPHICS_SECTION
 #include "../../include/metadata.h"
 #include "../../include/editor/CPerfProfiler.h"
 #define STB_IMAGE_IMPLEMENTATION

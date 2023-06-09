@@ -8,6 +8,7 @@
 #include <ecs/IWorld.h>
 #include <editor/Inspectors.h>
 #include <core/IImGUIContext.h>
+#define META_EXPORT_PHYSICS_SECTION
 #include <metadata.h>
 
 

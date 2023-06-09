@@ -27,6 +27,7 @@
 #define DEFER_IMPLEMENTATION
 #include "deferOperation.hpp"
 #define META_IMPLEMENTATION
+#define META_EXPORT_GRAPHICS_SECTION
 #include "metadata.h"
 #include "stringUtils.hpp"
 

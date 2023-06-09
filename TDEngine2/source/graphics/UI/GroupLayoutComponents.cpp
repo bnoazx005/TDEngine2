@@ -1,5 +1,6 @@
 #include "../../../include/graphics/UI/GroupLayoutComponents.h"
 #include "../../../include/math/MathUtils.h"
+#define META_EXPORT_UI_SECTION
 #include "../../../include/metadata.h"
 
 

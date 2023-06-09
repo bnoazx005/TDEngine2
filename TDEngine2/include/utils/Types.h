@@ -62,8 +62,8 @@ namespace TDEngine2
 	typedef uintptr_t U32Ptr;
 
 
-#define ENUM_META()
-#define CLASS_META()
+#define ENUM_META(...)
+#define CLASS_META(...)
 
 
 	/// Error codes
@@ -96,7 +96,7 @@ namespace TDEngine2
 		\brief The enumeration contains all types of subsystems that can be used within the engine
 	*/
 
-	ENUM_META()
+	ENUM_META(SECTION=core)
 	enum E_ENGINE_SUBSYSTEM_TYPE: U8
 	{
 		EST_WINDOW,						/// A subsystem that responsible for windows' management (creation, etc)
@@ -125,7 +125,7 @@ namespace TDEngine2
 		\brief The enumeration contains all avaiable GAPI that existing graphics context supports
 	*/
 
-	ENUM_META() enum E_GRAPHICS_CONTEXT_GAPI_TYPE: U8
+	ENUM_META(SECTION=graphics) enum E_GRAPHICS_CONTEXT_GAPI_TYPE: U8
 	{
 		GCGT_DIRECT3D11,	/// Direct3D 11.0 and above
 		GCGT_OPENGL3X,		/// OpenGL of version 3.0 and above
@@ -385,7 +385,7 @@ namespace TDEngine2
 		\brief The enumeration contains all available formats, which are used by the engine
 	*/
 
-	ENUM_META()
+	ENUM_META(SECTION=graphics)
 	enum E_FORMAT_TYPE: U32
 	{
 		FT_FLOAT1,
@@ -574,7 +574,7 @@ namespace TDEngine2
 		\brief The enumeration contains all available types of addressing modes
 	*/
 
-	ENUM_META() enum class E_ADDRESS_MODE_TYPE
+	ENUM_META(SECTION=graphics) enum class E_ADDRESS_MODE_TYPE
 	{
 		AMT_BORDER,
 		AMT_CLAMP,
@@ -597,7 +597,7 @@ namespace TDEngine2
 		\brief The enumeration contains all available types of sampler's filters
 	*/
 
-	ENUM_META() enum class E_TEXTURE_FILTER_TYPE : U8
+	ENUM_META(SECTION=graphics) enum class E_TEXTURE_FILTER_TYPE : U8
 	{
 		FT_POINT,
 		FT_BILINEAR,
@@ -635,7 +635,7 @@ namespace TDEngine2
 		specify blending factor's value
 	*/
 
-	ENUM_META()
+	ENUM_META(SECTION = graphics)
 	enum class E_BLEND_FACTOR_VALUE : U32
 	{
 		ZERO,
@@ -660,7 +660,7 @@ namespace TDEngine2
 		can be performed
 	*/
 
-	ENUM_META()
+	ENUM_META(SECTION = graphics)
 	enum class E_BLEND_OP_TYPE : U32
 	{
 		ADD,
@@ -701,7 +701,7 @@ namespace TDEngine2
 		can be done during depth/stencil tests
 	*/
 
-	ENUM_META()
+	ENUM_META(SECTION = graphics)
 	enum class E_COMPARISON_FUNC
 	{
 		NEVER,
@@ -722,7 +722,7 @@ namespace TDEngine2
 		performed over values that are stored within stencil buffer
 	*/
 
-	ENUM_META()
+	ENUM_META(SECTION = graphics)
 	enum class E_STENCIL_OP
 	{
 		KEEP,
@@ -786,7 +786,7 @@ namespace TDEngine2
 		\brief The enumeration contains all possible modes of culling
 	*/
 
-	ENUM_META()
+	ENUM_META(SECTION = graphics)
 	enum class E_CULL_MODE
 	{
 		FRONT, BACK, NONE

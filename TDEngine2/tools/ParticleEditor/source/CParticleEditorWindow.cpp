@@ -1,4 +1,5 @@
 #include "../include/CParticleEditorWindow.h"
+#define META_EXPORT_GRAPHICS_SECTION
 #include "../../include/metadata.h"
 
 

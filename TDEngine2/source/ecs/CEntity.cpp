@@ -503,6 +503,8 @@ namespace TDEngine2
 	}
 
 
+#if TDE2_EDITORS_ENABLED
+
 	TDE2_API E_RESULT_CODE TraverseEntityHierarchy(CEntityManager* pEntityManager, TEntityId rootEntityId, const std::function<bool(TPtr<CEntity>)>& functor)
 	{
 		if (!pEntityManager || TEntityId::Invalid == rootEntityId || !functor)
@@ -541,7 +543,7 @@ namespace TDEngine2
 
 			if (!functor(pCurrEntity))
 			{
-				break;
+				continue; /// \note Don't traverse children if false is returned
 			}
 
 			pTransform = pCurrEntity->GetComponent<CTransform>();
@@ -558,4 +560,36 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
+
+
+	TDE2_API std::string GetEntityPath(CEntityManager* pEntityManager, TEntityId entityId)
+	{
+		std::string path;
+
+		if (TEntityId::Invalid == entityId)
+		{
+			return path;
+		}
+
+		auto pCurrEntity = pEntityManager->GetEntity(entityId);
+		if (!pCurrEntity)
+		{
+			return path;
+		}
+
+		while (pCurrEntity)
+		{
+			path.append(pCurrEntity->GetName());
+			pCurrEntity = pEntityManager->GetEntity(pCurrEntity->GetComponent<CTransform>()->GetParent());
+
+			if (!pCurrEntity)
+			{
+				path = '/' + path;
+			}
+		}
+
+		return path;
+	}
+
+#endif
 }

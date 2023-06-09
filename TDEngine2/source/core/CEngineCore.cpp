@@ -38,6 +38,7 @@
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/utils/ITimer.h"
 #define META_IMPLEMENTATION
+#define META_EXPORT_CORE_SECTION
 #include "../../include/metadata.h"
 
 #if TDE2_EDITORS_ENABLED

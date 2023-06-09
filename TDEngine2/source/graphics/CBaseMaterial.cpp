@@ -10,6 +10,7 @@
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/utils/Utils.h"
 #include "../../include/graphics/CBaseTexture2D.h"
+#define META_EXPORT_GRAPHICS_SECTION
 #include "../../include/metadata.h"
 #include "../../include/math/MathUtils.h"
 #include "stringUtils.hpp"

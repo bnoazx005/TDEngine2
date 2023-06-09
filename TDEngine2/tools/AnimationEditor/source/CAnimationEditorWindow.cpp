@@ -1,4 +1,5 @@
 #include "../include/CAnimationEditorWindow.h"
+#define META_EXPORT_ANIMATION_SECTION
 #include "../../include/metadata.h"
 
 

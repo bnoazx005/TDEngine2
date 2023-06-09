@@ -356,5 +356,10 @@ namespace TDEngine2
 	};
 
 
+#if TDE2_EDITORS_ENABLED
+
 	TDE2_API E_RESULT_CODE TraverseEntityHierarchy(CEntityManager* pEntityManager, TEntityId rootEntityId, const std::function<bool(TPtr<CEntity>)>& functor);
+	TDE2_API std::string GetEntityPath(CEntityManager* pEntityManager, TEntityId entityId);
+
+#endif
 }

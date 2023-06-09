@@ -1,5 +1,6 @@
 #include "../../../include/graphics/UI/CLabelComponent.h"
 #include "../../../include/core/CFont.h"
+#define META_EXPORT_UI_SECTION
 #include "../../../include/metadata.h"
 #include <stringUtils.hpp>
 

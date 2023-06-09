@@ -21,7 +21,7 @@ namespace TDEngine2
 	enum class TLocaleId : U32;
 
 
-	ENUM_META()
+	ENUM_META(SECTION=core)
 	enum class E_QUALITY_PRESET_TYPE : U8
 	{
 		LOW,

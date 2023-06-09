@@ -17,7 +17,7 @@ namespace TDEngine2
 	enum class TResourceId : U32;
 
 
-	ENUM_META()
+	ENUM_META(SECTION=ui)
 	enum class E_UI_ELEMENT_ALIGNMENT_TYPE : U8
 	{
 		LEFT,
