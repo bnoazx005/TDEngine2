@@ -39,6 +39,9 @@
 #include "../../include/utils/ITimer.h"
 #define META_IMPLEMENTATION
 #define META_EXPORT_CORE_SECTION
+#define META_EXPORT_GRAPHICS_SECTION
+#define META_EXPORT_UI_SECTION
+#define META_EXPORT_ANIMATION_SECTION
 #include "../../include/metadata.h"
 
 #if TDE2_EDITORS_ENABLED

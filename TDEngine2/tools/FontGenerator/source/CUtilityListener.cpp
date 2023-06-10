@@ -4,6 +4,9 @@
 #pragma warning(disable:4996)
 #include "./../deps/stb/stb_image_write.h"
 #pragma warning(pop)
+#define META_EXPORT_GRAPHICS_SECTION
+#define META_EXPORT_UI_SECTION
+#include "../../include/metadata.h"
 
 
 #if TDE2_EDITORS_ENABLED
