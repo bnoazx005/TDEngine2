@@ -92,6 +92,13 @@ namespace TDEngine2
 
 			TDE2_API TPtr<CPrefabChangesList> Clone() const override;
 
+#if TDE2_EDITORS_ENABLED
+
+			TDE2_API E_RESULT_CODE AddModification(const TChangeDesc& desc);
+			TDE2_API E_RESULT_CODE RemoveModification(const CEntityRef& target, const std::string& propertyBinding);
+
+#endif
+
 			TDE2_API E_RESULT_CODE ApplyChanges(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesMappings);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPrefabChangesList)
@@ -100,5 +107,16 @@ namespace TDEngine2
 	};
 
 
+	class IPrefabsRegistry;
+
+
 	TDE2_DECLARE_SCOPED_PTR_INLINED(CPrefabChangesList)
+	TDE2_DECLARE_SCOPED_PTR(IPrefabsRegistry)
+
+
+#if TDE2_EDITORS_ENABLED
+
+	TDE2_API E_RESULT_CODE StoreChanges(TPtr<CPrefabChangesList>& pPrefabChanges, const TPtr<IPrefabsRegistry>& pPrefabsRegistry, CEntityManager* pEntityManager, TEntityId rootEntityId);
+
+#endif
 }

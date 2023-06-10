@@ -24,7 +24,10 @@ TEST_CASE("CPrefabChangesList Tests")
 		{
 			pFileWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
 			pFileWriter->BeginGroup("element");
-			pFileWriter->SetUInt32("target_id", 0);
+
+			CEntityRef targetRef(nullptr, TEntityId(0));
+			SaveEntityRef(pFileWriter, "target_id", targetRef);
+
 			pFileWriter->SetString("property_binding", "transform.position");
 			{
 				pFileWriter->BeginGroup("value");
@@ -47,5 +50,7 @@ TEST_CASE("CPrefabChangesList Tests")
 		REQUIRE(pPrefabChangesList);
 
 		REQUIRE(RC_OK == pPrefabChangesList->Load(pFileReader));
+
+		/// \todo Complete the test case
 	}
 }

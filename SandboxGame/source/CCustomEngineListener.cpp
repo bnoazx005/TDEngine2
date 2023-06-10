@@ -581,24 +581,38 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 				}
 			}
 #endif
-#if 0
+
 			auto canvasEntityResult = CSceneHierarchyUtils::CreateCanvasUIElement(mpWorld, pScene, TEntityId::Invalid, [](auto) {});
-			CSceneHierarchyUtils::CreateInputFieldUIElement(mpWorld, pScene, canvasEntityResult.Get(), [](auto) {});
-
-			if (auto pEntity = mpWorld->FindEntity(CSceneHierarchyUtils::CreateScrollUIArea(mpWorld, pScene, canvasEntityResult.Get(), [](auto) {}).Get()))
+			
+#if 0
+			if (auto pScrollerEntity = mpWorld->FindEntity(CSceneHierarchyUtils::CreateScrollUIArea(mpWorld, pScene, canvasEntityResult.Get(), [](auto) {}).Get()))
 			{
-				CSceneHierarchyUtils::CreateInputFieldUIElement(mpWorld, pScene, pEntity->GetComponent<CTransform>()->GetChildren().front(), [](auto) {});
-
-				if (auto pLayout = pEntity->AddComponent<CLayoutElement>())
+				if (auto pLayoutElement = pScrollerEntity->GetComponent<CLayoutElement>())
 				{
-					pLayout->SetMinAnchor(ZeroVector2);
-					pLayout->SetMaxAnchor(ZeroVector2);
-					pLayout->SetMinOffset(TVector2(400.0f));
+					pLayoutElement->SetMinOffset(TVector2(200.0f, 200.0f));
+					pLayoutElement->SetMaxOffset(TVector2(100.0f, 200.0f));
 				}
 
-				if (auto pScrollArea = pEntity->GetComponent<CScrollableUIArea>())
+				if (auto pScrollerContentEntity = mpWorld->FindEntity(pScrollerEntity->GetComponent<CTransform>()->GetChildren().front()))
 				{
-					pScrollArea->SetVertical(true);
+					CSceneHierarchyUtils::CreateImageUIElement(mpWorld, pScene, pScrollerContentEntity->GetId(), [](auto) {});
+				}
+			}
+#else
+			if (auto pDropDownEntity = mpWorld->FindEntity(CSceneHierarchyUtils::CreateDropDownUIElement(mpWorld, pScene, canvasEntityResult.Get(), [](auto) {}).Get()))
+			{
+				if (auto pDropDown = pDropDownEntity->GetComponent<CDropDown>())
+				{
+					std::vector<std::string> items
+					{
+						"Option A", "Option B", "Option C"
+					};
+					pDropDown->SetItems(items);
+				}
+
+				if (auto pLayout = pDropDownEntity->GetComponent<CLayoutElement>())
+				{
+					pLayout->SetMinOffset(TVector2(150.f));
 				}
 			}
 #endif
