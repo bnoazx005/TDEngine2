@@ -7,6 +7,7 @@
 #include "../../include/scene/ISceneManager.h"
 #include "../../include/scene/IScene.h"
 #include "../../include/scene/IPrefabsRegistry.h"
+#include "../../include/scene/components/CPrefabLinkInfoComponent.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/CWorld.h"
 #include "../../include/ecs/CTransform.h"
@@ -352,6 +353,21 @@ namespace TDEngine2
 		});
 	}
 
+	/// \note Contains colors for entities, prefabs links based on their nestedness
+	static const std::array<TColor32F, 4> EntitiesLabelsColors /// \todo Make configurable via editor settings
+	{
+		TColorUtils::mWhite,
+		TColor32F(0.49f, 0.678f, 0.95f, 1.0f),
+		TColor32F(1.0f, 0.78f, 0.37f, 1.0f),
+		TColor32F(0.61f, 0.404f, 0.71f, 1.0f),
+	};
+
+
+	constexpr const TColor32F& GetEntityColor(U32 nestingIndex)
+	{
+		return EntitiesLabelsColors[nestingIndex % EntitiesLabelsColors.size()];
+	}
+
 
 	void CSceneHierarchyEditorWindow::_onDraw()
 	{
@@ -441,7 +457,7 @@ namespace TDEngine2
 
 					TEntityId currParentId = TEntityId::Invalid;
 
-					std::function<void(CEntity*)> drawEntityHierarchy = [this, &drawEntityHierarchy, pWorld, &currParentId, pCurrScene](CEntity* pEntity)
+					std::function<void(CEntity*, U32)> drawEntityHierarchy = [this, &drawEntityHierarchy, pWorld, &currParentId, pCurrScene](CEntity* pEntity, U32 prefabNestedLevel)
 					{
 						if (!pEntity)
 						{
@@ -461,10 +477,15 @@ namespace TDEngine2
 						const std::string fieldStr = Wrench::StringUtils::Format("{0}##{1}", pEntity->GetName(), static_cast<U32>(pEntity->GetId()));
 						
 						const bool isActive = !pEntity->HasComponent<CDeactivatedComponent>() && !pEntity->HasComponent<CDeactivatedGroupComponent>();
+						
+						if (pEntity->HasComponent<CPrefabLinkInfoComponent>())
+						{
+							prefabNestedLevel++;
+						}
 
 						if (isLeafEntity)
 						{							
-							if (mpImGUIContext->SelectableItem(fieldStr, isActive ? TColorUtils::mWhite : TColorUtils::mGray, mpSelectionManager->IsEntityBeingSelected(pEntity->GetId())))
+							if (mpImGUIContext->SelectableItem(fieldStr, isActive ? GetEntityColor(prefabNestedLevel) : TColorUtils::mGray, mpSelectionManager->IsEntityBeingSelected(pEntity->GetId())))
 							{
 								if (mpInputContext->IsKey(E_KEYCODES::KC_LCONTROL))
 								{
@@ -503,7 +524,7 @@ namespace TDEngine2
 						bool isOpened = false;
 						bool isSelected = false;
 
-						std::tie(isOpened, isSelected) = mpImGUIContext->BeginTreeNode(fieldStr, isActive ? TColorUtils::mWhite : TColorUtils::mGray, mpSelectionManager->IsEntityBeingSelected(pEntity->GetId()));
+						std::tie(isOpened, isSelected) = mpImGUIContext->BeginTreeNode(fieldStr, isActive ? GetEntityColor(prefabNestedLevel) : TColorUtils::mGray, mpSelectionManager->IsEntityBeingSelected(pEntity->GetId()));
 						ProcessDragAndDropLogic(mpImGUIContext, pWorld, pEntity->GetId());
 
 						if (isOpened)
@@ -513,7 +534,7 @@ namespace TDEngine2
 
 							for (auto currChild : pTransform->GetChildren())
 							{
-								drawEntityHierarchy(pWorld->FindEntity(currChild));
+								drawEntityHierarchy(pWorld->FindEntity(currChild), prefabNestedLevel);
 							}
 
 							currParentId = prevParentId;
@@ -542,7 +563,7 @@ namespace TDEngine2
 
 					for (const TEntityId currEntityId : pCurrScene->GetEntities())
 					{
-						drawEntityHierarchy(pWorld->FindEntity(currEntityId));
+						drawEntityHierarchy(pWorld->FindEntity(currEntityId), 0);
 					}
 				}
 			}
