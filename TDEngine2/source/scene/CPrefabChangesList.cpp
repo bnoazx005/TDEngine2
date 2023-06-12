@@ -248,7 +248,7 @@ namespace TDEngine2
 				}
 			}
 
-			if (pCurrEntity->HasComponent<CPrefabLinkInfoComponent>())
+			if (pCurrEntity->template HasComponent<CPrefabLinkInfoComponent>())
 			{
 				return false; /// \note Don't traverse hierarchy underneath cause it's another prefab
 			}
