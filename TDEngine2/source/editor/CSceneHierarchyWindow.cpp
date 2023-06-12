@@ -307,6 +307,23 @@ namespace TDEngine2
 				SaveHierarchyToPrefab(desc);
 			});
 
+			if (auto pSelectedEntity = pWorld->FindEntity(pSelectionManager->GetSelectedEntityId()))
+			{
+				if (pSelectedEntity->HasComponent<CPrefabLinkInfoComponent>())
+				{
+					imguiContext.MenuItem("Break Link", Wrench::StringUtils::GetEmptyStr(), [&]
+					{
+						pSelectedEntity->RemoveComponent<CPrefabLinkInfoComponent>();
+
+						TraverseEntityHierarchy(pWorld->GetEntityManager(), pSelectedEntity->GetId(), [](auto&& pCurrEntity)
+						{
+							pCurrEntity->RemoveComponent<CPrefabLinkInfoComponent>();
+							return true;
+						});
+					});
+				}				
+			}
+
 			imguiContext.MenuItem("Copy", Wrench::StringUtils::GetEmptyStr(), copyEntitiesHierarchy);
 			imguiContext.MenuItem("Paste", Wrench::StringUtils::GetEmptyStr(), pasteEntitiesHierarchy);
 		});
