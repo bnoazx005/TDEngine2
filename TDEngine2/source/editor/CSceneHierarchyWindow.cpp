@@ -313,11 +313,11 @@ namespace TDEngine2
 				{
 					imguiContext.MenuItem("Break Link", Wrench::StringUtils::GetEmptyStr(), [&]
 					{
-						pSelectedEntity->RemoveComponent<CPrefabLinkInfoComponent>();
+						pSelectedEntity->template RemoveComponent<CPrefabLinkInfoComponent>();
 
 						TraverseEntityHierarchy(pWorld->GetEntityManager(), pSelectedEntity->GetId(), [](auto&& pCurrEntity)
 						{
-							pCurrEntity->RemoveComponent<CPrefabLinkInfoComponent>();
+							pCurrEntity->template RemoveComponent<CPrefabLinkInfoComponent>();
 							return true;
 						});
 					});

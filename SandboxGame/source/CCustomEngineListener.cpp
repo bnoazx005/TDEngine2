@@ -601,7 +601,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 #else
 			if (auto pDropDownEntity = mpWorld->FindEntity(CSceneHierarchyUtils::CreateDropDownUIElement(mpWorld, pScene, canvasEntityResult.Get(), [](auto) {}).Get()))
 			{
-				if (auto pDropDown = pDropDownEntity->GetComponent<CDropDown>())
+				if (auto pDropDown = pDropDownEntity->template GetComponent<CDropDown>())
 				{
 					std::vector<std::string> items
 					{
@@ -610,7 +610,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 					pDropDown->SetItems(items);
 				}
 
-				if (auto pLayout = pDropDownEntity->GetComponent<CLayoutElement>())
+				if (auto pLayout = pDropDownEntity->template GetComponent<CLayoutElement>())
 				{
 					pLayout->SetMinOffset(TVector2(150.f));
 				}
