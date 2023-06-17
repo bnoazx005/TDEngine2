@@ -192,6 +192,11 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBinaryArchiveWriter::SetString(const std::string& key, const std::string& value)
 	{
+		if (value.empty())
+		{
+			return RC_OK;
+		}
+
 		std::lock_guard<std::mutex> lock(mMutex);
 		return WriteValueImpl<std::string>(mpCachedOutputStream, key, value);
 	}

@@ -157,6 +157,11 @@ namespace TDEngine2
 
 	E_RESULT_CODE CYAMLFileWriter::SetString(const std::string& key, const std::string& value)
 	{
+		if (value.empty())
+		{
+			return RC_OK;
+		}
+
 		std::lock_guard<std::mutex> lock(mMutex);
 		return _setContent<std::string>(key, value);
 	}
