@@ -109,6 +109,7 @@ namespace TDEngine2
 
 			TDE2_API bool IsDirty() const;
 
+			TDE2_REGISTER_COMPONENT_PROPERTIES
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CLabel)
 

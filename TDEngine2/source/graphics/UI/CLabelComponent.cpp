@@ -220,6 +220,40 @@ namespace TDEngine2
 		return mPrevText != mText;
 	}
 
+	const std::string& CLabel::GetTypeName() const
+	{
+		static const std::string id{ "label" };
+		return id;
+	}
+
+	IPropertyWrapperPtr CLabel::GetProperty(const std::string& propertyName)
+	{
+		static const std::unordered_map<std::string, std::function<IPropertyWrapperPtr()>> propertiesFactories
+		{
+			{ "text", [this]
+				{
+					return IPropertyWrapperPtr(CBasePropertyWrapper<std::string>::Create(
+						[this](const std::string& text) { SetText(text); return RC_OK; },
+						[this]() { return &mText; }));
+				}
+			},
+		};
+
+		auto it = propertiesFactories.find(propertyName);
+
+		return (it != propertiesFactories.cend()) ? (it->second)() : CBaseComponent::GetProperty(propertyName);
+	}
+
+	const std::vector<std::string>& CLabel::GetAllProperties() const
+	{
+		static const std::vector<std::string> properties
+		{
+			"text",
+		};
+
+		return properties;
+	}
+
 
 	IComponent* CreateLabel(E_RESULT_CODE& result)
 	{

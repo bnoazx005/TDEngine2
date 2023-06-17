@@ -507,4 +507,10 @@ namespace TDEngine2
 
 	TDE2_DECLARE_FLAG_COMPONENT(DeactivatedComponent)
 	TDE2_DECLARE_FLAG_COMPONENT(DeactivatedGroupComponent)
+
+
+#define TDE2_REGISTER_COMPONENT_PROPERTIES												\
+	TDE2_API const std::string& GetTypeName() const override;							\
+	TDE2_API IPropertyWrapperPtr GetProperty(const std::string& propertyName) override; \
+	TDE2_API const std::vector<std::string>& GetAllProperties() const override;
 }
