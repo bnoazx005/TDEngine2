@@ -252,6 +252,221 @@ namespace TDEngine2
 	template <> TDE2_API TResult<std::string> Deserialize<std::string>(IArchiveReader* pReader);
 
 
+	class IPropertyWrapper;
+
+
+	struct IValueConcept : ISerializable
+	{
+		TDE2_API virtual ~IValueConcept() = default;
+
+		template <typename U>
+		const U* Get() const
+		{
+			return static_cast<const U*>(GetInternal(::TDEngine2::GetTypeId<U>::mValue));
+		}
+
+		TDE2_API virtual E_RESULT_CODE Apply(TPtr<IPropertyWrapper> pPropertyWrapper) = 0;
+		TDE2_API virtual E_RESULT_CODE Set(TPtr<IPropertyWrapper> pPropertyWrapper) = 0;
+
+		TDE2_API virtual std::unique_ptr<IValueConcept> Clone() = 0;
+
+		TDE2_API virtual TypeId GetTypeId() const = 0;
+
+		TDE2_API virtual const void* GetInternal(TypeId inputTypeId) const = 0;
+	};
+
+
+	/*!
+		interface IPropertyWrapper
+
+		\brief The interface describes an element that allows to get an access to internal values of some component
+	*/
+
+	class IPropertyWrapper : public virtual IBaseObject
+	{
+		public:
+			template <typename T>
+			E_RESULT_CODE Set(const T& value)
+			{
+				return _setInternal(static_cast<const void*>(&value), sizeof(value));
+			}
+
+			template <typename T>
+			const T& Get() const
+			{
+				return *static_cast<const T*>(_getInternal());
+			}
+
+			TDE2_API virtual TypeId GetValueType() const = 0;
+
+			TDE2_API virtual bool operator== (const CScopedPtr<IPropertyWrapper>& property) const = 0;
+			TDE2_API virtual bool operator!= (const CScopedPtr<IPropertyWrapper>& property) const = 0;
+
+			
+
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPropertyWrapper)
+
+			TDE2_API virtual E_RESULT_CODE _setInternal(const void* pValue, size_t valueSize) = 0;
+			TDE2_API virtual const void* _getInternal() const = 0;
+	};
+
+
+	typedef CScopedPtr<IPropertyWrapper> IPropertyWrapperPtr;
+
+
+	template <typename T>
+	struct CTypedValue : IValueConcept
+	{
+		explicit CTypedValue(T&& value) :
+			mValue(std::forward<T>(value)), mTypeId(::TDEngine2::GetTypeId<T>::mValue)
+		{
+		}
+
+		std::unique_ptr<IValueConcept> Clone() override
+		{
+			return std::make_unique<CTypedValue<T>>(std::forward<T>(mValue));
+		}
+
+		E_RESULT_CODE Apply(TPtr<IPropertyWrapper> pPropertyWrapper)
+		{
+			return pPropertyWrapper->template Set<T>(mValue);
+		}
+
+		E_RESULT_CODE Set(TPtr<IPropertyWrapper> pPropertyWrapper)
+		{
+			mValue = pPropertyWrapper->template Get<T>();
+			return RC_OK;
+		}
+
+		const void* GetInternal(TypeId inputTypeId) const
+		{
+			if (::TDEngine2::GetTypeId<T>::mValue != inputTypeId)
+			{
+				TDE2_ASSERT(::TDEngine2::GetTypeId<T>::mValue != inputTypeId);
+				return nullptr;
+			}
+
+			return static_cast<const void*>(&mValue);
+		}
+
+		/*!
+			\brief The method deserializes object's state from given reader
+
+			\param[in, out] pReader An input stream of data that contains information about the object
+
+			\return RC_OK if everything went ok, or some other code, which describes an error
+		*/
+
+		E_RESULT_CODE Load(IArchiveReader* pReader) override
+		{
+			auto result = Deserialize<T>(pReader);
+			if (result.HasError())
+			{
+				return result.GetError();
+			}
+
+			mValue = result.Get();
+
+			return RC_OK;
+		}
+
+		/*!
+			\brief The method serializes object's state into given stream
+
+			\param[in, out] pWriter An output stream of data that writes information about the object
+
+			\return RC_OK if everything went ok, or some other code, which describes an error
+		*/
+
+		E_RESULT_CODE Save(IArchiveWriter* pWriter) override
+		{
+			pWriter->SetUInt32("type_id", static_cast<U32>(mTypeId));
+			return Serialize<T>(pWriter, mValue);
+		}
+
+		TypeId GetTypeId() const override
+		{
+			return mTypeId;
+		}
+
+		T mValue;
+		TypeId mTypeId;
+	};
+
+
+	/*!
+		\brief The simple property wrapper's implementation via lambdas that have access to internal members of some class.
+		Note that you won't get the access like described above if you create these wrappers outside of a class.
+
+		\todo Also another problem that should be discussed here is safety. Because of template methods Set/Get in the interface
+		now we can't be sure that user doesn't mess up with types, etc.
+	*/
+
+	template <typename TValueType>
+	class CBasePropertyWrapper : public IPropertyWrapper, public CBaseObject
+	{
+		public:
+			typedef std::function<E_RESULT_CODE(const TValueType&)> TPropertySetterFunctor;
+			typedef std::function<const TValueType* ()> TPropertyGetterFunctor;
+
+		public:
+			static TDE2_API IPropertyWrapper* Create(const TPropertySetterFunctor& setter, const TPropertyGetterFunctor& getter)
+			{
+				return new (std::nothrow) CBasePropertyWrapper<TValueType>(setter, getter);
+			}
+
+			TDE2_API TypeId GetValueType() const override
+			{
+				return GetTypeId<TValueType>::mValue;
+			}
+
+			TDE2_API bool operator== (const IPropertyWrapperPtr& property) const override
+			{
+				if (!property)
+				{
+					return false;
+				}
+
+				if (property->GetValueType() != GetValueType())
+				{
+					return false;
+				}
+
+				return property->Get<TValueType>() == Get<TValueType>();
+			}
+
+			TDE2_API bool operator!= (const IPropertyWrapperPtr& property) const override
+			{
+				return !(*this == property);
+			}
+
+		protected:
+			CBasePropertyWrapper(const TPropertySetterFunctor& setter, const TPropertyGetterFunctor& getter) : CBaseObject(), mSetterFunc(setter), mGetterFunc(getter)
+			{
+				mIsInitialized = true;
+			}
+
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBasePropertyWrapper)
+
+			TDE2_API E_RESULT_CODE _setInternal(const void* pValue, size_t valueSize)
+			{
+				return mSetterFunc ? mSetterFunc(*static_cast<const TValueType*>(pValue)) : RC_FAIL;
+			}
+
+			TDE2_API const void* _getInternal() const
+			{
+				return mGetterFunc ? mGetterFunc() : nullptr;
+			}
+		protected:
+			TPropertySetterFunctor mSetterFunc;
+			TPropertyGetterFunctor mGetterFunc;
+	};
+
+
+	template <typename TValueType> CBasePropertyWrapper<TValueType>::CBasePropertyWrapper() : CBaseObject() {}
+
+
 	/*!
 		class CValueWrapper
 
@@ -275,7 +490,21 @@ namespace TDEngine2
 			{
 			}
 
+			/*!
+				\brief The method assigns internal wrapper's value into given pPropertyWrapper object	
+
+				\param[out] pPropertyWrapper Non empty object of IPropertyWrapper type the value of the wrapper will be assigned into
+
+				\return RC_OK if everything went ok, or some other code, which describes an error			
+			*/
 			TDE2_API E_RESULT_CODE Apply(TPtr<IPropertyWrapper> pPropertyWrapper);
+
+			/*!
+				\brief The method assigns a value from IPropertyWrapper into the object. If the TypeId of IPropertyWrapper and
+				TypeId of the wrapper aren't same the previous one will be replaced with the newer
+			*/
+
+			TDE2_API E_RESULT_CODE Set(TPtr<IPropertyWrapper> pPropertyWrapper);
 
 			template <typename U>
 			const U* CastTo() const
@@ -306,100 +535,8 @@ namespace TDEngine2
 			TDE2_API TypeId GetTypeId() const;
 
 			TDE2_API CValueWrapper& operator= (CValueWrapper object);
-
-		private:
-			struct IValueConcept: ISerializable
-			{
-				TDE2_API virtual ~IValueConcept() = default;
-
-				template <typename U>
-				const U* Get() const
-				{
-					return static_cast<const U*>(GetInternal(::TDEngine2::GetTypeId<U>::mValue));
-				}
-
-				TDE2_API virtual E_RESULT_CODE Apply(TPtr<IPropertyWrapper> pPropertyWrapper) = 0;
-
-				TDE2_API virtual std::unique_ptr<IValueConcept> Clone() = 0;
-
-				TDE2_API virtual TypeId GetTypeId() const = 0;
-
-				TDE2_API virtual const void* GetInternal(TypeId inputTypeId) const = 0;
-			};
-
-			template <typename T>
-			struct CTypedValue : IValueConcept
-			{
-				explicit CTypedValue(T&& value) :
-					mValue(std::forward<T>(value)), mTypeId(::TDEngine2::GetTypeId<T>::mValue)
-				{
-				}
-
-				std::unique_ptr<IValueConcept> Clone() override
-				{
-					return std::make_unique<CTypedValue<T>>(std::forward<T>(mValue));
-				}
-
-				E_RESULT_CODE Apply(TPtr<IPropertyWrapper> pPropertyWrapper)
-				{
-					return pPropertyWrapper->Set<T>(mValue);
-				}
-
-				const void* GetInternal(TypeId inputTypeId) const
-				{
-					if (::TDEngine2::GetTypeId<T>::mValue != inputTypeId)
-					{
-						TDE2_ASSERT(::TDEngine2::GetTypeId<T>::mValue != inputTypeId);
-						return nullptr;
-					}
-
-					return static_cast<const void*>(&mValue);
-				}
-
-				/*!
-					\brief The method deserializes object's state from given reader
-
-					\param[in, out] pReader An input stream of data that contains information about the object
-
-					\return RC_OK if everything went ok, or some other code, which describes an error
-				*/
-
-				E_RESULT_CODE Load(IArchiveReader* pReader) override
-				{
-					auto result = Deserialize<T>(pReader);
-					if (result.HasError())
-					{
-						return result.GetError();
-					}
-
-					mValue = result.Get();
-
-					return RC_OK;
-				}
-
-				/*!
-					\brief The method serializes object's state into given stream
-
-					\param[in, out] pWriter An output stream of data that writes information about the object
-
-					\return RC_OK if everything went ok, or some other code, which describes an error
-				*/
-
-				E_RESULT_CODE Save(IArchiveWriter* pWriter) override
-				{
-					pWriter->SetUInt32("type_id", static_cast<U32>(mTypeId));
-					return Serialize<T>(pWriter, mValue);
-				}
-
-				TypeId GetTypeId() const override
-				{
-					return mTypeId;
-				}
-
-				T mValue;
-				TypeId mTypeId;
-			};
-
+					
+			
 		private:
 			std::unique_ptr<IValueConcept> mpImpl = nullptr;
 	};

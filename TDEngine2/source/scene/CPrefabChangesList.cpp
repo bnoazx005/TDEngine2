@@ -330,10 +330,9 @@ namespace TDEngine2
 
 			for (auto&& currProperty : currPropertyModification.second.mPropertiesTable)
 			{
-				CValueWrapper value;
-				result = result | value.Apply(std::get<IPropertyWrapperPtr>(currProperty.second));
+				//CValueWrapper value = std::get<IPropertyWrapperPtr>(currProperty.second);
 
-				result = result | pPrefabChanges->AddModification({CEntityRef(pEntityManager, currEntityId), std::get<std::string>(currProperty.second), value });
+				//result = result | pPrefabChanges->AddModification({CEntityRef(pEntityManager, currEntityId), std::get<std::string>(currProperty.second), value });
 			}
 		}
 

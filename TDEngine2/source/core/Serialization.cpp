@@ -95,6 +95,22 @@ namespace TDEngine2
 		return mpImpl ? mpImpl->Apply(pPropertyWrapper) : RC_FAIL;
 	}
 
+	E_RESULT_CODE CValueWrapper::Set(TPtr<IPropertyWrapper> pPropertyWrapper)
+	{
+		if (!pPropertyWrapper)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		if (!mpImpl || pPropertyWrapper->GetValueType() != mpImpl->GetTypeId())
+		{
+			//mpImpl = pPropertyWrapper->ToValueWrapper();
+			return RC_FAIL;
+		}
+
+		return mpImpl ? mpImpl->Set(pPropertyWrapper) : RC_FAIL;
+	}
+
 	CValueWrapper& CValueWrapper::operator= (CValueWrapper object)
 	{
 		this->mpImpl = std::move(object.mpImpl);
