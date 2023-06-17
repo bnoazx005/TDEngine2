@@ -17,6 +17,8 @@
 #include "../../include/ecs/CCameraSystem.h"
 #include "../../include/scene/IScene.h"
 #include "../../include/scene/ISceneManager.h"
+#include "../../include/scene/components/CPrefabLinkInfoComponent.h"
+#include "../../include/scene/CPrefabChangesList.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -476,6 +478,37 @@ namespace TDEngine2
 	}
 
 
+	static void TrySavePrefabChanges(TPtr<IPrefabsRegistry> pPrefabsRegistry, IImGUIContext* pImGUIContext, IWorld& world, CEntity* pEntity)
+	{
+		/// \note Find the nearest prefab link
+		CEntity* pCurrEntity = pEntity;
+		CPrefabLinkInfoComponent* pPrefabLinkInfo = nullptr;
+
+		while (pCurrEntity)
+		{
+			pPrefabLinkInfo = pCurrEntity->GetComponent<CPrefabLinkInfoComponent>();
+			if (pPrefabLinkInfo)
+			{
+				break;
+			}
+
+			CTransform* pCurrTransform = pCurrEntity->GetComponent<CTransform>();
+			pCurrEntity = world.FindEntity(pCurrTransform->GetParent());
+		}
+
+		if (!pPrefabLinkInfo)
+		{
+			return; /// \note Nothing to save here because it's not a prefab's link
+		}
+
+		/// \note Generate list of changes for the hierarchy
+		auto&& pChangesList = pPrefabLinkInfo->GetPrefabsChangesList();
+
+		E_RESULT_CODE result = StoreChanges(pChangesList, pPrefabsRegistry, world.GetEntityManager(), pEntity->GetId());
+		TDE2_ASSERT(RC_OK == result);
+	}
+
+
 	bool CLevelEditorWindow::_onDrawObjectInspector()
 	{
 		if (mpSelectionManager->GetSelectedEntities().size() > 1)
@@ -524,6 +557,8 @@ namespace TDEngine2
 			(iter->second)({ *mpImGUIContext, *pCurrComponent, *mpActionsHistory, *mpEditorsManager->GetWorldInstance().Get(), mSelectedEntityId });
 		}
 
+		/// \todo Invoke TrySavePrefabChanges only if some inspector returns true
+		TrySavePrefabChanges(mpSceneManager->GetPrefabsRegistry(), mpImGUIContext, *mpEditorsManager->GetWorldInstance().Get(), pSelectedEntity);
 		DisplayAddComponentBar(mpImGUIContext, *mpEditorsManager->GetWorldInstance().Get(), pSelectedEntity);
 
 		return true;

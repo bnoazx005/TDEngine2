@@ -302,7 +302,7 @@ namespace TDEngine2
 			TDE2_API virtual bool operator== (const CScopedPtr<IPropertyWrapper>& property) const = 0;
 			TDE2_API virtual bool operator!= (const CScopedPtr<IPropertyWrapper>& property) const = 0;
 
-			
+			TDE2_API virtual std::unique_ptr<IValueConcept> ToValueWrapper() const = 0;
 
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPropertyWrapper)
@@ -318,8 +318,8 @@ namespace TDEngine2
 	template <typename T>
 	struct CTypedValue : IValueConcept
 	{
-		explicit CTypedValue(T&& value) :
-			mValue(std::forward<T>(value)), mTypeId(::TDEngine2::GetTypeId<T>::mValue)
+		explicit CTypedValue(const T& value) :
+			mValue(value), mTypeId(::TDEngine2::GetTypeId<T>::mValue)
 		{
 		}
 
@@ -440,6 +440,11 @@ namespace TDEngine2
 			{
 				return !(*this == property);
 			}
+			
+			TDE2_API std::unique_ptr<IValueConcept> ToValueWrapper() const override
+			{
+				return std::make_unique<CTypedValue<TValueType>>(*mGetterFunc());
+			}
 
 		protected:
 			CBasePropertyWrapper(const TPropertySetterFunctor& setter, const TPropertyGetterFunctor& getter) : CBaseObject(), mSetterFunc(setter), mGetterFunc(getter)
@@ -536,7 +541,7 @@ namespace TDEngine2
 
 			TDE2_API CValueWrapper& operator= (CValueWrapper object);
 					
-			
+
 		private:
 			std::unique_ptr<IValueConcept> mpImpl = nullptr;
 	};

@@ -104,8 +104,8 @@ namespace TDEngine2
 
 		if (!mpImpl || pPropertyWrapper->GetValueType() != mpImpl->GetTypeId())
 		{
-			//mpImpl = pPropertyWrapper->ToValueWrapper();
-			return RC_FAIL;
+			mpImpl = pPropertyWrapper->ToValueWrapper();
+			return RC_OK;
 		}
 
 		return mpImpl ? mpImpl->Set(pPropertyWrapper) : RC_FAIL;
