@@ -71,8 +71,18 @@ namespace TDEngine2
 			TDE2_API const std::string& GetPrefabLinkId() const;
 
 			TDE2_API TPtr<CPrefabChangesList> GetPrefabsChangesList() const;
+
+			/*!
+				\return The method returns true if the given component type is for runtime purposes only
+			*/
+
+			TDE2_API bool IsRuntimeOnly() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPrefabLinkInfoComponent)
+#if TDE2_EDITORS_ENABLED
+		public:
+			bool mIsChangesListSerializationEnabled = true;
+#endif
 		protected:
 			TPtr<CPrefabChangesList> mpChangesList;
 

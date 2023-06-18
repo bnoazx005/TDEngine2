@@ -23,6 +23,7 @@
 #include <unordered_set>
 #include <queue>
 #include <algorithm>
+#include "deferOperation.hpp"
 
 
 namespace TDEngine2
@@ -680,23 +681,15 @@ namespace TDEngine2
 			prefabInstancesRoots.emplace_back(pInstance);
 		}
 
-		/// \note Last stage (applying of local changes to entities of the scene)
-		for (CEntity* pCurrPrefabInstance : prefabInstancesRoots)
+		/// \note Apply changes list for current scene
+		TPtr<CPrefabChangesList> pSceneChangesList = TPtr<CPrefabChangesList>(CreatePrefabChangesList(result));
+		if (RC_OK != result)
 		{
-			auto pPrefabLinkInfo = pCurrPrefabInstance->GetComponent<CPrefabLinkInfoComponent>();
-			if (!pPrefabLinkInfo)
-			{
-				continue;				
-			}
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
+		}
 
-			auto pPrefabChanges = pPrefabLinkInfo->GetPrefabsChangesList();
-			if (!pPrefabChanges)
-			{
-				continue;
-			}
-
-			result = result | pPrefabChanges->ApplyChanges(pEntityManager, entitiesIdsMap);
-		}		
+		result = result | pSceneChangesList->Load(pReader);
+		result = result | pSceneChangesList->ApplyChanges(pEntityManager, entitiesIdsMap);
 
 		if (RC_OK != result)
 		{
@@ -810,6 +803,47 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+
+	static E_RESULT_CODE SaveSceneChanges(IArchiveWriter* pWriter, TPtr<IWorld> pWorld, const CScene::TEntitiesRegistry& entities,
+		const std::function<bool(const CTransform*)>& predicate)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		for (TEntityId currEntityId : entities)
+		{
+			CEntity* pCurrEntity = pWorld->FindEntity(currEntityId);
+			if (!pCurrEntity)
+			{
+				continue;
+			}
+
+			auto pTransform = pCurrEntity->GetComponent<CTransform>();
+			if (!pTransform)
+			{
+				continue;
+			}
+
+			if (!predicate(pTransform))
+			{
+				continue;
+			}
+
+			auto pPrefabLinkInfo = pCurrEntity->GetComponent<CPrefabLinkInfoComponent>();
+			if (!pPrefabLinkInfo)
+			{
+				continue;
+			}
+
+			if (auto pChangesList = pPrefabLinkInfo->GetPrefabsChangesList())
+			{
+				result = result | pChangesList->Save(pWriter);
+			}
+		}
+
+		return result;
+	}
+
+
 	E_RESULT_CODE CSceneSerializer::SaveScene(IArchiveWriter* pWriter, TPtr<IWorld> pWorld, IScene* pScene)
 	{
 		E_RESULT_CODE result = RC_OK;
@@ -838,6 +872,8 @@ namespace TDEngine2
 			}
 		}
 		result = result | pWriter->EndGroup();
+
+		result = result | SaveSceneChanges(pWriter, pWorld, pScene->GetEntities(), [](const CTransform* pTransform) { return TEntityId::Invalid == pTransform->GetParent(); });
 
 		return result;
 	}

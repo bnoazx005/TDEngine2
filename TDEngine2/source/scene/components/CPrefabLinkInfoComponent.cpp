@@ -42,7 +42,7 @@ namespace TDEngine2
 		{
 			pWriter->SetUInt32("type_id", static_cast<U32>(CPrefabLinkInfoComponent::GetTypeId()));
 
-			if (mpChangesList)
+			if (mIsChangesListSerializationEnabled && mpChangesList)
 			{
 				mpChangesList->Save(pWriter);
 			}
@@ -78,6 +78,11 @@ namespace TDEngine2
 	TPtr<CPrefabChangesList> CPrefabLinkInfoComponent::GetPrefabsChangesList() const
 	{
 		return mpChangesList;
+	}
+
+	bool CPrefabLinkInfoComponent::IsRuntimeOnly() const
+	{
+		return true;
 	}
 
 
