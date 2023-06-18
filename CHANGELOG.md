@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.17] 2023-06-17
+## [0.6.17] 2023-06-18
 
 ### Added
 
@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - (#90 issue) The problem with saving empty string literals within **IArchiveWriter** was fixed.
+
+- The implementation of TraverseEntityHierarchy was fixed to include root entity into search.
 
 ## [0.6.16] 2023-05-25
 

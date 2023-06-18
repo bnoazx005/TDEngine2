@@ -401,4 +401,35 @@ TEST_CASE("CWorld Tests")
 		}
 
 	}
+
+	SECTION("TestTraverseEntityHierarchy_PassHierarchyOfEntities_FunctionIteratesOverEachEntity")
+	{
+		/*
+			x Parent1
+			x	Child1
+			x		Child2
+		*/
+
+		auto pParentEntity = pWorld->CreateEntity("Parent");
+		auto pChild1Entity = pWorld->CreateEntity("Child1");
+		auto pChild2Entity = pWorld->CreateEntity("Child2");
+
+		REQUIRE(RC_OK == GroupEntities(pWorld.Get(), pParentEntity->GetId(), pChild1Entity->GetId()));
+		REQUIRE(RC_OK == GroupEntities(pWorld.Get(), pChild1Entity->GetId(), pChild2Entity->GetId()));
+
+		std::unordered_set<TEntityId> entitiesToVisit
+		{
+			pParentEntity->GetId(),
+			pChild1Entity->GetId(),
+			pChild2Entity->GetId(),
+		};
+
+		TraverseEntityHierarchy(pWorld->GetEntityManager(), pParentEntity->GetId(), [&entitiesToVisit](auto&& pEntity)
+		{
+			entitiesToVisit.erase(pEntity->GetId());
+			return true;
+		});
+
+		REQUIRE(entitiesToVisit.empty());
+	}
 }

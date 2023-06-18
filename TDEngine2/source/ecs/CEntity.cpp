@@ -525,6 +525,7 @@ namespace TDEngine2
 		}
 
 		std::queue<TPtr<CEntity>> entitiesToProcess;
+		entitiesToProcess.emplace(pCurrEntity);
 
 		for (auto&& currChildId : pTransform->GetChildren())
 		{
