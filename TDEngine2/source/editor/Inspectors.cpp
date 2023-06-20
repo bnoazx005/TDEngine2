@@ -1206,7 +1206,10 @@ namespace TDEngine2
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Text");
-				imguiContext.TextField("##Text", text, [&label](auto&& value) { label.SetText(value); });
+				imguiContext.TextField("##Text", text, [&label](auto&& value) 
+				{ 
+					label.SetText(value); 
+				});
 				imguiContext.EndHorizontal();
 			}
 

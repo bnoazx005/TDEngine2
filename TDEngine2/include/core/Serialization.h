@@ -299,6 +299,8 @@ namespace TDEngine2
 
 			TDE2_API virtual TypeId GetValueType() const = 0;
 
+			TDE2_API virtual bool EqualsTo(const CScopedPtr<IPropertyWrapper>& property) const = 0;
+
 			TDE2_API virtual bool operator== (const CScopedPtr<IPropertyWrapper>& property) const = 0;
 			TDE2_API virtual bool operator!= (const CScopedPtr<IPropertyWrapper>& property) const = 0;
 
@@ -421,7 +423,7 @@ namespace TDEngine2
 				return GetTypeId<TValueType>::mValue;
 			}
 
-			TDE2_API bool operator== (const IPropertyWrapperPtr& property) const override
+			TDE2_API bool EqualsTo(const CScopedPtr<IPropertyWrapper>& property) const override
 			{
 				if (!property)
 				{
@@ -434,6 +436,11 @@ namespace TDEngine2
 				}
 
 				return property->Get<TValueType>() == Get<TValueType>();
+			}
+
+			TDE2_API bool operator== (const IPropertyWrapperPtr& property) const override
+			{
+				return this->EqualsTo(property);
 			}
 
 			TDE2_API bool operator!= (const IPropertyWrapperPtr& property) const override

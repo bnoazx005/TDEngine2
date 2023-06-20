@@ -729,7 +729,7 @@ namespace TDEngine2
 		TDE2_ASSERT(prefabFactory);
 
 		IPrefabsRegistry::TPrefabInfoEntity output;
-
+		
 		auto&& loadResult = LoadEntitiesImpl(pReader, pEntityManager, entityFactory, prefabFactory);
 		if (loadResult.HasError())
 		{
@@ -744,6 +744,7 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
+		output.mpEntityOwner = pEntityManager;
 		output.mRelatedEntities = std::move(loadInfo.mCreatedEntities);
 		output.mRootEntityId = loadInfo.mRootEntities.front();
 		output.mNestedPrefabsLinks = std::move(loadInfo.mPrefabsLinks);

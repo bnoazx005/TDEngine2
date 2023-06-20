@@ -305,7 +305,7 @@ namespace TDEngine2
 					continue;
 				}
 
-				if (std::get<IPropertyWrapperPtr>(propertyIt->second) == std::get<IPropertyWrapperPtr>(originalComponentPropertyPair.second))
+				if (std::get<IPropertyWrapperPtr>(propertyIt->second)->EqualsTo(std::get<IPropertyWrapperPtr>(originalComponentPropertyPair.second)))
 				{
 					instanceComponentPropertyTable.erase(propertyIt); /// \note Remove property if it's same in two tables
 				}

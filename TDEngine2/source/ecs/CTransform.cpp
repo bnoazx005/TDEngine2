@@ -355,34 +355,34 @@ namespace TDEngine2
 
 	IPropertyWrapperPtr CTransform::GetProperty(const std::string& propertyName)
 	{
-		static const std::unordered_map<std::string, std::function<IPropertyWrapperPtr()>> propertiesFactories
+		static const std::unordered_map<std::string, std::function<IPropertyWrapperPtr(CTransform*)>> propertiesFactories
 		{
-			{ "position", [this] 
+			{ "position", [](CTransform* pTransform)
 				{ 
 					return IPropertyWrapperPtr(CBasePropertyWrapper<TVector3>::Create(
-						[this](const TVector3& pos) { SetPosition(pos); return RC_OK; }, 
-						[this]() { return &GetPosition(); }));
+						[pTransform](const TVector3& pos) { pTransform->SetPosition(pos); return RC_OK; },
+						[pTransform]() { return &pTransform->GetPosition(); }));
 				} 
 			},
-			{ "rotation", [this] 
+			{ "rotation", [](CTransform* pTransform)
 				{
 					return IPropertyWrapperPtr(CBasePropertyWrapper<TQuaternion>::Create(
-						[this](const TQuaternion& rot) { SetRotation(rot); return RC_OK; }, 
-						[this]() { return &GetRotation(); }));
+						[pTransform](const TQuaternion& rot) { pTransform->SetRotation(rot); return RC_OK; },
+						[pTransform]() { return &pTransform->GetRotation(); }));
 				} 
 			},
-			{ "scale", [this] 
+			{ "scale", [](CTransform* pTransform)
 				{ 
 					return IPropertyWrapperPtr(CBasePropertyWrapper<TVector3>::Create(
-						[this](const TVector3& scale) { SetPosition(scale); return RC_OK; }, 
-						[this]() { return &GetScale(); }));
+						[pTransform](const TVector3& scale) { pTransform->SetPosition(scale); return RC_OK; },
+						[pTransform]() { return &pTransform->GetScale(); }));
 				} 
 			}
 		};
 
 		auto it = propertiesFactories.find(propertyName);
 
-		return (it != propertiesFactories.cend()) ? (it->second)() : CBaseComponent::GetProperty(propertyName);
+		return (it != propertiesFactories.cend()) ? (it->second)(this) : CBaseComponent::GetProperty(propertyName);
 	}
 
 	const std::vector<std::string>& CTransform::GetAllProperties() const

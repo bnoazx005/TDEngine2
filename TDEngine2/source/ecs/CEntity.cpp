@@ -580,10 +580,10 @@ namespace TDEngine2
 
 		while (pCurrEntity)
 		{
-			path.append(pCurrEntity->GetName());
+			path = pCurrEntity->GetName() + path;
 			pCurrEntity = pEntityManager->GetEntity(pCurrEntity->GetComponent<CTransform>()->GetParent());
 
-			if (!pCurrEntity)
+			if (pCurrEntity)
 			{
 				path = '/' + path;
 			}

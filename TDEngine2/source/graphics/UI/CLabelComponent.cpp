@@ -228,20 +228,20 @@ namespace TDEngine2
 
 	IPropertyWrapperPtr CLabel::GetProperty(const std::string& propertyName)
 	{
-		static const std::unordered_map<std::string, std::function<IPropertyWrapperPtr()>> propertiesFactories
+		static const std::unordered_map<std::string, std::function<IPropertyWrapperPtr(CLabel*)>> propertiesFactories
 		{
-			{ "text", [this]
+			{ "text", [](CLabel* pLabel)
 				{
 					return IPropertyWrapperPtr(CBasePropertyWrapper<std::string>::Create(
-						[this](const std::string& text) { SetText(text); return RC_OK; },
-						[this]() { return &mText; }));
+						[pLabel](const std::string& text) { pLabel->SetText(text); return RC_OK; },
+						[pLabel]() { return &pLabel->GetText(); }));
 				}
 			},
 		};
 
 		auto it = propertiesFactories.find(propertyName);
 
-		return (it != propertiesFactories.cend()) ? (it->second)() : CBaseComponent::GetProperty(propertyName);
+		return (it != propertiesFactories.cend()) ? (it->second)(this) : CBaseComponent::GetProperty(propertyName);
 	}
 
 	const std::vector<std::string>& CLabel::GetAllProperties() const
