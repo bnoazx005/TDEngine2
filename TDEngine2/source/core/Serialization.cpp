@@ -27,7 +27,7 @@ namespace TDEngine2
 	template <> TDE2_API E_RESULT_CODE Serialize<F64>(IArchiveWriter* pWriter, F64 value) { return TDE2_SERIALIZE_IMPL(F64, SetDouble, value); }
 
 	template <> TDE2_API E_RESULT_CODE Serialize<bool>(IArchiveWriter* pWriter, bool value) { return TDE2_SERIALIZE_IMPL(bool, SetBool, value); }
-	template <> TDE2_API E_RESULT_CODE Serialize<std::string>(IArchiveWriter* pWriter, std::string value) { return TDE2_SERIALIZE_IMPL(bool, SetString, value); }
+	template <> TDE2_API E_RESULT_CODE Serialize<std::string>(IArchiveWriter* pWriter, std::string value) { return TDE2_SERIALIZE_IMPL(std::string, SetString, value); }
 
 	/*!
 		\brief Built in types deserialization helpers
