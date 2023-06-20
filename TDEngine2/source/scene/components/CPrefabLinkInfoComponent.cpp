@@ -85,6 +85,12 @@ namespace TDEngine2
 		return true;
 	}
 
+	const std::string& CPrefabLinkInfoComponent::GetTypeName() const
+	{
+		static const std::string typeName = "prefab_link";
+		return typeName;
+	}
+
 
 	IComponent* CreatePrefabLinkInfoComponent(E_RESULT_CODE& result)
 	{

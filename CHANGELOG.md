@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.17] 2023-06-18
+## [0.6.17] 2023-06-20
 
 ### Added
 
 - Add color marks for prefab links in the scene's hierarchy widget
 
 - Add support of breaking prefab links in scene's hierarchy widget
+
+- The basic functionality for saving changes in scenes was introduced.
 
 ### Changed
 

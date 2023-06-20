@@ -142,7 +142,7 @@ namespace TDEngine2
 
 			{ TDE2_TYPE_ID(bool), []() { return CValueWrapper{ false }; }},
 
-			{ TDE2_TYPE_ID(std::string), []() { return CValueWrapper{ std::string() }; }},
+			{ GetTypeId<std::string>::mValue, []() { return CValueWrapper{ std::string() }; }},
 
 			{ TDE2_TYPE_ID(TVector2), []() { return CValueWrapper{ TVector2() }; }},
 			{ TDE2_TYPE_ID(TVector3), []() { return CValueWrapper{ TVector3() }; }},

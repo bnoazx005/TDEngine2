@@ -237,14 +237,16 @@ namespace TDEngine2
 
 			for (auto pCurrComponent : pCurrEntity->GetComponents())
 			{
-				if (pCurrComponent->GetComponentTypeId() == CPrefabLinkInfoComponent::GetTypeId())
+				if (pCurrComponent->GetComponentTypeId() == CPrefabLinkInfoComponent::GetTypeId() || pCurrComponent->IsRuntimeOnly())
 				{
 					continue;
 				}
 
 				for (const std::string& currPropertyName : pCurrComponent->GetAllProperties())
 				{
-					propertiesTable.emplace(pCurrComponent->GetComponentTypeId(), std::make_tuple("." + currPropertyName, pCurrComponent->GetProperty(currPropertyName)));
+					propertiesTable.emplace(
+						pCurrComponent->GetComponentTypeId(), 
+						std::make_tuple(pCurrComponent->GetTypeName() + "." + currPropertyName, pCurrComponent->GetProperty(currPropertyName)));
 				}
 			}
 

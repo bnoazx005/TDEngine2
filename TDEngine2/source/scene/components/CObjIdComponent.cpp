@@ -54,6 +54,12 @@ namespace TDEngine2
 		return true;
 	}
 
+	const std::string& CObjIdComponent::GetTypeName() const
+	{
+		static const std::string typeName = "obj_id";
+		return typeName;
+	}
+
 
 	IComponent* CreateObjIdComponent(E_RESULT_CODE& result)
 	{
