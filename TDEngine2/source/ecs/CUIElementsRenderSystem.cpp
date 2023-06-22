@@ -68,29 +68,35 @@ namespace TDEngine2
 		auto& transforms     = mUIElementsContext.mpTransforms;
 		auto& layoutElements = mUIElementsContext.mpLayoutElements;
 		auto& uiMeshData     = mUIElementsContext.mpUIMeshData;
+		auto& priorities     = mUIElementsContext.mPriorities;
+
+#if TDE2_EDITORS_ENABLED
+		auto& identifiers = mUIElementsContext.mEntitiesIdentifiers;
+		identifiers.clear();
+#endif
 
 		transforms.clear();
 		layoutElements.clear();
 		uiMeshData.clear();
+		priorities.clear();
 
 		/// \note Find main canvas which has no parent or its parent has no CLayoutElement component attached
 		for (TEntityId currCanvasEntity : FindMainCanvases(pWorld))
 		{
 			CTransform* pTransform = pWorld->FindEntity(currCanvasEntity)->GetComponent<CTransform>();
+			
+			std::stack<std::tuple<TEntityId, bool, U32>> entitiesToVisit;
 
-			/// \note Sort all entities based on their priority (children're first)
-			std::stack<std::tuple<TEntityId, bool>> entitiesToVisit;
-
-			entitiesToVisit.emplace(currCanvasEntity, false);
+			entitiesToVisit.emplace(currCanvasEntity, false, 0);
 
 			CEntity* pEntity = nullptr;
-			
 			TEntityId currEntityId = TEntityId::Invalid;
 			bool hasUIMaskApplied = false;
+			U32 currPriority = 0;
 
 			while (!entitiesToVisit.empty())
 			{
-				std::tie(currEntityId, hasUIMaskApplied) = entitiesToVisit.top();
+				std::tie(currEntityId, hasUIMaskApplied, currPriority) = entitiesToVisit.top();
 				entitiesToVisit.pop();
 
 				pEntity = pWorld->FindEntity(currEntityId);
@@ -101,11 +107,12 @@ namespace TDEngine2
 
 				if (pEntity->HasComponent<CUIElementMeshData>())
 				{
-					transforms.insert(transforms.begin(), pEntity->GetComponent<CTransform>());
-					layoutElements.insert(layoutElements.begin(), pEntity->GetComponent<CLayoutElement>());
+					transforms.push_back(pEntity->GetComponent<CTransform>());
+					layoutElements.push_back(pEntity->GetComponent<CLayoutElement>());
+					priorities.push_back(currPriority);
 
 					auto pUIMeshData = pEntity->GetComponent<CUIElementMeshData>();
-					uiMeshData.insert(uiMeshData.begin(), pUIMeshData);
+					uiMeshData.push_back(pUIMeshData);
 
 					pUIMeshData->SetMaterialType(pEntity->HasComponent<CUIMaskComponent>() ? E_UI_MATERIAL_TYPE::MASK_EMITTER :
 						(hasUIMaskApplied ? E_UI_MATERIAL_TYPE::MASK_USER : E_UI_MATERIAL_TYPE::DEFAULT));
@@ -114,13 +121,17 @@ namespace TDEngine2
 					{
 						hasUIMaskApplied = pEntity->HasComponent<CUIMaskComponent>();
 					}
+
+#if TDE2_EDITORS_ENABLED
+					identifiers.push_back(pEntity->GetName());
+#endif
 				}
 
 				if (pTransform = pEntity->GetComponent<CTransform>())
 				{
 					for (TEntityId id : pTransform->GetChildren())
 					{
-						entitiesToVisit.emplace(id, hasUIMaskApplied);
+						entitiesToVisit.emplace(id, hasUIMaskApplied, currPriority + 1);
 					}
 				}
 			}
@@ -160,6 +171,7 @@ namespace TDEngine2
 		auto& transforms     = mUIElementsContext.mpTransforms;
 		auto& layoutElements = mUIElementsContext.mpLayoutElements;
 		auto& uiMeshData     = mUIElementsContext.mpUIMeshData;
+		auto& priorities     = mUIElementsContext.mPriorities;
 
 		auto shouldBatchBeFlushed = [this, pWorld, &uiMeshData](const TResourceId currMaterialId, const TMaterialInstanceId currMaterialInstanceId, USIZE index)
 		{
@@ -257,7 +269,7 @@ namespace TDEngine2
 			if (shouldBatchBeFlushed(currMaterialId, currMaterialInstance, i) || (pCurrCanvas && pPrevCanvas != pCurrCanvas))
 			{
 				auto pCurrCommand = mpUIElementsRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(
-					((0xFFFF - (pCurrCanvas->GetPriority() + (0xFFFF >> 1))) << 16) | index);
+					((0xFFFF - (pCurrCanvas->GetPriority() + (0xFFFF >> 1))) << 16) | (index + (static_cast<U32>(priorities.size()) - priorities[i])));
 
 				pCurrCommand->mpVertexBuffer = mpVertexBuffer;
 				pCurrCommand->mpIndexBuffer = mpIndexBuffer;

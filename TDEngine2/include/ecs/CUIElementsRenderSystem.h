@@ -76,6 +76,11 @@ namespace TDEngine2
 				std::vector<CTransform*>         mpTransforms;
 				std::vector<CLayoutElement*>     mpLayoutElements;
 				std::vector<CUIElementMeshData*> mpUIMeshData;
+				std::vector<U32>                 mPriorities;
+
+#if TDE2_EDITORS_ENABLED
+				std::vector<std::string> mEntitiesIdentifiers;
+#endif
 			};
 
 			typedef std::array<TResourceId, static_cast<USIZE>(E_UI_MATERIAL_TYPE::COUNT)> TMaterialsArray;

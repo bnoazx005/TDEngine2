@@ -598,7 +598,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 					CSceneHierarchyUtils::CreateImageUIElement(mpWorld, pScene, pScrollerContentEntity->GetId(), [](auto) {});
 				}
 			}
-#else
+#elif 1
 			if (auto pDropDownEntity = mpWorld->FindEntity(CSceneHierarchyUtils::CreateDropDownUIElement(mpWorld, pScene, canvasEntityResult.Get(), [](auto) {}).Get()))
 			{
 				if (auto pDropDown = pDropDownEntity->template GetComponent<CDropDown>())
