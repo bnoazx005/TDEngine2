@@ -12,6 +12,7 @@
 #include "../../include/scene/components/CObjIdComponent.h"
 #include "../../include/scene/components/CPrefabLinkInfoComponent.h"
 #include "../../include/scene/CScene.h"
+#include "../../include/scene/CPrefabChangesList.h"
 #include "../../include/platform/CYAMLFile.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/editor/ecs/EditorComponents.h"
@@ -121,6 +122,7 @@ namespace TDEngine2
 		{
 			return std::move(pPrefabsRegistry->LoadPrefabHierarchy(
 				pFileSystem->Get<IYAMLFileReader>(prefabFileId.Get()),
+				pWorld,
 				pEntityManager.Get(),
 				[pEntityManager](TEntityId id) { return pEntityManager->CreateWithUUID(id).Get(); },
 				[pPrefabsRegistry](TEntityId linkId, const std::string& prefabId, CEntity* pParentEntity) { return nullptr; }));
@@ -206,6 +208,12 @@ namespace TDEngine2
 				result = result | pEntity->PostLoad(pWorld->GetEntityManager(), entitiesIdsMap);
 				TDE2_ASSERT(RC_OK == result);
 			}
+		}
+
+		if (auto pPrefabChanges = prefabInfo.mpChanges)
+		{
+			result = result | pPrefabChanges->ApplyChanges(pWorld->GetEntityManager(), entitiesIdsMap);
+			TDE2_ASSERT(RC_OK == result);
 		}
 
 		return pPrefabInstance;
@@ -373,10 +381,10 @@ namespace TDEngine2
 
 #endif
 
-	CPrefabsRegistry::TPrefabInfoEntity CPrefabsRegistry::LoadPrefabHierarchy(IArchiveReader* pReader, CEntityManager* pEntityManager, 
+	CPrefabsRegistry::TPrefabInfoEntity CPrefabsRegistry::LoadPrefabHierarchy(IArchiveReader* pReader, IWorld* pWorld, CEntityManager* pEntityManager,
 		const TEntityFactoryFunctor& entityCustomFactory, const TPrefabFactoryFunctor& prefabCustomFactory)
 	{
-		return CSceneLoader::LoadPrefab(pReader, pEntityManager, entityCustomFactory, prefabCustomFactory).Get();
+		return CSceneLoader::LoadPrefab(pReader, pWorld, pEntityManager, entityCustomFactory, prefabCustomFactory).Get();
 	}
 
 	E_RESULT_CODE CPrefabsRegistry::OnEvent(const TBaseEvent* pEvent)

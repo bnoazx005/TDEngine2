@@ -274,6 +274,12 @@ namespace TDEngine2
 		return mIsDirty;
 	}
 
+	const std::string& CLayoutElement::GetTypeName() const
+	{
+		static const std::string typeName = "layout_element";
+		return typeName;
+	}
+
 
 	IComponent* CreateLayoutElement(E_RESULT_CODE& result)
 	{

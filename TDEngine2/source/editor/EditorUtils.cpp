@@ -135,7 +135,7 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
-		auto&& duplicateRootEntityInfo = pPrefabsRegistry->LoadPrefabHierarchy(pFileReader, pWorld->GetEntityManager(), 
+		auto&& duplicateRootEntityInfo = pPrefabsRegistry->LoadPrefabHierarchy(pFileReader, pWorld.Get(), pWorld->GetEntityManager(),
 			[pCurrScene](TEntityId id)
 			{ 
 				return pCurrScene->CreateEntity(Wrench::StringUtils::GetEmptyStr()); 

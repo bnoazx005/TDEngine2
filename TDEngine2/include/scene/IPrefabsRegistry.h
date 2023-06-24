@@ -27,6 +27,7 @@ namespace TDEngine2
 	class IArchiveReader;
 	class IArchiveWriter;
 	class CEntityManager;
+	class CPrefabChangesList;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IFileSystem)
@@ -34,6 +35,7 @@ namespace TDEngine2
 	TDE2_DECLARE_SCOPED_PTR(IWorld)
 	TDE2_DECLARE_SCOPED_PTR(CEntityManager)
 	TDE2_DECLARE_SCOPED_PTR(CEntity)
+	TDE2_DECLARE_SCOPED_PTR(CPrefabChangesList)
 
 
 	/*!
@@ -75,6 +77,8 @@ namespace TDEngine2
 				std::vector<TEntityId>       mRelatedEntities;
 
 				std::vector<TPrefabLinkInfo> mNestedPrefabsLinks;
+
+				TPtr<CPrefabChangesList>     mpChanges = nullptr;
 			};
 		public:
 			/*!
@@ -129,7 +133,7 @@ namespace TDEngine2
 				\brief The method loads prefab's data from the given archive reader. The method is allowed only in editors builds
 			*/
 
-			TDE2_API virtual TPrefabInfoEntity LoadPrefabHierarchy(IArchiveReader* pReader, CEntityManager* pEntityManager, 
+			TDE2_API virtual TPrefabInfoEntity LoadPrefabHierarchy(IArchiveReader* pReader, IWorld* pWorld, CEntityManager* pEntityManager,
 				const TEntityFactoryFunctor& entityCustomFactory = nullptr,
 				const TPrefabFactoryFunctor& prefabCustomFactory = nullptr) = 0;
 

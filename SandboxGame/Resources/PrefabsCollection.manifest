@@ -1,16 +1,20 @@
 collection: 
-  - path: ProjectResources/Prefabs/TestCanvas_WithImage.prefab
-    prefab_id: TestCanvas_WithImage
   - path: ProjectResources/Prefabs/TestPrefab.prefab
     prefab_id: TestPrefab
+  - path: ProjectResources/Prefabs/TestCanvas_WithImage.prefab
+    prefab_id: TestCanvas_WithImage
   - path: ProjectResources/Prefabs/1.prefab
     prefab_id: 1
+  - path: ProjectResources/Prefabs/TestNestedPrefabChanges.prefab
+    prefab_id: TestNestedPrefabChanges
   - path: ProjectResources/Prefabs/TestCanvas.prefab
     prefab_id: TestCanvas
-  - path: ProjectResources/Prefabs/Checkbox.prefab
-    prefab_id: Checkbox
   - path: ProjectResources/Prefabs/TestNestedPrefab.prefab
     prefab_id: TestNestedPrefab
+  - path: ProjectResources/Prefabs/Checkbox.prefab
+    prefab_id: Checkbox
+  - path: ProjectResources/Prefabs/SimpleLabel.prefab
+    prefab_id: SimpleLabel
 meta: 
   resource_type: prefabs_manifest
   version_tag: 1

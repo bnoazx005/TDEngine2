@@ -502,11 +502,30 @@ namespace TDEngine2
 		std::vector<TEntityId>                                            mCreatedEntities;
 		std::vector<TEntityId>                                            mRootEntities;
 		std::vector<IPrefabsRegistry::TPrefabInfoEntity::TPrefabLinkInfo> mPrefabsLinks;
+		TPtr<CPrefabChangesList>                                          mpChanges = nullptr;
 	};
+
+
+	static E_RESULT_CODE ApplyChanges(IArchiveReader* pReader, CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdsMap)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		TPtr<CPrefabChangesList> pSceneChangesList = TPtr<CPrefabChangesList>(CreatePrefabChangesList(result));
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		result = result | pSceneChangesList->Load(pReader);
+		result = result | pSceneChangesList->ApplyChanges(pEntityManager, entitiesIdsMap);
+
+		return result;
+	}
 
 
 	static TResult<TLoadEntitiesInfo> LoadEntitiesImpl(
 		IArchiveReader* pReader, 
+		IWorld* pWorld,
 		CEntityManager* pEntityManager, 
 		const std::function<CEntity*(TEntityId)>& entityFactory, 
 		const std::function<CEntity*(TEntityId, const std::string&, CEntity*)>& prefabLinkFactory)
@@ -645,6 +664,9 @@ namespace TDEngine2
 
 		std::vector<CEntity*> prefabInstancesRoots;
 
+		const U32 linksCount = static_cast<U32>(prefabsDefferedSpawnQueue.size());
+		U32 instantiatedLinksCount = 0;
+
 		/// \note Spawn prefabs
 		while (!prefabsDefferedSpawnQueue.empty())
 		{
@@ -664,6 +686,8 @@ namespace TDEngine2
 				continue;
 			}
 
+			++instantiatedLinksCount;
+
 			if (TEntityId::Invalid == currPrefabInfo.mParentId)
 			{
 				rootEntities.push_back(pInstance->GetId());
@@ -682,14 +706,18 @@ namespace TDEngine2
 		}
 
 		/// \note Apply changes list for current scene
-		TPtr<CPrefabChangesList> pSceneChangesList = TPtr<CPrefabChangesList>(CreatePrefabChangesList(result));
-		if (RC_OK != result)
+		if (instantiatedLinksCount == linksCount) /// \note ApplyChanges should be called here only If the prefab doesn't contain nested links 
 		{
-			return Wrench::TErrValue<E_RESULT_CODE>(result);
+			result = result | ApplyChanges(pReader, pWorld->GetEntityManager(), entitiesIdsMap);
 		}
-
-		result = result | pSceneChangesList->Load(pReader);
-		result = result | pSceneChangesList->ApplyChanges(pEntityManager, entitiesIdsMap);
+		else
+		{
+			output.mpChanges = TPtr<CPrefabChangesList>(CreatePrefabChangesList(result));
+			if (output.mpChanges)
+			{
+				result = result | output.mpChanges->Load(pReader);
+			}
+		}
 
 		if (RC_OK != result)
 		{
@@ -704,6 +732,7 @@ namespace TDEngine2
 	{
 		auto&& loadResult = LoadEntitiesImpl(
 			pReader,
+			pWorld,
 			pWorld->GetEntityManager(),
 			[pScene](TEntityId id)
 			{
@@ -719,6 +748,7 @@ namespace TDEngine2
 
 	TResult<IPrefabsRegistry::TPrefabInfoEntity> CSceneLoader::LoadPrefab(
 		IArchiveReader* pReader,
+		IWorld* pWorld,
 		CEntityManager* pEntityManager,
 		const IPrefabsRegistry::TEntityFactoryFunctor& entityFactory,
 		const IPrefabsRegistry::TPrefabFactoryFunctor& prefabFactory)
@@ -730,7 +760,7 @@ namespace TDEngine2
 
 		IPrefabsRegistry::TPrefabInfoEntity output;
 		
-		auto&& loadResult = LoadEntitiesImpl(pReader, pEntityManager, entityFactory, prefabFactory);
+		auto&& loadResult = LoadEntitiesImpl(pReader, pWorld, pEntityManager, entityFactory, prefabFactory);
 		if (loadResult.HasError())
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(loadResult.GetError());
@@ -748,6 +778,7 @@ namespace TDEngine2
 		output.mRelatedEntities = std::move(loadInfo.mCreatedEntities);
 		output.mRootEntityId = loadInfo.mRootEntities.front();
 		output.mNestedPrefabsLinks = std::move(loadInfo.mPrefabsLinks);
+		output.mpChanges = std::move(loadInfo.mpChanges);
 
 		return Wrench::TOkValue<IPrefabsRegistry::TPrefabInfoEntity>(output);
 	}
@@ -883,6 +914,8 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
+		std::vector<TEntityId> entities;
+
 		// \note Write entities
 		result = result | pWriter->BeginGroup("entities", true);
 		{
@@ -908,6 +941,8 @@ namespace TDEngine2
 			{
 				const TEntityId currEntityId = entitiesToProcess.top();
 				entitiesToProcess.pop();
+
+				entities.push_back(currEntityId);
 
 				const TEntityId prefabEntityRootId =
 #if TDE2_EDITORS_ENABLED
@@ -945,6 +980,8 @@ namespace TDEngine2
 			pRootTransform->SetParent(parentEntityId);
 		}
 		result = result | pWriter->EndGroup();
+
+		result = result | SaveSceneChanges(pWriter, pWorld, entities, [](const CTransform* pTransform) { return TEntityId::Invalid != pTransform->GetParent(); });
 
 		return result;
 	}

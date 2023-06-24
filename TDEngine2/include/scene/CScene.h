@@ -230,6 +230,7 @@ namespace TDEngine2
 
 			TDE2_API static TResult<IPrefabsRegistry::TPrefabInfoEntity> LoadPrefab(
 				IArchiveReader* pReader,
+				IWorld* pWorld,
 				CEntityManager* pEntityManager,
 				const IPrefabsRegistry::TEntityFactoryFunctor& entityFactory, 
 				const IPrefabsRegistry::TPrefabFactoryFunctor& prefabFactory);

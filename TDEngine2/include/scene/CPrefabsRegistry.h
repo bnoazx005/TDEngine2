@@ -98,7 +98,7 @@ namespace TDEngine2
 				not be used in user's runtime code
 			*/
 
-			TDE2_API TPrefabInfoEntity LoadPrefabHierarchy(IArchiveReader* pReader, CEntityManager* pEntityManager, 
+			TDE2_API TPrefabInfoEntity LoadPrefabHierarchy(IArchiveReader* pReader, IWorld* pWorld, CEntityManager* pEntityManager, 
 				const TEntityFactoryFunctor& entityCustomFactory = nullptr,
 				const TPrefabFactoryFunctor& prefabCustomFactory = nullptr) override;
 
