@@ -59,6 +59,12 @@ namespace TDEngine2
 		return RC_FAIL;
 	}
 
+	const std::string& CInputReceiver::GetTypeName() const
+	{
+		static const std::string typeName = "input_receiver";
+		return typeName;
+	}
+
 
 	IComponent* CreateInputReceiver(E_RESULT_CODE& result)
 	{

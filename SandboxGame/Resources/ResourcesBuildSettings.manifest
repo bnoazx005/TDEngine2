@@ -41,6 +41,11 @@ resources_collection:
       path: ./Models/TestAnim3.FBX
       type_id: 3247291626
   - resource_info: 
+      import_tangents: 1
+      is_skinned_mesh: 0
+      path: ./Models/sponza.obj
+      type_id: 3247291626
+  - resource_info: 
       address_mode: AMT_CLAMP
       filter_type: FT_BILINEAR
       mipmaps_generation: 1

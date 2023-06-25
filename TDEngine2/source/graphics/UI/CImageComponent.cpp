@@ -135,6 +135,12 @@ namespace TDEngine2
 	{
 		return mIsDirty;
 	}
+	
+	const std::string& CImage::GetTypeName() const
+	{
+		static const std::string typeName = "image_ui";
+		return typeName;
+	}
 
 
 	IComponent* CreateImage(E_RESULT_CODE& result)

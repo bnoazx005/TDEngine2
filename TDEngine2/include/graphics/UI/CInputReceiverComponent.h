@@ -88,6 +88,12 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
+			/*!
+				\return The method returns type name (lowercase is preffered)
+			*/
+
+			TDE2_API const std::string& GetTypeName() const override;
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CInputReceiver)
 		public:
