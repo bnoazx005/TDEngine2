@@ -27,6 +27,7 @@
 #include "../../include/graphics/IShaderCompiler.h"
 #include "../../include/scene/IPrefabsRegistry.h"
 #include "../../include/scene/ISceneManager.h"
+#include "../../include/scene/CPrefabChangesList.h"
 #include "../../include/autotests/ITestCase.h"
 #include "../../include/autotests/ITestFixture.h"
 
@@ -68,4 +69,5 @@ namespace TDEngine2
 	TDE2_DEFINE_SCOPED_PTR(ITestFixture)
 	TDE2_DEFINE_SCOPED_PTR(ITestCase)
 	TDE2_DEFINE_SCOPED_PTR(CEntity)
+	TDE2_DEFINE_SCOPED_PTR(CPrefabChangesList)
 }

@@ -110,7 +110,7 @@ namespace TDEngine2
 	class IPrefabsRegistry;
 
 
-	TDE2_DECLARE_SCOPED_PTR_INLINED(CPrefabChangesList)
+	TDE2_DECLARE_SCOPED_PTR(CPrefabChangesList)
 	TDE2_DECLARE_SCOPED_PTR(IPrefabsRegistry)
 
 
