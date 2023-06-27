@@ -191,9 +191,12 @@ namespace TDEngine2
 
 		for (auto&& currChangeEntry : mChanges)
 		{
-			currChangeEntry.mTargetLinkEntityId.SetEntityManager(pEntityManager);
+			auto& targetLinkRef = currChangeEntry.mTargetLinkEntityId;
+
+			targetLinkRef.SetEntityManager(pEntityManager);
+			targetLinkRef.Set(TEntityId::Invalid);
 			
-			auto pProperty = ResolveBinding(pEntityManager, pEntityManager->GetEntity(currChangeEntry.mTargetLinkEntityId.Get()).Get(), currChangeEntry.mPropertyBinding);
+			auto pProperty = ResolveBinding(pEntityManager, pEntityManager->GetEntity(targetLinkRef.Get()).Get(), currChangeEntry.mPropertyBinding);
 			if (!pProperty)
 			{
 				LOG_WARNING(Wrench::StringUtils::Format("[CPrefabChangesList][ApplyChanges] Can't resolve binding {0}", currChangeEntry.mPropertyBinding));
