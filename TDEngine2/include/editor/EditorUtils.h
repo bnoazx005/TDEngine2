@@ -56,6 +56,7 @@ namespace TDEngine2
 			TDE2_API static TResult<TEntityId> CreateInputFieldUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
 			TDE2_API static TResult<TEntityId> CreateScrollUIArea(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
 			TDE2_API static TResult<TEntityId> CreateDropDownUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
+			TDE2_API static TResult<TEntityId> CreateButtonUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op = {});
 	};
 
 

@@ -216,6 +216,7 @@ namespace TDEngine2
 					std::make_tuple("Input Field", CSceneHierarchyUtils::CreateInputFieldUIElement),
 					std::make_tuple("Scroll Area", CSceneHierarchyUtils::CreateScrollUIArea),
 					std::make_tuple("Drop Down", CSceneHierarchyUtils::CreateDropDownUIElement),
+					std::make_tuple("Button", CSceneHierarchyUtils::CreateButtonUIElement),
 				};
 
 				for (auto&& currOperation : operations)

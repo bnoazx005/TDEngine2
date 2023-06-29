@@ -608,6 +608,44 @@ namespace TDEngine2
 		return rootEntityResult;
 	}
 
+	TResult<TEntityId> CSceneHierarchyUtils::CreateButtonUIElement(TPtr<IWorld> pWorld, IScene* pCurrScene, TEntityId parentEntityId, const TEntityOperation& op)
+	{
+		static constexpr F32 elementHeight = 32.0f;
+
+		auto rootEntityResult = CreateNewEntityInternal("Button", pWorld, pCurrScene, parentEntityId, op);
+		if (rootEntityResult.HasError())
+		{
+			return rootEntityResult;
+		}
+
+		if (auto pButtonEntity = pWorld->FindEntity(rootEntityResult.Get()))
+		{
+			pButtonEntity->AddComponent<CInputReceiver>();
+
+			if (auto pLayoutElement = pButtonEntity->AddComponent<CLayoutElement>())
+			{
+				pLayoutElement->SetMinAnchor(ZeroVector2);
+				pLayoutElement->SetMaxAnchor(ZeroVector2);
+				pLayoutElement->SetMinOffset(ZeroVector2);
+				pLayoutElement->SetMaxOffset(TVector2(250.0f, elementHeight));
+			}
+
+			Setup9ImageSliceComponent(pButtonEntity, DefaultSpritePathId, TColor32F(0.35f));
+
+			auto&& labelResult = CreateLabelElement(pWorld, pCurrScene, pButtonEntity->GetId(), [](auto) {});
+			if (auto pLabelEntity = pWorld->FindEntity(labelResult.Get()))
+			{
+				if (auto pLabel = pLabelEntity->GetComponent<CLabel>())
+				{
+					pLabel->SetText("New Button");
+					pLabel->SetAlignType(E_FONT_ALIGN_POLICY::CENTER);
+				}
+			}
+		}
+
+		return rootEntityResult;
+	}
+
 
 	/*!
 		\brief CImGUIExtensions's definition
