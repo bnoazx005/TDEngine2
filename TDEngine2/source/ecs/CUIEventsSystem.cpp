@@ -220,7 +220,7 @@ namespace TDEngine2
 			/// \fixme For now it's the simplest solution for checking buttons 
 			pInputReceiver->mIsHovered = ContainsPoint(pLayoutElement->GetWorldRect(), mousePosition);
 			pInputReceiver->mPrevState = pInputReceiver->mCurrState;
-			pInputReceiver->mCurrState = /*pInputReceiver->mIsHovered && */mpDesktopInputContext->IsMouseButton(0);
+			pInputReceiver->mCurrState = pInputReceiver->mIsHovered && mpDesktopInputContext->IsMouseButton(0);
 
 			pInputReceiver->mIsControlModifierActive = mpDesktopInputContext->IsKey(E_KEYCODES::KC_LCONTROL) || mpDesktopInputContext->IsKey(E_KEYCODES::KC_RCONTROL);
 			pInputReceiver->mIsShiftModifierActive = mpDesktopInputContext->IsKey(E_KEYCODES::KC_LSHIFT) || mpDesktopInputContext->IsKey(E_KEYCODES::KC_RSHIFT);
