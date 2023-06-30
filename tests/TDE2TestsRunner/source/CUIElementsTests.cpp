@@ -351,6 +351,80 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pCanvasEntity->GetId()));
 		});
 	}
+
+	TDE2_TEST_CASE("TestInputEvents_SpawnCanvasWithSingleButton_ButtonShouldReactOnlyIfPressExecutedOverIt")
+	{
+		static CEntity* pCanvasEntity = nullptr;
+		static CEntity* pButtonEntity = nullptr;
+
+		/// \note Create a button
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			auto&& canvasEntityResult = CSceneHierarchyUtils::CreateCanvasUIElement(pWorld, pMainScene, TEntityId::Invalid, [](auto) {});
+			TDE2_TEST_IS_TRUE(canvasEntityResult.IsOk());
+
+			pCanvasEntity = pWorld->FindEntity(canvasEntityResult.Get());
+
+			auto&& buttonEntityResult = CSceneHierarchyUtils::CreateButtonUIElement(pWorld, pMainScene, canvasEntityResult.Get(), [](auto) {});
+			TDE2_TEST_IS_TRUE(buttonEntityResult.IsOk());
+
+			pButtonEntity = pWorld->FindEntity(buttonEntityResult.Get());
+		});
+
+		pTestCase->WaitForNextFrame();
+
+		pTestCase->SetCursorPosition(TVector3(50.0f, 15.0f, 0.0f)); /// click over the button
+		pTestCase->AddPressMouseButton(0);
+
+		pTestCase->ExecuteAction([&]
+		{
+			if (auto pInputReceiver = pButtonEntity->GetComponent<CInputReceiver>())
+			{
+				TDE2_TEST_IS_TRUE(pInputReceiver->mIsHovered);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
+				TDE2_TEST_IS_TRUE(pInputReceiver->mPrevState);
+			}
+		});
+
+		pTestCase->WaitForNextFrame();
+
+		pTestCase->SetCursorPosition(TVector3(550.0f, 155.0f, 0.0f)); /// click somewhere over screen except the button
+		pTestCase->AddPressMouseButton(0);
+
+		pTestCase->ExecuteAction([&]
+		{
+			if (auto pInputReceiver = pButtonEntity->GetComponent<CInputReceiver>())
+			{
+				TDE2_TEST_IS_TRUE(!pInputReceiver->mIsHovered);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->mPrevState);
+			}
+		});
+
+		/// \note Destroy the canvas entity
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pCanvasEntity->GetId()));
+		});
+
+		pTestCase->WaitForNextFrame();
+	}
 }
 
 #endif
