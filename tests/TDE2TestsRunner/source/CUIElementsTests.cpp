@@ -214,6 +214,22 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 				TDE2_TEST_IS_TRUE(pImageLayoutElement->GetMaxOffset() == maxOffset);
 			});
 		}
+
+		/// \note Destroy the canvas entity
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pCanvasEntity->GetId()));
+		});
+
+		pTestCase->AddPressKey(E_KEYCODES::KC_TILDE); /// Open dev menu
 	}
 
 	TDE2_TEST_CASE("TestGridLayoutGroup_AddGridGroupLayoutOntoRootOfEntities_TheComponentShouldHaveCorrectDefaultState")
