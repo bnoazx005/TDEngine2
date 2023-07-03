@@ -5,6 +5,7 @@
 #include "../../include/core/CGameUserSettings.h"
 #include "../../include/core/CProjectSettings.h"
 #include "../../include/utils/CFileLogger.h"
+#include "../../include/utils/CProgramOptions.h"
 #include "stringUtils.hpp"
 #include <memory>
 #include <thread>
@@ -98,25 +99,86 @@ namespace TDEngine2
 			LOG_WARNING(Wrench::StringUtils::Format("[CConfigFileEngineCoreBuilder] The config file {0} wasn't found, use default settings instead...", mGameUserSettingsFilepath));
 		}
 
-		/// \note Load project settings
-		auto loadProjectSettingsResult = mpFileSystemInstance->Open<IYAMLFileReader>(mProjectConfigFilepath, false);
-		if (loadProjectSettingsResult.HasError())
+		/// \note Load project settings in the following order 
+		/// - own project config (text/binary) / 
+		/// - any project config if exists in app's directory (text/binary) 
+		std::array<std::function<E_RESULT_CODE(const std::string&)>, 4> configLoaders
 		{
-			///\note May be we work with binarized resources. In this case the project settings' file is binarized too. Try to load it thourgh IBinaryArchiveReader
-			if (RC_OK != (result = TryLoadProjectSettingsAs<IBinaryArchiveReader>(mpFileSystemInstance, mpFileSystemInstance->Open<IBinaryArchiveReader>(mProjectConfigFilepath, false))))
+			[this](auto&& projectConfigPath) 
+			{ 
+				return TryLoadProjectSettingsAs<IYAMLFileReader>(mpFileSystemInstance, mpFileSystemInstance->Open<IYAMLFileReader>(projectConfigPath, false));
+			},
+			[this](auto&& projectConfigPath)
 			{
-				LOG_WARNING(Wrench::StringUtils::Format("[CConfigFileEngineCoreBuilder] The project config file {0} wasn't found, use default settings instead...", mProjectConfigFilepath));
+				///\note May be we work with binarized resources. In this case the project settings' file is binarized too. Try to load it thourgh IBinaryArchiveReader
+				E_RESULT_CODE result = TryLoadProjectSettingsAs<IBinaryArchiveReader>(
+					mpFileSystemInstance, 
+					mpFileSystemInstance->Open<IBinaryArchiveReader>(projectConfigPath, false));
+
+				if (RC_OK != result)
+				{
+					return result;
+				}
+
+				CProjectSettings::Get()->mCommonSettings.mBinaryResourcesActive = true;
+
 				return result;
-			}
+			},
+			[&](auto&& projectConfigPath) /// Try either to load project's config specified at --project-config CLI option or load first one that exists at app's directory
+			{
+				E_RESULT_CODE result = RC_OK;
 
-			CProjectSettings::Get()->mCommonSettings.mBinaryResourcesActive = true;
+				auto&& pathResult = CProgramOptions::Get()->GetValue<std::string>("project-config"); /// \todo Replace with named constant
+				if (pathResult.IsOk())
+				{
+					for (U32 i = 0; i < 2; i++)
+					{
+						result = configLoaders[i](pathResult.Get());
+						if (RC_OK == result)
+						{
+							return result;
+						}
+					}
+				}
 
-			return result;
-		}
+				for (auto&& currConfigFilePath : mpFileSystemInstance->GetFilesListAtDirectory("."))
+				{
+					if (!Wrench::StringUtils::EndsWith(currConfigFilePath, ".project"))
+					{
+						continue;
+					}
 
-		if (RC_OK != (result = TryLoadProjectSettingsAs<IYAMLFileReader>(mpFileSystemInstance, loadProjectSettingsResult)))
+					for (U32 i = 0; i < 2; i++)
+					{
+						result = configLoaders[i](currConfigFilePath);
+						if (RC_OK == result)
+						{
+							auto&& projectName = mpFileSystemInstance->ExtractFilename(mProjectConfigFilepath);
+							CProjectSettings::Get()->mCommonSettings.mApplicationName = projectName.substr(0, projectName.find_first_of('.'));
+
+							return result;
+						}
+					}
+				}
+
+				return RC_FAIL;
+			},
+			[this](auto&& projectConfigPath)
+			{
+				auto&& projectName = mpFileSystemInstance->ExtractFilename(projectConfigPath);
+				CProjectSettings::Get()->mCommonSettings.mApplicationName = projectName.substr(0, projectName.find_first_of('.'));
+
+				return RC_OK;
+			},
+		};
+
+		for (auto&& currProjectConfigLoader : configLoaders)
 		{
-			LOG_WARNING(Wrench::StringUtils::Format("[CConfigFileEngineCoreBuilder] The project config file {0} wasn't found, use default settings instead...", mProjectConfigFilepath));
+			E_RESULT_CODE result = currProjectConfigLoader(mProjectConfigFilepath);
+			if (RC_OK == result)
+			{
+				break;
+			}
 		}
 
 		return result;

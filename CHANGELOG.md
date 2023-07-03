@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.18] 2023-07-03
+
+### Added
+
+### Changed
+
+- The logic of loading project's config file was refactored.
+
+### Fixed
+
 ## [0.6.17] 2023-06-30
 
 ### Added
