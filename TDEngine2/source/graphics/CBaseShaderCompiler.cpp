@@ -189,9 +189,7 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
-		std::vector<std::unique_ptr<tcpp::IInputStream>> inputStreams;
-		inputStreams.emplace_back(new tcpp::StringInputStream{ source });
-		tcpp::Lexer lexer { *inputStreams.front() };
+		tcpp::Lexer lexer { std::make_unique<tcpp::StringInputStream>(source) };
 		
 		tcpp::Preprocessor preprocessor { lexer, 
 		[](const tcpp::TErrorInfo& errorInfo)
@@ -199,7 +197,7 @@ namespace TDEngine2
 			LOG_ERROR(tcpp::ErrorTypeToString(errorInfo.mType));
 			assert(false);
 		}, 
-		[&pFileSystem, &inputStreams](const std::string& path, bool isSystemPath) -> tcpp::IInputStream*
+		[&pFileSystem](const std::string& path, bool isSystemPath) -> tcpp::TInputStreamUniquePtr
 		{
 			std::string filename = isSystemPath ? ("Shaders/" + path) : path; // \note for built-in files change the directory to search
 
@@ -211,10 +209,10 @@ namespace TDEngine2
 
 			auto pCurrIncludeFile = pFileSystem->Get<ITextFileReader>(includeFileId.Get());
 
-			inputStreams.emplace_back(new tcpp::StringInputStream{ pCurrIncludeFile->ReadToEnd() });
+			auto&& pIncludeStreamData = std::make_unique<tcpp::StringInputStream>(pCurrIncludeFile->ReadToEnd());
 			pCurrIncludeFile->Close();
 
-			return inputStreams.back().get();
+			return std::move(pIncludeStreamData);
 		} };
 		
 		// \note below we define our custom preprocessor's commands like #version, #program/#endprogram, etc
@@ -272,6 +270,16 @@ namespace TDEngine2
 			return "";
 		});
 
+		std::unordered_set<std::string> colorDataUniforms;
+
+		preprocessor.AddCustomDirectiveHandler("color_property", [&colorDataUniforms](auto&&, tcpp::Lexer& lexer, const std::string& str)
+		{
+			lexer.GetNextToken(); // eat directive's token
+			colorDataUniforms.emplace(lexer.PeekNextToken(4).mRawView);
+			
+			return "";
+		});
+
 		std::string processedSource = preprocessor.Process();
 		
 		TDefinesMap definesTable;
@@ -287,7 +295,7 @@ namespace TDEngine2
 			definesTable[currMacroDef.mName] = { currMacroDef.mArgsNames, valueStr };
 		}
 
-		return Wrench::TOkValue<TPreprocessorResult>({ processedSource, definesTable, stagesRegionsInfo });
+		return Wrench::TOkValue<TPreprocessorResult>({ processedSource, definesTable, stagesRegionsInfo, colorDataUniforms });
 	}
 
 	std::string CShaderPreprocessor::ShaderStageToString(const E_SHADER_STAGE_TYPE& stageType)
