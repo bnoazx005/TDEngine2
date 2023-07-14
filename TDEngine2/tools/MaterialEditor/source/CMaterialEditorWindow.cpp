@@ -193,7 +193,7 @@ namespace TDEngine2
 			}
 		},
 
-		/*{
+		{
 			TDE2_TYPE_ID(TColor32F),
 			[](IImGUIContext& imgui, TPtr<IMaterial> pMaterial, const std::string& variableId, const void* pData)
 			{
@@ -204,7 +204,7 @@ namespace TDEngine2
 					pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, variableId, value);
 				});
 			}
-		},*/
+		},
 	};
 
 

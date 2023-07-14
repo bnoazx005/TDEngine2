@@ -42,6 +42,7 @@ namespace TDEngine2
 
 		/// parse source code to get a meta information about it
 		TShaderMetadata shaderMetadata = _parseShader(tokenizer, preprocessorResult.mDefinesTable, preprocessorResult.mStagesRegions);
+		shaderMetadata.mColorDataUniforms = std::move(preprocessorResult.mColorDataUniforms);
 
 		TD3D11ShaderCompilerOutput* pResult = new TD3D11ShaderCompilerOutput();
 
@@ -99,9 +100,11 @@ namespace TDEngine2
 			pResult->mCSByteCode = std::move(computeShaderOutput.Get());
 		}
 
+		MarkColorDataUniforms(shaderMetadata);
+
 		pResult->mUniformBuffersInfo  = std::move(shaderMetadata.mUniformBuffers);
 		pResult->mShaderResourcesInfo = std::move(shaderMetadata.mShaderResources);
-		
+
 		return Wrench::TOkValue<TShaderCompilerOutput*>(pResult);
 	}
 

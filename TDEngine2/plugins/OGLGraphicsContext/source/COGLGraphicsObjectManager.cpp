@@ -260,7 +260,10 @@ namespace TDEngine2
 						
 						if (mIsAlphaClipEnabled == 1)
 						{
-							clip(base.a - 0.001);
+							if (base.a < 0.001)
+							{
+								discard;
+							}
 						}
 
 						FragColor = VertOutColor * base;

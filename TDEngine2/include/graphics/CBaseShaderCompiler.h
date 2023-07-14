@@ -14,6 +14,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <map>
 #include <regex>
 #include <tuple>
@@ -109,6 +110,8 @@ namespace TDEngine2
 				TDefinesMap mDefinesTable;
 
 				TShaderStagesRegionsMap mStagesRegions;
+
+				std::unordered_set<std::string> mColorDataUniforms;
 			}TPreprocessorResult, *TPreprocessorResultPtr;
 		public:
 			/*!
@@ -189,6 +192,8 @@ namespace TDEngine2
 				TShaderResourcesMap     mShaderResources;
 
 				TStagesRegionsMap       mShaderStagesRegionsInfo;
+
+				std::unordered_set<std::string> mColorDataUniforms;
 			} TShaderMetadata;
 		public:
 			/*!
@@ -204,6 +209,8 @@ namespace TDEngine2
 			TDE2_API static TypeId GetShaderBuiltInTypeId(const std::string& typeName);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseShaderCompiler)
+
+			TDE2_API static void MarkColorDataUniforms(TShaderMetadata& metadata);
 
 			TDE2_API virtual const C8* _getShaderStageDefineName(E_SHADER_STAGE_TYPE shaderStage) const;
 

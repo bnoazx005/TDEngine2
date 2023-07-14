@@ -275,7 +275,7 @@ namespace TDEngine2
 		preprocessor.AddCustomDirectiveHandler("color_property", [&colorDataUniforms](auto&&, tcpp::Lexer& lexer, const std::string& str)
 		{
 			lexer.GetNextToken(); // eat directive's token
-			colorDataUniforms.emplace(lexer.PeekNextToken(4).mRawView);
+			colorDataUniforms.emplace(lexer.PeekNextToken(3).mRawView);
 			
 			return "";
 		});
@@ -379,6 +379,28 @@ namespace TDEngine2
 
 		auto it = typeName2Hash.find(typeName);
 		return it == typeName2Hash.cend() ? TypeId::Invalid : it->second;
+	}
+
+	void CBaseShaderCompiler::MarkColorDataUniforms(TShaderMetadata& metadata)
+	{
+		const auto& colorDataUniforms = metadata.mColorDataUniforms;
+		auto& uniformsInfo = metadata.mUniformBuffers;
+
+		for (auto&& currUniformName : colorDataUniforms)
+		{
+			for (auto&& currUniformBuffer : uniformsInfo)
+			{
+				auto& variables = currUniformBuffer.second.mVariables;
+
+				auto it = std::find_if(variables.begin(), variables.end(), [&currUniformName](const TShaderUniformDesc& entity) { return entity.mName == currUniformName; });
+				if (it == variables.end())
+				{
+					continue;
+				}
+
+				it->mTypeId = TDE2_TYPE_ID(TColor32F);
+			}
+		}
 	}
 
 	const C8* CBaseShaderCompiler::_getShaderStageDefineName(E_SHADER_STAGE_TYPE shaderStage) const

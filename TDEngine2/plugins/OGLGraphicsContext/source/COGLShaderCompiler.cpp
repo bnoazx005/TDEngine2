@@ -39,7 +39,10 @@ namespace TDEngine2
 		CTokenizer tokenizer(preprocessedSource);
 
 		TShaderMetadata shaderMetadata = _parseShader(tokenizer, preprocessorResult.mDefinesTable, preprocessorResult.mStagesRegions);
-		
+		shaderMetadata.mColorDataUniforms = std::move(preprocessorResult.mColorDataUniforms);
+
+		MarkColorDataUniforms(shaderMetadata);
+
 		TOGLShaderCompilerOutput* pResult = new TOGLShaderCompilerOutput();
 
 		if (_isShaderStageEnabled(SST_VERTEX, shaderMetadata))

@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.18] 2023-07-13
+## [0.6.18] 2023-07-14
 
 ### Added
+
+- A new directive **#color_property** for shaders files was added to mark uniforms as storing color data.
 
 ### Changed
 
