@@ -191,29 +191,35 @@ namespace TDEngine2
 
 		tcpp::Lexer lexer { std::make_unique<tcpp::StringInputStream>(source) };
 		
-		tcpp::Preprocessor preprocessor { lexer, 
-		[](const tcpp::TErrorInfo& errorInfo)
-		{
-			LOG_ERROR(tcpp::ErrorTypeToString(errorInfo.mType));
-			assert(false);
-		}, 
-		[&pFileSystem](const std::string& path, bool isSystemPath) -> tcpp::TInputStreamUniquePtr
-		{
-			std::string filename = isSystemPath ? ("Shaders/" + path) : path; // \note for built-in files change the directory to search
-
-			TResult<TFileEntryId> includeFileId = pFileSystem->Open<ITextFileReader>(filename);
-			if (includeFileId.HasError())
+		tcpp::Preprocessor preprocessor
+		{ 
+			lexer,
 			{
-				return nullptr;
-			}
+				[](const tcpp::TErrorInfo& errorInfo)
+				{
+					LOG_ERROR(tcpp::ErrorTypeToString(errorInfo.mType));
+					assert(false);
+				},
+				[&pFileSystem](const std::string& path, bool isSystemPath) -> tcpp::TInputStreamUniquePtr
+				{
+					std::string filename = isSystemPath ? ("Shaders/" + path) : path; // \note for built-in files change the directory to search
 
-			auto pCurrIncludeFile = pFileSystem->Get<ITextFileReader>(includeFileId.Get());
+					TResult<TFileEntryId> includeFileId = pFileSystem->Open<ITextFileReader>(filename);
+					if (includeFileId.HasError())
+					{
+						return nullptr;
+					}
 
-			auto&& pIncludeStreamData = std::make_unique<tcpp::StringInputStream>(pCurrIncludeFile->ReadToEnd());
-			pCurrIncludeFile->Close();
+					auto pCurrIncludeFile = pFileSystem->Get<ITextFileReader>(includeFileId.Get());
 
-			return std::move(pIncludeStreamData);
-		} };
+					auto&& pIncludeStreamData = std::make_unique<tcpp::StringInputStream>(pCurrIncludeFile->ReadToEnd());
+					pCurrIncludeFile->Close();
+
+					return std::move(pIncludeStreamData);
+				},
+				true // Skip comments
+			} 
+		};
 		
 		// \note below we define our custom preprocessor's commands like #version, #program/#endprogram, etc
 		// \todo Reimplement error handling for custom directives
