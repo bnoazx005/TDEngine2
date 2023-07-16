@@ -1,10 +1,16 @@
 #include "../include/CMaterialEditorWindow.h"
+#define META_EXPORT_GRAPHICS_SECTION
+#include "metadata.h"
 
 
 #if TDE2_EDITORS_ENABLED
 
 namespace TDEngine2
 {
+	std::vector<std::string> BlendFactorTypes;
+	std::vector<std::string> BlendOpTypes;
+
+
 	CMaterialEditorWindow::CMaterialEditorWindow() :
 		CBaseEditorWindow()
 	{
@@ -35,6 +41,18 @@ namespace TDEngine2
 
 		mCurrMaterialId = TResourceId::Invalid;
 		mpCurrMaterial = nullptr;
+
+		BlendFactorTypes.clear();
+		for (auto&& currFieldInfo : Meta::EnumTrait<E_BLEND_FACTOR_VALUE>::fields)
+		{
+			BlendFactorTypes.push_back(currFieldInfo.name);
+		}
+
+		BlendOpTypes.clear();
+		for (auto&& currFieldInfo : Meta::EnumTrait<E_BLEND_OP_TYPE>::fields)
+		{
+			BlendOpTypes.push_back(currFieldInfo.name);
+		}
 
 		mIsInitialized = true;
 		mIsVisible = true;
@@ -237,6 +255,78 @@ namespace TDEngine2
 	}
 
 
+	static void DrawBlendingConfigsGroup(IImGUIContext& imguiContext, TPtr<IMaterial> pMaterial)
+	{
+		if (!imguiContext.CollapsingHeader("Blending Params", true, false))
+		{
+			return;
+		}
+
+		TBlendStateDesc currBlengingParams = pMaterial->GetBlendingParams();
+
+		imguiContext.BeginHorizontal();
+		imguiContext.Label("Is Blending Enabled");
+
+		if (imguiContext.Checkbox("##IsBlendingEnabled", currBlengingParams.mIsEnabled))
+		{
+			pMaterial->SetTransparentState(currBlengingParams.mIsEnabled);
+		}
+
+		imguiContext.EndHorizontal();
+
+		// Src blend factor
+		imguiContext.BeginHorizontal();
+		imguiContext.Label("Src ");
+
+		currBlengingParams.mScrValue = static_cast<E_BLEND_FACTOR_VALUE>(imguiContext.Popup("##SrcFactor", static_cast<I32>(currBlengingParams.mScrValue), BlendFactorTypes));
+
+		imguiContext.EndHorizontal();
+
+		// src alpha blend factor
+		imguiContext.BeginHorizontal();
+		imguiContext.Label("Src Alpha ");
+
+		currBlengingParams.mScrAlphaValue = static_cast<E_BLEND_FACTOR_VALUE>(imguiContext.Popup("##SrcAlphaFactor", static_cast<I32>(currBlengingParams.mScrAlphaValue), BlendFactorTypes));
+
+		imguiContext.EndHorizontal();
+
+		// dest blend factor
+		imguiContext.BeginHorizontal();
+		imguiContext.Label("Dest ");
+
+		currBlengingParams.mDestValue = static_cast<E_BLEND_FACTOR_VALUE>(imguiContext.Popup("##DstFactor", static_cast<I32>(currBlengingParams.mDestValue), BlendFactorTypes));
+
+		imguiContext.EndHorizontal();
+
+		// dest alpha blend factor
+		imguiContext.BeginHorizontal();
+		imguiContext.Label("Dest Alpha ");
+
+		currBlengingParams.mDestAlphaValue = static_cast<E_BLEND_FACTOR_VALUE>(imguiContext.Popup("##DstAlphaFactor", static_cast<I32>(currBlengingParams.mDestAlphaValue), BlendFactorTypes));
+
+		imguiContext.EndHorizontal();
+
+		// op type
+		imguiContext.BeginHorizontal();
+		imguiContext.Label("Op Type ");
+
+		currBlengingParams.mOpType = static_cast<E_BLEND_OP_TYPE>(imguiContext.Popup("##OpType", static_cast<I32>(currBlengingParams.mOpType), BlendOpTypes));
+
+		imguiContext.EndHorizontal();
+
+		// alpha op type
+		imguiContext.BeginHorizontal();
+		imguiContext.Label("Alpha Op Type ");
+
+		currBlengingParams.mAlphaOpType = static_cast<E_BLEND_OP_TYPE>(imguiContext.Popup("##OpAlphaType", static_cast<I32>(currBlengingParams.mAlphaOpType), BlendOpTypes));
+
+		imguiContext.EndHorizontal();
+
+		pMaterial->SetBlendFactors(currBlengingParams.mScrValue, currBlengingParams.mDestValue, currBlengingParams.mScrAlphaValue, currBlengingParams.mDestAlphaValue);
+		pMaterial->SetBlendOp(currBlengingParams.mOpType, currBlengingParams.mAlphaOpType);
+	}
+
+
 	void CMaterialEditorWindow::_onDraw()
 	{
 		bool isEnabled = mIsVisible;
@@ -267,6 +357,7 @@ namespace TDEngine2
 
 			DrawTexturesSlotsGroup(*mpImGUIContext, mpCurrMaterial);
 			DrawVariablesGroup(*mpImGUIContext, mpCurrMaterial);
+			DrawBlendingConfigsGroup(*mpImGUIContext, mpCurrMaterial);
 		}
 
 		mpImGUIContext->EndWindow();

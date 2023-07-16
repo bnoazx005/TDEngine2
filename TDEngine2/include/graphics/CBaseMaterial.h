@@ -394,6 +394,8 @@ namespace TDEngine2
 #endif
 
 			TDE2_API bool IsScissorTestEnabled() const override;
+
+			TDE2_API const TBlendStateDesc& GetBlendingParams() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseMaterial)
 

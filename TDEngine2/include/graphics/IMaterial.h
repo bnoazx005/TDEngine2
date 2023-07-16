@@ -368,6 +368,8 @@ namespace TDEngine2
 			TDE2_API virtual const std::string& GetShaderId() const = 0;
 
 			TDE2_API virtual bool IsScissorTestEnabled() const = 0;
+
+			TDE2_API virtual const TBlendStateDesc& GetBlendingParams() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IMaterial)
 

@@ -864,6 +864,11 @@ namespace TDEngine2
 		return mRasterizerStateParams.mIsScissorTestEnabled;
 	}
 
+	const TBlendStateDesc& CBaseMaterial::GetBlendingParams() const
+	{
+		return mBlendStateParams;
+	}
+
 #if TDE2_EDITORS_ENABLED
 	
 	void CBaseMaterial::ForEachTextureSlot(const TTextureResourceVisitAction& action)
