@@ -9,6 +9,8 @@ namespace TDEngine2
 {
 	std::vector<std::string> BlendFactorTypes;
 	std::vector<std::string> BlendOpTypes;
+	std::vector<std::string> DSComparisonFunctions;
+	std::vector<std::string> StencilOpTypes;
 
 
 	CMaterialEditorWindow::CMaterialEditorWindow() :
@@ -52,6 +54,18 @@ namespace TDEngine2
 		for (auto&& currFieldInfo : Meta::EnumTrait<E_BLEND_OP_TYPE>::fields)
 		{
 			BlendOpTypes.push_back(currFieldInfo.name);
+		}
+
+		DSComparisonFunctions.clear();
+		for (auto&& currFieldInfo : Meta::EnumTrait<E_COMPARISON_FUNC>::fields)
+		{
+			DSComparisonFunctions.push_back(currFieldInfo.name);
+		}
+
+		StencilOpTypes.clear();
+		for (auto&& currFieldInfo : Meta::EnumTrait<E_STENCIL_OP>::fields)
+		{
+			StencilOpTypes.push_back(currFieldInfo.name);
 		}
 
 		mIsInitialized = true;
@@ -327,6 +341,150 @@ namespace TDEngine2
 	}
 
 
+	static void DrawDepthConfigGroup(IImGUIContext& imguiContext, TPtr<IMaterial> pMaterial)
+	{
+		TDepthStencilStateDesc depthStencilConfig = pMaterial->GetDepthStencilParams();
+
+		// Test function
+		imguiContext.BeginHorizontal();
+		imguiContext.Label("Compare Func ");
+
+		depthStencilConfig.mDepthCmpFunc = static_cast<E_COMPARISON_FUNC>(imguiContext.Popup("##DepthCmpFunc", static_cast<I32>(depthStencilConfig.mDepthCmpFunc), DSComparisonFunctions));
+
+		imguiContext.EndHorizontal();
+
+		pMaterial->SetDepthComparisonFunc(depthStencilConfig.mDepthCmpFunc);
+	}
+
+
+	static void DrawStencilConfigGroup(const std::string& groupId, IImGUIContext& imguiContext, TPtr<IMaterial> pMaterial, TStencilOpDesc& opDesc)
+	{		
+		if (!std::get<0>(imguiContext.BeginTreeNode(groupId)))
+		{			
+			return;
+		}
+
+		// Test function
+		imguiContext.BeginHorizontal();
+		imguiContext.Label("Compare Func ");
+		opDesc.mFunc = static_cast<E_COMPARISON_FUNC>(imguiContext.Popup(Wrench::StringUtils::Format("{0}_CmpFunc", groupId), static_cast<I32>(opDesc.mFunc), DSComparisonFunctions));
+		imguiContext.EndHorizontal();
+
+		// Keep Op
+		imguiContext.BeginHorizontal();
+		imguiContext.Label("On Pass ");
+		opDesc.mPassOp = static_cast<E_STENCIL_OP>(imguiContext.Popup(Wrench::StringUtils::Format("{0}_OnPass", groupId), static_cast<I32>(opDesc.mPassOp), StencilOpTypes));
+		imguiContext.EndHorizontal();
+
+		// Fail Op
+		imguiContext.BeginHorizontal();
+		imguiContext.Label("On Fail ");
+		opDesc.mFailOp = static_cast<E_STENCIL_OP>(imguiContext.Popup(Wrench::StringUtils::Format("{0}_OnFail", groupId), static_cast<I32>(opDesc.mFailOp), StencilOpTypes));
+		imguiContext.EndHorizontal();
+
+		// Keep Op
+		imguiContext.BeginHorizontal();
+		imguiContext.Label("On Depth Fail ");
+		opDesc.mDepthFailOp = static_cast<E_STENCIL_OP>(imguiContext.Popup(Wrench::StringUtils::Format("{0}_OnDepthFail", groupId), static_cast<I32>(opDesc.mDepthFailOp), StencilOpTypes));
+		imguiContext.EndHorizontal();
+
+		imguiContext.EndTreeNode();
+	}
+
+
+	static void DrawStencilConfigGroup(IImGUIContext& imguiContext, TPtr<IMaterial> pMaterial)
+	{
+		TDepthStencilStateDesc depthStencilConfig = pMaterial->GetDepthStencilParams();
+
+		// Stencil Ref
+		imguiContext.BeginHorizontal();
+		imguiContext.Label("Stencil Ref ");
+
+		I32 refValue = static_cast<I32>(depthStencilConfig.mStencilRefValue);
+		imguiContext.IntField("##StencilRef", refValue, [&refValue, pMaterial]
+		{
+			pMaterial->SetStencilRefValue(refValue);
+		});
+
+		imguiContext.EndHorizontal();
+
+		// Stencil Read Mask
+		imguiContext.BeginHorizontal();
+		imguiContext.Label("Read Mask ");
+
+		I32 readMask = static_cast<I32>(depthStencilConfig.mStencilReadMaskValue);
+		imguiContext.IntField("##StencilReadMask", readMask, [&readMask, pMaterial]
+		{
+			pMaterial->SetStencilReadMask(readMask);
+		});
+
+		imguiContext.EndHorizontal();
+
+		// Stencil Write Mask
+		imguiContext.BeginHorizontal();
+		imguiContext.Label("Write Mask ");
+
+		I32 writeMask = static_cast<I32>(depthStencilConfig.mStencilWriteMaskValue);
+		imguiContext.IntField("##StencilWriteMask", writeMask, [&writeMask, pMaterial]
+		{
+			pMaterial->SetStencilWriteMask(writeMask);
+		});
+
+		imguiContext.EndHorizontal();
+
+		DrawStencilConfigGroup("Stencil Front Op", imguiContext, pMaterial, depthStencilConfig.mStencilFrontFaceOp);
+		pMaterial->SetStencilFrontOp(depthStencilConfig.mStencilFrontFaceOp);
+
+		DrawStencilConfigGroup("Stencil Back Op", imguiContext, pMaterial, depthStencilConfig.mStencilBackFaceOp);
+		pMaterial->SetStencilBackOp(depthStencilConfig.mStencilBackFaceOp);
+	}
+
+
+	static void DrawDepthStencilConfigGroup(IImGUIContext& imguiContext, TPtr<IMaterial> pMaterial)
+	{
+		if (!imguiContext.CollapsingHeader("Depth-Stencil Config", true, false))
+		{
+			return;
+		}
+
+		TDepthStencilStateDesc depthStencilConfig = pMaterial->GetDepthStencilParams();
+
+		// Depth write
+		imguiContext.BeginHorizontal();
+		imguiContext.Label("Depth Write");
+		imguiContext.Checkbox("##IsDepthWriteEnabled", depthStencilConfig.mIsDepthWritingEnabled);
+		imguiContext.EndHorizontal();
+
+		pMaterial->SetDepthWriteEnabled(depthStencilConfig.mIsDepthWritingEnabled);
+
+		// Depth Test
+		imguiContext.BeginHorizontal();
+		imguiContext.Label("Depth Test");
+		imguiContext.Checkbox("##IsDepthTestEnabled", depthStencilConfig.mIsDepthTestEnabled);
+		imguiContext.EndHorizontal();
+
+		pMaterial->SetDepthBufferEnabled(depthStencilConfig.mIsDepthTestEnabled);
+
+		if (depthStencilConfig.mIsDepthTestEnabled)
+		{
+			DrawDepthConfigGroup(imguiContext, pMaterial);
+		}
+
+		// Stencil 
+		imguiContext.BeginHorizontal();
+		imguiContext.Label("Stencil Test");
+		imguiContext.Checkbox("##IsStencilTestEnabled", depthStencilConfig.mIsStencilTestEnabled);
+		imguiContext.EndHorizontal();
+
+		pMaterial->SetStencilBufferEnabled(depthStencilConfig.mIsStencilTestEnabled);
+
+		if (depthStencilConfig.mIsStencilTestEnabled)
+		{
+			DrawStencilConfigGroup(imguiContext, pMaterial);
+		}
+	}
+
+
 	void CMaterialEditorWindow::_onDraw()
 	{
 		bool isEnabled = mIsVisible;
@@ -358,6 +516,7 @@ namespace TDEngine2
 			DrawTexturesSlotsGroup(*mpImGUIContext, mpCurrMaterial);
 			DrawVariablesGroup(*mpImGUIContext, mpCurrMaterial);
 			DrawBlendingConfigsGroup(*mpImGUIContext, mpCurrMaterial);
+			DrawDepthStencilConfigGroup(*mpImGUIContext, mpCurrMaterial);
 		}
 
 		mpImGUIContext->EndWindow();

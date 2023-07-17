@@ -396,6 +396,7 @@ namespace TDEngine2
 			TDE2_API bool IsScissorTestEnabled() const override;
 
 			TDE2_API const TBlendStateDesc& GetBlendingParams() const override;
+			TDE2_API const TDepthStencilStateDesc& GetDepthStencilParams() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseMaterial)
 

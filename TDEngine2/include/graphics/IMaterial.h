@@ -370,6 +370,7 @@ namespace TDEngine2
 			TDE2_API virtual bool IsScissorTestEnabled() const = 0;
 
 			TDE2_API virtual const TBlendStateDesc& GetBlendingParams() const = 0;
+			TDE2_API virtual const TDepthStencilStateDesc& GetDepthStencilParams() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IMaterial)
 

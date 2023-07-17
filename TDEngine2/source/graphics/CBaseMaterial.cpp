@@ -736,7 +736,7 @@ namespace TDEngine2
 
 	void CBaseMaterial::SetDepthWriteEnabled(bool state)
 	{
-		mDepthStencilStateParams.mIsDepthWritingEnabled;
+		mDepthStencilStateParams.mIsDepthWritingEnabled = state;
 	}
 
 	void CBaseMaterial::SetDepthComparisonFunc(const E_COMPARISON_FUNC& funcType)
@@ -867,6 +867,11 @@ namespace TDEngine2
 	const TBlendStateDesc& CBaseMaterial::GetBlendingParams() const
 	{
 		return mBlendStateParams;
+	}
+
+	const TDepthStencilStateDesc& CBaseMaterial::GetDepthStencilParams() const
+	{
+		return mDepthStencilStateParams;
 	}
 
 #if TDE2_EDITORS_ENABLED
