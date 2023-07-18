@@ -17,6 +17,17 @@ namespace TDEngine2
 	class ITimer;
 
 
+	enum class E_SPECIAL_PROFILE_EVENT: U32
+	{
+		RENDER,
+		UPDATE,
+		AUDIO_UPDATE,
+		WORLD_UPDATE,
+		PRESENT,
+		UNUSED,
+	};
+
+
 	/*!
 		interface ITimeProfiler
 
@@ -72,6 +83,16 @@ namespace TDEngine2
 			TDE2_API virtual void WriteSample(const std::string& name, F32 startTime, F32 duration, USIZE threadID) = 0;
 
 			/*!
+				\brief The method writes measurement for a specific event which is described using E_SPECIAL_PROFILE_EVENT
+
+				\param[in] eventName Type of an profiled event
+				\param[in] duration A elapsed time's value for this sample
+				\param[in] threadID An identifier of a thread
+			*/
+
+			TDE2_API virtual void WriteSpecialSample(E_SPECIAL_PROFILE_EVENT eventName, F32 duration) = 0;
+
+			/*!
 				\brief The method returns instrumental timer that's used for measurements
 
 				\return The method returns instrumental timer that's used for measurements
@@ -105,6 +126,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual const TSamplesTable& GetSamplesLogByFrameIndex(U32 frameIndex) const = 0;
+
+			TDE2_API virtual F32 GetAverageTimeByEventName(E_SPECIAL_PROFILE_EVENT eventName) const = 0;
 
 			/*!
 				\brief The function is replacement of factory method for instances of this type.

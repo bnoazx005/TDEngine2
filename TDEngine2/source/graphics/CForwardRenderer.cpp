@@ -394,28 +394,35 @@ namespace TDEngine2
 
 	E_RESULT_CODE CForwardRenderer::Draw(F32 currTime, F32 deltaTime)
 	{
-		TDE2_PROFILER_SCOPE("Renderer::Draw");
+		TDE2_PROFILER_SCOPE("Renderer::Draw"); 
 
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
 		}
+		
+		{
+			TDE2_BUILTIN_SPEC_PROFILER_EVENT(E_SPECIAL_PROFILE_EVENT::RENDER);
 
-		_prepareFrame(currTime, deltaTime);
+			_prepareFrame(currTime, deltaTime);
 
 #if TDE2_EDITORS_ENABLED
-		ProcessEditorSelectionBuffer(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpSelectionManager, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)]);
+			ProcessEditorSelectionBuffer(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpSelectionManager, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)]);
 #endif
 
-		if (CGameUserSettings::Get()->mCurrent.mIsShadowMappingEnabled)
-		{
-			ProcessShadowPass(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)]);
-		}
-		
-		RenderMainPasses(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpFramePostProcessor, mpRenderQueues);
-		RenderOverlayAndPostEffects(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpFramePostProcessor, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OVERLAY)]);
+			if (CGameUserSettings::Get()->mCurrent.mIsShadowMappingEnabled)
+			{
+				ProcessShadowPass(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)]);
+			}
 
-		mpGraphicsContext->Present();
+			RenderMainPasses(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpFramePostProcessor, mpRenderQueues);
+			RenderOverlayAndPostEffects(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpFramePostProcessor, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OVERLAY)]);
+		}
+
+		{
+			TDE2_BUILTIN_SPEC_PROFILER_EVENT(E_SPECIAL_PROFILE_EVENT::PRESENT);
+			mpGraphicsContext->Present();
+		}
 
 		mpDebugUtility->PostRender();
 

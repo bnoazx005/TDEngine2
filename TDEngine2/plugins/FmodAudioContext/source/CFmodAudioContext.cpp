@@ -1,5 +1,6 @@
 #include "../include/CFmodAudioContext.h"
 #include "../include/CFmodAudioClip.h"
+#include "../include/editor/CPerfProfiler.h"
 #include <stringUtils.hpp>
 #include <utils/CFileLogger.h>
 #include <utils/Utils.h>
@@ -54,6 +55,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		TDE2_BUILTIN_SPEC_PROFILER_EVENT(E_SPECIAL_PROFILE_EVENT::AUDIO_UPDATE);
 		return (mpSystem->update() == FMOD_OK) ? RC_OK : RC_FAIL;
 	}
 

@@ -57,6 +57,21 @@ namespace TDEngine2
 			currSample.second.clear();
 		}
 
+		++mCurrFrameCounter;
+
+		if (mCurrFrameCounter >= mMeasurementsFramesCount)
+		{
+			const F32 invFramesCount = 1.0f / static_cast<F32>(mCurrFrameCounter);
+
+			for (USIZE i = 0; i < mAverageSpecialEventsMeasurements.size(); i++)
+			{
+				mAverageSpecialEventsMeasurements[i] = invFramesCount * mSpecialEventsAccumulators[i];
+				mSpecialEventsAccumulators[i] = 0.0f;
+			}
+
+			mCurrFrameCounter = 0;
+		}
+
 		return RC_OK;
 	}
 
@@ -91,6 +106,11 @@ namespace TDEngine2
 		currSamplesLog.insert(insertIter, { startTime - mFramesTimesStatistics[mCurrFrameIndex], duration, threadID, name });
 	}
 
+	void CPerfProfiler::WriteSpecialSample(E_SPECIAL_PROFILE_EVENT eventName, F32 duration)
+	{
+		mSpecialEventsAccumulators[static_cast<U32>(eventName)] += duration;
+	}
+
 	ITimer* CPerfProfiler::GetTimer() const
 	{
 		return mpPerformanceTimer;
@@ -110,6 +130,11 @@ namespace TDEngine2
 	{
 		TDE2_ASSERT(frameIndex < mFramesStatistics.size());
 		return mFramesStatistics[frameIndex];
+	}
+
+	F32 CPerfProfiler::GetAverageTimeByEventName(E_SPECIAL_PROFILE_EVENT eventName) const
+	{
+		return mAverageSpecialEventsMeasurements[static_cast<U32>(eventName)];
 	}
 
 

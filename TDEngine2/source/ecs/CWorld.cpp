@@ -251,6 +251,8 @@ namespace TDEngine2
 		//FIXME std::lock_guard<std::mutex> lock(mMutex);
 
 		TDE2_PROFILER_SCOPE("World::Update");
+		TDE2_BUILTIN_SPEC_PROFILER_EVENT(E_SPECIAL_PROFILE_EVENT::WORLD_UPDATE);
+
 		mpSystemManager->Update(this, mTimeScaleFactor * dt);
 
 		// \note reset all allocated raycasts results data

@@ -179,13 +179,18 @@ namespace TDEngine2
 
 			TDE2_API void _onUpdate(F32 dt) override;
 		protected:
+			static const U32 mAvgDeltaTimeFramesCount = 10;
+
 			IImGUIContext*   mpImGUIContext;
 
 			std::string      mName;
 
 			std::atomic_bool mIsVisible;
 
-			F32              mCurrDelta = 0.0f;
+			F32              mDeltaTimeAccumulator = 0.0f;
+			F32              mCurrDeltaTime = 0.0f;
+
+			U32              mFramesCounter = 0;
 	};
 }
 

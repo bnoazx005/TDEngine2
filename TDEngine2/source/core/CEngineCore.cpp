@@ -346,30 +346,33 @@ namespace TDEngine2
 		CMemoryProfiler::Get()->BeginFrame();
 
 	#ifdef TDE2_USE_WINPLATFORM
-			OPTICK_FRAME("MainThread");
+		OPTICK_FRAME("MainThread");
 	#endif
 #endif
-
-		if (mpInputContext)
 		{
-			mpInputContext->Update();
-		}
+			TDE2_BUILTIN_SPEC_PROFILER_EVENT(E_SPECIAL_PROFILE_EVENT::UPDATE);
 
-		_onNotifyEngineListeners(EET_ONUPDATE);
+			if (mpInputContext)
+			{
+				mpInputContext->Update();
+			}
 
-		if (auto pGameModesManager = _getSubsystemAs<IGameModesManager>(EST_GAME_MODES_MANAGER))
-		{
-			pGameModesManager->Update(mpInternalTimer->GetDeltaTime());
+			_onNotifyEngineListeners(EET_ONUPDATE);
+
+			if (auto pGameModesManager = _getSubsystemAs<IGameModesManager>(EST_GAME_MODES_MANAGER))
+			{
+				pGameModesManager->Update(mpInternalTimer->GetDeltaTime());
+			}
+
+			if (IAudioContext* pAudioContext = _getSubsystemAs<IAudioContext>(EST_AUDIO_CONTEXT))
+			{
+				pAudioContext->Update();
+			}
 		}
 
 		if (IRenderer* pRenderer = _getSubsystemAs<IRenderer>(EST_RENDERER))
 		{
 			pRenderer->Draw(mpInternalTimer->GetCurrTime(), mpInternalTimer->GetDeltaTime());
-		}
-
-		if (IAudioContext* pAudioContext = _getSubsystemAs<IAudioContext>(EST_AUDIO_CONTEXT))
-		{
-			pAudioContext->Update();
 		}
 
 		if (IJobManager* pJobManager = _getSubsystemAs<IJobManager>(EST_JOB_MANAGER))

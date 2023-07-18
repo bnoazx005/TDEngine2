@@ -41,7 +41,16 @@ namespace TDEngine2
 
 	void CBaseEditorWindow::_onUpdate(F32 dt)
 	{
-		mCurrDelta = dt;
+		mDeltaTimeAccumulator += dt;
+		++mFramesCounter;
+
+		if (mFramesCounter >= mAvgDeltaTimeFramesCount)
+		{
+			mCurrDeltaTime = mDeltaTimeAccumulator * (1.0f / static_cast<F32>(mFramesCounter));
+			
+			mDeltaTimeAccumulator = 0.0f;
+			mFramesCounter = 0;
+		}
 	}
 }
 

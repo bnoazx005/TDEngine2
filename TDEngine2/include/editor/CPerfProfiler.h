@@ -14,6 +14,7 @@
 #include <stack>
 #include <thread>
 #include <unordered_map>
+#include <array>
 
 #ifdef TDE2_USE_WINPLATFORM
 	#include "optick.h"
@@ -32,6 +33,8 @@ namespace TDEngine2
 
 	class CPerfProfiler : public ITimeProfiler, public CBaseObject
 	{
+		public:
+			typedef std::array<F32, static_cast<U32>(E_SPECIAL_PROFILE_EVENT::UNUSED)> TSpecialEvents;
 		public:
 			/*!
 				\brief The method stars to record current frame's statistics. The method should be called only once per frame
@@ -61,6 +64,16 @@ namespace TDEngine2
 			TDE2_API void WriteSample(const std::string& name, F32 startTime, F32 duration, USIZE threadID) override;
 
 			/*!
+				\brief The method writes measurement for a specific event which is described using E_SPECIAL_PROFILE_EVENT
+
+				\param[in] eventName Type of an profiled event
+				\param[in] duration A elapsed time's value for this sample
+				\param[in] threadID An identifier of a thread
+			*/
+
+			TDE2_API void WriteSpecialSample(E_SPECIAL_PROFILE_EVENT eventName, F32 duration) override;
+
+			/*!
 				\brief The method returns instrumental timer that's used for measurements
 
 				\return The method returns instrumental timer that's used for measurements
@@ -85,7 +98,6 @@ namespace TDEngine2
 
 			TDE2_API U16 GetWorstFrameIndexByTime() const override;
 
-
 			/*!
 				\brief The method returns samples based on a given frame's index
 
@@ -95,6 +107,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API const TSamplesTable& GetSamplesLogByFrameIndex(U32 frameIndex) const override;
+
+			TDE2_API F32 GetAverageTimeByEventName(E_SPECIAL_PROFILE_EVENT eventName) const override;
 
 			/*!
 				\brief The function is replacement of factory method for instances of this type.
@@ -111,6 +125,8 @@ namespace TDEngine2
 		private:
 			static const U16    mLogBuffer;
 
+			static const U32    mMeasurementsFramesCount = 5;
+
 			ITimer*             mpPerformanceTimer;
 			
 			bool                mIsRecording;
@@ -122,6 +138,11 @@ namespace TDEngine2
 			U32                 mCurrFrameIndex;
 
 			U32                 mWorstTimeFrameIndex;
+
+			U32                 mCurrFrameCounter = 0;
+
+			TSpecialEvents      mSpecialEventsAccumulators;
+			TSpecialEvents      mAverageSpecialEventsMeasurements;
 
 	};
 
@@ -167,10 +188,41 @@ namespace TDEngine2
 	};
 
 
+	class CSpecialEventProfilerScope
+	{
+		public:
+			CSpecialEventProfilerScope(E_SPECIAL_PROFILE_EVENT eventId) :
+				mEventName(eventId)
+			{
+				auto pProfiler = CPerfProfiler::Get();
+
+				ITimer* pTimer = pProfiler->GetTimer();
+				pTimer->Tick();
+
+				mStartTime = pTimer->GetCurrTime();
+			}
+
+			~CSpecialEventProfilerScope()
+			{
+				auto pProfiler = CPerfProfiler::Get();
+
+				ITimer* pTimer = pProfiler->GetTimer();
+				pTimer->Tick();
+
+				pProfiler->WriteSpecialSample(mEventName, pTimer->GetCurrTime() - mStartTime);
+			}
+		private:
+			E_SPECIAL_PROFILE_EVENT mEventName;
+			F32                     mStartTime = 0.0f;
+	};
+
+
 #if TDE2_BUILTIN_PERF_PROFILER_ENABLED
 	#define TDE2_BUILTIN_PROFILER_EVENT(Name) CProfilerScope scope##__LINE__(Name)	
+	#define TDE2_BUILTIN_SPEC_PROFILER_EVENT(Name) CSpecialEventProfilerScope scope##__LINE__(Name)
 #else
 	#define TDE2_BUILTIN_PROFILER_EVENT(Name) 
+	#define TDE2_BUILTIN_SPEC_PROFILER_EVENT(Name) CSpecialEventProfilerScope scope##__LINE__(Name)
 #endif
 
 

@@ -1,5 +1,6 @@
 #include "../../include/editor/CStatsViewerWindow.h"
 #include "../../include/core/IImGUIContext.h"
+#include "../../include/editor/CPerfProfiler.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -23,6 +24,22 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+
+	static TVector2 DrawTextLine(IImGUIContext* pImGUIContext, const TVector2& carretPos, F32 indent, F32 lineHeight, 
+		const std::string& header = Wrench::StringUtils::GetEmptyStr(), const std::string& text = Wrench::StringUtils::GetEmptyStr())
+	{
+		static constexpr F32 horizontalSpace = 160.0f;
+
+		if (!header.empty() && !text.empty())
+		{
+			pImGUIContext->DrawText(carretPos + TVector2(indent, 0.0f), TColorUtils::mWhite, header);
+			pImGUIContext->DrawText(carretPos + TVector2(horizontalSpace, 0.0f), TColorUtils::mWhite, text);
+		}
+
+		return carretPos + TVector2(0.0f, lineHeight);
+	}
+
+
 	void CStatsViewerWindow::_onDraw()
 	{
 		bool isEnabled = mIsVisible;
@@ -40,21 +57,38 @@ namespace TDEngine2
 
 		if (mpImGUIContext->BeginWindow("Stats Viewer", isEnabled, params))
 		{
-			mpImGUIContext->SetCursorScreenPos(TVector2(mpImGUIContext->GetWindowWidth() * 0.8f, 10.0f));
+			mpImGUIContext->SetCursorScreenPos(TVector2(mpImGUIContext->GetWindowWidth() * 0.77f, 10.0f));
 
 			if (mpImGUIContext->BeginChildWindow("##Stats", TVector2(400.0f, 600.0f)))
 			{
-				const TVector2 initialPos = mpImGUIContext->GetCursorScreenPos();
-				const TVector2 vOffset(0.0f, 15.0f), hOffset(120.0f, 0.0f);
+				TVector2 currPos = mpImGUIContext->GetCursorScreenPos();
+				const TVector2 vOffset(0.0f, 15.0f);
 
-				mpImGUIContext->DrawText(initialPos, TColorUtils::mWhite, "Stats: ");
+				mpImGUIContext->DrawText(currPos, TColorUtils::mWhite, "Stats: ");
 
-				mpImGUIContext->DrawText(initialPos + vOffset, TColorUtils::mWhite, "FPS: ");
-				mpImGUIContext->DrawText(initialPos + vOffset + hOffset, TColorUtils::mWhite, std::to_string(static_cast<I32>(1.0f / CMathUtils::Max(1e-3f, mCurrDelta))));
-			
-				mpImGUIContext->DrawText(initialPos + 2.0f * vOffset, TColorUtils::mWhite, "Frame Time (ms): ");
-				mpImGUIContext->DrawText(initialPos + 2.0f * vOffset + hOffset, TColorUtils::mWhite, std::to_string(mCurrDelta * 1000.0f));
+				currPos = DrawTextLine(mpImGUIContext, currPos + vOffset, 0.0f, vOffset.y, "FPS: ", std::to_string(static_cast<I32>(1.0f / CMathUtils::Max(1e-3f, mCurrDeltaTime))));
+				
+				{
+					currPos = DrawTextLine(mpImGUIContext, currPos, 0.0f, vOffset.y);
+					currPos = DrawTextLine(mpImGUIContext, currPos, 0.0f, vOffset.y, "Frame Time (ms): ", std::to_string(mCurrDeltaTime * 1000.0f));
 
+					currPos = DrawTextLine(mpImGUIContext, currPos, 20.0f, vOffset.y, "Update Time (ms): ",
+						std::to_string(CPerfProfiler::Get()->GetAverageTimeByEventName(E_SPECIAL_PROFILE_EVENT::UPDATE) * 1000.0f));
+
+					currPos = DrawTextLine(mpImGUIContext, currPos, 25.0f, vOffset.y, "World Update (ms): ",
+						std::to_string(CPerfProfiler::Get()->GetAverageTimeByEventName(E_SPECIAL_PROFILE_EVENT::WORLD_UPDATE) * 1000.0f));
+
+					currPos = DrawTextLine(mpImGUIContext, currPos, 25.0f, vOffset.y, "Audio Update (ms): ",
+						std::to_string(CPerfProfiler::Get()->GetAverageTimeByEventName(E_SPECIAL_PROFILE_EVENT::AUDIO_UPDATE) * 1000.0f));
+
+					currPos = DrawTextLine(mpImGUIContext, currPos, 20.0f, vOffset.y, "Render Time (ms): ",
+						std::to_string(CPerfProfiler::Get()->GetAverageTimeByEventName(E_SPECIAL_PROFILE_EVENT::RENDER) * 1000.0f));
+
+					currPos = DrawTextLine(mpImGUIContext, currPos, 20.0f, vOffset.y, "Present (ms): ",
+						std::to_string(CPerfProfiler::Get()->GetAverageTimeByEventName(E_SPECIAL_PROFILE_EVENT::PRESENT) * 1000.0f));
+
+					currPos = DrawTextLine(mpImGUIContext, currPos, 0.0f, vOffset.y);
+				}
 
 				mpImGUIContext->EndChildWindow();
 			}
