@@ -360,6 +360,8 @@ namespace TDEngine2
 			depthStencilParams.mStencilReadMaskValue = 0x1;
 			depthStencilParams.mStencilWriteMaskValue = 0x0; /// Maskable elements are allowed only to read values
 
+			blendingParams.mWriteMask = 0xF;
+
 			mDefaultUIMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::MASK_USER)] = mpResourceManager->Create<IMaterial>("DefaultInGameUI_Maskable.material", editorUIMaterialParams);
 		}
 

@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.19] 2023-07-19
+
+### Added
+
+### Changed
+
+### Fixed
+
+- UI masks usage was fixed.
+
 ## [0.6.18] 2023-07-17
 
 ### Added
