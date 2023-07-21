@@ -7,8 +7,12 @@
 #include "../../include/core/IFileSystem.h"
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IFile.h"
+#define STB_IMAGE_RESIZE_IMPLEMENTATION
+#include "stb_image_resize.h"
 #include <chrono>
 #include <ctime>
+#include <cmath>
+#include <numeric>
 
 
 #if TDE2_EDITORS_ENABLED
@@ -228,6 +232,54 @@ namespace TDEngine2
 		return TakeScreenshot(
 			pFileSystem->CombinePath(mArtifactsOutputDirectoryPath, 
 			pFileSystem->CombinePath(testFixture, Wrench::StringUtils::Format(filenamePattern, testCase, localTime->tm_hour, localTime->tm_min, localTime->tm_sec))));
+	}
+
+	constexpr I32 PerceptualHashImageSize = 8;
+
+
+	CTestContext::TImagePerceptualHash CTestContext::ComputePerceptualHashForCurrentFrame()
+	{
+		auto pGraphicsContext = mpEngineCore->GetSubsystem<IGraphicsContext>();
+		auto pWindowSystem = mpEngineCore->GetSubsystem<IWindowSystem>();
+		
+		auto&& frameBufferPixelData = pGraphicsContext->GetBackBufferData();
+
+		std::vector<U8> outputBufferData;
+		outputBufferData.resize(PerceptualHashImageSize * PerceptualHashImageSize * sizeof(U32));
+
+		// Downscale image to 8x8
+		stbir_resize_uint8(frameBufferPixelData.data(), pWindowSystem->GetWidth(), pWindowSystem->GetHeight(), pWindowSystem->GetWidth() * sizeof(U32),
+			outputBufferData.data(), PerceptualHashImageSize, PerceptualHashImageSize, PerceptualHashImageSize * sizeof(U32), 4);
+
+		// Convert to grayscale 
+		std::vector<U8> grayscaleImageData;
+
+		for (USIZE i = 0; i < outputBufferData.size(); i += sizeof(U32)) // don't account alpha channel
+		{
+			const U32 value = outputBufferData[i] / 3 + outputBufferData[i + 1] / 2 + outputBufferData[i + 2] / 10;
+			grayscaleImageData.push_back(value < 255 ? value : 255);
+		}
+
+		// Find average for all pixels
+		const U8 averagePixelValue = std::accumulate(grayscaleImageData.cbegin(), grayscaleImageData.cend(), 0) / static_cast<U8>(grayscaleImageData.size());
+
+		// Form 64 bits number where a bit's set up in 1 if current pixel's value is greater than the average and 0 otherwise
+		TImagePerceptualHash hash;
+
+		for (USIZE i = 0; i < grayscaleImageData.size(); i++)
+		{
+			hash[i] = grayscaleImageData[i] > averagePixelValue ? 1 : 0;
+		}
+
+		return hash;
+	}
+
+	bool CTestContext::IsCurrentFrameHasSamePerceptualHash(U64 expectedHash, U8 hammingDistanceThreshold)
+	{
+		const TImagePerceptualHash currentHashBits = ComputePerceptualHashForCurrentFrame();
+		const TImagePerceptualHash expectedHashBits = expectedHash;
+
+		return (currentHashBits ^ expectedHashBits).count() < hammingDistanceThreshold;
 	}
 
 	bool CTestContext::IsFinished() const

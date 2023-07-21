@@ -13,6 +13,7 @@
 #include <vector>
 #include <string>
 #include <functional>
+#include <bitset>
 
 
 #if TDE2_EDITORS_ENABLED
@@ -94,6 +95,7 @@ namespace TDEngine2
 	{
 		public:
 			typedef std::unordered_map<std::string, TTestResultEntity> TTestResultsTable;
+			typedef std::bitset<64>                                    TImagePerceptualHash;
 		public:
 			TDE2_API E_RESULT_CODE Init(const TTestContextConfig& config);
 
@@ -115,6 +117,15 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE TakeScreenshot(const std::string& filename);
 			TDE2_API E_RESULT_CODE TakeScreenshot(const std::string& testFixture, const std::string& testCase);
+
+			TDE2_API TImagePerceptualHash ComputePerceptualHashForCurrentFrame();
+
+			/*!
+				\brief The method compares content of current frame buffer with provided precalculated hash value. The threshold for
+				comparison is specified using hammingDistanceThreshold argument.
+			*/
+
+			TDE2_API bool IsCurrentFrameHasSamePerceptualHash(U64 expectedHash, U8 hammingDistanceThreshold = 5);
 
 			/*!
 				\brief The function is replacement of factory method for instances of this type.

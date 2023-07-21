@@ -207,6 +207,8 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 
 			pTestCase->ExecuteAction([=]
 			{
+				CTestContext::Get()->ComputePerceptualHashForCurrentFrame();
+
 				TDE2_TEST_IS_TRUE(pImageLayoutElement->GetMinAnchor() == minAnchor);
 				TDE2_TEST_IS_TRUE(pImageLayoutElement->GetMaxAnchor() == maxAnchor);
 

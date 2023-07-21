@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.19] 2023-07-19
+## [0.6.19] 2023-07-21
 
 ### Added
+
+- **stb_image_resize** library was integrated into the engine for **CTestContext** purposes.
+
+- Now **CTestContext** supports images comparison based on their perceptual hashes.
 
 ### Changed
 
