@@ -282,6 +282,29 @@ namespace TDEngine2
 		return (currentHashBits ^ expectedHashBits).count() < hammingDistanceThreshold;
 	}
 
+	TColor32F CTestContext::GetFrameBufferPixel(U32 x, U32 y) const
+	{
+		auto pGraphicsContext = mpEngineCore->GetSubsystem<IGraphicsContext>();
+		auto pWindowSystem = mpEngineCore->GetSubsystem<IWindowSystem>();
+
+		if (x >= pWindowSystem->GetWidth() || y >= pWindowSystem->GetHeight())
+		{
+			return TColorUtils::mBlack;
+		}
+
+		auto&& frameBufferPixelData = pGraphicsContext->GetBackBufferData();
+
+		const USIZE index = (pWindowSystem->GetHeight() - y) * (pWindowSystem->GetWidth() * sizeof(U32)) + x * sizeof(U32);
+		TDE2_ASSERT(index + 3 < frameBufferPixelData.size());
+
+		if (index + 3 >= frameBufferPixelData.size())
+		{
+			return TColorUtils::mBlack;
+		}
+
+		return TColor32F(frameBufferPixelData[index] / 255.0f, frameBufferPixelData[index + 1] / 255.0f, frameBufferPixelData[index + 2] / 255.0f, 1.0f);
+	}
+
 	bool CTestContext::IsFinished() const
 	{
 		return !mIsRunning && mTestFixtures.empty();

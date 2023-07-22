@@ -9,6 +9,7 @@
 
 #include "../core/CBaseObject.h"
 #include "../math/TVector3.h"
+#include "../utils/Color.h"
 #include <unordered_map>
 #include <vector>
 #include <string>
@@ -126,6 +127,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API bool IsCurrentFrameHasSamePerceptualHash(U64 expectedHash, U8 hammingDistanceThreshold = 5);
+
+			TDE2_API TColor32F GetFrameBufferPixel(U32 x, U32 y) const;
 
 			/*!
 				\brief The function is replacement of factory method for instances of this type.

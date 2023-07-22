@@ -207,8 +207,6 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 
 			pTestCase->ExecuteAction([=]
 			{
-				CTestContext::Get()->ComputePerceptualHashForCurrentFrame();
-
 				TDE2_TEST_IS_TRUE(pImageLayoutElement->GetMinAnchor() == minAnchor);
 				TDE2_TEST_IS_TRUE(pImageLayoutElement->GetMaxAnchor() == maxAnchor);
 
@@ -426,6 +424,72 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 		});
 
 		pTestCase->WaitForNextFrame();
+	}
+
+	TDE2_TEST_CASE("TestUiMask_AddTwoImagesOneOfThemIsUiMask_ChildImageIsDrawnPartiallyBasedOnMask")
+	{
+		static CEntity* pCanvasEntity = nullptr;
+
+		/// \note Create an entity
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			// create a canvas
+			auto&& canvasEntityResult = CSceneHierarchyUtils::CreateCanvasUIElement(pWorld, pMainScene, TEntityId::Invalid, [](auto) {});
+			TDE2_TEST_IS_TRUE(canvasEntityResult.IsOk());
+
+			pCanvasEntity = pWorld->FindEntity(canvasEntityResult.Get());
+
+			// create a mask
+			auto&& maskEntityResult = CSceneHierarchyUtils::CreateImageUIElement(pWorld, pMainScene, canvasEntityResult.Get(), [](auto) {});
+			TDE2_TEST_IS_TRUE(maskEntityResult.IsOk());
+
+			if (auto pMaskEntity = pWorld->FindEntity(maskEntityResult.Get()))
+			{
+				pMaskEntity->AddComponent<CUIMaskComponent>();
+			}
+
+			// create child image
+			auto&& contentImageEntityResult = CSceneHierarchyUtils::CreateImageUIElement(pWorld, pMainScene, maskEntityResult.Get(), [](auto) {});
+			TDE2_TEST_IS_TRUE(contentImageEntityResult.IsOk());
+
+			if (auto pImageEntity = pWorld->FindEntity(contentImageEntityResult.Get()))
+			{
+				if (auto pLayoutElement = pImageEntity->GetComponent<CLayoutElement>())
+				{
+					TVector2 offset = pLayoutElement->GetMaxOffset();
+					pLayoutElement->SetMinOffset(TVector2(offset.x * 0.5f, -offset.y * 0.5f));
+				}
+			}
+		});
+
+		pTestCase->Wait(1.0f);
+
+		pTestCase->ExecuteAction([&]
+		{
+			TDE2_TEST_IS_TRUE(PackColor32F(CTestContext::Get()->GetFrameBufferPixel(35, 35)) == 0x000000ff);
+		});
+
+		/// \note Destroy the canvas entity
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pCanvasEntity->GetId()));
+		});
 	}
 }
 
