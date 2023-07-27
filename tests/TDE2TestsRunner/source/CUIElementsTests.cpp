@@ -491,6 +491,94 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pCanvasEntity->GetId()));
 		});
 	}
+
+	TDE2_TEST_CASE("TestUiMask_AddButtonThatPartiallyMasked_InputShouldBeReceivedOnlyOnVisiblePartOfButton")
+	{
+		static CEntity* pCanvasEntity = nullptr;
+		static CInputReceiver* pInputReceiver = nullptr;
+
+		/// \note Create an entity
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			// create a canvas
+			auto&& canvasEntityResult = CSceneHierarchyUtils::CreateCanvasUIElement(pWorld, pMainScene, TEntityId::Invalid, [](auto) {});
+			TDE2_TEST_IS_TRUE(canvasEntityResult.IsOk());
+
+			pCanvasEntity = pWorld->FindEntity(canvasEntityResult.Get());
+
+			// create a mask
+			auto&& maskEntityResult = CSceneHierarchyUtils::CreateImageUIElement(pWorld, pMainScene, canvasEntityResult.Get(), [](auto) {});
+			TDE2_TEST_IS_TRUE(maskEntityResult.IsOk());
+
+			if (auto pMaskEntity = pWorld->FindEntity(maskEntityResult.Get()))
+			{
+				pMaskEntity->AddComponent<CUIMaskComponent>();
+			}
+
+			// create a button 
+			auto&& contentButtonEntityResult = CSceneHierarchyUtils::CreateImageUIElement(pWorld, pMainScene, maskEntityResult.Get(), [](auto) {});
+			TDE2_TEST_IS_TRUE(contentButtonEntityResult.IsOk());
+
+			if (auto pButtonEntity = pWorld->FindEntity(contentButtonEntityResult.Get()))
+			{
+				if (auto pLayoutElement = pButtonEntity->GetComponent<CLayoutElement>())
+				{
+					TVector2 offset = pLayoutElement->GetMaxOffset();
+					pLayoutElement->SetMinOffset(TVector2(offset.x * 0.5f, -offset.y * 0.5f));
+				}
+
+				pInputReceiver = pButtonEntity->AddComponent<CInputReceiver>();
+			}
+		});
+
+		pTestCase->Wait(1.0f);
+
+		// Try to click over visible part
+		pTestCase->SetCursorPosition(TVector3(80.0f, 35.0f, 0.0f));
+		pTestCase->AddPressMouseButton(0);
+
+		pTestCase->ExecuteAction([&]
+		{
+			TDE2_TEST_IS_TRUE(pInputReceiver);
+			TDE2_TEST_IS_TRUE(pInputReceiver->mIsHovered && (pInputReceiver->mCurrState || pInputReceiver->mPrevState));
+		});
+
+		pTestCase->WaitForNextFrame();
+
+		// Try to click over hidden part
+		pTestCase->SetCursorPosition(TVector3(120.0f, 35.0f, 0.0f));
+		pTestCase->AddPressMouseButton(0);
+
+		pTestCase->ExecuteAction([&]
+		{
+			TDE2_TEST_IS_TRUE(pInputReceiver);
+			TDE2_TEST_IS_TRUE(!pInputReceiver->mIsHovered && !pInputReceiver->mCurrState && !pInputReceiver->mPrevState);
+		});
+
+		pTestCase->WaitForNextFrame();
+
+		/// \note Destroy the canvas entity
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pCanvasEntity->GetId()));
+		});
+	}
 }
 
 #endif

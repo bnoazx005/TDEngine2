@@ -48,6 +48,7 @@ namespace TDEngine2
 				std::vector<CTransform*>     mpTransforms;
 				std::vector<CLayoutElement*> mpLayoutElements;
 				std::vector<CInputReceiver*> mpInputReceivers;
+				std::vector<U32>             mPriorities;
 			};
 		public:
 			TDE2_SYSTEM(CUIEventsSystem);

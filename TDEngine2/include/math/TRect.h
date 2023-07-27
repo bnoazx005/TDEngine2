@@ -12,6 +12,7 @@
 #include "MathUtils.h"
 #include <tuple>
 #include <array>
+#include <algorithm>
 
 
 namespace TDEngine2
@@ -164,10 +165,14 @@ namespace TDEngine2
 		F32 rightRectY2 = rightRect.y - rightRect.height;
 
 		bool isXOverlapped = (rightRect.x + FloatEpsilon > leftRect.x && rightRect.x - FloatEpsilon < leftRectX2) ||
-							 (rightRectX2 + FloatEpsilon> leftRect.x && rightRectX2 - FloatEpsilon < leftRectX2);
+							 (rightRectX2 + FloatEpsilon > leftRect.x && rightRectX2 - FloatEpsilon < leftRectX2) ||
+							 (leftRect.x + FloatEpsilon > rightRect.x && leftRect.x - FloatEpsilon < rightRectX2) ||
+							 (leftRectX2 + FloatEpsilon > rightRect.x && leftRectX2 - FloatEpsilon < rightRectX2);
 		
 		bool isYOverlapped = (rightRect.y + FloatEpsilon > leftRectY2 && rightRect.y - FloatEpsilon < leftRect.y) ||
-							 (rightRectY2 + FloatEpsilon > leftRectY2 && rightRectY2 - FloatEpsilon < leftRect.y);
+							 (rightRectY2 + FloatEpsilon > leftRectY2 && rightRectY2 - FloatEpsilon < leftRect.y) ||
+							 (leftRect.y + FloatEpsilon > rightRectY2 && leftRect.y - FloatEpsilon < rightRect.y) ||
+							 (leftRectY2 + FloatEpsilon > rightRectY2 && leftRectY2 - FloatEpsilon < rightRect.y);
 
 		return isXOverlapped && isYOverlapped;
 	}
@@ -235,5 +240,27 @@ namespace TDEngine2
 		auto&& sizes = rect.GetSizes();
 
 		return { lbPoint.x, lbPoint.y, sizes.x, sizes.y };
+	}
+
+
+	/*!
+		\brief The method returns a new rectangle which is formed via intersection of two given rects.
+		If there is no intersection a rectangle with zero sizes is returned
+	*/
+
+	template <typename T>
+	TRect<T> IntersectRects(const TRect<T>& left, const TRect<T>& right)
+	{
+		if (!IsOverlapped(left, right))
+		{
+			return TRect<T>(0, 0, 0, 0);
+		}
+
+		const T x1 = std::min<T>(left.x + left.width, right.x + right.width);
+		const T x2 = std::max<T>(left.x, right.x);
+		const T y1 = std::min<T>(left.y + left.height, right.y + right.height);
+		const T y2 = std::max<T>(left.y, right.y);
+
+		return TRect<T>(x2, y2, abs(x2 - x1), abs(y2 - y1));
 	}
 }

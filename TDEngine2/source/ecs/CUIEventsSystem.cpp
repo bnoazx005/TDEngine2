@@ -80,63 +80,56 @@ namespace TDEngine2
 
 	void CUIEventsSystem::InjectBindings(IWorld* pWorld)
 	{
-		auto& transforms     = mContext.mpTransforms;
+		auto& transforms = mContext.mpTransforms;
 		auto& layoutElements = mContext.mpLayoutElements;
 		auto& inputReceivers = mContext.mpInputReceivers;
+		auto& priorities = mContext.mPriorities;
 
 		transforms.clear();
 		layoutElements.clear();
 		inputReceivers.clear();
+		priorities.clear();
 
 		/// \note Find main canvas which has no parent or its parent has no CLayoutElement component attached
 		for (TEntityId currCanvasEntity : FindMainCanvases(pWorld))
 		{
 			CTransform* pTransform = pWorld->FindEntity(currCanvasEntity)->GetComponent<CTransform>();
 
-			/// \note Sort all entities based on computed priority (children're first)
-			std::stack<TEntityId> entitiesToVisit;
-			std::unordered_set<TEntityId> visitedEntities;
+			std::stack<std::tuple<TEntityId, U32>> entitiesToVisit;
 
-			for (TEntityId id : pTransform->GetChildren())
-			{
-				entitiesToVisit.push(id);
-			}
+			entitiesToVisit.emplace(currCanvasEntity, 0);
 
 			CEntity* pEntity = nullptr;
+			TEntityId currEntityId = TEntityId::Invalid;
+			U32 currPriority = 0;
 
 			while (!entitiesToVisit.empty())
 			{
-				const TEntityId currEntityId = entitiesToVisit.top();
-
-				pEntity = pWorld->FindEntity(currEntityId);
-				pTransform = pEntity->GetComponent<CTransform>();
-
-				if (!pTransform->GetChildren().empty())
-				{
-					USIZE prevEntitiesToVisitCount = entitiesToVisit.size();
-
-					for (TEntityId id : pTransform->GetChildren())
-					{
-						if (visitedEntities.find(id) == visitedEntities.cend())
-						{
-							entitiesToVisit.push(id);
-						}
-					}
-
-					if (prevEntitiesToVisitCount != entitiesToVisit.size())
-					{
-						continue;
-					}
-				}
-
-				visitedEntities.emplace(currEntityId);
+				std::tie(currEntityId, currPriority) = entitiesToVisit.top();
 				entitiesToVisit.pop();
 
-				if (auto pInputReceiver = pEntity->GetComponent<CInputReceiver>())
+				pEntity = pWorld->FindEntity(currEntityId);
+				if (pEntity->HasComponent<CDeactivatedComponent>() || pEntity->HasComponent<CDeactivatedGroupComponent>())
 				{
-					inputReceivers.push_back(pInputReceiver);
+					continue;
+				}
+
+				auto pInputReceiver = pEntity->GetComponent<CInputReceiver>();
+
+				if (pInputReceiver || pEntity->HasComponent<CUIMaskComponent>())
+				{
 					transforms.push_back(pEntity->GetComponent<CTransform>());
 					layoutElements.push_back(pEntity->GetComponent<CLayoutElement>());
+					priorities.push_back(currPriority);
+					inputReceivers.push_back(pInputReceiver);
+				}
+
+				if (pTransform = pEntity->GetComponent<CTransform>())
+				{
+					for (TEntityId id : pTransform->GetChildren())
+					{
+						entitiesToVisit.emplace(id, currPriority + 1);
+					}
 				}
 			}
 		}
@@ -191,24 +184,33 @@ namespace TDEngine2
 		auto& transforms     = mContext.mpTransforms;
 		auto& layoutElements = mContext.mpLayoutElements;
 		auto& inputReceivers = mContext.mpInputReceivers;
+		auto& priorities     = mContext.mPriorities;
 
 		CEntity* pCurrEntity = nullptr;
 
+		bool isUiMaskActive = false;
+		TRectF32 maskRect;
+
+		U32 prevMaskElementPriority = std::numeric_limits<U32>::max();
+
 		/// \note Update is executed in order of existing hierarchy of elements
 		for (USIZE i = 0; i < transforms.size(); ++i)
-		{		
+		{
 			pTransform     = transforms[i];
 			pInputReceiver = inputReceivers[i];
 			pLayoutElement = layoutElements[i];
 
-			pInputReceiver->mIsHovered = false;
-
-			if (pInputReceiver->mIsIgnoreInput)
+			if (pInputReceiver)
 			{
-				pInputReceiver->mPrevState = pInputReceiver->mCurrState; // reset state
-				pInputReceiver->mCurrState = false;
+				pInputReceiver->mIsHovered = false;
 
-				continue;
+				if (pInputReceiver->mIsIgnoreInput)
+				{
+					pInputReceiver->mPrevState = pInputReceiver->mCurrState; // reset state
+					pInputReceiver->mCurrState = false;
+
+					continue;
+				}
 			}
 
 			pCurrEntity = pWorld->FindEntity(pTransform->GetOwnerId());
@@ -217,8 +219,23 @@ namespace TDEngine2
 				continue;
 			}
 
+			if (isUiMaskActive && prevMaskElementPriority > priorities[i])
+			{
+				isUiMaskActive = false;
+			}
+
+			if (pCurrEntity->HasComponent<CUIMaskComponent>())
+			{
+				maskRect = pLayoutElement->GetWorldRect();
+
+				prevMaskElementPriority = priorities[i];
+				isUiMaskActive = true;
+
+				continue;
+			}
+
 			/// \fixme For now it's the simplest solution for checking buttons 
-			pInputReceiver->mIsHovered = ContainsPoint(pLayoutElement->GetWorldRect(), mousePosition);
+			pInputReceiver->mIsHovered = ContainsPoint(isUiMaskActive ? IntersectRects(pLayoutElement->GetWorldRect(), maskRect) : pLayoutElement->GetWorldRect(), mousePosition);
 			pInputReceiver->mPrevState = pInputReceiver->mCurrState;
 			pInputReceiver->mCurrState = pInputReceiver->mIsHovered && mpDesktopInputContext->IsMouseButton(0);
 
