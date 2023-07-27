@@ -117,14 +117,14 @@ namespace TDEngine2
 					pUIMeshData->SetMaterialType(pEntity->HasComponent<CUIMaskComponent>() ? E_UI_MATERIAL_TYPE::MASK_EMITTER :
 						(hasUIMaskApplied ? E_UI_MATERIAL_TYPE::MASK_USER : E_UI_MATERIAL_TYPE::DEFAULT));
 
-					if (!hasUIMaskApplied)
-					{
-						hasUIMaskApplied = pEntity->HasComponent<CUIMaskComponent>();
-					}
-
 #if TDE2_EDITORS_ENABLED
 					identifiers.push_back(pEntity->GetName());
 #endif
+				}
+
+				if (!hasUIMaskApplied)
+				{
+					hasUIMaskApplied = pEntity->HasComponent<CUIMaskComponent>();
 				}
 
 				if (pTransform = pEntity->GetComponent<CTransform>())
@@ -366,23 +366,10 @@ namespace TDEngine2
 		}
 
 		mDefaultFontMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::DEFAULT)] = mpResourceManager->Load<IMaterial>("DefaultResources/Materials/UI/DefaultTextMaterial.material");
+		mDefaultFontMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::MASK_USER)] = mpResourceManager->Load<IMaterial>("DefaultResources/Materials/UI/DefaultTextMaterial_Maskable.material");
 
-		if (auto pDefaultTextMaterial = mpResourceManager->GetResource<IMaterial>(mDefaultFontMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::DEFAULT)]))
-		{
-			/// \note Text can't be a mask but can be a maskable item
-			mDefaultFontMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::MASK_EMITTER)] = mDefaultFontMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::DEFAULT)];
-
-			if (auto pTextMaskableMaterial = pDefaultTextMaterial->Clone())
-			{
-				pTextMaskableMaterial->SetStencilBufferEnabled(true);
-				pTextMaskableMaterial->SetStencilReadMask(0x1);
-				pTextMaskableMaterial->SetStencilWriteMask(0x0);
-				pTextMaskableMaterial->SetStencilRefValue(0x1);
-				pTextMaskableMaterial->SetStencilFrontOp({ E_COMPARISON_FUNC::EQUAL, E_STENCIL_OP::KEEP, E_STENCIL_OP::KEEP });
-
-				mDefaultFontMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::MASK_USER)] = DynamicPtrCast<IResource>(pTextMaskableMaterial)->GetId();
-			}
-		}
+		/// \note Text can't be a mask but can be a maskable item
+		mDefaultFontMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::MASK_EMITTER)] = mDefaultFontMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::DEFAULT)];
 
 		/// \note Create a default vertex declaration for fonts
 		auto createFontVertDeclResult = mpGraphicsObjectManager->CreateVertexDeclaration();

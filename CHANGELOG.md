@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - UI masks usage was fixed.
 
+- Serialization/deserialization of stencil ref/write mask was fixed for **CBaseMaterial**.
+
 ## [0.6.18] 2023-07-17
 
 ### Added

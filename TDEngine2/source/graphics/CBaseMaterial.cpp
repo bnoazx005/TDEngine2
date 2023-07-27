@@ -38,6 +38,8 @@ namespace TDEngine2
 			static const std::string mSrcAlphaColorKey;
 			static const std::string mDestAlphaColorKey;
 			static const std::string mOpAlphaTypeKey;
+
+			static const std::string mWriteMaskKey;
 		};
 
 		static const std::string mDepthStencilStateGroup;
@@ -52,6 +54,7 @@ namespace TDEngine2
 			static const std::string mStencilWriteMaskKey;
 			static const std::string mStencilFrontOpGroup;
 			static const std::string mStencilBackOpGroup;
+			static const std::string mStencilRefKey;
 		};
 
 		struct TStencilOpDescKeys
@@ -105,6 +108,7 @@ namespace TDEngine2
 	const std::string TMaterialArchiveKeys::TBlendStateKeys::mSrcAlphaColorKey  = "src_alpha";
 	const std::string TMaterialArchiveKeys::TBlendStateKeys::mDestAlphaColorKey = "dest_alpha";
 	const std::string TMaterialArchiveKeys::TBlendStateKeys::mOpAlphaTypeKey    = "op_alpha_type";
+	const std::string TMaterialArchiveKeys::TBlendStateKeys::mWriteMaskKey      = "write_mask";
 
 	const std::string TMaterialArchiveKeys::mDepthStencilStateGroup = "depth_stencil_state";
 
@@ -116,6 +120,7 @@ namespace TDEngine2
 	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilWriteMaskKey = "stencil_write_mask";
 	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilFrontOpGroup = "stencil_front_op";
 	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilBackOpGroup  = "stencil_back_op";
+	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilRefKey       = "stencil_ref";
 
 	const std::string TMaterialArchiveKeys::TStencilOpDescKeys::mComparisonFuncKey = "cmp_func";
 	const std::string TMaterialArchiveKeys::TStencilOpDescKeys::mStencilPassOpKey = "pass_op";
@@ -313,6 +318,8 @@ namespace TDEngine2
 			blendStateDesc.mDestAlphaValue = Meta::EnumTrait<E_BLEND_FACTOR_VALUE>::FromString(pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mDestAlphaColorKey));
 			blendStateDesc.mAlphaOpType = Meta::EnumTrait<E_BLEND_OP_TYPE>::FromString(pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mOpAlphaTypeKey));
 
+			blendStateDesc.mWriteMask = pReader->GetUInt8(TMaterialArchiveKeys::TBlendStateKeys::mWriteMaskKey, 0xF);
+
 			SetBlendFactors(blendStateDesc.mScrValue, blendStateDesc.mDestValue, blendStateDesc.mScrAlphaValue, blendStateDesc.mDestAlphaValue);
 			SetBlendOp(blendStateDesc.mOpType, blendStateDesc.mAlphaOpType);
 		});
@@ -327,7 +334,7 @@ namespace TDEngine2
 			SetStencilBufferEnabled(pReader->GetBool(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilTestKey));
 			SetStencilReadMask(pReader->GetUInt8(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilReadMaskKey));
 			SetStencilWriteMask(pReader->GetUInt8(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilWriteMaskKey));
-
+			SetStencilRefValue(pReader->GetUInt8(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilRefKey));
 
 			auto readStencilGroup = [this, pReader](const std::string& groupId, TStencilOpDesc& desc)
 			{
@@ -465,6 +472,8 @@ namespace TDEngine2
 			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mSrcAlphaColorKey, Meta::EnumTrait<E_BLEND_FACTOR_VALUE>::ToString(mBlendStateParams.mScrAlphaValue));
 			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mDestAlphaColorKey, Meta::EnumTrait<E_BLEND_FACTOR_VALUE>::ToString(mBlendStateParams.mDestAlphaValue));
 			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mOpAlphaTypeKey, Meta::EnumTrait<E_BLEND_OP_TYPE>::ToString(mBlendStateParams.mAlphaOpType));
+
+			pWriter->SetUInt8(TMaterialArchiveKeys::TBlendStateKeys::mWriteMaskKey, mBlendStateParams.mWriteMask);
 		}
 		pWriter->EndGroup();
 
@@ -477,6 +486,7 @@ namespace TDEngine2
 			pWriter->SetBool(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilTestKey, mDepthStencilStateParams.mIsStencilTestEnabled);
 			pWriter->SetUInt8(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilReadMaskKey, mDepthStencilStateParams.mStencilReadMaskValue);
 			pWriter->SetUInt8(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilWriteMaskKey, mDepthStencilStateParams.mStencilWriteMaskValue);
+			pWriter->SetUInt8(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilRefKey, mDepthStencilStateParams.mStencilRefValue);
 
 			auto writeStencilGroup = [this, pWriter](const std::string& groupId, const TStencilOpDesc& desc)
 			{
