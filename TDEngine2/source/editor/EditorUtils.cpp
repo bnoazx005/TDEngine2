@@ -534,8 +534,6 @@ namespace TDEngine2
 
 			Setup9ImageSliceComponent(pDropDownEntity, DefaultSpritePathId, TColor32F(0.35f));
 
-			auto&& labelResult = CreateLabelElement(pWorld, pCurrScene, pDropDownEntity->GetId(), [](auto) {});
-
 			TEntityId contentId = TEntityId::Invalid;
 
 			auto pContentEntity = pCurrScene->CreateEntity("Content");
@@ -593,6 +591,8 @@ namespace TDEngine2
 					pLayoutElement->SetMaxOffset(ZeroVector2);*/
 				}
 			}
+
+			auto&& labelResult = CreateLabelElement(pWorld, pCurrScene, pDropDownEntity->GetId(), [](auto) {});
 
 			if (auto pDropDown = pDropDownEntity->AddComponent<CDropDown>())
 			{

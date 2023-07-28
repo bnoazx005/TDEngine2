@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.19] 2023-07-27
+## [0.6.19] 2023-07-28
 
 ### Added
 
@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - UI masks usage was fixed.
 
 - Serialization/deserialization of stencil ref/write mask was fixed for **CBaseMaterial**.
+
+- Now all editor UI input is filtered to prevent in-game UI reactions when a user clicks over IMGUI elements.
 
 ## [0.6.18] 2023-07-17
 

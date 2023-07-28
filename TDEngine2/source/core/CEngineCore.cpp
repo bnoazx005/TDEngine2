@@ -471,7 +471,7 @@ namespace TDEngine2
 		std::vector<ISystem*> builtinSystems
 		{
 			CreateTransformSystem(pGraphicsContext, result),
-			CreateUIEventsSystem(_getSubsystemAs<IInputContext>(EST_INPUT_CONTEXT), result),
+			CreateUIEventsSystem(_getSubsystemAs<IInputContext>(EST_INPUT_CONTEXT), mpImGUIContext, result),
 			CreateBoundsUpdatingSystem(pResourceManager, mpDebugUtility, _getSubsystemAs<ISceneManager>(EST_SCENE_MANAGER), result),
 			CreateSpriteRendererSystem(TPtr<IAllocator>(CreateLinearAllocator(5 * SpriteInstanceDataBufferSize, result)),
 									   pRenderer, pGraphicsObjectManager, result),

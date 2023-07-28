@@ -6,6 +6,7 @@
 #include "../../include/graphics/UI/CLayoutElementComponent.h"
 #include "../../include/graphics/UI/CCanvasComponent.h"
 #include "../../include/core/IInputContext.h"
+#include "../../include/core/IImGUIContext.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include <stack>
 #include <unordered_set>
@@ -18,7 +19,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CUIEventsSystem::Init(IInputContext* pInputContext)
+	E_RESULT_CODE CUIEventsSystem::Init(IInputContext* pInputContext, IImGUIContext* pImGUIContext)
 	{
 		if (mIsInitialized)
 		{
@@ -32,6 +33,8 @@ namespace TDEngine2
 
 		mpInputContext = pInputContext;
 		mpDesktopInputContext = dynamic_cast<IDesktopInputContext*>(mpInputContext);
+
+		mpImGUIContext = pImGUIContext;
 
 		mpDesktopInputContext->SetOnCharInputCallback([this](TUtf8CodePoint codePoint)
 		{
@@ -204,7 +207,7 @@ namespace TDEngine2
 			{
 				pInputReceiver->mIsHovered = false;
 
-				if (pInputReceiver->mIsIgnoreInput)
+				if (pInputReceiver->mIsIgnoreInput || (mpImGUIContext && mpImGUIContext->IsMouseOverUI()))
 				{
 					pInputReceiver->mPrevState = pInputReceiver->mCurrState; // reset state
 					pInputReceiver->mCurrState = false;
@@ -277,8 +280,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API ISystem* CreateUIEventsSystem(IInputContext* pInputContext, E_RESULT_CODE& result)
+	TDE2_API ISystem* CreateUIEventsSystem(IInputContext* pInputContext, IImGUIContext* pImGUIContext, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(ISystem, CUIEventsSystem, result, pInputContext);
+		return CREATE_IMPL(ISystem, CUIEventsSystem, result, pInputContext, pImGUIContext);
 	}
 }
