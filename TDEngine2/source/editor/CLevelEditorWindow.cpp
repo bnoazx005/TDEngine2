@@ -503,6 +503,10 @@ namespace TDEngine2
 
 		/// \note Generate list of changes for the hierarchy
 		auto&& pChangesList = pPrefabLinkInfo->GetPrefabsChangesList();
+		if (!pChangesList)
+		{
+			return;
+		}
 
 		E_RESULT_CODE result = StoreChanges(pChangesList, pPrefabsRegistry, world.GetEntityManager(), pEntity->GetId());
 		TDE2_ASSERT(RC_OK == result);
