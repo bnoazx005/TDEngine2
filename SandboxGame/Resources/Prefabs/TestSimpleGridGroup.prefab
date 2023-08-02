@@ -1,0 +1,157 @@
+entities: 
+  - entity: 
+      components: 
+        - component: 
+            Children: 
+              - child_id: 1785771150
+              - child_id: 2133525210
+              - child_id: 1418401809
+            owner_id: 2299039786
+            parent_id: 4294967295
+            position: 
+              x: 3.000000
+            rotation: 
+              w: 1.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            max_anchor: 
+              x: 0.000000
+            max_offset: 
+              x: 249.000000
+              y: 260.000000
+            min_anchor: 
+              x: 0.000000
+            min_offset: 
+              x: 3.000000
+            pivot: 
+              x: 0.000000
+            type_id: 2172495824
+        - component: 
+            align_type: LEFT
+            cell_size: 
+              x: 256.000000
+              y: 32.000000
+            spacing: 
+              x: 10.000000
+              y: 10.000000
+            type_id: 4085334425
+      id: 2299039786
+      name: Group_Root
+  - entity: 
+      components: 
+        - component: 
+            color: 
+              a: 1.000000
+              b: 1.000000
+              g: 1.000000
+              r: 1.000000
+            sprite_id: ProjectResources/Textures/DefaultSprite.tga
+            type_id: 2844726091
+        - component: 
+            owner_id: 1418401809
+            parent_id: 2299039786
+            position: 
+              x: 3.000000
+              y: 144.000000
+            rotation: 
+              w: 1.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            max_anchor: 
+              y: 1.000000
+            max_offset: 
+              x: 256.000000
+              y: 32.000000
+            min_anchor: 
+              y: 1.000000
+            min_offset: 
+              y: "-116.000000"
+            pivot: 
+              x: 0.000000
+            type_id: 2172495824
+      id: 1418401809
+      name: Image
+  - entity: 
+      components: 
+        - component: 
+            color: 
+              a: 1.000000
+              b: 1.000000
+              g: 1.000000
+              r: 1.000000
+            sprite_id: ProjectResources/Textures/DefaultSprite.tga
+            type_id: 2844726091
+        - component: 
+            owner_id: 2133525210
+            parent_id: 2299039786
+            position: 
+              x: 3.000000
+              y: 186.000000
+            rotation: 
+              w: 1.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            max_anchor: 
+              y: 1.000000
+            max_offset: 
+              x: 256.000000
+              y: 32.000000
+            min_anchor: 
+              y: 1.000000
+            min_offset: 
+              y: "-74.000000"
+            pivot: 
+              x: 0.000000
+            type_id: 2172495824
+      id: 2133525210
+      name: Image
+  - entity: 
+      components: 
+        - component: 
+            color: 
+              a: 1.000000
+              b: 1.000000
+              g: 1.000000
+              r: 1.000000
+            sprite_id: ProjectResources/Textures/DefaultSprite.tga
+            type_id: 2844726091
+        - component: 
+            owner_id: 1785771150
+            parent_id: 2299039786
+            position: 
+              x: 3.000000
+              y: 228.000000
+            rotation: 
+              w: 1.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            max_anchor: 
+              y: 1.000000
+            max_offset: 
+              x: 256.000000
+              y: 32.000000
+            min_anchor: 
+              y: 1.000000
+            min_offset: 
+              y: "-32.000000"
+            pivot: 
+              x: 0.000000
+            type_id: 2172495824
+      id: 1785771150
+      name: Image

@@ -592,17 +592,17 @@ namespace TDEngine2
 				}
 			}
 
-			auto&& labelResult = CreateLabelElement(pWorld, pCurrScene, pDropDownEntity->GetId(), [](auto) {});
+			GroupEntities(pWorld.Get(), pDropDownEntity->GetId(), pContentEntity->GetId());
 
 			if (auto pDropDown = pDropDownEntity->AddComponent<CDropDown>())
 			{
+				auto&& labelResult = CreateLabelElement(pWorld, pCurrScene, pDropDownEntity->GetId(), [](auto) {});
 				pDropDown->SetLabelEntityId(labelResult.Get());
+
 				pDropDown->SetPopupRootEntityId(pContentEntity->GetId());
 				pDropDown->SetContentEntityId(contentId);
 				pDropDown->SetItemPrefabEntityId(itemPrefabResult.Get());
 			}
-
-			GroupEntities(pWorld.Get(), pDropDownEntity->GetId(), pContentEntity->GetId());
 		}
 
 		return rootEntityResult;

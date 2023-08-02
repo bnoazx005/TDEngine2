@@ -15,6 +15,8 @@ collection:
     prefab_id: Checkbox
   - path: ProjectResources/Prefabs/SimpleLabel.prefab
     prefab_id: SimpleLabel
+  - path: ProjectResources/Prefabs/TestSimpleGridGroup.prefab
+    prefab_id: TestSimpleGridGroup
 meta: 
   resource_type: prefabs_manifest
   version_tag: 1

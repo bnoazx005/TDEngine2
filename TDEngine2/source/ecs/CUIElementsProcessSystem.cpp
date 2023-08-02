@@ -118,13 +118,16 @@ namespace TDEngine2
 	}
 
 
+	static const TVector2 DefaultGroupAnchor = TVector2(0.0f, 1.0f);
+
+
 	static void UpdateGridGroupLayoutElementData(IWorld* pWorld, CUIElementsProcessSystem::TGridGroupsContext& context, USIZE id, CUIElementsProcessSystem::TLayoutElementsContext& layoutElements)
 	{
 		TDE2_PROFILER_SCOPE("UpdateGridGroupLayoutElementData");
 
+		CGridGroupLayout* pGridGroupLayout = context.mpGridGroupLayouts[id];
 		CLayoutElement* pLayoutElement = context.mpLayoutElements[id];
 		CTransform* pTransform = context.mpTransforms[id];
-		CGridGroupLayout* pGridGroupLayout = context.mpGridGroupLayouts[id];
 
 		if (!pGridGroupLayout->IsDirty() && !pLayoutElement->IsDirty())
 		{
@@ -139,11 +142,7 @@ namespace TDEngine2
 
 		const auto& contentRect = pLayoutElement->GetWorldRect();
 
-		/// \todo Implement correct alignment of children
-		TVector2 offset = CalcContentRectAlignByType(pLayoutElement->GetParentWorldRect(), contentRect, pGridGroupLayout->GetElementsAlignType());
-		//offset.y = contentRect.height + offset.y;
-
-		const U16 columnsCount = static_cast<U16>(std::roundf(contentRect.width / (cellSize.x + spacing.x)));
+		const U16 columnsCount = std::max<U16>(1, static_cast<U16>(std::roundf(contentRect.width / (cellSize.x + spacing.x))));
 
 		auto&& children = pTransform->GetChildren();
 
@@ -156,7 +155,7 @@ namespace TDEngine2
 			}
 
 			CLayoutElement* pChildLayoutElement = layoutElements.mpLayoutElements[std::distance(layoutElements.mEntities.cbegin(), it)];
-			if (!pChildLayoutElement || !columnsCount)
+			if (!pChildLayoutElement)
 			{
 				TDE2_UNREACHABLE();
 				continue;
@@ -167,9 +166,10 @@ namespace TDEngine2
 
 			++index;
 
-			pChildLayoutElement->SetMinAnchor(TVector2(0.0f, 1.0f));
-			pChildLayoutElement->SetMaxAnchor(TVector2(0.0f, 1.0f));
-			pChildLayoutElement->SetMinOffset(offset + TVector2(x * (cellSize.x + spacing.x), -(cellSize.y + spacing.y) * y - cellSize.y));
+			pChildLayoutElement->SetMinAnchor(DefaultGroupAnchor);
+			pChildLayoutElement->SetMaxAnchor(DefaultGroupAnchor);
+
+			pChildLayoutElement->SetMinOffset(TVector2(x * (cellSize.x + spacing.x), -(cellSize.y + spacing.y) * y - cellSize.y));
 			pChildLayoutElement->SetMaxOffset(cellSize);
 
 			pChildLayoutElement->SetDirty(true);

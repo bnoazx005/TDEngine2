@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.19] 2023-07-28
+## [0.6.19] 2023-08-02
 
 ### Added
 
@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Serialization/deserialization of stencil ref/write mask was fixed for **CBaseMaterial**.
 
 - Now all editor UI input is filtered to prevent in-game UI reactions when a user clicks over IMGUI elements.
+
+- The behaviour of **CGridGroupLayout** component was fixed. Now it doesn't assert when container's size is less than specified cell size.
 
 ## [0.6.18] 2023-07-17
 
