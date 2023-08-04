@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.19] 2023-08-02
+## [0.6.19] 2023-08-04
 
 ### Added
 
 - **stb_image_resize** library was integrated into the engine for **CTestContext** purposes.
 
 - Now **CTestContext** supports images comparison based on their perceptual hashes.
+
+- **CGridGroupLayout**'s elements alignment now works correctly.
 
 ### Changed
 

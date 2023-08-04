@@ -118,7 +118,85 @@ namespace TDEngine2
 	}
 
 
-	static const TVector2 DefaultGroupAnchor = TVector2(0.0f, 1.0f);
+	static void DefaultAlignmentHandler(const TRectF32& groupContentRect, const TVector2& cellSize, const TVector2& spacing, 
+		const TVector2& pos, CLayoutElement* pCurrChildElement)
+	{
+		static const TVector2 GroupAnchor = TVector2(0.0f, 1.0f);
+
+		pCurrChildElement->SetMinAnchor(GroupAnchor);
+		pCurrChildElement->SetMaxAnchor(GroupAnchor);
+
+		pCurrChildElement->SetMinOffset(TVector2(pos.x * (cellSize.x + spacing.x), -(cellSize.y + spacing.y) * pos.y - cellSize.y));
+		pCurrChildElement->SetMaxOffset(cellSize);
+
+		pCurrChildElement->SetDirty(true);
+	}
+
+
+	static void RightAlignmentHandler(const TRectF32& groupContentRect, const TVector2& cellSize, const TVector2& spacing,
+		const TVector2& pos, CLayoutElement* pCurrChildElement)
+	{
+		static const TVector2 GroupAnchor = TVector2(1.0f, 1.0f);
+
+		pCurrChildElement->SetMinAnchor(GroupAnchor);
+		pCurrChildElement->SetMaxAnchor(GroupAnchor);
+
+		pCurrChildElement->SetMinOffset(TVector2((pos.x + 1.0f) * (-cellSize.x + spacing.x), -(cellSize.y + spacing.y) * pos.y - cellSize.y));
+		pCurrChildElement->SetMaxOffset(cellSize);
+
+		pCurrChildElement->SetDirty(true);
+	}
+
+
+	static void BottomAlignmentHandler(const TRectF32& groupContentRect, const TVector2& cellSize, const TVector2& spacing,
+		const TVector2& pos, CLayoutElement* pCurrChildElement)
+	{
+		static const TVector2 GroupAnchor = TVector2(0.0f, 0.0f);
+
+		pCurrChildElement->SetMinAnchor(GroupAnchor);
+		pCurrChildElement->SetMaxAnchor(GroupAnchor);
+
+		pCurrChildElement->SetMinOffset(TVector2(pos.x * (cellSize.x + spacing.x), (cellSize.y + spacing.y) * (1.0f + pos.y) - cellSize.y));
+		pCurrChildElement->SetMaxOffset(cellSize);
+
+		pCurrChildElement->SetDirty(true);
+	}
+
+
+	static void RightBottomAlignmentHandler(const TRectF32& groupContentRect, const TVector2& cellSize, const TVector2& spacing,
+		const TVector2& pos, CLayoutElement* pCurrChildElement)
+	{
+		static const TVector2 GroupAnchor = TVector2(1.0f, 0.0f);
+
+		pCurrChildElement->SetMinAnchor(GroupAnchor);
+		pCurrChildElement->SetMaxAnchor(GroupAnchor);
+
+		pCurrChildElement->SetMinOffset(TVector2((pos.x + 1.0f) * (-cellSize.x + spacing.x), (cellSize.y + spacing.y) * (1.0f + pos.y) - cellSize.y));
+		pCurrChildElement->SetMaxOffset(cellSize);
+
+		pCurrChildElement->SetDirty(true);
+	}
+
+
+	using TAlignmentHandler = std::function<void(const TRectF32&, const TVector2&, const TVector2&, const TVector2&, CLayoutElement*)>;
+
+
+	static const std::unordered_map<E_UI_ELEMENT_ALIGNMENT_TYPE, TAlignmentHandler> AlignmentPolicies
+	{
+		{ E_UI_ELEMENT_ALIGNMENT_TYPE::RIGHT_TOP, RightAlignmentHandler },
+		{ E_UI_ELEMENT_ALIGNMENT_TYPE::RIGHT, RightAlignmentHandler },
+		{ E_UI_ELEMENT_ALIGNMENT_TYPE::LEFT, DefaultAlignmentHandler },
+		{ E_UI_ELEMENT_ALIGNMENT_TYPE::LEFT_TOP, DefaultAlignmentHandler },
+		{ E_UI_ELEMENT_ALIGNMENT_TYPE::LEFT_BOTTOM, BottomAlignmentHandler },
+		{ E_UI_ELEMENT_ALIGNMENT_TYPE::BOTTOM, BottomAlignmentHandler },
+		{ E_UI_ELEMENT_ALIGNMENT_TYPE::RIGHT_BOTTOM, RightBottomAlignmentHandler },
+	};
+
+
+	static bool IsBottomAlignmentType(E_UI_ELEMENT_ALIGNMENT_TYPE type)
+	{
+		return E_UI_ELEMENT_ALIGNMENT_TYPE::BOTTOM == type || E_UI_ELEMENT_ALIGNMENT_TYPE::LEFT_BOTTOM == type || E_UI_ELEMENT_ALIGNMENT_TYPE::RIGHT_BOTTOM == type;
+	}
 
 
 	static void UpdateGridGroupLayoutElementData(IWorld* pWorld, CUIElementsProcessSystem::TGridGroupsContext& context, USIZE id, CUIElementsProcessSystem::TLayoutElementsContext& layoutElements)
@@ -164,15 +242,21 @@ namespace TDEngine2
 			x = index % columnsCount;
 			y = index / columnsCount;
 
+			if (IsBottomAlignmentType(pGridGroupLayout->GetElementsAlignType()))
+			{
+				y = static_cast<U16>(children.size()) - columnsCount - y;
+			}
+
 			++index;
 
-			pChildLayoutElement->SetMinAnchor(DefaultGroupAnchor);
-			pChildLayoutElement->SetMaxAnchor(DefaultGroupAnchor);
+			auto handlerIt = AlignmentPolicies.find(pGridGroupLayout->GetElementsAlignType());
+			if (handlerIt == AlignmentPolicies.cend())
+			{
+				DefaultAlignmentHandler(contentRect, cellSize, spacing, TVector2(static_cast<F32>(x), static_cast<F32>(y)), pChildLayoutElement);
+				continue;
+			}
 
-			pChildLayoutElement->SetMinOffset(TVector2(x * (cellSize.x + spacing.x), -(cellSize.y + spacing.y) * y - cellSize.y));
-			pChildLayoutElement->SetMaxOffset(cellSize);
-
-			pChildLayoutElement->SetDirty(true);
+			(handlerIt->second)(contentRect, cellSize, spacing, TVector2(static_cast<F32>(x), static_cast<F32>(y)), pChildLayoutElement);
 		}
 	}
 
