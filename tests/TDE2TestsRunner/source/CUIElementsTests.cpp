@@ -581,72 +581,145 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 		});
 	}
 
-	//TDE2_TEST_CASE("TestGridGroupLayout_Spawn4PrefabsWithGridGroup_ChildrenShouldBeCorrectlyPositionedInAnyGroupPosition")
-	//{
-	//	static CEntity* pCanvasEntity = nullptr;
+	TDE2_TEST_CASE("TestGridGroupLayout_Spawn4PrefabsWithGridGroup_ChildrenShouldBeCorrectlyPositionedInAnyGroupPosition")
+	{
+		static CEntity* pCanvasEntity = nullptr;
 
-	//	/// \note Spawn prefabs
-	//	pTestCase->ExecuteAction([&]
-	//	{
-	//		IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+		/// \note Spawn prefabs
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
 
-	//		auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
-	//		auto pWorld = pSceneManager->GetWorld();
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
 
-	//		auto pMainScene = pSceneManager->GetScene(MainScene).Get();
-	//		TDE2_TEST_IS_TRUE(pMainScene);
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
 
-	//		// create a canvas
-	//		auto&& canvasEntityResult = CSceneHierarchyUtils::CreateCanvasUIElement(pWorld, pMainScene, TEntityId::Invalid, [](auto) {});
-	//		TDE2_TEST_IS_TRUE(canvasEntityResult.IsOk());
+			// create a canvas
+			auto&& canvasEntityResult = CSceneHierarchyUtils::CreateCanvasUIElement(pWorld, pMainScene, TEntityId::Invalid, [](auto) {});
+			TDE2_TEST_IS_TRUE(canvasEntityResult.IsOk());
 
-	//		pCanvasEntity = pWorld->FindEntity(canvasEntityResult.Get());
+			pCanvasEntity = pWorld->FindEntity(canvasEntityResult.Get());
 
-	//		const std::array<std::tuple<TVector2, TVector2, TVector2, TVector2>, 4> settings
-	//		{
-	//			std::make_tuple(ZeroVector2, TVector2(260.0f, 260.0f), ZeroVector2, ZeroVector2),
-	//			std::make_tuple(TVector2(-260.0f, 0.0f), TVector2(250.0f, 260.0f), TVector2(1.0f, 0.0f), ZeroVector2),
-	//			std::make_tuple(TVector2(0.0f, -260.0f), TVector2(260.0f, 0.0f), TVector2(0.0f, 1.0f), ZeroVector2),
-	//			std::make_tuple(TVector2(-260.0f, 0.0f), TVector2(0.0f, -260.0f), TVector2(1.0f), TVector2(1.0f)),
-	//		};
+			const std::array<std::tuple<TVector2, TVector2, TVector2, TVector2>, 4> settings
+			{
+				std::make_tuple(ZeroVector2, TVector2(260.0f, 260.0f), ZeroVector2, ZeroVector2),
+				std::make_tuple(TVector2(-260.0f, 0.0f), TVector2(250.0f, 260.0f), TVector2(1.0f, 0.0f), ZeroVector2),
+				std::make_tuple(TVector2(0.0f, -260.0f), TVector2(260.0f, 0.0f), TVector2(0.0f, 1.0f), ZeroVector2),
+				std::make_tuple(TVector2(-260.0f, 0.0f), TVector2(0.0f, -260.0f), TVector2(1.0f), TVector2(1.0f)),
+			};
 
-	//		TVector2 minOffset, maxOffset, minAnchor, maxAnchor;
+			TVector2 minOffset, maxOffset, minAnchor, maxAnchor;
 
-	//		for (USIZE i = 0; i < settings.size(); i++)
-	//		{
-	//			std::tie(minOffset, maxOffset, minAnchor, maxAnchor) = settings[i];
+			for (USIZE i = 0; i < settings.size(); i++)
+			{
+				std::tie(minOffset, maxOffset, minAnchor, maxAnchor) = settings[i];
 
-	//			CEntity* pGridGroupRootEntity = pMainScene->Spawn("TestSimpleGridGroup");
+				CEntity* pGridGroupRootEntity = pMainScene->Spawn("TestSimpleGridGroup");
 
-	//			if (auto pLayoutElement = pGridGroupRootEntity->GetComponent<CLayoutElement>())
-	//			{
-	//				pLayoutElement->SetMinOffset(minOffset);
-	//				pLayoutElement->SetMaxOffset(maxOffset);
-	//				pLayoutElement->SetMinAnchor(minAnchor);
-	//				pLayoutElement->SetMaxAnchor(maxAnchor);
-	//			}
+				if (auto pLayoutElement = pGridGroupRootEntity->GetComponent<CLayoutElement>())
+				{
+					pLayoutElement->SetMinOffset(minOffset);
+					pLayoutElement->SetMaxOffset(maxOffset);
+					pLayoutElement->SetMinAnchor(minAnchor);
+					pLayoutElement->SetMaxAnchor(maxAnchor);
+				}
 
-	//			GroupEntities(pWorld.Get(), pCanvasEntity->GetId(), pGridGroupRootEntity->GetId());
-	//		}
-	//	});
+				GroupEntities(pWorld.Get(), pCanvasEntity->GetId(), pGridGroupRootEntity->GetId());
+			}
+		});
 
-	//	pTestCase->WaitForNextFrame();
-	//	pTestCase->TakeScreenshot();
+		pTestCase->WaitForNextFrame();
+		pTestCase->TakeScreenshot();
 
-	//	/// \note Destroy the canvas entity
-	//	pTestCase->ExecuteAction([&]
-	//	{
-	//		IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+		/// \note Destroy the canvas entity
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
 
-	//		auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
-	//		auto pWorld = pSceneManager->GetWorld();
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
 
-	//		auto pMainScene = pSceneManager->GetScene(MainScene).Get();
-	//		TDE2_TEST_IS_TRUE(pMainScene);
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
 
-	//		TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pCanvasEntity->GetId()));
-	//	});
-	//}
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pCanvasEntity->GetId()));
+		});
+	}
+
+	TDE2_TEST_CASE("TestGridGroupLayout_SpawnGridGroupsWithEachAlignPolicy_ChildrenShouldBeAlignedBasedOnChosenAlignmentPolicy")
+	{
+		static CEntity* pCanvasEntity = nullptr;
+
+		/// \note Spawn prefabs
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			// create a canvas
+			auto&& canvasEntityResult = CSceneHierarchyUtils::CreateCanvasUIElement(pWorld, pMainScene, TEntityId::Invalid, [](auto) {});
+			TDE2_TEST_IS_TRUE(canvasEntityResult.IsOk());
+
+			pCanvasEntity = pWorld->FindEntity(canvasEntityResult.Get());
+
+			const std::array<std::tuple<TVector2, TVector2, TVector2, TVector2, E_UI_ELEMENT_ALIGNMENT_TYPE>, 4> settings
+			{
+				std::make_tuple(ZeroVector2, TVector2(350.0f, 260.0f), ZeroVector2, ZeroVector2, E_UI_ELEMENT_ALIGNMENT_TYPE::RIGHT),
+				std::make_tuple(TVector2(-350.0f, 0.0f), TVector2(350.0f, 260.0f), TVector2(1.0f, 0.0f), ZeroVector2, E_UI_ELEMENT_ALIGNMENT_TYPE::RIGHT_BOTTOM),
+				std::make_tuple(TVector2(0.0f, -260.0f), TVector2(350.0f, 0.0f), TVector2(0.0f, 1.0f), ZeroVector2, E_UI_ELEMENT_ALIGNMENT_TYPE::LEFT),
+				std::make_tuple(TVector2(-350.0f, 0.0f), TVector2(0.0f, -350.0f), TVector2(1.0f), TVector2(1.0f), E_UI_ELEMENT_ALIGNMENT_TYPE::LEFT_TOP),
+			};
+
+			TVector2 minOffset, maxOffset, minAnchor, maxAnchor;
+			E_UI_ELEMENT_ALIGNMENT_TYPE alignmentType;
+
+			for (USIZE i = 0; i < settings.size(); i++)
+			{
+				std::tie(minOffset, maxOffset, minAnchor, maxAnchor, alignmentType) = settings[i];
+
+				CEntity* pGridGroupRootEntity = pMainScene->Spawn("TestSimpleGridGroup");
+
+				if (auto pLayoutElement = pGridGroupRootEntity->GetComponent<CLayoutElement>())
+				{
+					pLayoutElement->SetMinOffset(minOffset);
+					pLayoutElement->SetMaxOffset(maxOffset);
+					pLayoutElement->SetMinAnchor(minAnchor);
+					pLayoutElement->SetMaxAnchor(maxAnchor);
+				}
+
+				if (auto pGridGroup = pGridGroupRootEntity->GetComponent<CGridGroupLayout>())
+				{
+					pGridGroup->SetElementsAlignType(alignmentType);
+				}
+
+				GroupEntities(pWorld.Get(), pCanvasEntity->GetId(), pGridGroupRootEntity->GetId());
+			}
+		});
+
+		pTestCase->WaitForNextFrame();
+		pTestCase->TakeScreenshot();
+
+		/// \note Destroy the canvas entity
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pCanvasEntity->GetId()));
+		});
+	}
 }
 
 #endif
