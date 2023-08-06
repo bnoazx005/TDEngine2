@@ -269,7 +269,7 @@ namespace TDEngine2
 			if (shouldBatchBeFlushed(currMaterialId, currMaterialInstance, i) || (pCurrCanvas && pPrevCanvas != pCurrCanvas))
 			{
 				auto pCurrCommand = mpUIElementsRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(
-					((0xFFFF - (pCurrCanvas->GetPriority() + (0xFFFF >> 1))) << 16) | (index + (static_cast<U32>(priorities.size()) - priorities[i])));
+					((0xFFFF - (pCurrCanvas->GetPriority() + (0xFFFF >> 1))) << 16) | (static_cast<U32>(layoutElements.size()) - index + (static_cast<U32>(priorities.size()) - priorities[i])));
 
 				pCurrCommand->mpVertexBuffer = mpVertexBuffer;
 				pCurrCommand->mpIndexBuffer = mpIndexBuffer;

@@ -1310,6 +1310,8 @@ namespace TDEngine2
 						CEntity* pItemInstance = pScene->Spawn(pWorld->FindEntity(prefabId), pWorld->FindEntity(contentEntityId));
 						TDE2_ASSERT(pItemInstance);
 
+						pItemInstance->SetName(currOption);
+
 						if (auto pLabel = pItemInstance->GetComponent<CLabel>())
 						{
 							pLabel->SetText(currOption);

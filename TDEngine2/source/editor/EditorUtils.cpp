@@ -552,6 +552,7 @@ namespace TDEngine2
 
 				if (auto pScrollerEntity = pWorld->FindEntity(scrollerResult.Get()))
 				{
+					Setup9ImageSliceComponent(pScrollerEntity, DefaultSpritePathId, TColor32F(0.0f));
 					pScrollerEntity->RemoveComponent<CScrollableUIArea>();
 
 					if (auto pScrollerLayoutElement = pScrollerEntity->GetComponent<CLayoutElement>())

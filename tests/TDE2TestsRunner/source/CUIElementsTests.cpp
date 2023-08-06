@@ -720,6 +720,90 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pCanvasEntity->GetId()));
 		});
 	}
+
+	TDE2_TEST_CASE("TestCanvasPriorities_SpawnTwoCanvasesWithImagesOneCanvasOnTopOfAnother_ImagesOfCanvasesShouldBeDrawnInCorrectOrderBasedOnPrioritiesOfTheirCanvases")
+	{
+		static CEntity* pTopCanvasEntity = nullptr;
+		static CEntity* pDownCanvasEntity = nullptr;
+
+		static const std::array<std::pair<int, U32>, 2> testCases
+		{
+			std::make_pair(-10, 0xf5f5f5ff),
+			std::make_pair(10, 0xf50000ff),
+		};
+
+		/// \note Create an entity
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			pTopCanvasEntity = pMainScene->Spawn("TestCanvas");
+			TDE2_TEST_IS_TRUE(pTopCanvasEntity);
+
+			auto&& imageEntityResult = CSceneHierarchyUtils::CreateImageUIElement(pWorld, pMainScene, pTopCanvasEntity->GetId(), [](auto) {});
+			TDE2_TEST_IS_TRUE(imageEntityResult.IsOk());
+
+			pDownCanvasEntity = pMainScene->Spawn("TestCanvas_WithImage");
+			TDE2_TEST_IS_TRUE(pTopCanvasEntity);
+
+			if (auto pDownCanvasTransform = pDownCanvasEntity->GetComponent<CTransform>())
+			{
+				TDE2_TEST_IS_TRUE(!pDownCanvasTransform->GetChildren().empty());
+				
+				auto pImageEntity = pWorld->FindEntity(pDownCanvasTransform->GetChildren()[0]);
+				TDE2_TEST_IS_TRUE(pImageEntity);
+
+				if (auto pImage = pImageEntity->GetComponent<CImage>())
+				{
+					pImage->SetColor(TColorUtils::mRed);
+				}
+			}
+		});
+
+		for (USIZE i = 0; i < testCases.size(); i++)
+		{
+			pTestCase->ExecuteAction([&, i]
+			{
+				if (auto pCanvas = pDownCanvasEntity->GetComponent<CCanvas>())
+				{
+					pCanvas->SetPriority(testCases[i].first);
+				}
+			});
+
+			pTestCase->WaitForNextFrame();
+
+			pTestCase->ExecuteAction([&, i]
+			{
+				IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+				auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+				auto pWorld = pSceneManager->GetWorld();
+
+				TDE2_TEST_IS_TRUE(PackColor32F(CTestContext::Get()->GetFrameBufferPixel(50, 50)) == testCases[i].second); // There should be white image quad in left bottom corner of screen
+			});
+		}
+
+		/// \note Destroy the canvases
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pTopCanvasEntity->GetId()));
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pDownCanvasEntity->GetId()));
+		});
+	}
 }
 
 #endif
