@@ -630,8 +630,9 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 			}
 		});
 
-		pTestCase->WaitForNextFrame();
-		pTestCase->TakeScreenshot();
+		pTestCase->Wait(0.5f);
+		//pTestCase->WaitForNextFrame();
+		//pTestCase->TakeScreenshot();
 
 		/// \note Destroy the canvas entity
 		pTestCase->ExecuteAction([&]
@@ -703,8 +704,9 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 			}
 		});
 
-		pTestCase->WaitForNextFrame();
-		pTestCase->TakeScreenshot();
+		pTestCase->Wait(0.5f);
+		//pTestCase->WaitForNextFrame();
+		//pTestCase->TakeScreenshot();
 
 		/// \note Destroy the canvas entity
 		pTestCase->ExecuteAction([&]
@@ -802,6 +804,80 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 
 			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pTopCanvasEntity->GetId()));
 			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pDownCanvasEntity->GetId()));
+		});
+	}
+
+	TDE2_TEST_CASE("TestSiblingElementsDrawOrder_SpawnTestGridGroupPrefabThenCheckDrawOrderBetweenItsChildren_ChildElementOfFirstGroupElementShouldBeDrawnOntopOfOtherElements")
+	{
+		static CEntity* pCanvasEntity = nullptr;
+
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			// create a canvas
+			auto&& canvasEntityResult = CSceneHierarchyUtils::CreateCanvasUIElement(pWorld, pMainScene, TEntityId::Invalid, [](auto) {});
+			TDE2_TEST_IS_TRUE(canvasEntityResult.IsOk());
+
+			pCanvasEntity = pWorld->FindEntity(canvasEntityResult.Get());
+
+			CEntity* pGridGroupRootEntity = pMainScene->Spawn("TestSimpleGridGroup");
+			TDE2_TEST_IS_TRUE(pGridGroupRootEntity);
+
+			GroupEntities(pWorld.Get(), pCanvasEntity->GetId(), pGridGroupRootEntity->GetId());
+
+			if (auto pGroupTransform = pGridGroupRootEntity->GetComponent<CTransform>())
+			{
+				TDE2_TEST_IS_TRUE(!pGroupTransform->GetChildren().empty());
+
+				auto pFirstElementEntity = pWorld->FindEntity(pGroupTransform->GetChildren()[0]);
+				TDE2_TEST_IS_TRUE(pFirstElementEntity);
+
+				auto&& imageEntityResult = CSceneHierarchyUtils::CreateImageUIElement(pWorld, pMainScene, pFirstElementEntity->GetId(), [](auto) {});
+				TDE2_TEST_IS_TRUE(imageEntityResult.IsOk());
+
+				if (auto pInternalImageEntity = pWorld->FindEntity(imageEntityResult.Get()))
+				{
+					if (auto pImage = pInternalImageEntity->GetComponent<CImage>())
+					{
+						pImage->SetColor(TColorUtils::mRed);
+					}
+
+					if (auto pLayoutElement = pInternalImageEntity->GetComponent<CLayoutElement>())
+					{
+						pLayoutElement->SetMinOffset(TVector2(0.0f, -200.0f));
+						pLayoutElement->SetMaxOffset(TVector2(100.0f, 400.0f));
+					}
+				}
+			}
+		});
+
+		pTestCase->WaitForNextFrame();
+
+		pTestCase->ExecuteAction([&]
+		{
+			TDE2_TEST_IS_TRUE(PackColor32F(CTestContext::Get()->GetFrameBufferPixel(70, 200)) == 0xf50000ff); // Red image (child of first element) is drawn on top of all elements
+			TDE2_TEST_IS_TRUE(PackColor32F(CTestContext::Get()->GetFrameBufferPixel(170, 200)) == 0xf5f5f5ff); // right side of elements is visible
+		});
+
+		/// \note Destroy the canvas entity
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pCanvasEntity->GetId()));
 		});
 	}
 }
