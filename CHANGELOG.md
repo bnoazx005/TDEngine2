@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.19] 2023-08-04
+## [0.6.19] 2023-08-09
 
 ### Added
 
@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Now **CTestContext** supports images comparison based on their perceptual hashes.
 
 - **CGridGroupLayout**'s elements alignment now works correctly.
+
+- Now ImGUI windows can specify their default positions.
 
 ### Changed
 

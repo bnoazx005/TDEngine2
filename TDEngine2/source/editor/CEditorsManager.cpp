@@ -294,6 +294,7 @@ namespace TDEngine2
 			ZeroVector2,
 			TVector2(166.0f, 300.0f),
 			TVector2(166.0f, 300.0f),
+			TVector2(20.0f, 260.0f),
 		};
 
 		{

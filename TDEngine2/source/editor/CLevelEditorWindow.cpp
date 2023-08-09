@@ -142,6 +142,7 @@ namespace TDEngine2
 			ZeroVector2,
 			TVector2(150.0f, 400.0f),
 			TVector2(150.0f, 400.0f),
+			TVector2(50.0f, 220.0f),
 		};
 		
 		if (mpImGUIContext->BeginWindow("Level Editor", isEnabled, params))
@@ -441,6 +442,7 @@ namespace TDEngine2
 			ZeroVector2,
 			TVector2(290.0f, 400.0f),
 			TVector2(290.0f, 400.0f),
+			TVector2(730.0f, 0.0f),
 		};
 
 		if (mpImGUIContext->BeginWindow("Object Inspector", isEnabled, params))

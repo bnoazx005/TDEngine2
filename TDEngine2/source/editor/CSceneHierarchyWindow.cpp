@@ -396,6 +396,7 @@ namespace TDEngine2
 			ZeroVector2,
 			TVector2(200.0f, 300.0f),
 			TVector2(500.0f, 500.0f),
+			TVector2(796.0f, 400.0f),
 		};
 
 		std::string sceneName;

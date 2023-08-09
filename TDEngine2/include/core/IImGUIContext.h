@@ -103,6 +103,8 @@ namespace TDEngine2
 				TVector2 mMinSizes = ZeroVector2;
 				TVector2 mMaxSizes = ZeroVector2;
 
+				TVector2 mDefaultPos = ZeroVector2; ///< The position is used for the first time when some window is shown on screen
+
 				bool     mIsAutoResizeable = false;
 				bool     mIsTransparent = false;
 				bool     mIsInputTransparent = false;
