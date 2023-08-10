@@ -674,9 +674,11 @@ namespace TDEngine2
 
 
 #if defined (TDE2_DEBUG_MODE) || TDE2_PRODUCTION_MODE
-	#define TDE2_ASSERT(expression) do { if (!(expression)) { TDEngine2::AssertImpl(nullptr, nullptr, -1); } } while(0)
+	#define TDE2_ASSERT(expression) do { if (!(expression)) { TDEngine2::AssertImpl(#expression, __FILE__, __LINE__); } } while(0)
+	#define TDE2_ASSERT_MSG(expression, message) do { if (!(expression)) { TDEngine2::AssertImpl(message, __FILE__, __LINE__); } } while(0)
 #else
 	#define TDE2_ASSERT(expression) 
+	#define TDE2_ASSERT_MSG(expression, message)
 #endif
 
 

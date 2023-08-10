@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.19] 2023-08-09
+## [0.6.19] 2023-08-10
 
 ### Added
 
@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Add new version of macro **TDE2_ASSERT** which is **TDE2_ASSERT_MSG** that allows message as an input argument.
+
 ### Fixed
 
 - UI masks usage was fixed.
@@ -30,6 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Now all editor UI input is filtered to prevent in-game UI reactions when a user clicks over IMGUI elements.
 
 - The behaviour of **CGridGroupLayout** component was fixed. Now it doesn't assert when container's size is less than specified cell size.
+
+- Crashes caused with TDE2_ASSERT for empty message/file arguments were fixed. 
 
 ## [0.6.18] 2023-07-17
 

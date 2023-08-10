@@ -401,7 +401,7 @@ namespace TDEngine2
 		
 		if (!CTestContext::Get()->IsFinished())
 		{
-			CTestContext::Get()->Assert(message, false, true, file, line);
+			CTestContext::Get()->Assert(message ? message : "Unknown error", false, true, file ? file : "Unknown file", line);
 			return;
 		}
 
