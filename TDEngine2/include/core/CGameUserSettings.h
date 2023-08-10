@@ -41,8 +41,8 @@ namespace TDEngine2
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CGameUserSettings)
 		public:
-			I32 mWindowWidth = 800;
-			I32 mWindowHeight = 600;
+			I32 mWindowWidth = 1024;
+			I32 mWindowHeight = 768;
 
 			CProjectSettings::TQualityPreset mCurrent;
 	};
