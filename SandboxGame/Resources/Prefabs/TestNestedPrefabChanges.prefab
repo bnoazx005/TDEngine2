@@ -1,0 +1,76 @@
+changes: 
+  - element: 
+      property_binding: label.text
+      target_id: 
+        ref_path: 2627071948
+      value: 
+        type_id: 902153563
+        value: "Test1"
+  - element: 
+      property_binding: label.text
+      target_id: 
+        ref_path: 2066962885
+      value: 
+        type_id: 902153563
+        value: "Test2"
+entities: 
+  - entity: 
+      components: 
+        - component: 
+            Children: 
+              - child_id: 2066962885
+              - child_id: 950432665
+              - child_id: 2627071948
+            owner_id: 3673500836
+            parent_id: 4294967295
+            position: 
+              x: 0.000000
+            rotation: 
+              w: 1.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            max_anchor: 
+              x: 1.000000
+              y: 1.000000
+            max_offset: 
+              x: 0.000000
+            min_anchor: 
+              x: 0.000000
+            min_offset: 
+              x: 0.000000
+            pivot: 
+              x: 0.000000
+            type_id: 2172495824
+        - component: 
+            height: 768
+            inherit_camera_sizes: 1
+            priority: 0
+            type_id: 3433087876
+            width: 1024
+      id: 3673500836
+      name: Canvas
+  - link: 
+      id: 2627071948
+      parent_id: 3673500836
+      position: 
+        x: 409.000000
+        y: 188.000000
+      prefab_id: SimpleLabel
+  - link: 
+      id: 950432665
+      parent_id: 3673500836
+      position: 
+        x: 409.000000
+        y: 188.000000
+      prefab_id: SimpleLabel
+  - link: 
+      id: 2066962885
+      parent_id: 3673500836
+      position: 
+        x: 409.000000
+        y: 188.000000
+      prefab_id: SimpleLabel
