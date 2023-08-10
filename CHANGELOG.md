@@ -35,6 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Crashes caused with TDE2_ASSERT for empty message/file arguments were fixed. 
 
+- Deadlock caused with CLocalizationManager that tries to load package that doesn't exist was fixed.
+
 ## [0.6.18] 2023-07-17
 
 ### Added

@@ -156,6 +156,11 @@ namespace TDEngine2
 
 				if (TPtr<IResource> pResource = mpResourceManager->GetResource<IResource>(mCurrLocalePackageId))
 				{
+					if (E_RESOURCE_STATE_TYPE::RST_PENDING == pResource->GetState())
+					{
+						return;
+					}
+
 					while (pResource->GetState() != E_RESOURCE_STATE_TYPE::RST_LOADED) {}
 
 					{
