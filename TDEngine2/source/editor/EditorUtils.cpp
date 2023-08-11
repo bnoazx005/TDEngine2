@@ -572,6 +572,14 @@ namespace TDEngine2
 							pGridGroupLayout->SetElementsAlignType(E_UI_ELEMENT_ALIGNMENT_TYPE::LEFT_TOP);
 							pGridGroupLayout->SetCellSize(TVector2(256.0f, elementHeight)); /// \todo Replace the value later
 						}
+
+						if (auto pGridLayoutElement = pScrollerContentEntity->GetComponent<CLayoutElement>())
+						{
+							pGridLayoutElement->SetMinAnchor(TVector2(0.0f, 1.0f));
+							pGridLayoutElement->SetMaxAnchor(TVector2(1.0f));
+							pGridLayoutElement->SetMinOffset(TVector2(pGridLayoutElement->GetMinOffset().x, -pGridLayoutElement->GetMaxOffset().y));
+							pGridLayoutElement->SetMaxOffset(ZeroVector2);
+						}
 					}
 				}
 			}

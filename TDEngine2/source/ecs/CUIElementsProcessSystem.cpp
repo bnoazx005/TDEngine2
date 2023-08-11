@@ -1280,7 +1280,7 @@ namespace TDEngine2
 
 			pLabel->SetText(selectedItemIndex < items.size() ? items[selectedItemIndex] : Wrench::StringUtils::GetEmptyStr());
 
-			SetEntityActive(pWorld, pCurrDropDown->GetPopupRootEntityId(), pCurrDropDown->IsExpanded());
+			SetEntityActive(pWorld, pCurrDropDown->GetPopupRootEntityId(), false);
 
 			if (!pCurrInputReceiver->mIsFocused || items.empty())
 			{
@@ -1288,6 +1288,8 @@ namespace TDEngine2
 
 				continue;
 			}
+
+			SetEntityActive(pWorld, pCurrDropDown->GetPopupRootEntityId(), true);
 
 			pCurrDropDown->SetExpanded(true);
 
@@ -1304,10 +1306,12 @@ namespace TDEngine2
 						return;
 					}
 
+					CEntity* pContentEntity = pWorld->FindEntity(contentEntityId);
+
 					for (auto&& currOption : pCurrDropDown->GetItems())
 					{
 						/// \note spawn a template
-						CEntity* pItemInstance = pScene->Spawn(pWorld->FindEntity(prefabId), pWorld->FindEntity(contentEntityId));
+						CEntity* pItemInstance = pScene->Spawn(pWorld->FindEntity(prefabId), pContentEntity);
 						TDE2_ASSERT(pItemInstance);
 
 						pItemInstance->SetName(currOption);
@@ -1321,6 +1325,11 @@ namespace TDEngine2
 
 						/// \note activate the node
 						SetEntityActive(pWorld, pItemInstance->GetId(), true);
+					}
+
+					if (auto pGridGroupLayout = pContentEntity->GetComponent<CGridGroupLayout>())
+					{
+						pGridGroupLayout->SetDirty(true);
 					}
 				});
 
