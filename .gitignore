@@ -1,6 +1,9 @@
-.vs/
+.vs/*
+!.vs/launch.vs.json
+
 [Oo]bj/
 [Bb]in/
+out/
 tmp/
 Release/
 Debug/

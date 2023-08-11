@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.19] 2023-08-10
+## [0.6.19] 2023-08-11
 
 ### Added
 
@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Add new version of macro **TDE2_ASSERT** which is **TDE2_ASSERT_MSG** that allows message as an input argument.
+
+- Now launch.vs.json configuration is included into the repository.
 
 ### Fixed
 

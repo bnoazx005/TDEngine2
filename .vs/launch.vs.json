@@ -1,0 +1,15 @@
+{
+  "version": "0.2.1",
+  "defaults": {},
+  "configurations": [
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "TDE2TestsRunner.exe (C:\\Users\\ildar\\Documents\\Visual Studio 2022\\Projects\\TDEngine2\\bin\\Debug\\TDE2TestsRunner.exe)",
+      "name": "TDE2TestsRunner.exe (C:\\Users\\ildar\\Documents\\Visual Studio 2022\\Projects\\TDEngine2\\bin\\Debug\\TDE2TestsRunner.exe)",
+      "args": [
+        " --autotests-enabled"
+      ]
+    },
+  ]
+}
