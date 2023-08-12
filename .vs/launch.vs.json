@@ -1,7 +1,34 @@
 {
   "version": "0.2.1",
   "defaults": {},
-  "configurations": [
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "tde2_resources_packer.exe (C:\\Users\\Ildar\\Documents\\Visual Studio 2017\\Projects\\TDEngine2\\TDEngine2\\tools\\ResourcesPacker\\bin\\Debug\\tde2_resources_packer.exe)",
+      "name": "tde2_resources_packer.exe (C:\\Users\\Ildar\\Documents\\Visual Studio 2017\\Projects\\TDEngine2\\TDEngine2\\tools\\ResourcesPacker\\bin\\Debug\\tde2_resources_packer.exe)",
+      "args": [
+        " test.txt ",
+        "--compress"
+      ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "tde2_mesh_converter.exe (C:\\Users\\Ildar\\Documents\\Visual Studio 2017\\Projects\\TDEngine2\\bin\\Debug\\tde2_mesh_converter.exe)",
+      "name": "tde2_mesh_converter.exe (C:\\Users\\Ildar\\Documents\\Visual Studio 2017\\Projects\\TDEngine2\\bin\\Debug\\tde2_mesh_converter.exe)",
+      "args": [
+        " --resources_manifest \"..\\..\\SandboxGame\\Resources\\ResourcesBuildSettings.manifest\""
+      ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "TDE2TexturesPacker.exe (C:\\Users\\ildar\\Documents\\Visual Studio 2017\\Projects\\TDEngine2\\bin\\Debug\\TDE2TexturesPacker.exe)",
+      "name": "TDE2TexturesPacker.exe (C:\\Users\\ildar\\Documents\\Visual Studio 2017\\Projects\\TDEngine2\\bin\\Debug\\TDE2TexturesPacker.exe)",
+      "args": [
+        " --version"
+      ]
+    },
     {
       "type": "default",
       "project": "CMakeLists.txt",
@@ -10,6 +37,6 @@
       "args": [
         " --autotests-enabled"
       ]
-    },
+    }
   ]
 }
