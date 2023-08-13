@@ -880,6 +880,75 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pCanvasEntity->GetId()));
 		});
 	}
+
+	TDE2_TEST_CASE("TestDropDown_AddDropDownElementAndTrySequentiallySelectEachOption_AllInputEventsShouldBeCorrectlyProcessed")
+	{
+		static CEntity* pCanvasEntity = nullptr;
+		static CEntity* pDropDownEntity = nullptr;
+
+		/// \note Create an entity
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			auto&& canvasEntityResult = CSceneHierarchyUtils::CreateCanvasUIElement(pWorld, pMainScene, TEntityId::Invalid, [](auto) {});
+			TDE2_TEST_IS_TRUE(canvasEntityResult.IsOk());
+
+			pCanvasEntity = pWorld->FindEntity(canvasEntityResult.Get());
+
+			auto&& dropDownEntityResult = CSceneHierarchyUtils::CreateDropDownUIElement(pWorld, pMainScene, canvasEntityResult.Get(), [](auto) {});
+			TDE2_TEST_IS_TRUE(dropDownEntityResult.IsOk());
+
+			pDropDownEntity = pWorld->FindEntity(dropDownEntityResult.Get());
+
+			if (auto pLayoutElement = pDropDownEntity->GetComponent<CLayoutElement>())
+			{
+				pLayoutElement->SetMinOffset(TVector2(0.0f, 250.0f));
+			}
+		});
+
+		pTestCase->WaitForNextFrame();
+
+		for (U32 i = 0; i < 3; i++)
+		{
+			pTestCase->SetCursorPosition(TVector3(100.0f, 265.0f, 0.0f)); // focus on drop down
+			pTestCase->AddPressMouseButton(0);
+			pTestCase->WaitForNextFrame();
+
+			pTestCase->SetCursorPosition(TVector3(100.0f, 265.0f + 40.0f * static_cast<F32>(i), 0.0f)); // select an item
+			pTestCase->AddPressMouseButton(0);
+			pTestCase->WaitForNextFrame();
+
+			pTestCase->ExecuteAction([&, expectedItemIndex = i] // check the selected item
+			{
+				if (auto pDropDown = pDropDownEntity->GetComponent<CDropDown>())
+				{
+					TDE2_TEST_IS_TRUE(pDropDown->GetSelectedItem() == expectedItemIndex);
+				}
+			});
+		}
+
+		/// \note Destroy the canvas entity
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pCanvasEntity->GetId()));
+		});
+	}
+
 }
 
 #endif
