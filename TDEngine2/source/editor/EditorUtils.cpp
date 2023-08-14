@@ -563,6 +563,11 @@ namespace TDEngine2
 						pScrollerLayoutElement->SetMaxOffset(ZeroVector2);
 					}
 
+					if (auto pInputReceiver = pScrollerEntity->GetComponent<CInputReceiver>())
+					{
+						pInputReceiver->mIsIgnoreInput = true;
+					}
+
 					if (auto pScrollerContentEntity = pWorld->FindEntity(pScrollerEntity->GetComponent<CTransform>()->GetChildren().front()))
 					{
 						contentId = pScrollerContentEntity->GetId();
@@ -591,14 +596,6 @@ namespace TDEngine2
 				pItemPrefabEntity->AddComponent<CInputReceiver>();
 
 				SetEntityActive(pWorld.Get(), pItemPrefabEntity->GetId(), false);
-
-				if (auto pLayoutElement = pItemPrefabEntity->GetComponent<CLayoutElement>())
-				{
-					/*pLayoutElement->SetMinAnchor(ZeroVector2);
-					pLayoutElement->SetMaxAnchor(TVector2(1.0f));
-					pLayoutElement->SetMinOffset(ZeroVector2);
-					pLayoutElement->SetMaxOffset(ZeroVector2);*/
-				}
 			}
 
 			GroupEntities(pWorld.Get(), pDropDownEntity->GetId(), pContentEntity->GetId());

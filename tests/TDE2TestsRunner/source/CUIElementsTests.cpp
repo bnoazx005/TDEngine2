@@ -886,6 +886,11 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 		static CEntity* pCanvasEntity = nullptr;
 		static CEntity* pDropDownEntity = nullptr;
 
+		static const std::vector<std::string> Options
+		{
+			"One", "Two", "Three"
+		};
+
 		/// \note Create an entity
 		pTestCase->ExecuteAction([&]
 		{
@@ -907,6 +912,11 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 
 			pDropDownEntity = pWorld->FindEntity(dropDownEntityResult.Get());
 
+			if (auto pDropDown = pDropDownEntity->GetComponent<CDropDown>())
+			{
+				pDropDown->SetItems(Options);
+			}
+
 			if (auto pLayoutElement = pDropDownEntity->GetComponent<CLayoutElement>())
 			{
 				pLayoutElement->SetMinOffset(TVector2(0.0f, 250.0f));
@@ -915,13 +925,13 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 
 		pTestCase->WaitForNextFrame();
 
-		for (U32 i = 0; i < 3; i++)
+		for (USIZE i = 0; i < Options.size(); i++)
 		{
 			pTestCase->SetCursorPosition(TVector3(100.0f, 265.0f, 0.0f)); // focus on drop down
 			pTestCase->AddPressMouseButton(0);
 			pTestCase->WaitForNextFrame();
 
-			pTestCase->SetCursorPosition(TVector3(100.0f, 265.0f + 40.0f * static_cast<F32>(i), 0.0f)); // select an item
+			pTestCase->SetCursorPosition(TVector3(100.0f, 265.0f - 40.0f * static_cast<F32>(i + 1), 0.0f)); // select an item
 			pTestCase->AddPressMouseButton(0);
 			pTestCase->WaitForNextFrame();
 

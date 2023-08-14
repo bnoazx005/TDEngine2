@@ -1237,6 +1237,30 @@ namespace TDEngine2
 	}
 
 
+	static void ProcessDropDownItemsInput(IWorld* pWorld, CDropDown* pDropDown)
+	{
+		auto&& itemEntities = pDropDown->GetItemsEntities();
+
+		/// \note iterate over all elements and check their states (not optimal but pretty ok for now)
+		for (U32 i = 0; i < itemEntities.size(); i++)
+		{
+			CEntity* pCurrItemEntity = pWorld->FindEntity(itemEntities[i]);
+			if (!pCurrItemEntity)
+			{
+				continue;
+			}
+
+			CInputReceiver* pCurrInputReceiver = pCurrItemEntity->GetComponent<CInputReceiver>();
+			if (!pCurrInputReceiver || !pCurrInputReceiver->mCurrState)
+			{
+				continue;
+			}
+
+			pDropDown->SetSelectedItem(i);
+		}
+	}
+
+
 	static inline void UpdateDropDownElements(CUIElementsProcessSystem::TDropDownElementsContext& context, IWorld* pWorld, ISceneManager* pSceneManager, ISystem* pSystem)
 	{
 		auto&& dropDownElements = std::get<std::vector<CDropDown*>>(context.mComponentsSlice);
@@ -1280,10 +1304,14 @@ namespace TDEngine2
 
 			pLabel->SetText(selectedItemIndex < items.size() ? items[selectedItemIndex] : Wrench::StringUtils::GetEmptyStr());
 
-			SetEntityActive(pWorld, pCurrDropDown->GetPopupRootEntityId(), false);
-
 			if (!pCurrInputReceiver->mIsFocused || items.empty())
 			{
+				if (pCurrDropDown->IsExpanded())
+				{
+					ProcessDropDownItemsInput(pWorld, pCurrDropDown);
+				}
+
+				SetEntityActive(pWorld, pCurrDropDown->GetPopupRootEntityId(), false);
 				pCurrDropDown->SetExpanded(false);
 
 				continue;
@@ -1336,23 +1364,7 @@ namespace TDEngine2
 				continue;
 			}
 
-			/// \note iterate over all elements and check their states (not optimal but pretty ok for now)
-			for (U32 i = 0; i < itemEntities.size(); i++)
-			{
-				CEntity* pCurrItemEntity = pWorld->FindEntity(itemEntities[i]);
-				if (!pCurrItemEntity)
-				{
-					continue;
-				}
-
-				CInputReceiver* pCurrInputReceiver = pCurrItemEntity->GetComponent<CInputReceiver>();
-				if (!pCurrInputReceiver || !pCurrInputReceiver->mCurrState)
-				{
-					continue;
-				}
-
-				pCurrDropDown->SetSelectedItem(i);
-			}
+			ProcessDropDownItemsInput(pWorld, pCurrDropDown);
 		}
 	}
 
