@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.19] 2023-08-14
+## [0.6.19] 2023-08-16
 
 ### Added
 
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CGridGroupLayout**'s elements alignment now works correctly.
 
 - Now ImGUI windows can specify their default positions.
+
+- Now input receivers can bypass their input events to child elements.
 
 ### Changed
 

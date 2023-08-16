@@ -1176,6 +1176,20 @@ namespace TDEngine2
 				}
 			}
 
+			{
+				bool isBypassInputEnabled = inputReceiver.mIsInputBypassEnabled;
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Bypass Input");
+				imguiContext.Checkbox("##BypassInput", isBypassInputEnabled);
+				imguiContext.EndHorizontal();
+
+				if (inputReceiver.mIsInputBypassEnabled != isBypassInputEnabled)
+				{
+					inputReceiver.mIsInputBypassEnabled = isBypassInputEnabled;
+				}
+			}
+
 			if (std::get<0>(imguiContext.BeginTreeNode("Debug Info")))
 			{
 				imguiContext.Label(Wrench::StringUtils::Format(

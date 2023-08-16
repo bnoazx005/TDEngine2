@@ -6,10 +6,12 @@ namespace TDEngine2
 	struct TInputReceiverArchiveKeys
 	{
 		static const std::string mIgnoreInputKeyId;
+		static const std::string mInputBypassEnabledKeyId;
 	};
 
 
-	const std::string TInputReceiverArchiveKeys::mIgnoreInputKeyId = "ignore_input";
+	const std::string TInputReceiverArchiveKeys::mIgnoreInputKeyId        = "ignore_input";
+	const std::string TInputReceiverArchiveKeys::mInputBypassEnabledKeyId = "bypass_enabled";
 
 
 	CInputReceiver::CInputReceiver() :
@@ -25,6 +27,7 @@ namespace TDEngine2
 		}
 
 		mIsIgnoreInput = pReader->GetBool(TInputReceiverArchiveKeys::mIgnoreInputKeyId);
+		mIsInputBypassEnabled = pReader->GetBool(TInputReceiverArchiveKeys::mInputBypassEnabledKeyId);
 		
 		return RC_OK;
 	}
@@ -41,6 +44,7 @@ namespace TDEngine2
 			pWriter->SetUInt32("type_id", static_cast<U32>(CInputReceiver::GetTypeId()));
 
 			pWriter->SetBool(TInputReceiverArchiveKeys::mIgnoreInputKeyId, mIsIgnoreInput);
+			pWriter->SetBool(TInputReceiverArchiveKeys::mInputBypassEnabledKeyId, mIsInputBypassEnabled);
 		}
 		pWriter->EndGroup();
 
@@ -52,6 +56,7 @@ namespace TDEngine2
 		if (auto pComponent = dynamic_cast<CInputReceiver*>(pDestObject))
 		{
 			pComponent->mIsIgnoreInput = mIsIgnoreInput;
+			pComponent->mIsInputBypassEnabled = mIsInputBypassEnabled;
 
 			return RC_OK;
 		}

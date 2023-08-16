@@ -106,6 +106,7 @@ namespace TDEngine2
 			bool mIsShiftModifierActive : 1;
 			
 			bool mIsIgnoreInput : 1;
+			bool mIsInputBypassEnabled : 1;
 
 			E_INPUT_ACTIONS mActionType;
 
