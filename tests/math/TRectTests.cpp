@@ -28,20 +28,6 @@ TEST_CASE("TRect Tests")
 		}
 	}
 
-	SECTION("TestIsOverlapped_PassRects_ReturnsCorrectResult")
-	{
-		TRectF32 left { 0.0f, 0.0f, 100.0f, 100.0f };
-
-		REQUIRE(IsOverlapped(left, { 50.0f, -40.0f, 100.0f, 100.0f }) == true);
-		REQUIRE(IsOverlapped(left, { -10.0f, 10.0f, 100.0f, 100.0f }) == true);
-		REQUIRE(IsOverlapped(left, { -10.0f, -10.0f, 100.0f, 100.0f }) == true);
-
-		REQUIRE(IsOverlapped(left, { 200.0f, 10.0f, 100.0f, 100.0f }) == false);
-
-		// self-overlapping should be possible
-		REQUIRE(IsOverlapped(left, left) == true);
-	}
-
 	SECTION("TestPointToNormalized_PassRectAndOutsidePoint_ReturnsClampedVector")
 	{
 		TRectF32 rect { 0.0f, 0.0f, 10.0f, 10.0f };
@@ -94,5 +80,66 @@ TEST_CASE("TRect Tests")
 
 		REQUIRE(firstRect == expectedRects[0]);
 		REQUIRE(secondRect == expectedRects[1]);
+	}
+
+	SECTION("TestIsOverlapped_PassCommonCasesOfIntersections_ReturnsTrue")
+	{
+		const std::vector<std::tuple<TRectF32, TRectF32>> testCases
+		{
+			{ TRectF32(0.0f, 0.0f, 100.0f, 100.0f), TRectF32(20.0f, 20.0f, 100.0f, 100.0f) },
+			{ TRectF32(0.0f, 0.0f, 100.0f, 100.0f), TRectF32(-20.0f, 20.0f, 100.0f, 100.0f) },
+			{ TRectF32(0.0f, 0.0f, 100.0f, 100.0f), TRectF32(-80.0f, -20.0f, 100.0f, 100.0f) },
+			{ TRectF32(0.0f, 0.0f, 100.0f, 100.0f), TRectF32(20.0f, -20.0f, 100.0f, 100.0f) },
+
+			// same as first four but rects are swapped
+			{ TRectF32(20.0f, 20.0f, 100.0f, 100.0f), TRectF32(0.0f, 0.0f, 100.0f, 100.0f) },
+			{ TRectF32(-20.0f, 20.0f, 100.0f, 100.0f), TRectF32(0.0f, 0.0f, 100.0f, 100.0f) },
+			{ TRectF32(-80.0f, -20.0f, 100.0f, 100.0f), TRectF32(0.0f, 0.0f, 100.0f, 100.0f) },
+			{ TRectF32(20.0f, -20.0f, 100.0f, 100.0f), TRectF32(0.0f, 0.0f, 100.0f, 100.0f) },
+
+			// self-overlapping should be allowed too
+			{ TRectF32(0.0f, 0.0f, 100.0f, 100.0f), TRectF32(0.0f, 0.0f, 100.0f, 100.0f) },
+		};
+
+		for (auto&& currTestCase : testCases)
+		{
+			REQUIRE(IsOverlapped(std::get<0>(currTestCase), std::get<1>(currTestCase)));
+		}
+	}
+
+	SECTION("TestIsOverlapped_PassNonintersectingRectangles_ReturnsFalse")
+	{
+		const std::vector<std::tuple<TRectF32, TRectF32>> testCases
+		{
+			{ TRectF32(0.0f, 0.0f, 100.0f, 100.0f), TRectF32(120.0f, 120.0f, 100.0f, 100.0f) },
+			{ TRectF32(0.0f, 0.0f, 100.0f, 100.0f), TRectF32(-101.0f, 0.0f, 100.0f, 100.0f) },
+		};
+
+		for (auto&& currTestCase : testCases)
+		{
+			REQUIRE(!IsOverlapped(std::get<0>(currTestCase), std::get<1>(currTestCase)));
+		}
+	}
+
+	SECTION("TestIntersectRects_PassCommonCasesOfIntersections_ReturnsUnionOfTwoRects")
+	{
+		const std::vector<std::tuple<TRectF32, TRectF32, TRectF32>> testCases
+		{
+			{ TRectF32(0.0f, 0.0f, 100.0f, 100.0f), TRectF32(20.0f, 20.0f, 100.0f, 100.0f), TRectF32(20.0f, 20.0f, 80.0f, 80.0f) },
+			{ TRectF32(0.0f, 0.0f, 100.0f, 100.0f), TRectF32(-20.0f, 20.0f, 100.0f, 100.0f), TRectF32(0.0f, 20.0f, 80.0f, 80.0f) },
+			{ TRectF32(0.0f, 0.0f, 100.0f, 100.0f), TRectF32(-80.0f, -20.0f, 100.0f, 100.0f), TRectF32(0.0f, 0.0f, 20.0f, 80.0f) },
+			{ TRectF32(0.0f, 0.0f, 100.0f, 100.0f), TRectF32(20.0f, -20.0f, 100.0f, 100.0f), TRectF32(20.0f, 0.0f, 80.0f, 80.0f) },
+
+			// same as first four but rects positions are swapped
+			{ TRectF32(20.0f, 20.0f, 100.0f, 100.0f), TRectF32(0.0f, 0.0f, 100.0f, 100.0f), TRectF32(20.0f, 20.0f, 80.0f, 80.0f) },
+			{ TRectF32(-20.0f, 20.0f, 100.0f, 100.0f), TRectF32(0.0f, 0.0f, 100.0f, 100.0f), TRectF32(0.0f, 20.0f, 80.0f, 80.0f) },
+			{ TRectF32(-80.0f, -20.0f, 100.0f, 100.0f), TRectF32(0.0f, 0.0f, 100.0f, 100.0f), TRectF32(0.0f, 0.0f, 20.0f, 80.0f) },
+			{ TRectF32(20.0f, -20.0f, 100.0f, 100.0f), TRectF32(0.0f, 0.0f, 100.0f, 100.0f), TRectF32(20.0f, 0.0f, 80.0f, 80.0f) },
+		};
+
+		for (auto&& currTestCase : testCases)
+		{
+			REQUIRE(IntersectRects(std::get<0>(currTestCase), std::get<1>(currTestCase)) == std::get<2>(currTestCase));
+		}
 	}
 }

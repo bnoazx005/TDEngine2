@@ -91,6 +91,8 @@ namespace TDEngine2
 			TDE2_ASSERT(IsValid());
 		}
 
+		TDE2_API constexpr bool Contains(const T& value) { return value >= mLeft && value <= mRight; }
+
 		TDE2_API constexpr bool IsValid() const { return CMathUtils::IsLessOrEqual(mLeft, mRight, 1e-4f); }
 
 		T mLeft, mRight;

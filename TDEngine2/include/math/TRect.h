@@ -20,7 +20,14 @@ namespace TDEngine2
 	/*!
 		struct TRect
 
-		\brief The structure represents a 2D rectangle
+		\brief The structure represents a 2D rectangle 
+
+		         +----------------+ (x_max; y_max)
+		         |                |
+		         |                |
+		  (x; y) +----------------+
+
+		  where x_max = x + width, y_max = y + height
 	*/
 
 	template <typename T>
@@ -159,22 +166,21 @@ namespace TDEngine2
 	template <typename T>
 	bool IsOverlapped(const TRect<T>& leftRect, const TRect<T>& rightRect)
 	{
-		F32 leftRectX2  = leftRect.x + leftRect.height;
-		F32 rightRectX2 = rightRect.x + rightRect.width;
-		F32 leftRectY2  = leftRect.y - leftRect.height;
-		F32 rightRectY2 = rightRect.y - rightRect.height;
+		const F32 leftRectX2  = leftRect.x + leftRect.width;
+		const F32 rightRectX2 = rightRect.x + rightRect.width;
+		const F32 leftRectY2  = leftRect.y + leftRect.height;
+		const F32 rightRectY2 = rightRect.y + rightRect.height;
 
-		bool isXOverlapped = (rightRect.x + FloatEpsilon > leftRect.x && rightRect.x - FloatEpsilon < leftRectX2) ||
-							 (rightRectX2 + FloatEpsilon > leftRect.x && rightRectX2 - FloatEpsilon < leftRectX2) ||
-							 (leftRect.x + FloatEpsilon > rightRect.x && leftRect.x - FloatEpsilon < rightRectX2) ||
-							 (leftRectX2 + FloatEpsilon > rightRect.x && leftRectX2 - FloatEpsilon < rightRectX2);
+		TRange<T> rx1(leftRect.x, leftRectX2);
+		TRange<T> rx2(rightRect.x, rightRectX2);
 		
-		bool isYOverlapped = (rightRect.y + FloatEpsilon > leftRectY2 && rightRect.y - FloatEpsilon < leftRect.y) ||
-							 (rightRectY2 + FloatEpsilon > leftRectY2 && rightRectY2 - FloatEpsilon < leftRect.y) ||
-							 (leftRect.y + FloatEpsilon > rightRectY2 && leftRect.y - FloatEpsilon < rightRect.y) ||
-							 (leftRectY2 + FloatEpsilon > rightRectY2 && leftRectY2 - FloatEpsilon < rightRect.y);
+		TRange<T> ry1(leftRect.y, leftRectY2);
+		TRange<T> ry2(rightRect.y, rightRectY2);
 
-		return isXOverlapped && isYOverlapped;
+		const bool isOverlappedXAxis = rx1.Contains(rightRect.x) || rx1.Contains(rightRectX2) || rx2.Contains(leftRect.x) || rx2.Contains(leftRectX2);
+		const bool isOverlappedYAxis = ry1.Contains(rightRect.y) || ry1.Contains(rightRectY2) || ry2.Contains(leftRect.y) || ry2.Contains(leftRectY2);
+
+		return isOverlappedXAxis && isOverlappedYAxis;
 	}
 
 
@@ -261,6 +267,13 @@ namespace TDEngine2
 		const T y1 = std::min<T>(left.y + left.height, right.y + right.height);
 		const T y2 = std::max<T>(left.y, right.y);
 
-		return TRect<T>(x2, y2, abs(x2 - x1), abs(y2 - y1));
+		return TRect<T>(std::min<T>(x1, x2), std::min<T>(y1, y2), std::max<T>(0.0f, x1 - x2), std::max<T>(0.0f, y1 - y2));
+
+		//const T x1 = std::min<T>(left.x + left.width, right.x + right.width);
+		//const T x2 = std::max<T>(left.x, right.x);
+		//const T y1 = std::min<T>(left.y + left.height, right.y + right.height);
+		//const T y2 = std::min<T>(left.y, right.y);
+
+		//return TRect<T>(x2, y2, abs(x2 - x1), abs(y2 - y1));
 	}
 }
