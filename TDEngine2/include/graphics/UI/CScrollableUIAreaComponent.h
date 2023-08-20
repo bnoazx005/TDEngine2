@@ -82,6 +82,8 @@ namespace TDEngine2
 			TDE2_API void SetHorizontal(bool state);
 			TDE2_API void SetVertical(bool state);
 
+			TDE2_API void SetNormalizedScrollPosition(const TVector2& value);
+
 			TDE2_API TEntityId GetContentEntityId() const;
 
 			TDE2_API F32 GetScrollSpeedFactor() const;
@@ -90,15 +92,19 @@ namespace TDEngine2
 			TDE2_API bool IsHorizontal() const;
 			TDE2_API bool IsVertical() const;
 
+			TDE2_API const TVector2& GetNormalizedScrollPosition() const;
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CScrollableUIArea)
 		protected:
 			TEntityId mContentEntityRef;
-			F32 mScrollSpeedFactor = 100.0f;
+			F32       mScrollSpeedFactor = 100.0f;
 
-			bool mIsLayoutPrepared = false;
-			bool mIsHorizontal = true;
-			bool mIsVertical = true;
+			TVector2  mNormalizedScrollPosition = ZeroVector2;
+
+			bool      mIsLayoutPrepared = false;
+			bool      mIsHorizontal = true;
+			bool      mIsVertical = true;
 	};
 
 

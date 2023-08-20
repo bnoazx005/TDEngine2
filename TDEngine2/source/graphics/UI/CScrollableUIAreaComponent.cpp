@@ -1,4 +1,5 @@
 #include "../../../include/graphics/UI/CScrollableUIAreaComponent.h"
+#include "../../../include/math/MathUtils.h"
 
 
 namespace TDEngine2
@@ -15,6 +16,7 @@ namespace TDEngine2
 		static const std::string mScrollSpeedKeyId;
 		static const std::string mIsHorizontalKeyId;
 		static const std::string mIsVerticalKeyId;
+		static const std::string mNormalizedScrollPositionKeyId;
 	};
 
 
@@ -22,6 +24,7 @@ namespace TDEngine2
 	const std::string TScrollableUIAreaArchiveKeys::mScrollSpeedKeyId = "scroll_speed";
 	const std::string TScrollableUIAreaArchiveKeys::mIsHorizontalKeyId = "is_horizontal";
 	const std::string TScrollableUIAreaArchiveKeys::mIsVerticalKeyId = "is_vertical";
+	const std::string TScrollableUIAreaArchiveKeys::mNormalizedScrollPositionKeyId = "normalized_scroll_pos";
 
 	E_RESULT_CODE CScrollableUIArea::Load(IArchiveReader* pReader)
 	{
@@ -35,6 +38,18 @@ namespace TDEngine2
 		mScrollSpeedFactor = pReader->GetFloat(TScrollableUIAreaArchiveKeys::mScrollSpeedKeyId, 100.0f);
 		mIsHorizontal = pReader->GetBool(TScrollableUIAreaArchiveKeys::mIsHorizontalKeyId, true);
 		mIsVertical = pReader->GetBool(TScrollableUIAreaArchiveKeys::mIsVerticalKeyId, true);
+
+		pReader->BeginGroup(TScrollableUIAreaArchiveKeys::mNormalizedScrollPositionKeyId);
+		
+		auto posResult = LoadVector2(pReader);
+		if (posResult.HasError())
+		{
+			return posResult.GetError();
+		}
+
+		mNormalizedScrollPosition = posResult.Get();
+
+		pReader->EndGroup();
 
 		return RC_OK;
 	}
@@ -55,6 +70,10 @@ namespace TDEngine2
 
 			pWriter->SetBool(TScrollableUIAreaArchiveKeys::mIsHorizontalKeyId, mIsHorizontal);
 			pWriter->SetBool(TScrollableUIAreaArchiveKeys::mIsVerticalKeyId, mIsVertical);
+
+			pWriter->BeginGroup(TScrollableUIAreaArchiveKeys::mNormalizedScrollPositionKeyId);
+			SaveVector2(pWriter, mNormalizedScrollPosition);
+			pWriter->EndGroup();
 		}
 		pWriter->EndGroup();
 
@@ -107,6 +126,11 @@ namespace TDEngine2
 	{
 		mIsVertical = state;
 	}
+
+	void CScrollableUIArea::SetNormalizedScrollPosition(const TVector2& value)
+	{
+		mNormalizedScrollPosition = TVector2(CMathUtils::Clamp01(value.x), CMathUtils::Clamp01(value.y));
+	}
 	
 	TEntityId CScrollableUIArea::GetContentEntityId() const
 	{
@@ -131,6 +155,11 @@ namespace TDEngine2
 	bool CScrollableUIArea::IsVertical() const
 	{
 		return mIsVertical;
+	}
+
+	const TVector2& CScrollableUIArea::GetNormalizedScrollPosition() const
+	{
+		return mNormalizedScrollPosition;
 	}
 
 
