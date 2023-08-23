@@ -504,6 +504,8 @@ namespace TDEngine2
 
 			pScrollableEntity->AddComponent<CUIMaskComponent>();
 
+			Setup9ImageSliceComponent(pScrollableEntity, DefaultSpritePathId, TColor32F(0.0f));
+
 			GroupEntities(pWorld.Get(), pScrollableEntity->GetId(), pContentEntity->GetId());
 		}
 
@@ -552,7 +554,6 @@ namespace TDEngine2
 
 				if (auto pScrollerEntity = pWorld->FindEntity(scrollerResult.Get()))
 				{
-					Setup9ImageSliceComponent(pScrollerEntity, DefaultSpritePathId, TColor32F(0.0f));
 					pScrollerEntity->RemoveComponent<CScrollableUIArea>();
 
 					if (auto pScrollerLayoutElement = pScrollerEntity->GetComponent<CLayoutElement>())

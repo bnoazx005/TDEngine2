@@ -192,6 +192,7 @@ namespace TDEngine2
 		CEntity* pCurrEntity = nullptr;
 
 		bool isUiMaskActive = false;
+		bool isCurrUiElementMask = false;
 		TRectF32 maskRect;
 
 		U32 prevMaskElementPriority = std::numeric_limits<U32>::max();
@@ -227,18 +228,25 @@ namespace TDEngine2
 				isUiMaskActive = false;
 			}
 
-			if (pCurrEntity->HasComponent<CUIMaskComponent>())
+			isCurrUiElementMask = pCurrEntity->HasComponent<CUIMaskComponent>();
+
+			if (isCurrUiElementMask)
 			{
 				maskRect = pLayoutElement->GetWorldRect();
 
 				prevMaskElementPriority = priorities[i];
 				isUiMaskActive = true;
 
-				continue;
+				if (!pInputReceiver)
+				{
+					continue;
+				}
 			}
 
 			/// \fixme For now it's the simplest solution for checking buttons 
-			pInputReceiver->mIsHovered = ContainsPoint(isUiMaskActive ? IntersectRects(pLayoutElement->GetWorldRect(), maskRect) : pLayoutElement->GetWorldRect(), mousePosition);
+			pInputReceiver->mIsHovered = ContainsPoint(
+				isUiMaskActive && !isCurrUiElementMask ? IntersectRects(pLayoutElement->GetWorldRect(), maskRect) : pLayoutElement->GetWorldRect(), mousePosition);
+
 			pInputReceiver->mPrevState = pInputReceiver->mCurrState;
 			pInputReceiver->mCurrState = pInputReceiver->mIsHovered && mpDesktopInputContext->IsMouseButton(0);
 

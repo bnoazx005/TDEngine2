@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.19] 2023-08-20
+## [0.6.19] 2023-08-23
 
 ### Added
 
@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add new version of macro **TDE2_ASSERT** which is **TDE2_ASSERT_MSG** that allows message as an input argument.
 
 - Now launch.vs.json configuration is included into the repository.
+
+- Now UI masks also can handle UI events if they contains some renderable component.
 
 ### Fixed
 
