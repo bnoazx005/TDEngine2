@@ -1155,6 +1155,52 @@ namespace TDEngine2
 	}
 
 
+	static inline void ProcessScrollableAreaInput(CScrollableUIArea* pScroller, CLayoutElement* pScrollAreaLayout, CInputReceiver* pInputReceiver, F32 dt)
+	{
+		if (E_INPUT_ACTIONS::NONE == pInputReceiver->mActionType && !pInputReceiver->mCurrState)
+		{
+			return;
+		}
+
+		const auto& scrollAreaWorldRect = pScrollAreaLayout->GetWorldRect();
+		const TVector2 invScrollAreaSizes(1.0f / CMathUtils::Max(1e-3f, scrollAreaWorldRect.width), 1.0f / CMathUtils::Max(1e-3f, scrollAreaWorldRect.height));
+
+		TVector2 cursorPosition = pScroller->GetNormalizedScrollPosition();
+
+		if (E_INPUT_ACTIONS::SCROLL == pInputReceiver->mActionType)
+		{
+			const F32 scrollDelta = pScroller->GetScrollSpeedFactor() * pInputReceiver->mMouseShiftVec.z * dt;
+
+			cursorPosition.x = CMathUtils::Clamp01(cursorPosition.x + pScroller->IsVertical() ? 0.0f : scrollDelta * invScrollAreaSizes.x);
+			cursorPosition.y = CMathUtils::Clamp01(cursorPosition.y + (pScroller->IsVertical() ? scrollDelta * invScrollAreaSizes.y : 0.0f));
+		}
+
+		if (pInputReceiver->mCurrState)
+		{
+			cursorPosition.x = CMathUtils::Clamp01(cursorPosition.x + pScroller->IsVertical() ? 0.0f : pInputReceiver->mMouseShiftVec.x * invScrollAreaSizes.x);
+			cursorPosition.y = CMathUtils::Clamp01(cursorPosition.y + (pScroller->IsVertical() ? pInputReceiver->mMouseShiftVec.y * invScrollAreaSizes.y : 0.0f));
+		}
+
+		pScroller->SetNormalizedScrollPosition(cursorPosition);
+	}
+
+
+	static inline void UpdateScrollableAreaLayout(CScrollableUIArea* pScroller, CLayoutElement* pScrollAreaLayout, CLayoutElement* pContentRectLayout)
+	{
+		const auto& viewWorldRect = pScrollAreaLayout->GetWorldRect();
+		const auto& contentWorldRect = pContentRectLayout->GetWorldRect();
+
+		auto&& normalizedScrollPos = pScroller->GetNormalizedScrollPosition();
+
+		auto currPosition = pContentRectLayout->GetMinOffset();
+
+		//currPosition.x = CMathUtils::Clamp(-viewWorldRect.width, 0.0f, currPosition.x);
+		currPosition.y = CMathUtils::Lerp(-viewWorldRect.height, -contentWorldRect.height, normalizedScrollPos.y);
+
+		pContentRectLayout->SetMinOffset(currPosition);
+	}
+
+
 	static inline void UpdateScrollableAreasElements(CUIElementsProcessSystem::TScrollableAreasContext& context, IWorld* pWorld, ISystem* pSystem, F32 dt)
 	{
 		auto&& scrollers = std::get<std::vector<CScrollableUIArea*>>(context.mComponentsSlice);
@@ -1206,33 +1252,11 @@ namespace TDEngine2
 				pContentLayout->SetMinAnchor(TVector2(0.0f, 1.0f));
 				pContentLayout->SetMaxAnchor(TVector2(0.0f, 1.0f));
 
-				pContentLayout->SetMinOffset(TVector2(0.0f, -viewWorldRect.height));
-
 				pCurrScroller->SetLayoutPrepared(true);
 			}
 
-			TVector2 currPosition = pContentLayout->GetMinOffset();
-			
-			const F32 widthRatio = contentWorldRect.width / CMathUtils::Max(1e-3f, viewWorldRect.width);
-			const F32 heightRatio = contentWorldRect.height / CMathUtils::Max(1e-3f, viewWorldRect.height);
-
-			if ((pCurrScroller->IsVertical() && heightRatio > 1.0f) || (pCurrScroller->IsHorizontal() && widthRatio > 1.0f))
-			{
-				if (E_INPUT_ACTIONS::SCROLL == pCurrInputReceiver->mActionType)
-				{
-					auto& scrollComponent = pCurrScroller->IsVertical() ? currPosition.y : currPosition.x;
-					scrollComponent += (pCurrScroller->IsVertical() ? -1.0f : 1.0f) * pCurrInputReceiver->mMouseShiftVec.z * pCurrScroller->GetScrollSpeedFactor() * dt;
-				}
-				else if (pCurrInputReceiver->mCurrState)
-				{
-					currPosition = currPosition + TVector2(pCurrInputReceiver->mMouseShiftVec.x, -pCurrInputReceiver->mMouseShiftVec.y);
-				}
-
-				currPosition.x = CMathUtils::Clamp(-viewWorldRect.width, 0.0f, currPosition.x);
-				currPosition.y = CMathUtils::Clamp(-viewWorldRect.height, 0.0f, currPosition.y);
-			}
-			
-			pContentLayout->SetMinOffset(currPosition);
+			ProcessScrollableAreaInput(pCurrScroller, pScrollLayoutElement, pCurrInputReceiver, dt);
+			UpdateScrollableAreaLayout(pCurrScroller, pScrollLayoutElement, pContentLayout);
 		}
 	}
 

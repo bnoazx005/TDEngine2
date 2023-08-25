@@ -98,7 +98,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CScrollableUIArea)
 		protected:
 			TEntityId mContentEntityRef;
-			F32       mScrollSpeedFactor = 100.0f;
+			F32       mScrollSpeedFactor = 25.0f;
 
 			TVector2  mNormalizedScrollPosition = ZeroVector2;
 

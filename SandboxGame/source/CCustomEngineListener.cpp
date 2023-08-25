@@ -584,7 +584,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 			auto canvasEntityResult = CSceneHierarchyUtils::CreateCanvasUIElement(mpWorld, pScene, TEntityId::Invalid, [](auto) {});
 			
-#if 0
+#if 1
 			if (auto pScrollerEntity = mpWorld->FindEntity(CSceneHierarchyUtils::CreateScrollUIArea(mpWorld, pScene, canvasEntityResult.Get(), [](auto) {}).Get()))
 			{
 				if (auto pLayoutElement = pScrollerEntity->GetComponent<CLayoutElement>())
@@ -593,12 +593,17 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 					pLayoutElement->SetMaxOffset(TVector2(100.0f, 200.0f));
 				}
 
+				if (auto pScroller = pScrollerEntity->GetComponent<CScrollableUIArea>())
+				{
+					pScroller->SetNormalizedScrollPosition(TVector2(0.0f, 1.0f));
+				}
+
 				if (auto pScrollerContentEntity = mpWorld->FindEntity(pScrollerEntity->GetComponent<CTransform>()->GetChildren().front()))
 				{
 					CSceneHierarchyUtils::CreateImageUIElement(mpWorld, pScene, pScrollerContentEntity->GetId(), [](auto) {});
 				}
 			}
-#elif 1
+#elif 0
 			if (auto pDropDownEntity = mpWorld->FindEntity(CSceneHierarchyUtils::CreateDropDownUIElement(mpWorld, pScene, canvasEntityResult.Get(), [](auto) {}).Get()))
 			{
 				if (auto pDropDown = pDropDownEntity->template GetComponent<CDropDown>())
