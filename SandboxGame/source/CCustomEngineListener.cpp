@@ -587,19 +587,24 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 #if 1
 			if (auto pScrollerEntity = mpWorld->FindEntity(CSceneHierarchyUtils::CreateScrollUIArea(mpWorld, pScene, canvasEntityResult.Get(), [](auto) {}).Get()))
 			{
-				if (auto pLayoutElement = pScrollerEntity->GetComponent<CLayoutElement>())
+				if (auto pLayoutElement = pScrollerEntity->template GetComponent<CLayoutElement>())
 				{
 					pLayoutElement->SetMinOffset(TVector2(200.0f, 200.0f));
 					pLayoutElement->SetMaxOffset(TVector2(100.0f, 200.0f));
 				}
 
-				if (auto pScroller = pScrollerEntity->GetComponent<CScrollableUIArea>())
+				if (auto pScroller = pScrollerEntity->template GetComponent<CScrollableUIArea>())
 				{
 					pScroller->SetNormalizedScrollPosition(TVector2(0.0f, 1.0f));
 				}
 
 				if (auto pScrollerContentEntity = mpWorld->FindEntity(pScrollerEntity->GetComponent<CTransform>()->GetChildren().front()))
 				{
+					if (auto pLayoutElement = pScrollerContentEntity->template GetComponent<CLayoutElement>())
+					{
+						pLayoutElement->SetMaxOffset(TVector2(100.0f, 400.0f));
+					}
+
 					CSceneHierarchyUtils::CreateImageUIElement(mpWorld, pScene, pScrollerContentEntity->GetId(), [](auto) {});
 				}
 			}

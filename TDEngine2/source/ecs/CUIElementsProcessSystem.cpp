@@ -1190,12 +1190,22 @@ namespace TDEngine2
 		const auto& viewWorldRect = pScrollAreaLayout->GetWorldRect();
 		const auto& contentWorldRect = pContentRectLayout->GetWorldRect();
 
+		pScroller->SetHorizontal(contentWorldRect.width / CMathUtils::Max(1e-3f, viewWorldRect.width) > 1.0f);
+		pScroller->SetVertical(contentWorldRect.height / CMathUtils::Max(1e-3f, viewWorldRect.height) > 1.0f);
+		
 		auto&& normalizedScrollPos = pScroller->GetNormalizedScrollPosition();
 
 		auto currPosition = pContentRectLayout->GetMinOffset();
 
-		//currPosition.x = CMathUtils::Clamp(-viewWorldRect.width, 0.0f, currPosition.x);
-		currPosition.y = CMathUtils::Lerp(-viewWorldRect.height, -contentWorldRect.height, normalizedScrollPos.y);
+		if (pScroller->IsHorizontal())
+		{
+			currPosition.x = CMathUtils::Lerp(-viewWorldRect.width, -contentWorldRect.width, normalizedScrollPos.x);
+		}
+
+		if (pScroller->IsVertical())
+		{
+			currPosition.y = CMathUtils::Lerp(-viewWorldRect.height, -contentWorldRect.height, normalizedScrollPos.y);
+		}
 
 		pContentRectLayout->SetMinOffset(currPosition);
 	}

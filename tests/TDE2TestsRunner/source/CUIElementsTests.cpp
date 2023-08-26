@@ -959,6 +959,218 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 		});
 	}
 
+	TDE2_TEST_CASE("TestScrollableUIArea_AddRectWithVerticalScroll_ScrollRectCorrectlyUpdatesLayoutAndReactsOnInput")
+	{
+		static CEntity* pCanvasEntity = nullptr;
+		static CEntity* pScrollerEntity = nullptr;
+
+		static const std::array<std::tuple<TVector2, U32, U32, U32>, 2> testCases // scroller's position, screen test X, screen test Y pos, U32 encoded RGBA color
+		{
+			std::make_tuple(ZeroVector2, 50, 50, 0xf5f5f5ff),
+			std::make_tuple(TVector2(0.0f, 1.0f), 50, 150, 0xf50000ff),
+		};
+
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			auto&& canvasEntityResult = CSceneHierarchyUtils::CreateCanvasUIElement(pWorld, pMainScene, TEntityId::Invalid, [](auto) {});
+			TDE2_TEST_IS_TRUE(canvasEntityResult.IsOk());
+
+			pCanvasEntity = pWorld->FindEntity(canvasEntityResult.Get());
+
+			auto&& scrollerEntityResult = CSceneHierarchyUtils::CreateScrollUIArea(pWorld, pMainScene, canvasEntityResult.Get(), [](auto) {});
+			TDE2_TEST_IS_TRUE(scrollerEntityResult.IsOk());
+
+			pScrollerEntity = pWorld->FindEntity(scrollerEntityResult.Get());
+
+			if (auto pLayoutElement = pScrollerEntity->GetComponent<CLayoutElement>())
+			{
+				pLayoutElement->SetMaxOffset(TVector2(100.0f, 200.0f));
+			}
+
+			if (auto pScroller = pScrollerEntity->GetComponent<CScrollableUIArea>())
+			{
+				pScroller->SetNormalizedScrollPosition(ZeroVector2);
+			}
+
+			if (auto pScrollerContentEntity = pWorld->FindEntity(pScrollerEntity->GetComponent<CTransform>()->GetChildren().front()))
+			{
+				if (auto pLayoutElement = pScrollerContentEntity->GetComponent<CLayoutElement>())
+				{
+					pLayoutElement->SetMaxOffset(TVector2(100.0f, 400.0f));
+				}
+
+				CSceneHierarchyUtils::CreateImageUIElement(pWorld, pMainScene, pScrollerContentEntity->GetId(), [](auto) {}); // white rect
+
+				// red rect
+				if (auto pRedRectEntity = pWorld->FindEntity(CSceneHierarchyUtils::CreateImageUIElement(pWorld, pMainScene, pScrollerContentEntity->GetId(), [](auto) {}).Get()))
+				{
+					if (auto pLayoutElement = pRedRectEntity->GetComponent<CLayoutElement>())
+					{
+						pLayoutElement->SetMinOffset(TVector2(0.0f, 300.0f));
+					}
+
+					if (auto pImage = pRedRectEntity->GetComponent<CImage>())
+					{
+						pImage->SetColor(TColorUtils::mRed);
+					}
+				}
+			}
+		});
+
+		for (auto&& currTestCase : testCases)
+		{
+			pTestCase->ExecuteAction([&]
+			{
+				if (auto pScroller = pScrollerEntity->GetComponent<CScrollableUIArea>())
+				{
+					pScroller->SetNormalizedScrollPosition(std::get<TVector2>(currTestCase));
+
+					pScroller->SetHorizontal(false);
+					pScroller->SetVertical(true);
+				}
+			});
+
+			pTestCase->Wait(0.5f);
+			pTestCase->WaitForNextFrame();
+
+			pTestCase->ExecuteAction([&, x = std::get<1>(currTestCase), y = std::get<2>(currTestCase), expectedColor = std::get<3>(currTestCase)]
+			{	
+				TDE2_TEST_IS_TRUE(PackColor32F(CTestContext::Get()->GetFrameBufferPixel(x, y)) == expectedColor);
+
+				if (auto pScroller = pScrollerEntity->GetComponent<CScrollableUIArea>())
+				{
+					TDE2_TEST_IS_TRUE(pScroller->IsVertical() && !pScroller->IsHorizontal());
+				}
+			});
+		}
+
+		/// \note Destroy the canvas entity
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pCanvasEntity->GetId()));
+		});
+	}
+
+	TDE2_TEST_CASE("TestScrollableUIArea_AddRectWithHorizontalScroll_ScrollRectCorrectlyUpdatesLayoutAndReactsOnInput")
+	{
+		static CEntity* pCanvasEntity = nullptr;
+		static CEntity* pScrollerEntity = nullptr;
+
+		static const std::array<std::tuple<TVector2, U32>, 2> testCases // scroller's position, U32 encoded RGBA color
+		{
+			std::make_tuple(ZeroVector2, 0xf5f5f5ff),
+			std::make_tuple(TVector2(1.0f, 0.0f), 0xf50000ff),
+		};
+
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			auto&& canvasEntityResult = CSceneHierarchyUtils::CreateCanvasUIElement(pWorld, pMainScene, TEntityId::Invalid, [](auto) {});
+			TDE2_TEST_IS_TRUE(canvasEntityResult.IsOk());
+
+			pCanvasEntity = pWorld->FindEntity(canvasEntityResult.Get());
+
+			auto&& scrollerEntityResult = CSceneHierarchyUtils::CreateScrollUIArea(pWorld, pMainScene, canvasEntityResult.Get(), [](auto) {});
+			TDE2_TEST_IS_TRUE(scrollerEntityResult.IsOk());
+
+			pScrollerEntity = pWorld->FindEntity(scrollerEntityResult.Get());
+
+			if (auto pLayoutElement = pScrollerEntity->GetComponent<CLayoutElement>())
+			{
+				pLayoutElement->SetMaxOffset(TVector2(100.0f));
+			}
+
+			if (auto pScroller = pScrollerEntity->GetComponent<CScrollableUIArea>())
+			{
+				pScroller->SetNormalizedScrollPosition(ZeroVector2);
+			}
+
+			if (auto pScrollerContentEntity = pWorld->FindEntity(pScrollerEntity->GetComponent<CTransform>()->GetChildren().front()))
+			{
+				if (auto pLayoutElement = pScrollerContentEntity->template GetComponent<CLayoutElement>())
+				{
+					pLayoutElement->SetMaxOffset(TVector2(400.0f, 100.0f));
+				}
+
+				CSceneHierarchyUtils::CreateImageUIElement(pWorld, pMainScene, pScrollerContentEntity->GetId(), [](auto) {}); // white rect
+
+				// red rect
+				if (auto pRedRectEntity = pWorld->FindEntity(CSceneHierarchyUtils::CreateImageUIElement(pWorld, pMainScene, pScrollerContentEntity->GetId(), [](auto) {}).Get()))
+				{
+					if (auto pLayoutElement = pRedRectEntity->GetComponent<CLayoutElement>())
+					{
+						pLayoutElement->SetMinOffset(TVector2(300.0f, 0.0f));
+					}
+
+					if (auto pImage = pRedRectEntity->GetComponent<CImage>())
+					{
+						pImage->SetColor(TColorUtils::mRed);
+					}
+				}
+			}
+		});
+
+		for (auto&& currTestCase : testCases)
+		{
+			pTestCase->ExecuteAction([&]
+			{
+				if (auto pScroller = pScrollerEntity->GetComponent<CScrollableUIArea>())
+				{
+					pScroller->SetNormalizedScrollPosition(std::get<TVector2>(currTestCase));
+				}
+			});
+
+			pTestCase->Wait(0.5f);
+			pTestCase->WaitForNextFrame();
+
+			pTestCase->ExecuteAction([&, expectedColor = std::get<U32>(currTestCase)]
+			{
+				TDE2_TEST_IS_TRUE(PackColor32F(CTestContext::Get()->GetFrameBufferPixel(50, 50)) == expectedColor);
+				
+				if (auto pScroller = pScrollerEntity->GetComponent<CScrollableUIArea>())
+				{
+					TDE2_TEST_IS_TRUE(pScroller->IsHorizontal() && !pScroller->IsVertical());
+				}
+			});
+		}
+
+		/// \note Destroy the canvas entity
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pCanvasEntity->GetId()));
+		});
+	}
 }
 
 #endif
