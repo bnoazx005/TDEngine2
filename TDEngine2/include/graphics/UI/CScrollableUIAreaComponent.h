@@ -81,6 +81,8 @@ namespace TDEngine2
 			TDE2_API void SetLayoutPrepared(bool value);
 			TDE2_API void SetHorizontal(bool state);
 			TDE2_API void SetVertical(bool state);
+			
+			TDE2_API void SetEnabled(bool value);
 
 			TDE2_API void SetNormalizedScrollPosition(const TVector2& value);
 
@@ -91,6 +93,8 @@ namespace TDEngine2
 			TDE2_API bool IsLayoutInitialized() const;
 			TDE2_API bool IsHorizontal() const;
 			TDE2_API bool IsVertical() const;
+
+			TDE2_API bool IsEnabled() const;
 
 			TDE2_API const TVector2& GetNormalizedScrollPosition() const;
 
@@ -105,6 +109,7 @@ namespace TDEngine2
 			bool      mIsLayoutPrepared = false;
 			bool      mIsHorizontal = true;
 			bool      mIsVertical = true;
+			bool      mIsEnabled = true;
 	};
 
 

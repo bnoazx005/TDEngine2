@@ -1222,6 +1222,11 @@ namespace TDEngine2
 				continue;
 			}
 
+			if (!pCurrScroller->IsEnabled())
+			{
+				continue;
+			}
+
 			auto pScrollLayoutElement = scrollersLayoutElements[i];
 			if (!pScrollLayoutElement)
 			{

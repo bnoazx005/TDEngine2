@@ -17,6 +17,7 @@ namespace TDEngine2
 		static const std::string mIsHorizontalKeyId;
 		static const std::string mIsVerticalKeyId;
 		static const std::string mNormalizedScrollPositionKeyId;
+		static const std::string mIsEnabledKeyId;
 	};
 
 
@@ -25,6 +26,7 @@ namespace TDEngine2
 	const std::string TScrollableUIAreaArchiveKeys::mIsHorizontalKeyId = "is_horizontal";
 	const std::string TScrollableUIAreaArchiveKeys::mIsVerticalKeyId = "is_vertical";
 	const std::string TScrollableUIAreaArchiveKeys::mNormalizedScrollPositionKeyId = "normalized_scroll_pos";
+	const std::string TScrollableUIAreaArchiveKeys::mIsEnabledKeyId = "enabled";
 
 	E_RESULT_CODE CScrollableUIArea::Load(IArchiveReader* pReader)
 	{
@@ -38,6 +40,7 @@ namespace TDEngine2
 		mScrollSpeedFactor = pReader->GetFloat(TScrollableUIAreaArchiveKeys::mScrollSpeedKeyId, 100.0f);
 		mIsHorizontal = pReader->GetBool(TScrollableUIAreaArchiveKeys::mIsHorizontalKeyId, true);
 		mIsVertical = pReader->GetBool(TScrollableUIAreaArchiveKeys::mIsVerticalKeyId, true);
+		mIsEnabled = pReader->GetBool(TScrollableUIAreaArchiveKeys::mIsEnabledKeyId, true);
 
 		pReader->BeginGroup(TScrollableUIAreaArchiveKeys::mNormalizedScrollPositionKeyId);
 		
@@ -70,6 +73,7 @@ namespace TDEngine2
 
 			pWriter->SetBool(TScrollableUIAreaArchiveKeys::mIsHorizontalKeyId, mIsHorizontal);
 			pWriter->SetBool(TScrollableUIAreaArchiveKeys::mIsVerticalKeyId, mIsVertical);
+			pWriter->SetBool(TScrollableUIAreaArchiveKeys::mIsEnabledKeyId, mIsEnabled);
 
 			pWriter->BeginGroup(TScrollableUIAreaArchiveKeys::mNormalizedScrollPositionKeyId);
 			SaveVector2(pWriter, mNormalizedScrollPosition);
@@ -95,6 +99,7 @@ namespace TDEngine2
 			pComponent->mScrollSpeedFactor = mScrollSpeedFactor;
 			pComponent->mIsHorizontal = mIsHorizontal;
 			pComponent->mIsVertical = mIsVertical;
+			pComponent->mIsEnabled = mIsEnabled;
 
 			return RC_OK;
 		}
@@ -127,6 +132,11 @@ namespace TDEngine2
 		mIsVertical = state;
 	}
 
+	void CScrollableUIArea::SetEnabled(bool value)
+	{
+		mIsEnabled = value;
+	}
+
 	void CScrollableUIArea::SetNormalizedScrollPosition(const TVector2& value)
 	{
 		mNormalizedScrollPosition = TVector2(CMathUtils::Clamp01(value.x), CMathUtils::Clamp01(value.y));
@@ -155,6 +165,11 @@ namespace TDEngine2
 	bool CScrollableUIArea::IsVertical() const
 	{
 		return mIsVertical;
+	}
+
+	bool CScrollableUIArea::IsEnabled() const
+	{
+		return mIsEnabled;
 	}
 
 	const TVector2& CScrollableUIArea::GetNormalizedScrollPosition() const
