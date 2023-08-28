@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.19] 2023-08-23
+## [0.6.19] 2023-08-28
 
 ### Added
 
@@ -44,6 +44,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Deadlock caused with CLocalizationManager that tries to load package that doesn't exist was fixed.
 
 - Drop down's implementation was fixed.
+
+- The implementation of CScrollableUIArea component was refactored and now supports both vertical/horizontal scrolls.
 
 ## [0.6.18] 2023-07-17
 

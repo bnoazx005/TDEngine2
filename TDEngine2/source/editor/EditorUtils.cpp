@@ -554,7 +554,10 @@ namespace TDEngine2
 
 				if (auto pScrollerEntity = pWorld->FindEntity(scrollerResult.Get()))
 				{
-					pScrollerEntity->RemoveComponent<CScrollableUIArea>();
+					if (auto pScroller = pScrollerEntity->GetComponent<CScrollableUIArea>())
+					{
+						pScroller->SetNormalizedScrollPosition(TVector2(0.0f, 1.0f));
+					}
 
 					if (auto pScrollerLayoutElement = pScrollerEntity->GetComponent<CLayoutElement>())
 					{
@@ -583,8 +586,8 @@ namespace TDEngine2
 						{
 							pGridLayoutElement->SetMinAnchor(TVector2(0.0f, 1.0f));
 							pGridLayoutElement->SetMaxAnchor(TVector2(1.0f));
-							pGridLayoutElement->SetMinOffset(TVector2(pGridLayoutElement->GetMinOffset().x, -pGridLayoutElement->GetMaxOffset().y));
-							pGridLayoutElement->SetMaxOffset(ZeroVector2);
+							pGridLayoutElement->SetMinOffset(ZeroVector2);
+							pGridLayoutElement->SetMaxOffset(TVector2(256.0f, 300.0f));
 						}
 					}
 				}

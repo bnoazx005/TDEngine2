@@ -584,7 +584,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 			auto canvasEntityResult = CSceneHierarchyUtils::CreateCanvasUIElement(mpWorld, pScene, TEntityId::Invalid, [](auto) {});
 			
-#if 1
+#if 0
 			if (auto pScrollerEntity = mpWorld->FindEntity(CSceneHierarchyUtils::CreateScrollUIArea(mpWorld, pScene, canvasEntityResult.Get(), [](auto) {}).Get()))
 			{
 				if (auto pLayoutElement = pScrollerEntity->template GetComponent<CLayoutElement>())
@@ -608,7 +608,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 					CSceneHierarchyUtils::CreateImageUIElement(mpWorld, pScene, pScrollerContentEntity->GetId(), [](auto) {});
 				}
 			}
-#elif 0
+#elif 1
 			if (auto pDropDownEntity = mpWorld->FindEntity(CSceneHierarchyUtils::CreateDropDownUIElement(mpWorld, pScene, canvasEntityResult.Get(), [](auto) {}).Get()))
 			{
 				if (auto pDropDown = pDropDownEntity->template GetComponent<CDropDown>())

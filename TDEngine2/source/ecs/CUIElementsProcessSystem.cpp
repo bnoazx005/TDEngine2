@@ -1354,6 +1354,18 @@ namespace TDEngine2
 
 			auto&& itemEntities = pCurrDropDown->GetItemsEntities();
 
+			// \note Update height of the layout element with items
+			if (auto pContentLayoutEntity = pWorld->FindEntity(pCurrDropDown->GetContentEntityId()))
+			{
+				if (auto pContentLayout = pContentLayoutEntity->GetComponent<CLayoutElement>())
+				{
+					if (auto pGridGroupLayout = pContentLayoutEntity->GetComponent<CGridGroupLayout>())
+					{
+						pContentLayout->SetMaxOffset(TVector2(pContentLayout->GetMaxOffset().x, itemEntities.size() * pGridGroupLayout->GetCellSize().y));
+					}
+				}
+			}
+
 			if (itemEntities.empty())
 			{
 				pSystem->AddDefferedCommand([&itemEntities, pWorld, pCurrDropDown, contentEntityId = pCurrDropDown->GetContentEntityId(), prefabId = pCurrDropDown->GetItemPrefabEntityId(), pSceneManager]
