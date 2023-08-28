@@ -1171,13 +1171,13 @@ namespace TDEngine2
 		{
 			const F32 scrollDelta = pScroller->GetScrollSpeedFactor() * pInputReceiver->mMouseShiftVec.z * dt;
 
-			cursorPosition.x = CMathUtils::Clamp01(cursorPosition.x + pScroller->IsVertical() ? 0.0f : scrollDelta * invScrollAreaSizes.x);
+			cursorPosition.x = CMathUtils::Clamp01(cursorPosition.x - (pScroller->IsVertical() ? 0.0f : scrollDelta * invScrollAreaSizes.x));
 			cursorPosition.y = CMathUtils::Clamp01(cursorPosition.y + (pScroller->IsVertical() ? scrollDelta * invScrollAreaSizes.y : 0.0f));
 		}
 
 		if (pInputReceiver->mCurrState)
 		{
-			cursorPosition.x = CMathUtils::Clamp01(cursorPosition.x + pScroller->IsVertical() ? 0.0f : pInputReceiver->mMouseShiftVec.x * invScrollAreaSizes.x);
+			cursorPosition.x = CMathUtils::Clamp01(cursorPosition.x - (pScroller->IsVertical() ? 0.0f : pInputReceiver->mMouseShiftVec.x * invScrollAreaSizes.x));
 			cursorPosition.y = CMathUtils::Clamp01(cursorPosition.y + (pScroller->IsVertical() ? pInputReceiver->mMouseShiftVec.y * invScrollAreaSizes.y : 0.0f));
 		}
 
@@ -1199,13 +1199,10 @@ namespace TDEngine2
 
 		if (pScroller->IsHorizontal())
 		{
-			currPosition.x = CMathUtils::Lerp(-viewWorldRect.width, -contentWorldRect.width, normalizedScrollPos.x);
+			currPosition.x = CMathUtils::Lerp(0.0f/*-viewWorldRect.width*/, viewWorldRect.width - contentWorldRect.width, normalizedScrollPos.x);
 		}
 
-		if (pScroller->IsVertical())
-		{
-			currPosition.y = CMathUtils::Lerp(-viewWorldRect.height, -contentWorldRect.height, normalizedScrollPos.y);
-		}
+		currPosition.y = CMathUtils::Lerp(-viewWorldRect.height, -contentWorldRect.height, pScroller->IsVertical() ? normalizedScrollPos.y : 1.0f);
 
 		pContentRectLayout->SetMinOffset(currPosition);
 	}
