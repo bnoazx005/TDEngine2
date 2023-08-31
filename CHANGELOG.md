@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.19] 2023-08-28
+## [0.6.19] 2023-08-31
 
 ### Added
 
@@ -46,6 +46,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Drop down's implementation was fixed.
 
 - The implementation of CScrollableUIArea component was refactored and now supports both vertical/horizontal scrolls.
+
+- The incorrect behaviour of **CConfigFileReader** was fixed for the case when a user tries to read existing value after all configs group was already loaded.
 
 ## [0.6.18] 2023-07-17
 

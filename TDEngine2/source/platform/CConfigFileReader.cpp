@@ -77,6 +77,7 @@ namespace TDEngine2
 		auto it = paramsMap.find(group);
 		if (it != paramsMap.cend() && it->second.find(paramName) != it->second.cend())
 		{
+			value = it->second[paramName];
 			return RC_OK;
 		}
 				
