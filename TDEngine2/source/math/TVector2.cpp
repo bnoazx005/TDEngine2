@@ -159,9 +159,17 @@ namespace TDEngine2
 
 	TResult<TVector2> LoadVector2(IArchiveReader* pReader)
 	{
+		constexpr I32 MissingPropertyTag = 0xcdcdcdcd;
+
 		if (!pReader)
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+		}
+
+		// \todo Replace with efficient check up later
+		if (MissingPropertyTag == pReader->GetInt32("x", MissingPropertyTag) && MissingPropertyTag == pReader->GetInt32("y", MissingPropertyTag))
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
 		TVector2 vec;
