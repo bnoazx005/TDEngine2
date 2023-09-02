@@ -1105,6 +1105,26 @@ namespace TDEngine2
 				imguiContext.Vector2Field("##pivot", pivot, [&pivot, &layoutElement] { layoutElement.SetPivot(pivot); });
 				imguiContext.EndHorizontal();
 			}
+
+			/// \note rotation angle
+			{
+				F32 angle = layoutElement.GetRotationAngle();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Angle: ");
+				imguiContext.FloatField("##Angle", angle, [&layoutElement, &angle] { layoutElement.SetRotationAngle(angle); });
+				imguiContext.EndHorizontal();
+			}
+
+			// \note Scale
+			{
+				TVector2 scale = layoutElement.GetScale();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Scale"); /// \todo Replace it 
+				imguiContext.Vector2Field("##scale", scale, [&scale, &layoutElement] { layoutElement.SetScale(scale); });
+				imguiContext.EndHorizontal();
+			}
 		});
 	}
 

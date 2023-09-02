@@ -291,8 +291,11 @@ namespace TDEngine2
 				auto&& rect = pLayoutElement->GetWorldRect();
 				auto pivot = rect.GetLeftBottom() + pLayoutElement->GetPivot() * rect.GetSizes();
 
-				auto pivotTranslation = TranslationMatrix(TVector3{ -pivot.x, -pivot.y, 0.0f });
-				TMatrix4 localObjectTransform = Inverse(pivotTranslation) * RotationMatrix(pTransform->GetRotation()) * ScaleMatrix(pTransform->GetScale()) * pivotTranslation;
+				TMatrix4 localObjectTransform = 
+					TranslationMatrix(TVector3{ pivot.x, pivot.y, 0.0f }) *
+					RotationMatrix(TQuaternion(TVector3(0.0f, 0.0f, CMathConstants::Deg2Rad * pLayoutElement->GetRotationAngle()))) * 
+					ScaleMatrix(TVector3(pLayoutElement->GetScale())) * 
+					TranslationMatrix(TVector3{ -pivot.x, -pivot.y, 0.0f });
 
 				pCurrCommand->mObjectData.mModelMatrix = Transpose(pCurrCanvas->GetProjMatrix() * localObjectTransform);
 				pCurrCommand->mObjectData.mTextureTransformDesc = { uvRect.x, uvRect.y, uvRect.width, uvRect.height };

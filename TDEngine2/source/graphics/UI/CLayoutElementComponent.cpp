@@ -12,6 +12,9 @@ namespace TDEngine2
 		static const std::string mMaxOffsetKeyId;
 		
 		static const std::string mPivotKeyId;
+
+		static const std::string mRotationAngleKeyId;
+		static const std::string mScaleKeyId;
 	};
 
 
@@ -23,6 +26,9 @@ namespace TDEngine2
 
 	const std::string TLayoutElementArchiveKeys::mPivotKeyId = "pivot";
 
+	const std::string TLayoutElementArchiveKeys::mRotationAngleKeyId = "angle";
+	const std::string TLayoutElementArchiveKeys::mScaleKeyId = "scale";
+
 
 	CLayoutElement::CLayoutElement() :
 		CBaseComponent(), 
@@ -31,7 +37,8 @@ namespace TDEngine2
 		mMinAnchor(ZeroVector2),
 		mMaxAnchor(ZeroVector2),
 		mMinOffset(ZeroVector2),
-		mMaxOffset(TVector2(100.0f))
+		mMaxOffset(TVector2(100.0f)),
+		mScale(1.0f)
 	{
 	}
 
@@ -80,6 +87,22 @@ namespace TDEngine2
 		}
 		pReader->EndGroup();
 
+		/// \note Scale
+		pReader->BeginGroup(TLayoutElementArchiveKeys::mScaleKeyId);
+		
+		if (auto value = LoadVector2(pReader))
+		{
+			mScale = value.Get();
+		}
+		else
+		{
+			mScale = TVector2(1.0f);
+		}
+
+		pReader->EndGroup();
+
+		mRotationAngle = pReader->GetFloat(TLayoutElementArchiveKeys::mRotationAngleKeyId);
+
 		mIsDirty = true;
 		
 		return RC_OK;
@@ -118,6 +141,13 @@ namespace TDEngine2
 			pWriter->BeginGroup(TLayoutElementArchiveKeys::mPivotKeyId, false);
 			SaveVector2(pWriter, mPivot);
 			pWriter->EndGroup();
+
+			/// \note Scale
+			pWriter->BeginGroup(TLayoutElementArchiveKeys::mScaleKeyId, false);
+			SaveVector2(pWriter, mScale);
+			pWriter->EndGroup();
+
+			pWriter->SetFloat(TLayoutElementArchiveKeys::mRotationAngleKeyId, mRotationAngle);
 		}
 		pWriter->EndGroup();
 
@@ -137,6 +167,8 @@ namespace TDEngine2
 			pComponent->mParentWorldRect = mParentWorldRect;
 			pComponent->mPivot = mPivot;
 			pComponent->mWorldRect = mWorldRect;
+			pComponent->mScale = mScale;
+			pComponent->mRotationAngle = mRotationAngle;
 
 			pComponent->mIsDirty = true;
 
@@ -172,6 +204,18 @@ namespace TDEngine2
 	void CLayoutElement::SetDirty(bool value)
 	{
 		mIsDirty = value;
+	}
+
+	E_RESULT_CODE CLayoutElement::SetScale(const TVector2& scale)
+	{
+		mScale = scale;
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CLayoutElement::SetRotationAngle(F32 angle)
+	{
+		mRotationAngle = angle;
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CLayoutElement::SetMinAnchor(const TVector2& value)
@@ -272,6 +316,16 @@ namespace TDEngine2
 	bool CLayoutElement::IsDirty() const
 	{
 		return mIsDirty;
+	}
+
+	const TVector2& CLayoutElement::GetScale() const
+	{
+		return mScale;
+	}
+	
+	F32 CLayoutElement::GetRotationAngle() const
+	{
+		return mRotationAngle;
 	}
 
 	const std::string& CLayoutElement::GetTypeName() const

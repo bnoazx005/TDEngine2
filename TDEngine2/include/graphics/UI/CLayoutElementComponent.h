@@ -113,7 +113,9 @@ namespace TDEngine2
 			TDE2_API void SetOwnerCanvasId(TEntityId canvasEntityId);
 
 			TDE2_API void SetDirty(bool value);
-			
+
+			TDE2_API E_RESULT_CODE SetScale(const TVector2& scale);
+			TDE2_API E_RESULT_CODE SetRotationAngle(F32 angle);
 
 			TDE2_API const TVector2& GetMinAnchor() const;
 			TDE2_API const TVector2& GetMaxAnchor() const;
@@ -131,6 +133,9 @@ namespace TDEngine2
 
 			TDE2_API bool IsDirty() const;
 
+			TDE2_API const TVector2& GetScale() const;
+			TDE2_API F32 GetRotationAngle() const;
+
 			/*!
 				\return The method returns type name (lowercase is preffered)
 			*/
@@ -140,19 +145,22 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CLayoutElement)
 		protected:
-			TVector2 mMinAnchor;
-			TVector2 mMaxAnchor;
+			TVector2  mMinAnchor;
+			TVector2  mMaxAnchor;
 
-			TVector2 mMinOffset;
-			TVector2 mMaxOffset;
+			TVector2  mMinOffset;
+			TVector2  mMaxOffset;
 
-			TVector2 mPivot;
+			TVector2  mPivot;
 
-			TRectF32 mWorldRect;
-			TRectF32 mAnchorWorldRect;
-			TRectF32 mParentWorldRect;
+			TRectF32  mWorldRect;
+			TRectF32  mAnchorWorldRect;
+			TRectF32  mParentWorldRect;
 
 			TEntityId mCanvasEntityId;
+
+			TVector2  mScale;
+			F32       mRotationAngle; // Z axis, in radians
 
 			bool      mIsDirty;
 	};
