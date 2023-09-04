@@ -830,6 +830,7 @@ namespace TDEngine2
 			ZeroVector2,
 			ZeroVector2,
 			ZeroVector2,
+			ZeroVector2,
 			true, true, false, true
 		};
 
