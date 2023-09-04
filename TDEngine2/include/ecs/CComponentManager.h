@@ -189,8 +189,6 @@ namespace TDEngine2
 
 			TComponentsMatrix        mActiveComponents;
 
-			std::list<IComponent*>   mDestroyedComponents;
-
 			TComponentFactoriesMap   mComponentFactoriesMap;
 
 			TComponentFactoriesArray mComponentFactories; 

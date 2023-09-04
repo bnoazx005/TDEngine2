@@ -78,19 +78,7 @@ namespace TDEngine2
 			}
 		}
 
-		/// \note Remove reserved ones
-		for (IComponent* pReservedComponent : mDestroyedComponents)
-		{
-			if (!pReservedComponent)
-			{
-				continue;
-			}
-
-			pReservedComponent->Free();
-		}
-
 		mActiveComponents.clear();
-		mDestroyedComponents.clear();
 
 		result = result | _unregisterBuiltinComponentFactories();
 
@@ -104,21 +92,15 @@ namespace TDEngine2
 
 	E_RESULT_CODE CComponentManager::RemoveComponent(TypeId componentTypeId, TEntityId entityId)
 	{
-		IComponent* pRemovedComponent = nullptr;
-
-		E_RESULT_CODE result = _removeComponentWithAction(componentTypeId, entityId, [&pRemovedComponent](IComponent*& pComponent) -> E_RESULT_CODE
+		E_RESULT_CODE result = _removeComponentWithAction(componentTypeId, entityId, [](IComponent*& pComponent) -> E_RESULT_CODE
 		{
-			pRemovedComponent = pComponent;
+			if (pComponent)
+			{
+				pComponent->Free();
+			}
 
 			return RC_OK;
 		});
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		mDestroyedComponents.push_back(pRemovedComponent);
 
 		return result;
 	}
@@ -169,21 +151,15 @@ namespace TDEngine2
 
 	E_RESULT_CODE CComponentManager::RemoveComponents(TEntityId id)
 	{
-		std::vector<IComponent*> removedComponents;
-
-		E_RESULT_CODE result = _removeComponentsWithAction(id, [&removedComponents](IComponent*& pComponent) -> E_RESULT_CODE
+		E_RESULT_CODE result = _removeComponentsWithAction(id, [](IComponent*& pComponent) -> E_RESULT_CODE
 		{
-			removedComponents.push_back(pComponent);
+			if (pComponent)
+			{
+				pComponent->Free();
+			}
 
 			return RC_OK;
 		});
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		mDestroyedComponents.insert(mDestroyedComponents.end(), removedComponents.begin(), removedComponents.end());
 
 		return result;
 	}
