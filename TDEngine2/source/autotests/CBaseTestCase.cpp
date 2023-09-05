@@ -57,9 +57,11 @@ namespace TDEngine2
 
 	class CWaitAction: public ITestAction
 	{
+	public:
+		typedef std::function<void(F32)> TAction;
 		public:
-			TDE2_API explicit CWaitAction(F32 delay) :
-				mCurrTime(0.0f), mDelay(delay)
+			TDE2_API explicit CWaitAction(F32 delay, const TAction& action = nullptr) :
+				mCurrTime(0.0f), mDelay(delay), mAction(action)
 			{
 			}
 
@@ -79,6 +81,11 @@ namespace TDEngine2
 					return;
 				}
 
+				if (mAction)
+				{
+					mAction(dt);
+				}
+
 				mCurrTime += dt;
 			}
 
@@ -91,6 +98,8 @@ namespace TDEngine2
 			F32  mDelay = 0.0f;
 
 			bool mIsFinished = false;
+
+			TAction mAction = nullptr;
 	};
 
 
@@ -265,6 +274,11 @@ namespace TDEngine2
 
 			return true;
 		}));
+	}
+
+	void CBaseTestCase::ExecuteEachFrameForPeriod(F32 timer, const std::function<void(F32)>& action)
+	{
+		mActions.emplace_back(std::make_unique<CWaitAction>(timer, action));
 	}
 
 	void CBaseTestCase::Wait(F32 delay)

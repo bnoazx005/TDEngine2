@@ -49,6 +49,7 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init() override;
 
 			TDE2_API void ExecuteAction(const std::function<void()>& action = nullptr) override;
+			TDE2_API void ExecuteEachFrameForPeriod(F32 timer, const std::function<void(F32)>& action = nullptr) override;
 
 			TDE2_API void Wait(F32 delay) override;
 			TDE2_API void WaitForNextFrame() override;

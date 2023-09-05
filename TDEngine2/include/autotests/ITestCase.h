@@ -37,6 +37,7 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE Init() = 0;
 
 			TDE2_API virtual void ExecuteAction(const std::function<void()>& action = nullptr) = 0;
+			TDE2_API virtual void ExecuteEachFrameForPeriod(F32 timer, const std::function<void(F32)>& action = nullptr) = 0;
 
 			TDE2_API virtual void Wait(F32 delay) = 0;
 			TDE2_API virtual void WaitForNextFrame() = 0;
