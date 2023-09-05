@@ -1171,6 +1171,82 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pCanvasEntity->GetId()));
 		});
 	}
+
+	TDE2_TEST_CASE("TestUIElementsRotation_SpawnImageAndRotateItInDifferentAngles_ElementShouldBeRotatedCorrectly")
+	{
+		static CEntity* pCanvasEntity = nullptr;
+		static CEntity* pImageEntity = nullptr;
+
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			auto&& canvasEntityResult = CSceneHierarchyUtils::CreateCanvasUIElement(pWorld, pMainScene, TEntityId::Invalid, [](auto) {});
+			TDE2_TEST_IS_TRUE(canvasEntityResult.IsOk());
+
+			pCanvasEntity = pWorld->FindEntity(canvasEntityResult.Get());
+
+			auto&& imageEntityResult = CSceneHierarchyUtils::CreateImageUIElement(pWorld, pMainScene, canvasEntityResult.Get(), [](auto) {});
+			TDE2_TEST_IS_TRUE(imageEntityResult.IsOk());
+
+			pImageEntity = pWorld->FindEntity(imageEntityResult.Get());
+		});
+
+		// rotate with a zero pivot
+		pTestCase->ExecuteEachFrameForPeriod(5.0f, [&](F32 dt)
+		{
+			if (auto pImageLayout = pImageEntity->GetComponent<CLayoutElement>())
+			{
+				pImageLayout->SetMinOffset(TVector2(200.0f));
+				pImageLayout->SetPivot(ZeroVector2);
+				pImageLayout->SetRotationAngle(pImageLayout->GetRotationAngle() + 100.0f * dt);
+			}
+		});
+
+		// rotate with a centered pivot
+		pTestCase->ExecuteEachFrameForPeriod(5.0f, [&](F32 dt)
+		{
+			if (auto pImageLayout = pImageEntity->GetComponent<CLayoutElement>())
+			{
+				pImageLayout->SetMinOffset(TVector2(400.0f, 200.0f));
+				pImageLayout->SetPivot(TVector2(0.5f));
+				pImageLayout->SetRotationAngle(pImageLayout->GetRotationAngle() + 100.0f * dt);
+			}
+		});
+
+		// rotate with a centered pivot counter-clockwise
+		pTestCase->ExecuteEachFrameForPeriod(5.0f, [&](F32 dt)
+		{
+			if (auto pImageLayout = pImageEntity->GetComponent<CLayoutElement>())
+			{
+				pImageLayout->SetMinOffset(TVector2(600.0f, 200.0f));
+				pImageLayout->SetPivot(TVector2(0.5f));
+				pImageLayout->SetRotationAngle(pImageLayout->GetRotationAngle() - 100.0f * dt);
+			}
+		});
+
+		/// \note Destroy the canvas entity
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pCanvasEntity->GetId()));
+		});
+
+		pTestCase->WaitForNextFrame();
+	}
 }
 
 #endif
