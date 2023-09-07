@@ -9,6 +9,7 @@
 
 #include "../utils/Types.h"
 #include "../utils/Utils.h"
+#include "../math/TVector2.h"
 #include <functional>
 
 
@@ -67,6 +68,23 @@ namespace TDEngine2
 			TDE2_API static E_RESULT_CODE EntityRefField(IImGUIContext& imGUIContext, IWorld& world, const std::string& text, CEntityRef& entityRef, const std::function<void()>& onValueChanged = {});
 			TDE2_API static E_RESULT_CODE EntityRefField(TPtr<IImGUIContext> pImGUIContext, TPtr<IWorld> pWorld, const std::string& text, TEntityId& entityRef, const std::function<void()>& onValueChanged = {});
 			TDE2_API static E_RESULT_CODE EntityRefField(TPtr<IImGUIContext> pImGUIContext, TPtr<IWorld> pWorld, const std::string& text, CEntityRef& entityRef, const std::function<void()>& onValueChanged = {});
+	};
+
+
+	class CSnapGuidesController
+	{
+		public:
+			struct TSnapGuideline
+			{
+				TVector2 mStart;
+				TVector2 mEnd;
+			};
+		public:
+			TDE2_API void UpdateGuidelines(TPtr<IWorld> pWorld);
+
+			TDE2_API const std::vector<TSnapGuideline>& GetSnapGuides() const;
+		private:
+			std::vector<TSnapGuideline> mSnapGuides;
 	};
 }
 

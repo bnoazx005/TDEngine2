@@ -722,6 +722,55 @@ namespace TDEngine2
 
 		return EntityRefField(*pImGUIContext.Get(), *pWorld.Get(), text, entityRef, onValueChanged);
 	}
+
+
+	/*!
+		\brief CSnapGuidesController's definition
+	*/
+
+	void CSnapGuidesController::UpdateGuidelines(TPtr<IWorld> pWorld)
+	{
+		if (!pWorld)
+		{
+			return;
+		}
+
+		mSnapGuides.clear();
+
+		auto&& layoutElementsEntities = pWorld->FindEntitiesWithComponents<CLayoutElement>();
+		for (TEntityId currEntityId : layoutElementsEntities)
+		{
+			CEntity* pEntity = pWorld->FindEntity(currEntityId);
+			if (!pEntity)
+			{
+				continue;
+			}
+
+			CLayoutElement* pLayoutElement = pEntity->GetComponent<CLayoutElement>();
+			if (!pLayoutElement)
+			{
+				continue;
+			}
+
+			const auto& worldRect = pLayoutElement->GetWorldRect();
+			if (Length(worldRect.GetSizes()) < FloatEpsilon)
+			{
+				continue;
+			}
+
+			const auto& rectPoints = worldRect.GetPoints();
+
+			for (USIZE i = 0; i < rectPoints.size(); i++)
+			{
+				mSnapGuides.push_back({ rectPoints[i], rectPoints[(i + 1) % rectPoints.size()] });
+			}
+		}
+	}
+
+	const std::vector<CSnapGuidesController::TSnapGuideline>& CSnapGuidesController::GetSnapGuides() const
+	{
+		return mSnapGuides;
+	}
 }
 
 #endif

@@ -176,6 +176,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TPtr<IWorld> GetWorldInstance() const override;
+
+			TDE2_API CSnapGuidesController& GetSnapGuidesController() override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEditorsManager)
 
@@ -190,6 +192,7 @@ namespace TDEngine2
 			TPtr<IImGUIContext>     mpImGUIContext;
 
 			bool                    mIsVisible;
+			bool                    mIsGuidelinesUpdateNeeded;
 
 			TEditorsArray           mRegisteredEditors;
 

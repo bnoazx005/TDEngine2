@@ -1,6 +1,7 @@
 #include "../../include/editor/CEditorsManager.h"
 #include "../../include/editor/IEditorWindow.h"
 #include "../../include/editor/Inspectors.h"
+#include "../../include/editor/EditorUtils.h"
 #include "../../include/core/IImGUIContext.h"
 #include "../../include/core/IInputContext.h"
 #include "../../include/core/IWindowSystem.h"
@@ -33,6 +34,9 @@ namespace TDEngine2
 	};
 
 
+	static std::unique_ptr<CSnapGuidesController> pGuidelinesController = std::make_unique<CSnapGuidesController>();
+
+
 	CEditorsManager::CEditorsManager():
 		CBaseObject(), mIsVisible(false)
 	{
@@ -56,6 +60,9 @@ namespace TDEngine2
 		mpEventManager = pEventManager;
 
 		mpEventManager->Subscribe(TOnNewWorldInstanceCreated::GetTypeId(), this);
+		mpEventManager->Subscribe(TOnComponentCreatedEvent::GetTypeId(), this);
+		mpEventManager->Subscribe(TOnComponentRemovedEvent::GetTypeId(), this);
+		mpEventManager->Subscribe(TOnHierarchyChangedEvent::GetTypeId(), this);
 		
 		mIsVisible = false;
 
@@ -159,6 +166,12 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("EditorsManager::Update");
 
+		if (mIsGuidelinesUpdateNeeded)
+		{
+			pGuidelinesController->UpdateGuidelines(mpWorld);
+			mIsGuidelinesUpdateNeeded = false;
+		}
+
 		if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_TILDE))
 		{
 			mIsVisible = !mIsVisible;
@@ -240,15 +253,12 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEditorsManager::OnEvent(const TBaseEvent* pEvent)
 	{
-		if (pEvent->GetEventType() != TOnNewWorldInstanceCreated::GetTypeId())
-		{
-			return RC_OK;
-		}
-
 		if (auto pOnWorldInstanceCreated = dynamic_cast<const TOnNewWorldInstanceCreated*>(pEvent))
 		{
 			PANIC_ON_FAILURE(mpSelectionManager->SetWorldInstance(pOnWorldInstanceCreated->mpWorldInstance));
 		}
+
+		mIsGuidelinesUpdateNeeded = true;
 
 		return RC_OK;
 	}
@@ -261,6 +271,11 @@ namespace TDEngine2
 	TPtr<IWorld> CEditorsManager::GetWorldInstance() const
 	{
 		return mpWorld;
+	}
+
+	CSnapGuidesController& CEditorsManager::GetSnapGuidesController()
+	{
+		return *pGuidelinesController.get();
 	}
 
 
