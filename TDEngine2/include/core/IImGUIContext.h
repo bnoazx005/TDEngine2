@@ -109,6 +109,7 @@ namespace TDEngine2
 				bool     mIsTransparent = false;
 				bool     mIsInputTransparent = false;
 				bool     mIsFullscreen = false;
+				bool     mIsPositionLocked = false;
 			} TWindowParams, *TWindowParamsPtr;
 
 			typedef struct TPlotGridParams

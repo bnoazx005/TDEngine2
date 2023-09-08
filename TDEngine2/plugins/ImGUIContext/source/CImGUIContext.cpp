@@ -899,6 +899,11 @@ namespace TDEngine2
 			ImGui::SetNextWindowBgAlpha(0.0f);
 		}
 
+		if (params.mIsPositionLocked)
+		{
+			ImGui::SetNextWindowPos(params.mDefaultPos);
+		}
+
 		bool result = ImGui::Begin(name.c_str(), &isOpened, flags);
 
 		mpDrawListsContext.push(ImGui::GetWindowDrawList());
