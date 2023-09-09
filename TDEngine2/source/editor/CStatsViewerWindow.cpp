@@ -49,6 +49,7 @@ namespace TDEngine2
 			ZeroVector2,
 			TVector2(500.0f, 300.0f),
 			TVector2(1e+30f, 1e+30f),
+			ZeroVector2,
 			false, 
 			true,
 			true,
