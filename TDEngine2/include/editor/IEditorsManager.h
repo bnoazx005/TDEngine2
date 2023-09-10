@@ -25,7 +25,7 @@ namespace TDEngine2
 	class IWorld;
 	class ISelectionManager;
 	class IEventManager;
-	class CSnapGuidesController;
+	class CSnapGuidesContainer;
 	struct TEditorContext;
 
 
@@ -131,7 +131,7 @@ namespace TDEngine2
 
 			TDE2_API virtual TPtr<IWorld> GetWorldInstance() const = 0;
 
-			TDE2_API virtual CSnapGuidesController& GetSnapGuidesController() = 0;
+			TDE2_API virtual CSnapGuidesContainer& GetSnapGuidesContainer() = 0;
 
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_EDITORS_MANAGER; }
 		protected:

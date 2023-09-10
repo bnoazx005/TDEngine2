@@ -725,10 +725,10 @@ namespace TDEngine2
 
 
 	/*!
-		\brief CSnapGuidesController's definition
+		\brief CSnapGuidesContainer's definition
 	*/
 
-	void CSnapGuidesController::UpdateGuidelines(TPtr<IWorld> pWorld)
+	void CSnapGuidesContainer::UpdateGuidelines(TPtr<IWorld> pWorld)
 	{
 		if (!pWorld)
 		{
@@ -767,7 +767,32 @@ namespace TDEngine2
 		}
 	}
 
-	const std::vector<CSnapGuidesController::TSnapGuideline>& CSnapGuidesController::GetSnapGuides() const
+	std::vector<CSnapGuidesContainer::TSnapGuideline> CSnapGuidesContainer::GetNearestSnapGuides(const TVector2& point, F32 threshold) const
+	{
+		std::vector<TSnapGuideline> result;
+
+		for (auto&& currSnapGuideline : mSnapGuides)
+		{
+			if (currSnapGuideline.mStart == point || currSnapGuideline.mEnd == point)
+			{
+				continue;
+			}
+
+			const TVector2 dir = Normalize(currSnapGuideline.mEnd - currSnapGuideline.mStart);
+			const TVector2 normal(dir.y, dir.x);
+
+			const F32 dist = Length(Dot(normal, (point - currSnapGuideline.mStart)) * normal);
+			
+			if (dist < threshold)
+			{
+				result.push_back(currSnapGuideline);
+			}
+		}
+
+		return std::move(result);
+	}
+
+	const std::vector<CSnapGuidesContainer::TSnapGuideline>& CSnapGuidesContainer::GetSnapGuides() const
 	{
 		return mSnapGuides;
 	}

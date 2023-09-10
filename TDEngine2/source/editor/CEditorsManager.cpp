@@ -34,7 +34,7 @@ namespace TDEngine2
 	};
 
 
-	static std::unique_ptr<CSnapGuidesController> pGuidelinesController = std::make_unique<CSnapGuidesController>();
+	static std::unique_ptr<CSnapGuidesContainer> pGuidelinesContainer = std::make_unique<CSnapGuidesContainer>();
 
 
 	CEditorsManager::CEditorsManager():
@@ -60,9 +60,6 @@ namespace TDEngine2
 		mpEventManager = pEventManager;
 
 		mpEventManager->Subscribe(TOnNewWorldInstanceCreated::GetTypeId(), this);
-		mpEventManager->Subscribe(TOnComponentCreatedEvent::GetTypeId(), this);
-		mpEventManager->Subscribe(TOnComponentRemovedEvent::GetTypeId(), this);
-		mpEventManager->Subscribe(TOnHierarchyChangedEvent::GetTypeId(), this);
 		
 		mIsVisible = false;
 
@@ -166,11 +163,7 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("EditorsManager::Update");
 
-		if (mIsGuidelinesUpdateNeeded)
-		{
-			pGuidelinesController->UpdateGuidelines(mpWorld);
-			mIsGuidelinesUpdateNeeded = false;
-		}
+		pGuidelinesContainer->UpdateGuidelines(mpWorld);
 
 		if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_TILDE))
 		{
@@ -258,8 +251,6 @@ namespace TDEngine2
 			PANIC_ON_FAILURE(mpSelectionManager->SetWorldInstance(pOnWorldInstanceCreated->mpWorldInstance));
 		}
 
-		mIsGuidelinesUpdateNeeded = true;
-
 		return RC_OK;
 	}
 
@@ -273,9 +264,9 @@ namespace TDEngine2
 		return mpWorld;
 	}
 
-	CSnapGuidesController& CEditorsManager::GetSnapGuidesController()
+	CSnapGuidesContainer& CEditorsManager::GetSnapGuidesContainer()
 	{
-		return *pGuidelinesController.get();
+		return *pGuidelinesContainer.get();
 	}
 
 

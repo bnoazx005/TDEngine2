@@ -21,6 +21,7 @@ namespace TDEngine2
 	class CLevelEditorWindow;
 	class IEditorActionsHistory;
 	class IWorld;
+	class CSnapGuidesContainer;
 	
 	enum class TEntityId : U32;
 
@@ -32,6 +33,7 @@ namespace TDEngine2
 		IEditorActionsHistory& mActionsHistory;
 		IWorld& mWorld;
 		TEntityId mCurrEntityId;
+		CSnapGuidesContainer* mpGuidesController;
 	} TEditorContext;
 
 

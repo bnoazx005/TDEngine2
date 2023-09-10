@@ -808,6 +808,27 @@ namespace TDEngine2
 	}
 
 
+	static std::vector<CSnapGuidesContainer::TSnapGuideline> GetSnapGuidelines(const CSnapGuidesContainer* pGuidelinesContainer, const CLayoutElement& layoutElement)
+	{
+		std::vector<CSnapGuidesContainer::TSnapGuideline> guidelines;
+
+		auto&& worldRect = layoutElement.GetWorldRect();
+
+		for (auto&& currPoint : worldRect.GetPoints())
+		{
+			auto&& output = pGuidelinesContainer->GetNearestSnapGuides(currPoint);
+			std::copy(output.begin(), output.end(), std::back_inserter(guidelines));
+		}
+
+		const TVector2& worldPivotPos = worldRect.GetLeftBottom() + layoutElement.GetPivot() * worldRect.GetSizes();
+
+		auto&& output = pGuidelinesContainer->GetNearestSnapGuides(worldPivotPos);
+		std::copy(output.begin(), output.end(), std::back_inserter(guidelines));
+
+		return std::move(guidelines);
+	}
+
+
 	static void DrawLayoutElementHandles(const TEditorContext& editorContext, CLayoutElement& layoutElement)
 	{
 		IImGUIContext& imguiContext = editorContext.mImGUIContext;
@@ -831,7 +852,7 @@ namespace TDEngine2
 			ZeroVector2,
 			ZeroVector2,
 			ZeroVector2,
-			true, true, false, true
+			true, true, false, true, true
 		};
 
 		bool opened = true;
@@ -839,6 +860,17 @@ namespace TDEngine2
 		if (imguiContext.BeginWindow("LayoutElementEditor", opened, params))
 		{
 			auto worldRect = layoutElement.GetWorldRect();
+
+			std::vector<CSnapGuidesContainer::TSnapGuideline> guidelines = GetSnapGuidelines(editorContext.mpGuidesController, layoutElement);
+
+			for (auto&& currSnapGuide : guidelines)
+			{
+				const TVector2 dir = Normalize(currSnapGuide.mEnd - currSnapGuide.mStart);
+
+				imguiContext.DrawLine(
+					TVector2(currSnapGuide.mStart.x, canvasHeight - currSnapGuide.mStart.y) - 1000.0f * dir, 
+					TVector2(currSnapGuide.mStart.x, canvasHeight - currSnapGuide.mStart.y) + 1000.0f * dir, TColor32F(0.0f, 1.0f, 1.0f, 1.0f), 1.0f);
+			}
 
 			DrawLayoutElementPivot(imguiContext, layoutElement, handleRadius, worldRect, canvasHeight);
 			worldRect = DrawLayoutElementAnchors(imguiContext, layoutElement, handleRadius, anchorSizes, worldRect, canvasHeight);

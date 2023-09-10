@@ -560,7 +560,15 @@ namespace TDEngine2
 				continue;
 			}
 
-			(iter->second)({ *mpImGUIContext, *pCurrComponent, *mpActionsHistory, *mpEditorsManager->GetWorldInstance().Get(), mSelectedEntityId });
+			(iter->second)(
+				{ 
+					*mpImGUIContext, 
+					*pCurrComponent, 
+					*mpActionsHistory, 
+					*mpEditorsManager->GetWorldInstance().Get(), 
+					mSelectedEntityId, 
+					&mpEditorsManager->GetSnapGuidesContainer() 
+				});
 		}
 
 		/// \todo Invoke TrySavePrefabChanges only if some inspector returns true

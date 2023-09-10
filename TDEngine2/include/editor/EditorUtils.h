@@ -71,7 +71,7 @@ namespace TDEngine2
 	};
 
 
-	class CSnapGuidesController
+	class CSnapGuidesContainer
 	{
 		public:
 			struct TSnapGuideline
@@ -81,6 +81,8 @@ namespace TDEngine2
 			};
 		public:
 			TDE2_API void UpdateGuidelines(TPtr<IWorld> pWorld);
+
+			TDE2_API std::vector<TSnapGuideline> GetNearestSnapGuides(const TVector2& point, F32 threshold = 20.0f) const;
 
 			TDE2_API const std::vector<TSnapGuideline>& GetSnapGuides() const;
 		private:
