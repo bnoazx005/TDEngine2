@@ -78,6 +78,9 @@ namespace TDEngine2
 			{
 				TVector2 mStart;
 				TVector2 mEnd;
+
+				TDE2_API bool IsHorizontal() const;
+				TDE2_API bool IsVertical() const;
 			};
 		public:
 			TDE2_API void UpdateGuidelines(TPtr<IWorld> pWorld);

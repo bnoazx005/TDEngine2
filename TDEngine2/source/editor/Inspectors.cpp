@@ -575,7 +575,10 @@ namespace TDEngine2
 	}
 
 
-	static void SetPositionForLayoutElement(IImGUIContext& imguiContext, CLayoutElement& layoutElement)
+	typedef std::vector<std::pair<CSnapGuidesContainer::TSnapGuideline, TVector2>> TPOISnapGuidelines;
+
+
+	static void SetPositionForLayoutElement(IImGUIContext& imguiContext, CLayoutElement& layoutElement, const TPOISnapGuidelines& guidelines)
 	{
 		auto parentWorldRect = layoutElement.GetParentWorldRect();
 
@@ -762,7 +765,8 @@ namespace TDEngine2
 	}
 
 
-	static void DrawLayoutElementFrameHandle(IImGUIContext& imguiContext, CLayoutElement& layoutElement, F32 handleRadius, const TRectF32& worldRect, F32 canvasHeight)
+	static void DrawLayoutElementFrameHandle(IImGUIContext& imguiContext, CLayoutElement& layoutElement, F32 handleRadius, 
+		const TRectF32& worldRect, F32 canvasHeight, const TPOISnapGuidelines& guidelines)
 	{
 		/// \note Draw corner vertices
 		U32 pointIndex = 0;
@@ -784,7 +788,7 @@ namespace TDEngine2
 		}
 
 		/// \note Draw a rectangle
-		imguiContext.DisplayIDGroup(2, [&imguiContext, &layoutElement, worldRect, canvasHeight]
+		imguiContext.DisplayIDGroup(2, [&imguiContext, &layoutElement, &guidelines, worldRect, canvasHeight]
 		{
 			const TVector2 cursorPos = imguiContext.GetCursorScreenPos();
 
@@ -801,29 +805,37 @@ namespace TDEngine2
 				/// \note Move layoutElement if its rectangle selected and are dragged
 				if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
 				{
-					SetPositionForLayoutElement(imguiContext, layoutElement);
+					SetPositionForLayoutElement(imguiContext, layoutElement, guidelines);
 				}
 			}
 		});
 	}
 
 
-	static std::vector<CSnapGuidesContainer::TSnapGuideline> GetSnapGuidelines(const CSnapGuidesContainer* pGuidelinesContainer, const CLayoutElement& layoutElement)
+	static TPOISnapGuidelines GetSnapGuidelines(const CSnapGuidesContainer* pGuidelinesContainer, const CLayoutElement& layoutElement)
 	{
-		std::vector<CSnapGuidesContainer::TSnapGuideline> guidelines;
+		TPOISnapGuidelines guidelines;
 
 		auto&& worldRect = layoutElement.GetWorldRect();
 
 		for (auto&& currPoint : worldRect.GetPoints())
 		{
 			auto&& output = pGuidelinesContainer->GetNearestSnapGuides(currPoint);
-			std::copy(output.begin(), output.end(), std::back_inserter(guidelines));
+
+			std::transform(output.begin(), output.end(), std::back_inserter(guidelines), [currPoint](const CSnapGuidesContainer::TSnapGuideline& guideline)
+			{
+				return std::make_pair(guideline, currPoint);
+			});
 		}
 
 		const TVector2& worldPivotPos = worldRect.GetLeftBottom() + layoutElement.GetPivot() * worldRect.GetSizes();
 
 		auto&& output = pGuidelinesContainer->GetNearestSnapGuides(worldPivotPos);
-		std::copy(output.begin(), output.end(), std::back_inserter(guidelines));
+
+		std::transform(output.begin(), output.end(), std::back_inserter(guidelines), [worldPivotPos](const CSnapGuidesContainer::TSnapGuideline& guideline)
+		{
+			return std::make_pair(guideline, worldPivotPos);
+		});
 
 		return std::move(guidelines);
 	}
@@ -861,20 +873,22 @@ namespace TDEngine2
 		{
 			auto worldRect = layoutElement.GetWorldRect();
 
-			std::vector<CSnapGuidesContainer::TSnapGuideline> guidelines = GetSnapGuidelines(editorContext.mpGuidesController, layoutElement);
+			TPOISnapGuidelines&& guidelines = GetSnapGuidelines(editorContext.mpGuidesController, layoutElement);
 
 			for (auto&& currSnapGuide : guidelines)
 			{
-				const TVector2 dir = Normalize(currSnapGuide.mEnd - currSnapGuide.mStart);
+				const auto& startPoint = currSnapGuide.first.mStart;
+
+				const TVector2 dir = Normalize(currSnapGuide.first.mEnd - startPoint);
 
 				imguiContext.DrawLine(
-					TVector2(currSnapGuide.mStart.x, canvasHeight - currSnapGuide.mStart.y) - 1000.0f * dir, 
-					TVector2(currSnapGuide.mStart.x, canvasHeight - currSnapGuide.mStart.y) + 1000.0f * dir, TColor32F(0.0f, 1.0f, 1.0f, 1.0f), 1.0f);
+					TVector2(startPoint.x, canvasHeight - startPoint.y) - 1000.0f * dir,
+					TVector2(startPoint.x, canvasHeight - startPoint.y) + 1000.0f * dir, TColor32F(0.0f, 1.0f, 1.0f, 1.0f), 1.0f);
 			}
 
 			DrawLayoutElementPivot(imguiContext, layoutElement, handleRadius, worldRect, canvasHeight);
 			worldRect = DrawLayoutElementAnchors(imguiContext, layoutElement, handleRadius, anchorSizes, worldRect, canvasHeight);
-			DrawLayoutElementFrameHandle(imguiContext, layoutElement, handleRadius, worldRect, canvasHeight);
+			DrawLayoutElementFrameHandle(imguiContext, layoutElement, handleRadius, worldRect, canvasHeight, guidelines);
 		}
 
 		imguiContext.EndWindow();

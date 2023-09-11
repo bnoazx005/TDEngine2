@@ -724,6 +724,17 @@ namespace TDEngine2
 	}
 
 
+	bool CSnapGuidesContainer::TSnapGuideline::IsHorizontal() const
+	{
+		return CMathUtils::Abs(Dot(mEnd - mStart, RightVector2)) > 0.0f;
+	}
+
+	bool CSnapGuidesContainer::TSnapGuideline::IsVertical() const
+	{
+		return CMathUtils::Abs(Dot(mEnd - mStart, UpVector2)) > 0.0f;
+	}
+
+
 	/*!
 		\brief CSnapGuidesContainer's definition
 	*/
@@ -771,6 +782,9 @@ namespace TDEngine2
 	{
 		std::vector<TSnapGuideline> result;
 
+		bool isHorizontalFound = false;
+		bool isVerticalFound = false;
+
 		for (auto&& currSnapGuideline : mSnapGuides)
 		{
 			if (currSnapGuideline.mStart == point || currSnapGuideline.mEnd == point)
@@ -783,9 +797,23 @@ namespace TDEngine2
 
 			const F32 dist = Length(Dot(normal, (point - currSnapGuideline.mStart)) * normal);
 			
-			if (dist < threshold)
+			if (dist < threshold && (!isHorizontalFound || !isVerticalFound))
 			{
+				if ((currSnapGuideline.IsHorizontal() && isHorizontalFound) || (currSnapGuideline.IsVertical() && isVerticalFound))
+				{
+					continue;
+				}
+
 				result.push_back(currSnapGuideline);
+
+				if (currSnapGuideline.IsHorizontal())
+				{
+					isHorizontalFound = true;
+				}
+				else
+				{
+					isVerticalFound = true;
+				}
 			}
 		}
 
