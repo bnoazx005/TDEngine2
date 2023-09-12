@@ -37,6 +37,7 @@
 #include "../../include/editor/CLevelEditorWindow.h"
 #include "../../include/editor/CEditorActionsManager.h"
 #include "../../include/editor/EditorUtils.h"
+#include "../../include/editor/CEditorSettings.h"
 #include "../../include/utils/CFileLogger.h"
 #define META_EXPORT_UI_SECTION
 #include "../../include/metadata.h"
@@ -602,9 +603,18 @@ namespace TDEngine2
 		TVector2 delta = imguiContext.GetMouseDragDelta(0);
 		delta.y = -delta.y;
 
-		const TVector2 newMinOffset = layoutElement.GetMinOffset() + delta;
+		TVector2 newMinOffset = layoutElement.GetMinOffset() + delta;
 
-		//layoutElement.SetMinOffset(10.0f * TVector2(roundf(layoutElement.GetMinOffset().x / 10.0f), roundf(layoutElement.GetMinOffset().y / 10.0f)));
+		const auto& levelEditorSettings = CEditorSettings::Get()->mLevelEditorSettings;
+
+		if (levelEditorSettings.mIsGridSnapEnabled)
+		{
+			const F32 cellSize = levelEditorSettings.mSnapGridCellSize;
+
+			newMinOffset.x = cellSize * roundf(newMinOffset.x / CMathUtils::Max(FloatEpsilon, cellSize));
+			newMinOffset.y = cellSize * roundf(newMinOffset.y / CMathUtils::Max(FloatEpsilon, cellSize));
+		}
+		
 		layoutElement.SetMinOffset(newMinOffset);
 
 		if (Length(maxAnchor - minAnchor) > 1e-3f)

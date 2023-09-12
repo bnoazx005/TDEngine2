@@ -4,6 +4,7 @@
 #include "../../include/editor/CEditorActionsManager.h"
 #include "../../include/editor/CSceneHierarchyWindow.h"
 #include "../../include/editor/Inspectors.h"
+#include "../../include/editor/CEditorSettings.h"
 #include "../../include/core/IImGUIContext.h"
 #include "../../include/core/IInputContext.h"
 #include "../../include/core/IWindowSystem.h"
@@ -152,6 +153,11 @@ namespace TDEngine2
 			mpImGUIContext->Button("Show Hierarchy", buttonSizes, [this]
 			{
 				mpHierarchyWidget->SetVisible(!mpHierarchyWidget->IsVisible());
+			});
+
+			mpImGUIContext->Button("Snap To Grid", TVector2(25.0f), []
+			{
+				CEditorSettings::Get()->mLevelEditorSettings.mIsGridSnapEnabled = !CEditorSettings::Get()->mLevelEditorSettings.mIsGridSnapEnabled;
 			});
 		}
 

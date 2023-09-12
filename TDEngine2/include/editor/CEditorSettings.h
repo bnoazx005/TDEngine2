@@ -44,6 +44,7 @@ namespace TDEngine2
 			struct TLevelEditorSettings
 			{
 				bool mIsGridSnapEnabled = true;
+				F32  mSnapGridCellSize = 20.0f;
 			} mLevelEditorSettings;
 	};
 }

@@ -14,6 +14,7 @@ namespace TDEngine2
 		struct TLevelEditorSettingsKeys
 		{
 			static const std::string mIsGridSnapEnabledKeyId;			
+			static const std::string mSnapGridCellSizeKeyId;			
 		};
 	};
 
@@ -22,6 +23,7 @@ namespace TDEngine2
 	const std::string TEditorSettingsArchiveKeys::mMetaGroupId = "meta";
 
 	const std::string TEditorSettingsArchiveKeys::TLevelEditorSettingsKeys::mIsGridSnapEnabledKeyId = "is_grid_snap_enabled";
+	const std::string TEditorSettingsArchiveKeys::TLevelEditorSettingsKeys::mSnapGridCellSizeKeyId = "snap_grid_cell_size";
 
 
 	CEditorSettings::CEditorSettings():
@@ -39,6 +41,7 @@ namespace TDEngine2
 		result = result | pFileReader->BeginGroup(TEditorSettingsArchiveKeys::mLevelEditorSettingsGroupId);
 		{
 			levelEditorSettings.mIsGridSnapEnabled = pFileReader->GetBool(TEditorSettingsArchiveKeys::TLevelEditorSettingsKeys::mIsGridSnapEnabledKeyId, false);			
+			levelEditorSettings.mSnapGridCellSize = pFileReader->GetFloat(TEditorSettingsArchiveKeys::TLevelEditorSettingsKeys::mSnapGridCellSizeKeyId, 10.0f);			
 		}
 		result = result | pFileReader->EndGroup();
 
