@@ -6,6 +6,7 @@
 #include "../../include/core/CProjectSettings.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/utils/CProgramOptions.h"
+#include "../../include/editor/CEditorSettings.h"
 #include "stringUtils.hpp"
 #include <memory>
 #include <thread>
@@ -98,6 +99,19 @@ namespace TDEngine2
 		{
 			LOG_WARNING(Wrench::StringUtils::Format("[CConfigFileEngineCoreBuilder] The config file {0} wasn't found, use default settings instead...", mGameUserSettingsFilepath));
 		}
+
+#if TDE2_EDITORS_ENABLED
+
+		/// \note Load editor's settings
+		if (auto loadEditorSettingsFile = mpFileSystemInstance->Open<IYAMLFileReader>("EditorPrefs.settings", false))
+		{
+			if (RC_OK != (result = CEditorSettings::Get()->Init(mpFileSystemInstance->Get<IYAMLFileReader>(loadEditorSettingsFile.Get()))))
+			{
+				return result;
+			}
+		}
+
+#endif
 
 		/// \note Load project settings in the following order 
 		/// - own project config (text/binary) / 

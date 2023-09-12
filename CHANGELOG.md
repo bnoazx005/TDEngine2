@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.20] 2023-09-10
+## [0.6.20] 2023-09-12
 
 ### Added
 
@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Two new properties scale and a rotation angle were added for **CLayoutElement**. Now **CTransform** component isn't used for UI elements (but still attached to them).  
 
 - Extend API of **ITestCase** with a new method ExecuteEachFrameForPeriod.
+
+- The editor settings through **CEditorSettings** were introduced for the engine.
 
 ### Changed
 

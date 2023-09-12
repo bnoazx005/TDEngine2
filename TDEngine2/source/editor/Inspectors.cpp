@@ -602,7 +602,10 @@ namespace TDEngine2
 		TVector2 delta = imguiContext.GetMouseDragDelta(0);
 		delta.y = -delta.y;
 
-		layoutElement.SetMinOffset(layoutElement.GetMinOffset() + delta);
+		const TVector2 newMinOffset = layoutElement.GetMinOffset() + delta;
+
+		//layoutElement.SetMinOffset(10.0f * TVector2(roundf(layoutElement.GetMinOffset().x / 10.0f), roundf(layoutElement.GetMinOffset().y / 10.0f)));
+		layoutElement.SetMinOffset(newMinOffset);
 
 		if (Length(maxAnchor - minAnchor) > 1e-3f)
 		{
