@@ -1,4 +1,5 @@
 #include "../../include/math/TVector2.h"
+#include "../../include/math/MathUtils.h"
 #include <cmath>
 
 
@@ -154,6 +155,15 @@ namespace TDEngine2
 	TVector2 Reflect(const TVector2& vec, const TVector2& normal)
 	{
 		return 2.0f * Dot(vec, normal) * Normalize(normal) - vec;
+	}
+
+	TVector2 SnapToGrid(const TVector2& vec, const TVector2& gridCellSizes)
+	{
+		return TVector2
+		{
+			gridCellSizes.x * roundf(vec.x / CMathUtils::Max(FloatEpsilon, gridCellSizes.x)),
+			gridCellSizes.y * roundf(vec.y / CMathUtils::Max(FloatEpsilon, gridCellSizes.y))
+		};
 	}
 
 

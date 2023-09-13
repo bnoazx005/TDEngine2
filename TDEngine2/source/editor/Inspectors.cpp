@@ -609,10 +609,7 @@ namespace TDEngine2
 
 		if (levelEditorSettings.mIsGridSnapEnabled)
 		{
-			const F32 cellSize = levelEditorSettings.mSnapGridCellSize;
-
-			newMinOffset.x = cellSize * roundf(newMinOffset.x / CMathUtils::Max(FloatEpsilon, cellSize));
-			newMinOffset.y = cellSize * roundf(newMinOffset.y / CMathUtils::Max(FloatEpsilon, cellSize));
+			newMinOffset = SnapToGrid(newMinOffset, TVector2(levelEditorSettings.mSnapGridCellSize));
 		}
 		
 		layoutElement.SetMinOffset(newMinOffset);

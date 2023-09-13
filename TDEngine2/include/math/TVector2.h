@@ -191,6 +191,9 @@ namespace TDEngine2
 	TDE2_API TVector2 Reflect(const TVector2& vec, const TVector2& normal);
 
 
+	TDE2_API TVector2 SnapToGrid(const TVector2& vec, const TVector2& gridCellSizes);
+
+
 	/*!
 		\brief TVector3's Serialization/Deserialization helpers
 	*/
