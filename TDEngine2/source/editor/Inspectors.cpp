@@ -37,7 +37,6 @@
 #include "../../include/editor/CLevelEditorWindow.h"
 #include "../../include/editor/CEditorActionsManager.h"
 #include "../../include/editor/EditorUtils.h"
-#include "../../include/editor/CEditorSettings.h"
 #include "../../include/utils/CFileLogger.h"
 #define META_EXPORT_UI_SECTION
 #include "../../include/metadata.h"
@@ -579,45 +578,57 @@ namespace TDEngine2
 	typedef std::vector<std::pair<CSnapGuidesContainer::TSnapGuideline, TVector2>> TPOISnapGuidelines;
 
 
-	static void SetPositionForLayoutElement(IImGUIContext& imguiContext, CLayoutElement& layoutElement, const TPOISnapGuidelines& guidelines)
+	static TPOISnapGuidelines GetSnapGuidelines(const CSnapGuidesContainer* pGuidelinesContainer, const TRectF32& worldRect, const TVector2& pivot)
 	{
-		auto parentWorldRect = layoutElement.GetParentWorldRect();
+		TPOISnapGuidelines guidelines;
 
-		const TVector2 parentLBRect = parentWorldRect.GetLeftBottom();
-		const TVector2 parentRectSize = parentWorldRect.GetSizes();
-
-		const TVector2 minAnchor = layoutElement.GetMinAnchor();
-		const TVector2 maxAnchor = layoutElement.GetMaxAnchor();
-
-		const TVector2 lbWorldPoint = parentLBRect + parentRectSize * minAnchor;
-		const TVector2 rtWorldPoint = parentLBRect + parentRectSize * maxAnchor;
-
-		const F32 maxOffsetSign = Length(maxAnchor - minAnchor) < 1e-3f ? 1.0f : -1.0f;
-
-		const TRectF32 rect
+		for (auto&& currPoint : worldRect.GetPoints())
 		{
-			lbWorldPoint + layoutElement.GetMinOffset(),
-			rtWorldPoint + maxOffsetSign * layoutElement.GetMaxOffset() /// \todo Is this a correct way to implement that?
-		};
+			auto&& output = pGuidelinesContainer->GetNearestSnapGuides(currPoint);
 
+			std::transform(output.begin(), output.end(), std::back_inserter(guidelines), [currPoint](const CSnapGuidesContainer::TSnapGuideline& guideline)
+			{
+				return std::make_pair(guideline, currPoint);
+			});
+		}
+
+		/*const TVector2& worldPivotPos = worldRect.GetLeftBottom() + layoutElement.GetPivot() * worldRect.GetSizes();
+
+		auto&& output = pGuidelinesContainer->GetNearestSnapGuides(worldPivotPos);
+
+		std::transform(output.begin(), output.end(), std::back_inserter(guidelines), [worldPivotPos](const CSnapGuidesContainer::TSnapGuideline& guideline)
+		{
+			return std::make_pair(guideline, worldPivotPos);
+		});*/
+
+
+		return std::move(guidelines);
+	}
+
+
+	static void SetPositionForLayoutElement(IImGUIContext& imguiContext, CLayoutElement& layoutElement, const CSnapGuidesContainer* pGuidelinesContainer)
+	{
 		TVector2 delta = imguiContext.GetMouseDragDelta(0);
 		delta.y = -delta.y;
 
-		TVector2 newMinOffset = layoutElement.GetMinOffset() + delta;
-
-		const auto& levelEditorSettings = CEditorSettings::Get()->mLevelEditorSettings;
-
-		if (levelEditorSettings.mIsGridSnapEnabled)
-		{
-			newMinOffset = SnapToGrid(newMinOffset, TVector2(levelEditorSettings.mSnapGridCellSize));
-		}
+		layoutElement.SetPositionOffset(delta);
 		
-		layoutElement.SetMinOffset(newMinOffset);
+		/*TRectF32 worldRect(layoutElement.GetMinOffset().x, rect.y, rect.width, rect.height);
 
-		if (Length(maxAnchor - minAnchor) > 1e-3f)
+		TPOISnapGuidelines&& guidelines = GetSnapGuidelines(pGuidelinesContainer, worldRect, ZeroVector2);
+		if (!guidelines.empty())
 		{
-			layoutElement.SetMaxOffset(layoutElement.GetMaxOffset() - delta);
-		}
+			const TVector2 offset = guidelines.front().first.mStart - guidelines.front().second;
+			LOG_MESSAGE(Wrench::StringUtils::Format("Offset: {0}", offset.ToString()));
+			
+			const TVector2 minOffset = layoutElement.GetMinOffset();
+
+			if (guidelines.front().first.IsHorizontal())
+				layoutElement.SetMinOffset(TVector2(guidelines.front().first.mStart.x, minOffset.y));
+
+			if (guidelines.front().first.IsVertical())
+				layoutElement.SetMinOffset(TVector2(minOffset.x, guidelines.front().first.mStart.y));
+		}*/
 	}
 
 
@@ -775,8 +786,8 @@ namespace TDEngine2
 	}
 
 
-	static void DrawLayoutElementFrameHandle(IImGUIContext& imguiContext, CLayoutElement& layoutElement, F32 handleRadius, 
-		const TRectF32& worldRect, F32 canvasHeight, const TPOISnapGuidelines& guidelines)
+	static void DrawLayoutElementFrameHandle(IImGUIContext& imguiContext, CLayoutElement& layoutElement, F32 handleRadius, const TRectF32& worldRect, 
+		F32 canvasHeight, const CSnapGuidesContainer* pGuidelinesContainer)
 	{
 		/// \note Draw corner vertices
 		U32 pointIndex = 0;
@@ -798,7 +809,7 @@ namespace TDEngine2
 		}
 
 		/// \note Draw a rectangle
-		imguiContext.DisplayIDGroup(2, [&imguiContext, &layoutElement, &guidelines, worldRect, canvasHeight]
+		imguiContext.DisplayIDGroup(2, [&imguiContext, &layoutElement, pGuidelinesContainer, worldRect, canvasHeight]
 		{
 			const TVector2 cursorPos = imguiContext.GetCursorScreenPos();
 
@@ -815,39 +826,10 @@ namespace TDEngine2
 				/// \note Move layoutElement if its rectangle selected and are dragged
 				if (imguiContext.IsItemActive() && imguiContext.IsMouseDragging(0))
 				{
-					SetPositionForLayoutElement(imguiContext, layoutElement, guidelines);
+					SetPositionForLayoutElement(imguiContext, layoutElement, pGuidelinesContainer);
 				}
 			}
 		});
-	}
-
-
-	static TPOISnapGuidelines GetSnapGuidelines(const CSnapGuidesContainer* pGuidelinesContainer, const CLayoutElement& layoutElement)
-	{
-		TPOISnapGuidelines guidelines;
-
-		auto&& worldRect = layoutElement.GetWorldRect();
-
-		for (auto&& currPoint : worldRect.GetPoints())
-		{
-			auto&& output = pGuidelinesContainer->GetNearestSnapGuides(currPoint);
-
-			std::transform(output.begin(), output.end(), std::back_inserter(guidelines), [currPoint](const CSnapGuidesContainer::TSnapGuideline& guideline)
-			{
-				return std::make_pair(guideline, currPoint);
-			});
-		}
-
-		const TVector2& worldPivotPos = worldRect.GetLeftBottom() + layoutElement.GetPivot() * worldRect.GetSizes();
-
-		auto&& output = pGuidelinesContainer->GetNearestSnapGuides(worldPivotPos);
-
-		std::transform(output.begin(), output.end(), std::back_inserter(guidelines), [worldPivotPos](const CSnapGuidesContainer::TSnapGuideline& guideline)
-		{
-			return std::make_pair(guideline, worldPivotPos);
-		});
-
-		return std::move(guidelines);
 	}
 
 
@@ -883,7 +865,7 @@ namespace TDEngine2
 		{
 			auto worldRect = layoutElement.GetWorldRect();
 
-			TPOISnapGuidelines&& guidelines = GetSnapGuidelines(editorContext.mpGuidesController, layoutElement);
+			TPOISnapGuidelines&& guidelines = GetSnapGuidelines(editorContext.mpGuidesController, worldRect, layoutElement.GetPivot());
 
 			for (auto&& currSnapGuide : guidelines)
 			{
@@ -893,12 +875,12 @@ namespace TDEngine2
 
 				imguiContext.DrawLine(
 					TVector2(startPoint.x, canvasHeight - startPoint.y) - 1000.0f * dir,
-					TVector2(startPoint.x, canvasHeight - startPoint.y) + 1000.0f * dir, TColor32F(0.0f, 1.0f, 1.0f, 1.0f), 1.0f);
+					TVector2(startPoint.x, canvasHeight - startPoint.y) + 1000.0f * dir, currSnapGuide.first.IsHorizontal() ? TColor32F(0.0f, 1.0f, 1.0f, 1.0f) : TColorUtils::mGreen, 1.0f);
 			}
 
 			DrawLayoutElementPivot(imguiContext, layoutElement, handleRadius, worldRect, canvasHeight);
 			worldRect = DrawLayoutElementAnchors(imguiContext, layoutElement, handleRadius, anchorSizes, worldRect, canvasHeight);
-			DrawLayoutElementFrameHandle(imguiContext, layoutElement, handleRadius, worldRect, canvasHeight, guidelines);
+			DrawLayoutElementFrameHandle(imguiContext, layoutElement, handleRadius, worldRect, canvasHeight, editorContext.mpGuidesController);
 		}
 
 		imguiContext.EndWindow();

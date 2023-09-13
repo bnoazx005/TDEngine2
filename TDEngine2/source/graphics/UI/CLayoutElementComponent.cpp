@@ -206,6 +206,16 @@ namespace TDEngine2
 		mIsDirty = value;
 	}
 
+	void CLayoutElement::SetIsPositionOffsetUsed(bool value)
+	{
+		mIsPositionOffsetApplied = value;
+		
+		if (!value)
+		{
+			mPositionOffset = ZeroVector2;
+		}
+	}
+
 	E_RESULT_CODE CLayoutElement::SetScale(const TVector2& scale)
 	{
 		mScale = scale;
@@ -268,6 +278,14 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	void CLayoutElement::SetPositionOffset(const TVector2& value)
+	{
+		mPositionOffset = value;
+
+		mIsPositionOffsetApplied = true;
+		mIsDirty = true;
+	}
+
 	const TVector2& CLayoutElement::GetMinAnchor() const
 	{
 		return mMinAnchor;
@@ -291,6 +309,16 @@ namespace TDEngine2
 	const TVector2& CLayoutElement::GetPivot() const
 	{
 		return mPivot;
+	}
+
+	const TVector2& CLayoutElement::GetPositionOffset() const
+	{
+		return mPositionOffset;
+	}
+	
+	bool CLayoutElement::IsPositionOffsetUsed() const
+	{
+		return mIsPositionOffsetApplied;
 	}
 
 	const TRectF32& CLayoutElement::GetWorldRect() const

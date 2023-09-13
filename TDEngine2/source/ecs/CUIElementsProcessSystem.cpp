@@ -12,6 +12,7 @@
 #include "../../include/graphics/ITexture2D.h"
 #include "../../include/graphics/ITexture.h"
 #include "../../include/editor/CPerfProfiler.h"
+#include "../../include/editor/CEditorSettings.h"
 #include "../../include/core/CFont.h"
 #include "../../include/core/IResource.h"
 #include "../../include/core/IGraphicsContext.h"
@@ -75,15 +76,40 @@ namespace TDEngine2
 			worldRect.height = sizes.y;
 		}
 
-		const TVector2 originShift = worldRect.GetSizes() * pLayoutElement->GetPivot();
+#if TDE2_EDITORS_ENABLED
+		// \note Process movement of the element
+		{			
+			worldRect = MoveRect(worldRect, pLayoutElement->GetPositionOffset());
 
-		const TVector2 position = worldRect.GetLeftBottom() + originShift;
+			const TVector2 currMinOffset = pLayoutElement->GetMinOffset() + pLayoutElement->GetPositionOffset();
+			pLayoutElement->SetMinOffset(currMinOffset);
+
+			const auto& levelEditorSettings = CEditorSettings::Get()->mLevelEditorSettings;
+
+			// snap to grid
+			if (levelEditorSettings.mIsGridSnapEnabled)
+			{
+				pLayoutElement->SetMinOffset(SnapToGrid(pLayoutElement->GetMinOffset(), TVector2(levelEditorSettings.mSnapGridCellSize)));
+			}
+
+			if (Length(maxAnchor - minAnchor) > 1e-3f)
+			{
+				pLayoutElement->SetMaxOffset(pLayoutElement->GetMaxOffset() - pLayoutElement->GetPositionOffset());
+
+				// \fixme
+				if (levelEditorSettings.mIsGridSnapEnabled)
+				{
+					pLayoutElement->SetMaxOffset(SnapToGrid(pLayoutElement->GetMaxOffset(), TVector2(levelEditorSettings.mSnapGridCellSize)));
+				}
+			}
+		}
+#endif
 
 		pLayoutElement->SetWorldRect(worldRect);
 		pLayoutElement->SetAnchorWorldRect({ lbWorldPoint, rtWorldPoint });
 		pLayoutElement->SetParentWorldRect(parentWorldRect);
 
-		pTransform->SetPosition(TVector3(position.x, position.y, 0.0f));
+		pLayoutElement->SetIsPositionOffsetUsed(false);
 	}
 
 
