@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.20] 2023-09-13
+## [0.6.20] 2023-09-14
 
 ### Added
 
@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The editor settings through **CEditorSettings** were introduced for the engine.
 
 - Now the level editor supports "snap to grid" functionality.
+
+- Now **CTransform** can define pivot's position.
 
 ### Changed
 

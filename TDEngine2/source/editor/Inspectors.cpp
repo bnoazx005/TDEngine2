@@ -92,9 +92,18 @@ namespace TDEngine2
 
 			CTransform& transform = dynamic_cast<CTransform&>(component);
 
+			TVector3 pivot = transform.GetPivot();
 			TVector3 position = transform.GetPosition();
 			TVector3 rotation = ToEulerAngles(transform.GetRotation()) * CMathConstants::Rad2Deg;
 			TVector3 scale = transform.GetScale();
+
+			imguiContext.BeginHorizontal();
+			imguiContext.Label("Pivot");
+			imguiContext.Vector3Field("##Pivot", pivot, [&transform, &pivot, &rotation, &scale, &editorContext, &actionsHistory]
+			{
+				//transform.SetPivot(pivot);
+			});
+			imguiContext.EndHorizontal();
 
 			imguiContext.BeginHorizontal();
 			imguiContext.Label("Position");

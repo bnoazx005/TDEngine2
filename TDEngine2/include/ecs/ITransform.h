@@ -33,6 +33,8 @@ namespace TDEngine2
 
 			TDE2_API virtual void Reset() = 0;
 
+			TDE2_API virtual void SetPivot(const TVector3& pivot) = 0;
+
 			/*!
 				\brief The method sets up a global position of an object
 
@@ -108,6 +110,8 @@ namespace TDEngine2
 			TDE2_API virtual TEntityId GetPrevParent() const = 0;
 
 			TDE2_API virtual const std::vector<TEntityId>& GetChildren() const = 0;
+
+			TDE2_API virtual const TVector3& GetPivot() const = 0;
 
 			/*!
 				\brief The method returns a global position's value

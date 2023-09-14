@@ -110,6 +110,11 @@ namespace TDEngine2
 		pLayoutElement->SetParentWorldRect(parentWorldRect);
 
 		pLayoutElement->SetIsPositionOffsetUsed(false);
+
+		pTransform->SetPivot(TVector3(worldRect.GetLeftBottom() + pLayoutElement->GetPivot() * worldRect.GetSizes()));
+		pTransform->SetPosition(ZeroVector3);
+		pTransform->SetRotation(TQuaternion(TVector3(0.0f, 0.0f, CMathConstants::Deg2Rad * pLayoutElement->GetRotationAngle())));
+		pTransform->SetScale(TVector3(pLayoutElement->GetScale().x, pLayoutElement->GetScale().y, 1.0f));
 	}
 
 
@@ -364,14 +369,8 @@ namespace TDEngine2
 
 		auto&& worldRect = pLayoutData->GetWorldRect();
 
-		auto pTransform = imagesContext.mpTransforms[index];
-		auto pivot = worldRect.GetLeftBottom() + worldRect.GetSizes() * pLayoutData->GetPivot();
-		auto pivotTranslation = TranslationMatrix(TVector3{ -pivot.x, -pivot.y, 0.0f });
-
-		const TMatrix4 localObjectTransform = Inverse(pivotTranslation) * RotationMatrix(pTransform->GetRotation()) * ScaleMatrix(pTransform->GetScale()) * pivotTranslation;
-
-		auto&& lbPoint = localObjectTransform * worldRect.GetLeftBottom();
-		auto&& rtPoint = localObjectTransform * worldRect.GetRightTop();
+		auto&& lbPoint = worldRect.GetLeftBottom();
+		auto&& rtPoint = worldRect.GetRightTop();
 
 		/// \todo Add support of specifying color data
 		pUIElementMeshData->AddVertex({ TVector4(lbPoint.x, lbPoint.y, 0.0f, 1.0f), pImageData->GetColor() });
@@ -421,14 +420,8 @@ namespace TDEngine2
 
 		auto&& worldRect = pLayoutData->GetWorldRect();
 
-		auto pTransform = slicedImagesContext.mpTransforms[index];
-		auto pivot = worldRect.GetLeftBottom() + worldRect.GetSizes() * pLayoutData->GetPivot();
-		auto pivotTranslation = TranslationMatrix(TVector3{ -pivot.x, -pivot.y, 0.0f });
-
-		const TMatrix4 localObjectTransform = Inverse(pivotTranslation) * RotationMatrix(pTransform->GetRotation()) * ScaleMatrix(pTransform->GetScale()) * pivotTranslation;
-
-		auto&& lbPoint = localObjectTransform * worldRect.GetLeftBottom();
-		auto&& rtPoint = localObjectTransform * worldRect.GetRightTop();
+		auto&& lbPoint = worldRect.GetLeftBottom();
+		auto&& rtPoint = worldRect.GetRightTop();
 
 		const F32 relativeMargin = pSlicedImageData->GetRelativeBorderSize();
 

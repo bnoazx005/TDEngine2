@@ -89,6 +89,8 @@ namespace TDEngine2
 
 			TDE2_API void Reset() override;
 
+			TDE2_API void SetPivot(const TVector3& pivot) override;
+
 			/*!
 				\brief The method sets up a global position of an object
 
@@ -165,6 +167,8 @@ namespace TDEngine2
 
 			TDE2_API const std::vector<TEntityId>& GetChildren() const override;
 
+			TDE2_API const TVector3& GetPivot() const override;
+			
 			/*!
 				\brief The method returns a global position's value
 
@@ -263,6 +267,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTransform)
 		protected:
+			TVector3    mPivot;
 			TVector3    mPosition;
 
 			TQuaternion mRotation;

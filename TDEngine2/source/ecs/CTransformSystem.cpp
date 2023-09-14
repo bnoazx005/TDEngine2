@@ -159,9 +159,9 @@ namespace TDEngine2
 			const TMatrix4 rotationMatrix = RotationMatrix(pTransform->GetRotation());
 
 			/// \note For transforms of cameras the order of multiplication is different
-			TMatrix4 translateRotateMatrix = hasCameras[i] ? rotationMatrix * translationMatrix : translationMatrix * rotationMatrix;
+			TMatrix4 translateRotateMatrix = hasCameras[i] ? (rotationMatrix * translationMatrix) : (TranslationMatrix(pTransform->GetPivot()) * translationMatrix * rotationMatrix);
 
-			TMatrix4 localToWorldMatrix = translateRotateMatrix * ScaleMatrix(pTransform->GetScale() * zAxisDirection);
+			TMatrix4 localToWorldMatrix = translateRotateMatrix * ScaleMatrix(pTransform->GetScale() * zAxisDirection) * TranslationMatrix(-pTransform->GetPivot());
 			const TMatrix4 localTransform = localToWorldMatrix;
 
 			/// \note Implement parent-to-child relationship's update

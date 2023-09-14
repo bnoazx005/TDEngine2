@@ -23,6 +23,13 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		pReader->BeginGroup("pivot");
+		if (auto pivotResult = LoadVector3(pReader))
+		{
+			mPivot = pivotResult.Get();
+		}
+		pReader->EndGroup();
+
 		pReader->BeginGroup("position");
 		if (auto positionResult = LoadVector3(pReader))
 		{
@@ -78,7 +85,11 @@ namespace TDEngine2
 		pWriter->BeginGroup("component");
 		{
 			pWriter->SetUInt32("type_id", static_cast<U32>(CTransform::GetTypeId()));
-			
+
+			pWriter->BeginGroup("pivot", false);
+			SaveVector3(pWriter, mPivot);
+			pWriter->EndGroup();
+
 			pWriter->BeginGroup("position", false);
 			SaveVector3(pWriter, mPosition);
 			pWriter->EndGroup();
@@ -142,6 +153,7 @@ namespace TDEngine2
 	{
 		if (CTransform* pDestComponent = dynamic_cast<CTransform*>(pDestObject))
 		{
+			pDestComponent->mPivot = mPivot;
 			pDestComponent->mPosition = mPosition;
 			pDestComponent->mRotation = mRotation;
 			pDestComponent->mScale = mScale;
@@ -162,6 +174,8 @@ namespace TDEngine2
 
 	void CTransform::Reset()
 	{
+		mPivot = ZeroVector3;
+
 		mPosition = ZeroVector3;
 
 		mRotation = UnitQuaternion;
@@ -170,6 +184,13 @@ namespace TDEngine2
 
 		mHasChanged = true;
 		mIsFirstFrameAfterCreation = true;
+	}
+
+	void CTransform::SetPivot(const TVector3& pivot)
+	{
+		mPivot = pivot;
+
+		mHasChanged = true;
 	}
 
 	void CTransform::SetPosition(const TVector3& position)
@@ -288,6 +309,10 @@ namespace TDEngine2
 		return mChildrenEntities;
 	}
 
+	const TVector3& CTransform::GetPivot() const
+	{
+		return mPivot;
+	}
 
 	const TVector3& CTransform::GetPosition() const
 	{
