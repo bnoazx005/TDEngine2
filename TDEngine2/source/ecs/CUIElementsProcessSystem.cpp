@@ -81,26 +81,26 @@ namespace TDEngine2
 		{			
 			worldRect = MoveRect(worldRect, pLayoutElement->GetPositionOffset());
 
-			const TVector2 currMinOffset = pLayoutElement->GetMinOffset() + pLayoutElement->GetPositionOffset();
-			pLayoutElement->SetMinOffset(currMinOffset);
-
 			const auto& levelEditorSettings = CEditorSettings::Get()->mLevelEditorSettings;
 
-			// snap to grid
+			const TVector2 offset = levelEditorSettings.mIsGridSnapEnabled ? 
+				SnapToGrid(pLayoutElement->GetPositionOffset(), TVector2(levelEditorSettings.mSnapGridCellSize)) : pLayoutElement->GetPositionOffset();
+			
 			if (levelEditorSettings.mIsGridSnapEnabled)
 			{
 				pLayoutElement->SetMinOffset(SnapToGrid(pLayoutElement->GetMinOffset(), TVector2(levelEditorSettings.mSnapGridCellSize)));
 			}
+			
+			pLayoutElement->SetMinOffset(pLayoutElement->GetMinOffset() + offset);
 
 			if (Length(maxAnchor - minAnchor) > 1e-3f)
 			{
-				pLayoutElement->SetMaxOffset(pLayoutElement->GetMaxOffset() - pLayoutElement->GetPositionOffset());
-
-				// \fixme
 				if (levelEditorSettings.mIsGridSnapEnabled)
 				{
 					pLayoutElement->SetMaxOffset(SnapToGrid(pLayoutElement->GetMaxOffset(), TVector2(levelEditorSettings.mSnapGridCellSize)));
 				}
+
+				pLayoutElement->SetMaxOffset(pLayoutElement->GetMaxOffset() - offset);
 			}
 		}
 #endif

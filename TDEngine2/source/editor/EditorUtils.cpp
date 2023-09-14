@@ -4,6 +4,7 @@
 
 #include "../../include/graphics/IDebugUtility.h"
 #include "../../include/ecs/CWorld.h"
+#include "../../include/ecs/CUIEventsSystem.h"
 #include "../../include/platform/IOStreams.h"
 #include "../../include/platform/CYAMLFile.h"
 #include "../../include/scene/IPrefabsRegistry.h"
@@ -22,6 +23,7 @@
 #include "../../include/graphics/UI/GroupLayoutComponents.h"
 #include "../../include/core/IFont.h"
 #include "../../include/core/IImGUIContext.h"
+#include "../../include/editor/ecs/EditorComponents.h"
 #include <clip.h>
 
 
@@ -748,32 +750,56 @@ namespace TDEngine2
 
 		mSnapGuides.clear();
 
-		auto&& layoutElementsEntities = pWorld->FindEntitiesWithComponents<CLayoutElement>();
-		for (TEntityId currEntityId : layoutElementsEntities)
+		for (TEntityId currCanvasEntity : FindMainCanvases(pWorld.Get()))
 		{
-			CEntity* pEntity = pWorld->FindEntity(currEntityId);
-			if (!pEntity)
-			{
-				continue;
-			}
+			CTransform* pTransform = pWorld->FindEntity(currCanvasEntity)->GetComponent<CTransform>();
 
-			CLayoutElement* pLayoutElement = pEntity->GetComponent<CLayoutElement>();
-			if (!pLayoutElement)
-			{
-				continue;
-			}
+			std::stack<TEntityId> entitiesToVisit;
 
-			const auto& worldRect = pLayoutElement->GetWorldRect();
-			if (Length(worldRect.GetSizes()) < FloatEpsilon)
-			{
-				continue;
-			}
+			entitiesToVisit.emplace(currCanvasEntity);
 
-			const auto& rectPoints = worldRect.GetPoints();
-
-			for (USIZE i = 0; i < rectPoints.size(); i++)
+			CEntity* pEntity = nullptr;
+			TEntityId currEntityId = TEntityId::Invalid;
+			
+			while (!entitiesToVisit.empty())
 			{
-				mSnapGuides.push_back({ rectPoints[i], rectPoints[(i + 1) % rectPoints.size()] });
+				currEntityId = entitiesToVisit.top();
+				entitiesToVisit.pop();
+
+				pEntity = pWorld->FindEntity(currEntityId);
+				if (pEntity->HasComponent<CSelectedEntityComponent>())
+				{
+					continue;
+				}
+
+				{
+					CLayoutElement* pLayoutElement = pEntity->GetComponent<CLayoutElement>();
+					if (!pLayoutElement)
+					{
+						continue;
+					}
+
+					const auto& worldRect = pLayoutElement->GetWorldRect();
+					if (Length(worldRect.GetSizes()) < FloatEpsilon)
+					{
+						continue;
+					}
+
+					const auto& rectPoints = worldRect.GetPoints();
+
+					for (USIZE i = 0; i < rectPoints.size(); i++)
+					{
+						mSnapGuides.push_back({ rectPoints[i], rectPoints[(i + 1) % rectPoints.size()] });
+					}
+				}
+
+				if (pTransform = pEntity->GetComponent<CTransform>())
+				{
+					for (TEntityId id : pTransform->GetChildren())
+					{
+						entitiesToVisit.emplace(id);
+					}
+				}
 			}
 		}
 	}
