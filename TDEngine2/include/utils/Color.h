@@ -88,14 +88,15 @@ namespace TDEngine2
 
 	struct TColorUtils
 	{
-		TDE2_API TDE2_STATIC_CONSTEXPR TColor32F mWhite   = TColor32F(1.0f);
-		TDE2_API TDE2_STATIC_CONSTEXPR TColor32F mBlack   = TColor32F(0.0f, 0.0f, 0.0f, 1.0f);
-		TDE2_API TDE2_STATIC_CONSTEXPR TColor32F mRed     = TColor32F(1.0f, 0.0f, 0.0f, 1.0f);
-		TDE2_API TDE2_STATIC_CONSTEXPR TColor32F mGreen   = TColor32F(0.0f, 1.0f, 0.0f, 1.0f);
-		TDE2_API TDE2_STATIC_CONSTEXPR TColor32F mBlue    = TColor32F(0.0f, 0.0f, 1.0f, 1.0f);
-		TDE2_API TDE2_STATIC_CONSTEXPR TColor32F mMagenta = TColor32F(1.0f, 0.0f, 1.0f, 1.0f);
-		TDE2_API TDE2_STATIC_CONSTEXPR TColor32F mYellow  = TColor32F(1.0f, 1.0f, 0.0f, 1.0f);
-		TDE2_API TDE2_STATIC_CONSTEXPR TColor32F mGray    = TColor32F(0.5f, 0.5f, 0.5f, 1.0f);
+		TDE2_API TDE2_STATIC_CONSTEXPR TColor32F mWhite     = TColor32F(1.0f);
+		TDE2_API TDE2_STATIC_CONSTEXPR TColor32F mBlack     = TColor32F(0.0f, 0.0f, 0.0f, 1.0f);
+		TDE2_API TDE2_STATIC_CONSTEXPR TColor32F mRed       = TColor32F(1.0f, 0.0f, 0.0f, 1.0f);
+		TDE2_API TDE2_STATIC_CONSTEXPR TColor32F mGreen     = TColor32F(0.0f, 1.0f, 0.0f, 1.0f);
+		TDE2_API TDE2_STATIC_CONSTEXPR TColor32F mBlue      = TColor32F(0.0f, 0.0f, 1.0f, 1.0f);
+		TDE2_API TDE2_STATIC_CONSTEXPR TColor32F mMagenta   = TColor32F(1.0f, 0.0f, 1.0f, 1.0f);
+		TDE2_API TDE2_STATIC_CONSTEXPR TColor32F mYellow    = TColor32F(1.0f, 1.0f, 0.0f, 1.0f);
+		TDE2_API TDE2_STATIC_CONSTEXPR TColor32F mGray      = TColor32F(0.5f, 0.5f, 0.5f, 1.0f);
+		TDE2_API TDE2_STATIC_CONSTEXPR TColor32F mLightBlue = TColor32F(0.0f, 1.0f, 1.0f, 1.0f);
 	};
 
 

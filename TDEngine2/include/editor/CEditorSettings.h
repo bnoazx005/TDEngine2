@@ -48,6 +48,7 @@ namespace TDEngine2
 
 				F32  mSnapGridCellSize = 20.0f;
 				F32  mGuidelinesDisplayThreshold = 20.0f;
+				F32  mSnapDistance = 5.0f;
 
 			} mLevelEditorSettings;
 	};

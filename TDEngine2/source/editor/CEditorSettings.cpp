@@ -17,6 +17,7 @@ namespace TDEngine2
 			static const std::string mSnapGridCellSizeKeyId;			
 			static const std::string mIsGuidelinesSnapEnabledKeyId;			
 			static const std::string mGuidelinesDisplayThresholdKeyId;			
+			static const std::string mSnapDistanceKeyId;			
 		};
 	};
 
@@ -28,6 +29,7 @@ namespace TDEngine2
 	const std::string TEditorSettingsArchiveKeys::TLevelEditorSettingsKeys::mSnapGridCellSizeKeyId = "snap_grid_cell_size";
 	const std::string TEditorSettingsArchiveKeys::TLevelEditorSettingsKeys::mIsGuidelinesSnapEnabledKeyId = "is_guidelines_snap_enabled";
 	const std::string TEditorSettingsArchiveKeys::TLevelEditorSettingsKeys::mGuidelinesDisplayThresholdKeyId = "guidelines_display_threshold";
+	const std::string TEditorSettingsArchiveKeys::TLevelEditorSettingsKeys::mSnapDistanceKeyId = "snap_distance";
 
 
 	CEditorSettings::CEditorSettings():
@@ -48,6 +50,7 @@ namespace TDEngine2
 			levelEditorSettings.mSnapGridCellSize = pFileReader->GetFloat(TEditorSettingsArchiveKeys::TLevelEditorSettingsKeys::mSnapGridCellSizeKeyId, 10.0f);			
 			levelEditorSettings.mIsGuidelinesSnapEnabled = pFileReader->GetBool(TEditorSettingsArchiveKeys::TLevelEditorSettingsKeys::mIsGuidelinesSnapEnabledKeyId, false);
 			levelEditorSettings.mGuidelinesDisplayThreshold = pFileReader->GetFloat(TEditorSettingsArchiveKeys::TLevelEditorSettingsKeys::mGuidelinesDisplayThresholdKeyId, 20.0f);			
+			levelEditorSettings.mSnapDistance = pFileReader->GetFloat(TEditorSettingsArchiveKeys::TLevelEditorSettingsKeys::mSnapDistanceKeyId, 0.5f);			
 		}
 		result = result | pFileReader->EndGroup();
 

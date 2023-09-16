@@ -37,6 +37,7 @@
 #include "../../include/editor/CLevelEditorWindow.h"
 #include "../../include/editor/CEditorActionsManager.h"
 #include "../../include/editor/EditorUtils.h"
+#include "../../include/editor/CEditorSettings.h"
 #include "../../include/utils/CFileLogger.h"
 #define META_EXPORT_UI_SECTION
 #include "../../include/metadata.h"
@@ -591,25 +592,22 @@ namespace TDEngine2
 	{
 		TPOISnapGuidelines guidelines;
 
-		for (auto&& currPoint : worldRect.GetPoints())
+		std::vector<TVector2> pointsOfInterest;
+
+		auto&& rectPoints = worldRect.GetPoints();
+		std::copy(rectPoints.begin(), rectPoints.end(), std::back_inserter(pointsOfInterest));
+
+		pointsOfInterest.emplace_back(worldRect.GetLeftBottom() + pivot * worldRect.GetSizes());
+
+		for (auto&& currPoint : pointsOfInterest)
 		{
-			auto&& output = pGuidelinesContainer->GetNearestSnapGuides(currPoint);
+			auto&& output = pGuidelinesContainer->GetNearestSnapGuides(currPoint, CEditorSettings::Get()->mLevelEditorSettings.mGuidelinesDisplayThreshold);
 
 			std::transform(output.begin(), output.end(), std::back_inserter(guidelines), [currPoint](const CSnapGuidesContainer::TSnapGuideline& guideline)
 			{
 				return std::make_pair(guideline, currPoint);
 			});
 		}
-
-		/*const TVector2& worldPivotPos = worldRect.GetLeftBottom() + layoutElement.GetPivot() * worldRect.GetSizes();
-
-		auto&& output = pGuidelinesContainer->GetNearestSnapGuides(worldPivotPos);
-
-		std::transform(output.begin(), output.end(), std::back_inserter(guidelines), [worldPivotPos](const CSnapGuidesContainer::TSnapGuideline& guideline)
-		{
-			return std::make_pair(guideline, worldPivotPos);
-		});*/
-
 
 		return std::move(guidelines);
 	}
@@ -622,22 +620,52 @@ namespace TDEngine2
 
 		layoutElement.SetPositionOffset(delta);
 		
-		/*TRectF32 worldRect(layoutElement.GetMinOffset().x, rect.y, rect.width, rect.height);
+		if (!CEditorSettings::Get()->mLevelEditorSettings.mIsGuidelinesSnapEnabled)
+		{
+			return;
+		}
+
+		const TRectF32& worldRect = layoutElement.GetWorldRect();
 
 		TPOISnapGuidelines&& guidelines = GetSnapGuidelines(pGuidelinesContainer, worldRect, ZeroVector2);
-		if (!guidelines.empty())
+		F32 smallestSnapDistance = CEditorSettings::Get()->mLevelEditorSettings.mSnapDistance;
+
+		TVector2 offset = ZeroVector2;
+
+		bool isHorizontalFound = false;
+		bool isVerticalFound = false;
+
+		for (auto&& currGuideInfo : guidelines)
 		{
-			const TVector2 offset = guidelines.front().first.mStart - guidelines.front().second;
-			LOG_MESSAGE(Wrench::StringUtils::Format("Offset: {0}", offset.ToString()));
-			
-			const TVector2 minOffset = layoutElement.GetMinOffset();
+			const auto& guide = currGuideInfo.first;
+			const auto& point = currGuideInfo.second;
 
-			if (guidelines.front().first.IsHorizontal())
-				layoutElement.SetMinOffset(TVector2(guidelines.front().first.mStart.x, minOffset.y));
+			const TVector2 dir = Normalize(guide.mEnd - guide.mStart);
+			const TVector2 normal(dir.y, dir.x);
 
-			if (guidelines.front().first.IsVertical())
-				layoutElement.SetMinOffset(TVector2(minOffset.x, guidelines.front().first.mStart.y));
-		}*/
+			const F32 dist = Length(Dot(normal, (point - guide.mStart)) * normal);
+
+			if (dist < smallestSnapDistance)
+			{
+				smallestSnapDistance = dist;
+
+				const TVector2 snapDelta = guide.mStart - point;
+
+				if (!isHorizontalFound && guide.IsHorizontal())
+				{
+					offset.y += snapDelta.y;
+					isHorizontalFound = true;
+				}
+
+				if (!isVerticalFound && guide.IsVertical())
+				{
+					offset.x += snapDelta.x;
+					isVerticalFound = true;
+				}
+			}
+		}
+
+		layoutElement.SetPositionOffset(delta + offset);
 	}
 
 
@@ -842,6 +870,26 @@ namespace TDEngine2
 	}
 
 
+	static void DrawGuidelines(IImGUIContext& imguiContext, const CSnapGuidesContainer* pSnapGuidesContainer, const CLayoutElement& layoutElement, F32 canvasHeight)
+	{
+		constexpr F32 lineLength = 1000.0f;
+
+		auto worldRect = layoutElement.GetWorldRect();
+
+		for (auto&& currSnapGuide : GetSnapGuidelines(pSnapGuidesContainer, worldRect, layoutElement.GetPivot()))
+		{
+			const auto& startPoint = currSnapGuide.first.mStart;
+
+			const TVector2 dir = Normalize(currSnapGuide.first.mEnd - startPoint);
+
+			imguiContext.DrawLine(
+				TVector2(startPoint.x, canvasHeight - startPoint.y) - lineLength * dir,
+				TVector2(startPoint.x, canvasHeight - startPoint.y) + lineLength * dir, 
+				TColorUtils::mLightBlue, 1.0f);
+		}
+	}
+
+
 	static void DrawLayoutElementHandles(const TEditorContext& editorContext, CLayoutElement& layoutElement)
 	{
 		IImGUIContext& imguiContext = editorContext.mImGUIContext;
@@ -872,20 +920,9 @@ namespace TDEngine2
 
 		if (imguiContext.BeginWindow("LayoutElementEditor", opened, params))
 		{
-			auto worldRect = layoutElement.GetWorldRect();
+			auto worldRect = layoutElement.GetWorldRect();			
 
-			TPOISnapGuidelines&& guidelines = GetSnapGuidelines(editorContext.mpGuidesController, worldRect, layoutElement.GetPivot());
-
-			for (auto&& currSnapGuide : guidelines)
-			{
-				const auto& startPoint = currSnapGuide.first.mStart;
-
-				const TVector2 dir = Normalize(currSnapGuide.first.mEnd - startPoint);
-
-				imguiContext.DrawLine(
-					TVector2(startPoint.x, canvasHeight - startPoint.y) - 1000.0f * dir,
-					TVector2(startPoint.x, canvasHeight - startPoint.y) + 1000.0f * dir, currSnapGuide.first.IsHorizontal() ? TColor32F(0.0f, 1.0f, 1.0f, 1.0f) : TColorUtils::mGreen, 1.0f);
-			}
+			DrawGuidelines(imguiContext, editorContext.mpGuidesController, layoutElement, canvasHeight);
 
 			DrawLayoutElementPivot(imguiContext, layoutElement, handleRadius, worldRect, canvasHeight);
 			worldRect = DrawLayoutElementAnchors(imguiContext, layoutElement, handleRadius, anchorSizes, worldRect, canvasHeight);
