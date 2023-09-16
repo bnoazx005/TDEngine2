@@ -155,10 +155,19 @@ namespace TDEngine2
 				mpHierarchyWidget->SetVisible(!mpHierarchyWidget->IsVisible());
 			});
 
-			mpImGUIContext->Button("Snap To Grid", TVector2(25.0f), []
+			mpImGUIContext->BeginHorizontal();
 			{
-				CEditorSettings::Get()->mLevelEditorSettings.mIsGridSnapEnabled = !CEditorSettings::Get()->mLevelEditorSettings.mIsGridSnapEnabled;
-			});
+				mpImGUIContext->Button("Snap To Grid", TVector2(25.0f), []
+				{
+					CEditorSettings::Get()->mLevelEditorSettings.mIsGridSnapEnabled = !CEditorSettings::Get()->mLevelEditorSettings.mIsGridSnapEnabled;
+				});
+
+				mpImGUIContext->Button("Snap To Guidelines", TVector2(25.0f), []
+				{
+					CEditorSettings::Get()->mLevelEditorSettings.mIsGuidelinesSnapEnabled = !CEditorSettings::Get()->mLevelEditorSettings.mIsGuidelinesSnapEnabled;
+				});
+			}
+			mpImGUIContext->EndHorizontal();
 		}
 
 		mpImGUIContext->EndWindow();

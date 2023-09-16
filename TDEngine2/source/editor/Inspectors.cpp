@@ -872,6 +872,11 @@ namespace TDEngine2
 
 	static void DrawGuidelines(IImGUIContext& imguiContext, const CSnapGuidesContainer* pSnapGuidesContainer, const CLayoutElement& layoutElement, F32 canvasHeight)
 	{
+		if (!CEditorSettings::Get()->mLevelEditorSettings.mIsGuidelinesSnapEnabled)
+		{
+			return;
+		}
+
 		constexpr F32 lineLength = 1000.0f;
 
 		auto worldRect = layoutElement.GetWorldRect();
