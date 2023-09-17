@@ -1,0 +1,138 @@
+entities: 
+  - entity: 
+      components: 
+        - component: 
+            Children: 
+              - child_id: 1507570810
+              - child_id: 1467800428
+            owner_id: 2458767966
+            parent_id: 4294967295
+            pivot: 
+              x: "-20.000000"
+              y: 285.000000
+            position: 
+              x: 0.000000
+            rotation: 
+              w: 1.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            angle: 0.000000
+            max_anchor: 
+              x: 1.000000
+              y: 1.000000
+            max_offset: 
+              x: "-32.000000"
+              y: 10.000000
+            min_anchor: 
+              x: 0.000000
+            min_offset: 
+              x: "-20.000000"
+              y: 285.000000
+            pivot: 
+              x: 0.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+            type_id: 2172495824
+      id: 2458767966
+      name: Button
+  - entity: 
+      components: 
+        - component: 
+            color: 
+              a: 1.000000
+              b: 0.034146
+              g: 0.034146
+              r: 0.995098
+            sprite_id: DefaultResources/Textures/DefaultUIWhite_Sprite.png
+            type_id: 2844726091
+        - component: 
+            owner_id: 1467800428
+            parent_id: 2458767966
+            pivot: 
+              x: "-20.000000"
+              y: 332.500000
+            position: 
+              x: 0.000000
+            rotation: 
+              w: 1.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            angle: 0.000000
+            max_anchor: 
+              x: 1.000000
+              y: 0.500000
+            max_offset: 
+              y: 200.000000
+            min_anchor: 
+              y: 0.500000
+            min_offset: 
+              y: "-20.000000"
+            pivot: 
+              x: 0.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+            type_id: 2172495824
+        - component: 
+            bypass_enabled: 0
+            ignore_input: 0
+            type_id: 751163885
+      id: 1467800428
+      name: RedBackground
+  - entity: 
+      components: 
+        - component: 
+            color: 
+              a: 1.000000
+              b: 1.000000
+              g: 1.000000
+              r: 1.000000
+            sprite_id: DefaultResources/Textures/DefaultUIWhite_Sprite.png
+            type_id: 2844726091
+        - component: 
+            owner_id: 1507570810
+            parent_id: 2458767966
+            pivot: 
+              x: "-20.000000"
+              y: 285.000000
+            position: 
+              x: 0.000000
+            rotation: 
+              w: 1.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            bypass_enabled: 0
+            ignore_input: 0
+            type_id: 751163885
+        - component: 
+            angle: 0.000000
+            max_anchor: 
+              x: 1.000000
+              y: 1.000000
+            max_offset: 
+              x: 0.000000
+            min_anchor: 
+              x: 0.000000
+            min_offset: 
+              x: 0.000000
+            pivot: 
+              x: 0.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+            type_id: 2172495824
+      id: 1507570810
+      name: Background
