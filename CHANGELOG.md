@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.20] 2023-09-16
+## [0.6.20] 2023-09-18
 
 ### Added
 
@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Memory leaks and crashes at app's exit were fixed.
 
 - Broken UI elements drag tool was fixed.
+
+- The incorrect draw order of sibling UI elemnents was fixed.
 
 ## [0.6.19] 2023-08-31
 

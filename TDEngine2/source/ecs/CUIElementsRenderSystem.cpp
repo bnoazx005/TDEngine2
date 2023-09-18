@@ -19,7 +19,7 @@
 #include "../../include/core/IResource.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/editor/CPerfProfiler.h"
-#include <stack>
+#include <queue>
 #include <tuple>
 
 
@@ -85,7 +85,7 @@ namespace TDEngine2
 		{
 			CTransform* pTransform = pWorld->FindEntity(currCanvasEntity)->GetComponent<CTransform>();
 			
-			std::stack<std::tuple<TEntityId, bool, U32>> entitiesToVisit;
+			std::queue<std::tuple<TEntityId, bool, U32>> entitiesToVisit;
 
 			entitiesToVisit.emplace(currCanvasEntity, false, 0);
 
@@ -96,7 +96,7 @@ namespace TDEngine2
 
 			while (!entitiesToVisit.empty())
 			{
-				std::tie(currEntityId, hasUIMaskApplied, currPriority) = entitiesToVisit.top();
+				std::tie(currEntityId, hasUIMaskApplied, currPriority) = entitiesToVisit.front();
 				entitiesToVisit.pop();
 
 				pEntity = pWorld->FindEntity(currEntityId);
