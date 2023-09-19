@@ -149,10 +149,14 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CComponentManager::RemoveComponents(TEntityId id)
+	E_RESULT_CODE CComponentManager::RemoveComponents(TEntityId id, const std::function<void(std::vector<TypeId>)>& onComponentsRemoved)
 	{
-		E_RESULT_CODE result = _removeComponentsWithAction(id, [](IComponent*& pComponent) -> E_RESULT_CODE
+		std::vector<TypeId> removedComponentsTypes;
+
+		E_RESULT_CODE result = _removeComponentsWithAction(id, [&removedComponentsTypes](IComponent*& pComponent) -> E_RESULT_CODE
 		{
+			removedComponentsTypes.emplace_back(pComponent->GetComponentTypeId());
+
 			if (pComponent)
 			{
 				pComponent->Free();
@@ -160,6 +164,11 @@ namespace TDEngine2
 
 			return RC_OK;
 		});
+
+		if (onComponentsRemoved)
+		{
+			onComponentsRemoved(std::move(removedComponentsTypes));
+		}
 
 		return result;
 	}

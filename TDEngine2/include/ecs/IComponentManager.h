@@ -128,7 +128,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE RemoveComponents(TEntityId id) = 0;
+			TDE2_API virtual E_RESULT_CODE RemoveComponents(TEntityId id, const std::function<void(std::vector<TypeId>)>& onComponentsRemoved = nullptr) = 0;
 
 			/*!
 				\return The method returns an array of components that belong to given entity

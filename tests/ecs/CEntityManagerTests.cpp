@@ -97,7 +97,7 @@ namespace
 				return RC_OK;
 			}
 
-			E_RESULT_CODE RemoveComponents(TEntityId id) override { return RC_OK; }
+			E_RESULT_CODE RemoveComponents(TEntityId id, const std::function<void(std::vector<TypeId>)>& onComponentsRemoved = nullptr) override { return RC_OK; }
 
 			std::vector<IComponent*> GetComponents(TEntityId id) const override { return {}; }
 

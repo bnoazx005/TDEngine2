@@ -432,4 +432,19 @@ TEST_CASE("CWorld Tests")
 
 		REQUIRE(entitiesToVisit.empty());
 	}
+
+	SECTION("TestDestroy_InvokeDestroyForEntity_EntityShouldBeErasedAndEventIsRaised")
+	{
+		auto pNewEntity = pWorld->CreateEntity("TestEntity");
+		REQUIRE(pNewEntity);
+
+		bool hasEntityBeenRemoved = false;
+		bool haveComponentsBeenRemoved = false;
+
+		pStubEventManager->AddSimpleListener(TOnEntityRemovedEvent::GetTypeId(), [&] { hasEntityBeenRemoved = true; });
+		pStubEventManager->AddSimpleListener(TOnComponentRemovedEvent::GetTypeId(), [&] { haveComponentsBeenRemoved = true; });
+
+		REQUIRE(RC_OK == pWorld->Destroy(pNewEntity->GetId()));
+		REQUIRE((haveComponentsBeenRemoved && hasEntityBeenRemoved));
+	}
 }

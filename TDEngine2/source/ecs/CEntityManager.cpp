@@ -94,7 +94,15 @@ namespace TDEngine2
 			}
 		}
 
-		result = result | mpComponentManager->RemoveComponents(entityId);
+		result = result | mpComponentManager->RemoveComponents(entityId, [this, entityId](auto&& removedComponents)
+		{
+			TOnComponentRemovedEvent onComponentsRemovedEvent;
+
+			onComponentsRemovedEvent.mEntityId = entityId;
+			onComponentsRemovedEvent.mRemovedComponentsTypeId = std::move(removedComponents);
+
+			mpEventManager->Notify(&onComponentsRemovedEvent);
+		});
 
 		if (result != RC_OK)
 		{
@@ -263,7 +271,7 @@ namespace TDEngine2
 		TOnComponentRemovedEvent onComponentRemoved;
 
 		onComponentRemoved.mEntityId               = entityId;
-		onComponentRemoved.mRemovedComponentTypeId = componentTypeId;
+		onComponentRemoved.mRemovedComponentsTypeId.emplace_back(componentTypeId);
 
 		mpEventManager->Notify(&onComponentRemoved);
 	}
