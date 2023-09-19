@@ -73,6 +73,7 @@ namespace TDEngine2
 		mpInternalCollisionObjects.clear();
 		mpTriggers.clear();
 		mInUseTable.clear();
+		mEntities.clear();
 	}
 
 	void CPhysics3DSystem::TPhysicsObjectsData::EraseItem(USIZE index)
@@ -85,6 +86,7 @@ namespace TDEngine2
 		mpInternalCollisionObjects.erase(mpInternalCollisionObjects.begin() + index);
 		mpTriggers.erase(mpTriggers.begin() + index);
 		mInUseTable.erase(mInUseTable.begin() + index);
+		mEntities.erase(mEntities.begin() + index);
 	}
 
 	CPhysics3DSystem::CPhysics3DSystem() :
@@ -142,6 +144,7 @@ namespace TDEngine2
 		auto& collisionObjects = mPhysicsObjectsData.mpCollisionObjects;
 		auto& collisionShapes = mPhysicsObjectsData.mpBulletColliderShapes;
 		auto& usageTable = mPhysicsObjectsData.mInUseTable;
+		auto& entities = mPhysicsObjectsData.mEntities;
 
 		CBaseCollisionObject3D* pBaseCollisionObject = nullptr;
 		CEntity* pCurrEntity = nullptr;
@@ -162,11 +165,11 @@ namespace TDEngine2
 		/// \note If there is no given entity in the context add it
 		for (const TEntityId currEntityId : pWorld->FindEntitiesWithAny<CBoxCollisionObject3D, CSphereCollisionObject3D, CConvexHullCollisionObject3D>())
 		{
-			auto it = std::find_if(transforms.begin(), transforms.end(), [currEntityId](auto&& element) { return element->GetOwnerId() == currEntityId; });
-			if (it != transforms.end())
+			auto it = std::find_if(entities.begin(), entities.end(), [currEntityId](auto&& entityId) { return entityId == currEntityId; });
+			if (it != entities.end())
 			{
 				/// \note The entity's already registered, but parameters could be changed
-				usageTable[static_cast<USIZE>(std::distance(transforms.begin(), it))] = true;
+				usageTable[static_cast<USIZE>(std::distance(entities.begin(), it))] = true;
 
 				/// \todo Retrieve collision object and its 'dirty' flag
 				/// \todo If the flag is true that means we should recreate physics representation for the entity
@@ -190,6 +193,7 @@ namespace TDEngine2
 
 			pTransform = pCurrEntity->GetComponent<CTransform>();
 			transforms.push_back(pTransform);
+			entities.push_back(currEntityId);
 
 			if (pCurrEntity->HasComponent<CTrigger3D>())
 			{

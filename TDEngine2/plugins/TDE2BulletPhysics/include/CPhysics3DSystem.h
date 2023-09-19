@@ -78,6 +78,8 @@ namespace TDEngine2
 
 				std::vector<bool>                    mInUseTable;
 
+				TEntitiesArray                       mEntities;
+
 				void Clear();
 
 				void EraseItem(USIZE index);

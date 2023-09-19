@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.20] 2023-09-18
+## [0.6.20] 2023-09-19
 
 ### Added
 
@@ -32,6 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Broken UI elements drag tool was fixed.
 
 - The incorrect draw order of sibling UI elemnents was fixed.
+
+- The crash caused with CPhysics3DSystem when some 3d physics object was deleted was fixed.
 
 ## [0.6.19] 2023-08-31
 
