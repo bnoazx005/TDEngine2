@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A new helper function SetActiveCamera was added to change cameras in runtime.
 
+- Debug display of cameras frustums was implemented.
+
 ### Changed
 
 ### Fixed

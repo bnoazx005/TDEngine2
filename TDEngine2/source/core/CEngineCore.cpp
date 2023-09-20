@@ -467,6 +467,7 @@ namespace TDEngine2
 
 		ISystem* p2dPhysics = nullptr;
 		ISystem* p3dPhysics = nullptr;
+		ISystem* pCameraSystem = nullptr;
 
 		std::vector<ISystem*> builtinSystems
 		{
@@ -475,7 +476,7 @@ namespace TDEngine2
 			CreateBoundsUpdatingSystem(pResourceManager, mpDebugUtility, _getSubsystemAs<ISceneManager>(EST_SCENE_MANAGER), result),
 			CreateSpriteRendererSystem(TPtr<IAllocator>(CreateLinearAllocator(5 * SpriteInstanceDataBufferSize, result)),
 									   pRenderer, pGraphicsObjectManager, result),
-			CreateCameraSystem(pWindowSystem, pGraphicsContext, pRenderer, result),
+			(pCameraSystem = CreateCameraSystem(pWindowSystem, pGraphicsContext, pRenderer, result)),
 			CreateLODMeshSwitchSystem(result),
 			CreateStaticMeshRendererSystem(pRenderer, pGraphicsObjectManager, result),
 			CreateAnimationSystem(pResourceManager, pEventManager, result),
@@ -504,6 +505,11 @@ namespace TDEngine2
 			{
 				LOG_ERROR("[Engine Core] Could not register system");
 			}
+		}
+
+		if (auto pBaseCameraSystem = dynamic_cast<ICameraSystem*>(pCameraSystem))
+		{
+			pBaseCameraSystem->SetDebugUtility(mpDebugUtility);
 		}
 
 		auto pRaycastContextInstance = CreateBaseRaycastContext(dynamic_cast<CPhysics2DSystem*>(p2dPhysics), 

@@ -125,6 +125,10 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE SetMainCamera(const ICamera* pCamera) override;
 
+#if TDE2_EDITORS_ENABLED
+			TDE2_API E_RESULT_CODE SetDebugUtility(IDebugUtility* pDebugUtility) override;
+#endif
+
 			/*!
 				\brief The method returns a pointer to a main camera from which the scene is rendered
 
@@ -146,6 +150,10 @@ namespace TDEngine2
 			IRenderer*                mpRenderer;
 
 			const ICamera*            mpMainCamera;
+
+#if TDE2_EDITORS_ENABLED
+			IDebugUtility*            mpDebugUtility;
+#endif
 	};
 
 

@@ -5,6 +5,7 @@
 #include "../../include/graphics/CBaseCamera.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/graphics/COrthoCamera.h"
+#include "../../include/graphics/IDebugUtility.h"
 #include "../../include/ecs/CTransform.h"
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IWindowSystem.h"
@@ -74,6 +75,52 @@ namespace TDEngine2
 		}
 	}
 
+
+#if TDE2_EDITORS_ENABLED
+	
+	static void DrawCameraFrustums(IDebugUtility* pDebugUtility, const CCameraSystem::TSystemContext& camerasContext, TEntityId activeCameraId, F32 ndcZMin)
+	{
+		constexpr TColor32F frustumColor = TColorUtils::mMagenta;
+
+		for (USIZE i = 0; i < camerasContext.mEntities.size(); i++)
+		{
+			if (camerasContext.mEntities[i] == activeCameraId)
+			{
+				continue;
+			}
+
+			CBaseCamera* pCamera = camerasContext.mpCameras[i];
+			IFrustum* pFrustum = pCamera->GetFrustum();
+
+			const auto& vertices = pFrustum->GetVertices(pCamera->GetInverseViewProjMatrix(), ndcZMin);
+
+			pDebugUtility->DrawLine(static_cast<TVector3>(vertices[0]), static_cast<TVector3>(vertices[1]), frustumColor);
+			pDebugUtility->DrawLine(static_cast<TVector3>(vertices[1]), static_cast<TVector3>(vertices[3]), frustumColor);
+			pDebugUtility->DrawLine(static_cast<TVector3>(vertices[2]), static_cast<TVector3>(vertices[3]), frustumColor);
+			pDebugUtility->DrawLine(static_cast<TVector3>(vertices[2]), static_cast<TVector3>(vertices[0]), frustumColor);
+
+			pDebugUtility->DrawLine(static_cast<TVector3>(vertices[4]), static_cast<TVector3>(vertices[5]), frustumColor);
+			pDebugUtility->DrawLine(static_cast<TVector3>(vertices[5]), static_cast<TVector3>(vertices[7]), frustumColor);
+			pDebugUtility->DrawLine(static_cast<TVector3>(vertices[6]), static_cast<TVector3>(vertices[7]), frustumColor);
+			pDebugUtility->DrawLine(static_cast<TVector3>(vertices[6]), static_cast<TVector3>(vertices[4]), frustumColor);
+
+			for (USIZE i = 0; i < 4; i++)
+			{
+				pDebugUtility->DrawLine(static_cast<TVector3>(vertices[i]), static_cast<TVector3>(vertices[4 + i]), frustumColor);
+			}
+
+			const TVector3& position = pCamera->GetPosition();
+			const TMatrix4& viewMat = pCamera->GetViewMatrix();
+
+			pDebugUtility->DrawLine(position, position + TVector3(viewMat.m[0][0], viewMat.m[1][0], viewMat.m[2][0]), TColorUtils::mRed);
+			pDebugUtility->DrawLine(position, position + TVector3(viewMat.m[0][1], viewMat.m[1][1], viewMat.m[2][1]), TColorUtils::mGreen);
+			pDebugUtility->DrawLine(position, position + TVector3(viewMat.m[0][2], viewMat.m[1][2], viewMat.m[2][2]), TColorUtils::mBlue);
+		}
+	}
+
+#endif
+
+
 	void CCameraSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		TDE2_PROFILER_SCOPE("CCameraSystem::Update");
@@ -117,6 +164,10 @@ namespace TDEngine2
 		}
 
 		SetMainCamera(mCamerasContext.mpCameras[std::distance(mCamerasContext.mEntities.cbegin(), it)]);
+
+#if TDE2_EDITORS_ENABLED
+		DrawCameraFrustums(mpDebugUtility, mCamerasContext, mpCamerasContextComponent->GetActiveCameraEntityId(), ndcZmin);
+#endif
 	}
 
 	E_RESULT_CODE CCameraSystem::ComputePerspectiveProjection(IPerspectiveCamera* pCamera) const
@@ -166,6 +217,18 @@ namespace TDEngine2
 		}
 
 		mpRenderer->SetCamera(mpMainCamera);
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CCameraSystem::SetDebugUtility(IDebugUtility* pDebugUtility)
+	{
+		if (!pDebugUtility)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpDebugUtility = pDebugUtility;
 
 		return RC_OK;
 	}
