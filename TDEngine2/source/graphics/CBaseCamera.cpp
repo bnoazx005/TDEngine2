@@ -2,6 +2,7 @@
 #include "../../include/math/TAABB.h"
 #include "../../include/utils/Utils.h"
 #include "../../include/ecs/CComponentManager.h"
+#include "../../include/ecs/IWorld.h"
 #include <array>
 #include "deferOperation.hpp"
 
@@ -318,4 +319,23 @@ namespace TDEngine2
 #if TDE2_EDITORS_ENABLED
 	TDE2_DEFINE_FLAG_COMPONENT(EditorCamera)
 #endif
+
+	
+	E_RESULT_CODE SetActiveCamera(TPtr<IWorld> pWorld, TEntityId cameraEntityId)
+	{
+		if (!pWorld || TEntityId::Invalid == cameraEntityId)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		if (auto pCamerasContextEntity = pWorld->FindEntity(pWorld->FindEntityWithUniqueComponent<CCamerasContextComponent>()))
+		{
+			if (auto pCamerasContext = pCamerasContextEntity->GetComponent<CCamerasContextComponent>())
+			{
+				pCamerasContext->SetActiveCameraEntity(cameraEntityId);
+			}
+		}
+
+		return RC_OK;
+	}
 }

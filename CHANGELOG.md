@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.20] 2023-09-19
+## [0.6.20] 2023-09-20
 
 ### Added
 
@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Now the level editor supports "snap to grid" functionality.
 
 - Now **CTransform** can define pivot's position.
+
+- A new helper function SetActiveCamera was added to change cameras in runtime.
 
 ### Changed
 

@@ -120,14 +120,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			if (auto pCameraEntity = pMainScene->CreateCamera("MainCamera", E_CAMERA_PROJECTION_TYPE::PERSPECTIVE, cameraParams))
 			{
 				pCameraEntity->AddComponent<CAudioListenerComponent>();
-
-				if (auto pCamerasContextEntity = mpWorld->FindEntity(mpWorld->FindEntityWithUniqueComponent<CCamerasContextComponent>()))
-				{
-					if (auto pCamerasContext = pCamerasContextEntity->GetComponent<CCamerasContextComponent>())
-					{
-						pCamerasContext->SetActiveCameraEntity(pCameraEntity->GetId());
-					}
-				}
+				SetActiveCamera(mpWorld, pCameraEntity->GetId());
 			}
 
 			pMainScene->Spawn("TestPrefab");

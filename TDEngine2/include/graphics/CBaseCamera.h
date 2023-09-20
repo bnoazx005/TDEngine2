@@ -16,6 +16,11 @@
 
 namespace TDEngine2
 {
+	class IWorld;
+
+	TDE2_DECLARE_SCOPED_PTR(IWorld);
+
+
 	/*!
 		class CBaseCamera
 
@@ -284,4 +289,7 @@ namespace TDEngine2
 #if TDE2_EDITORS_ENABLED
 	TDE2_DECLARE_FLAG_COMPONENT(EditorCamera)
 #endif
+
+
+	TDE2_API E_RESULT_CODE SetActiveCamera(TPtr<IWorld> pWorld, TEntityId cameraEntityId);
 }
