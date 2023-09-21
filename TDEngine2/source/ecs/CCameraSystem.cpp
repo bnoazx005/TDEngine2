@@ -2,6 +2,7 @@
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CWorld.h"
 #include "../../include/ecs/CEntity.h"
+#include "../../include/editor/ecs/EditorComponents.h"
 #include "../../include/graphics/CBaseCamera.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/graphics/COrthoCamera.h"
@@ -78,13 +79,19 @@ namespace TDEngine2
 
 #if TDE2_EDITORS_ENABLED
 	
-	static void DrawCameraFrustums(IDebugUtility* pDebugUtility, const CCameraSystem::TSystemContext& camerasContext, TEntityId activeCameraId, F32 ndcZMin)
+	static void DrawCameraFrustums(IDebugUtility* pDebugUtility, IWorld* pWorld, const CCameraSystem::TSystemContext& camerasContext, TEntityId activeCameraId, F32 ndcZMin)
 	{
 		constexpr TColor32F frustumColor = TColorUtils::mMagenta;
 
 		for (USIZE i = 0; i < camerasContext.mEntities.size(); i++)
 		{
 			if (camerasContext.mEntities[i] == activeCameraId)
+			{
+				continue;
+			}
+
+			CEntity* pEntity = pWorld->FindEntity(camerasContext.mEntities[i]);
+			if (!pEntity->HasComponent<CSelectedEntityComponent>())
 			{
 				continue;
 			}
@@ -108,13 +115,6 @@ namespace TDEngine2
 			{
 				pDebugUtility->DrawLine(static_cast<TVector3>(vertices[i]), static_cast<TVector3>(vertices[4 + i]), frustumColor);
 			}
-
-			const TVector3& position = pCamera->GetPosition();
-			const TMatrix4& viewMat = pCamera->GetViewMatrix();
-
-			pDebugUtility->DrawLine(position, position + TVector3(viewMat.m[0][0], viewMat.m[1][0], viewMat.m[2][0]), TColorUtils::mRed);
-			pDebugUtility->DrawLine(position, position + TVector3(viewMat.m[0][1], viewMat.m[1][1], viewMat.m[2][1]), TColorUtils::mGreen);
-			pDebugUtility->DrawLine(position, position + TVector3(viewMat.m[0][2], viewMat.m[1][2], viewMat.m[2][2]), TColorUtils::mBlue);
 		}
 	}
 
@@ -166,7 +166,7 @@ namespace TDEngine2
 		SetMainCamera(mCamerasContext.mpCameras[std::distance(mCamerasContext.mEntities.cbegin(), it)]);
 
 #if TDE2_EDITORS_ENABLED
-		DrawCameraFrustums(mpDebugUtility, mCamerasContext, mpCamerasContextComponent->GetActiveCameraEntityId(), ndcZmin);
+		DrawCameraFrustums(mpDebugUtility, pWorld, mCamerasContext, mpCamerasContextComponent->GetActiveCameraEntityId(), ndcZmin);
 #endif
 	}
 

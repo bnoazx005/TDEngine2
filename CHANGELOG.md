@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.20] 2023-09-20
+## [0.6.20] 2023-09-21
 
 ### Added
 
@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new helper function SetActiveCamera was added to change cameras in runtime.
 
 - Debug display of cameras frustums was implemented.
+
+- Fix gizmos manipulations for game cameras.
 
 ### Changed
 

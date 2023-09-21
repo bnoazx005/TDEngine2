@@ -274,6 +274,15 @@ namespace TDEngine2
 			auto pSelectedTransform = pSelectedEntity->GetComponent<CTransform>();
 
 			TMatrix4 matrix = Transpose(pSelectedTransform->GetLocalToWorldTransform());
+			
+			const bool isCameraEntity = pSelectedEntity->HasComponent<CPerspectiveCamera>() || pSelectedEntity->HasComponent<COrthoCamera>();
+			if (isCameraEntity)
+			{
+				TQuaternion cameraRotation = pSelectedTransform->GetRotation();
+				cameraRotation.w = -cameraRotation.w;
+
+				matrix = Transpose(TranslationMatrix(pSelectedTransform->GetPosition()) * RotationMatrix(cameraRotation));
+			}
 
 			auto&& pCamera = GetCurrentActiveCamera(pWorld.Get());
 
@@ -315,7 +324,12 @@ namespace TDEngine2
 						case E_GIZMO_TYPE::TRANSLATION:
 							pTransform->SetPosition(localPos);
 							break;
-						case E_GIZMO_TYPE::ROTATION:
+						case E_GIZMO_TYPE::ROTATION:							
+							if (isCameraEntity)
+							{
+								localRot.w = -localRot.w;
+							}
+
 							pTransform->SetRotation(localRot);
 							break;
 						case E_GIZMO_TYPE::SCALING:
