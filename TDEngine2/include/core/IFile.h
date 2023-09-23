@@ -248,7 +248,6 @@ namespace TDEngine2
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IConfigFileReader)
 	};
 
-
 	/*!
 		interface ITextFileReader
 
@@ -381,6 +380,26 @@ namespace TDEngine2
 
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ITextFileWriter)
+	};
+
+
+	/*!
+		interface IConfigFileWriter
+
+		\brief The interface describes a functionality of a config file's writer.
+	*/
+
+	class IConfigFileWriter : public virtual IFileWriter
+	{
+		public:
+			TDE2_REGISTER_TYPE(IConfigFileWriter)
+
+			TDE2_API virtual E_RESULT_CODE SetInt(const std::string& group, const std::string& paramName, I32 value = 0) = 0;
+			TDE2_API virtual E_RESULT_CODE SetFloat(const std::string& group, const std::string& paramName, F32 value = 0.0f) = 0;
+			TDE2_API virtual E_RESULT_CODE SetBool(const std::string& group, const std::string& paramName, bool value = false) = 0;
+			TDE2_API virtual E_RESULT_CODE SetString(const std::string& group, const std::string& paramName, const std::string& value = "") = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IConfigFileWriter)
 	};
 
 

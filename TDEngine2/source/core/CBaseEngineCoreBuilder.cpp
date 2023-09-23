@@ -33,6 +33,7 @@
 #include "../../include/platform/CTextFileWriter.h"
 #include "../../include/platform/CCsvFileReader.h"
 #include "../../include/platform/CConfigFileReader.h"
+#include "../../include/platform/CConfigFileWriter.h"
 #include "../../include/platform/CBinaryFileReader.h"
 #include "../../include/platform/CBinaryFileWriter.h"
 #include "../../include/platform/CImageFileWriter.h"
@@ -204,6 +205,7 @@ namespace TDEngine2
 			((result = mpFileSystemInstance->RegisterFileFactory<ITextFileWriter>({ CreateTextFileWriter, E_FILE_FACTORY_TYPE::WRITER })) != RC_OK) ||
 			((result = mpFileSystemInstance->RegisterFileFactory<ICsvFileReader>({ CreateCsvFileReader, E_FILE_FACTORY_TYPE::READER })) != RC_OK) ||
 			((result = mpFileSystemInstance->RegisterFileFactory<IConfigFileReader>({ CreateConfigFileReader, E_FILE_FACTORY_TYPE::READER })) != RC_OK) ||
+			((result = mpFileSystemInstance->RegisterFileFactory<IConfigFileWriter>({ CreateConfigFileWriter, E_FILE_FACTORY_TYPE::WRITER })) != RC_OK) ||
 			((result = mpFileSystemInstance->RegisterFileFactory<IBinaryFileReader>({ CreateBinaryFileReader, E_FILE_FACTORY_TYPE::READER })) != RC_OK) ||
 			((result = mpFileSystemInstance->RegisterFileFactory<IBinaryFileWriter>({ CreateBinaryFileWriter, E_FILE_FACTORY_TYPE::WRITER })) != RC_OK) ||
 			((result = mpFileSystemInstance->RegisterFileFactory<IImageFileWriter>({ CreateImageFileWriter, E_FILE_FACTORY_TYPE::WRITER })) != RC_OK) ||

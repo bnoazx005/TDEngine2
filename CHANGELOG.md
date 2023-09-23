@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.20] 2023-09-21
+## [0.6.20] 2023-09-23
 
 ### Added
 
@@ -28,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Debug display of cameras frustums was implemented.
 
 - Fix gizmos manipulations for game cameras.
+
+- A new type of a file writer and its implementation were added which are **IConfigFileWriter** and **CConfigFileWriter** respectively.
 
 ### Changed
 
