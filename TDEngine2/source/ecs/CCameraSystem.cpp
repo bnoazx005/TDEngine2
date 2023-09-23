@@ -81,8 +81,6 @@ namespace TDEngine2
 	
 	static void DrawCameraFrustums(IDebugUtility* pDebugUtility, IWorld* pWorld, const CCameraSystem::TSystemContext& camerasContext, TEntityId activeCameraId, F32 ndcZMin)
 	{
-		constexpr TColor32F frustumColor = TColorUtils::mMagenta;
-
 		for (USIZE i = 0; i < camerasContext.mEntities.size(); i++)
 		{
 			if (camerasContext.mEntities[i] == activeCameraId)
@@ -101,19 +99,19 @@ namespace TDEngine2
 
 			const auto& vertices = pFrustum->GetVertices(pCamera->GetInverseViewProjMatrix(), ndcZMin);
 
-			pDebugUtility->DrawLine(static_cast<TVector3>(vertices[0]), static_cast<TVector3>(vertices[1]), frustumColor);
-			pDebugUtility->DrawLine(static_cast<TVector3>(vertices[1]), static_cast<TVector3>(vertices[3]), frustumColor);
-			pDebugUtility->DrawLine(static_cast<TVector3>(vertices[2]), static_cast<TVector3>(vertices[3]), frustumColor);
-			pDebugUtility->DrawLine(static_cast<TVector3>(vertices[2]), static_cast<TVector3>(vertices[0]), frustumColor);
+			pDebugUtility->DrawLine(static_cast<TVector3>(vertices[0]), static_cast<TVector3>(vertices[1]), TColorUtils::mMagenta);
+			pDebugUtility->DrawLine(static_cast<TVector3>(vertices[1]), static_cast<TVector3>(vertices[3]), TColorUtils::mMagenta);
+			pDebugUtility->DrawLine(static_cast<TVector3>(vertices[2]), static_cast<TVector3>(vertices[3]), TColorUtils::mMagenta);
+			pDebugUtility->DrawLine(static_cast<TVector3>(vertices[2]), static_cast<TVector3>(vertices[0]), TColorUtils::mMagenta);
 
-			pDebugUtility->DrawLine(static_cast<TVector3>(vertices[4]), static_cast<TVector3>(vertices[5]), frustumColor);
-			pDebugUtility->DrawLine(static_cast<TVector3>(vertices[5]), static_cast<TVector3>(vertices[7]), frustumColor);
-			pDebugUtility->DrawLine(static_cast<TVector3>(vertices[6]), static_cast<TVector3>(vertices[7]), frustumColor);
-			pDebugUtility->DrawLine(static_cast<TVector3>(vertices[6]), static_cast<TVector3>(vertices[4]), frustumColor);
+			pDebugUtility->DrawLine(static_cast<TVector3>(vertices[4]), static_cast<TVector3>(vertices[5]), TColorUtils::mMagenta);
+			pDebugUtility->DrawLine(static_cast<TVector3>(vertices[5]), static_cast<TVector3>(vertices[7]), TColorUtils::mMagenta);
+			pDebugUtility->DrawLine(static_cast<TVector3>(vertices[6]), static_cast<TVector3>(vertices[7]), TColorUtils::mMagenta);
+			pDebugUtility->DrawLine(static_cast<TVector3>(vertices[6]), static_cast<TVector3>(vertices[4]), TColorUtils::mMagenta);
 
 			for (USIZE i = 0; i < 4; i++)
 			{
-				pDebugUtility->DrawLine(static_cast<TVector3>(vertices[i]), static_cast<TVector3>(vertices[4 + i]), frustumColor);
+				pDebugUtility->DrawLine(static_cast<TVector3>(vertices[i]), static_cast<TVector3>(vertices[4 + i]), TColorUtils::mMagenta);
 			}
 		}
 	}
