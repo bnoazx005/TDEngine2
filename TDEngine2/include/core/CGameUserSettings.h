@@ -14,6 +14,7 @@
 namespace TDEngine2
 {
 	class IConfigFileReader;
+	class IConfigFileWriter;
 
 
 	/*!
@@ -29,6 +30,8 @@ namespace TDEngine2
 	{
 		public:
 			TDE2_API E_RESULT_CODE Init(IConfigFileReader* pConfigFileReader);
+
+			TDE2_API E_RESULT_CODE Save(IConfigFileWriter* pConfigFileWriter);
 
 			/*!
 				\brief The function is replacement of factory method for instances of this type.
