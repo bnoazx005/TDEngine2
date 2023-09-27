@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.20] 2023-09-23
+## [0.6.20] 2023-09-27
 
 ### Added
 
@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix gizmos manipulations for game cameras.
 
 - A new type of a file writer and its implementation were added which are **IConfigFileWriter** and **CConfigFileWriter** respectively.
+
+- The API of **IWindowSystem** was extended with a new public method GetAvailableScreenResolutions.
 
 ### Changed
 

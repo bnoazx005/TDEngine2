@@ -232,6 +232,12 @@ namespace TDEngine2
 
 			TDE2_API TRectU32 GetClientRect() const override;
 
+			/*!
+				\return The method returns an array of all screen resolutions that current active monitor supports
+			*/
+
+			TDE2_API std::vector<TScreenResolutionInfo> GetAvailableScreenResolutions() const override;
+
 #if TDE2_EDITORS_ENABLED
 			/*!
 				\brief The method displays platform specific dialog window that allows to select file to open

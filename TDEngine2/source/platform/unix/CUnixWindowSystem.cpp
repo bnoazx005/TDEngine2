@@ -317,6 +317,40 @@ namespace TDEngine2
 		return { static_cast<U32>(windowAttributes.x), static_cast<U32>(windowAttributes.y), windowAttributes.width, windowAttributes.height };
 	}
 
+	std::vector<TScreenResolutionInfo> CUnixWindowSystem::GetAvailableScreenResolutions() const
+	{
+		std::vector<TScreenResolutionInfo> output;
+
+		Screen* pScreen = nullptr;
+		
+		const I32 screensCount = ScreenCount(mpDisplayHandler);
+		for (I32 i = 0; i < screensCount; i++)
+		{
+			pScreen = ScreenOfDisplay(mpDisplayHandler, i);
+			if (!pScreen)
+			{
+				continue;
+			}
+
+			const U32 width = static_cast<U32>(pScreen->width);
+			const U32 height = static_cast<U32>(pScreen->height);
+			const U16 refreshRate = static_cast<U16>(60);
+
+			if (std::find_if(output.cbegin(), output.cend(), [width, height, refreshRate](const TScreenResolutionInfo& screenInfo)
+			{
+				return width == screenInfo.mWidth && height == screenInfo.mHeight && refreshRate == screenInfo.mRefreshRate;
+			}) != output.cend())
+			{
+				continue;
+			}
+
+			output.push_back({ width, height, refreshRate });
+		}
+
+		return std::move(output);
+	}
+
+
 #if TDE2_EDITORS_ENABLED
 
 	static TResult<std::tuple<std::string, I32>> ExecuteCommand(const std::string& command)

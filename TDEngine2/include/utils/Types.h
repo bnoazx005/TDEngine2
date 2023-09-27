@@ -836,4 +836,12 @@ namespace TDEngine2
 
 		U64           mAvailableVideoMemory = 0;			///< Available video memory size in bytes
 	} TVideoAdapterInfo, *TVideoAdapterInfoPtr;
+
+
+	typedef struct TScreenResolutionInfo
+	{
+		U32 mWidth = 800;
+		U32 mHeight = 600;
+		U16 mRefreshRate = 60;
+	} TScreenResolutionInfo, *TScreenResolutionInfoPtr;
 }

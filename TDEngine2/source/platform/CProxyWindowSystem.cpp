@@ -143,6 +143,12 @@ namespace TDEngine2
 		return {};
 	}
 
+	std::vector<TScreenResolutionInfo> CProxyWindowSystem::GetAvailableScreenResolutions() const
+	{
+		return {};
+	}
+
+
 #if TDE2_EDITORS_ENABLED
 
 	TResult<std::string> CProxyWindowSystem::ShowOpenFileDialog(const std::vector<std::tuple<std::string, std::string>>& filters)

@@ -389,6 +389,34 @@ namespace TDEngine2
 		return { mWindowXPos, mWindowYPos, mWidth, mHeight };
 	}
 
+	std::vector<TScreenResolutionInfo> CWin32WindowSystem::GetAvailableScreenResolutions() const
+	{
+		std::vector<TScreenResolutionInfo> output;
+
+		DEVMODE displayMode;
+		U32 modeIndex = 0;
+
+		while (EnumDisplaySettings(nullptr, modeIndex++, &displayMode))
+		{
+			const U32 width       = static_cast<U32>(displayMode.dmPelsWidth);
+			const U32 height      = static_cast<U32>(displayMode.dmPelsHeight);
+			const U16 refreshRate = static_cast<U16>(displayMode.dmDisplayFrequency);
+
+			if (std::find_if(output.cbegin(), output.cend(), [width, height, refreshRate](const TScreenResolutionInfo& screenInfo)
+			{
+				return width == screenInfo.mWidth && height == screenInfo.mHeight && refreshRate == screenInfo.mRefreshRate;
+			}) != output.cend())
+			{
+				continue;
+			}
+
+			output.push_back({ width, height, refreshRate });
+		}
+
+		return std::move(output);
+	}
+
+
 #if TDE2_EDITORS_ENABLED
 
 	std::string GetFilterStr(const std::vector<std::tuple<std::string, std::string>>& filters)

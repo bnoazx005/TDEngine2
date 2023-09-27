@@ -654,6 +654,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		auto data = pPackage->ReadFileBytes("test.txt");
 	}
 
+	mpWindowSystem->GetAvailableScreenResolutions();
+
 	return RC_OK;
 }
 

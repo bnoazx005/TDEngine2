@@ -218,6 +218,12 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE ConfigureImGUIContext(IImGUIContextVisitor* pVisitor) const = 0;
 
+			/*!
+				\return The method returns an array of all screen resolutions that current active monitor supports
+			*/
+
+			TDE2_API virtual std::vector<TScreenResolutionInfo> GetAvailableScreenResolutions() const = 0;
+
 #if TDE2_EDITORS_ENABLED
 			/*!
 				\brief The method displays platform specific dialog window that allows to select file to open
