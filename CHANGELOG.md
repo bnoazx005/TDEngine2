@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.21] 2023-09-28
+
+### Added
+
+- The API of **IWindowSystem** was extended with a new public method SetScreenResolution.
+
+### Changed
+
+### Fixed
+
+- (Issue #93) The screen is stretched when fullscreen mode is enabled via Alt+Enter hotkey issue was fixed.
+
 ## [0.6.20] 2023-09-27
 
 ### Added

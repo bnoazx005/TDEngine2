@@ -82,6 +82,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE SetTitle(const std::string& title) override;
 
+			TDE2_API E_RESULT_CODE SetScreenResolution(U32 width, U32 height) override;
+
 			/*!
 				\brief The method pass all the needed data into the immediate GUI context
 

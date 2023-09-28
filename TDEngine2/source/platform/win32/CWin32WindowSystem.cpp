@@ -57,6 +57,8 @@ namespace TDEngine2
 
 		TOnCharInputEvent onCharInputEvent;
 
+		bool isResizeInProgress = false;
+
 		switch (uMsg)
 		{
 			case WM_DESTROY:
@@ -71,17 +73,23 @@ namespace TDEngine2
 					onSendResizeWindowEvent(lastWindowWidth, lastWindowHeight);
 					hasWindowBeenMaximized = true;
 				}
+				else if (wParam == SIZE_MINIMIZED)
+				{
+				}
 				else
 				{
-					if (hasWindowBeenMaximized)
+					if (hasWindowBeenMaximized || !isResizeInProgress)
 					{
 						onSendResizeWindowEvent(lastWindowWidth, lastWindowHeight);
 					}
 					hasWindowBeenMaximized = false;
 				}
 				break;
+			case WM_ENTERSIZEMOVE:
+				isResizeInProgress = true;
+				break;
 			case WM_EXITSIZEMOVE:
-				onSendResizeWindowEvent(lastWindowWidth, lastWindowHeight);
+				isResizeInProgress = false;
 				break;
 			case WM_MOVE:
 				onMovedEvent.mX = lParam & (0x0000FFFF);
@@ -292,6 +300,16 @@ namespace TDEngine2
 		mWindowName = title;
 
 		if (!SetWindowText(mWindowHandler, mWindowName.c_str()))
+		{
+			return RC_FAIL;
+		}
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CWin32WindowSystem::SetScreenResolution(U32 width, U32 height)
+	{
+		if (!SetWindowPos(mWindowHandler, nullptr, 0, 0, static_cast<I32>(width), static_cast<I32>(height), SWP_FRAMECHANGED | SWP_NOMOVE))
 		{
 			return RC_FAIL;
 		}

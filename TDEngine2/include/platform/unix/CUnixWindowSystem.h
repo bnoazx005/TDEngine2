@@ -108,6 +108,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE SetTitle(const std::string& title) override;
 
+			TDE2_API E_RESULT_CODE SetScreenResolution(U32 width, U32 height) override;
+
 			/*!
 				\brief The method proceeds creation of a window if OpenGL is needed
 

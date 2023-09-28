@@ -87,6 +87,11 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CProxyWindowSystem::SetScreenResolution(U32 width, U32 height)
+	{
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CProxyWindowSystem::ConfigureImGUIContext(IImGUIContextVisitor* pVisitor) const
 	{
 		return RC_FAIL;

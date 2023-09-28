@@ -201,6 +201,12 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CUnixWindowSystem::SetScreenResolution(U32 width, U32 height)
+	{
+		TDE2_UNIMPLEMENTED();
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
 	E_RESULT_CODE CUnixWindowSystem::ConfigureImGUIContext(IImGUIContextVisitor* pVisitor) const
 	{
 		return pVisitor->ConfigureForUnixPlatform(this);

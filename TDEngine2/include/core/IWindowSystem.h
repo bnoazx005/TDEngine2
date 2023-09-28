@@ -130,6 +130,8 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE SetTitle(const std::string& title) = 0;
 
+			TDE2_API virtual E_RESULT_CODE SetScreenResolution(U32 width, U32 height) = 0;
+
 			/*!
 				\brief The method returns an object that contains internal handlers that are used by the system.
 
