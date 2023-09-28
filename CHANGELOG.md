@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- The API of **IWindowSystem** was extended with a new public method SetScreenResolution.
+- The API of **IWindowSystem** was extended with new public methods SetScreenResolution, SetIsFullscreenEnabled.
 
 ### Changed
 

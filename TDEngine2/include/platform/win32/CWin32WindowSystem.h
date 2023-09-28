@@ -91,6 +91,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE SetScreenResolution(U32 width, U32 height) override;
 
+			TDE2_API E_RESULT_CODE SetIsFullscreenEnabled(bool state, bool borderlessMode = true) override;
+
 			/*!
 				\brief The method pass all the needed data into the immediate GUI context
 
@@ -245,7 +247,6 @@ namespace TDEngine2
 			HINSTANCE                mInstanceHandler;
 
 			U32                      mWidth;
-
 			U32                      mHeight;
 
 			U32                      mSetupFlags;
@@ -262,6 +263,8 @@ namespace TDEngine2
 			TPtr<ITimer>             mpTimer;
 
 			TPtr<IEventManager>      mpEventManager;
+			
+			WINDOWPLACEMENT          mPrevWindowState;
 	};
 
 

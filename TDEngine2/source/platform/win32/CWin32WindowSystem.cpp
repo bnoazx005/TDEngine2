@@ -314,6 +314,68 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		mWidth = width;
+		mHeight = height;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CWin32WindowSystem::SetIsFullscreenEnabled(bool state, bool borderlessMode)
+	{
+		if ((mSetupFlags & P_FULLSCREEN) == state)
+		{
+			return RC_FAIL;
+		}
+
+		if (state)
+		{ /// \note borderless window
+			mSetupFlags |= P_FULLSCREEN;
+
+			GetWindowPlacement(mWindowHandler, &mPrevWindowState);
+
+			mWidth = GetSystemMetrics(SM_CXSCREEN);
+			mHeight = GetSystemMetrics(SM_CYSCREEN);
+
+			if (borderlessMode)
+			{
+				SetWindowLong(mWindowHandler, GWL_STYLE, WS_POPUPWINDOW);
+				SetWindowLong(mWindowHandler, GWL_EXSTYLE, WS_EX_TOPMOST);
+
+				ShowWindow(mWindowHandler, SW_SHOWMAXIMIZED);
+			}
+			else
+			{ /// \note true fullscreen
+				DEVMODE displaySettings;
+				
+				if (!EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &displaySettings))
+				{
+					return RC_FAIL;
+				}
+
+				displaySettings.dmPelsWidth = mWidth;
+				displaySettings.dmPelsHeight = mHeight;
+				displaySettings.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
+
+				if (DISP_CHANGE_SUCCESSFUL != ChangeDisplaySettings(&displaySettings, CDS_FULLSCREEN))
+				{
+					return RC_FAIL;
+				}
+			}
+
+			return RC_OK;
+		}
+
+		mSetupFlags &= ~P_FULLSCREEN;
+
+		SetWindowLong(mWindowHandler, GWL_STYLE, WS_OVERLAPPEDWINDOW);
+		SetWindowLong(mWindowHandler, GWL_EXSTYLE, 0);
+
+		SetWindowPlacement(mWindowHandler, &mPrevWindowState);
+		ShowWindow(mWindowHandler, SW_SHOWDEFAULT);
+
+		mWidth = mPrevWindowState.rcNormalPosition.right - mPrevWindowState.rcNormalPosition.left;
+		mHeight = mPrevWindowState.rcNormalPosition.bottom - mPrevWindowState.rcNormalPosition.top;
+
 		return RC_OK;
 	}
 

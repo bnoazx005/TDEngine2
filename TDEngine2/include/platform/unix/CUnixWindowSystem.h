@@ -110,6 +110,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE SetScreenResolution(U32 width, U32 height) override;
 
+			TDE2_API E_RESULT_CODE SetIsFullscreenEnabled(bool state, bool borderlessMode = true) override;
+
 			/*!
 				\brief The method proceeds creation of a window if OpenGL is needed
 

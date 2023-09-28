@@ -92,6 +92,11 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CProxyWindowSystem::SetIsFullscreenEnabled(bool state, bool borderlessMode)
+	{
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CProxyWindowSystem::ConfigureImGUIContext(IImGUIContextVisitor* pVisitor) const
 	{
 		return RC_FAIL;
