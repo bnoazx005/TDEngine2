@@ -297,19 +297,22 @@ namespace TDEngine2
 	{
 		TDE2_ASSERT(canvasesContext.mpCanvases.size() > id);
 
+		const IWindowSystem* pWindowSystem = pGraphicsContext->GetWindowSystem().Get();
+
+		const U32 width = pWindowSystem->GetWidth();
+		const U32 height = pWindowSystem->GetHeight();
+
 		if (CCanvas* pCanvas = canvasesContext.mpCanvases[id])
 		{
+			if (pCanvas->DoesInheritSizesFromMainCamera() && (pCanvas->GetWidth() != width || pCanvas->GetHeight() != height))
+			{
+				pCanvas->SetWidth(width);
+				pCanvas->SetHeight(height);
+			}
+
 			if (!pCanvas->IsDirty())
 			{
 				return false;
-			}
-
-			if (pCanvas->DoesInheritSizesFromMainCamera())
-			{
-				IWindowSystem* pWindowSystem = pGraphicsContext->GetWindowSystem().Get();
-
-				pCanvas->SetWidth(pWindowSystem->GetWidth());
-				pCanvas->SetHeight(pWindowSystem->GetHeight());
 			}
 
 			/// \note The canvas's origin is a left-bottom corner
