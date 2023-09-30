@@ -207,6 +207,12 @@ namespace TDEngine2
 		return RC_NOT_IMPLEMENTED_YET;
 	}
 
+	E_RESULT_CODE CUnixWindowSystem::SetIsFullscreenEnabled(bool state, bool borderlessMode)
+	{
+		TDE2_UNIMPLEMENTED();
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
 	E_RESULT_CODE CUnixWindowSystem::ConfigureImGUIContext(IImGUIContextVisitor* pVisitor) const
 	{
 		return pVisitor->ConfigureForUnixPlatform(this);
