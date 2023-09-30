@@ -324,6 +324,13 @@ namespace TDEngine2
 	}
 
 
+	TPtr<ISystem> CSystemManager::GetSystem(TSystemId handle)
+	{
+		ISystem* pSystem = _findSystemDesc(mpActiveSystems.begin(), mpActiveSystems.end(), handle)->mpSystem;
+		return MakeScopedFromRawPtr<ISystem>(pSystem);
+	}
+
+
 	ISystemManager* CreateSystemManager(IWorld* pWorld, IEventManager* pEventManager, TPtr<IJobManager> pJobManager, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(ISystemManager, CSystemManager, result, pWorld, pEventManager, pJobManager);

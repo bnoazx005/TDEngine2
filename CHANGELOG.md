@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.21] 2023-09-29
+## [0.6.21] 2023-09-30
 
 ### Added
 
@@ -15,11 +15,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support of fullscreen mode's configuration from settings.cfg file was added.
 
+- A new public method GetSystem was added into **ISystemManager** and **IWorld**.
+
 ### Changed
 
 ### Fixed
 
 - (Issue #93) The screen is stretched when fullscreen mode is enabled via Alt+Enter hotkey issue was fixed.
+
+- (Issue #94) Ingame UI updates when screen size is changed was fixed.
 
 ## [0.6.20] 2023-09-27
 

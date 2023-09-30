@@ -294,6 +294,13 @@ namespace TDEngine2
 		return mTimeScaleFactor;
 	}
 
+	TPtr<ISystem> CWorld::GetSystem(TSystemId handle)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		return mpSystemManager->GetSystem(handle);
+	}
+
 #if TDE2_EDITORS_ENABLED
 
 	const std::vector<TComponentTypeInfo>& CWorld::GetRegisteredComponentsIdentifiers() const

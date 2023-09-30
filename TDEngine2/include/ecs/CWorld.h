@@ -239,6 +239,8 @@ namespace TDEngine2
 
 			TDE2_API F32 GetTimeScaleFactor() const override;
 
+			TDE2_API TPtr<ISystem> GetSystem(TSystemId handle) override;
+
 #if TDE2_EDITORS_ENABLED
 			TDE2_API const std::vector<TComponentTypeInfo>& GetRegisteredComponentsIdentifiers() const override;
 #endif
