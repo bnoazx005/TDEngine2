@@ -35,81 +35,81 @@ namespace TDEngine2
 
 	class CBaseComponent : public virtual IComponent, public CBaseObject
 	{
-	public:
-		TDE2_REGISTER_TYPE(CBaseComponent)
+		public:
+			TDE2_REGISTER_TYPE(CBaseComponent)
 
-		/*!
-			\brief The method initializes an internal state of an object
+			/*!
+				\brief The method initializes an internal state of an object
 
-			\return RC_OK if everything went ok, or some other code, which describes an error
-		*/
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
 
-		TDE2_API E_RESULT_CODE Init() override;
+			TDE2_API E_RESULT_CODE Init() override;
 
-		/*!
-			\brief The method deserializes object's state from given reader
+			/*!
+				\brief The method deserializes object's state from given reader
 
-			\param[in, out] pReader An input stream of data that contains information about the object
+				\param[in, out] pReader An input stream of data that contains information about the object
 
-			\return RC_OK if everything went ok, or some other code, which describes an error
-		*/
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
 
-		TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
+			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
 
-		/*!
-			\brief The method serializes object's state into given stream
+			/*!
+				\brief The method serializes object's state into given stream
 
-			\param[in, out] pWriter An output stream of data that writes information about the object
+				\param[in, out] pWriter An output stream of data that writes information about the object
 
-			\return RC_OK if everything went ok, or some other code, which describes an error
-		*/
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
 
-		TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
+			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
-		/*!
-			\brief The method is called after all entities of particular scene were loaded. It remaps all identifiers to
-			make them correctly corresponds to saved state
+			/*!
+				\brief The method is called after all entities of particular scene were loaded. It remaps all identifiers to
+				make them correctly corresponds to saved state
 
-			\param[in, out] pEntityManager A pointer to entities manager
-			\param[in] entitiesIdentifiersRemapper A structure that maps saved identifier to current runtime equivalent
-		*/
+				\param[in, out] pEntityManager A pointer to entities manager
+				\param[in] entitiesIdentifiersRemapper A structure that maps saved identifier to current runtime equivalent
+			*/
 
-		TDE2_API virtual E_RESULT_CODE PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper) override;
+			TDE2_API virtual E_RESULT_CODE PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper) override;
 
-		/*!
-			\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
-			The original state of the object stays the same
+			/*!
+				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
+				The original state of the object stays the same
 
-			\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
-		*/
+				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
+			*/
 
-		TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
+			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
-		/*!
-			\return The method returns type name (lowercase is preffered)
-		*/
+			/*!
+				\return The method returns type name (lowercase is preffered)
+			*/
 
-		TDE2_API const std::string& GetTypeName() const override;
+			TDE2_API const std::string& GetTypeName() const override;
 
-		/*!
-			\return The method returns a pointer to a type's property if the latter does exist or null pointer in other cases
-		*/
+			/*!
+				\return The method returns a pointer to a type's property if the latter does exist or null pointer in other cases
+			*/
 
-		TDE2_API IPropertyWrapperPtr GetProperty(const std::string& propertyName) override;
+			TDE2_API IPropertyWrapperPtr GetProperty(const std::string& propertyName) override;
 
-		/*!
-			\brief The method returns an array of properties names that are available for usage
-		*/
+			/*!
+				\brief The method returns an array of properties names that are available for usage
+			*/
 
-		TDE2_API const std::vector<std::string>& GetAllProperties() const override;
+			TDE2_API const std::vector<std::string>& GetAllProperties() const override;
 
-		/*!
-			\return The method returns true if the given component type is for runtime purposes only
-		*/
+			/*!
+				\return The method returns true if the given component type is for runtime purposes only
+			*/
 
-		TDE2_API bool IsRuntimeOnly() const override;
-	protected:
-		DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseComponent)
+			TDE2_API bool IsRuntimeOnly() const override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseComponent)
 	};
 
 
@@ -219,10 +219,9 @@ namespace TDEngine2
 		virtual ~TOnComponentCreatedEvent() = default;
 
 		TDE2_REGISTER_TYPE(TOnComponentCreatedEvent)
-
-			REGISTER_EVENT_TYPE(TOnComponentCreatedEvent)
-
-			TEntityId mEntityId;
+		REGISTER_EVENT_TYPE(TOnComponentCreatedEvent)
+		
+		TEntityId mEntityId;
 
 		TypeId    mCreatedComponentTypeId;
 	} TOnComponentCreatedEvent, * TOnComponentCreatedEventPtr;
@@ -240,7 +239,6 @@ namespace TDEngine2
 		virtual ~TOnComponentRemovedEvent() = default;
 
 		TDE2_REGISTER_TYPE(TOnComponentRemovedEvent)
-
 		REGISTER_EVENT_TYPE(TOnComponentRemovedEvent)
 
 		TEntityId           mEntityId;
@@ -278,6 +276,9 @@ namespace TDEngine2
 		std::string mName;
 		TypeId      mTypeId;
 	};
+
+
+	typedef std::function<IComponentFactory* (E_RESULT_CODE&)> TComponentFactoryFunctor;
 
 
 	/*!
@@ -417,6 +418,8 @@ namespace TDEngine2
 	*/
 
 #define TDE2_DEFINE_FLAG_COMPONENT_IMPL(ComponentName, ComponentFuncName, ComponentFactoryName, ComponentFactoryFuncName, IsRuntimeOnlyFlag)					\
+	TDE2_REGISTER_COMPONENT_FACTORY(ComponentFactoryFuncName)																									\
+																																								\
 	ComponentName::ComponentName() : ::TDEngine2::CBaseComponent() { }																							\
 																																								\
 	::TDEngine2::E_RESULT_CODE ComponentName::Init()																											\
@@ -513,4 +516,15 @@ namespace TDEngine2
 	TDE2_API const std::string& GetTypeName() const override;							\
 	TDE2_API IPropertyWrapperPtr GetProperty(const std::string& propertyName) override; \
 	TDE2_API const std::vector<std::string>& GetAllProperties() const override;
+
+
+
+	struct TComponentFactoryRegister
+	{
+		TDE2_API TComponentFactoryRegister(TComponentFactoryFunctor&& factory);
+	};
+
+
+#define TDE2_REGISTER_COMPONENT_FACTORY(ComponentFactoryFunctor) \
+	static ::TDEngine2::TComponentFactoryRegister TDE2_CONCAT(ComponentFactoryRegister_, __LINE__)(ComponentFactoryFunctor);
 }

@@ -6,6 +6,9 @@
 
 namespace TDEngine2
 {
+	TDE2_REGISTER_COMPONENT_FACTORY(CreateTransformFactory)
+
+
 	CTransform::CTransform() :
 		CBaseComponent(), 
 		mLocalToWorldMatrix(IdentityMatrix4), 

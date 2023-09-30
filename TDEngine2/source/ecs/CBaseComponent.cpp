@@ -1,4 +1,5 @@
 #include "../../include/ecs/CBaseComponent.h"
+#include "../../include/ecs/CComponentManager.h"
 #include "../../include/utils/CFileLogger.h"
 #include <limits>
 #include <stringUtils.hpp>
@@ -156,4 +157,15 @@ namespace TDEngine2
 
 	TDE2_DEFINE_FLAG_COMPONENT(DeactivatedComponent)
 	TDE2_DEFINE_FLAG_COMPONENT(DeactivatedGroupComponent)
+
+
+
+	/*!
+		TComponentFactoryRegister's definition
+	*/
+
+	TComponentFactoryRegister::TComponentFactoryRegister(TComponentFactoryFunctor&& factory)
+	{
+		CComponentManager::RegisterComponentType(std::forward<TComponentFactoryFunctor>(factory));
+	}
 }

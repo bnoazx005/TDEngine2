@@ -154,6 +154,7 @@ namespace TDEngine2
 			TDE2_API TEntityId FindEntityWithUniqueComponent(TypeId typeId) override;
 
 			TDE2_API static E_RESULT_CODE RegisterUniqueComponentType(TypeId typeId);
+			TDE2_API static E_RESULT_CODE RegisterComponentType(const TComponentFactoryFunctor& componentFactoryFunctor);
 
 #if TDE2_EDITORS_ENABLED
 			TDE2_API const std::vector<TComponentTypeInfo>& GetRegisteredComponentsIdentifiers() const override;
@@ -179,8 +180,6 @@ namespace TDEngine2
 			
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			static std::unordered_set<TypeId> mUniqueComponentTypesRegistry;
-
 			TComponentEntityMap      mComponentEntityMap;
 
 			TEntityComponentMap      mEntityComponentMap;
@@ -196,6 +195,9 @@ namespace TDEngine2
 			TFreeEntitiesRegistry    mFreeComponentFactoriesRegistry;
 
 			TUniqueComponentsTable   mUniqueComponentsRegistry;
+
+			static std::unordered_set<TypeId>            mUniqueComponentTypesRegistry;
+			static std::vector<TComponentFactoryFunctor> mComponentFactoriesToRegister;
 
 #if TDE2_EDITORS_ENABLED
 			std::vector<TComponentTypeInfo> mRegisteredComponentTypes;

@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A new public method GetSystem was added into **ISystemManager** and **IWorld**.
 
+- A new way of automated components registration was introduced.
+
 ### Changed
 
 ### Fixed

@@ -42,6 +42,7 @@
 namespace TDEngine2
 {
 	std::unordered_set<TypeId> CComponentManager::mUniqueComponentTypesRegistry;
+	std::vector<TComponentFactoryFunctor> CComponentManager::mComponentFactoriesToRegister;
 
 	CComponentManager::CComponentManager() :
 		CBaseObject()
@@ -420,9 +421,6 @@ namespace TDEngine2
 
 		auto builtinComponentFactories =
 		{
-			CreateTransformFactory,
-			CreateDeactivatedComponentFactory,
-			CreateDeactivatedGroupComponentFactory,
 			CreateQuadSpriteFactory,
 			CreatePerspectiveCameraFactory,
 			CreateOrthoCameraFactory,
@@ -437,11 +435,8 @@ namespace TDEngine2
 			CreateDirectionalLightFactory,
 			CreatePointLightFactory,
 			CreateShadowCasterComponentFactory,
-			CreateShadowReceiverComponentFactory,
-			CreateAudioListenerComponentFactory,
 			CreateAudioSourceComponentFactory,
 			CreateAnimationContainerComponentFactory,
-			CreateSkyboxComponentFactory,
 			CreateParticleEmitterFactory,
 			CreateLayoutElementFactory,
 			CreateCanvasFactory,
@@ -454,21 +449,20 @@ namespace TDEngine2
 			CreateToggleFactory,
 			CreateUISliderFactory,
 			CreateInputFieldFactory,
-			CreateUIMaskComponentFactory,
 			CreateScrollableUIAreaFactory,
 			CreateDropDownFactory,
 			CreateLODStrategyComponentFactory,
 			CreateObjIdComponentFactory,
 			CreatePrefabLinkInfoComponentFactory,
 #if TDE2_EDITORS_ENABLED
-			CreateSelectedEntityComponentFactory,
 			CreateSceneInfoComponentFactory,
-			CreateEditorCameraFactory,
 #endif
 			//etc
 		};
 
-		for (auto pCurrFactoryCallback : builtinComponentFactories)
+		std::transform(builtinComponentFactories.begin(), builtinComponentFactories.end(), std::back_inserter(mComponentFactoriesToRegister), [](auto func) { return func; }); // \todo remove later
+
+		for (auto pCurrFactoryCallback : mComponentFactoriesToRegister)
 		{
 			TPtr<IComponentFactory> pCurrFactory = TPtr<IComponentFactory>(pCurrFactoryCallback(result));
 
@@ -648,6 +642,12 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CComponentManager::RegisterComponentType(const TComponentFactoryFunctor& componentFactoryFunctor)
+	{
+		mComponentFactoriesToRegister.push_back(componentFactoryFunctor);
+		return RC_OK;
+	}
+
 #if TDE2_EDITORS_ENABLED
 
 	const std::vector<TComponentTypeInfo>& CComponentManager::GetRegisteredComponentsIdentifiers() const
@@ -661,6 +661,7 @@ namespace TDEngine2
 	{
 		return mUniqueComponentTypesRegistry.find(componentTypeId) != mUniqueComponentTypesRegistry.cend();
 	}
+
 
 	IComponentManager* CreateComponentManager(E_RESULT_CODE& result)
 	{
