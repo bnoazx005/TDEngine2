@@ -4,6 +4,9 @@
 
 namespace TDEngine2
 {
+	TDE2_REGISTER_COMPONENT_FACTORY(CreateUIElementMeshDataFactory)
+
+
 	struct TUIElementMeshDataArchiveKeys
 	{
 	};

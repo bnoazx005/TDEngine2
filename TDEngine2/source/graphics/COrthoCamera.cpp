@@ -4,6 +4,9 @@
 
 namespace TDEngine2
 {
+	TDE2_REGISTER_COMPONENT_FACTORY(CreateOrthoCameraFactory)
+
+
 	COrthoCamera::COrthoCamera() :
 		CBaseCamera()
 	{

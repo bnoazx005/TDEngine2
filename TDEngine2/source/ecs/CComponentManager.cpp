@@ -1,41 +1,6 @@
 #include "../../include/ecs/CComponentManager.h"
 #include "../../include/ecs/IComponentFactory.h"
-#include "../../include/ecs/IComponent.h"
-#include "../../include/ecs/CTransform.h"
 #include "../../include/ecs/CBaseComponent.h"
-#include "../../include/ecs/components/CBoundsComponent.h"
-#include "../../include/graphics/CQuadSprite.h"
-#include "../../include/graphics/CPerspectiveCamera.h"
-#include "../../include/graphics/COrthoCamera.h"
-#include "../../include/graphics/CStaticMeshContainer.h"
-#include "../../include/graphics/CSkinnedMeshContainer.h"
-#include "../../include/graphics/effects/CParticleEmitterComponent.h"
-#include "../../include/graphics/UI/CLayoutElementComponent.h"
-#include "../../include/graphics/UI/CCanvasComponent.h"
-#include "../../include/graphics/UI/CUIElementMeshDataComponent.h"
-#include "../../include/graphics/UI/CImageComponent.h"
-#include "../../include/graphics/UI/CInputReceiverComponent.h"
-#include "../../include/graphics/UI/CLabelComponent.h"
-#include "../../include/graphics/UI/C9SliceImageComponent.h"
-#include "../../include/graphics/UI/GroupLayoutComponents.h"
-#include "../../include/graphics/UI/CToggleComponent.h"
-#include "../../include/graphics/UI/CUISliderComponent.h"
-#include "../../include/graphics/UI/CInputFieldComponent.h"
-#include "../../include/graphics/UI/CScrollableUIAreaComponent.h"
-#include "../../include/graphics/UI/CDropDownComponent.h"
-#include "../../include/graphics/animation/CAnimationContainerComponent.h"
-#include "../../include/graphics/animation/CMeshAnimatorComponent.h"
-#include "../../include/physics/2D/CBoxCollisionObject2D.h"
-#include "../../include/physics/2D/CCircleCollisionObject2D.h"
-#include "../../include/physics/2D/CTrigger2D.h"
-#include "../../include/scene/components/CDirectionalLight.h"
-#include "../../include/scene/components/CPointLight.h"
-#include "../../include/scene/components/ShadowMappingComponents.h"
-#include "../../include/scene/components/AudioComponents.h"
-#include "../../include/scene/components/CLODStrategyComponent.h"
-#include "../../include/scene/components/CObjIdComponent.h"
-#include "../../include/scene/components/CPrefabLinkInfoComponent.h"
-#include "../../include/editor/ecs/EditorComponents.h"
 #include "../../include/editor/CPerfProfiler.h"
 
 
@@ -418,49 +383,6 @@ namespace TDEngine2
 	E_RESULT_CODE CComponentManager::_registerBuiltinComponentFactories()
 	{
 		E_RESULT_CODE result = RC_OK;
-
-		auto builtinComponentFactories =
-		{
-			CreateQuadSpriteFactory,
-			CreatePerspectiveCameraFactory,
-			CreateOrthoCameraFactory,
-			CreateCamerasContextComponentFactory,
-			CreateBoxCollisionObject2DFactory,
-			CreateCircleCollisionObject2DFactory,
-			CreateTrigger2DFactory,
-			CreateMeshAnimatorComponentFactory,
-			CreateStaticMeshContainerFactory,
-			CreateSkinnedMeshContainerFactory,
-			CreateBoundsComponentFactory,
-			CreateDirectionalLightFactory,
-			CreatePointLightFactory,
-			CreateShadowCasterComponentFactory,
-			CreateAudioSourceComponentFactory,
-			CreateAnimationContainerComponentFactory,
-			CreateParticleEmitterFactory,
-			CreateLayoutElementFactory,
-			CreateCanvasFactory,
-			CreateUIElementMeshDataFactory,
-			CreateImageFactory,
-			CreateInputReceiverFactory,
-			CreateLabelFactory,
-			Create9SliceImageFactory,
-			CreateGridGroupLayoutFactory,
-			CreateToggleFactory,
-			CreateUISliderFactory,
-			CreateInputFieldFactory,
-			CreateScrollableUIAreaFactory,
-			CreateDropDownFactory,
-			CreateLODStrategyComponentFactory,
-			CreateObjIdComponentFactory,
-			CreatePrefabLinkInfoComponentFactory,
-#if TDE2_EDITORS_ENABLED
-			CreateSceneInfoComponentFactory,
-#endif
-			//etc
-		};
-
-		std::transform(builtinComponentFactories.begin(), builtinComponentFactories.end(), std::back_inserter(mComponentFactoriesToRegister), [](auto func) { return func; }); // \todo remove later
 
 		for (auto pCurrFactoryCallback : mComponentFactoriesToRegister)
 		{

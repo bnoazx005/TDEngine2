@@ -3,6 +3,9 @@
 
 namespace TDEngine2
 {
+	TDE2_REGISTER_COMPONENT_FACTORY(Create9SliceImageFactory)
+
+
 	C9SliceImage::C9SliceImage() :
 		CBaseComponent(), mImageResourceId(TResourceId::Invalid), mImageSpriteId(Wrench::StringUtils::GetEmptyStr())
 	{

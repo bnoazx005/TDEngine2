@@ -3,6 +3,9 @@
 
 namespace TDEngine2
 {
+	TDE2_REGISTER_COMPONENT_FACTORY(CreatePointLightFactory)
+
+
 	CPointLight::CPointLight() :
 		CBaseLight()
 	{

@@ -4,6 +4,9 @@
 
 namespace TDEngine2
 {
+	TDE2_REGISTER_COMPONENT_FACTORY(CreateBoxCollisionObject2DFactory)
+
+
 	CBoxCollisionObject2D::CBoxCollisionObject2D() :
 		CBaseCollisionObject2D(), mWidth(1.0f), mHeight(1.0f)
 	{

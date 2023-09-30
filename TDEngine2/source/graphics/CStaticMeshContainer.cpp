@@ -3,6 +3,9 @@
 
 namespace TDEngine2
 {
+	TDE2_REGISTER_COMPONENT_FACTORY(CreateStaticMeshContainerFactory)
+
+
 	CStaticMeshContainer::CStaticMeshContainer():
 		CBaseComponent(), mMaterialName(), mMeshName()
 	{

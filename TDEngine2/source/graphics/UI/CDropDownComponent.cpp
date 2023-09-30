@@ -4,6 +4,9 @@
 
 namespace TDEngine2
 {
+	TDE2_REGISTER_COMPONENT_FACTORY(CreateDropDownFactory)
+
+
 	CDropDown::CDropDown() :
 		CBaseComponent()
 	{

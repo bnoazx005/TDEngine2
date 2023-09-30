@@ -6,6 +6,9 @@
 
 namespace TDEngine2
 {
+	TDE2_REGISTER_COMPONENT_FACTORY(CreateGridGroupLayoutFactory)
+
+
 	struct TGridGroupLayoutArchiveKeys
 	{
 		static const std::string mCellSizeKeyId;

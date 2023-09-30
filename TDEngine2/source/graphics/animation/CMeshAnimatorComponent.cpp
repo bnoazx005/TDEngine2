@@ -4,6 +4,9 @@
 
 namespace TDEngine2
 {
+	TDE2_REGISTER_COMPONENT_FACTORY(CreateMeshAnimatorComponentFactory)
+
+
 	static const std::string ComponentTypeName = "mesh_animator";
 
 	const std::string CMeshAnimatorComponent::mPositionJointChannelPattern = "joint_{0}.position";

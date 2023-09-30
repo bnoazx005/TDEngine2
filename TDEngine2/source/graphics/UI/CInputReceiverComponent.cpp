@@ -3,6 +3,9 @@
 
 namespace TDEngine2
 {
+	TDE2_REGISTER_COMPONENT_FACTORY(CreateInputReceiverFactory)
+
+
 	struct TInputReceiverArchiveKeys
 	{
 		static const std::string mIgnoreInputKeyId;

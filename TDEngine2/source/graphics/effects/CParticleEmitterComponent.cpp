@@ -3,6 +3,9 @@
 
 namespace TDEngine2
 {
+	TDE2_REGISTER_COMPONENT_FACTORY(CreateParticleEmitterFactory)
+
+
 	struct TParticleEmitterArchiveKeys
 	{
 		static const std::string mParticleEffectKeyId;

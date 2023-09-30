@@ -4,6 +4,7 @@
 namespace TDEngine2
 {
 	TDE2_DEFINE_FLAG_COMPONENT(AudioListenerComponent);
+	TDE2_REGISTER_COMPONENT_FACTORY(CreateAudioSourceComponentFactory)
 
 
 	CAudioSourceComponent::CAudioSourceComponent() :

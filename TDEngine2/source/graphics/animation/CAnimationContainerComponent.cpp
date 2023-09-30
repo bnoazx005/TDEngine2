@@ -3,6 +3,9 @@
 
 namespace TDEngine2
 {
+	TDE2_REGISTER_COMPONENT_FACTORY(CreateAnimationContainerComponentFactory)
+
+
 	struct TAnimationContainerArchiveKeys
 	{
 		static const std::string mAnimationClipKeyId;

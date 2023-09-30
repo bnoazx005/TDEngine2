@@ -4,6 +4,9 @@
 
 namespace TDEngine2
 {
+	TDE2_REGISTER_COMPONENT_FACTORY(CreateSkinnedMeshContainerFactory)
+
+
 	const std::string CSkinnedMeshContainer::mJointsArrayUniformVariableId = "mJoints";
 	const std::string CSkinnedMeshContainer::mJointsCountUniformVariableId = "mUsedJointsCount";
 

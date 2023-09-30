@@ -7,6 +7,9 @@
 
 namespace TDEngine2
 {
+	TDE2_REGISTER_COMPONENT_FACTORY(CreateLabelFactory)
+
+
 	struct TLabelArchiveKeys
 	{
 		static const std::string mTextKeyId;

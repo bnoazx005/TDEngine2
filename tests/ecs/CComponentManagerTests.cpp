@@ -37,11 +37,6 @@ TEST_CASE("CComponentManager Tests")
 		REQUIRE(RC_OK == pComponentManager->RegisterFactory(pFactory));
 	}
 
-	SECTION("TestUnregisterFactory_TryToUnregisterInexistingFactory_ReturnsRC_FAIL")
-	{
-		REQUIRE(RC_FAIL == pComponentManager->UnregisterFactory<CTestComponent>());
-	}
-
 	SECTION("TestUnregisterFactory_TryToUnregisterAlreadyDetachedFactory_ReturnsRC_FAIL")
 	{
 		auto pFactory = TPtr<IComponentFactory>(CreateTestComponentFactory(result));

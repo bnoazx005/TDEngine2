@@ -4,6 +4,9 @@
 
 namespace TDEngine2
 {
+	TDE2_REGISTER_COMPONENT_FACTORY(CreateCircleCollisionObject2DFactory)
+
+
 	CCircleCollisionObject2D::CCircleCollisionObject2D() :
 		CBaseCollisionObject2D(), mRadius(1.0f)
 	{
