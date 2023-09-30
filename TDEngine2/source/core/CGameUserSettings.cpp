@@ -13,6 +13,7 @@ namespace TDEngine2
 
 		static const std::string mWidthKeyId;
 		static const std::string mHeightKeyId;
+		static const std::string mIsFullscreenEnabledKeyId;
 		static const std::string mShadowsKeyId;
 		static const std::string mShadowMapSizesKeyId;
 		static const std::string mShadowCascadesSplitsKeyId;
@@ -25,6 +26,7 @@ namespace TDEngine2
 
 	const std::string TUserSettingsKeys::mWidthKeyId = "width";
 	const std::string TUserSettingsKeys::mHeightKeyId = "height";
+	const std::string TUserSettingsKeys::mIsFullscreenEnabledKeyId = "fullscreen";
 	const std::string TUserSettingsKeys::mShadowCascadesSplitsKeyId = "shadow_cascades_splits.{0}";
 	const std::string TUserSettingsKeys::mShadowCascadesCountKeyId = "shadow_cascades_count";
 	const std::string TUserSettingsKeys::mShadowsKeyId = "shadows";
@@ -45,6 +47,8 @@ namespace TDEngine2
 
 		mWindowWidth  = pConfigFileReader->GetInt(TUserSettingsKeys::mMainGroupKeyId, TUserSettingsKeys::mWidthKeyId, 640);
 		mWindowHeight = pConfigFileReader->GetInt(TUserSettingsKeys::mMainGroupKeyId, TUserSettingsKeys::mHeightKeyId, 480);
+	
+		mIsFullscreenEnabled = pConfigFileReader->GetBool(TUserSettingsKeys::mMainGroupKeyId, TUserSettingsKeys::mIsFullscreenEnabledKeyId, false);
 
 		mCurrent.mIsShadowMappingEnabled = pConfigFileReader->GetBool(TUserSettingsKeys::mGraphicsGroupKeyId, TUserSettingsKeys::mShadowsKeyId, true);
 		mCurrent.mShadowMapSizes = static_cast<U32>(pConfigFileReader->GetInt(TUserSettingsKeys::mGraphicsGroupKeyId, TUserSettingsKeys::mShadowMapSizesKeyId, 512));

@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.21] 2023-09-28
+## [0.6.21] 2023-09-29
 
 ### Added
 
 - The API of **IWindowSystem** was extended with new public methods SetScreenResolution, SetIsFullscreenEnabled.
+
+- Support of fullscreen mode's configuration from settings.cfg file was added.
 
 ### Changed
 

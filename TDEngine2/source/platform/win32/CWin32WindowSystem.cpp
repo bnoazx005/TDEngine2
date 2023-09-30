@@ -328,7 +328,8 @@ namespace TDEngine2
 		}
 
 		if (state)
-		{ /// \note borderless window
+		{ 
+			/// \note borderless window
 			mSetupFlags |= P_FULLSCREEN;
 
 			GetWindowPlacement(mWindowHandler, &mPrevWindowState);
@@ -344,7 +345,10 @@ namespace TDEngine2
 				ShowWindow(mWindowHandler, SW_SHOWMAXIMIZED);
 			}
 			else
-			{ /// \note true fullscreen
+			{ 
+				/// \note true fullscreen
+				/// \fixme 
+
 				DEVMODE displaySettings;
 				
 				if (!EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &displaySettings))

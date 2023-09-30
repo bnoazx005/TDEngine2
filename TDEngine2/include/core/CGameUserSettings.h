@@ -47,6 +47,8 @@ namespace TDEngine2
 			I32 mWindowWidth = 1024;
 			I32 mWindowHeight = 768;
 
+			bool mIsFullscreenEnabled = false;
+
 			CProjectSettings::TQualityPreset mCurrent;
 	};
 }
