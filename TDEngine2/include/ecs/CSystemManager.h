@@ -23,10 +23,7 @@ namespace TDEngine2
 	class IWorld;
 	class ISystem;
 
-
-	TDE2_DECLARE_SCOPED_PTR(ISystem)
-
-	
+		
 	/*!
 		\brief A factory function for creation objects of CSystemManager's type.
 
