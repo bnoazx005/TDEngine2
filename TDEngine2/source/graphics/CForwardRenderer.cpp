@@ -361,9 +361,9 @@ namespace TDEngine2
 
 
 	static E_RESULT_CODE RenderOverlayAndPostEffects(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties,
-		TPtr<IFramePostProcessor> pFramePostProcessor, TPtr<CRenderQueue> pRenderGroup)
+		TPtr<IFramePostProcessor> pFramePostProcessor, TPtr<CRenderQueue> pUIRenderGroup, TPtr<CRenderQueue> pDebugUIRenderGroup)
 	{
-		if (!pRenderGroup)
+		if (!pUIRenderGroup)
 		{
 			LOG_ERROR("[ForwardRenderer] Invalid \"Overlays\" commands buffer was found");
 			return RC_INVALID_ARGS;
@@ -375,18 +375,19 @@ namespace TDEngine2
 
 		pFramePostProcessor->Render([&] /// Render UI elements
 		{
-			ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pRenderGroup, true);
+			ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pUIRenderGroup, true);
+			ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pDebugUIRenderGroup, true);
 		}, false);
 
 		pFramePostProcessor->PostRender();
 
-		if (pRenderGroup->IsEmpty())
+		if (pUIRenderGroup->IsEmpty())
 		{
 			return RC_FAIL;
 		}
 
 		pGraphicsContext->ClearDepthBuffer(1.0f);
-		ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pRenderGroup, true);
+		ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pUIRenderGroup, true);
 
 		return RC_OK;
 	}
@@ -416,7 +417,9 @@ namespace TDEngine2
 			}
 
 			RenderMainPasses(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpFramePostProcessor, mpRenderQueues);
-			RenderOverlayAndPostEffects(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpFramePostProcessor, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OVERLAY)]);
+			RenderOverlayAndPostEffects(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpFramePostProcessor, 
+				mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OVERLAY)],
+				mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEBUG_UI)]);
 		}
 
 		{

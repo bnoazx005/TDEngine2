@@ -60,7 +60,7 @@ namespace TDEngine2
 		mpGraphicsObjectManager = params.mpGraphicsObjectManager;
 		mpResourceManager       = params.mpResourceManager;
 		mpInputContext          = params.mpInputContext;
-		mpEditorUIRenderQueue	= params.mpRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_DEBUG);
+		mpEditorUIRenderQueue	= params.mpRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_DEBUG_UI);
 
 		if (!mpGraphicsContext) // \note the really strange case, but if it's happened we should check for it
 		{

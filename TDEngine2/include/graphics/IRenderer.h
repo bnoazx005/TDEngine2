@@ -41,11 +41,12 @@ namespace TDEngine2
 		RQG_SPRITES,
 		RQG_OVERLAY,
 		RQG_DEBUG,
+		RQG_DEBUG_UI,
 		RQG_LAST_GROUP  = RQG_DEBUG,
 		RQG_FIRST_GROUP = RQG_OPAQUE_GEOMETRY
 	};
 
-	constexpr U8 NumOfRenderQueuesGroup = static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_LAST_GROUP) + 1;
+	constexpr U8 NumOfRenderQueuesGroup = static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_DEBUG_UI) + 1;
 
 
 	/*!

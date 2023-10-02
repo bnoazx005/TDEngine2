@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- ImGUIContext: Now debug UI is always drawn on top of all in-game UI elements.
+
 ### Fixed
 
 - (Issue #93) The screen is stretched when fullscreen mode is enabled via Alt+Enter hotkey issue was fixed.
