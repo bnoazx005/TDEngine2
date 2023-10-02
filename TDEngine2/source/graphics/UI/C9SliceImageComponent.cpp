@@ -107,6 +107,7 @@ namespace TDEngine2
 			pComponent->mXStart = mXStart;
 			pComponent->mYEnd = mYEnd;
 			pComponent->mYStart = mYStart;
+			pComponent->mColor = mColor;
 
 			return RC_OK;
 		}

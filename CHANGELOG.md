@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.21] 2023-09-30
+## [0.6.21] 2023-10-02
 
 ### Added
 
@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - (Issue #93) The screen is stretched when fullscreen mode is enabled via Alt+Enter hotkey issue was fixed.
 
 - (Issue #94) Ingame UI updates when screen size is changed was fixed.
+
+- (Issue #95) Color data of **C9SliceImage** component wasn't copied during cloning.
 
 ## [0.6.20] 2023-09-27
 
