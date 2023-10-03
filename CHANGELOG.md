@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.21] 2023-10-02
+## [0.6.21] 2023-10-03
 
 ### Added
 
@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - (Issue #94) Ingame UI updates when screen size is changed was fixed.
 
 - (Issue #95) Color data of **C9SliceImage** component wasn't copied during cloning.
+
+- Now prefabs paths are corrected to include .prefab extension if that one wasn't specified in the dialog.
 
 ## [0.6.20] 2023-09-27
 

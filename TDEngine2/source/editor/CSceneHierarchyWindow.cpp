@@ -157,6 +157,8 @@ namespace TDEngine2
 		auto&& pWindowSystem = params.mpWindowSystem;
 		auto&& pSceneManager = params.mBase.mpSceneManager;
 
+		static const std::string PrefabAssetExtension = ".prefab";
+
 		auto saveFileResult = pWindowSystem->ShowSaveFileDialog({ { "Prefabs", "*.prefab" } });
 		if (saveFileResult.HasError())
 		{
@@ -169,8 +171,13 @@ namespace TDEngine2
 			return;
 		}
 
-		const std::string& prefabFilepath = saveFileResult.Get();
+		std::string prefabFilepath = saveFileResult.Get();
 		TDE2_ASSERT(!prefabFilepath.empty());
+
+		if (!Wrench::StringUtils::EndsWith(prefabFilepath, PrefabAssetExtension))
+		{
+			prefabFilepath.append(PrefabAssetExtension);
+		}
 
 		auto pPrefabsRegistry = pSceneManager->GetPrefabsRegistry();
 		if (!pPrefabsRegistry)
