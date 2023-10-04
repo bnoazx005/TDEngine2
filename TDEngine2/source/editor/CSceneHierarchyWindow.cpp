@@ -15,6 +15,7 @@
 #include "../../include/editor/ecs/EditorComponents.h"
 #include "../../include/editor/EditorUtils.h"
 #include <stack>
+#include "deferOperation.hpp"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -553,6 +554,11 @@ namespace TDEngine2
 						std::tie(isOpened, isSelected) = mpImGUIContext->BeginTreeNode(fieldStr, isActive ? GetEntityColor(prefabNestedLevel) : TColorUtils::mGray, mpSelectionManager->IsEntityBeingSelected(pEntity->GetId()));
 						ProcessDragAndDropLogic(mpImGUIContext, pWorld, pEntity->GetId());
 
+						if (mpSelectionManager->IsEntityBeingSelected(pEntity->GetId()))
+						{
+							DrawEntityContextMenu({ mpImGUIContext, mpSceneManager, pCurrScene, mpSelectionManager, mpWindowSystem, mpFileSystem, mpInputContext }, pWorld);
+						}
+
 						if (isOpened)
 						{
 							const TEntityId prevParentId = currParentId;
@@ -579,11 +585,6 @@ namespace TDEngine2
 								mpSelectionManager->SetSelectedEntity(pEntity->GetId());
 							}
 							mpSelectedScene = nullptr;
-						}
-
-						if (mpSelectionManager->IsEntityBeingSelected(pEntity->GetId()))
-						{
-							DrawEntityContextMenu({ mpImGUIContext, mpSceneManager, pCurrScene, mpSelectionManager, mpWindowSystem, mpFileSystem, mpInputContext }, pWorld);
 						}
 					};
 
