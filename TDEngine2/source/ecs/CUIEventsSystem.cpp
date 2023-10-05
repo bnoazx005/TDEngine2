@@ -55,23 +55,33 @@ namespace TDEngine2
 	TDE2_API std::vector<TEntityId> FindMainCanvases(IWorld* pWorld)
 	{
 		std::vector<TEntityId> output;
+		std::vector<CCanvas*> canvases;
+
+		auto insertNewCanvas = [&](CCanvas* pCanvas, TEntityId entityId)
+		{
+			auto it = std::find_if(canvases.begin(), canvases.end(), [pCanvas](CCanvas* pCurrCanvas) { return pCanvas->GetPriority() > pCurrCanvas->GetPriority(); });
+			it = canvases.insert(it, pCanvas);
+
+			output.insert(output.begin() + std::distance(canvases.begin(), it), entityId);
+		};
 
 		for (TEntityId currEntityId : pWorld->FindEntitiesWithComponents<CCanvas>())
 		{
 			CEntity* pEntity = pWorld->FindEntity(currEntityId);
+			CCanvas* pCanvas = pEntity->GetComponent<CCanvas>();
 
 			if (CTransform* pTransform = pEntity->GetComponent<CTransform>())
 			{
 				if (TEntityId::Invalid == pTransform->GetParent())
 				{
-					output.push_back(currEntityId);
+					insertNewCanvas(pCanvas, currEntityId);
 				}
 
 				if (CEntity* pParentEntity = pWorld->FindEntity(pTransform->GetParent()))
 				{
 					if (!pParentEntity->HasComponent<CLayoutElement>())
 					{
-						output.push_back(currEntityId);
+						insertNewCanvas(pCanvas, currEntityId);
 					}
 				}
 			}
