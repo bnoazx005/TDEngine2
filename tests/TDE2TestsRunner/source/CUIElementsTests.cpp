@@ -427,6 +427,158 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 		pTestCase->WaitForNextFrame();
 	}
 
+	TDE2_TEST_CASE("TestInputEvents_SpawnCanvasWithTwoButtons_TopButtonShouldReceiveInputAndStopItsPropagationToDownOne")
+	{
+		static CEntity* pCanvasEntity = nullptr;
+		static CEntity* pTopButtonEntity = nullptr;
+		static CEntity* pBottomButtonEntity = nullptr;
+
+		/// \note Create a button
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			auto&& canvasEntityResult = CSceneHierarchyUtils::CreateCanvasUIElement(pWorld, pMainScene, TEntityId::Invalid, [](auto) {});
+			TDE2_TEST_IS_TRUE(canvasEntityResult.IsOk());
+
+			pCanvasEntity = pWorld->FindEntity(canvasEntityResult.Get());
+
+			auto&& bottomButtonEntityResult = CSceneHierarchyUtils::CreateButtonUIElement(pWorld, pMainScene, canvasEntityResult.Get(), [](auto) {});
+			TDE2_TEST_IS_TRUE(bottomButtonEntityResult.IsOk());
+
+			pBottomButtonEntity = pWorld->FindEntity(bottomButtonEntityResult.Get());
+
+			auto&& topButtonEntityResult = CSceneHierarchyUtils::CreateButtonUIElement(pWorld, pMainScene, canvasEntityResult.Get(), [](auto) {});
+			TDE2_TEST_IS_TRUE(topButtonEntityResult.IsOk());
+
+			pTopButtonEntity = pWorld->FindEntity(topButtonEntityResult.Get());
+		});
+
+		pTestCase->WaitForNextFrame();
+
+		pTestCase->SetCursorPosition(TVector3(50.0f, 15.0f, 0.0f)); /// click over the button
+		pTestCase->AddPressMouseButton(0);
+
+		pTestCase->ExecuteAction([&]
+		{
+			if (auto pInputReceiver = pTopButtonEntity->GetComponent<CInputReceiver>())
+			{
+				TDE2_TEST_IS_TRUE(pInputReceiver->mIsHovered);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
+				TDE2_TEST_IS_TRUE(pInputReceiver->mPrevState);
+			}
+
+			if (auto pInputReceiver = pBottomButtonEntity->GetComponent<CInputReceiver>())
+			{
+				TDE2_TEST_IS_TRUE(pInputReceiver->mIsHovered);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->mPrevState);
+			}
+		});
+
+		/// \note Destroy the canvas entity
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pCanvasEntity->GetId()));
+		});
+
+		pTestCase->WaitForNextFrame();
+	}
+
+	TDE2_TEST_CASE("TestInputEvents_SpawnTwoCanvasesWithButtons_CanvasWithHighPriorityWillBlocksInput")
+	{
+		static CEntity* pTopCanvasEntity = nullptr;
+		static CEntity* pBottomCanvasEntity = nullptr;
+
+		static CEntity* pTopCanvasButtonEntity = nullptr;
+		static CEntity* pBottomCanvasButtonEntity = nullptr;
+
+		/// \note Create a button
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			auto createCanvasWithButton = [&](CEntity*& pCanvas, CEntity*& pButton, I32 priority = 0)
+			{
+				auto&& canvasEntityResult = CSceneHierarchyUtils::CreateCanvasUIElement(pWorld, pMainScene, TEntityId::Invalid, [](auto) {});
+				TDE2_TEST_IS_TRUE(canvasEntityResult.IsOk());
+
+				pCanvas = pWorld->FindEntity(canvasEntityResult.Get());
+				if (auto pCanvasData = pCanvas->GetComponent<CCanvas>())
+				{
+					pCanvasData->SetPriority(priority);
+				}
+
+				auto&& bottomButtonEntityResult = CSceneHierarchyUtils::CreateButtonUIElement(pWorld, pMainScene, canvasEntityResult.Get(), [](auto) {});
+				TDE2_TEST_IS_TRUE(bottomButtonEntityResult.IsOk());
+
+				pButton = pWorld->FindEntity(bottomButtonEntityResult.Get());
+			};
+
+			createCanvasWithButton(pBottomCanvasEntity, pBottomCanvasButtonEntity);
+			createCanvasWithButton(pTopCanvasEntity, pTopCanvasButtonEntity, 1);
+		});
+
+		pTestCase->WaitForNextFrame();
+
+		pTestCase->SetCursorPosition(TVector3(50.0f, 15.0f, 0.0f)); /// click over the button
+		pTestCase->AddPressMouseButton(0);
+
+		pTestCase->ExecuteAction([&]
+		{
+			if (auto pInputReceiver = pBottomCanvasButtonEntity->GetComponent<CInputReceiver>())
+			{
+				TDE2_TEST_IS_TRUE(pInputReceiver->mIsHovered);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->mPrevState);
+			}
+			
+			if (auto pInputReceiver = pTopCanvasButtonEntity->GetComponent<CInputReceiver>())
+			{
+				TDE2_TEST_IS_TRUE(pInputReceiver->mIsHovered);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
+				TDE2_TEST_IS_TRUE(pInputReceiver->mPrevState);
+			}
+		});
+
+		/// \note Destroy the canvas entity
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pTopCanvasEntity->GetId()));
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pBottomCanvasEntity->GetId()));
+		});
+
+		pTestCase->WaitForNextFrame();
+	}
+
 	TDE2_TEST_CASE("TestUiMask_AddTwoImagesOneOfThemIsUiMask_ChildImageIsDrawnPartiallyBasedOnMask")
 	{
 		static CEntity* pCanvasEntity = nullptr;

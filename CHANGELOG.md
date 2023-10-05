@@ -33,6 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Now prefabs paths are corrected to include .prefab extension if that one wasn't specified in the dialog.
 
+- The issue that context menus are opened only on folded hierarchies roots was fixed.
+
 ## [0.6.20] 2023-09-27
 
 ### Added
