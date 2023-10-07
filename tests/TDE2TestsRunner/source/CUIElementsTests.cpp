@@ -460,32 +460,11 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 			TDE2_TEST_IS_TRUE(nestedButtonEntityResult.IsOk());
 
 			pNestedButtonEntity = pWorld->FindEntity(nestedButtonEntityResult.Get());
+			pNestedButtonEntity->SetName("NestedButton");
 
 			if (auto pLayoutElement = pNestedButtonEntity->GetComponent<CLayoutElement>())
 			{
 				pLayoutElement->SetMinOffset(TVector2(70.0f, 0.0f));
-			}
-		});
-
-		pTestCase->WaitForNextFrame();
-
-		pTestCase->SetCursorPosition(TVector3(80.0f, 15.0f, 0.0f)); /// click over the nested button
-		pTestCase->AddPressMouseButton(0);
-
-		pTestCase->ExecuteAction([&]
-		{
-			if (auto pInputReceiver = pButtonEntity->GetComponent<CInputReceiver>())
-			{
-				TDE2_TEST_IS_TRUE(!pInputReceiver->mIsHovered);
-				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
-				TDE2_TEST_IS_TRUE(!pInputReceiver->mPrevState);
-			}
-
-			if (auto pInputReceiver = pNestedButtonEntity->GetComponent<CInputReceiver>())
-			{
-				TDE2_TEST_IS_TRUE(pInputReceiver->mIsHovered);
-				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
-				TDE2_TEST_IS_TRUE(pInputReceiver->mPrevState);
 			}
 		});
 
@@ -508,6 +487,28 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 				TDE2_TEST_IS_TRUE(!pInputReceiver->mIsHovered);
 				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
 				TDE2_TEST_IS_TRUE(!pInputReceiver->mPrevState);
+			}
+		});
+
+		pTestCase->WaitForNextFrame();
+
+		pTestCase->SetCursorPosition(TVector3(80.0f, 15.0f, 0.0f)); /// click over the nested button
+		pTestCase->AddPressMouseButton(0);
+
+		pTestCase->ExecuteAction([&]
+		{
+			if (auto pInputReceiver = pButtonEntity->GetComponent<CInputReceiver>())
+			{
+				TDE2_TEST_IS_TRUE(!pInputReceiver->mIsHovered);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->mPrevState);
+			}
+
+			if (auto pInputReceiver = pNestedButtonEntity->GetComponent<CInputReceiver>())
+			{
+				TDE2_TEST_IS_TRUE(pInputReceiver->mIsHovered);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
+				TDE2_TEST_IS_TRUE(pInputReceiver->mPrevState);
 			}
 		});
 
@@ -577,7 +578,7 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 
 			if (auto pInputReceiver = pBottomButtonEntity->GetComponent<CInputReceiver>())
 			{
-				TDE2_TEST_IS_TRUE(pInputReceiver->mIsHovered);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->mIsHovered);
 				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
 				TDE2_TEST_IS_TRUE(!pInputReceiver->mPrevState);
 			}
