@@ -8,6 +8,8 @@
 
 
 #include "CBaseSystem.h"
+#include "../math/MathUtils.h"
+#include "../math/TRect.h"
 #include <vector>
 
 
@@ -50,6 +52,9 @@ namespace TDEngine2
 				std::vector<CLayoutElement*> mpLayoutElements;
 				std::vector<CInputReceiver*> mpInputReceivers;
 				std::vector<U32>             mPriorities;
+				std::vector<USIZE>           mParents;
+				std::vector<TRectF32>        mMaskRects; ///< contains computed UI masks relative to parent
+				std::vector<TRange<USIZE>>   mCanvasesRanges;
 			};
 		public:
 			TDE2_SYSTEM(CUIEventsSystem);

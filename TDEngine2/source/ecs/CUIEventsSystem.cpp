@@ -93,32 +93,40 @@ namespace TDEngine2
 
 	void CUIEventsSystem::InjectBindings(IWorld* pWorld)
 	{
-		auto& transforms = mContext.mpTransforms;
+		auto& transforms     = mContext.mpTransforms;
 		auto& layoutElements = mContext.mpLayoutElements;
 		auto& inputReceivers = mContext.mpInputReceivers;
-		auto& priorities = mContext.mPriorities;
+		auto& priorities     = mContext.mPriorities;
+		auto& uiMasks        = mContext.mMaskRects;
+		auto& canvases       = mContext.mCanvasesRanges;
+		auto& parents        = mContext.mParents;
 
 		transforms.clear();
 		layoutElements.clear();
 		inputReceivers.clear();
 		priorities.clear();
+		canvases.clear();
+		parents.clear();
 
 		/// \note Find main canvas which has no parent or its parent has no CLayoutElement component attached
 		for (TEntityId currCanvasEntity : FindMainCanvases(pWorld))
 		{
 			CTransform* pTransform = pWorld->FindEntity(currCanvasEntity)->GetComponent<CTransform>();
 
-			std::stack<std::tuple<TEntityId, U32>> entitiesToVisit;
+			std::stack<std::tuple<TEntityId, U32, USIZE>> entitiesToVisit; // last arg is a parent's index
 
-			entitiesToVisit.emplace(currCanvasEntity, 0);
+			entitiesToVisit.emplace(currCanvasEntity, 0, (std::numeric_limits<USIZE>::max)());
 
 			CEntity* pEntity = nullptr;
 			TEntityId currEntityId = TEntityId::Invalid;
 			U32 currPriority = 0;
 
+			USIZE canvasStartRange = transforms.size();
+			USIZE parentIndex = 0;
+
 			while (!entitiesToVisit.empty())
 			{
-				std::tie(currEntityId, currPriority) = entitiesToVisit.top();
+				std::tie(currEntityId, currPriority, parentIndex) = entitiesToVisit.top();
 				entitiesToVisit.pop();
 
 				pEntity = pWorld->FindEntity(currEntityId);
@@ -135,17 +143,22 @@ namespace TDEngine2
 					layoutElements.push_back(pEntity->GetComponent<CLayoutElement>());
 					priorities.push_back(currPriority);
 					inputReceivers.push_back(pInputReceiver);
+					parents.push_back(parentIndex);
 				}
 
 				if (pTransform = pEntity->GetComponent<CTransform>())
 				{
 					for (TEntityId id : pTransform->GetChildren())
 					{
-						entitiesToVisit.emplace(id, currPriority + 1);
+						entitiesToVisit.emplace(id, currPriority + 1, transforms.empty() ? (std::numeric_limits<USIZE>::max)() : transforms.size() - 1);
 					}
 				}
 			}
+
+			canvases.emplace_back(canvasStartRange, transforms.size());
 		}
+
+		uiMasks.resize(transforms.size());
 	}
 
 
@@ -183,42 +196,63 @@ namespace TDEngine2
 	}
 
 
-	void CUIEventsSystem::Update(IWorld* pWorld, F32 dt)
+	static void UpdateUiMasksRects(IWorld* pWorld, CUIEventsSystem::TSystemContext& context, const TRange<USIZE>& canvasRange)
 	{
-		TDE2_PROFILER_SCOPE("CUIEventsSystem::Update");
+		static const TRectF32 DefaultUiRect = TRectF32(TVector2(-10000.0f), TVector2(10000.0f));
+
+		auto& layoutElements = context.mpLayoutElements;
+		auto& uiMasks = context.mMaskRects;
+		auto& parents = context.mParents;
+
+		CLayoutElement* pLayoutElement = nullptr;
+
+		CEntity* pCurrEntity = nullptr;
+
+		for (USIZE i = canvasRange.mLeft; i < canvasRange.mRight; i++) 
+		{
+			pLayoutElement = layoutElements[i];
+			
+			if (parents[i] == (std::numeric_limits<USIZE>::max)())
+			{
+				uiMasks[i] = IntersectRects(DefaultUiRect, pLayoutElement->GetWorldRect());
+				continue;
+			}
+
+			uiMasks[i] = IntersectRects(pLayoutElement->GetWorldRect(), layoutElements[parents[i]]->GetWorldRect());
+		}
+	}
+
+	// The method returns true if the input was consumed by some of internal canvas element
+	static bool ProcessCanvasInput(IWorld* pWorld, CUIEventsSystem::TSystemContext& context, IDesktopInputContext* pInputContext, 
+		const TRange<USIZE>& canvasRange, bool isImGUIActive, std::string& inputBuffer)
+	{
+		auto& transforms = context.mpTransforms;
+		auto& layoutElements = context.mpLayoutElements;
+		auto& inputReceivers = context.mpInputReceivers;
+		auto& priorities = context.mPriorities;
+		auto& uiMasks = context.mMaskRects;
 
 		CInputReceiver* pInputReceiver = nullptr;
 		CLayoutElement* pLayoutElement = nullptr;
 		CTransform* pTransform = nullptr;
 
-		const TVector3 mousePosition3d = mpDesktopInputContext->GetMousePosition();
-		const TVector2 mousePosition { mousePosition3d.x, mousePosition3d.y };
-
-		auto& transforms     = mContext.mpTransforms;
-		auto& layoutElements = mContext.mpLayoutElements;
-		auto& inputReceivers = mContext.mpInputReceivers;
-		auto& priorities     = mContext.mPriorities;
+		const TVector2 mousePosition = static_cast<TVector2>(pInputContext->GetMousePosition());
 
 		CEntity* pCurrEntity = nullptr;
 
-		bool isUiMaskActive = false;
-		bool isCurrUiElementMask = false;
-		TRectF32 maskRect;
-
-		U32 prevMaskElementPriority = std::numeric_limits<U32>::max();
-
-		/// \note Update is executed in order of existing hierarchy of elements
-		for (USIZE i = 0; i < transforms.size(); ++i)
+		for (USIZE i = canvasRange.mLeft; i < canvasRange.mRight; i++) // \note Elements processed in bottom-up order
 		{
-			pTransform     = transforms[i];
-			pInputReceiver = inputReceivers[i];
-			pLayoutElement = layoutElements[i];
+			const USIZE index = canvasRange.mRight - 1 - i;
+
+			pTransform     = transforms[index];
+			pInputReceiver = inputReceivers[index];
+			pLayoutElement = layoutElements[index];
 
 			if (pInputReceiver)
 			{
 				pInputReceiver->mIsHovered = false;
 
-				if (pInputReceiver->mIsIgnoreInput || (mpImGUIContext && mpImGUIContext->IsMouseOverUI()))
+				if (pInputReceiver->mIsIgnoreInput/* || isImGUIActive*/)
 				{
 					pInputReceiver->mPrevState = pInputReceiver->mCurrState; // reset state
 					pInputReceiver->mCurrState = false;
@@ -233,66 +267,68 @@ namespace TDEngine2
 				continue;
 			}
 
-			if (isUiMaskActive && prevMaskElementPriority > priorities[i])
+			if (pCurrEntity->HasComponent<CUIMaskComponent>() && !pInputReceiver)
 			{
-				isUiMaskActive = false;
-			}
-
-			isCurrUiElementMask = pCurrEntity->HasComponent<CUIMaskComponent>();
-
-			if (isCurrUiElementMask)
-			{
-				maskRect = pLayoutElement->GetWorldRect();
-
-				prevMaskElementPriority = priorities[i];
-				isUiMaskActive = true;
-
-				if (!pInputReceiver)
-				{
-					continue;
-				}
+				continue;
 			}
 
 			/// \fixme For now it's the simplest solution for checking buttons 
-			pInputReceiver->mIsHovered = ContainsPoint(
-				isUiMaskActive && !isCurrUiElementMask ? IntersectRects(pLayoutElement->GetWorldRect(), maskRect) : pLayoutElement->GetWorldRect(), mousePosition);
+			pInputReceiver->mIsHovered = ContainsPoint(uiMasks[index], mousePosition);
 
 			pInputReceiver->mPrevState = pInputReceiver->mCurrState;
-			pInputReceiver->mCurrState = pInputReceiver->mIsHovered && mpDesktopInputContext->IsMouseButton(0);
+			pInputReceiver->mCurrState = pInputReceiver->mIsHovered && pInputContext->IsMouseButton(0);
 
-			pInputReceiver->mIsControlModifierActive = mpDesktopInputContext->IsKey(E_KEYCODES::KC_LCONTROL) || mpDesktopInputContext->IsKey(E_KEYCODES::KC_RCONTROL);
-			pInputReceiver->mIsShiftModifierActive = mpDesktopInputContext->IsKey(E_KEYCODES::KC_LSHIFT) || mpDesktopInputContext->IsKey(E_KEYCODES::KC_RSHIFT);
-			pInputReceiver->mActionType = GetActionType(mpDesktopInputContext);
-			
-			pInputReceiver->mMouseShiftVec = mpDesktopInputContext->GetMouseShiftVec();
+			pInputReceiver->mIsControlModifierActive = pInputContext->IsKey(E_KEYCODES::KC_LCONTROL) || pInputContext->IsKey(E_KEYCODES::KC_RCONTROL);
+			pInputReceiver->mIsShiftModifierActive = pInputContext->IsKey(E_KEYCODES::KC_LSHIFT) || pInputContext->IsKey(E_KEYCODES::KC_RSHIFT);
+			pInputReceiver->mActionType = GetActionType(pInputContext);
+
+			pInputReceiver->mMouseShiftVec = pInputContext->GetMouseShiftVec();
 
 			/// focus/unfocus logic
 			{
-				if (mpDesktopInputContext->IsMouseButtonPressed(0) && pInputReceiver->mIsHovered && !pInputReceiver->mIsFocused)
+				if (pInputContext->IsMouseButtonPressed(0) && pInputReceiver->mIsHovered && !pInputReceiver->mIsFocused)
 				{
 					pInputReceiver->mIsFocused = true;
 				}
 
 				if (pInputReceiver->mIsFocused)
 				{
-					pInputReceiver->mInputBuffer = mInputBuffer;
+					pInputReceiver->mInputBuffer = inputBuffer;
 				}
 
-				const bool isCancelAction = mpDesktopInputContext->IsKeyPressed(E_KEYCODES::KC_ESCAPE);
+				const bool isCancelAction = pInputContext->IsKeyPressed(E_KEYCODES::KC_ESCAPE);
 
-				if (!pInputReceiver->mIsHovered && (mpDesktopInputContext->IsMouseButtonPressed(0) || isCancelAction) || mpDesktopInputContext->IsKeyPressed(E_KEYCODES::KC_RETURN))
+				if (!pInputReceiver->mIsHovered && (pInputContext->IsMouseButtonPressed(0) || isCancelAction) || pInputContext->IsKeyPressed(E_KEYCODES::KC_RETURN))
 				{
 					pInputReceiver->mIsFocused = false;
 
-					mInputBuffer.clear();
+					inputBuffer.clear();
 				}
 			}
 
 			pInputReceiver->mNormalizedInputPosition = PointToNormalizedCoords(pLayoutElement->GetWorldRect(), mousePosition);
-			
-			if (!pInputReceiver->mIsInputBypassEnabled && pInputReceiver->mCurrState && pInputReceiver->mIsHovered)
+
+			if (/*!pInputReceiver->mIsInputBypassEnabled && */pInputReceiver->mCurrState && pInputReceiver->mIsHovered)
 			{
-				return;
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+
+	void CUIEventsSystem::Update(IWorld* pWorld, F32 dt)
+	{
+		TDE2_PROFILER_SCOPE("CUIEventsSystem::Update");
+
+		for (auto&& currCanvasEntities : mContext.mCanvasesRanges)
+		{
+			UpdateUiMasksRects(pWorld, mContext, currCanvasEntities);
+
+			if (ProcessCanvasInput(pWorld, mContext, mpDesktopInputContext, currCanvasEntities, mpImGUIContext && mpImGUIContext->IsMouseOverUI(), mInputBuffer))
+			{
+				break;
 			}
 		}
 	}
