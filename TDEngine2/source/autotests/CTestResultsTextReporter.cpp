@@ -51,6 +51,19 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CTestResultsTextReporter::WriteTestsStatistics(const TTestContextStatistics& stats)
+	{
+		LogMessage(mpFileSystem->Get<ITextFileWriter>(mFileHandler), 
+			Wrench::StringUtils::Format("{0} / {1} test cases successfully passed", stats.mPassedTestsCount, stats.mFailedTestsCount + stats.mPassedTestsCount));
+
+		if (stats.mFailedTestsCount > 0)
+		{
+			LogMessage(mpFileSystem->Get<ITextFileWriter>(mFileHandler), Wrench::StringUtils::Format("!!! {0} tests failed", stats.mFailedTestsCount));
+		}
+
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CTestResultsTextReporter::EnterTestFixtureSection(const std::string& testFixtureName)
 	{
 		if (testFixtureName.empty())
@@ -66,7 +79,7 @@ namespace TDEngine2
 
 		mActiveTestFixtureName = testFixtureName;
 
-		LogMessage(mpFileSystem->Get<ITextFileWriter>(mFileHandler), Wrench::StringUtils::Format("* \"{0}\" Test Fixture:", mActiveTestFixtureName));
+		LogMessage(mpFileSystem->Get<ITextFileWriter>(mFileHandler), Wrench::StringUtils::Format("\n* \"{0}\" Test Fixture:", mActiveTestFixtureName));
 		
 		return RC_OK;
 	}

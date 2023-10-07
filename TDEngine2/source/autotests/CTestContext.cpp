@@ -108,6 +108,8 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		pReporter->WriteTestsStatistics({ mPassedTestsCount, mFailedTestsCount });
+
 		for (auto&& currTestFixtureEntry : mTestResults)
 		{
 			pReporter->EnterTestFixtureSection(currTestFixtureEntry.first);

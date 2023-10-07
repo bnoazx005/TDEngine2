@@ -21,6 +21,13 @@ namespace TDEngine2
 	TDE2_DECLARE_SCOPED_PTR(IFileSystem)
 
 
+	struct TTestContextStatistics
+	{
+		U32 mPassedTestsCount = 0;
+		U32 mFailedTestsCount = 0;
+	};
+
+
 	/*!
 		interface ITestReporter
 
@@ -37,6 +44,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Init(TPtr<IFileSystem> pFileSystem, const std::string& filename) = 0;
+
+			TDE2_API virtual E_RESULT_CODE WriteTestsStatistics(const TTestContextStatistics& stats) = 0;
 
 			TDE2_API virtual E_RESULT_CODE EnterTestFixtureSection(const std::string& testFixtureName) = 0;
 			TDE2_API virtual E_RESULT_CODE ExitTestFixtureSection() = 0;

@@ -49,6 +49,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Init(TPtr<IFileSystem> pFileSystem, const std::string& filename) override;
 
+			TDE2_API E_RESULT_CODE WriteTestsStatistics(const TTestContextStatistics& stats) override;
+
 			TDE2_API E_RESULT_CODE EnterTestFixtureSection(const std::string& testFixtureName) override;
 			TDE2_API E_RESULT_CODE ExitTestFixtureSection() override;
 
