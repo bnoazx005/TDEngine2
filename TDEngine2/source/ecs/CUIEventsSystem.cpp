@@ -8,7 +8,7 @@
 #include "../../include/core/IInputContext.h"
 #include "../../include/core/IImGUIContext.h"
 #include "../../include/editor/CPerfProfiler.h"
-#include <stack>
+#include <queue>
 #include <unordered_set>
 
 
@@ -113,7 +113,7 @@ namespace TDEngine2
 		{
 			CTransform* pTransform = pWorld->FindEntity(currCanvasEntity)->GetComponent<CTransform>();
 
-			std::stack<std::tuple<TEntityId, U32, USIZE>> entitiesToVisit; // last arg is a parent's index
+			std::queue<std::tuple<TEntityId, U32, USIZE>> entitiesToVisit; // last arg is a parent's index
 
 			entitiesToVisit.emplace(currCanvasEntity, 0, (std::numeric_limits<USIZE>::max)());
 
@@ -126,7 +126,7 @@ namespace TDEngine2
 
 			while (!entitiesToVisit.empty())
 			{
-				std::tie(currEntityId, currPriority, parentIndex) = entitiesToVisit.top();
+				std::tie(currEntityId, currPriority, parentIndex) = entitiesToVisit.front();
 				entitiesToVisit.pop();
 
 				pEntity = pWorld->FindEntity(currEntityId);
@@ -248,17 +248,9 @@ namespace TDEngine2
 			pInputReceiver = inputReceivers[index];
 			pLayoutElement = layoutElements[index];
 
-			if (pInputReceiver)
+			if (!pInputReceiver || (pInputReceiver && pInputReceiver->mIsIgnoreInput))
 			{
-				pInputReceiver->mIsHovered = false;
-
-				if (pInputReceiver->mIsIgnoreInput/* || isImGUIActive*/)
-				{
-					pInputReceiver->mPrevState = pInputReceiver->mCurrState; // reset state
-					pInputReceiver->mCurrState = false;
-
-					continue;
-				}
+				continue;
 			}
 
 			pCurrEntity = pWorld->FindEntity(pTransform->GetOwnerId());
@@ -275,7 +267,6 @@ namespace TDEngine2
 			/// \fixme For now it's the simplest solution for checking buttons 
 			pInputReceiver->mIsHovered = ContainsPoint(uiMasks[index], mousePosition);
 
-			pInputReceiver->mPrevState = pInputReceiver->mCurrState;
 			pInputReceiver->mCurrState = pInputReceiver->mIsHovered && pInputContext->IsMouseButton(0);
 
 			pInputReceiver->mIsControlModifierActive = pInputContext->IsKey(E_KEYCODES::KC_LCONTROL) || pInputContext->IsKey(E_KEYCODES::KC_RCONTROL);
@@ -318,9 +309,29 @@ namespace TDEngine2
 	}
 
 
+	static void ResetInputReceivers(std::vector<CInputReceiver*>& inputReceivers)
+	{
+		for (USIZE i = 0; i < inputReceivers.size(); i++)
+		{
+			CInputReceiver* pInputReceiver = inputReceivers[i];
+			if (!pInputReceiver)
+			{
+				continue;
+			}
+
+			pInputReceiver->mIsHovered = false;
+
+			pInputReceiver->mPrevState = pInputReceiver->mCurrState; // reset state
+			pInputReceiver->mCurrState = false;
+		}
+	}
+
+
 	void CUIEventsSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		TDE2_PROFILER_SCOPE("CUIEventsSystem::Update");
+
+		ResetInputReceivers(mContext.mpInputReceivers);
 
 		for (auto&& currCanvasEntities : mContext.mCanvasesRanges)
 		{
