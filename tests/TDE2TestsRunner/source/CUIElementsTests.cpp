@@ -427,6 +427,105 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 		pTestCase->WaitForNextFrame();
 	}
 
+	TDE2_TEST_CASE("TestInputEvents_SpawnHierarchyWithNestedInputReceiversAndClicksOverNestedButton_NestedButtonShouldConsumeInputEvents")
+	{
+		static CEntity* pCanvasEntity = nullptr;
+		static CEntity* pButtonEntity = nullptr;
+		static CEntity* pNestedButtonEntity = nullptr;
+
+		/// \note Create a hierarchy
+		/// Button
+		///    NestedButton
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			auto&& canvasEntityResult = CSceneHierarchyUtils::CreateCanvasUIElement(pWorld, pMainScene, TEntityId::Invalid, [](auto) {});
+			TDE2_TEST_IS_TRUE(canvasEntityResult.IsOk());
+
+			pCanvasEntity = pWorld->FindEntity(canvasEntityResult.Get());
+
+			auto&& buttonEntityResult = CSceneHierarchyUtils::CreateButtonUIElement(pWorld, pMainScene, canvasEntityResult.Get(), [](auto) {});
+			TDE2_TEST_IS_TRUE(buttonEntityResult.IsOk());
+
+			pButtonEntity = pWorld->FindEntity(buttonEntityResult.Get());
+
+			auto&& nestedButtonEntityResult = CSceneHierarchyUtils::CreateButtonUIElement(pWorld, pMainScene, buttonEntityResult.Get(), [](auto) {});
+			TDE2_TEST_IS_TRUE(nestedButtonEntityResult.IsOk());
+
+			pNestedButtonEntity = pWorld->FindEntity(nestedButtonEntityResult.Get());
+
+			if (auto pLayoutElement = pNestedButtonEntity->GetComponent<CLayoutElement>())
+			{
+				pLayoutElement->SetMinOffset(TVector2(70.0f, 0.0f));
+			}
+		});
+
+		pTestCase->WaitForNextFrame();
+
+		pTestCase->SetCursorPosition(TVector3(80.0f, 15.0f, 0.0f)); /// click over the nested button
+		pTestCase->AddPressMouseButton(0);
+
+		pTestCase->ExecuteAction([&]
+		{
+			if (auto pInputReceiver = pButtonEntity->GetComponent<CInputReceiver>())
+			{
+				TDE2_TEST_IS_TRUE(!pInputReceiver->mIsHovered);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->mPrevState);
+			}
+
+			if (auto pInputReceiver = pNestedButtonEntity->GetComponent<CInputReceiver>())
+			{
+				TDE2_TEST_IS_TRUE(pInputReceiver->mIsHovered);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
+				TDE2_TEST_IS_TRUE(pInputReceiver->mPrevState);
+			}
+		});
+
+		pTestCase->WaitForNextFrame();
+
+		pTestCase->SetCursorPosition(TVector3(20.0f, 15.0f, 0.0f)); /// click over the top button
+		pTestCase->AddPressMouseButton(0);
+
+		pTestCase->ExecuteAction([&]
+		{
+			if (auto pInputReceiver = pButtonEntity->GetComponent<CInputReceiver>())
+			{
+				TDE2_TEST_IS_TRUE(pInputReceiver->mIsHovered);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
+				TDE2_TEST_IS_TRUE(pInputReceiver->mPrevState);
+			}
+
+			if (auto pInputReceiver = pNestedButtonEntity->GetComponent<CInputReceiver>())
+			{
+				TDE2_TEST_IS_TRUE(!pInputReceiver->mIsHovered);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->mPrevState);
+			}
+		});
+
+		/// \note Destroy the canvas entity
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pMainScene = pSceneManager->GetScene(MainScene).Get();
+			TDE2_TEST_IS_TRUE(pMainScene);
+
+			TDE2_TEST_IS_TRUE(RC_OK == pMainScene->RemoveEntity(pCanvasEntity->GetId()));
+		});
+	}
+
 	TDE2_TEST_CASE("TestInputEvents_SpawnCanvasWithTwoButtons_TopButtonShouldReceiveInputAndStopItsPropagationToDownOne")
 	{
 		static CEntity* pCanvasEntity = nullptr;
@@ -1132,11 +1231,11 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 		{
 			pTestCase->SetCursorPosition(TVector3(100.0f, 265.0f, 0.0f)); // focus on drop down
 			pTestCase->AddPressMouseButton(0);
-			pTestCase->WaitForNextFrame();
+			pTestCase->Wait(0.25f);
 
 			pTestCase->SetCursorPosition(TVector3(100.0f, 265.0f - 40.0f * static_cast<F32>(i + 1), 0.0f)); // select an item
 			pTestCase->AddPressMouseButton(0);
-			pTestCase->WaitForNextFrame();
+			pTestCase->Wait(0.25f);
 
 			pTestCase->ExecuteAction([&, expectedItemIndex = i] // check the selected item
 			{
