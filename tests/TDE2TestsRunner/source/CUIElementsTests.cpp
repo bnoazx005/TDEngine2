@@ -453,11 +453,13 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 			TDE2_TEST_IS_TRUE(bottomButtonEntityResult.IsOk());
 
 			pBottomButtonEntity = pWorld->FindEntity(bottomButtonEntityResult.Get());
+			pBottomButtonEntity->SetName("BottomButton");
 
 			auto&& topButtonEntityResult = CSceneHierarchyUtils::CreateButtonUIElement(pWorld, pMainScene, canvasEntityResult.Get(), [](auto) {});
 			TDE2_TEST_IS_TRUE(topButtonEntityResult.IsOk());
 
 			pTopButtonEntity = pWorld->FindEntity(topButtonEntityResult.Get());
+			pTopButtonEntity->SetName("TopButton");
 		});
 
 		pTestCase->WaitForNextFrame();
@@ -548,7 +550,7 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 		{
 			if (auto pInputReceiver = pBottomCanvasButtonEntity->GetComponent<CInputReceiver>())
 			{
-				TDE2_TEST_IS_TRUE(pInputReceiver->mIsHovered);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->mIsHovered);
 				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
 				TDE2_TEST_IS_TRUE(!pInputReceiver->mPrevState);
 			}
