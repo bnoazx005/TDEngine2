@@ -191,7 +191,7 @@ namespace TDEngine2
 
 	// The method returns true if the input was consumed by some of internal canvas element
 	static bool ProcessCanvasInput(IWorld* pWorld, CUIEventsSystem::TSystemContext& context, IDesktopInputContext* pInputContext, 
-		const TRange<USIZE>& canvasRange, bool isImGUIActive, std::string& inputBuffer)
+		const TRange<USIZE>& canvasRange, bool isImGUIActive, std::string& inputBuffer, TEntityId& currFocusedInputEntity)
 	{
 		auto& transforms = context.mpTransforms;
 		auto& layoutElements = context.mpLayoutElements;
@@ -243,23 +243,15 @@ namespace TDEngine2
 
 			/// focus/unfocus logic
 			{
-				if (pInputContext->IsMouseButtonPressed(0) && pInputReceiver->mIsHovered && !pInputReceiver->mIsFocused)
+				if ((TEntityId::Invalid == currFocusedInputEntity) && pInputContext->IsMouseButtonPressed(0) && pInputReceiver->mIsHovered && !pInputReceiver->mIsFocused)
 				{
 					pInputReceiver->mIsFocused = true;
+					currFocusedInputEntity = pTransform->GetOwnerId();
 				}
 
 				if (pInputReceiver->mIsFocused)
 				{
 					pInputReceiver->mInputBuffer = inputBuffer;
-				}
-
-				const bool isCancelAction = pInputContext->IsKeyPressed(E_KEYCODES::KC_ESCAPE);
-
-				if (!pInputReceiver->mIsHovered && (pInputContext->IsMouseButtonPressed(0) || isCancelAction) || pInputContext->IsKeyPressed(E_KEYCODES::KC_RETURN))
-				{
-					pInputReceiver->mIsFocused = false;
-
-					inputBuffer.clear();
 				}
 			}
 
@@ -301,10 +293,32 @@ namespace TDEngine2
 
 		for (auto&& currCanvasEntities : mContext.mCanvasesRanges)
 		{
-			if (ProcessCanvasInput(pWorld, mContext, mpDesktopInputContext, currCanvasEntities, mpImGUIContext && mpImGUIContext->IsMouseOverUI(), mInputBuffer))
+			if (ProcessCanvasInput(pWorld, mContext, mpDesktopInputContext, currCanvasEntities, mpImGUIContext && mpImGUIContext->IsMouseOverUI(),
+				mInputBuffer, mCurrFocusedInputEntity))
 			{
 				break;
 			}
+		}
+
+		// \note unfocus logic
+		// \todo refactor this later
+		const bool isCancelAction = mpDesktopInputContext->IsKeyPressed(E_KEYCODES::KC_ESCAPE);
+
+		if (auto pEntity = pWorld->FindEntity(mCurrFocusedInputEntity))
+		{
+			if (auto pInputReceiver = pEntity->GetComponent<CInputReceiver>())
+			{
+				if (!pInputReceiver->mIsHovered && (mpDesktopInputContext->IsMouseButtonPressed(0) || isCancelAction) || mpDesktopInputContext->IsKeyPressed(E_KEYCODES::KC_RETURN))
+				{
+					pInputReceiver->mIsFocused = false;
+					mCurrFocusedInputEntity = TEntityId::Invalid;
+					mInputBuffer.clear();
+				}
+			}
+		}
+		else
+		{
+			mCurrFocusedInputEntity = TEntityId::Invalid;
 		}
 	}
 

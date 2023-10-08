@@ -96,6 +96,8 @@ namespace TDEngine2
 			IImGUIContext* mpImGUIContext;
 
 			std::string mInputBuffer;
+
+			TEntityId mCurrFocusedInputEntity = TEntityId::Invalid;
 	};
 
 
