@@ -308,6 +308,8 @@ namespace TDEngine2
 			{
 				pCanvas->SetWidth(width);
 				pCanvas->SetHeight(height);
+
+				canvasesContext.mpLayoutElements[id]->SetDirty(true);
 			}
 
 			if (!pCanvas->IsDirty())
