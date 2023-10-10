@@ -1,0 +1,62 @@
+entities: 
+  - link: 
+      id: 10302
+      parent_id: 2530779440
+      position: 
+        x: 4.131809
+        y: 3.633381
+        z: 9.559008
+      prefab_id: TestPrefab
+  - link: 
+      id: 10312
+      parent_id: 2530779440
+      position: 
+        x: 4.131809
+        y: 3.633381
+        z: 9.559008
+      prefab_id: TestPrefab
+  - entity: 
+      components: 
+        - component: 
+            Children: 
+              - child_id: 10302
+              - child_id: 10312
+            owner_id: 2530779440
+            parent_id: 4294967295
+            position: 
+              x: 0.000000
+            rotation: 
+              w: 1.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+      id: 2530779440
+      name: Root
+  - entity:
+      components:
+        - component: 
+            owner_id: 42424242
+            pivot: 
+              x: 462.000000
+              y: 668.000000
+            position: 
+              x: 0.000000
+            rotation: 
+              w: 1.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component:
+            ref: 
+              ref_path: 2530779440
+            type_id: 2869065568
+      id: 42424242
+      name: EntityWithRef
+name: TestLoadEntityRefs.scene
+scene_properties: 
+  is_main: 0
+version: 0

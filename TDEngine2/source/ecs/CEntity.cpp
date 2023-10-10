@@ -236,9 +236,29 @@ namespace TDEngine2
 		\brief CEntityRef's definition
 	*/
 
+
+	static std::vector<U32> GetPathIdentifiersFromStr(const std::string& refStr)
+	{
+		std::vector<U32> path;
+
+		for (auto&& currId : Wrench::StringUtils::Split(refStr, "."))
+		{
+			path.push_back(static_cast<U32>(atoll(currId.c_str())));
+		}
+
+		return std::move(path);
+	}
+
+
 	CEntityRef::CEntityRef(CEntityManager* pEntityManager, TEntityId entityRef):
 		ISerializable(), mpEntityManager(pEntityManager), mEntityRef(entityRef)
 	{
+	}
+
+	CEntityRef::CEntityRef(CEntityManager* pEntityManager, const std::string& refStr):
+		ISerializable(), mpEntityManager(pEntityManager), mEntityRef(TEntityId::Invalid), mRefStr(refStr)
+	{
+		mPathIdentifiers = GetPathIdentifiersFromStr(mRefStr);
 	}
 
 	E_RESULT_CODE CEntityRef::Load(IArchiveReader* pReader)
@@ -251,12 +271,7 @@ namespace TDEngine2
 		mEntityRef = TEntityId::Invalid;
 		mRefStr = pReader->GetString("ref_path");
 
-		mPathIdentifiers.clear();
-
-		for (auto&& currId : Wrench::StringUtils::Split(mRefStr, "."))
-		{
-			mPathIdentifiers.push_back(static_cast<U32>(atoll(currId.c_str())));
-		}
+		mPathIdentifiers = GetPathIdentifiersFromStr(mRefStr);
 
 		return RC_OK;
 	}
@@ -281,6 +296,8 @@ namespace TDEngine2
 			pathOutput = std::to_string(pObjIdComponent->mId) + (isPathEmpty ? Wrench::StringUtils::GetEmptyStr() : delimiter) + pathOutput;
 			return;
 		}
+
+		pathOutput = std::to_string(static_cast<U32>(pCurrEntity->GetId())) + (isPathEmpty ? Wrench::StringUtils::GetEmptyStr() : delimiter) + pathOutput;
 	}
 
 
@@ -325,11 +342,14 @@ namespace TDEngine2
 		{
 			AppendPath(pCurrEntity, serializedRefStr);
 			
-			pCurrEntity = TraverseUpToNextLink(mpEntityManager, pCurrEntity);
-			if (pCurrEntity)
+			if (!pCurrEntity->HasComponent<CPrefabLinkInfoComponent>()) // \note For nested prefabs a link is already stored in scene's file so we can find it via that one
 			{
-				AppendPath(pCurrEntity, serializedRefStr);
-			}
+				pCurrEntity = TraverseUpToNextLink(mpEntityManager, pCurrEntity);
+				if (pCurrEntity)
+				{
+					AppendPath(pCurrEntity, serializedRefStr);
+				}
+			}			
 		}
 
 #if TDE2_EDITORS_ENABLED

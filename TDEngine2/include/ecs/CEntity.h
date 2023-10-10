@@ -292,6 +292,7 @@ namespace TDEngine2
 		public:
 			TDE2_API CEntityRef() = default;
 			TDE2_API CEntityRef(CEntityManager* pEntityManager, TEntityId entityRef);
+			TDE2_API CEntityRef(CEntityManager* pEntityManager, const std::string& refStr);
 
 			/*!
 				\brief The method deserializes object's state from given reader
