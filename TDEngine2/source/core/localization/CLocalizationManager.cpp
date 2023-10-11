@@ -3,6 +3,7 @@
 #include "../../include/core/IFileSystem.h"
 #include "../../include/core/IJobManager.h"
 #include "../../include/core/IResourceManager.h"
+#include "../../include/core/CGameUserSettings.h"
 #include "../../include/platform/CYAMLFile.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/editor/CPerfProfiler.h"
@@ -122,8 +123,7 @@ namespace TDEngine2
 			mRegisteredLocales.push_back({ currLocaleInfo.mName, currLocaleInfo.mPackagePath, currLocaleInfo.mId });
 		}
 
-		mCurrSelectedLocaleId = _getLocaleHashInternal(settings.mCurrActiveLocaleId);
-		//TDE2_ASSERT(TLocaleId::Invalid != mCurrSelectedLocaleId);
+		mCurrSelectedLocaleId = _getLocaleHashInternal(CGameUserSettings::Get()->mCurrLanguage);
 
 		return RC_OK;
 	}

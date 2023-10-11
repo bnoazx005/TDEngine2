@@ -263,8 +263,6 @@ namespace TDEngine2
 				}
 			}
 			pFileReader->EndGroup();
-
-			localizationSettings.mCurrActiveLocaleId = pFileReader->GetString(TProjectSettingsArchiveKeys::TLocalizationSettingsKeys::mCurrActiveLocaleKey);
 		}
 		result = result | pFileReader->EndGroup();
 

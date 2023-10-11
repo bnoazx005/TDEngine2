@@ -120,7 +120,6 @@ namespace TDEngine2
 				};
 
 				std::vector<TLocaleInfo> mRegisteredLocales;
-				std::string mCurrActiveLocaleId;
 			} mLocalizationSettings;
 
 

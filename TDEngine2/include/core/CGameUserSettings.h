@@ -9,6 +9,7 @@
 
 #include "CBaseObject.h"
 #include "CProjectSettings.h"
+#include <string>
 
 
 namespace TDEngine2
@@ -48,6 +49,8 @@ namespace TDEngine2
 			I32 mWindowHeight = 768;
 
 			bool mIsFullscreenEnabled = false;
+
+			std::string mCurrLanguage = "en";
 
 			CProjectSettings::TQualityPreset mCurrent;
 	};
