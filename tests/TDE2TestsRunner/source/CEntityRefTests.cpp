@@ -49,7 +49,7 @@ class CEntityRefHolder : public TDEngine2::CBaseComponent, public TDEngine2::CPo
 
 		TDE2_API TDEngine2::E_RESULT_CODE PostLoad(TDEngine2::CEntityManager* pEntityManager, const TDEngine2::TEntitiesMapper& entitiesIdentifiersRemapper) override
 		{
-			mRef.SetEntityManager(pEntityManager);
+			mRef.PostLoad(pEntityManager, entitiesIdentifiersRemapper);
 
 			return CBaseComponent::PostLoad(pEntityManager, entitiesIdentifiersRemapper);
 		}

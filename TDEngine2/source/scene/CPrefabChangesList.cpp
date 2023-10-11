@@ -193,7 +193,7 @@ namespace TDEngine2
 		{
 			auto& targetLinkRef = currChangeEntry.mTargetLinkEntityId;
 
-			targetLinkRef.SetEntityManager(pEntityManager);
+			targetLinkRef.PostLoad(pEntityManager, entitiesMappings);
 			targetLinkRef.Set(TEntityId::Invalid);
 			
 			auto pProperty = ResolveBinding(pEntityManager, pEntityManager->GetEntity(targetLinkRef.Get()).Get(), currChangeEntry.mPropertyBinding);

@@ -314,7 +314,7 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
-			TDE2_API E_RESULT_CODE SetEntityManager(CEntityManager* pEntityManager);
+			TDE2_API E_RESULT_CODE PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper);
 
 			TDE2_API void Set(TEntityId ref);
 			TDE2_API TEntityId Get();

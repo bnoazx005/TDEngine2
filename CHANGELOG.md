@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.21] 2023-10-10
+## [0.6.21] 2023-10-11
 
 ### Added
 
@@ -38,6 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The issue that context menus are opened only on folded hierarchies roots was fixed.
 
 - (Issue #96) Processing of input within canvases was fixed.
+
+- Correct remapping stage of **CEntityRef** was implemented.
 
 ## [0.6.20] 2023-09-27
 

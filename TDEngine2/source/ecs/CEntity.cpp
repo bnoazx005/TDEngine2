@@ -408,7 +408,7 @@ namespace TDEngine2
 	}
 
 
-	E_RESULT_CODE CEntityRef::SetEntityManager(CEntityManager* pEntityManager)
+	E_RESULT_CODE CEntityRef::PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper)
 	{
 		if (!pEntityManager)
 		{
@@ -416,6 +416,20 @@ namespace TDEngine2
 		}
 
 		mpEntityManager = pEntityManager;
+
+		if (TEntityId::Invalid != mEntityRef)
+		{
+			mEntityRef = entitiesIdentifiersRemapper.Resolve(mEntityRef);
+			return RC_OK;
+		}
+
+		if (!mPathIdentifiers.empty())
+		{
+			for (U32& pathPartId : mPathIdentifiers)
+			{
+				pathPartId = static_cast<U32>(entitiesIdentifiersRemapper.Resolve(static_cast<TEntityId>(pathPartId)));
+			}
+		}
 
 		return RC_OK;
 	}
