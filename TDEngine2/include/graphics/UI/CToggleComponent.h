@@ -76,11 +76,11 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
-			void SetState(bool state);
-			void SetMarkerEntityId(TEntityId markerId);
+			TDE2_API void SetState(bool state);
+			TDE2_API void SetMarkerEntityId(TEntityId markerId);
 
-			bool GetState() const;
-			TEntityId GetMarkerEntityId() const;
+			TDE2_API bool GetState() const;
+			TDE2_API TEntityId GetMarkerEntityId() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CToggle)
 		protected:
