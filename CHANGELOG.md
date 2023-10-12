@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.21] 2023-10-11
+## [0.6.21] 2023-10-12
 
 ### Added
 
@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new way of automated components registration was introduced.
 
 - A casting operator to **TVector2** for **TVector3** type was added.
+
+- Extend API of **ILocalizationManager** with new public method GetAvailableLanguages().
 
 ### Changed
 

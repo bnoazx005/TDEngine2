@@ -13,6 +13,7 @@
 #include "../../core/IEngineSubsystem.h"
 #include "../../core/CProjectSettings.h"
 #include <string>
+#include <vector>
 
 
 namespace TDEngine2
@@ -97,6 +98,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual TLocaleId GetLocaleHash(const std::string& localeId) const = 0;
+
+			/*!
+				\return The method returns an array with identifiers of locales that are available to be loaded
+			*/
+
+			TDE2_API virtual std::vector<std::string> GetAvailableLanguages() const = 0;
 
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return E_ENGINE_SUBSYSTEM_TYPE::EST_LOCALIZATION_MANAGER; }
 

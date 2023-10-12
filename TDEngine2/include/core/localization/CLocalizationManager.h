@@ -117,6 +117,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TLocaleId GetLocaleHash(const std::string& localeId) const override;
+
+			/*!
+				\return The method returns an array with identifiers of locales that are available to be loaded
+			*/
+
+			TDE2_API std::vector<std::string> GetAvailableLanguages() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CLocalizationManager)
 

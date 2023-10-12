@@ -8,6 +8,7 @@
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include <stringUtils.hpp>
+#include <algorithm>
 
 
 namespace TDEngine2
@@ -108,6 +109,19 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 		return _getLocaleHashInternal(localeId);
+	}
+
+	std::vector<std::string> CLocalizationManager::GetAvailableLanguages() const
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		std::vector<std::string> availableLocales;
+		std::transform(mRegisteredLocales.cbegin(), mRegisteredLocales.cend(), std::back_inserter(availableLocales), [](const TLocaleInfoEntity& info)
+		{
+			return info.mName;
+		});
+
+		return availableLocales;
 	}
 
 	TLocaleId CLocalizationManager::_getLocaleHashInternal(const std::string& localeId) const
