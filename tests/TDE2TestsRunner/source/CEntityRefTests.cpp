@@ -284,6 +284,90 @@ TDE2_TEST_FIXTURE("EntityRefTests")
 		});
 	}
 
+	TDE2_TEST_CASE("TestSave_LoadSceneThenAddEntityHolderComponentWithReferenceToSomePrefabsChildAndSerializeIt_TheRefShouldContainSingleIdToThatChild")
+	{
+		static TSceneId testSceneHandle = TSceneId::Invalid;
+
+		static const std::string TestSceneId = "TestLoadEntityRefs.scene";
+
+		/// \note Spawn a prefab
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			E_RESULT_CODE result = RC_OK;
+			pWorld->RegisterComponentFactory(TPtr<IComponentFactory>(CreateEntityRefHolderFactory(result)));
+
+			pSceneManager->LoadSceneAsync("ProjectResources/Scenes/TestLoadEntityRefs.scene", [&](const TResult<TSceneId>& sceneIdResult)
+			{
+				testSceneHandle = sceneIdResult.Get();
+			});
+		});
+
+		pTestCase->WaitForCondition([&] { return TSceneId::Invalid != testSceneHandle; });
+
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pTestScene = pSceneManager->GetScene(pSceneManager->GetSceneId(TestSceneId)).Get();
+			TDE2_TEST_IS_TRUE(pTestScene);
+
+			CEntity* pPrefab = pWorld->FindEntity(TEntityId(10302));
+			TDE2_TEST_IS_TRUE(pPrefab);
+
+			CEntityRefHolder* pHolder = pPrefab->AddComponent<CEntityRefHolder>();
+			pHolder->mRef = CEntityRef(pWorld->GetEntityManager(), pPrefab->GetComponent<CTransform>()->GetChildren()[1]);
+
+			TDE2_TEST_IS_TRUE(pHolder->mRef.IsResolved());
+
+			{
+				E_RESULT_CODE result = RC_OK;
+
+				auto pMemoryMappedStream = TPtr<TDEngine2::IStream>(CreateMemoryIOStream(Wrench::StringUtils::GetEmptyStr(), {}, result));
+				if (!pMemoryMappedStream)
+				{
+					TDE2_TEST_IS_TRUE(false);
+					return;
+				}
+
+				IYAMLFileWriter* pFileWriter = dynamic_cast<IYAMLFileWriter*>(CreateYAMLFileWriter(nullptr, pMemoryMappedStream, result));
+				if (!pFileWriter)
+				{
+					TDE2_TEST_IS_TRUE(false);
+					return;
+				}
+
+				result = result | pPrefab->Save(pFileWriter);
+				result = result | pFileWriter->Close();
+
+				auto&& pathParts = pHolder->mRef.GetPath();
+
+				TDE2_TEST_IS_TRUE(pathParts.size() == 1);
+				TDE2_TEST_IS_TRUE(static_cast<TEntityId>(pathParts.front()) == pPrefab->GetComponent<CTransform>()->GetChildren()[1]);
+
+				TDE2_TEST_IS_TRUE(RC_OK == result);
+			}
+		});
+
+		pTestCase->ExecuteAction([&]
+		{
+			IEngineCore* pEngineCore = CTestContext::Get()->GetEngineCore();
+
+			auto pSceneManager = pEngineCore->GetSubsystem<ISceneManager>();
+			auto pWorld = pSceneManager->GetWorld();
+
+			auto pTestScene = pSceneManager->GetScene(pSceneManager->GetSceneId(TestSceneId)).Get();
+			TDE2_TEST_IS_TRUE(RC_OK == pSceneManager->UnloadScene(pSceneManager->GetSceneId(pTestScene->GetName())));
+		});
+	}
+
 	TDE2_TEST_CASE("TestSave_LoadSceneWithNestedPrefabsThenCreateReferenceToSimpleEntityAndSerializeIt_TheReferenceIsSingleEntityId")
 	{
 		static TSceneId testSceneHandle = TSceneId::Invalid;
