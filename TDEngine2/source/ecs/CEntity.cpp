@@ -89,6 +89,10 @@ namespace TDEngine2
 			pWriter->SetUInt32("id", static_cast<U32>(mId));
 			pWriter->SetString("name", mName);
 
+#if TDE2_EDITORS_ENABLED
+			pWriter->SetTempGlobalUInt32("id", static_cast<U32>(mId)); // the value can be used in CEntityRef to correctly resolve paths
+#endif
+
 			pWriter->BeginGroup("components", true);
 			{
 				auto&& components = mpEntityManager->GetComponents(mId);
@@ -342,6 +346,25 @@ namespace TDEngine2
 		{
 			AppendPath(pCurrEntity, serializedRefStr);
 			
+#if TDE2_EDITORS_ENABLED
+			auto refOwnerEntityIdResult = pWriter->GetTempGlobalUInt32("id");
+			CEntity* pEntityRefOwner = mpEntityManager->GetEntity(refOwnerEntityIdResult.IsOk() ? static_cast<TEntityId>(refOwnerEntityIdResult.Get()) : TEntityId::Invalid).Get();
+
+			const bool doRefTargetAndOwnerHasSameRoot = 
+				pEntityRefOwner ?
+					(TraverseUpToNextLink(mpEntityManager, pCurrEntity) == (pEntityRefOwner->HasComponent<CPrefabLinkInfoComponent>() ? pEntityRefOwner : TraverseUpToNextLink(mpEntityManager, pEntityRefOwner)))
+					: false;
+
+			if (!doRefTargetAndOwnerHasSameRoot && !pCurrEntity->HasComponent<CPrefabLinkInfoComponent>()) // \note For nested prefabs a link is already stored in scene's file so we can find it via that one
+			{
+				pCurrEntity = TraverseUpToNextLink(mpEntityManager, pCurrEntity);
+				if (pCurrEntity)
+				{
+					AppendPath(pCurrEntity, serializedRefStr);
+				}
+			}
+#else
+
 			if (!pCurrEntity->HasComponent<CPrefabLinkInfoComponent>()) // \note For nested prefabs a link is already stored in scene's file so we can find it via that one
 			{
 				pCurrEntity = TraverseUpToNextLink(mpEntityManager, pCurrEntity);
@@ -349,7 +372,8 @@ namespace TDEngine2
 				{
 					AppendPath(pCurrEntity, serializedRefStr);
 				}
-			}			
+			}	
+#endif
 		}
 
 #if TDE2_EDITORS_ENABLED

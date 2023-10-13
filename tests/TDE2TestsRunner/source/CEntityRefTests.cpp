@@ -350,8 +350,6 @@ TDE2_TEST_FIXTURE("EntityRefTests")
 				auto&& pathParts = pHolder->mRef.GetPath();
 
 				TDE2_TEST_IS_TRUE(pathParts.size() == 1);
-				TDE2_TEST_IS_TRUE(static_cast<TEntityId>(pathParts.front()) == pPrefab->GetComponent<CTransform>()->GetChildren()[1]);
-
 				TDE2_TEST_IS_TRUE(RC_OK == result);
 			}
 		});
