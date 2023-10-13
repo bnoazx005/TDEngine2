@@ -89,6 +89,17 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SetBool(const std::string& key, bool value) override;
 
 			TDE2_API E_RESULT_CODE SetString(const std::string& key, const std::string& value) override;
+
+#if TDE2_EDITORS_ENABLED
+			/*!
+				\brief The method allows to store some global values that WON't be actually written to any place
+				but can be used while the instance exists
+			*/
+
+			TDE2_API E_RESULT_CODE SetTempGlobalUInt32(const std::string& key, U32 value) override;
+
+			TDE2_API TResult<U32> GetTempGlobalUInt32(const std::string& key) const override;
+#endif
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CYAMLFileWriter)
 
@@ -124,6 +135,10 @@ namespace TDEngine2
 			bool              mIsArrayScope = false;
 
 			TArrayScopesStack mArrayContext;
+
+#if TDE2_EDITORS_ENABLED
+			std::unordered_map<std::string, U32> mTemporaryGlobalVariables;
+#endif
 	};
 
 

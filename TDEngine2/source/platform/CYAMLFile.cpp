@@ -166,6 +166,28 @@ namespace TDEngine2
 		return _setContent<std::string>(key, value);
 	}
 
+#if TDE2_EDITORS_ENABLED
+
+	E_RESULT_CODE CYAMLFileWriter::SetTempGlobalUInt32(const std::string& key, U32 value)
+	{
+		mTemporaryGlobalVariables[key] = value;
+
+		return RC_OK;
+	}
+
+	TResult<U32> CYAMLFileWriter::GetTempGlobalUInt32(const std::string& key) const
+	{
+		auto it = mTemporaryGlobalVariables.find(key);
+		if (it == mTemporaryGlobalVariables.cend())
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		return Wrench::TOkValue<U32>(it->second);
+	}
+
+#endif
+
 	E_RESULT_CODE CYAMLFileWriter::_internalSerialize(Yaml::Node& object)
 	{
 		if (!mpStreamImpl->IsValid())

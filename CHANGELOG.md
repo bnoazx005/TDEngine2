@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.21] 2023-10-12
+## [0.6.21] 2023-10-13
 
 ### Added
 
@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A casting operator to **TVector2** for **TVector3** type was added.
 
 - Extend API of **ILocalizationManager** with new public method GetAvailableLanguages().
+
+- Extend API of **IArchiveWriter** with two methods that allow to store temporary user data during existance of a writer.
 
 ### Changed
 

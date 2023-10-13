@@ -164,6 +164,17 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE SetBool(const std::string& key, bool value) = 0;
 
 			TDE2_API virtual E_RESULT_CODE SetString(const std::string& key, const std::string& value) = 0;
+
+#if TDE2_EDITORS_ENABLED
+			/*!
+				\brief The method allows to store some global values that WON't be actually written to any place
+				but can be used while the instance exists
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SetTempGlobalUInt32(const std::string& key, U32 value) = 0;
+
+			TDE2_API virtual TResult<U32> GetTempGlobalUInt32(const std::string& key) const = 0;
+#endif
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IArchiveWriter);
 	};
