@@ -7,6 +7,7 @@
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/graphics/CBaseGraphicsObjectManager.h"
 #include "../../include/utils/CFileLogger.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include <unordered_map>
 #include <string>
 
@@ -46,6 +47,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseShaderLoader::LoadResource(IResource* pResource) const
 	{
+		TDE2_PROFILER_SCOPE("CBaseShaderLoader::LoadResource");
+
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;

@@ -73,6 +73,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CParticlesSimulationSystem::Init(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager)
 	{
+		TDE2_PROFILER_SCOPE("CParticlesSimulationSystem::Init");
+
 		if (mIsInitialized)
 		{
 			return RC_FAIL;

@@ -4,7 +4,6 @@
 #include "../include/CD3D11Mappings.h"
 #include "../include/CD3D11RenderTarget.h"
 #include "../include/CD3D11DepthBufferTarget.h"
-#include "../../include/editor/CPerfProfiler.h"
 #include "stringUtils.hpp"
 #define DEFER_IMPLEMENTATION
 #include "deferOperation.hpp"
@@ -12,6 +11,7 @@
 #include <utils/Utils.h>
 #include <core/IEventManager.h>
 #include <core/IWindowSystem.h>
+#include <editor/CPerfProfiler.h>
 #include <unordered_map>
 
 
@@ -29,6 +29,8 @@ namespace TDEngine2
 	
 	E_RESULT_CODE CD3D11GraphicsContext::Init(TPtr<IWindowSystem> pWindowSystem)
 	{
+		TDE2_PROFILER_SCOPE("CD3D11GraphicsContext::Init");
+
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
@@ -58,9 +60,12 @@ namespace TDEngine2
 #if defined(_DEBUG)
 		flags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
+		{
+			TDE2_PROFILER_SCOPE("D3D11CreateDevice");
 
-		d3dCallsResult = D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags, featureLevels, numOfFeatureLevels,
-											D3D11_SDK_VERSION, &mp3dDevice, &mCurrFeatureLevel, &mp3dDeviceContext);
+			d3dCallsResult = D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags, featureLevels, numOfFeatureLevels,
+				D3D11_SDK_VERSION, &mp3dDevice, &mCurrFeatureLevel, &mp3dDeviceContext);
+		}
 
 		if (FAILED(d3dCallsResult))
 		{
@@ -135,6 +140,8 @@ namespace TDEngine2
 	
 	E_RESULT_CODE CD3D11GraphicsContext::_onFreeInternal()
 	{
+		TDE2_PROFILER_SCOPE("CD3D11GraphicsContext::_onFreeInternal");
+
 		E_RESULT_CODE result = RC_OK;
 
 		if (mp3dDeviceContext)
@@ -445,6 +452,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D11GraphicsContext::OnEvent(const TBaseEvent* pEvent)
 	{
+		TDE2_PROFILER_SCOPE("CD3D11GraphicsContext::OnEvent");
+
 		if (pEvent->GetEventType() != TOnWindowResized::GetTypeId())
 		{
 			return RC_OK;
@@ -627,6 +636,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D11GraphicsContext::_createSwapChain(const IWindowSystem* pWindowSystem, ID3D11Device* p3dDevice)
 	{
+		TDE2_PROFILER_SCOPE("CD3D11GraphicsContext::_createSwapChain");
+
 		DXGI_SWAP_CHAIN_DESC swapChainDesc;
 
 		memset(&swapChainDesc, 0, sizeof(swapChainDesc));
@@ -692,6 +703,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D11GraphicsContext::_createBackBuffer(IDXGISwapChain* pSwapChain, ID3D11Device* p3dDevice)
 	{
+		TDE2_PROFILER_SCOPE("CD3D11GraphicsContext::_createBackBuffer");
+
 		ID3D11Texture2D* pBackBuffer;
 
 		if (FAILED(pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pBackBuffer))))
@@ -712,6 +725,8 @@ namespace TDEngine2
 	E_RESULT_CODE CD3D11GraphicsContext::_createDepthBuffer(U32 width, U32 height, IDXGISwapChain* pSwapChain, ID3D11Device* p3dDevice,
 															ID3D11DepthStencilView** ppDepthStencilView, ID3D11Texture2D** pDepthStencilBuffer)
 	{
+		TDE2_PROFILER_SCOPE("CD3D11GraphicsContext::_createDepthBuffer");
+
 		D3D11_TEXTURE2D_DESC depthBufferDesc;
 
 		memset(&depthBufferDesc, 0, sizeof(depthBufferDesc));

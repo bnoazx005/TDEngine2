@@ -37,6 +37,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CObjectsSelectionSystem::Init(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager)
 	{
+		TDE2_PROFILER_SCOPE("CObjectsSelectionSystem::Init");
+
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
@@ -400,6 +402,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CObjectsSelectionSystem::_initSpriteBuffers()
 	{
+		TDE2_PROFILER_SCOPE("CObjectsSelectionSystem::_initSpriteBuffers");
+
 		static const TVector4 quadSpriteVertices[4]
 		{
 			{ -0.5f, 0.5f, 0.0f, 1.0f },
@@ -467,6 +471,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CObjectsSelectionSystem::_initSelectionMaterials()
 	{
+		TDE2_PROFILER_SCOPE("CObjectsSelectionSystem::_initSelectionMaterials");
+
 		const static TMaterialParameters selectionMaterialParams        = CreateSelectionMaterialParams("Selection");
 		const static TMaterialParameters selectionSkinnedMaterialParams = CreateSelectionMaterialParams("SelectionSkinned");
 		const static TMaterialParameters selectionUIMaterialParams      = CreateSelectionMaterialParams("SelectionUI");

@@ -33,6 +33,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CLightingSystem::Init(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager)
 	{
+		TDE2_PROFILER_SCOPE("CLightingSystem::Init");
+
 		if (mIsInitialized)
 		{
 			return RC_FAIL;

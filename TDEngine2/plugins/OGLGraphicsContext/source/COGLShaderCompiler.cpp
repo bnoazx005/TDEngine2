@@ -4,6 +4,7 @@
 #include <stringUtils.hpp>
 #include <platform/CTextFileReader.h>
 #include <utils/CFileLogger.h>
+#include <editor/CPerfProfiler.h>
 #include <algorithm>
 #include <cctype>
 #include <vector>
@@ -26,6 +27,8 @@ namespace TDEngine2
 
 	TResult<TShaderCompilerOutput*> COGLShaderCompiler::Compile(const std::string& source) const
 	{
+		TDE2_PROFILER_SCOPE("COGLShaderCompiler::Compile");
+
 		if (source.empty())
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);

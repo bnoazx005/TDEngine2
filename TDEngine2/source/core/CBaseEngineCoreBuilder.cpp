@@ -96,6 +96,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureGraphicsContext(const std::string& rendererPluginPath)
 	{
+		TDE2_PROFILER_SCOPE("ConfigureGraphicsContext");
+
 		if (!mIsInitialized || !mpPluginManagerInstance)
 		{
 			return RC_FAIL;
@@ -129,6 +131,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureAudioContext(const std::string& audioPluginPath)
 	{
+		TDE2_PROFILER_SCOPE("ConfigureAudioContext");
+
 		if (!mIsInitialized || !mpPluginManagerInstance)
 		{
 			return RC_FAIL;
@@ -153,6 +157,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureWindowSystem(const std::string& name, U32 width, U32 height, U32 flags)
 	{
+		TDE2_PROFILER_SCOPE("ConfigureWindowSystem");
+
 		if (!mIsInitialized || !mpEventManagerInstance)
 		{
 			return RC_FAIL;
@@ -186,6 +192,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureFileSystem()
 	{
+		TDE2_PROFILER_SCOPE("ConfigureFileSystem");
+
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
@@ -226,6 +234,8 @@ namespace TDEngine2
 
 	static TPtr<IResourcesRuntimeManifest> LoadResourcesRuntimeManifest(TPtr<IFileSystem> pFileSystem, const std::string& manifestFilepath)
 	{
+		TDE2_PROFILER_SCOPE("LoadResourcesRuntimeManifest");
+
 		E_RESULT_CODE result = RC_OK;
 
 		auto&& pResourcesManifest = TPtr<IResourcesRuntimeManifest>(CreateResourcesRuntimeManifest(result));
@@ -255,6 +265,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureResourceManager()
 	{
+		TDE2_PROFILER_SCOPE("ConfigureResourceManager");
+
 		if (!mIsInitialized || !mpJobManagerInstance || !mpFileSystemInstance)
 		{
 			return RC_FAIL;
@@ -288,6 +300,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureJobManager(U32 maxNumOfThreads)
 	{
+		TDE2_PROFILER_SCOPE("ConfigureJobManager");
+
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
@@ -310,6 +324,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configurePluginManager()
 	{
+		TDE2_PROFILER_SCOPE("ConfigurePluginManager");
+
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
@@ -332,6 +348,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureEventManager()
 	{
+		TDE2_PROFILER_SCOPE("ConfigureEventManager");
+
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
@@ -351,6 +369,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureRenderer()
 	{
+		TDE2_PROFILER_SCOPE("ConfigureRenderer");
+
 		if (!mIsInitialized || !mpGraphicsContextInstance || !mpResourceManagerInstance)
 		{
 			return RC_FAIL;
@@ -391,6 +411,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureInputContext()
 	{
+		TDE2_PROFILER_SCOPE("ConfigureInputContext");
+
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
@@ -427,6 +449,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureImGUIContext()
 	{
+		TDE2_PROFILER_SCOPE("ConfigureImGUIContext");
+
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
@@ -451,6 +475,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureEditorsManager()
 	{
+		TDE2_PROFILER_SCOPE("ConfigureEditorsManager");
+
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
@@ -531,6 +557,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureSceneManager()
 	{
+		TDE2_PROFILER_SCOPE("ConfigureSceneManager");
+
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
@@ -559,6 +587,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureLocalizationManager()
 	{
+		TDE2_PROFILER_SCOPE("ConfigureLocalizationManager");
+
 		E_RESULT_CODE result = RC_OK;
 
 		// \todo Replace magic constant 
@@ -573,6 +603,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_configureSaveManager()
 	{
+		TDE2_PROFILER_SCOPE("ConfigureSaveManager");
+
 		E_RESULT_CODE result = RC_OK;
 
 		// \todo Replace magic constant 
@@ -592,6 +624,8 @@ namespace TDEngine2
 
 	static E_RESULT_CODE MountMainDirectories(const TPtr<IFileSystem> pFileSystem)
 	{
+		TDE2_PROFILER_SCOPE("MountMainDirectories");
+
 		E_RESULT_CODE result = RC_OK;
 
 		/// \note Register built-in application's paths
@@ -622,6 +656,8 @@ namespace TDEngine2
 
 	static E_RESULT_CODE MountGraphicsDirectories(const TPtr<IFileSystem> pFileSystem, E_GRAPHICS_CONTEXT_GAPI_TYPE type)
 	{
+		TDE2_PROFILER_SCOPE("MountGraphicsDirectories");
+
 		E_RESULT_CODE result = RC_OK;
 
 		static const std::string hlslSubDirectory = "/DX/";
@@ -694,6 +730,8 @@ namespace TDEngine2
 
 	static E_RESULT_CODE LoadUserPlugins(TPtr<IPluginManager> pPluginsManager, const std::vector<std::string>& pluginsIdentifiers)
 	{
+		TDE2_PROFILER_SCOPE("LoadUserPlugins");
+
 		E_RESULT_CODE result = RC_OK;
 
 		/// pluginId is a filename of a shared library, *.dll or *.so files
@@ -712,6 +750,8 @@ namespace TDEngine2
 
 	static E_RESULT_CODE ConfigureGameModesManager(TPtr<IEngineCore> pEngineCore)
 	{
+		TDE2_PROFILER_SCOPE("ConfigureGameModesManager");
+
 		E_RESULT_CODE result = RC_OK;
 
 		auto pSubsystem = TPtr<IGameModesManager>(CreateGameModesManager(result));
@@ -743,6 +783,9 @@ namespace TDEngine2
 
 	TPtr<IEngineCore> CBaseEngineCoreBuilder::GetEngineCore()
 	{
+		TDE2_START_REPORT_PROFILE();
+		TDE2_PROFILER_SCOPE("CBaseEngineCoreBuilder::GetEngineCore");
+
 		PANIC_ON_FAILURE(_configureFileSystem());
 		PANIC_ON_FAILURE(_initEngineSettings());
 
@@ -826,6 +869,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseEngineCoreBuilder::_registerBuiltinInfrastructure(bool isWindowModeEnabled)
 	{
+		TDE2_PROFILER_SCOPE("RegisterBuiltInInfrastructure");
+
 		if (!mpResourceManagerInstance)
 		{
 			return RC_FAIL;

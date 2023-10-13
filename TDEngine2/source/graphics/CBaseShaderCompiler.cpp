@@ -4,6 +4,7 @@
 #include "../../include/graphics/InternalShaderData.h"
 #include "../../include/platform/CTextFileReader.h"
 #include "../../include/utils/CFileLogger.h"
+#include "../../include/editor/CPerfProfiler.h"
 #define TCPP_IMPLEMENTATION
 #include "../../deps/tcpp/source/tcppLibrary.hpp"
 #include "stringUtils.hpp"
@@ -184,6 +185,8 @@ namespace TDEngine2
 
 	TResult<CShaderPreprocessor::TPreprocessorResult> CShaderPreprocessor::PreprocessSource(IFileSystem* pFileSystem, const std::string& source)
 	{
+		TDE2_PROFILER_SCOPE("CShaderPreprocessor::PreprocessSource");
+
 		if (!pFileSystem)
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
@@ -428,6 +431,8 @@ namespace TDEngine2
 
 	CBaseShaderCompiler::TShaderMetadata CBaseShaderCompiler::_parseShader(CTokenizer& tokenizer, const TDefinesMap& definesTable, const TStagesRegionsMap& stagesRegionsInfo) const
 	{
+		TDE2_PROFILER_SCOPE("CBaseShaderCompiler::_parseShader");
+
 		TShaderMetadata extractedMetadata {};
 		
 		extractedMetadata.mDefines = definesTable;

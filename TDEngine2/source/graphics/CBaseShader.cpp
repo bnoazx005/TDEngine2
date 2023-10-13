@@ -3,6 +3,7 @@
 #include "../../include/graphics/IConstantBuffer.h"
 #include "../../include/graphics/IStructuredBuffer.h"
 #include "../../include/graphics/ITexture.h"
+#include "../../include/editor/CPerfProfiler.h"
 
 
 namespace TDEngine2
@@ -45,6 +46,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseShader::Compile(const IShaderCompiler* pShaderCompiler, const std::string& sourceCode)
 	{
+		TDE2_PROFILER_SCOPE("CBaseShader::Compile");
+
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;

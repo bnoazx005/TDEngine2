@@ -134,6 +134,8 @@ namespace TDEngine2
 
 	static void InitEditorCamera(IWindowSystem* pWindowSystem, ISceneManager* pSceneManager, TPtr<IWorld> pWorld)
 	{
+		TDE2_PROFILER_SCOPE("InitEditorCamera");
+
 		if (auto pMainScene = pSceneManager->GetScene(MainScene).Get())
 		{
 			CEntity* pEditorCamera = pMainScene->CreateEditorCamera(static_cast<F32>(pWindowSystem->GetWidth() / pWindowSystem->GetHeight()), 0.5f * CMathConstants::Pi);
@@ -156,6 +158,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEngineCore::Run()
 	{
+		TDE2_PROFILER_SCOPE("CEngineCore::Run");
+
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
@@ -230,6 +234,9 @@ namespace TDEngine2
 		LOG_MESSAGE("[Engine Core] >>>=================================================");
 		LOG_MESSAGE("[Engine Core] The engine's core begins to execute the main loop...");
 		LOG_MESSAGE("[Engine Core] <<<=================================================\n");
+
+		TDE2_STOP_REPORT_PROFILE();
+		TDE2_SAVE_REPORT_PROFILE("TDEngine_StartUp");
 
 		/// \todo replace _onFrameUpdateCallback with a user defined callback
 		pWindowSystem->Run(std::bind(&CEngineCore::_onFrameUpdateCallback, this));
@@ -388,6 +395,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEngineCore::_onNotifyEngineListeners(E_ENGINE_EVENT_TYPE eventType)
 	{
+		TDE2_PROFILER_SCOPE("NotifyEngineListeners");
+
 		if (mEngineListeners.empty())
 		{
 			return RC_OK;
@@ -455,6 +464,8 @@ namespace TDEngine2
 	E_RESULT_CODE CEngineCore::_registerBuiltinSystems(TPtr<IWorld> pWorldInstance, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext,
 													   IRenderer* pRenderer, IEventManager* pEventManager)
 	{
+		TDE2_PROFILER_SCOPE("_registerBuiltinSystems");
+
 		IGraphicsObjectManager* pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
 		IResourceManager* pResourceManager = _getSubsystemAs<IResourceManager>(EST_RESOURCE_MANAGER);
 

@@ -1,6 +1,7 @@
 #include "../../include/ecs/CSpriteRendererSystem.h"
 #include "../../include/ecs/IWorld.h"
 #include "../../include/graphics/CQuadSprite.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/CTransform.h"
 #include "../../include/graphics/CRenderQueue.h"
@@ -27,6 +28,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CSpriteRendererSystem::Init(TPtr<IAllocator> allocator, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager)
 	{
+		TDE2_PROFILER_SCOPE("CSpriteRendererSystem::Init");
+
 		if (mIsInitialized)
 		{
 			return RC_FAIL;

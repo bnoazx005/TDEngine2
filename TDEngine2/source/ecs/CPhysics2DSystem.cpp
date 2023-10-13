@@ -28,6 +28,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CPhysics2DSystem::Init(IEventManager* pEventManager)
 	{
+		TDE2_PROFILER_SCOPE("CPhysics2DSystem::Init");
+
 		if (mIsInitialized)
 		{
 			return RC_FAIL;

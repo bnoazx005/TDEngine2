@@ -32,6 +32,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CUIElementsRenderSystem::Init(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager)
 	{
+		TDE2_PROFILER_SCOPE("CUIElementsRenderSystem::Init");
+
 		if (mIsInitialized)
 		{
 			return RC_FAIL;

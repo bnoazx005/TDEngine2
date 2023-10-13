@@ -9,6 +9,7 @@
 #include "../../include/platform/CYAMLFile.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/utils/Utils.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include "../../include/graphics/CBaseTexture2D.h"
 #define META_EXPORT_GRAPHICS_SECTION
 #include "../../include/metadata.h"
@@ -284,6 +285,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseMaterial::Load(IArchiveReader* pReader)
 	{
+		TDE2_PROFILER_SCOPE("CBaseMaterial::Load");
+
 		if (!pReader)
 		{
 			return RC_FAIL;
@@ -308,6 +311,7 @@ namespace TDEngine2
 
 		processGroup(TMaterialArchiveKeys::mBlendStateGroup, [pReader, this]
 		{
+			TDE2_PROFILER_SCOPE("CBaseMaterial::ProcessBlendGroup");
 			TBlendStateDesc blendStateDesc;
 
 			blendStateDesc.mScrValue = Meta::EnumTrait<E_BLEND_FACTOR_VALUE>::FromString(pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mSrcColorKey));
@@ -326,6 +330,8 @@ namespace TDEngine2
 
 		processGroup(TMaterialArchiveKeys::mDepthStencilStateGroup, [pReader, this]
 		{
+			TDE2_PROFILER_SCOPE("CBaseMaterial::ProcessDepthStencilGroup");
+
 			SetDepthComparisonFunc(Meta::EnumTrait<E_COMPARISON_FUNC>::FromString(pReader->GetString(TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthCmpFuncKey)));
 
 			SetDepthBufferEnabled(pReader->GetBool(TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthTestKey));
@@ -354,6 +360,8 @@ namespace TDEngine2
 
 		processGroup(TMaterialArchiveKeys::mRasterizerStateGroup, [pReader, this]
 		{
+			TDE2_PROFILER_SCOPE("CBaseMaterial::ProcessRasterizerGroup");
+
 			SetCullMode(Meta::EnumTrait<E_CULL_MODE>::FromString(pReader->GetString(TMaterialArchiveKeys::TRasterizerStateKeys::mCullModeKey)));
 
 			SetWireframeMode(pReader->GetBool(TMaterialArchiveKeys::TRasterizerStateKeys::mWireframeModeKey));
@@ -366,6 +374,8 @@ namespace TDEngine2
 
 		processGroup(TMaterialArchiveKeys::mTexturesGroup, [pReader, this]
 		{
+			TDE2_PROFILER_SCOPE("CBaseMaterial::ProcessTexturesGroup");
+
 			E_RESULT_CODE result = RC_OK;
 
 			while (pReader->HasNextItem())
@@ -407,6 +417,8 @@ namespace TDEngine2
 
 		processGroup(TMaterialArchiveKeys::mVariablesGroup, [pReader, this]
 		{
+			TDE2_PROFILER_SCOPE("CBaseMaterial::ProcessUniformsGroup");
+
 			E_RESULT_CODE result = RC_OK;
 
 			while (pReader->HasNextItem())
@@ -628,6 +640,8 @@ namespace TDEngine2
 
 	void CBaseMaterial::SetShader(const std::string& shaderName)
 	{
+		TDE2_PROFILER_SCOPE("CBaseMaterial::SetShader");
+
 		mShaderIdStr = shaderName;
 
 		mShaderHandle = mpResourceManager->Load<IShader>(shaderName); /// \todo replace it with Create and load only on demand within Load method
@@ -1029,6 +1043,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseMaterial::_initDefaultInstance(const TShaderCompilerOutput& metadata)
 	{
+		TDE2_PROFILER_SCOPE("CBaseMaterial::_initDefaultInstance");
+
 		mpInstancesArray.RemoveAll();
 		mpInstancesUserUniformBuffers.clear();
 		
@@ -1080,6 +1096,8 @@ namespace TDEngine2
 	TDE2_API IMaterial* CreateBaseMaterial(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 										   const TMaterialParameters& params, E_RESULT_CODE& result)
 	{
+		TDE2_PROFILER_SCOPE("::CreateBaseMaterial");
+
 		CBaseMaterial* pMaterialInstance = new (std::nothrow) CBaseMaterial();
 
 		if (!pMaterialInstance)
@@ -1148,6 +1166,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseMaterialLoader::LoadResource(IResource* pResource) const
 	{
+		TDE2_PROFILER_SCOPE("CBaseMaterialLoader::LoadResource");
+
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
@@ -1201,6 +1221,8 @@ namespace TDEngine2
 
 	IResource* CBaseMaterialFactory::Create(const std::string& name, const TBaseResourceParameters& params) const
 	{
+		TDE2_PROFILER_SCOPE("CBaseMaterialLoader::Create");
+
 		E_RESULT_CODE result = RC_OK;
 
 		const TMaterialParameters& matParams = dynamic_cast<const TMaterialParameters&>(params);
@@ -1210,6 +1232,8 @@ namespace TDEngine2
 
 	IResource* CBaseMaterialFactory::CreateDefault(const std::string& name, const TBaseResourceParameters& params) const
 	{
+		TDE2_PROFILER_SCOPE("CBaseMaterialLoader::CreateDefault");
+
 		E_RESULT_CODE result = RC_OK;
 
 		return dynamic_cast<IResource*>(CreateBaseMaterial(mpResourceManager, mpGraphicsContext, name, result));

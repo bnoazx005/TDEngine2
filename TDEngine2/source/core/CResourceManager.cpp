@@ -5,6 +5,7 @@
 #include "../../include/core/IResource.h"
 #include "../../include/core/IResourcesRuntimeManifest.h"
 #include "../../include/utils/CFileLogger.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include <memory>
 #include <algorithm>
 
@@ -269,6 +270,7 @@ namespace TDEngine2
 
 	TResourceId CResourceManager::_loadResourceWithResourceProviderInfo(TypeId resourceTypeId, TypeId factoryTypeId, TypeId loaderTypeId, const std::string& name, E_RESOURCE_LOADING_POLICY loadingPolicy)
 	{
+		TDE2_PROFILER_SCOPE("CResourceManager::_loadResourceWithResourceProviderInfo");
 		//std::lock_guard<std::mutex> lock(mMutex);
 
 		auto&& iter = mResourcesMap.find(name);
@@ -326,6 +328,8 @@ namespace TDEngine2
 
 	TResourceId CResourceManager::_createResource(TypeId resourceTypeId, const std::string& name, const TBaseResourceParameters& params)
 	{
+		TDE2_PROFILER_SCOPE("CResourceManager::_createResource");
+
 		TResourceId resourceId = GetResourceId(name);
 
 		if (TResourceId::Invalid != resourceId)

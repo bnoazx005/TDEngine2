@@ -4,6 +4,7 @@
 #include "../../include/core/IEngineCore.h"
 #include "../../include/core/IWindowSystem.h"
 #include "../../include/utils/CFileLogger.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include "../../include/ecs/IWorld.h"
 #if defined (TDE2_USE_WINPLATFORM)		
 #include "../../include/platform/win32/CWin32DLLManager.h"
@@ -178,6 +179,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBasePluginManager::RegisterECSComponents(TPtr<IWorld> pWorld)
 	{
+		TDE2_PROFILER_SCOPE("PluginManager::RegisterECSComponents");
+
 		if (!pWorld)
 		{
 			return RC_INVALID_ARGS;

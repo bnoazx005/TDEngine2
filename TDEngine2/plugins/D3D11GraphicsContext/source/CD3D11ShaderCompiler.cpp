@@ -9,6 +9,7 @@
 #include <iterator>
 #include <graphics/IShader.h>
 #include <core/IFileSystem.h>
+#include <editor/CPerfProfiler.h>
 #include <unordered_set>
 
 
@@ -29,6 +30,8 @@ namespace TDEngine2
 
 	TResult<TShaderCompilerOutput*> CD3D11ShaderCompiler::Compile(const std::string& source) const
 	{
+		TDE2_PROFILER_SCOPE("CD3D11ShaderCompiler::Compile");
+
 		if (source.empty())
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
@@ -112,6 +115,8 @@ namespace TDEngine2
 																	   TShaderMetadata& shaderMetadata,
 																	   E_SHADER_FEATURE_LEVEL targetVersion) const
 	{
+		TDE2_PROFILER_SCOPE("CD3D11ShaderCompiler::_compileShaderStage");
+
 		std::vector<U8> byteCodeArray;
 
 		ID3DBlob* pBytecodeBuffer = nullptr;
@@ -135,21 +140,29 @@ namespace TDEngine2
 
 		U32 flags = D3DCOMPILE_DEBUG | D3DCOMPILE_PACK_MATRIX_COLUMN_MAJOR;
 
-		if (FAILED(D3DCompile(processedSource.c_str(), processedSource.length(), nullptr, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
-							  entryPointName.c_str(), CD3D11Mappings::GetShaderTargetVerStr(shaderStage, targetVersion).c_str(),
-							  flags, 0x0, &pBytecodeBuffer, &pErrorBuffer)))
 		{
-			LOG_ERROR(Wrench::StringUtils::Format("[D3D11 Shader Compiler] {0}", static_cast<const C8*>(pErrorBuffer->GetBufferPointer())));
+			TDE2_PROFILER_SCOPE("D3DCompile");
 
-			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+			if (FAILED(D3DCompile(processedSource.c_str(), processedSource.length(), nullptr, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
+				entryPointName.c_str(), CD3D11Mappings::GetShaderTargetVerStr(shaderStage, targetVersion).c_str(),
+				flags, 0x0, &pBytecodeBuffer, &pErrorBuffer)))
+			{
+				LOG_ERROR(Wrench::StringUtils::Format("[D3D11 Shader Compiler] {0}", static_cast<const C8*>(pErrorBuffer->GetBufferPointer())));
+
+				return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+			}
 		}
 
 		// Check up constant buffer sizes, extract their accurate sizes using the reflector
 		ID3D11ShaderReflection* pReflector = nullptr;
 		
-		if (FAILED(D3DReflect(pBytecodeBuffer->GetBufferPointer(), pBytecodeBuffer->GetBufferSize(), __uuidof(ID3D11ShaderReflection), (void**)&pReflector)))
 		{
-			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+			TDE2_PROFILER_SCOPE("D3DReflect");
+
+			if (FAILED(D3DReflect(pBytecodeBuffer->GetBufferPointer(), pBytecodeBuffer->GetBufferSize(), __uuidof(ID3D11ShaderReflection), (void**)&pReflector)))
+			{
+				return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+			}
 		}
 
 		D3D11_SHADER_BUFFER_DESC constantBufferInfoDesc;

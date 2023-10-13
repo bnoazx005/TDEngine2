@@ -147,6 +147,7 @@ namespace TDEngine2
 
 	TResult<TSystemId> CWorld::RegisterSystem(ISystem* pSystem, E_SYSTEM_PRIORITY priority)
 	{
+		TDE2_PROFILER_SCOPE("World::RegisterSystem");
 		return mpSystemManager->RegisterSystem(pSystem, priority);
 	}
 		

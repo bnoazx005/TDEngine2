@@ -391,6 +391,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CStaticMeshLoader::LoadResource(IResource* pResource) const
 	{
+		TDE2_PROFILER_SCOPE("CStaticMeshLoader::LoadResource");
+
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
