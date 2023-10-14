@@ -239,4 +239,6 @@ namespace TDEngine2
 	#define TDE2_PROFILER_SCOPE(Name)				\
 		TDE2_BUILTIN_PROFILER_EVENT(Name)	
 #endif
+
+	TDE2_API bool IsProfileStartupEnabled();
 }

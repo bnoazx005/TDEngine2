@@ -236,7 +236,11 @@ namespace TDEngine2
 		LOG_MESSAGE("[Engine Core] <<<=================================================\n");
 
 		TDE2_STOP_REPORT_PROFILE();
-		TDE2_SAVE_REPORT_PROFILE("TDEngine_StartUp");
+
+		if (IsProfileStartupEnabled())
+		{
+			TDE2_SAVE_REPORT_PROFILE("TDEngine_StartUp");
+		}
 
 		/// \todo replace _onFrameUpdateCallback with a user defined callback
 		pWindowSystem->Run(std::bind(&CEngineCore::_onFrameUpdateCallback, this));

@@ -784,6 +784,7 @@ namespace TDEngine2
 	TPtr<IEngineCore> CBaseEngineCoreBuilder::GetEngineCore()
 	{
 		TDE2_START_REPORT_PROFILE();
+
 		TDE2_PROFILER_SCOPE("CBaseEngineCoreBuilder::GetEngineCore");
 
 		PANIC_ON_FAILURE(_configureFileSystem());

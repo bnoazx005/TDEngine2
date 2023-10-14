@@ -51,6 +51,11 @@ namespace TDEngine2
 				F32  mSnapDistance = 5.0f;
 
 			} mLevelEditorSettings;
+
+			struct TProfilerSettings
+			{
+				bool mIsCollectStartupProfileDataEnabled = false;
+			} mProfilerSettings;
 	};
 }
 

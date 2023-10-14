@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.22] 2023-10-13
+## [0.6.22] 2023-10-14
 
 ### Added
+
+- Now editor settings have an option that allows to enable profiling engine's start up and save it into Optick specific report.
 
 ### Changed
 

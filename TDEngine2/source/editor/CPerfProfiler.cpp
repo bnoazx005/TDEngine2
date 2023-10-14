@@ -2,6 +2,7 @@
 #include "../../include/platform/win32/CWin32Timer.h"
 #include "../../include/platform/unix/CUnixTimer.h"
 #include "../../include/math/MathUtils.h"
+#include "../../include/editor/CEditorSettings.h"
 #include <memory>
 #include <algorithm>
 
@@ -142,5 +143,15 @@ namespace TDEngine2
 	{
 		static TPtr<ITimeProfiler> pInstance = TPtr<ITimeProfiler>(new (std::nothrow) CPerfProfiler());
 		return pInstance;
+	}
+
+
+	bool IsProfileStartupEnabled()
+	{
+#if TDE2_EDITORS_ENABLED
+		return CEditorSettings::Get()->mProfilerSettings.mIsCollectStartupProfileDataEnabled;
+#else
+		return false;
+#endif
 	}
 }
