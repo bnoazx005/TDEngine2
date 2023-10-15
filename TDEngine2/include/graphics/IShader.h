@@ -74,7 +74,7 @@ namespace TDEngine2
 				appears the shader will be loaded using Compile method or some default instance will be created
 			*/
 
-			TDE2_API virtual E_RESULT_CODE LoadFromShaderCache(IShaderCache* pShaderCache, const TShaderParameters* shaderMetaData) = 0;
+			TDE2_API virtual E_RESULT_CODE LoadFromShaderCache(IShaderCache* pShaderCache, const TShaderParameters* pShaderMetaData) = 0;
 
 			/*!
 				\brief The method binds a shader to a rendering pipeline
@@ -138,6 +138,13 @@ namespace TDEngine2
 	};
 
 
+	typedef struct TShaderStageInfo
+	{
+		TShaderCacheBytecodeEntry mBytecodeInfo;
+		std::string               mEntrypoint;
+	} TShaderStageInfo, *TShaderStageInfoPtr;
+
+
 	/*!
 		struct TShaderParameters
 
@@ -166,9 +173,9 @@ namespace TDEngine2
 
 		TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
-		std::unordered_map<std::string, TUniformBufferDesc>                mUniformBuffersInfo;		/// first key is a buffer's name, the value is the buffer's slot index and its size
-		std::unordered_map<std::string, TShaderResourceDesc>               mShaderResourcesInfo;	/// the key is a resource's name, the value is an information about resource
-		std::unordered_map<E_SHADER_STAGE_TYPE, TShaderCacheBytecodeEntry> mBytecodeInfo;
+		std::unordered_map<std::string, TUniformBufferDesc>       mUniformBuffersInfo;		/// first key is a buffer's name, the value is the buffer's slot index and its size
+		std::unordered_map<std::string, TShaderResourceDesc>      mShaderResourcesInfo;	/// the key is a resource's name, the value is an information about resource
+		std::unordered_map<E_SHADER_STAGE_TYPE, TShaderStageInfo> mStages;
 	} TShaderParameters, *TShaderParametersPtr;
 
 

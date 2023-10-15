@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.22] 2023-10-15
+## [0.6.22] 2023-10-16
 
 ### Added
 
 - Now editor settings have an option that allows to enable profiling engine's start up and save it into Optick specific report.
 
 - A new type **CShaderCache** was added to provide support of caching shaders.
+
+- Add support of precompiled shaders for both D3D11/GL3.x (with SPIR-V extensions).
 
 ### Changed
 

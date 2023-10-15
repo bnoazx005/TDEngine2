@@ -64,7 +64,7 @@ namespace TDEngine2
 				appears the shader will be loaded using Compile method or some default instance will be created
 			*/
 
-			TDE2_API E_RESULT_CODE LoadFromShaderCache(IShaderCache* pShaderCache, const TShaderParameters* shaderMetaData) override;
+			TDE2_API E_RESULT_CODE LoadFromShaderCache(IShaderCache* pShaderCache, const TShaderParameters* pShaderMetaData) override;
 
 			/*!
 				\brief The method binds a shader to a rendering pipeline
@@ -129,6 +129,10 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseShader)
 
 			TDE2_API virtual E_RESULT_CODE _createInternalHandlers(const TShaderCompilerOutput* pCompilerData) = 0;
+
+			TDE2_API virtual TShaderCompilerOutput* _createMetaDataFromShaderParams(IShaderCache* pShaderCache, const TShaderParameters* pShaderParams) = 0;
+
+			TDE2_API E_RESULT_CODE _initShaderInternal(TShaderCompilerOutput* pShaderMetaData);
 
 			TDE2_API virtual E_RESULT_CODE _freeUniformBuffers();
 

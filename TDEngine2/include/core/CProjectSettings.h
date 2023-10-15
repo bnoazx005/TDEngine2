@@ -77,6 +77,9 @@ namespace TDEngine2
 #endif
 
 				std::string mDefaultSkyboxMaterial = "DefaultResources/Materials/DefaultSkybox.material";
+
+				std::string mShaderCachePathPattern = "ProjectResources/Shaders/ShadersPack_{0}.cache";
+				bool        mIsShaderCacheEnabled = true;
 			} mGraphicsSettings;
 
 			struct

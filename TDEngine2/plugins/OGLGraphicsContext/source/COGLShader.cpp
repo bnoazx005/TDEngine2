@@ -5,7 +5,7 @@
 #include "./../include/COGLUtils.h"
 #include <graphics/ITexture.h>
 #include <graphics/CBaseShader.h>
-#include <cassert>
+#include <editor/CPerfProfiler.h>
 
 
 namespace TDEngine2
@@ -168,7 +168,7 @@ namespace TDEngine2
 				continue;
 			}
 			
-			assert((currDesc.mSlot - TotalNumberOfInternalConstantBuffers) >= 0);
+			TDE2_ASSERT((currDesc.mSlot - TotalNumberOfInternalConstantBuffers) >= 0);
 
 			/// \note Ensure that we compute correct size of the block
 			I32 reflectionBlockSize = 0;
@@ -224,6 +224,88 @@ namespace TDEngine2
 		}
 		
 		return RC_OK;
+	}
+
+
+	static TResult<GLuint> TryToCreatePrecompiledShader(IShaderCache* pShaderCache, const TShaderParameters* pShaderParams, E_SHADER_STAGE_TYPE stageType)
+	{
+		TDE2_PROFILER_SCOPE("TryToCreatePrecompiledShader");
+
+		GLuint shaderHandler = glCreateShader(COGLMappings::GetShaderStageType(stageType));
+		if (glGetError() != GL_NO_ERROR)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(COGLMappings::GetErrorCode(glGetError()));
+		}
+
+		auto it = pShaderParams->mStages.find(stageType);
+		if (it != pShaderParams->mStages.cend())
+		{
+			auto&& bytecode = std::move(pShaderCache->GetBytecode(it->second.mBytecodeInfo));
+			
+			glShaderBinary(1, &shaderHandler, GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, bytecode.data(), static_cast<GLsizei>(bytecode.size()));
+			if (glGetError() != GL_NO_ERROR)
+			{
+				return Wrench::TErrValue<E_RESULT_CODE>(COGLMappings::GetErrorCode(glGetError()));
+			}
+
+			glSpecializeShader(shaderHandler, it->second.mEntrypoint.c_str(), 0, 0, 0);
+			if (glGetError() != GL_NO_ERROR)
+			{
+				return Wrench::TErrValue<E_RESULT_CODE>(COGLMappings::GetErrorCode(glGetError()));
+			}
+
+			return Wrench::TOkValue<GLuint>(shaderHandler);
+		}
+
+		return Wrench::TOkValue<GLuint>(0);
+	}
+
+
+	TShaderCompilerOutput* COGLShader::_createMetaDataFromShaderParams(IShaderCache* pShaderCache, const TShaderParameters* pShaderParams)
+	{
+		TDE2_PROFILER_SCOPE("COGLShader::_createMetaDataFromShaderParams");
+
+		if (!GLEW_ARB_spirv_extensions)
+		{
+			TDE2_ASSERT_MSG(false, "[COGLShader] GL 3.x doesn't support precompiled shaders without SPIR-V extensions available");
+			return nullptr;
+		}
+
+		TOGLShaderCompilerOutput* pResult = new TOGLShaderCompilerOutput();
+
+		for (auto&& currShaderResourceInfo : pShaderParams->mShaderResourcesInfo)
+		{
+			pResult->mShaderResourcesInfo.emplace(currShaderResourceInfo.first, currShaderResourceInfo.second);
+		}
+
+		for (auto&& currUniformBufferInfo : pShaderParams->mUniformBuffersInfo)
+		{
+			pResult->mUniformBuffersInfo.emplace(currUniformBufferInfo.first, currUniformBufferInfo.second);
+		}
+		
+		std::array<std::tuple<GLuint*, E_SHADER_STAGE_TYPE>, 4> stages
+		{
+			std::make_tuple(&pResult->mVertexShaderHandler, E_SHADER_STAGE_TYPE::SST_VERTEX),
+			std::make_tuple(&pResult->mFragmentShaderHandler, E_SHADER_STAGE_TYPE::SST_PIXEL),
+			std::make_tuple(&pResult->mGeometryShaderHandler, E_SHADER_STAGE_TYPE::SST_GEOMETRY),
+			std::make_tuple(&pResult->mComputeShaderHandler, E_SHADER_STAGE_TYPE::SST_COMPUTE),
+		};
+
+		for (auto& currStage : stages)
+		{
+			GLuint* pHandler = std::get<0>(currStage);
+
+			auto shaderResult = TryToCreatePrecompiledShader(pShaderCache, pShaderParams, std::get<E_SHADER_STAGE_TYPE>(currStage));
+			if (shaderResult.HasError())
+			{
+				*pHandler = 0;
+				continue;
+			}
+
+			*pHandler = shaderResult.Get();
+		}		
+
+		return pResult;
 	}
 
 	void COGLShader::_bindUniformBuffer(U32 slot, IConstantBuffer* pBuffer)
@@ -344,24 +426,6 @@ namespace TDEngine2
 
 	TDE2_API IResourceFactory* CreateOGLShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
 	{
-		COGLShaderFactory* pShaderFactoryInstance = new (std::nothrow) COGLShaderFactory();
-
-		if (!pShaderFactoryInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pShaderFactoryInstance->Init(pResourceManager, pGraphicsContext);
-
-		if (result != RC_OK)
-		{
-			delete pShaderFactoryInstance;
-
-			pShaderFactoryInstance = nullptr;
-		}
-
-		return pShaderFactoryInstance;
+		return CREATE_IMPL(IResourceFactory, COGLShaderFactory, result, pResourceManager, pGraphicsContext);
 	}
 }

@@ -189,6 +189,47 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
+
+	TShaderCompilerOutput* CD3D11Shader::_createMetaDataFromShaderParams(IShaderCache* pShaderCache, const TShaderParameters* pShaderParams)
+	{
+		TD3D11ShaderCompilerOutput* pResult = new TD3D11ShaderCompilerOutput();
+		
+		for (auto&& currShaderResourceInfo : pShaderParams->mShaderResourcesInfo)
+		{
+			pResult->mShaderResourcesInfo.emplace(currShaderResourceInfo.first, currShaderResourceInfo.second);
+		}
+
+		for (auto&& currUniformBufferInfo : pShaderParams->mUniformBuffersInfo)
+		{
+			pResult->mUniformBuffersInfo.emplace(currUniformBufferInfo.first, currUniformBufferInfo.second);
+		}
+
+		auto it = pShaderParams->mStages.find(E_SHADER_STAGE_TYPE::SST_VERTEX);
+		if (it != pShaderParams->mStages.cend())
+		{
+			pResult->mVSByteCode = std::move(pShaderCache->GetBytecode(it->second.mBytecodeInfo));
+		}
+
+		it = pShaderParams->mStages.find(E_SHADER_STAGE_TYPE::SST_PIXEL);
+		if (it != pShaderParams->mStages.cend())
+		{
+			pResult->mPSByteCode = std::move(pShaderCache->GetBytecode(it->second.mBytecodeInfo));
+		}
+
+		it = pShaderParams->mStages.find(E_SHADER_STAGE_TYPE::SST_GEOMETRY);
+		if (it != pShaderParams->mStages.cend())
+		{
+			pResult->mGSByteCode = std::move(pShaderCache->GetBytecode(it->second.mBytecodeInfo));
+		}
+
+		it = pShaderParams->mStages.find(E_SHADER_STAGE_TYPE::SST_COMPUTE);
+		if (it != pShaderParams->mStages.cend())
+		{
+			pResult->mCSByteCode = std::move(pShaderCache->GetBytecode(it->second.mBytecodeInfo));
+		}
+
+		return pResult;
+	}
 	
 	const TShaderBytecodeDesc& CD3D11Shader::GetVertexShaderBytecode() const
 	{

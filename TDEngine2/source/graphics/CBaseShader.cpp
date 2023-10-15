@@ -84,29 +84,20 @@ namespace TDEngine2
 			return compilerOutput.GetError();
 		}
 
-		mpShaderMeta = compilerOutput.Get();
-		
-		E_RESULT_CODE result = _createInternalHandlers(mpShaderMeta); /// reimplement this method in a derived class to do some extra work
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		result = result | _createTexturesHashTable(mpShaderMeta);
-		result = result | _createTexturesHashTable(mpShaderMeta);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		return RC_OK;
+		return _initShaderInternal(compilerOutput.Get());
 	}
 
-	E_RESULT_CODE CBaseShader::LoadFromShaderCache(IShaderCache* pShaderCache, const TShaderParameters* shaderMetaData)
+	E_RESULT_CODE CBaseShader::LoadFromShaderCache(IShaderCache* pShaderCache, const TShaderParameters* pShaderMetaData)
 	{
-		return RC_OK;
+		TDE2_PROFILER_SCOPE("CBaseShader::LoadFromShaderCache");
+
+		auto pResult = _createMetaDataFromShaderParams(pShaderCache, pShaderMetaData);
+		if (!pResult)
+		{
+			return RC_FAIL;
+		}
+
+		return _initShaderInternal(pResult);
 	}
 	
 	E_RESULT_CODE CBaseShader::SetUserUniformsBuffer(U8 slot, const U8* pData, USIZE dataSize)
@@ -222,6 +213,23 @@ namespace TDEngine2
 	const TShaderCompilerOutput* CBaseShader::GetShaderMetaData() const
 	{
 		return mpShaderMeta;
+	}
+
+	E_RESULT_CODE CBaseShader::_initShaderInternal(TShaderCompilerOutput* pShaderMetaData)
+	{
+		mpShaderMeta = pShaderMetaData;
+
+		E_RESULT_CODE result = _createInternalHandlers(mpShaderMeta); /// reimplement this method in a derived class to do some extra work
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		result = result | _createTexturesHashTable(mpShaderMeta);
+		result = result | _createTexturesHashTable(mpShaderMeta);
+
+		return result;
 	}
 
 	E_RESULT_CODE CBaseShader::_freeUniformBuffers()
