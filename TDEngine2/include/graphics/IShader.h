@@ -11,6 +11,8 @@
 #include "../utils/Types.h"
 #include "../core/IResourceFactory.h"
 #include "../core/IBaseObject.h"
+#include "IShaderCompiler.h"
+#include <unordered_map>
 #include <string>
 
 
@@ -21,8 +23,11 @@ namespace TDEngine2
 	class IShaderCompiler;
 	class ITexture;
 	class IStructuredBuffer;
+	class IShaderCache;
+	class IBinaryFileReader;
 
 	struct TShaderCompilerOutput;
+	struct TShaderParameters;
 
 
 
@@ -63,6 +68,13 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Compile(const IShaderCompiler* pShaderCompiler, const std::string& sourceCode) = 0;
+
+			/*!
+				\brief The method tries to load bytecode from pShaderCache storage based on given shader's metadata. If some error
+				appears the shader will be loaded using Compile method or some default instance will be created
+			*/
+
+			TDE2_API virtual E_RESULT_CODE LoadFromShaderCache(IShaderCache* pShaderCache, const TShaderParameters* shaderMetaData) = 0;
 
 			/*!
 				\brief The method binds a shader to a rendering pipeline
@@ -134,6 +146,29 @@ namespace TDEngine2
 
 	typedef struct TShaderParameters : TBaseResourceParameters
 	{
+		/*!
+			\brief The method deserializes object's state from given reader
+
+			\param[in, out] pReader An input stream of data that contains information about the object
+
+			\return RC_OK if everything went ok, or some other code, which describes an error
+		*/
+
+		TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
+
+		/*!
+			\brief The method serializes object's state into given stream
+
+			\param[in, out] pWriter An output stream of data that writes information about the object
+
+			\return RC_OK if everything went ok, or some other code, which describes an error
+		*/
+
+		TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
+
+		std::unordered_map<std::string, TUniformBufferDesc>                mUniformBuffersInfo;		/// first key is a buffer's name, the value is the buffer's slot index and its size
+		std::unordered_map<std::string, TShaderResourceDesc>               mShaderResourcesInfo;	/// the key is a resource's name, the value is an information about resource
+		std::unordered_map<E_SHADER_STAGE_TYPE, TShaderCacheBytecodeEntry> mBytecodeInfo;
 	} TShaderParameters, *TShaderParametersPtr;
 
 
@@ -144,4 +179,19 @@ namespace TDEngine2
 	*/
 
 	class IShaderFactory : public IGenericResourceFactory<IResourceManager*, IGraphicsContext*> {};
+
+
+	/*!
+		\brief The interface describes functionality of a shaders library
+	*/
+
+	class IShaderCache : public virtual IBaseObject
+	{
+		public:
+			TDE2_API virtual E_RESULT_CODE Init(IBinaryFileReader* pCacheReader) = 0;
+
+			TDE2_API virtual std::vector<U8> GetBytecode(const TShaderCacheBytecodeEntry& info) = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IShaderCache)
+	};
 }

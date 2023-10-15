@@ -45,6 +45,51 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+
+	static E_RESULT_CODE CompileShader(const IShaderCompiler* pShaderCompiler, const std::string& resourceName,
+		IShader* pShader, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem)
+	{
+		TDE2_PROFILER_SCOPE("CBaseShaderLoader::CompileShader");
+
+		E_RESULT_CODE result = RC_OK;
+
+		/// load source code
+		TResult<TFileEntryId> shaderFileId = pFileSystem->Open<ITextFileReader>(resourceName);
+
+		if (shaderFileId.HasError())
+		{
+			LOG_WARNING(std::string("[Shader Loader] Could not load the specified shader (").append(resourceName).append("), load default one instead..."));
+
+			E_DEFAULT_SHADER_TYPE shaderType = CBaseGraphicsObjectManager::GetDefaultShaderTypeByName(resourceName);
+
+			/// \note can't load file with the shader, so load default one
+			return pShader->Compile(pShaderCompiler, pGraphicsContext->GetGraphicsObjectManager()->GetDefaultShaderCode(shaderType));
+		}
+
+		ITextFileReader* pShaderFileReader = dynamic_cast<ITextFileReader*>(pFileSystem->Get<ITextFileReader>(shaderFileId.Get()));
+
+		std::string shaderSourceCode = pShaderFileReader->ReadToEnd();
+
+		if ((result = pShaderFileReader->Close()) != RC_OK)
+		{
+			return result;
+		}
+
+		/// parse it and compile needed variant
+		if ((result = pShader->Compile(pShaderCompiler, shaderSourceCode)) != RC_OK)
+		{
+			LOG_WARNING(std::string("[Shader Loader] Could not load the specified shader (").append(resourceName).append("), load default one instead..."));
+
+			E_DEFAULT_SHADER_TYPE shaderType = CBaseGraphicsObjectManager::GetDefaultShaderTypeByName(resourceName);
+
+			/// \note can't load file with the shader, so load default one
+			return pShader->Compile(pShaderCompiler, pGraphicsContext->GetGraphicsObjectManager()->GetDefaultShaderCode(shaderType));
+		}
+
+		return result;
+	}
+
+
 	E_RESULT_CODE CBaseShaderLoader::LoadResource(IResource* pResource) const
 	{
 		TDE2_PROFILER_SCOPE("CBaseShaderLoader::LoadResource");
@@ -63,40 +108,14 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		/// load source code
-		TResult<TFileEntryId> shaderFileId = mpFileSystem->Open<ITextFileReader>(pResource->GetName());
-
-		if (shaderFileId.HasError())
+		/// \note If there is meta information within the manifest try to read precompiled shader first
+		const TShaderParameters* pShaderMetaInfo = dynamic_cast<const TShaderParameters*>(mpResourceManager->GetResourceMeta(pResource->GetName()));
+		if (!pShaderMetaInfo)
 		{
-			LOG_WARNING(std::string("[Shader Loader] Could not load the specified shader (").append(pResource->GetName()).append("), load default one instead..."));
-
-			E_DEFAULT_SHADER_TYPE shaderType = CBaseGraphicsObjectManager::GetDefaultShaderTypeByName(pResource->GetName());
-
-			/// \note can't load file with the shader, so load default one
-			return pShader->Compile(mpShaderCompiler.Get(), mpGraphicsContext->GetGraphicsObjectManager()->GetDefaultShaderCode(shaderType));
+			return CompileShader(mpShaderCompiler.Get(), pResource->GetName(), pShader, mpGraphicsContext, mpFileSystem);
 		}
 
-		ITextFileReader* pShaderFileReader = dynamic_cast<ITextFileReader*>(mpFileSystem->Get<ITextFileReader>(shaderFileId.Get()));
-		
-		std::string shaderSourceCode = pShaderFileReader->ReadToEnd();
-
-		if ((result = pShaderFileReader->Close()) != RC_OK)
-		{
-			return result;
-		}
-
-		/// parse it and compile needed variant
-		if ((result = pShader->Compile(mpShaderCompiler.Get(), shaderSourceCode)) != RC_OK)
-		{
-			LOG_WARNING(std::string("[Shader Loader] Could not load the specified shader (").append(pResource->GetName()).append("), load default one instead..."));
-
-			E_DEFAULT_SHADER_TYPE shaderType = CBaseGraphicsObjectManager::GetDefaultShaderTypeByName(pResource->GetName());
-
-			/// \note can't load file with the shader, so load default one
-			return pShader->Compile(mpShaderCompiler.Get(), mpGraphicsContext->GetGraphicsObjectManager()->GetDefaultShaderCode(shaderType));
-		}
-
-		return result;
+		return RC_FAIL;
 	}
 
 	TypeId CBaseShaderLoader::GetResourceTypeId() const

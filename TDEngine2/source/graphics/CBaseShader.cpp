@@ -8,6 +8,23 @@
 
 namespace TDEngine2
 {
+	E_RESULT_CODE TShaderParameters::Load(IArchiveReader* pReader)
+	{
+		return RC_OK;
+	}
+	
+	E_RESULT_CODE TShaderParameters::Save(IArchiveWriter* pWriter)
+	{
+		pWriter->SetUInt32("type_id", static_cast<U32>(TDE2_TYPE_ID(TShaderParameters)));
+
+		return RC_OK;
+	}
+
+	/*!
+		\brief CBaseShader's definition
+	*/
+
+
 	CBaseShader::CBaseShader():
 		CBaseResource()
 	{
@@ -84,6 +101,11 @@ namespace TDEngine2
 			return result;
 		}
 
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CBaseShader::LoadFromShaderCache(IShaderCache* pShaderCache, const TShaderParameters* shaderMetaData)
+	{
 		return RC_OK;
 	}
 	
@@ -282,5 +304,51 @@ namespace TDEngine2
 	const TPtr<IResourceLoader> CBaseShader::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<IShader>();
+	}
+
+
+	/*!
+		\brief CShaderCache's definition
+	*/
+
+	CShaderCache::CShaderCache():
+		CBaseObject()
+	{
+	}
+
+	E_RESULT_CODE CShaderCache::Init(IBinaryFileReader* pCacheReader)
+	{
+		if (!pCacheReader)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpCacheFileReader = pCacheReader;
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	std::vector<U8> CShaderCache::GetBytecode(const TShaderCacheBytecodeEntry& info)
+	{
+		if (info.mOffset + info.mSize >= mpCacheFileReader->GetFileLength())
+		{
+			return {};
+		}
+
+		std::vector<U8> buffer;
+		buffer.resize(info.mSize);
+
+		mpCacheFileReader->SetPosition(info.mOffset);
+		mpCacheFileReader->Read(buffer.data(), info.mSize);
+
+		return buffer;
+	}
+
+
+	TDE2_API IShaderCache* CreateShaderCache(IBinaryFileReader* pCacheReader, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IShaderCache, CShaderCache, result, pCacheReader);
 	}
 }

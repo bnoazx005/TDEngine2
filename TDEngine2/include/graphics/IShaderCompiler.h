@@ -7,9 +7,9 @@
 #pragma once
 
 
-#include "./../utils/Types.h"
-#include "./../utils/Utils.h"
-#include "./../core/IBaseObject.h"
+#include "../utils/Types.h"
+#include "../utils/Utils.h"
+#include "../core/IBaseObject.h"
 #include <vector>
 #include <unordered_map>
 
@@ -105,6 +105,13 @@ namespace TDEngine2
 
 		std::vector<TShaderUniformDesc> mVariables;
 	} TUniformBufferDesc, *TUniformBufferDescPtr;
+
+
+	typedef struct TShaderCacheBytecodeEntry
+	{
+		USIZE mOffset = 0; ///< start position of the bytecode within the shader cache blob
+		USIZE mSize = 0; ///< size of the bytecode
+	} TShaderCacheBytecodeEntry, *TShaderCacheBytecodeEntryPtr;
 
 
 	/*!

@@ -7,7 +7,7 @@
 #pragma once
 
 
-#include "./../core/CBaseResource.h"
+#include "../core/CBaseResource.h"
 #include "IShader.h"
 #include <vector>
 
@@ -58,6 +58,13 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Compile(const IShaderCompiler* pShaderCompiler, const std::string& sourceCode) override;
+
+			/*!
+				\brief The method tries to load bytecode from pShaderCache storage based on given shader's metadata. If some error
+				appears the shader will be loaded using Compile method or some default instance will be created
+			*/
+
+			TDE2_API E_RESULT_CODE LoadFromShaderCache(IShaderCache* pShaderCache, const TShaderParameters* shaderMetaData) override;
 
 			/*!
 				\brief The method binds a shader to a rendering pipeline
@@ -145,5 +152,40 @@ namespace TDEngine2
 			std::vector<IStructuredBuffer*> mpBuffers;
 
 			TShaderCompilerOutput*          mpShaderMeta;
+	};
+
+	/*!
+		\brief A factory function for creation objects of CShaderCache's type
+
+		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
+
+		\return A pointer to CShaderCache's implementation
+	*/
+
+	TDE2_API IShaderCache* CreateShaderCache(IBinaryFileReader* pCacheReader, E_RESULT_CODE& result);
+
+
+	/*!
+		class CShaderCache
+	*/
+
+	class CShaderCache : public IShaderCache, public CBaseObject
+	{
+		public:
+			friend TDE2_API IShaderCache* CreateShaderCache(IBinaryFileReader*, E_RESULT_CODE&);
+		public:
+			/*!
+				\brief The method initializes internal state of the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Init(IBinaryFileReader* pCacheReader) override;
+
+			TDE2_API std::vector<U8> GetBytecode(const TShaderCacheBytecodeEntry& info) override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CShaderCache)
+		private:
+			IBinaryFileReader* mpCacheFileReader = nullptr;
 	};
 }
