@@ -238,6 +238,10 @@ namespace TDEngine2
 #else
 	#define TDE2_PROFILER_SCOPE(Name)				\
 		TDE2_BUILTIN_PROFILER_EVENT(Name)	
+
+	#define TDE2_START_REPORT_PROFILE() 
+	#define TDE2_STOP_REPORT_PROFILE() 
+	#define TDE2_SAVE_REPORT_PROFILE(ReportName)
 #endif
 
 	TDE2_API bool IsProfileStartupEnabled();
