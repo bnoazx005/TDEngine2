@@ -1,6 +1,7 @@
 #include "../../include/core/CResourcesRuntimeManifest.h"
 #include "../../include/core/IResourceFactory.h"
 #include "../../include/graphics/CBaseTexture2D.h"
+#include "../../include/graphics/IShader.h"
 #include "stringUtils.hpp"
 #include <algorithm>
 
@@ -25,6 +26,7 @@ namespace TDEngine2
 		static const std::unordered_map<TypeId, std::function<std::unique_ptr<TBaseResourceParameters>()>> factories
 		{
 			{ TDE2_TYPE_ID(TTexture2DParameters), []() { return std::make_unique<TTexture2DParameters>(); } },
+			{ TDE2_TYPE_ID(TShaderParameters), []() { return std::make_unique<TShaderParameters>(); } },
 		};
 
 		auto it = factories.find(TypeId(pReader->GetUInt32("type_id")));

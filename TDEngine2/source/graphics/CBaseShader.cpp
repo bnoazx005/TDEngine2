@@ -8,16 +8,281 @@
 
 namespace TDEngine2
 {
+	struct TShaderParametersArchiveKeys
+	{
+		static const std::string mUniformsInfoGroupKeyId;
+		static const std::string mShaderResourcesGroupKeyId;
+		static const std::string mStagesInfoGroupKeyId;
+		static const std::string mSingleUniformBufferInfoGroupKeyId;
+		static const std::string mSingleResourceInfoGroupKeyId;
+		static const std::string mSingleStageInfoGroupKeyId;
+
+		struct TUniformBufferGroupKeys
+		{
+			static const std::string mNameKeyId;
+			static const std::string mSlotKeyId;
+			static const std::string mSizeKeyId;
+			static const std::string mFlagsKeyId;
+			static const std::string mBufferIndexKeyId;
+			static const std::string mVariablesKeyId;
+			static const std::string mSingleVariableKeyId;
+
+			struct TUniformGroupKeys
+			{
+				static const std::string mIdKeyId;
+				static const std::string mSizeKeyId;
+				static const std::string mOffsetKeyId;
+				static const std::string mTypeKeyId;
+				static const std::string mIsArrayKeyId;
+			};
+		};
+
+		struct TShaderResourceGroupKeys
+		{
+			static const std::string mIdKeyId;
+			static const std::string mTypeKeyId;
+			static const std::string mSlotKeyId;
+		};
+
+		struct TShaderStageGroupKeys
+		{
+			static const std::string mTypeKeyId;
+			static const std::string mBytecodeOffsetKeyId;
+			static const std::string mBytecodeSizeKeyId;
+			static const std::string mEntrypointNameKeyId;
+		};
+	};
+
+
+	const std::string TShaderParametersArchiveKeys::mUniformsInfoGroupKeyId = "uniforms_info";
+	const std::string TShaderParametersArchiveKeys::mShaderResourcesGroupKeyId = "resources_info";
+	const std::string TShaderParametersArchiveKeys::mStagesInfoGroupKeyId = "stages_info";
+	const std::string TShaderParametersArchiveKeys::mSingleUniformBufferInfoGroupKeyId = "uniform_buffer";
+	const std::string TShaderParametersArchiveKeys::mSingleResourceInfoGroupKeyId = "shader_resource";
+	const std::string TShaderParametersArchiveKeys::mSingleStageInfoGroupKeyId = "shader_stage";
+
+	const std::string TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mNameKeyId = "id";
+	const std::string TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mSlotKeyId = "slot";
+	const std::string TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mSizeKeyId = "size";
+	const std::string TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mFlagsKeyId = "flags";
+	const std::string TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mBufferIndexKeyId = "buffer_index";
+	const std::string TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mVariablesKeyId = "variables";
+	const std::string TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mSingleVariableKeyId = "uniform";
+
+	const std::string TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mIdKeyId = "id";
+	const std::string TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mSizeKeyId = "size";
+	const std::string TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mOffsetKeyId = "offset";
+	const std::string TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mTypeKeyId = "type_id";
+	const std::string TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mIsArrayKeyId = "is_array";
+
+	const std::string TShaderParametersArchiveKeys::TShaderResourceGroupKeys::mIdKeyId = "id";
+	const std::string TShaderParametersArchiveKeys::TShaderResourceGroupKeys::mTypeKeyId = "type";
+	const std::string TShaderParametersArchiveKeys::TShaderResourceGroupKeys::mSlotKeyId = "slot";
+
+	const std::string TShaderParametersArchiveKeys::TShaderStageGroupKeys::mTypeKeyId = "type";
+	const std::string TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeOffsetKeyId = "bytecode_offset";
+	const std::string TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeSizeKeyId = "bytecode_size";
+	const std::string TShaderParametersArchiveKeys::TShaderStageGroupKeys::mEntrypointNameKeyId = "entrypoint";
+
+
 	E_RESULT_CODE TShaderParameters::Load(IArchiveReader* pReader)
 	{
-		return RC_OK;
+		E_RESULT_CODE result = RC_OK;
+
+		// \note Uniforms info
+		result = result | pReader->BeginGroup(TShaderParametersArchiveKeys::mUniformsInfoGroupKeyId);
+		{
+			TUniformBufferDesc uniformBufferDesc;
+			TShaderUniformDesc uniformDesc;
+
+			while (pReader->HasNextItem())
+			{
+				result = result | pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+				{
+					result = result | pReader->BeginGroup(TShaderParametersArchiveKeys::mSingleUniformBufferInfoGroupKeyId);
+					{
+						std::string name = pReader->GetString(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mNameKeyId);
+						
+						uniformBufferDesc.mSlot  = pReader->GetUInt8(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mSlotKeyId);
+						uniformBufferDesc.mSize  = pReader->GetUInt64(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mSizeKeyId);
+						uniformBufferDesc.mFlags = static_cast<E_UNIFORM_BUFFER_DESC_FLAGS>(pReader->GetUInt32(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mFlagsKeyId));
+						uniformBufferDesc.mBufferIndex = pReader->GetUInt32(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mBufferIndexKeyId);
+						
+						// variables
+						result = result | pReader->BeginGroup(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mVariablesKeyId);
+						{
+							while (pReader->HasNextItem())
+							{
+								result = result | pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+								{
+									result = result | pReader->BeginGroup(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mSingleVariableKeyId);
+									{
+										uniformDesc.mName = pReader->GetString(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mIdKeyId);
+										uniformDesc.mSize = pReader->GetUInt64(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mSizeKeyId);
+										uniformDesc.mOffset = pReader->GetUInt64(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mOffsetKeyId);
+										uniformDesc.mTypeId = static_cast<TypeId>(pReader->GetInt32(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mTypeKeyId));
+										uniformDesc.mIsArray = pReader->GetBool(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mIsArrayKeyId);
+
+										uniformBufferDesc.mVariables.emplace_back(uniformDesc);
+									}
+									result = result | pReader->EndGroup();
+								}
+								result = result | pReader->EndGroup();
+							}
+						}
+						result = result | pReader->EndGroup();
+					}
+					result = result | pReader->EndGroup();
+				}
+				result = result | pReader->EndGroup();
+			}
+		}
+		result = result | pReader->EndGroup();
+
+		// \note Resources info
+		result = result | pReader->BeginGroup(TShaderParametersArchiveKeys::mShaderResourcesGroupKeyId);
+		{
+			TShaderResourceDesc resourceDesc;
+
+			while (pReader->HasNextItem())
+			{
+				result = result | pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+				{
+					result = result | pReader->BeginGroup(TShaderParametersArchiveKeys::mSingleResourceInfoGroupKeyId);
+					{
+						std::string name = pReader->GetString(TShaderParametersArchiveKeys::TShaderResourceGroupKeys::mIdKeyId);
+
+						resourceDesc.mSlot = pReader->GetUInt8(TShaderParametersArchiveKeys::TShaderResourceGroupKeys::mSlotKeyId);
+						resourceDesc.mType = static_cast<E_SHADER_RESOURCE_TYPE>(pReader->GetInt32(TShaderParametersArchiveKeys::TShaderResourceGroupKeys::mTypeKeyId));
+
+						mShaderResourcesInfo.emplace(name, resourceDesc);
+					}
+					result = result | pReader->EndGroup();
+				}
+				result = result | pReader->EndGroup();
+			}
+		}
+		result = result | pReader->EndGroup();
+
+		// \note Stages info
+		result = result | pReader->BeginGroup(TShaderParametersArchiveKeys::mStagesInfoGroupKeyId);
+		{
+			TShaderStageInfo stageDesc;
+
+			while (pReader->HasNextItem())
+			{
+				result = result | pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+				{
+					result = result | pReader->BeginGroup(TShaderParametersArchiveKeys::mSingleStageInfoGroupKeyId);
+					{
+						E_SHADER_STAGE_TYPE stageType = static_cast<E_SHADER_STAGE_TYPE>(pReader->GetUInt32(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mTypeKeyId));
+
+						stageDesc.mBytecodeInfo.mSize = pReader->GetUInt64(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeOffsetKeyId);
+						stageDesc.mBytecodeInfo.mOffset = pReader->GetUInt64(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeOffsetKeyId);
+						stageDesc.mEntrypoint = pReader->GetString(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mEntrypointNameKeyId);
+
+						mStages.emplace(stageType, stageDesc);
+					}
+					result = result | pReader->EndGroup();
+				}
+				result = result | pReader->EndGroup();
+			}
+		}
+		result = result | pReader->EndGroup();
+
+		return result;
 	}
 	
 	E_RESULT_CODE TShaderParameters::Save(IArchiveWriter* pWriter)
 	{
-		pWriter->SetUInt32("type_id", static_cast<U32>(TDE2_TYPE_ID(TShaderParameters)));
+		E_RESULT_CODE result = pWriter->SetUInt32("type_id", static_cast<U32>(TDE2_TYPE_ID(TShaderParameters)));
 
-		return RC_OK;
+		// \note Uniforms info
+		result = result | pWriter->BeginGroup(TShaderParametersArchiveKeys::mUniformsInfoGroupKeyId, true);
+		{
+			for (auto&& currUniformEntry : mUniformBuffersInfo)
+			{
+				result = result | pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+				{
+					result = result | pWriter->BeginGroup(TShaderParametersArchiveKeys::mSingleUniformBufferInfoGroupKeyId);
+					{
+						result = result | pWriter->SetString(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mNameKeyId, currUniformEntry.first);
+						result = result | pWriter->SetUInt8(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mSlotKeyId, currUniformEntry.second.mSlot);
+						result = result | pWriter->SetUInt64(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mSizeKeyId, currUniformEntry.second.mSize);
+						result = result | pWriter->SetUInt32(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mFlagsKeyId, static_cast<U32>(currUniformEntry.second.mFlags));
+						result = result | pWriter->SetUInt32(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mBufferIndexKeyId, currUniformEntry.second.mBufferIndex);
+
+						// variables
+						result = result | pWriter->BeginGroup(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mVariablesKeyId, true);
+						{
+							for (auto&& currVariableInfo : currUniformEntry.second.mVariables)
+							{
+								result = result | pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+								{
+									result = result | pWriter->BeginGroup(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mSingleVariableKeyId);
+									{
+										result = result | pWriter->SetString(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mIdKeyId, currVariableInfo.mName);
+										result = result | pWriter->SetUInt64(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mSizeKeyId, currVariableInfo.mSize);
+										result = result | pWriter->SetUInt64(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mOffsetKeyId, currVariableInfo.mOffset);
+										result = result | pWriter->SetInt32(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mTypeKeyId, static_cast<U32>(currVariableInfo.mTypeId));
+										result = result | pWriter->SetBool(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mIsArrayKeyId, currVariableInfo.mIsArray);
+									}
+									result = result | pWriter->EndGroup();
+								}
+								result = result | pWriter->EndGroup();
+							}
+						}
+						result = result | pWriter->EndGroup();
+					}
+					result = result | pWriter->EndGroup();
+				}
+				result = result | pWriter->EndGroup();
+			}
+		}
+		result = result | pWriter->EndGroup();
+
+		// \note Resources info
+		result = result | pWriter->BeginGroup(TShaderParametersArchiveKeys::mShaderResourcesGroupKeyId, true);
+		{
+			for (auto&& currResourceInfo : mShaderResourcesInfo)
+			{
+				result = result | pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+				{
+					result = result | pWriter->BeginGroup(TShaderParametersArchiveKeys::mSingleResourceInfoGroupKeyId);
+					{
+						result = result | pWriter->SetString(TShaderParametersArchiveKeys::TShaderResourceGroupKeys::mIdKeyId, currResourceInfo.first);
+						result = result | pWriter->SetUInt8(TShaderParametersArchiveKeys::TShaderResourceGroupKeys::mSlotKeyId, currResourceInfo.second.mSlot);
+						result = result | pWriter->SetInt32(TShaderParametersArchiveKeys::TShaderResourceGroupKeys::mTypeKeyId, static_cast<U32>(currResourceInfo.second.mType));
+					}
+					result = result | pWriter->EndGroup();
+				}
+				result = result | pWriter->EndGroup();
+			}
+		}
+		result = result | pWriter->EndGroup();
+
+		// \note Stages info
+		result = result | pWriter->BeginGroup(TShaderParametersArchiveKeys::mStagesInfoGroupKeyId, true);
+		{
+			for (auto&& currStageInfo : mStages)
+			{
+				result = result | pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+				{
+					result = result | pWriter->BeginGroup(TShaderParametersArchiveKeys::mSingleStageInfoGroupKeyId);
+					{
+						result = result | pWriter->SetUInt32(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mTypeKeyId, static_cast<U32>(currStageInfo.first));
+						result = result | pWriter->SetUInt64(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeOffsetKeyId, currStageInfo.second.mBytecodeInfo.mOffset);
+						result = result | pWriter->SetUInt64(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeOffsetKeyId, currStageInfo.second.mBytecodeInfo.mSize);
+						result = result | pWriter->SetString(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mEntrypointNameKeyId, currStageInfo.second.mEntrypoint);
+					}
+					result = result | pWriter->EndGroup();
+				}
+				result = result | pWriter->EndGroup();
+			}
+		}
+		result = result | pWriter->EndGroup();
+
+		return result;
 	}
 
 	/*!
