@@ -1,8 +1,11 @@
 #include "../../include/graphics/CBaseGraphicsObjectManager.h"
 #include "../../include/graphics/IVertexDeclaration.h"
 #include "../../include/core/IGraphicsContext.h"
+#include "../../include/core/IFileSystem.h"
+#include "../../include/core/IFile.h"
 #include "../../include/graphics/CDebugUtility.h"
 #include "../../include/graphics/IRenderer.h"
+#include "../../include/graphics/CBaseShader.h"
 #include <unordered_map>
 
 
@@ -63,6 +66,23 @@ namespace TDEngine2
 		}
 
 		return Wrench::TOkValue<IDebugUtility*>(mpDebugUtility);
+	}
+
+	TResult<TPtr<IShaderCache>> CBaseGraphicsObjectManager::CreateShaderCache(IFileSystem* pFileSystem)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		TPtr<IShaderCache> pShaderCache = TPtr<IShaderCache>(
+			::TDEngine2::CreateShaderCache(
+				pFileSystem->Get<IBinaryFileReader>(pFileSystem->Open<IBinaryFileReader>(_getShaderCacheFilePath(), true).Get()),
+				pFileSystem->Get<IBinaryFileWriter>(pFileSystem->Open<IBinaryFileWriter>(_getShaderCacheFilePath(), true).Get()), result));
+
+		if (!pShaderCache || RC_OK != result)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
+		}
+
+		return Wrench::TOkValue<TPtr<IShaderCache>>(pShaderCache);
 	}
 
 	IGraphicsContext* CBaseGraphicsObjectManager::GetGraphicsContext() const

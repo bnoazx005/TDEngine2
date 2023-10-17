@@ -589,18 +589,40 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CShaderCache::Init(IBinaryFileReader* pCacheReader)
+	E_RESULT_CODE CShaderCache::Init(IBinaryFileReader* pCacheReader, IBinaryFileWriter* pCacheWriter)
 	{
-		if (!pCacheReader)
+		if (!pCacheReader || !pCacheWriter)
 		{
 			return RC_INVALID_ARGS;
 		}
 
 		mpCacheFileReader = pCacheReader;
+		mpCacheFileWriter = pCacheWriter;
 
 		mIsInitialized = true;
 
 		return RC_OK;
+	}
+
+	E_RESULT_CODE CShaderCache::Dump()
+	{				
+		return RC_OK;
+	}
+
+	TResult<TShaderCacheBytecodeEntry> CShaderCache::AddShaderBytecode(std::vector<U8> bytecode)
+	{
+		if (bytecode.empty())
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+		}
+
+		TShaderCacheBytecodeEntry info;
+		info.mOffset = mIntermediateCacheBuffer.size();
+		info.mSize = bytecode.size();
+
+		std::copy(bytecode.begin(), bytecode.end(), std::back_inserter(mIntermediateCacheBuffer));
+
+		return Wrench::TOkValue<TShaderCacheBytecodeEntry>(info);
 	}
 
 	std::vector<U8> CShaderCache::GetBytecode(const TShaderCacheBytecodeEntry& info)
@@ -620,8 +642,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IShaderCache* CreateShaderCache(IBinaryFileReader* pCacheReader, E_RESULT_CODE& result)
+	TDE2_API IShaderCache* CreateShaderCache(IBinaryFileReader* pCacheReader, IBinaryFileWriter* pCacheWriter, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IShaderCache, CShaderCache, result, pCacheReader);
+		return CREATE_IMPL(IShaderCache, CShaderCache, result, pCacheReader, pCacheWriter);
 	}
 }

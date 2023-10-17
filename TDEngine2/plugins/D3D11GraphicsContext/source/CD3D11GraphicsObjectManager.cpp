@@ -7,6 +7,9 @@
 #include "./../include/CD3D11Mappings.h"
 #include "./../include/CD3D11Utils.h"
 #include <core/IGraphicsContext.h>
+#include <core/IFileSystem.h>
+#include <core/IFile.h>
+#include <core/CProjectSettings.h>
 #include <graphics/IStructuredBuffer.h>
 
 
@@ -881,6 +884,11 @@ namespace TDEngine2
 		mpRasterizerStatesArray.RemoveAll();
 
 		return RC_OK;
+	}
+
+	const std::string CD3D11GraphicsObjectManager::_getShaderCacheFilePath() const
+	{
+		return Wrench::StringUtils::Format(CProjectSettings::Get()->mGraphicsSettings.mShaderCachePathPattern, "DX");
 	}
 
 	IGraphicsObjectManager* CreateD3D11GraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)

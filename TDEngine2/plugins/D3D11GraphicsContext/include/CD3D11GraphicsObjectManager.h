@@ -223,6 +223,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _freeDepthStencilStates() override;
 
 			TDE2_API E_RESULT_CODE _freeRasterizerStates() override;
+
+			TDE2_API const std::string _getShaderCacheFilePath() const override;
 		protected:			
 			TTextureSamplersArray    mpTextureSamplersArray;
 			TBlendStatesArray        mpBlendStates;

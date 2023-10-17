@@ -17,7 +17,9 @@
 
 namespace TDEngine2
 {
-	
+	class IBinaryFileReader;
+
+
 	/*!
 		class CBaseGraphicsObjectManager
 
@@ -56,6 +58,8 @@ namespace TDEngine2
 
 			TDE2_API TResult<IDebugUtility*> CreateDebugUtility(IResourceManager* pResourceManager, IRenderer* pRenderer) override;
 
+			TDE2_API TResult<TPtr<IShaderCache>> CreateShaderCache(IFileSystem* pFileSystem) override;
+
 			/*!
 				\brief The method returns a pointer to IGraphicsContext
 				\return The method returns a pointer to IGraphicsContext
@@ -88,6 +92,8 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE _freeDepthStencilStates() = 0;
 
 			TDE2_API virtual E_RESULT_CODE _freeRasterizerStates() = 0;
+
+			TDE2_API virtual const std::string _getShaderCacheFilePath() const = 0;
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:

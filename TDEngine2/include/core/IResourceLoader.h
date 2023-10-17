@@ -50,9 +50,11 @@ namespace TDEngine2
 	class IGraphicsContext;
 	class IFileSystem;
 	class IShaderCompiler;
+	class IShaderCache;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IShaderCompiler)
+	TDE2_DECLARE_SCOPED_PTR(IShaderCache)
 
 
 	/*!
@@ -79,5 +81,5 @@ namespace TDEngine2
 		\brief The interface describes a functionality of a shaders loader
 	*/
 
-	class IShaderLoader : public IGenericResourceLoader<IResourceManager*, IGraphicsContext*, IFileSystem*, TPtr<IShaderCompiler>> {};
+	class IShaderLoader : public IGenericResourceLoader<IResourceManager*, IGraphicsContext*, IFileSystem*, TPtr<IShaderCompiler>, TPtr<IShaderCache>> {};
 }

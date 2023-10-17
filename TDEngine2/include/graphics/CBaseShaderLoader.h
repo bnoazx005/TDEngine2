@@ -16,9 +16,11 @@ namespace TDEngine2
 {
 	class IFileSystem;
 	class IShaderCompiler;
+	class IShaderCache;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IShaderCompiler)
+	TDE2_DECLARE_SCOPED_PTR(IShaderCache)
 
 
 	/*!
@@ -38,7 +40,7 @@ namespace TDEngine2
 	*/
 
 	TDE2_API IResourceLoader* CreateBaseShaderLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, 
-													 TPtr<IShaderCompiler> pShaderCompiler, E_RESULT_CODE& result);
+													 TPtr<IShaderCompiler> pShaderCompiler, TPtr<IShaderCache> pShaderCache, E_RESULT_CODE& result);
 
 
 	/*!
@@ -50,8 +52,7 @@ namespace TDEngine2
 	class CBaseShaderLoader : public CBaseObject, public IShaderLoader
 	{
 		public:
-			friend TDE2_API IResourceLoader* CreateBaseShaderLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, 
-																	TPtr<IShaderCompiler> pShaderCompiler, E_RESULT_CODE& result);
+			friend TDE2_API IResourceLoader* CreateBaseShaderLoader(IResourceManager*, IGraphicsContext*, IFileSystem*, TPtr<IShaderCompiler>, TPtr<IShaderCache>, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes an inner state of an object
@@ -68,7 +69,7 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, 
-										TPtr<IShaderCompiler> pShaderCompiler) override;
+										TPtr<IShaderCompiler> pShaderCompiler, TPtr<IShaderCache> pShaderCache) override;
 
 			/*!
 				\brief The method loads data into the specified resource based on its
@@ -100,5 +101,7 @@ namespace TDEngine2
 			IGraphicsContext*      mpGraphicsContext;
 
 			TPtr<IShaderCompiler>  mpShaderCompiler;
+
+			mutable TPtr<IShaderCache> mpShaderCache;
 	};
 }

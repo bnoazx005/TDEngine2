@@ -7,6 +7,9 @@
 #include "./../include/COGLMappings.h"
 #include "./../include/COGLUtils.h"
 #include <graphics/IStructuredBuffer.h>
+#include <core/IFileSystem.h>
+#include <core/IFile.h>
+#include <core/CProjectSettings.h>
 
 
 namespace TDEngine2
@@ -710,6 +713,11 @@ namespace TDEngine2
 	E_RESULT_CODE COGLGraphicsObjectManager::_freeRasterizerStates()
 	{
 		return RC_OK;
+	}
+
+	const std::string COGLGraphicsObjectManager::_getShaderCacheFilePath() const
+	{
+		return Wrench::StringUtils::Format(CProjectSettings::Get()->mGraphicsSettings.mShaderCachePathPattern, "GL");
 	}
 
 

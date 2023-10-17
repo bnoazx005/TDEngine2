@@ -155,7 +155,13 @@ namespace TDEngine2
 			return result;
 		}
 
-		IResourceLoader* pLoaderInstance = CreateBaseShaderLoader(pResourceManager, mpGraphicsContext.Get(), pFileSystem, pShaderCompilerInstance, result);
+		IResourceLoader* pLoaderInstance = CreateBaseShaderLoader(
+			pResourceManager, 
+			mpGraphicsContext.Get(), 
+			pFileSystem, 
+			pShaderCompilerInstance, 
+			mpGraphicsContext->GetGraphicsObjectManager()->CreateShaderCache(pFileSystem).Get(),
+			result);
 
 		if (result != RC_OK || ((result = registerLoader(pResourceManager, pLoaderInstance)) != RC_OK))
 		{

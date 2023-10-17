@@ -20,14 +20,14 @@ namespace TDEngine2
 	}
 
 	E_RESULT_CODE CBaseShaderLoader::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, 
-										  TPtr<IShaderCompiler> pShaderCompiler)
+										  TPtr<IShaderCompiler> pShaderCompiler, TPtr<IShaderCache> pShaderCache)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pResourceManager || !pGraphicsContext || !pFileSystem || !pShaderCompiler)
+		if (!pResourceManager || !pGraphicsContext || !pFileSystem || !pShaderCompiler || !pShaderCache)
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -41,6 +41,8 @@ namespace TDEngine2
 		mpGraphicsContext = pGraphicsContext;
 
 		mpShaderCompiler = pShaderCompiler;
+
+		mpShaderCache = pShaderCache;
 
 		return RC_OK;
 	}
@@ -115,7 +117,7 @@ namespace TDEngine2
 			return CompileShader(mpShaderCompiler.Get(), pResource->GetName(), pShader, mpGraphicsContext, mpFileSystem);
 		}
 
-		return RC_FAIL;
+		return pShader->LoadFromShaderCache(mpShaderCache.Get(), pShaderMetaInfo);
 	}
 
 	TypeId CBaseShaderLoader::GetResourceTypeId() const
@@ -125,8 +127,8 @@ namespace TDEngine2
 
 
 	TDE2_API IResourceLoader* CreateBaseShaderLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext,IFileSystem* pFileSystem, 
-													 TPtr<IShaderCompiler> pShaderCompiler, E_RESULT_CODE& result)
+													 TPtr<IShaderCompiler> pShaderCompiler, TPtr<IShaderCache> pShaderCache, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IResourceLoader, CBaseShaderLoader, result, pResourceManager, pGraphicsContext, pFileSystem, pShaderCompiler);
+		return CREATE_IMPL(IResourceLoader, CBaseShaderLoader, result, pResourceManager, pGraphicsContext, pFileSystem, pShaderCompiler, pShaderCache);
 	}
 }

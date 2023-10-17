@@ -166,7 +166,7 @@ namespace TDEngine2
 		\return A pointer to CShaderCache's implementation
 	*/
 
-	TDE2_API IShaderCache* CreateShaderCache(IBinaryFileReader* pCacheReader, E_RESULT_CODE& result);
+	TDE2_API IShaderCache* CreateShaderCache(IBinaryFileReader* pCacheReader, IBinaryFileWriter* pCacheWriter, E_RESULT_CODE& result);
 
 
 	/*!
@@ -176,7 +176,7 @@ namespace TDEngine2
 	class CShaderCache : public IShaderCache, public CBaseObject
 	{
 		public:
-			friend TDE2_API IShaderCache* CreateShaderCache(IBinaryFileReader*, E_RESULT_CODE&);
+			friend TDE2_API IShaderCache* CreateShaderCache(IBinaryFileReader*, IBinaryFileWriter*, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes internal state of the object
@@ -184,12 +184,19 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IBinaryFileReader* pCacheReader) override;
+			TDE2_API E_RESULT_CODE Init(IBinaryFileReader* pCacheReader, IBinaryFileWriter* pCacheWriter) override;
+
+			TDE2_API E_RESULT_CODE Dump() override;
+
+			TDE2_API TResult<TShaderCacheBytecodeEntry> AddShaderBytecode(std::vector<U8> bytecode) override;
 
 			TDE2_API std::vector<U8> GetBytecode(const TShaderCacheBytecodeEntry& info) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CShaderCache)
 		private:
 			IBinaryFileReader* mpCacheFileReader = nullptr;
+			IBinaryFileWriter* mpCacheFileWriter = nullptr;
+
+			std::vector<U8> mIntermediateCacheBuffer;
 	};
 }

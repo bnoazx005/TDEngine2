@@ -25,6 +25,7 @@ namespace TDEngine2
 	class IStructuredBuffer;
 	class IShaderCache;
 	class IBinaryFileReader;
+	class IBinaryFileWriter;
 
 	struct TShaderCompilerOutput;
 	struct TShaderParameters;
@@ -195,7 +196,11 @@ namespace TDEngine2
 	class IShaderCache : public virtual IBaseObject
 	{
 		public:
-			TDE2_API virtual E_RESULT_CODE Init(IBinaryFileReader* pCacheReader) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(IBinaryFileReader* pCacheReader, IBinaryFileWriter* pCacheWriter) = 0;
+
+			TDE2_API virtual E_RESULT_CODE Dump() = 0;
+
+			TDE2_API virtual TResult<TShaderCacheBytecodeEntry> AddShaderBytecode(std::vector<U8> bytecode) = 0;
 
 			TDE2_API virtual std::vector<U8> GetBytecode(const TShaderCacheBytecodeEntry& info) = 0;
 		protected:
