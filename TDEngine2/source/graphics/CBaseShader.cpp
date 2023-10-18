@@ -599,6 +599,9 @@ namespace TDEngine2
 		mpCacheFileReader = pCacheReader;
 		mpCacheFileWriter = pCacheWriter;
 
+		mIntermediateCacheBuffer.resize(mpCacheFileReader->GetFileLength());
+		mpCacheFileReader->Read(mIntermediateCacheBuffer.data(), mIntermediateCacheBuffer.size());
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -627,7 +630,7 @@ namespace TDEngine2
 
 	std::vector<U8> CShaderCache::GetBytecode(const TShaderCacheBytecodeEntry& info)
 	{
-		if (info.mOffset + info.mSize >= mpCacheFileReader->GetFileLength())
+		if (info.mOffset + info.mSize >= mIntermediateCacheBuffer.size())
 		{
 			return {};
 		}
@@ -635,8 +638,7 @@ namespace TDEngine2
 		std::vector<U8> buffer;
 		buffer.resize(info.mSize);
 
-		mpCacheFileReader->SetPosition(info.mOffset);
-		mpCacheFileReader->Read(buffer.data(), info.mSize);
+		memcpy(buffer.data(), &mIntermediateCacheBuffer[info.mOffset], info.mSize);
 
 		return buffer;
 	}
