@@ -188,7 +188,7 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Dump() override;
 
-			TDE2_API TResult<TShaderCacheBytecodeEntry> AddShaderBytecode(std::vector<U8> bytecode) override;
+			TDE2_API TResult<TShaderCacheBytecodeEntry> AddShaderBytecode(const std::vector<U8>& bytecode) override;
 
 			TDE2_API std::vector<U8> GetBytecode(const TShaderCacheBytecodeEntry& info) override;
 		protected:

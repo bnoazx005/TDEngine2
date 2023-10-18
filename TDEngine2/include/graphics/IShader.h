@@ -31,7 +31,6 @@ namespace TDEngine2
 	struct TShaderParameters;
 
 
-
 	/*!
 		interface IShader
 
@@ -76,6 +75,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE LoadFromShaderCache(IShaderCache* pShaderCache, const TShaderParameters* pShaderMetaData) = 0;
+
+			TDE2_API virtual E_RESULT_CODE UpdateShaderCache(IShaderCache* pShaderCache) = 0;
 
 			/*!
 				\brief The method binds a shader to a rendering pipeline
@@ -200,7 +201,7 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Dump() = 0;
 
-			TDE2_API virtual TResult<TShaderCacheBytecodeEntry> AddShaderBytecode(std::vector<U8> bytecode) = 0;
+			TDE2_API virtual TResult<TShaderCacheBytecodeEntry> AddShaderBytecode(const std::vector<U8>& bytecode) = 0;
 
 			TDE2_API virtual std::vector<U8> GetBytecode(const TShaderCacheBytecodeEntry& info) = 0;
 		protected:

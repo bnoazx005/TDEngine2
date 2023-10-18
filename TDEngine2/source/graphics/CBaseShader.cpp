@@ -349,7 +349,9 @@ namespace TDEngine2
 			return compilerOutput.GetError();
 		}
 
-		return _initShaderInternal(compilerOutput.Get());
+		TShaderCompilerOutput* pCompilerOutput = compilerOutput.Get();
+
+		return _initShaderInternal(pCompilerOutput);
 	}
 
 	E_RESULT_CODE CBaseShader::LoadFromShaderCache(IShaderCache* pShaderCache, const TShaderParameters* pShaderMetaData)
@@ -364,7 +366,7 @@ namespace TDEngine2
 
 		return _initShaderInternal(pResult);
 	}
-	
+
 	E_RESULT_CODE CBaseShader::SetUserUniformsBuffer(U8 slot, const U8* pData, USIZE dataSize)
 	{
 		if (slot >= MaxNumberOfUserConstantBuffers)
@@ -600,7 +602,9 @@ namespace TDEngine2
 		mpCacheFileWriter = pCacheWriter;
 
 		mIntermediateCacheBuffer.resize(mpCacheFileReader->GetFileLength());
+
 		mpCacheFileReader->Read(mIntermediateCacheBuffer.data(), mIntermediateCacheBuffer.size());
+		mpCacheFileReader->Close();
 
 		mIsInitialized = true;
 
@@ -608,11 +612,15 @@ namespace TDEngine2
 	}
 
 	E_RESULT_CODE CShaderCache::Dump()
-	{				
-		return RC_OK;
+	{
+		E_RESULT_CODE result = mpCacheFileWriter->SetPosition(0);
+		result = result | mpCacheFileWriter->Write(mIntermediateCacheBuffer.data(), mIntermediateCacheBuffer.size());
+		result = result | mpCacheFileWriter->Flush();
+
+		return result;
 	}
 
-	TResult<TShaderCacheBytecodeEntry> CShaderCache::AddShaderBytecode(std::vector<U8> bytecode)
+	TResult<TShaderCacheBytecodeEntry> CShaderCache::AddShaderBytecode(const std::vector<U8>& bytecode)
 	{
 		if (bytecode.empty())
 		{

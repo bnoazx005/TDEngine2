@@ -46,6 +46,20 @@ namespace TDEngine2
 		GL_SAFE_VOID_CALL(glUseProgram(0));
 	}
 
+	E_RESULT_CODE COGLShader::UpdateShaderCache(IShaderCache* pShaderCache)
+	{
+		TDE2_PROFILER_SCOPE("COGLShader::UpdateShaderCache");
+
+		E_RESULT_CODE result = RC_OK;
+
+		std::unique_ptr<TBaseResourceParameters> pShaderParameters = std::make_unique<TShaderParameters>();
+
+		// \note copy data from pShader->GetMetadata() to pShaderParameters
+		// \note write bytecode to the cache
+
+		return mpResourceManager->SetResourceMeta(mName, std::move(pShaderParameters));
+	}
+
 	E_RESULT_CODE COGLShader::_createInternalHandlers(const TShaderCompilerOutput* pCompilerData)
 	{
 		const TOGLShaderCompilerOutput* pOGLShaderCompilerData = dynamic_cast<const TOGLShaderCompilerOutput*>(pCompilerData);

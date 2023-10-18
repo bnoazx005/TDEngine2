@@ -10,6 +10,7 @@
 #include "../../include/editor/CPerfProfiler.h"
 #include <unordered_map>
 #include <string>
+#include "deferOperation.hpp"
 
 
 namespace TDEngine2
@@ -114,7 +115,13 @@ namespace TDEngine2
 		const TShaderParameters* pShaderMetaInfo = dynamic_cast<const TShaderParameters*>(mpResourceManager->GetResourceMeta(pResource->GetName()));
 		if (!pShaderMetaInfo)
 		{
-			return CompileShader(mpShaderCompiler.Get(), pResource->GetName(), pShader, mpGraphicsContext, mpFileSystem);
+			result = CompileShader(mpShaderCompiler.Get(), pResource->GetName(), pShader, mpGraphicsContext, mpFileSystem);
+			if (RC_OK != result)
+			{
+				return result;
+			}
+
+			return pShader->UpdateShaderCache(mpShaderCache.Get());
 		}
 
 		return pShader->LoadFromShaderCache(mpShaderCache.Get(), pShaderMetaInfo);

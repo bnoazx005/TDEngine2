@@ -85,6 +85,8 @@ namespace TDEngine2
 
 			TDE2_API void Unbind() override;
 
+			TDE2_API E_RESULT_CODE UpdateShaderCache(IShaderCache* pShaderCache) override;
+
 			/*!
 				\brief The method returns a bytecode of a vertex shader, or nullptr if a shader hasn't compiled yet
 

@@ -71,6 +71,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void Unbind() override;
+
+			TDE2_API E_RESULT_CODE UpdateShaderCache(IShaderCache* pShaderCache) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLShader)
 

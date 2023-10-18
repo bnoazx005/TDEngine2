@@ -5,8 +5,9 @@
 #include "../include/CD3D11ConstantBuffer.h"
 #include <graphics/CBaseShader.h>
 #include <graphics/IShaderCompiler.h>
+#include <editor/CPerfProfiler.h>
 #include <cstring>
-#include <cassert>
+#include <array>
 
 
 #if defined (TDE2_USE_WINPLATFORM)
@@ -74,6 +75,57 @@ namespace TDEngine2
 		/*mp3dDeviceContext->VSSetShader(nullptr, nullptr, 0);
 		mp3dDeviceContext->PSSetShader(nullptr, nullptr, 0);
 		mp3dDeviceContext->GSSetShader(nullptr, nullptr, 0);*/
+	}
+
+	E_RESULT_CODE CD3D11Shader::UpdateShaderCache(IShaderCache* pShaderCache)
+	{
+		TDE2_PROFILER_SCOPE("CD3D11Shader::UpdateShaderCache");
+
+		E_RESULT_CODE result = RC_OK;
+
+		std::unique_ptr<TBaseResourceParameters> pParameters = std::make_unique<TShaderParameters>();
+		TShaderParametersPtr pShaderParams = dynamic_cast<TShaderParametersPtr>(pParameters.get());
+
+		// \note copy data from pShader->GetMetadata() to pShaderParameters
+		TD3D11ShaderCompilerOutput* pD3D11ShaderMeta = dynamic_cast<TD3D11ShaderCompilerOutput*>(mpShaderMeta);
+		
+		for (auto&& currResourceEntry : pD3D11ShaderMeta->mShaderResourcesInfo)
+		{
+			pShaderParams->mShaderResourcesInfo.emplace(currResourceEntry.first, currResourceEntry.second);
+		}
+
+		for (auto&& currUniformBufferEntry : pD3D11ShaderMeta->mUniformBuffersInfo)
+		{
+			pShaderParams->mUniformBuffersInfo.emplace(currUniformBufferEntry.first, currUniformBufferEntry.second);
+		}
+
+		for (auto&& currEntryPoint : pD3D11ShaderMeta->mEntryPointsTable)
+		{
+			TShaderStageInfo stageInfo;
+			stageInfo.mEntrypoint = currEntryPoint.second;
+
+			pShaderParams->mStages.emplace(currEntryPoint.first, stageInfo);
+		}
+
+		std::array<std::reference_wrapper<std::vector<U8>>, SST_NONE> shaderStagesBytecodes
+		{
+			pD3D11ShaderMeta->mVSByteCode,
+			pD3D11ShaderMeta->mPSByteCode,
+			pD3D11ShaderMeta->mGSByteCode,
+			pD3D11ShaderMeta->mCSByteCode,
+		};
+
+		for (USIZE i = 0; i < shaderStagesBytecodes.size(); i++)
+		{
+			if (shaderStagesBytecodes[i].get().empty())
+			{
+				continue;
+			}
+
+			pShaderParams->mStages[static_cast<E_SHADER_STAGE_TYPE>(i)].mBytecodeInfo = pShaderCache->AddShaderBytecode(shaderStagesBytecodes[i]).Get();
+		}
+
+		return pShaderCache->Dump() | mpResourceManager->SetResourceMeta(mName, std::move(pParameters));
 	}
 
 	E_RESULT_CODE CD3D11Shader::_createInternalHandlers(const TShaderCompilerOutput* pCompilerData)

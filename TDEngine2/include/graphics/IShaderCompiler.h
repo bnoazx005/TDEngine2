@@ -127,6 +127,8 @@ namespace TDEngine2
 		std::unordered_map<std::string, TUniformBufferDesc>  mUniformBuffersInfo; /// first key is a buffer's name, the value is the buffer's slot index and its size
 
 		std::unordered_map<std::string, TShaderResourceDesc> mShaderResourcesInfo;	/// the key is a resource's name, the value is an information about resource  
+
+		std::unordered_map<E_SHADER_STAGE_TYPE, std::string> mEntryPointsTable;
 	} TShaderCompilerOutput, *TShaderCompilerOutputPtr;
 
 

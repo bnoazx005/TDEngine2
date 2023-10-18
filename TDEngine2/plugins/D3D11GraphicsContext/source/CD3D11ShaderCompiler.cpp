@@ -60,6 +60,7 @@ namespace TDEngine2
 			}
 
 			pResult->mVSByteCode = std::move(vertexShaderOutput.Get());
+			pResult->mEntryPointsTable[E_SHADER_STAGE_TYPE::SST_VERTEX] = shaderMetadata.mVertexShaderEntrypointName;
 		}
 
 		if (_isShaderStageEnabled(SST_PIXEL, shaderMetadata))
@@ -73,6 +74,7 @@ namespace TDEngine2
 			}
 
 			pResult->mPSByteCode = std::move(pixelShaderOutput.Get());
+			pResult->mEntryPointsTable[E_SHADER_STAGE_TYPE::SST_PIXEL] = shaderMetadata.mPixelShaderEntrypointName;
 		}
 
 		if (_isShaderStageEnabled(SST_GEOMETRY, shaderMetadata))
@@ -86,6 +88,7 @@ namespace TDEngine2
 			}
 
 			pResult->mGSByteCode = std::move(geometryShaderOutput.Get());
+			pResult->mEntryPointsTable[E_SHADER_STAGE_TYPE::SST_GEOMETRY] = shaderMetadata.mGeometryShaderEntrypointName;
 		}
 
 		if (_isShaderStageEnabled(SST_COMPUTE, shaderMetadata))
@@ -101,6 +104,7 @@ namespace TDEngine2
 			}
 
 			pResult->mCSByteCode = std::move(computeShaderOutput.Get());
+			pResult->mEntryPointsTable[E_SHADER_STAGE_TYPE::SST_COMPUTE] = shaderMetadata.mComputeShaderEntrypointName;
 		}
 
 		MarkColorDataUniforms(shaderMetadata);
