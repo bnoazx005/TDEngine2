@@ -293,6 +293,7 @@ namespace TDEngine2
 
 			TDE2_API virtual TResourceId GetResourceId(const std::string& name) const = 0;
 
+			TDE2_API virtual E_RESULT_CODE SetResourceMeta(const std::string& name, std::unique_ptr<TBaseResourceParameters> pMeta) = 0;
 			TDE2_API virtual const TBaseResourceParameters* GetResourceMeta(const std::string& name) const = 0;
 
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_RESOURCE_MANAGER; }
