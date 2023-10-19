@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add support of precompiled shaders for both D3D11/GL3.x (with SPIR-V extensions).
 
+- A new utility **tde2_shaders_compilation** for shaders compilation was created.
+
 ### Changed
 
 ### Fixed
