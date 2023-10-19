@@ -76,8 +76,6 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE LoadFromShaderCache(IShaderCache* pShaderCache, const TShaderParameters* pShaderMetaData) = 0;
 
-			TDE2_API virtual E_RESULT_CODE UpdateShaderCache(IShaderCache* pShaderCache) = 0;
-
 			/*!
 				\brief The method binds a shader to a rendering pipeline
 			*/

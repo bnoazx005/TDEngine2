@@ -115,13 +115,7 @@ namespace TDEngine2
 		const TShaderParameters* pShaderMetaInfo = dynamic_cast<const TShaderParameters*>(mpResourceManager->GetResourceMeta(pResource->GetName()));
 		if (!pShaderMetaInfo)
 		{
-			result = CompileShader(mpShaderCompiler.Get(), pResource->GetName(), pShader, mpGraphicsContext, mpFileSystem);
-			if (RC_OK != result)
-			{
-				return result;
-			}
-
-			return pShader->UpdateShaderCache(mpShaderCache.Get());
+			return CompileShader(mpShaderCompiler.Get(), pResource->GetName(), pShader, mpGraphicsContext, mpFileSystem);
 		}
 
 		return pShader->LoadFromShaderCache(mpShaderCache.Get(), pShaderMetaInfo);

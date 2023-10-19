@@ -198,5 +198,7 @@ namespace TDEngine2
 			IBinaryFileWriter* mpCacheFileWriter = nullptr;
 
 			std::vector<U8> mIntermediateCacheBuffer;
+
+			bool mIsDirty = false;
 	};
 }

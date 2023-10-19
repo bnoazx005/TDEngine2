@@ -613,9 +613,16 @@ namespace TDEngine2
 
 	E_RESULT_CODE CShaderCache::Dump()
 	{
+		if (!mIsDirty)
+		{
+			return RC_OK;
+		}
+
 		E_RESULT_CODE result = mpCacheFileWriter->SetPosition(0);
 		result = result | mpCacheFileWriter->Write(mIntermediateCacheBuffer.data(), mIntermediateCacheBuffer.size());
 		result = result | mpCacheFileWriter->Flush();
+
+		mIsDirty = false;
 
 		return result;
 	}
@@ -627,6 +634,8 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
+		mIsDirty = true;
+		
 		TShaderCacheBytecodeEntry info;
 		info.mOffset = mIntermediateCacheBuffer.size();
 		info.mSize = bytecode.size();
