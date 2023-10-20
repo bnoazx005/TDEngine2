@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.22] 2023-10-19
+## [0.6.22] 2023-10-20
 
 ### Added
 
@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 ### Fixed
+
+- An incorrect work of **CProgramOptions::AddArgument** when two arguments were defined with same single-character command was fixed.
 
 ## [0.6.21] 2023-10-13
 

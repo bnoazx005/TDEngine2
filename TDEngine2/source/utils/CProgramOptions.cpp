@@ -89,7 +89,7 @@ namespace TDEngine2
 
 		auto it = std::find_if(mArgumentsInfo.cbegin(), mArgumentsInfo.cend(), [&params](const TArgumentParams& arg)
 		{
-			return (arg.mCommand == params.mCommand) || (arg.mSingleCharCommand == params.mSingleCharCommand);
+			return (arg.mCommand == params.mCommand) || (arg.mSingleCharCommand == params.mSingleCharCommand && arg.mSingleCharCommand != '\0');
 		});
 
 		if (it != mArgumentsInfo.cend())
