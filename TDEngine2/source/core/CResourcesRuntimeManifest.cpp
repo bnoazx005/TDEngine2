@@ -78,6 +78,7 @@ namespace TDEngine2
 		E_RESULT_CODE result = pReader->BeginGroup(TResourcesRuntimeManifestArchiveKeys::mResourcesMetaCollectionKeyId);
 
 		mpResourcesMetaInfos.clear();
+		mRuntimeToOriginalResourcesPathsTable.clear();
 
 		while (pReader->HasNextItem())
 		{
@@ -85,9 +86,10 @@ namespace TDEngine2
 			{
 				result = result | pReader->BeginGroup(TResourcesRuntimeManifestArchiveKeys::mSingleResourceKeyId);
 
-				auto&& resourcePath = pReader->GetString(TResourcesRuntimeManifestArchiveKeys::mResourceIdKeyId);
-				resourcePath = mBaseResourcesPathPrefix + (Wrench::StringUtils::StartsWith(resourcePath, ".") ? resourcePath.substr(1) : resourcePath);
+				auto&& originalPath = pReader->GetString(TResourcesRuntimeManifestArchiveKeys::mResourceIdKeyId);
+				auto&& resourcePath = mBaseResourcesPathPrefix + (Wrench::StringUtils::StartsWith(originalPath, ".") ? originalPath.substr(1) : originalPath);
 
+				mRuntimeToOriginalResourcesPathsTable[resourcePath] = originalPath;
 				mpResourcesMetaInfos[resourcePath] = std::move(Deserialize(pReader));
 
 				result = result | pReader->EndGroup();
@@ -125,7 +127,7 @@ namespace TDEngine2
 			result = result | pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr(), false);
 			{
 				result = result | pWriter->BeginGroup(TResourcesRuntimeManifestArchiveKeys::mSingleResourceKeyId, false);
-				result = result | pWriter->SetString(TResourcesRuntimeManifestArchiveKeys::mResourceIdKeyId, pCurrResourceConfig.first);
+				result = result | pWriter->SetString(TResourcesRuntimeManifestArchiveKeys::mResourceIdKeyId, mRuntimeToOriginalResourcesPathsTable[pCurrResourceConfig.first]);
 				result = result | pCurrResourceConfig.second->Save(pWriter);
 				result = result | pWriter->EndGroup();
 			}
@@ -145,6 +147,8 @@ namespace TDEngine2
 		{
 			return RC_INVALID_ARGS;
 		}
+
+		mRuntimeToOriginalResourcesPathsTable[resourceId] = resourceId;
 
 		auto it = mpResourcesMetaInfos.find(resourceId);
 		if (it == mpResourcesMetaInfos.cend())

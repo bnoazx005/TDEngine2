@@ -85,6 +85,7 @@ namespace TDEngine2
 			static constexpr U16                                                      mVersionTag = 0x1;
 
 			std::unordered_map<std::string, std::unique_ptr<TBaseResourceParameters>> mpResourcesMetaInfos;
+			std::unordered_map<std::string, std::string>                              mRuntimeToOriginalResourcesPathsTable;
 
 			std::string                                                               mBaseResourcesPathPrefix;
 	};
