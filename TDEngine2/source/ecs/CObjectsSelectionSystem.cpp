@@ -473,9 +473,9 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("CObjectsSelectionSystem::_initSelectionMaterials");
 
-		const static TMaterialParameters selectionMaterialParams        = CreateSelectionMaterialParams("Selection");
-		const static TMaterialParameters selectionSkinnedMaterialParams = CreateSelectionMaterialParams("SelectionSkinned");
-		const static TMaterialParameters selectionUIMaterialParams      = CreateSelectionMaterialParams("SelectionUI");
+		const static TMaterialParameters selectionMaterialParams        = CreateSelectionMaterialParams("Shaders/Default/Selection.shader");
+		const static TMaterialParameters selectionSkinnedMaterialParams = CreateSelectionMaterialParams("Shaders/Default/SelectionSkinned.shader");
+		const static TMaterialParameters selectionUIMaterialParams      = CreateSelectionMaterialParams("Shaders/Default/SelectionUI.shader");
 
 		const static TMaterialParameters selectionOutlineMaterialParams        = CreateSelectionOutlineMaterialParams("SelectionOutline");
 		const static TMaterialParameters selectionSkinnedOutlineMaterialParams = CreateSelectionOutlineMaterialParams("SelectionSkinnedOutline");
