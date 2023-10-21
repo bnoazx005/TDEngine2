@@ -477,8 +477,8 @@ namespace TDEngine2
 		const static TMaterialParameters selectionSkinnedMaterialParams = CreateSelectionMaterialParams("Shaders/Default/SelectionSkinned.shader");
 		const static TMaterialParameters selectionUIMaterialParams      = CreateSelectionMaterialParams("Shaders/Default/SelectionUI.shader");
 
-		const static TMaterialParameters selectionOutlineMaterialParams        = CreateSelectionOutlineMaterialParams("SelectionOutline");
-		const static TMaterialParameters selectionSkinnedOutlineMaterialParams = CreateSelectionOutlineMaterialParams("SelectionSkinnedOutline");
+		const static TMaterialParameters selectionOutlineMaterialParams        = CreateSelectionOutlineMaterialParams("Shaders/Default/SelectionOutline.shader");
+		const static TMaterialParameters selectionSkinnedOutlineMaterialParams = CreateSelectionOutlineMaterialParams("Shaders/Default/SelectionSkinnedOutline.shader");
 
 		mSelectionMaterialHandle               = mpResourceManager->Create<IMaterial>("SelectionMaterial.material", selectionMaterialParams);
 		mSelectionSkinnedMaterialHandle        = mpResourceManager->Create<IMaterial>("SelectionSkinnedMaterial.material", selectionSkinnedMaterialParams);
