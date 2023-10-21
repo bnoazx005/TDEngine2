@@ -1237,7 +1237,7 @@ namespace TDEngine2
 		mpEditorUIVertexDeclaration->AddElement({ TDEngine2::FT_NORM_UBYTE4, 0, TDEngine2::VEST_COLOR, false });
 
 		// \note load default editor's material (depth test and writing to the depth buffer are disabled)
-		TMaterialParameters editorUIMaterialParams { "DefaultEditorUI", true, { false, false } };
+		TMaterialParameters editorUIMaterialParams { "Shaders/Default/UI/EditorUI.shader", true, { false, false } };
 
 		auto& blendingParams = editorUIMaterialParams.mBlendingParams;
 		blendingParams.mScrValue       = E_BLEND_FACTOR_VALUE::SOURCE_ALPHA;
