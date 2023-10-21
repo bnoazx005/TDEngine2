@@ -31,4 +31,10 @@ namespace TDEngine2
 	} ToolVersion;
 
 
+	std::vector<std::string> GetDefaultShadersPaths() TDE2_NOEXCEPT;
+
+	std::vector<std::string> BuildFilesList(TPtr<IFileSystem> pFileSystem, const std::vector<std::string>& directories) TDE2_NOEXCEPT;
+
+	E_RESULT_CODE ProcessShaders(IEngineCore* pEngineCore, std::vector<std::string>&& files) TDE2_NOEXCEPT;
+
 }

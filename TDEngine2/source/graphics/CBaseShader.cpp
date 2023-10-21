@@ -3,6 +3,7 @@
 #include "../../include/graphics/IConstantBuffer.h"
 #include "../../include/graphics/IStructuredBuffer.h"
 #include "../../include/graphics/ITexture.h"
+#include "../../include/graphics/CBaseShaderCompiler.h"
 #include "../../include/editor/CPerfProfiler.h"
 
 
@@ -89,6 +90,11 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
+		for (auto&& currSystemUniformBufferDesc : CBaseShaderCompiler::GetSystemUniformBuffersTable())
+		{
+			mUniformBuffersInfo.emplace(currSystemUniformBufferDesc.first, currSystemUniformBufferDesc.second);
+		}
+
 		// \note Uniforms info
 		result = result | pReader->BeginGroup(TShaderParametersArchiveKeys::mUniformsInfoGroupKeyId);
 		{
@@ -131,6 +137,8 @@ namespace TDEngine2
 							}
 						}
 						result = result | pReader->EndGroup();
+
+						mUniformBuffersInfo.emplace(name, uniformBufferDesc);
 					}
 					result = result | pReader->EndGroup();
 				}
@@ -177,7 +185,7 @@ namespace TDEngine2
 					{
 						E_SHADER_STAGE_TYPE stageType = static_cast<E_SHADER_STAGE_TYPE>(pReader->GetUInt32(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mTypeKeyId));
 
-						stageDesc.mBytecodeInfo.mSize = pReader->GetUInt64(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeOffsetKeyId);
+						stageDesc.mBytecodeInfo.mSize = pReader->GetUInt64(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeSizeKeyId);
 						stageDesc.mBytecodeInfo.mOffset = pReader->GetUInt64(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeOffsetKeyId);
 						stageDesc.mEntrypoint = pReader->GetString(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mEntrypointNameKeyId);
 
@@ -202,6 +210,11 @@ namespace TDEngine2
 		{
 			for (auto&& currUniformEntry : mUniformBuffersInfo)
 			{
+				if (E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL == (E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL & currUniformEntry.second.mFlags))
+				{
+					continue;
+				}
+
 				result = result | pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
 				{
 					result = result | pWriter->BeginGroup(TShaderParametersArchiveKeys::mSingleUniformBufferInfoGroupKeyId);
@@ -272,7 +285,7 @@ namespace TDEngine2
 					{
 						result = result | pWriter->SetUInt32(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mTypeKeyId, static_cast<U32>(currStageInfo.first));
 						result = result | pWriter->SetUInt64(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeOffsetKeyId, currStageInfo.second.mBytecodeInfo.mOffset);
-						result = result | pWriter->SetUInt64(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeOffsetKeyId, currStageInfo.second.mBytecodeInfo.mSize);
+						result = result | pWriter->SetUInt64(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeSizeKeyId, currStageInfo.second.mBytecodeInfo.mSize);
 						result = result | pWriter->SetString(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mEntrypointNameKeyId, currStageInfo.second.mEntrypoint);
 					}
 					result = result | pWriter->EndGroup();
@@ -593,7 +606,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CShaderCache::Init(IBinaryFileReader* pCacheReader, IBinaryFileWriter* pCacheWriter)
 	{
-		if (!pCacheReader || !pCacheWriter)
+		if (!pCacheReader)
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -616,6 +629,11 @@ namespace TDEngine2
 		if (!mIsDirty)
 		{
 			return RC_OK;
+		}
+
+		if (!mpCacheFileWriter)
+		{
+			return RC_FAIL;
 		}
 
 		E_RESULT_CODE result = mpCacheFileWriter->SetPosition(0);

@@ -159,6 +159,8 @@ namespace TDEngine2
 
 	class CBaseShaderCompiler : public CBaseObject, public IShaderCompiler
 	{
+		public:
+			typedef std::unordered_map<std::string, TUniformBufferDesc>        TUniformBuffersMap;
 		protected:
 			typedef CShaderPreprocessor::TDefinesMap                           TDefinesMap;
 
@@ -167,8 +169,6 @@ namespace TDEngine2
 			typedef std::pair<std::string, std::string>                        TShaderDefineDesc;
 			
 			typedef std::unordered_map<std::string, USIZE>                     TStructDeclsMap;
-
-			typedef std::unordered_map<std::string, TUniformBufferDesc>        TUniformBuffersMap;
 
 			typedef std::unordered_map<std::string, TShaderResourceDesc>       TShaderResourcesMap;
 
@@ -207,6 +207,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Init(IFileSystem* pFileSystem) override;
 
 			TDE2_API static TypeId GetShaderBuiltInTypeId(const std::string& typeName);
+
+			TDE2_API static TUniformBuffersMap GetSystemUniformBuffersTable();
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseShaderCompiler)
 

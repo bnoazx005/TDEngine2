@@ -25,14 +25,6 @@ namespace TDEngine2
 	typedef struct TD3D11ShaderCompilerOutput: public TShaderCompilerOutput
 	{
 		virtual ~TD3D11ShaderCompilerOutput() = default;
-
-		std::vector<U8> mVSByteCode;
-
-		std::vector<U8> mPSByteCode;
-
-		std::vector<U8> mGSByteCode;
-
-		std::vector<U8> mCSByteCode;
 	} TD3D11ShaderCompilerOutput, *TD3D11ShaderCompilerOutputPtr;
 
 

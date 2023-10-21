@@ -129,6 +129,11 @@ namespace TDEngine2
 		std::unordered_map<std::string, TShaderResourceDesc> mShaderResourcesInfo;	/// the key is a resource's name, the value is an information about resource  
 
 		std::unordered_map<E_SHADER_STAGE_TYPE, std::string> mEntryPointsTable;
+
+		std::vector<U8> mVSByteCode;
+		std::vector<U8> mPSByteCode;
+		std::vector<U8> mGSByteCode;
+		std::vector<U8> mCSByteCode;
 	} TShaderCompilerOutput, *TShaderCompilerOutputPtr;
 
 

@@ -68,14 +68,14 @@ namespace TDEngine2
 		return Wrench::TOkValue<IDebugUtility*>(mpDebugUtility);
 	}
 
-	TResult<TPtr<IShaderCache>> CBaseGraphicsObjectManager::CreateShaderCache(IFileSystem* pFileSystem)
+	TResult<TPtr<IShaderCache>> CBaseGraphicsObjectManager::CreateShaderCache(IFileSystem* pFileSystem, bool isReadOnly)
 	{
 		E_RESULT_CODE result = RC_OK;
 
 		TPtr<IShaderCache> pShaderCache = TPtr<IShaderCache>(
 			::TDEngine2::CreateShaderCache(
-				pFileSystem->Get<IBinaryFileReader>(pFileSystem->Open<IBinaryFileReader>(_getShaderCacheFilePath(), true).Get()),
-				pFileSystem->Get<IBinaryFileWriter>(pFileSystem->Open<IBinaryFileWriter>(_getShaderCacheFilePath(), true).Get()), result));
+				pFileSystem->Get<IBinaryFileReader>(pFileSystem->Open<IBinaryFileReader>(_getShaderCacheFilePath(), !isReadOnly).Get()),
+				isReadOnly ? nullptr : pFileSystem->Get<IBinaryFileWriter>(pFileSystem->Open<IBinaryFileWriter>(_getShaderCacheFilePath(), true).Get()), result));
 
 		if (!pShaderCache || RC_OK != result)
 		{

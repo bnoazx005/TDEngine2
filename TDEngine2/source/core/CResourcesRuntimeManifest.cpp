@@ -2,6 +2,7 @@
 #include "../../include/core/IResourceFactory.h"
 #include "../../include/graphics/CBaseTexture2D.h"
 #include "../../include/graphics/IShader.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include "stringUtils.hpp"
 #include <algorithm>
 
@@ -68,6 +69,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CResourcesRuntimeManifest::Load(IArchiveReader* pReader)
 	{
+		TDE2_PROFILER_SCOPE("CResourcesRuntimeManifest::Load");
 		std::lock_guard<std::mutex> lock(mMutex);
 
 		if (!pReader)
@@ -87,7 +89,8 @@ namespace TDEngine2
 				result = result | pReader->BeginGroup(TResourcesRuntimeManifestArchiveKeys::mSingleResourceKeyId);
 
 				auto&& originalPath = pReader->GetString(TResourcesRuntimeManifestArchiveKeys::mResourceIdKeyId);
-				auto&& resourcePath = mBaseResourcesPathPrefix + (Wrench::StringUtils::StartsWith(originalPath, ".") ? originalPath.substr(1) : originalPath);
+				auto&& resourcePath = Wrench::StringUtils::StartsWith(originalPath, ".") ?
+					(mBaseResourcesPathPrefix + (Wrench::StringUtils::StartsWith(originalPath, ".") ? originalPath.substr(1) : originalPath)) : originalPath;
 
 				mRuntimeToOriginalResourcesPathsTable[resourcePath] = originalPath;
 				mpResourcesMetaInfos[resourcePath] = std::move(Deserialize(pReader));
@@ -104,6 +107,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CResourcesRuntimeManifest::Save(IArchiveWriter* pWriter)
 	{
+		TDE2_PROFILER_SCOPE("CResourcesRuntimeManifest::Save");
 		std::lock_guard<std::mutex> lock(mMutex);
 
 		if (!pWriter)

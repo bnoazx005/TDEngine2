@@ -2,9 +2,10 @@
 #include "../../include/graphics/CBaseShader.h"
 #include "../../include/core/IFileSystem.h"
 #include "../../include/core/IFile.h"
+#include "../../include/core/IGraphicsContext.h"
+#include "../../include/core/CProjectSettings.h"
 #include "../../include/platform/CTextFileReader.h"
 #include "../../include/graphics/IShaderCompiler.h"
-#include "../../include/core/IGraphicsContext.h"
 #include "../../include/graphics/CBaseGraphicsObjectManager.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/editor/CPerfProfiler.h"
@@ -113,7 +114,7 @@ namespace TDEngine2
 
 		/// \note If there is meta information within the manifest try to read precompiled shader first
 		const TShaderParameters* pShaderMetaInfo = dynamic_cast<const TShaderParameters*>(mpResourceManager->GetResourceMeta(pResource->GetName()));
-		if (!pShaderMetaInfo)
+		if (!pShaderMetaInfo || !CProjectSettings::Get()->mGraphicsSettings.mIsShaderCacheEnabled)
 		{
 			return CompileShader(mpShaderCompiler.Get(), pResource->GetName(), pShader, mpGraphicsContext, mpFileSystem);
 		}

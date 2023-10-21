@@ -888,7 +888,7 @@ namespace TDEngine2
 
 	const std::string CD3D11GraphicsObjectManager::_getShaderCacheFilePath() const
 	{
-		return Wrench::StringUtils::Format(CProjectSettings::Get()->mGraphicsSettings.mShaderCachePathPattern, "DX");
+		return Wrench::StringUtils::Format(CProjectSettings::Get()->mGraphicsSettings.mShaderCachePathPattern, "D3D11");
 	}
 
 	IGraphicsObjectManager* CreateD3D11GraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)

@@ -23,12 +23,9 @@ TDEngine2::E_RESULT_CODE ParseOptions(int argc, const char** argv)
 	TDEngine2::CProgramOptions::TParseArgsParams optionsParams;
 	optionsParams.mArgsCount = argc;
 	optionsParams.mpArgsValues = argv;
-	optionsParams.mpProgramUsageStr = 
-		"tde2_shaders_compiler <input> .. <input> [options]\nwhere <input> - single file path or directory" \
-		"\nExample:\nRun tde2_shaders_compiler --resources_manifest \"path_to_manifest\" \nto run bucketed mode and convert all registered mesh files";
+	optionsParams.mpProgramUsageStr = "tde2_shaders_compiler --resources_manifest \"path_to_manifest\"";
 
-	//TDEngine2::CProgramOptions::Get()->AddArgument({ '\0', "autotests-enabled", Wrench::StringUtils::GetEmptyStr(), TDEngine2::CProgramOptions::TArgumentParams::E_VALUE_TYPE::BOOLEAN });
-	//TDEngine2::CProgramOptions::Get()->AddArgument({ '\0', "output-artifacts-dir", Wrench::StringUtils::GetEmptyStr(), TDEngine2::CProgramOptions::TArgumentParams::E_VALUE_TYPE::STRING });
+	TDEngine2::CProgramOptions::Get()->AddArgument({ '\0', "target_graphics", "A string which determines target GAPI of shaders that should be compiled (d3d11|gl3x)", TDEngine2::CProgramOptions::TArgumentParams::E_VALUE_TYPE::STRING});
 
 	return TDEngine2::CProgramOptions::Get()->ParseArgs(optionsParams);
 }
@@ -48,7 +45,15 @@ int main(int argc, const char** argv)
 
 	CScopedPtr<IEngineCore> pEngineCore { pEngineCoreBuilder->GetEngineCore() };
 
-	//return static_cast<int>(ProcessMeshFiles(pEngineCore.Get(), std::move(BuildFilesList(options.mInputFiles)), options));
+	auto pResourceManager = pEngineCore->GetSubsystem<IResourceManager>();
+	auto pManifest = pResourceManager->GetResourcesRuntimeManifest();
+
+	result = ProcessShaders(pEngineCore.Get(), BuildFilesList(pEngineCore->GetSubsystem<IFileSystem>(), GetDefaultShadersPaths()));
+	if (RC_OK != result)
+	{
+		return -1;
+	}
+
 	return 0;
 
 #else

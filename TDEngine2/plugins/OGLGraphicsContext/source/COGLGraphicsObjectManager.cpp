@@ -717,7 +717,7 @@ namespace TDEngine2
 
 	const std::string COGLGraphicsObjectManager::_getShaderCacheFilePath() const
 	{
-		return Wrench::StringUtils::Format(CProjectSettings::Get()->mGraphicsSettings.mShaderCachePathPattern, "GL");
+		return Wrench::StringUtils::Format(CProjectSettings::Get()->mGraphicsSettings.mShaderCachePathPattern, "GL3X");
 	}
 
 
