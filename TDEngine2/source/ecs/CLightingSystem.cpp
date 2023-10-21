@@ -538,8 +538,8 @@ namespace TDEngine2
 
 		mpShadowPassRenderQueue = mpRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS);
 
-		const static TMaterialParameters shadowPassMaterialParams = CreateShadowPassMaterialParams("ShadowPass");
-		const static TMaterialParameters shadowPassSkinnedMaterialParams = CreateShadowPassMaterialParams("SkinnedShadowPass");
+		const static TMaterialParameters shadowPassMaterialParams = CreateShadowPassMaterialParams("Shaders/Default/ShadowPass.shader");
+		const static TMaterialParameters shadowPassSkinnedMaterialParams = CreateShadowPassMaterialParams("Shaders/Default/SkinnedShadowPass.shader");
 
 		mShadowPassMaterialHandle        = mpResourceManager->Create<IMaterial>("ShadowPassMaterial.material", shadowPassMaterialParams);
 		mShadowPassSkinnedMaterialHandle = mpResourceManager->Create<IMaterial>("ShadowPassSkinnedMaterial.material", shadowPassSkinnedMaterialParams);
