@@ -12,6 +12,7 @@
 #include "../utils/Utils.h"
 #include <type_traits>
 #include <string>
+#include <memory>
 
 
 namespace TDEngine2
