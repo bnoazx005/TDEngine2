@@ -6,35 +6,602 @@ resources_meta_collection:
       address_mode: AMT_CLAMP
       filter_type: FT_BILINEAR
       id: ./Textures/bricks2.jpg
-      mips_count: 0
+      mips_count: 1
       mips_enabled: 0
+      samples_count: 1
       type_id: 308810324
   - resource_meta: 
       address_mode: AMT_CLAMP
       filter_type: FT_BILINEAR
       id: ./Textures/rust_normals.png
-      mips_count: 0
+      mips_count: 1
       mips_enabled: 0
+      samples_count: 1
       type_id: 308810324
   - resource_meta: 
       address_mode: AMT_CLAMP
       filter_type: FT_BILINEAR
       id: ./Textures/DefaultSprite.tga
-      mips_count: 0
+      mips_count: 1
       mips_enabled: 0
+      samples_count: 1
       type_id: 308810324
+  - resource_meta: 
+      id: Shaders/Default/DebugShader.shader
+      stages_info: 
+        - shader_stage: 
+            bytecode_offset: 0
+            bytecode_size: 27800
+            entrypoint: mainVS
+            type: 0
+        - shader_stage: 
+            bytecode_offset: 27800
+            bytecode_size: 22548
+            entrypoint: mainPS
+            type: 1
+      type_id: 3841510948
+  - resource_meta: 
+      id: Shaders/Default/DefaultParticleShader.shader
+      resources_info: 
+        - shader_resource: 
+            id: MainTexture
+            slot: 0
+            type: 0
+      stages_info: 
+        - shader_stage: 
+            bytecode_offset: 101340
+            bytecode_size: 28928
+            entrypoint: mainVS
+            type: 0
+        - shader_stage: 
+            bytecode_offset: 130268
+            bytecode_size: 24668
+            entrypoint: mainPS
+            type: 1
+      type_id: 3841510948
   - resource_meta: 
       address_mode: AMT_CLAMP
       filter_type: FT_BILINEAR
       id: ./Textures/rust_albedo.png
-      mips_count: 0
+      mips_count: 1
       mips_enabled: 0
+      samples_count: 1
       type_id: 308810324
   - resource_meta: 
       address_mode: AMT_CLAMP
       filter_type: FT_BILINEAR
       id: ./Textures/rust_properties.tga
-      mips_count: 0
+      mips_count: 1
       mips_enabled: 0
+      samples_count: 1
       type_id: 308810324
-
+  - resource_meta: 
+      id: Shaders/Default/DebugTextShader.shader
+      resources_info: 
+        - shader_resource: 
+            id: FontTextureAtlas
+            slot: 0
+            type: 0
+      stages_info: 
+        - shader_stage: 
+            bytecode_offset: 50348
+            bytecode_size: 26132
+            entrypoint: mainVS
+            type: 0
+        - shader_stage: 
+            bytecode_offset: 76480
+            bytecode_size: 24860
+            entrypoint: mainPS
+            type: 1
+      type_id: 3841510948
+  - resource_meta: 
+      id: Shaders/PostEffects/GaussianBlur.shader
+      resources_info: 
+        - shader_resource: 
+            id: FrameTexture
+            slot: 0
+            type: 0
+      stages_info: 
+        - shader_stage: 
+            bytecode_offset: 1005444
+            bytecode_size: 24880
+            entrypoint: mainVS
+            type: 0
+        - shader_stage: 
+            bytecode_offset: 1030324
+            bytecode_size: 27856
+            entrypoint: mainPS
+            type: 1
+      type_id: 3841510948
+      uniforms_info: 
+        - uniform_buffer: 
+            buffer_index: 0
+            flags: 0
+            id: BlurParameters
+            size: 32
+            slot: 4
+            variables: 
+              - uniform: 
+                  id: blurParams
+                  is_array: 0
+                  offset: 0
+                  size: 16
+                  type_id: "-801664736"
+              - uniform: 
+                  id: samplesCount
+                  is_array: 0
+                  offset: 16
+                  size: 4
+                  type_id: 193471295
+  - resource_meta: 
+      id: Shaders/Default/DefaultShader.shader
+      resources_info: 
+        - shader_resource: 
+            id: DirectionalShadowMapTexture
+            slot: 0
+            type: 2
+        - shader_resource: 
+            id: AlbedoMap
+            slot: 2
+            type: 0
+        - shader_resource: 
+            id: PointLightShadowMapTexture_0
+            slot: 1
+            type: 3
+        - shader_resource: 
+            id: NormalMap
+            slot: 3
+            type: 0
+        - shader_resource: 
+            id: PropertiesMap
+            slot: 4
+            type: 0
+      stages_info: 
+        - shader_stage: 
+            bytecode_offset: 154936
+            bytecode_size: 33456
+            entrypoint: mainVS
+            type: 0
+        - shader_stage: 
+            bytecode_offset: 188392
+            bytecode_size: 68372
+            entrypoint: mainPS
+            type: 1
+      type_id: 3841510948
+      uniforms_info: 
+        - uniform_buffer: 
+            buffer_index: 0
+            flags: 0
+            id: ShaderParameters
+            size: 16
+            slot: 4
+            variables: 
+              - uniform: 
+                  id: parallaxMappingEnabled
+                  is_array: 0
+                  offset: 0
+                  size: 4
+                  type_id: 193454960
+  - resource_meta: 
+      id: Shaders/Default/DefaultSkinningShader.shader
+      stages_info: 
+        - shader_stage: 
+            bytecode_offset: 256764
+            bytecode_size: 24688
+            entrypoint: mainVS
+            type: 0
+        - shader_stage: 
+            bytecode_offset: 281452
+            bytecode_size: 22516
+            entrypoint: mainPS
+            type: 1
+      type_id: 3841510948
+  - resource_meta: 
+      id: Shaders/Default/DefaultSkyboxShader.shader
+      resources_info: 
+        - shader_resource: 
+            id: SkyboxTexture
+            slot: 0
+            type: 3
+      stages_info: 
+        - shader_stage: 
+            bytecode_offset: 303968
+            bytecode_size: 26672
+            entrypoint: mainVS
+            type: 0
+        - shader_stage: 
+            bytecode_offset: 330640
+            bytecode_size: 24860
+            entrypoint: mainPS
+            type: 1
+      type_id: 3841510948
+  - resource_meta: 
+      id: Shaders/PostEffects/Bloom.shader
+      resources_info: 
+        - shader_resource: 
+            id: FrameTexture
+            slot: 0
+            type: 0
+      stages_info: 
+        - shader_stage: 
+            bytecode_offset: 905644
+            bytecode_size: 24880
+            entrypoint: mainVS
+            type: 0
+        - shader_stage: 
+            bytecode_offset: 930524
+            bytecode_size: 25072
+            entrypoint: mainPS
+            type: 1
+      type_id: 3841510948
+      uniforms_info: 
+        - uniform_buffer: 
+            buffer_index: 0
+            flags: 0
+            id: BloomParameters
+            size: 16
+            slot: 4
+            variables: 
+              - uniform: 
+                  id: threshold
+                  is_array: 0
+                  offset: 0
+                  size: 4
+                  type_id: 193454960
+  - resource_meta: 
+      id: Shaders/Default/Selection.shader
+      stages_info: 
+        - shader_stage: 
+            bytecode_offset: 355500
+            bytecode_size: 26812
+            entrypoint: mainVS
+            type: 0
+        - shader_stage: 
+            bytecode_offset: 382312
+            bytecode_size: 22548
+            entrypoint: mainPS
+            type: 1
+      type_id: 3841510948
+  - resource_meta: 
+      id: Shaders/Default/SelectionSkinned.shader
+      stages_info: 
+        - shader_stage: 
+            bytecode_offset: 453524
+            bytecode_size: 30072
+            entrypoint: mainVS
+            type: 0
+        - shader_stage: 
+            bytecode_offset: 483596
+            bytecode_size: 22548
+            entrypoint: mainPS
+            type: 1
+      type_id: 3841510948
+      uniforms_info: 
+        - uniform_buffer: 
+            buffer_index: 0
+            flags: 0
+            id: SkinningData
+            size: 16400
+            slot: 4
+            variables: 
+              - uniform: 
+                  id: mJoints
+                  is_array: 1
+                  offset: 0
+                  size: 16384
+                  type_id: 0
+              - uniform: 
+                  id: mUsedJointsCount
+                  is_array: 0
+                  offset: 16384
+                  size: 4
+                  type_id: 193471295
+  - resource_meta: 
+      id: Shaders/Default/SelectionUI.shader
+      stages_info: 
+        - shader_stage: 
+            bytecode_offset: 560116
+            bytecode_size: 25244
+            entrypoint: mainVS
+            type: 0
+        - shader_stage: 
+            bytecode_offset: 585360
+            bytecode_size: 22580
+            entrypoint: mainPS
+            type: 1
+      type_id: 3841510948
+  - resource_meta: 
+      id: Shaders/Default/ShadowPass.shader
+      stages_info: 
+        - shader_stage: 
+            bytecode_offset: 607940
+            bytecode_size: 25148
+            entrypoint: mainVS
+            type: 0
+        - shader_stage: 
+            bytecode_offset: 633088
+            bytecode_size: 26456
+            entrypoint: mainPS
+            type: 1
+        - shader_stage: 
+            bytecode_offset: 659544
+            bytecode_size: 42908
+            entrypoint: mainGS
+            type: 2
+      type_id: 3841510948
+      uniforms_info: 
+        - uniform_buffer: 
+            buffer_index: 0
+            flags: 0
+            id: Parameters
+            size: 16
+            slot: 4
+            variables: 
+              - uniform: 
+                  id: mIsSunLight
+                  is_array: 0
+                  offset: 0
+                  size: 4
+                  type_id: 193458227
+              - uniform: 
+                  id: mPointLightIndex
+                  is_array: 0
+                  offset: 4
+                  size: 4
+                  type_id: 193458227
+  - resource_meta: 
+      id: Shaders/Default/SkinnedShadowPass.shader
+      stages_info: 
+        - shader_stage: 
+            bytecode_offset: 702452
+            bytecode_size: 29844
+            entrypoint: mainVS
+            type: 0
+        - shader_stage: 
+            bytecode_offset: 732296
+            bytecode_size: 22436
+            entrypoint: mainPS
+            type: 1
+      type_id: 3841510948
+      uniforms_info: 
+        - uniform_buffer: 
+            buffer_index: 0
+            flags: 0
+            id: SkinningData
+            size: 16400
+            slot: 4
+            variables: 
+              - uniform: 
+                  id: mJoints
+                  is_array: 1
+                  offset: 0
+                  size: 16384
+                  type_id: 0
+              - uniform: 
+                  id: mUsedJointsCount
+                  is_array: 0
+                  offset: 16384
+                  size: 4
+                  type_id: 193471295
+  - resource_meta: 
+      id: Shaders/Default/UI/DefaultTextShader.shader
+      resources_info: 
+        - shader_resource: 
+            id: Texture
+            slot: 0
+            type: 0
+      stages_info: 
+        - shader_stage: 
+            bytecode_offset: 754732
+            bytecode_size: 25272
+            entrypoint: mainVS
+            type: 0
+        - shader_stage: 
+            bytecode_offset: 780004
+            bytecode_size: 24992
+            entrypoint: mainPS
+            type: 1
+      type_id: 3841510948
+  - resource_meta: 
+      id: Shaders/PostEffects/BloomFinal.shader
+      resources_info: 
+        - shader_resource: 
+            id: FrameTexture
+            slot: 0
+            type: 0
+        - shader_resource: 
+            id: FrameTexture1
+            slot: 1
+            type: 0
+      stages_info: 
+        - shader_stage: 
+            bytecode_offset: 955596
+            bytecode_size: 24880
+            entrypoint: mainVS
+            type: 0
+        - shader_stage: 
+            bytecode_offset: 980476
+            bytecode_size: 24968
+            entrypoint: mainPS
+            type: 1
+      type_id: 3841510948
+  - resource_meta: 
+      id: ProjectShaders/DefaultShader.shader
+      stages_info: 
+        - shader_stage: 
+            bytecode_offset: 1110840
+            bytecode_size: 24688
+            entrypoint: mainVS
+            type: 0
+        - shader_stage: 
+            bytecode_offset: 1135528
+            bytecode_size: 22516
+            entrypoint: mainPS
+            type: 1
+      type_id: 3841510948
+  - resource_meta: 
+      id: ProjectShaders/TestShader.shader
+      resources_info: 
+        - shader_resource: 
+            id: TextureAtlas
+            slot: 0
+            type: 0
+        - shader_resource: 
+            id: SkyboxTexture
+            slot: 1
+            type: 3
+      stages_info: 
+        - shader_stage: 
+            bytecode_offset: 1158044
+            bytecode_size: 26852
+            entrypoint: mainVS
+            type: 0
+        - shader_stage: 
+            bytecode_offset: 1184896
+            bytecode_size: 24896
+            entrypoint: mainPS
+            type: 1
+      type_id: 3841510948
+  - resource_meta: 
+      id: Shaders/Default/SelectionOutline.shader
+      stages_info: 
+        - shader_stage: 
+            bytecode_offset: 404860
+            bytecode_size: 24688
+            entrypoint: mainVS
+            type: 0
+        - shader_stage: 
+            bytecode_offset: 429548
+            bytecode_size: 23976
+            entrypoint: mainPS
+            type: 1
+      type_id: 3841510948
+  - resource_meta: 
+      id: Shaders/Default/SelectionSkinnedOutline.shader
+      stages_info: 
+        - shader_stage: 
+            bytecode_offset: 506144
+            bytecode_size: 29996
+            entrypoint: mainVS
+            type: 0
+        - shader_stage: 
+            bytecode_offset: 536140
+            bytecode_size: 23976
+            entrypoint: mainPS
+            type: 1
+      type_id: 3841510948
+      uniforms_info: 
+        - uniform_buffer: 
+            buffer_index: 0
+            flags: 0
+            id: SkinningData
+            size: 16400
+            slot: 4
+            variables: 
+              - uniform: 
+                  id: mJoints
+                  is_array: 1
+                  offset: 0
+                  size: 16384
+                  type_id: 0
+              - uniform: 
+                  id: mUsedJointsCount
+                  is_array: 0
+                  offset: 16384
+                  size: 4
+                  type_id: 193471295
+  - resource_meta: 
+      id: Shaders/Default/UI/EditorUI.shader
+      resources_info: 
+        - shader_resource: 
+            id: Texture
+            slot: 0
+            type: 0
+      stages_info: 
+        - shader_stage: 
+            bytecode_offset: 804996
+            bytecode_size: 25272
+            entrypoint: mainVS
+            type: 0
+        - shader_stage: 
+            bytecode_offset: 830268
+            bytecode_size: 25740
+            entrypoint: mainPS
+            type: 1
+      type_id: 3841510948
+      uniforms_info: 
+        - uniform_buffer: 
+            buffer_index: 0
+            flags: 0
+            id: Parameters
+            size: 16
+            slot: 4
+            variables: 
+              - uniform: 
+                  id: mIsAlphaClipEnabled
+                  is_array: 0
+                  offset: 0
+                  size: 4
+                  type_id: 193458227
+  - resource_meta: 
+      id: Shaders/PostEffects/BlitTexture.shader
+      resources_info: 
+        - shader_resource: 
+            id: FrameTexture
+            slot: 0
+            type: 0
+      stages_info: 
+        - shader_stage: 
+            bytecode_offset: 856008
+            bytecode_size: 24880
+            entrypoint: mainVS
+            type: 0
+        - shader_stage: 
+            bytecode_offset: 880888
+            bytecode_size: 24756
+            entrypoint: mainPS
+            type: 1
+      type_id: 3841510948
+  - resource_meta: 
+      id: Shaders/PostEffects/ToneMapping.shader
+      resources_info: 
+        - shader_resource: 
+            id: FrameTexture
+            slot: 0
+            type: 0
+        - shader_resource: 
+            id: ColorGradingLUT
+            slot: 1
+            type: 0
+      stages_info: 
+        - shader_stage: 
+            bytecode_offset: 1058180
+            bytecode_size: 24880
+            entrypoint: mainVS
+            type: 0
+        - shader_stage: 
+            bytecode_offset: 1083060
+            bytecode_size: 27780
+            entrypoint: mainPS
+            type: 1
+      type_id: 3841510948
+      uniforms_info: 
+        - uniform_buffer: 
+            buffer_index: 0
+            flags: 0
+            id: ToneMappingParameters
+            size: 32
+            slot: 4
+            variables: 
+              - uniform: 
+                  id: toneMappingParams
+                  is_array: 0
+                  offset: 0
+                  size: 16
+                  type_id: "-801664736"
+              - uniform: 
+                  id: colorGradingParams
+                  is_array: 0
+                  offset: 16
+                  size: 16
+                  type_id: "-801664736"
