@@ -3,6 +3,7 @@
 #include "../../include/platform/MountableStorages.h"
 #include "../../include/platform/IOStreams.h"
 #include "../../include/utils/CFileLogger.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include <deferOperation.hpp>
 #include <stringUtils.hpp>
 
@@ -16,6 +17,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CYAMLFileWriter::Serialize(Yaml::Node& object)
 	{
+		TDE2_PROFILER_SCOPE("CYAMLFileWriter::Serialize");
 		std::lock_guard<std::mutex> lock(mMutex);
 
 		return _internalSerialize(object);
@@ -23,6 +25,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CYAMLFileWriter::Open(IMountableStorage* pStorage, TPtr<IStream> pStream)
 	{
+		TDE2_PROFILER_SCOPE("CYAMLFileWriter::Open");
 		E_RESULT_CODE result = CBaseFile::Open(pStorage, pStream);
 		if (result != RC_OK)
 		{
@@ -270,6 +273,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CYAMLFileReader::Deserialize(Yaml::Node& outputObject)
 	{
+		TDE2_PROFILER_SCOPE("CYAMLFileReader::Deserialize");
 		std::lock_guard<std::mutex> lock(mMutex);
 
 		return _internalDeserialize(outputObject);
@@ -277,6 +281,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CYAMLFileReader::Open(IMountableStorage* pStorage, TPtr<IStream> pStream)
 	{
+		TDE2_PROFILER_SCOPE("CYAMLFileReader::Open");
 		E_RESULT_CODE result = CBaseFile::Open(pStorage, pStream);
 		if (result != RC_OK)
 		{

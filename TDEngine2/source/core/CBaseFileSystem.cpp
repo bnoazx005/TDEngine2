@@ -5,6 +5,7 @@
 #include "../../../include/core/IJobManager.h"
 #include "../../../include/platform/IOStreams.h"
 #include "../../../include/platform/MountableStorages.h"
+#include "../../../include/editor/CPerfProfiler.h"
 #include "stringUtils.hpp"
 #include <algorithm>
 #include <fstream>
@@ -365,6 +366,8 @@ namespace TDEngine2
 
 	TResult<TFileEntryId> CBaseFileSystem::_openFile(const TypeId& typeId, const std::string& filename, bool createIfDoesntExist)
 	{
+		TDE2_PROFILER_SCOPE("CBaseFileSystem::_openFile");
+
 		std::lock_guard<std::mutex> lock(mMutex);
 
 		const std::string filePath = _normalizePathView(filename, false);
@@ -482,6 +485,8 @@ namespace TDEngine2
 
 	std::string CBaseFileSystem::_resolveVirtualPathInternal(const TMountedStorageInfo& mountInfo, const std::string& path, bool isDirectory) const
 	{
+		TDE2_PROFILER_SCOPE("CBaseFileSystem::_resolveVirtualPathInternal");
+
 		const std::string nativeFileSystemPath = mountInfo.mpStorage->GetBasePath();
 
 		if (_normalizePathView(mountInfo.mAliasPath) == path)

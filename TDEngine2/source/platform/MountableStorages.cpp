@@ -3,6 +3,7 @@
 #include "../../include/core/CBaseFileSystem.h"
 #include "../../include/core/IFile.h"
 #include "../../include/utils/CFileLogger.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include "stringUtils.hpp"
 #include <fstream>
 
@@ -66,6 +67,8 @@ namespace TDEngine2
 
 	TResult<TFileEntryId> CBaseMountableStorage::OpenFile(const TypeId& typeId, const std::string& path, bool createIfDoesntExist)
 	{
+		TDE2_PROFILER_SCOPE("CBaseMountableStorage::OpenFile");
+
 		if (!mpFileSystem->IsPathValid(path))
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);

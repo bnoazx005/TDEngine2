@@ -42,6 +42,10 @@ namespace TDEngine2
 		marl::Scheduler::Config cfg;
 		cfg.setWorkerThreadCount(desc.mMaxNumOfThreads);
 		cfg.setFiberStackSize(desc.mFiberStackSize);
+		cfg.setWorkerThreadInitializer([](int workerId)
+		{
+			OPTICK_START_THREAD(Wrench::StringUtils::Format("WorkerThread_{0}", workerId).c_str());
+		});
 
 		mpScheduler = std::make_unique<marl::Scheduler>(cfg);
 		if (!mpScheduler)

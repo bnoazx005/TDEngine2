@@ -3,6 +3,7 @@
 #include "../../include/platform/IOStreams.h"
 #include "../../include/core/IFileSystem.h"
 #include "../../include/utils/CFileLogger.h"
+#include "../../include/editor/CPerfProfiler.h"
 
 
 namespace TDEngine2
@@ -15,6 +16,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseFile::Open(IMountableStorage* pStorage, TPtr<IStream> pStream)
 	{
+		TDE2_PROFILER_SCOPE("CBaseFile::Open");
 		std::lock_guard<std::mutex> lock(mMutex);
 
 		if (!pStream)

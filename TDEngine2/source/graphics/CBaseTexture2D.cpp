@@ -236,6 +236,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseTexture2DLoader::LoadResource(IResource* pResource) const
 	{
+		TDE2_PROFILER_SCOPE("CBaseTexture2DLoader::LoadResource");
+
 		if (!mIsInitialized)
 		{
 			return RC_FAIL;
