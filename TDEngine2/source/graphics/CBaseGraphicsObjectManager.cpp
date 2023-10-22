@@ -92,26 +92,7 @@ namespace TDEngine2
 
 	E_DEFAULT_SHADER_TYPE CBaseGraphicsObjectManager::GetDefaultShaderTypeByName(const std::string& name)
 	{
-		static const std::unordered_map<std::string, E_DEFAULT_SHADER_TYPE> shaderNameToTypeMapping
-		{
-			{ "DefaultEditorUI", E_DEFAULT_SHADER_TYPE::DST_EDITOR_UI },
-			{ "DefaultScreenSpaceEffect", E_DEFAULT_SHADER_TYPE::DST_SCREEN_SPACE },
-			{ "ToneMappingPass", E_DEFAULT_SHADER_TYPE::DST_TONE_MAPPING_PASS },
-			{ "Selection", E_DEFAULT_SHADER_TYPE::DST_SELECTION },
-			{ "SelectionSkinned", E_DEFAULT_SHADER_TYPE::DST_SELECTION_SKINNED },
-			{ "SelectionUI", E_DEFAULT_SHADER_TYPE::DST_SELECTION_UI },
-			{ "SelectionOutline", E_DEFAULT_SHADER_TYPE::DST_SELECTION_OUTLINE },
-			{ "SelectionSkinnedOutline", E_DEFAULT_SHADER_TYPE::DST_SELECTION_SKINNED_OUTLINE },
-			{ "ShadowPass", E_DEFAULT_SHADER_TYPE::DST_SHADOW_PASS },
-			{ "SkinnedShadowPass", E_DEFAULT_SHADER_TYPE::DST_SHADOW_SKINNED_PASS },
-		};
-
-		if (shaderNameToTypeMapping.find(name) == shaderNameToTypeMapping.cend())
-		{
-			return E_DEFAULT_SHADER_TYPE::DST_BASIC;
-		}
-
-		return shaderNameToTypeMapping.at(name);
+		return E_DEFAULT_SHADER_TYPE::DST_BASIC;
 	}
 
 	void CBaseGraphicsObjectManager::_insertBuffer(IBuffer* pBuffer)
