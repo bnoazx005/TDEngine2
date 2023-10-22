@@ -62,7 +62,9 @@ namespace TDEngine2
 
 				if (processedPaths.find(absPathStr) == processedPaths.cend() && hasValidExtension(path.extension().string()))
 				{
-					filesPaths.emplace_back(Wrench::StringUtils::ReplaceAll(path.string(), resolvedBasePath, currSource));
+					filesPaths.emplace_back(Wrench::StringUtils::ReplaceAll(
+						Wrench::StringUtils::ReplaceAll(path.string(), resolvedBasePath, currSource), "\\", "/"));
+
 					processedPaths.emplace(absPathStr);
 				}
 			}
