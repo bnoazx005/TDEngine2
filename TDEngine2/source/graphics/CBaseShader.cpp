@@ -48,8 +48,11 @@ namespace TDEngine2
 		struct TShaderStageGroupKeys
 		{
 			static const std::string mTypeKeyId;
+			static const std::string mBytecodeEntryKeyId;
+			static const std::string mBytecodeEntriesTableKeyId;
 			static const std::string mBytecodeOffsetKeyId;
 			static const std::string mBytecodeSizeKeyId;
+			static const std::string mBytecodeTypeKeyId;
 			static const std::string mEntrypointNameKeyId;
 		};
 	};
@@ -81,8 +84,11 @@ namespace TDEngine2
 	const std::string TShaderParametersArchiveKeys::TShaderResourceGroupKeys::mSlotKeyId = "slot";
 
 	const std::string TShaderParametersArchiveKeys::TShaderStageGroupKeys::mTypeKeyId = "type";
-	const std::string TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeOffsetKeyId = "bytecode_offset";
-	const std::string TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeSizeKeyId = "bytecode_size";
+	const std::string TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeEntriesTableKeyId = "bytecode_entries";
+	const std::string TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeEntryKeyId = "bytecode_entry";
+	const std::string TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeOffsetKeyId = "offset";
+	const std::string TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeSizeKeyId = "size";
+	const std::string TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeTypeKeyId = "type";
 	const std::string TShaderParametersArchiveKeys::TShaderStageGroupKeys::mEntrypointNameKeyId = "entrypoint";
 
 
@@ -175,18 +181,38 @@ namespace TDEngine2
 		// \note Stages info
 		result = result | pReader->BeginGroup(TShaderParametersArchiveKeys::mStagesInfoGroupKeyId);
 		{
-			TShaderStageInfo stageDesc;
-
 			while (pReader->HasNextItem())
 			{
+				TShaderStageInfo stageDesc;
+
 				result = result | pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
 				{
 					result = result | pReader->BeginGroup(TShaderParametersArchiveKeys::mSingleStageInfoGroupKeyId);
 					{
 						E_SHADER_STAGE_TYPE stageType = static_cast<E_SHADER_STAGE_TYPE>(pReader->GetUInt32(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mTypeKeyId));
 
-						stageDesc.mBytecodeInfo.mSize = pReader->GetUInt64(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeSizeKeyId);
-						stageDesc.mBytecodeInfo.mOffset = pReader->GetUInt64(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeOffsetKeyId);
+						// bytecodes per shader type
+						result = result | pReader->BeginGroup(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeEntriesTableKeyId);
+						{
+							while (pReader->HasNextItem())
+							{
+								result = result | pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+								{
+									result = result | pReader->BeginGroup(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeEntryKeyId);
+
+									TShaderCacheBytecodeEntry bytecodeInfo;
+									bytecodeInfo.mSize = pReader->GetUInt64(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeSizeKeyId);
+									bytecodeInfo.mOffset = pReader->GetUInt64(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeOffsetKeyId);
+
+									stageDesc.mBytecodeInfo.emplace(pReader->GetString(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeTypeKeyId), bytecodeInfo);
+
+									result = result | pReader->EndGroup();
+								}
+								result = result | pReader->EndGroup();
+							}
+						}
+						result = result | pReader->EndGroup();
+
 						stageDesc.mEntrypoint = pReader->GetString(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mEntrypointNameKeyId);
 
 						mStages.emplace(stageType, stageDesc);
@@ -284,8 +310,26 @@ namespace TDEngine2
 					result = result | pWriter->BeginGroup(TShaderParametersArchiveKeys::mSingleStageInfoGroupKeyId);
 					{
 						result = result | pWriter->SetUInt32(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mTypeKeyId, static_cast<U32>(currStageInfo.first));
-						result = result | pWriter->SetUInt64(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeOffsetKeyId, currStageInfo.second.mBytecodeInfo.mOffset);
-						result = result | pWriter->SetUInt64(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeSizeKeyId, currStageInfo.second.mBytecodeInfo.mSize);
+
+						result = result | pWriter->BeginGroup(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeEntriesTableKeyId);
+
+						for (auto&& currBytecodeEntry : currStageInfo.second.mBytecodeInfo)
+						{
+							result = result | pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+							{
+								result = result | pWriter->BeginGroup(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeEntryKeyId);
+								{
+									result = result | pWriter->SetString(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeTypeKeyId, currBytecodeEntry.first);
+									result = result | pWriter->SetUInt64(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeOffsetKeyId, currBytecodeEntry.second.mOffset);
+									result = result | pWriter->SetUInt64(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeSizeKeyId, currBytecodeEntry.second.mSize);
+								}
+								result = result | pWriter->EndGroup();
+							}
+							result = result | pWriter->EndGroup();
+						}
+
+						result = result | pWriter->EndGroup();
+
 						result = result | pWriter->SetString(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mEntrypointNameKeyId, currStageInfo.second.mEntrypoint);
 					}
 					result = result | pWriter->EndGroup();
@@ -372,7 +416,7 @@ namespace TDEngine2
 		TDE2_PROFILER_SCOPE("CBaseShader::LoadFromShaderCache");
 
 		auto pResult = _createMetaDataFromShaderParams(pShaderCache, pShaderMetaData);
-		if (!pResult)
+		if (!pResult || pResult->mVSByteCode.empty() || pResult->mPSByteCode.empty())
 		{
 			return RC_FAIL;
 		}

@@ -120,7 +120,8 @@ namespace TDEngine2
 				continue;
 			}
 
-			pShaderParams->mStages[static_cast<E_SHADER_STAGE_TYPE>(i)].mBytecodeInfo = pShaderCache->AddShaderBytecode(shaderStagesBytecodes[i]).Get();
+			pShaderParams->mStages[static_cast<E_SHADER_STAGE_TYPE>(i)]
+				.mBytecodeInfo[pShaderMetadata->mShaderLanguageId] = pShaderCache->AddShaderBytecode(shaderStagesBytecodes[i]).Get();
 		}
 
 		if (pShaderParams->mUniformBuffersInfo.empty())

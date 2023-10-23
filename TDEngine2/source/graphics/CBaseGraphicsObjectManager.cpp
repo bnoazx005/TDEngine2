@@ -74,7 +74,7 @@ namespace TDEngine2
 
 		TPtr<IShaderCache> pShaderCache = TPtr<IShaderCache>(
 			::TDEngine2::CreateShaderCache(
-				pFileSystem->Get<IBinaryFileReader>(pFileSystem->Open<IBinaryFileReader>(_getShaderCacheFilePath(), !isReadOnly).Get()),
+				pFileSystem->Get<IBinaryFileReader>(pFileSystem->Open<IBinaryFileReader>(_getShaderCacheFilePath(), true).Get()),
 				isReadOnly ? nullptr : pFileSystem->Get<IBinaryFileWriter>(pFileSystem->Open<IBinaryFileWriter>(_getShaderCacheFilePath(), true).Get()), result));
 
 		if (!pShaderCache || RC_OK != result)

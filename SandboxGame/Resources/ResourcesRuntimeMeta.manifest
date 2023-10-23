@@ -11,32 +11,22 @@ resources_meta_collection:
       samples_count: 1
       type_id: 308810324
   - resource_meta: 
-      address_mode: AMT_CLAMP
-      filter_type: FT_BILINEAR
-      id: ./Textures/rust_normals.png
-      mips_count: 1
-      mips_enabled: 0
-      samples_count: 1
-      type_id: 308810324
-  - resource_meta: 
-      address_mode: AMT_CLAMP
-      filter_type: FT_BILINEAR
-      id: ./Textures/DefaultSprite.tga
-      mips_count: 1
-      mips_enabled: 0
-      samples_count: 1
-      type_id: 308810324
-  - resource_meta: 
       id: Shaders/Default/DebugShader.shader
       stages_info: 
         - shader_stage: 
-            bytecode_offset: 0
-            bytecode_size: 27800
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 0
+                  size: 27800
+                  type: hlsl
             entrypoint: mainVS
             type: 0
         - shader_stage: 
-            bytecode_offset: 27800
-            bytecode_size: 22548
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 27800
+                  size: 22548
+                  type: hlsl
             entrypoint: mainPS
             type: 1
       type_id: 3841510948
@@ -49,16 +39,38 @@ resources_meta_collection:
             type: 0
       stages_info: 
         - shader_stage: 
-            bytecode_offset: 101340
-            bytecode_size: 28928
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 101340
+                  size: 28928
+                  type: hlsl
             entrypoint: mainVS
             type: 0
         - shader_stage: 
-            bytecode_offset: 130268
-            bytecode_size: 24668
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 130268
+                  size: 24668
+                  type: hlsl
             entrypoint: mainPS
             type: 1
       type_id: 3841510948
+  - resource_meta: 
+      address_mode: AMT_CLAMP
+      filter_type: FT_BILINEAR
+      id: ./Textures/DefaultSprite.tga
+      mips_count: 1
+      mips_enabled: 0
+      samples_count: 1
+      type_id: 308810324
+  - resource_meta: 
+      address_mode: AMT_CLAMP
+      filter_type: FT_BILINEAR
+      id: ./Textures/rust_normals.png
+      mips_count: 1
+      mips_enabled: 0
+      samples_count: 1
+      type_id: 308810324
   - resource_meta: 
       address_mode: AMT_CLAMP
       filter_type: FT_BILINEAR
@@ -76,25 +88,6 @@ resources_meta_collection:
       samples_count: 1
       type_id: 308810324
   - resource_meta: 
-      id: Shaders/Default/DebugTextShader.shader
-      resources_info: 
-        - shader_resource: 
-            id: FontTextureAtlas
-            slot: 0
-            type: 0
-      stages_info: 
-        - shader_stage: 
-            bytecode_offset: 50348
-            bytecode_size: 26132
-            entrypoint: mainVS
-            type: 0
-        - shader_stage: 
-            bytecode_offset: 76480
-            bytecode_size: 24860
-            entrypoint: mainPS
-            type: 1
-      type_id: 3841510948
-  - resource_meta: 
       id: Shaders/PostEffects/GaussianBlur.shader
       resources_info: 
         - shader_resource: 
@@ -103,13 +96,19 @@ resources_meta_collection:
             type: 0
       stages_info: 
         - shader_stage: 
-            bytecode_offset: 1005444
-            bytecode_size: 24880
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 1005444
+                  size: 24880
+                  type: hlsl
             entrypoint: mainVS
             type: 0
         - shader_stage: 
-            bytecode_offset: 1030324
-            bytecode_size: 27856
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 1030324
+                  size: 27856
+                  type: hlsl
             entrypoint: mainPS
             type: 1
       type_id: 3841510948
@@ -133,6 +132,31 @@ resources_meta_collection:
                   offset: 16
                   size: 4
                   type_id: 193471295
+  - resource_meta: 
+      id: Shaders/Default/DebugTextShader.shader
+      resources_info: 
+        - shader_resource: 
+            id: FontTextureAtlas
+            slot: 0
+            type: 0
+      stages_info: 
+        - shader_stage: 
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 50348
+                  size: 26132
+                  type: hlsl
+            entrypoint: mainVS
+            type: 0
+        - shader_stage: 
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 76480
+                  size: 24860
+                  type: hlsl
+            entrypoint: mainPS
+            type: 1
+      type_id: 3841510948
   - resource_meta: 
       id: Shaders/Default/DefaultShader.shader
       resources_info: 
@@ -158,13 +182,19 @@ resources_meta_collection:
             type: 0
       stages_info: 
         - shader_stage: 
-            bytecode_offset: 154936
-            bytecode_size: 33456
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 154936
+                  size: 33456
+                  type: hlsl
             entrypoint: mainVS
             type: 0
         - shader_stage: 
-            bytecode_offset: 188392
-            bytecode_size: 68372
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 188392
+                  size: 68372
+                  type: hlsl
             entrypoint: mainPS
             type: 1
       type_id: 3841510948
@@ -186,32 +216,19 @@ resources_meta_collection:
       id: Shaders/Default/DefaultSkinningShader.shader
       stages_info: 
         - shader_stage: 
-            bytecode_offset: 256764
-            bytecode_size: 24688
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 256764
+                  size: 24688
+                  type: hlsl
             entrypoint: mainVS
             type: 0
         - shader_stage: 
-            bytecode_offset: 281452
-            bytecode_size: 22516
-            entrypoint: mainPS
-            type: 1
-      type_id: 3841510948
-  - resource_meta: 
-      id: Shaders/Default/DefaultSkyboxShader.shader
-      resources_info: 
-        - shader_resource: 
-            id: SkyboxTexture
-            slot: 0
-            type: 3
-      stages_info: 
-        - shader_stage: 
-            bytecode_offset: 303968
-            bytecode_size: 26672
-            entrypoint: mainVS
-            type: 0
-        - shader_stage: 
-            bytecode_offset: 330640
-            bytecode_size: 24860
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 281452
+                  size: 22516
+                  type: hlsl
             entrypoint: mainPS
             type: 1
       type_id: 3841510948
@@ -224,13 +241,19 @@ resources_meta_collection:
             type: 0
       stages_info: 
         - shader_stage: 
-            bytecode_offset: 905644
-            bytecode_size: 24880
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 905644
+                  size: 24880
+                  type: hlsl
             entrypoint: mainVS
             type: 0
         - shader_stage: 
-            bytecode_offset: 930524
-            bytecode_size: 25072
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 930524
+                  size: 25072
+                  type: hlsl
             entrypoint: mainPS
             type: 1
       type_id: 3841510948
@@ -249,16 +272,47 @@ resources_meta_collection:
                   size: 4
                   type_id: 193454960
   - resource_meta: 
-      id: Shaders/Default/Selection.shader
+      id: Shaders/Default/DefaultSkyboxShader.shader
+      resources_info: 
+        - shader_resource: 
+            id: SkyboxTexture
+            slot: 0
+            type: 3
       stages_info: 
         - shader_stage: 
-            bytecode_offset: 355500
-            bytecode_size: 26812
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 303968
+                  size: 26672
+                  type: hlsl
             entrypoint: mainVS
             type: 0
         - shader_stage: 
-            bytecode_offset: 382312
-            bytecode_size: 22548
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 330640
+                  size: 24860
+                  type: hlsl
+            entrypoint: mainPS
+            type: 1
+      type_id: 3841510948
+  - resource_meta: 
+      id: Shaders/Default/Selection.shader
+      stages_info: 
+        - shader_stage: 
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 355500
+                  size: 26812
+                  type: hlsl
+            entrypoint: mainVS
+            type: 0
+        - shader_stage: 
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 382312
+                  size: 22548
+                  type: hlsl
             entrypoint: mainPS
             type: 1
       type_id: 3841510948
@@ -266,13 +320,19 @@ resources_meta_collection:
       id: Shaders/Default/SelectionSkinned.shader
       stages_info: 
         - shader_stage: 
-            bytecode_offset: 453524
-            bytecode_size: 30072
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 453524
+                  size: 30072
+                  type: hlsl
             entrypoint: mainVS
             type: 0
         - shader_stage: 
-            bytecode_offset: 483596
-            bytecode_size: 22548
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 483596
+                  size: 22548
+                  type: hlsl
             entrypoint: mainPS
             type: 1
       type_id: 3841510948
@@ -300,13 +360,19 @@ resources_meta_collection:
       id: Shaders/Default/SelectionUI.shader
       stages_info: 
         - shader_stage: 
-            bytecode_offset: 560116
-            bytecode_size: 25244
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 560116
+                  size: 25244
+                  type: hlsl
             entrypoint: mainVS
             type: 0
         - shader_stage: 
-            bytecode_offset: 585360
-            bytecode_size: 22580
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 585360
+                  size: 22580
+                  type: hlsl
             entrypoint: mainPS
             type: 1
       type_id: 3841510948
@@ -314,18 +380,27 @@ resources_meta_collection:
       id: Shaders/Default/ShadowPass.shader
       stages_info: 
         - shader_stage: 
-            bytecode_offset: 607940
-            bytecode_size: 25148
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 607940
+                  size: 25148
+                  type: hlsl
             entrypoint: mainVS
             type: 0
         - shader_stage: 
-            bytecode_offset: 633088
-            bytecode_size: 26456
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 633088
+                  size: 26456
+                  type: hlsl
             entrypoint: mainPS
             type: 1
         - shader_stage: 
-            bytecode_offset: 659544
-            bytecode_size: 42908
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 659544
+                  size: 42908
+                  type: hlsl
             entrypoint: mainGS
             type: 2
       type_id: 3841510948
@@ -353,13 +428,19 @@ resources_meta_collection:
       id: Shaders/Default/SkinnedShadowPass.shader
       stages_info: 
         - shader_stage: 
-            bytecode_offset: 702452
-            bytecode_size: 29844
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 702452
+                  size: 29844
+                  type: hlsl
             entrypoint: mainVS
             type: 0
         - shader_stage: 
-            bytecode_offset: 732296
-            bytecode_size: 22436
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 732296
+                  size: 22436
+                  type: hlsl
             entrypoint: mainPS
             type: 1
       type_id: 3841510948
@@ -392,13 +473,19 @@ resources_meta_collection:
             type: 0
       stages_info: 
         - shader_stage: 
-            bytecode_offset: 754732
-            bytecode_size: 25272
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 754732
+                  size: 25272
+                  type: hlsl
             entrypoint: mainVS
             type: 0
         - shader_stage: 
-            bytecode_offset: 780004
-            bytecode_size: 24992
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 780004
+                  size: 24992
+                  type: hlsl
             entrypoint: mainPS
             type: 1
       type_id: 3841510948
@@ -415,13 +502,19 @@ resources_meta_collection:
             type: 0
       stages_info: 
         - shader_stage: 
-            bytecode_offset: 955596
-            bytecode_size: 24880
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 955596
+                  size: 24880
+                  type: hlsl
             entrypoint: mainVS
             type: 0
         - shader_stage: 
-            bytecode_offset: 980476
-            bytecode_size: 24968
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 980476
+                  size: 24968
+                  type: hlsl
             entrypoint: mainPS
             type: 1
       type_id: 3841510948
@@ -429,16 +522,61 @@ resources_meta_collection:
       id: ProjectShaders/DefaultShader.shader
       stages_info: 
         - shader_stage: 
-            bytecode_offset: 1110840
-            bytecode_size: 24688
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 1110840
+                  size: 24688
+                  type: hlsl
             entrypoint: mainVS
             type: 0
         - shader_stage: 
-            bytecode_offset: 1135528
-            bytecode_size: 22516
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 1135528
+                  size: 22516
+                  type: hlsl
             entrypoint: mainPS
             type: 1
       type_id: 3841510948
+  - resource_meta: 
+      id: Shaders/Default/UI/EditorUI.shader
+      resources_info: 
+        - shader_resource: 
+            id: Texture
+            slot: 0
+            type: 0
+      stages_info: 
+        - shader_stage: 
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 804996
+                  size: 25272
+                  type: hlsl
+            entrypoint: mainVS
+            type: 0
+        - shader_stage: 
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 830268
+                  size: 25740
+                  type: hlsl
+            entrypoint: mainPS
+            type: 1
+      type_id: 3841510948
+      uniforms_info: 
+        - uniform_buffer: 
+            buffer_index: 0
+            flags: 0
+            id: Parameters
+            size: 16
+            slot: 4
+            variables: 
+              - uniform: 
+                  id: mIsAlphaClipEnabled
+                  is_array: 0
+                  offset: 0
+                  size: 4
+                  type_id: 193458227
   - resource_meta: 
       id: ProjectShaders/TestShader.shader
       resources_info: 
@@ -452,13 +590,19 @@ resources_meta_collection:
             type: 3
       stages_info: 
         - shader_stage: 
-            bytecode_offset: 1158044
-            bytecode_size: 26852
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 1158044
+                  size: 26852
+                  type: hlsl
             entrypoint: mainVS
             type: 0
         - shader_stage: 
-            bytecode_offset: 1184896
-            bytecode_size: 24896
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 1184896
+                  size: 24896
+                  type: hlsl
             entrypoint: mainPS
             type: 1
       type_id: 3841510948
@@ -466,13 +610,19 @@ resources_meta_collection:
       id: Shaders/Default/SelectionOutline.shader
       stages_info: 
         - shader_stage: 
-            bytecode_offset: 404860
-            bytecode_size: 24688
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 404860
+                  size: 24688
+                  type: hlsl
             entrypoint: mainVS
             type: 0
         - shader_stage: 
-            bytecode_offset: 429548
-            bytecode_size: 23976
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 429548
+                  size: 23976
+                  type: hlsl
             entrypoint: mainPS
             type: 1
       type_id: 3841510948
@@ -480,13 +630,19 @@ resources_meta_collection:
       id: Shaders/Default/SelectionSkinnedOutline.shader
       stages_info: 
         - shader_stage: 
-            bytecode_offset: 506144
-            bytecode_size: 29996
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 506144
+                  size: 29996
+                  type: hlsl
             entrypoint: mainVS
             type: 0
         - shader_stage: 
-            bytecode_offset: 536140
-            bytecode_size: 23976
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 536140
+                  size: 23976
+                  type: hlsl
             entrypoint: mainPS
             type: 1
       type_id: 3841510948
@@ -511,39 +667,6 @@ resources_meta_collection:
                   size: 4
                   type_id: 193471295
   - resource_meta: 
-      id: Shaders/Default/UI/EditorUI.shader
-      resources_info: 
-        - shader_resource: 
-            id: Texture
-            slot: 0
-            type: 0
-      stages_info: 
-        - shader_stage: 
-            bytecode_offset: 804996
-            bytecode_size: 25272
-            entrypoint: mainVS
-            type: 0
-        - shader_stage: 
-            bytecode_offset: 830268
-            bytecode_size: 25740
-            entrypoint: mainPS
-            type: 1
-      type_id: 3841510948
-      uniforms_info: 
-        - uniform_buffer: 
-            buffer_index: 0
-            flags: 0
-            id: Parameters
-            size: 16
-            slot: 4
-            variables: 
-              - uniform: 
-                  id: mIsAlphaClipEnabled
-                  is_array: 0
-                  offset: 0
-                  size: 4
-                  type_id: 193458227
-  - resource_meta: 
       id: Shaders/PostEffects/BlitTexture.shader
       resources_info: 
         - shader_resource: 
@@ -552,13 +675,19 @@ resources_meta_collection:
             type: 0
       stages_info: 
         - shader_stage: 
-            bytecode_offset: 856008
-            bytecode_size: 24880
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 856008
+                  size: 24880
+                  type: hlsl
             entrypoint: mainVS
             type: 0
         - shader_stage: 
-            bytecode_offset: 880888
-            bytecode_size: 24756
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 880888
+                  size: 24756
+                  type: hlsl
             entrypoint: mainPS
             type: 1
       type_id: 3841510948
@@ -575,13 +704,19 @@ resources_meta_collection:
             type: 0
       stages_info: 
         - shader_stage: 
-            bytecode_offset: 1058180
-            bytecode_size: 24880
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 1058180
+                  size: 24880
+                  type: hlsl
             entrypoint: mainVS
             type: 0
         - shader_stage: 
-            bytecode_offset: 1083060
-            bytecode_size: 27780
+            bytecode_entries: 
+              - bytecode_entry: 
+                  offset: 1083060
+                  size: 27780
+                  type: hlsl
             entrypoint: mainPS
             type: 1
       type_id: 3841510948

@@ -140,7 +140,7 @@ namespace TDEngine2
 
 	typedef struct TShaderStageInfo
 	{
-		TShaderCacheBytecodeEntry mBytecodeInfo;
+		std::unordered_map<std::string, TShaderCacheBytecodeEntry> mBytecodeInfo;
 		std::string               mEntrypoint;
 	} TShaderStageInfo, *TShaderStageInfoPtr;
 

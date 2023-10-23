@@ -10,6 +10,9 @@
 
 namespace TDEngine2
 {
+	static const std::string ShaderLanguageId = "glsl";
+
+
 	COGLShader::COGLShader() :
 		CBaseShader(), mShaderHandler(0)
 	{
@@ -240,7 +243,12 @@ namespace TDEngine2
 		auto it = pShaderParams->mStages.find(stageType);
 		if (it != pShaderParams->mStages.cend())
 		{
-			auto&& bytecode = std::move(pShaderCache->GetBytecode(it->second.mBytecodeInfo));
+			if (it->second.mBytecodeInfo.find(ShaderLanguageId) == it->second.mBytecodeInfo.end())
+			{
+				return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+			}
+
+			auto&& bytecode = std::move(pShaderCache->GetBytecode(it->second.mBytecodeInfo.at(ShaderLanguageId)));
 			
 			glShaderBinary(1, &shaderHandler, GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, bytecode.data(), static_cast<GLsizei>(bytecode.size()));
 			if (glGetError() != GL_NO_ERROR)
@@ -291,6 +299,8 @@ namespace TDEngine2
 			std::make_tuple(&pResult->mComputeShaderHandler, E_SHADER_STAGE_TYPE::SST_COMPUTE),
 		};
 
+		pResult->mShaderLanguageId = ShaderLanguageId;
+
 		for (auto& currStage : stages)
 		{
 			GLuint* pHandler = std::get<0>(currStage);
@@ -303,7 +313,7 @@ namespace TDEngine2
 			}
 
 			*pHandler = shaderResult.Get();
-		}		
+		}
 
 		return pResult;
 	}

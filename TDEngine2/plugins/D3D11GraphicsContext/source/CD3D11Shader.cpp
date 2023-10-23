@@ -193,6 +193,8 @@ namespace TDEngine2
 
 	TShaderCompilerOutput* CD3D11Shader::_createMetaDataFromShaderParams(IShaderCache* pShaderCache, const TShaderParameters* pShaderParams)
 	{
+		static const std::string ShaderLangId = "hlsl";
+
 		TD3D11ShaderCompilerOutput* pResult = new TD3D11ShaderCompilerOutput();
 		
 		for (auto&& currShaderResourceInfo : pShaderParams->mShaderResourcesInfo)
@@ -208,26 +210,28 @@ namespace TDEngine2
 		auto it = pShaderParams->mStages.find(E_SHADER_STAGE_TYPE::SST_VERTEX);
 		if (it != pShaderParams->mStages.cend())
 		{
-			pResult->mVSByteCode = std::move(pShaderCache->GetBytecode(it->second.mBytecodeInfo));
+			pResult->mVSByteCode = std::move(pShaderCache->GetBytecode(it->second.mBytecodeInfo.at(ShaderLangId)));
 		}
 
 		it = pShaderParams->mStages.find(E_SHADER_STAGE_TYPE::SST_PIXEL);
 		if (it != pShaderParams->mStages.cend())
 		{
-			pResult->mPSByteCode = std::move(pShaderCache->GetBytecode(it->second.mBytecodeInfo));
+			pResult->mPSByteCode = std::move(pShaderCache->GetBytecode(it->second.mBytecodeInfo.at(ShaderLangId)));
 		}
 
 		it = pShaderParams->mStages.find(E_SHADER_STAGE_TYPE::SST_GEOMETRY);
 		if (it != pShaderParams->mStages.cend())
 		{
-			pResult->mGSByteCode = std::move(pShaderCache->GetBytecode(it->second.mBytecodeInfo));
+			pResult->mGSByteCode = std::move(pShaderCache->GetBytecode(it->second.mBytecodeInfo.at(ShaderLangId)));
 		}
 
 		it = pShaderParams->mStages.find(E_SHADER_STAGE_TYPE::SST_COMPUTE);
 		if (it != pShaderParams->mStages.cend())
 		{
-			pResult->mCSByteCode = std::move(pShaderCache->GetBytecode(it->second.mBytecodeInfo));
+			pResult->mCSByteCode = std::move(pShaderCache->GetBytecode(it->second.mBytecodeInfo.at(ShaderLangId)));
 		}
+
+		pResult->mShaderLanguageId = ShaderLangId;
 
 		return pResult;
 	}

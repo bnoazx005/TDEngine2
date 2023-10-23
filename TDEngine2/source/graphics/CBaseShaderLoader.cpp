@@ -119,7 +119,13 @@ namespace TDEngine2
 			return CompileShader(mpShaderCompiler.Get(), pResource->GetName(), pShader, mpGraphicsContext, mpFileSystem);
 		}
 
-		return pShader->LoadFromShaderCache(mpShaderCache.Get(), pShaderMetaInfo);
+		if (RC_OK != (result = pShader->LoadFromShaderCache(mpShaderCache.Get(), pShaderMetaInfo)))
+		{ 
+			// if we failed in loading of precompiled shader try to compile it in runtime
+			return CompileShader(mpShaderCompiler.Get(), pResource->GetName(), pShader, mpGraphicsContext, mpFileSystem);
+		}
+
+		return result;
 	}
 
 	TypeId CBaseShaderLoader::GetResourceTypeId() const
