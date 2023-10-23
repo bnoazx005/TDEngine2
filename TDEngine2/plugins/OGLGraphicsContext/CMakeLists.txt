@@ -107,6 +107,26 @@ SET_TARGET_PROPERTIES(${OGL_GCTX_LIBRARY_NAME} PROPERTIES PREFIX "")
 #set up TDEngine2 headers
 target_include_directories(${OGL_GCTX_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../include")
 
+#set up glslang headers
+target_include_directories(${OGL_GCTX_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/glslang/include/")
+
+if (MSVC)
+	set (GLSLANG_LIBS
+		"${CMAKE_CURRENT_SOURCE_DIR}/deps/glslang/lib/win/glslang.lib"
+		"${CMAKE_CURRENT_SOURCE_DIR}/deps/glslang/lib/win/SPIRV.lib"
+		"${CMAKE_CURRENT_SOURCE_DIR}/deps/glslang/lib/win/OSDependent.lib")
+endif ()
+
+if (UNIX)
+	set (GLSLANG_LIBS
+		"${CMAKE_CURRENT_SOURCE_DIR}/deps/glslang/lib/debian/libglslang.a"
+		"${CMAKE_CURRENT_SOURCE_DIR}/deps/glslang/lib/debian/libSPIRV.lib"
+		"${CMAKE_CURRENT_SOURCE_DIR}/deps/glslang/lib/debian/libOSDependent.lib")
+endif ()
+
+#set up glslang libraries
+target_link_libraries(${OGL_GCTX_LIBRARY_NAME} PUBLIC ${GLSLANG_LIBS})
+
 if (MSVC)
 	#set up GLEW headers
 	target_include_directories(${OGL_GCTX_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../deps/glew-2.1.0/include")
