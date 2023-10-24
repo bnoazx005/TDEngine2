@@ -64,9 +64,8 @@ set(OGL_GCTX_SOURCES
 source_group("includes" FILES ${OGL_GCTX_HEADERS})
 source_group("sources" FILES ${OGL_GCTX_SOURCES})
 
-
 if (MSVC) 	#cl.exe compiler's options
-	set(CMAKE_CXX_STANDARD 14)
+	set(CMAKE_CXX_STANDARD 17)
 	set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 	#Debug compiler's options
@@ -86,12 +85,12 @@ if (UNIX)
 
 	include(CheckCXXCompilerFlag)
 
-	CHECK_CXX_COMPILER_FLAG("-std=c++1y" COMPILER_SUPPORTS_CXX14)
+	CHECK_CXX_COMPILER_FLAG("-std=c++1z" COMPILER_SUPPORTS_CXX14)
 
 	if(COMPILER_SUPPORTS_CXX14)
-		message(STATUS "C++14 is enabled")
+		message(STATUS "C++17 is enabled")
 
-		set(CMAKE_CXX_STANDARD 14)
+		set(CMAKE_CXX_STANDARD 17)
 		set(CMAKE_CXX_STANDARD_REQUIRED ON)
 	else()
 	  message(ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support. Please use a different C++ compiler.")
@@ -99,6 +98,7 @@ if (UNIX)
 
 endif (UNIX)
 
+add_subdirectory(deps/glslang)
 
 add_library(${OGL_GCTX_LIBRARY_NAME} SHARED ${OGL_GCTX_SOURCES} ${OGL_GCTX_HEADERS})
 
@@ -110,22 +110,8 @@ target_include_directories(${OGL_GCTX_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOUR
 #set up glslang headers
 target_include_directories(${OGL_GCTX_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/glslang/include/")
 
-if (MSVC)
-	set (GLSLANG_LIBS
-		"${CMAKE_CURRENT_SOURCE_DIR}/deps/glslang/lib/win/glslang.lib"
-		"${CMAKE_CURRENT_SOURCE_DIR}/deps/glslang/lib/win/SPIRV.lib"
-		"${CMAKE_CURRENT_SOURCE_DIR}/deps/glslang/lib/win/OSDependent.lib")
-endif ()
-
-if (UNIX)
-	set (GLSLANG_LIBS
-		"${CMAKE_CURRENT_SOURCE_DIR}/deps/glslang/lib/debian/libglslang.a"
-		"${CMAKE_CURRENT_SOURCE_DIR}/deps/glslang/lib/debian/libSPIRV.lib"
-		"${CMAKE_CURRENT_SOURCE_DIR}/deps/glslang/lib/debian/libOSDependent.lib")
-endif ()
-
 #set up glslang libraries
-target_link_libraries(${OGL_GCTX_LIBRARY_NAME} PUBLIC ${GLSLANG_LIBS})
+target_link_libraries(${OGL_GCTX_LIBRARY_NAME} PUBLIC glslang MachineIndependent)
 
 if (MSVC)
 	#set up GLEW headers

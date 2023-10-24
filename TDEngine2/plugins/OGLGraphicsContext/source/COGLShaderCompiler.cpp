@@ -1,5 +1,7 @@
 #include "./../include/COGLShaderCompiler.h"
 #include "./../include/COGLMappings.h"
+#include <glslang/Include/ShHandle.h>
+#include <glslang/Public/ShaderLang.h>
 #include <core/IFileSystem.h>
 #include <stringUtils.hpp>
 #include <platform/CTextFileReader.h>
@@ -167,6 +169,36 @@ namespace TDEngine2
 		}
 		
 		return Wrench::TOkValue<GLuint>(shaderHandler);
+	}
+
+
+	static EShLanguage GetShaderLanguageByStage(E_SHADER_STAGE_TYPE shaderStage)
+	{
+		switch (shaderStage)
+		{
+			case E_SHADER_STAGE_TYPE::SST_VERTEX:
+				return EShLangVertex;
+			case E_SHADER_STAGE_TYPE::SST_PIXEL:
+				return EShLangFragment;
+			case E_SHADER_STAGE_TYPE::SST_GEOMETRY:
+				return EShLangGeometry;
+			case E_SHADER_STAGE_TYPE::SST_COMPUTE:
+				return EShLangCompute;
+		}
+
+		return EShLangVertex;
+	}
+
+
+	TResult<std::vector<U8>> COGLShaderCompiler::_compileSPIRVShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source, const TShaderMetadata& shaderMetadata) const
+	{
+		std::vector<U8> bytecode;
+
+		std::string processedShaderSource = _enableShaderStage(shaderStage, shaderMetadata.mShaderStagesRegionsInfo, source);
+		
+		ShHandle compiler = ShConstructCompiler(GetShaderLanguageByStage(shaderStage), 0);
+
+		return Wrench::TOkValue<std::vector<U8>>(bytecode);
 	}
 	
 	COGLShaderCompiler::TUniformBuffersMap COGLShaderCompiler::_processUniformBuffersDecls(const TStructDeclsMap& structsMap, CTokenizer& tokenizer) const
