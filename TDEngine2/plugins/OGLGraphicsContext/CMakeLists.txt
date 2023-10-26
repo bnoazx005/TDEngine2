@@ -111,7 +111,7 @@ target_include_directories(${OGL_GCTX_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOUR
 target_include_directories(${OGL_GCTX_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/glslang/include/")
 
 #set up glslang libraries
-target_link_libraries(${OGL_GCTX_LIBRARY_NAME} PUBLIC glslang MachineIndependent)
+target_link_libraries(${OGL_GCTX_LIBRARY_NAME} PUBLIC glslang MachineIndependent SPIRV glslang-default-resource-limits)
 
 if (MSVC)
 	#set up GLEW headers

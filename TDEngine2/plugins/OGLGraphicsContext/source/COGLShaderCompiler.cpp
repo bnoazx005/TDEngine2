@@ -2,6 +2,8 @@
 #include "./../include/COGLMappings.h"
 #include <glslang/Include/ShHandle.h>
 #include <glslang/Public/ShaderLang.h>
+#include <SPIRV/SpvTools.h>
+#include <SPIRV/GlslangToSpv.h>
 #include <core/IFileSystem.h>
 #include <stringUtils.hpp>
 #include <platform/CTextFileReader.h>
@@ -25,6 +27,10 @@ namespace TDEngine2
 	COGLShaderCompiler::COGLShaderCompiler() :
 		CBaseShaderCompiler()
 	{
+		if (GLEW_ARB_spirv_extensions)
+		{
+			glslang::InitializeProcess();
+		}
 	}
 
 	TResult<TShaderCompilerOutput*> COGLShaderCompiler::Compile(const std::string& source) const
@@ -48,61 +54,15 @@ namespace TDEngine2
 
 		MarkColorDataUniforms(shaderMetadata);
 
-		TOGLShaderCompilerOutput* pResult = new TOGLShaderCompilerOutput();
+		auto compileShaderStagesResult = 
+			GLEW_ARB_spirv_extensions ? _compileAllStagesToSPIRV(preprocessedSource, shaderMetadata) : _compileAllStagesInRuntime(preprocessedSource, shaderMetadata);
 
-		if (_isShaderStageEnabled(SST_VERTEX, shaderMetadata))
+		if (compileShaderStagesResult.HasError())
 		{
-			/// try to compile a vertex shader
-			TResult<GLuint> vertexShaderOutput = _compileShaderStage(SST_VERTEX, preprocessedSource, shaderMetadata);
-
-			if (vertexShaderOutput.HasError())
-			{
-				return Wrench::TErrValue<E_RESULT_CODE>(vertexShaderOutput.GetError());
-			}
-
-			pResult->mVertexShaderHandler = vertexShaderOutput.Get();
+			return Wrench::TErrValue<E_RESULT_CODE>(compileShaderStagesResult.GetError());
 		}
 
-		if (_isShaderStageEnabled(SST_PIXEL, shaderMetadata))
-		{
-			/// try to compile a pixel shader
-			TResult<GLuint> pixelShaderOutput = _compileShaderStage(SST_PIXEL, preprocessedSource, shaderMetadata);
-
-			if (pixelShaderOutput.HasError())
-			{
-				return Wrench::TErrValue<E_RESULT_CODE>(pixelShaderOutput.GetError());
-			}
-
-			pResult->mFragmentShaderHandler = pixelShaderOutput.Get();
-		}
-
-		if (_isShaderStageEnabled(SST_GEOMETRY, shaderMetadata))
-		{
-			/// try to compile a geometry shader
-			TResult<GLuint> geometryShaderOutput = _compileShaderStage(SST_GEOMETRY, preprocessedSource, shaderMetadata);
-
-			if (geometryShaderOutput.HasError())
-			{
-				return Wrench::TErrValue<E_RESULT_CODE>(geometryShaderOutput.GetError());
-			}
-
-			pResult->mGeometryShaderHandler = geometryShaderOutput.Get();
-		}
-
-		if (_isShaderStageEnabled(SST_COMPUTE, shaderMetadata))
-		{
-			/// \todo Add verification
-
-			/// try to compile a compute shader
-			TResult<GLuint> computeShaderOutput = _compileShaderStage(SST_COMPUTE, preprocessedSource, shaderMetadata);
-
-			if (computeShaderOutput.HasError())
-			{
-				return Wrench::TErrValue<E_RESULT_CODE>(computeShaderOutput.GetError());
-			}
-
-			pResult->mComputeShaderHandler = computeShaderOutput.Get();
-		}
+		TOGLShaderCompilerOutput* pResult = compileShaderStagesResult.Get();
 
 		pResult->mUniformBuffersInfo  = std::move(shaderMetadata.mUniformBuffers);
 		pResult->mShaderResourcesInfo = std::move(shaderMetadata.mShaderResources);
@@ -171,6 +131,128 @@ namespace TDEngine2
 		return Wrench::TOkValue<GLuint>(shaderHandler);
 	}
 
+	TResult<TOGLShaderCompilerOutput*> COGLShaderCompiler::_compileAllStagesInRuntime(const std::string& source, const TShaderMetadata& shaderMetadata) const
+	{
+		TOGLShaderCompilerOutput* pResult = new TOGLShaderCompilerOutput();
+
+		if (_isShaderStageEnabled(SST_VERTEX, shaderMetadata))
+		{
+			/// try to compile a vertex shader
+			TResult<GLuint> vertexShaderOutput = _compileShaderStage(SST_VERTEX, source, shaderMetadata);
+
+			if (vertexShaderOutput.HasError())
+			{
+				return Wrench::TErrValue<E_RESULT_CODE>(vertexShaderOutput.GetError());
+			}
+
+			pResult->mVertexShaderHandler = vertexShaderOutput.Get();
+		}
+
+		if (_isShaderStageEnabled(SST_PIXEL, shaderMetadata))
+		{
+			/// try to compile a pixel shader
+			TResult<GLuint> pixelShaderOutput = _compileShaderStage(SST_PIXEL, source, shaderMetadata);
+
+			if (pixelShaderOutput.HasError())
+			{
+				return Wrench::TErrValue<E_RESULT_CODE>(pixelShaderOutput.GetError());
+			}
+
+			pResult->mFragmentShaderHandler = pixelShaderOutput.Get();
+		}
+
+		if (_isShaderStageEnabled(SST_GEOMETRY, shaderMetadata))
+		{
+			/// try to compile a geometry shader
+			TResult<GLuint> geometryShaderOutput = _compileShaderStage(SST_GEOMETRY, source, shaderMetadata);
+
+			if (geometryShaderOutput.HasError())
+			{
+				return Wrench::TErrValue<E_RESULT_CODE>(geometryShaderOutput.GetError());
+			}
+
+			pResult->mGeometryShaderHandler = geometryShaderOutput.Get();
+		}
+
+		if (_isShaderStageEnabled(SST_COMPUTE, shaderMetadata))
+		{
+			/// \todo Add verification
+
+			/// try to compile a compute shader
+			TResult<GLuint> computeShaderOutput = _compileShaderStage(SST_COMPUTE, source, shaderMetadata);
+
+			if (computeShaderOutput.HasError())
+			{
+				return Wrench::TErrValue<E_RESULT_CODE>(computeShaderOutput.GetError());
+			}
+
+			pResult->mComputeShaderHandler = computeShaderOutput.Get();
+		}
+
+		return Wrench::TOkValue<TOGLShaderCompilerOutput*>(pResult);
+	}
+
+	TResult<TOGLShaderCompilerOutput*> COGLShaderCompiler::_compileAllStagesToSPIRV(const std::string& source, const TShaderMetadata& shaderMetadata) const
+	{
+		TOGLShaderCompilerOutput* pResult = new TOGLShaderCompilerOutput();
+
+		if (_isShaderStageEnabled(SST_VERTEX, shaderMetadata))
+		{
+			/// try to compile a vertex shader
+			TResult<std::vector<U8>> vertexShaderOutput = _compileSPIRVShaderStage(SST_VERTEX, source, shaderMetadata);
+
+			if (vertexShaderOutput.HasError())
+			{
+				return Wrench::TErrValue<E_RESULT_CODE>(vertexShaderOutput.GetError());
+			}
+
+			pResult->mVSByteCode = std::move(vertexShaderOutput.Get());
+		}
+
+		if (_isShaderStageEnabled(SST_PIXEL, shaderMetadata))
+		{
+			/// try to compile a pixel shader
+			TResult<std::vector<U8>> pixelShaderOutput = _compileSPIRVShaderStage(SST_PIXEL, source, shaderMetadata);
+
+			if (pixelShaderOutput.HasError())
+			{
+				return Wrench::TErrValue<E_RESULT_CODE>(pixelShaderOutput.GetError());
+			}
+
+			pResult->mPSByteCode = std::move(pixelShaderOutput.Get());
+		}
+
+		if (_isShaderStageEnabled(SST_GEOMETRY, shaderMetadata))
+		{
+			/// try to compile a geometry shader
+			TResult<std::vector<U8>> geometryShaderOutput = _compileSPIRVShaderStage(SST_GEOMETRY, source, shaderMetadata);
+
+			if (geometryShaderOutput.HasError())
+			{
+				return Wrench::TErrValue<E_RESULT_CODE>(geometryShaderOutput.GetError());
+			}
+
+			pResult->mGSByteCode = std::move(geometryShaderOutput.Get());
+		}
+
+		if (_isShaderStageEnabled(SST_COMPUTE, shaderMetadata))
+		{
+			/// \todo Add verification
+
+			/// try to compile a compute shader
+			TResult<std::vector<U8>> computeShaderOutput = _compileSPIRVShaderStage(SST_COMPUTE, source, shaderMetadata);
+
+			if (computeShaderOutput.HasError())
+			{
+				return Wrench::TErrValue<E_RESULT_CODE>(computeShaderOutput.GetError());
+			}
+
+			pResult->mCSByteCode = std::move(computeShaderOutput.Get());
+		}
+
+		return Wrench::TOkValue<TOGLShaderCompilerOutput*>(pResult);
+	}
+
 
 	static EShLanguage GetShaderLanguageByStage(E_SHADER_STAGE_TYPE shaderStage)
 	{
@@ -190,13 +272,184 @@ namespace TDEngine2
 	}
 
 
+	const TBuiltInResource DefaultSPIRVBuiltInResource = {
+		/* .MaxLights = */ 32,
+		/* .MaxClipPlanes = */ 6,
+		/* .MaxTextureUnits = */ 32,
+		/* .MaxTextureCoords = */ 32,
+		/* .MaxVertexAttribs = */ 64,
+		/* .MaxVertexUniformComponents = */ 4096,
+		/* .MaxVaryingFloats = */ 64,
+		/* .MaxVertexTextureImageUnits = */ 32,
+		/* .MaxCombinedTextureImageUnits = */ 80,
+		/* .MaxTextureImageUnits = */ 32,
+		/* .MaxFragmentUniformComponents = */ 4096,
+		/* .MaxDrawBuffers = */ 32,
+		/* .MaxVertexUniformVectors = */ 128,
+		/* .MaxVaryingVectors = */ 8,
+		/* .MaxFragmentUniformVectors = */ 16,
+		/* .MaxVertexOutputVectors = */ 16,
+		/* .MaxFragmentInputVectors = */ 15,
+		/* .MinProgramTexelOffset = */ -8,
+		/* .MaxProgramTexelOffset = */ 7,
+		/* .MaxClipDistances = */ 8,
+		/* .MaxComputeWorkGroupCountX = */ 65535,
+		/* .MaxComputeWorkGroupCountY = */ 65535,
+		/* .MaxComputeWorkGroupCountZ = */ 65535,
+		/* .MaxComputeWorkGroupSizeX = */ 1024,
+		/* .MaxComputeWorkGroupSizeY = */ 1024,
+		/* .MaxComputeWorkGroupSizeZ = */ 64,
+		/* .MaxComputeUniformComponents = */ 1024,
+		/* .MaxComputeTextureImageUnits = */ 16,
+		/* .MaxComputeImageUniforms = */ 8,
+		/* .MaxComputeAtomicCounters = */ 8,
+		/* .MaxComputeAtomicCounterBuffers = */ 1,
+		/* .MaxVaryingComponents = */ 60,
+		/* .MaxVertexOutputComponents = */ 64,
+		/* .MaxGeometryInputComponents = */ 64,
+		/* .MaxGeometryOutputComponents = */ 128,
+		/* .MaxFragmentInputComponents = */ 128,
+		/* .MaxImageUnits = */ 8,
+		/* .MaxCombinedImageUnitsAndFragmentOutputs = */ 8,
+		/* .MaxCombinedShaderOutputResources = */ 8,
+		/* .MaxImageSamples = */ 0,
+		/* .MaxVertexImageUniforms = */ 0,
+		/* .MaxTessControlImageUniforms = */ 0,
+		/* .MaxTessEvaluationImageUniforms = */ 0,
+		/* .MaxGeometryImageUniforms = */ 0,
+		/* .MaxFragmentImageUniforms = */ 8,
+		/* .MaxCombinedImageUniforms = */ 8,
+		/* .MaxGeometryTextureImageUnits = */ 16,
+		/* .MaxGeometryOutputVertices = */ 256,
+		/* .MaxGeometryTotalOutputComponents = */ 1024,
+		/* .MaxGeometryUniformComponents = */ 1024,
+		/* .MaxGeometryVaryingComponents = */ 64,
+		/* .MaxTessControlInputComponents = */ 128,
+		/* .MaxTessControlOutputComponents = */ 128,
+		/* .MaxTessControlTextureImageUnits = */ 16,
+		/* .MaxTessControlUniformComponents = */ 1024,
+		/* .MaxTessControlTotalOutputComponents = */ 4096,
+		/* .MaxTessEvaluationInputComponents = */ 128,
+		/* .MaxTessEvaluationOutputComponents = */ 128,
+		/* .MaxTessEvaluationTextureImageUnits = */ 16,
+		/* .MaxTessEvaluationUniformComponents = */ 1024,
+		/* .MaxTessPatchComponents = */ 120,
+		/* .MaxPatchVertices = */ 32,
+		/* .MaxTessGenLevel = */ 64,
+		/* .MaxViewports = */ 16,
+		/* .MaxVertexAtomicCounters = */ 0,
+		/* .MaxTessControlAtomicCounters = */ 0,
+		/* .MaxTessEvaluationAtomicCounters = */ 0,
+		/* .MaxGeometryAtomicCounters = */ 0,
+		/* .MaxFragmentAtomicCounters = */ 8,
+		/* .MaxCombinedAtomicCounters = */ 8,
+		/* .MaxAtomicCounterBindings = */ 1,
+		/* .MaxVertexAtomicCounterBuffers = */ 0,
+		/* .MaxTessControlAtomicCounterBuffers = */ 0,
+		/* .MaxTessEvaluationAtomicCounterBuffers = */ 0,
+		/* .MaxGeometryAtomicCounterBuffers = */ 0,
+		/* .MaxFragmentAtomicCounterBuffers = */ 1,
+		/* .MaxCombinedAtomicCounterBuffers = */ 1,
+		/* .MaxAtomicCounterBufferSize = */ 16384,
+		/* .MaxTransformFeedbackBuffers = */ 4,
+		/* .MaxTransformFeedbackInterleavedComponents = */ 64,
+		/* .MaxCullDistances = */ 8,
+		/* .MaxCombinedClipAndCullDistances = */ 8,
+		/* .MaxSamples = */ 4,
+		/* .maxMeshOutputVerticesNV = */ 256,
+		/* .maxMeshOutputPrimitivesNV = */ 512,
+		/* .maxMeshWorkGroupSizeX_NV = */ 32,
+		/* .maxMeshWorkGroupSizeY_NV = */ 1,
+		/* .maxMeshWorkGroupSizeZ_NV = */ 1,
+		/* .maxTaskWorkGroupSizeX_NV = */ 32,
+		/* .maxTaskWorkGroupSizeY_NV = */ 1,
+		/* .maxTaskWorkGroupSizeZ_NV = */ 1,
+		/* .maxMeshViewCountNV = */ 4,
+		/* .maxMeshOutputVerticesEXT = */ 256,
+		/* .maxMeshOutputPrimitivesEXT = */ 256,
+		/* .maxMeshWorkGroupSizeX_EXT = */ 128,
+		/* .maxMeshWorkGroupSizeY_EXT = */ 128,
+		/* .maxMeshWorkGroupSizeZ_EXT = */ 128,
+		/* .maxTaskWorkGroupSizeX_EXT = */ 128,
+		/* .maxTaskWorkGroupSizeY_EXT = */ 128,
+		/* .maxTaskWorkGroupSizeZ_EXT = */ 128,
+		/* .maxMeshViewCountEXT = */ 4,
+		/* .maxDualSourceDrawBuffersEXT = */ 1,
+
+		/* .limits = */ {
+			/* .nonInductiveForLoops = */ 1,
+			/* .whileLoops = */ 1,
+			/* .doWhileLoops = */ 1,
+			/* .generalUniformIndexing = */ 1,
+			/* .generalAttributeMatrixVectorIndexing = */ 1,
+			/* .generalVaryingIndexing = */ 1,
+			/* .generalSamplerIndexing = */ 1,
+			/* .generalVariableIndexing = */ 1,
+			/* .generalConstantMatrixVectorIndexing = */ 1,
+		} };
+
+
 	TResult<std::vector<U8>> COGLShaderCompiler::_compileSPIRVShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source, const TShaderMetadata& shaderMetadata) const
 	{
-		std::vector<U8> bytecode;
+		auto entryPointByStage = [&shaderMetadata](E_SHADER_STAGE_TYPE stage)
+		{
+			switch (stage)
+			{
+				case E_SHADER_STAGE_TYPE::SST_VERTEX:
+					return shaderMetadata.mVertexShaderEntrypointName;
+				case E_SHADER_STAGE_TYPE::SST_PIXEL:
+					return shaderMetadata.mPixelShaderEntrypointName;
+				case E_SHADER_STAGE_TYPE::SST_GEOMETRY:
+					return shaderMetadata.mGeometryShaderEntrypointName;
+				case E_SHADER_STAGE_TYPE::SST_COMPUTE:
+					return shaderMetadata.mComputeShaderEntrypointName;
+			}
+
+			return Wrench::StringUtils::GetEmptyStr();
+		};
 
 		std::string processedShaderSource = _enableShaderStage(shaderStage, shaderMetadata.mShaderStagesRegionsInfo, source);
 		
-		ShHandle compiler = ShConstructCompiler(GetShaderLanguageByStage(shaderStage), 0);
+		const C8* shaderSource = processedShaderSource.c_str();
+		const int shaderSourceLength = static_cast<int>(strlen(shaderSource));
+
+		const auto shaderLangType = GetShaderLanguageByStage(shaderStage);
+
+		std::unique_ptr<glslang::TShader> pShader = std::make_unique<glslang::TShader>(shaderLangType);
+
+		pShader->setStringsWithLengths(&shaderSource, &shaderSourceLength, 1);
+		pShader->setSourceEntryPoint(entryPointByStage(shaderStage).c_str());
+		pShader->setEnvInput(glslang::EShSourceGlsl, shaderLangType, glslang::EShClientOpenGL, 100);
+		pShader->setEnvClient(glslang::EShClientOpenGL, glslang::EShTargetOpenGL_450);
+		pShader->setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_0);
+
+		EShMessages messages = EShMsgSpvRules;
+
+		glslang::TShader::ForbidIncluder includer; // \note We don't need includer here because we process source on our side
+
+		if (!pShader->parse(&DefaultSPIRVBuiltInResource, 110, false, EShMsgSpvRules, includer))
+		{
+			LOG_ERROR(Wrench::StringUtils::Format("[GL Shader Compiler] {0}", pShader->getInfoLog()));
+			LOG_ERROR(Wrench::StringUtils::Format("[GL Shader Compiler] {0}", pShader->getInfoDebugLog()));
+
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		glslang::TIntermediate* pIRCode = pShader->getIntermediate();
+		
+		std::vector<U32> spirv;
+		spv::SpvBuildLogger logger;
+		glslang::SpvOptions spvOptions;
+		
+		spvOptions.validate = true;
+		spvOptions.compileOnly = false;
+
+		glslang::GlslangToSpv(*pIRCode, spirv, &logger, &spvOptions);
+
+		std::vector<U8> bytecode;
+		bytecode.resize(spirv.size() * sizeof(U32));
+
+		memcpy(bytecode.data(), spirv.data(), bytecode.size());
 
 		return Wrench::TOkValue<std::vector<U8>>(bytecode);
 	}

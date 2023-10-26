@@ -79,7 +79,10 @@ namespace TDEngine2
 			
 			TDE2_API TResult<GLuint> _compileShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source, const TShaderMetadata& shaderMetadata) const;
 			TDE2_API TResult<std::vector<U8>> _compileSPIRVShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source, const TShaderMetadata& shaderMetadata) const;
-			
+
+			TResult<TOGLShaderCompilerOutput*> _compileAllStagesInRuntime(const std::string& source, const TShaderMetadata& shaderMetadata) const;
+			TResult<TOGLShaderCompilerOutput*> _compileAllStagesToSPIRV(const std::string& source, const TShaderMetadata& shaderMetadata) const;
+
 			TDE2_API TUniformBuffersMap _processUniformBuffersDecls(const TStructDeclsMap& structsMap, CTokenizer& tokenizer) const override;
 
 			TDE2_API E_SHADER_FEATURE_LEVEL _getTargetVersionFromStr(const std::string& ver) const override;
