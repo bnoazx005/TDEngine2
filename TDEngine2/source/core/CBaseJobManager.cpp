@@ -44,7 +44,9 @@ namespace TDEngine2
 		cfg.setFiberStackSize(desc.mFiberStackSize);
 		cfg.setWorkerThreadInitializer([](int workerId)
 		{
+#ifdef TDE2_USE_WINPLATFORM
 			OPTICK_START_THREAD(Wrench::StringUtils::Format("WorkerThread_{0}", workerId).c_str());
+#endif
 		});
 
 		mpScheduler = std::make_unique<marl::Scheduler>(cfg);
