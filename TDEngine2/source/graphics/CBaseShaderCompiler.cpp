@@ -456,10 +456,10 @@ namespace TDEngine2
 
 		extractedMetadata.mShaderResources = _processShaderResourcesDecls(tokenizer);
 
-		extractedMetadata.mVertexShaderEntrypointName   = extractedMetadata.mDefines[mEntryPointsDefineNames[SST_VERTEX]].mValue;
-		extractedMetadata.mPixelShaderEntrypointName    = extractedMetadata.mDefines[mEntryPointsDefineNames[SST_PIXEL]].mValue;
-		extractedMetadata.mGeometryShaderEntrypointName = extractedMetadata.mDefines[mEntryPointsDefineNames[SST_GEOMETRY]].mValue;
-		extractedMetadata.mComputeShaderEntrypointName  = extractedMetadata.mDefines[mEntryPointsDefineNames[SST_COMPUTE]].mValue;
+		extractedMetadata.mEntrypointsTable[SST_VERTEX] = extractedMetadata.mDefines[mEntryPointsDefineNames[SST_VERTEX]].mValue;
+		extractedMetadata.mEntrypointsTable[SST_PIXEL] = extractedMetadata.mDefines[mEntryPointsDefineNames[SST_PIXEL]].mValue;
+		extractedMetadata.mEntrypointsTable[SST_GEOMETRY] = extractedMetadata.mDefines[mEntryPointsDefineNames[SST_GEOMETRY]].mValue;
+		extractedMetadata.mEntrypointsTable[SST_COMPUTE] = extractedMetadata.mDefines[mEntryPointsDefineNames[SST_COMPUTE]].mValue;
 
 		///\todo implement convertation of a version string into E_SHADER_TARGET_VERSION enum's value
 		extractedMetadata.mFeatureLevel = _getTargetVersionFromStr(extractedMetadata.mDefines[mTargetVersionDefineName].mValue);

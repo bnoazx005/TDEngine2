@@ -229,7 +229,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-
+#if 0
 	static TResult<GLuint> TryToCreatePrecompiledShader(IShaderCache* pShaderCache, const TShaderParameters* pShaderParams, E_SHADER_STAGE_TYPE stageType)
 	{
 		TDE2_PROFILER_SCOPE("TryToCreatePrecompiledShader");
@@ -267,56 +267,7 @@ namespace TDEngine2
 
 		return Wrench::TOkValue<GLuint>(0);
 	}
-
-
-	TShaderCompilerOutput* COGLShader::_createMetaDataFromShaderParams(IShaderCache* pShaderCache, const TShaderParameters* pShaderParams)
-	{
-		TDE2_PROFILER_SCOPE("COGLShader::_createMetaDataFromShaderParams");
-
-		if (!GLEW_ARB_spirv_extensions)
-		{
-			TDE2_ASSERT_MSG(false, "[COGLShader] GL 3.x doesn't support precompiled shaders without SPIR-V extensions available");
-			return nullptr;
-		}
-
-		TOGLShaderCompilerOutput* pResult = new TOGLShaderCompilerOutput();
-
-		for (auto&& currShaderResourceInfo : pShaderParams->mShaderResourcesInfo)
-		{
-			pResult->mShaderResourcesInfo.emplace(currShaderResourceInfo.first, currShaderResourceInfo.second);
-		}
-
-		for (auto&& currUniformBufferInfo : pShaderParams->mUniformBuffersInfo)
-		{
-			pResult->mUniformBuffersInfo.emplace(currUniformBufferInfo.first, currUniformBufferInfo.second);
-		}
-		
-		std::array<std::tuple<GLuint*, E_SHADER_STAGE_TYPE>, 4> stages
-		{
-			std::make_tuple(&pResult->mVertexShaderHandler, E_SHADER_STAGE_TYPE::SST_VERTEX),
-			std::make_tuple(&pResult->mFragmentShaderHandler, E_SHADER_STAGE_TYPE::SST_PIXEL),
-			std::make_tuple(&pResult->mGeometryShaderHandler, E_SHADER_STAGE_TYPE::SST_GEOMETRY),
-			std::make_tuple(&pResult->mComputeShaderHandler, E_SHADER_STAGE_TYPE::SST_COMPUTE),
-		};
-
-		pResult->mShaderLanguageId = ShaderLanguageId;
-
-		for (auto& currStage : stages)
-		{
-			GLuint* pHandler = std::get<0>(currStage);
-
-			auto shaderResult = TryToCreatePrecompiledShader(pShaderCache, pShaderParams, std::get<E_SHADER_STAGE_TYPE>(currStage));
-			if (shaderResult.HasError())
-			{
-				*pHandler = 0;
-				continue;
-			}
-
-			*pHandler = shaderResult.Get();
-		}
-
-		return pResult;
-	}
+#endif
 
 	void COGLShader::_bindUniformBuffer(U32 slot, IConstantBuffer* pBuffer)
 	{

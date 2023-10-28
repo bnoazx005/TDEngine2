@@ -161,7 +161,7 @@ namespace TDEngine2
 	{
 		public:
 			typedef std::unordered_map<std::string, TUniformBufferDesc>        TUniformBuffersMap;
-		protected:
+		
 			typedef CShaderPreprocessor::TDefinesMap                           TDefinesMap;
 
 			typedef CShaderPreprocessor::TShaderStagesRegionsMap               TStagesRegionsMap;
@@ -176,10 +176,7 @@ namespace TDEngine2
 		
 			typedef struct TShaderMetadata
 			{
-				std::string             mVertexShaderEntrypointName;
-				std::string             mPixelShaderEntrypointName;
-				std::string             mGeometryShaderEntrypointName;
-				std::string             mComputeShaderEntrypointName;
+				std::unordered_map<E_SHADER_STAGE_TYPE, std::string> mEntrypointsTable;
 
 				E_SHADER_FEATURE_LEVEL  mFeatureLevel;
 

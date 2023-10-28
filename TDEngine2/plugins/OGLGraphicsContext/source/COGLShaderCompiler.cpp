@@ -196,58 +196,25 @@ namespace TDEngine2
 	{
 		TOGLShaderCompilerOutput* pResult = new TOGLShaderCompilerOutput();
 
-		if (_isShaderStageEnabled(SST_VERTEX, shaderMetadata))
+		for (U32 shaderStage = static_cast<U32>(SST_VERTEX); shaderStage != static_cast<U32>(SST_NONE); shaderStage++)
 		{
-			/// try to compile a vertex shader
-			TResult<std::vector<U8>> vertexShaderOutput = _compileSPIRVShaderStage(SST_VERTEX, source, shaderMetadata);
-
-			if (vertexShaderOutput.HasError())
+			if (!_isShaderStageEnabled(static_cast<E_SHADER_STAGE_TYPE>(shaderStage), shaderMetadata))
 			{
-				return Wrench::TErrValue<E_RESULT_CODE>(vertexShaderOutput.GetError());
+				continue;
 			}
 
-			pResult->mVSByteCode = std::move(vertexShaderOutput.Get());
-		}
+			TResult<std::vector<U8>> shaderOutput = _compileSPIRVShaderStage(static_cast<E_SHADER_STAGE_TYPE>(shaderStage), source, shaderMetadata);
 
-		if (_isShaderStageEnabled(SST_PIXEL, shaderMetadata))
-		{
-			/// try to compile a pixel shader
-			TResult<std::vector<U8>> pixelShaderOutput = _compileSPIRVShaderStage(SST_PIXEL, source, shaderMetadata);
-
-			if (pixelShaderOutput.HasError())
+			if (shaderOutput.HasError())
 			{
-				return Wrench::TErrValue<E_RESULT_CODE>(pixelShaderOutput.GetError());
+				return Wrench::TErrValue<E_RESULT_CODE>(shaderOutput.GetError());
 			}
 
-			pResult->mPSByteCode = std::move(pixelShaderOutput.Get());
-		}
+			TShaderStageInfoDesc stageInfo;
+			stageInfo.mBytecode = std::move(shaderOutput.Get());
+			stageInfo.mEntrypointName = shaderMetadata.mEntrypointsTable.at(static_cast<E_SHADER_STAGE_TYPE>(shaderStage));
 
-		if (_isShaderStageEnabled(SST_GEOMETRY, shaderMetadata))
-		{
-			/// try to compile a geometry shader
-			TResult<std::vector<U8>> geometryShaderOutput = _compileSPIRVShaderStage(SST_GEOMETRY, source, shaderMetadata);
-
-			if (geometryShaderOutput.HasError())
-			{
-				return Wrench::TErrValue<E_RESULT_CODE>(geometryShaderOutput.GetError());
-			}
-
-			pResult->mGSByteCode = std::move(geometryShaderOutput.Get());
-		}
-
-		if (_isShaderStageEnabled(SST_COMPUTE, shaderMetadata))
-		{
-			/// \todo Add verification
-
-			/// try to compile a compute shader
-			TResult<std::vector<U8>> computeShaderOutput = _compileSPIRVShaderStage(SST_COMPUTE, source, shaderMetadata);
-
-			if (computeShaderOutput.HasError())
-			{
-				return Wrench::TErrValue<E_RESULT_CODE>(computeShaderOutput.GetError());
-			}
-
-			pResult->mCSByteCode = std::move(computeShaderOutput.Get());
+			pResult->mStagesInfo.emplace(static_cast<E_SHADER_STAGE_TYPE>(shaderStage), stageInfo);
 		}
 
 		return Wrench::TOkValue<TOGLShaderCompilerOutput*>(pResult);
@@ -391,23 +358,6 @@ namespace TDEngine2
 
 	TResult<std::vector<U8>> COGLShaderCompiler::_compileSPIRVShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source, const TShaderMetadata& shaderMetadata) const
 	{
-		auto entryPointByStage = [&shaderMetadata](E_SHADER_STAGE_TYPE stage)
-		{
-			switch (stage)
-			{
-				case E_SHADER_STAGE_TYPE::SST_VERTEX:
-					return shaderMetadata.mVertexShaderEntrypointName;
-				case E_SHADER_STAGE_TYPE::SST_PIXEL:
-					return shaderMetadata.mPixelShaderEntrypointName;
-				case E_SHADER_STAGE_TYPE::SST_GEOMETRY:
-					return shaderMetadata.mGeometryShaderEntrypointName;
-				case E_SHADER_STAGE_TYPE::SST_COMPUTE:
-					return shaderMetadata.mComputeShaderEntrypointName;
-			}
-
-			return Wrench::StringUtils::GetEmptyStr();
-		};
-
 		std::string processedShaderSource = _enableShaderStage(shaderStage, shaderMetadata.mShaderStagesRegionsInfo, source);
 		
 		const C8* shaderSource = processedShaderSource.c_str();
@@ -418,7 +368,7 @@ namespace TDEngine2
 		std::unique_ptr<glslang::TShader> pShader = std::make_unique<glslang::TShader>(shaderLangType);
 
 		pShader->setStringsWithLengths(&shaderSource, &shaderSourceLength, 1);
-		pShader->setSourceEntryPoint(entryPointByStage(shaderStage).c_str());
+		pShader->setSourceEntryPoint(shaderMetadata.mEntrypointsTable.at(shaderStage).c_str());
 		pShader->setEnvInput(glslang::EShSourceGlsl, shaderLangType, glslang::EShClientOpenGL, 100);
 		pShader->setEnvClient(glslang::EShClientOpenGL, glslang::EShTargetOpenGL_450);
 		pShader->setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_0);

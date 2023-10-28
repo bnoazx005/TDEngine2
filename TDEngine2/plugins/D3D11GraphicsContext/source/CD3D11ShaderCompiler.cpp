@@ -49,62 +49,25 @@ namespace TDEngine2
 
 		TD3D11ShaderCompilerOutput* pResult = new TD3D11ShaderCompilerOutput();
 
-		if (_isShaderStageEnabled(SST_VERTEX, shaderMetadata))
+		for (U32 shaderStage = static_cast<U32>(SST_VERTEX); shaderStage != static_cast<U32>(SST_NONE); shaderStage++)
 		{
-			/// try to compile a vertex shader
-			TResult<std::vector<U8>> vertexShaderOutput = _compileShaderStage(SST_VERTEX, preprocessedSource, shaderMetadata, shaderMetadata.mFeatureLevel);
-
-			if (vertexShaderOutput.HasError())
+			if (!_isShaderStageEnabled(static_cast<E_SHADER_STAGE_TYPE>(shaderStage), shaderMetadata))
 			{
-				return Wrench::TErrValue<E_RESULT_CODE>(vertexShaderOutput.GetError());
+				continue;
 			}
 
-			pResult->mVSByteCode = std::move(vertexShaderOutput.Get());
-			pResult->mEntryPointsTable[E_SHADER_STAGE_TYPE::SST_VERTEX] = shaderMetadata.mVertexShaderEntrypointName;
-		}
-
-		if (_isShaderStageEnabled(SST_PIXEL, shaderMetadata))
-		{
-			/// try to compile a pixel shader
-			TResult<std::vector<U8>> pixelShaderOutput = _compileShaderStage(SST_PIXEL, preprocessedSource, shaderMetadata, shaderMetadata.mFeatureLevel);
-
-			if (pixelShaderOutput.HasError())
+			/// try to compile a shader
+			TResult<std::vector<U8>> shaderOutput = _compileShaderStage(static_cast<E_SHADER_STAGE_TYPE>(shaderStage), preprocessedSource, shaderMetadata, shaderMetadata.mFeatureLevel);
+			if (shaderOutput.HasError())
 			{
-				return Wrench::TErrValue<E_RESULT_CODE>(pixelShaderOutput.GetError());
+				return Wrench::TErrValue<E_RESULT_CODE>(shaderOutput.GetError());
 			}
 
-			pResult->mPSByteCode = std::move(pixelShaderOutput.Get());
-			pResult->mEntryPointsTable[E_SHADER_STAGE_TYPE::SST_PIXEL] = shaderMetadata.mPixelShaderEntrypointName;
-		}
+			TShaderStageInfoDesc stageInfo;
+			stageInfo.mEntrypointName = shaderMetadata.mEntrypointsTable[static_cast<E_SHADER_STAGE_TYPE>(shaderStage)];
+			stageInfo.mBytecode = std::move(shaderOutput.Get());
 
-		if (_isShaderStageEnabled(SST_GEOMETRY, shaderMetadata))
-		{
-			/// try to compile a geometry shader
-			TResult<std::vector<U8>> geometryShaderOutput = _compileShaderStage(SST_GEOMETRY, preprocessedSource, shaderMetadata, shaderMetadata.mFeatureLevel);
-
-			if (geometryShaderOutput.HasError())
-			{
-				return Wrench::TErrValue<E_RESULT_CODE>(geometryShaderOutput.GetError());
-			}
-
-			pResult->mGSByteCode = std::move(geometryShaderOutput.Get());
-			pResult->mEntryPointsTable[E_SHADER_STAGE_TYPE::SST_GEOMETRY] = shaderMetadata.mGeometryShaderEntrypointName;
-		}
-
-		if (_isShaderStageEnabled(SST_COMPUTE, shaderMetadata))
-		{
-			/// \todo Add verification
-			
-			/// try to compile a compute shader
-			TResult<std::vector<U8>> computeShaderOutput = _compileShaderStage(SST_COMPUTE, preprocessedSource, shaderMetadata, shaderMetadata.mFeatureLevel);
-
-			if (computeShaderOutput.HasError())
-			{
-				return Wrench::TErrValue<E_RESULT_CODE>(computeShaderOutput.GetError());
-			}
-
-			pResult->mCSByteCode = std::move(computeShaderOutput.Get());
-			pResult->mEntryPointsTable[E_SHADER_STAGE_TYPE::SST_COMPUTE] = shaderMetadata.mComputeShaderEntrypointName;
+			pResult->mStagesInfo.emplace(static_cast<E_SHADER_STAGE_TYPE>(shaderStage), stageInfo);
 		}
 
 		MarkColorDataUniforms(shaderMetadata);
@@ -127,20 +90,7 @@ namespace TDEngine2
 		ID3DBlob* pErrorBuffer    = nullptr;
 
 		std::string processedSource = _enableShaderStage(shaderStage, shaderMetadata.mShaderStagesRegionsInfo, source);
-		std::string entryPointName  = shaderMetadata.mVertexShaderEntrypointName;
-
-		switch (shaderStage)
-		{
-			case E_SHADER_STAGE_TYPE::SST_PIXEL:
-				entryPointName = shaderMetadata.mPixelShaderEntrypointName;
-				break;
-			case E_SHADER_STAGE_TYPE::SST_GEOMETRY:
-				entryPointName = shaderMetadata.mGeometryShaderEntrypointName;
-				break;
-			case E_SHADER_STAGE_TYPE::SST_COMPUTE:
-				entryPointName = shaderMetadata.mComputeShaderEntrypointName;
-				break;
-		}
+		std::string entryPointName  = shaderMetadata.mEntrypointsTable[shaderStage];
 
 		U32 flags = D3DCOMPILE_DEBUG | D3DCOMPILE_PACK_MATRIX_COLUMN_MAJOR;
 

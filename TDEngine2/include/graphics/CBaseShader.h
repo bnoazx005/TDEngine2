@@ -10,6 +10,8 @@
 #include "../core/CBaseResource.h"
 #include "IShader.h"
 #include <vector>
+#include <unordered_map>
+#include <memory>
 
 
 namespace TDEngine2
@@ -64,7 +66,7 @@ namespace TDEngine2
 				appears the shader will be loaded using Compile method or some default instance will be created
 			*/
 
-			TDE2_API E_RESULT_CODE LoadFromShaderCache(IShaderCache* pShaderCache, const TShaderParameters* pShaderMetaData) override;
+			TDE2_API E_RESULT_CODE LoadFromShaderCache(IShaderCache* pShaderCache) override;
 
 			/*!
 				\brief The method binds a shader to a rendering pipeline
@@ -130,8 +132,6 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE _createInternalHandlers(const TShaderCompilerOutput* pCompilerData) = 0;
 
-			TDE2_API virtual TShaderCompilerOutput* _createMetaDataFromShaderParams(IShaderCache* pShaderCache, const TShaderParameters* pShaderParams) = 0;
-
 			TDE2_API E_RESULT_CODE _initShaderInternal(TShaderCompilerOutput* pShaderMetaData);
 
 			TDE2_API virtual E_RESULT_CODE _freeUniformBuffers();
@@ -178,6 +178,8 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IShaderCache* CreateShaderCache(IBinaryFileReader*, IBinaryFileWriter*, E_RESULT_CODE&);
 		public:
+			typedef std::unordered_map<std::string, std::unique_ptr<TShaderCompilerOutput>> TShadersDataTable;
+		public:
 			/*!
 				\brief The method initializes internal state of the object
 
@@ -188,16 +190,19 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Dump() override;
 
-			TDE2_API TResult<TShaderCacheBytecodeEntry> AddShaderBytecode(const std::vector<U8>& bytecode) override;
+			TDE2_API E_RESULT_CODE AddShaderEntity(const std::string& shaderId, const TShaderCompilerOutput* pShaderCompiledData) override;
 
-			TDE2_API std::vector<U8> GetBytecode(const TShaderCacheBytecodeEntry& info) override;
+			TDE2_API TShaderCompilerOutput* GetShaderMetaData(const std::string& shaderId) override;
+			TDE2_API bool HasShaderMetaData(const std::string& shaderId) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CShaderCache)
+
+			E_RESULT_CODE _readShadersMetaTable();
 		private:
 			IBinaryFileReader* mpCacheFileReader = nullptr;
 			IBinaryFileWriter* mpCacheFileWriter = nullptr;
 
-			std::vector<U8> mIntermediateCacheBuffer;
+			TShadersDataTable mShadersInfoTable;
 
 			bool mIsDirty = false;
 	};

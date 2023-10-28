@@ -5,343 +5,11 @@
 #include "../../include/graphics/ITexture.h"
 #include "../../include/graphics/CBaseShaderCompiler.h"
 #include "../../include/editor/CPerfProfiler.h"
+#include <algorithm>
 
 
 namespace TDEngine2
 {
-	struct TShaderParametersArchiveKeys
-	{
-		static const std::string mUniformsInfoGroupKeyId;
-		static const std::string mShaderResourcesGroupKeyId;
-		static const std::string mStagesInfoGroupKeyId;
-		static const std::string mSingleUniformBufferInfoGroupKeyId;
-		static const std::string mSingleResourceInfoGroupKeyId;
-		static const std::string mSingleStageInfoGroupKeyId;
-
-		struct TUniformBufferGroupKeys
-		{
-			static const std::string mNameKeyId;
-			static const std::string mSlotKeyId;
-			static const std::string mSizeKeyId;
-			static const std::string mFlagsKeyId;
-			static const std::string mBufferIndexKeyId;
-			static const std::string mVariablesKeyId;
-			static const std::string mSingleVariableKeyId;
-
-			struct TUniformGroupKeys
-			{
-				static const std::string mIdKeyId;
-				static const std::string mSizeKeyId;
-				static const std::string mOffsetKeyId;
-				static const std::string mTypeKeyId;
-				static const std::string mIsArrayKeyId;
-			};
-		};
-
-		struct TShaderResourceGroupKeys
-		{
-			static const std::string mIdKeyId;
-			static const std::string mTypeKeyId;
-			static const std::string mSlotKeyId;
-		};
-
-		struct TShaderStageGroupKeys
-		{
-			static const std::string mTypeKeyId;
-			static const std::string mBytecodeEntryKeyId;
-			static const std::string mBytecodeEntriesTableKeyId;
-			static const std::string mBytecodeOffsetKeyId;
-			static const std::string mBytecodeSizeKeyId;
-			static const std::string mBytecodeTypeKeyId;
-			static const std::string mEntrypointNameKeyId;
-		};
-	};
-
-
-	const std::string TShaderParametersArchiveKeys::mUniformsInfoGroupKeyId = "uniforms_info";
-	const std::string TShaderParametersArchiveKeys::mShaderResourcesGroupKeyId = "resources_info";
-	const std::string TShaderParametersArchiveKeys::mStagesInfoGroupKeyId = "stages_info";
-	const std::string TShaderParametersArchiveKeys::mSingleUniformBufferInfoGroupKeyId = "uniform_buffer";
-	const std::string TShaderParametersArchiveKeys::mSingleResourceInfoGroupKeyId = "shader_resource";
-	const std::string TShaderParametersArchiveKeys::mSingleStageInfoGroupKeyId = "shader_stage";
-
-	const std::string TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mNameKeyId = "id";
-	const std::string TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mSlotKeyId = "slot";
-	const std::string TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mSizeKeyId = "size";
-	const std::string TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mFlagsKeyId = "flags";
-	const std::string TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mBufferIndexKeyId = "buffer_index";
-	const std::string TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mVariablesKeyId = "variables";
-	const std::string TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mSingleVariableKeyId = "uniform";
-
-	const std::string TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mIdKeyId = "id";
-	const std::string TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mSizeKeyId = "size";
-	const std::string TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mOffsetKeyId = "offset";
-	const std::string TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mTypeKeyId = "type_id";
-	const std::string TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mIsArrayKeyId = "is_array";
-
-	const std::string TShaderParametersArchiveKeys::TShaderResourceGroupKeys::mIdKeyId = "id";
-	const std::string TShaderParametersArchiveKeys::TShaderResourceGroupKeys::mTypeKeyId = "type";
-	const std::string TShaderParametersArchiveKeys::TShaderResourceGroupKeys::mSlotKeyId = "slot";
-
-	const std::string TShaderParametersArchiveKeys::TShaderStageGroupKeys::mTypeKeyId = "type";
-	const std::string TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeEntriesTableKeyId = "bytecode_entries";
-	const std::string TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeEntryKeyId = "bytecode_entry";
-	const std::string TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeOffsetKeyId = "offset";
-	const std::string TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeSizeKeyId = "size";
-	const std::string TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeTypeKeyId = "type";
-	const std::string TShaderParametersArchiveKeys::TShaderStageGroupKeys::mEntrypointNameKeyId = "entrypoint";
-
-
-	E_RESULT_CODE TShaderParameters::Load(IArchiveReader* pReader)
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		for (auto&& currSystemUniformBufferDesc : CBaseShaderCompiler::GetSystemUniformBuffersTable())
-		{
-			mUniformBuffersInfo.emplace(currSystemUniformBufferDesc.first, currSystemUniformBufferDesc.second);
-		}
-
-		// \note Uniforms info
-		result = result | pReader->BeginGroup(TShaderParametersArchiveKeys::mUniformsInfoGroupKeyId);
-		{
-			TUniformBufferDesc uniformBufferDesc;
-			TShaderUniformDesc uniformDesc;
-
-			while (pReader->HasNextItem())
-			{
-				result = result | pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
-				{
-					result = result | pReader->BeginGroup(TShaderParametersArchiveKeys::mSingleUniformBufferInfoGroupKeyId);
-					{
-						std::string name = pReader->GetString(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mNameKeyId);
-						
-						uniformBufferDesc.mSlot  = pReader->GetUInt8(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mSlotKeyId);
-						uniformBufferDesc.mSize  = pReader->GetUInt64(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mSizeKeyId);
-						uniformBufferDesc.mFlags = static_cast<E_UNIFORM_BUFFER_DESC_FLAGS>(pReader->GetUInt32(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mFlagsKeyId));
-						uniformBufferDesc.mBufferIndex = pReader->GetUInt32(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mBufferIndexKeyId);
-						
-						// variables
-						result = result | pReader->BeginGroup(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mVariablesKeyId);
-						{
-							while (pReader->HasNextItem())
-							{
-								result = result | pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
-								{
-									result = result | pReader->BeginGroup(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mSingleVariableKeyId);
-									{
-										uniformDesc.mName = pReader->GetString(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mIdKeyId);
-										uniformDesc.mSize = pReader->GetUInt64(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mSizeKeyId);
-										uniformDesc.mOffset = pReader->GetUInt64(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mOffsetKeyId);
-										uniformDesc.mTypeId = static_cast<TypeId>(pReader->GetInt32(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mTypeKeyId));
-										uniformDesc.mIsArray = pReader->GetBool(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mIsArrayKeyId);
-
-										uniformBufferDesc.mVariables.emplace_back(uniformDesc);
-									}
-									result = result | pReader->EndGroup();
-								}
-								result = result | pReader->EndGroup();
-							}
-						}
-						result = result | pReader->EndGroup();
-
-						mUniformBuffersInfo.emplace(name, uniformBufferDesc);
-					}
-					result = result | pReader->EndGroup();
-				}
-				result = result | pReader->EndGroup();
-			}
-		}
-		result = result | pReader->EndGroup();
-
-		// \note Resources info
-		result = result | pReader->BeginGroup(TShaderParametersArchiveKeys::mShaderResourcesGroupKeyId);
-		{
-			TShaderResourceDesc resourceDesc;
-
-			while (pReader->HasNextItem())
-			{
-				result = result | pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
-				{
-					result = result | pReader->BeginGroup(TShaderParametersArchiveKeys::mSingleResourceInfoGroupKeyId);
-					{
-						std::string name = pReader->GetString(TShaderParametersArchiveKeys::TShaderResourceGroupKeys::mIdKeyId);
-
-						resourceDesc.mSlot = pReader->GetUInt8(TShaderParametersArchiveKeys::TShaderResourceGroupKeys::mSlotKeyId);
-						resourceDesc.mType = static_cast<E_SHADER_RESOURCE_TYPE>(pReader->GetInt32(TShaderParametersArchiveKeys::TShaderResourceGroupKeys::mTypeKeyId));
-
-						mShaderResourcesInfo.emplace(name, resourceDesc);
-					}
-					result = result | pReader->EndGroup();
-				}
-				result = result | pReader->EndGroup();
-			}
-		}
-		result = result | pReader->EndGroup();
-
-		// \note Stages info
-		result = result | pReader->BeginGroup(TShaderParametersArchiveKeys::mStagesInfoGroupKeyId);
-		{
-			while (pReader->HasNextItem())
-			{
-				TShaderStageInfo stageDesc;
-
-				result = result | pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
-				{
-					result = result | pReader->BeginGroup(TShaderParametersArchiveKeys::mSingleStageInfoGroupKeyId);
-					{
-						E_SHADER_STAGE_TYPE stageType = static_cast<E_SHADER_STAGE_TYPE>(pReader->GetUInt32(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mTypeKeyId));
-
-						// bytecodes per shader type
-						result = result | pReader->BeginGroup(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeEntriesTableKeyId);
-						{
-							while (pReader->HasNextItem())
-							{
-								result = result | pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
-								{
-									result = result | pReader->BeginGroup(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeEntryKeyId);
-
-									TShaderCacheBytecodeEntry bytecodeInfo;
-									bytecodeInfo.mSize = pReader->GetUInt64(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeSizeKeyId);
-									bytecodeInfo.mOffset = pReader->GetUInt64(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeOffsetKeyId);
-
-									stageDesc.mBytecodeInfo.emplace(pReader->GetString(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeTypeKeyId), bytecodeInfo);
-
-									result = result | pReader->EndGroup();
-								}
-								result = result | pReader->EndGroup();
-							}
-						}
-						result = result | pReader->EndGroup();
-
-						stageDesc.mEntrypoint = pReader->GetString(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mEntrypointNameKeyId);
-
-						mStages.emplace(stageType, stageDesc);
-					}
-					result = result | pReader->EndGroup();
-				}
-				result = result | pReader->EndGroup();
-			}
-		}
-		result = result | pReader->EndGroup();
-
-		return result;
-	}
-	
-	E_RESULT_CODE TShaderParameters::Save(IArchiveWriter* pWriter)
-	{
-		E_RESULT_CODE result = pWriter->SetUInt32("type_id", static_cast<U32>(TDE2_TYPE_ID(TShaderParameters)));
-
-		// \note Uniforms info
-		result = result | pWriter->BeginGroup(TShaderParametersArchiveKeys::mUniformsInfoGroupKeyId, true);
-		{
-			for (auto&& currUniformEntry : mUniformBuffersInfo)
-			{
-				if (E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL == (E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL & currUniformEntry.second.mFlags))
-				{
-					continue;
-				}
-
-				result = result | pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
-				{
-					result = result | pWriter->BeginGroup(TShaderParametersArchiveKeys::mSingleUniformBufferInfoGroupKeyId);
-					{
-						result = result | pWriter->SetString(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mNameKeyId, currUniformEntry.first);
-						result = result | pWriter->SetUInt8(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mSlotKeyId, currUniformEntry.second.mSlot);
-						result = result | pWriter->SetUInt64(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mSizeKeyId, currUniformEntry.second.mSize);
-						result = result | pWriter->SetUInt32(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mFlagsKeyId, static_cast<U32>(currUniformEntry.second.mFlags));
-						result = result | pWriter->SetUInt32(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mBufferIndexKeyId, currUniformEntry.second.mBufferIndex);
-
-						// variables
-						result = result | pWriter->BeginGroup(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mVariablesKeyId, true);
-						{
-							for (auto&& currVariableInfo : currUniformEntry.second.mVariables)
-							{
-								result = result | pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
-								{
-									result = result | pWriter->BeginGroup(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::mSingleVariableKeyId);
-									{
-										result = result | pWriter->SetString(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mIdKeyId, currVariableInfo.mName);
-										result = result | pWriter->SetUInt64(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mSizeKeyId, currVariableInfo.mSize);
-										result = result | pWriter->SetUInt64(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mOffsetKeyId, currVariableInfo.mOffset);
-										result = result | pWriter->SetInt32(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mTypeKeyId, static_cast<U32>(currVariableInfo.mTypeId));
-										result = result | pWriter->SetBool(TShaderParametersArchiveKeys::TUniformBufferGroupKeys::TUniformGroupKeys::mIsArrayKeyId, currVariableInfo.mIsArray);
-									}
-									result = result | pWriter->EndGroup();
-								}
-								result = result | pWriter->EndGroup();
-							}
-						}
-						result = result | pWriter->EndGroup();
-					}
-					result = result | pWriter->EndGroup();
-				}
-				result = result | pWriter->EndGroup();
-			}
-		}
-		result = result | pWriter->EndGroup();
-
-		// \note Resources info
-		result = result | pWriter->BeginGroup(TShaderParametersArchiveKeys::mShaderResourcesGroupKeyId, true);
-		{
-			for (auto&& currResourceInfo : mShaderResourcesInfo)
-			{
-				result = result | pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
-				{
-					result = result | pWriter->BeginGroup(TShaderParametersArchiveKeys::mSingleResourceInfoGroupKeyId);
-					{
-						result = result | pWriter->SetString(TShaderParametersArchiveKeys::TShaderResourceGroupKeys::mIdKeyId, currResourceInfo.first);
-						result = result | pWriter->SetUInt8(TShaderParametersArchiveKeys::TShaderResourceGroupKeys::mSlotKeyId, currResourceInfo.second.mSlot);
-						result = result | pWriter->SetInt32(TShaderParametersArchiveKeys::TShaderResourceGroupKeys::mTypeKeyId, static_cast<U32>(currResourceInfo.second.mType));
-					}
-					result = result | pWriter->EndGroup();
-				}
-				result = result | pWriter->EndGroup();
-			}
-		}
-		result = result | pWriter->EndGroup();
-
-		// \note Stages info
-		result = result | pWriter->BeginGroup(TShaderParametersArchiveKeys::mStagesInfoGroupKeyId, true);
-		{
-			for (auto&& currStageInfo : mStages)
-			{
-				result = result | pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
-				{
-					result = result | pWriter->BeginGroup(TShaderParametersArchiveKeys::mSingleStageInfoGroupKeyId);
-					{
-						result = result | pWriter->SetUInt32(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mTypeKeyId, static_cast<U32>(currStageInfo.first));
-
-						result = result | pWriter->BeginGroup(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeEntriesTableKeyId);
-
-						for (auto&& currBytecodeEntry : currStageInfo.second.mBytecodeInfo)
-						{
-							result = result | pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
-							{
-								result = result | pWriter->BeginGroup(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeEntryKeyId);
-								{
-									result = result | pWriter->SetString(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeTypeKeyId, currBytecodeEntry.first);
-									result = result | pWriter->SetUInt64(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeOffsetKeyId, currBytecodeEntry.second.mOffset);
-									result = result | pWriter->SetUInt64(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mBytecodeSizeKeyId, currBytecodeEntry.second.mSize);
-								}
-								result = result | pWriter->EndGroup();
-							}
-							result = result | pWriter->EndGroup();
-						}
-
-						result = result | pWriter->EndGroup();
-
-						result = result | pWriter->SetString(TShaderParametersArchiveKeys::TShaderStageGroupKeys::mEntrypointNameKeyId, currStageInfo.second.mEntrypoint);
-					}
-					result = result | pWriter->EndGroup();
-				}
-				result = result | pWriter->EndGroup();
-			}
-		}
-		result = result | pWriter->EndGroup();
-
-		return result;
-	}
-
 	/*!
 		\brief CBaseShader's definition
 	*/
@@ -411,17 +79,10 @@ namespace TDEngine2
 		return _initShaderInternal(pCompilerOutput);
 	}
 
-	E_RESULT_CODE CBaseShader::LoadFromShaderCache(IShaderCache* pShaderCache, const TShaderParameters* pShaderMetaData)
+	E_RESULT_CODE CBaseShader::LoadFromShaderCache(IShaderCache* pShaderCache)
 	{
 		TDE2_PROFILER_SCOPE("CBaseShader::LoadFromShaderCache");
-
-		auto pResult = _createMetaDataFromShaderParams(pShaderCache, pShaderMetaData);
-		if (!pResult || pResult->mVSByteCode.empty() || pResult->mPSByteCode.empty())
-		{
-			return RC_FAIL;
-		}
-
-		return _initShaderInternal(pResult);
+		return _initShaderInternal(pShaderCache->GetShaderMetaData(mName));
 	}
 
 	E_RESULT_CODE CBaseShader::SetUserUniformsBuffer(U8 slot, const U8* pData, USIZE dataSize)
@@ -643,6 +304,14 @@ namespace TDEngine2
 		\brief CShaderCache's definition
 	*/
 
+
+	TDE2_STATIC_CONSTEXPR U32 ShaderCacheTag = 'SDRC';
+	TDE2_STATIC_CONSTEXPR U32 ShaderEntryTag = 'SDEN';
+	TDE2_STATIC_CONSTEXPR U32 UniformsBlockTag = 'UB';
+	TDE2_STATIC_CONSTEXPR U32 ResourcesBlockTag = 'RB';
+	TDE2_STATIC_CONSTEXPR U32 StagesBlockTag = 'SB';
+
+
 	CShaderCache::CShaderCache():
 		CBaseObject()
 	{
@@ -658,15 +327,320 @@ namespace TDEngine2
 		mpCacheFileReader = pCacheReader;
 		mpCacheFileWriter = pCacheWriter;
 
-		mIntermediateCacheBuffer.resize(mpCacheFileReader->GetFileLength());
+		mShadersInfoTable.clear();
 
-		mpCacheFileReader->Read(mIntermediateCacheBuffer.data(), mIntermediateCacheBuffer.size());
-		mpCacheFileReader->Close();
+		E_RESULT_CODE result = _readShadersMetaTable();
+		if (RC_OK != result)
+		{
+			return result;
+		}
 
 		mIsInitialized = true;
 
 		return RC_OK;
 	}
+
+
+	static void CloneShaderCompilerData(TShaderCompilerOutput* pDest, const TShaderCompilerOutput* pSource)
+	{
+		for (auto&& currShaderResourceInfo : pSource->mShaderResourcesInfo)
+		{
+			pDest->mShaderResourcesInfo.emplace(currShaderResourceInfo.first, currShaderResourceInfo.second);
+		}
+
+		for (auto&& currUniformBufferInfo : pSource->mUniformBuffersInfo)
+		{
+			pDest->mUniformBuffersInfo.emplace(currUniformBufferInfo.first, currUniformBufferInfo.second);
+		}
+
+		for (auto&& currStageInfo : pSource->mStagesInfo)
+		{
+			TShaderStageInfoDesc stageInfo;
+
+			stageInfo.mEntrypointName = currStageInfo.second.mEntrypointName;
+
+			auto& bytecode = currStageInfo.second.mBytecode;
+			std::copy(bytecode.begin(), bytecode.end(), std::back_inserter(stageInfo.mBytecode));
+
+			pDest->mStagesInfo.emplace(currStageInfo.first, stageInfo);
+		}
+	}
+
+
+	E_RESULT_CODE CShaderCache::AddShaderEntity(const std::string& shaderId, const TShaderCompilerOutput* pShaderCompiledData)
+	{
+		if (shaderId.empty() || !pShaderCompiledData)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		auto pInternalShaderDataCopy = std::make_unique<TShaderCompilerOutput>();
+		CloneShaderCompilerData(pInternalShaderDataCopy.get(), pShaderCompiledData);
+
+		mShadersInfoTable.emplace(shaderId, std::move(pInternalShaderDataCopy));
+
+		mIsDirty = true;
+
+		return RC_OK;
+	}
+
+	TShaderCompilerOutput* CShaderCache::GetShaderMetaData(const std::string& shaderId)
+	{
+		auto it = mShadersInfoTable.find(shaderId);
+		
+		auto pShaderMetadata = it == mShadersInfoTable.cend() ? nullptr : it->second.get();
+		if (!pShaderMetadata)
+		{
+			return nullptr;
+		}
+
+		TShaderCompilerOutput* pShaderMetadataCopy = new(std::nothrow) TShaderCompilerOutput();
+		if (!pShaderMetadataCopy)
+		{
+			return nullptr;
+		}
+
+		CloneShaderCompilerData(pShaderMetadataCopy, pShaderMetadata);
+
+		return pShaderMetadataCopy;
+	}
+
+	bool CShaderCache::HasShaderMetaData(const std::string& shaderId) const
+	{
+		return mShadersInfoTable.find(shaderId) != mShadersInfoTable.cend();
+	}
+
+
+	struct TShaderCacheBytecodeEntry
+	{
+		USIZE mOffset = 0; ///< start position of the bytecode within the shader cache blob
+		USIZE mSize = 0; ///< size of the bytecode
+	};
+
+
+	struct TShaderStageDesc
+	{
+		TShaderCacheBytecodeEntry mBytecode;
+		std::string mEntrypoint;
+	};
+
+
+	struct TShaderDataEntry
+	{
+		std::string                                               mName;
+		std::unordered_map<std::string, TUniformBufferDesc>       mUniformBuffersInfo;		/// first key is a buffer's name, the value is the buffer's slot index and its size
+		std::unordered_map<std::string, TShaderResourceDesc>      mShaderResourcesInfo;	/// the key is a resource's name, the value is an information about resource
+		std::unordered_map<E_SHADER_STAGE_TYPE, TShaderStageDesc> mStages;
+	};
+
+
+	static E_RESULT_CODE ReadUniformsBlockEntry(IBinaryFileReader* pFileReader, TShaderDataEntry& entry)
+	{
+		if (UniformsBlockTag != pFileReader->ReadUInt32())
+		{
+			TDE2_ASSERT(false);
+			return RC_FAIL;
+		}
+
+		const U32 uniformBlocksCount = pFileReader->ReadUInt32();		
+		for (U32 i = 0; i < uniformBlocksCount; i++)
+		{
+			std::string bufferName = pFileReader->ReadString();
+
+			TUniformBufferDesc uniformBufferDesc;
+
+			uniformBufferDesc.mSlot = pFileReader->ReadUInt8();
+			uniformBufferDesc.mSize = static_cast<USIZE>(pFileReader->ReadUInt32());
+			uniformBufferDesc.mFlags = static_cast<E_UNIFORM_BUFFER_DESC_FLAGS>(pFileReader->ReadUInt32());
+			uniformBufferDesc.mBufferIndex = pFileReader->ReadUInt32();
+
+			const U32 variablesCount = pFileReader->ReadUInt32();
+
+			for (U32 currVariableIndex = 0; currVariableIndex < variablesCount; currVariableIndex++)
+			{
+				TShaderUniformDesc variableDesc;
+
+				variableDesc.mName = pFileReader->ReadString();
+				variableDesc.mOffset = static_cast<USIZE>(pFileReader->ReadUInt32());
+				variableDesc.mSize = static_cast<USIZE>(pFileReader->ReadUInt32());
+				variableDesc.mTypeId = static_cast<TypeId>(pFileReader->ReadUInt32());
+				variableDesc.mIsArray = pFileReader->ReadBool();
+
+				uniformBufferDesc.mVariables.emplace_back(variableDesc);
+			}
+
+			entry.mUniformBuffersInfo.emplace(bufferName, uniformBufferDesc);
+		}
+
+		return RC_OK;
+	}
+
+
+	static E_RESULT_CODE ReadResourcesBlockEntry(IBinaryFileReader* pFileReader, TShaderDataEntry& entry)
+	{
+		if (ResourcesBlockTag != pFileReader->ReadUInt32())
+		{
+			TDE2_ASSERT(false);
+			return RC_FAIL;
+		}
+
+		const U32 resourcesBlocksCount = pFileReader->ReadUInt32();
+		for (U32 i = 0; i < resourcesBlocksCount; i++)
+		{
+			std::string resourceName = pFileReader->ReadString();
+
+			TShaderResourceDesc desc;
+			desc.mSlot = pFileReader->ReadUInt8();
+			desc.mType = static_cast<E_SHADER_RESOURCE_TYPE>(pFileReader->ReadUInt32());
+
+			entry.mShaderResourcesInfo.emplace(resourceName, desc);
+		}
+
+		return RC_OK;
+	}
+
+
+	static E_RESULT_CODE ReadStagesBlockEntry(IBinaryFileReader* pFileReader, TShaderDataEntry& entry)
+	{
+		if (StagesBlockTag != pFileReader->ReadUInt32())
+		{
+			TDE2_ASSERT(false);
+			return RC_FAIL;
+		}
+
+		const U32 stagesBlocksCount = pFileReader->ReadUInt32();
+		for (U32 i = 0; i < stagesBlocksCount; i++)
+		{
+			const E_SHADER_STAGE_TYPE stage = static_cast<E_SHADER_STAGE_TYPE>(pFileReader->ReadUInt32());
+
+			TShaderStageDesc desc;
+			desc.mEntrypoint = pFileReader->ReadString();
+			desc.mBytecode.mOffset = static_cast<USIZE>(pFileReader->ReadUInt64());
+			desc.mBytecode.mSize = static_cast<USIZE>(pFileReader->ReadUInt64());
+
+			entry.mStages.emplace(stage, desc);
+		}
+
+		return RC_OK;
+	}
+
+
+	static E_RESULT_CODE ReadShaderEntry(IBinaryFileReader* pFileReader, std::vector<TShaderDataEntry>& shaders)
+	{
+		TShaderDataEntry newShaderEntry;
+
+		E_RESULT_CODE result = RC_OK;
+
+		newShaderEntry.mName = pFileReader->ReadString();
+
+		result = result | ReadUniformsBlockEntry(pFileReader, newShaderEntry);
+		result = result | ReadResourcesBlockEntry(pFileReader, newShaderEntry);
+		result = result | ReadStagesBlockEntry(pFileReader, newShaderEntry);
+
+		shaders.emplace_back(newShaderEntry);
+
+		return RC_OK;
+	}
+
+
+	static E_RESULT_CODE WriteUniformsBlock(IBinaryFileWriter* pFileWriter, const TShaderCompilerOutput* pShaderMetadata)
+	{
+		pFileWriter->WriteUInt32(UniformsBlockTag);
+		
+		const U32 systemBuffersCount = 
+			static_cast<U32>(std::count_if(pShaderMetadata->mUniformBuffersInfo.begin(), pShaderMetadata->mUniformBuffersInfo.end(), [](auto&& uniformBufferEntry)
+			{
+				return E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL == (uniformBufferEntry.second.mFlags & E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL);
+			}));
+
+		pFileWriter->WriteUInt32(static_cast<U32>(pShaderMetadata->mUniformBuffersInfo.size()) - systemBuffersCount);
+
+		for (auto&& currUniformBufferInfo : pShaderMetadata->mUniformBuffersInfo)
+		{
+			if (E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL == (currUniformBufferInfo.second.mFlags & E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL))
+			{
+				continue;
+			}
+
+			pFileWriter->WriteString(currUniformBufferInfo.first);
+			
+			auto& uniformBufferDesc = currUniformBufferInfo.second;
+			pFileWriter->WriteUInt8(uniformBufferDesc.mSlot);
+			pFileWriter->WriteUInt32(static_cast<U32>(uniformBufferDesc.mSize));
+			pFileWriter->WriteUInt32(static_cast<U32>(uniformBufferDesc.mFlags));
+			pFileWriter->WriteUInt32(uniformBufferDesc.mBufferIndex);
+
+			pFileWriter->WriteUInt32(static_cast<U32>(uniformBufferDesc.mVariables.size()));
+
+			for (auto&& currVariableDesc : uniformBufferDesc.mVariables)
+			{
+				pFileWriter->WriteString(currVariableDesc.mName);
+				pFileWriter->WriteUInt32(static_cast<U32>(currVariableDesc.mOffset));
+				pFileWriter->WriteUInt32(static_cast<U32>(currVariableDesc.mSize));
+				pFileWriter->WriteUInt32(static_cast<U32>(currVariableDesc.mTypeId));
+				pFileWriter->WriteBool(currVariableDesc.mIsArray);
+			}
+		}
+
+		return RC_OK;
+	}
+
+
+	static E_RESULT_CODE WriteResourcesBlock(IBinaryFileWriter* pFileWriter, const TShaderCompilerOutput* pShaderMetadata)
+	{
+		pFileWriter->WriteUInt32(ResourcesBlockTag);
+		pFileWriter->WriteUInt32(static_cast<U32>(pShaderMetadata->mShaderResourcesInfo.size()));
+
+		for (auto&& currResourceBindingInfo : pShaderMetadata->mShaderResourcesInfo)
+		{
+			pFileWriter->WriteString(currResourceBindingInfo.first);
+			
+			pFileWriter->WriteUInt8(currResourceBindingInfo.second.mSlot);
+			pFileWriter->WriteUInt32(static_cast<U32>(currResourceBindingInfo.second.mType));
+		}
+
+		return RC_OK;
+	}
+
+	static E_RESULT_CODE WriteStagesBlock(IBinaryFileWriter* pFileWriter, const TShaderCompilerOutput* pShaderMetadata, std::vector<U8>& shadersBytecode)
+	{
+		pFileWriter->WriteUInt32(StagesBlockTag);
+		pFileWriter->WriteUInt32(static_cast<U32>(pShaderMetadata->mStagesInfo.size()));
+
+		for (auto&& currStageInfo : pShaderMetadata->mStagesInfo)
+		{
+			pFileWriter->WriteUInt32(static_cast<U32>(currStageInfo.first));
+			
+			pFileWriter->WriteString(currStageInfo.second.mEntrypointName);
+			
+			const USIZE currOffset = shadersBytecode.size();
+			std::copy(currStageInfo.second.mBytecode.begin(), currStageInfo.second.mBytecode.end(), std::back_inserter(shadersBytecode));
+
+			pFileWriter->WriteUInt64(static_cast<U64>(currOffset));
+			pFileWriter->WriteUInt64(static_cast<U64>(currStageInfo.second.mBytecode.size()));
+		}
+
+		return RC_OK;
+	}
+
+
+	static E_RESULT_CODE WriteShadersEntriesTable(IBinaryFileWriter* pFileWriter, const CShaderCache::TShadersDataTable& shaders, std::vector<U8>& shadersBytecode)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		for (auto&& currShaderEntry : shaders)
+		{
+			result = result | pFileWriter->WriteUInt32(ShaderEntryTag);
+			result = result | pFileWriter->WriteString(currShaderEntry.first);
+
+			result = result | WriteUniformsBlock(pFileWriter, currShaderEntry.second.get());
+			result = result | WriteResourcesBlock(pFileWriter, currShaderEntry.second.get());
+			result = result | WriteStagesBlock(pFileWriter, currShaderEntry.second.get(), shadersBytecode);
+		}
+
+		return result;
+	}
+
 
 	E_RESULT_CODE CShaderCache::Dump()
 	{
@@ -681,45 +655,117 @@ namespace TDEngine2
 		}
 
 		E_RESULT_CODE result = mpCacheFileWriter->SetPosition(0);
-		result = result | mpCacheFileWriter->Write(mIntermediateCacheBuffer.data(), mIntermediateCacheBuffer.size());
-		result = result | mpCacheFileWriter->Flush();
+		result = result | mpCacheFileWriter->WriteUInt32(ShaderCacheTag);
+		result = result | mpCacheFileWriter->WriteUInt32(static_cast<U32>(mShadersInfoTable.size()));
+		result = result | mpCacheFileWriter->WriteUInt64(0);
+
+		std::vector<U8> shadersBytecode;
+
+		result = result | WriteShadersEntriesTable(mpCacheFileWriter, mShadersInfoTable, shadersBytecode);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		const U64 currFilePosition = static_cast<U64>(mpCacheFileWriter->GetPosition());
+
+		result = result | mpCacheFileWriter->Write(shadersBytecode.data(), shadersBytecode.size());
+		mpCacheFileWriter->SetPosition(sizeof(U32) * 2);
+		mpCacheFileWriter->WriteUInt64(currFilePosition);
 
 		mIsDirty = false;
 
 		return result;
 	}
 
-	TResult<TShaderCacheBytecodeEntry> CShaderCache::AddShaderBytecode(const std::vector<U8>& bytecode)
+
+	static E_RESULT_CODE ConstructShadersMetadataFromEntries(const std::vector<TShaderDataEntry>& shaders, const std::vector<U8>& shadersBytecode, CShaderCache::TShadersDataTable& compiledShadersData)
 	{
-		if (bytecode.empty())
+		for (auto&& currShaderEntry : shaders)
 		{
-			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+			auto pShaderMetadata = std::make_unique<TShaderCompilerOutput>();
+
+			for (auto&& currShaderResourceInfo : currShaderEntry.mShaderResourcesInfo)
+			{
+				pShaderMetadata->mShaderResourcesInfo.emplace(currShaderResourceInfo.first, currShaderResourceInfo.second);
+			}
+
+			for (auto&& currUniformBufferInfo : CBaseShaderCompiler::GetSystemUniformBuffersTable()) // firstly add system buffers
+			{
+				pShaderMetadata->mUniformBuffersInfo.emplace(currUniformBufferInfo.first, currUniformBufferInfo.second);
+			}
+
+			for (auto&& currUniformBufferInfo : currShaderEntry.mUniformBuffersInfo)
+			{
+				pShaderMetadata->mUniformBuffersInfo.emplace(currUniformBufferInfo.first, currUniformBufferInfo.second);
+			}
+
+			for (auto&& currStageInfo : currShaderEntry.mStages)
+			{
+				TShaderStageInfoDesc stageInfo;
+
+				stageInfo.mEntrypointName = currStageInfo.second.mEntrypoint;
+
+				stageInfo.mBytecode.resize(static_cast<USIZE>(currStageInfo.second.mBytecode.mSize));
+				memcpy(stageInfo.mBytecode.data(), &shadersBytecode[currStageInfo.second.mBytecode.mOffset], stageInfo.mBytecode.size());
+
+				pShaderMetadata->mStagesInfo.emplace(currStageInfo.first, stageInfo);
+			}
+
+			compiledShadersData.emplace(currShaderEntry.mName, std::move(pShaderMetadata));
 		}
 
-		mIsDirty = true;
-		
-		TShaderCacheBytecodeEntry info;
-		info.mOffset = mIntermediateCacheBuffer.size();
-		info.mSize = bytecode.size();
-
-		std::copy(bytecode.begin(), bytecode.end(), std::back_inserter(mIntermediateCacheBuffer));
-
-		return Wrench::TOkValue<TShaderCacheBytecodeEntry>(info);
+		return RC_OK;
 	}
 
-	std::vector<U8> CShaderCache::GetBytecode(const TShaderCacheBytecodeEntry& info)
+
+	E_RESULT_CODE CShaderCache::_readShadersMetaTable()
 	{
-		if (info.mOffset + info.mSize >= mIntermediateCacheBuffer.size())
+		if (mpCacheFileReader->GetFileLength() < 1)
 		{
-			return {};
+			return RC_OK;
 		}
 
-		std::vector<U8> buffer;
-		buffer.resize(info.mSize);
+		if (ShaderCacheTag != mpCacheFileReader->ReadUInt32())
+		{
+			return RC_INVALID_FILE;
+		}
 
-		memcpy(buffer.data(), &mIntermediateCacheBuffer[info.mOffset], info.mSize);
+		// \note header
+		const U32 shadersCount = mpCacheFileReader->ReadUInt32();
+		const U64 shadersBytecodeOffset = mpCacheFileReader->ReadUInt64();
 
-		return buffer;
+		E_RESULT_CODE result = RC_OK;
+
+		std::vector<TShaderDataEntry> shaders;
+
+		for (U32 i = 0; i < shadersCount; i++)
+		{
+			if (ShaderEntryTag != mpCacheFileReader->ReadUInt32())
+			{
+				continue;
+			}
+
+			result = result | ReadShaderEntry(mpCacheFileReader, shaders);
+		}
+		
+		std::vector<U8> shadersBytecode;
+
+		result = result | mpCacheFileReader->SetPosition(static_cast<USIZE>(shadersBytecodeOffset));
+		shadersBytecode.resize(mpCacheFileReader->GetFileLength() - static_cast<USIZE>(shadersBytecodeOffset));
+		result = result | mpCacheFileReader->Read(shadersBytecode.data(), shadersBytecode.size());
+
+		result = result | mpCacheFileReader->Close();
+
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		// \note Construct TShaderCompilerOutput from shaders descriptions entries
+		result = result | ConstructShadersMetadataFromEntries(shaders, shadersBytecode, mShadersInfoTable);
+
+		return result;
 	}
 
 

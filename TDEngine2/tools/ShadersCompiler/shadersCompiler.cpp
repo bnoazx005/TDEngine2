@@ -85,57 +85,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		auto pShaderMetadata = pShader->GetShaderMetaData();
-
-		for (auto&& currResourceEntry : pShaderMetadata->mShaderResourcesInfo)
-		{
-			pShaderParams->mShaderResourcesInfo.emplace(currResourceEntry.first, currResourceEntry.second);
-		}
-
-		for (auto&& currUniformBufferEntry : pShaderMetadata->mUniformBuffersInfo)
-		{
-			pShaderParams->mUniformBuffersInfo.emplace(currUniformBufferEntry.first, currUniformBufferEntry.second);
-		}
-
-		for (auto&& currEntryPoint : pShaderMetadata->mEntryPointsTable)
-		{
-			TShaderStageInfo stageInfo;
-			stageInfo.mEntrypoint = currEntryPoint.second;
-
-			pShaderParams->mStages.emplace(currEntryPoint.first, stageInfo);
-		}
-
-		std::array<std::reference_wrapper<const std::vector<U8>>, SST_NONE> shaderStagesBytecodes
-		{
-			pShaderMetadata->mVSByteCode,
-			pShaderMetadata->mPSByteCode,
-			pShaderMetadata->mGSByteCode,
-			pShaderMetadata->mCSByteCode,
-		};
-
-		for (USIZE i = 0; i < shaderStagesBytecodes.size(); i++)
-		{
-			if (shaderStagesBytecodes[i].get().empty())
-			{
-				continue;
-			}
-
-			pShaderParams->mStages[static_cast<E_SHADER_STAGE_TYPE>(i)]
-				.mBytecodeInfo[pShaderMetadata->mShaderLanguageId] = pShaderCache->AddShaderBytecode(shaderStagesBytecodes[i]).Get();
-		}
-
-		if (pShaderParams->mUniformBuffersInfo.empty())
-		{
-			return RC_FAIL;
-		}
-
-		auto pResourcesManifest = pResourceManager->GetResourcesRuntimeManifest();
-		if (!pResourcesManifest)
-		{
-			return RC_FAIL;
-		}
-
-		return pResourcesManifest->AddResourceMeta(shaderPath, std::move(pParameters));
+		return pShaderCache->AddShaderEntity(DynamicPtrCast<CBaseResource>(pShader)->GetName(), pShader->GetShaderMetaData());
 	}
 
 
@@ -155,15 +105,6 @@ namespace TDEngine2
 		}
 
 		result = result | pShaderCache->Dump();
-
-		auto&& pResourcesManifest = pResourceManager->GetResourcesRuntimeManifest();
-
-		auto openManifestFileResult = pFileSystem->Open<IYAMLFileWriter>(CProjectSettings::Get()->mCommonSettings.mPathToResourcesRuntimeManifest);
-		if (IYAMLFileWriter* pManifestFile = pFileSystem->Get<IYAMLFileWriter>(openManifestFileResult.Get()))
-		{
-			result = result | pResourcesManifest->Save(pManifestFile);
-			result = result | pManifestFile->Close();
-		}
 
 		return result;
 	}

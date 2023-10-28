@@ -97,9 +97,9 @@ namespace TDEngine2
 			currOffset += CD3D11Mappings::GetFormatSize((*iter).mFormatType);
 		}
 
-		TShaderBytecodeDesc vsBytecodeDesc = pD3D11Shader->GetVertexShaderBytecode();
+		auto&& vsBytecodeDesc = pD3D11Shader->GetVertexShaderBytecode();
 
-		if (FAILED(p3dDevice->CreateInputLayout(&elements[0], static_cast<UINT>(elements.size()), vsBytecodeDesc.mpBytecode, vsBytecodeDesc.mLength, &pInputLayout)))
+		if (FAILED(p3dDevice->CreateInputLayout(&elements[0], static_cast<UINT>(elements.size()), vsBytecodeDesc.data(), vsBytecodeDesc.size(), &pInputLayout)))
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}

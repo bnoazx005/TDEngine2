@@ -107,11 +107,11 @@ namespace TDEngine2
 	} TUniformBufferDesc, *TUniformBufferDescPtr;
 
 
-	typedef struct TShaderCacheBytecodeEntry
+	typedef struct TShaderStageInfoDesc
 	{
-		USIZE mOffset = 0; ///< start position of the bytecode within the shader cache blob
-		USIZE mSize = 0; ///< size of the bytecode
-	} TShaderCacheBytecodeEntry, *TShaderCacheBytecodeEntryPtr;
+		std::vector<U8> mBytecode;
+		std::string     mEntrypointName;
+	} TShaderStageInfoDesc, *TShaderStageInfoDescPtr;
 
 
 	/*!
@@ -124,18 +124,11 @@ namespace TDEngine2
 	{
 		virtual ~TShaderCompilerOutput() = default;
 
-		std::unordered_map<std::string, TUniformBufferDesc>  mUniformBuffersInfo; /// first key is a buffer's name, the value is the buffer's slot index and its size
+		std::unordered_map<std::string, TUniformBufferDesc>           mUniformBuffersInfo; /// first key is a buffer's name, the value is the buffer's slot index and its size
 
-		std::unordered_map<std::string, TShaderResourceDesc> mShaderResourcesInfo;	/// the key is a resource's name, the value is an information about resource  
+		std::unordered_map<std::string, TShaderResourceDesc>          mShaderResourcesInfo;	/// the key is a resource's name, the value is an information about resource  
 
-		std::unordered_map<E_SHADER_STAGE_TYPE, std::string> mEntryPointsTable;
-
-		std::vector<U8> mVSByteCode;
-		std::vector<U8> mPSByteCode;
-		std::vector<U8> mGSByteCode;
-		std::vector<U8> mCSByteCode;
-
-		std::string mShaderLanguageId;
+		std::unordered_map<E_SHADER_STAGE_TYPE, TShaderStageInfoDesc> mStagesInfo;
 	} TShaderCompilerOutput, *TShaderCompilerOutputPtr;
 
 

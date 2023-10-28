@@ -39,12 +39,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		if (mVertexShaderBytecode.mpBytecode)
-		{
-			delete[] mVertexShaderBytecode.mpBytecode;
-
-			mVertexShaderBytecode.mpBytecode = nullptr;
-		}
+		mVertexShaderBytecode.clear();
 
 		mp3dDeviceContext = nullptr;
 
@@ -79,21 +74,9 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D11Shader::_createInternalHandlers(const TShaderCompilerOutput* pCompilerData)
 	{
-		const TD3D11ShaderCompilerOutput* pD3D11ShaderCompilerData = dynamic_cast<const TD3D11ShaderCompilerOutput*>(pCompilerData);
-
-		if (!pD3D11ShaderCompilerData)
+		if (!pCompilerData)
 		{
 			return RC_INVALID_ARGS;
-		}
-		
-		USIZE bytecodeSize = pD3D11ShaderCompilerData->mVSByteCode.size();
-
-		mVertexShaderBytecode.mpBytecode = new U8[bytecodeSize];		
-		mVertexShaderBytecode.mLength = bytecodeSize;
-
-		if (bytecodeSize > 0)
-		{
-			memcpy(mVertexShaderBytecode.mpBytecode, &pD3D11ShaderCompilerData->mVSByteCode[0], bytecodeSize * sizeof(U8));
 		}
 		
 		TGraphicsCtxInternalData graphicsInternalData = mpGraphicsContext->GetInternalData();
@@ -110,44 +93,71 @@ namespace TDEngine2
 		mp3dDeviceContext = graphicsInternalData.mD3D11.mp3dDeviceContext;
 #endif
 
-		if (bytecodeSize > 0) /// create a vertex shader
+		USIZE bytecodeSize = 0;
+
+		auto it = pCompilerData->mStagesInfo.find(SST_VERTEX);
+		if (it != pCompilerData->mStagesInfo.end())
 		{
-			if (FAILED(p3dDevice->CreateVertexShader(&pD3D11ShaderCompilerData->mVSByteCode[0], bytecodeSize, nullptr, &mpVertexShader)))
+			bytecodeSize = it->second.mBytecode.size();
+
+			mVertexShaderBytecode.resize(bytecodeSize);
+
+			if (bytecodeSize > 0)
 			{
-				return RC_FAIL;
+				memcpy(mVertexShaderBytecode.data(), &it->second.mBytecode[0], bytecodeSize * sizeof(U8));
+			}
+
+			if (bytecodeSize > 0) /// create a vertex shader
+			{
+				if (FAILED(p3dDevice->CreateVertexShader(&it->second.mBytecode[0], bytecodeSize, nullptr, &mpVertexShader)))
+				{
+					return RC_FAIL;
+				}
 			}
 		}
 
 		/// create a pixel shader
-		bytecodeSize = pD3D11ShaderCompilerData->mPSByteCode.size();
-
-		if (bytecodeSize > 0)
+		it = pCompilerData->mStagesInfo.find(SST_PIXEL);
+		if (it != pCompilerData->mStagesInfo.end())
 		{
-			if (FAILED(p3dDevice->CreatePixelShader(&pD3D11ShaderCompilerData->mPSByteCode[0], bytecodeSize, nullptr, &mpPixelShader)))
+			bytecodeSize = it->second.mBytecode.size();
+
+			if (bytecodeSize > 0)
 			{
-				return RC_FAIL;
+				if (FAILED(p3dDevice->CreatePixelShader(&it->second.mBytecode[0], bytecodeSize, nullptr, &mpPixelShader)))
+				{
+					return RC_FAIL;
+				}
 			}
 		}
 
 		/// create a geometry shader
-		bytecodeSize = pD3D11ShaderCompilerData->mGSByteCode.size();
-
-		if (bytecodeSize > 0)
+		it = pCompilerData->mStagesInfo.find(SST_GEOMETRY);
+		if (it != pCompilerData->mStagesInfo.end())
 		{
-			if (FAILED(p3dDevice->CreateGeometryShader(&pD3D11ShaderCompilerData->mGSByteCode[0], bytecodeSize, nullptr, &mpGeometryShader)))
+			bytecodeSize = it->second.mBytecode.size();
+
+			if (bytecodeSize > 0)
 			{
-				return RC_FAIL;
+				if (FAILED(p3dDevice->CreateGeometryShader(&it->second.mBytecode[0], bytecodeSize, nullptr, &mpGeometryShader)))
+				{
+					return RC_FAIL;
+				}
 			}
 		}
 
 		/// create a compute shader
-		bytecodeSize = pD3D11ShaderCompilerData->mCSByteCode.size();
-
-		if (bytecodeSize > 0)
+		it = pCompilerData->mStagesInfo.find(SST_COMPUTE);
+		if (it != pCompilerData->mStagesInfo.end())
 		{
-			if (FAILED(p3dDevice->CreateComputeShader(&pD3D11ShaderCompilerData->mCSByteCode[0], bytecodeSize, nullptr, &mpComputeShader)))
+			bytecodeSize = it->second.mBytecode.size();
+
+			if (bytecodeSize > 0)
 			{
-				return RC_FAIL;
+				if (FAILED(p3dDevice->CreateComputeShader(&it->second.mBytecode[0], bytecodeSize, nullptr, &mpComputeShader)))
+				{
+					return RC_FAIL;
+				}
 			}
 		}
 
@@ -191,52 +201,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	TShaderCompilerOutput* CD3D11Shader::_createMetaDataFromShaderParams(IShaderCache* pShaderCache, const TShaderParameters* pShaderParams)
-	{
-		static const std::string ShaderLangId = "hlsl";
-
-		TD3D11ShaderCompilerOutput* pResult = new TD3D11ShaderCompilerOutput();
-		
-		for (auto&& currShaderResourceInfo : pShaderParams->mShaderResourcesInfo)
-		{
-			pResult->mShaderResourcesInfo.emplace(currShaderResourceInfo.first, currShaderResourceInfo.second);
-		}
-
-		for (auto&& currUniformBufferInfo : pShaderParams->mUniformBuffersInfo)
-		{
-			pResult->mUniformBuffersInfo.emplace(currUniformBufferInfo.first, currUniformBufferInfo.second);
-		}
-
-		auto it = pShaderParams->mStages.find(E_SHADER_STAGE_TYPE::SST_VERTEX);
-		if (it != pShaderParams->mStages.cend())
-		{
-			pResult->mVSByteCode = std::move(pShaderCache->GetBytecode(it->second.mBytecodeInfo.at(ShaderLangId)));
-		}
-
-		it = pShaderParams->mStages.find(E_SHADER_STAGE_TYPE::SST_PIXEL);
-		if (it != pShaderParams->mStages.cend())
-		{
-			pResult->mPSByteCode = std::move(pShaderCache->GetBytecode(it->second.mBytecodeInfo.at(ShaderLangId)));
-		}
-
-		it = pShaderParams->mStages.find(E_SHADER_STAGE_TYPE::SST_GEOMETRY);
-		if (it != pShaderParams->mStages.cend())
-		{
-			pResult->mGSByteCode = std::move(pShaderCache->GetBytecode(it->second.mBytecodeInfo.at(ShaderLangId)));
-		}
-
-		it = pShaderParams->mStages.find(E_SHADER_STAGE_TYPE::SST_COMPUTE);
-		if (it != pShaderParams->mStages.cend())
-		{
-			pResult->mCSByteCode = std::move(pShaderCache->GetBytecode(it->second.mBytecodeInfo.at(ShaderLangId)));
-		}
-
-		pResult->mShaderLanguageId = ShaderLangId;
-
-		return pResult;
-	}
-	
-	const TShaderBytecodeDesc& CD3D11Shader::GetVertexShaderBytecode() const
+	const std::vector<U8>& CD3D11Shader::GetVertexShaderBytecode() const
 	{
 		return mVertexShaderBytecode;
 	}

@@ -112,14 +112,13 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		/// \note If there is meta information within the manifest try to read precompiled shader first
-		const TShaderParameters* pShaderMetaInfo = dynamic_cast<const TShaderParameters*>(mpResourceManager->GetResourceMeta(pResource->GetName()));
-		if (!pShaderMetaInfo || !CProjectSettings::Get()->mGraphicsSettings.mIsShaderCacheEnabled)
+		/// \note If there is meta information within the manifest try to read precompiled shader first		
+		if (!mpShaderCache->HasShaderMetaData(pResource->GetName()) || !CProjectSettings::Get()->mGraphicsSettings.mIsShaderCacheEnabled)
 		{
 			return CompileShader(mpShaderCompiler.Get(), pResource->GetName(), pShader, mpGraphicsContext, mpFileSystem);
 		}
 
-		if (RC_OK != (result = pShader->LoadFromShaderCache(mpShaderCache.Get(), pShaderMetaInfo)))
+		if (RC_OK != (result = pShader->LoadFromShaderCache(mpShaderCache.Get())))
 		{ 
 			// if we failed in loading of precompiled shader try to compile it in runtime
 			return CompileShader(mpShaderCompiler.Get(), pResource->GetName(), pShader, mpGraphicsContext, mpFileSystem);

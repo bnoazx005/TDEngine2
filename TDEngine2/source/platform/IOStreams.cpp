@@ -142,11 +142,13 @@ namespace TDEngine2
 			return 0;
 		}
 
+		const USIZE currPosition = GetPosition();
+
 		mInternalStream.seekg(0, std::ios::end);
 		TSizeType length = static_cast<TSizeType>(mInternalStream.tellg());
 
 		mInternalStream.clear();   // \note Since ignore will have set eof.
-		mInternalStream.seekg(0, std::ios_base::beg);
+		mInternalStream.seekg(currPosition);
 
 		return length;
 	}
