@@ -125,6 +125,22 @@ namespace TDEngine2
 		return SwapBytes(value);
 	}
 
+	std::string CBinaryFileReader::ReadString()
+	{
+		std::string value;
+
+		const U32 stringLength = ReadUInt32();
+		if (!stringLength || stringLength == std::numeric_limits<U32>::max())
+		{
+			return value;
+		}
+
+		value.resize(static_cast<USIZE>(stringLength));
+		Read(&value[0], value.size());
+
+		return value;
+	}
+
 	E_RESULT_CODE CBinaryFileReader::Read(void* pBuffer, TSizeType bufferSize)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);

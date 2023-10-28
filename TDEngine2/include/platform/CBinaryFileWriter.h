@@ -52,6 +52,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE WriteBool(bool value) override;
 
+			TDE2_API E_RESULT_CODE WriteString(const std::string& value) override;
+
 			/*!
 				\brief The method writes data of specified size into a file
 

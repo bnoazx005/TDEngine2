@@ -78,6 +78,14 @@ namespace TDEngine2
 		return Write(&value, sizeof(value));
 	}
 
+	E_RESULT_CODE CBinaryFileWriter::WriteString(const std::string& value)
+	{
+		E_RESULT_CODE result = WriteUInt32(static_cast<U32>(value.length()));
+		result = result | Write(value.data(), value.length());
+
+		return result;
+	}
+
 	E_RESULT_CODE CBinaryFileWriter::Write(const void* pBuffer, TSizeType bufferSize)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);

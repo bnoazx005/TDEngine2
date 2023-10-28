@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.22] 2023-10-26
+## [0.6.22] 2023-10-28
 
 ### Added
 
@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new utility **tde2_shaders_compilation** for shaders compilation was created.
 
 - glslang library was added as a dependency for GLGraphicsContext.
+
+- Extend API of **IBinaryFileReader** with a new method ReadString. And its writer interface **IBinaryFileWriter** got new method WriteString.
 
 ### Changed
 

@@ -279,6 +279,8 @@ namespace TDEngine2
 
 			TDE2_API virtual bool ReadBool() = 0;
 
+			TDE2_API virtual std::string ReadString() = 0;
+
 			/*!
 				\brief The method reads a continuous block of a file of specified size
 				into a given buffer. Read doesn't take into account endianness of current machine
@@ -433,6 +435,8 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE WriteDouble(F64 value) = 0;
 
 			TDE2_API virtual E_RESULT_CODE WriteBool(bool value) = 0;
+
+			TDE2_API virtual E_RESULT_CODE WriteString(const std::string& value) = 0;
 
 			/*!
 				\brief The method writes data of specified size into a file. If you need endian independent 

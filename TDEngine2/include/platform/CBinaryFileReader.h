@@ -53,6 +53,8 @@ namespace TDEngine2
 
 			TDE2_API bool ReadBool() override;
 
+			TDE2_API std::string ReadString() override;
+
 			/*!
 				\brief The method reads a continuous block of a file of specified size
 				into a given buffer
