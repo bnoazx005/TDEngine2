@@ -9,6 +9,7 @@
 #include <platform/CTextFileReader.h>
 #include <utils/CFileLogger.h>
 #include <editor/CPerfProfiler.h>
+#include <core/CProjectSettings.h>
 #include <algorithm>
 #include <cctype>
 #include <vector>
@@ -55,7 +56,8 @@ namespace TDEngine2
 		MarkColorDataUniforms(shaderMetadata);
 
 		auto compileShaderStagesResult = 
-			GLEW_ARB_spirv_extensions ? _compileAllStagesToSPIRV(preprocessedSource, shaderMetadata) : _compileAllStagesInRuntime(preprocessedSource, shaderMetadata);
+			/*GLEW_ARB_spirv_extensions && CProjectSettings::Get()->mGraphicsSettings.mIsShaderCacheEnabled ?
+			_compileAllStagesToSPIRV(preprocessedSource, shaderMetadata) :*/ _compileAllStagesInRuntime(preprocessedSource, shaderMetadata);
 
 		if (compileShaderStagesResult.HasError())
 		{
