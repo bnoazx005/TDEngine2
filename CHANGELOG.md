@@ -47,6 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Extend API of **IArchiveWriter** with two methods that allow to store temporary user data during existance of a writer.
 
+- Now graphics context plugin can be specified through command line argument 'graphics'.
+
 ### Changed
 
 - ImGUIContext: Now debug UI is always drawn on top of all in-game UI elements.

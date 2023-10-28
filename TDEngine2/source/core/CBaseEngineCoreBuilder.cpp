@@ -117,12 +117,8 @@ namespace TDEngine2
 			return result;
 		}
 
-#if defined (TDE2_USE_WINPLATFORM)
-		result = mpPluginManagerInstance->LoadPlugin(rendererPluginPath);
-#elif defined (TDE2_USE_UNIXPLATFORM)
-		result = mpPluginManagerInstance->LoadPlugin(rendererPluginPath);
-#else
-#endif
+		auto&& renderPluginFromCLI = CProgramOptions::Get()->GetValueOrDefault("graphics", rendererPluginPath);
+		result = mpPluginManagerInstance->LoadPlugin(renderPluginFromCLI.empty() ? rendererPluginPath : renderPluginFromCLI);
 
 		mpGraphicsContextInstance = mpEngineCoreInstance->GetSubsystem<IGraphicsContext>();
 

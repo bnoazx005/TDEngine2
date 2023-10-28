@@ -23,9 +23,9 @@ TDEngine2::E_RESULT_CODE ParseOptions(int argc, const char** argv)
 	TDEngine2::CProgramOptions::TParseArgsParams optionsParams;
 	optionsParams.mArgsCount = argc;
 	optionsParams.mpArgsValues = argv;
-	optionsParams.mpProgramUsageStr = "tde2_shaders_compiler --resources_manifest \"path_to_manifest\"";
+	optionsParams.mpProgramUsageStr = "tde2_shaders_compiler [options]";
 
-	TDEngine2::CProgramOptions::Get()->AddArgument({ '\0', "target_graphics", "A string which determines target GAPI of shaders that should be compiled (d3d11|gl3x)", TDEngine2::CProgramOptions::TArgumentParams::E_VALUE_TYPE::STRING});
+	TDEngine2::CProgramOptions::Get()->AddArgument({ '\0', "graphics", "A string which determines target GAPI's plugin (./D3D11GraphicsContext|./GLGraphicsContext)", TDEngine2::CProgramOptions::TArgumentParams::E_VALUE_TYPE::STRING});
 
 	return TDEngine2::CProgramOptions::Get()->ParseArgs(optionsParams);
 }
