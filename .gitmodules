@@ -16,3 +16,6 @@
 [submodule "TDEngine2/deps/tina"]
 	path = TDEngine2/deps/tina
 	url = ../Tina.git
+[submodule "TDEngine2/plugins/VulkanGraphicsContext/deps/volk"]
+	path = TDEngine2/plugins/VulkanGraphicsContext/deps/volk
+	url = git@github.com:zeux/volk.git

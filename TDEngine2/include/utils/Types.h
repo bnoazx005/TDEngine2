@@ -129,6 +129,7 @@ namespace TDEngine2
 	{
 		GCGT_DIRECT3D11,	/// Direct3D 11.0 and above
 		GCGT_OPENGL3X,		/// OpenGL of version 3.0 and above
+		GCGT_VULKAN,		/// Vulkan GAPI
 		GCGT_UNKNOWN
 	};
 
