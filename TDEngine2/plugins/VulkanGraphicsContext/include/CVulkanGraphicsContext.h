@@ -17,9 +17,11 @@
 namespace TDEngine2
 {
 	class IEventManager;
+	class IWindowSurfaceFactory;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IEventManager)
+	TDE2_DECLARE_SCOPED_PTR(IWindowSurfaceFactory)
 
 
 	/*!
@@ -29,7 +31,7 @@ namespace TDEngine2
 	class CVulkanGraphicsContext : public IGraphicsContext, public IEventHandler, public CBaseObject
 	{
 		public:
-			friend TDE2_API IGraphicsContext* CreateVulkanGraphicsContext(TPtr<IWindowSystem>, E_RESULT_CODE&);
+			friend TDE2_API IGraphicsContext* CreateVulkanGraphicsContext(TPtr<IWindowSystem>, TPtr<IWindowSurfaceFactory>, E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_TYPE(CVulkanGraphicsContext)
 
@@ -377,12 +379,14 @@ namespace TDEngine2
 			TDE2_API std::vector<U8> GetBackBufferData() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanGraphicsContext)
+			TDE2_API CVulkanGraphicsContext(TPtr<IWindowSurfaceFactory> pWindowSurfaceFactory);
 
 			E_RESULT_CODE _onInitInternal();
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			TPtr<IWindowSystem>      mpWindowSystem;
-			TPtr<IEventManager>      mpEventManager;
+			TPtr<IWindowSystem>         mpWindowSystem;
+			TPtr<IEventManager>         mpEventManager;
+			TPtr<IWindowSurfaceFactory> mpWindowSurfaceFactory;
 
 			TGraphicsCtxInternalData mInternalDataObject;
 
@@ -392,6 +396,9 @@ namespace TDEngine2
 
 			// queues
 			VkQueue                  mGraphicsQueue;
+			VkQueue                  mPresentQueue;
+
+			VkSurfaceKHR             mSurface;
 
 #if TDE2_DEBUG_MODE
 			VkDebugUtilsMessengerEXT mDebugMessenger;
@@ -405,5 +412,5 @@ namespace TDEngine2
 		\return A pointer to VulkanGraphicsContext's implementation
 	*/
 
-	TDE2_API IGraphicsContext* CreateVulkanGraphicsContext(TPtr<IWindowSystem> pWindowSystem, E_RESULT_CODE& result);
+	TDE2_API IGraphicsContext* CreateVulkanGraphicsContext(TPtr<IWindowSystem> pWindowSystem, TPtr<IWindowSurfaceFactory> pWindowSurfaceFactory, E_RESULT_CODE& result);
 }

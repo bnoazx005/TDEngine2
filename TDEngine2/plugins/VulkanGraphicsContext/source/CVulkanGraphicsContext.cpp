@@ -1,5 +1,6 @@
 #include "../include/CVulkanGraphicsContext.h"
 #include "../include/CVulkanUtils.h"
+#include "../include/IWindowSurfaceFactory.h"
 #include <core/IEventManager.h>
 #include <core/IWindowSystem.h>
 #include <utils/CFileLogger.h>
@@ -24,6 +25,11 @@ namespace TDEngine2
 
 
 
+	CVulkanGraphicsContext::CVulkanGraphicsContext(TPtr<IWindowSurfaceFactory> pWindowSurfaceFactory):
+		CBaseObject(), mpWindowSurfaceFactory(pWindowSurfaceFactory)
+	{
+	}
+
 	CVulkanGraphicsContext::CVulkanGraphicsContext() :
 		CBaseObject()
 	{
@@ -38,7 +44,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 		
-		if (!pWindowSystem)
+		if (!pWindowSystem || !mpWindowSurfaceFactory)
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -303,15 +309,16 @@ namespace TDEngine2
 		TDE2_STATIC_CONSTEXPR U32 InvalidIndex = std::numeric_limits<U32>::max();
 
 		U32 mGraphicsQueueIndex = InvalidIndex;
+		U32 mPresentQueueIndex = InvalidIndex;
 
 		bool IsValid() const
 		{
-			return mGraphicsQueueIndex != InvalidIndex;
+			return mGraphicsQueueIndex != InvalidIndex && mPresentQueueIndex != InvalidIndex;
 		}
 	};
 
 
-	static TQueuesCreateInfo GetQueuesCreateInfo(VkPhysicalDevice physDevice)
+	static TQueuesCreateInfo GetQueuesCreateInfo(VkPhysicalDevice physDevice, VkSurfaceKHR surface)
 	{
 		TQueuesCreateInfo info;
 
@@ -326,6 +333,17 @@ namespace TDEngine2
 			if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) 
 			{
 				info.mGraphicsQueueIndex = static_cast<U32>(i);
+			}
+
+			VkBool32 presentSupport = false;
+			vkGetPhysicalDeviceSurfaceSupportKHR(physDevice, static_cast<U32>(i), surface, &presentSupport);
+			if (presentSupport)
+			{
+				info.mPresentQueueIndex = static_cast<U32>(i);
+			}
+
+			if (info.IsValid())
+			{
 				break;
 			}
 		}
@@ -405,6 +423,13 @@ namespace TDEngine2
 		InitDebugMessageOutput(mInstance, mDebugMessenger);
 #endif
 		
+		mSurface = mpWindowSurfaceFactory->GetSurface(mInstance);
+		if (VK_NULL_HANDLE == mSurface)
+		{
+			LOG_ERROR("[VulkanGraphicsContext] Failed on creating window surface");
+			return RC_FAIL;
+		}
+
 		auto pickPhysicalDeviceResult = PickPhysicalDevice(mInstance);
 		if (pickPhysicalDeviceResult.HasError())
 		{
@@ -413,7 +438,7 @@ namespace TDEngine2
 
 		mPhysicalDevice = pickPhysicalDeviceResult.Get();
 
-		auto queuesInfo = GetQueuesCreateInfo(mPhysicalDevice);
+		auto queuesInfo = GetQueuesCreateInfo(mPhysicalDevice, mSurface);
 		if (!queuesInfo.IsValid())
 		{
 			return RC_FAIL;
@@ -428,6 +453,7 @@ namespace TDEngine2
 		mDevice = createLogicalDeviceResult.Get();
 
 		vkGetDeviceQueue(mDevice, queuesInfo.mGraphicsQueueIndex, 0, &mGraphicsQueue);
+		vkGetDeviceQueue(mDevice, queuesInfo.mPresentQueueIndex, 0, &mPresentQueue);
 
 		return RC_OK;
 	}
@@ -439,6 +465,7 @@ namespace TDEngine2
 #endif
 
 		vkDestroyDevice(mDevice, nullptr);
+		vkDestroySurfaceKHR(mInstance, mSurface, nullptr);
 		vkDestroyInstance(mInstance, nullptr);
 
 		return RC_OK;
@@ -608,8 +635,24 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IGraphicsContext* CreateVulkanGraphicsContext(TPtr<IWindowSystem> pWindowSystem, E_RESULT_CODE& result)
+	TDE2_API IGraphicsContext* CreateVulkanGraphicsContext(TPtr<IWindowSystem> pWindowSystem, TPtr<IWindowSurfaceFactory> pWindowSurfaceFactory, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IGraphicsContext, CVulkanGraphicsContext, result, pWindowSystem);
+		CVulkanGraphicsContext* pGraphicsContext = new (std::nothrow) CVulkanGraphicsContext(pWindowSurfaceFactory);
+
+		if (!pGraphicsContext)
+		{
+			result = RC_OUT_OF_MEMORY;
+			return nullptr;
+		}
+
+		result = pGraphicsContext->Init(pWindowSystem);
+
+		if (result != RC_OK)
+		{
+			delete pGraphicsContext;
+			pGraphicsContext = nullptr;
+		}
+
+		return dynamic_cast<IGraphicsContext*>(pGraphicsContext);
 	}
 }

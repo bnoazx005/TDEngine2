@@ -18,7 +18,8 @@ find_package(Vulkan REQUIRED FATAL_ERROR)
 
 set(VULKAN_GCTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CVulkanGraphicsContext.h"
-	# "${CMAKE_CURRENT_SOURCE_DIR}/include/IVULKANContextFactory.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/IWindowSurfaceFactory.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/win32/CWin32WindowSurfaceFactory.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CVulkanGCtxPlugin.h"
 	# "${CMAKE_CURRENT_SOURCE_DIR}/include/CVULKANBuffer.h"
 	# "${CMAKE_CURRENT_SOURCE_DIR}/include/CVULKANVertexBuffer.h"
@@ -40,6 +41,7 @@ set(VULKAN_GCTX_HEADERS
 set(VULKAN_GCTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CVulkanGraphicsContext.cpp"	
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CVulkanGCtxPlugin.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/win32/CWin32WindowSurfaceFactory.cpp"
 	# "${CMAKE_CURRENT_SOURCE_DIR}/source/CVULKANBuffer.cpp"
 	# "${CMAKE_CURRENT_SOURCE_DIR}/source/CVULKANVertexBuffer.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CVulkanMappings.cpp"

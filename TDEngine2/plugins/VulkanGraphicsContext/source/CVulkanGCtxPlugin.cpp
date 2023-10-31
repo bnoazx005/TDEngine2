@@ -1,5 +1,6 @@
 #include "../include/CVulkanGCtxPlugin.h"
 #include "../include/CVulkanGraphicsContext.h"
+#include "../include/win32/CWin32WindowSurfaceFactory.h"
 #include <core/IEngineCore.h>
 #include <core/IGraphicsContext.h>
 #include <core/IWindowSystem.h>
@@ -30,7 +31,15 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 		
-		mpGraphicsContext = TPtr<IGraphicsContext>(CreateVulkanGraphicsContext(pEngineCore->GetSubsystem<IWindowSystem>(), result));
+		auto pWindowSurfaceFactory = TPtr<IWindowSurfaceFactory>(
+#if defined(TDE2_USE_WINPLATFORM)
+			CreateWin32WindowSurfaceFactory(pEngineCore->GetSubsystem<IWindowSystem>().Get(), result)
+#elif defined(TDE2_USE_UNIXPLATFORM)
+			nullptr
+#endif
+			);
+
+		mpGraphicsContext = TPtr<IGraphicsContext>(CreateVulkanGraphicsContext(pEngineCore->GetSubsystem<IWindowSystem>(), pWindowSurfaceFactory, result));
 		if (result != RC_OK)
 		{
 			return result;
