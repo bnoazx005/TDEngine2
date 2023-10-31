@@ -247,9 +247,145 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(CVulkanMappings::GetErrorCode(result));
 		}
 
-		//volkLoadInstance(instance);
+		volkLoadInstance(instance);
 
 		return Wrench::TOkValue<VkInstance>(instance);
+	}
+
+
+	static bool IsDeviceSuitable(VkPhysicalDevice device)
+	{
+		VkPhysicalDeviceProperties deviceProperties;
+		vkGetPhysicalDeviceProperties(device, &deviceProperties);
+		
+		VkPhysicalDeviceFeatures deviceFeatures;
+		vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
+		// \todo Implement score based selection
+		return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceFeatures.geometryShader;
+	}
+
+
+	static TResult<VkPhysicalDevice> PickPhysicalDevice(VkInstance instance)
+	{
+		U32 devicesCount = 0;
+		vkEnumeratePhysicalDevices(instance, &devicesCount, nullptr);
+
+		if (!devicesCount)
+		{
+			LOG_ERROR("[VulkanGraphicsContext] There are no supported physical devices in the system");
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		std::vector<VkPhysicalDevice> devices(devicesCount);
+		vkEnumeratePhysicalDevices(instance, &devicesCount, devices.data());
+
+		VkPhysicalDevice selectedDevice = VK_NULL_HANDLE;
+
+		for (const auto& device : devices) {
+			if (IsDeviceSuitable(device)) {
+				selectedDevice = device;
+				break;
+			}
+		}
+
+		if (VK_NULL_HANDLE == selectedDevice)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		return Wrench::TOkValue<VkPhysicalDevice>(selectedDevice);
+	}
+
+
+	struct TQueuesCreateInfo
+	{
+		TDE2_STATIC_CONSTEXPR U32 InvalidIndex = std::numeric_limits<U32>::max();
+
+		U32 mGraphicsQueueIndex = InvalidIndex;
+
+		bool IsValid() const
+		{
+			return mGraphicsQueueIndex != InvalidIndex;
+		}
+	};
+
+
+	static TQueuesCreateInfo GetQueuesCreateInfo(VkPhysicalDevice physDevice)
+	{
+		TQueuesCreateInfo info;
+
+		U32 queueFamilyCount = 0;
+		vkGetPhysicalDeviceQueueFamilyProperties(physDevice, &queueFamilyCount, nullptr);
+
+		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+		vkGetPhysicalDeviceQueueFamilyProperties(physDevice, &queueFamilyCount, queueFamilies.data());
+
+		for (USIZE i = 0; i < queueFamilies.size(); i++)
+		{
+			if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) 
+			{
+				info.mGraphicsQueueIndex = static_cast<U32>(i);
+				break;
+			}
+		}
+
+		return info;
+	}
+
+
+	static std::vector<VkDeviceQueueCreateInfo> PrepareQueuesCreateInfo(const TQueuesCreateInfo& info)
+	{
+		std::vector<VkDeviceQueueCreateInfo> queues;
+
+		VkDeviceQueueCreateInfo queueCreateInfo{};
+		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		queueCreateInfo.queueFamilyIndex = info.mGraphicsQueueIndex;
+		queueCreateInfo.queueCount = 1;
+
+		queues.emplace_back(queueCreateInfo);
+
+		return queues;
+	}
+
+
+	static TResult<VkDevice> CreateLogicDevice(VkPhysicalDevice physicalDevice, const TQueuesCreateInfo& queueCreateInfo)
+	{
+		auto&& queuesInfos = PrepareQueuesCreateInfo(queueCreateInfo);
+		std::vector<F32> queuesPriorities(queuesInfos.size(), 1.0f);
+		
+		for (USIZE i = 0; i < queuesInfos.size(); i++)
+		{
+			queuesInfos[i].pQueuePriorities = &queuesPriorities[i];
+		}
+
+		VkPhysicalDeviceFeatures deviceFeatures{};
+		
+		VkDeviceCreateInfo createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+		createInfo.pQueueCreateInfos = queuesInfos.data();
+		createInfo.queueCreateInfoCount = static_cast<U32>(queuesInfos.size());
+		createInfo.pEnabledFeatures = &deviceFeatures;
+		createInfo.enabledExtensionCount = 0;
+
+#if TDE2_DEBUG_MODE
+		createInfo.ppEnabledLayerNames = ValidationLayers.data();
+		createInfo.enabledLayerCount = static_cast<U32>(ValidationLayers.size());
+#else
+		createInfo.enabledLayerCount = 0;
+#endif
+
+		VkDevice device = VK_NULL_HANDLE;
+		
+		VkResult result = vkCreateDevice(physicalDevice, &createInfo, nullptr, &device);
+		if (VK_SUCCESS != result)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(CVulkanMappings::GetErrorCode(result));
+		}
+
+		volkLoadDevice(device);
+
+		return Wrench::TOkValue<VkDevice>(device);
 	}
 
 
@@ -268,7 +404,30 @@ namespace TDEngine2
 #if TDE2_DEBUG_MODE
 		InitDebugMessageOutput(mInstance, mDebugMessenger);
 #endif
+		
+		auto pickPhysicalDeviceResult = PickPhysicalDevice(mInstance);
+		if (pickPhysicalDeviceResult.HasError())
+		{
+			return pickPhysicalDeviceResult.GetError();
+		}
 
+		mPhysicalDevice = pickPhysicalDeviceResult.Get();
+
+		auto queuesInfo = GetQueuesCreateInfo(mPhysicalDevice);
+		if (!queuesInfo.IsValid())
+		{
+			return RC_FAIL;
+		}
+
+		auto createLogicalDeviceResult = CreateLogicDevice(mPhysicalDevice, queuesInfo);
+		if (createLogicalDeviceResult.HasError())
+		{
+			return createLogicalDeviceResult.GetError();
+		}
+
+		mDevice = createLogicalDeviceResult.Get();
+
+		vkGetDeviceQueue(mDevice, queuesInfo.mGraphicsQueueIndex, 0, &mGraphicsQueue);
 
 		return RC_OK;
 	}
@@ -279,6 +438,7 @@ namespace TDEngine2
 		DestroyDebugUtilsMessengerEXT(mInstance, mDebugMessenger, nullptr);
 #endif
 
+		vkDestroyDevice(mDevice, nullptr);
 		vkDestroyInstance(mInstance, nullptr);
 
 		return RC_OK;

@@ -386,7 +386,12 @@ namespace TDEngine2
 
 			TGraphicsCtxInternalData mInternalDataObject;
 
-			VkInstance               mInstance;
+			VkInstance               mInstance = VK_NULL_HANDLE;
+			VkPhysicalDevice         mPhysicalDevice = VK_NULL_HANDLE;
+			VkDevice                 mDevice = VK_NULL_HANDLE;
+
+			// queues
+			VkQueue                  mGraphicsQueue;
 
 #if TDE2_DEBUG_MODE
 			VkDebugUtilsMessengerEXT mDebugMessenger;
