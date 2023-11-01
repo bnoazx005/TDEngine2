@@ -114,6 +114,12 @@ namespace TDEngine2
 		VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
 #endif
 	};
+
+
+	static const std::vector<const C8*> RequiredDeviceExtensions
+	{
+		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+	};
 	
 
 	static bool CheckUpValidationLayers()
@@ -259,6 +265,29 @@ namespace TDEngine2
 	}
 
 
+	static bool CheckDeviceRequiredExtensions(VkPhysicalDevice device)
+	{
+		U32 extensionsCount;
+		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionsCount, nullptr);
+
+		std::vector<VkExtensionProperties> availableExtensions(extensionsCount);
+		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionsCount, availableExtensions.data());
+
+		USIZE supportedExtensionsCount = 0;
+
+		for (auto&& currExtension : RequiredDeviceExtensions)
+		{
+			auto it = std::find_if(availableExtensions.cbegin(), availableExtensions.cend(), [&currExtension](auto&& ext) { return strcmp(ext.extensionName, currExtension) == 0; });
+			if (it != availableExtensions.cend())
+			{
+				++supportedExtensionsCount;
+			}
+		}
+
+		return supportedExtensionsCount >= RequiredDeviceExtensions.size();
+	}
+
+
 	static bool IsDeviceSuitable(VkPhysicalDevice device)
 	{
 		VkPhysicalDeviceProperties deviceProperties;
@@ -268,7 +297,7 @@ namespace TDEngine2
 		vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
 		// \todo Implement score based selection
-		return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceFeatures.geometryShader;
+		return CheckDeviceRequiredExtensions(device) && deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceFeatures.geometryShader;
 	}
 
 
@@ -384,7 +413,9 @@ namespace TDEngine2
 		createInfo.pQueueCreateInfos = queuesInfos.data();
 		createInfo.queueCreateInfoCount = static_cast<U32>(queuesInfos.size());
 		createInfo.pEnabledFeatures = &deviceFeatures;
-		createInfo.enabledExtensionCount = 0;
+
+		createInfo.enabledExtensionCount = static_cast<U32>(RequiredDeviceExtensions.size());
+		createInfo.ppEnabledExtensionNames = RequiredDeviceExtensions.data();
 
 #if TDE2_DEBUG_MODE
 		createInfo.ppEnabledLayerNames = ValidationLayers.data();
@@ -405,6 +436,43 @@ namespace TDEngine2
 
 		return Wrench::TOkValue<VkDevice>(device);
 	}
+
+
+	struct TSwapChainSupportInfo
+	{
+		VkSurfaceCapabilitiesKHR mCapabilities;
+		std::vector<VkSurfaceFormatKHR> mFormats;
+		std::vector<VkPresentModeKHR> mPresentModes;
+	};
+
+
+	static TSwapChainSupportInfo GetSwapChainSupportInfo(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
+	{
+		TSwapChainSupportInfo info;
+
+		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &info.mCapabilities);
+
+		uint32_t formatsCount;
+		vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatsCount, nullptr);
+
+		if (formatsCount) 
+		{
+			info.mFormats.resize(formatsCount);
+			vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatsCount, info.mFormats.data());
+		}
+
+		uint32_t presentModeCount;
+		vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr);
+
+		if (presentModeCount) 
+		{
+			info.mPresentModes.resize(presentModeCount);
+			vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, info.mPresentModes.data());
+		}
+
+		return info;
+	}
+
 
 
 	E_RESULT_CODE CVulkanGraphicsContext::_onInitInternal()
@@ -455,6 +523,12 @@ namespace TDEngine2
 		vkGetDeviceQueue(mDevice, queuesInfo.mGraphicsQueueIndex, 0, &mGraphicsQueue);
 		vkGetDeviceQueue(mDevice, queuesInfo.mPresentQueueIndex, 0, &mPresentQueue);
 
+		E_RESULT_CODE result = _createSwapChain();
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
 		return RC_OK;
 	}
 
@@ -463,7 +537,12 @@ namespace TDEngine2
 #if TDE2_DEBUG_MODE
 		DestroyDebugUtilsMessengerEXT(mInstance, mDebugMessenger, nullptr);
 #endif
+		
+		for (auto currImageView : mSwapChainImageViews) {
+			vkDestroyImageView(mDevice, currImageView, nullptr);
+		}
 
+		vkDestroySwapchainKHR(mDevice, mSwapChain, nullptr);
 		vkDestroyDevice(mDevice, nullptr);
 		vkDestroySurfaceKHR(mInstance, mSurface, nullptr);
 		vkDestroyInstance(mInstance, nullptr);
@@ -632,6 +711,121 @@ namespace TDEngine2
 		};
 
 		return infoData;
+	}
+
+	E_RESULT_CODE CVulkanGraphicsContext::_createSwapChain()
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		const U32 flags = mpWindowSystem->GetFlags();
+
+		auto swapChainSupportInfo = GetSwapChainSupportInfo(mPhysicalDevice, mSurface);
+		if (swapChainSupportInfo.mFormats.empty() || swapChainSupportInfo.mPresentModes.empty())
+		{
+			return RC_FAIL;
+		}
+
+		const bool needsHardwareGammaCorrection = flags & P_HARDWARE_GAMMA_CORRECTION;
+
+		mSwapChainFormat = swapChainSupportInfo.mFormats.front();
+		for (auto&& currFormatInfo : swapChainSupportInfo.mFormats)
+		{
+			if (currFormatInfo.format == (needsHardwareGammaCorrection ? VK_FORMAT_B8G8R8A8_SRGB : VK_FORMAT_B8G8R8A8_UNORM) 
+				&& currFormatInfo.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+			{
+				mSwapChainFormat = currFormatInfo;
+				break;
+			}
+		}
+
+		const bool needsVSyncEnabled = flags & P_VSYNC;
+
+		VkPresentModeKHR presentMode = swapChainSupportInfo.mPresentModes.front();
+		for (auto&& currPresentModeInfo : swapChainSupportInfo.mPresentModes)
+		{
+			if (currPresentModeInfo == (needsVSyncEnabled ? VK_PRESENT_MODE_FIFO_KHR : VK_PRESENT_MODE_IMMEDIATE_KHR))
+			{
+				presentMode = currPresentModeInfo;
+				break;
+			}
+		}
+
+		mSwapChainExtents = swapChainSupportInfo.mCapabilities.currentExtent;
+		if (mSwapChainExtents.width == std::numeric_limits<U32>::max())
+		{
+			auto&& windowRect = mpWindowSystem->GetClientRect();
+			mSwapChainExtents.width = windowRect.width;
+			mSwapChainExtents.height = windowRect.height;
+		}
+
+		U32 imagesCount = swapChainSupportInfo.mCapabilities.minImageCount + 1;
+		imagesCount = std::min(imagesCount, swapChainSupportInfo.mCapabilities.maxImageCount);
+
+		VkSwapchainCreateInfoKHR createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+		createInfo.surface = mSurface;
+		createInfo.minImageCount = imagesCount;
+		createInfo.imageFormat = mSwapChainFormat.format;
+		createInfo.imageColorSpace = mSwapChainFormat.colorSpace;
+		createInfo.imageExtent = mSwapChainExtents;
+		createInfo.imageArrayLayers = 1;
+		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+		auto queuesInfo = GetQueuesCreateInfo(mPhysicalDevice, mSurface);
+
+		std::array<U32, 2> queuesIndices
+		{
+			queuesInfo.mGraphicsQueueIndex,
+			queuesInfo.mPresentQueueIndex,
+		};
+
+		if (queuesInfo.mGraphicsQueueIndex != queuesInfo.mPresentQueueIndex)
+		{
+			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+			createInfo.queueFamilyIndexCount = 2;
+			createInfo.pQueueFamilyIndices = queuesIndices.data();
+		}
+		else
+		{
+			createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		}
+
+		createInfo.preTransform = swapChainSupportInfo.mCapabilities.currentTransform; 
+		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+		createInfo.presentMode = presentMode;
+		createInfo.clipped = VK_TRUE;
+		createInfo.oldSwapchain = VK_NULL_HANDLE;
+
+		VK_SAFE_CALL(vkCreateSwapchainKHR(mDevice, &createInfo, nullptr, &mSwapChain));
+
+		VK_SAFE_CALL(vkGetSwapchainImagesKHR(mDevice, mSwapChain, &imagesCount, nullptr));
+		
+		mSwapChainImages.resize(static_cast<USIZE>(imagesCount));
+		VK_SAFE_CALL(vkGetSwapchainImagesKHR(mDevice, mSwapChain, &imagesCount, mSwapChainImages.data()));
+
+		mSwapChainImageViews.resize(mSwapChainImages.size());
+
+		for (USIZE i = 0; i < mSwapChainImageViews.size(); i++)
+		{
+			VkImageViewCreateInfo createInfo{};
+			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+			createInfo.image = mSwapChainImages[i];
+			createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+			createInfo.format = mSwapChainFormat.format;
+			createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			createInfo.subresourceRange.baseMipLevel = 0;
+			createInfo.subresourceRange.levelCount = 1;
+			createInfo.subresourceRange.baseArrayLayer = 0;
+			createInfo.subresourceRange.layerCount = 1;
+
+			VK_SAFE_CALL(vkCreateImageView(mDevice, &createInfo, nullptr, &mSwapChainImageViews[i]));
+		}
+
+		return result;
 	}
 
 

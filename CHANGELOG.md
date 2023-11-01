@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.22] 2023-10-28
+## [0.6.22] 2023-11-01
 
 ### Added
 
@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - glslang library was added as a dependency for GLGraphicsContext.
 
 - Extend API of **IBinaryFileReader** with a new method ReadString. And its writer interface **IBinaryFileWriter** got new method WriteString.
+
+- Add a new GAPI support which is Vulkan through VulkanGraphicsContext.
 
 ### Changed
 

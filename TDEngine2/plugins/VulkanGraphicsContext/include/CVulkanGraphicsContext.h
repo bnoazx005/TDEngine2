@@ -383,6 +383,8 @@ namespace TDEngine2
 
 			E_RESULT_CODE _onInitInternal();
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
+
+			E_RESULT_CODE _createSwapChain();
 		protected:
 			TPtr<IWindowSystem>         mpWindowSystem;
 			TPtr<IEventManager>         mpEventManager;
@@ -398,7 +400,12 @@ namespace TDEngine2
 			VkQueue                  mGraphicsQueue;
 			VkQueue                  mPresentQueue;
 
-			VkSurfaceKHR             mSurface;
+			VkSurfaceKHR             mSurface; 
+			VkSwapchainKHR           mSwapChain;
+			VkSurfaceFormatKHR       mSwapChainFormat;
+			VkExtent2D               mSwapChainExtents;
+			std::vector<VkImage>     mSwapChainImages;
+			std::vector<VkImageView> mSwapChainImageViews;
 
 #if TDE2_DEBUG_MODE
 			VkDebugUtilsMessengerEXT mDebugMessenger;
