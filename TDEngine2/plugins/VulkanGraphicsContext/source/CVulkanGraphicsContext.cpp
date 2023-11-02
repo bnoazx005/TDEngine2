@@ -691,6 +691,18 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+#if TDE2_DEBUG_MODE
+
+	void CVulkanGraphicsContext::BeginSectionMarker(const std::string& id)
+	{
+	}
+
+	void CVulkanGraphicsContext::EndSectionMarker()
+	{
+	}
+
+#endif
+
 	TEventListenerId CVulkanGraphicsContext::GetListenerId() const
 	{
 		return TEventListenerId(GetTypeId());

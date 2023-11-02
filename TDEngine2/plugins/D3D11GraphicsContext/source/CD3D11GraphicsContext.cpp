@@ -13,6 +13,7 @@
 #include <core/IWindowSystem.h>
 #include <editor/CPerfProfiler.h>
 #include <unordered_map>
+#include <d3d11_1.h>
 
 
 #if defined(TDE2_USE_WINPLATFORM)
@@ -22,6 +23,10 @@
 
 namespace TDEngine2
 {
+#if TDE2_DEBUG_MODE
+	static ID3DUserDefinedAnnotation* pAnnotation = nullptr;
+#endif
+
 	CD3D11GraphicsContext::CD3D11GraphicsContext() :
 		CBaseObject(), mpCurrDepthStencilView(nullptr)
 	{
@@ -77,8 +82,9 @@ namespace TDEngine2
 			return RC_GAPI_IS_NOT_SUPPORTED;
 		}
 
-#if _DEBUG	/// Acquiring ID3D11Debug interface
+#if TDE2_DEBUG_MODE/// Acquiring ID3D11Debug interface
 		mp3dDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&mpDebuggerInstance));
+		mp3dDeviceContext->QueryInterface(__uuidof(ID3DUserDefinedAnnotation), reinterpret_cast<void**>(&pAnnotation));
 #endif
 
 		/// create a swap chain
@@ -150,6 +156,10 @@ namespace TDEngine2
 			mp3dDeviceContext->ClearState();
 		}
 
+#if TDE2_DEBUG_MODE
+		pAnnotation->Release();
+#endif
+
 		result = result | mpGraphicsObjectManager->Free();
 		
 		result = result | SafeReleaseCOMPtr<ID3D11DepthStencilView>(&mpDefaultDepthStencilView);
@@ -158,7 +168,7 @@ namespace TDEngine2
 		result = result | SafeReleaseCOMPtr<IDXGISwapChain>(&mpSwapChain);
 		result = result | SafeReleaseCOMPtr<ID3D11DeviceContext>(&mp3dDeviceContext);
 
-#if _DEBUG
+#if TDE2_DEBUG_MODE
 		if (mpDebuggerInstance)
 		{
 			mpDebuggerInstance->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
@@ -510,6 +520,20 @@ namespace TDEngine2
 		
 		return RC_OK;
 	}
+
+#if TDE2_DEBUG_MODE
+
+	void CD3D11GraphicsContext::BeginSectionMarker(const std::string& id)
+	{
+		pAnnotation->BeginEvent(std::wstring(id.begin(), id.end()).c_str());
+	}
+
+	void CD3D11GraphicsContext::EndSectionMarker()
+	{
+		pAnnotation->EndEvent();
+	}
+
+#endif
 
 	TEventListenerId CD3D11GraphicsContext::GetListenerId() const
 	{

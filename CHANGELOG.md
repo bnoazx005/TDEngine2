@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.22] 2023-11-01
+## [0.6.22] 2023-11-02
 
 ### Added
 
@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Extend API of **IBinaryFileReader** with a new method ReadString. And its writer interface **IBinaryFileWriter** got new method WriteString.
 
 - Add a new GAPI support which is Vulkan through VulkanGraphicsContext.
+
+- Add support of marking up renderer's region to improve debug experience via graphics debuggers.
 
 ### Changed
 

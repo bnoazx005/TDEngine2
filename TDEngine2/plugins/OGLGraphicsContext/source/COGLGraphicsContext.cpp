@@ -522,6 +522,30 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+#if TDE2_DEBUG_MODE
+
+	void COGLGraphicsContext::BeginSectionMarker(const std::string& id)
+	{
+		if (!GLEW_KHR_debug)
+		{
+			return;
+		}
+
+		glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, -1, id.c_str());
+	}
+
+	void COGLGraphicsContext::EndSectionMarker()
+	{
+		if (!GLEW_KHR_debug)
+		{
+			return;
+		}
+
+		glPopDebugGroup();
+	}
+
+#endif
+
 	TEventListenerId COGLGraphicsContext::GetListenerId() const
 	{
 		return TEventListenerId(GetTypeId());

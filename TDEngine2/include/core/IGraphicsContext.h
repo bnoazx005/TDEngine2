@@ -337,6 +337,11 @@ namespace TDEngine2
 
 			TDE2_API virtual void SetDepthBufferEnabled(bool value) = 0;
 
+#if TDE2_DEBUG_MODE
+			TDE2_API virtual void BeginSectionMarker(const std::string& id) = 0;
+			TDE2_API virtual void EndSectionMarker() = 0;
+#endif
+
 			/*!
 				\brief The method returns an object that contains internal handlers that are used by the system.
 

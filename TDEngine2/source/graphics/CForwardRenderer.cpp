@@ -24,6 +24,30 @@
 
 namespace TDEngine2
 {
+#if TDE2_DEBUG_MODE
+
+	struct TGraphicsContextDebugRegion
+	{
+		TGraphicsContextDebugRegion(TPtr<IGraphicsContext> pGraphicsContext, const std::string& id):
+			mpGraphicsContext(pGraphicsContext)
+		{
+			pGraphicsContext->BeginSectionMarker(id);
+		}
+
+		~TGraphicsContextDebugRegion()
+		{
+			mpGraphicsContext->EndSectionMarker();
+		}
+
+		TPtr<IGraphicsContext> mpGraphicsContext;
+	};
+
+#define TDE_RENDER_SECTION(pGraphicsContext, id) TGraphicsContextDebugRegion TDE2_CONCAT(graphicsSection, __LINE__)(pGraphicsContext, id);
+#else
+#define TDE_RENDER_SECTION(id) 
+#endif
+
+
 	CForwardRenderer::CForwardRenderer():
 		CBaseObject(), mpMainCamera(nullptr), mpResourceManager(nullptr), mpGlobalShaderProperties(nullptr), mpFramePostProcessor(nullptr)
 	{
@@ -260,6 +284,7 @@ namespace TDEngine2
 		}
 
 		TDE2_PROFILER_SCOPE("Renderer::RenderShadows");
+		TDE_RENDER_SECTION(pGraphicsContext, "RenderShadows");
 
 		static std::vector<TResourceId> shadowMapHandles;
 		shadowMapHandles.clear();
@@ -308,6 +333,7 @@ namespace TDEngine2
 		}
 
 		TDE2_PROFILER_SCOPE("Renderer::RenderSelectionBuffer");
+		TDE_RENDER_SECTION(pGraphicsContext, "RenderSelectionBuffer");
 
 		if (!pRenderGroup->IsEmpty() && pSelectionManager)
 		{
@@ -337,6 +363,7 @@ namespace TDEngine2
 		pFramePostProcessor->Render([&]
 		{
 			TDE2_PROFILER_SCOPE("Renderer::RenderAll");
+			TDE_RENDER_SECTION(pGraphicsContext, "RenderMainPass");
 
 			const U8 firstGroupId = static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_FIRST_GROUP);
 			const U8 lastGroupId = static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_LAST_GROUP);
@@ -370,6 +397,7 @@ namespace TDEngine2
 		}
 
 		TDE2_PROFILER_SCOPE("Renderer::UI");
+		TDE_RENDER_SECTION(pGraphicsContext, "RenderUI");
 
 		pFramePostProcessor->RunPostProcess();
 
@@ -498,6 +526,7 @@ namespace TDEngine2
 	void CForwardRenderer::_prepareFrame(F32 currTime, F32 deltaTime)
 	{
 		TDE2_PROFILER_SCOPE("Renderer::PreRender");
+		TDE_RENDER_SECTION(mpGraphicsContext, "PreRender");
 
 		///set up global shader properties for TPerFrameShaderData buffer
 		TPerFrameShaderData perFrameShaderData;

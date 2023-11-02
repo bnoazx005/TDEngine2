@@ -301,6 +301,11 @@ namespace TDEngine2
 
 			TDE2_API void SetDepthBufferEnabled(bool value) override;
 
+#if TDE2_DEBUG_MODE
+			TDE2_API void BeginSectionMarker(const std::string& id) override;
+			TDE2_API void EndSectionMarker() override;
+#endif
+
 			/*!
 				\brief The method returns an object that contains internal handlers that are used by the system.
 

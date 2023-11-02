@@ -150,6 +150,20 @@ namespace TDEngine2
 		LOG_MESSAGE("[ProxyGraphicsContext] SetDepthBufferEnabled(bool)");
 	}
 
+#if TDE2_DEBUG_MODE
+
+	void CProxyGraphicsContext::BeginSectionMarker(const std::string& id)
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] BeginSectionMarker(std::string)");
+	}
+	
+	void CProxyGraphicsContext::EndSectionMarker()
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] EndSectionMarker()");
+	}
+
+#endif
+
 	const TGraphicsCtxInternalData& CProxyGraphicsContext::GetInternalData() const
 	{
 		static TGraphicsCtxInternalData data;
