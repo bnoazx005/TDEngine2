@@ -56,6 +56,7 @@ set(VULKAN_GCTX_SOURCES
 	# "${CMAKE_CURRENT_SOURCE_DIR}/source/CVULKANCubemapTexture.cpp"
 	# "${CMAKE_CURRENT_SOURCE_DIR}/source/CVULKANDepthBufferTarget.cpp"
 	# "${CMAKE_CURRENT_SOURCE_DIR}/source/CVULKANStructuredBuffer.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/deps/vma/vk_mem_alloc.cpp"
 	)
 
 source_group("includes" FILES ${VULKAN_GCTX_HEADERS})
@@ -95,7 +96,6 @@ if (UNIX)
 
 endif (UNIX)
 
-#add_subdirectory(deps/glslang)
 
 add_library(${VULKAN_GCTX_LIBRARY_NAME} SHARED ${VULKAN_GCTX_SOURCES} ${VULKAN_GCTX_HEADERS})
 
@@ -107,6 +107,9 @@ target_include_directories(${VULKAN_GCTX_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_S
 #vulkan
 target_include_directories(${VULKAN_GCTX_LIBRARY_NAME} PUBLIC Vulkan::Headers)
 #target_link_libraries(${VULKAN_GCTX_LIBRARY_NAME} PUBLIC Vulkan::Vulkan)
+
+#vma
+target_include_directories(${VULKAN_GCTX_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/vma/")
 
 # volk
 if (WIN32)
