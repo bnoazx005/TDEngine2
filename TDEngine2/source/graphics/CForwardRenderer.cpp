@@ -44,7 +44,7 @@ namespace TDEngine2
 
 #define TDE_RENDER_SECTION(pGraphicsContext, id) TGraphicsContextDebugRegion TDE2_CONCAT(graphicsSection, __LINE__)(pGraphicsContext, id);
 #else
-#define TDE_RENDER_SECTION(id) 
+#define TDE_RENDER_SECTION(pGraphicsContext, id) 
 #endif
 
 
