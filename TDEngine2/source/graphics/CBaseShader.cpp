@@ -67,7 +67,7 @@ namespace TDEngine2
 
 		mSourceCode = sourceCode;
 
-		TResult<TShaderCompilerOutput*> compilerOutput = pShaderCompiler->Compile(sourceCode);
+		TResult<TShaderCompilerOutput*> compilerOutput = pShaderCompiler->Compile(mName, sourceCode);
 
 		if (compilerOutput.HasError())
 		{

@@ -156,6 +156,7 @@ namespace TDEngine2
 				Note that the method allocates memory for TShaderCompilerOutput object on heap so it should be
 				released manually
 
+				\param[in] shaderId A name of the shader
 				\param[in] source A string that contains a source code of a shader
 
 				\return An object that contains either bytecode or some error code. Note that the
@@ -163,7 +164,7 @@ namespace TDEngine2
 				released manually
 			*/
 
-			TDE2_API virtual TResult<TShaderCompilerOutput*> Compile(const std::string& source) const = 0;
+			TDE2_API virtual TResult<TShaderCompilerOutput*> Compile(const std::string& shaderId, const std::string& source) const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IShaderCompiler)
 	};

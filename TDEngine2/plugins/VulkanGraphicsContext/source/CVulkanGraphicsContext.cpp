@@ -725,6 +725,11 @@ namespace TDEngine2
 		return infoData;
 	}
 
+	VkDevice CVulkanGraphicsContext::GetDevice() const
+	{
+		return mDevice;
+	}
+
 	E_RESULT_CODE CVulkanGraphicsContext::_createSwapChain()
 	{
 		E_RESULT_CODE result = RC_OK;

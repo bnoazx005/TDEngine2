@@ -9,6 +9,8 @@
 
 #include <utils/Types.h>
 #include <string>
+#define VK_NO_PROTOTYPES
+#include <vulkan/vulkan_core.h>
 
 
 enum VkResult;
@@ -66,15 +68,13 @@ namespace TDEngine2
 
 			//TDE2_API static GLenum GetPixelDataFormat(E_FORMAT_TYPE format);
 
-			///*!
-			//	\brief The function maps an internal shader stage's type into GL defined one
+			/*!
+				\param[in] shaderStageType An internal type which represents a shader stage type
 
-			//	\param[in] shaderStageType An internal type which represents a shader stage type
+				\return The function maps an internal shader stage's type into Vulkan's defined one
+			*/
 
-			//	\return GL type which describes a shader stage's type
-			//*/
-
-			//TDE2_API static GLenum GetShaderStageType(E_SHADER_STAGE_TYPE shaderStageType);
+			TDE2_API static VkShaderStageFlagBits GetShaderStageType(E_SHADER_STAGE_TYPE shaderStageType);
 			//
 			///*!
 			//	\brief The function returns a number of channels for a given format type

@@ -1,6 +1,6 @@
 /*!
-	\file CD3D11ShaderCompiler.h
-	\date 22.10.2018
+	\file CVulkanShaderCompiler.h
+	\date 03.11.2023
 	\authors Kasimov Ildar
 */
 
@@ -9,48 +9,33 @@
 
 #include <graphics/CBaseShaderCompiler.h>
 #include <vector>
-#include <unordered_map>
 
-
-#if defined (TDE2_USE_WINPLATFORM)
 
 namespace TDEngine2
 {
 	/*!
-		struct TD3D11ShaderCompilerOutput
-
-		\brief The structure contains shader compiler's output data for D3D11 GAPI
-	*/
-
-	typedef struct TD3D11ShaderCompilerOutput: public TShaderCompilerOutput
-	{
-		virtual ~TD3D11ShaderCompilerOutput() = default;
-	} TD3D11ShaderCompilerOutput, *TD3D11ShaderCompilerOutputPtr;
-
-
-	/*!
-		\brief A factory function for creation objects of CD3D11ShaderCompiler's type
+		\brief A factory function for creation objects of CVulkanShaderCompiler's type
 		
 		\param[in, out] pFileSystem A pointer to IFileSystem implementation
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
-		\return A pointer to CD3D11ShaderCompiler's implementation
+		\return A pointer to CVulkanShaderCompiler's implementation
 	*/
 
-	TDE2_API IShaderCompiler* CreateD3D11ShaderCompiler(IFileSystem* pFileSystem, E_RESULT_CODE& result);
+	TDE2_API IShaderCompiler* CreateVulkanShaderCompiler(IFileSystem* pFileSystem, E_RESULT_CODE& result);
 
 
 	/*!
-		class CD3D11ShaderCompiler
+		class CVulkanShaderCompiler
 
-		\brief The class represents main compiler of shaders for D3D11 GAPI
+		\brief The class represents main compiler of shaders for Vulkan GAPI
 	*/
 
-	class CD3D11ShaderCompiler: public CBaseShaderCompiler
+	class CVulkanShaderCompiler: public CBaseShaderCompiler
 	{
 		public:
-			friend TDE2_API IShaderCompiler* CreateD3D11ShaderCompiler(IFileSystem* pFileSystem, E_RESULT_CODE& result);
+			friend TDE2_API IShaderCompiler* CreateVulkanShaderCompiler(IFileSystem*, E_RESULT_CODE&);
 
 			/*!
 				\brief The method compiles specified source code into the bytecode representation.
@@ -66,10 +51,9 @@ namespace TDEngine2
 
 			TDE2_API TResult<TShaderCompilerOutput*> Compile(const std::string& shaderId, const std::string& source) const override;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11ShaderCompiler)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanShaderCompiler)
 
-			TDE2_API TResult<std::vector<U8>> _compileShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source, TShaderMetadata& shaderMetadata, 
-																  E_SHADER_FEATURE_LEVEL targetVersion) const;
+			TDE2_API TResult<std::vector<U8>> _compileShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source, TShaderMetadata& shaderMetadata) const;
 
 			TDE2_API TUniformBuffersMap _processUniformBuffersDecls(const TStructDeclsMap& structsMap, CTokenizer& tokenizer) const override;
 
@@ -82,5 +66,3 @@ namespace TDEngine2
 			TDE2_API E_SHADER_RESOURCE_TYPE _isShaderResourceType(const std::string& token) const;
 	};
 }
-
-#endif

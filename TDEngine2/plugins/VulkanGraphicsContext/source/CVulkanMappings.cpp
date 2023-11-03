@@ -1,5 +1,5 @@
 #include "../include/CVulkanMappings.h"
-#include <vulkan/vulkan.hpp>
+#include <utils/Utils.h>
 
 
 namespace TDEngine2
@@ -161,23 +161,6 @@ namespace TDEngine2
 		}
 
 		return GL_DEPTH_STENCIL;
-	}
-
-	GLenum CVulkanMappings::GetShaderStageType(E_SHADER_STAGE_TYPE shaderStageType)
-	{
-		switch (shaderStageType)
-		{
-			case SST_VERTEX:
-				return GL_VERTEX_SHADER;
-			case SST_PIXEL:
-				return GL_FRAGMENT_SHADER;
-			case SST_GEOMETRY:
-				return GL_GEOMETRY_SHADER;
-			case SST_COMPUTE:
-				return GL_COMPUTE_SHADER;
-		}
-
-		return 0;
 	}
 
 	U32 CVulkanMappings::GetNumOfChannelsOfFormat(E_FORMAT_TYPE format)
@@ -586,6 +569,24 @@ namespace TDEngine2
 
 		return GL_REPEAT;
 	}*/
+
+	VkShaderStageFlagBits CVulkanMappings::GetShaderStageType(E_SHADER_STAGE_TYPE shaderStageType)
+	{
+		switch (shaderStageType)
+		{
+			case SST_VERTEX:
+				return VK_SHADER_STAGE_VERTEX_BIT;
+			case SST_PIXEL:
+				return VK_SHADER_STAGE_FRAGMENT_BIT;
+			case SST_GEOMETRY:
+				return VK_SHADER_STAGE_GEOMETRY_BIT;
+			case SST_COMPUTE:
+				return VK_SHADER_STAGE_COMPUTE_BIT;
+		}
+
+		TDE2_UNREACHABLE();
+		return VK_SHADER_STAGE_VERTEX_BIT;
+	}
 
 	E_RESULT_CODE CVulkanMappings::GetErrorCode(VkResult resultCode)
 	{

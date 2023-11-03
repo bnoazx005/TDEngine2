@@ -191,6 +191,8 @@ namespace TDEngine2
 				TStagesRegionsMap       mShaderStagesRegionsInfo;
 
 				std::unordered_set<std::string> mColorDataUniforms;
+
+				std::string mShaderName;
 			} TShaderMetadata;
 		public:
 			/*!

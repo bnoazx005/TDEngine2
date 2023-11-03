@@ -73,7 +73,7 @@ namespace TDEngine2
 				released manually
 			*/
 
-			TDE2_API TResult<TShaderCompilerOutput*> Compile(const std::string& source) const override;
+			TDE2_API TResult<TShaderCompilerOutput*> Compile(const std::string& shaderId, const std::string& source) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLShaderCompiler)
 			

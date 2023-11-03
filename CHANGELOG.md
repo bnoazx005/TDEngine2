@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.22] 2023-11-02
+## [0.6.22] 2023-11-04
 
 ### Added
 
@@ -28,6 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add support of marking up renderer's region to improve debug experience via graphics debuggers.
 
 ### Changed
+
+- The signature of method IShaderCompiler::Compile was changed from (const std::string&) to (const std::string&, const std::string&) to provide
+passing shader's identifier along with its source code.
 
 ### Fixed
 

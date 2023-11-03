@@ -1,36 +1,21 @@
-#include "./../include/CD3D11ShaderCompiler.h"
-#include "./../include/CD3D11Mappings.h"
-#include <stringUtils.hpp>
-#include <utils/CFileLogger.h>
-#include <algorithm>
-#include <cctype>
-#include <vector>
-#include <sstream>
-#include <iterator>
-#include <graphics/IShader.h>
-#include <core/IFileSystem.h>
+#include "../include/CVulkanShaderCompiler.h"
+#include "../include/CVulkanMappings.h"
 #include <editor/CPerfProfiler.h>
-#include <unordered_set>
-
-
-#if defined (TDE2_USE_WINPLATFORM)
-
-#include <d3d11shader.h>
-#include <d3dcompiler.h>
-
-#pragma comment(lib, "D3Dcompiler.lib")
+#include <utils/CFileLogger.h>
+#include <shaderc/shaderc.hpp>
+#include "stringUtils.hpp"
 
 
 namespace TDEngine2
 {
-	CD3D11ShaderCompiler::CD3D11ShaderCompiler():
+	CVulkanShaderCompiler::CVulkanShaderCompiler():
 		CBaseShaderCompiler()
 	{
 	}
 
-	TResult<TShaderCompilerOutput*> CD3D11ShaderCompiler::Compile(const std::string& shaderId, const std::string& source) const
+	TResult<TShaderCompilerOutput*> CVulkanShaderCompiler::Compile(const std::string& shaderId, const std::string& source) const
 	{
-		TDE2_PROFILER_SCOPE("CD3D11ShaderCompiler::Compile");
+		TDE2_PROFILER_SCOPE("CVulkanShaderCompiler::Compile");
 
 		if (source.empty())
 		{
@@ -48,7 +33,7 @@ namespace TDEngine2
 		shaderMetadata.mColorDataUniforms = std::move(preprocessorResult.mColorDataUniforms);
 		shaderMetadata.mShaderName = shaderId;
 
-		TD3D11ShaderCompilerOutput* pResult = new TD3D11ShaderCompilerOutput();
+		TShaderCompilerOutput* pResult = new TShaderCompilerOutput();
 
 		for (U32 shaderStage = static_cast<U32>(SST_VERTEX); shaderStage != static_cast<U32>(SST_NONE); shaderStage++)
 		{
@@ -58,7 +43,7 @@ namespace TDEngine2
 			}
 
 			/// try to compile a shader
-			TResult<std::vector<U8>> shaderOutput = _compileShaderStage(static_cast<E_SHADER_STAGE_TYPE>(shaderStage), preprocessedSource, shaderMetadata, shaderMetadata.mFeatureLevel);
+			TResult<std::vector<U8>> shaderOutput = _compileShaderStage(static_cast<E_SHADER_STAGE_TYPE>(shaderStage), preprocessedSource, shaderMetadata);
 			if (shaderOutput.HasError())
 			{
 				return Wrench::TErrValue<E_RESULT_CODE>(shaderOutput.GetError());
@@ -79,105 +64,60 @@ namespace TDEngine2
 		return Wrench::TOkValue<TShaderCompilerOutput*>(pResult);
 	}
 
-	TResult<std::vector<U8>> CD3D11ShaderCompiler::_compileShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source,
-																	   TShaderMetadata& shaderMetadata,
-																	   E_SHADER_FEATURE_LEVEL targetVersion) const
+
+	static shaderc_shader_kind GetShadercInternalShaderStageType(E_SHADER_STAGE_TYPE shaderStage)
 	{
-		TDE2_PROFILER_SCOPE("CD3D11ShaderCompiler::_compileShaderStage");
+		switch (shaderStage)
+		{
+			case E_SHADER_STAGE_TYPE::SST_VERTEX:
+				return shaderc_vertex_shader;
+			case E_SHADER_STAGE_TYPE::SST_GEOMETRY:
+				return shaderc_geometry_shader;
+			case E_SHADER_STAGE_TYPE::SST_PIXEL:
+				return shaderc_fragment_shader;
+			case E_SHADER_STAGE_TYPE::SST_COMPUTE:
+				return shaderc_compute_shader;
+		}
 
-		std::vector<U8> byteCodeArray;
+		TDE2_UNREACHABLE();
+		return shaderc_vertex_shader;
+	}
 
-		ID3DBlob* pBytecodeBuffer = nullptr;
-		ID3DBlob* pErrorBuffer    = nullptr;
+
+	TResult<std::vector<U8>> CVulkanShaderCompiler::_compileShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source,
+																	   TShaderMetadata& shaderMetadata) const
+	{
+		TDE2_PROFILER_SCOPE("CVulkanShaderCompiler::_compileShaderStage");
 
 		std::string processedSource = _enableShaderStage(shaderStage, shaderMetadata.mShaderStagesRegionsInfo, source);
 		std::string entryPointName  = shaderMetadata.mEntrypointsTable[shaderStage];
 
-		U32 flags = D3DCOMPILE_DEBUG | D3DCOMPILE_PACK_MATRIX_COLUMN_MAJOR;
+		shaderc::Compiler compiler;
+		shaderc::CompileOptions options;
+		options.SetSourceLanguage(shaderc_source_language::shaderc_source_language_hlsl);
+
+		shaderc::SpvCompilationResult module{};
 
 		{
-			TDE2_PROFILER_SCOPE("D3DCompile");
-
-			if (FAILED(D3DCompile(processedSource.c_str(), processedSource.length(), nullptr, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
-				entryPointName.c_str(), CD3D11Mappings::GetShaderTargetVerStr(shaderStage, targetVersion).c_str(),
-				flags, 0x0, &pBytecodeBuffer, &pErrorBuffer)))
-			{
-				LOG_ERROR(Wrench::StringUtils::Format("[D3D11 Shader Compiler] {0}", static_cast<const C8*>(pErrorBuffer->GetBufferPointer())));
-
-				return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
-			}
+			TDE2_PROFILER_SCOPE("shaderc::CompileGlslToSpv");
+			module = compiler.CompileGlslToSpv(source, GetShadercInternalShaderStageType(shaderStage), shaderMetadata.mShaderName.c_str(), options);
 		}
 
-		// Check up constant buffer sizes, extract their accurate sizes using the reflector
-		ID3D11ShaderReflection* pReflector = nullptr;
-		
+		if (shaderc_compilation_status_success != module.GetCompilationStatus()) 
 		{
-			TDE2_PROFILER_SCOPE("D3DReflect");
-
-			if (FAILED(D3DReflect(pBytecodeBuffer->GetBufferPointer(), pBytecodeBuffer->GetBufferSize(), __uuidof(ID3D11ShaderReflection), (void**)&pReflector)))
-			{
-				return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
-			}
+			LOG_ERROR(Wrench::StringUtils::Format("[CVulkanShaderCompiler] Compilation error happened: {0}", module.GetErrorMessage()));
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
-		D3D11_SHADER_BUFFER_DESC constantBufferInfoDesc;
-		D3D11_SHADER_VARIABLE_DESC shaderVariableInfoDesc;
-		D3D11_SHADER_TYPE_DESC shaderVariableTypeDesc;
+		std::vector<U32> spirvBytecode{ module.cbegin(), module.cend() };
+		std::vector<U8> byteCodeArray(spirvBytecode.size() * sizeof(U32));
 
-		auto&& constantBuffers = shaderMetadata.mUniformBuffers;
-		for (auto&& currConstantBuffer : constantBuffers)
-		{
-			// \note System constant buffers don't need any recomputation
-			if (E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL == (currConstantBuffer.second.mFlags & E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL))
-			{
-				continue;
-			}
-
-			if (auto pConstantBufferData = pReflector->GetConstantBufferByName(currConstantBuffer.first.c_str()))
-			{
-				if (FAILED(pConstantBufferData->GetDesc(&constantBufferInfoDesc)))
-				{
-					continue;
-				}
-
-				currConstantBuffer.second.mSize = std::max<USIZE>(currConstantBuffer.second.mSize, static_cast<USIZE>(constantBufferInfoDesc.Size));
-				
-				for (TShaderUniformDesc& variableDesc : currConstantBuffer.second.mVariables)
-				{
-					if (ID3D11ShaderReflectionVariable* pVariableInfo = pConstantBufferData->GetVariableByName(variableDesc.mName.c_str()))
-					{
-						if (FAILED(pVariableInfo->GetDesc(&shaderVariableInfoDesc)))
-						{
-							continue;
-						}
-						
-						if (auto pUniformType = pVariableInfo->GetType())
-						{
-							pUniformType->GetDesc(&shaderVariableTypeDesc);
-							variableDesc.mTypeId = CBaseShaderCompiler::GetShaderBuiltInTypeId(shaderVariableTypeDesc.Name);
-							variableDesc.mIsArray = static_cast<bool>(shaderVariableTypeDesc.Elements);
-						}
-
-						variableDesc.mSize = std::max<USIZE>(variableDesc.mSize, static_cast<USIZE>(shaderVariableInfoDesc.Size));
-						variableDesc.mOffset = shaderVariableInfoDesc.StartOffset;
-
-					}
-				}
-			}
-		}
-
-		USIZE size = pBytecodeBuffer->GetBufferSize();
-
-		U8* pBuffer = static_cast<U8*>(pBytecodeBuffer->GetBufferPointer());
-
-		byteCodeArray.reserve(size);
-
-		std::copy(pBuffer, pBuffer + size, std::back_inserter(byteCodeArray));
+		memcpy(byteCodeArray.data(), spirvBytecode.data(), byteCodeArray.size());
 
 		return Wrench::TOkValue<std::vector<U8>>(byteCodeArray);
 	}
 
-	CD3D11ShaderCompiler::TUniformBuffersMap CD3D11ShaderCompiler::_processUniformBuffersDecls(const TStructDeclsMap& structsMap, CTokenizer& tokenizer) const
+	CVulkanShaderCompiler::TUniformBuffersMap CVulkanShaderCompiler::_processUniformBuffersDecls(const TStructDeclsMap& structsMap, CTokenizer& tokenizer) const
 	{
 		TUniformBuffersMap uniformBuffersDecls = CBaseShaderCompiler::_processUniformBuffersDecls(structsMap, tokenizer);
 
@@ -276,7 +216,7 @@ namespace TDEngine2
 		return uniformBuffersDecls;
 	}
 
-	E_SHADER_FEATURE_LEVEL CD3D11ShaderCompiler::_getTargetVersionFromStr(const std::string& ver) const
+	E_SHADER_FEATURE_LEVEL CVulkanShaderCompiler::_getTargetVersionFromStr(const std::string& ver) const
 	{
 		if (ver == "3_0")
 		{
@@ -291,7 +231,7 @@ namespace TDEngine2
 		return SFL_5_0;
 	}
 
-	USIZE CD3D11ShaderCompiler::_getBuiltinTypeSize(const std::string& type, const std::function<void(const std::string&)> typeProcessor) const
+	USIZE CVulkanShaderCompiler::_getBuiltinTypeSize(const std::string& type, const std::function<void(const std::string&)> typeProcessor) const
 	{
 		USIZE pos = type.find_first_of("1234");
 		
@@ -336,7 +276,7 @@ namespace TDEngine2
 		return size * 4; // other types sizes equal to 4 bytes
 	}
 
-	CD3D11ShaderCompiler::TShaderResourcesMap CD3D11ShaderCompiler::_processShaderResourcesDecls(CTokenizer& tokenizer) const
+	CVulkanShaderCompiler::TShaderResourcesMap CVulkanShaderCompiler::_processShaderResourcesDecls(CTokenizer& tokenizer) const
 	{
 		TShaderResourcesMap shaderResources {};
 
@@ -382,7 +322,7 @@ namespace TDEngine2
 		return shaderResources;
 	}
 
-	E_SHADER_RESOURCE_TYPE CD3D11ShaderCompiler::_isShaderResourceType(const std::string& token) const
+	E_SHADER_RESOURCE_TYPE CVulkanShaderCompiler::_isShaderResourceType(const std::string& token) const
 	{
 		static const std::unordered_map<std::string, E_SHADER_RESOURCE_TYPE> shaderResourcesMap
 		{
@@ -402,10 +342,8 @@ namespace TDEngine2
 	}
 	
 
-	TDE2_API IShaderCompiler* CreateD3D11ShaderCompiler(IFileSystem* pFileSystem, E_RESULT_CODE& result)
+	TDE2_API IShaderCompiler* CreateVulkanShaderCompiler(IFileSystem* pFileSystem, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IShaderCompiler, CD3D11ShaderCompiler, result, pFileSystem);
+		return CREATE_IMPL(IShaderCompiler, CVulkanShaderCompiler, result, pFileSystem);
 	}
 }
-
-#endif

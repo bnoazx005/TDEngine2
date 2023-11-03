@@ -34,7 +34,7 @@ namespace TDEngine2
 		}
 	}
 
-	TResult<TShaderCompilerOutput*> COGLShaderCompiler::Compile(const std::string& source) const
+	TResult<TShaderCompilerOutput*> COGLShaderCompiler::Compile(const std::string& shaderId, const std::string& source) const
 	{
 		TDE2_PROFILER_SCOPE("COGLShaderCompiler::Compile");
 
@@ -52,6 +52,7 @@ namespace TDEngine2
 
 		TShaderMetadata shaderMetadata = _parseShader(tokenizer, preprocessorResult.mDefinesTable, preprocessorResult.mStagesRegions);
 		shaderMetadata.mColorDataUniforms = std::move(preprocessorResult.mColorDataUniforms);
+		shaderMetadata.mShaderName = shaderId;
 
 		MarkColorDataUniforms(shaderMetadata);
 
