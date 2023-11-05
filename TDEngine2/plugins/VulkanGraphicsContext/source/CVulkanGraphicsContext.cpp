@@ -340,20 +340,6 @@ namespace TDEngine2
 	}
 
 
-	struct TQueuesCreateInfo
-	{
-		TDE2_STATIC_CONSTEXPR U32 InvalidIndex = std::numeric_limits<U32>::max();
-
-		U32 mGraphicsQueueIndex = InvalidIndex;
-		U32 mPresentQueueIndex = InvalidIndex;
-
-		bool IsValid() const
-		{
-			return mGraphicsQueueIndex != InvalidIndex && mPresentQueueIndex != InvalidIndex;
-		}
-	};
-
-
 	static TQueuesCreateInfo GetQueuesCreateInfo(VkPhysicalDevice physDevice, VkSurfaceKHR surface)
 	{
 		TQueuesCreateInfo info;
@@ -481,7 +467,6 @@ namespace TDEngine2
 	}
 
 
-
 	E_RESULT_CODE CVulkanGraphicsContext::_onInitInternal()
 	{
 		VK_SAFE_CALL(volkInitialize());
@@ -513,13 +498,13 @@ namespace TDEngine2
 
 		mPhysicalDevice = pickPhysicalDeviceResult.Get();
 
-		auto queuesInfo = GetQueuesCreateInfo(mPhysicalDevice, mSurface);
-		if (!queuesInfo.IsValid())
+		mQueuesInfo = GetQueuesCreateInfo(mPhysicalDevice, mSurface);
+		if (!mQueuesInfo.IsValid())
 		{
 			return RC_FAIL;
 		}
 
-		auto createLogicalDeviceResult = CreateLogicDevice(mPhysicalDevice, queuesInfo);
+		auto createLogicalDeviceResult = CreateLogicDevice(mPhysicalDevice, mQueuesInfo);
 		if (createLogicalDeviceResult.HasError())
 		{
 			return createLogicalDeviceResult.GetError();
@@ -527,10 +512,16 @@ namespace TDEngine2
 
 		mDevice = createLogicalDeviceResult.Get();
 
-		vkGetDeviceQueue(mDevice, queuesInfo.mGraphicsQueueIndex, 0, &mGraphicsQueue);
-		vkGetDeviceQueue(mDevice, queuesInfo.mPresentQueueIndex, 0, &mPresentQueue);
+		vkGetDeviceQueue(mDevice, mQueuesInfo.mGraphicsQueueIndex, 0, &mGraphicsQueue);
+		vkGetDeviceQueue(mDevice, mQueuesInfo.mPresentQueueIndex, 0, &mPresentQueue);
 
 		E_RESULT_CODE result = _createSwapChain();
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		result = _prepareCommandBuffers();
 		if (RC_OK != result)
 		{
 			return result;
@@ -545,7 +536,15 @@ namespace TDEngine2
 		DestroyDebugUtilsMessengerEXT(mInstance, mDebugMessenger, nullptr);
 #endif
 		
-		for (auto currImageView : mSwapChainImageViews) {
+		vkDestroyCommandPool(mDevice, mMainCommandPool, nullptr);
+		
+		for (auto& currFence : mCommandBuffersFences)
+		{
+			vkDestroyFence(mDevice, currFence, nullptr);
+		}
+
+		for (auto currImageView : mSwapChainImageViews) 
+		{
 			vkDestroyImageView(mDevice, currImageView, nullptr);
 		}
 
@@ -847,6 +846,38 @@ namespace TDEngine2
 			createInfo.subresourceRange.layerCount = 1;
 
 			VK_SAFE_CALL(vkCreateImageView(mDevice, &createInfo, nullptr, &mSwapChainImageViews[i]));
+		}
+
+		return result;
+	}
+
+	E_RESULT_CODE CVulkanGraphicsContext::_prepareCommandBuffers()
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		VkCommandPoolCreateInfo poolInfo {};
+		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+		poolInfo.queueFamilyIndex = mQueuesInfo.mGraphicsQueueIndex;
+
+		VK_SAFE_CALL(vkCreateCommandPool(mDevice, &poolInfo, nullptr, &mMainCommandPool));
+
+		// \note Create a few command buffers within main command pool
+		VkCommandBufferAllocateInfo allocInfo{};
+		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfo.commandPool = mMainCommandPool;
+		allocInfo.commandBufferCount = mNumOfCommandsBuffers;
+
+		VK_SAFE_CALL(vkAllocateCommandBuffers(mDevice, &allocInfo, mCommandBuffers.data()));
+
+		// \note Create fences one for each command buffer
+		VkFenceCreateInfo fenceCreateInfo = {};
+		fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+
+		for (USIZE i = 0; i < mNumOfCommandsBuffers; i++)
+		{
+			VK_SAFE_CALL(vkCreateFence(mDevice, &fenceCreateInfo, nullptr, &mCommandBuffersFences[i]));
 		}
 
 		return result;

@@ -12,6 +12,7 @@
 #define VK_NO_PROTOTYPES
 #include <volk.h>
 #include <vulkan/vulkan.hpp>
+#include <array>
 
 
 namespace TDEngine2
@@ -22,6 +23,20 @@ namespace TDEngine2
 
 	TDE2_DECLARE_SCOPED_PTR(IEventManager)
 	TDE2_DECLARE_SCOPED_PTR(IWindowSurfaceFactory)
+
+
+	struct TQueuesCreateInfo
+	{
+		TDE2_STATIC_CONSTEXPR U32 InvalidIndex = std::numeric_limits<U32>::max();
+
+		U32 mGraphicsQueueIndex = InvalidIndex;
+		U32 mPresentQueueIndex = InvalidIndex;
+
+		bool inline IsValid() const
+		{
+			return mGraphicsQueueIndex != InvalidIndex && mPresentQueueIndex != InvalidIndex;
+		}
+	};
 
 
 	/*!
@@ -392,7 +407,10 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 
 			E_RESULT_CODE _createSwapChain();
+			E_RESULT_CODE _prepareCommandBuffers();
 		protected:
+			static const USIZE          mNumOfCommandsBuffers = 4;
+
 			TPtr<IWindowSystem>         mpWindowSystem;
 			TPtr<IEventManager>         mpEventManager;
 			TPtr<IWindowSurfaceFactory> mpWindowSurfaceFactory;
@@ -415,6 +433,13 @@ namespace TDEngine2
 			VkExtent2D               mSwapChainExtents;
 			std::vector<VkImage>     mSwapChainImages;
 			std::vector<VkImageView> mSwapChainImageViews;
+
+			// commands
+			VkCommandPool                                      mMainCommandPool;
+			std::array<VkCommandBuffer, mNumOfCommandsBuffers> mCommandBuffers;
+			std::array<VkFence, mNumOfCommandsBuffers>         mCommandBuffersFences;
+
+			TQueuesCreateInfo        mQueuesInfo;
 
 #if TDE2_DEBUG_MODE
 			VkDebugUtilsMessengerEXT mDebugMessenger;
