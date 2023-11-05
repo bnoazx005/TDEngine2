@@ -25,6 +25,7 @@ namespace TDEngine2
 
 
 	TDE2_DECLARE_SCOPED_PTR(IWindowSystem)
+	TDE2_DECLARE_SCOPED_PTR(IGraphicsObjectManager)
 
 
 	/*!

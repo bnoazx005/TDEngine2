@@ -29,82 +29,6 @@ namespace TDEngine2
 		return GL_WRITE_ONLY;
 	}
 	
-	GLint CVulkanMappings::GetInternalFormat(E_FORMAT_TYPE format)
-	{
-		switch (format)
-		{
-			case FT_FLOAT1:
-			case FT_FLOAT1_TYPELESS:
-				return GL_R32F;
-			case FT_FLOAT2:
-			case FT_FLOAT2_TYPELESS:
-				return GL_RG32F;
-			case FT_FLOAT3:
-			case FT_FLOAT3_TYPELESS:
-				return GL_RGB32F;
-			case FT_FLOAT4:
-			case FT_FLOAT4_TYPELESS:
-				return GL_RGBA32F;
-			case FT_NORM_BYTE1:
-			case FT_BYTE1:
-				return GL_R8_SNORM;
-			case FT_NORM_BYTE2:
-			case FT_BYTE2:
-				return GL_RG8_SNORM;
-			case FT_NORM_BYTE4:
-			case FT_BYTE4:
-				return GL_RGBA8_SNORM;
-			case FT_NORM_UBYTE1:
-			case FT_UBYTE1:
-				return GL_R8;
-			case FT_NORM_UBYTE2:
-			case FT_UBYTE2:
-				return GL_RG8;
-			case FT_NORM_UBYTE4:
-			case FT_UBYTE4:
-			case FT_UBYTE4_BGRA_UNORM:
-				return GL_RGBA8;
-			case FT_NORM_SHORT1:
-			case FT_SHORT1:
-				return GL_R16_SNORM;
-			case FT_NORM_SHORT2:
-			case FT_SHORT2:
-				return GL_RG16_SNORM;
-			case FT_NORM_SHORT4:
-			case FT_SHORT4:
-				return GL_RGBA16_SNORM;
-			case FT_NORM_USHORT1:
-			case FT_USHORT1:
-				return GL_R16;
-			case FT_NORM_USHORT2:
-			case FT_USHORT2:
-				return GL_RG16;
-			case FT_NORM_USHORT4:
-			case FT_USHORT4:
-				return GL_RGBA16;
-			case FT_UINT1:
-				return GL_R32UI;
-			case FT_UINT2:
-				return GL_RG32UI;
-			case FT_UINT3:
-				return GL_RGB32UI;
-			case FT_UINT4:
-				return GL_RGBA32UI;
-			case FT_SINT1:
-				return GL_R32I;
-			case FT_SINT2:
-				return GL_RGB32I;
-			case FT_SINT3:
-				return GL_RGB32I;
-			case FT_SINT4:
-				return GL_RGBA32I;
-			case FT_D32:
-				return GL_DEPTH_COMPONENT;
-		}
-
-		return 0;
-	}
-
 	GLenum CVulkanMappings::GetPixelDataFormat(E_FORMAT_TYPE format)
 	{
 		switch (format)
@@ -280,101 +204,6 @@ namespace TDEngine2
 		}
 
 		return GL_FLOAT;
-	}
-
-	GLsizei CVulkanMappings::GetFormatSize(E_FORMAT_TYPE format)
-	{
-		switch (format)
-		{
-			case FT_BYTE1:
-			case FT_NORM_BYTE1:
-				return sizeof(char);
-			case FT_BYTE2:
-			case FT_NORM_BYTE2:
-				return 2 * sizeof(char);
-			case FT_BYTE3:
-			case FT_NORM_BYTE3:
-				return 3 * sizeof(char);
-			case FT_BYTE4:
-			case FT_NORM_BYTE4:
-				return 4 * sizeof(char);
-			case FT_UBYTE1:
-			case FT_NORM_UBYTE1:
-				return sizeof(unsigned char);
-			case FT_UBYTE2:
-			case FT_NORM_UBYTE2:
-				return 2 * sizeof(unsigned char);
-			case FT_UBYTE3:
-			case FT_NORM_UBYTE3:
-				return 3 * sizeof(unsigned char);
-			case FT_UBYTE4:
-			case FT_NORM_UBYTE4:
-			case FT_NORM_BYTE4_SRGB:
-			case FT_UBYTE4_BGRA_UNORM:
-				return 4 * sizeof(unsigned char);
-			case FT_FLOAT1:
-			case FT_D32:
-				return sizeof(float);
-			case FT_FLOAT2:
-			case FT_FLOAT2_TYPELESS:
-				return 2 * sizeof(float);
-			case FT_FLOAT3:
-			case FT_FLOAT3_TYPELESS:
-				return 3 * sizeof(float);
-			case FT_FLOAT4:
-			case FT_FLOAT4_TYPELESS:
-				return 4 * sizeof(float);
-			case FT_SHORT1:
-			case FT_NORM_SHORT1:
-				return 1 * sizeof(short);
-			case FT_SHORT2:
-			case FT_NORM_SHORT2:
-				return 2 * sizeof(short);
-			case FT_SHORT3:
-			case FT_NORM_SHORT3:
-				return 3 * sizeof(short);
-			case FT_SHORT4:
-			case FT_NORM_SHORT4:
-				return 4 * sizeof(short);
-			case FT_USHORT1:
-			case FT_NORM_USHORT1:
-				return 1 * sizeof(short);
-			case FT_USHORT2:
-			case FT_NORM_USHORT2:
-				return 2 * sizeof(short);
-			case FT_USHORT3:
-			case FT_NORM_USHORT3:
-				return 3 * sizeof(short);
-			case FT_USHORT4:
-			case FT_NORM_USHORT4:
-				return 4 * sizeof(short);
-			case FT_UINT1:
-			case FT_NORM_UINT1:
-				return 1 * sizeof(int);
-			case FT_UINT2:
-			case FT_NORM_UINT2:
-				return 2 * sizeof(int);
-			case FT_UINT3:
-			case FT_NORM_UINT3:
-				return 3 * sizeof(int);
-			case FT_UINT4:
-			case FT_NORM_UINT4:
-				return 4 * sizeof(int);
-			case FT_SINT1:
-			case FT_NORM_SINT1:
-				return 1 * sizeof(int);
-			case FT_SINT2:
-			case FT_NORM_SINT2:
-				return 2 * sizeof(int);
-			case FT_SINT3:
-			case FT_NORM_SINT3:
-				return 3 * sizeof(int);
-			case FT_SINT4:
-			case FT_NORM_SINT4:
-				return 4 * sizeof(int);
-		}
-
-		return 0;
 	}
 
 	GLint CVulkanMappings::GetTypeSize(GLenum type)
@@ -569,6 +398,84 @@ namespace TDEngine2
 
 		return GL_REPEAT;
 	}*/
+
+	VkFormat CVulkanMappings::GetInternalFormat(E_FORMAT_TYPE format)
+	{
+		switch (format)
+		{
+			case FT_FLOAT1:
+			case FT_FLOAT1_TYPELESS:
+				return VK_FORMAT_R32_SFLOAT;
+			case FT_FLOAT2:
+			case FT_FLOAT2_TYPELESS:
+				return VK_FORMAT_R32G32_SFLOAT;
+			case FT_FLOAT3:
+			case FT_FLOAT3_TYPELESS:
+				return VK_FORMAT_R32G32B32_SFLOAT;
+			case FT_FLOAT4:
+			case FT_FLOAT4_TYPELESS:
+				return VK_FORMAT_R32G32B32A32_SFLOAT;
+			case FT_NORM_BYTE1:
+			case FT_BYTE1:
+				return VK_FORMAT_R8_SNORM;
+			case FT_NORM_BYTE2:
+			case FT_BYTE2:
+				return VK_FORMAT_R8G8_SNORM;
+			case FT_NORM_BYTE4:
+			case FT_BYTE4:
+				return VK_FORMAT_R8G8B8A8_SNORM;
+			case FT_NORM_UBYTE1:
+			case FT_UBYTE1:
+				return VK_FORMAT_R8_UNORM;
+			case FT_NORM_UBYTE2:
+			case FT_UBYTE2:
+				return VK_FORMAT_R8G8_UNORM;
+			case FT_NORM_UBYTE4:
+			case FT_UBYTE4:
+				return VK_FORMAT_R8G8B8A8_UNORM;
+			case FT_UBYTE4_BGRA_UNORM:
+				return VK_FORMAT_B8G8R8A8_UNORM;
+			case FT_NORM_SHORT1:
+			case FT_SHORT1:
+				return VK_FORMAT_R16_SNORM;
+			case FT_NORM_SHORT2:
+			case FT_SHORT2:
+				return VK_FORMAT_R16G16_SNORM;
+			case FT_NORM_SHORT4:
+			case FT_SHORT4:
+				return VK_FORMAT_R16G16B16A16_SNORM;
+			case FT_NORM_USHORT1:
+			case FT_USHORT1:
+				return VK_FORMAT_R16_UNORM;
+			case FT_NORM_USHORT2:
+			case FT_USHORT2:
+				return VK_FORMAT_R16G16_UNORM;
+			case FT_NORM_USHORT4:
+			case FT_USHORT4:
+				return VK_FORMAT_R16G16B16A16_UNORM;
+			case FT_UINT1:
+				return VK_FORMAT_R32_UINT;
+			case FT_UINT2:
+				return VK_FORMAT_R32G32_UINT;
+			case FT_UINT3:
+				return VK_FORMAT_R32G32B32_UINT;
+			case FT_UINT4:
+				return VK_FORMAT_R32G32B32A32_UINT;
+			case FT_SINT1:
+				return VK_FORMAT_R32_SINT;
+			case FT_SINT2:
+				return VK_FORMAT_R32G32_SINT;
+			case FT_SINT3:
+				return VK_FORMAT_R32G32B32_SINT;
+			case FT_SINT4:
+				return VK_FORMAT_R32G32B32A32_SINT;
+			case FT_D32:
+				return VK_FORMAT_D32_SFLOAT;
+		}
+
+		TDE2_UNREACHABLE();
+		return VK_FORMAT_R8G8B8A8_UNORM;
+	}
 
 	VkShaderStageFlagBits CVulkanMappings::GetShaderStageType(E_SHADER_STAGE_TYPE shaderStageType)
 	{

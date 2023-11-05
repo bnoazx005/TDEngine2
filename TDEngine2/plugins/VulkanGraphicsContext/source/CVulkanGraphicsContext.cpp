@@ -1,6 +1,7 @@
 #include "../include/CVulkanGraphicsContext.h"
 #include "../include/CVulkanUtils.h"
 #include "../include/IWindowSurfaceFactory.h"
+#include "../include/CVulkanGraphicsObjectManager.h"
 #include <core/IEventManager.h>
 #include <core/IWindowSystem.h>
 #include <utils/CFileLogger.h>
@@ -61,6 +62,12 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = _onInitInternal();
 		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		mpGraphicsObjectManager = TPtr<IGraphicsObjectManager>(CreateVulkanGraphicsObjectManager(this, result));
+		if (result != RC_OK)
 		{
 			return result;
 		}
@@ -658,7 +665,7 @@ namespace TDEngine2
 	
 	IGraphicsObjectManager* CVulkanGraphicsContext::GetGraphicsObjectManager() const
 	{
-		return nullptr;
+		return mpGraphicsObjectManager.Get();
 	}
 
 	TPtr<IWindowSystem> CVulkanGraphicsContext::GetWindowSystem() const

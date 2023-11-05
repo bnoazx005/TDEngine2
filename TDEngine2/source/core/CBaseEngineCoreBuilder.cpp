@@ -667,6 +667,7 @@ namespace TDEngine2
 		switch (type)
 		{
 			case E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_DIRECT3D11:
+			case E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_VULKAN:
 				baseDefaultShadersPath.append(hlslSubDirectory);
 				basePostEffectsShadersPath.append(hlslSubDirectory);
 				break;
@@ -707,6 +708,7 @@ namespace TDEngine2
 			switch (type)
 			{
 				case E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_DIRECT3D11:
+				case E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_VULKAN:
 					currUserMountDirectory.mPath.append(pathEndsWithSeparator ? hlslSubDirectory.substr(1) : hlslSubDirectory);
 					break;
 				case E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_OPENGL3X:

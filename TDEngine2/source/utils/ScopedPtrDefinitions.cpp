@@ -23,6 +23,7 @@
 #include "../../include/graphics/ITexture2D.h"
 #include "../../include/graphics/IGlobalShaderProperties.h"
 #include "../../include/graphics/IFramePostProcessor.h"
+#include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/graphics/CRenderQueue.h"
 #include "../../include/graphics/IGraphicsLayersInfo.h"
 #include "../../include/graphics/IShaderCompiler.h"
@@ -74,4 +75,5 @@ namespace TDEngine2
 	TDE2_DEFINE_SCOPED_PTR(CPrefabChangesList)
 	TDE2_DEFINE_SCOPED_PTR(ISystem)
 	TDE2_DEFINE_SCOPED_PTR(IShaderCache)
+	TDE2_DEFINE_SCOPED_PTR(IGraphicsObjectManager)
 }

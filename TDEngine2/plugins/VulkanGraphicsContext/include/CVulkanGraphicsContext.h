@@ -396,6 +396,8 @@ namespace TDEngine2
 			TPtr<IWindowSystem>         mpWindowSystem;
 			TPtr<IEventManager>         mpEventManager;
 			TPtr<IWindowSurfaceFactory> mpWindowSurfaceFactory;
+			
+			mutable TPtr<IGraphicsObjectManager> mpGraphicsObjectManager;
 
 			TGraphicsCtxInternalData mInternalDataObject;
 

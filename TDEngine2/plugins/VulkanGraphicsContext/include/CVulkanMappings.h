@@ -97,16 +97,6 @@ namespace TDEngine2
 			//TDE2_API static GLenum GetBaseTypeOfFormat(E_FORMAT_TYPE format);
 
 			///*!
-			//	\brief The function returns a size of a specified format
-
-			//	\param[in] format An internal format
-
-			//	\return A size in bytes of a specified format
-			//*/
-
-			//TDE2_API static GLsizei GetFormatSize(E_FORMAT_TYPE format);
-
-			///*!
 			//	\brief The method returns a size of a type that can be retrieved from glGetActiveUniform
 			//*/
 
@@ -174,6 +164,16 @@ namespace TDEngine2
 			//*/
 
 			//TDE2_API static GLint GetTextureAddressMode(E_ADDRESS_MODE_TYPE addressMode);
+
+			/*!
+				\brief The function maps an internal format type into OpenGL internal format
+
+				\param[in] format An internal format
+
+				\return A value of internal GL format
+			*/
+
+			TDE2_API static VkFormat GetInternalFormat(E_FORMAT_TYPE format);
 
 			/*!
 				\brief The function maps GLenum error code into internal E_RESULT_CODE type
