@@ -400,7 +400,9 @@ namespace TDEngine2
 
 			TDE2_API std::vector<U8> GetBackBufferData() const override;
 
-			TDE2_API VkDevice GetDevice() const;
+			TDE2_API VkDevice GetDevice();
+			TDE2_API VkPhysicalDevice GetPhysicalDevice();
+			TDE2_API VkInstance GetInstance();
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanGraphicsContext)
 			TDE2_API CVulkanGraphicsContext(TPtr<IWindowSurfaceFactory> pWindowSurfaceFactory);
@@ -413,11 +415,11 @@ namespace TDEngine2
 		protected:
 			static const USIZE          mNumOfCommandsBuffers = 4;
 
-			TPtr<IWindowSystem>         mpWindowSystem;
-			TPtr<IEventManager>         mpEventManager;
-			TPtr<IWindowSurfaceFactory> mpWindowSurfaceFactory;
+			TPtr<IWindowSystem>         mpWindowSystem = nullptr;
+			TPtr<IEventManager>         mpEventManager = nullptr;
+			TPtr<IWindowSurfaceFactory> mpWindowSurfaceFactory = nullptr;
 			
-			mutable TPtr<IGraphicsObjectManager> mpGraphicsObjectManager;
+			mutable TPtr<IGraphicsObjectManager> mpGraphicsObjectManager = nullptr;
 
 			TGraphicsCtxInternalData mInternalDataObject;
 
@@ -426,22 +428,22 @@ namespace TDEngine2
 			VkDevice                 mDevice = VK_NULL_HANDLE;
 
 			// queues
-			VkQueue                  mGraphicsQueue;
-			VkQueue                  mPresentQueue;
+			VkQueue                  mGraphicsQueue = VK_NULL_HANDLE;
+			VkQueue                  mPresentQueue = VK_NULL_HANDLE;
 
-			VkSurfaceKHR             mSurface; 
-			VkSwapchainKHR           mSwapChain;
-			VkSurfaceFormatKHR       mSwapChainFormat;
-			VkExtent2D               mSwapChainExtents;
-			std::vector<VkImage>     mSwapChainImages;
-			std::vector<VkImageView> mSwapChainImageViews;
+			VkSurfaceKHR             mSurface = VK_NULL_HANDLE; 
+			VkSwapchainKHR           mSwapChain = VK_NULL_HANDLE;
+			VkSurfaceFormatKHR       mSwapChainFormat {};
+			VkExtent2D               mSwapChainExtents {};
+			std::vector<VkImage>     mSwapChainImages {};
+			std::vector<VkImageView> mSwapChainImageViews {};
 
 			// commands
-			VkCommandPool                                      mMainCommandPool;
-			std::array<VkCommandBuffer, mNumOfCommandsBuffers> mCommandBuffers;
-			std::array<VkFence, mNumOfCommandsBuffers>         mCommandBuffersFences;
-			std::array<VkSemaphore, mNumOfCommandsBuffers>     mImageReadySemaphore;
-			std::array<VkSemaphore, mNumOfCommandsBuffers>     mRenderFinishedSemaphore;
+			VkCommandPool                                      mMainCommandPool = VK_NULL_HANDLE;
+			std::array<VkCommandBuffer, mNumOfCommandsBuffers> mCommandBuffers {};
+			std::array<VkFence, mNumOfCommandsBuffers>         mCommandBuffersFences {};
+			std::array<VkSemaphore, mNumOfCommandsBuffers>     mImageReadySemaphores {};
+			std::array<VkSemaphore, mNumOfCommandsBuffers>     mRenderFinishedSemaphores {};
 
 			USIZE mCurrFrameIndex = 0;
 			U32   mCurrUsedImageIndex = 0;
@@ -449,7 +451,7 @@ namespace TDEngine2
 			TQueuesCreateInfo        mQueuesInfo;
 
 #if TDE2_DEBUG_MODE
-			VkDebugUtilsMessengerEXT mDebugMessenger;
+			VkDebugUtilsMessengerEXT mDebugMessenger = VK_NULL_HANDLE;
 #endif
 	};
 
