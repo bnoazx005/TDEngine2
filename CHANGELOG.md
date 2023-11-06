@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.22] 2023-11-04
+## [0.6.22] 2023-11-06
 
 ### Added
 
@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add a new GAPI support which is Vulkan through VulkanGraphicsContext.
 
 - Add support of marking up renderer's region to improve debug experience via graphics debuggers.
+
+- The API of **IGraphicsContext** was extended with a new public method BeginFrame() which is invoked before any graphics are passed into commands buffers.
 
 ### Changed
 

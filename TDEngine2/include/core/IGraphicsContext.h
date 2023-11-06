@@ -132,6 +132,8 @@ namespace TDEngine2
 
 			TDE2_API virtual void ClearStencilBuffer(U8 value) = 0;
 
+			TDE2_API virtual void BeginFrame() = 0;
+
 			/*!
 				\brief The method swaps a current buffer with a back one
 			*/

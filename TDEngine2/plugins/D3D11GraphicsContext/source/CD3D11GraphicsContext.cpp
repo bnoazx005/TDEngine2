@@ -247,6 +247,10 @@ namespace TDEngine2
 		mp3dDeviceContext->ClearDepthStencilView(mpCurrDepthStencilView, D3D11_CLEAR_STENCIL, 0.0f, value);
 	}
 
+	void CD3D11GraphicsContext::BeginFrame()
+	{
+	}
+
 	void CD3D11GraphicsContext::Present()
 	{
 		TDE2_PROFILER_SCOPE("CD3D11GraphicsContext::Present");

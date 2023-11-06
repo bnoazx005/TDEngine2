@@ -68,6 +68,8 @@ namespace TDEngine2
 
 			TDE2_API void ClearBackBuffer(const TColor32F& color) override;	
 
+			TDE2_API void BeginFrame() override;
+
 			/*!
 				\brief The method swaps a current buffer with a back one
 			*/
@@ -438,6 +440,11 @@ namespace TDEngine2
 			VkCommandPool                                      mMainCommandPool;
 			std::array<VkCommandBuffer, mNumOfCommandsBuffers> mCommandBuffers;
 			std::array<VkFence, mNumOfCommandsBuffers>         mCommandBuffersFences;
+			std::array<VkSemaphore, mNumOfCommandsBuffers>     mImageReadySemaphore;
+			std::array<VkSemaphore, mNumOfCommandsBuffers>     mRenderFinishedSemaphore;
+
+			USIZE mCurrFrameIndex = 0;
+			U32   mCurrUsedImageIndex = 0;
 
 			TQueuesCreateInfo        mQueuesInfo;
 

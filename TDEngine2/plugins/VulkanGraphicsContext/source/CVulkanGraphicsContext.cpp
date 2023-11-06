@@ -538,14 +538,16 @@ namespace TDEngine2
 		
 		vkDestroyCommandPool(mDevice, mMainCommandPool, nullptr);
 		
-		for (auto& currFence : mCommandBuffersFences)
-		{
-			vkDestroyFence(mDevice, currFence, nullptr);
-		}
-
-		for (auto currImageView : mSwapChainImageViews) 
+		for (auto& currImageView : mSwapChainImageViews) 
 		{
 			vkDestroyImageView(mDevice, currImageView, nullptr);
+		}
+
+		for (USIZE i = 0; i < mNumOfCommandsBuffers; i++)
+		{
+			vkDestroyFence(mDevice, mCommandBuffersFences[i], nullptr);
+			vkDestroySemaphore(mDevice, mImageReadySemaphore[i], nullptr);
+			vkDestroySemaphore(mDevice, mRenderFinishedSemaphore[i], nullptr);
 		}
 
 		vkDestroySwapchainKHR(mDevice, mSwapChain, nullptr);
@@ -581,8 +583,53 @@ namespace TDEngine2
 	{
 	}
 
+	void CVulkanGraphicsContext::BeginFrame()
+	{
+		VK_SAFE_VOID_CALL(vkWaitForFences(mDevice, 1, &mCommandBuffersFences[mCurrFrameIndex], VK_TRUE, UINT64_MAX));
+		VK_SAFE_VOID_CALL(vkResetFences(mDevice, 1, &mCommandBuffersFences[mCurrFrameIndex]));
+
+		VK_SAFE_VOID_CALL(vkAcquireNextImageKHR(mDevice, mSwapChain, UINT64_MAX, mImageReadySemaphore[mCurrFrameIndex], VK_NULL_HANDLE, &mCurrUsedImageIndex));
+
+		VK_SAFE_VOID_CALL(vkResetCommandBuffer(mCommandBuffers[mCurrFrameIndex], 0));
+
+	}
+
 	void CVulkanGraphicsContext::Present()
 	{
+		VkSubmitInfo submitInfo{};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+		VkSemaphore waitSemaphores[] = { mImageReadySemaphore[mCurrFrameIndex] };
+		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+		submitInfo.waitSemaphoreCount = 1;
+		submitInfo.pWaitSemaphores = waitSemaphores;
+		submitInfo.pWaitDstStageMask = waitStages;
+
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &mCommandBuffers[mCurrFrameIndex];
+
+		VkSemaphore signalSemaphores[] = { mRenderFinishedSemaphore[mCurrFrameIndex] };
+		submitInfo.signalSemaphoreCount = 1;
+		submitInfo.pSignalSemaphores = signalSemaphores;
+
+		VK_SAFE_VOID_CALL(vkQueueSubmit(mGraphicsQueue, 1, &submitInfo, mCommandBuffersFences[mCurrFrameIndex]));
+
+		// actual present
+		VkPresentInfoKHR presentInfo{};
+		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+		presentInfo.waitSemaphoreCount = 1;
+		presentInfo.pWaitSemaphores = signalSemaphores;
+
+		VkSwapchainKHR swapChains[] = { mSwapChain };
+		presentInfo.swapchainCount = 1;
+		presentInfo.pSwapchains = swapChains;
+
+		presentInfo.pImageIndices = &mCurrUsedImageIndex;
+
+		vkQueuePresentKHR(mPresentQueue, &presentInfo);
+
+		mCurrFrameIndex = (mCurrFrameIndex + 1) % mNumOfCommandsBuffers;
 	}
 
 	void CVulkanGraphicsContext::SetViewport(F32 x, F32 y, F32 width, F32 height, F32 minDepth, F32 maxDepth)
@@ -874,10 +921,17 @@ namespace TDEngine2
 		// \note Create fences one for each command buffer
 		VkFenceCreateInfo fenceCreateInfo = {};
 		fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+		fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+		VkSemaphoreCreateInfo semaphoreCreateInfo = {};
+		semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
 		for (USIZE i = 0; i < mNumOfCommandsBuffers; i++)
 		{
 			VK_SAFE_CALL(vkCreateFence(mDevice, &fenceCreateInfo, nullptr, &mCommandBuffersFences[i]));
+
+			VK_SAFE_CALL(vkCreateSemaphore(mDevice, &semaphoreCreateInfo, nullptr, &mImageReadySemaphore[i]));
+			VK_SAFE_CALL(vkCreateSemaphore(mDevice, &semaphoreCreateInfo, nullptr, &mRenderFinishedSemaphore[i]));
 		}
 
 		return result;

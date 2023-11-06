@@ -64,6 +64,11 @@ namespace TDEngine2
 		LOG_MESSAGE("[ProxyGraphicsContext] ClearStencilBuffer(U8)");
 	}
 
+	void CProxyGraphicsContext::BeginFrame()
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] BeginFrame");
+	}
+
 	void CProxyGraphicsContext::Present()
 	{
 		LOG_MESSAGE("[ProxyGraphicsContext] Present()");

@@ -89,6 +89,8 @@ namespace TDEngine2
 
 			TDE2_API void ClearStencilBuffer(U8 value) override;
 
+			TDE2_API void BeginFrame() override;
+
 			/*!
 				\brief The method swaps a current buffer with a back one
 			*/

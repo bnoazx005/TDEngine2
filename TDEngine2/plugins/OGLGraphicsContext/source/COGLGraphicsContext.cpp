@@ -199,6 +199,10 @@ namespace TDEngine2
 		GL_SAFE_VOID_CALL(glClear(GL_STENCIL_BUFFER_BIT));
 	}
 
+	void COGLGraphicsContext::BeginFrame()
+	{
+	}
+
 	void COGLGraphicsContext::Present()
 	{
 #if defined (TDE2_USE_WINPLATFORM)

@@ -57,6 +57,8 @@ namespace TDEngine2
 
 			TDE2_API void ClearBackBuffer(const TColor32F& color) override;	
 
+			TDE2_API void BeginFrame() override;
+
 			/*!
 				\brief The method swaps a current buffer with a back one
 			*/
