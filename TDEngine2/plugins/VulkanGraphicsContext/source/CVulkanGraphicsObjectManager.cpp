@@ -1,6 +1,12 @@
 #include "../include/CVulkanGraphicsObjectManager.h"
+#include "../include/CVulkanGraphicsContext.h"
 #include "../include/CVulkanMappings.h"
 #include "../include/CVulkanUtils.h"
+#include "../include/CVulkanConstantBuffer.h"
+#include "../include/CVulkanIndexBuffer.h"
+#include "../include/CVulkanVertexBuffer.h"
+#include "../include/CVulkanStructuredBuffer.h"
+#include "../include/CVulkanVertexDeclaration.h"
 #include <core/IFileSystem.h>
 #include <core/IFile.h>
 #include <core/CProjectSettings.h>
@@ -13,11 +19,57 @@ namespace TDEngine2
 	{
 	}
 
+	E_RESULT_CODE CVulkanGraphicsObjectManager::Init(IGraphicsContext* pGraphicsContext)
+	{
+		E_RESULT_CODE result = CBaseGraphicsObjectManager::Init(pGraphicsContext);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		CVulkanGraphicsContext* pVulkanImplContext = dynamic_cast<CVulkanGraphicsContext*>(pGraphicsContext);
+		if (!pVulkanImplContext)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		VmaAllocatorCreateInfo allocatorInfo = {};
+		allocatorInfo.physicalDevice = pVulkanImplContext->GetPhysicalDevice();
+		allocatorInfo.device = pVulkanImplContext->GetDevice();
+		allocatorInfo.instance = pVulkanImplContext->GetInstance();
+
+		// \note volk 2 vma function pointers
+		VmaVulkanFunctions vma_vulkan_func{};
+		vma_vulkan_func.vkGetInstanceProcAddr = vkGetInstanceProcAddr;
+		vma_vulkan_func.vkGetDeviceProcAddr = vkGetDeviceProcAddr;
+		vma_vulkan_func.vkGetPhysicalDeviceProperties = vkGetPhysicalDeviceProperties;
+		vma_vulkan_func.vkGetPhysicalDeviceMemoryProperties = vkGetPhysicalDeviceMemoryProperties;
+		vma_vulkan_func.vkAllocateMemory = vkAllocateMemory;
+		vma_vulkan_func.vkFreeMemory = vkFreeMemory;
+		vma_vulkan_func.vkMapMemory = vkMapMemory;
+		vma_vulkan_func.vkUnmapMemory = vkUnmapMemory;
+		vma_vulkan_func.vkFlushMappedMemoryRanges = vkFlushMappedMemoryRanges;
+		vma_vulkan_func.vkInvalidateMappedMemoryRanges = vkInvalidateMappedMemoryRanges;
+		vma_vulkan_func.vkBindBufferMemory = vkBindBufferMemory;
+		vma_vulkan_func.vkBindImageMemory = vkBindImageMemory;
+		vma_vulkan_func.vkGetBufferMemoryRequirements = vkGetBufferMemoryRequirements;
+		vma_vulkan_func.vkGetImageMemoryRequirements = vkGetImageMemoryRequirements;
+		vma_vulkan_func.vkCreateBuffer = vkCreateBuffer;
+		vma_vulkan_func.vkDestroyBuffer = vkDestroyBuffer;
+		vma_vulkan_func.vkCreateImage = vkCreateImage;
+		vma_vulkan_func.vkDestroyImage = vkDestroyImage;
+		vma_vulkan_func.vkCmdCopyBuffer = vkCmdCopyBuffer;
+
+		allocatorInfo.pVulkanFunctions = &vma_vulkan_func;
+
+		VK_SAFE_CALL(vmaCreateAllocator(&allocatorInfo, &mMainAllocator));
+
+		return result;
+	}
+
 	TResult<IVertexBuffer*> CVulkanGraphicsObjectManager::CreateVertexBuffer(E_BUFFER_USAGE_TYPE usageType, USIZE totalBufferSize, const void* pDataPtr)
 	{
-		TDE2_UNIMPLEMENTED();
-		return Wrench::TErrValue<E_RESULT_CODE>(RC_NOT_IMPLEMENTED_YET);
-		/*E_RESULT_CODE result = RC_OK;
+		E_RESULT_CODE result = RC_OK;
 
 		IVertexBuffer* pNewVertexBuffer = CreateVulkanVertexBuffer(mpGraphicsContext, usageType, totalBufferSize, pDataPtr, result);
 
@@ -28,15 +80,13 @@ namespace TDEngine2
 
 		_insertBuffer(pNewVertexBuffer);
 
-		return Wrench::TOkValue<IVertexBuffer*>(pNewVertexBuffer);*/
+		return Wrench::TOkValue<IVertexBuffer*>(pNewVertexBuffer);
 	}
 
 	TResult<IIndexBuffer*> CVulkanGraphicsObjectManager::CreateIndexBuffer(E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
 																		USIZE totalBufferSize, const void* pDataPtr)
 	{
-		TDE2_UNIMPLEMENTED();
-		return Wrench::TErrValue<E_RESULT_CODE>(RC_NOT_IMPLEMENTED_YET);
-		/*E_RESULT_CODE result = RC_OK;
+		E_RESULT_CODE result = RC_OK;
 
 		IIndexBuffer* pNewIndexBuffer = CreateVulkanIndexBuffer(mpGraphicsContext, usageType, indexFormatType, totalBufferSize, pDataPtr, result);
 
@@ -47,14 +97,12 @@ namespace TDEngine2
 
 		_insertBuffer(pNewIndexBuffer);
 
-		return Wrench::TOkValue<IIndexBuffer*>(pNewIndexBuffer);*/
+		return Wrench::TOkValue<IIndexBuffer*>(pNewIndexBuffer);
 	}
 
 	TResult<IConstantBuffer*> CVulkanGraphicsObjectManager::CreateConstantBuffer(E_BUFFER_USAGE_TYPE usageType, USIZE totalBufferSize, const void* pDataPtr)
 	{
-		TDE2_UNIMPLEMENTED();
-		return Wrench::TErrValue<E_RESULT_CODE>(RC_NOT_IMPLEMENTED_YET);
-		/*E_RESULT_CODE result = RC_OK;
+		E_RESULT_CODE result = RC_OK;
 
 		IConstantBuffer* pNewConstantBuffer = CreateVulkanConstantBuffer(mpGraphicsContext, usageType, totalBufferSize, pDataPtr, result);
 
@@ -65,14 +113,12 @@ namespace TDEngine2
 
 		_insertBuffer(pNewConstantBuffer);
 
-		return Wrench::TOkValue<IConstantBuffer*>(pNewConstantBuffer);*/
+		return Wrench::TOkValue<IConstantBuffer*>(pNewConstantBuffer);
 	}
 
 	TResult<IStructuredBuffer*> CVulkanGraphicsObjectManager::CreateStructuredBuffer(const TStructuredBuffersInitParams& params)
 	{
-		TDE2_UNIMPLEMENTED();
-		return Wrench::TErrValue<E_RESULT_CODE>(RC_NOT_IMPLEMENTED_YET);
-		/*E_RESULT_CODE result = RC_OK;
+		E_RESULT_CODE result = RC_OK;
 
 		IStructuredBuffer* pNewStructuredBuffer = CreateVulkanStructuredBuffer(params, result);
 
@@ -83,14 +129,12 @@ namespace TDEngine2
 
 		_insertBuffer(pNewStructuredBuffer);
 
-		return Wrench::TOkValue<IStructuredBuffer*>(pNewStructuredBuffer);*/
+		return Wrench::TOkValue<IStructuredBuffer*>(pNewStructuredBuffer);
 	}
 
 	TResult<IVertexDeclaration*> CVulkanGraphicsObjectManager::CreateVertexDeclaration()
 	{
-		TDE2_UNIMPLEMENTED();
-		return Wrench::TErrValue<E_RESULT_CODE>(RC_NOT_IMPLEMENTED_YET);
-		/*E_RESULT_CODE result = RC_OK;
+		E_RESULT_CODE result = RC_OK;
 
 		IVertexDeclaration* pNewVertDecl = CreateVulkanVertexDeclaration(result);
 
@@ -101,7 +145,7 @@ namespace TDEngine2
 
 		_insertVertexDeclaration(pNewVertDecl);
 
-		return Wrench::TOkValue<IVertexDeclaration*>(pNewVertDecl);*/
+		return Wrench::TOkValue<IVertexDeclaration*>(pNewVertDecl);
 	}
 
 	TResult<TTextureSamplerId> CVulkanGraphicsObjectManager::CreateTextureSampler(const TTextureSamplerDesc& samplerDesc)
@@ -210,6 +254,24 @@ namespace TDEngine2
 	{
 		// \note first two components are xy position, latter two are uv coordinates of the triangle
 		return { TVector4(-1.0f, -1.0f, 0.0f, 0.0f), TVector4(-1.0f, 3.0f, 0.0f, 2.0f), TVector4(3.0f, -1.0f, 2.0f, 0.0f) };
+	}
+
+	VmaAllocator CVulkanGraphicsObjectManager::GetAllocator() const
+	{
+		return mMainAllocator;
+	}
+
+	E_RESULT_CODE CVulkanGraphicsObjectManager::_onFreeInternal()
+	{
+		E_RESULT_CODE result = CBaseGraphicsObjectManager::_onFreeInternal();
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		vmaDestroyAllocator(mMainAllocator);
+
+		return result;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsObjectManager::_freeTextureSamplers()

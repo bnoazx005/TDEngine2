@@ -13,6 +13,7 @@
 #include <volk.h>
 #include <vulkan/vulkan.hpp>
 #include <array>
+#include <functional>
 
 
 namespace TDEngine2
@@ -47,6 +48,9 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API IGraphicsContext* CreateVulkanGraphicsContext(TPtr<IWindowSystem>, TPtr<IWindowSurfaceFactory>, E_RESULT_CODE&);
+		public:
+			typedef std::function<void()>             TDestroyObjectAction;
+			typedef std::vector<TDestroyObjectAction> TGarbageCollection;
 		public:
 			TDE2_REGISTER_TYPE(CVulkanGraphicsContext)
 
@@ -119,6 +123,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void ClearStencilBuffer(U8 value) override;
+
+			/*!
+				\brief The method executes given destroyCommand at the end of a frame when all resources of current frame can be destructed
+			*/
+
+			TDE2_API E_RESULT_CODE DestroyObjectDeffered(const std::function<void()>& destroyCommand);
 
 			/*!
 				\brief The method sets up a viewport's parameters
@@ -439,11 +449,12 @@ namespace TDEngine2
 			std::vector<VkImageView> mSwapChainImageViews {};
 
 			// commands
-			VkCommandPool                                      mMainCommandPool = VK_NULL_HANDLE;
-			std::array<VkCommandBuffer, mNumOfCommandsBuffers> mCommandBuffers {};
-			std::array<VkFence, mNumOfCommandsBuffers>         mCommandBuffersFences {};
-			std::array<VkSemaphore, mNumOfCommandsBuffers>     mImageReadySemaphores {};
-			std::array<VkSemaphore, mNumOfCommandsBuffers>     mRenderFinishedSemaphores {};
+			VkCommandPool                                         mMainCommandPool = VK_NULL_HANDLE;
+			std::array<VkCommandBuffer, mNumOfCommandsBuffers>    mCommandBuffers {};
+			std::array<VkFence, mNumOfCommandsBuffers>            mCommandBuffersFences {};
+			std::array<VkSemaphore, mNumOfCommandsBuffers>        mImageReadySemaphores {};
+			std::array<VkSemaphore, mNumOfCommandsBuffers>        mRenderFinishedSemaphores {};
+			std::array<TGarbageCollection, mNumOfCommandsBuffers> mAwaitingDeletionObjects {};
 
 			USIZE mCurrFrameIndex = 0;
 			U32   mCurrUsedImageIndex = 0;

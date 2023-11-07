@@ -4,17 +4,23 @@
 
 namespace TDEngine2
 {
-	/*GLenum CVulkanMappings::GetUsageType(E_BUFFER_USAGE_TYPE type)
+	VmaMemoryUsage CVulkanMappings::GetUsageType(E_BUFFER_USAGE_TYPE type)
 	{
-		if (type == BUT_DYNAMIC)
+		switch (type)
 		{
-			return GL_DYNAMIC_DRAW;
+			case E_BUFFER_USAGE_TYPE::BUT_DEFAULT:
+				return VMA_MEMORY_USAGE_GPU_ONLY;
+			case E_BUFFER_USAGE_TYPE::BUT_DYNAMIC:
+				return VMA_MEMORY_USAGE_CPU_TO_GPU;
+			case E_BUFFER_USAGE_TYPE::BUT_STATIC:
+				return VMA_MEMORY_USAGE_GPU_ONLY;
 		}
 
-		return GL_STATIC_DRAW;
+		TDE2_UNREACHABLE();
+		return VMA_MEMORY_USAGE_UNKNOWN;
 	}
 
-	GLenum CVulkanMappings::GetBufferMapAccessType(E_BUFFER_MAP_TYPE type)
+	/*GLenum CVulkanMappings::GetBufferMapAccessType(E_BUFFER_MAP_TYPE type)
 	{
 		switch (type)
 		{

@@ -27,7 +27,7 @@ namespace TDEngine2
 
 
 	CVulkanGraphicsContext::CVulkanGraphicsContext(TPtr<IWindowSurfaceFactory> pWindowSurfaceFactory) :
-		CBaseObject()
+		CBaseObject(), mpWindowSurfaceFactory(pWindowSurfaceFactory)
 	{
 	}
 
@@ -583,6 +583,18 @@ namespace TDEngine2
 	{
 	}
 
+	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeffered(const std::function<void()>& destroyCommand)
+	{
+		if (!destroyCommand)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mAwaitingDeletionObjects[mCurrFrameIndex].emplace_back(destroyCommand);
+
+		return RC_OK;
+	}
+
 	void CVulkanGraphicsContext::BeginFrame()
 	{
 		VK_SAFE_VOID_CALL(vkWaitForFences(mDevice, 1, &mCommandBuffersFences[mCurrFrameIndex], VK_TRUE, UINT64_MAX));
@@ -592,6 +604,13 @@ namespace TDEngine2
 
 		VK_SAFE_VOID_CALL(vkResetCommandBuffer(mCommandBuffers[mCurrFrameIndex], 0));
 
+		// destroy objects that were marked for deletion
+		for (auto&& currCommand : mAwaitingDeletionObjects[mCurrFrameIndex])
+		{
+			currCommand();
+		}
+
+		mAwaitingDeletionObjects[mCurrFrameIndex].clear();
 	}
 
 	void CVulkanGraphicsContext::Present()

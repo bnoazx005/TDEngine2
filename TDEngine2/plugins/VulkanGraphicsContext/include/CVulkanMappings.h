@@ -8,9 +8,11 @@
 
 
 #include <utils/Types.h>
+#include <graphics/IBuffer.h>
 #include <string>
 #define VK_NO_PROTOTYPES
 #include <vulkan/vulkan_core.h>
+#include "vk_mem_alloc.h"
 
 
 enum VkResult;
@@ -26,16 +28,16 @@ namespace TDEngine2
 	class CVulkanMappings
 	{
 		public:
-			///*!
-			//	\brief The function maps internal buffer usage type into
-			//	GLenum type
+			/*!
+				\brief The function maps internal buffer usage type into
+				GLenum type
 
-			//	\param[in] type A usage type of a buffer
+				\param[in] type A usage type of a buffer
 
-			//	\return A value of Glenum type
-			//*/
+				\return A value of Glenum type
+			*/
 
-			//TDE2_API static GLenum GetUsageType(E_BUFFER_USAGE_TYPE type);
+			TDE2_API static VmaMemoryUsage GetUsageType(E_BUFFER_USAGE_TYPE type);
 
 			///*!
 			//	\brief The function converts the internal E_BUFFER_MAP_TYPE into
