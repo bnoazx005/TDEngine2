@@ -10,8 +10,6 @@
 #include <graphics/CBaseGraphicsObjectManager.h>
 #include <unordered_map>
 #include <vector>
-#define VK_NO_PROTOTYPES
-#include "vk_mem_alloc.h"
 
 
 namespace TDEngine2
@@ -40,16 +38,6 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IGraphicsObjectManager* CreateVulkanGraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
 		public:
-			/*!
-				\brief The method initializes an initial state of a buffer
-
-				\param[in] pGraphicsContext A pointer to implementation of IGraphicsContext interface
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext) override;
-
 			/*!
 				\brief The method is a factory for creation objects of IVertexBuffer's type
 
@@ -175,11 +163,8 @@ namespace TDEngine2
 
 			TDE2_API std::array<TVector4, 3> GetScreenTriangleVertices() const override;
 
-			TDE2_API VmaAllocator GetAllocator() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanGraphicsObjectManager)
-
-			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 
 			TDE2_API E_RESULT_CODE _freeTextureSamplers() override;
 
@@ -191,6 +176,5 @@ namespace TDEngine2
 
 			TDE2_API const std::string _getShaderCacheFilePath() const override;
 		protected:
-			VmaAllocator mMainAllocator;
 	};
 }

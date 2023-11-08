@@ -467,6 +467,49 @@ namespace TDEngine2
 	}
 
 
+	static TResult<VmaAllocator> InitMainAllocator(VkPhysicalDevice physicalDevice, VkDevice device, VkInstance instance)
+	{
+		VmaAllocatorCreateInfo allocatorInfo = {};
+		allocatorInfo.physicalDevice = physicalDevice;
+		allocatorInfo.device = device;
+		allocatorInfo.instance = instance;
+
+		// \note volk 2 vma function pointers
+		VmaVulkanFunctions vma_vulkan_func{};
+		vma_vulkan_func.vkGetInstanceProcAddr = vkGetInstanceProcAddr;
+		vma_vulkan_func.vkGetDeviceProcAddr = vkGetDeviceProcAddr;
+		vma_vulkan_func.vkGetPhysicalDeviceProperties = vkGetPhysicalDeviceProperties;
+		vma_vulkan_func.vkGetPhysicalDeviceMemoryProperties = vkGetPhysicalDeviceMemoryProperties;
+		vma_vulkan_func.vkAllocateMemory = vkAllocateMemory;
+		vma_vulkan_func.vkFreeMemory = vkFreeMemory;
+		vma_vulkan_func.vkMapMemory = vkMapMemory;
+		vma_vulkan_func.vkUnmapMemory = vkUnmapMemory;
+		vma_vulkan_func.vkFlushMappedMemoryRanges = vkFlushMappedMemoryRanges;
+		vma_vulkan_func.vkInvalidateMappedMemoryRanges = vkInvalidateMappedMemoryRanges;
+		vma_vulkan_func.vkBindBufferMemory = vkBindBufferMemory;
+		vma_vulkan_func.vkBindImageMemory = vkBindImageMemory;
+		vma_vulkan_func.vkGetBufferMemoryRequirements = vkGetBufferMemoryRequirements;
+		vma_vulkan_func.vkGetImageMemoryRequirements = vkGetImageMemoryRequirements;
+		vma_vulkan_func.vkCreateBuffer = vkCreateBuffer;
+		vma_vulkan_func.vkDestroyBuffer = vkDestroyBuffer;
+		vma_vulkan_func.vkCreateImage = vkCreateImage;
+		vma_vulkan_func.vkDestroyImage = vkDestroyImage;
+		vma_vulkan_func.vkCmdCopyBuffer = vkCmdCopyBuffer;
+
+		allocatorInfo.pVulkanFunctions = &vma_vulkan_func;
+
+		VmaAllocator allocator = VK_NULL_HANDLE;
+		
+		VkResult result = vmaCreateAllocator(&allocatorInfo, &allocator);
+		if (VK_SUCCESS != result)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(CVulkanMappings::GetErrorCode(result));
+		}
+
+		return Wrench::TOkValue<VmaAllocator>(allocator);
+	}
+
+
 	E_RESULT_CODE CVulkanGraphicsContext::_onInitInternal()
 	{
 		VK_SAFE_CALL(volkInitialize());
@@ -527,6 +570,14 @@ namespace TDEngine2
 			return result;
 		}
 
+		auto allocatorCreateResult = InitMainAllocator(mPhysicalDevice, mDevice, mInstance);
+		if (allocatorCreateResult.HasError())
+		{
+			return allocatorCreateResult.GetError();
+		}
+
+		mMainAllocator = allocatorCreateResult.Get();
+
 		return RC_OK;
 	}
 
@@ -537,6 +588,8 @@ namespace TDEngine2
 #endif
 
 		vkDestroyCommandPool(mDevice, mMainCommandPool, nullptr);
+
+		vmaDestroyAllocator(mMainAllocator);
 
 		for (auto& currImageView : mSwapChainImageViews)
 		{
@@ -816,6 +869,11 @@ namespace TDEngine2
 	VkInstance CVulkanGraphicsContext::GetInstance()
 	{
 		return mInstance;
+	}
+
+	VmaAllocator CVulkanGraphicsContext::GetAllocator()
+	{
+		return mMainAllocator;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::_createSwapChain()

@@ -12,6 +12,7 @@
 #define VK_NO_PROTOTYPES
 #include <volk.h>
 #include <vulkan/vulkan.hpp>
+#include "vk_mem_alloc.h"
 #include <array>
 #include <functional>
 
@@ -413,6 +414,7 @@ namespace TDEngine2
 			TDE2_API VkDevice GetDevice();
 			TDE2_API VkPhysicalDevice GetPhysicalDevice();
 			TDE2_API VkInstance GetInstance();
+			TDE2_API VmaAllocator GetAllocator();
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanGraphicsContext)
 			TDE2_API CVulkanGraphicsContext(TPtr<IWindowSurfaceFactory> pWindowSurfaceFactory);
@@ -460,6 +462,8 @@ namespace TDEngine2
 			U32   mCurrUsedImageIndex = 0;
 
 			TQueuesCreateInfo        mQueuesInfo;
+
+			VmaAllocator mMainAllocator;
 
 #if TDE2_DEBUG_MODE
 			VkDebugUtilsMessengerEXT mDebugMessenger = VK_NULL_HANDLE;

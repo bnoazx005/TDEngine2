@@ -67,14 +67,8 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		auto pGraphicsObjectManager = dynamic_cast<CVulkanGraphicsObjectManager*>(params.mpGraphicsContext->GetGraphicsObjectManager());
-		if (!pGraphicsObjectManager)
-		{
-			return RC_FAIL;
-		}
-
 		mDevice = mpGraphicsContextImpl->GetDevice();
-		mAllocator = pGraphicsObjectManager->GetAllocator();
+		mAllocator = mpGraphicsContextImpl->GetAllocator();
 
 		mIsUnorderedAccessResource = params.mIsUnorderedAccessResource;
 		
