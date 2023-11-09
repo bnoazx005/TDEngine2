@@ -578,6 +578,12 @@ namespace TDEngine2
 
 		mMainAllocator = allocatorCreateResult.Get();
 
+		result = _initTransferContext();
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
 		return RC_OK;
 	}
 
@@ -588,6 +594,7 @@ namespace TDEngine2
 #endif
 
 		vkDestroyCommandPool(mDevice, mMainCommandPool, nullptr);
+		vkDestroyCommandPool(mDevice, mTransferCommandPool, nullptr);
 
 		vmaDestroyAllocator(mMainAllocator);
 
@@ -595,6 +602,8 @@ namespace TDEngine2
 		{
 			vkDestroyImageView(mDevice, currImageView, nullptr);
 		}
+
+		vkDestroyFence(mDevice, mTransferCommandFence, nullptr);
 
 		for (USIZE i = 0; i < mNumOfCommandsBuffers; i++)
 		{
@@ -644,6 +653,39 @@ namespace TDEngine2
 		}
 
 		mAwaitingDeletionObjects[mCurrFrameIndex].emplace_back(destroyCommand);
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CVulkanGraphicsContext::ExecuteCopyImmediate(const std::function<void(VkCommandBuffer)>& copyCommand)
+	{
+		if (!copyCommand)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		VkCommandBufferBeginInfo beginCommandInfo{};
+		beginCommandInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginCommandInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+		VK_SAFE_CALL(vkBeginCommandBuffer(mTransferCommandBuffer, &beginCommandInfo));
+		copyCommand(mTransferCommandBuffer);
+		VK_SAFE_CALL(vkEndCommandBuffer(mTransferCommandBuffer));
+
+		VkSubmitInfo submitInfo{};
+
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submitInfo.waitSemaphoreCount = 0;
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &mTransferCommandBuffer;
+		submitInfo.signalSemaphoreCount = 0;
+
+		VK_SAFE_CALL(vkQueueSubmit(mGraphicsQueue, 1, &submitInfo, mTransferCommandFence));
+
+		VK_SAFE_CALL(vkWaitForFences(mDevice, 1, &mTransferCommandFence, true, std::numeric_limits<U64>::max()));
+		VK_SAFE_CALL(vkResetFences(mDevice, 1, &mTransferCommandFence));
+
+		VK_SAFE_CALL(vkResetCommandPool(mDevice, mTransferCommandPool, 0));
 
 		return RC_OK;
 	}
@@ -993,8 +1035,6 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanGraphicsContext::_prepareCommandBuffers()
 	{
-		E_RESULT_CODE result = RC_OK;
-
 		VkCommandPoolCreateInfo poolInfo {};
 		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 		poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
@@ -1027,7 +1067,32 @@ namespace TDEngine2
 			VK_SAFE_CALL(vkCreateSemaphore(mDevice, &semaphoreCreateInfo, nullptr, &mRenderFinishedSemaphores[i]));
 		}
 
-		return result;
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CVulkanGraphicsContext::_initTransferContext()
+	{
+		VkCommandPoolCreateInfo poolInfo{};
+		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+		poolInfo.queueFamilyIndex = mQueuesInfo.mGraphicsQueueIndex;
+
+		VK_SAFE_CALL(vkCreateCommandPool(mDevice, &poolInfo, nullptr, &mTransferCommandPool));
+
+		VkCommandBufferAllocateInfo allocInfo{};
+		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfo.commandPool = mTransferCommandPool;
+		allocInfo.commandBufferCount = 1;
+
+		VK_SAFE_CALL(vkAllocateCommandBuffers(mDevice, &allocInfo, &mTransferCommandBuffer));
+
+		VkFenceCreateInfo fenceCreateInfo = {};
+		fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+
+		VK_SAFE_CALL(vkCreateFence(mDevice, &fenceCreateInfo, nullptr, &mTransferCommandFence));
+
+		return RC_OK;
 	}
 
 

@@ -131,6 +131,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE DestroyObjectDeffered(const std::function<void()>& destroyCommand);
 
+			TDE2_API E_RESULT_CODE ExecuteCopyImmediate(const std::function<void(VkCommandBuffer)>& copyCommand);
+
 			/*!
 				\brief The method sets up a viewport's parameters
 
@@ -424,6 +426,8 @@ namespace TDEngine2
 
 			E_RESULT_CODE _createSwapChain();
 			E_RESULT_CODE _prepareCommandBuffers();
+
+			E_RESULT_CODE _initTransferContext();
 		protected:
 			static const USIZE          mNumOfCommandsBuffers = 4;
 
@@ -464,6 +468,11 @@ namespace TDEngine2
 			TQueuesCreateInfo        mQueuesInfo;
 
 			VmaAllocator mMainAllocator;
+
+			// transfer context
+			VkCommandPool   mTransferCommandPool = VK_NULL_HANDLE;
+			VkCommandBuffer mTransferCommandBuffer = VK_NULL_HANDLE;
+			VkFence         mTransferCommandFence = VK_NULL_HANDLE;
 
 #if TDE2_DEBUG_MODE
 			VkDebugUtilsMessengerEXT mDebugMessenger = VK_NULL_HANDLE;
