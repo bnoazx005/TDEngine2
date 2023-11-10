@@ -2,6 +2,7 @@
 #include "../include/CVulkanMappings.h"
 #include "../include/CVulkanGraphicsContext.h"
 #include "../include/CVulkanUtils.h"
+#include "../include/CVulkanBuffer.h"
 #include <core/IResourceManager.h>
 #include <utils/Utils.h>
 
@@ -47,9 +48,11 @@ namespace TDEngine2
 	{
 		mIsInitialized = false;
 
-		//GL_SAFE_CALL(glDeleteTextures(1, &mTextureHandler));
-		//
-		//mTextureHandler = 0;
+		mpGraphicsContextImpl->DestroyObjectDeffered([=]
+		{
+			vmaDestroyImage(mAllocator, mInternalImageHandle, mAllocation);
+			vkDestroyImageView(mDevice, mInternalImageViewHandle, nullptr);
+		});
 
 		return RC_OK;
 	}
@@ -61,20 +64,92 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		//GL_SAFE_CALL(glBindTexture(GL_TEXTURE_2D, mTextureHandler));
+		E_RESULT_CODE result = RC_OK;
 
-		//GL_SAFE_CALL(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
+		const USIZE textureSize = static_cast<USIZE>(mWidth * mHeight * CFormatUtils::GetFormatSize(mFormat));
 
-		///// GL_UNSIGNED_BYTE is used explicitly, because of stb_image stores data as unsigned char array
-		//GL_SAFE_CALL(glTexSubImage2D(GL_TEXTURE_2D, 0, regionRect.x, regionRect.y, regionRect.width, regionRect.height, 
-		//							 CVulkanMappings::GetPixelDataFormat(mFormat), GL_UNSIGNED_BYTE, pData));
+		TPtr<IBuffer> pStagingBuffer = TPtr<IBuffer>(CreateVulkanBuffer(
+			{ mpGraphicsContext, E_BUFFER_USAGE_TYPE::BUT_DYNAMIC, E_BUFFER_TYPE::BT_UPLOAD_BUFFER, textureSize, nullptr}, result));
 
-		//if (mNumOfMipLevels > 1)
-		//{
-		//	GL_SAFE_CALL(glGenerateMipmap(GL_TEXTURE_2D));
-		//}
+		if (RC_OK != result || !pStagingBuffer)
+		{
+			return result;
+		}
 
-		//GL_SAFE_CALL(glBindTexture(GL_TEXTURE_2D, 0));
+		result = pStagingBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		result = pStagingBuffer->Write(pData, textureSize);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		pStagingBuffer->Unmap();
+
+		auto pStagingBufferImpl = DynamicPtrCast<CVulkanBuffer>(pStagingBuffer);
+
+		result = mpGraphicsContextImpl->ExecuteCopyImmediate([=](VkCommandBuffer cmdBuffer)
+		{
+			VkImageSubresourceRange range;
+			range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			range.baseMipLevel = 0;
+			range.levelCount = 1;
+			range.baseArrayLayer = 0;
+			range.layerCount = 1;
+
+			VkImageMemoryBarrier imageBarrierToTransfer = {};
+			imageBarrierToTransfer.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+
+			imageBarrierToTransfer.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			imageBarrierToTransfer.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			imageBarrierToTransfer.image = mInternalImageHandle;
+			imageBarrierToTransfer.subresourceRange = range;
+
+			imageBarrierToTransfer.srcAccessMask = 0;
+			imageBarrierToTransfer.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+			//barrier the image into the transfer-receive layout
+			vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrierToTransfer);
+
+			VkBufferImageCopy copyRegion = {};
+			copyRegion.bufferOffset = 0;
+			copyRegion.bufferRowLength = 0;
+			copyRegion.bufferImageHeight = 0;
+
+			VkExtent3D imageExtent;
+			imageExtent.width = mWidth;
+			imageExtent.height = mHeight;
+			imageExtent.depth = 1;
+
+			copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			copyRegion.imageSubresource.mipLevel = 0;
+			copyRegion.imageSubresource.baseArrayLayer = 0;
+			copyRegion.imageSubresource.layerCount = 1;
+			copyRegion.imageExtent = imageExtent;
+
+			//copy the buffer into the image
+			vkCmdCopyBufferToImage(cmdBuffer, pStagingBufferImpl->GetBufferImpl(), mInternalImageHandle, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
+
+			VkImageMemoryBarrier imageBarrierToReadable = imageBarrierToTransfer;
+
+			imageBarrierToReadable.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			imageBarrierToReadable.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+			imageBarrierToReadable.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+			imageBarrierToReadable.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+			//barrier the image into the shader readable layout
+			vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrierToReadable);
+		});
+
+		if (RC_OK != result)
+		{
+			return result;
+		}
 
 		return RC_OK;
 	}
@@ -97,41 +172,102 @@ namespace TDEngine2
 		return {};
 	}
 
+
+	struct TCreatedImageInfo
+	{
+		VkImage mImage;
+		VmaAllocation mAllocation;
+	};
+
+
+	static TResult<TCreatedImageInfo> CreateImageResourceInternal(VmaAllocator allocator,
+		U32 width, U32 height, E_FORMAT_TYPE format, U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality, bool isWriteable)
+	{
+		VkExtent3D imageExtent;
+		imageExtent.width = width;
+		imageExtent.height = height;
+		imageExtent.depth = 1;
+
+		VkImageCreateInfo imageInfo{};
+		imageInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+		imageInfo.extent = imageExtent;
+		imageInfo.mipLevels = mipLevelsCount;
+		imageInfo.format = CVulkanMappings::GetInternalFormat(format);
+		imageInfo.imageType = VK_IMAGE_TYPE_2D;
+		imageInfo.arrayLayers = 1;
+		imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+		imageInfo.samples = CVulkanMappings::GetSamplesCount(samplesCount);
+		
+		VmaAllocationCreateInfo allocInfo{};
+		allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
+		allocInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+
+		TCreatedImageInfo output;
+
+		VkResult result = vmaCreateImage(allocator, &imageInfo, &allocInfo, &output.mImage, &output.mAllocation, nullptr);
+		if (VK_SUCCESS != result)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(CVulkanMappings::GetErrorCode(result));
+		}
+
+		return Wrench::TOkValue<TCreatedImageInfo>(output);
+	}
+
+
+	static TResult<VkImageView> CreateResourceViewInternal(VkDevice device, VkImage image, E_FORMAT_TYPE format)
+	{
+		VkImageViewCreateInfo viewInfo{};
+		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		viewInfo.image = image;
+		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		viewInfo.format = CVulkanMappings::GetInternalFormat(format);
+		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		viewInfo.subresourceRange.baseMipLevel = 0;
+		viewInfo.subresourceRange.levelCount = 1;
+		viewInfo.subresourceRange.baseArrayLayer = 0;
+		viewInfo.subresourceRange.layerCount = 1;
+
+		VkImageView textureImageView = VK_NULL_HANDLE;
+		
+		VkResult result = vkCreateImageView(device, &viewInfo, nullptr, &textureImageView);
+		if (VK_SUCCESS != result)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(CVulkanMappings::GetErrorCode(result));
+		}
+
+		return Wrench::TOkValue<VkImageView>(textureImageView);
+	}
+
+
 	E_RESULT_CODE CVulkanTexture2D::_createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
 																U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality, bool isWriteable)
 	{
 		mpGraphicsContextImpl = dynamic_cast<CVulkanGraphicsContext*>(pGraphicsContext);
+		
+		mAllocator = mpGraphicsContextImpl->GetAllocator();
+		mDevice = mpGraphicsContextImpl->GetDevice();
 
-		/*GL_SAFE_CALL(glGenTextures(1, &mTextureHandler));
-
-		GL_SAFE_CALL(glBindTexture(GL_TEXTURE_2D, mTextureHandler));
-
-		GL_SAFE_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0));
-		GL_SAFE_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipLevelsCount));
-		GL_SAFE_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_NEVER)); 
-		GL_SAFE_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE)); 
-
-		GL_SAFE_CALL(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
-		GL_SAFE_CALL(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
-		GL_SAFE_CALL(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-		GL_SAFE_CALL(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-				
-		/// GL_UNSIGNED_BYTE is used explicitly, because of stb_image stores data as unsigned char array
-		GL_SAFE_CALL(glTexImage2D(GL_TEXTURE_2D, 0, CVulkanMappings::GetInternalFormat(format), width, height, 0,
-								  CVulkanMappings::GetPixelDataFormat(format), GL_UNSIGNED_BYTE, nullptr));
-				
-		if (mipLevelsCount > 1)
+		// create a resource
+		auto createImageResourceResult = CreateImageResourceInternal(mAllocator, width, height, format, mipLevelsCount, samplesCount, samplingQuality, isWriteable);
+		if (createImageResourceResult.HasError())
 		{
-			GL_SAFE_CALL(glGenerateMipmap(GL_TEXTURE_2D));
+			return createImageResourceResult.GetError();
 		}
 
-		if (isWriteable)
+		auto&& allocatedImage = createImageResourceResult.Get();
+		mInternalImageHandle = allocatedImage.mImage;
+		mAllocation = allocatedImage.mAllocation;
+
+		// create a view
+		auto createViewResult = CreateResourceViewInternal(mDevice, mInternalImageHandle, mFormat);
+		if (createViewResult.HasError())
 		{
-			/// \todo Refactor this later
-			GL_SAFE_CALL(glBindImageTexture(0, mTextureHandler, 0, GL_FALSE, 0, GL_READ_WRITE, CVulkanMappings::GetInternalFormat(format)));
+			return createViewResult.GetError();
 		}
 
-		glBindTexture(GL_TEXTURE_2D, 0);*/
+		mInternalImageViewHandle = createViewResult.Get();
+
+		// \todo Add support of UAV resources
 
 		return RC_OK;
 	}

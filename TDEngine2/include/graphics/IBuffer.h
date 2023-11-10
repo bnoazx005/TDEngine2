@@ -54,6 +54,7 @@ namespace TDEngine2
 		BT_INDEX_BUFFER,			///< A buffer will be used as index buffer
 		BT_CONSTANT_BUFFER,			///< A buffer will be used as uniforms buffer object
 		BT_STRUCTURED_BUFFER,
+		BT_UPLOAD_BUFFER,
 	};
 
 

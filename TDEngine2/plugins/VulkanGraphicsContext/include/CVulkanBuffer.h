@@ -97,6 +97,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API USIZE GetUsedSize() const override;
+
+			TDE2_API VkBuffer GetBufferImpl();
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanBuffer)
 

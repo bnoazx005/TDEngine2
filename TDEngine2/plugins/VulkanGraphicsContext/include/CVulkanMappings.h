@@ -39,6 +39,8 @@ namespace TDEngine2
 
 			TDE2_API static VmaMemoryUsage GetUsageType(E_BUFFER_USAGE_TYPE type);
 
+			TDE2_API static VkSampleCountFlagBits GetSamplesCount(U32 samplesCount);
+
 			///*!
 			//	\brief The function converts the internal E_BUFFER_MAP_TYPE into
 			//	corresponding GLenum type of Vulkan

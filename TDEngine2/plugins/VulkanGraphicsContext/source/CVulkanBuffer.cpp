@@ -11,14 +11,16 @@ namespace TDEngine2
 	{
 		switch (type)
 		{
-		case E_BUFFER_TYPE::BT_VERTEX_BUFFER:
-			return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-		case E_BUFFER_TYPE::BT_INDEX_BUFFER:
-			return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-		case E_BUFFER_TYPE::BT_CONSTANT_BUFFER:
-			return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-		case E_BUFFER_TYPE::BT_STRUCTURED_BUFFER:
-			return VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+			case E_BUFFER_TYPE::BT_VERTEX_BUFFER:
+				return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+			case E_BUFFER_TYPE::BT_INDEX_BUFFER:
+				return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+			case E_BUFFER_TYPE::BT_CONSTANT_BUFFER:
+				return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+			case E_BUFFER_TYPE::BT_STRUCTURED_BUFFER:
+				return VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+			case E_BUFFER_TYPE::BT_UPLOAD_BUFFER:
+				return VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 		}
 
 		TDE2_UNREACHABLE();
@@ -103,7 +105,7 @@ namespace TDEngine2
 		VkBufferCreateInfo bufferCreateInfo{};
 		bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		bufferCreateInfo.size = mBufferSize;
-		bufferCreateInfo.usage = GetBufferType(mBufferType) | ((mBufferUsageType == E_BUFFER_USAGE_TYPE::BUT_DYNAMIC) ? VK_BUFFER_USAGE_TRANSFER_DST_BIT : 0x0);
+		bufferCreateInfo.usage = GetBufferType(mBufferType) | ((mBufferUsageType == E_BUFFER_USAGE_TYPE::BUT_DYNAMIC) ? VK_BUFFER_USAGE_TRANSFER_SRC_BIT : 0x0);
 		bufferCreateInfo.sharingMode = mIsUnorderedAccessResource ? VK_SHARING_MODE_CONCURRENT : VK_SHARING_MODE_EXCLUSIVE;
 
 		VmaAllocationCreateInfo allocInfo = {};
@@ -184,6 +186,11 @@ namespace TDEngine2
 	USIZE CVulkanBuffer::GetUsedSize() const
 	{
 		return mUsedBytesSize;
+	}
+
+	VkBuffer CVulkanBuffer::GetBufferImpl()
+	{
+		return mInternalBufferHandle;
 	}
 
 
