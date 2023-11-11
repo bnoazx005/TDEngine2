@@ -29,6 +29,9 @@ namespace TDEngine2
 
 	constexpr U8 MaxJointsCountPerVertex = 4;
 
+	enum class E_INDEX_FORMAT_TYPE : U8;
+	enum class TBufferHandleId : U32;
+
 
 	/*!
 		struct TMesh2DParameters
@@ -152,7 +155,7 @@ namespace TDEngine2
 				\return The method returns a pointer to a vertex buffer that contains only positions of vertices
 			*/
 
-			TDE2_API virtual IVertexBuffer* GetPositionOnlyVertexBuffer() const = 0;
+			TDE2_API virtual TBufferHandleId GetPositionOnlyVertexBuffer() const = 0;
 
 			/*!
 				\brief The method process internal state of the mesh after it was actually loaded
@@ -168,7 +171,7 @@ namespace TDEngine2
 				\return The method returns a pointer to IVertexBuffer which stores all vertex data of the mesh
 			*/
 
-			TDE2_API virtual IVertexBuffer* GetSharedVertexBuffer() const = 0;
+			TDE2_API virtual TBufferHandleId GetSharedVertexBuffer() const = 0;
 			
 			/*!
 				\brief The method returns a pointer to IIndexBuffer which stores all index data of the mesh
@@ -176,7 +179,7 @@ namespace TDEngine2
 				\return The method returns a pointer to IIndexBuffer which stores all index data of the mesh
 			*/
 
-			TDE2_API virtual IIndexBuffer* GetSharedIndexBuffer() const = 0;
+			TDE2_API virtual TBufferHandleId GetSharedIndexBuffer() const = 0;
 
 			TDE2_API virtual const TSubMeshRenderInfo& GetSubmeshInfo(const std::string& subMeshId) const = 0;
 

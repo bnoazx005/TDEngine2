@@ -24,12 +24,11 @@ struct ImDrawList;
 namespace TDEngine2
 {
 	class IGraphicsContext;
-	class IVertexBuffer;
-	class IIndexBuffer;
 	class CRenderQueue;
 	class IVertexDeclaration;
 
 	enum class TMaterialInstanceId : U32;
+	enum class TBufferHandleId : U32;
 
 
 	/*!
@@ -655,9 +654,8 @@ namespace TDEngine2
 
 			TResourceId             mDefaultEditorMaterialHandle;
 
-			IVertexBuffer*          mpVertexBuffer;
-
-			IIndexBuffer*           mpIndexBuffer;
+			TBufferHandleId         mVertexBufferHandle;
+			TBufferHandleId         mIndexBufferHandle;
 
 			CRenderQueue*           mpEditorUIRenderQueue;
 

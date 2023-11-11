@@ -9,12 +9,12 @@
 
 #include "IMesh.h"
 #include "../core/CBaseResource.h"
-#include "../graphics/IIndexBuffer.h"
 
 
 namespace TDEngine2
 {
 	class IGraphicsObjectManager;
+
 
 	/*!
 		class CBaseMesh
@@ -115,7 +115,7 @@ namespace TDEngine2
 				\return The method returns a pointer to IVertexBuffer which stores all vertex data of the mesh
 			*/
 
-			TDE2_API IVertexBuffer* GetSharedVertexBuffer() const override;
+			TDE2_API TBufferHandleId GetSharedVertexBuffer() const override;
 
 			/*!
 				\brief The method returns a pointer to a vertex buffer that contains only positions of vertices
@@ -123,7 +123,7 @@ namespace TDEngine2
 				\return The method returns a pointer to a vertex buffer that contains only positions of vertices
 			*/
 
-			TDE2_API IVertexBuffer* GetPositionOnlyVertexBuffer() const override;
+			TDE2_API TBufferHandleId GetPositionOnlyVertexBuffer() const override;
 
 			/*!
 				\brief The method returns a pointer to IIndexBuffer which stores all index data of the mesh
@@ -131,7 +131,7 @@ namespace TDEngine2
 				\return The method returns a pointer to IIndexBuffer which stores all index data of the mesh
 			*/
 
-			TDE2_API IIndexBuffer* GetSharedIndexBuffer() const override;
+			TDE2_API TBufferHandleId GetSharedIndexBuffer() const override;
 
 			/*!
 				\brief The method returns a number of faces in the mesh
@@ -176,10 +176,10 @@ namespace TDEngine2
 
 			TIndicesArray            mIndices;
 
-			IVertexBuffer*           mpSharedVertexBuffer;
-			IVertexBuffer*           mpPositionOnlyVertexBuffer;
+			TBufferHandleId          mSharedVertexBufferHandle;
+			TBufferHandleId          mPositionOnlyVertexBufferHandle;
 
-			IIndexBuffer*            mpSharedIndexBuffer;
+			TBufferHandleId          mSharedIndexBufferHandle;
 
 			TIdentifiersArray        mSubMeshesIdentifiers;
 			TSubmeshesInfoArray      mSubMeshesInfo;

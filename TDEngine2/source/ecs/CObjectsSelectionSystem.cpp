@@ -11,8 +11,6 @@
 #include "../../include/graphics/CSkinnedMesh.h"
 #include "../../include/graphics/CQuadSprite.h"
 #include "../../include/graphics/IVertexDeclaration.h"
-#include "../../include/graphics/IVertexBuffer.h"
-#include "../../include/graphics/IIndexBuffer.h"
 #include "../../include/graphics/CBaseMaterial.h"
 #include "../../include/graphics/UI/CUIElementMeshDataComponent.h"
 #include "../../include/graphics/UI/CLayoutElementComponent.h"
@@ -83,7 +81,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		mpUIElementsVertexBuffer = nullptr;
+		mUIElementsVertexBufferHandle = TBufferHandleId::Invalid;
 
 		mIsInitialized = true;
 
@@ -169,8 +167,8 @@ namespace TDEngine2
 		{
 			if (TDrawIndexedCommand* pDrawCommand = pCommandBuffer->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex))
 			{
-				pDrawCommand->mpVertexBuffer = pStaticMeshResource->GetPositionOnlyVertexBuffer();
-				pDrawCommand->mpIndexBuffer = pStaticMeshResource->GetSharedIndexBuffer();
+				pDrawCommand->mVertexBufferHandle = pStaticMeshResource->GetPositionOnlyVertexBuffer();
+				pDrawCommand->mIndexBufferHandle = pStaticMeshResource->GetSharedIndexBuffer();
 				pDrawCommand->mMaterialHandle = materialHandle;
 				pDrawCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 				pDrawCommand->mpVertexDeclaration = pVertDecl;
@@ -216,8 +214,8 @@ namespace TDEngine2
 
 			if (TDrawIndexedCommand* pDrawCommand = pCommandBuffer->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex))
 			{
-				pDrawCommand->mpVertexBuffer = pSkinnedMeshResource->GetPositionOnlyVertexBuffer();
-				pDrawCommand->mpIndexBuffer = pSkinnedMeshResource->GetSharedIndexBuffer();
+				pDrawCommand->mVertexBufferHandle = pSkinnedMeshResource->GetPositionOnlyVertexBuffer();
+				pDrawCommand->mIndexBufferHandle = pSkinnedMeshResource->GetSharedIndexBuffer();
 				pDrawCommand->mMaterialHandle = materialHandle;
 				pDrawCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 				pDrawCommand->mpVertexDeclaration = pVertDecl;
@@ -232,15 +230,15 @@ namespace TDEngine2
 
 
 	static void ProcessSpriteEntity(CObjectsSelectionSystem::TSystemContext<CQuadSprite>& context, TPtr<IResourceManager> pResourceManager, IVertexDeclaration* pVertDecl, 
-									IVertexBuffer* pVertBuffer, IIndexBuffer* pIndexBuffer, U32 drawIndex, CRenderQueue* pCommandBuffer, USIZE index, TResourceId materialHandle)
+									TBufferHandleId vertBufferHandle, TBufferHandleId indexBufferHandle, U32 drawIndex, CRenderQueue* pCommandBuffer, USIZE index, TResourceId materialHandle)
 	{
 		CQuadSprite* pSpriteComponent = context.mpRenderables[index];
 		CTransform* pTransform = context.mpTransforms[index];
 
 		if (TDrawIndexedCommand* pDrawCommand = pCommandBuffer->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex))
 		{
-			pDrawCommand->mpVertexBuffer = pVertBuffer;
-			pDrawCommand->mpIndexBuffer = pIndexBuffer;
+			pDrawCommand->mVertexBufferHandle = vertBufferHandle;
+			pDrawCommand->mIndexBufferHandle = indexBufferHandle;
 			pDrawCommand->mMaterialHandle = materialHandle;
 			pDrawCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 			pDrawCommand->mpVertexDeclaration = pVertDecl;
@@ -254,7 +252,7 @@ namespace TDEngine2
 
 
 	static void ProcessUIElementEntity(IWorld* pWorld, std::vector<TVector4>& vertsOutput, CObjectsSelectionSystem::TUIElementsContext& context, TPtr<IResourceManager> pResourceManager, 
-									IVertexDeclaration* pVertDecl, IVertexBuffer*& pVertBuffer, IIndexBuffer*& pIndexBuffer, U32 drawIndex, 
+									IVertexDeclaration* pVertDecl, TBufferHandleId vertBufferHandle, TBufferHandleId indexBufferHandle, U32 drawIndex,
 									CRenderQueue* pCommandBuffer, USIZE index, TResourceId materialHandle, USIZE& vertexBufferOffset)
 	{
 		CUIElementMeshData* pUIMeshData = context.mpRenderables[index];
@@ -274,8 +272,8 @@ namespace TDEngine2
 
 		if (TDrawIndexedCommand* pDrawCommand = pCommandBuffer->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex))
 		{
-			pDrawCommand->mpVertexBuffer = pVertBuffer;
-			pDrawCommand->mpIndexBuffer = pIndexBuffer;
+			pDrawCommand->mVertexBufferHandle = vertBufferHandle;
+			pDrawCommand->mIndexBufferHandle = indexBufferHandle;
 			pDrawCommand->mMaterialHandle = materialHandle;
 			pDrawCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 			pDrawCommand->mpVertexDeclaration = pVertDecl;
@@ -353,12 +351,12 @@ namespace TDEngine2
 		/// \note Quad sprites
 		for (USIZE i = 0; i < static_cast<U32>(mSpritesContext.mpRenderables.size()); ++i)
 		{
-			ProcessSpriteEntity(mSpritesContext, mpResourceManager, mpSelectionVertDecl, mpSpritesVertexBuffer, mpSpritesIndexBuffer,
+			ProcessSpriteEntity(mSpritesContext, mpResourceManager, mpSelectionVertDecl, mSpritesVertexBufferHandle, mSpritesIndexBufferHandle,
 				commandIndex++, mpEditorOnlyRenderQueue, i, mSelectionMaterialHandle);
 
 			if (mSpritesContext.mHasSelectedEntityComponent[i])
 			{
-				ProcessSpriteEntity(mSpritesContext, mpResourceManager, mpSelectionVertDecl, mpSpritesVertexBuffer, mpSpritesIndexBuffer,
+				ProcessSpriteEntity(mSpritesContext, mpResourceManager, mpSelectionVertDecl, mSpritesVertexBufferHandle, mSpritesIndexBufferHandle,
 					static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::SELECTION_OUTLINE), mpDebugRenderQueue, i, mSelectionOutlineMaterialHandle);
 			}
 		}
@@ -368,15 +366,25 @@ namespace TDEngine2
 			static constexpr USIZE MaxVerticesCount = 1024;
 			static constexpr USIZE VertexBufferDefaultSize = sizeof(TVector4) * MaxVerticesCount;
 
-			/// \note If there is no a created vertex buffer or we go out of space extend/create it
-			if (!mpUIElementsVertexBuffer || (mpUIElementsVertexBuffer && mpUIElementsVertexBuffer->GetUsedSize() >= mpUIElementsVertexBuffer->GetSize()))
-			{
-				if (!mpUIElementsVertexBuffer)
-				{
-					mpUIElementsVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(BUT_DYNAMIC, VertexBufferDefaultSize, nullptr).Get();
-				}
+			auto pUIElementsVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(mUIElementsVertexBufferHandle);
 
-				mpUIElementsVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(BUT_DYNAMIC, mpUIElementsVertexBuffer->GetSize() + VertexBufferDefaultSize, nullptr).Get();
+			/// \note If there is no a created vertex buffer or we go out of space extend/create it
+			if (!pUIElementsVertexBuffer || (pUIElementsVertexBuffer && pUIElementsVertexBuffer->GetUsedSize() >= pUIElementsVertexBuffer->GetSize()))
+			{
+				if (!pUIElementsVertexBuffer)
+				{
+					mUIElementsVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, VertexBufferDefaultSize, nullptr }).Get();
+				}
+				else
+				{
+					mUIElementsVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer(
+						{
+							E_BUFFER_USAGE_TYPE::DYNAMIC,
+							E_BUFFER_TYPE::BT_VERTEX_BUFFER,
+							pUIElementsVertexBuffer->GetSize() + VertexBufferDefaultSize,
+							nullptr
+						}).Get();
+				}
 			}
 
 			mUIElementsVertexBufferCurrOffset = 0;
@@ -388,15 +396,18 @@ namespace TDEngine2
 			for (USIZE i = 0; i < static_cast<U32>(mUIElementsContext.mpRenderables.size()); ++i)
 			{
 				/// \note Use sprites' index buffer because ui elements are just quads too
-				ProcessUIElementEntity(pWorld, uiElementsVerts, mUIElementsContext, mpResourceManager, mpSelectionVertDecl, mpUIElementsVertexBuffer, mpSpritesIndexBuffer,
+				ProcessUIElementEntity(pWorld, uiElementsVerts, mUIElementsContext, mpResourceManager, mpSelectionVertDecl, mUIElementsVertexBufferHandle, mSpritesIndexBufferHandle,
 									commandIndex++, mpEditorOnlyRenderQueue, i, mSelectionUIMaterialHandle, mUIElementsVertexBufferCurrOffset);
 			}
 
-			E_RESULT_CODE result = mpUIElementsVertexBuffer->Map(BMT_WRITE_DISCARD);
-			TDE2_ASSERT(RC_OK == result);
+			if (pUIElementsVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(mUIElementsVertexBufferHandle))
+			{
+				E_RESULT_CODE result = pUIElementsVertexBuffer->Map(BMT_WRITE_DISCARD);
+				TDE2_ASSERT(RC_OK == result);
 
-			mpUIElementsVertexBuffer->Write(uiElementsVerts.data(), sizeof(TVector4) * uiElementsVerts.size());
-			mpUIElementsVertexBuffer->Unmap();
+				pUIElementsVertexBuffer->Write(uiElementsVerts.data(), sizeof(TVector4) * uiElementsVerts.size());
+				pUIElementsVertexBuffer->Unmap();
+			}
 		}
 	}
 
@@ -412,23 +423,23 @@ namespace TDEngine2
 			{ 0.5f, -0.5f, 0.0f, 1.0f }
 		};
 
-		auto spriteVertexBufferResult = mpGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, sizeof(TVector4) * 4, quadSpriteVertices);
+		auto spriteVertexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, sizeof(TVector4) * 4, quadSpriteVertices });
 		if (spriteVertexBufferResult.HasError())
 		{
 			return spriteVertexBufferResult.GetError();
 		}
 
-		mpSpritesVertexBuffer = spriteVertexBufferResult.Get();
+		mSpritesVertexBufferHandle = spriteVertexBufferResult.Get();
 
 		static const U16 spriteTriangles[6] { 0, 1, 2, 2, 1, 3 };
 		
-		auto spriteIndexBufferResult = mpGraphicsObjectManager->CreateIndexBuffer(BUT_STATIC, IFT_INDEX16, sizeof(U16) * 6, spriteTriangles);
+		auto spriteIndexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::BT_INDEX_BUFFER, sizeof(U16) * 6, spriteTriangles });
 		if (spriteIndexBufferResult.HasError())
 		{
 			return spriteIndexBufferResult.GetError();
 		}
 
-		mpSpritesIndexBuffer = spriteIndexBufferResult.Get();
+		mSpritesIndexBufferHandle = spriteIndexBufferResult.Get();
 
 		return RC_OK;
 	}

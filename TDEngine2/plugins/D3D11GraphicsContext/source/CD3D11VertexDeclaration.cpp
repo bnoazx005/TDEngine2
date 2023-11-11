@@ -1,11 +1,10 @@
 #include "./../include/CD3D11VertexDeclaration.h"
 #include "./../include/CD3D11Mappings.h"
 #include "./../include/CD3D11Shader.h"
-#include "./../include/CD3D11VertexBuffer.h"
 #include "./../include/CD3D11Utils.h"
 #include <core/IGraphicsContext.h>
 #include <graphics/IShader.h>
-#include <graphics/IVertexBuffer.h>
+#include <graphics/IBuffer.h>
 #include <unordered_map>
 #include <climits>
 
@@ -107,7 +106,7 @@ namespace TDEngine2
 		return Wrench::TOkValue<ID3D11InputLayout*>(pInputLayout);
 	}
 
-	void CD3D11VertexDeclaration::Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<IVertexBuffer*>& pVertexBuffersArray, IShader* pShader)
+	void CD3D11VertexDeclaration::Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray, IShader* pShader)
 	{
 		if (!mpInputLayout)
 		{

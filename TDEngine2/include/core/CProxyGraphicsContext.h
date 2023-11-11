@@ -165,31 +165,35 @@ namespace TDEngine2
 
 			TDE2_API TMatrix4 CalcOrthographicMatrix(F32 left, F32 top, F32 right, F32 bottom, F32 zn, F32 zf, bool isDepthless = false) override;
 
+			TDE2_API E_RESULT_CODE SetVertexBuffer(U32 slot, TBufferHandleId vertexBufferHandle, U32 offset, U32 strideSize) override;
+			TDE2_API E_RESULT_CODE SetIndexBuffer(TBufferHandleId indexBufferHandle, U32 offset) override;
+			TDE2_API E_RESULT_CODE SetConstantBuffer(U32 slot, TBufferHandleId constantsBufferHandle) override;
+
 			/*!
-			\brief The method sends a command to a GPU to draw current attached graphics data
+				\brief The method sends a command to a GPU to draw current attached graphics data
 
-			\param[in] topology A primitive topology's type
+				\param[in] topology A primitive topology's type
 
-			\param[in] startVertex An index of a vertex within a vertex buffer
+				\param[in] startVertex An index of a vertex within a vertex buffer
 
-			\param[in] numOfVertices A total number of vertices should be drawn
+				\param[in] numOfVertices A total number of vertices should be drawn
 			*/
 
 			TDE2_API void Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices) override;
 
 			/*!
-			\brief The method sends a command to a GPU to draw current attached graphics data using
-			index buffer to group primitives
+				\brief The method sends a command to a GPU to draw current attached graphics data using
+				index buffer to group primitives
 
-			\param[in] topology A primitive topology's type
+				\param[in] topology A primitive topology's type
 
-			\param[in] indexFormatType A format of a single index
+				\param[in] indexFormatType A format of a single index
 
-			\param[in] baseVertex A value that will be added to each index
+				\param[in] baseVertex A value that will be added to each index
 
-			\param[in] startIndex A first index that will be read by GPU
+				\param[in] startIndex A first index that will be read by GPU
 
-			\param[in] numOfIndices A total number of indices
+				\param[in] numOfIndices A total number of indices
 			*/
 
 			TDE2_API void DrawIndexed(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, U32 baseVertex, U32 startIndex, U32 numOfIndices) override;

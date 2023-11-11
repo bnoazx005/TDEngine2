@@ -225,8 +225,8 @@ namespace TDEngine2
 			auto pCommand = pRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(static_cast<U32>(pCastedMaterial->GetGeometrySubGroupTag()) + 
 																				 _computeMeshCommandHash(currMaterialId, distanceToCamera));
 
-			pCommand->mpVertexBuffer              = pSharedMeshResource->GetSharedVertexBuffer();
-			pCommand->mpIndexBuffer               = pSharedMeshResource->GetSharedIndexBuffer();
+			pCommand->mVertexBufferHandle         = pSharedMeshResource->GetSharedVertexBuffer();
+			pCommand->mIndexBufferHandle          = pSharedMeshResource->GetSharedIndexBuffer();
 			pCommand->mMaterialHandle             = mpResourceManager->Load<IMaterial>(pStaticMeshContainer->GetMaterialName());
 			pCommand->mpVertexDeclaration         = meshBuffersEntry.mpVertexDecl; // \todo replace with access to a vertex declarations pool
 			pCommand->mStartIndex                 = subMeshInfo.mStartIndex;

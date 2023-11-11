@@ -4,6 +4,7 @@
 #include "../include/CVulkanUtils.h"
 #include "../include/CVulkanBuffer.h"
 #include <core/IResourceManager.h>
+#include <graphics/IGraphicsObjectManager.h>
 #include <utils/Utils.h>
 
 
@@ -68,8 +69,10 @@ namespace TDEngine2
 
 		const USIZE textureSize = static_cast<USIZE>(mWidth * mHeight * CFormatUtils::GetFormatSize(mFormat));
 
-		TPtr<IBuffer> pStagingBuffer = TPtr<IBuffer>(CreateVulkanBuffer(
-			{ mpGraphicsContext, E_BUFFER_USAGE_TYPE::BUT_DYNAMIC, E_BUFFER_TYPE::BT_UPLOAD_BUFFER, textureSize, nullptr}, result));
+		auto pGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
+
+		TPtr<IBuffer> pStagingBuffer = pGraphicsObjectManager->GetBufferPtr(
+			pGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_GENERIC, textureSize, nullptr}).Get());
 
 		if (RC_OK != result || !pStagingBuffer)
 		{

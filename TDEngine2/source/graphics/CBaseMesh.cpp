@@ -5,6 +5,7 @@
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/graphics/CGeometryBuilder.h"
+#include "../../include/graphics/IBuffer.h"
 #include "../../include/utils/CFileLogger.h"
 #include <cstring>
 #include <climits>
@@ -29,13 +30,15 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		auto vertexBufferResult = mpGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, vertices.size(), &vertices.front());
+		auto pGraphicsContext = mpGraphicsObjectManager->GetGraphicsContext();
+
+		auto vertexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, vertices.size(), &vertices.front() });
 		if (vertexBufferResult.HasError())
 		{
 			return vertexBufferResult.GetError();
 		}
 
-		mpSharedVertexBuffer = vertexBufferResult.Get();
+		mSharedVertexBufferHandle = vertexBufferResult.Get();
 
 		// \note create a position-only vertex buffer
 		// \todo In future may be it's better to split shared VB into separate channels
@@ -46,17 +49,20 @@ namespace TDEngine2
 			return result;
 		}
 
-		E_INDEX_FORMAT_TYPE indexFormatType = (mIndices.size() < (std::numeric_limits<U16>::max)()) ? IFT_INDEX16 : IFT_INDEX32;
+		E_INDEX_FORMAT_TYPE indexFormatType = (mIndices.size() < (std::numeric_limits<U16>::max)()) ? E_INDEX_FORMAT_TYPE::INDEX16 : E_INDEX_FORMAT_TYPE::INDEX32;
 
 		std::vector<U8> indices = _getIndicesArray(indexFormatType);
 
-		auto indexBufferResult = mpGraphicsObjectManager->CreateIndexBuffer(BUT_STATIC, indexFormatType, static_cast<U32>(indices.size()), &indices[0]);
+		TInitBufferParams indexBufferCreateParams{ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::BT_INDEX_BUFFER, static_cast<U32>(indices.size()), &indices[0] };
+		indexBufferCreateParams.mIndexFormat = indexFormatType;
+
+		auto indexBufferResult = mpGraphicsObjectManager->CreateBuffer(indexBufferCreateParams);
 		if (indexBufferResult.HasError())
 		{
 			return indexBufferResult.GetError();
 		}
 
-		mpSharedIndexBuffer = indexBufferResult.Get();
+		mSharedIndexBufferHandle = indexBufferResult.Get();
 
 		{
 			mSubMeshesIdentifiers.emplace_back(Wrench::StringUtils::GetEmptyStr());
@@ -204,19 +210,19 @@ namespace TDEngine2
 		return it == mSubMeshesIdentifiers.cend() ? invalid : mSubMeshesInfo[std::distance(mSubMeshesIdentifiers.cbegin(), it)];
 	}
 
-	IVertexBuffer* CBaseMesh::GetSharedVertexBuffer() const
+	TBufferHandleId CBaseMesh::GetSharedVertexBuffer() const
 	{
-		return mpSharedVertexBuffer;
+		return mSharedVertexBufferHandle;
 	}
 
-	IVertexBuffer* CBaseMesh::GetPositionOnlyVertexBuffer() const
+	TBufferHandleId CBaseMesh::GetPositionOnlyVertexBuffer() const
 	{
-		return mpPositionOnlyVertexBuffer;
+		return mPositionOnlyVertexBufferHandle;
 	}
 
-	IIndexBuffer* CBaseMesh::GetSharedIndexBuffer() const
+	TBufferHandleId CBaseMesh::GetSharedIndexBuffer() const
 	{
-		return mpSharedIndexBuffer;
+		return mSharedIndexBufferHandle;
 	}
 
 	const std::vector<std::string> CBaseMesh::GetSubmeshesIdentifiers() const
@@ -234,10 +240,10 @@ namespace TDEngine2
 		{
 			switch (indexFormat)
 			{
-				case IFT_INDEX16:
+				case E_INDEX_FORMAT_TYPE::INDEX16:
 					*reinterpret_cast<U16*>(pPtr) = currIndex;
 					break;
-				case IFT_INDEX32:
+				case E_INDEX_FORMAT_TYPE::INDEX32:
 					*reinterpret_cast<U32*>(pPtr) = currIndex;
 					break;
 			}
@@ -250,13 +256,13 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseMesh::_initPositionOnlyVertexBuffer()
 	{
-		auto positionOnlyVertexBufferResult = mpGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, mPositions.size() * sizeof(TVector4), &mPositions.front());
+		auto positionOnlyVertexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, mPositions.size() * sizeof(TVector4), &mPositions.front() });
 		if (positionOnlyVertexBufferResult.HasError())
 		{
 			return positionOnlyVertexBufferResult.GetError();
 		}
 
-		mpPositionOnlyVertexBuffer = positionOnlyVertexBufferResult.Get();
+		mPositionOnlyVertexBufferHandle = positionOnlyVertexBufferResult.Get();
 
 		return RC_OK;
 	}

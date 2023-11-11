@@ -30,6 +30,9 @@ namespace TDEngine2
 	struct TShaderCompilerOutput;
 
 
+	enum class TBufferHandleId : U32;
+
+
 	/*!
 		interface IShader
 
@@ -122,7 +125,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE SetStructuredBufferResource(const std::string& resourceName, IStructuredBuffer* pBuffer) = 0;
+			TDE2_API virtual E_RESULT_CODE SetStructuredBufferResource(const std::string& resourceName, TBufferHandleId bufferHandle) = 0;
 
 			/*!
 				\brief The method returns an additional information about the shader

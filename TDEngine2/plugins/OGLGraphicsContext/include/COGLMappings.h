@@ -10,7 +10,6 @@
 #include <utils/Types.h>
 #include <graphics/IBuffer.h>
 #include <core/IGraphicsContext.h>
-#include <graphics/IIndexBuffer.h>
 #include <graphics/ICubemapTexture.h>
 #include <GL/glew.h>
 #include <string>

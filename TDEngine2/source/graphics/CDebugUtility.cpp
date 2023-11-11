@@ -3,7 +3,7 @@
 #include "../../include/graphics/IRenderer.h"
 #include "../../include/graphics/CRenderQueue.h"
 #include "../../include/graphics/IVertexDeclaration.h"
-#include "../../include/graphics/IVertexBuffer.h"
+#include "../../include/graphics/IBuffer.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/CFont.h"
 #include "../../include/graphics/CBaseMaterial.h"
@@ -55,22 +55,24 @@ namespace TDEngine2
 		mpLinesVertDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
 		mpLinesVertDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_COLOR });
 
-		mpLinesVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(BUT_DYNAMIC, sizeof(TLineVertex) * mMaxLinesVerticesCount, nullptr).Get();
+		mLinesVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, sizeof(TLineVertex) * mMaxLinesVerticesCount, nullptr }).Get();
 
 		mSystemFontHandle = mpResourceManager->Load<IFont>("OpenSans.font"); /// \note load system font, which is "OpenSans" font
 
 		mpTextVertDeclaration = mpGraphicsObjectManager->CreateVertexDeclaration().Get();
 		mpTextVertDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
 
-		mpTextVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(BUT_DYNAMIC, sizeof(TTextVertex) * 4096, nullptr).Get();
-		mpTextIndexBuffer  = mpGraphicsObjectManager->CreateIndexBuffer(BUT_DYNAMIC, TDEngine2::IFT_INDEX16, sizeof(U16) * 9072, &_buildTextIndexBuffer(2048)[0]).Get();
+		TInitBufferParams indexBuferParams { E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_INDEX_BUFFER, sizeof(U16) * 9072, &_buildTextIndexBuffer(2048)[0] };
+		indexBuferParams.mIndexFormat = E_INDEX_FORMAT_TYPE::INDEX16;
 
-		mpCrossesVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(BUT_DYNAMIC, sizeof(TLineVertex) * mMaxLinesVerticesCount, nullptr).Get();
+		mTextVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, sizeof(TTextVertex) * 4096, nullptr }).Get();
+		mTextIndexBufferHandle = mpGraphicsObjectManager->CreateBuffer(indexBuferParams).Get();
+
+		mCrossesVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, sizeof(TLineVertex) * mMaxLinesVerticesCount, nullptr }).Get();
 
 		mpGeometryBuilder = CreateGeometryBuilder(result);
 
-		if ((result != RC_OK) || 
-			(result = _initGizmosBuffers()) != RC_OK)
+		if (result != RC_OK)
 		{
 			return result;
 		}
@@ -87,15 +89,16 @@ namespace TDEngine2
 
 	void CDebugUtility::PreRender()
 	{
-		if (!mLinesDataBuffer.empty())
+		auto pLinesVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(mLinesVertexBufferHandle);
+		if (pLinesVertexBuffer && !mLinesDataBuffer.empty())
 		{
-			mpLinesVertexBuffer->Map(BMT_WRITE_DISCARD);
-			mpLinesVertexBuffer->Write(&mLinesDataBuffer[0], sizeof(TLineVertex) * mLinesDataBuffer.size());
-			mpLinesVertexBuffer->Unmap();
+			pLinesVertexBuffer->Map(BMT_WRITE_DISCARD);
+			pLinesVertexBuffer->Write(&mLinesDataBuffer[0], sizeof(TLineVertex) * mLinesDataBuffer.size());
+			pLinesVertexBuffer->Unmap();
 
 			auto pDrawLinesCommand = mpRenderQueue->SubmitDrawCommand<TDrawCommand>(-2);
 
-			pDrawLinesCommand->mpVertexBuffer           = mpLinesVertexBuffer;
+			pDrawLinesCommand->mVertexBufferHandle      = mLinesVertexBufferHandle;
 			pDrawLinesCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_LINE_LIST;
 			pDrawLinesCommand->mMaterialHandle          = mpResourceManager->Load<IMaterial>(mDefaultDebugMaterialName);
 			pDrawLinesCommand->mpVertexDeclaration      = mpLinesVertDeclaration;
@@ -104,15 +107,16 @@ namespace TDEngine2
 		}
 
 		/// \note draw crosses 
-		if (!mCrossesDataBuffer.empty())
+		auto pCrossesVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(mCrossesVertexBufferHandle);
+		if (pCrossesVertexBuffer && !mCrossesDataBuffer.empty())
 		{
-			mpCrossesVertexBuffer->Map(BMT_WRITE_DISCARD);
-			mpCrossesVertexBuffer->Write(&mCrossesDataBuffer[0], sizeof(TLineVertex) * mCrossesDataBuffer.size());
-			mpCrossesVertexBuffer->Unmap();
+			pCrossesVertexBuffer->Map(BMT_WRITE_DISCARD);
+			pCrossesVertexBuffer->Write(&mCrossesDataBuffer[0], sizeof(TLineVertex) * mCrossesDataBuffer.size());
+			pCrossesVertexBuffer->Unmap();
 
 			auto pDrawCrossesCommand = mpRenderQueue->SubmitDrawCommand<TDrawCommand>(-1);
 
-			pDrawCrossesCommand->mpVertexBuffer           = mpCrossesVertexBuffer;
+			pDrawCrossesCommand->mVertexBufferHandle      = mCrossesVertexBufferHandle;
 			pDrawCrossesCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_LINE_LIST;
 			pDrawCrossesCommand->mMaterialHandle          = mpResourceManager->Load<IMaterial>(mDefaultDebugMaterialName);
 			pDrawCrossesCommand->mpVertexDeclaration      = mpLinesVertDeclaration;
@@ -121,16 +125,17 @@ namespace TDEngine2
 		}
 
 		/// \note draw debug text onto the screen
-		if (!mTextDataBuffer.empty())
+		auto pTextVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(mTextVertexBufferHandle);
+		if (pTextVertexBuffer && !mTextDataBuffer.empty())
 		{
-			mpTextVertexBuffer->Map(BMT_WRITE_DISCARD);
-			mpTextVertexBuffer->Write(&mTextDataBuffer[0], sizeof(TTextVertex) * mTextDataBuffer.size());
-			mpTextVertexBuffer->Unmap();
+			pTextVertexBuffer->Map(BMT_WRITE_DISCARD);
+			pTextVertexBuffer->Write(&mTextDataBuffer[0], sizeof(TTextVertex) * mTextDataBuffer.size());
+			pTextVertexBuffer->Unmap();
 
 			auto pDrawTextCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(2);
 
-			pDrawTextCommand->mpVertexBuffer           = mpTextVertexBuffer;
-			pDrawTextCommand->mpIndexBuffer            = mpTextIndexBuffer;
+			pDrawTextCommand->mVertexBufferHandle      = mTextVertexBufferHandle;
+			pDrawTextCommand->mIndexBufferHandle       = mTextIndexBufferHandle;
 			pDrawTextCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 			pDrawTextCommand->mMaterialHandle          = mpResourceManager->Load<IMaterial>(mTextMaterialName);
 			pDrawTextCommand->mpVertexDeclaration      = mpTextVertDeclaration;
@@ -138,26 +143,7 @@ namespace TDEngine2
 			pDrawTextCommand->mStartVertex             = 0;
 			pDrawTextCommand->mNumOfIndices            = static_cast<U32>(mTextDataBuffer.size() * 1.5f); // \note 1.5 is hand-coded optimisation of 3 / 2 fracture
 			pDrawTextCommand->mObjectData.mModelMatrix = IdentityMatrix4;
-		}
-		
-		for (auto&& currGizmoInfo : mGizmosData)
-		{
-			auto pDrawGizmoCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(3);
-			
-			auto&& gizmoGeometryInfo = mGizmosTypesMap[currGizmoInfo.mType];
-
-			pDrawGizmoCommand->mpVertexBuffer           = mpGizmosVertexBuffer;
-			pDrawGizmoCommand->mpIndexBuffer            = mpGizmosIndexBuffer;
-			pDrawGizmoCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-			pDrawGizmoCommand->mMaterialHandle          = mpResourceManager->Load<IMaterial>(mDefaultDebugMaterialName);
-			pDrawGizmoCommand->mpVertexDeclaration      = mpLinesVertDeclaration;
-			pDrawGizmoCommand->mStartIndex              = gizmoGeometryInfo.mStartIndex;
-			pDrawGizmoCommand->mStartVertex             = gizmoGeometryInfo.mStartVertex;
-			pDrawGizmoCommand->mNumOfIndices            = gizmoGeometryInfo.mIndicesCount;
-			pDrawGizmoCommand->mObjectData.mModelMatrix = Transpose(currGizmoInfo.mTransform);
-
-			// \todo Add command for EDITOR_ONLY command buffer
-		}		
+		}	
 	}
 
 	void CDebugUtility::PostRender()
@@ -167,7 +153,6 @@ namespace TDEngine2
 		mLinesDataBuffer.clear();
 		mTextDataBuffer.clear();
 		mCrossesDataBuffer.clear();
-		mGizmosData.clear();
 	}
 
 	void CDebugUtility::DrawLine(const TVector3& start, const TVector3& end, const TColor32F& color)
@@ -385,11 +370,6 @@ namespace TDEngine2
 		}
 	}
 
-	void CDebugUtility::DrawTransformGizmo(E_GIZMO_TYPE type, const TMatrix4& transform, F32 size)
-	{
-		mGizmosData.push_back({ type, transform, size });
-	}
-
 	std::vector<U16> CDebugUtility::_buildTextIndexBuffer(U32 textLength) const
 	{
 		std::vector<U16> indices;
@@ -406,71 +386,6 @@ namespace TDEngine2
 		}
 
 		return indices;
-	}
-
-	E_RESULT_CODE CDebugUtility::_initGizmosBuffers()
-	{
-		std::vector<TLineVertex> verts;
-		std::vector<U16> indices;
-
-		U32 startIndex   = 0;
-		U32 vertexOffset = 0;
-
-		std::function<IGeometryBuilder::TGeometryData(E_GIZMO_TYPE)> gizmoFactory = nullptr;
-
-		for (U8 i = static_cast<U8>(E_GIZMO_TYPE::TRANSLATION); i != static_cast<U8>(E_GIZMO_TYPE::LAST); ++i)
-		{
-			startIndex   = static_cast<U32>(indices.size());
-			vertexOffset = static_cast<U32>(verts.size());
-
-			E_GIZMO_TYPE gizmoType = static_cast<E_GIZMO_TYPE>(i);
-
-			switch (gizmoType)
-			{
-				case E_GIZMO_TYPE::TRANSLATION:
-				case E_GIZMO_TYPE::TRANSLATION_X:
-				case E_GIZMO_TYPE::TRANSLATION_Y:
-				case E_GIZMO_TYPE::TRANSLATION_Z:
-				case E_GIZMO_TYPE::TRANSLATION_XY:
-				case E_GIZMO_TYPE::TRANSLATION_XZ:
-				case E_GIZMO_TYPE::TRANSLATION_YZ:
-					gizmoFactory = std::bind(&IGeometryBuilder::CreateTranslateGizmo, mpGeometryBuilder, std::placeholders::_1);
-					break;
-				case E_GIZMO_TYPE::ROTATION:
-				case E_GIZMO_TYPE::ROTATION_X:
-				case E_GIZMO_TYPE::ROTATION_Y:
-				case E_GIZMO_TYPE::ROTATION_Z:
-					gizmoFactory = std::bind(&IGeometryBuilder::CreateRotationGizmo, mpGeometryBuilder, std::placeholders::_1);
-					break;
-				case E_GIZMO_TYPE::SCALING:
-				case E_GIZMO_TYPE::SCALING_X:
-				case E_GIZMO_TYPE::SCALING_Y:
-				case E_GIZMO_TYPE::SCALING_Z:
-					gizmoFactory = std::bind(&IGeometryBuilder::CreateScaleGizmo, mpGeometryBuilder, std::placeholders::_1);
-					break;
-			}
-
-			auto&& gizmoGeometry = gizmoFactory(gizmoType);
-
-			std::transform(gizmoGeometry.mVertices.begin(), gizmoGeometry.mVertices.end(), std::back_inserter(verts), [](auto&& v)
-			{
-				return TLineVertex{ v.mPosition, v.mColor };
-			});
-			std::copy(gizmoGeometry.mIndices.begin(), gizmoGeometry.mIndices.end(), std::back_inserter(indices));
-
-			mGizmosTypesMap[gizmoType] = { static_cast<U32>(gizmoGeometry.mIndices.size()), vertexOffset, startIndex };
-		}
-		
-		auto gizmosVertexBufferResult = mpGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, sizeof(TLineVertex) * verts.size(), &verts[0]);
-		if (gizmosVertexBufferResult.HasError())
-		{
-			return gizmosVertexBufferResult.GetError();
-		}
-
-		mpGizmosVertexBuffer = gizmosVertexBufferResult.Get();
-		mpGizmosIndexBuffer  = mpGraphicsObjectManager->CreateIndexBuffer(BUT_STATIC, TDEngine2::IFT_INDEX16, sizeof(U16) * indices.size(), &indices[0]).Get();
-
-		return RC_OK;
 	}
 
 

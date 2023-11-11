@@ -2,10 +2,7 @@
 #include "../include/CVulkanGraphicsContext.h"
 #include "../include/CVulkanMappings.h"
 #include "../include/CVulkanUtils.h"
-#include "../include/CVulkanConstantBuffer.h"
-#include "../include/CVulkanIndexBuffer.h"
-#include "../include/CVulkanVertexBuffer.h"
-#include "../include/CVulkanStructuredBuffer.h"
+#include "../include/CVulkanBuffer.h"
 #include "../include/CVulkanVertexDeclaration.h"
 #include <core/IFileSystem.h>
 #include <core/IFile.h>
@@ -19,69 +16,17 @@ namespace TDEngine2
 	{
 	}
 
-	TResult<IVertexBuffer*> CVulkanGraphicsObjectManager::CreateVertexBuffer(E_BUFFER_USAGE_TYPE usageType, USIZE totalBufferSize, const void* pDataPtr)
+	TResult<TBufferHandleId> CVulkanGraphicsObjectManager::CreateBuffer(const TInitBufferParams& params)
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		IVertexBuffer* pNewVertexBuffer = CreateVulkanVertexBuffer(mpGraphicsContext, usageType, totalBufferSize, pDataPtr, result);
-
-		if (result != RC_OK)
+		TPtr<IBuffer> pBuffer = TPtr<IBuffer>(CreateVulkanBuffer(mpGraphicsContext, params, result));
+		if (!pBuffer || RC_OK != result)
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
-		_insertBuffer(pNewVertexBuffer);
-
-		return Wrench::TOkValue<IVertexBuffer*>(pNewVertexBuffer);
-	}
-
-	TResult<IIndexBuffer*> CVulkanGraphicsObjectManager::CreateIndexBuffer(E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
-																		USIZE totalBufferSize, const void* pDataPtr)
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		IIndexBuffer* pNewIndexBuffer = CreateVulkanIndexBuffer(mpGraphicsContext, usageType, indexFormatType, totalBufferSize, pDataPtr, result);
-
-		if (result != RC_OK)
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(result);
-		}
-
-		_insertBuffer(pNewIndexBuffer);
-
-		return Wrench::TOkValue<IIndexBuffer*>(pNewIndexBuffer);
-	}
-
-	TResult<IConstantBuffer*> CVulkanGraphicsObjectManager::CreateConstantBuffer(E_BUFFER_USAGE_TYPE usageType, USIZE totalBufferSize, const void* pDataPtr)
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		IConstantBuffer* pNewConstantBuffer = CreateVulkanConstantBuffer(mpGraphicsContext, usageType, totalBufferSize, pDataPtr, result);
-
-		if (result != RC_OK)
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(result);
-		}
-
-		_insertBuffer(pNewConstantBuffer);
-
-		return Wrench::TOkValue<IConstantBuffer*>(pNewConstantBuffer);
-	}
-
-	TResult<IStructuredBuffer*> CVulkanGraphicsObjectManager::CreateStructuredBuffer(const TStructuredBuffersInitParams& params)
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		IStructuredBuffer* pNewStructuredBuffer = CreateVulkanStructuredBuffer(params, result);
-
-		if (result != RC_OK)
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(result);
-		}
-
-		_insertBuffer(pNewStructuredBuffer);
-
-		return Wrench::TOkValue<IStructuredBuffer*>(pNewStructuredBuffer);
+		return Wrench::TOkValue<TBufferHandleId>(_insertBuffer(pBuffer));
 	}
 
 	TResult<IVertexDeclaration*> CVulkanGraphicsObjectManager::CreateVertexDeclaration()

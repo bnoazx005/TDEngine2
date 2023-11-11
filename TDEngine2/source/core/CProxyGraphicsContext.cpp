@@ -94,6 +94,24 @@ namespace TDEngine2
 		return OrthographicProj(left, top, right, bottom, zn, zf, 0.0f, 1.0f, -1.0f, isDepthless);
 	}
 
+	E_RESULT_CODE CProxyGraphicsContext::SetVertexBuffer(U32 slot, TBufferHandleId vertexBufferHandle, U32 offset, U32 strideSize)
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] SetVertexBuffer");
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CProxyGraphicsContext::SetIndexBuffer(TBufferHandleId indexBufferHandle, U32 offset)
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] SetIndexBuffer");
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CProxyGraphicsContext::SetConstantBuffer(U32 slot, TBufferHandleId constantsBufferHandle)
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] SetConstantBuffer");
+		return RC_OK;
+	}
+
 	void CProxyGraphicsContext::Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices)
 	{
 		LOG_MESSAGE("[ProxyGraphicsContext] Draw(E_PRIMITIVE_TOPOLOGY_TYPE, U32, U32)");

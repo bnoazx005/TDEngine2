@@ -9,7 +9,6 @@
 
 #include "ISkeleton.h"
 #include "../core/CBaseResource.h"
-#include "../graphics/IIndexBuffer.h"
 #include <vector>
 #include <unordered_map>
 

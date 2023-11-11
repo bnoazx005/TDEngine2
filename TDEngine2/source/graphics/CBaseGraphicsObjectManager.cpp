@@ -37,7 +37,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseGraphicsObjectManager::_onFreeInternal()
 	{
-		E_RESULT_CODE result = _freeBuffers();
+		E_RESULT_CODE result = RC_OK;
 
 		result = result | _freeVertexDeclarations();
 		result = result | _freeTextureSamplers();
@@ -95,26 +95,20 @@ namespace TDEngine2
 		return E_DEFAULT_SHADER_TYPE::DST_BASIC;
 	}
 
-	void CBaseGraphicsObjectManager::_insertBuffer(IBuffer* pBuffer)
+	TPtr<IBuffer> CBaseGraphicsObjectManager::GetBufferPtr(TBufferHandleId handle)
 	{
-		U32 index = 0;
+		auto it = mBufferHandlesTable.find(handle);
+		return it == mBufferHandlesTable.cend() ? nullptr : mBuffersArray[it->second];
+	}
 
-		if (mFreeBuffersSlots.empty())
-		{
-			index = static_cast<U32>(mBuffersArray.size());
+	TBufferHandleId CBaseGraphicsObjectManager::_insertBuffer(TPtr<IBuffer> pBuffer)
+	{
+		mBuffersArray.emplace_back(pBuffer);
 
-			mBuffersArray.push_back(pBuffer);
-
-			return;
-		}
-
-		index = mFreeBuffersSlots.front();
-
-		mFreeBuffersSlots.pop_front();
-
-		mBuffersArray[index] = pBuffer;
-
-		return;
+		const TBufferHandleId handle = static_cast<TBufferHandleId>(mBuffersArray.size() - 1);
+		mBufferHandlesTable.emplace(handle, mBuffersArray.size() - 1);
+		
+		return handle;
 	}
 
 	void CBaseGraphicsObjectManager::_insertVertexDeclaration(IVertexDeclaration* pVertDecl)
@@ -137,30 +131,6 @@ namespace TDEngine2
 		mVertexDeclarationsArray[index] = pVertDecl;
 
 		return;
-	}
-
-	E_RESULT_CODE CBaseGraphicsObjectManager::_freeBuffers()
-	{
-		IBuffer* pCurrBuffer = nullptr;
-
-		E_RESULT_CODE result = RC_OK;
-
-		for (auto iter = mBuffersArray.begin(); iter != mBuffersArray.end(); ++iter)
-		{
-			pCurrBuffer = (*iter);
-
-			if (!pCurrBuffer)
-			{
-				continue;
-			}
-
-			result = result | pCurrBuffer->Free();
-		}
-
-		mBuffersArray.clear();
-		mFreeBuffersSlots.clear();
-
-		return result;
 	}
 
 	E_RESULT_CODE CBaseGraphicsObjectManager::_freeVertexDeclarations()

@@ -11,7 +11,7 @@ namespace TDEngine2
 
 		switch (type)
 		{
-			case BUT_DYNAMIC:
+			case E_BUFFER_USAGE_TYPE::DYNAMIC:
 				accessFlags |= D3D11_CPU_ACCESS_WRITE;
 				break;
 		}
@@ -23,9 +23,9 @@ namespace TDEngine2
 	{
 		switch (type)
 		{
-			case BUT_DYNAMIC:
+			case E_BUFFER_USAGE_TYPE::DYNAMIC:
 				return D3D11_USAGE_DYNAMIC;
-			case BUT_STATIC:
+			case E_BUFFER_USAGE_TYPE::STATIC:
 				return D3D11_USAGE_IMMUTABLE;
 		}
 
@@ -457,9 +457,9 @@ namespace TDEngine2
 	{
 		switch (indexFormatType)
 		{
-			case IFT_INDEX16:
+			case E_INDEX_FORMAT_TYPE::INDEX16:
 				return DXGI_FORMAT_R16_UINT;
-			case IFT_INDEX32:
+			case E_INDEX_FORMAT_TYPE::INDEX32:
 				return DXGI_FORMAT_R32_UINT;
 		}
 

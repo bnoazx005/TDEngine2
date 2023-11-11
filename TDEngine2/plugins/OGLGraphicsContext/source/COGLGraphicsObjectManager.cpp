@@ -1,12 +1,8 @@
 #include "./../include/COGLGraphicsObjectManager.h"
-#include "./../include/COGLVertexBuffer.h"
-#include "./../include/COGLIndexBuffer.h"
-#include "./../include/COGLConstantBuffer.h"
-#include "./../include/COGLStructuredBuffer.h"
+#include "./../include/COGLBuffer.h"
 #include "./../include/COGLVertexDeclaration.h"
 #include "./../include/COGLMappings.h"
 #include "./../include/COGLUtils.h"
-#include <graphics/IStructuredBuffer.h>
 #include <core/IFileSystem.h>
 #include <core/IFile.h>
 #include <core/CProjectSettings.h>
@@ -19,69 +15,17 @@ namespace TDEngine2
 	{
 	}
 
-	TResult<IVertexBuffer*> COGLGraphicsObjectManager::CreateVertexBuffer(E_BUFFER_USAGE_TYPE usageType, USIZE totalBufferSize, const void* pDataPtr)
+	TResult<TBufferHandleId> COGLGraphicsObjectManager::CreateBuffer(const TInitBufferParams& params)
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		IVertexBuffer* pNewVertexBuffer = CreateOGLVertexBuffer(mpGraphicsContext, usageType, totalBufferSize, pDataPtr, result);
-
-		if (result != RC_OK)
+		TPtr<IBuffer> pBuffer = TPtr<IBuffer>(CreateOGLBuffer(mpGraphicsContext, params, result));
+		if (!pBuffer || RC_OK != result)
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
-		_insertBuffer(pNewVertexBuffer);
-
-		return Wrench::TOkValue<IVertexBuffer*>(pNewVertexBuffer);
-	}
-
-	TResult<IIndexBuffer*> COGLGraphicsObjectManager::CreateIndexBuffer(E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
-																		USIZE totalBufferSize, const void* pDataPtr)
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		IIndexBuffer* pNewIndexBuffer = CreateOGLIndexBuffer(mpGraphicsContext, usageType, indexFormatType, totalBufferSize, pDataPtr, result);
-
-		if (result != RC_OK)
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(result);
-		}
-
-		_insertBuffer(pNewIndexBuffer);
-
-		return Wrench::TOkValue<IIndexBuffer*>(pNewIndexBuffer);
-	}
-
-	TResult<IConstantBuffer*> COGLGraphicsObjectManager::CreateConstantBuffer(E_BUFFER_USAGE_TYPE usageType, USIZE totalBufferSize, const void* pDataPtr)
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		IConstantBuffer* pNewConstantBuffer = CreateOGLConstantBuffer(mpGraphicsContext, usageType, totalBufferSize, pDataPtr, result);
-
-		if (result != RC_OK)
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(result);
-		}
-
-		_insertBuffer(pNewConstantBuffer);
-
-		return Wrench::TOkValue<IConstantBuffer*>(pNewConstantBuffer);
-	}
-
-	TResult<IStructuredBuffer*> COGLGraphicsObjectManager::CreateStructuredBuffer(const TStructuredBuffersInitParams& params)
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		IStructuredBuffer* pNewStructuredBuffer = CreateOGLStructuredBuffer(params, result);
-
-		if (result != RC_OK)
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(result);
-		}
-
-		_insertBuffer(pNewStructuredBuffer);
-
-		return Wrench::TOkValue<IStructuredBuffer*>(pNewStructuredBuffer);
+		return Wrench::TOkValue<TBufferHandleId>(_insertBuffer(pBuffer));
 	}
 
 	TResult<IVertexDeclaration*> COGLGraphicsObjectManager::CreateVertexDeclaration()

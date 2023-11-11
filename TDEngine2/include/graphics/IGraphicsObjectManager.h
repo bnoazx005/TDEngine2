@@ -11,7 +11,6 @@
 #include "../utils/Utils.h"
 #include "../core/IBaseObject.h"
 #include "../graphics/IBuffer.h"
-#include "../graphics/IIndexBuffer.h"
 #include "../math/TVector4.h"
 #include <array>
 
@@ -28,10 +27,13 @@ namespace TDEngine2
 	class IResourceManager;
 	class IShaderCache;
 	class IFileSystem;
+	class IBuffer;
 	struct TStructuredBuffersInitParams;
+	struct TInitBufferParams;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IShaderCache);
+	TDE2_DECLARE_SCOPED_PTR(IBuffer);
 
 
 	/*!
@@ -44,6 +46,9 @@ namespace TDEngine2
 	{
 		DST_BASIC,
 	};
+
+
+	TDE2_DECLARE_HANDLE_TYPE(TBufferHandleId);
 
 
 	/*!
@@ -67,60 +72,7 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext) = 0;
 
-			/*!
-				\brief The method is a factory for creation objects of IVertexBuffer's type
-
-				\param[in] usageType A usage type of a buffer
-
-				\param[in] totalBufferSize Total size of a buffer
-
-				\param[in] pDataPtr A pointer to data that will initialize a buffer
-
-				\return The result object contains either a pointer to IVertexBuffer or an error code
-			*/
-
-			TDE2_API virtual TResult<IVertexBuffer*> CreateVertexBuffer(E_BUFFER_USAGE_TYPE usageType, USIZE totalBufferSize, const void* pDataPtr) = 0;
-
-			/*!
-				\brief The method is a factory for creation objects of IIndexBuffer's type
-
-				\param[in] usageType A usage type of a buffer
-
-				\param[in] totalBufferSize Total size of a buffer
-
-				\param[in] indexFormatType A value, which defines single index's stride size
-
-				\param[in] pDataPtr A pointer to data that will initialize a buffer
-
-				\return The result object contains either a pointer to IIndexBuffer or an error code
-			*/
-
-			TDE2_API virtual TResult<IIndexBuffer*> CreateIndexBuffer(E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
-																	  USIZE totalBufferSize, const void* pDataPtr) = 0;
-
-			/*!
-				\brief The method is a factory for creation objects of IConstantBuffer's type
-
-				\param[in] usageType A usage type of a buffer
-
-				\param[in] totalBufferSize Total size of a buffer
-
-				\param[in] indexFormatType A value, which defines single index's stride size
-
-				\param[in] pDataPtr A pointer to data that will initialize a buffer
-
-				\return The result object contains either a pointer to IConstantBuffer or an error code
-			*/
-
-			TDE2_API virtual TResult<IConstantBuffer*> CreateConstantBuffer(E_BUFFER_USAGE_TYPE usageType, USIZE totalBufferSize, const void* pDataPtr) = 0;
-
-			/*!
-				\brief The method is a factory for creation of structured buffers objects
-
-				\return The result object that contains either a pointer to a structured buffer or an error code
-			*/
-
-			TDE2_API virtual TResult<IStructuredBuffer*> CreateStructuredBuffer(const TStructuredBuffersInitParams& params) = 0;
+			TDE2_API virtual TResult<TBufferHandleId> CreateBuffer(const TInitBufferParams& params) = 0;
 
 			/*!
 				\brief The method is a factory for creation objects of IVertexDeclaration's type
@@ -181,6 +133,8 @@ namespace TDEngine2
 			TDE2_API virtual TResult<IDebugUtility*> CreateDebugUtility(IResourceManager* pResourceManager, IRenderer* pRenderer) = 0;
 
 			TDE2_API virtual TResult<TPtr<IShaderCache>> CreateShaderCache(IFileSystem* pFileSystem, bool isReadOnly = true) = 0;
+
+			TDE2_API virtual TPtr<IBuffer> GetBufferPtr(TBufferHandleId handle) = 0;
 
 			/*!
 				\brief The method returns a pointer to IGraphicsContext

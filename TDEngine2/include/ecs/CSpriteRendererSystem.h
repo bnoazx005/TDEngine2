@@ -23,13 +23,14 @@ namespace TDEngine2
 	class CQuadSprite;
 	class CRenderQueue;
 	class IGraphicsObjectManager;
-	class IVertexBuffer;
-	class IIndexBuffer;
 	class IVertexDeclaration;
 	class IGraphicsLayersInfo;
 	class IRenderer;
 	class IResourceManager;
 	class IAllocator;
+
+
+	enum class TBufferHandleId : U32;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
@@ -93,7 +94,7 @@ namespace TDEngine2
 			/*!
 				\brief The method initializes an inner state of a system
 
-		\		param[in, out] allocator A reference to IAllocator implementation
+				\param[in, out] allocator A reference to IAllocator implementation
 
 				\param[in, out] pRenderer A pointer to IRenderer implementation
 
@@ -145,11 +146,10 @@ namespace TDEngine2
 
 			IGraphicsObjectManager*     mpGraphicsObjectManager;
 
-			std::vector<IVertexBuffer*> mSpritesPerInstanceData;
+			std::vector<TBufferHandleId> mSpritesPerInstanceDataHandles;
 
-			IVertexBuffer*              mpSpriteVertexBuffer;
-
-			IIndexBuffer*               mpSpriteIndexBuffer;
+			TBufferHandleId             mSpriteVertexBufferHandle;
+			TBufferHandleId             mSpriteIndexBufferHandle;
 
 			IVertexDeclaration*         mpSpriteVertexDeclaration;
 

@@ -21,6 +21,7 @@
 #include "../../include/physics/IRaycastContext.h"
 #include "../../include/graphics/IMaterial.h"
 #include "../../include/graphics/ITexture2D.h"
+#include "../../include/graphics/IBuffer.h"
 #include "../../include/graphics/IGlobalShaderProperties.h"
 #include "../../include/graphics/IFramePostProcessor.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
@@ -76,4 +77,5 @@ namespace TDEngine2
 	TDE2_DEFINE_SCOPED_PTR(ISystem)
 	TDE2_DEFINE_SCOPED_PTR(IShaderCache)
 	TDE2_DEFINE_SCOPED_PTR(IGraphicsObjectManager)
+	TDE2_DEFINE_SCOPED_PTR(IBuffer)
 }

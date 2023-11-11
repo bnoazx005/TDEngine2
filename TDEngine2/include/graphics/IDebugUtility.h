@@ -153,16 +153,6 @@ namespace TDEngine2
 			TDE2_API virtual void DrawSphere(const TVector3& position, F32 radius, const TColor32F& color, U16 triangulationFactor = 1) = 0;
 
 			/*!
-				\brief The method draws a gizmo of one of predefined types for given transform matrix
-
-				\param[in] type A type of a gizmo
-				\param[in] transform A matrix which stores translation, rotation and scaling data
-				\param[in] size A scale of a gizmo
-			*/
-
-			TDE2_API virtual void DrawTransformGizmo(E_GIZMO_TYPE type, const TMatrix4& transform, F32 size = 1.0f) = 0;
-
-			/*!
 				\brief The method prepares internal state of the helper before it will be actually rendered
 			*/
 

@@ -9,8 +9,7 @@
 #include <core/IResourceManager.h>
 #include <graphics/CBaseTexture2D.h>
 #include <graphics/IGraphicsObjectManager.h>
-#include <graphics/IIndexBuffer.h>
-#include <graphics/IVertexBuffer.h>
+#include <graphics/IBuffer.h>
 #include <graphics/CBaseMaterial.h>
 #include <graphics/IRenderer.h>
 #include <graphics/CRenderQueue.h>
@@ -1216,21 +1215,21 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		auto vertexBufferResult = pGraphicsManager->CreateVertexBuffer(BUT_DYNAMIC, VertexBufferChunkSize, nullptr);
+		auto vertexBufferResult = pGraphicsManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, VertexBufferChunkSize, nullptr });
 		if (vertexBufferResult.HasError())
 		{
 			return vertexBufferResult.GetError();
 		}
 
-		mpVertexBuffer = vertexBufferResult.Get();
+		mVertexBufferHandle = vertexBufferResult.Get();
 
-		auto indexBufferResult = pGraphicsManager->CreateIndexBuffer(BUT_DYNAMIC, IFT_INDEX16, IndexBufferChunkSize, nullptr);
+		auto indexBufferResult = pGraphicsManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_INDEX_BUFFER, IndexBufferChunkSize, nullptr });
 		if (indexBufferResult.HasError())
 		{
 			return indexBufferResult.GetError();
 		}
 
-		mpIndexBuffer = indexBufferResult.Get();
+		mIndexBufferHandle = indexBufferResult.Get();
 
 		mpEditorUIVertexDeclaration = pGraphicsManager->CreateVertexDeclaration().Get();
 		mpEditorUIVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION, false });
@@ -1298,8 +1297,11 @@ namespace TDEngine2
 
 	void CImGUIContext::_engineInternalRender(ImDrawData* pImGUIData, CRenderQueue* pRenderQueue)
 	{
-		mpVertexBuffer->Map(BMT_WRITE_DISCARD);
-		mpIndexBuffer->Map(BMT_WRITE_DISCARD);
+		auto pVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(mVertexBufferHandle);
+		auto pIndexBuffer = mpGraphicsObjectManager->GetBufferPtr(mIndexBufferHandle);
+
+		pVertexBuffer->Map(BMT_WRITE_DISCARD);
+		pIndexBuffer->Map(BMT_WRITE_DISCARD);
 		{
 			std::vector<ImDrawVert> vertices(pImGUIData->TotalVtxCount);
 			std::vector<ImDrawIdx> indices(pImGUIData->TotalIdxCount);
@@ -1318,30 +1320,34 @@ namespace TDEngine2
 				pCurrIndexPtr  += pCommandList->IdxBuffer.Size;
 			}
 
-			if (vertices.size() > mpVertexBuffer->GetSize() / sizeof(ImDrawVert))
+			if (vertices.size() > pVertexBuffer->GetSize() / sizeof(ImDrawVert))
 			{
-				mpVertexBuffer = mpGraphicsObjectManager->CreateVertexBuffer(E_BUFFER_USAGE_TYPE::BUT_DYNAMIC, mpVertexBuffer->GetSize() + VertexBufferChunkSize, nullptr).Get();
-				mpVertexBuffer->Map(BMT_WRITE_DISCARD);
+				mVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, pVertexBuffer->GetSize() + VertexBufferChunkSize, nullptr }).Get();
+				
+				pVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(mVertexBufferHandle);
+				pVertexBuffer->Map(BMT_WRITE_DISCARD);
 			}
 
-			if (indices.size() > mpIndexBuffer->GetSize() / sizeof(ImDrawIdx))
+			if (indices.size() > pIndexBuffer->GetSize() / sizeof(ImDrawIdx))
 			{
-				mpIndexBuffer = mpGraphicsObjectManager->CreateIndexBuffer(E_BUFFER_USAGE_TYPE::BUT_DYNAMIC, E_INDEX_FORMAT_TYPE::IFT_INDEX16, mpIndexBuffer->GetSize() + IndexBufferChunkSize, nullptr).Get();
-				mpIndexBuffer->Map(BMT_WRITE_DISCARD);
+				mIndexBufferHandle = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_INDEX_BUFFER, pIndexBuffer->GetSize() + IndexBufferChunkSize, nullptr }).Get();
+
+				pIndexBuffer = mpGraphicsObjectManager->GetBufferPtr(mIndexBufferHandle);
+				pIndexBuffer->Map(BMT_WRITE_DISCARD);
 			}
 
 			if (!vertices.empty())
 			{
-				mpVertexBuffer->Write(&vertices[0], sizeof(ImDrawVert) * vertices.size());
+				pVertexBuffer->Write(&vertices[0], sizeof(ImDrawVert) * vertices.size());
 			}
 
 			if (!indices.empty())
 			{
-				mpIndexBuffer->Write(&indices[0], sizeof(ImDrawIdx) * indices.size());
+				pIndexBuffer->Write(&indices[0], sizeof(ImDrawIdx) * indices.size());
 			}
 		}
-		mpIndexBuffer->Unmap();
-		mpVertexBuffer->Unmap();
+		pIndexBuffer->Unmap();
+		pVertexBuffer->Unmap();
 
 		// \note Render command lists
 		I32 currIndexOffset  = 0;
@@ -1386,8 +1392,8 @@ namespace TDEngine2
 				pCurrDrawCommand->mObjectData.mTextureTransformDesc = TVector4(uvRect.x, uvRect.y, uvRect.width, uvRect.height);
 
 				pCurrDrawCommand->mpVertexDeclaration      = mpEditorUIVertexDeclaration;
-				pCurrDrawCommand->mpVertexBuffer           = mpVertexBuffer;
-				pCurrDrawCommand->mpIndexBuffer            = mpIndexBuffer;
+				pCurrDrawCommand->mVertexBufferHandle      = mVertexBufferHandle;
+				pCurrDrawCommand->mIndexBufferHandle       = mIndexBufferHandle;
 				pCurrDrawCommand->mMaterialHandle          = mDefaultEditorMaterialHandle;
 				pCurrDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 				pCurrDrawCommand->mNumOfIndices            = pCurrCommand->ElemCount;

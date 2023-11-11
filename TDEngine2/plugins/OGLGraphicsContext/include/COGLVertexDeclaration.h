@@ -16,9 +16,6 @@
 
 namespace TDEngine2
 {
-	class IVertexBuffer;
-
-
 	/*!
 		\brief A factory function for creation objects of COGLVertexDeclaration's type
 
@@ -55,7 +52,7 @@ namespace TDEngine2
 				\return An object that contains either a handler of created VAO or an error code
 			*/
 
-			TDE2_API TResult<GLuint> GetVertexArrayObject(const CStaticArray<IVertexBuffer*>& pVertexBuffersArray);
+			TDE2_API TResult<GLuint> GetVertexArrayObject(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray);
 
 			/*!
 				\brief The method creates an internal handlers for a vertex declaration and binds it
@@ -68,11 +65,9 @@ namespace TDEngine2
 				\param[in, out] pShader A pointer to IShader implementation
 			*/
 
-			TDE2_API void Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<IVertexBuffer*>& pVertexBuffersArray, IShader* pShader) override;
+			TDE2_API void Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray, IShader* pShader) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLVertexDeclaration)
-
-			TDE2_API TResult<GLuint> _doesHandleExist(const TVAORegistryNode& registry, const CStaticArray<IVertexBuffer*>& pVertexBuffersArray) const;
 
 			TDE2_API TVAORegistryNode* _insertNewNode(TVAORegistryNode* pCurrNode, U32 handle);
 		protected:

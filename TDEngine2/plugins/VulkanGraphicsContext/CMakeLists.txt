@@ -38,10 +38,7 @@ set(VULKAN_GCTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/win32/CWin32WindowSurfaceFactory.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CVulkanGCtxPlugin.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CVulkanBuffer.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/CVulkanVertexBuffer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CVulkanMappings.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/CVulkanIndexBuffer.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/CVulkanConstantBuffer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CVulkanShader.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CVulkanShaderCompiler.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CVulkanTexture2D.h"
@@ -51,7 +48,6 @@ set(VULKAN_GCTX_HEADERS
 	# "${CMAKE_CURRENT_SOURCE_DIR}/include/CVULKANCubemapTexture.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CVulkanRenderTarget.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CVulkanDepthBufferTarget.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/CVulkanStructuredBuffer.h"
 	)
 
 set(VULKAN_GCTX_SOURCES
@@ -59,10 +55,7 @@ set(VULKAN_GCTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CVulkanGCtxPlugin.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/win32/CWin32WindowSurfaceFactory.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CVulkanBuffer.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/CVulkanVertexBuffer.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CVulkanMappings.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/CVulkanIndexBuffer.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/CVulkanConstantBuffer.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CVulkanShader.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CVulkanTexture2D.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CVulkanShaderCompiler.cpp"
@@ -71,7 +64,6 @@ set(VULKAN_GCTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CVulkanRenderTarget.cpp"
 	# "${CMAKE_CURRENT_SOURCE_DIR}/source/CVULKANCubemapTexture.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CVulkanDepthBufferTarget.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/CVulkanStructuredBuffer.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/deps/vma/vk_mem_alloc.cpp"
 	)
 

@@ -302,6 +302,54 @@ namespace TDEngine2
 		return OrthographicProj(left, top, right, bottom, zn, zf, 0.0f, 1.0f, -1.0f, isDepthless);
 	}
 
+	E_RESULT_CODE CD3D11GraphicsContext::SetVertexBuffer(U32 slot, TBufferHandleId vertexBufferHandle, U32 offset, U32 strideSize)
+	{
+		auto pBuffer = mpGraphicsObjectManager->GetBufferPtr(vertexBufferHandle);
+		if (!pBuffer)
+		{
+			return RC_FAIL;
+		}
+
+		ID3D11Buffer* pD3D11BufferImpl = reinterpret_cast<ID3D11Buffer*>(pBuffer->GetInternalData());
+
+		mp3dDeviceContext->IASetVertexBuffers(slot, 1, &pD3D11BufferImpl, &strideSize, &offset);
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D11GraphicsContext::SetIndexBuffer(TBufferHandleId indexBufferHandle, U32 offset)
+	{
+		auto pBuffer = mpGraphicsObjectManager->GetBufferPtr(indexBufferHandle);
+		if (!pBuffer)
+		{
+			return RC_FAIL;
+		}
+
+		ID3D11Buffer* pD3D11BufferImpl = reinterpret_cast<ID3D11Buffer*>(pBuffer->GetInternalData());
+
+		mp3dDeviceContext->IASetIndexBuffer(pD3D11BufferImpl, CD3D11Mappings::GetIndexFormat(pBuffer->GetParams().mIndexFormat), offset);
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D11GraphicsContext::SetConstantBuffer(U32 slot, TBufferHandleId constantsBufferHandle)
+	{
+		auto pBuffer = mpGraphicsObjectManager->GetBufferPtr(constantsBufferHandle);
+		if (!pBuffer)
+		{
+			return RC_FAIL;
+		}
+
+		ID3D11Buffer* pD3D11BufferImpl = reinterpret_cast<ID3D11Buffer*>(pBuffer->GetInternalData());
+
+		mp3dDeviceContext->VSSetConstantBuffers(slot, 1, &pD3D11BufferImpl);
+		mp3dDeviceContext->PSSetConstantBuffers(slot, 1, &pD3D11BufferImpl);
+		mp3dDeviceContext->GSSetConstantBuffers(slot, 1, &pD3D11BufferImpl);
+		mp3dDeviceContext->CSSetConstantBuffers(slot, 1, &pD3D11BufferImpl);
+
+		return RC_OK;
+	}
+
 	void CD3D11GraphicsContext::Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices)
 	{
 		mp3dDeviceContext->IASetPrimitiveTopology(CD3D11Mappings::GetPrimitiveTopology(topology));

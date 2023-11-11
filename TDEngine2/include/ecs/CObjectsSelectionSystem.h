@@ -23,14 +23,15 @@ namespace TDEngine2
 	class IWorld;
 	class ICamera;
 	class IVertexDeclaration;
-	class IVertexBuffer;
-	class IIndexBuffer;
 	class IMaterial;
 	class CStaticMeshContainer;
 	class CSkinnedMeshContainer;
 	class CQuadSprite;
 	class CUIElementMeshData;
 	class CLayoutElement;
+
+
+	enum class TBufferHandleId : U32;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
@@ -139,10 +140,10 @@ namespace TDEngine2
 			IVertexDeclaration*     mpSelectionVertDecl;
 			IVertexDeclaration*     mpSelectionSkinnedVertDecl;
 
-			IVertexBuffer*          mpSpritesVertexBuffer;
-			IIndexBuffer*           mpSpritesIndexBuffer;
+			TBufferHandleId         mSpritesVertexBufferHandle;
+			TBufferHandleId         mSpritesIndexBufferHandle;
 
-			IVertexBuffer*          mpUIElementsVertexBuffer;
+			TBufferHandleId         mUIElementsVertexBufferHandle;
 
 			TResourceId             mSelectionMaterialHandle;
 			TResourceId             mSelectionSkinnedMaterialHandle;

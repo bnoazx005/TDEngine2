@@ -8,9 +8,8 @@
 
 
 #include <utils/Types.h>
-#include "CD3D11Buffer.h"
 #include <core/IGraphicsContext.h>
-#include <graphics/IIndexBuffer.h>
+#include <graphics/IBuffer.h>
 #include <graphics/ICubemapTexture.h>
 #include <string>
 

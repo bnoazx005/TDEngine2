@@ -310,8 +310,8 @@ namespace TDEngine2
 			
 			TDE2_ASSERT(pCommand);
 
-			pCommand->mpVertexBuffer              = pSharedMeshResource->GetSharedVertexBuffer();
-			pCommand->mpIndexBuffer               = pSharedMeshResource->GetSharedIndexBuffer();
+			pCommand->mVertexBufferHandle         = pSharedMeshResource->GetSharedVertexBuffer();
+			pCommand->mIndexBufferHandle          = pSharedMeshResource->GetSharedIndexBuffer();
 			pCommand->mMaterialHandle             = currMaterialId;
 			pCommand->mMaterialInstanceId         = materialInstance;
 			pCommand->mpVertexDeclaration         = meshBuffersEntry.mpVertexDecl; // \todo replace with access to a vertex declarations pool

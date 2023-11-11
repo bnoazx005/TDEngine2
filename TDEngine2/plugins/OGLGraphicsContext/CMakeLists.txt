@@ -24,10 +24,7 @@ set(OGL_GCTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/IOGLContextFactory.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLGCtxPlugin.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLBuffer.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLVertexBuffer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLMappings.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLIndexBuffer.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLConstantBuffer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLShader.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLTexture2D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLShaderCompiler.h"
@@ -37,7 +34,6 @@ set(OGL_GCTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLUtils.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLCubemapTexture.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLDepthBufferTarget.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLStructuredBuffer.h"
 	)
 
 set(OGL_GCTX_SOURCES
@@ -46,10 +42,7 @@ set(OGL_GCTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/unix/CUnixGLContextFactory.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLGCtxPlugin.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLBuffer.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLVertexBuffer.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLMappings.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLIndexBuffer.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLConstantBuffer.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLShader.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLTexture2D.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLShaderCompiler.cpp"
@@ -58,7 +51,6 @@ set(OGL_GCTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLRenderTarget.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLCubemapTexture.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLDepthBufferTarget.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLStructuredBuffer.cpp"
 	)
 
 source_group("includes" FILES ${OGL_GCTX_HEADERS})

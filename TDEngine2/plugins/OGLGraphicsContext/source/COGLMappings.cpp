@@ -5,7 +5,7 @@ namespace TDEngine2
 {
 	GLenum COGLMappings::GetUsageType(E_BUFFER_USAGE_TYPE type)
 	{
-		if (type == BUT_DYNAMIC)
+		if (type == E_BUFFER_USAGE_TYPE::DYNAMIC)
 		{
 			return GL_DYNAMIC_DRAW;
 		}
@@ -521,9 +521,9 @@ namespace TDEngine2
 	{
 		switch (indexFormatType)
 		{
-			case IFT_INDEX16:
+			case E_INDEX_FORMAT_TYPE::INDEX16:
 				return GL_UNSIGNED_SHORT;
-			case IFT_INDEX32:
+			case E_INDEX_FORMAT_TYPE::INDEX32:
 				return GL_UNSIGNED_INT;
 		}
 

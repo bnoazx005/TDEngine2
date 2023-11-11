@@ -26,7 +26,7 @@ namespace TDEngine2
 	class COGLBuffer : public CBaseObject, public IBuffer
 	{			
 		public:
-			friend TDE2_API IBuffer* CreateOGLBuffer(const TInitBufferParams& params, E_RESULT_CODE&);
+			friend TDE2_API IBuffer* CreateOGLBuffer(IGraphicsContext*, const TInitBufferParams&, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes an initial state of a buffer
@@ -34,7 +34,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(const TInitBufferParams& params);
+			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, const TInitBufferParams& params) override;
 
 			/*!
 				\brief The method locks a buffer to provide safe data reading/writing
@@ -79,7 +79,7 @@ namespace TDEngine2
 				contains low-level platform specific buffer's handlers
 			*/
 
-			TDE2_API const TBufferInternalData& GetInternalData() const override;
+			TDE2_API void* GetInternalData() override;
 
 			/*!
 				\brief The method returns buffer's size in bytes
@@ -94,6 +94,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API USIZE GetUsedSize() const override;
+
+			TDE2_API const TInitBufferParams& GetParams() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLBuffer)
 
@@ -112,7 +114,7 @@ namespace TDEngine2
 
 			void*                    mpMappedBufferData;
 
-			TBufferInternalData      mBufferInternalData;
+			TInitBufferParams        mInitParams;
 
 #if TDE2_DEBUG_MODE
 			U8                       mLockChecker = 0;
@@ -126,5 +128,5 @@ namespace TDEngine2
 		\return A pointer to COGLGraphicsContext's implementation
 	*/
 
-	TDE2_API IBuffer* CreateOGLBuffer(const TInitBufferParams& params, E_RESULT_CODE& result);
+	TDE2_API IBuffer* CreateOGLBuffer(IGraphicsContext* pGraphicsContext, const TInitBufferParams& params, E_RESULT_CODE& result);
 }

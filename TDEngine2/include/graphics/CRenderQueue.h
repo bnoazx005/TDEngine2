@@ -32,6 +32,9 @@ namespace TDEngine2
 	class IResourceHandler;
 
 
+	enum class TBufferHandleId : U32;
+
+
 	typedef struct TRenderCommand
 	{
 		TDE2_API virtual ~TRenderCommand() = default;
@@ -52,7 +55,7 @@ namespace TDEngine2
 
 		E_PRIMITIVE_TOPOLOGY_TYPE mPrimitiveType;
 
-		IVertexBuffer*            mpVertexBuffer;
+		TBufferHandleId           mVertexBufferHandle;
 
 		IVertexDeclaration*       mpVertexDeclaration;
 
@@ -83,7 +86,6 @@ namespace TDEngine2
 		TDE2_API E_RESULT_CODE Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties) override;
 
 		U32 mNumOfVertices;
-
 		U32 mStartVertex;
 	} TDrawCommand, *TDrawCommandPtr;
 
@@ -104,13 +106,11 @@ namespace TDEngine2
 
 		TDE2_API E_RESULT_CODE Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties) override;
 
-		U32           mNumOfIndices;
+		U32             mNumOfIndices;
+		U32             mStartIndex;
+		U32             mStartVertex;
 
-		U32           mStartIndex;
-
-		U32           mStartVertex;
-
-		IIndexBuffer* mpIndexBuffer;
+		TBufferHandleId mIndexBufferHandle;
 	} TDrawIndexedCommand, *TDrawIndexedCommandPtr;
 
 
@@ -159,18 +159,13 @@ namespace TDEngine2
 		TDE2_API E_RESULT_CODE Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties) override;
 
 		U32            mBaseVertexIndex;
-
 		U32            mStartIndex;
-
 		U32            mStartInstance;
-
 		U32            mIndicesPerInstance;
-
 		U32            mNumOfInstances;
 
-		IIndexBuffer*  mpIndexBuffer;
-
-		IVertexBuffer* mpInstancingBuffer;
+		TBufferHandleId mIndexBufferHandle;
+		TBufferHandleId mInstancingBufferHandle;
 	} TDrawIndexedInstancedCommand, *TDrawIndexedInstancedCommandPtr;
 
 

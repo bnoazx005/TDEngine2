@@ -1,9 +1,9 @@
 #include "./../include/COGLShader.h"
 #include "./../include/COGLGraphicsContext.h"
 #include "./../include/COGLShaderCompiler.h"
-#include "./../include/COGLConstantBuffer.h"
 #include "./../include/COGLUtils.h"
 #include <graphics/ITexture.h>
+#include <graphics/IGraphicsObjectManager.h>
 #include <graphics/CBaseShader.h>
 #include <editor/CPerfProfiler.h>
 
@@ -27,13 +27,6 @@ namespace TDEngine2
 			GL_SAFE_CALL(glDeleteProgram(mShaderHandler));
 		}
 
-		E_RESULT_CODE result = RC_OK;
-
-		if ((result = _freeUniformBuffers()) != RC_OK)
-		{
-			return result;
-		}
-				
 		return RC_OK;
 	}
 
@@ -150,6 +143,8 @@ namespace TDEngine2
 
 		mUniformBuffers.resize(uniformBuffersInfo.size() - TotalNumberOfInternalConstantBuffers);
 
+		auto pGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
+
 		/*!
 			In nutshell, we store mappings from (engine slot -> internal GLSL buffer id) within mUniformBuffersMap for both internal and user-defined uniform buffers.
 			But only user's buffers are processed by the shader itself, therefore we create only them and store into mUniformBuffers
@@ -223,7 +218,8 @@ namespace TDEngine2
 			}
 
 			/// the offset is used because the shaders doesn't store internal buffer by themselves
-			mUniformBuffers[currDesc.mSlot - TotalNumberOfInternalConstantBuffers] = CreateOGLConstantBuffer(mpGraphicsContext, BUT_DYNAMIC, currDesc.mSize, nullptr, result);
+			mUniformBuffers[currDesc.mSlot - TotalNumberOfInternalConstantBuffers] = 
+				pGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_CONSTANT_BUFFER, currDesc.mSize, nullptr }).Get();
 		}
 		
 		return RC_OK;
@@ -269,13 +265,6 @@ namespace TDEngine2
 	}
 #endif
 
-	void COGLShader::_bindUniformBuffer(U32 slot, IConstantBuffer* pBuffer)
-	{
-		pBuffer->Bind(slot);
-
-		GL_SAFE_VOID_CALL(glUniformBlockBinding(mShaderHandler, mUniformBuffersMap[slot], slot))
-	}
-	
 	E_RESULT_CODE COGLShader::_createTexturesHashTable(const TShaderCompilerOutput* pCompilerData)
 	{
 		GL_SAFE_CALL(glUseProgram(mShaderHandler));

@@ -1,8 +1,7 @@
-#include "./../include/COGLVertexDeclaration.h"
-#include "./../include/COGLMappings.h"
-#include "./../include/COGLVertexBuffer.h"
-#include "./../include/COGLUtils.h"
-#include <graphics/IVertexBuffer.h>
+#include "../include/COGLVertexDeclaration.h"
+#include "../include/COGLMappings.h"
+#include "../include/COGLUtils.h"
+#include <graphics/IGraphicsObjectManager.h>
 #include <climits>
 
 
@@ -13,14 +12,39 @@ namespace TDEngine2
 	{
 	}
 
-	TResult<GLuint> COGLVertexDeclaration::GetVertexArrayObject(const CStaticArray<IVertexBuffer*>& pVertexBuffersArray)
+
+	static TResult<GLuint> DoesHandleExist(IGraphicsContext* pGraphicsContext, const COGLVertexDeclaration::TVAORegistryNode& registry, const CStaticArray<TBufferHandleId>& pVertexBuffersArray)
+	{
+		auto pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
+
+		const COGLVertexDeclaration::TVAORegistryNode* pCurrNode = &registry;
+
+		U32 internalBufferHandle = 0x0;
+
+		for (U32 i = 0; i < pVertexBuffersArray.GetSize(); ++i)
+		{
+			internalBufferHandle = *reinterpret_cast<GLuint*>(pGraphicsObjectManager->GetBufferPtr(pVertexBuffersArray[i])->GetInternalData());
+
+			if (pCurrNode->mChildren.find(internalBufferHandle) == pCurrNode->mChildren.cend())
+			{
+				return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+			}
+
+			pCurrNode = pCurrNode->mChildren.at(internalBufferHandle).get();
+		}
+
+		return Wrench::TOkValue<GLuint>(pCurrNode->mVAOHandle);
+	}
+
+
+	TResult<GLuint> COGLVertexDeclaration::GetVertexArrayObject(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray)
 	{
 		if (pVertexBuffersArray.IsEmpty())
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
-		auto doesExistResult = _doesHandleExist(mRootNode, pVertexBuffersArray);
+		auto doesExistResult = DoesHandleExist(pGraphicsContext, mRootNode, pVertexBuffersArray);
 
 		if (doesExistResult.IsOk())
 		{
@@ -57,7 +81,9 @@ namespace TDEngine2
 			std::tie(nextInstanceDivisorIndex, nextInstancesPerData) = *instancingInfoIter;
 		}
 
-		GLuint currBufferHandle = pVertexBuffersArray[0]->GetInternalData().mGLBuffer;
+		auto pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
+
+		GLuint currBufferHandle = *reinterpret_cast<GLuint*>(pGraphicsObjectManager->GetBufferPtr(pVertexBuffersArray[0])->GetInternalData());
 
 		GL_SAFE_VOID_CALL(glBindBuffer(GL_ARRAY_BUFFER, currBufferHandle)); /// bind the first VBO by default as a main vertex buffer
 
@@ -77,7 +103,7 @@ namespace TDEngine2
 				currOffset = 0; /// reset the current offset because of a new block begins
 
 				/// bind the buffer that is related with the group
-				currBufferHandle = pVertexBuffersArray[(*iter).mSource]->GetInternalData().mGLBuffer;
+				currBufferHandle = *reinterpret_cast<GLuint*>(pGraphicsObjectManager->GetBufferPtr(pVertexBuffersArray[(*iter).mSource])->GetInternalData());
 				GL_SAFE_VOID_CALL(glBindBuffer(GL_ARRAY_BUFFER, currBufferHandle));
 
 				pCurrNode = _insertNewNode(pCurrNode, currBufferHandle);
@@ -117,30 +143,9 @@ namespace TDEngine2
 		return Wrench::TOkValue<GLuint>(vaoHandler);
 	}
 
-	void COGLVertexDeclaration::Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<IVertexBuffer*>& pVertexBuffersArray, IShader* pShader)
+	void COGLVertexDeclaration::Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray, IShader* pShader)
 	{
-		GL_SAFE_VOID_CALL(glBindVertexArray(GetVertexArrayObject(pVertexBuffersArray).Get()));
-	}
-
-	TResult<GLuint> COGLVertexDeclaration::_doesHandleExist(const TVAORegistryNode& registry, const CStaticArray<IVertexBuffer*>& pVertexBuffersArray) const
-	{
-		const TVAORegistryNode* pCurrNode = &registry;
-
-		U32 internalBufferHandle = 0x0;
-
-		for (U32 i = 0; i < pVertexBuffersArray.GetSize(); ++i)
-		{
-			internalBufferHandle = pVertexBuffersArray[i]->GetInternalData().mGLBuffer;
-
-			if (pCurrNode->mChildren.find(internalBufferHandle) == pCurrNode->mChildren.cend())
-			{
-				return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
-			}
-
-			pCurrNode = pCurrNode->mChildren.at(internalBufferHandle).get();
-		}
-
-		return Wrench::TOkValue<GLuint>(pCurrNode->mVAOHandle);
+		GL_SAFE_VOID_CALL(glBindVertexArray(GetVertexArrayObject(pGraphicsContext, pVertexBuffersArray).Get()));
 	}
 
 	COGLVertexDeclaration::TVAORegistryNode* COGLVertexDeclaration::_insertNewNode(TVAORegistryNode* pCurrNode, U32 handle)

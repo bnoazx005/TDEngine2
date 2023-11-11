@@ -7,13 +7,12 @@
 #pragma once
 
 
-#include "../utils/Types.h"
 #include "IEngineSubsystem.h"
+#include "../utils/Types.h"
 #include "../utils/Color.h"
 #include "../math/TMatrix4.h"
 #include "../math/TRect.h"
 #include "../math/TAABB.h"
-#include "../graphics/IIndexBuffer.h"
 
 
 namespace TDEngine2
@@ -26,6 +25,10 @@ namespace TDEngine2
 
 	TDE2_DECLARE_SCOPED_PTR(IWindowSystem)
 	TDE2_DECLARE_SCOPED_PTR(IGraphicsObjectManager)
+
+
+	enum class TBufferHandleId : U32;
+	enum class E_INDEX_FORMAT_TYPE : U8;
 
 
 	/*!
@@ -63,9 +66,6 @@ namespace TDEngine2
 		interface IGraphicsContext
 
 		\brief The interface represents functionality of a low-level wrapper over GAPI
-
-		\todo More proper set up of context's initial state should be done (depth/stencil buffer configuration,
-		MSAA, etc)
 	*/
 
 	class IGraphicsContext : public IEngineSubsystem
@@ -201,6 +201,10 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual TMatrix4 CalcOrthographicMatrix(F32 left, F32 top, F32 right, F32 bottom, F32 zn, F32 zf, bool isDepthless = false) = 0;
+
+			TDE2_API virtual E_RESULT_CODE SetVertexBuffer(U32 slot, TBufferHandleId vertexBufferHandle, U32 offset, U32 strideSize) = 0;
+			TDE2_API virtual E_RESULT_CODE SetIndexBuffer(TBufferHandleId indexBufferHandle, U32 offset) = 0;
+			TDE2_API virtual E_RESULT_CODE SetConstantBuffer(U32 slot, TBufferHandleId constantsBufferHandle) = 0;
 
 			/*!
 				\brief The method sends a command to a GPU to draw current attached graphics data

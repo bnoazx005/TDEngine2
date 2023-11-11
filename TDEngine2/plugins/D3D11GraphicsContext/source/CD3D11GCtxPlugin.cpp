@@ -4,6 +4,8 @@
 #include "../include/CD3D11ShaderCompiler.h"
 #include "../include/CD3D11Texture2D.h"
 #include "../include/CD3D11RenderTarget.h"
+#include "../include/CD3D11DepthBufferTarget.h"
+#include "../include/CD3D11CubemapTexture.h"
 #include <core/IEngineCore.h>
 #include <core/IGraphicsContext.h>
 #include <core/IWindowSystem.h>
@@ -11,6 +13,7 @@
 #include <core/IFileSystem.h>
 #include <graphics/CBaseShaderLoader.h>
 #include <graphics/CBaseTexture2D.h>
+#include <graphics/IGraphicsObjectManager.h>
 
 
 namespace TDEngine2

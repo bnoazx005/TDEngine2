@@ -6,8 +6,6 @@
 #include "../../include/ecs/CTransform.h"
 #include "../../include/graphics/CRenderQueue.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
-#include "../../include/graphics/IVertexBuffer.h"
-#include "../../include/graphics/IIndexBuffer.h"
 #include "../../include/graphics/IVertexDeclaration.h"
 #include "../../include/graphics/CGraphicsLayersInfo.h"
 #include "../../include/graphics/ITexture.h"
@@ -21,7 +19,7 @@
 namespace TDEngine2
 {
 	CSpriteRendererSystem::CSpriteRendererSystem() :
-		CBaseSystem(), mpRenderQueue(nullptr), mpSpriteVertexBuffer(nullptr), mpSpriteIndexBuffer(nullptr),
+		CBaseSystem(), mpRenderQueue(nullptr), mSpriteVertexBufferHandle(TBufferHandleId::Invalid), mSpriteIndexBufferHandle(TBufferHandleId::Invalid),
 		mpSpriteVertexDeclaration(nullptr), mSpriteFaces {0, 1, 2, 2, 1, 3}, mpGraphicsLayers(nullptr)
 	{
 	}
@@ -73,9 +71,8 @@ namespace TDEngine2
 			{ TVector4(0.5f, -0.5f, 0.0f, 1.0f), TVector2(1.0f, 1.0f) }
 		};
 
-		mpSpriteVertexBuffer = pGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, sizeof(TSpriteVertex) * 4, &vertices[0]).Get();
-		
-		mpSpriteIndexBuffer = pGraphicsObjectManager->CreateIndexBuffer(BUT_STATIC, IFT_INDEX16, sizeof(U16) * 6, mSpriteFaces).Get();
+		mSpriteVertexBufferHandle = pGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, sizeof(TSpriteVertex) * 4, &vertices[0] }).Get();
+		mSpriteIndexBufferHandle = pGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::BT_INDEX_BUFFER, sizeof(U16) * 6, mSpriteFaces }).Get();
 
 		E_RESULT_CODE result = RC_OK;
 		
@@ -148,7 +145,7 @@ namespace TDEngine2
 		U32 groupKey = 0x0;
 
 		/// allocate memory for vertex buffers that will store instances data if it's not allocated yet
-		if (mSpritesPerInstanceData.empty())
+		if (mSpritesPerInstanceDataHandles.empty())
 		{
 			_initializeBatchVertexBuffers(mpGraphicsObjectManager, PreCreatedNumOfVertexBuffers);
 		}
@@ -177,13 +174,14 @@ namespace TDEngine2
 		
 		U32 currInstancesBufferIndex = 0;
 
-		IVertexBuffer* pCurrBatchInstancesBuffer = nullptr;
+		TPtr<IBuffer> pCurrBatchInstancesBuffer = nullptr;
 
 		U32 instancesCount = 0;
 
 		for (auto iter = mBatches.begin(); iter != mBatches.end(); ++iter)
 		{
-			pCurrBatchInstancesBuffer = mSpritesPerInstanceData[currInstancesBufferIndex++];
+			const TBufferHandleId currInstancingBufferHandle = mSpritesPerInstanceDataHandles[currInstancesBufferIndex++];
+			pCurrBatchInstancesBuffer = mpGraphicsObjectManager->GetBufferPtr(currInstancingBufferHandle);
 
 			TBatchEntry& currBatchEntry = (*iter).second;
 
@@ -202,15 +200,15 @@ namespace TDEngine2
 
 			pCurrCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndexedInstancedCommand>((*iter).first); /// \note (*iter).first is a group key that was computed before
 
-			pCurrCommand->mpVertexBuffer           = mpSpriteVertexBuffer;
-			pCurrCommand->mpIndexBuffer            = mpSpriteIndexBuffer;
+			pCurrCommand->mVertexBufferHandle      = mSpriteVertexBufferHandle;
+			pCurrCommand->mIndexBufferHandle       = mSpriteIndexBufferHandle;
 			pCurrCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 			pCurrCommand->mIndicesPerInstance      = 6;
 			pCurrCommand->mBaseVertexIndex         = 0;
 			pCurrCommand->mStartIndex              = 0;
 			pCurrCommand->mStartInstance           = 0;
 			pCurrCommand->mNumOfInstances          = instancesCount;/// assign number of sprites in a batch
-			pCurrCommand->mpInstancingBuffer       = pCurrBatchInstancesBuffer; /// assign accumulated data of a batch
+			pCurrCommand->mInstancingBufferHandle  = currInstancingBufferHandle; /// assign accumulated data of a batch
 			pCurrCommand->mMaterialHandle          = currBatchEntry.mMaterialHandle;
 			pCurrCommand->mpVertexDeclaration      = mpSpriteVertexDeclaration;
 
@@ -232,7 +230,8 @@ namespace TDEngine2
 	{
 		for (U32 i = 0; i < numOfBuffers; ++i)
 		{
-			mSpritesPerInstanceData.push_back(pGraphicsObjectManager->CreateVertexBuffer(BUT_DYNAMIC, SpriteInstanceDataBufferSize, nullptr).Get());
+			mSpritesPerInstanceDataHandles.push_back(
+				pGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, SpriteInstanceDataBufferSize, nullptr }).Get());
 		}
 	}
 

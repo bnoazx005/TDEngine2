@@ -21,8 +21,6 @@ namespace TDEngine2
 	class IRenderer;
 	class IGraphicsObjectManager;
 	class CRenderQueue;
-	class IVertexBuffer;
-	class IIndexBuffer;
 	class IVertexDeclaration;
 	class CEntity;
 	class IMaterial;
@@ -32,6 +30,7 @@ namespace TDEngine2
 	
 
 	enum class TEntityId : U32;
+	enum class TBufferHandleId : U32;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
@@ -139,9 +138,8 @@ namespace TDEngine2
 
 			IGraphicsObjectManager* mpGraphicsObjectManager;
 
-			IVertexBuffer*          mpParticleQuadVertexBuffer;
-			
-			IIndexBuffer*           mpParticleQuadIndexBuffer;
+			TBufferHandleId          mParticleQuadVertexBufferHandle;			
+			TBufferHandleId          mParticleQuadIndexBufferHandle;
 
 			IVertexDeclaration*     mpParticleVertexDeclaration;
 
@@ -157,7 +155,7 @@ namespace TDEngine2
 
 			std::vector<TPtr<IMaterial>> mUsedMaterials;
 
-			std::vector<IVertexBuffer*> mpParticlesInstancesBuffers;
+			std::vector<TBufferHandleId> mParticlesInstancesBufferHandles;
 
 	};
 }

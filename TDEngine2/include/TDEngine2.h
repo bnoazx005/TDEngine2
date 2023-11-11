@@ -107,9 +107,6 @@
 
 ///graphics
 #include "graphics/IBuffer.h"
-#include "graphics/IVertexBuffer.h"
-#include "graphics/IIndexBuffer.h"
-#include "graphics/IConstantBuffer.h"
 #include "graphics/IVertexDeclaration.h"
 #include "graphics/IShader.h"
 #include "graphics/CBaseShader.h"
@@ -163,7 +160,6 @@
 #include "graphics/CGeometryBuilder.h"
 #include "graphics/ISkeleton.h"
 #include "graphics/CSkeleton.h"
-#include "graphics/IStructuredBuffer.h"
 #include "graphics/animation/IAnimationClip.h"
 #include "graphics/animation/CAnimationClip.h"
 #include "graphics/animation/IAnimationTrack.h"

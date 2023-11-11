@@ -26,7 +26,7 @@ namespace TDEngine2
 	class CD3D11Buffer : public CBaseObject, public IBuffer
 	{
 		public:
-			friend TDE2_API IBuffer* CreateD3D11Buffer(const TInitBufferParams& params, E_RESULT_CODE&);
+			friend TDE2_API IBuffer* CreateD3D11Buffer(IGraphicsContext*, const TInitBufferParams&, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes an initial state of a buffer
@@ -34,7 +34,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(const TInitBufferParams& params);
+			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, const TInitBufferParams& params) override;
 
 			/*!
 				\brief The method locks a buffer to provide safe data reading/writing
@@ -79,7 +79,7 @@ namespace TDEngine2
 				contains low-level platform specific buffer's handlers
 			*/
 
-			TDE2_API const TBufferInternalData& GetInternalData() const override;
+			TDE2_API void* GetInternalData() override;
 
 			/*!
 				\brief The method returns buffer's size in bytes
@@ -102,6 +102,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API ID3D11DeviceContext* GetDeviceContext() const;
+
+			TDE2_API const TInitBufferParams& GetParams() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11Buffer)
 			
@@ -123,7 +125,7 @@ namespace TDEngine2
 
 			D3D11_MAPPED_SUBRESOURCE mMappedBufferData;
 
-			TBufferInternalData      mBufferInternalData;
+			TInitBufferParams        mInitParams;
 	};
 
 
@@ -133,7 +135,7 @@ namespace TDEngine2
 		\return A pointer to CD3D11GraphicsContext's implementation
 	*/
 
-	TDE2_API IBuffer* CreateD3D11Buffer(const TInitBufferParams& params, E_RESULT_CODE& result);
+	TDE2_API IBuffer* CreateD3D11Buffer(IGraphicsContext* pGraphicsContext, const TInitBufferParams& params, E_RESULT_CODE& result);
 }
 
 #endif

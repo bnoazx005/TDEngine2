@@ -240,6 +240,46 @@ namespace TDEngine2
 		return OrthographicProj(left, top, right, bottom, zn, zf, -1.0f, 1.0f, -1.0f, isDepthless);
 	}
 
+	E_RESULT_CODE COGLGraphicsContext::SetVertexBuffer(U32 slot, TBufferHandleId vertexBufferHandle, U32 offset, U32 strideSize)
+	{
+		auto pBuffer = mpGraphicsObjectManager->GetBufferPtr(vertexBufferHandle);
+		if (!pBuffer)
+		{
+			return RC_FAIL;
+		}
+
+		GL_SAFE_VOID_CALL(glBindBuffer(GL_ARRAY_BUFFER, *reinterpret_cast<GLuint*>(pBuffer->GetInternalData())));
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE COGLGraphicsContext::SetIndexBuffer(TBufferHandleId indexBufferHandle, U32 offset)
+	{
+		auto pBuffer = mpGraphicsObjectManager->GetBufferPtr(indexBufferHandle);
+		if (!pBuffer)
+		{
+			return RC_FAIL;
+		}
+
+		GL_SAFE_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *reinterpret_cast<GLuint*>(pBuffer->GetInternalData())));
+		
+		return RC_OK;
+	}
+
+	E_RESULT_CODE COGLGraphicsContext::SetConstantBuffer(U32 slot, TBufferHandleId constantsBufferHandle)
+	{
+		auto pBuffer = mpGraphicsObjectManager->GetBufferPtr(constantsBufferHandle);
+		if (!pBuffer)
+		{
+			return RC_FAIL;
+		}
+
+		GL_SAFE_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, slot, *reinterpret_cast<GLuint*>(pBuffer->GetInternalData())));
+
+
+		return RC_OK;
+	}
+
 	void COGLGraphicsContext::Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices)
 	{
 		GL_SAFE_VOID_CALL(glDrawArrays(COGLMappings::GetPrimitiveTopology(topology), startVertex, numOfVertices));
@@ -247,7 +287,7 @@ namespace TDEngine2
 
 	void COGLGraphicsContext::DrawIndexed(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, U32 baseVertex, U32 startIndex, U32 numOfIndices)
 	{
-		intptr_t indexOffset = startIndex * ((indexFormatType == E_INDEX_FORMAT_TYPE::IFT_INDEX16) ? 2 : 4);
+		intptr_t indexOffset = startIndex * ((indexFormatType == E_INDEX_FORMAT_TYPE::INDEX16) ? 2 : 4);
 		GL_SAFE_VOID_CALL(glDrawElementsBaseVertex(COGLMappings::GetPrimitiveTopology(topology), numOfIndices, COGLMappings::GetIndexFormat(indexFormatType), reinterpret_cast<void*>(indexOffset), baseVertex));
 	}
 

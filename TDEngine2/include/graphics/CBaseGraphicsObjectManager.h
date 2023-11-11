@@ -29,7 +29,7 @@ namespace TDEngine2
 	class CBaseGraphicsObjectManager : public IGraphicsObjectManager, public CBaseObject
 	{
 		protected:
-			typedef std::vector<IBuffer*>               TBuffersArray;
+			typedef std::vector<TPtr<IBuffer>>          TBuffersArray;
 
 			typedef std::list<U32>                      TFreeEntitiesRegistry;
 
@@ -74,14 +74,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static E_DEFAULT_SHADER_TYPE GetDefaultShaderTypeByName(const std::string& name);
+
+			TDE2_API TPtr<IBuffer> GetBufferPtr(TBufferHandleId handle) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseGraphicsObjectManager)
 
-			TDE2_API void _insertBuffer(IBuffer* pBuffer);
+			TDE2_API TBufferHandleId _insertBuffer(TPtr<IBuffer> pBuffer);
 
 			TDE2_API void _insertVertexDeclaration(IVertexDeclaration* pVertDecl);
-
-			TDE2_API E_RESULT_CODE _freeBuffers();
 
 			TDE2_API E_RESULT_CODE _freeVertexDeclarations();
 
@@ -99,9 +99,8 @@ namespace TDEngine2
 		protected:
 			IGraphicsContext*        mpGraphicsContext;
 
-			TBuffersArray            mBuffersArray;
-
-			TFreeEntitiesRegistry    mFreeBuffersSlots;
+			TBuffersArray                              mBuffersArray;
+			std::unordered_map<TBufferHandleId, USIZE> mBufferHandlesTable;
 
 			TVertexDeclarationsArray mVertexDeclarationsArray;
 

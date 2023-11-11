@@ -20,9 +20,10 @@ namespace TDEngine2
 {
 	class CRenderQueue;
 	class IVertexDeclaration;
-	class IVertexBuffer;
-	class IIndexBuffer;
 	class IGeometryBuilder;
+
+
+	enum class TBufferHandleId : U32;
 
 
 	/*!
@@ -179,21 +180,10 @@ namespace TDEngine2
 
 			TDE2_API void DrawSphere(const TVector3& position, F32 radius, const TColor32F& color, U16 triangulationFactor = 1) override;
 			
-			/*!
-				\brief The method draws a gizmo of one of predefined types for given transform matrix
-
-				\param[in] type A type of a gizmo
-				\param[in] transform A matrix which stores translation, rotation and scaling data
-				\param[in] size A scale of a gizmo
-			*/
-
-			TDE2_API void DrawTransformGizmo(E_GIZMO_TYPE type, const TMatrix4& transform, F32 size = 1.0f) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CDebugUtility)
 
 			TDE2_API std::vector<U16> _buildTextIndexBuffer(U32 textLength) const;
-
-			TDE2_API E_RESULT_CODE _initGizmosBuffers();
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
@@ -205,7 +195,7 @@ namespace TDEngine2
 
 			IVertexDeclaration*      mpLinesVertDeclaration;
 
-			IVertexBuffer*           mpLinesVertexBuffer;
+			TBufferHandleId          mLinesVertexBufferHandle;
 
 			std::vector<TLineVertex> mLinesDataBuffer;
 
@@ -213,15 +203,14 @@ namespace TDEngine2
 
 			IVertexDeclaration*      mpTextVertDeclaration;
 
-			IVertexBuffer*           mpTextVertexBuffer;
-
-			IIndexBuffer*            mpTextIndexBuffer;
+			TBufferHandleId          mTextVertexBufferHandle;
+			TBufferHandleId          mTextIndexBufferHandle;
 
 			std::vector<TTextVertex> mTextDataBuffer;
 
 			std::vector<TLineVertex> mCrossesDataBuffer;
 
-			IVertexBuffer*           mpCrossesVertexBuffer;
+			TBufferHandleId          mCrossesVertexBufferHandle;
 
 			const static U32         mMaxLinesVerticesCount;
 
@@ -229,15 +218,7 @@ namespace TDEngine2
 
 			const static std::string mTextMaterialName;
 
-			IVertexBuffer*           mpGizmosVertexBuffer;
-
-			IIndexBuffer*            mpGizmosIndexBuffer;
-
-			std::vector<TGizmoData>  mGizmosData;
-
 			IGeometryBuilder*        mpGeometryBuilder;
-
-			TGizmoTypesMap           mGizmosTypesMap;
 
 			mutable std::mutex       mMutex;
 	};

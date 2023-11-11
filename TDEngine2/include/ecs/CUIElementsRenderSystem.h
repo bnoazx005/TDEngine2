@@ -22,14 +22,13 @@ namespace TDEngine2
 	class IVertexDeclaration;
 	class IResourceManager;
 	class IGraphicsLayersInfo;
-	class IVertexBuffer;
-	class IIndexBuffer;
 	class CTransform;
 	class CUIElementMeshData;
 	class CLayoutElement;
 
 	enum class TResourceId : U32;
 	enum class TMaterialInstanceId : U32;
+	enum class TBufferHandleId : U32;
 
 
 	enum class E_UI_MATERIAL_TYPE : U8
@@ -145,8 +144,8 @@ namespace TDEngine2
 			std::vector<TUIElementsVertex>  mVertices, mIntermediateVertsBuffer;
 			std::vector<U16>                mIndices, mIntermediateIndexBuffer;
 
-			IVertexBuffer*                  mpVertexBuffer;
-			IIndexBuffer*                   mpIndexBuffer;
+			TBufferHandleId                 mVertexBufferHandle;
+			TBufferHandleId                 mIndexBufferHandle;
 
 			TMaterialsMap                   mUsingMaterials;
 	};

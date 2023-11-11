@@ -19,10 +19,7 @@ set(D3D11_GCTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11GraphicsContext.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11Buffer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11Mappings.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11IndexBuffer.h"	
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11GCtxPlugin.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11VertexBuffer.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11ConstantBuffer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11VertexDeclaration.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11Shader.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11ShaderCompiler.h"
@@ -31,18 +28,14 @@ set(D3D11_GCTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11GraphicsObjectManager.h"	
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11RenderTarget.h"	
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11CubemapTexture.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11DepthBufferTarget.h"		
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11StructuredBuffer.h"		
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11DepthBufferTarget.h"
 	)
 
 set(D3D11_GCTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11GraphicsContext.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11Buffer.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11Mappings.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11IndexBuffer.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11GCtxPlugin.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11VertexBuffer.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11ConstantBuffer.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11VertexDeclaration.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11Shader.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11ShaderCompiler.cpp"
@@ -51,7 +44,6 @@ set(D3D11_GCTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11RenderTarget.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11CubemapTexture.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11DepthBufferTarget.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11StructuredBuffer.cpp"
 	)
 
 source_group("includes" FILES ${D3D11_GCTX_HEADERS})

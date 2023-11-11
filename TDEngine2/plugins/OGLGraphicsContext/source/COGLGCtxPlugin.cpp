@@ -2,11 +2,19 @@
 #include "../include/COGLGraphicsContext.h"
 #include "../include/win32/CWin32GLContextFactory.h"
 #include "../include/unix/CUnixGLContextFactory.h"
+#include "../include/COGLShader.h"
+#include "../include/COGLShaderCompiler.h"
+#include "../include/COGLTexture2D.h"
+#include "../include/COGLCubemapTexture.h"
+#include "../include/COGLDepthBufferTarget.h"
+#include "../include/COGLRenderTarget.h"
 #include <core/IEngineCore.h>
+#include <core/IResourceManager.h>
 #include <core/IGraphicsContext.h>
 #include <core/IWindowSystem.h>
 #include <core/IFileSystem.h>
 #include <graphics/CBaseShaderLoader.h>
+#include <graphics/IGraphicsObjectManager.h>
 
 
 namespace TDEngine2

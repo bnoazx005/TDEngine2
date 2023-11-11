@@ -21,11 +21,11 @@ namespace TDEngine2
 		enumeration E_BUFFER_USAGE_TYPE
 	*/
 
-	enum E_BUFFER_USAGE_TYPE: U8
+	enum class E_BUFFER_USAGE_TYPE: U8
 	{
-		BUT_DYNAMIC,				///< A CPU can write data into a buffer and read it
-		BUT_STATIC,					///< A buffer's content cannot be changed after initialization
-		BUT_DEFAULT					///< A GPU will have access to read and write
+		DYNAMIC,				///< A CPU can write data into a buffer and read it
+		STATIC,					///< A buffer's content cannot be changed after initialization
+		DEFAULT					///< A GPU will have access to read and write
 	};
 
 
@@ -45,7 +45,7 @@ namespace TDEngine2
 
 
 	/*!
-		\brief The enumeration contains all possible types, how COGLBuffer can be used
+		\brief The enumeration contains all possible types, how a buffer can be used
 	*/
 
 	enum class E_BUFFER_TYPE : U32
@@ -54,16 +54,34 @@ namespace TDEngine2
 		BT_INDEX_BUFFER,			///< A buffer will be used as index buffer
 		BT_CONSTANT_BUFFER,			///< A buffer will be used as uniforms buffer object
 		BT_STRUCTURED_BUFFER,
-		BT_UPLOAD_BUFFER,
+		BT_GENERIC,
 	};
 
 
-	enum class E_STRUCTURED_BUFFER_TYPE : U32;
+	/*!
+		enumeration E_INDEX_FORMAT_TYPE
+
+		\brief The enumeration contains available formats for a single index, which is stored
+		within an index buffer
+	*/
+
+	enum class E_INDEX_FORMAT_TYPE : U8
+	{
+		INDEX16 = sizeof(U16),		///< 16 bits for a single index
+		INDEX32 = sizeof(U32)		///< 32 bits for a single index
+	};
+
+
+	enum class E_STRUCTURED_BUFFER_TYPE : U32
+	{
+		DEFAULT,			///< [RW]StructuredBuffer for D3D, SSBO for GL
+		RAW,				///< [RW]ByteAddressBuffer for D3D
+		APPENDABLE,
+	};
 
 
 	struct TInitBufferParams
 	{
-		IGraphicsContext*        mpGraphicsContext;
 		E_BUFFER_USAGE_TYPE      mUsageType;
 		E_BUFFER_TYPE            mBufferType;
 		USIZE                    mTotalBufferSize;
@@ -73,6 +91,9 @@ namespace TDEngine2
 		bool                     mIsUnorderedAccessResource = false;
 		USIZE                    mElementStrideSize = 0;
 		E_STRUCTURED_BUFFER_TYPE mStructuredBufferType;
+		/// Index buffer part
+		E_INDEX_FORMAT_TYPE      mIndexFormat = E_INDEX_FORMAT_TYPE::INDEX16;
+		std::string              mName;
 	};
 
 	
@@ -86,6 +107,14 @@ namespace TDEngine2
 	class IBuffer: public virtual IBaseObject
 	{
 		public:
+			/*!
+				\brief The method initializes an initial state of a buffer
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* mpGraphicsContext, const TInitBufferParams& params) = 0;
+
 			/*!
 				\brief The method locks a buffer to provide safe data reading/writing
 
@@ -113,27 +142,19 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Write(const void* pData, USIZE size) = 0;
 
-			/*!
-				\brief The method returns a pointer to buffer's data
-				
+			/*!				
 				\return The method returns a pointer to buffer's data
 			*/
 
 			TDE2_API virtual void* Read() = 0;
 
 			/*!
-				\brief The method returns an internal data of a buffer, which
-				contains low-level platform specific buffer's handlers
-
-				\return The method returns an internal data of a buffer, which
-				contains low-level platform specific buffer's handlers
+				\return The method returns an internal data of a buffer, which contains low-level platform specific buffer's handlers
 			*/
 
-			TDE2_API virtual const TBufferInternalData& GetInternalData() const = 0;
+			TDE2_API virtual void* GetInternalData() = 0;
 			
 			/*!
-				\brief The method returns buffer's size in bytes
-
 				\return The method returns buffer's size in bytes
 			*/
 
@@ -144,6 +165,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual USIZE GetUsedSize() const = 0;
+
+			TDE2_API virtual const TInitBufferParams& GetParams() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IBuffer)
 	};

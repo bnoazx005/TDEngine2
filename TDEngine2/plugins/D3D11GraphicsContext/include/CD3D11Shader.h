@@ -86,8 +86,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _createInternalHandlers(const TShaderCompilerOutput* pCompilerData) override;
 
 			TDE2_API E_RESULT_CODE _createUniformBuffers(const TShaderCompilerOutput* pCompilerData);
-
-			TDE2_API void _bindUniformBuffer(U32 slot, IConstantBuffer* pBuffer) override;
 		protected:
 			ID3D11DeviceContext*  mp3dDeviceContext;
 

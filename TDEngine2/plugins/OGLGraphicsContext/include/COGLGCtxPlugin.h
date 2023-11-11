@@ -6,30 +6,9 @@
 
 #pragma once
 
-
-#include "unix/CUnixGLContextFactory.h"
-#include "win32/CWin32GLContextFactory.h"
-#include "COGLBuffer.h"
-#include "COGLConstantBuffer.h"
-#include "COGLGraphicsContext.h"
-#include "COGLIndexBuffer.h"
-#include "COGLMappings.h"
-#include "COGLShader.h"
-#include "COGLShaderCompiler.h"
-#include "COGLVertexBuffer.h"
-#include "IOGLContextFactory.h"
-#include "COGLTexture2D.h"
-#include "COGLVertexDeclaration.h"
-#include "COGLGraphicsObjectManager.h"
-#include "COGLRenderTarget.h"
-#include "COGLUtils.h"
-#include "COGLCubemapTexture.h"
-#include "COGLDepthBufferTarget.h"
-#include "COGLStructuredBuffer.h"
-
-
 #include <core/CBaseObject.h>
 #include <core/IPlugin.h>
+#include <core/IGraphicsContext.h>
 
 
 namespace TDEngine2

@@ -61,12 +61,18 @@ namespace TDEngine2
 
 		const void* pScreenTriangleVerts = static_cast<const void*>(&desc.mpGraphicsObjectManager->GetScreenTriangleVertices()[0]);
 
-		if (auto vertexBufferResult = desc.mpGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, 3 * sizeof(TVector4), pScreenTriangleVerts))
+		if (auto vertexBufferResult = desc.mpGraphicsObjectManager->CreateBuffer(
+			{					
+				E_BUFFER_USAGE_TYPE::STATIC,
+				E_BUFFER_TYPE::BT_CONSTANT_BUFFER,
+				3 * sizeof(TVector4),
+				pScreenTriangleVerts
+			}))
 		{
-			mpFullScreenTriangleVertexBuffer = vertexBufferResult.Get();
+			mFullScreenTriangleVertexBufferHandle = vertexBufferResult.Get();
 		}
 
-		TDE2_ASSERT(mpFullScreenTriangleVertexBuffer);
+		TDE2_ASSERT(TBufferHandleId::Invalid != mFullScreenTriangleVertexBufferHandle);
 
 		mIsInitialized = true;
 
@@ -274,7 +280,7 @@ namespace TDEngine2
 		pDrawCommand->mNumOfVertices      = 3;
 		pDrawCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 		pDrawCommand->mMaterialHandle     = materialHandle;
-		pDrawCommand->mpVertexBuffer      = mpFullScreenTriangleVertexBuffer;
+		pDrawCommand->mVertexBufferHandle = mFullScreenTriangleVertexBufferHandle;
 		pDrawCommand->mpVertexDeclaration = mpVertexFormatDeclaration;
 
 		if (drawImmediately)

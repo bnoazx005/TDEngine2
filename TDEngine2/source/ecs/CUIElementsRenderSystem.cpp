@@ -12,8 +12,6 @@
 #include "../../include/graphics/CGraphicsLayersInfo.h"
 #include "../../include/graphics/UI/CUIElementMeshDataComponent.h"
 #include "../../include/graphics/CRenderQueue.h"
-#include "../../include/graphics/IVertexBuffer.h"
-#include "../../include/graphics/IIndexBuffer.h"
 #include "../../include/graphics/IMaterial.h"
 #include "../../include/graphics/ITexture.h"
 #include "../../include/core/IResource.h"
@@ -273,8 +271,8 @@ namespace TDEngine2
 				auto pCurrCommand = mpUIElementsRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(
 					((0xFFFF - (pCurrCanvas->GetPriority() + (0xFFFF >> 1))) << 16) | (static_cast<U32>(layoutElements.size()) - index + (static_cast<U32>(priorities.size()) - priorities[i])));
 
-				pCurrCommand->mpVertexBuffer = mpVertexBuffer;
-				pCurrCommand->mpIndexBuffer = mpIndexBuffer;
+				pCurrCommand->mVertexBufferHandle = mVertexBufferHandle;
+				pCurrCommand->mIndexBufferHandle = mIndexBufferHandle;
 				pCurrCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 				pCurrCommand->mMaterialHandle = currMaterialId;
 				pCurrCommand->mMaterialInstanceId = currMaterialInstance;
@@ -379,55 +377,67 @@ namespace TDEngine2
 		mpDefaultFontVertexDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_COLOR });
 
 		/// \note Create vertex buffer and index one
-		auto createVertBufferResult = mpGraphicsObjectManager->CreateVertexBuffer(E_BUFFER_USAGE_TYPE::BUT_DYNAMIC, sizeof(TUIElementsVertex) * mMaxVerticesCount, nullptr);
+		auto createVertBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, sizeof(TUIElementsVertex) * mMaxVerticesCount, nullptr });
 		if (createVertBufferResult.HasError())
 		{
 			return createVertBufferResult.GetError();
 		}
 
-		mpVertexBuffer = createVertBufferResult.Get();
+		mVertexBufferHandle = createVertBufferResult.Get();
 
-		auto createIndexBufferResult = mpGraphicsObjectManager->CreateIndexBuffer(E_BUFFER_USAGE_TYPE::BUT_DYNAMIC, E_INDEX_FORMAT_TYPE::IFT_INDEX16, sizeof(U16) * mMaxVerticesCount * 3, nullptr);
+		auto createIndexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_INDEX_BUFFER, sizeof(U16) * mMaxVerticesCount * 3, nullptr });
 		if (createIndexBufferResult.HasError())
 		{
 			return createIndexBufferResult.GetError();
 		}
 
-		mpIndexBuffer = createIndexBufferResult.Get();
+		mIndexBufferHandle = createIndexBufferResult.Get();
 
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CUIElementsRenderSystem::_updateGPUBuffers()
 	{
-		E_RESULT_CODE result = mpVertexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
+		auto pVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(mVertexBufferHandle);
+		if (!pVertexBuffer)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = pVertexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
 		if (RC_OK != result)
 		{
 			return result;
 		}
 
-		result = mpVertexBuffer->Write(&mVertices.front(), static_cast<U32>(sizeof(TUIElementsVertex) * mVertices.size()));
+		result = pVertexBuffer->Write(&mVertices.front(), static_cast<U32>(sizeof(TUIElementsVertex) * mVertices.size()));
 		if (RC_OK != result)
 		{
 			return result;
 		}
 
-		mpVertexBuffer->Unmap();
+		pVertexBuffer->Unmap();
+
+		auto pIndexBuffer = mpGraphicsObjectManager->GetBufferPtr(mIndexBufferHandle);
+		if (!pIndexBuffer)
+		{
+			return RC_FAIL;
+		}
 
 		/// \note Index buffer
-		result = mpIndexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
+		result = pIndexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
 		if (RC_OK != result)
 		{
 			return result;
 		}
 
-		result = mpIndexBuffer->Write(&mIndices.front(), static_cast<U32>(sizeof(U16) * mIndices.size()));
+		result = pIndexBuffer->Write(&mIndices.front(), static_cast<U32>(sizeof(U16) * mIndices.size()));
 		if (RC_OK != result)
 		{
 			return result;
 		}
 
-		mpIndexBuffer->Unmap();
+		pIndexBuffer->Unmap();
 
 		return RC_OK;
 	}

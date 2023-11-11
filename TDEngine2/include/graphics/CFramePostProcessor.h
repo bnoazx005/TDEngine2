@@ -17,12 +17,14 @@ namespace TDEngine2
 	class IResourceManager;
 	class IGraphicsContext;
 	class IVertexDeclaration;
-	class IVertexBuffer;
 	class IGlobalShaderProperties;
 	class IRenderTarget;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
+
+
+	enum class TBufferHandleId : U32;
 
 
 	/*!
@@ -118,7 +120,7 @@ namespace TDEngine2
 
 			IGraphicsContext*             mpGraphicsContext;
 
-			IVertexBuffer*                mpFullScreenTriangleVertexBuffer; // \note This buffer is only needed when we work with GL GAPI, D3D11 uses bufferless rendering
+			TBufferHandleId               mFullScreenTriangleVertexBufferHandle; // \note This buffer is only needed when we work with GL GAPI, D3D11 uses bufferless rendering
 			
 			IGlobalShaderProperties*      mpGlobalShaderProperties;
 	};

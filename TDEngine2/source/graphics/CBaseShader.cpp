@@ -1,10 +1,11 @@
 #include "../../include/graphics/CBaseShader.h"
 #include "../../include/graphics/IShaderCompiler.h"
-#include "../../include/graphics/IConstantBuffer.h"
-#include "../../include/graphics/IStructuredBuffer.h"
 #include "../../include/graphics/ITexture.h"
+#include "../../include/graphics/IBuffer.h"
+#include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/graphics/CBaseShaderCompiler.h"
 #include "../../include/editor/CPerfProfiler.h"
+#include "../../include/core/IGraphicsContext.h"
 #include <algorithm>
 
 
@@ -93,8 +94,7 @@ namespace TDEngine2
 		}
 
 		/// \todo add checking for sizes of input data
-		IConstantBuffer* pCurrUniformBuffer = mUniformBuffers[slot];
-
+		auto pCurrUniformBuffer = mpGraphicsContext->GetGraphicsObjectManager()->GetBufferPtr(mUniformBuffers[slot]);
 		if (!pCurrUniformBuffer)
 		{
 			return RC_FAIL;
@@ -115,7 +115,7 @@ namespace TDEngine2
 		pCurrUniformBuffer->Unmap();
 
 		/// \note add the offset because all user-defined buffers go after the internal ones
-		_bindUniformBuffer(TotalNumberOfInternalConstantBuffers + slot, pCurrUniformBuffer);
+		mpGraphicsContext->SetConstantBuffer(TotalNumberOfInternalConstantBuffers + slot, mUniformBuffers[slot]);
 
 		return RC_OK;
 	}
@@ -137,6 +137,7 @@ namespace TDEngine2
 			pCurrTexture->Bind(i);
 		}
 
+#if 0
 		/// \note Binds structured buffers
 		IStructuredBuffer* pCurrBuffer = nullptr;
 
@@ -151,11 +152,12 @@ namespace TDEngine2
 
 			pCurrBuffer->Bind(i);
 		}
+#endif
 
 		U8 currUserBufferId = 0;
-		for (auto& pCurrUniformBuffer : mUniformBuffers)
+		for (auto& currUniformBufferHandle : mUniformBuffers)
 		{
-			_bindUniformBuffer(TotalNumberOfInternalConstantBuffers + currUserBufferId++, pCurrUniformBuffer);
+			mpGraphicsContext->SetConstantBuffer(TotalNumberOfInternalConstantBuffers + currUserBufferId++, currUniformBufferHandle);
 		}
 	}
 
@@ -177,9 +179,9 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CBaseShader::SetStructuredBufferResource(const std::string& resourceName, IStructuredBuffer* pBuffer)
+	E_RESULT_CODE CBaseShader::SetStructuredBufferResource(const std::string& resourceName, TBufferHandleId bufferHandle)
 	{
-		if (resourceName.empty() || !pBuffer)
+		if (resourceName.empty() || TBufferHandleId::Invalid == bufferHandle)
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -190,7 +192,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mpBuffers[hashIter->second] = pBuffer;
+		mBufferHandles[hashIter->second] = bufferHandle;
 
 		return RC_OK;
 	}
@@ -213,33 +215,6 @@ namespace TDEngine2
 
 		result = result | _createTexturesHashTable(mpShaderMeta);
 		result = result | _createTexturesHashTable(mpShaderMeta);
-
-		return result;
-	}
-
-	E_RESULT_CODE CBaseShader::_freeUniformBuffers()
-	{
-		E_RESULT_CODE result      = RC_OK;
-		E_RESULT_CODE totalResult = RC_OK;
-
-		IConstantBuffer* pCurrBuffer = nullptr;
-		
-		for (auto iter = mUniformBuffers.begin(); iter != mUniformBuffers.end(); ++iter)
-		{
-			pCurrBuffer = (*iter);
-
-			if (!pCurrBuffer)
-			{
-				continue;
-			}
-
-			result = pCurrBuffer->Free();
-
-			if (result != RC_OK)
-			{
-				totalResult = result;
-			}
-		}
 
 		return result;
 	}
@@ -286,9 +261,9 @@ namespace TDEngine2
 
 			mStructuredBuffersHashTable[currShaderResourceInfo.first] = currSlotIndex;
 
-			mpBuffers.resize(currSlotIndex + 1);
+			mBufferHandles.resize(currSlotIndex + 1);
 
-			mpBuffers[currSlotIndex] = nullptr;
+			mBufferHandles[currSlotIndex] = TBufferHandleId::Invalid;
 		}
 
 		return RC_OK;

@@ -2,9 +2,9 @@
 #include "../include/CD3D11GraphicsContext.h"
 #include "../include/CD3D11Utils.h"
 #include "../include/CD3D11ShaderCompiler.h"
-#include "../include/CD3D11ConstantBuffer.h"
 #include <graphics/CBaseShader.h>
 #include <graphics/IShaderCompiler.h>
+#include <graphics/IGraphicsObjectManager.h>
 #include <editor/CPerfProfiler.h>
 #include <cstring>
 #include <array>
@@ -28,17 +28,12 @@ namespace TDEngine2
 
 		if ((result = SafeReleaseCOMPtr<ID3D11VertexShader>(&mpVertexShader)) != RC_OK		||
 			(result = SafeReleaseCOMPtr<ID3D11PixelShader>(&mpPixelShader)) != RC_OK		||
-			(result = SafeReleaseCOMPtr<ID3D11GeometryShader>(&mpGeometryShader)) != RC_OK        ||
+			(result = SafeReleaseCOMPtr<ID3D11GeometryShader>(&mpGeometryShader)) != RC_OK  ||
 			(result = SafeReleaseCOMPtr<ID3D11ComputeShader>(&mpComputeShader)) != RC_OK)
 		{
 			return result;
 		}
 		
-		if ((result = _freeUniformBuffers()) != RC_OK)
-		{
-			return result;
-		}
-
 		mVertexShaderBytecode.clear();
 
 		mp3dDeviceContext = nullptr;
@@ -174,8 +169,8 @@ namespace TDEngine2
 
 		mUniformBuffers.resize(uniformBuffersInfo.size() - TotalNumberOfInternalConstantBuffers);
 
-		IConstantBuffer* pConstantBuffer = nullptr;
-
+		auto pGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
+		
 		/// here only user uniforms buffers are created
 		for (auto iter = uniformBuffersInfo.cbegin(); iter != uniformBuffersInfo.cend(); ++iter)
 		{
@@ -187,15 +182,18 @@ namespace TDEngine2
 				continue;
 			}
 
-			pConstantBuffer = CreateD3D11ConstantBuffer(mpGraphicsContext, BUT_DYNAMIC, currDesc.mSize, nullptr, result);
+			auto createBufferResult = pGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_CONSTANT_BUFFER, currDesc.mSize, nullptr });
+			if (createBufferResult.HasError())
+			{
+				return createBufferResult.GetError();
+			}
 
 			const U32 index = static_cast<U32>(iter->second.mSlot - TotalNumberOfInternalConstantBuffers);
 			TDE2_ASSERT(index >= 0 && index <= 1024);
 
 			/// \note Ensure that we compute correct size of the constant buffer. We use ID3D11ShaderReflection to retrieve accurate information
 
-
-			mUniformBuffers[index] = pConstantBuffer; // the offset is used because the shaders doesn't store internal buffer by themselves
+			mUniformBuffers[index] = createBufferResult.Get(); // the offset is used because the shaders doesn't store internal buffer by themselves
 		}
 
 		return RC_OK;
@@ -204,11 +202,6 @@ namespace TDEngine2
 	const std::vector<U8>& CD3D11Shader::GetVertexShaderBytecode() const
 	{
 		return mVertexShaderBytecode;
-	}
-
-	void CD3D11Shader::_bindUniformBuffer(U32 slot, IConstantBuffer* pBuffer)
-	{
-		pBuffer->Bind(slot);
 	}
 
 

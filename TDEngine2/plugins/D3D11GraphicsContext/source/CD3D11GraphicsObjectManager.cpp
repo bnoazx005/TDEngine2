@@ -1,16 +1,12 @@
-#include "./../include/CD3D11GraphicsObjectManager.h"
-#include "./../include/CD3D11VertexBuffer.h"
-#include "./../include/CD3D11IndexBuffer.h"
-#include "./../include/CD3D11ConstantBuffer.h"
-#include "./../include/CD3D11StructuredBuffer.h"
-#include "./../include/CD3D11VertexDeclaration.h"
-#include "./../include/CD3D11Mappings.h"
-#include "./../include/CD3D11Utils.h"
+#include "../include/CD3D11GraphicsObjectManager.h"
+#include "../include/CD3D11Buffer.h"
+#include "../include/CD3D11VertexDeclaration.h"
+#include "../include/CD3D11Mappings.h"
+#include "../include/CD3D11Utils.h"
 #include <core/IGraphicsContext.h>
 #include <core/IFileSystem.h>
 #include <core/IFile.h>
 #include <core/CProjectSettings.h>
-#include <graphics/IStructuredBuffer.h>
 
 
 #if defined (TDE2_USE_WINPLATFORM)
@@ -22,69 +18,17 @@ namespace TDEngine2
 	{
 	}
 
-	TResult<IVertexBuffer*> CD3D11GraphicsObjectManager::CreateVertexBuffer(E_BUFFER_USAGE_TYPE usageType, USIZE totalBufferSize, const void* pDataPtr)
+	TResult<TBufferHandleId> CD3D11GraphicsObjectManager::CreateBuffer(const TInitBufferParams& params)
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		IVertexBuffer* pNewVertexBuffer = CreateD3D11VertexBuffer(mpGraphicsContext, usageType, totalBufferSize, pDataPtr, result);
-
-		if (result != RC_OK)
+		TPtr<IBuffer> pBuffer = TPtr<IBuffer>(CreateD3D11Buffer(mpGraphicsContext, params, result));
+		if (!pBuffer || RC_OK != result)
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
-		_insertBuffer(pNewVertexBuffer);
-
-		return Wrench::TOkValue<IVertexBuffer*>(pNewVertexBuffer);
-	}
-
-	TResult<IIndexBuffer*> CD3D11GraphicsObjectManager::CreateIndexBuffer(E_BUFFER_USAGE_TYPE usageType, E_INDEX_FORMAT_TYPE indexFormatType,
-																		  USIZE totalBufferSize, const void* pDataPtr)
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		IIndexBuffer* pNewIndexBuffer = CreateD3D11IndexBuffer(mpGraphicsContext, usageType, indexFormatType, totalBufferSize, pDataPtr, result);
-
-		if (result != RC_OK)
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(result);
-		}
-
-		_insertBuffer(pNewIndexBuffer);
-
-		return Wrench::TOkValue<IIndexBuffer*>(pNewIndexBuffer);
-	}
-
-	TResult<IConstantBuffer*> CD3D11GraphicsObjectManager::CreateConstantBuffer(E_BUFFER_USAGE_TYPE usageType, USIZE totalBufferSize, const void* pDataPtr)
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		IConstantBuffer* pNewConstantBuffer = CreateD3D11ConstantBuffer(mpGraphicsContext, usageType, totalBufferSize, pDataPtr, result);
-
-		if (result != RC_OK)
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(result);
-		}
-
-		_insertBuffer(pNewConstantBuffer);
-
-		return Wrench::TOkValue<IConstantBuffer*>(pNewConstantBuffer);
-	}
-
-	TResult<IStructuredBuffer*> CD3D11GraphicsObjectManager::CreateStructuredBuffer(const TStructuredBuffersInitParams& params)
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		IStructuredBuffer* pNewStructuredBuffer = CreateD3D11StructuredBuffer(params, result);
-
-		if (result != RC_OK)
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(result);
-		}
-
-		_insertBuffer(pNewStructuredBuffer);
-
-		return Wrench::TOkValue<IStructuredBuffer*>(pNewStructuredBuffer);
+		return Wrench::TOkValue<TBufferHandleId>(_insertBuffer(pBuffer));
 	}
 	
 	TResult<IVertexDeclaration*> CD3D11GraphicsObjectManager::CreateVertexDeclaration()

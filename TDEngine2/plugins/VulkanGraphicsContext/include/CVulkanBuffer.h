@@ -29,7 +29,7 @@ namespace TDEngine2
 	class CVulkanBuffer : public CBaseObject, public IBuffer
 	{			
 		public:
-			friend TDE2_API IBuffer* CreateVulkanBuffer(const TInitBufferParams&, E_RESULT_CODE&);
+			friend TDE2_API IBuffer* CreateVulkanBuffer(IGraphicsContext* pGraphicsContext, const TInitBufferParams&, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes an initial state of a buffer
@@ -37,7 +37,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(const TInitBufferParams& params);
+			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, const TInitBufferParams& params);
 
 			/*!
 				\brief The method locks a buffer to provide safe data reading/writing
@@ -82,7 +82,7 @@ namespace TDEngine2
 				contains low-level platform specific buffer's handlers
 			*/
 
-			TDE2_API const TBufferInternalData& GetInternalData() const override;
+			TDE2_API void* GetInternalData() override;
 
 			/*!
 				\brief The method returns buffer's size in bytes
@@ -99,6 +99,8 @@ namespace TDEngine2
 			TDE2_API USIZE GetUsedSize() const override;
 
 			TDE2_API VkBuffer GetBufferImpl();
+
+			TDE2_API const TInitBufferParams& GetParams() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanBuffer)
 
@@ -127,7 +129,9 @@ namespace TDEngine2
 			VmaAllocation            mAllocation;
 			VkDevice                 mDevice;
 
-			bool mIsUnorderedAccessResource = false;
+			bool                     mIsUnorderedAccessResource = false;
+
+			TInitBufferParams        mInitParams;
 	};
 
 
@@ -137,5 +141,5 @@ namespace TDEngine2
 		\return A pointer to CVulkanGraphicsContext's implementation
 	*/
 
-	TDE2_API IBuffer* CreateVulkanBuffer(const TInitBufferParams& params, E_RESULT_CODE& result);
+	TDE2_API IBuffer* CreateVulkanBuffer(IGraphicsContext* pGraphicsContext, const TInitBufferParams& params, E_RESULT_CODE& result);
 }

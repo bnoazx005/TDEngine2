@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.22] 2023-11-10
+## [0.6.22] 2023-11-12
 
 ### Added
 
@@ -28,11 +28,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add support of marking up renderer's region to improve debug experience via graphics debuggers.
 
 - The API of **IGraphicsContext** was extended with a new public method BeginFrame() which is invoked before any graphics are passed into commands buffers.
+New methods for binding buffers were added: SetVertexBuffer, SetIndexBuffer and SetConstantBuffer.
 
 ### Changed
 
 - The signature of method IShaderCompiler::Compile was changed from (const std::string&) to (const std::string&, const std::string&) to provide
 passing shader's identifier along with its source code.
+
+- The big refactoring was done for **IBuffer** interface and its children. Now all graphics buffers are unified and should be used through the main interface.
+Alk its derivation were removed from the engine.
+
+- The interfaces **IVertexBuffer**, **IIndexBuffer**, **IConstantBuffer**, **IStructuredBuffer** and their implementations were deleted.
+
+- The API of **IDebugUtility** was reduced now DrawTransformGizmos is deprecated.
 
 ### Fixed
 

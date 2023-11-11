@@ -22,13 +22,14 @@ namespace TDEngine2
 	class CRenderQueue;
 	class IResourceManager;
 	class IMaterial;
-	class IVertexBuffer;
-	class IIndexBuffer;
 	class IVertexDeclaration;
 	class COrthoCamera;
 	class CPerspectiveCamera;
 	class CEntity;
 	class ICamera;
+
+
+	enum class TBufferHandleId : U32;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
@@ -63,8 +64,8 @@ namespace TDEngine2
 		public:
 			typedef struct TMeshBuffersEntry
 			{
-				IVertexBuffer*      mpVertexBuffer;
-				IIndexBuffer*       mpIndexBuffer;
+				TBufferHandleId     mVertexBufferHandle;
+				TBufferHandleId     mIndexBufferHandle;
 				IVertexDeclaration* mpVertexDecl;
 			} TMeshBuffersEntry, *TMeshBuffersEntryPtr;
 

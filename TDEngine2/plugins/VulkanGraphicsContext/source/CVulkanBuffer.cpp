@@ -19,7 +19,7 @@ namespace TDEngine2
 				return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 			case E_BUFFER_TYPE::BT_STRUCTURED_BUFFER:
 				return VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
-			case E_BUFFER_TYPE::BT_UPLOAD_BUFFER:
+			case E_BUFFER_TYPE::BT_GENERIC:
 				return VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 		}
 
@@ -32,10 +32,10 @@ namespace TDEngine2
 	{
 		switch (type)
 		{
-			case E_BUFFER_USAGE_TYPE::BUT_DYNAMIC:
+			case E_BUFFER_USAGE_TYPE::DYNAMIC:
 				return VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
-			case E_BUFFER_USAGE_TYPE::BUT_DEFAULT:
-			case E_BUFFER_USAGE_TYPE::BUT_STATIC:
+			case E_BUFFER_USAGE_TYPE::DEFAULT:
+			case E_BUFFER_USAGE_TYPE::STATIC:
 				return VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
 		}
 
@@ -49,7 +49,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CVulkanBuffer::Init(const TInitBufferParams& params)
+	E_RESULT_CODE CVulkanBuffer::Init(IGraphicsContext* pGraphicsContext, const TInitBufferParams& params)
 	{
 		if (mIsInitialized)
 		{
@@ -63,7 +63,7 @@ namespace TDEngine2
 
 		mBufferType = params.mBufferType;
 
-		mpGraphicsContextImpl = dynamic_cast<CVulkanGraphicsContext*>(params.mpGraphicsContext);
+		mpGraphicsContextImpl = dynamic_cast<CVulkanGraphicsContext*>(pGraphicsContext);
 		if (!mpGraphicsContextImpl)
 		{
 			return RC_FAIL;
@@ -79,6 +79,8 @@ namespace TDEngine2
 		{
 			return result;
 		}
+
+		mInitParams = params;
 		
 		// \todo Add buffer's memory initialization
 
@@ -105,7 +107,7 @@ namespace TDEngine2
 		VkBufferCreateInfo bufferCreateInfo{};
 		bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		bufferCreateInfo.size = mBufferSize;
-		bufferCreateInfo.usage = GetBufferType(mBufferType) | ((mBufferUsageType == E_BUFFER_USAGE_TYPE::BUT_DYNAMIC) ? VK_BUFFER_USAGE_TRANSFER_SRC_BIT : 0x0);
+		bufferCreateInfo.usage = GetBufferType(mBufferType) | ((mBufferUsageType == E_BUFFER_USAGE_TYPE::DYNAMIC) ? VK_BUFFER_USAGE_TRANSFER_SRC_BIT : 0x0);
 		bufferCreateInfo.sharingMode = mIsUnorderedAccessResource ? VK_SHARING_MODE_CONCURRENT : VK_SHARING_MODE_EXCLUSIVE;
 
 		VmaAllocationCreateInfo allocInfo = {};
@@ -129,7 +131,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanBuffer::Map(E_BUFFER_MAP_TYPE mapType)
 	{
-		if (E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD == mapType && mBufferUsageType != E_BUFFER_USAGE_TYPE::BUT_DYNAMIC)
+		if (E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD == mapType && mBufferUsageType != E_BUFFER_USAGE_TYPE::DYNAMIC)
 		{
 			TDE2_ASSERT(false);
 			return RC_FAIL;
@@ -173,9 +175,9 @@ namespace TDEngine2
 		return mpMappedBufferData;
 	}
 
-	const TBufferInternalData& CVulkanBuffer::GetInternalData() const
+	void* CVulkanBuffer::GetInternalData() 
 	{
-		return mBufferInternalData;
+		return reinterpret_cast<void*>(&mInternalBufferHandle);
 	}
 
 	USIZE CVulkanBuffer::GetSize() const
@@ -193,9 +195,14 @@ namespace TDEngine2
 		return mInternalBufferHandle;
 	}
 
-
-	TDE2_API IBuffer* CreateVulkanBuffer(const TInitBufferParams& params, E_RESULT_CODE& result)
+	const TInitBufferParams& CVulkanBuffer::GetParams() const
 	{
-		return CREATE_IMPL(IBuffer, CVulkanBuffer, result, params);
+		return mInitParams;
+	}
+
+
+	TDE2_API IBuffer* CreateVulkanBuffer(IGraphicsContext* pGraphicsContext, const TInitBufferParams& params, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IBuffer, CVulkanBuffer, result, pGraphicsContext, params);
 	}
 }

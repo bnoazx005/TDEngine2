@@ -66,7 +66,7 @@ namespace TDEngine2
 				\param[in, out] pShader A pointer to IShader implementation
 			*/
 
-			TDE2_API void Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<IVertexBuffer*>& pVertexBuffersArray, IShader* pShader) override;
+			TDE2_API void Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray, IShader* pShader) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11VertexDeclaration)
 

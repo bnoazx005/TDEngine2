@@ -12,7 +12,6 @@
 #include "../../include/core/IResourceManager.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/graphics/COrthoCamera.h"
-#include "../../include/graphics/IVertexBuffer.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include <algorithm>
@@ -123,7 +122,7 @@ namespace TDEngine2
 
 		mParticlesInstancesData.resize(particleEmitters.size());
 		mParticles.resize(particleEmitters.size());
-		mpParticlesInstancesBuffers.resize(particleEmitters.size());
+		mParticlesInstancesBufferHandles.resize(particleEmitters.size());
 		mActiveParticlesCount.resize(particleEmitters.size());
 
 		const auto& cameras = pWorld->FindEntitiesWithAny<CPerspectiveCamera, COrthoCamera>();
@@ -131,15 +130,15 @@ namespace TDEngine2
 
 		mUsedMaterials = GetUsedMaterials(entities, pWorld, mpResourceManager.Get());
 
-		for (IVertexBuffer*& pCurrVertexBuffer : mpParticlesInstancesBuffers)
+		for (TBufferHandleId& currVertexBufferHandle : mParticlesInstancesBufferHandles)
 		{
-			auto createBufferResult = mpGraphicsObjectManager->CreateVertexBuffer(BUT_DYNAMIC, SpriteInstanceDataBufferSize, nullptr);
+			auto createBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, SpriteInstanceDataBufferSize, nullptr });
 			if (createBufferResult.HasError())
 			{
 				continue;
 			}
 
-			pCurrVertexBuffer = createBufferResult.Get();
+			currVertexBufferHandle = createBufferResult.Get();
 		}
 
 		for (U32& currCount : mActiveParticlesCount)
@@ -216,21 +215,21 @@ namespace TDEngine2
 			2, 1, 3
 		};
 
-		auto createVertexBufferResult = mpGraphicsObjectManager->CreateVertexBuffer(BUT_STATIC, sizeof(TParticleVertex) * 4, &vertices[0]);
+		auto createVertexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, sizeof(TParticleVertex) * 4, &vertices[0] });
 		if (createVertexBufferResult.HasError())
 		{
 			return createVertexBufferResult.GetError();
 		}
 
-		mpParticleQuadVertexBuffer = createVertexBufferResult.Get();
+		mParticleQuadVertexBufferHandle = createVertexBufferResult.Get();
 
-		auto createIndexBufferResult = mpGraphicsObjectManager->CreateIndexBuffer(BUT_STATIC, IFT_INDEX16, sizeof(U16) * 6, faces);
+		auto createIndexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::BT_INDEX_BUFFER, sizeof(U16) * 6, faces });
 		if (createIndexBufferResult.HasError())
 		{
 			return createIndexBufferResult.GetError();
 		}
 
-		mpParticleQuadIndexBuffer = createIndexBufferResult.Get();
+		mParticleQuadIndexBufferHandle = createIndexBufferResult.Get();
 
 		return RC_OK;
 	}
@@ -276,9 +275,9 @@ namespace TDEngine2
 
 			const bool isLocalSpaceParticles = E_PARTICLE_SIMULATION_SPACE::LOCAL == pParticleEffect->GetSimulationSpaceType();
 
-			pCommand->mpVertexBuffer = mpParticleQuadVertexBuffer;
-			pCommand->mpIndexBuffer = mpParticleQuadIndexBuffer;
-			pCommand->mpInstancingBuffer = mpParticlesInstancesBuffers[currBufferIndex];
+			pCommand->mVertexBufferHandle = mParticleQuadVertexBufferHandle;
+			pCommand->mIndexBufferHandle = mParticleQuadIndexBufferHandle;
+			pCommand->mInstancingBufferHandle = mParticlesInstancesBufferHandles[currBufferIndex];
 			pCommand->mMaterialHandle = materialHandle;
 			pCommand->mpVertexDeclaration = mpParticleVertexDeclaration;
 			pCommand->mIndicesPerInstance = 6;
@@ -422,7 +421,7 @@ namespace TDEngine2
 				// \note Copy data into GPU buffers
 				if (!particlesInstancesBuffer.empty())
 				{
-					if (auto pInstancesBuffer = mpParticlesInstancesBuffers[i])
+					if (auto pInstancesBuffer = mpGraphicsObjectManager->GetBufferPtr(mParticlesInstancesBufferHandles[i]))
 					{
 						pInstancesBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
 						pInstancesBuffer->Write(&particlesInstancesBuffer[0], sizeof(TParticleInstanceData) * mActiveParticlesCount[i]);

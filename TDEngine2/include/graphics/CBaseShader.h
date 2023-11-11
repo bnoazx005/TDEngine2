@@ -18,7 +18,8 @@ namespace TDEngine2
 {
 	struct TShaderCompilerOutput;
 
-	class IConstantBuffer;
+
+	enum class TBufferHandleId : U32;
 
 
 	/*!
@@ -117,7 +118,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE SetStructuredBufferResource(const std::string& resourceName, IStructuredBuffer* pBuffer) override;
+			TDE2_API E_RESULT_CODE SetStructuredBufferResource(const std::string& resourceName, TBufferHandleId bufferHandle) override;
 
 			/*!
 				\brief The method returns an additional information about the shader
@@ -134,10 +135,6 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _initShaderInternal(TShaderCompilerOutput* pShaderMetaData);
 
-			TDE2_API virtual E_RESULT_CODE _freeUniformBuffers();
-
-			TDE2_API virtual void _bindUniformBuffer(U32 slot, IConstantBuffer* pBuffer) = 0;
-
 			TDE2_API virtual E_RESULT_CODE _createTexturesHashTable(const TShaderCompilerOutput* pCompilerData);
 			TDE2_API virtual E_RESULT_CODE _createStructuredBuffersHashTable(const TShaderCompilerOutput* pCompilerData);
 
@@ -147,13 +144,13 @@ namespace TDEngine2
 
 			std::string                     mSourceCode;
 
-			std::vector<IConstantBuffer*>   mUniformBuffers;
+			std::vector<TBufferHandleId>    mUniformBuffers;
 
 			TResourcesHashTable             mTexturesHashTable;
 			TResourcesHashTable             mStructuredBuffersHashTable;
 
 			std::vector<ITexture*>          mpTextures;
-			std::vector<IStructuredBuffer*> mpBuffers;
+			std::vector<TBufferHandleId>    mBufferHandles;
 
 			TShaderCompilerOutput*          mpShaderMeta;
 	};

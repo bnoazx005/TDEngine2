@@ -7,25 +7,9 @@
 #pragma once
 
 
-#include "CD3D11Buffer.h"
-#include "CD3D11ConstantBuffer.h"
-#include "CD3D11GraphicsContext.h"
-#include "CD3D11IndexBuffer.h"
-#include "CD3D11Mappings.h"
-#include "CD3D11Shader.h"
-#include "CD3D11ShaderCompiler.h"
-#include "CD3D11VertexBuffer.h"
-#include "CD3D11VertexDeclaration.h"
-#include "CD3D11Texture2D.h"
-#include "CD3D11GraphicsObjectManager.h"
-#include "CD3D11RenderTarget.h"
-#include "CD3D11CubemapTexture.h"
-#include "CD3D11DepthBufferTarget.h"
-#include "CD3D11StructuredBuffer.h"
-
-
 #include <core/CBaseObject.h>
 #include <core/IPlugin.h>
+#include <core/IGraphicsContext.h>
 
 
 namespace TDEngine2

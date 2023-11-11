@@ -147,10 +147,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void CVulkanShader::_bindUniformBuffer(U32 slot, IConstantBuffer* pBuffer)
-	{
-	}
-
 
 	TDE2_API IShader* CreateVulkanShader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
 	{

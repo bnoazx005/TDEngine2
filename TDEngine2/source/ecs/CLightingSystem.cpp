@@ -117,8 +117,8 @@ namespace TDEngine2
 
 			if (TDrawIndexedCommand* pDrawCommand = params.mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(params.mDrawIndex))
 			{
-				pDrawCommand->mpVertexBuffer = pStaticMeshResource->GetPositionOnlyVertexBuffer();
-				pDrawCommand->mpIndexBuffer = pStaticMeshResource->GetSharedIndexBuffer();
+				pDrawCommand->mVertexBufferHandle = pStaticMeshResource->GetPositionOnlyVertexBuffer();
+				pDrawCommand->mIndexBufferHandle = pStaticMeshResource->GetSharedIndexBuffer();
 				pDrawCommand->mMaterialHandle = params.mMaterialId;
 				pDrawCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 				pDrawCommand->mpVertexDeclaration = params.mpVertexDeclaration;
@@ -180,8 +180,8 @@ namespace TDEngine2
 
 			if (TDrawIndexedCommand* pDrawCommand = params.mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(params.mDrawIndex))
 			{
-				pDrawCommand->mpVertexBuffer = pSkinnedMeshResource->GetPositionOnlyVertexBuffer();
-				pDrawCommand->mpIndexBuffer = pSkinnedMeshResource->GetSharedIndexBuffer();
+				pDrawCommand->mVertexBufferHandle = pSkinnedMeshResource->GetPositionOnlyVertexBuffer();
+				pDrawCommand->mIndexBufferHandle = pSkinnedMeshResource->GetSharedIndexBuffer();
 				pDrawCommand->mMaterialHandle = params.mMaterialId;
 				pDrawCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 				pDrawCommand->mpVertexDeclaration = params.mpVertexDeclaration;

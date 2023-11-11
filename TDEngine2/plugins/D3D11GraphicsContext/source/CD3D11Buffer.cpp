@@ -2,7 +2,6 @@
 #include "../include/CD3D11Mappings.h"
 #include "../include/CD3D11Utils.h"
 #include <core/IGraphicsContext.h>
-#include <graphics/IStructuredBuffer.h>
 #include <memory>
 
 
@@ -15,14 +14,12 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CD3D11Buffer::Init(const TInitBufferParams& params)
+	E_RESULT_CODE CD3D11Buffer::Init(IGraphicsContext* pGraphicsContext, const TInitBufferParams& params)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
-
-		IGraphicsContext* pGraphicsContext = params.mpGraphicsContext;
 
 		TD3D11CtxInternalData internalD3D11Data;
 
@@ -104,7 +101,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mBufferInternalData.mpD3D11Buffer = mpBufferInstance;
+		mInitParams = params;
 
 		mIsInitialized = true;
 
@@ -184,9 +181,9 @@ namespace TDEngine2
 		return mMappedBufferData.pData;
 	}
 
-	const TBufferInternalData& CD3D11Buffer::GetInternalData() const
+	void* CD3D11Buffer::GetInternalData()
 	{
-		return mBufferInternalData;
+		return reinterpret_cast<void*>(mpBufferInstance);
 	}
 
 	USIZE CD3D11Buffer::GetSize() const
@@ -204,10 +201,15 @@ namespace TDEngine2
 		return mp3dDeviceContext;
 	}
 
-
-	TDE2_API IBuffer* CreateD3D11Buffer(const TInitBufferParams& params, E_RESULT_CODE& result)
+	const TInitBufferParams& CD3D11Buffer::GetParams() const
 	{
-		return CREATE_IMPL(IBuffer, CD3D11Buffer, result, params);
+		return mInitParams;
+	}
+
+
+	TDE2_API IBuffer* CreateD3D11Buffer(IGraphicsContext* pGraphicsContext, const TInitBufferParams& params, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IBuffer, CD3D11Buffer, result, pGraphicsContext, params);
 	}
 }
 

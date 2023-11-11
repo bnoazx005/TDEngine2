@@ -1,6 +1,6 @@
-#include "./../include/COGLBuffer.h"
-#include "./../include/COGLMappings.h"
-#include "./../include/COGLUtils.h"
+#include "../include/COGLBuffer.h"
+#include "../include/COGLMappings.h"
+#include "../include/COGLUtils.h"
 #include <core/IGraphicsContext.h>
 #include <memory>
 #include <cstring>
@@ -13,7 +13,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE COGLBuffer::Init(const TInitBufferParams& params)
+	E_RESULT_CODE COGLBuffer::Init(IGraphicsContext* pGraphicsContext, const TInitBufferParams& params)
 	{
 		if (mIsInitialized)
 		{
@@ -35,7 +35,7 @@ namespace TDEngine2
 		GL_SAFE_CALL(glBufferData(glInternalBufferType, mBufferSize, params.mpDataPtr, COGLMappings::GetUsageType(mBufferUsageType)));
 		GL_SAFE_CALL(glBindBuffer(glInternalBufferType, 0));
 
-		mBufferInternalData.mGLBuffer = mBufferHandler;
+		mInitParams = params;
 
 		mIsInitialized = true;
 
@@ -96,9 +96,9 @@ namespace TDEngine2
 		return mpMappedBufferData;
 	}
 
-	const TBufferInternalData& COGLBuffer::GetInternalData() const
+	void* COGLBuffer::GetInternalData()
 	{
-		return mBufferInternalData;
+		return reinterpret_cast<void*>(&mBufferHandler);
 	}
 
 	USIZE COGLBuffer::GetSize() const
@@ -109,6 +109,11 @@ namespace TDEngine2
 	USIZE COGLBuffer::GetUsedSize() const
 	{
 		return mUsedBytesSize;
+	}
+
+	const TInitBufferParams& COGLBuffer::GetParams() const
+	{
+		return mInitParams;
 	}
 
 	TDE2_API GLenum COGLBuffer::_getBufferType(E_BUFFER_TYPE type) const
@@ -129,8 +134,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IBuffer* CreateOGLBuffer(const TInitBufferParams& params, E_RESULT_CODE& result)
+	TDE2_API IBuffer* CreateOGLBuffer(IGraphicsContext* pGraphicsContext, const TInitBufferParams& params, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IBuffer, COGLBuffer, result, params);
+		return CREATE_IMPL(IBuffer, COGLBuffer, result, pGraphicsContext, params);
 	}
 }

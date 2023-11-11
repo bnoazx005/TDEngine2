@@ -1,8 +1,8 @@
 #include "../../include/graphics/CRenderQueue.h"
 #include "../../include/graphics/IRenderer.h"
 #include "../../include/graphics/IVertexDeclaration.h"
-#include "../../include/graphics/IVertexBuffer.h"
-#include "../../include/graphics/IIndexBuffer.h"
+#include "../../include/graphics/IBuffer.h"
+#include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IResource.h"
 #include "../../include/graphics/CBaseMaterial.h"
@@ -26,11 +26,13 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		auto pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
+
 		auto pMaterial = pResourceManager->GetResource<IMaterial>(mMaterialHandle);
 
 		auto pAttachedShader = pResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
 
-		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer }, pAttachedShader.Get());
+		mpVertexDeclaration->Bind(pGraphicsContext, { mVertexBufferHandle }, pAttachedShader.Get());
 
 		pMaterial->Bind(mMaterialInstanceId);
 
@@ -39,10 +41,7 @@ namespace TDEngine2
 			pGraphicsContext->SetScissorRect(mScissorRect);
 		}
 
-		if (mpVertexBuffer)
-		{
-			mpVertexBuffer->Bind(0, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
-		}
+		pGraphicsContext->SetVertexBuffer(0, mVertexBufferHandle, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
 
 		pGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_OBJECT, reinterpret_cast<const U8*>(&mObjectData), sizeof(mObjectData));
 
@@ -74,7 +73,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer }, pAttachedShader.Get());
+		mpVertexDeclaration->Bind(pGraphicsContext, { mVertexBufferHandle }, pAttachedShader.Get());
 
 		pMaterial->Bind(mMaterialInstanceId);
 
@@ -83,12 +82,14 @@ namespace TDEngine2
 			pGraphicsContext->SetScissorRect(mScissorRect);
 		}
 
-		mpVertexBuffer->Bind(0, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
-		mpIndexBuffer->Bind(0);
+		pGraphicsContext->SetVertexBuffer(0, mVertexBufferHandle, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
+		pGraphicsContext->SetIndexBuffer(mIndexBufferHandle, 0);
 
 		pGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_OBJECT, reinterpret_cast<const U8*>(&mObjectData), sizeof(mObjectData));
 		
-		pGraphicsContext->DrawIndexed(mPrimitiveType, mpIndexBuffer->GetIndexFormat(), mStartVertex, mStartIndex, mNumOfIndices);
+		auto pIndexBuffer = pGraphicsContext->GetGraphicsObjectManager()->GetBufferPtr(mIndexBufferHandle);
+
+		pGraphicsContext->DrawIndexed(mPrimitiveType, pIndexBuffer->GetParams().mIndexFormat, mStartVertex, mStartIndex, mNumOfIndices);
 
 		return RC_OK;
 	}
@@ -110,7 +111,7 @@ namespace TDEngine2
 
 		auto pAttachedShader = pResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
 
-		mpVertexDeclaration->Bind(pGraphicsContext, { mpVertexBuffer, mpInstancingBuffer }, pAttachedShader.Get());
+		mpVertexDeclaration->Bind(pGraphicsContext, { mVertexBufferHandle, mInstancingBufferHandle }, pAttachedShader.Get());
 
 		pMaterial->Bind(mMaterialInstanceId);
 
@@ -119,14 +120,15 @@ namespace TDEngine2
 			pGraphicsContext->SetScissorRect(mScissorRect);
 		}
 
-		mpVertexBuffer->Bind(0, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
-		mpInstancingBuffer->Bind(1, 0, mpVertexDeclaration->GetStrideSize(1));
-
-		mpIndexBuffer->Bind(0);
+		pGraphicsContext->SetVertexBuffer(0, mVertexBufferHandle, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
+		pGraphicsContext->SetVertexBuffer(1, mInstancingBufferHandle, 0, mpVertexDeclaration->GetStrideSize(1)); /// \todo replace magic constants
+		pGraphicsContext->SetIndexBuffer(mIndexBufferHandle, 0);
 
 		pGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_OBJECT, reinterpret_cast<const U8*>(&mObjectData), sizeof(mObjectData));
 
-		pGraphicsContext->DrawIndexedInstanced(mPrimitiveType, mpIndexBuffer->GetIndexFormat(), mBaseVertexIndex, mStartIndex, 
+		auto pIndexBuffer = pGraphicsContext->GetGraphicsObjectManager()->GetBufferPtr(mIndexBufferHandle);
+
+		pGraphicsContext->DrawIndexedInstanced(mPrimitiveType, pIndexBuffer->GetParams().mIndexFormat, mBaseVertexIndex, mStartIndex,
 											   mStartInstance, mIndicesPerInstance, mNumOfInstances);
 
 		return RC_OK;
