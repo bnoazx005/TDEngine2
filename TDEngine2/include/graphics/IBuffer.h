@@ -50,11 +50,11 @@ namespace TDEngine2
 
 	enum class E_BUFFER_TYPE : U32
 	{
-		BT_VERTEX_BUFFER,			///< A buffer will be used as vertex buffer
-		BT_INDEX_BUFFER,			///< A buffer will be used as index buffer
-		BT_CONSTANT_BUFFER,			///< A buffer will be used as uniforms buffer object
-		BT_STRUCTURED_BUFFER,
-		BT_GENERIC,
+		VERTEX,			///< A buffer will be used as vertex buffer
+		INDEX,			///< A buffer will be used as index buffer
+		CONSTANT,		///< A buffer will be used as uniforms buffer object
+		STRUCTURED,
+		GENERIC,
 	};
 
 

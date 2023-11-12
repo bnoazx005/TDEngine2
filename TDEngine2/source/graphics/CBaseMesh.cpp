@@ -32,7 +32,7 @@ namespace TDEngine2
 
 		auto pGraphicsContext = mpGraphicsObjectManager->GetGraphicsContext();
 
-		auto vertexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, vertices.size(), &vertices.front() });
+		auto vertexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::VERTEX, vertices.size(), &vertices.front() });
 		if (vertexBufferResult.HasError())
 		{
 			return vertexBufferResult.GetError();
@@ -53,7 +53,7 @@ namespace TDEngine2
 
 		std::vector<U8> indices = _getIndicesArray(indexFormatType);
 
-		TInitBufferParams indexBufferCreateParams{ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::BT_INDEX_BUFFER, static_cast<U32>(indices.size()), &indices[0] };
+		TInitBufferParams indexBufferCreateParams{ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::INDEX, static_cast<U32>(indices.size()), &indices[0] };
 		indexBufferCreateParams.mIndexFormat = indexFormatType;
 
 		auto indexBufferResult = mpGraphicsObjectManager->CreateBuffer(indexBufferCreateParams);
@@ -256,7 +256,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseMesh::_initPositionOnlyVertexBuffer()
 	{
-		auto positionOnlyVertexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, mPositions.size() * sizeof(TVector4), &mPositions.front() });
+		auto positionOnlyVertexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::VERTEX, mPositions.size() * sizeof(TVector4), &mPositions.front() });
 		if (positionOnlyVertexBufferResult.HasError())
 		{
 			return positionOnlyVertexBufferResult.GetError();

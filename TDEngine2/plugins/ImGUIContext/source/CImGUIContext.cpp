@@ -1215,7 +1215,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		auto vertexBufferResult = pGraphicsManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, VertexBufferChunkSize, nullptr });
+		auto vertexBufferResult = pGraphicsManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::VERTEX, VertexBufferChunkSize, nullptr });
 		if (vertexBufferResult.HasError())
 		{
 			return vertexBufferResult.GetError();
@@ -1223,7 +1223,7 @@ namespace TDEngine2
 
 		mVertexBufferHandle = vertexBufferResult.Get();
 
-		auto indexBufferResult = pGraphicsManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_INDEX_BUFFER, IndexBufferChunkSize, nullptr });
+		auto indexBufferResult = pGraphicsManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::INDEX, IndexBufferChunkSize, nullptr });
 		if (indexBufferResult.HasError())
 		{
 			return indexBufferResult.GetError();
@@ -1322,7 +1322,7 @@ namespace TDEngine2
 
 			if (vertices.size() > pVertexBuffer->GetSize() / sizeof(ImDrawVert))
 			{
-				mVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, pVertexBuffer->GetSize() + VertexBufferChunkSize, nullptr }).Get();
+				mVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::VERTEX, pVertexBuffer->GetSize() + VertexBufferChunkSize, nullptr }).Get();
 				
 				pVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(mVertexBufferHandle);
 				pVertexBuffer->Map(BMT_WRITE_DISCARD);
@@ -1330,7 +1330,7 @@ namespace TDEngine2
 
 			if (indices.size() > pIndexBuffer->GetSize() / sizeof(ImDrawIdx))
 			{
-				mIndexBufferHandle = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_INDEX_BUFFER, pIndexBuffer->GetSize() + IndexBufferChunkSize, nullptr }).Get();
+				mIndexBufferHandle = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::INDEX, pIndexBuffer->GetSize() + IndexBufferChunkSize, nullptr }).Get();
 
 				pIndexBuffer = mpGraphicsObjectManager->GetBufferPtr(mIndexBufferHandle);
 				pIndexBuffer->Map(BMT_WRITE_DISCARD);

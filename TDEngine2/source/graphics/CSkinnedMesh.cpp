@@ -91,7 +91,7 @@ namespace TDEngine2
 	{
 		auto&& positions = _toPositionOnlyArray();
 
-		auto positionOnlyVertexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, positions.size(), &positions.front() });
+		auto positionOnlyVertexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::VERTEX, positions.size(), &positions.front() });
 		if (positionOnlyVertexBufferResult.HasError())
 		{
 			return positionOnlyVertexBufferResult.GetError();

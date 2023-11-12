@@ -219,7 +219,7 @@ namespace TDEngine2
 
 			/// the offset is used because the shaders doesn't store internal buffer by themselves
 			mUniformBuffers[currDesc.mSlot - TotalNumberOfInternalConstantBuffers] = 
-				pGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_CONSTANT_BUFFER, currDesc.mSize, nullptr }).Get();
+				pGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::CONSTANT, currDesc.mSize, nullptr }).Get();
 		}
 		
 		return RC_OK;

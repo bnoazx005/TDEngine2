@@ -51,16 +51,16 @@ namespace TDEngine2
 
 		switch (mBufferType)
 		{
-			case E_BUFFER_TYPE::BT_VERTEX_BUFFER:
+			case E_BUFFER_TYPE::VERTEX:
 				bufferCreationFlags = D3D11_BIND_VERTEX_BUFFER;
 				break;
-			case E_BUFFER_TYPE::BT_INDEX_BUFFER:
+			case E_BUFFER_TYPE::INDEX:
 				bufferCreationFlags = D3D11_BIND_INDEX_BUFFER;
 				break;
-			case E_BUFFER_TYPE::BT_CONSTANT_BUFFER:
+			case E_BUFFER_TYPE::CONSTANT:
 				bufferCreationFlags = D3D11_BIND_CONSTANT_BUFFER;
 				break;
-			case E_BUFFER_TYPE::BT_STRUCTURED_BUFFER:
+			case E_BUFFER_TYPE::STRUCTURED:
 				bufferCreationFlags = params.mIsUnorderedAccessResource ? D3D11_BIND_UNORDERED_ACCESS : D3D11_BIND_SHADER_RESOURCE;
 				break;
 		}
@@ -70,7 +70,7 @@ namespace TDEngine2
 		bufferDesc.CPUAccessFlags = CD3D11Mappings::GetAccessFlags(mBufferUsageType);
 		bufferDesc.Usage = CD3D11Mappings::GetUsageType(mBufferUsageType);
 		
-		if (E_BUFFER_TYPE::BT_STRUCTURED_BUFFER == mBufferType)
+		if (E_BUFFER_TYPE::STRUCTURED == mBufferType)
 		{
 			bufferDesc.StructureByteStride = static_cast<UINT>(params.mElementStrideSize);
 

@@ -72,7 +72,7 @@ namespace TDEngine2
 		auto pGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
 
 		TPtr<IBuffer> pStagingBuffer = pGraphicsObjectManager->GetBufferPtr(
-			pGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_GENERIC, textureSize, nullptr}).Get());
+			pGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::GENERIC, textureSize, nullptr}).Get());
 
 		if (RC_OK != result || !pStagingBuffer)
 		{

@@ -55,20 +55,20 @@ namespace TDEngine2
 		mpLinesVertDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
 		mpLinesVertDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_COLOR });
 
-		mLinesVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, sizeof(TLineVertex) * mMaxLinesVerticesCount, nullptr }).Get();
+		mLinesVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::VERTEX, sizeof(TLineVertex) * mMaxLinesVerticesCount, nullptr }).Get();
 
 		mSystemFontHandle = mpResourceManager->Load<IFont>("OpenSans.font"); /// \note load system font, which is "OpenSans" font
 
 		mpTextVertDeclaration = mpGraphicsObjectManager->CreateVertexDeclaration().Get();
 		mpTextVertDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
 
-		TInitBufferParams indexBuferParams { E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_INDEX_BUFFER, sizeof(U16) * 9072, &_buildTextIndexBuffer(2048)[0] };
+		TInitBufferParams indexBuferParams { E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::INDEX, sizeof(U16) * 9072, &_buildTextIndexBuffer(2048)[0] };
 		indexBuferParams.mIndexFormat = E_INDEX_FORMAT_TYPE::INDEX16;
 
-		mTextVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, sizeof(TTextVertex) * 4096, nullptr }).Get();
+		mTextVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::VERTEX, sizeof(TTextVertex) * 4096, nullptr }).Get();
 		mTextIndexBufferHandle = mpGraphicsObjectManager->CreateBuffer(indexBuferParams).Get();
 
-		mCrossesVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, sizeof(TLineVertex) * mMaxLinesVerticesCount, nullptr }).Get();
+		mCrossesVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::VERTEX, sizeof(TLineVertex) * mMaxLinesVerticesCount, nullptr }).Get();
 
 		mpGeometryBuilder = CreateGeometryBuilder(result);
 

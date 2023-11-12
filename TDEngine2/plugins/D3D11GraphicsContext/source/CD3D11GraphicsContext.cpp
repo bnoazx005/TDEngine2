@@ -310,7 +310,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		TDE2_ASSERT(E_BUFFER_TYPE::BT_VERTEX_BUFFER == pBuffer->GetParams().mBufferType);
+		TDE2_ASSERT(E_BUFFER_TYPE::VERTEX == pBuffer->GetParams().mBufferType);
 
 		ID3D11Buffer* pD3D11BufferImpl = reinterpret_cast<ID3D11Buffer*>(pBuffer->GetInternalData());
 
@@ -327,7 +327,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		TDE2_ASSERT(E_BUFFER_TYPE::BT_INDEX_BUFFER == pBuffer->GetParams().mBufferType);
+		TDE2_ASSERT(E_BUFFER_TYPE::INDEX == pBuffer->GetParams().mBufferType);
 
 		ID3D11Buffer* pD3D11BufferImpl = reinterpret_cast<ID3D11Buffer*>(pBuffer->GetInternalData());
 
@@ -344,7 +344,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		TDE2_ASSERT(E_BUFFER_TYPE::BT_CONSTANT_BUFFER == pBuffer->GetParams().mBufferType);
+		TDE2_ASSERT(E_BUFFER_TYPE::CONSTANT == pBuffer->GetParams().mBufferType);
 
 		ID3D11Buffer* pD3D11BufferImpl = reinterpret_cast<ID3D11Buffer*>(pBuffer->GetInternalData());
 

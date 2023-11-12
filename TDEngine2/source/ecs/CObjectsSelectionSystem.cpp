@@ -373,14 +373,14 @@ namespace TDEngine2
 			{
 				if (!pUIElementsVertexBuffer)
 				{
-					mUIElementsVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, VertexBufferDefaultSize, nullptr }).Get();
+					mUIElementsVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::VERTEX, VertexBufferDefaultSize, nullptr }).Get();
 				}
 				else
 				{
 					mUIElementsVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer(
 						{
 							E_BUFFER_USAGE_TYPE::DYNAMIC,
-							E_BUFFER_TYPE::BT_VERTEX_BUFFER,
+							E_BUFFER_TYPE::VERTEX,
 							pUIElementsVertexBuffer->GetSize() + VertexBufferDefaultSize,
 							nullptr
 						}).Get();
@@ -423,7 +423,7 @@ namespace TDEngine2
 			{ 0.5f, -0.5f, 0.0f, 1.0f }
 		};
 
-		auto spriteVertexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, sizeof(TVector4) * 4, quadSpriteVertices });
+		auto spriteVertexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::VERTEX, sizeof(TVector4) * 4, quadSpriteVertices });
 		if (spriteVertexBufferResult.HasError())
 		{
 			return spriteVertexBufferResult.GetError();
@@ -433,7 +433,7 @@ namespace TDEngine2
 
 		static const U16 spriteTriangles[6] { 0, 1, 2, 2, 1, 3 };
 		
-		auto spriteIndexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::BT_INDEX_BUFFER, sizeof(U16) * 6, spriteTriangles });
+		auto spriteIndexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::INDEX, sizeof(U16) * 6, spriteTriangles });
 		if (spriteIndexBufferResult.HasError())
 		{
 			return spriteIndexBufferResult.GetError();

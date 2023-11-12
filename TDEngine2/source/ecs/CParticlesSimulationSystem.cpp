@@ -132,7 +132,7 @@ namespace TDEngine2
 
 		for (TBufferHandleId& currVertexBufferHandle : mParticlesInstancesBufferHandles)
 		{
-			auto createBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, SpriteInstanceDataBufferSize, nullptr });
+			auto createBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::VERTEX, SpriteInstanceDataBufferSize, nullptr });
 			if (createBufferResult.HasError())
 			{
 				continue;
@@ -215,7 +215,7 @@ namespace TDEngine2
 			2, 1, 3
 		};
 
-		auto createVertexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, sizeof(TParticleVertex) * 4, &vertices[0] });
+		auto createVertexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::VERTEX, sizeof(TParticleVertex) * 4, &vertices[0] });
 		if (createVertexBufferResult.HasError())
 		{
 			return createVertexBufferResult.GetError();
@@ -223,7 +223,7 @@ namespace TDEngine2
 
 		mParticleQuadVertexBufferHandle = createVertexBufferResult.Get();
 
-		auto createIndexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::BT_INDEX_BUFFER, sizeof(U16) * 6, faces });
+		auto createIndexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::INDEX, sizeof(U16) * 6, faces });
 		if (createIndexBufferResult.HasError())
 		{
 			return createIndexBufferResult.GetError();

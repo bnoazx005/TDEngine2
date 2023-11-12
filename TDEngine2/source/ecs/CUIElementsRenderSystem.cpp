@@ -377,7 +377,7 @@ namespace TDEngine2
 		mpDefaultFontVertexDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_COLOR });
 
 		/// \note Create vertex buffer and index one
-		auto createVertBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, sizeof(TUIElementsVertex) * mMaxVerticesCount, nullptr });
+		auto createVertBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::VERTEX, sizeof(TUIElementsVertex) * mMaxVerticesCount, nullptr });
 		if (createVertBufferResult.HasError())
 		{
 			return createVertBufferResult.GetError();
@@ -385,7 +385,7 @@ namespace TDEngine2
 
 		mVertexBufferHandle = createVertBufferResult.Get();
 
-		auto createIndexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_INDEX_BUFFER, sizeof(U16) * mMaxVerticesCount * 3, nullptr });
+		auto createIndexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::INDEX, sizeof(U16) * mMaxVerticesCount * 3, nullptr });
 		if (createIndexBufferResult.HasError())
 		{
 			return createIndexBufferResult.GetError();

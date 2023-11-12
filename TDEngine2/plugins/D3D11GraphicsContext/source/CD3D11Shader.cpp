@@ -182,7 +182,7 @@ namespace TDEngine2
 				continue;
 			}
 
-			auto createBufferResult = pGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_CONSTANT_BUFFER, currDesc.mSize, nullptr });
+			auto createBufferResult = pGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::CONSTANT, currDesc.mSize, nullptr });
 			if (createBufferResult.HasError())
 			{
 				return createBufferResult.GetError();

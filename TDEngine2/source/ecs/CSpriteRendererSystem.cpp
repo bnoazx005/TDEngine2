@@ -71,8 +71,8 @@ namespace TDEngine2
 			{ TVector4(0.5f, -0.5f, 0.0f, 1.0f), TVector2(1.0f, 1.0f) }
 		};
 
-		mSpriteVertexBufferHandle = pGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, sizeof(TSpriteVertex) * 4, &vertices[0] }).Get();
-		mSpriteIndexBufferHandle = pGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::BT_INDEX_BUFFER, sizeof(U16) * 6, mSpriteFaces }).Get();
+		mSpriteVertexBufferHandle = pGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::VERTEX, sizeof(TSpriteVertex) * 4, &vertices[0] }).Get();
+		mSpriteIndexBufferHandle = pGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::INDEX, sizeof(U16) * 6, mSpriteFaces }).Get();
 
 		E_RESULT_CODE result = RC_OK;
 		
@@ -231,7 +231,7 @@ namespace TDEngine2
 		for (U32 i = 0; i < numOfBuffers; ++i)
 		{
 			mSpritesPerInstanceDataHandles.push_back(
-				pGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::BT_VERTEX_BUFFER, SpriteInstanceDataBufferSize, nullptr }).Get());
+				pGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::VERTEX, SpriteInstanceDataBufferSize, nullptr }).Get());
 		}
 	}
 

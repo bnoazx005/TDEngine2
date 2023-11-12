@@ -92,7 +92,7 @@ namespace TDEngine2
 			auto createBufferResult = pGraphicsObjectManager->CreateBuffer(
 				{					 
 					_getInternalBufferUsageType(currSlot), 
-					E_BUFFER_TYPE::BT_CONSTANT_BUFFER, 
+					E_BUFFER_TYPE::CONSTANT, 
 					_getInternalBufferSize(currSlot), 
 					nullptr 
 				});
