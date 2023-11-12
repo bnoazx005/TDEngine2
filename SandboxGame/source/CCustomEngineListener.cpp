@@ -15,10 +15,10 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
 
-	auto pBufferPtr = mpGraphicsObjectManager->CreateStructuredBuffer({ mpGraphicsContext, E_STRUCTURED_BUFFER_TYPE::DEFAULT, E_BUFFER_USAGE_TYPE::BUT_DEFAULT, 30, sizeof(TVector2), false }).Get();
+	//auto pBufferPtr = mpGraphicsObjectManager->CreateStructuredBuffer({ mpGraphicsContext, E_STRUCTURED_BUFFER_TYPE::DEFAULT, E_BUFFER_USAGE_TYPE::DEFAULT, 30, sizeof(TVector2), false }).Get();
 
-	auto pComputeShader = mpResourceManager->GetResource<IShader>(mpResourceManager->Load<IShader>("ProjectShaders/TestCompute.cshader"));
-	//pComputeShader->SetTextureResource()
+	//auto pComputeShader = mpResourceManager->GetResource<IShader>(mpResourceManager->Load<IShader>("ProjectShaders/TestCompute.cshader"));
+	////pComputeShader->SetTextureResource()
 
 	mpResourceManager->Load<IPrefabsManifest>("ProjectResources/PrefabsCollection.manifest");
 
@@ -618,6 +618,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 					pLayout->SetMinOffset(TVector2(150.f));
 				}
 			}
+
+			CSceneHierarchyUtils::CreateInputFieldUIElement(mpWorld, pScene, canvasEntityResult.Get(), [](auto) {});
 #endif
 
 			/*if (auto result = mpFileSystem->Open<IYAMLFileWriter>("TestScene2.scene", true))
@@ -654,7 +656,6 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 		auto data = pPackage->ReadFileBytes("test.txt");
 	}
 
-	mpWindowSystem->GetAvailableScreenResolutions();
 
 	return RC_OK;
 }
