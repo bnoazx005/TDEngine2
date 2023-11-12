@@ -8,6 +8,40 @@
 
 namespace TDEngine2
 {
+	static GLenum GetBufferType(E_BUFFER_TYPE type)
+	{
+		switch (type)
+		{
+			case E_BUFFER_TYPE::VERTEX:
+				return GL_ARRAY_BUFFER;
+			case E_BUFFER_TYPE::INDEX:
+				return GL_ELEMENT_ARRAY_BUFFER;
+			case E_BUFFER_TYPE::CONSTANT:
+				return GL_UNIFORM_BUFFER;
+			case E_BUFFER_TYPE::STRUCTURED:
+				return GL_SHADER_STORAGE_BUFFER;
+		}
+
+		return 0;
+	}
+
+
+	static TResult<GLuint> CreateBufferInternal(E_BUFFER_TYPE type, E_BUFFER_USAGE_TYPE usageType, USIZE size, const void* pData)
+	{
+		GLuint bufferHandle = 0;
+
+		GL_SAFE_TRESULT_CALL(glGenBuffers(1, &bufferHandle));
+
+		const GLenum glInternalBufferType = GetBufferType(type);
+
+		GL_SAFE_TRESULT_CALL(glBindBuffer(glInternalBufferType, bufferHandle));
+		GL_SAFE_TRESULT_CALL(glBufferData(glInternalBufferType, size, pData, COGLMappings::GetUsageType(usageType)));
+		GL_SAFE_TRESULT_CALL(glBindBuffer(glInternalBufferType, 0));
+
+		return Wrench::TOkValue<GLuint>(bufferHandle);
+	}
+
+
 	COGLBuffer::COGLBuffer() :
 		CBaseObject()
 	{
@@ -27,13 +61,13 @@ namespace TDEngine2
 
 		mBufferType = params.mBufferType;
 
-		GL_SAFE_CALL(glGenBuffers(1, &mBufferHandler));
+		auto createBufferHandleResult = CreateBufferInternal(mBufferType, mBufferUsageType, mBufferSize, params.mpDataPtr);
+		if (createBufferHandleResult.HasError())
+		{
+			return createBufferHandleResult.GetError();
+		}
 
-		GLenum glInternalBufferType = _getBufferType(mBufferType);
-
-		GL_SAFE_CALL(glBindBuffer(glInternalBufferType, mBufferHandler));
-		GL_SAFE_CALL(glBufferData(glInternalBufferType, mBufferSize, params.mpDataPtr, COGLMappings::GetUsageType(mBufferUsageType)));
-		GL_SAFE_CALL(glBindBuffer(glInternalBufferType, 0));
+		mBufferHandler = createBufferHandleResult.Get();
 
 		mInitParams = params;
 
@@ -52,20 +86,15 @@ namespace TDEngine2
 	{
 		/// \todo GL_SAFE_CALL wrapper causes GL_INVALID_VALUE is raised by RenderDoc
 		/// but everything works well in standalone mode and within MSVC
-		glBindBuffer(_getBufferType(mBufferType), mBufferHandler);
+		glBindBuffer(GetBufferType(mBufferType), mBufferHandler);
 
-		mpMappedBufferData = glMapBuffer(_getBufferType(mBufferType), COGLMappings::GetBufferMapAccessType(mapType));
+		mpMappedBufferData = glMapBuffer(GetBufferType(mBufferType), COGLMappings::GetBufferMapAccessType(mapType));
 
 #if TDE2_DEBUG_MODE
 		++mLockChecker;
 #endif
 
-		if (glGetError() != GL_NO_ERROR)
-		{
-			return RC_FAIL;	/// \todo implement mapping from OGL errors to engine's ones
-		}
-
-		return RC_OK;
+		return COGLMappings::GetErrorCode(glGetError());
 	}
 
 	void COGLBuffer::Unmap()
@@ -74,7 +103,7 @@ namespace TDEngine2
 		--mLockChecker;
 #endif
 
-		GL_SAFE_VOID_CALL(glUnmapBuffer(_getBufferType(mBufferType)));
+		GL_SAFE_VOID_CALL(glUnmapBuffer(GetBufferType(mBufferType)));
 	}
 
 	E_RESULT_CODE COGLBuffer::Write(const void* pData, USIZE size)
@@ -96,6 +125,24 @@ namespace TDEngine2
 		return mpMappedBufferData;
 	}
 
+	E_RESULT_CODE COGLBuffer::Resize(USIZE newSize)
+	{
+		auto createBufferHandleResult = CreateBufferInternal(mBufferType, mBufferUsageType, newSize, nullptr);
+		if (createBufferHandleResult.HasError())
+		{
+			return createBufferHandleResult.GetError();
+		}
+
+		GL_SAFE_CALL(glDeleteBuffers(1, &mBufferHandler));
+
+		mBufferHandler = createBufferHandleResult.Get();
+
+		mBufferSize = newSize;
+		mInitParams.mTotalBufferSize = mBufferSize;
+
+		return RC_OK;
+	}
+
 	void* COGLBuffer::GetInternalData()
 	{
 		return reinterpret_cast<void*>(&mBufferHandler);
@@ -114,23 +161,6 @@ namespace TDEngine2
 	const TInitBufferParams& COGLBuffer::GetParams() const
 	{
 		return mInitParams;
-	}
-
-	TDE2_API GLenum COGLBuffer::_getBufferType(E_BUFFER_TYPE type) const
-	{
-		switch (type)
-		{
-			case E_BUFFER_TYPE::VERTEX:
-				return GL_ARRAY_BUFFER;
-			case E_BUFFER_TYPE::INDEX:
-				return GL_ELEMENT_ARRAY_BUFFER;
-			case E_BUFFER_TYPE::CONSTANT:
-				return GL_UNIFORM_BUFFER;
-			case E_BUFFER_TYPE::STRUCTURED:
-				return GL_SHADER_STORAGE_BUFFER;
-		}
-
-		return 0;
 	}
 
 

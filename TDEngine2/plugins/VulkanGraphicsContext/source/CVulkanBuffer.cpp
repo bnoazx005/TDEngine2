@@ -74,7 +74,7 @@ namespace TDEngine2
 
 		mIsUnorderedAccessResource = params.mIsUnorderedAccessResource;
 		
-		E_RESULT_CODE result = _discardCurrentBuffer();
+		E_RESULT_CODE result = _discardCurrentBuffer(mBufferSize);
 		if (RC_OK != result)
 		{
 			return result;
@@ -89,7 +89,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CVulkanBuffer::_discardCurrentBuffer()
+	E_RESULT_CODE CVulkanBuffer::_discardCurrentBuffer(USIZE newSize)
 	{
 		if (VK_NULL_HANDLE != mInternalBufferHandle)
 		{
@@ -106,7 +106,7 @@ namespace TDEngine2
 
 		VkBufferCreateInfo bufferCreateInfo{};
 		bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		bufferCreateInfo.size = mBufferSize;
+		bufferCreateInfo.size = newSize;
 		bufferCreateInfo.usage = GetBufferType(mBufferType) | ((mBufferUsageType == E_BUFFER_USAGE_TYPE::DYNAMIC) ? VK_BUFFER_USAGE_TRANSFER_SRC_BIT : 0x0);
 		bufferCreateInfo.sharingMode = mIsUnorderedAccessResource ? VK_SHARING_MODE_CONCURRENT : VK_SHARING_MODE_EXCLUSIVE;
 
@@ -173,6 +173,25 @@ namespace TDEngine2
 	void* CVulkanBuffer::Read()
 	{
 		return mpMappedBufferData;
+	}
+
+	E_RESULT_CODE CVulkanBuffer::Resize(USIZE newSize)
+	{
+		E_RESULT_CODE result = _discardCurrentBuffer(mBufferSize);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		mpGraphicsContextImpl->DestroyObjectDeffered([=]
+		{
+			vmaDestroyBuffer(mAllocator, mInternalBufferHandle, mAllocation);
+		});
+
+		mInitParams.mTotalBufferSize = newSize;
+		mBufferSize = newSize;
+
+		return RC_OK;
 	}
 
 	void* CVulkanBuffer::GetInternalData() 

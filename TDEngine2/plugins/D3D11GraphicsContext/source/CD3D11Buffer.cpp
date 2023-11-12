@@ -9,47 +9,13 @@
 
 namespace TDEngine2
 {
-	CD3D11Buffer::CD3D11Buffer() :
-		CBaseObject()
+	static TResult<ID3D11Buffer*> CreateBufferInternal(ID3D11Device* p3dDevice, const TInitBufferParams& params, bool createEmpty = false)
 	{
-	}
-
-	E_RESULT_CODE CD3D11Buffer::Init(IGraphicsContext* pGraphicsContext, const TInitBufferParams& params)
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		TD3D11CtxInternalData internalD3D11Data;
-
-#if _HAS_CXX17
-		internalD3D11Data = std::get<TD3D11CtxInternalData>(pGraphicsContext->GetInternalData());
-#else
-		internalD3D11Data = pGraphicsContext->GetInternalData().mD3D11;
-#endif
-
-		mp3dDeviceContext = internalD3D11Data.mp3dDeviceContext;
-
-		if (!mp3dDeviceContext)
-		{
-			return RC_INVALID_ARGS;
-		}
-
-		mBufferSize = params.mTotalBufferSize;
-		mUsedBytesSize = 0;
-
-		mBufferUsageType = params.mUsageType;
-
-		mBufferType = params.mBufferType;
-
-		D3D11_BUFFER_DESC bufferDesc;
-
-		memset(&bufferDesc, 0, sizeof(bufferDesc));
+		D3D11_BUFFER_DESC bufferDesc {};
 
 		U32 bufferCreationFlags = 0x0;
 
-		switch (mBufferType)
+		switch (params.mBufferType)
 		{
 			case E_BUFFER_TYPE::VERTEX:
 				bufferCreationFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -66,11 +32,11 @@ namespace TDEngine2
 		}
 
 		bufferDesc.BindFlags = bufferCreationFlags;
-		bufferDesc.ByteWidth = static_cast<U32>(mBufferSize);
-		bufferDesc.CPUAccessFlags = CD3D11Mappings::GetAccessFlags(mBufferUsageType);
-		bufferDesc.Usage = CD3D11Mappings::GetUsageType(mBufferUsageType);
-		
-		if (E_BUFFER_TYPE::STRUCTURED == mBufferType)
+		bufferDesc.ByteWidth = static_cast<U32>(params.mTotalBufferSize);
+		bufferDesc.CPUAccessFlags = CD3D11Mappings::GetAccessFlags(params.mUsageType);
+		bufferDesc.Usage = CD3D11Mappings::GetUsageType(params.mUsageType);
+
+		if (E_BUFFER_TYPE::STRUCTURED == params.mBufferType)
 		{
 			bufferDesc.StructureByteStride = static_cast<UINT>(params.mElementStrideSize);
 
@@ -92,14 +58,61 @@ namespace TDEngine2
 
 		memset(&bufferData, 0, sizeof(bufferData));
 
-		bufferData.pSysMem = params.mpDataPtr;
+		bufferData.pSysMem = createEmpty ? nullptr : params.mpDataPtr;
 
-		ID3D11Device* p3dDevice = internalD3D11Data.mp3dDevice;
+		ID3D11Buffer* pBuffer = nullptr;
 
-		if (FAILED(p3dDevice->CreateBuffer(&bufferDesc, (params.mpDataPtr ? &bufferData : nullptr), &mpBufferInstance)))
+		if (FAILED(p3dDevice->CreateBuffer(&bufferDesc, createEmpty ? nullptr : (params.mpDataPtr ? &bufferData : nullptr), &pBuffer)))
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		return Wrench::TOkValue<ID3D11Buffer*>(pBuffer);
+	}
+
+
+	CD3D11Buffer::CD3D11Buffer() :
+		CBaseObject()
+	{
+	}
+
+	E_RESULT_CODE CD3D11Buffer::Init(IGraphicsContext* pGraphicsContext, const TInitBufferParams& params)
+	{
+		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
+
+		TD3D11CtxInternalData internalD3D11Data;
+
+#if _HAS_CXX17
+		internalD3D11Data = std::get<TD3D11CtxInternalData>(pGraphicsContext->GetInternalData());
+#else
+		internalD3D11Data = pGraphicsContext->GetInternalData().mD3D11;
+#endif
+
+		mp3dDeviceContext = internalD3D11Data.mp3dDeviceContext;
+		mp3dDevice = internalD3D11Data.mp3dDevice;
+
+		if (!mp3dDeviceContext)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mBufferSize = params.mTotalBufferSize;
+		mUsedBytesSize = 0;
+
+		mBufferUsageType = params.mUsageType;
+
+		mBufferType = params.mBufferType;
+
+		auto createBufferResourceResult = CreateBufferInternal(internalD3D11Data.mp3dDevice, params, false);
+		if (createBufferResourceResult.HasError())
+		{
+			return createBufferResourceResult.GetError();
+		}
+
+		mpBufferInstance = createBufferResourceResult.Get();
 
 		mInitParams = params;
 
@@ -179,6 +192,31 @@ namespace TDEngine2
 	void* CD3D11Buffer::Read()
 	{
 		return mMappedBufferData.pData;
+	}
+
+	E_RESULT_CODE CD3D11Buffer::Resize(USIZE newSize)
+	{
+		auto paramsCopy = mInitParams;
+		paramsCopy.mTotalBufferSize = newSize;
+
+		auto createBufferHandleResult = CreateBufferInternal(mp3dDevice, paramsCopy, true);
+		if (createBufferHandleResult.HasError())
+		{
+			return createBufferHandleResult.GetError();
+		}
+
+		E_RESULT_CODE result = SafeReleaseCOMPtr<ID3D11Buffer>(&mpBufferInstance);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		mpBufferInstance = createBufferHandleResult.Get();
+
+		mBufferSize = newSize;
+		mInitParams.mTotalBufferSize = mBufferSize;
+
+		return RC_OK;
 	}
 
 	void* CD3D11Buffer::GetInternalData()

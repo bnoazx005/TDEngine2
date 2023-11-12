@@ -149,6 +149,12 @@ namespace TDEngine2
 			TDE2_API virtual void* Read() = 0;
 
 			/*!
+				\brief The method recreates a buffer with a new specified size all previous data will be discarded
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Resize(USIZE newSize) = 0;
+
+			/*!
 				\return The method returns an internal data of a buffer, which contains low-level platform specific buffer's handlers
 			*/
 

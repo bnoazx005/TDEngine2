@@ -72,6 +72,12 @@ namespace TDEngine2
 			TDE2_API void* Read() override;
 
 			/*!
+				\brief The method recreates a buffer with a new specified size all previous data will be discarded
+			*/
+
+			TDE2_API E_RESULT_CODE Resize(USIZE newSize) override;
+
+			/*!
 				\brief The method returns an internal data of a buffer, which
 				contains low-level platform specific buffer's handlers
 
@@ -110,6 +116,7 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			ID3D11DeviceContext*     mp3dDeviceContext;
+			ID3D11Device*            mp3dDevice;
 
 			ID3D11Buffer*            mpBufferInstance;
 			

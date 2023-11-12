@@ -75,6 +75,12 @@ namespace TDEngine2
 			TDE2_API void* Read() override;
 
 			/*!
+				\brief The method recreates a buffer with a new specified size all previous data will be discarded
+			*/
+
+			TDE2_API E_RESULT_CODE Resize(USIZE newSize) override;
+
+			/*!
 				\brief The method returns an internal data of a buffer, which
 				contains low-level platform specific buffer's handlers
 
@@ -104,7 +110,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanBuffer)
 
-			E_RESULT_CODE _discardCurrentBuffer();
+			E_RESULT_CODE _discardCurrentBuffer(USIZE newSize);
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;			
 		protected:
 			USIZE                    mBufferSize;

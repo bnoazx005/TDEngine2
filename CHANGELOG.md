@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The API of **IGraphicsObjectManager** was extended with a new public method DestroyBuffer.
 
+- The API of **IBuffer** was extended with new method Resize.
+
 ### Changed
 
 ### Fixed
