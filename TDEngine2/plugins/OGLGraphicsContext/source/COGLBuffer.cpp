@@ -133,6 +133,11 @@ namespace TDEngine2
 			return createBufferHandleResult.GetError();
 		}
 
+		if (mpMappedBufferData)
+		{
+			Unmap();
+		}
+
 		GL_SAFE_CALL(glDeleteBuffers(1, &mBufferHandler));
 
 		mBufferHandler = createBufferHandleResult.Get();

@@ -205,6 +205,11 @@ namespace TDEngine2
 			return createBufferHandleResult.GetError();
 		}
 
+		if (mMappedBufferData.pData)
+		{
+			Unmap();
+		}
+
 		E_RESULT_CODE result = SafeReleaseCOMPtr<ID3D11Buffer>(&mpBufferInstance);
 		if (RC_OK != result)
 		{

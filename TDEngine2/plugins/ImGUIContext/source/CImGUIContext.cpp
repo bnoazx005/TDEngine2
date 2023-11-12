@@ -1322,17 +1322,13 @@ namespace TDEngine2
 
 			if (vertices.size() > pVertexBuffer->GetSize() / sizeof(ImDrawVert))
 			{
-				mVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::VERTEX, pVertexBuffer->GetSize() + VertexBufferChunkSize, nullptr }).Get();
-				
-				pVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(mVertexBufferHandle);
+				pVertexBuffer->Resize(pVertexBuffer->GetSize() + VertexBufferChunkSize);
 				pVertexBuffer->Map(BMT_WRITE_DISCARD);
 			}
 
 			if (indices.size() > pIndexBuffer->GetSize() / sizeof(ImDrawIdx))
 			{
-				mIndexBufferHandle = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::INDEX, pIndexBuffer->GetSize() + IndexBufferChunkSize, nullptr }).Get();
-
-				pIndexBuffer = mpGraphicsObjectManager->GetBufferPtr(mIndexBufferHandle);
+				pIndexBuffer->Resize(pIndexBuffer->GetSize() + IndexBufferChunkSize);
 				pIndexBuffer->Map(BMT_WRITE_DISCARD);
 			}
 

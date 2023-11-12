@@ -183,6 +183,11 @@ namespace TDEngine2
 			return result;
 		}
 
+		if (mpMappedBufferData)
+		{
+			Unmap();
+		}
+
 		mpGraphicsContextImpl->DestroyObjectDeffered([=]
 		{
 			vmaDestroyBuffer(mAllocator, mInternalBufferHandle, mAllocation);
