@@ -7,6 +7,7 @@
 #include "../../include/graphics/IRenderer.h"
 #include "../../include/graphics/CBaseShader.h"
 #include <unordered_map>
+#include <algorithm>
 
 
 namespace TDEngine2
@@ -85,6 +86,24 @@ namespace TDEngine2
 		return Wrench::TOkValue<TPtr<IShaderCache>>(pShaderCache);
 	}
 
+	E_RESULT_CODE CBaseGraphicsObjectManager::DestroyBuffer(TBufferHandleId bufferHandle)
+	{
+		if (TBufferHandleId::Invalid == bufferHandle)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		const USIZE bufferPlacementIndex = static_cast<USIZE>(bufferHandle);
+		if (bufferPlacementIndex >= mBuffersArray.size())
+		{
+			return RC_FAIL;
+		}
+
+		mBuffersArray[bufferPlacementIndex] = nullptr;
+
+		return RC_OK;
+	}
+
 	IGraphicsContext* CBaseGraphicsObjectManager::GetGraphicsContext() const
 	{
 		return mpGraphicsContext;
@@ -97,18 +116,35 @@ namespace TDEngine2
 
 	TPtr<IBuffer> CBaseGraphicsObjectManager::GetBufferPtr(TBufferHandleId handle)
 	{
-		auto it = mBufferHandlesTable.find(handle);
-		return it == mBufferHandlesTable.cend() ? nullptr : mBuffersArray[it->second];
+		if (TBufferHandleId::Invalid == handle)
+		{
+			return nullptr;
+		}
+
+		const USIZE bufferPlacementIndex = static_cast<USIZE>(handle);
+		if (bufferPlacementIndex >= mBuffersArray.size())
+		{
+			return nullptr;
+		}
+
+		return mBuffersArray[bufferPlacementIndex];
 	}
 
 	TBufferHandleId CBaseGraphicsObjectManager::_insertBuffer(TPtr<IBuffer> pBuffer)
 	{
-		mBuffersArray.emplace_back(pBuffer);
+		auto it = std::find(mBuffersArray.begin(), mBuffersArray.end(), nullptr);
+		const USIZE placementIndex = static_cast<USIZE>(std::distance(mBuffersArray.begin(), it));
 
-		const TBufferHandleId handle = static_cast<TBufferHandleId>(mBuffersArray.size() - 1);
-		mBufferHandlesTable.emplace(handle, mBuffersArray.size() - 1);
-		
-		return handle;
+		if (placementIndex >= mBuffersArray.size())
+		{
+			mBuffersArray.emplace_back(pBuffer);
+		}
+		else
+		{
+			mBuffersArray[placementIndex] = pBuffer;
+		}
+
+		return static_cast<TBufferHandleId>(placementIndex);
 	}
 
 	void CBaseGraphicsObjectManager::_insertVertexDeclaration(IVertexDeclaration* pVertDecl)

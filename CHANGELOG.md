@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.23] 2023-11-12
+
+### Added
+
+- The API of **IGraphicsObjectManager** was extended with a new public method DestroyBuffer.
+
+### Changed
+
+### Fixed
+
 ## [0.6.22] 2023-11-12
 
 ### Added

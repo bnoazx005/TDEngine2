@@ -73,6 +73,7 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext) = 0;
 
 			TDE2_API virtual TResult<TBufferHandleId> CreateBuffer(const TInitBufferParams& params) = 0;
+			TDE2_API virtual E_RESULT_CODE DestroyBuffer(TBufferHandleId bufferHandle) = 0;
 
 			/*!
 				\brief The method is a factory for creation objects of IVertexDeclaration's type

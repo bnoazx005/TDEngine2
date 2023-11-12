@@ -12,7 +12,6 @@
 #include "./../utils/CResourceContainer.h"
 #include <vector>
 #include <list>
-#include <unordered_map>
 
 
 namespace TDEngine2
@@ -59,6 +58,8 @@ namespace TDEngine2
 			TDE2_API TResult<IDebugUtility*> CreateDebugUtility(IResourceManager* pResourceManager, IRenderer* pRenderer) override;
 
 			TDE2_API TResult<TPtr<IShaderCache>> CreateShaderCache(IFileSystem* pFileSystem, bool isReadOnly = true) override;
+			
+			TDE2_API E_RESULT_CODE DestroyBuffer(TBufferHandleId bufferHandle) override;
 
 			/*!
 				\brief The method returns a pointer to IGraphicsContext
@@ -99,8 +100,7 @@ namespace TDEngine2
 		protected:
 			IGraphicsContext*        mpGraphicsContext;
 
-			TBuffersArray                              mBuffersArray;
-			std::unordered_map<TBufferHandleId, USIZE> mBufferHandlesTable;
+			TBuffersArray            mBuffersArray;
 
 			TVertexDeclarationsArray mVertexDeclarationsArray;
 
