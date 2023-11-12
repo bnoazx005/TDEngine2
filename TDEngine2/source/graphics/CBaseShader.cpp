@@ -157,7 +157,7 @@ namespace TDEngine2
 		U8 currUserBufferId = 0;
 		for (auto& currUniformBufferHandle : mUniformBuffers)
 		{
-			mpGraphicsContext->SetConstantBuffer(TotalNumberOfInternalConstantBuffers + currUserBufferId++, currUniformBufferHandle);
+			_bindUniformBuffer(TotalNumberOfInternalConstantBuffers + currUserBufferId++, currUniformBufferHandle);
 		}
 	}
 
@@ -267,6 +267,11 @@ namespace TDEngine2
 		}
 
 		return RC_OK;
+	}
+
+	void CBaseShader::_bindUniformBuffer(U32 slot, TBufferHandleId uniformsBufferHandle)
+	{
+		mpGraphicsContext->SetConstantBuffer(slot, uniformsBufferHandle);
 	}
 
 	const TPtr<IResourceLoader> CBaseShader::_getResourceLoader()

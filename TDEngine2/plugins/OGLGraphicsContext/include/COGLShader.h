@@ -79,6 +79,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _createUniformBuffers(const TShaderCompilerOutput* pCompilerData);
 
 			TDE2_API E_RESULT_CODE _createTexturesHashTable(const TShaderCompilerOutput* pCompilerData) override;
+
+			TDE2_API void _bindUniformBuffer(U32 slot, TBufferHandleId uniformsBufferHandle) override;
 		protected:
 			GLuint             mShaderHandler;
 

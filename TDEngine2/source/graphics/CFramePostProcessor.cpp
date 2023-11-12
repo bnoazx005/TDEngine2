@@ -64,7 +64,7 @@ namespace TDEngine2
 		if (auto vertexBufferResult = desc.mpGraphicsObjectManager->CreateBuffer(
 			{					
 				E_BUFFER_USAGE_TYPE::STATIC,
-				E_BUFFER_TYPE::BT_CONSTANT_BUFFER,
+				E_BUFFER_TYPE::BT_VERTEX_BUFFER,
 				3 * sizeof(TVector4),
 				pScreenTriangleVerts
 			}))

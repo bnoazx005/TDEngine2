@@ -305,6 +305,12 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	void COGLShader::_bindUniformBuffer(U32 slot, TBufferHandleId uniformsBufferHandle)
+	{
+		CBaseShader::_bindUniformBuffer(slot, uniformsBufferHandle);
+		GL_SAFE_VOID_CALL(glUniformBlockBinding(mShaderHandler, mUniformBuffersMap[slot], slot));
+	}
+
 
 	TDE2_API IShader* CreateOGLShader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
 	{
