@@ -100,10 +100,7 @@ namespace TDEngine2
 		}
 
 		mBufferSize = params.mTotalBufferSize;
-		mUsedBytesSize = 0;
-
 		mBufferUsageType = params.mUsageType;
-
 		mBufferType = params.mBufferType;
 
 		auto createBufferResourceResult = CreateBufferInternal(internalD3D11Data.mp3dDevice, params, false);
@@ -133,7 +130,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CD3D11Buffer::Map(E_BUFFER_MAP_TYPE mapType)
+	E_RESULT_CODE CD3D11Buffer::Map(E_BUFFER_MAP_TYPE mapType, USIZE offset)
 	{
 		D3D11_MAP innerMapType = D3D11_MAP_WRITE_DISCARD;
 
@@ -160,6 +157,8 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		mpLockDataPtr = reinterpret_cast<void*>(reinterpret_cast<U8*>(mMappedBufferData.pData) + offset);
+
 		return RC_OK;
 	}
 
@@ -175,23 +174,19 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		void* pMappedBufferDataPtr = mMappedBufferData.pData;
-
-		if (!mMappedBufferData.pData)
+		if (!mpLockDataPtr)
 		{
 			return RC_FAIL;
 		}
 
-		memcpy(pMappedBufferDataPtr, pData, size);
-
-		mUsedBytesSize += size;
+		memcpy(mpLockDataPtr, pData, size);
 
 		return RC_OK;
 	}
 
 	void* CD3D11Buffer::Read()
 	{
-		return mMappedBufferData.pData;
+		return mpLockDataPtr;
 	}
 
 	E_RESULT_CODE CD3D11Buffer::Resize(USIZE newSize)
@@ -205,7 +200,7 @@ namespace TDEngine2
 			return createBufferHandleResult.GetError();
 		}
 
-		if (mMappedBufferData.pData)
+		if (mpLockDataPtr)
 		{
 			Unmap();
 		}
@@ -232,11 +227,6 @@ namespace TDEngine2
 	USIZE CD3D11Buffer::GetSize() const
 	{
 		return mBufferSize;
-	}
-
-	USIZE CD3D11Buffer::GetUsedSize() const
-	{
-		return mUsedBytesSize;
 	}
 
 	ID3D11DeviceContext* CD3D11Buffer::GetDeviceContext() const

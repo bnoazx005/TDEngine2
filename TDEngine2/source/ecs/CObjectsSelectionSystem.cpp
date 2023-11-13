@@ -369,7 +369,7 @@ namespace TDEngine2
 			auto pUIElementsVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(mUIElementsVertexBufferHandle);
 
 			/// \note If there is no a created vertex buffer or we go out of space extend/create it
-			if (!pUIElementsVertexBuffer || (pUIElementsVertexBuffer && pUIElementsVertexBuffer->GetUsedSize() >= pUIElementsVertexBuffer->GetSize()))
+			if (!pUIElementsVertexBuffer || (pUIElementsVertexBuffer && pUIElementsVertexBuffer->GetSize() <= mUIElementsContext.mpRenderables.size() * 4))
 			{
 				if (!pUIElementsVertexBuffer)
 				{

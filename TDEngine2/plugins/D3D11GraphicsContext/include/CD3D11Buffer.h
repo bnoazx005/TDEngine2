@@ -44,7 +44,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Map(E_BUFFER_MAP_TYPE mapType) override;
+			TDE2_API E_RESULT_CODE Map(E_BUFFER_MAP_TYPE mapType, USIZE offset = 0) override;
 
 			/*!
 				\brief The method unlocks a buffer, so GPU can access to it after that operation
@@ -96,12 +96,6 @@ namespace TDEngine2
 			TDE2_API USIZE GetSize() const override;
 
 			/*!
-				\return The method returns an amount of occupied buffer's bytes
-			*/
-
-			TDE2_API USIZE GetUsedSize() const override;
-
-			/*!
 				\brief The method returns a pointer to ID3D11DeviceContext implementation
 
 				\return The method returns a pointer to ID3D11DeviceContext implementation
@@ -121,7 +115,6 @@ namespace TDEngine2
 			ID3D11Buffer*            mpBufferInstance;
 			
 			USIZE                    mBufferSize;
-			USIZE                    mUsedBytesSize;
 			USIZE                    mElementStrideSize;
 
 			E_BUFFER_USAGE_TYPE      mBufferUsageType;
@@ -131,6 +124,7 @@ namespace TDEngine2
 			U32                      mAccessFlags;
 
 			D3D11_MAPPED_SUBRESOURCE mMappedBufferData;
+			void*                    mpLockDataPtr;
 
 			TInitBufferParams        mInitParams;
 	};

@@ -123,7 +123,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Map(E_BUFFER_MAP_TYPE mapType) = 0;
+			TDE2_API virtual E_RESULT_CODE Map(E_BUFFER_MAP_TYPE mapType, USIZE offset = 0) = 0;
 
 			/*!
 				\brief The method unlocks a buffer, so GPU can access to it after that operation
@@ -165,12 +165,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual USIZE GetSize() const = 0;
-
-			/*!
-				\return The method returns an amount of occupied buffer's bytes
-			*/
-
-			TDE2_API virtual USIZE GetUsedSize() const = 0;
 
 			TDE2_API virtual const TInitBufferParams& GetParams() const = 0;
 		protected:

@@ -57,10 +57,7 @@ namespace TDEngine2
 		}
 
 		mBufferSize = params.mTotalBufferSize;
-		mUsedBytesSize = 0;
-
 		mBufferUsageType = params.mUsageType;
-
 		mBufferType = params.mBufferType;
 
 		mpGraphicsContextImpl = dynamic_cast<CVulkanGraphicsContext*>(pGraphicsContext);
@@ -129,7 +126,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CVulkanBuffer::Map(E_BUFFER_MAP_TYPE mapType)
+	E_RESULT_CODE CVulkanBuffer::Map(E_BUFFER_MAP_TYPE mapType, USIZE offset)
 	{
 		if (E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD == mapType && mBufferUsageType != E_BUFFER_USAGE_TYPE::DYNAMIC)
 		{
@@ -138,6 +135,7 @@ namespace TDEngine2
 		}
 
 		VK_SAFE_CALL(vmaMapMemory(mAllocator, mAllocation, &mpMappedBufferData));
+		mpMappedBufferData = reinterpret_cast<void*>(reinterpret_cast<U8*>(mpMappedBufferData) + offset);
 
 #if TDE2_DEBUG_MODE
 		++mLockChecker;
@@ -164,8 +162,6 @@ namespace TDEngine2
 		}
 
 		memcpy(mpMappedBufferData, pData, size);
-
-		mUsedBytesSize += size;
 
 		return RC_OK;
 	}
@@ -207,11 +203,6 @@ namespace TDEngine2
 	USIZE CVulkanBuffer::GetSize() const
 	{
 		return mBufferSize;
-	}
-
-	USIZE CVulkanBuffer::GetUsedSize() const
-	{
-		return mUsedBytesSize;
 	}
 
 	VkBuffer CVulkanBuffer::GetBufferImpl()

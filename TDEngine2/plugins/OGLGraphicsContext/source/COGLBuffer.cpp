@@ -55,10 +55,7 @@ namespace TDEngine2
 		}
 
 		mBufferSize = params.mTotalBufferSize;
-		mUsedBytesSize = 0;
-
 		mBufferUsageType = params.mUsageType;
-
 		mBufferType = params.mBufferType;
 
 		auto createBufferHandleResult = CreateBufferInternal(mBufferType, mBufferUsageType, mBufferSize, params.mpDataPtr);
@@ -82,14 +79,14 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE COGLBuffer::Map(E_BUFFER_MAP_TYPE mapType)
+	E_RESULT_CODE COGLBuffer::Map(E_BUFFER_MAP_TYPE mapType, USIZE offset)
 	{
 		/// \todo GL_SAFE_CALL wrapper causes GL_INVALID_VALUE is raised by RenderDoc
 		/// but everything works well in standalone mode and within MSVC
 		glBindBuffer(GetBufferType(mBufferType), mBufferHandler);
 
-		mpMappedBufferData = glMapBuffer(GetBufferType(mBufferType), COGLMappings::GetBufferMapAccessType(mapType));
-
+		mpMappedBufferData = reinterpret_cast<void*>(reinterpret_cast<U8*>(glMapBuffer(GetBufferType(mBufferType), COGLMappings::GetBufferMapAccessType(mapType))) + offset);
+		
 #if TDE2_DEBUG_MODE
 		++mLockChecker;
 #endif
@@ -114,8 +111,6 @@ namespace TDEngine2
 		}
 
 		memcpy(mpMappedBufferData, pData, size);
-
-		mUsedBytesSize += size;
 
 		return RC_OK;
 	}
@@ -156,11 +151,6 @@ namespace TDEngine2
 	USIZE COGLBuffer::GetSize() const
 	{
 		return mBufferSize;
-	}
-
-	USIZE COGLBuffer::GetUsedSize() const
-	{
-		return mUsedBytesSize;
 	}
 
 	const TInitBufferParams& COGLBuffer::GetParams() const
