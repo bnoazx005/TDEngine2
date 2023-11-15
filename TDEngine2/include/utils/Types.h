@@ -845,4 +845,13 @@ namespace TDEngine2
 		U32 mHeight = 600;
 		U16 mRefreshRate = 60;
 	} TScreenResolutionInfo, *TScreenResolutionInfoPtr;
+
+
+	enum class E_BIND_GRAPHICS_TYPE : U32
+	{
+		BIND_RENDER_TARGET,
+		BIND_DEPTH_BUFFER,
+		BIND_SHADER_RESOURCE,
+		BIND_UNORDERED_ACCESS,
+	};
 }

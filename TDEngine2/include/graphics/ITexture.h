@@ -89,4 +89,95 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ITexture)
 	};
+
+
+	class IGraphicsContext;
+
+
+	enum class E_TEXTURE_IMPL_TYPE: U32
+	{
+		TEXTURE_2D,
+		TEXTURE_2D_ARRAY,
+		TEXTURE_3D,
+		CUBEMAP,
+	};
+
+
+	enum class E_TEXTURE_IMPL_USAGE_TYPE : U8
+	{
+		STAGING,
+		DYNAMIC,
+		STATIC,
+	};
+
+
+	TDE2_DECLARE_BITMASK_OPERATORS_INTERNAL(E_BIND_GRAPHICS_TYPE);
+
+
+	typedef struct TInitTextureImplParams
+	{
+		E_TEXTURE_IMPL_TYPE       mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
+		E_TEXTURE_IMPL_USAGE_TYPE mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+
+		U32                       mWidth  = 2;
+		U32                       mHeight = 2;
+		U32                       mDepth  = 1;
+
+		E_FORMAT_TYPE             mFormat = E_FORMAT_TYPE::FT_NORM_UBYTE4;
+		E_BIND_GRAPHICS_TYPE      mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE;
+
+		U32                       mNumOfMipLevels = 1;
+		U32                       mArraySize = 1;
+
+		U32                       mNumOfSamples = 1;
+		U32                       mSamplingQuality = 0;
+
+		TTextureSamplerDesc       mTexSamplerDesc;
+
+		bool                      mIsWriteable = false; ///< The field is used to make a texture writeable in a compute shader
+
+		std::string               mName;
+	} TInitTextureParams, *TInitTextureParamsPtr;
+
+
+	/*!
+		interface ITextureImpl
+
+		\brief The interface provides functionality of low-level texture concept. The difference between ITexture and ITextureImpl
+		is that the first is a high-level type that presents textures as loadable game resource where ITextureImpl is abstraction around
+		GAPI calls.
+
+		There are a few interfaces for cubemaps/atlases/3D textures. ITextureImpl provides access to all functionality for all that types.
+	*/
+
+	class ITextureImpl: public virtual IBaseObject
+	{
+		public:
+			/*!
+				\brief The method initializes an initial state of a texture
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, const TInitTextureImplParams& params) = 0;
+
+#if 0 // \todo Maybe it's better to move to IGraphicsContext
+			TDE2_API virtual E_RESULT_CODE Update() = 0;
+			TDE2_API virtual E_RESULT_CODE Blit(ITextureImpl* pTextureImpl) = 0;
+#endif
+
+			/*!
+				\brief The method allows to resize internal resources that corresponds to the given texture
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Resize(U32 width, U32 height, U32 depth = 1) = 0;
+
+			TDE2_API virtual E_RESULT_CODE SetSamplerDesc(const TTextureSamplerDesc& samplerDesc) = 0;
+
+			TDE2_API virtual void* GetInternalHandle() = 0;
+
+			TDE2_API virtual const TInitTextureParams& GetParams() const = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(ITextureImpl)
+	};
 }
