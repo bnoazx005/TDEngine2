@@ -209,4 +209,43 @@ namespace TDEngine2
 
 			IGraphicsContext* mpGraphicsContext;
 	};
+
+
+	TDE2_API ITextureImpl* CreateOGLTextureImpl(IGraphicsContext* pGraphicsContext, const TInitTextureImplParams& params, E_RESULT_CODE& result);
+
+
+	/*!
+		class COGLTextureImpl
+	*/
+
+	class COGLTextureImpl : public virtual ITextureImpl, public CBaseObject
+	{
+		public:
+			friend TDE2_API ITextureImpl* CreateOGLTextureImpl(IGraphicsContext*, const TInitTextureImplParams&, E_RESULT_CODE&);
+		public:
+			/*!
+				\brief The method initializes an initial state of a texture
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, const TInitTextureImplParams& params) override;
+
+			TDE2_API E_RESULT_CODE Resize(U32 width, U32 height, U32 depth = 1) override;
+
+			TDE2_API E_RESULT_CODE SetSamplerDesc(const TTextureSamplerDesc& samplerDesc) override;
+
+			TDE2_API void* GetInternalHandle() override;
+
+			TDE2_API const TInitTextureParams& GetParams() const override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLTextureImpl)
+
+			TDE2_API E_RESULT_CODE _onInitInternal();
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
+		protected:
+			TInitTextureImplParams     mInitParams;
+
+			GLuint mTextureHandle = 0;
+	};
 }

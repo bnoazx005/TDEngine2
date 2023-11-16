@@ -228,6 +228,8 @@ namespace TDEngine2
 
 			TDE2_API static GLenum GetCubemapFace(E_CUBEMAP_FACE faceType);
 
+			TDE2_API static GLenum GetTextureType(E_TEXTURE_IMPL_TYPE implType);
+
 			/*!
 				\brief The function maps internal comparison function's type into OGL specific one
 

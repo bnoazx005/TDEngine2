@@ -97,50 +97,14 @@ namespace TDEngine2
 
 	TDE2_API ICubemapTexture* CreateOGLCubemapTexture(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
 	{
-		COGLCubemapTexture* pCubemapTextureInstance = new (std::nothrow) COGLCubemapTexture();
-
-		if (!pCubemapTextureInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pCubemapTextureInstance->Init(pResourceManager, pGraphicsContext, name);
-
-		if (result != RC_OK)
-		{
-			delete pCubemapTextureInstance;
-
-			pCubemapTextureInstance = nullptr;
-		}
-
-		return pCubemapTextureInstance;
+		return CREATE_IMPL(ICubemapTexture, COGLCubemapTexture, result, pResourceManager, pGraphicsContext, name);
 	}
 
 
 	TDE2_API ICubemapTexture* CreateOGLCubemapTexture(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 													  const TTexture2DParameters& params, E_RESULT_CODE& result)
 	{
-		COGLCubemapTexture* pTexture2DInstance = new (std::nothrow) COGLCubemapTexture();
-
-		if (!pTexture2DInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pTexture2DInstance->Init(pResourceManager, pGraphicsContext, name, params);
-
-		if (result != RC_OK)
-		{
-			delete pTexture2DInstance;
-
-			pTexture2DInstance = nullptr;
-		}
-
-		return pTexture2DInstance;
+		return CREATE_IMPL(ICubemapTexture, COGLCubemapTexture, result, pResourceManager, pGraphicsContext, name, params);
 	}
 
 
@@ -200,24 +164,6 @@ namespace TDEngine2
 
 	TDE2_API IResourceFactory* CreateOGLCubemapTextureFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
 	{
-		COGLCubemapTextureFactory* pCubemapTextureFactoryInstance = new (std::nothrow) COGLCubemapTextureFactory();
-
-		if (!pCubemapTextureFactoryInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pCubemapTextureFactoryInstance->Init(pResourceManager, pGraphicsContext);
-
-		if (result != RC_OK)
-		{
-			delete pCubemapTextureFactoryInstance;
-
-			pCubemapTextureFactoryInstance = nullptr;
-		}
-
-		return pCubemapTextureFactoryInstance;
+		return CREATE_IMPL(IResourceFactory, COGLCubemapTextureFactory, result, pResourceManager, pGraphicsContext);
 	}
 }

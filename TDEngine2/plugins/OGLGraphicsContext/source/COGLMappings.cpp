@@ -703,6 +703,24 @@ namespace TDEngine2
 		return 0x0;
 	}
 
+	GLenum COGLMappings::GetTextureType(E_TEXTURE_IMPL_TYPE implType)
+	{
+		switch (implType)
+		{
+			case E_TEXTURE_IMPL_TYPE::CUBEMAP:
+				return GL_TEXTURE_CUBE_MAP;
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D:
+				return GL_TEXTURE_2D;
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D_ARRAY:
+				return GL_TEXTURE_2D_ARRAY;
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_3D:
+				return GL_TEXTURE_3D;
+		}
+
+		TDE2_UNREACHABLE();
+		return 0;
+	}
+
 	GLenum COGLMappings::GetComparisonFunc(const E_COMPARISON_FUNC& func)
 	{
 		switch (func)
