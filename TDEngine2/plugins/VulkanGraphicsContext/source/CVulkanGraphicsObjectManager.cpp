@@ -29,6 +29,12 @@ namespace TDEngine2
 		return Wrench::TOkValue<TBufferHandleId>(_insertBuffer(pBuffer));
 	}
 
+	TResult<TTextureHandleId> CVulkanGraphicsObjectManager::CreateTexture(const TInitTextureImplParams& params)
+	{
+		TDE2_UNIMPLEMENTED();
+		return Wrench::TErrValue<E_RESULT_CODE>(RC_NOT_IMPLEMENTED_YET);
+	}
+
 	TResult<IVertexDeclaration*> CVulkanGraphicsObjectManager::CreateVertexDeclaration()
 	{
 		E_RESULT_CODE result = RC_OK;

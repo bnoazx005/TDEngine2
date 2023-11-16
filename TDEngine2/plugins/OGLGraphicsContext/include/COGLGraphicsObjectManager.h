@@ -44,6 +44,7 @@ namespace TDEngine2
 			typedef CResourceContainer<TRasterizerStateDesc>   TRasterizerStatesArray;
 		public:
 			TDE2_API TResult<TBufferHandleId> CreateBuffer(const TInitBufferParams& params) override;
+			TDE2_API TResult<TTextureHandleId> CreateTexture(const TInitTextureImplParams& params) override;
 
 			/*!
 				\brief The method is a factory for creation objects of IVertexDeclaration's type

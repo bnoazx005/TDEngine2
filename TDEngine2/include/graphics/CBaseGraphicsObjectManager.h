@@ -29,6 +29,7 @@ namespace TDEngine2
 	{
 		protected:
 			typedef std::vector<TPtr<IBuffer>>          TBuffersArray;
+			typedef std::vector<TPtr<ITextureImpl>>     TTexturesArray;
 
 			typedef std::list<U32>                      TFreeEntitiesRegistry;
 
@@ -60,6 +61,7 @@ namespace TDEngine2
 			TDE2_API TResult<TPtr<IShaderCache>> CreateShaderCache(IFileSystem* pFileSystem, bool isReadOnly = true) override;
 			
 			TDE2_API E_RESULT_CODE DestroyBuffer(TBufferHandleId bufferHandle) override;
+			TDE2_API E_RESULT_CODE DestroyTexture(TTextureHandleId textureHandle) override;
 
 			/*!
 				\brief The method returns a pointer to IGraphicsContext
@@ -77,10 +79,12 @@ namespace TDEngine2
 			TDE2_API static E_DEFAULT_SHADER_TYPE GetDefaultShaderTypeByName(const std::string& name);
 
 			TDE2_API TPtr<IBuffer> GetBufferPtr(TBufferHandleId handle) override;
+			TDE2_API TPtr<ITextureImpl> GetTexturePtr(TTextureHandleId handle) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseGraphicsObjectManager)
 
 			TDE2_API TBufferHandleId _insertBuffer(TPtr<IBuffer> pBuffer);
+			TDE2_API TTextureHandleId _insertTexture(TPtr<ITextureImpl> pTextureImpl);
 
 			TDE2_API void _insertVertexDeclaration(IVertexDeclaration* pVertDecl);
 
@@ -101,6 +105,7 @@ namespace TDEngine2
 			IGraphicsContext*        mpGraphicsContext;
 
 			TBuffersArray            mBuffersArray;
+			TTexturesArray           mTexturesArray;
 
 			TVertexDeclarationsArray mVertexDeclarationsArray;
 

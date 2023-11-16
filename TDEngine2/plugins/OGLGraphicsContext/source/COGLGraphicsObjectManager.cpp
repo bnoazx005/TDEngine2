@@ -1,5 +1,6 @@
 #include "./../include/COGLGraphicsObjectManager.h"
 #include "./../include/COGLBuffer.h"
+#include "./../include/COGLTexture2D.h"
 #include "./../include/COGLVertexDeclaration.h"
 #include "./../include/COGLMappings.h"
 #include "./../include/COGLUtils.h"
@@ -26,6 +27,19 @@ namespace TDEngine2
 		}
 
 		return Wrench::TOkValue<TBufferHandleId>(_insertBuffer(pBuffer));
+	}
+
+	TResult<TTextureHandleId> COGLGraphicsObjectManager::CreateTexture(const TInitTextureImplParams& params)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		TPtr<ITextureImpl> pTexture = TPtr<ITextureImpl>(CreateOGLTextureImpl(mpGraphicsContext, params, result));
+		if (!pTexture || RC_OK != result)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
+		}
+
+		return Wrench::TOkValue<TTextureHandleId>(_insertTexture(pTexture));
 	}
 
 	TResult<IVertexDeclaration*> COGLGraphicsObjectManager::CreateVertexDeclaration()

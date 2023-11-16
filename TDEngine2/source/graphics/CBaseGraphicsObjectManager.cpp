@@ -104,6 +104,24 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CBaseGraphicsObjectManager::DestroyTexture(TTextureHandleId textureHandle)
+	{
+		if (TTextureHandleId::Invalid == textureHandle)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		const USIZE bufferPlacementIndex = static_cast<USIZE>(textureHandle);
+		if (bufferPlacementIndex >= mTexturesArray.size())
+		{
+			return RC_FAIL;
+		}
+
+		mTexturesArray[bufferPlacementIndex] = nullptr;
+
+		return RC_OK;
+	}
+
 	IGraphicsContext* CBaseGraphicsObjectManager::GetGraphicsContext() const
 	{
 		return mpGraphicsContext;
@@ -130,6 +148,22 @@ namespace TDEngine2
 		return mBuffersArray[bufferPlacementIndex];
 	}
 
+	TPtr<ITextureImpl> CBaseGraphicsObjectManager::GetTexturePtr(TTextureHandleId handle)
+	{
+		if (TTextureHandleId::Invalid == handle)
+		{
+			return nullptr;
+		}
+
+		const USIZE bufferPlacementIndex = static_cast<USIZE>(handle);
+		if (bufferPlacementIndex >= mTexturesArray.size())
+		{
+			return nullptr;
+		}
+
+		return mTexturesArray[bufferPlacementIndex];
+	}
+
 	TBufferHandleId CBaseGraphicsObjectManager::_insertBuffer(TPtr<IBuffer> pBuffer)
 	{
 		auto it = std::find(mBuffersArray.begin(), mBuffersArray.end(), nullptr);
@@ -145,6 +179,23 @@ namespace TDEngine2
 		}
 
 		return static_cast<TBufferHandleId>(placementIndex);
+	}
+
+	TTextureHandleId CBaseGraphicsObjectManager::_insertTexture(TPtr<ITextureImpl> pTextureImpl)
+	{
+		auto it = std::find(mTexturesArray.begin(), mTexturesArray.end(), nullptr);
+		const USIZE placementIndex = static_cast<USIZE>(std::distance(mTexturesArray.begin(), it));
+
+		if (placementIndex >= mTexturesArray.size())
+		{
+			mTexturesArray.emplace_back(pTextureImpl);
+		}
+		else
+		{
+			mTexturesArray[placementIndex] = pTextureImpl;
+		}
+
+		return static_cast<TTextureHandleId>(placementIndex);
 	}
 
 	void CBaseGraphicsObjectManager::_insertVertexDeclaration(IVertexDeclaration* pVertDecl)

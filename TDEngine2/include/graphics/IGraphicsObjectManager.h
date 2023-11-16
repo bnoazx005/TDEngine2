@@ -28,12 +28,15 @@ namespace TDEngine2
 	class IShaderCache;
 	class IFileSystem;
 	class IBuffer;
+	class ITextureImpl;
 	struct TStructuredBuffersInitParams;
 	struct TInitBufferParams;
+	struct TInitTextureImplParams;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IShaderCache);
 	TDE2_DECLARE_SCOPED_PTR(IBuffer);
+	TDE2_DECLARE_SCOPED_PTR(ITextureImpl);
 
 
 	/*!
@@ -49,6 +52,7 @@ namespace TDEngine2
 
 
 	TDE2_DECLARE_HANDLE_TYPE(TBufferHandleId);
+	TDE2_DECLARE_HANDLE_TYPE(TTextureHandleId);
 
 
 	/*!
@@ -74,6 +78,9 @@ namespace TDEngine2
 
 			TDE2_API virtual TResult<TBufferHandleId> CreateBuffer(const TInitBufferParams& params) = 0;
 			TDE2_API virtual E_RESULT_CODE DestroyBuffer(TBufferHandleId bufferHandle) = 0;
+
+			TDE2_API virtual TResult<TTextureHandleId> CreateTexture(const TInitTextureImplParams& params) = 0;
+			TDE2_API virtual E_RESULT_CODE DestroyTexture(TTextureHandleId textureHandle) = 0;
 
 			/*!
 				\brief The method is a factory for creation objects of IVertexDeclaration's type
@@ -136,6 +143,7 @@ namespace TDEngine2
 			TDE2_API virtual TResult<TPtr<IShaderCache>> CreateShaderCache(IFileSystem* pFileSystem, bool isReadOnly = true) = 0;
 
 			TDE2_API virtual TPtr<IBuffer> GetBufferPtr(TBufferHandleId handle) = 0;
+			TDE2_API virtual TPtr<ITextureImpl> GetTexturePtr(TTextureHandleId handle) = 0;
 
 			/*!
 				\brief The method returns a pointer to IGraphicsContext

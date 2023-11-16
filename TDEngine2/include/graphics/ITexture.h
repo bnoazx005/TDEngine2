@@ -161,11 +161,6 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, const TInitTextureImplParams& params) = 0;
 
-#if 0 // \todo Maybe it's better to move to IGraphicsContext
-			TDE2_API virtual E_RESULT_CODE Update() = 0;
-			TDE2_API virtual E_RESULT_CODE Blit(ITextureImpl* pTextureImpl) = 0;
-#endif
-
 			/*!
 				\brief The method allows to resize internal resources that corresponds to the given texture
 			*/

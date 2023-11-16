@@ -1,5 +1,6 @@
 #include "../include/CD3D11GraphicsObjectManager.h"
 #include "../include/CD3D11Buffer.h"
+#include "../include/CD3D11Texture2D.h"
 #include "../include/CD3D11VertexDeclaration.h"
 #include "../include/CD3D11Mappings.h"
 #include "../include/CD3D11Utils.h"
@@ -30,7 +31,20 @@ namespace TDEngine2
 
 		return Wrench::TOkValue<TBufferHandleId>(_insertBuffer(pBuffer));
 	}
-	
+
+	TResult<TTextureHandleId> CD3D11GraphicsObjectManager::CreateTexture(const TInitTextureImplParams& params)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		TPtr<ITextureImpl> pTexture = TPtr<ITextureImpl>(CreateD3D11TextureImpl(mpGraphicsContext, params, result));
+		if (!pTexture || RC_OK != result)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
+		}
+
+		return Wrench::TOkValue<TTextureHandleId>(_insertTexture(pTexture));
+	}
+
 	TResult<IVertexDeclaration*> CD3D11GraphicsObjectManager::CreateVertexDeclaration()
 	{
 		E_RESULT_CODE result = RC_OK;

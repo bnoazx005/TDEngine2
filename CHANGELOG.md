@@ -7,11 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.23] 2023-11-13
+## [0.6.23] 2023-11-16
 
 ### Added
 
-- The API of **IGraphicsObjectManager** was extended with a new public method DestroyBuffer.
+- The API of **IGraphicsObjectManager** was extended with new methods CreateBuffer/DestroyBuffer/GetBufferPtr and CreateTexture/DestroyTexture/GetTexturePtr.
 
 - The API of **IBuffer** was extended with new method Resize. Also GetUsedSize method was removed and the signature of Map method was changed.
 

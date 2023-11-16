@@ -39,6 +39,7 @@ namespace TDEngine2
 			friend TDE2_API IGraphicsObjectManager* CreateVulkanGraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
 		public:
 			TDE2_API TResult<TBufferHandleId> CreateBuffer(const TInitBufferParams& params) override;
+			TDE2_API TResult<TTextureHandleId> CreateTexture(const TInitTextureImplParams& params) override;
 
 			/*!
 				\brief The method is a factory for creation objects of IVertexDeclaration's type
