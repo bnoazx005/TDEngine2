@@ -72,6 +72,8 @@ namespace TDEngine2
 			return result;
 		}
 
+		mpGraphicsObjectManagerImpl = dynamic_cast<CVulkanGraphicsObjectManager*>(mpGraphicsObjectManager.Get());
+
 		mIsInitialized = true;
 
 		return RC_OK;

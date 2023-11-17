@@ -551,11 +551,6 @@ namespace TDEngine2
 		return _onInitInternal();
 	}
 
-	E_RESULT_CODE CD3D11TextureImpl::SetSamplerDesc(const TTextureSamplerDesc& samplerDesc)
-	{
-		return RC_OK;
-	}
-
 	void* CD3D11TextureImpl::GetInternalHandle()
 	{
 		return nullptr;

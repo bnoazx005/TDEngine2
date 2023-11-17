@@ -16,9 +16,11 @@
 namespace TDEngine2
 {
 	class IEventManager;
+	class CD3D11GraphicsObjectManager;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IEventManager)
+	TDE2_DECLARE_SCOPED_PTR(IGraphicsObjectManager)
 
 
 	class CD3D11GraphicsContext : public IGraphicsContext, public IEventHandler, public CBaseObject
@@ -418,7 +420,8 @@ namespace TDEngine2
 
 			DXGI_FORMAT              mCurrBackBufferFormat;
 
-			IGraphicsObjectManager*  mpGraphicsObjectManager;
+			TPtr<IGraphicsObjectManager> mpGraphicsObjectManager = nullptr;
+			CD3D11GraphicsObjectManager* mpGraphicsObjectManagerD3D11Impl = nullptr;
 
 			TPtr<IWindowSystem>      mpWindowSystem;
 			TPtr<IEventManager>      mpEventManager;

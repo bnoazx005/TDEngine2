@@ -82,7 +82,8 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mpGraphicsObjectManager = CreateOGLGraphicsObjectManager(this, result);
+		mpGraphicsObjectManager = TPtr<IGraphicsObjectManager>(CreateOGLGraphicsObjectManager(this, result));
+		mpGraphicsObjectManagerImpl = dynamic_cast<COGLGraphicsObjectManager*>(mpGraphicsObjectManager.Get());
 
 		if (result != RC_OK)
 		{
@@ -124,7 +125,9 @@ namespace TDEngine2
 		GL_SAFE_CALL(glDeleteRenderbuffers(1, &mMainDepthStencilRenderbuffer));
 		GL_SAFE_CALL(glDeleteFramebuffers(1, &mMainFBOHandler));
 
-		E_RESULT_CODE result = mpGraphicsObjectManager->Free();
+		mpGraphicsObjectManager = nullptr;
+
+		E_RESULT_CODE result = RC_OK;
 		result = result | mpGLContextFactory->Free();
 
 		return result;
@@ -315,7 +318,7 @@ namespace TDEngine2
 			return;
 		}
 
-		GLuint internalSamplerId = dynamic_cast<COGLGraphicsObjectManager*>(mpGraphicsObjectManager)->GetTextureSampler(samplerId).Get();
+		GLuint internalSamplerId = mpGraphicsObjectManagerImpl->GetTextureSampler(samplerId).Get();
 		GL_SAFE_VOID_CALL(glBindSampler(slot, internalSamplerId));
 	}
 
@@ -327,7 +330,7 @@ namespace TDEngine2
 			return;
 		}
 
-		const TBlendStateDesc& blendStateDesc = dynamic_cast<COGLGraphicsObjectManager*>(mpGraphicsObjectManager)->GetBlendState(blendStateId).Get();
+		const TBlendStateDesc& blendStateDesc = mpGraphicsObjectManagerImpl->GetBlendState(blendStateId).Get();
 
 		auto stateFunction = blendStateDesc.mIsEnabled ? glEnable : glDisable;
 		GL_SAFE_VOID_CALL(stateFunction(GL_BLEND));
@@ -359,7 +362,7 @@ namespace TDEngine2
 			return;
 		}
 
-		const TDepthStencilStateDesc& depthStencilState = dynamic_cast<COGLGraphicsObjectManager*>(mpGraphicsObjectManager)->GetDepthStencilState(depthStencilStateId).Get();
+		const TDepthStencilStateDesc& depthStencilState = mpGraphicsObjectManagerImpl->GetDepthStencilState(depthStencilStateId).Get();
 
 		auto stateActivationFunction = depthStencilState.mIsDepthTestEnabled ? glEnable : glDisable;
 
@@ -389,7 +392,7 @@ namespace TDEngine2
 			return;
 		}
 
-		const TRasterizerStateDesc& stateDesc = dynamic_cast<COGLGraphicsObjectManager*>(mpGraphicsObjectManager)->GetRasterizerState(rasterizerStateId).Get();
+		const TRasterizerStateDesc& stateDesc = mpGraphicsObjectManagerImpl->GetRasterizerState(rasterizerStateId).Get();
 
 		auto stateActivationFunction = stateDesc.mCullMode != E_CULL_MODE::NONE ? glEnable : glDisable;
 		
@@ -493,7 +496,7 @@ namespace TDEngine2
 	
 	IGraphicsObjectManager* COGLGraphicsContext::GetGraphicsObjectManager() const
 	{
-		return mpGraphicsObjectManager;
+		return mpGraphicsObjectManagerImpl;
 	}
 
 	TPtr<IWindowSystem> COGLGraphicsContext::GetWindowSystem() const

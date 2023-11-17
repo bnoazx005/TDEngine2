@@ -123,7 +123,8 @@ namespace TDEngine2
 		mInternalDataObject.mD3D11 = { mp3dDevice, mp3dDeviceContext };
 #endif
 
-		mpGraphicsObjectManager = CreateD3D11GraphicsObjectManager(this, result);
+		mpGraphicsObjectManager = TPtr<IGraphicsObjectManager>(CreateD3D11GraphicsObjectManager(this, result));
+		mpGraphicsObjectManagerD3D11Impl = dynamic_cast<CD3D11GraphicsObjectManager*>(mpGraphicsObjectManager.Get());
 
 		if (result != RC_OK)
 		{
@@ -160,7 +161,7 @@ namespace TDEngine2
 		pAnnotation->Release();
 #endif
 
-		result = result | mpGraphicsObjectManager->Free();
+		mpGraphicsObjectManager = nullptr;
 		
 		result = result | SafeReleaseCOMPtr<ID3D11DepthStencilView>(&mpDefaultDepthStencilView);
 		result = result | SafeReleaseCOMPtr<ID3D11Texture2D>(&mpDefaultDepthStencilBuffer);
@@ -402,7 +403,7 @@ namespace TDEngine2
 			return;
 		}
 
-		ID3D11SamplerState* pSamplerState = dynamic_cast<CD3D11GraphicsObjectManager*>(mpGraphicsObjectManager)->GetTextureSampler(samplerId).Get();
+		ID3D11SamplerState* pSamplerState = mpGraphicsObjectManagerD3D11Impl->GetTextureSampler(samplerId).Get();
 
 		mp3dDeviceContext->VSSetSamplers(slot, 1, &pSamplerState);
 		mp3dDeviceContext->PSSetSamplers(slot, 1, &pSamplerState);
@@ -418,7 +419,7 @@ namespace TDEngine2
 			return;
 		}
 
-		ID3D11BlendState* pBlendState = dynamic_cast<CD3D11GraphicsObjectManager*>(mpGraphicsObjectManager)->GetBlendState(blendStateId).Get();
+		ID3D11BlendState* pBlendState = mpGraphicsObjectManagerD3D11Impl->GetBlendState(blendStateId).Get();
 		
 		// \todo the second argument is not used now, but later it should be parametrized
 		mp3dDeviceContext->OMSetBlendState(pBlendState, nullptr, 0xFFFFFFFF);
@@ -432,7 +433,7 @@ namespace TDEngine2
 			return;
 		}
 
-		ID3D11DepthStencilState* pDepthStencilState = dynamic_cast<CD3D11GraphicsObjectManager*>(mpGraphicsObjectManager)->GetDepthStencilState(depthStencilStateId).Get();
+		ID3D11DepthStencilState* pDepthStencilState = mpGraphicsObjectManagerD3D11Impl->GetDepthStencilState(depthStencilStateId).Get();
 
 		// \todo replace 0xff with second argument for the method
 		mp3dDeviceContext->OMSetDepthStencilState(pDepthStencilState, stencilRef);
@@ -446,7 +447,7 @@ namespace TDEngine2
 			return;
 		}
 
-		ID3D11RasterizerState* pRasterizerState = dynamic_cast<CD3D11GraphicsObjectManager*>(mpGraphicsObjectManager)->GetRasterizerState(rasterizerStateId).Get();
+		ID3D11RasterizerState* pRasterizerState = mpGraphicsObjectManagerD3D11Impl->GetRasterizerState(rasterizerStateId).Get();
 		mp3dDeviceContext->RSSetState(pRasterizerState);
 	}
 
@@ -510,7 +511,7 @@ namespace TDEngine2
 
 	IGraphicsObjectManager* CD3D11GraphicsContext::GetGraphicsObjectManager() const
 	{
-		return mpGraphicsObjectManager;
+		return mpGraphicsObjectManagerD3D11Impl;
 	}
 	
 	F32 CD3D11GraphicsContext::GetPositiveZAxisDirection() const

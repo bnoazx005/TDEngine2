@@ -317,11 +317,6 @@ namespace TDEngine2
 		return _onInitInternal();
 	}
 
-	E_RESULT_CODE COGLTextureImpl::SetSamplerDesc(const TTextureSamplerDesc& samplerDesc)
-	{
-		return RC_OK;
-	}
-
 	void* COGLTextureImpl::GetInternalHandle()
 	{
 		return nullptr;

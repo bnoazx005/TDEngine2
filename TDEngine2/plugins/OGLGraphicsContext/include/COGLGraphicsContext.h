@@ -16,6 +16,10 @@ namespace TDEngine2
 	class IOGLContextFactory;
 	class IEventManager;
 	class IRenderTarget;
+	class COGLGraphicsObjectManager;
+
+
+	TDE2_DECLARE_SCOPED_PTR(IGraphicsObjectManager)
 
 
 	/// A pointer to function that creates GL context based on platform
@@ -408,7 +412,8 @@ namespace TDEngine2
 			TCreateGLContextFactoryCallback mGLContextFactoryCallback;
 			TWindowSystemInternalData       mWindowInternalData;
 
-			IGraphicsObjectManager*         mpGraphicsObjectManager;
+			TPtr<IGraphicsObjectManager> mpGraphicsObjectManager = nullptr;
+			COGLGraphicsObjectManager*   mpGraphicsObjectManagerImpl = nullptr;
 
 			TPtr<IWindowSystem>             mpWindowSystem;
 			TPtr<IEventManager>             mpEventManager;

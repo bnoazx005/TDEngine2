@@ -21,10 +21,12 @@ namespace TDEngine2
 {
 	class IEventManager;
 	class IWindowSurfaceFactory;
+	class CVulkanGraphicsObjectManager;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IEventManager)
 	TDE2_DECLARE_SCOPED_PTR(IWindowSurfaceFactory)
+	TDE2_DECLARE_SCOPED_PTR(IGraphicsObjectManager)
 
 
 	struct TQueuesCreateInfo
@@ -440,6 +442,8 @@ namespace TDEngine2
 			TPtr<IWindowSurfaceFactory> mpWindowSurfaceFactory = nullptr;
 			
 			mutable TPtr<IGraphicsObjectManager> mpGraphicsObjectManager = nullptr;
+			CVulkanGraphicsObjectManager*        mpGraphicsObjectManagerImpl = nullptr;
+
 
 			TGraphicsCtxInternalData mInternalDataObject;
 
