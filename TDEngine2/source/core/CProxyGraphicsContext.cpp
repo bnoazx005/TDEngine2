@@ -112,6 +112,54 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CProxyGraphicsContext::SetTexture(U32 slot, TTextureHandleId textureHandle)
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] SetTexture");
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CProxyGraphicsContext::SetSampler(U32 slot, TTextureSamplerId samplerHandle)
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] SetSampler");
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CProxyGraphicsContext::UpdateTexture2D(TTextureHandleId textureHandle, const void* pData, USIZE dataSize)
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] UpdateTexture2D");
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CProxyGraphicsContext::UpdateTexture2DArray(TTextureHandleId textureHandle, const void* pData, USIZE dataSize)
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] UpdateTexture2DArray");
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CProxyGraphicsContext::UpdateCubemapTexture(TTextureHandleId textureHandle, const void* pData, USIZE dataSize)
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] UpdateCubemapTexture");
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CProxyGraphicsContext::CopyResource(TTextureHandleId sourceHandle, TTextureHandleId destHandle)
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] CopyResource");
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CProxyGraphicsContext::CopyResource(TBufferHandleId sourceHandle, TTextureHandleId destHandle)
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] CopyResource");
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CProxyGraphicsContext::CopyResource(TTextureHandleId sourceHandle, TBufferHandleId destHandle)
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] CopyResource");
+		return RC_OK;
+	}
+
 	void CProxyGraphicsContext::Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices)
 	{
 		LOG_MESSAGE("[ProxyGraphicsContext] Draw(E_PRIMITIVE_TOPOLOGY_TYPE, U32, U32)");
@@ -136,11 +184,6 @@ namespace TDEngine2
 	void CProxyGraphicsContext::DispatchCompute(U32 groupsCountX, U32 groupsCountY, U32 groupsCountZ)
 	{
 		LOG_MESSAGE("[ProxyGraphicsContext] DispatchCompute(U32, U32, U32)");
-	}
-
-	void CProxyGraphicsContext::BindTextureSampler(U32 slot, TTextureSamplerId samplerId)
-	{
-		LOG_MESSAGE("[ProxyGraphicsContext] BindTextureSampler( U32, TTextureSamplerId)");
 	}
 
 	void CProxyGraphicsContext::BindBlendState(TBlendStateId blendStateId)

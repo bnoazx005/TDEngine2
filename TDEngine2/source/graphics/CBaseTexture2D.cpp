@@ -144,7 +144,7 @@ namespace TDEngine2
 			mCurrTextureSamplerHandle = GetTextureSampleHandle(mpGraphicsContext, mTextureSamplerParams);
 		}
 
-		mpGraphicsContext->BindTextureSampler(slot, mCurrTextureSamplerHandle);
+		mpGraphicsContext->SetSampler(slot, mCurrTextureSamplerHandle);
 	}
 
 	void CBaseTexture2D::SetUWrapMode(const E_ADDRESS_MODE_TYPE& mode)

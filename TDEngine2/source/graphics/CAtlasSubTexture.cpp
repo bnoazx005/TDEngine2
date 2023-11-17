@@ -53,7 +53,7 @@ namespace TDEngine2
 			mCurrTextureSamplerHandle = GetTextureSampleHandle(mpGraphicsContext, mTextureSamplerParams);
 		}
 
-		mpGraphicsContext->BindTextureSampler(slot, mCurrTextureSamplerHandle);
+		mpGraphicsContext->SetSampler(slot, mCurrTextureSamplerHandle);
 
 		/// \note Bind the source texture
 		if (auto pOwnerAtlas = mpResourceManager->GetResource<ITextureAtlas>(mOwnerAtlasResourceHandle))

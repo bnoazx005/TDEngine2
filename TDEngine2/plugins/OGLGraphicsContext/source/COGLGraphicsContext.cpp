@@ -283,6 +283,55 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE COGLGraphicsContext::SetTexture(U32 slot, TTextureHandleId textureHandle)
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE COGLGraphicsContext::SetSampler(U32 slot, TTextureSamplerId samplerHandle)
+	{
+		if (samplerHandle == TTextureSamplerId::Invalid)
+		{
+			GL_SAFE_CALL(glBindSampler(slot, 0));
+			return RC_OK;
+		}
+
+		GLuint internalSamplerId = mpGraphicsObjectManagerImpl->GetTextureSampler(samplerHandle).Get();
+		GL_SAFE_CALL(glBindSampler(slot, internalSamplerId));
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE COGLGraphicsContext::UpdateTexture2D(TTextureHandleId textureHandle, const void* pData, USIZE dataSize)
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE COGLGraphicsContext::UpdateTexture2DArray(TTextureHandleId textureHandle, const void* pData, USIZE dataSize)
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE COGLGraphicsContext::UpdateCubemapTexture(TTextureHandleId textureHandle, const void* pData, USIZE dataSize)
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE COGLGraphicsContext::CopyResource(TTextureHandleId sourceHandle, TTextureHandleId destHandle)
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE COGLGraphicsContext::CopyResource(TBufferHandleId sourceHandle, TTextureHandleId destHandle)
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE COGLGraphicsContext::CopyResource(TTextureHandleId sourceHandle, TBufferHandleId destHandle)
+	{
+		return RC_OK;
+	}
+
 	void COGLGraphicsContext::Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices)
 	{
 		GL_SAFE_VOID_CALL(glDrawArrays(COGLMappings::GetPrimitiveTopology(topology), startVertex, numOfVertices));
@@ -308,18 +357,6 @@ namespace TDEngine2
 	void COGLGraphicsContext::DispatchCompute(U32 groupsCountX, U32 groupsCountY, U32 groupsCountZ)
 	{
 		GL_SAFE_VOID_CALL(glDispatchCompute(groupsCountX, groupsCountY, groupsCountZ));
-	}
-
-	void COGLGraphicsContext::BindTextureSampler(U32 slot, TTextureSamplerId samplerId)
-	{
-		if (samplerId == TTextureSamplerId::Invalid)
-		{
-			GL_SAFE_VOID_CALL(glBindSampler(slot, 0));
-			return;
-		}
-
-		GLuint internalSamplerId = mpGraphicsObjectManagerImpl->GetTextureSampler(samplerId).Get();
-		GL_SAFE_VOID_CALL(glBindSampler(slot, internalSamplerId));
 	}
 
 	void COGLGraphicsContext::BindBlendState(TBlendStateId blendStateId)

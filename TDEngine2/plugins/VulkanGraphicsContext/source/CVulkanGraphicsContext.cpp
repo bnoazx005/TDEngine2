@@ -784,6 +784,46 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CVulkanGraphicsContext::SetTexture(U32 slot, TTextureHandleId textureHandle)
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CVulkanGraphicsContext::SetSampler(U32 slot, TTextureSamplerId samplerHandle)
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CVulkanGraphicsContext::UpdateTexture2D(TTextureHandleId textureHandle, const void* pData, USIZE dataSize)
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CVulkanGraphicsContext::UpdateTexture2DArray(TTextureHandleId textureHandle, const void* pData, USIZE dataSize)
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CVulkanGraphicsContext::UpdateCubemapTexture(TTextureHandleId textureHandle, const void* pData, USIZE dataSize)
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CVulkanGraphicsContext::CopyResource(TTextureHandleId sourceHandle, TTextureHandleId destHandle)
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CVulkanGraphicsContext::CopyResource(TBufferHandleId sourceHandle, TTextureHandleId destHandle)
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CVulkanGraphicsContext::CopyResource(TTextureHandleId sourceHandle, TBufferHandleId destHandle)
+	{
+		return RC_OK;
+	}
+
 	void CVulkanGraphicsContext::Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices)
 	{
 	}
@@ -802,10 +842,6 @@ namespace TDEngine2
 	}
 
 	void CVulkanGraphicsContext::DispatchCompute(U32 groupsCountX, U32 groupsCountY, U32 groupsCountZ)
-	{
-	}
-
-	void CVulkanGraphicsContext::BindTextureSampler(U32 slot, TTextureSamplerId samplerId)
 	{
 	}
 

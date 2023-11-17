@@ -551,9 +551,29 @@ namespace TDEngine2
 		return _onInitInternal();
 	}
 
-	void* CD3D11TextureImpl::GetInternalHandle()
+	ID3D11Resource* CD3D11TextureImpl::GetTextureResource()
 	{
-		return nullptr;
+		return mpTextureResource;
+	}
+
+	ID3D11ShaderResourceView* CD3D11TextureImpl::GetShaderResourceView()
+	{
+		return mpShaderTextureView;
+	}
+
+	ID3D11RenderTargetView* CD3D11TextureImpl::GetRenderTargetView()
+	{
+		return mpRenderTargetView;
+	}
+
+	ID3D11DepthStencilView* CD3D11TextureImpl::GetDepthStencilView()
+	{
+		return mpDepthStencilView;
+	}
+
+	ID3D11UnorderedAccessView* CD3D11TextureImpl::GetUnorderedAccessView()
+	{
+		return mpUavTextureView;
 	}
 
 	const TInitTextureParams& CD3D11TextureImpl::GetParams() const

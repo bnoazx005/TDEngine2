@@ -317,9 +317,9 @@ namespace TDEngine2
 		return _onInitInternal();
 	}
 
-	void* COGLTextureImpl::GetInternalHandle()
+	GLuint COGLTextureImpl::GetTextureHandle()
 	{
-		return nullptr;
+		return mTextureHandle;
 	}
 
 	const TInitTextureParams& COGLTextureImpl::GetParams() const

@@ -357,6 +357,63 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CD3D11GraphicsContext::SetTexture(U32 slot, TTextureHandleId textureHandle)
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D11GraphicsContext::SetSampler(U32 slot, TTextureSamplerId samplerHandle)
+	{
+		if (samplerHandle == TTextureSamplerId::Invalid)
+		{
+			mp3dDeviceContext->VSSetSamplers(slot, 1, nullptr);
+			mp3dDeviceContext->PSSetSamplers(slot, 1, nullptr);
+			mp3dDeviceContext->GSSetSamplers(slot, 1, nullptr);
+			mp3dDeviceContext->CSSetSamplers(slot, 1, nullptr);
+
+			return RC_OK;
+		}
+
+		ID3D11SamplerState* pSamplerState = mpGraphicsObjectManagerD3D11Impl->GetTextureSampler(samplerHandle).Get();
+
+		mp3dDeviceContext->VSSetSamplers(slot, 1, &pSamplerState);
+		mp3dDeviceContext->PSSetSamplers(slot, 1, &pSamplerState);
+		mp3dDeviceContext->GSSetSamplers(slot, 1, &pSamplerState);
+		mp3dDeviceContext->CSSetSamplers(slot, 1, &pSamplerState);
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D11GraphicsContext::UpdateTexture2D(TTextureHandleId textureHandle, const void* pData, USIZE dataSize)
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D11GraphicsContext::UpdateTexture2DArray(TTextureHandleId textureHandle, const void* pData, USIZE dataSize)
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D11GraphicsContext::UpdateCubemapTexture(TTextureHandleId textureHandle, const void* pData, USIZE dataSize)
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D11GraphicsContext::CopyResource(TTextureHandleId sourceHandle, TTextureHandleId destHandle)
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D11GraphicsContext::CopyResource(TBufferHandleId sourceHandle, TTextureHandleId destHandle)
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D11GraphicsContext::CopyResource(TTextureHandleId sourceHandle, TBufferHandleId destHandle)
+	{
+		return RC_OK;
+	}
+
 	void CD3D11GraphicsContext::Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices)
 	{
 		mp3dDeviceContext->IASetPrimitiveTopology(CD3D11Mappings::GetPrimitiveTopology(topology));
@@ -389,26 +446,6 @@ namespace TDEngine2
 	void CD3D11GraphicsContext::DispatchCompute(U32 groupsCountX, U32 groupsCountY, U32 groupsCountZ)
 	{
 		mp3dDeviceContext->Dispatch(groupsCountX, groupsCountY, groupsCountZ);
-	}
-
-	void CD3D11GraphicsContext::BindTextureSampler(U32 slot, TTextureSamplerId samplerId)
-	{
-		if (samplerId == TTextureSamplerId::Invalid)
-		{
-			mp3dDeviceContext->VSSetSamplers(slot, 1, nullptr);
-			mp3dDeviceContext->PSSetSamplers(slot, 1, nullptr);
-			mp3dDeviceContext->GSSetSamplers(slot, 1, nullptr);
-			mp3dDeviceContext->CSSetSamplers(slot, 1, nullptr);
-
-			return;
-		}
-
-		ID3D11SamplerState* pSamplerState = mpGraphicsObjectManagerD3D11Impl->GetTextureSampler(samplerId).Get();
-
-		mp3dDeviceContext->VSSetSamplers(slot, 1, &pSamplerState);
-		mp3dDeviceContext->PSSetSamplers(slot, 1, &pSamplerState);
-		mp3dDeviceContext->GSSetSamplers(slot, 1, &pSamplerState);
-		mp3dDeviceContext->CSSetSamplers(slot, 1, &pSamplerState);
 	}
 
 	void CD3D11GraphicsContext::BindBlendState(TBlendStateId blendStateId)

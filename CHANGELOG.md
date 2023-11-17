@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.23] 2023-11-16
+## [0.6.23] 2023-11-17
 
 ### Added
 
@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The API of **IBuffer** was extended with new method Resize. Also GetUsedSize method was removed and the signature of Map method was changed.
 
 ### Changed
+
+- IGraphicsContext::BindTextureSampler was renamed into IGraphicsContext::SetSampler.
 
 ### Fixed
 

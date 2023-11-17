@@ -169,6 +169,21 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SetIndexBuffer(TBufferHandleId indexBufferHandle, U32 offset) override;
 			TDE2_API E_RESULT_CODE SetConstantBuffer(U32 slot, TBufferHandleId constantsBufferHandle) override;
 
+			TDE2_API E_RESULT_CODE SetTexture(U32 slot, TTextureHandleId textureHandle) override;
+			TDE2_API E_RESULT_CODE SetSampler(U32 slot, TTextureSamplerId samplerHandle) override;
+
+			TDE2_API E_RESULT_CODE UpdateTexture2D(TTextureHandleId textureHandle, const void* pData, USIZE dataSize) override;
+			TDE2_API E_RESULT_CODE UpdateTexture2DArray(TTextureHandleId textureHandle, const void* pData, USIZE dataSize) override;
+			TDE2_API E_RESULT_CODE UpdateCubemapTexture(TTextureHandleId textureHandle, const void* pData, USIZE dataSize) override;
+			//TDE2_API E_RESULT_CODE UpdateTexture3D(TTextureHandleId textureHandle, const void* pData, USIZE dataSize) override;
+
+			// Blit one texture to another
+			TDE2_API E_RESULT_CODE CopyResource(TTextureHandleId sourceHandle, TTextureHandleId destHandle) override;
+			// Upload data into texture
+			TDE2_API E_RESULT_CODE CopyResource(TBufferHandleId sourceHandle, TTextureHandleId destHandle) override;
+			// Readback data from texture into a buffer
+			TDE2_API E_RESULT_CODE CopyResource(TTextureHandleId sourceHandle, TBufferHandleId destHandle) override;
+
 			/*!
 				\brief The method sends a command to a GPU to draw current attached graphics data
 
@@ -244,16 +259,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void DispatchCompute(U32 groupsCountX, U32 groupsCountY, U32 groupsCountZ) override;
-
-			/*!
-				\brief The method binds a given texture sampler to a specified slot
-
-				\param[in] slot An input slot's index
-
-				\param[in] samplerId An identifier of a texture sampler
-			*/
-
-			TDE2_API void BindTextureSampler(U32 slot, TTextureSamplerId samplerId) override;
 
 			/*!
 				\brief The method binds a given blend state to rendering pipeline

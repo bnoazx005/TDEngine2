@@ -28,6 +28,7 @@ namespace TDEngine2
 
 
 	enum class TBufferHandleId : U32;
+	enum class TTextureHandleId : U32;
 	enum class E_INDEX_FORMAT_TYPE : U8;
 
 
@@ -206,6 +207,21 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE SetIndexBuffer(TBufferHandleId indexBufferHandle, U32 offset) = 0;
 			TDE2_API virtual E_RESULT_CODE SetConstantBuffer(U32 slot, TBufferHandleId constantsBufferHandle) = 0;
 
+			TDE2_API virtual E_RESULT_CODE SetTexture(U32 slot, TTextureHandleId textureHandle) = 0;
+			TDE2_API virtual E_RESULT_CODE SetSampler(U32 slot, TTextureSamplerId samplerHandle) = 0;
+
+			TDE2_API virtual E_RESULT_CODE UpdateTexture2D(TTextureHandleId textureHandle, const void* pData, USIZE dataSize) = 0;
+			TDE2_API virtual E_RESULT_CODE UpdateTexture2DArray(TTextureHandleId textureHandle, const void* pData, USIZE dataSize) = 0;
+			TDE2_API virtual E_RESULT_CODE UpdateCubemapTexture(TTextureHandleId textureHandle, const void* pData, USIZE dataSize) = 0;
+			//TDE2_API virtual E_RESULT_CODE UpdateTexture3D(TTextureHandleId textureHandle, const void* pData, USIZE dataSize) = 0;
+
+			// Blit one texture to another
+			TDE2_API virtual E_RESULT_CODE CopyResource(TTextureHandleId sourceHandle, TTextureHandleId destHandle) = 0;
+			// Upload data into texture
+			TDE2_API virtual E_RESULT_CODE CopyResource(TBufferHandleId sourceHandle, TTextureHandleId destHandle) = 0;
+			// Readback data from texture into a buffer
+			TDE2_API virtual E_RESULT_CODE CopyResource(TTextureHandleId sourceHandle, TBufferHandleId destHandle) = 0;
+
 			/*!
 				\brief The method sends a command to a GPU to draw current attached graphics data
 
@@ -281,16 +297,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void DispatchCompute(U32 groupsCountX, U32 groupsCountY, U32 groupsCountZ) = 0;
-
-			/*!
-				\brief The method binds a given texture sampler to a specified slot
-
-				\param[in] slot An input slot's index
-
-				\param[in] samplerId An identifier of a texture sampler
-			*/
-
-			TDE2_API virtual void BindTextureSampler(U32 slot, TTextureSamplerId samplerId) = 0;
 
 			/*!
 				\brief The method binds a given blend state to rendering pipeline

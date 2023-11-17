@@ -132,8 +132,6 @@ namespace TDEngine2
 		U32                       mNumOfSamples = 1;
 		U32                       mSamplingQuality = 0;
 
-		TTextureSamplerDesc       mTexSamplerDesc;
-
 		bool                      mIsWriteable = false; ///< The field is used to make a texture writeable in a compute shader
 
 		std::string               mName;
@@ -166,10 +164,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Resize(U32 width, U32 height, U32 depth = 1) = 0;
-
-			TDE2_API virtual E_RESULT_CODE SetSamplerDesc(const TTextureSamplerDesc& samplerDesc) = 0;
-
-			TDE2_API virtual void* GetInternalHandle() = 0;
 
 			TDE2_API virtual const TInitTextureParams& GetParams() const = 0;
 		protected:

@@ -233,7 +233,7 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Resize(U32 width, U32 height, U32 depth = 1) override;
 
-			TDE2_API void* GetInternalHandle() override;
+			TDE2_API GLuint GetTextureHandle();
 
 			TDE2_API const TInitTextureParams& GetParams() const override;
 		protected:
