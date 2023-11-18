@@ -14,35 +14,25 @@
 
 namespace TDEngine2
 {
+	enum class TTextureHandleId : U32;
+
+
+	TDE2_API ITexture2D* CreateTexture2D(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
+		const TTexture2DParameters& params, E_RESULT_CODE& result);
+
 	/*!
 		class CBaseTexture2D
 
 		\brief The interface describes a common functionality of 2D textures
-		that should be expanded via GAPI plugins
 	*/
 
 	class CBaseTexture2D : public ITexture2D, public CBaseResource
 	{
 		public:
+			friend TDE2_API ITexture2D* CreateTexture2D(IResourceManager*, IGraphicsContext*, const std::string&, const TTexture2DParameters&, E_RESULT_CODE&);
+		public:
 			TDE2_REGISTER_RESOURCE_TYPE(CBaseTexture2D)
 			TDE2_REGISTER_TYPE(CBaseTexture2D)
-
-			/*!
-				\brief The method initializes an internal state of a 2d texture. The method 
-				is used when we want just to load texture's data from some storage. In this 
-				case all the parameters will be executed automatically. To create a new blank
-				texture object use overloaded version of Init()
-				
-				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
-
-				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
-
-				\param[in] name A resource's name
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name) override;
 
 			/*!
 				\brief The method initializes an internal state of a 2d texture. The overloaded version of
@@ -69,6 +59,26 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void Bind(U32 slot) override;
+
+			/*!
+				\brief The method resets current internal data of a resource
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Reset() override;
+
+			/*!
+				\brief The method writes data into a specified texture's region
+
+				\param[in] regionRect A region, which will be overwritten
+
+				\param[in] pData Data that will be written into a given region
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE WriteData(const TRectI32& regionRect, const U8* pData) override;
 
 			/*!
 				\brief The method sets up wrapping mode for U axis
@@ -124,34 +134,27 @@ namespace TDEngine2
 
 			TDE2_API TRectF32 GetNormalizedTextureRect() const override;
 
+			/*!
+				\brief The method returns an internal data that the texture stores. (The returned data is allocated
+				on heap so should be manually deleted later) For now we use std::unique_ptr instead
+
+				\return A pointer to texture's memory, which size equals to width * height * bytes_per_channel
+			*/
+
+			TDE2_API std::vector<U8> GetInternalData() override;
+
 			static TDE2_API TTextureSamplerId GetTextureSampleHandle(IGraphicsContext* pGraphicsContext, const TTextureSamplerDesc& params);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseTexture2D)
-
-			TDE2_API virtual E_RESULT_CODE _createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
-																		 U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality, bool isWriteable) = 0;
 
 			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
 		protected:
 			IGraphicsContext*   mpGraphicsContext;
 
-			U32                 mWidth;
-
-			U32                 mHeight;
-			
-			E_FORMAT_TYPE       mFormat;
-
-			U32                 mNumOfMipLevels;
-				              
-			U32                 mNumOfSamples;
-				              
-			U32                 mSamplingQuality;
-
 			TTextureSamplerDesc mTextureSamplerParams;
 
 			TTextureSamplerId   mCurrTextureSamplerHandle = TTextureSamplerId::Invalid;
-
-			bool                mIsRandomlyWriteable = false;
+			TTextureHandleId    mCurrTextureHandle;
 	};
 
 
@@ -225,6 +228,74 @@ namespace TDEngine2
 			IResourceManager* mpResourceManager;
 
 			IFileSystem*      mpFileSystem;
+
+			IGraphicsContext* mpGraphicsContext;
+	};
+
+
+	TDE2_API IResourceFactory* CreateBaseTexture2DFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
+
+
+	/*!
+		class CBaseTexture2DFactory
+
+		\brief The class is an abstract factory of CBaseTexture2D objects that is used by a resource manager
+	*/
+
+	class CBaseTexture2DFactory : public CBaseObject, public ITexture2DFactory
+	{
+		public:
+			friend TDE2_API IResourceFactory* CreateBaseTexture2DFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
+		public:
+			/*!
+				\brief The method initializes an internal state of a shader factory
+
+				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
+
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext) override;
+
+			/*!
+				\brief The method creates a new instance of a resource based on passed parameters
+
+				\param[in] name A name of a resource
+
+				\param[in] params An object that contains parameters that are needed for the resource's creation
+
+				\return A pointer to a new instance of IResource type
+			*/
+
+			TDE2_API IResource* Create(const std::string& name, const TBaseResourceParameters& params) const override;
+
+			/*!
+				\brief The method creates a new instance of a resource based on passed parameters
+
+				\param[in] name A name of a resource
+
+				\param[in] params An object that contains parameters that are needed for the resource's creation
+
+				\return A pointer to a new instance of IResource type
+			*/
+
+			TDE2_API IResource* CreateDefault(const std::string& name, const TBaseResourceParameters& params) const override;
+
+			/*!
+				\brief The method returns an identifier of a resource's type, which
+				the factory serves
+
+				\return The method returns an identifier of a resource's type, which
+				the factory serves
+			*/
+
+			TDE2_API TypeId GetResourceTypeId() const override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseTexture2DFactory)
+		protected:
+			IResourceManager* mpResourceManager;
 
 			IGraphicsContext* mpGraphicsContext;
 	};

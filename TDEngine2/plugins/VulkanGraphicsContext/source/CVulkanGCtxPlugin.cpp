@@ -31,7 +31,6 @@ namespace TDEngine2
 		auto factoryFunctions =
 		{
 			CreateVulkanShaderFactory,
-			CreateVulkanTexture2DFactory,
 			//CreateVulkanCubemapTextureFactory,
 			CreateVulkanRenderTargetFactory,
 			CreateVulkanDepthBufferTargetFactory,

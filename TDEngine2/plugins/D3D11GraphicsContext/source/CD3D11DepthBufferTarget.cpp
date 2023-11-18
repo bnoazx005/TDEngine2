@@ -92,14 +92,14 @@ namespace TDEngine2
 		{
 			return RC_INVALID_ARGS;
 		}
+		TDE2_UNIMPLEMENTED();
+		//CD3D11Texture2D* pD3D11DestTexture = dynamic_cast<CD3D11Texture2D*>(pDestTexture);
+		//if (!pD3D11DestTexture)
+		//{
+		//	return RC_FAIL;
+		//}
 
-		CD3D11Texture2D* pD3D11DestTexture = dynamic_cast<CD3D11Texture2D*>(pDestTexture);
-		if (!pD3D11DestTexture)
-		{
-			return RC_FAIL;
-		}
-
-		mp3dDeviceContext->CopyResource(pD3D11DestTexture->GetInternalTexturePtr(), mpDepthBufferTexture);
+		//mp3dDeviceContext->CopyResource(pD3D11DestTexture->GetInternalTexturePtr(), mpDepthBufferTexture);
 
 		return RC_OK;
 	}

@@ -77,29 +77,8 @@ namespace TDEngine2
 	*/
 
 	CBaseTexture2D::CBaseTexture2D() :
-		CBaseResource(), mTextureSamplerParams()
+		CBaseResource(), mTextureSamplerParams(), mCurrTextureHandle(TTextureHandleId::Invalid)
 	{
-	}
-
-	E_RESULT_CODE CBaseTexture2D::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name)
-	{
-		E_RESULT_CODE result = _init(pResourceManager, name);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		if (!pGraphicsContext)
-		{
-			return RC_INVALID_ARGS;
-		}
-
-		mpGraphicsContext = pGraphicsContext;
-
-		mIsInitialized = true;
-
-		return RC_OK;
 	}
 
 	E_RESULT_CODE CBaseTexture2D::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, const TTexture2DParameters& params)
@@ -120,21 +99,38 @@ namespace TDEngine2
 
 		mLoadingPolicy = params.mLoadingPolicy;
 		
-		mWidth                = params.mWidth;
-		mHeight               = params.mHeight;
-		mFormat               = params.mFormat;
-		mNumOfMipLevels       = params.mNumOfMipLevels;
-		mNumOfSamples         = params.mNumOfSamples;
-		mSamplingQuality      = params.mSamplingQuality;
 		mTextureSamplerParams = params.mTexSamplerDesc;
-		mIsRandomlyWriteable  = params.mIsWriteable;
+		mTextureSamplerParams.mUseMipMaps = params.mNumOfMipLevels > 1;
 
-		mTextureSamplerParams.mUseMipMaps = mNumOfMipLevels > 1;
+		auto pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
+
+		TInitTextureImplParams createTextureParams{};
+		createTextureParams.mWidth = params.mWidth;
+		createTextureParams.mHeight = params.mHeight;
+		createTextureParams.mFormat = params.mFormat;
+		createTextureParams.mNumOfMipLevels = params.mNumOfMipLevels;
+		createTextureParams.mNumOfSamples = params.mNumOfSamples;
+		createTextureParams.mSamplingQuality = params.mSamplingQuality;
+		createTextureParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
+		createTextureParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+		createTextureParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE;
+
+		if (params.mIsWriteable)
+		{
+			createTextureParams.mBindFlags = createTextureParams.mBindFlags | E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS;
+		}
+
+		auto createTextureResult = pGraphicsObjectManager->CreateTexture(createTextureParams);
+		if (createTextureResult.HasError())
+		{
+			return createTextureResult.GetError();
+		}
+
+		mCurrTextureHandle = createTextureResult.Get();
 
 		mIsInitialized = true;
 
-		return _createInternalTextureHandler(mpGraphicsContext, mWidth, mHeight, mFormat, 
-											 mNumOfMipLevels, mNumOfSamples, mSamplingQuality, mIsRandomlyWriteable); /// create a texture's object within video memory using GAPI
+		return RC_OK;
 	}
 
 	void CBaseTexture2D::Bind(U32 slot)
@@ -145,6 +141,22 @@ namespace TDEngine2
 		}
 
 		mpGraphicsContext->SetSampler(slot, mCurrTextureSamplerHandle);
+		mpGraphicsContext->SetTexture(slot, mCurrTextureHandle);
+	}
+
+	E_RESULT_CODE CBaseTexture2D::Reset()
+	{
+		auto pGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
+
+		E_RESULT_CODE result = pGraphicsObjectManager->DestroyTexture(mCurrTextureHandle);
+		mCurrTextureHandle = TTextureHandleId::Invalid;
+
+		return result;
+	}
+	
+	E_RESULT_CODE CBaseTexture2D::WriteData(const TRectI32& regionRect, const U8* pData)
+	{
+		return mpGraphicsContext->UpdateTexture2D(mCurrTextureHandle, 0, regionRect, pData, 0);
 	}
 
 	void CBaseTexture2D::SetUWrapMode(const E_ADDRESS_MODE_TYPE& mode)
@@ -173,22 +185,37 @@ namespace TDEngine2
 
 	U32 CBaseTexture2D::GetWidth() const
 	{
-		return mWidth;
+		auto pGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
+		auto pTexture = pGraphicsObjectManager->GetTexturePtr(mCurrTextureHandle);
+
+		return pTexture ? pTexture->GetParams().mWidth : 0;
 	}
 
 	U32 CBaseTexture2D::GetHeight() const
 	{
-		return mHeight;
+		auto pGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
+		auto pTexture = pGraphicsObjectManager->GetTexturePtr(mCurrTextureHandle);
+
+		return pTexture ? pTexture->GetParams().mHeight : 0;
 	}
 
 	E_FORMAT_TYPE CBaseTexture2D::GetFormat() const
 	{
-		return mFormat;
+		auto pGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
+		auto pTexture = pGraphicsObjectManager->GetTexturePtr(mCurrTextureHandle);
+
+		return pTexture ? pTexture->GetParams().mFormat : E_FORMAT_TYPE::FT_UNKNOWN;
 	}
 
 	TRectF32 CBaseTexture2D::GetNormalizedTextureRect() const
 	{
 		return { 0.0f, 0.0f, 1.0f, 1.0f };
+	}
+
+	std::vector<U8> CBaseTexture2D::GetInternalData()
+	{
+		TDE2_UNIMPLEMENTED();
+		return {};
 	}
 
 	TTextureSamplerId CBaseTexture2D::GetTextureSampleHandle(IGraphicsContext* pGraphicsContext, const TTextureSamplerDesc& params)
@@ -203,6 +230,12 @@ namespace TDEngine2
 	const TPtr<IResourceLoader> CBaseTexture2D::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<ITexture2D>();
+	}
+
+
+	ITexture2D* CreateTexture2D(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, const TTexture2DParameters& params, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(ITexture2D, CBaseTexture2D, result, pResourceManager, pGraphicsContext, name, params);
 	}
 
 
@@ -370,5 +403,68 @@ namespace TDEngine2
 	TDE2_API IResourceLoader* CreateBaseTexture2DLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IResourceLoader, CBaseTexture2DLoader, result, pResourceManager, pGraphicsContext, pFileSystem);
+	}
+
+
+	/*!
+		\brief CBaseTexture2DFactory's definition
+	*/
+
+	CBaseTexture2DFactory::CBaseTexture2DFactory() :
+		CBaseObject()
+	{
+	}
+
+	E_RESULT_CODE CBaseTexture2DFactory::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext)
+	{
+		if (mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		if (!pGraphicsContext || !pResourceManager)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpResourceManager = pResourceManager;
+		mpGraphicsContext = pGraphicsContext;
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	IResource* CBaseTexture2DFactory::Create(const std::string& name, const TBaseResourceParameters& params) const
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		const TTexture2DParameters& texParams = static_cast<const TTexture2DParameters&>(params);
+
+		return dynamic_cast<IResource*>(CreateTexture2D(mpResourceManager, mpGraphicsContext, name, texParams, result));
+	}
+
+	IResource* CBaseTexture2DFactory::CreateDefault(const std::string& name, const TBaseResourceParameters& params) const
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		const static TTexture2DParameters defaultTextureParams{ 2, 2, FT_NORM_UBYTE4, 1, 1, 0 };
+
+		TTexture2DParameters overridenParams = defaultTextureParams;
+		overridenParams.mLoadingPolicy = params.mLoadingPolicy;
+
+		// create blank texture, which sizes equals to 2 x 2 pixels of RGBA format
+		return dynamic_cast<IResource*>(CreateTexture2D(mpResourceManager, mpGraphicsContext, name, overridenParams, result));
+	}
+
+	TypeId CBaseTexture2DFactory::GetResourceTypeId() const
+	{
+		return ITexture2D::GetTypeId();
+	}
+
+
+	TDE2_API IResourceFactory* CreateBaseTexture2DFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IResourceFactory, CBaseTexture2DFactory, result, pResourceManager, pGraphicsContext);
 	}
 }

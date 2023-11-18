@@ -103,7 +103,6 @@ namespace TDEngine2
 		auto factoryFunctions = 
 		{
 			CreateOGLShaderFactory,
-			CreateOGLTexture2DFactory,
 			CreateOGLCubemapTextureFactory,
 			CreateOGLRenderTargetFactory,
 			CreateOGLDepthBufferTargetFactory,
