@@ -42,23 +42,6 @@ namespace TDEngine2
 			TDE2_REGISTER_TYPE(ICubemapTexture);
 
 			/*!
-				\brief The method initializes an internal state of a cubemap texture. The method
-				is used when we want just to load texture's data from some storage. In this
-				case all the parameters will be executed automatically. To create a new blank
-				texture object use overloaded version of Init()
-
-				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
-
-				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
-
-				\param[in] name A resource's name
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name) = 0;
-
-			/*!
 				\brief The method initializes an internal state of a cubemap texture. The overloaded version of
 				Init method creates a new texture object within memory with given width, height and format
 

@@ -114,6 +114,7 @@ namespace TDEngine2
 		createTextureParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
 		createTextureParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
 		createTextureParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE;
+		createTextureParams.mName = mName;
 
 		if (params.mIsWriteable)
 		{
@@ -150,6 +151,8 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = pGraphicsObjectManager->DestroyTexture(mCurrTextureHandle);
 		mCurrTextureHandle = TTextureHandleId::Invalid;
+
+		mIsInitialized = false;
 
 		return result;
 	}

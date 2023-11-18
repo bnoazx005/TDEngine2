@@ -8,41 +8,32 @@
 
 
 #include "ICubemapTexture.h"
-#include "./../core/CBaseObject.h"
-#include "./../core/CBaseResource.h"
+#include "../core/CBaseObject.h"
+#include "../core/CBaseResource.h"
 
 
 namespace TDEngine2
 {
+	enum class TTextureHandleId : U32;
+
+
+	TDE2_API ICubemapTexture* CreateCubemapTexture(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
+		const TTexture2DParameters& params, E_RESULT_CODE& result);
+
+
 	/*!
 		class CBaseCubemapTexture
 
 		\brief The interface describes a common functionality of cubemap textures
-		that should be expanded via GAPI plugins
 	*/
 
 	class CBaseCubemapTexture : public ICubemapTexture, public CBaseResource
 	{
 		public:
+			friend TDE2_API ICubemapTexture* CreateCubemapTexture(IResourceManager*, IGraphicsContext*, const std::string&, const TTexture2DParameters&, E_RESULT_CODE&);
+		public:
 			TDE2_REGISTER_RESOURCE_TYPE(ICubemapTexture)
 			TDE2_REGISTER_TYPE(CBaseCubemapTexture)
-
-			/*!
-				\brief The method initializes an internal state of a cubemap texture. The method
-				is used when we want just to load texture's data from some storage. In this
-				case all the parameters will be executed automatically. To create a new blank
-				texture object use overloaded version of Init()
-
-				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
-
-				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
-
-				\param[in] name A resource's name
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name) override;
 
 			/*!
 				\brief The method initializes an internal state of a cubemap texture. The overloaded version of
@@ -69,6 +60,26 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void Bind(U32 slot) override;
+
+			/*!
+				\brief The method resets current internal data of a resource
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Reset() override;
+
+			/*!
+				\brief The method writes data into a specified texture's region
+
+				\param[in] face An index of cubemap's face
+				\param[in] regionRect A region, which will be overwritten
+				\param[in] pData Data that will be written into a given region
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE WriteData(E_CUBEMAP_FACE face, const TRectI32& regionRect, const U8* pData) override;
 
 			/*!
 				\brief The method sets up wrapping mode for U axis
@@ -133,31 +144,17 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseCubemapTexture)
 
-			TDE2_API virtual E_RESULT_CODE _createInternalTextureHandler(IGraphicsContext* pGraphicsContext, U32 width, U32 height, E_FORMAT_TYPE format,
-																		 U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality) = 0;
-
 			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
 
 		protected:
 			IGraphicsContext*   mpGraphicsContext;
-
-			U32                 mWidth;
-
-			U32                 mHeight;
-
-			E_FORMAT_TYPE       mFormat;
-
-			U32                 mNumOfMipLevels;
-
-			U32                 mNumOfSamples;
-
-			U32                 mSamplingQuality;
 
 			std::atomic_uint8_t mFacesLoadingStatusBitset; /// \todo Refactor this later, each bit determines whether a face loaded or not
 
 			TTextureSamplerDesc mTextureSamplerParams;
 
 			TTextureSamplerId   mCurrTextureSamplerHandle = TTextureSamplerId::Invalid;
+			TTextureHandleId    mCurrTextureHandle;
 	};
 
 
@@ -188,8 +185,7 @@ namespace TDEngine2
 	class CBaseCubemapTextureLoader : public CBaseObject, public ICubemapTextureLoader
 	{
 		public:
-			friend TDE2_API IResourceLoader* CreateBaseCubemapTextureLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem,
-																			E_RESULT_CODE& result);
+			friend TDE2_API IResourceLoader* CreateBaseCubemapTextureLoader(IResourceManager*, IGraphicsContext*, IFileSystem*,	E_RESULT_CODE&);
 		protected:
 			typedef struct TCubemapMetaInfo
 			{
@@ -248,6 +244,74 @@ namespace TDEngine2
 			IResourceManager* mpResourceManager;
 
 			IFileSystem*      mpFileSystem;
+
+			IGraphicsContext* mpGraphicsContext;
+	};
+
+
+	TDE2_API IResourceFactory* CreateBaseCubemapTextureFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
+
+
+	/*!
+		class CBaseCubemapTextureFactory
+
+		\brief The class is an abstract factory of CBaseCubemapTexture objects that is used by a resource manager
+	*/
+
+	class CBaseCubemapTextureFactory : public CBaseObject, public ICubemapTextureFactory
+	{
+		public:
+			friend TDE2_API IResourceFactory* CreateBaseCubemapTextureFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
+		public:
+			/*!
+				\brief The method initializes an internal state of a shader factory
+
+				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
+
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext) override;
+
+			/*!
+				\brief The method creates a new instance of a resource BaseCubemapd on passed parameters
+
+				\param[in] name A name of a resource
+
+				\param[in] params An object that contains parameters that are needed for the resource's creation
+
+				\return A pointer to a new instance of IResource type
+			*/
+
+			TDE2_API IResource* Create(const std::string& name, const TBaseResourceParameters& params) const override;
+
+			/*!
+				\brief The method creates a new instance of a resource BaseCubemapd on passed parameters
+
+				\param[in] name A name of a resource
+
+				\param[in] params An object that contains parameters that are needed for the resource's creation
+
+				\return A pointer to a new instance of IResource type
+			*/
+
+			TDE2_API IResource* CreateDefault(const std::string& name, const TBaseResourceParameters& params) const override;
+
+			/*!
+				\brief The method returns an identifier of a resource's type, which
+				the factory serves
+
+				\return The method returns an identifier of a resource's type, which
+				the factory serves
+			*/
+
+			TDE2_API TypeId GetResourceTypeId() const override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseCubemapTextureFactory)
+		protected:
+			IResourceManager* mpResourceManager;
 
 			IGraphicsContext* mpGraphicsContext;
 	};

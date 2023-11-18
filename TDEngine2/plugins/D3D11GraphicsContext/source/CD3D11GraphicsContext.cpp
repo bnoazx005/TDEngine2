@@ -21,6 +21,9 @@
 #if defined(TDE2_USE_WINPLATFORM)
 
 #pragma comment(lib, "d3d11.lib")
+#if TDE2_DEBUG_MODE
+	#pragma comment(lib, "dxguid.lib") 
+#endif
 
 
 namespace TDEngine2

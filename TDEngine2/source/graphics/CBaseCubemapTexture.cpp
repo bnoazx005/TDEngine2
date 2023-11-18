@@ -1,5 +1,6 @@
 #include "../../include/graphics/CBaseCubemapTexture.h"
 #include "../../include/graphics/CBaseTexture2D.h"
+#include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IFileSystem.h"
@@ -15,31 +16,8 @@
 namespace TDEngine2
 {
 	CBaseCubemapTexture::CBaseCubemapTexture() :
-		CBaseResource()
+		CBaseResource(), mCurrTextureHandle(TTextureHandleId::Invalid)
 	{
-	}
-
-	E_RESULT_CODE CBaseCubemapTexture::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name)
-	{
-		E_RESULT_CODE result = _init(pResourceManager, name);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		if (!pGraphicsContext)
-		{
-			return RC_INVALID_ARGS;
-		}
-
-		mpGraphicsContext = pGraphicsContext;
-
-		mFacesLoadingStatusBitset = 0;
-
-		mIsInitialized = true;
-
-		return RC_OK;
 	}
 
 	E_RESULT_CODE CBaseCubemapTexture::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, const TTexture2DParameters& params)
@@ -59,19 +37,38 @@ namespace TDEngine2
 		mpGraphicsContext = pGraphicsContext;
 
 		mLoadingPolicy = params.mLoadingPolicy;
-
-		mWidth                = params.mWidth;
-		mHeight               = params.mHeight;
-		mFormat               = params.mFormat;
-		mNumOfMipLevels       = params.mNumOfMipLevels;
-		mNumOfSamples         = params.mNumOfSamples;
-		mSamplingQuality      = params.mSamplingQuality;
 		mTextureSamplerParams = params.mTexSamplerDesc;
+
+		auto pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
+
+		TInitTextureImplParams createTextureParams{};
+		createTextureParams.mWidth = params.mWidth;
+		createTextureParams.mHeight = params.mHeight;
+		createTextureParams.mFormat = params.mFormat;
+		createTextureParams.mNumOfMipLevels = params.mNumOfMipLevels;
+		createTextureParams.mNumOfSamples = params.mNumOfSamples;
+		createTextureParams.mSamplingQuality = params.mSamplingQuality;
+		createTextureParams.mType = E_TEXTURE_IMPL_TYPE::CUBEMAP;
+		createTextureParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+		createTextureParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE;
+		createTextureParams.mName = mName;
+
+		if (params.mIsWriteable)
+		{
+			createTextureParams.mBindFlags = createTextureParams.mBindFlags | E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS;
+		}
+
+		auto createTextureResult = pGraphicsObjectManager->CreateTexture(createTextureParams);
+		if (createTextureResult.HasError())
+		{
+			return createTextureResult.GetError();
+		}
+
+		mCurrTextureHandle = createTextureResult.Get();
 
 		mIsInitialized = true;
 
-		return _createInternalTextureHandler(mpGraphicsContext, mWidth, mHeight, mFormat,
-											 mNumOfMipLevels, mNumOfSamples, mSamplingQuality); /// create a texture's object within video memory using GAPI
+		return RC_OK;
 	}
 
 	void CBaseCubemapTexture::Bind(U32 slot)
@@ -82,6 +79,24 @@ namespace TDEngine2
 		}
 
 		mpGraphicsContext->SetSampler(slot, mCurrTextureSamplerHandle);
+		mpGraphicsContext->SetTexture(slot, mCurrTextureHandle);
+	}
+
+	E_RESULT_CODE CBaseCubemapTexture::Reset()
+	{
+		auto pGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
+
+		E_RESULT_CODE result = pGraphicsObjectManager->DestroyTexture(mCurrTextureHandle);
+		mCurrTextureHandle = TTextureHandleId::Invalid;
+
+		mIsInitialized = false;
+
+		return result;
+	}
+
+	E_RESULT_CODE CBaseCubemapTexture::WriteData(E_CUBEMAP_FACE face, const TRectI32& regionRect, const U8* pData)
+	{
+		return mpGraphicsContext->UpdateCubemapTexture(mCurrTextureHandle, face, regionRect, pData, 0);
 	}
 
 	void CBaseCubemapTexture::SetUWrapMode(const E_ADDRESS_MODE_TYPE& mode)
@@ -101,8 +116,8 @@ namespace TDEngine2
 
 	void CBaseCubemapTexture::SetFilterType(const E_TEXTURE_FILTER_TYPE& type)
 	{
-		TDE2_UNIMPLEMENTED();
-		//mTextureSamplerParams.
+		mTextureSamplerParams.mFilteringType = type;
+		mCurrTextureSamplerHandle = TTextureSamplerId::Invalid; /// \note Reset current sampler to update it in Bind method later
 	}
 
 	void CBaseCubemapTexture::MarkFaceAsLoaded(E_CUBEMAP_FACE face)
@@ -116,17 +131,26 @@ namespace TDEngine2
 
 	U32 CBaseCubemapTexture::GetWidth() const
 	{
-		return mWidth;
+		auto pGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
+		auto pTexture = pGraphicsObjectManager->GetTexturePtr(mCurrTextureHandle);
+
+		return pTexture ? pTexture->GetParams().mWidth : 0;
 	}
 
 	U32 CBaseCubemapTexture::GetHeight() const
 	{
-		return mHeight;
+		auto pGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
+		auto pTexture = pGraphicsObjectManager->GetTexturePtr(mCurrTextureHandle);
+
+		return pTexture ? pTexture->GetParams().mHeight : 0;
 	}
 
 	E_FORMAT_TYPE CBaseCubemapTexture::GetFormat() const
 	{
-		return mFormat;
+		auto pGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
+		auto pTexture = pGraphicsObjectManager->GetTexturePtr(mCurrTextureHandle);
+
+		return pTexture ? pTexture->GetParams().mFormat : E_FORMAT_TYPE::FT_UNKNOWN;
 	}
 
 	TRectF32 CBaseCubemapTexture::GetNormalizedTextureRect() const
@@ -137,6 +161,12 @@ namespace TDEngine2
 	const TPtr<IResourceLoader> CBaseCubemapTexture::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<ICubemapTexture>();
+	}
+
+
+	ICubemapTexture* CreateCubemapTexture(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, const TTexture2DParameters& params, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(ICubemapTexture, CBaseCubemapTexture, result, pResourceManager, pGraphicsContext, name, params);
 	}
 
 
@@ -158,9 +188,7 @@ namespace TDEngine2
 		}
 
 		mpResourceManager = pResourceManager;
-
 		mpFileSystem = pFileSystem;
-
 		mpGraphicsContext = pGraphicsContext;
 
 		mIsInitialized = true;
@@ -341,5 +369,68 @@ namespace TDEngine2
 	TDE2_API IResourceLoader* CreateBaseCubemapTextureLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IResourceLoader, CBaseCubemapTextureLoader, result, pResourceManager, pGraphicsContext, pFileSystem);
+	}
+
+
+	/*!
+		\brief CBaseCubemapTextureFactory's definition
+	*/
+
+	CBaseCubemapTextureFactory::CBaseCubemapTextureFactory() :
+		CBaseObject()
+	{
+	}
+
+	E_RESULT_CODE CBaseCubemapTextureFactory::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext)
+	{
+		if (mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		if (!pGraphicsContext || !pResourceManager)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpResourceManager = pResourceManager;
+		mpGraphicsContext = pGraphicsContext;
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	IResource* CBaseCubemapTextureFactory::Create(const std::string& name, const TBaseResourceParameters& params) const
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		const TTexture2DParameters& texParams = static_cast<const TTexture2DParameters&>(params);
+
+		return dynamic_cast<IResource*>(CreateCubemapTexture(mpResourceManager, mpGraphicsContext, name, texParams, result));
+	}
+
+	IResource* CBaseCubemapTextureFactory::CreateDefault(const std::string& name, const TBaseResourceParameters& params) const
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		const static TTexture2DParameters defaultTextureParams{ 2, 2, FT_NORM_UBYTE4, 1, 1, 0 };
+
+		TTexture2DParameters overridenParams = defaultTextureParams;
+		overridenParams.mLoadingPolicy = params.mLoadingPolicy;
+
+		// create blank texture, which sizes equals to 2 x 2 pixels of RGBA format
+		return dynamic_cast<IResource*>(CreateCubemapTexture(mpResourceManager, mpGraphicsContext, name, overridenParams, result));
+	}
+
+	TypeId CBaseCubemapTextureFactory::GetResourceTypeId() const
+	{
+		return ICubemapTexture::GetTypeId();
+	}
+
+
+	TDE2_API IResourceFactory* CreateBaseCubemapTextureFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IResourceFactory, CBaseCubemapTextureFactory, result, pResourceManager, pGraphicsContext);
 	}
 }

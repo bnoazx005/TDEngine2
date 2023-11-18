@@ -67,6 +67,10 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
+#if TDE2_DEBUG_MODE
+		pBuffer->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<U32>(params.mName.length()), params.mName.c_str());
+#endif
+
 		return Wrench::TOkValue<ID3D11Buffer*>(pBuffer);
 	}
 

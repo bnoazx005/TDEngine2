@@ -64,6 +64,13 @@ namespace TDEngine2
 
 		glBindTexture(textureType, 0);
 
+#if TDE2_DEBUG_MODE
+		if (GLEW_KHR_debug)
+		{
+			glObjectLabel(textureType, 0, -1, params.mName.c_str());
+		}
+#endif
+
 		return Wrench::TOkValue<GLuint>(textureHandle);
 	}
 

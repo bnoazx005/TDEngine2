@@ -5,7 +5,6 @@
 #include "../include/CD3D11Texture2D.h"
 #include "../include/CD3D11RenderTarget.h"
 #include "../include/CD3D11DepthBufferTarget.h"
-#include "../include/CD3D11CubemapTexture.h"
 #include <core/IEngineCore.h>
 #include <core/IGraphicsContext.h>
 #include <core/IWindowSystem.h>
@@ -93,7 +92,6 @@ namespace TDEngine2
 		auto factoryFunctions =
 		{
 			CreateD3D11ShaderFactory,
-			CreateD3D11CubemapTextureFactory,
 			CreateD3D11RenderTargetFactory,
 			CreateD3D11DepthBufferTargetFactory,
 		};
@@ -159,20 +157,6 @@ namespace TDEngine2
 			pShaderCompilerInstance,
 			mpGraphicsContext->GetGraphicsObjectManager()->CreateShaderCache(pFileSystem).Get(), 
 			result);
-
-		if (result != RC_OK || ((result = registerLoader(pResourceManager, pLoaderInstance)) != RC_OK))
-		{
-			return result;
-		}
-
-		pLoaderInstance = CreateBaseTexture2DLoader(pResourceManager, mpGraphicsContext.Get(), pFileSystem, result);
-
-		if (result != RC_OK || ((result = registerLoader(pResourceManager, pLoaderInstance)) != RC_OK))
-		{
-			return result;
-		}
-
-		pLoaderInstance = CreateBaseCubemapTextureLoader(pResourceManager, mpGraphicsContext.Get(), pFileSystem, result);
 
 		if (result != RC_OK || ((result = registerLoader(pResourceManager, pLoaderInstance)) != RC_OK))
 		{

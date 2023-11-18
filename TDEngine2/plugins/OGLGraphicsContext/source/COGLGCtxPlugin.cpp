@@ -5,7 +5,6 @@
 #include "../include/COGLShader.h"
 #include "../include/COGLShaderCompiler.h"
 #include "../include/COGLTexture2D.h"
-#include "../include/COGLCubemapTexture.h"
 #include "../include/COGLDepthBufferTarget.h"
 #include "../include/COGLRenderTarget.h"
 #include <core/IEngineCore.h>
@@ -103,7 +102,6 @@ namespace TDEngine2
 		auto factoryFunctions = 
 		{
 			CreateOGLShaderFactory,
-			CreateOGLCubemapTextureFactory,
 			CreateOGLRenderTargetFactory,
 			CreateOGLDepthBufferTargetFactory,
 		};
@@ -169,20 +167,6 @@ namespace TDEngine2
 			pShaderCompilerInstance, 
 			mpGraphicsContext->GetGraphicsObjectManager()->CreateShaderCache(pFileSystem).Get(),
 			result);
-
-		if (result != RC_OK || ((result = registerLoader(pResourceManager, pLoaderInstance)) != RC_OK))
-		{
-			return result;
-		}
-
-		pLoaderInstance = CreateBaseTexture2DLoader(pResourceManager, mpGraphicsContext.Get(), pFileSystem, result);
-
-		if (result != RC_OK || ((result = registerLoader(pResourceManager, pLoaderInstance)) != RC_OK))
-		{
-			return result;
-		}
-
-		pLoaderInstance = CreateBaseCubemapTextureLoader(pResourceManager, mpGraphicsContext.Get(), pFileSystem, result);
 
 		if (result != RC_OK || ((result = registerLoader(pResourceManager, pLoaderInstance)) != RC_OK))
 		{

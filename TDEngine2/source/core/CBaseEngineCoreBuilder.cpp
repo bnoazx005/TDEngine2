@@ -46,6 +46,7 @@
 #include "../../include/graphics/CTextureAtlas.h"
 #include "../../include/graphics/effects/CParticleEffect.h"
 #include "../../include/graphics/CBaseTexture2D.h"
+#include "../../include/graphics/CBaseCubemapTexture.h"
 #include "../../include/graphics/ICubemapTexture.h"
 #include "../../include/graphics/IMesh.h"
 #include "../../include/graphics/CSkeleton.h"
@@ -904,6 +905,7 @@ namespace TDEngine2
 		std::tuple<ResourceLoaderFactoryFunctor, ResourceFactoryFactoryFunctor, bool> builtinResourcesConstructorsTable[]
 		{
 			{ CreateBaseTexture2DLoader, CreateBaseTexture2DFactory, true },
+			{ CreateBaseCubemapTextureLoader, CreateBaseCubemapTextureFactory, true },
 			{ CreateBaseMaterialLoader, CreateBaseMaterialFactory, true },
 			{ CreateTextureAtlasLoader, CreateTextureAtlasFactory, true },
 			{ CreateAtlasSubTextureLoader, CreateAtlasSubTextureFactory, true },

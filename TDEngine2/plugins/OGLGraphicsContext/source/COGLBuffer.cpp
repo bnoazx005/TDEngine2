@@ -68,6 +68,13 @@ namespace TDEngine2
 
 		mInitParams = params;
 
+#if TDE2_DEBUG_MODE
+		if (GLEW_KHR_debug)
+		{
+			glObjectLabel(GetBufferType(mInitParams.mBufferType), 0, -1, mInitParams.mName.c_str());
+		}
+#endif
+
 		mIsInitialized = true;
 
 		return RC_OK;
