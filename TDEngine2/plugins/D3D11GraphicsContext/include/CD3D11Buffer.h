@@ -104,6 +104,8 @@ namespace TDEngine2
 			TDE2_API ID3D11DeviceContext* GetDeviceContext() const;
 
 			TDE2_API const TInitBufferParams& GetParams() const override;
+
+			TDE2_API ID3D11Buffer* GetD3D11Buffer();
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11Buffer)
 			

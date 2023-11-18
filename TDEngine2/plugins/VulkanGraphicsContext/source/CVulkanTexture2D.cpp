@@ -135,7 +135,7 @@ namespace TDEngine2
 			copyRegion.imageExtent = imageExtent;
 
 			//copy the buffer into the image
-			vkCmdCopyBufferToImage(cmdBuffer, pStagingBufferImpl->GetBufferImpl(), mInternalImageHandle, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
+			vkCmdCopyBufferToImage(cmdBuffer, pStagingBufferImpl->GetVulkanHandle(), mInternalImageHandle, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
 
 			VkImageMemoryBarrier imageBarrierToReadable = imageBarrierToTransfer;
 

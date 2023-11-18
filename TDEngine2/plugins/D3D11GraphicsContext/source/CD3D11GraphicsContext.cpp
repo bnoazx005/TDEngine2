@@ -4,6 +4,8 @@
 #include "../include/CD3D11Mappings.h"
 #include "../include/CD3D11RenderTarget.h"
 #include "../include/CD3D11DepthBufferTarget.h"
+#include "../include/CD3D11Buffer.h"
+#include "../include/CD3D11Texture2D.h"
 #include "stringUtils.hpp"
 #define DEFER_IMPLEMENTATION
 #include "deferOperation.hpp"
@@ -305,7 +307,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D11GraphicsContext::SetVertexBuffer(U32 slot, TBufferHandleId vertexBufferHandle, U32 offset, U32 strideSize)
 	{
-		auto pBuffer = mpGraphicsObjectManager->GetBufferPtr(vertexBufferHandle);
+		auto pBuffer = mpGraphicsObjectManagerD3D11Impl->GetD3D11BufferPtr(vertexBufferHandle);
 		if (!pBuffer)
 		{
 			return RC_FAIL;
@@ -313,7 +315,7 @@ namespace TDEngine2
 
 		TDE2_ASSERT(E_BUFFER_TYPE::VERTEX == pBuffer->GetParams().mBufferType);
 
-		ID3D11Buffer* pD3D11BufferImpl = reinterpret_cast<ID3D11Buffer*>(pBuffer->GetInternalData());
+		ID3D11Buffer* pD3D11BufferImpl = pBuffer->GetD3D11Buffer();
 
 		mp3dDeviceContext->IASetVertexBuffers(slot, 1, &pD3D11BufferImpl, &strideSize, &offset);
 
@@ -322,7 +324,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D11GraphicsContext::SetIndexBuffer(TBufferHandleId indexBufferHandle, U32 offset)
 	{
-		auto pBuffer = mpGraphicsObjectManager->GetBufferPtr(indexBufferHandle);
+		auto pBuffer = mpGraphicsObjectManagerD3D11Impl->GetD3D11BufferPtr(indexBufferHandle);
 		if (!pBuffer)
 		{
 			return RC_FAIL;
@@ -330,7 +332,7 @@ namespace TDEngine2
 
 		TDE2_ASSERT(E_BUFFER_TYPE::INDEX == pBuffer->GetParams().mBufferType);
 
-		ID3D11Buffer* pD3D11BufferImpl = reinterpret_cast<ID3D11Buffer*>(pBuffer->GetInternalData());
+		ID3D11Buffer* pD3D11BufferImpl = pBuffer->GetD3D11Buffer();
 
 		mp3dDeviceContext->IASetIndexBuffer(pD3D11BufferImpl, CD3D11Mappings::GetIndexFormat(pBuffer->GetParams().mIndexFormat), offset);
 
@@ -339,7 +341,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D11GraphicsContext::SetConstantBuffer(U32 slot, TBufferHandleId constantsBufferHandle)
 	{
-		auto pBuffer = mpGraphicsObjectManager->GetBufferPtr(constantsBufferHandle);
+		auto pBuffer = mpGraphicsObjectManagerD3D11Impl->GetD3D11BufferPtr(constantsBufferHandle);
 		if (!pBuffer)
 		{
 			return RC_FAIL;
@@ -347,7 +349,7 @@ namespace TDEngine2
 
 		TDE2_ASSERT(E_BUFFER_TYPE::CONSTANT == pBuffer->GetParams().mBufferType);
 
-		ID3D11Buffer* pD3D11BufferImpl = reinterpret_cast<ID3D11Buffer*>(pBuffer->GetInternalData());
+		ID3D11Buffer* pD3D11BufferImpl = pBuffer->GetD3D11Buffer();
 
 		mp3dDeviceContext->VSSetConstantBuffers(slot, 1, &pD3D11BufferImpl);
 		mp3dDeviceContext->PSSetConstantBuffers(slot, 1, &pD3D11BufferImpl);

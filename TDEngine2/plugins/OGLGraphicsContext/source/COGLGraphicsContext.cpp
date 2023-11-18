@@ -4,6 +4,8 @@
 #include "../include/COGLMappings.h"
 #include "../include/COGLRenderTarget.h"
 #include "../include/COGLDepthBufferTarget.h"
+#include "../include/COGLBuffer.h"
+#include "../include/COGLTexture2D.h"
 #include "../include/COGLUtils.h"
 #include <core/IEventManager.h>
 #include <core/IWindowSystem.h>
@@ -245,39 +247,39 @@ namespace TDEngine2
 
 	E_RESULT_CODE COGLGraphicsContext::SetVertexBuffer(U32 slot, TBufferHandleId vertexBufferHandle, U32 offset, U32 strideSize)
 	{
-		auto pBuffer = mpGraphicsObjectManager->GetBufferPtr(vertexBufferHandle);
+		auto pBuffer = mpGraphicsObjectManagerImpl->GetOGLBufferPtr(vertexBufferHandle);
 		if (!pBuffer)
 		{
 			return RC_FAIL;
 		}
 
-		GL_SAFE_VOID_CALL(glBindBuffer(GL_ARRAY_BUFFER, *reinterpret_cast<GLuint*>(pBuffer->GetInternalData())));
+		GL_SAFE_VOID_CALL(glBindBuffer(GL_ARRAY_BUFFER, pBuffer->GetOGLHandle()));
 
 		return RC_OK;
 	}
 
 	E_RESULT_CODE COGLGraphicsContext::SetIndexBuffer(TBufferHandleId indexBufferHandle, U32 offset)
 	{
-		auto pBuffer = mpGraphicsObjectManager->GetBufferPtr(indexBufferHandle);
+		auto pBuffer = mpGraphicsObjectManagerImpl->GetOGLBufferPtr(indexBufferHandle);
 		if (!pBuffer)
 		{
 			return RC_FAIL;
 		}
 
-		GL_SAFE_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *reinterpret_cast<GLuint*>(pBuffer->GetInternalData())));
+		GL_SAFE_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, pBuffer->GetOGLHandle()));
 		
 		return RC_OK;
 	}
 
 	E_RESULT_CODE COGLGraphicsContext::SetConstantBuffer(U32 slot, TBufferHandleId constantsBufferHandle)
 	{
-		auto pBuffer = mpGraphicsObjectManager->GetBufferPtr(constantsBufferHandle);
+		auto pBuffer = mpGraphicsObjectManagerImpl->GetOGLBufferPtr(constantsBufferHandle);
 		if (!pBuffer)
 		{
 			return RC_FAIL;
 		}
 
-		GL_SAFE_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, slot, *reinterpret_cast<GLuint*>(pBuffer->GetInternalData())));
+		GL_SAFE_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, slot, pBuffer->GetOGLHandle()));
 
 
 		return RC_OK;

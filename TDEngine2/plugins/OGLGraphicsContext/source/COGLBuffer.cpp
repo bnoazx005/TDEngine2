@@ -158,6 +158,11 @@ namespace TDEngine2
 		return mInitParams;
 	}
 
+	GLuint COGLBuffer::GetOGLHandle()
+	{
+		return mBufferHandler;
+	}
+
 
 	TDE2_API IBuffer* CreateOGLBuffer(IGraphicsContext* pGraphicsContext, const TInitBufferParams& params, E_RESULT_CODE& result)
 	{

@@ -205,7 +205,7 @@ namespace TDEngine2
 		return mBufferSize;
 	}
 
-	VkBuffer CVulkanBuffer::GetBufferImpl()
+	VkBuffer CVulkanBuffer::GetVulkanHandle()
 	{
 		return mInternalBufferHandle;
 	}

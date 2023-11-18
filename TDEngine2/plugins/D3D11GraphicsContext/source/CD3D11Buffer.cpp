@@ -239,6 +239,11 @@ namespace TDEngine2
 		return mInitParams;
 	}
 
+	ID3D11Buffer* CD3D11Buffer::GetD3D11Buffer()
+	{
+		return mpBufferInstance;
+	}
+
 
 	TDE2_API IBuffer* CreateD3D11Buffer(IGraphicsContext* pGraphicsContext, const TInitBufferParams& params, E_RESULT_CODE& result)
 	{

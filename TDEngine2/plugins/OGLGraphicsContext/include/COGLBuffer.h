@@ -96,6 +96,8 @@ namespace TDEngine2
 			TDE2_API USIZE GetSize() const override;
 
 			TDE2_API const TInitBufferParams& GetParams() const override;
+
+			TDE2_API GLuint GetOGLHandle();
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLBuffer)
 

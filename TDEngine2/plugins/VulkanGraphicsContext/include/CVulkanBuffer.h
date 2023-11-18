@@ -98,7 +98,7 @@ namespace TDEngine2
 
 			TDE2_API USIZE GetSize() const override;
 
-			TDE2_API VkBuffer GetBufferImpl();
+			TDE2_API VkBuffer GetVulkanHandle();
 
 			TDE2_API const TInitBufferParams& GetParams() const override;
 		protected:
