@@ -14,6 +14,14 @@
 
 namespace TDEngine2
 {
+	class COGLTextureImpl;
+	class COGLBuffer;
+
+
+	TDE2_DECLARE_SCOPED_PTR(COGLTextureImpl)
+	TDE2_DECLARE_SCOPED_PTR(COGLBuffer)
+
+
 	/*!
 		\brief A factory function for creation objects of COGLGraphicsObjectManager's type
 
@@ -42,9 +50,14 @@ namespace TDEngine2
 			typedef CResourceContainer<TBlendStateDesc>        TBlendStatesArray;
 			typedef CResourceContainer<TDepthStencilStateDesc> TDepthStencilStatesArray;
 			typedef CResourceContainer<TRasterizerStateDesc>   TRasterizerStatesArray;
+			typedef std::vector<TPtr<COGLTextureImpl>>         TNativeTexturesArray;
+			typedef std::vector<TPtr<COGLBuffer>>              TNativeBuffersArray;
 		public:
 			TDE2_API TResult<TBufferHandleId> CreateBuffer(const TInitBufferParams& params) override;
 			TDE2_API TResult<TTextureHandleId> CreateTexture(const TInitTextureImplParams& params) override;
+
+			TDE2_API E_RESULT_CODE DestroyBuffer(TBufferHandleId bufferHandle) override;
+			TDE2_API E_RESULT_CODE DestroyTexture(TTextureHandleId textureHandle) override;
 
 			/*!
 				\brief The method is a factory for creation objects of IVertexDeclaration's type
@@ -134,6 +147,12 @@ namespace TDEngine2
 
 			TDE2_API TResult<TRasterizerStateDesc> GetRasterizerState(TRasterizerStateId rasterizerStateId) const;
 
+			TDE2_API TPtr<IBuffer> GetBufferPtr(TBufferHandleId handle) override;
+			TDE2_API TPtr<COGLBuffer> GetOGLBufferPtr(TBufferHandleId bufferHandle);
+
+			TDE2_API TPtr<ITextureImpl> GetTexturePtr(TTextureHandleId handle) override;
+			TDE2_API TPtr<COGLTextureImpl> GetOGLTexturePtr(TTextureHandleId textureHandle);
+
 			/*!
 				\brief The method returns a string which contains full source code of default shader that is specific
 				for the graphics context
@@ -172,5 +191,8 @@ namespace TDEngine2
 			TBlendStatesArray        mBlendStates;
 			TDepthStencilStatesArray mDepthStencilStates;
 			TRasterizerStatesArray   mRasterizerStates;
+
+			TNativeTexturesArray     mpTexturesArray;
+			TNativeBuffersArray     mpBuffersArray;
 	};
 }

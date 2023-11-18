@@ -11,6 +11,10 @@
 
 namespace TDEngine2
 {
+	TDE2_DEFINE_SCOPED_PTR(COGLTextureImpl)
+	TDE2_DEFINE_SCOPED_PTR(COGLBuffer)
+
+
 	COGLGraphicsObjectManager::COGLGraphicsObjectManager() :
 		CBaseGraphicsObjectManager()
 	{
@@ -26,7 +30,19 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
-		return Wrench::TOkValue<TBufferHandleId>(_insertBuffer(pBuffer));
+		auto it = std::find(mpBuffersArray.begin(), mpBuffersArray.end(), nullptr);
+		const USIZE placementIndex = static_cast<USIZE>(std::distance(mpBuffersArray.begin(), it));
+
+		if (placementIndex >= mpBuffersArray.size())
+		{
+			mpBuffersArray.emplace_back(DynamicPtrCast<COGLBuffer>(pBuffer));
+		}
+		else
+		{
+			mpBuffersArray[placementIndex] = DynamicPtrCast<COGLBuffer>(pBuffer);
+		}
+
+		return Wrench::TOkValue<TBufferHandleId>(static_cast<TBufferHandleId>(placementIndex));
 	}
 
 	TResult<TTextureHandleId> COGLGraphicsObjectManager::CreateTexture(const TInitTextureImplParams& params)
@@ -39,7 +55,55 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
-		return Wrench::TOkValue<TTextureHandleId>(_insertTexture(pTexture));
+		auto it = std::find(mpTexturesArray.begin(), mpTexturesArray.end(), nullptr);
+		const USIZE placementIndex = static_cast<USIZE>(std::distance(mpTexturesArray.begin(), it));
+
+		if (placementIndex >= mpTexturesArray.size())
+		{
+			mpTexturesArray.emplace_back(DynamicPtrCast<COGLTextureImpl>(pTexture));
+		}
+		else
+		{
+			mpTexturesArray[placementIndex] = DynamicPtrCast<COGLTextureImpl>(pTexture);
+		}
+
+		return Wrench::TOkValue<TTextureHandleId>(static_cast<TTextureHandleId>(placementIndex));
+	}
+
+	E_RESULT_CODE COGLGraphicsObjectManager::DestroyBuffer(TBufferHandleId bufferHandle)
+	{
+		if (TBufferHandleId::Invalid == bufferHandle)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		const USIZE bufferPlacementIndex = static_cast<USIZE>(bufferHandle);
+		if (bufferPlacementIndex >= mpBuffersArray.size())
+		{
+			return RC_FAIL;
+		}
+
+		mpBuffersArray[bufferPlacementIndex] = nullptr;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE COGLGraphicsObjectManager::DestroyTexture(TTextureHandleId textureHandle)
+	{
+		if (TTextureHandleId::Invalid == textureHandle)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		const USIZE bufferPlacementIndex = static_cast<USIZE>(textureHandle);
+		if (bufferPlacementIndex >= mpTexturesArray.size())
+		{
+			return RC_FAIL;
+		}
+
+		mpTexturesArray[bufferPlacementIndex] = nullptr;
+
+		return RC_OK;
 	}
 
 	TResult<IVertexDeclaration*> COGLGraphicsObjectManager::CreateVertexDeclaration()
@@ -139,6 +203,48 @@ namespace TDEngine2
 	TResult<TRasterizerStateDesc> COGLGraphicsObjectManager::GetRasterizerState(TRasterizerStateId rasterizerStateId) const
 	{
 		return mRasterizerStates[static_cast<U32>(rasterizerStateId)];
+	}
+
+	TPtr<IBuffer> COGLGraphicsObjectManager::GetBufferPtr(TBufferHandleId handle)
+	{
+		return DynamicPtrCast<IBuffer>(GetOGLBufferPtr(handle));
+	}
+
+	TPtr<COGLBuffer> COGLGraphicsObjectManager::GetOGLBufferPtr(TBufferHandleId bufferHandle)
+	{
+		if (TBufferHandleId::Invalid == bufferHandle)
+		{
+			return nullptr;
+		}
+
+		const USIZE bufferPlacementIndex = static_cast<USIZE>(bufferHandle);
+		if (bufferPlacementIndex >= mpBuffersArray.size())
+		{
+			return nullptr;
+		}
+
+		return mpBuffersArray[bufferPlacementIndex];
+	}
+
+	TPtr<ITextureImpl> COGLGraphicsObjectManager::GetTexturePtr(TTextureHandleId handle)
+	{
+		return DynamicPtrCast<ITextureImpl>(GetOGLTexturePtr(handle));
+	}
+
+	TPtr<COGLTextureImpl> COGLGraphicsObjectManager::GetOGLTexturePtr(TTextureHandleId textureHandle)
+	{
+		if (TTextureHandleId::Invalid == textureHandle)
+		{
+			return nullptr;
+		}
+
+		const USIZE bufferPlacementIndex = static_cast<USIZE>(textureHandle);
+		if (bufferPlacementIndex >= mpTexturesArray.size())
+		{
+			return nullptr;
+		}
+
+		return mpTexturesArray[bufferPlacementIndex];
 	}
 
 	std::string COGLGraphicsObjectManager::GetDefaultShaderCode(const E_DEFAULT_SHADER_TYPE& type) const

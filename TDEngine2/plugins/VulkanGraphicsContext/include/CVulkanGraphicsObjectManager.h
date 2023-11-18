@@ -14,6 +14,14 @@
 
 namespace TDEngine2
 {
+	class CVulkanTextureImpl;
+	class CVulkanBuffer;
+
+
+	//TDE2_DECLARE_SCOPED_PTR(CVulkanTextureImpl)
+	TDE2_DECLARE_SCOPED_PTR(CVulkanBuffer)
+
+
 	/*!
 		\brief A factory function for creation objects of CVulkanGraphicsObjectManager's type
 
@@ -38,8 +46,14 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IGraphicsObjectManager* CreateVulkanGraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
 		public:
+			//typedef std::vector<TPtr<CVulkanTextureImpl>> TNativeTexturesArray;
+			typedef std::vector<TPtr<CVulkanBuffer>>        TNativeBuffersArray;
+		public:
 			TDE2_API TResult<TBufferHandleId> CreateBuffer(const TInitBufferParams& params) override;
 			TDE2_API TResult<TTextureHandleId> CreateTexture(const TInitTextureImplParams& params) override;
+
+			TDE2_API E_RESULT_CODE DestroyBuffer(TBufferHandleId bufferHandle) override;
+			TDE2_API E_RESULT_CODE DestroyTexture(TTextureHandleId textureHandle) override;
 
 			/*!
 				\brief The method is a factory for creation objects of IVertexDeclaration's type
@@ -89,6 +103,12 @@ namespace TDEngine2
 
 			TDE2_API TResult<TRasterizerStateId> CreateRasterizerState(const TRasterizerStateDesc& rasterizerStateDesc) override;
 
+			TDE2_API TPtr<IBuffer> GetBufferPtr(TBufferHandleId handle) override;
+			TDE2_API TPtr<CVulkanBuffer> GetVulkanBufferPtr(TBufferHandleId bufferHandle);
+
+			TDE2_API TPtr<ITextureImpl> GetTexturePtr(TTextureHandleId handle) override;
+			//TDE2_API TPtr<CVulkanTextureImpl> GetVulkanTexturePtr(TTextureHandleId textureHandle);
+
 			/*!
 				\brief The method returns a string which contains full source code of default shader that is specific
 				for the graphics context
@@ -124,5 +144,7 @@ namespace TDEngine2
 
 			TDE2_API const std::string _getShaderCacheFilePath() const override;
 		protected:
+			//TNativeTexturesArray mpTexturesArray;
+			TNativeBuffersArray mpBuffersArray;
 	};
 }

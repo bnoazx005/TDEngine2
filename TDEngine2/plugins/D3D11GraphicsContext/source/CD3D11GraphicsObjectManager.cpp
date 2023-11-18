@@ -14,6 +14,10 @@
 
 namespace TDEngine2
 {
+	TDE2_DEFINE_SCOPED_PTR(CD3D11TextureImpl)
+	TDE2_DEFINE_SCOPED_PTR(CD3D11Buffer)
+
+
 	CD3D11GraphicsObjectManager::CD3D11GraphicsObjectManager():
 		CBaseGraphicsObjectManager()
 	{
@@ -29,7 +33,19 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
-		return Wrench::TOkValue<TBufferHandleId>(_insertBuffer(pBuffer));
+		auto it = std::find(mpBuffersArray.begin(), mpBuffersArray.end(), nullptr);
+		const USIZE placementIndex = static_cast<USIZE>(std::distance(mpBuffersArray.begin(), it));
+
+		if (placementIndex >= mpBuffersArray.size())
+		{
+			mpBuffersArray.emplace_back(DynamicPtrCast<CD3D11Buffer>(pBuffer));
+		}
+		else
+		{
+			mpBuffersArray[placementIndex] = DynamicPtrCast<CD3D11Buffer>(pBuffer);
+		}
+
+		return Wrench::TOkValue<TBufferHandleId>(static_cast<TBufferHandleId>(placementIndex));
 	}
 
 	TResult<TTextureHandleId> CD3D11GraphicsObjectManager::CreateTexture(const TInitTextureImplParams& params)
@@ -42,7 +58,55 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
-		return Wrench::TOkValue<TTextureHandleId>(_insertTexture(pTexture));
+		auto it = std::find(mpTexturesArray.begin(), mpTexturesArray.end(), nullptr);
+		const USIZE placementIndex = static_cast<USIZE>(std::distance(mpTexturesArray.begin(), it));
+
+		if (placementIndex >= mpTexturesArray.size())
+		{
+			mpTexturesArray.emplace_back(DynamicPtrCast<CD3D11TextureImpl>(pTexture));
+		}
+		else
+		{
+			mpTexturesArray[placementIndex] = DynamicPtrCast<CD3D11TextureImpl>(pTexture);
+		}
+
+		return Wrench::TOkValue<TTextureHandleId>(static_cast<TTextureHandleId>(placementIndex));
+	}
+
+	E_RESULT_CODE CD3D11GraphicsObjectManager::DestroyBuffer(TBufferHandleId bufferHandle)
+	{
+		if (TBufferHandleId::Invalid == bufferHandle)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		const USIZE bufferPlacementIndex = static_cast<USIZE>(bufferHandle);
+		if (bufferPlacementIndex >= mpBuffersArray.size())
+		{
+			return RC_FAIL;
+		}
+
+		mpBuffersArray[bufferPlacementIndex] = nullptr;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D11GraphicsObjectManager::DestroyTexture(TTextureHandleId textureHandle)
+	{
+		if (TTextureHandleId::Invalid == textureHandle)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		const USIZE bufferPlacementIndex = static_cast<USIZE>(textureHandle);
+		if (bufferPlacementIndex >= mpTexturesArray.size())
+		{
+			return RC_FAIL;
+		}
+
+		mpTexturesArray[bufferPlacementIndex] = nullptr;
+
+		return RC_OK;
 	}
 
 	TResult<IVertexDeclaration*> CD3D11GraphicsObjectManager::CreateVertexDeclaration()
@@ -264,6 +328,48 @@ namespace TDEngine2
 	TResult<ID3D11RasterizerState*> CD3D11GraphicsObjectManager::GetRasterizerState(TRasterizerStateId rasterizerStateId) const
 	{
 		return mpRasterizerStatesArray[static_cast<U32>(rasterizerStateId)];
+	}
+
+	TPtr<IBuffer> CD3D11GraphicsObjectManager::GetBufferPtr(TBufferHandleId handle)
+	{
+		return DynamicPtrCast<IBuffer>(GetD3D11BufferPtr(handle));
+	}
+
+	TPtr<CD3D11Buffer> CD3D11GraphicsObjectManager::GetD3D11BufferPtr(TBufferHandleId bufferHandle)
+	{
+		if (TBufferHandleId::Invalid == bufferHandle)
+		{
+			return nullptr;
+		}
+
+		const USIZE bufferPlacementIndex = static_cast<USIZE>(bufferHandle);
+		if (bufferPlacementIndex >= mpBuffersArray.size())
+		{
+			return nullptr;
+		}
+
+		return mpBuffersArray[bufferPlacementIndex];
+	}
+
+	TPtr<ITextureImpl> CD3D11GraphicsObjectManager::GetTexturePtr(TTextureHandleId handle)
+	{
+		return DynamicPtrCast<ITextureImpl>(GetD3D11TexturePtr(handle));
+	}
+
+	TPtr<CD3D11TextureImpl> CD3D11GraphicsObjectManager::GetD3D11TexturePtr(TTextureHandleId textureHandle)
+	{
+		if (TTextureHandleId::Invalid == textureHandle)
+		{
+			return nullptr;
+		}
+
+		const USIZE bufferPlacementIndex = static_cast<USIZE>(textureHandle);
+		if (bufferPlacementIndex >= mpTexturesArray.size())
+		{
+			return nullptr;
+		}
+
+		return mpTexturesArray[bufferPlacementIndex];
 	}
 
 	std::string CD3D11GraphicsObjectManager::GetDefaultShaderCode(const E_DEFAULT_SHADER_TYPE& type) const

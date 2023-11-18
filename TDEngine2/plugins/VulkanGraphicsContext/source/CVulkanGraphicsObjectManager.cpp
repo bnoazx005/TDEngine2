@@ -2,6 +2,7 @@
 #include "../include/CVulkanGraphicsContext.h"
 #include "../include/CVulkanMappings.h"
 #include "../include/CVulkanUtils.h"
+#include "../include/CVulkanTexture2D.h"
 #include "../include/CVulkanBuffer.h"
 #include "../include/CVulkanVertexDeclaration.h"
 #include <core/IFileSystem.h>
@@ -11,6 +12,10 @@
 
 namespace TDEngine2
 {
+	//TDE2_DEFINE_SCOPED_PTR(CVulkanTextureImpl)
+	//TDE2_DEFINE_SCOPED_PTR(CVulkanBuffer)
+
+
 	CVulkanGraphicsObjectManager::CVulkanGraphicsObjectManager() :
 		CBaseGraphicsObjectManager()
 	{
@@ -26,13 +31,49 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
-		return Wrench::TOkValue<TBufferHandleId>(_insertBuffer(pBuffer));
+		auto it = std::find(mpBuffersArray.begin(), mpBuffersArray.end(), nullptr);
+		const USIZE placementIndex = static_cast<USIZE>(std::distance(mpBuffersArray.begin(), it));
+
+		if (placementIndex >= mpBuffersArray.size())
+		{
+			mpBuffersArray.emplace_back(DynamicPtrCast<CVulkanBuffer>(pBuffer));
+		}
+		else
+		{
+			mpBuffersArray[placementIndex] = DynamicPtrCast<CVulkanBuffer>(pBuffer);
+		}
+
+		return Wrench::TOkValue<TBufferHandleId>(static_cast<TBufferHandleId>(placementIndex));
 	}
 
 	TResult<TTextureHandleId> CVulkanGraphicsObjectManager::CreateTexture(const TInitTextureImplParams& params)
 	{
 		TDE2_UNIMPLEMENTED();
 		return Wrench::TErrValue<E_RESULT_CODE>(RC_NOT_IMPLEMENTED_YET);
+	}
+
+	E_RESULT_CODE CVulkanGraphicsObjectManager::DestroyBuffer(TBufferHandleId bufferHandle)
+	{
+		if (TBufferHandleId::Invalid == bufferHandle)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		const USIZE bufferPlacementIndex = static_cast<USIZE>(bufferHandle);
+		if (bufferPlacementIndex >= mpBuffersArray.size())
+		{
+			return RC_FAIL;
+		}
+
+		mpBuffersArray[bufferPlacementIndex] = nullptr;
+
+		return RC_OK;
+	}
+
+	TDE2_API E_RESULT_CODE CVulkanGraphicsObjectManager::DestroyTexture(TTextureHandleId textureHandle)
+	{
+		TDE2_UNIMPLEMENTED();
+		return RC_NOT_IMPLEMENTED_YET;
 	}
 
 	TResult<IVertexDeclaration*> CVulkanGraphicsObjectManager::CreateVertexDeclaration()
@@ -114,6 +155,52 @@ namespace TDEngine2
 		return Wrench::TErrValue<E_RESULT_CODE>(RC_NOT_IMPLEMENTED_YET);
 		//return Wrench::TOkValue<TRasterizerStateId>(TRasterizerStateId(mRasterizerStates.Add(rasterizerStateDesc)));
 	}
+
+	TPtr<IBuffer> CVulkanGraphicsObjectManager::GetBufferPtr(TBufferHandleId handle)
+	{
+		return DynamicPtrCast<IBuffer>(GetVulkanBufferPtr(handle));
+	}
+
+	TPtr<CVulkanBuffer> CVulkanGraphicsObjectManager::GetVulkanBufferPtr(TBufferHandleId bufferHandle)
+	{
+		if (TBufferHandleId::Invalid == bufferHandle)
+		{
+			return nullptr;
+		}
+
+		const USIZE bufferPlacementIndex = static_cast<USIZE>(bufferHandle);
+		if (bufferPlacementIndex >= mpBuffersArray.size())
+		{
+			return nullptr;
+		}
+
+		return mpBuffersArray[bufferPlacementIndex];
+	}
+
+	TPtr<ITextureImpl> CVulkanGraphicsObjectManager::GetTexturePtr(TTextureHandleId handle)
+	{
+		TDE2_UNIMPLEMENTED();
+		return nullptr;
+		//return DynamicPtrCast<ITextureImpl>(GetVulkanTexturePtr(handle));
+	}
+
+	//TPtr<CVulkanTextureImpl> CVulkanGraphicsObjectManager::GetVulkanTexturePtr(TTextureHandleId textureHandle)
+	//{
+	//	TDE2_UNIMPLEMENTED();
+	//	return nullptr;
+	//	/*if (TTextureHandleId::Invalid == textureHandle)
+	//	{
+	//		return nullptr;
+	//	}
+
+	//	const USIZE bufferPlacementIndex = static_cast<USIZE>(textureHandle);
+	//	if (bufferPlacementIndex >= mpTexturesArray.size())
+	//	{
+	//		return nullptr;
+	//	}
+
+	//	return mpTexturesArray[bufferPlacementIndex];*/
+	//}
 
 	std::string CVulkanGraphicsObjectManager::GetDefaultShaderCode(const E_DEFAULT_SHADER_TYPE& type) const
 	{

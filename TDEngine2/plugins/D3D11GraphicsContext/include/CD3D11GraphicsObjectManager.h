@@ -17,6 +17,14 @@
 
 namespace TDEngine2
 {
+	class CD3D11TextureImpl;
+	class CD3D11Buffer;
+
+
+	TDE2_DECLARE_SCOPED_PTR(CD3D11TextureImpl)
+	TDE2_DECLARE_SCOPED_PTR(CD3D11Buffer)
+
+
 	/*!
 		\brief A factory function for creation objects of CD3D11GraphicsObjectManager's type
 		
@@ -48,9 +56,14 @@ namespace TDEngine2
 			template <typename T> using                          TStateHashesTable = std::unordered_map<U32, T>;
 			typedef TStateHashesTable<TDepthStencilStateId>      TDepthStencilStatesTable;
 			typedef TStateHashesTable<TRasterizerStateId>        TRasterizerStatesTable;
+			typedef std::vector<TPtr<CD3D11TextureImpl>>         TNativeTexturesArray;
+			typedef std::vector<TPtr<CD3D11Buffer>>              TNativeBuffersArray;
 		public:
 			TDE2_API TResult<TBufferHandleId> CreateBuffer(const TInitBufferParams& params) override;
 			TDE2_API TResult<TTextureHandleId> CreateTexture(const TInitTextureImplParams& params) override;
+
+			TDE2_API E_RESULT_CODE DestroyBuffer(TBufferHandleId bufferHandle) override;
+			TDE2_API E_RESULT_CODE DestroyTexture(TTextureHandleId textureHandle) override;
 
 			/*!
 				\brief The method is a factory for creation objects of IVertexDeclaration's type
@@ -152,6 +165,12 @@ namespace TDEngine2
 
 			TDE2_API std::string GetDefaultShaderCode(const E_DEFAULT_SHADER_TYPE& type) const override;
 
+			TDE2_API TPtr<IBuffer> GetBufferPtr(TBufferHandleId handle) override;
+			TDE2_API TPtr<CD3D11Buffer> GetD3D11BufferPtr(TBufferHandleId bufferHandle);
+
+			TDE2_API TPtr<ITextureImpl> GetTexturePtr(TTextureHandleId handle) override;
+			TDE2_API TPtr<CD3D11TextureImpl> GetD3D11TexturePtr(TTextureHandleId textureHandle);
+
 			/*!
 				\brief The method returns vertices of a screen-quad triangle specific for the current GAPI.
 				XY of each element mean the position and ZW are texture coordinates
@@ -180,6 +199,9 @@ namespace TDEngine2
 			TRasterizerStatesArray   mpRasterizerStatesArray; 
 			TDepthStencilStatesTable mDepthStencilStatesTable;
 			TRasterizerStatesTable   mRasterizerStatesTable;
+
+			TNativeTexturesArray     mpTexturesArray;
+			TNativeBuffersArray      mpBuffersArray;
 	};
 }
 
