@@ -203,9 +203,9 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SetTexture(U32 slot, TTextureHandleId textureHandle) override;
 			TDE2_API E_RESULT_CODE SetSampler(U32 slot, TTextureSamplerId samplerHandle) override;
 
-			TDE2_API E_RESULT_CODE UpdateTexture2D(TTextureHandleId textureHandle, const void* pData, USIZE dataSize) override;
-			TDE2_API E_RESULT_CODE UpdateTexture2DArray(TTextureHandleId textureHandle, const void* pData, USIZE dataSize) override;
-			TDE2_API E_RESULT_CODE UpdateCubemapTexture(TTextureHandleId textureHandle, const void* pData, USIZE dataSize) override;
+			TDE2_API E_RESULT_CODE UpdateTexture2D(TTextureHandleId textureHandle, U32 mipLevel, const TRectI32& regionRect, const void* pData, USIZE dataSize) override;
+			TDE2_API E_RESULT_CODE UpdateTexture2DArray(TTextureHandleId textureHandle, U32 index, const TRectI32& regionRect, const void* pData, USIZE dataSize) override;
+			TDE2_API E_RESULT_CODE UpdateCubemapTexture(TTextureHandleId textureHandle, E_CUBEMAP_FACE face, const TRectI32& regionRect, const void* pData, USIZE dataSize) override;
 			//TDE2_API E_RESULT_CODE UpdateTexture3D(TTextureHandleId textureHandle, const void* pData, USIZE dataSize) override;
 
 			// Blit one texture to another

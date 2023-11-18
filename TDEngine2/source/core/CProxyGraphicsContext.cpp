@@ -124,22 +124,22 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CProxyGraphicsContext::UpdateTexture2D(TTextureHandleId textureHandle, const void* pData, USIZE dataSize)
+	E_RESULT_CODE CProxyGraphicsContext::UpdateTexture2D(TTextureHandleId textureHandle, U32 mipLevel, const TRectI32& regionRect, const void* pData, USIZE dataSize)
 	{
 		LOG_MESSAGE("[ProxyGraphicsContext] UpdateTexture2D");
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CProxyGraphicsContext::UpdateTexture2DArray(TTextureHandleId textureHandle, const void* pData, USIZE dataSize)
+	E_RESULT_CODE CProxyGraphicsContext::UpdateTexture2DArray(TTextureHandleId textureHandle, U32 index, const TRectI32& regionRect, const void* pData, USIZE dataSize)
 	{
 		LOG_MESSAGE("[ProxyGraphicsContext] UpdateTexture2DArray");
-		return RC_OK;
+		return RC_NOT_IMPLEMENTED_YET;
 	}
 
-	E_RESULT_CODE CProxyGraphicsContext::UpdateCubemapTexture(TTextureHandleId textureHandle, const void* pData, USIZE dataSize)
+	E_RESULT_CODE CProxyGraphicsContext::UpdateCubemapTexture(TTextureHandleId textureHandle, E_CUBEMAP_FACE face, const TRectI32& regionRect, const void* pData, USIZE dataSize)
 	{
 		LOG_MESSAGE("[ProxyGraphicsContext] UpdateCubemapTexture");
-		return RC_OK;
+		return RC_NOT_IMPLEMENTED_YET;
 	}
 
 	E_RESULT_CODE CProxyGraphicsContext::CopyResource(TTextureHandleId sourceHandle, TTextureHandleId destHandle)

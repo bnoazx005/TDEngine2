@@ -361,6 +361,19 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D11GraphicsContext::SetTexture(U32 slot, TTextureHandleId textureHandle)
 	{
+		auto pTexture = mpGraphicsObjectManagerD3D11Impl->GetD3D11TexturePtr(textureHandle);
+		if (!pTexture)
+		{
+			return RC_FAIL;
+		}
+
+		auto pTextureSRV = pTexture->GetShaderResourceView();
+
+		mp3dDeviceContext->VSSetShaderResources(slot, 1, &pTextureSRV);
+		mp3dDeviceContext->PSSetShaderResources(slot, 1, &pTextureSRV);
+		mp3dDeviceContext->GSSetShaderResources(slot, 1, &pTextureSRV);
+		mp3dDeviceContext->CSSetShaderResources(slot, 1, &pTextureSRV);
+
 		return RC_OK;
 	}
 
@@ -386,23 +399,64 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CD3D11GraphicsContext::UpdateTexture2D(TTextureHandleId textureHandle, const void* pData, USIZE dataSize)
+	E_RESULT_CODE CD3D11GraphicsContext::UpdateTexture2D(TTextureHandleId textureHandle, U32 mipLevel, const TRectI32& regionRect, const void* pData, USIZE dataSize)
 	{
+		auto pTexture = mpGraphicsObjectManagerD3D11Impl->GetD3D11TexturePtr(textureHandle);
+		if (!pTexture)
+		{
+			return RC_FAIL;
+		}
+
+		D3D11_BOX region;
+
+		region.left = regionRect.x;
+		region.top = regionRect.y;
+		region.right = regionRect.x + regionRect.width;
+		region.bottom = regionRect.y + regionRect.height;
+		region.back = 1;
+		region.front = 0;
+
+		U32 rowPitch = regionRect.width * CD3D11Mappings::GetNumOfChannelsOfFormat(pTexture->GetParams().mFormat);
+
+		mp3dDeviceContext->UpdateSubresource(pTexture->GetTextureResource(), mipLevel, &region, pData, rowPitch, rowPitch * regionRect.height);
+
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CD3D11GraphicsContext::UpdateTexture2DArray(TTextureHandleId textureHandle, const void* pData, USIZE dataSize)
+	E_RESULT_CODE CD3D11GraphicsContext::UpdateTexture2DArray(TTextureHandleId textureHandle, U32 index, const TRectI32& regionRect, const void* pData, USIZE dataSize)
 	{
-		return RC_OK;
+		auto pTexture = mpGraphicsObjectManagerD3D11Impl->GetD3D11TexturePtr(textureHandle);
+		if (!pTexture)
+		{
+			return RC_FAIL;
+		}
+
+		return UpdateTexture2D(textureHandle, D3D11CalcSubresource(0, index, pTexture->GetParams().mNumOfMipLevels), regionRect, pData, dataSize);
 	}
 
-	E_RESULT_CODE CD3D11GraphicsContext::UpdateCubemapTexture(TTextureHandleId textureHandle, const void* pData, USIZE dataSize)
+	E_RESULT_CODE CD3D11GraphicsContext::UpdateCubemapTexture(TTextureHandleId textureHandle, E_CUBEMAP_FACE face, const TRectI32& regionRect, const void* pData, USIZE dataSize)
 	{
-		return RC_OK;
+		auto pTexture = mpGraphicsObjectManagerD3D11Impl->GetD3D11TexturePtr(textureHandle);
+		if (!pTexture)
+		{
+			return RC_FAIL;
+		}
+
+		return UpdateTexture2D(textureHandle, D3D11CalcSubresource(0, CD3D11Mappings::GetCubemapFace(face), pTexture->GetParams().mNumOfMipLevels), regionRect, pData, dataSize);
 	}
 
 	E_RESULT_CODE CD3D11GraphicsContext::CopyResource(TTextureHandleId sourceHandle, TTextureHandleId destHandle)
 	{
+		auto pSourceTexture = mpGraphicsObjectManagerD3D11Impl->GetD3D11TexturePtr(sourceHandle);
+		auto pDestTexture = mpGraphicsObjectManagerD3D11Impl->GetD3D11TexturePtr(destHandle);
+
+		if (!pSourceTexture || !pDestTexture)
+		{
+			return RC_FAIL;
+		}
+
+		mp3dDeviceContext->CopyResource(pSourceTexture->GetTextureResource(), pDestTexture->GetTextureResource());
+
 		return RC_OK;
 	}
 

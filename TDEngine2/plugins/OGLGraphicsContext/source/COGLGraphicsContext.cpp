@@ -287,6 +287,15 @@ namespace TDEngine2
 
 	E_RESULT_CODE COGLGraphicsContext::SetTexture(U32 slot, TTextureHandleId textureHandle)
 	{
+		auto pTexture = mpGraphicsObjectManagerImpl->GetOGLTexturePtr(textureHandle);
+		if (!pTexture)
+		{
+			return RC_FAIL;
+		}
+
+		GL_SAFE_VOID_CALL(glActiveTexture(GL_TEXTURE0 + slot));
+		GL_SAFE_VOID_CALL(glBindTexture(COGLMappings::GetTextureType(pTexture->GetParams().mType), pTexture->GetTextureHandle()));
+
 		return RC_OK;
 	}
 
@@ -304,18 +313,81 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE COGLGraphicsContext::UpdateTexture2D(TTextureHandleId textureHandle, const void* pData, USIZE dataSize)
+	E_RESULT_CODE COGLGraphicsContext::UpdateTexture2D(TTextureHandleId textureHandle, U32 mipLevel, const TRectI32& regionRect, const void* pData, USIZE dataSize)
 	{
+		auto pTexture = mpGraphicsObjectManagerImpl->GetOGLTexturePtr(textureHandle);
+		if (!pTexture)
+		{
+			return RC_FAIL;
+		}
+
+		GL_SAFE_CALL(glBindTexture(GL_TEXTURE_2D, pTexture->GetTextureHandle()));
+
+		GL_SAFE_CALL(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
+
+		/// GL_UNSIGNED_BYTE is used explicitly, because of stb_image stores data as unsigned char array
+		GL_SAFE_CALL(glTexSubImage2D(GL_TEXTURE_2D, mipLevel, regionRect.x, regionRect.y, regionRect.width, regionRect.height, 
+			COGLMappings::GetPixelDataFormat(pTexture->GetParams().mFormat), GL_UNSIGNED_BYTE, pData));
+
+		if (pTexture->GetParams().mNumOfMipLevels > 1)
+		{
+			GL_SAFE_CALL(glGenerateMipmap(GL_TEXTURE_2D));
+		}
+
+		GL_SAFE_CALL(glBindTexture(GL_TEXTURE_2D, 0));
+
 		return RC_OK;
 	}
 
-	E_RESULT_CODE COGLGraphicsContext::UpdateTexture2DArray(TTextureHandleId textureHandle, const void* pData, USIZE dataSize)
+	E_RESULT_CODE COGLGraphicsContext::UpdateTexture2DArray(TTextureHandleId textureHandle, U32 index, const TRectI32& regionRect, const void* pData, USIZE dataSize)
 	{
+		auto pTexture = mpGraphicsObjectManagerImpl->GetOGLTexturePtr(textureHandle);
+		if (!pTexture)
+		{
+			return RC_FAIL;
+		}
+
+		GL_SAFE_CALL(glBindTexture(GL_TEXTURE_2D_ARRAY, pTexture->GetTextureHandle()));
+		GL_SAFE_CALL(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
+
+		/// GL_UNSIGNED_BYTE is used explicitly, because of stb_image stores data as unsigned char array
+		GL_SAFE_CALL(glTexSubImage2D(GL_TEXTURE_2D_ARRAY, index, regionRect.x, regionRect.y, regionRect.width, regionRect.height,
+			COGLMappings::GetPixelDataFormat(pTexture->GetParams().mFormat), GL_UNSIGNED_BYTE, pData));
+
+		if (pTexture->GetParams().mNumOfMipLevels > 1)
+		{
+			GL_SAFE_CALL(glGenerateMipmap(GL_TEXTURE_2D_ARRAY));
+		}
+
+		GL_SAFE_CALL(glBindTexture(GL_TEXTURE_2D_ARRAY, 0));
+
 		return RC_OK;
 	}
 
-	E_RESULT_CODE COGLGraphicsContext::UpdateCubemapTexture(TTextureHandleId textureHandle, const void* pData, USIZE dataSize)
+	E_RESULT_CODE COGLGraphicsContext::UpdateCubemapTexture(TTextureHandleId textureHandle, E_CUBEMAP_FACE face, const TRectI32& regionRect, const void* pData, USIZE dataSize)
 	{
+		auto pTexture = mpGraphicsObjectManagerImpl->GetOGLTexturePtr(textureHandle);
+		if (!pTexture)
+		{
+			return RC_FAIL;
+		}
+
+		GL_SAFE_CALL(glBindTexture(GL_TEXTURE_CUBE_MAP, pTexture->GetTextureHandle()));
+		GL_SAFE_CALL(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
+
+		auto&& params = pTexture->GetParams();
+
+		/// GL_UNSIGNED_BYTE is used explicitly, because of stb_image stores data as unsigned char array
+		GL_SAFE_CALL(glTexSubImage2D(COGLMappings::GetCubemapFace(face), 0, regionRect.x, regionRect.y, regionRect.width, regionRect.height,
+			COGLMappings::GetPixelDataFormat(params.mFormat), GL_UNSIGNED_BYTE, pData));
+
+		if (params.mNumOfMipLevels > 1)
+		{
+			GL_SAFE_CALL(glGenerateMipmap(GL_TEXTURE_CUBE_MAP));
+		}
+
+		GL_SAFE_CALL(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
+
 		return RC_OK;
 	}
 
