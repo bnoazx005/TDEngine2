@@ -57,6 +57,8 @@ namespace TDEngine2
 			TDE2_API ID3D11DepthStencilView* GetDepthStencilView();
 			TDE2_API ID3D11UnorderedAccessView* GetUnorderedAccessView();
 
+			TDE2_API std::vector<U8> ReadBytes(U32 index) override;
+
 			TDE2_API const TInitTextureParams& GetParams() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11TextureImpl)

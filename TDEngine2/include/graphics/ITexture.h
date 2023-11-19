@@ -165,6 +165,8 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Resize(U32 width, U32 height, U32 depth = 1) = 0;
 
+			TDE2_API virtual std::vector<U8> ReadBytes(U32 index) = 0;
+
 			TDE2_API virtual const TInitTextureParams& GetParams() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ITextureImpl)

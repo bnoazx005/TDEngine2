@@ -121,6 +121,28 @@ namespace TDEngine2
 		return mTextureHandle;
 	}
 
+	std::vector<U8> COGLTextureImpl::ReadBytes(U32 index)
+	{
+		std::vector<U8> pPixelData(mInitParams.mWidth * mInitParams.mHeight * COGLMappings::GetFormatSize(mInitParams.mFormat));
+
+		const GLenum textureType = COGLMappings::GetTextureType(mInitParams.mType);
+
+		GL_SAFE_VOID_CALL(glGetTexImage(textureType, index,
+			COGLMappings::GetPixelDataFormat(mInitParams.mFormat), 
+			COGLMappings::GetBaseTypeOfFormat(mInitParams.mFormat), 
+			reinterpret_cast<void*>(&pPixelData[0])));
+		
+		if (COGLMappings::GetErrorCode(glGetError()) != RC_OK)
+		{
+			TDE2_ASSERT(false);
+			return {};
+		}
+		
+		glBindTexture(textureType, 0);
+		
+		return std::move(pPixelData);
+	}
+
 	const TInitTextureParams& COGLTextureImpl::GetParams() const
 	{
 		return mInitParams;

@@ -217,8 +217,16 @@ namespace TDEngine2
 
 	std::vector<U8> CBaseTexture2D::GetInternalData()
 	{
-		TDE2_UNIMPLEMENTED();
-		return {};
+		auto pGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
+		
+		auto pTexture = pGraphicsObjectManager->GetTexturePtr(mCurrTextureHandle);
+		if (!pTexture)
+		{
+			TDE2_ASSERT(false);
+			return {};
+		}
+
+		return pTexture->ReadBytes(0);
 	}
 
 	TTextureSamplerId CBaseTexture2D::GetTextureSampleHandle(IGraphicsContext* pGraphicsContext, const TTextureSamplerDesc& params)

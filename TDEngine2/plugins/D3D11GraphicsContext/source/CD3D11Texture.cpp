@@ -5,6 +5,7 @@
 #include <utils/Utils.h>
 #include <cstring>
 #include <algorithm>
+#include "deferOperation.hpp"
 
 
 #if defined (TDE2_USE_WINPLATFORM)
@@ -282,6 +283,54 @@ namespace TDEngine2
 	ID3D11UnorderedAccessView* CD3D11TextureImpl::GetUnorderedAccessView()
 	{
 		return mpUavTextureView;
+	}
+
+	std::vector<U8> CD3D11TextureImpl::ReadBytes(U32 index)
+	{
+		TInitTextureImplParams createTextureParams{};
+		createTextureParams.mWidth = mInitParams.mWidth;
+		createTextureParams.mHeight = mInitParams.mHeight;
+		createTextureParams.mFormat = mInitParams.mFormat;
+		createTextureParams.mNumOfMipLevels = mInitParams.mNumOfMipLevels;
+		createTextureParams.mNumOfSamples = mInitParams.mNumOfSamples;
+		createTextureParams.mSamplingQuality = mInitParams.mSamplingQuality;
+		createTextureParams.mType = mInitParams.mType;
+		createTextureParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STAGING;
+
+		/// \note create temporary texture with D3D11_USAGE_STAGING flag
+		auto createTempTextureResult = CreateTexture2DResourceInternal(mp3dDevice, createTextureParams);
+		if (createTempTextureResult.HasError())
+		{
+			TDE2_ASSERT(false);
+			return {};
+		}
+
+		ID3D11Resource* pTempTexture = createTempTextureResult.Get();
+		defer([=] 
+		{
+			pTempTexture->Release();
+		});
+
+		/// \note copy data from actual texture into helper one
+		mp3dDeviceContext->CopyResource(pTempTexture, mpTextureResource);
+
+		/// \note retrieve pointer to memory from temp texture
+		D3D11_MAPPED_SUBRESOURCE mappedData;
+
+		if (FAILED(mp3dDeviceContext->Map(pTempTexture, index, D3D11_MAP_READ, 0x0, &mappedData)))
+		{
+			TDE2_ASSERT(false);
+			return {};
+		}
+
+		const size_t size = static_cast<size_t>(createTextureParams.mWidth * createTextureParams.mHeight * CD3D11Mappings::GetFormatSize(createTextureParams.mFormat));
+		std::vector<U8> pixelsData(size);
+
+		memcpy(&pixelsData[0], mappedData.pData, size);
+
+		mp3dDeviceContext->Unmap(pTempTexture, 0);
+		
+		return pixelsData;
 	}
 
 	const TInitTextureParams& CD3D11TextureImpl::GetParams() const
