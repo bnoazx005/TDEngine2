@@ -2,7 +2,7 @@
 #include "../include/COGLGraphicsContext.h"
 #include "../include/COGLMappings.h"
 #include "../include/COGLUtils.h"
-#include "../include/COGLTexture2D.h"
+#include "../include/COGLTexture.h"
 #include <graphics/ITexture2D.h>
 #include <cstring>
 

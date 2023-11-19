@@ -1,9 +1,9 @@
-#include "./../include/COGLGraphicsObjectManager.h"
-#include "./../include/COGLBuffer.h"
-#include "./../include/COGLTexture2D.h"
-#include "./../include/COGLVertexDeclaration.h"
-#include "./../include/COGLMappings.h"
-#include "./../include/COGLUtils.h"
+#include "../include/COGLGraphicsObjectManager.h"
+#include "../include/COGLBuffer.h"
+#include "../include/COGLTexture.h"
+#include "../include/COGLVertexDeclaration.h"
+#include "../include/COGLMappings.h"
+#include "../include/COGLUtils.h"
 #include <core/IFileSystem.h>
 #include <core/IFile.h>
 #include <core/CProjectSettings.h>

@@ -3,7 +3,7 @@
 #include "../include/win32/CWin32WindowSurfaceFactory.h"
 #include "../include/CVulkanShader.h"
 #include "../include/CVulkanShaderCompiler.h"
-#include "../include/CVulkanTexture2D.h"
+#include "../include/CVulkanTexture.h"
 #include "../include/CVulkanRenderTarget.h"
 #include "../include/CVulkanDepthBufferTarget.h"
 #include <core/IEngineCore.h>

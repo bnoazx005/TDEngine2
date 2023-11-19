@@ -2,7 +2,7 @@
 #include "../include/CD3D11GraphicsContext.h"
 #include "../include/CD3D11Shader.h"
 #include "../include/CD3D11ShaderCompiler.h"
-#include "../include/CD3D11Texture2D.h"
+#include "../include/CD3D11Texture.h"
 #include "../include/CD3D11RenderTarget.h"
 #include "../include/CD3D11DepthBufferTarget.h"
 #include <core/IEngineCore.h>

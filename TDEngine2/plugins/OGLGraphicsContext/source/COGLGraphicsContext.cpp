@@ -5,7 +5,7 @@
 #include "../include/COGLRenderTarget.h"
 #include "../include/COGLDepthBufferTarget.h"
 #include "../include/COGLBuffer.h"
-#include "../include/COGLTexture2D.h"
+#include "../include/COGLTexture.h"
 #include "../include/COGLUtils.h"
 #include <core/IEventManager.h>
 #include <core/IWindowSystem.h>

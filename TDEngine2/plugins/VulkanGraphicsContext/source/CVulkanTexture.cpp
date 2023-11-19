@@ -1,4 +1,4 @@
-#include "../include/CVulkanTexture2D.h"
+#include "../include/CVulkanTexture.h"
 #include "../include/CVulkanMappings.h"
 #include "../include/CVulkanGraphicsContext.h"
 #include "../include/CVulkanUtils.h"

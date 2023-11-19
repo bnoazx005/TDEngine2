@@ -1,7 +1,7 @@
 #include "../include/CVulkanRenderTarget.h"
 #include "../include/CVulkanMappings.h"
 #include "../include/CVulkanUtils.h"
-#include "../include/CVulkanTexture2D.h"
+#include "../include/CVulkanTexture.h"
 #include <utils/CFileLogger.h>
 #include <core/IResourceManager.h>
 

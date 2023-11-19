@@ -1,6 +1,6 @@
 #include "../include/CD3D11GraphicsObjectManager.h"
 #include "../include/CD3D11Buffer.h"
-#include "../include/CD3D11Texture2D.h"
+#include "../include/CD3D11Texture.h"
 #include "../include/CD3D11VertexDeclaration.h"
 #include "../include/CD3D11Mappings.h"
 #include "../include/CD3D11Utils.h"

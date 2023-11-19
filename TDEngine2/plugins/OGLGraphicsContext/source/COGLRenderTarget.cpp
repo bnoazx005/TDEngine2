@@ -1,7 +1,7 @@
-#include "./../include/COGLRenderTarget.h"
-#include "./../include/COGLMappings.h"
-#include "./../include/COGLUtils.h"
-#include "../include/COGLTexture2D.h"
+#include "../include/COGLRenderTarget.h"
+#include "../include/COGLMappings.h"
+#include "../include/COGLUtils.h"
+#include "../include/COGLTexture.h"
 #include <utils/CFileLogger.h>
 #include <core/IResourceManager.h>
 

@@ -1,4 +1,4 @@
-#include "../include/COGLTexture2D.h"
+#include "../include/COGLTexture.h"
 #include "../include/COGLMappings.h"
 #include "../include/COGLUtils.h"
 #include <core/IResourceManager.h>
