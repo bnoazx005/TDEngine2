@@ -29,6 +29,16 @@ namespace TDEngine2
 				}																																\
 			} while(false)
 
+#define VK_SAFE_TRESULT_CALL(FunctionCall)																										\
+			do {																																\
+				const E_RESULT_CODE errorCode = CVulkanMappings::GetErrorCode(FunctionCall);													\
+				if (RC_OK != errorCode)																											\
+				{																																\
+					TDE2_ASSERT(false);																											\
+					return Wrench::TErrValue<E_RESULT_CODE>(errorCode);																			\
+				}																																\
+			} while(false)
+
 
 	/*!
 		\brief The macro is used for debugging Vulkan calls when the owning function returns nothing

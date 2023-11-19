@@ -20,6 +20,9 @@ enum VkResult;
 
 namespace TDEngine2
 {
+	enum class E_TEXTURE_IMPL_TYPE : U32;
+
+
 	/*!
 		\brief The static class contains static helper methods, which represents
 		mappings from Vulkan types and formates into in-engine used ones
@@ -79,6 +82,10 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static VkShaderStageFlagBits GetShaderStageType(E_SHADER_STAGE_TYPE shaderStageType);
+
+			TDE2_API static VkImageType GetTextureType(E_TEXTURE_IMPL_TYPE implType);
+			TDE2_API static VkImageViewType GetTextureViewType(E_TEXTURE_IMPL_TYPE implType);
+
 			//
 			///*!
 			//	\brief The function returns a number of channels for a given format type

@@ -3,6 +3,7 @@
 #include "../include/IWindowSurfaceFactory.h"
 #include "../include/CVulkanGraphicsObjectManager.h"
 #include "../include/CVulkanBuffer.h"
+#include "../include/CVulkanTexture.h"
 #include <core/IEventManager.h>
 #include <core/IWindowSystem.h>
 #include <utils/CFileLogger.h>
@@ -797,92 +798,102 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanGraphicsContext::UpdateTexture2D(TTextureHandleId textureHandle, U32 mipLevel, const TRectI32& regionRect, const void* pData, USIZE dataSize)
 	{
-		//E_RESULT_CODE result = RC_OK;
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
 
-		//TPtr<IBuffer> pStagingBuffer = TPtr<IBuffer>(CreateVulkanBuffer(this, { E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::GENERIC, dataSize, nullptr }, result));
-		//if (RC_OK != result || !pStagingBuffer)
-		//{
-		//	return result;
-		//}
+		E_RESULT_CODE result = RC_OK;
 
-		//result = pStagingBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE);
-		//if (RC_OK != result)
-		//{
-		//	return result;
-		//}
+		auto pTexture = mpGraphicsObjectManagerImpl->GetVulkanTexturePtr(textureHandle);
+		if (!pTexture)
+		{
+			return RC_FAIL;
+		}
 
-		//result = pStagingBuffer->Write(pData, dataSize);
-		//if (RC_OK != result)
-		//{
-		//	return result;
-		//}
+		const USIZE textureSize = static_cast<USIZE>(regionRect.width * regionRect.height * CFormatUtils::GetFormatSize(pTexture->GetParams().mFormat));
 
-		//pStagingBuffer->Unmap();
+		TPtr<IBuffer> pStagingBuffer = TPtr<IBuffer>(CreateVulkanBuffer(this, { E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::GENERIC, textureSize, nullptr }, result));
+		if (RC_OK != result || !pStagingBuffer)
+		{
+			return result;
+		}
 
-		//auto pStagingBufferImpl = DynamicPtrCast<CVulkanBuffer>(pStagingBuffer);
+		TPtr<CVulkanBuffer> pVulkanStagingBuffer = DynamicPtrCast<CVulkanBuffer>(pStagingBuffer);
 
-		//auto pTextureParams = pTexture->GetParams();
+		result = pStagingBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE);
+		if (RC_OK != result)
+		{
+			return result;
+		}
 
-		//result = ExecuteCopyImmediate([=](VkCommandBuffer cmdBuffer)
-		//{
-		//	VkImageSubresourceRange range;
-		//	range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		//	range.baseMipLevel = 0;
-		//	range.levelCount = 1;
-		//	range.baseArrayLayer = 0;
-		//	range.layerCount = 1;
+		result = pStagingBuffer->Write(pData, textureSize);
+		if (RC_OK != result)
+		{
+			return result;
+		}
 
-		//	VkImageMemoryBarrier imageBarrierToTransfer = {};
-		//	imageBarrierToTransfer.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		pStagingBuffer->Unmap();
 
-		//	imageBarrierToTransfer.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		//	imageBarrierToTransfer.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-		//	imageBarrierToTransfer.image = mInternalImageHandle;
-		//	imageBarrierToTransfer.subresourceRange = range;
+		auto pStagingBufferImpl = DynamicPtrCast<CVulkanBuffer>(pStagingBuffer);
 
-		//	imageBarrierToTransfer.srcAccessMask = 0;
-		//	imageBarrierToTransfer.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		result = ExecuteCopyImmediate([=](VkCommandBuffer cmdBuffer)
+		{
+			VkImageSubresourceRange range;
+			range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			range.baseMipLevel = 0;
+			range.levelCount = 1;
+			range.baseArrayLayer = 0;
+			range.layerCount = 1;
 
-		//	//barrier the image into the transfer-receive layout
-		//	vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrierToTransfer);
+			VkImageMemoryBarrier imageBarrierToTransfer = {};
+			imageBarrierToTransfer.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 
-		//	VkBufferImageCopy copyRegion = {};
-		//	copyRegion.bufferOffset = 0;
-		//	copyRegion.bufferRowLength = 0;
-		//	copyRegion.bufferImageHeight = 0;
+			imageBarrierToTransfer.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			imageBarrierToTransfer.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			imageBarrierToTransfer.image = pTexture->GetTextureHandle();
+			imageBarrierToTransfer.subresourceRange = range;
 
-		//	VkExtent3D imageExtent;
-		//	imageExtent.width = mWidth;
-		//	imageExtent.height = mHeight;
-		//	imageExtent.depth = 1;
+			imageBarrierToTransfer.srcAccessMask = 0;
+			imageBarrierToTransfer.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 
-		//	copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		//	copyRegion.imageSubresource.mipLevel = 0;
-		//	copyRegion.imageSubresource.baseArrayLayer = 0;
-		//	copyRegion.imageSubresource.layerCount = 1;
-		//	copyRegion.imageExtent = imageExtent;
+			//barrier the image into the transferreceive layout
+			vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrierToTransfer);
 
-		//	//copy the buffer into the image
-		//	vkCmdCopyBufferToImage(cmdBuffer, pStagingBufferImpl->GetVulkanHandle(), mInternalImageHandle, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
+			VkBufferImageCopy copyRegion = {};
+			copyRegion.bufferOffset = 0;
+			copyRegion.bufferRowLength = 0;
+			copyRegion.bufferImageHeight = 0;
 
-		//	VkImageMemoryBarrier imageBarrierToReadable = imageBarrierToTransfer;
+			auto&& textureParams = pTexture->GetParams();
 
-		//	imageBarrierToReadable.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-		//	imageBarrierToReadable.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			VkExtent3D imageExtent;
+			imageExtent.width = textureParams.mWidth;
+			imageExtent.height = textureParams.mHeight;
+			imageExtent.depth = textureParams.mDepth;
 
-		//	imageBarrierToReadable.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-		//	imageBarrierToReadable.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+			copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			copyRegion.imageSubresource.mipLevel = 0;
+			copyRegion.imageSubresource.baseArrayLayer = 0;
+			copyRegion.imageSubresource.layerCount = 1;
+			copyRegion.imageExtent = imageExtent;
 
-		//	//barrier the image into the shader readable layout
-		//	vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrierToReadable);
-		//});
+			//copy the buffer into the image
+			vkCmdCopyBufferToImage(cmdBuffer, pVulkanStagingBuffer->GetVulkanHandle(), pTexture->GetTextureHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
 
-		//if (RC_OK != result)
-		//{
-		//	return result;
-		//}
+			VkImageMemoryBarrier imageBarrierToReadable = imageBarrierToTransfer;
 
-		return RC_OK;
+			imageBarrierToReadable.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			imageBarrierToReadable.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+			imageBarrierToReadable.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+			imageBarrierToReadable.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+			//barrier the image into the shader readable layout
+			vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrierToReadable);
+		});
+
+		return result;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::UpdateTexture2DArray(TTextureHandleId textureHandle, U32 index, const TRectI32& regionRect, const void* pData, USIZE dataSize)

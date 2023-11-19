@@ -18,7 +18,7 @@ namespace TDEngine2
 	class CVulkanBuffer;
 
 
-	//TDE2_DECLARE_SCOPED_PTR(CVulkanTextureImpl)
+	TDE2_DECLARE_SCOPED_PTR(CVulkanTextureImpl)
 	TDE2_DECLARE_SCOPED_PTR(CVulkanBuffer)
 
 
@@ -46,7 +46,7 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IGraphicsObjectManager* CreateVulkanGraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
 		public:
-			//typedef std::vector<TPtr<CVulkanTextureImpl>> TNativeTexturesArray;
+			typedef std::vector<TPtr<CVulkanTextureImpl>> TNativeTexturesArray;
 			typedef std::vector<TPtr<CVulkanBuffer>>        TNativeBuffersArray;
 		public:
 			TDE2_API TResult<TBufferHandleId> CreateBuffer(const TInitBufferParams& params) override;
@@ -107,7 +107,7 @@ namespace TDEngine2
 			TDE2_API TPtr<CVulkanBuffer> GetVulkanBufferPtr(TBufferHandleId bufferHandle);
 
 			TDE2_API TPtr<ITextureImpl> GetTexturePtr(TTextureHandleId handle) override;
-			//TDE2_API TPtr<CVulkanTextureImpl> GetVulkanTexturePtr(TTextureHandleId textureHandle);
+			TDE2_API TPtr<CVulkanTextureImpl> GetVulkanTexturePtr(TTextureHandleId textureHandle);
 
 			/*!
 				\brief The method returns a string which contains full source code of default shader that is specific
@@ -144,7 +144,7 @@ namespace TDEngine2
 
 			TDE2_API const std::string _getShaderCacheFilePath() const override;
 		protected:
-			//TNativeTexturesArray mpTexturesArray;
+			TNativeTexturesArray mpTexturesArray;
 			TNativeBuffersArray mpBuffersArray;
 	};
 }

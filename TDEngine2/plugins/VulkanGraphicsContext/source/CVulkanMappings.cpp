@@ -1,4 +1,5 @@
 #include "../include/CVulkanMappings.h"
+#include <graphics/ITexture.h>
 #include <utils/Utils.h>
 
 
@@ -522,6 +523,40 @@ namespace TDEngine2
 
 		TDE2_UNREACHABLE();
 		return VK_SHADER_STAGE_VERTEX_BIT;
+	}
+
+	VkImageType CVulkanMappings::GetTextureType(E_TEXTURE_IMPL_TYPE implType)
+	{
+		switch (implType)
+		{
+			case E_TEXTURE_IMPL_TYPE::CUBEMAP:
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D:
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D_ARRAY:
+				return VK_IMAGE_TYPE_2D;
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_3D:
+				return VK_IMAGE_TYPE_3D;
+		}
+
+		TDE2_UNREACHABLE();
+		return VK_IMAGE_TYPE_2D;
+	}
+
+	VkImageViewType CVulkanMappings::GetTextureViewType(E_TEXTURE_IMPL_TYPE implType)
+	{
+		switch (implType)
+		{
+			case E_TEXTURE_IMPL_TYPE::CUBEMAP:
+				return VK_IMAGE_VIEW_TYPE_CUBE;
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D:
+				return VK_IMAGE_VIEW_TYPE_2D;
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D_ARRAY:
+				return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_3D:
+				return VK_IMAGE_VIEW_TYPE_3D;
+		}
+
+		TDE2_UNREACHABLE();
+		return VK_IMAGE_VIEW_TYPE_2D;
 	}
 
 	E_RESULT_CODE CVulkanMappings::GetErrorCode(VkResult resultCode)
