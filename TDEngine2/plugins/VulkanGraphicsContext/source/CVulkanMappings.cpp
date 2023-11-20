@@ -371,63 +371,64 @@ namespace TDEngine2
 		}
 
 		return 0;
-	}
+	}*/
 
-	GLint CVulkanMappings::GetMinFilterType(E_TEXTURE_FILTER_TYPE filterValue, bool useMipMaps)
+	//VkFilter CVulkanMappings::GetMinFilterType(E_TEXTURE_FILTER_TYPE filterValue, bool useMipMaps)
+	//{
+	//	switch (filterValue)
+	//	{
+	//		case E_TEXTURE_FILTER_TYPE::FT_POINT:
+	//			return useMipMaps ? GL_NEAREST_MIPMAP_NEAREST : GL_NEAREST;
+
+	//		case E_TEXTURE_FILTER_TYPE::FT_BILINEAR:
+	//			return useMipMaps ? GL_NEAREST_MIPMAP_LINEAR : GL_LINEAR;
+
+	//		case E_TEXTURE_FILTER_TYPE::FT_TRILINEAR:
+	//			return GL_LINEAR_MIPMAP_LINEAR;
+
+	//		case E_TEXTURE_FILTER_TYPE::FT_ANISOTROPIC:
+	//			return GL_LINEAR_MIPMAP_LINEAR;
+	//	}
+
+	//	return GL_NEAREST;
+	//}
+
+	VkFilter CVulkanMappings::GetFilterType(E_TEXTURE_FILTER_TYPE filterValue)
 	{
 		switch (filterValue)
 		{
 			case E_TEXTURE_FILTER_TYPE::FT_POINT:
-				return useMipMaps ? GL_NEAREST_MIPMAP_NEAREST : GL_NEAREST;
-
-			case E_TEXTURE_FILTER_TYPE::FT_BILINEAR:
-				return useMipMaps ? GL_NEAREST_MIPMAP_LINEAR : GL_LINEAR;
-
-			case E_TEXTURE_FILTER_TYPE::FT_TRILINEAR:
-				return GL_LINEAR_MIPMAP_LINEAR;
-
-			case E_TEXTURE_FILTER_TYPE::FT_ANISOTROPIC:
-				return GL_LINEAR_MIPMAP_LINEAR;
-		}
-
-		return GL_NEAREST;
-	}
-
-	GLint CVulkanMappings::GetMagFilterType(E_TEXTURE_FILTER_TYPE filterValue)
-	{
-		switch (filterValue)
-		{
-			case E_TEXTURE_FILTER_TYPE::FT_POINT:
-				return GL_NEAREST;
+				return VK_FILTER_NEAREST;
 
 			case E_TEXTURE_FILTER_TYPE::FT_BILINEAR:
 			case E_TEXTURE_FILTER_TYPE::FT_TRILINEAR:
-				return GL_LINEAR;
+				return VK_FILTER_LINEAR;
 
 			case E_TEXTURE_FILTER_TYPE::FT_ANISOTROPIC:
 				TDE2_UNIMPLEMENTED();
-				return 0;
+				return VK_FILTER_NEAREST;
 		}
 
-		return GL_NEAREST;
+		return VK_FILTER_NEAREST;
 	}
 
-	GLint CVulkanMappings::GetTextureAddressMode(E_ADDRESS_MODE_TYPE addressMode)
+	VkSamplerAddressMode CVulkanMappings::GetTextureAddressMode(E_ADDRESS_MODE_TYPE addressMode)
 	{
 		switch (addressMode)
 		{
 			case E_ADDRESS_MODE_TYPE::AMT_BORDER:
-				return GL_CLAMP_TO_BORDER;
+				return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
 			case E_ADDRESS_MODE_TYPE::AMT_CLAMP:
-				return GL_CLAMP_TO_EDGE;
+				return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
 			case E_ADDRESS_MODE_TYPE::AMT_MIRROR:
-				return GL_MIRRORED_REPEAT;
+				return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
 			case E_ADDRESS_MODE_TYPE::AMT_WRAP:
-				return GL_REPEAT;
+				return VK_SAMPLER_ADDRESS_MODE_REPEAT;
 		}
 
-		return GL_REPEAT;
-	}*/
+		TDE2_UNREACHABLE();
+		return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	}
 
 	VkFormat CVulkanMappings::GetInternalFormat(E_FORMAT_TYPE format)
 	{

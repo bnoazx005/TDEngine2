@@ -125,36 +125,40 @@ namespace TDEngine2
 
 	TResult<TTextureSamplerId> CVulkanGraphicsObjectManager::CreateTextureSampler(const TTextureSamplerDesc& samplerDesc)
 	{
-		TDE2_UNIMPLEMENTED();
-		return Wrench::TErrValue<E_RESULT_CODE>(RC_NOT_IMPLEMENTED_YET);
-		/*U32 hashValue = ComputeStateDescHash(samplerDesc);
+		U32 hashValue = ComputeStateDescHash(samplerDesc);
 		if (mTextureSamplesHashTable.find(hashValue) != mTextureSamplesHashTable.cend())
 		{
 			return Wrench::TOkValue<TTextureSamplerId>(TTextureSamplerId(mTextureSamplesHashTable[hashValue]));
 		}
 
-		GLuint samplerHandler = 0x0;
+		VkSamplerCreateInfo samplerInfo{};
+		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+		samplerInfo.magFilter = CVulkanMappings::GetFilterType(samplerDesc.mFilteringType);
+		samplerInfo.minFilter = CVulkanMappings::GetFilterType(samplerDesc.mFilteringType);
+		samplerInfo.addressModeU = CVulkanMappings::GetTextureAddressMode(samplerDesc.mUAddressMode);
+		samplerInfo.addressModeV = CVulkanMappings::GetTextureAddressMode(samplerDesc.mVAddressMode);
+		samplerInfo.addressModeW = CVulkanMappings::GetTextureAddressMode(samplerDesc.mWAddressMode);
+		samplerInfo.anisotropyEnable = VK_FALSE;
+		samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+		samplerInfo.unnormalizedCoordinates = VK_FALSE;
+		samplerInfo.compareEnable = VK_FALSE;
+		samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+		samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+		samplerInfo.mipLodBias = 0.0f;
+		samplerInfo.minLod = 0.0f;
+		samplerInfo.maxLod = 0.0f;
 
-		glGenSamplers(1, &samplerHandler);
-
-		if (glGetError() != GL_NO_ERROR)
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
-		}
+		auto pVulkanGraphicsContext = dynamic_cast<CVulkanGraphicsContext*>(mpGraphicsContext);
 		
-		glSamplerParameteri(samplerHandler, GL_TEXTURE_WRAP_S, CVulkanMappings::GetTextureAddressMode(samplerDesc.mUAddressMode));
-		glSamplerParameteri(samplerHandler, GL_TEXTURE_WRAP_T, CVulkanMappings::GetTextureAddressMode(samplerDesc.mVAddressMode));
-		glSamplerParameteri(samplerHandler, GL_TEXTURE_WRAP_R, CVulkanMappings::GetTextureAddressMode(samplerDesc.mWAddressMode));
-		glSamplerParameteri(samplerHandler, GL_TEXTURE_MAG_FILTER, CVulkanMappings::GetMagFilterType(samplerDesc.mFilteringType));
-		glSamplerParameteri(samplerHandler, GL_TEXTURE_MIN_FILTER, CVulkanMappings::GetMinFilterType(samplerDesc.mFilteringType, samplerDesc.mUseMipMaps));
-		glSamplerParameteri(samplerHandler, GL_TEXTURE_MIN_LOD, 0);
+		VkSampler samplerHandle = VK_NULL_HANDLE;
+		VK_SAFE_TRESULT_CALL(vkCreateSampler(pVulkanGraphicsContext->GetDevice(), &samplerInfo, nullptr, &samplerHandle));
 
 		U32 samplerId = static_cast<U32>(mTextureSamplersArray.size());
 
-		mTextureSamplersArray.push_back(samplerHandler);
+		mTextureSamplersArray.push_back(samplerHandle);
 		mTextureSamplesHashTable.insert({ hashValue, samplerId });
 
-		return Wrench::TOkValue<TTextureSamplerId>(TTextureSamplerId(samplerId));*/
+		return Wrench::TOkValue<TTextureSamplerId>(TTextureSamplerId(samplerId));
 	}
 
 	TResult<TBlendStateId> CVulkanGraphicsObjectManager::CreateBlendState(const TBlendStateDesc& blendStateDesc)

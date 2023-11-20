@@ -56,7 +56,7 @@ namespace TDEngine2
 			//TDE2_API static GLenum GetBufferMapAccessType(E_BUFFER_MAP_TYPE type);
 
 			///*!
-			//	\brief The function maps an internal format type into OpenGL internal format
+			//	\brief The function maps an internal format type into Vulkan internal format
 
 			//	\param[in] format An internal format
 
@@ -126,58 +126,56 @@ namespace TDEngine2
 			//TDE2_API static bool IsFormatNormalized(E_FORMAT_TYPE format);
 
 			///*!
-			//	\brief The function maps internal engine topology's type into OpenGL specific value
+			//	\brief The function maps internal engine topology's type into Vulkanspecific value
 
 			//	\param[in] topologyType An internal engine representation of a primitive topology
 			//	
-			//	\return A primitive topology's value which is OpenGL specific
+			//	\return A primitive topology's value which is Vulkanspecific
 			//*/
 
 			//TDE2_API static GLenum GetPrimitiveTopology(E_PRIMITIVE_TOPOLOGY_TYPE topologyType);
 
 			///*!
-			//	\brief The function maps internal index format into OpenGL specific type
+			//	\brief The function maps internal index format into Vulkanspecific type
 
 			//	\param[in] indexFormatType An internal type that represents a format of an index
 
-			//	\return An OpenGL format of an index
+			//	\return An Vulkanformat of an index
 			//*/
 
 			//TDE2_API static GLenum GetIndexFormat(E_INDEX_FORMAT_TYPE indexFormatType);
 
 			///*!
-			//	\brief The function maps an internal minification filter's value into OpenGL specific one
+			//	\brief The function maps an internal minification filter's value into Vulkanspecific one
 
 			//	\param[in] filterValue An internal value which represents a filter's type
 			//	\param[in] useMipMaps The flag determines whether mip-mapping is used or when filtering happens
 
-			//	\return A OpenGL specific filter's type
+			//	\return A Vulkanspecific filter's type
 			//*/
 
-			//TDE2_API static GLint GetMinFilterType(E_TEXTURE_FILTER_TYPE filterValue, bool useMipMaps = true);
-
-			///*!
-			//	\brief The function maps an internal magnification filter's value into OpenGL specific one
-
-			//	\param[in] filterValue An internal value which represents a filter's type
-
-			//	\return A OpenGL specific filter's type
-			//*/
-
-			//TDE2_API static GLint GetMagFilterType(E_TEXTURE_FILTER_TYPE filterValue);
-
-			///*!
-			//	\brief The function maps an internal address mode's type into OpenGL specific one
-
-			//	\param[in] addressMode An internal type which represents an addressing mode
-
-			//	\return A value of OpenGL type which is equivalent of a given one
-			//*/
-
-			//TDE2_API static GLint GetTextureAddressMode(E_ADDRESS_MODE_TYPE addressMode);
+			//TDE2_API static VkFilter GetMinFilterType(E_TEXTURE_FILTER_TYPE filterValue, bool useMipMaps = true);
 
 			/*!
-				\brief The function maps an internal format type into OpenGL internal format
+				\param[in] filterValue An internal value which represents a filter's type
+
+				\return A Vulkanspecific filter's type
+			*/
+
+			TDE2_API static VkFilter GetFilterType(E_TEXTURE_FILTER_TYPE filterValue);
+
+			/*!
+				\brief The function maps an internal address mode's type into Vulkanspecific one
+
+				\param[in] addressMode An internal type which represents an addressing mode
+
+				\return A value of Vulkantype which is equivalent of a given one
+			*/
+
+			TDE2_API static VkSamplerAddressMode GetTextureAddressMode(E_ADDRESS_MODE_TYPE addressMode);
+
+			/*!
+				\brief The function maps an internal format type into Vulkaninternal format
 
 				\param[in] format An internal format
 
@@ -197,7 +195,7 @@ namespace TDEngine2
 			TDE2_API static E_RESULT_CODE GetErrorCode(VkResult resultCode);
 
 			///*!
-			//	\brief The function converts internal OpenGL error's value into string representation
+			//	\brief The function converts internal Vulkanerror's value into string representation
 
 			//	\param[in] error An error code of GLenum type
 
@@ -229,7 +227,7 @@ namespace TDEngine2
 			//TDE2_API static GLenum GetBlendOpType(E_BLEND_OP_TYPE opType);
 			//
 			///*!
-			//	\brief The function maps internal cubemap's face index into OpenGL specific one
+			//	\brief The function maps internal cubemap's face index into Vulkanspecific one
 
 			//	\param[in] faceType An index of cubemap's face
 			//	
@@ -263,7 +261,7 @@ namespace TDEngine2
 
 			//	\param[in] cullMode An internal enumeration's value
 
-			//	\return OpenGL 3.x specific value which represents a culling mode
+			//	\return Vulkan3.x specific value which represents a culling mode
 			//*/
 
 			//TDE2_API static GLenum GetCullMode(const E_CULL_MODE& cullMode);

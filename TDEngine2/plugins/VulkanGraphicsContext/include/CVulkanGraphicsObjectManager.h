@@ -10,6 +10,8 @@
 #include <graphics/CBaseGraphicsObjectManager.h>
 #include <unordered_map>
 #include <vector>
+#define VK_NO_PROTOTYPES
+#include <vulkan/vulkan_core.h>
 
 
 namespace TDEngine2
@@ -47,7 +49,8 @@ namespace TDEngine2
 			friend TDE2_API IGraphicsObjectManager* CreateVulkanGraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
 		public:
 			typedef std::vector<TPtr<CVulkanTextureImpl>> TNativeTexturesArray;
-			typedef std::vector<TPtr<CVulkanBuffer>>        TNativeBuffersArray;
+			typedef std::vector<TPtr<CVulkanBuffer>>      TNativeBuffersArray;
+			typedef std::vector<VkSampler>                TTextureSamplersArray;
 		public:
 			TDE2_API TResult<TBufferHandleId> CreateBuffer(const TInitBufferParams& params) override;
 			TDE2_API TResult<TTextureHandleId> CreateTexture(const TInitTextureImplParams& params) override;
@@ -144,7 +147,9 @@ namespace TDEngine2
 
 			TDE2_API const std::string _getShaderCacheFilePath() const override;
 		protected:
-			TNativeTexturesArray mpTexturesArray;
-			TNativeBuffersArray mpBuffersArray;
+			TNativeTexturesArray  mpTexturesArray;
+			TNativeBuffersArray   mpBuffersArray;
+
+			TTextureSamplersArray mTextureSamplersArray;
 	};
 }
