@@ -124,7 +124,7 @@ namespace TDEngine2
 		U32                       mDepth  = 1;
 
 		E_FORMAT_TYPE             mFormat = E_FORMAT_TYPE::FT_NORM_UBYTE4;
-		E_BIND_GRAPHICS_TYPE      mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE;
+		E_BIND_GRAPHICS_TYPE      mBindFlags = E_BIND_GRAPHICS_TYPE::EMPTY;
 
 		U32                       mNumOfMipLevels = 1;
 		U32                       mArraySize = 1;

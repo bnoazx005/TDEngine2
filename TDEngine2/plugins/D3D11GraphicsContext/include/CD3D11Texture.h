@@ -80,6 +80,9 @@ namespace TDEngine2
 			ID3D11RenderTargetView*    mpRenderTargetView = nullptr;
 			ID3D11DepthStencilView*    mpDepthStencilView = nullptr;
 	};
+
+
+	TDE2_DECLARE_SCOPED_PTR_INLINED(CD3D11TextureImpl)
 }
 
 #endif

@@ -14,7 +14,6 @@
 
 namespace TDEngine2
 {
-	TDE2_DEFINE_SCOPED_PTR(CD3D11TextureImpl)
 	TDE2_DEFINE_SCOPED_PTR(CD3D11Buffer)
 
 

@@ -229,6 +229,11 @@ namespace TDEngine2
 		return pTexture->ReadBytes(0);
 	}
 
+	TTextureHandleId CBaseTexture2D::GetHandle() const
+	{
+		return mCurrTextureHandle;
+	}
+
 	TTextureSamplerId CBaseTexture2D::GetTextureSampleHandle(IGraphicsContext* pGraphicsContext, const TTextureSamplerDesc& params)
 	{
 		IGraphicsObjectManager* pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();

@@ -3,6 +3,7 @@
 #include "../include/CD3D11Mappings.h"
 #include "../include/CD3D11Utils.h"
 #include "../include/CD3D11Texture.h"
+#include <graphics/IGraphicsObjectManager.h>
 #include <graphics/ITexture2D.h>
 #include <cstring>
 
@@ -12,7 +13,7 @@
 namespace TDEngine2
 {
 	CD3D11RenderTarget::CD3D11RenderTarget() :
-		CBaseRenderTarget(), mpRenderTexture(nullptr), mpShaderTextureView(nullptr), mpRenderTargetView(nullptr), mpUavTextureView(nullptr)
+		CBaseRenderTarget(), mCurrTextureHandle(TTextureHandleId::Invalid)
 	{
 	}
 
@@ -44,13 +45,8 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		if ((result = SafeReleaseCOMPtr<ID3D11Texture2D>(&mpRenderTexture)) != RC_OK ||
-			(result = SafeReleaseCOMPtr<ID3D11ShaderResourceView>(&mpShaderTextureView)) != RC_OK ||
-			(result = SafeReleaseCOMPtr<ID3D11RenderTargetView>(&mpRenderTargetView)) != RC_OK ||
-			(result = SafeReleaseCOMPtr<ID3D11UnorderedAccessView>(&mpUavTextureView)) != RC_OK)
-		{
-			return result;
-		}
+		mpGraphicsContext->GetGraphicsObjectManager()->DestroyTexture(mCurrTextureHandle);
+		mCurrTextureHandle = TTextureHandleId::Invalid;
 
 		return RC_OK;
 	}
@@ -59,15 +55,12 @@ namespace TDEngine2
 	{
 		CBaseRenderTarget::Bind(slot);
 
-		mp3dDeviceContext->VSSetShaderResources(slot, 1, &mpShaderTextureView);
-		mp3dDeviceContext->PSSetShaderResources(slot, 1, &mpShaderTextureView);
-		mp3dDeviceContext->GSSetShaderResources(slot, 1, &mpShaderTextureView);
-		mp3dDeviceContext->CSSetShaderResources(slot, 1, &mpShaderTextureView);
+		mpGraphicsContext->SetTexture(slot, mCurrTextureHandle);
 
-		if (mIsRandomlyWriteable)
+		/*if (mIsRandomlyWriteable)
 		{
 			mp3dDeviceContext->CSSetUnorderedAccessViews(slot, 1, &mpUavTextureView, nullptr);
-		}
+		}*/
 	}
 
 	void CD3D11RenderTarget::UnbindFromShader()
@@ -92,150 +85,48 @@ namespace TDEngine2
 		{
 			return RC_INVALID_ARGS;
 		}
-		TDE2_UNIMPLEMENTED();
-		//CD3D11Texture2D* pD3D11DestTexture = dynamic_cast<CD3D11Texture2D*>(pDestTexture);
-		//if (!pD3D11DestTexture)
-		//{
-		//	return RC_FAIL;
-		//}
 
-		//mp3dDeviceContext->CopyResource(pD3D11DestTexture->GetInternalTexturePtr(), mpRenderTexture);
-		//D3D11_BOX sourceRegion;
-		//sourceRegion.left = 0;
-		//sourceRegion.right = mWidth;
-		//sourceRegion.top = 0;
-		//sourceRegion.bottom = mHeight;
-		//sourceRegion.front = 0;
-		//sourceRegion.back = 1;
-
-		//mp3dDeviceContext->CopySubresourceRegion(pD3D11DestTexture->GetInternalTexturePtr(), 0, 0, 0, 0, mpRenderTexture, 0, &sourceRegion);
+		mpGraphicsContext->CopyResource(mCurrTextureHandle, pDestTexture->GetHandle());
 
 		return RC_OK;
 	}
 
 	ID3D11RenderTargetView* CD3D11RenderTarget::GetRenderTargetView() const
 	{
-		return mpRenderTargetView;
+		auto pGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
+		auto pTexture = DynamicPtrCast<CD3D11TextureImpl>(pGraphicsObjectManager->GetTexturePtr(mCurrTextureHandle));
+
+		return pTexture ? pTexture->GetRenderTargetView() : nullptr;
 	}
-
-
-	static TResult<ID3D11UnorderedAccessView*> CreateUnorderedAccessView(ID3D11Texture2D* pTexture, ID3D11Device* p3dDevice, E_FORMAT_TYPE format)
-	{
-		D3D11_UNORDERED_ACCESS_VIEW_DESC viewDesc = {};
-
-		viewDesc.Format = CD3D11Mappings::GetDXGIFormat(format);
-		viewDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
-
-		viewDesc.Texture2D.MipSlice = 0;
-
-		ID3D11UnorderedAccessView* pView = nullptr;
-
-		if (FAILED(p3dDevice->CreateUnorderedAccessView(pTexture, &viewDesc, &pView)))
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
-		}
-
-		return Wrench::TOkValue<ID3D11UnorderedAccessView*>(pView);
-	}
-
 
 	E_RESULT_CODE CD3D11RenderTarget::_createInternalTextureHandler(IGraphicsContext* pGraphicsContext, const TRenderTargetParameters& params)
 	{
-		TGraphicsCtxInternalData graphicsInternalData = mpGraphicsContext->GetInternalData();
+		mp3dDeviceContext = pGraphicsContext->GetInternalData().mD3D11.mp3dDeviceContext;
 
-#if _HAS_CXX17
-		mp3dDevice = std::get<TD3D11CtxInternalData>(graphicsInternalData).mp3dDevice;
-
-		mp3dDeviceContext = std::get<TD3D11CtxInternalData>(graphicsInternalData).mp3dDeviceContext;
-#else
-		mp3dDevice = graphicsInternalData.mD3D11.mp3dDevice;
-
-		mp3dDeviceContext = graphicsInternalData.mD3D11.mp3dDeviceContext;
-#endif
-
-		D3D11_TEXTURE2D_DESC textureDesc;
-
-		memset(&textureDesc, 0, sizeof(textureDesc));
-
-		textureDesc.Width              = params.mWidth;
-		textureDesc.Height             = params.mHeight;
-		textureDesc.Format             = CD3D11Mappings::GetDXGIFormat(params.mFormat);
-		textureDesc.SampleDesc.Count   = params.mNumOfSamples;
-		textureDesc.SampleDesc.Quality = params.mSamplingQuality;
-		textureDesc.MipLevels          = params.mNumOfMipLevels;
-		textureDesc.ArraySize          = 1; //single texture
-		textureDesc.BindFlags          = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-		textureDesc.CPUAccessFlags     = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
-		textureDesc.Usage              = D3D11_USAGE_DEFAULT; /// \todo replace it with corresponding mapping
+		TInitTextureImplParams createTextureParams{};
+		createTextureParams.mWidth = params.mWidth;
+		createTextureParams.mHeight = params.mHeight;
+		createTextureParams.mFormat = params.mFormat;
+		createTextureParams.mNumOfMipLevels = params.mNumOfMipLevels;
+		createTextureParams.mNumOfSamples = params.mNumOfSamples;
+		createTextureParams.mSamplingQuality = params.mSamplingQuality;
+		createTextureParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
+		createTextureParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+		createTextureParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET;
+		createTextureParams.mName = mName;
 
 		if (params.mIsWriteable)
 		{
-			textureDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
+			createTextureParams.mBindFlags = createTextureParams.mBindFlags | E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS;
 		}
 
-		/// create blank texture with specified parameters
-		if (FAILED(mp3dDevice->CreateTexture2D(&textureDesc, nullptr, &mpRenderTexture))) /// \todo Implement HRESULT -> E_RESULT_CODE converter function
+		auto createTextureResult = mpGraphicsContext->GetGraphicsObjectManager()->CreateTexture(createTextureParams);
+		if (createTextureResult.HasError())
 		{
-			return RC_FAIL;
+			return createTextureResult.GetError();
 		}
 
-		E_RESULT_CODE result = _createRenderTargetView(mp3dDevice, mFormat);
-
-		if (result != RC_OK)
-		{
-			mIsInitialized = false;
-
-			return result;
-		}
-
-		if (params.mIsWriteable)
-		{
-			auto uavResourceCreationResult = CreateUnorderedAccessView(mpRenderTexture, mp3dDevice, mFormat);
-			if (uavResourceCreationResult.HasError())
-			{
-				return uavResourceCreationResult.GetError();
-			}
-
-			mpUavTextureView = uavResourceCreationResult.Get();
-		}
-
-		return _createShaderTextureView(mp3dDevice, mFormat, mNumOfMipLevels);
-	}
-
-	E_RESULT_CODE CD3D11RenderTarget::_createShaderTextureView(ID3D11Device* p3dDevice, E_FORMAT_TYPE format, U32 mipLevelsCount)
-	{
-		D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
-
-		memset(&viewDesc, 0, sizeof(viewDesc));
-
-		viewDesc.Format        = CD3D11Mappings::GetDXGIFormat(format);
-		viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-
-		viewDesc.Texture2D.MipLevels = 1;
-
-		if (FAILED(p3dDevice->CreateShaderResourceView(mpRenderTexture, &viewDesc, &mpShaderTextureView)))
-		{
-			return RC_FAIL;
-		}
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CD3D11RenderTarget::_createRenderTargetView(ID3D11Device* p3dDevice, E_FORMAT_TYPE format)
-	{
-		D3D11_RENDER_TARGET_VIEW_DESC viewDesc;
-
-		memset(&viewDesc, 0, sizeof(viewDesc));
-
-		viewDesc.Format        = CD3D11Mappings::GetDXGIFormat(format);
-		viewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-
-		viewDesc.Texture2D.MipSlice = 0;
-
-		if (FAILED(p3dDevice->CreateRenderTargetView(mpRenderTexture, &viewDesc, &mpRenderTargetView)))
-		{
-			return RC_FAIL;
-		}
+		mCurrTextureHandle = createTextureResult.Get();
 
 		return RC_OK;
 	}
@@ -244,25 +135,7 @@ namespace TDEngine2
 	TDE2_API IRenderTarget* CreateD3D11RenderTarget(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 													const TRenderTargetParameters& params, E_RESULT_CODE& result)
 	{
-		CD3D11RenderTarget* pRenderTargetInstance = new (std::nothrow) CD3D11RenderTarget();
-
-		if (!pRenderTargetInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pRenderTargetInstance->Init(pResourceManager, pGraphicsContext, name, params);
-
-		if (result != RC_OK)
-		{
-			delete pRenderTargetInstance;
-
-			pRenderTargetInstance = nullptr;
-		}
-
-		return pRenderTargetInstance;
+		return CREATE_IMPL(IRenderTarget, CD3D11RenderTarget, result, pResourceManager, pGraphicsContext, name, params);
 	}
 
 
@@ -318,25 +191,7 @@ namespace TDEngine2
 
 	TDE2_API IResourceFactory* CreateD3D11RenderTargetFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
 	{
-		CD3D11RenderTargetFactory* pRenderTargetFactoryInstance = new (std::nothrow) CD3D11RenderTargetFactory();
-
-		if (!pRenderTargetFactoryInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pRenderTargetFactoryInstance->Init(pResourceManager, pGraphicsContext);
-
-		if (result != RC_OK)
-		{
-			delete pRenderTargetFactoryInstance;
-
-			pRenderTargetFactoryInstance = nullptr;
-		}
-
-		return pRenderTargetFactoryInstance;
+		return CREATE_IMPL(IResourceFactory, CD3D11RenderTargetFactory, result, pResourceManager, pGraphicsContext);
 	}
 }
 

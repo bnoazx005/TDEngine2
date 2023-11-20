@@ -12,6 +12,9 @@
 
 namespace TDEngine2
 {
+	//TDE2_DEFINE_SCOPED_PTR(CD3D11TextureImpl)
+
+
 	static TResult<ID3D11Texture2D*> CreateTexture2DResourceInternal(ID3D11Device* p3dDevice, const TInitTextureImplParams& params)
 	{
 		D3D11_TEXTURE2D_DESC textureDesc;

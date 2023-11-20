@@ -22,6 +22,9 @@ namespace TDEngine2
 	class IFileSystem;
 
 
+	enum class TTextureHandleId : U32;
+
+
 	/*!
 		struct TTexture2DParameters
 
@@ -127,6 +130,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual std::vector<U8> GetInternalData() = 0;
+
+			TDE2_API virtual TTextureHandleId GetHandle() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ITexture2D)
 	};

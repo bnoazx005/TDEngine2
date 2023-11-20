@@ -18,6 +18,9 @@
 
 namespace TDEngine2
 {
+	enum class TTextureHandleId : U32;
+
+
 	/*!
 		\brief A factory function for creation objects of CD3D11RenderTarget's type
 
@@ -106,22 +109,12 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11RenderTarget)
 
 			TDE2_API E_RESULT_CODE _createInternalTextureHandler(IGraphicsContext* pGraphicsContext, const TRenderTargetParameters& params) override;
-
-			TDE2_API E_RESULT_CODE _createShaderTextureView(ID3D11Device* p3dDevice, E_FORMAT_TYPE format, U32 mipLevelsCount);
-
-			TDE2_API E_RESULT_CODE _createRenderTargetView(ID3D11Device* p3dDevice, E_FORMAT_TYPE format);
 		protected:
-			ID3D11Device*              mp3dDevice;
+			ID3D11Device*        mp3dDevice;
 
-			ID3D11DeviceContext*       mp3dDeviceContext;
+			ID3D11DeviceContext* mp3dDeviceContext;
 
-			ID3D11Texture2D*           mpRenderTexture;
-
-			ID3D11ShaderResourceView*  mpShaderTextureView;
-
-			ID3D11RenderTargetView*    mpRenderTargetView;
-
-			ID3D11UnorderedAccessView* mpUavTextureView;
+			TTextureHandleId     mCurrTextureHandle;
 	};
 
 

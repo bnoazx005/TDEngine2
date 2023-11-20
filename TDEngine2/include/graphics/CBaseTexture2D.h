@@ -143,6 +143,8 @@ namespace TDEngine2
 
 			TDE2_API std::vector<U8> GetInternalData() override;
 
+			TDE2_API TTextureHandleId GetHandle() const override;
+
 			static TDE2_API TTextureSamplerId GetTextureSampleHandle(IGraphicsContext* pGraphicsContext, const TTextureSamplerDesc& params);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseTexture2D)
