@@ -95,8 +95,30 @@ namespace TDEngine2
 			template <typename T>
 			T GetValueOrDefault(const std::string& argName, const T& defaultValue) const
 			{
-				auto&& valueResult = GetValue<T>(argName);
-				return valueResult.HasError() ? defaultValue: valueResult.Get();
+				auto it = std::find_if(mArgumentsInfo.cbegin(), mArgumentsInfo.cend(), [&argName](auto&& entity)
+				{
+					return (entity.mCommand == argName) || (entity.mSingleCharCommand == argName.front() && argName.size() == 1);
+				});
+
+				if (it == mArgumentsInfo.cend())
+				{
+					return defaultValue;
+				}
+
+				const std::unordered_map<TArgumentParams::E_VALUE_TYPE, std::function<bool(const TArgumentParams::TValueType& value)>> isDefaultValue
+				{
+					{ TArgumentParams::E_VALUE_TYPE::INTEGER, [](const TArgumentParams::TValueType& value) { return value.As<I32>() == 0; }},
+					{ TArgumentParams::E_VALUE_TYPE::BOOLEAN, [](const TArgumentParams::TValueType& value) { return value.As<bool>() == false; }},
+					{ TArgumentParams::E_VALUE_TYPE::FLOAT, [](const TArgumentParams::TValueType& value) { return value.As<F32>() == 0.0f; }},
+					{ TArgumentParams::E_VALUE_TYPE::STRING, [](const TArgumentParams::TValueType& value) { return value.As<std::string>() == ""; }},
+				};
+
+				if (isDefaultValue.at(it->mValueType)(it->mValue))
+				{
+					return defaultValue;
+				}
+
+				return it->mValue.template As<T>();
 			}
 
 			TDE2_API const std::string& GetPositionalArgValue(U32 index = 0) const;

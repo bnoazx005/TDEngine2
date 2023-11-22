@@ -137,4 +137,23 @@ TEST_CASE("CProgramOptions Tests")
 		auto&& valueResult = CProgramOptions::Get()->GetValue<I32>(argumentId);
 		REQUIRE((valueResult.IsOk() && valueResult.Get() == 4));
 	}
+
+	SECTION("TestGetValueOrDefault_TryGetInexistingArgumentId_ReturnsDefaultValue")
+	{
+		static const C8* args[] =
+		{
+			""
+		};
+
+		CProgramOptions::TParseArgsParams argsParams;
+		argsParams.mArgsCount = 1;
+		argsParams.mpArgsValues = args;
+
+		CProgramOptions::Get()->AddArgument({ 'V', "version", Wrench::StringUtils::GetEmptyStr() });
+		CProgramOptions::Get()->AddArgument({ '\0', "missing_arg", Wrench::StringUtils::GetEmptyStr(), TDEngine2::CProgramOptions::TArgumentParams::E_VALUE_TYPE::STRING });
+		REQUIRE(RC_OK == CProgramOptions::Get()->ParseArgs(argsParams));
+
+		auto&& valueResult = CProgramOptions::Get()->GetValueOrDefault<std::string>("missing_arg", "error");
+		REQUIRE(valueResult == "error");
+	}
 }

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.23] 2023-11-17
+## [0.6.23] 2023-11-22
 
 ### Added
 
@@ -19,7 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - IGraphicsContext::BindTextureSampler was renamed into IGraphicsContext::SetSampler.
 
+- **CD3D11Texture2D, CD3D11CubemapTexture**, **COGLTexture2D, COGLCubemapTexture** were removed from corresponding plugins.
+
 ### Fixed
+
+- Incorrect behaviour of **CProgramOptions::GetValueOrDefault** for retrieving value of missing argument was fixed.
 
 ## [0.6.22] 2023-11-12
 
