@@ -219,6 +219,11 @@ namespace TDEngine2
 		return result;
 	}
 
+	TPtr<IDLLManager> CBasePluginManager::GetDLLManager()
+	{
+		return mpDLLManager;
+	}
+
 	E_ENGINE_SUBSYSTEM_TYPE CBasePluginManager::GetType() const
 	{
 		return EST_PLUGIN_MANAGER;

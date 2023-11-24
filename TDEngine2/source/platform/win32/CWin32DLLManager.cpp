@@ -68,7 +68,7 @@ namespace TDEngine2
 
 		TDynamicLibraryHandler loadedLibraryHandler = TDynamicLibraryHandler(mLoadedLibraries.size());
 
-		if (mNextFreeHandler >= loadedLibraryHandler) // there is no free slot, so extend the existing array
+		if (mFreeHandlersList.empty()) // there is no free slot, so extend the existing array
 		{
 			mLoadedLibraries.push_back(dynamicLibrary);
 		}

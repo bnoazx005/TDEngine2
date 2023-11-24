@@ -8,8 +8,8 @@
 
 
 #include "IEngineSubsystem.h"
-#include "./../utils/Utils.h"
-#include "./../utils/Types.h"
+#include "../utils/Utils.h"
+#include "../utils/Types.h"
 #include <string>
 
 
@@ -17,6 +17,10 @@ namespace TDEngine2
 {
 	class IEngineCore;
 	class IWorld;
+	class IDLLManager;
+
+
+	TDE2_DECLARE_SCOPED_PTR(IDLLManager)
 
 
 	/*!
@@ -82,6 +86,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE RegisterECSSystems(TPtr<IWorld> pWorld) = 0;
+
+			TDE2_API virtual TPtr<IDLLManager> GetDLLManager() = 0;
 
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_PLUGIN_MANAGER; }
 		protected:

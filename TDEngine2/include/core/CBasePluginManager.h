@@ -102,6 +102,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE RegisterECSSystems(TPtr<IWorld> pWorld) override;
 
+			TDE2_API TPtr<IDLLManager> GetDLLManager() override;
+
 			/*!
 				\brief The method returns a type of the subsystem
 
