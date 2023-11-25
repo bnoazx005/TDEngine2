@@ -9,6 +9,7 @@ struct VertexOut
 	float4 mPos          : SV_POSITION;
 	float4 mLightPos     : POSITION1;
 	float4 mWorldPos     : POSITION2;
+	float4 mViewWorldPos : POSITION3;
 	float4 mColor        : COLOR;
 	float2 mUV           : TEXCOORD;
 	float4 mNormal       : NORMAL;
@@ -62,8 +63,9 @@ VertexOut mainVS(in VertexIn input)
 	}
 
 	output.mPos      = mul(mul(ProjMat, mul(ViewMat, ModelMat)), float4(localPos, 1.0));
-	output.mLightPos = mul(mul(SunLightMat, ModelMat), input.mPos);
+	output.mLightPos = mul(mul(SunLightMat[0], ModelMat), input.mPos);
 	output.mWorldPos = mul(ModelMat, float4(localPos, 1.0));
+	output.mViewWorldPos = mul(ViewMat, output.mWorldPos);
 	output.mNormal   = mul(transpose(InvModelMat), float4(localNormal, 0.0));
 	output.mUV       = input.mUV;
 	output.mColor    = input.mColor;
@@ -106,7 +108,7 @@ float4 mainPS(VertexOut input): SV_TARGET0
 		pointLightsContribution += CalcPointLightContribution(PointLights[i], lightingData);
 	}
 
-	return (sunLight + pointLightsContribution)	* (1.0 - ComputeShadowFactorPCF(8, input.mLightPos, 0.0001, 1000.0)) * input.mColor;
+	return (sunLight * (1.0 - ComputeSunShadowFactorPCF(8, GetSunShadowCascadeIndex(input.mViewWorldPos), input.mWorldPos, 0.0001, 1000.0)) + pointLightsContribution) * input.mColor;
 }
 
 #endprogram
