@@ -358,20 +358,21 @@ namespace TDEngine2
 		}
 
 		return GL_TRIANGLES;
-	}
+	}*/
 
-	GLenum CVulkanMappings::GetIndexFormat(E_INDEX_FORMAT_TYPE indexFormatType)
+	VkIndexType CVulkanMappings::GetIndexFormat(E_INDEX_FORMAT_TYPE indexFormatType)
 	{
 		switch (indexFormatType)
 		{
-			case IFT_INDEX16:
-				return GL_UNSIGNED_SHORT;
-			case IFT_INDEX32:
-				return GL_UNSIGNED_INT;
+			case E_INDEX_FORMAT_TYPE::INDEX16:
+				return VK_INDEX_TYPE_UINT16;
+			case E_INDEX_FORMAT_TYPE::INDEX32:
+				return VK_INDEX_TYPE_UINT32;
 		}
 
-		return 0;
-	}*/
+		TDE2_UNREACHABLE();
+		return VK_INDEX_TYPE_UINT16;
+	}
 
 	//VkFilter CVulkanMappings::GetMinFilterType(E_TEXTURE_FILTER_TYPE filterValue, bool useMipMaps)
 	//{

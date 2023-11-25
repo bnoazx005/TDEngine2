@@ -135,15 +135,15 @@ namespace TDEngine2
 
 			//TDE2_API static GLenum GetPrimitiveTopology(E_PRIMITIVE_TOPOLOGY_TYPE topologyType);
 
-			///*!
-			//	\brief The function maps internal index format into Vulkanspecific type
+			/*!
+				\brief The function maps internal index format into Vulkan specific type
 
-			//	\param[in] indexFormatType An internal type that represents a format of an index
+				\param[in] indexFormatType An internal type that represents a format of an index
 
-			//	\return An Vulkanformat of an index
-			//*/
+				\return An Vulkan format of an index
+			*/
 
-			//TDE2_API static GLenum GetIndexFormat(E_INDEX_FORMAT_TYPE indexFormatType);
+			TDE2_API static VkIndexType GetIndexFormat(E_INDEX_FORMAT_TYPE indexFormatType);
 
 			///*!
 			//	\brief The function maps an internal minification filter's value into Vulkanspecific one

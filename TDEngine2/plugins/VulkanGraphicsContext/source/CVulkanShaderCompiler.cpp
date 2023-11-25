@@ -178,7 +178,7 @@ namespace TDEngine2
 		
 		if (pErrors && pErrors->GetStringLength())
 		{
-			LOG_ERROR(Wrench::StringUtils::Format("[CVulkanShaderCompiler] Compilation error happened: {0}", pErrors->GetStringPointer()));
+			LOG_ERROR(Wrench::StringUtils::Format("[CVulkanShaderCompiler] Compilation report:\n {0}", pErrors->GetStringPointer()));
 		}
 
 		HRESULT hrResult = S_OK;

@@ -23,6 +23,7 @@ namespace TDEngine2
 		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 		void* pUserData)
 	{
+		LOG_ERROR(Wrench::StringUtils::Format("[CVulkanGraphicsContext] Validation layer: {0}", pCallbackData->pMessage));
 		return VK_FALSE;
 	}
 
@@ -182,7 +183,8 @@ namespace TDEngine2
 	}
 
 
-	static void PrepareDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
+	static void PrepareDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) 
+	{
 		createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
 		createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
@@ -770,19 +772,49 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanGraphicsContext::SetVertexBuffer(U32 slot, TBufferHandleId vertexBufferHandle, U32 offset, U32 strideSize)
 	{
-		//TDE2_UNIMPLEMENTED();
+		auto pBuffer = mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(vertexBufferHandle);
+		if (!pBuffer)
+		{
+			return RC_FAIL;
+		}
+
+		TDE2_ASSERT(E_BUFFER_TYPE::VERTEX == pBuffer->GetParams().mBufferType);
+
+		const VkBuffer vertexBuffers[] = { pBuffer->GetVulkanHandle() };
+		const VkDeviceSize offsets[] = { static_cast<USIZE>(offset) };
+
+		vkCmdBindVertexBuffers(mCommandBuffers[mCurrFrameIndex], slot, 1, vertexBuffers, offsets);
+
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::SetIndexBuffer(TBufferHandleId indexBufferHandle, U32 offset)
 	{
-		//TDE2_UNIMPLEMENTED();
+		auto pBuffer = mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(indexBufferHandle);
+		if (!pBuffer)
+		{
+			return RC_FAIL;
+		}
+
+		TDE2_ASSERT(E_BUFFER_TYPE::INDEX == pBuffer->GetParams().mBufferType);
+
+		vkCmdBindIndexBuffer(mCommandBuffers[mCurrFrameIndex], pBuffer->GetVulkanHandle(), 
+			static_cast<VkDeviceSize>(offset), CVulkanMappings::GetIndexFormat(pBuffer->GetParams().mIndexFormat));
+
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::SetConstantBuffer(U32 slot, TBufferHandleId constantsBufferHandle)
 	{
-		//TDE2_UNIMPLEMENTED();
+		auto pBuffer = mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(constantsBufferHandle);
+		if (!pBuffer)
+		{
+			return RC_FAIL;
+		}
+
+		TDE2_ASSERT(E_BUFFER_TYPE::CONSTANT == pBuffer->GetParams().mBufferType);
+
+		TDE2_UNIMPLEMENTED();
 		return RC_OK;
 	}
 
