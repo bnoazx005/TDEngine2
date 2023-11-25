@@ -193,6 +193,6 @@ namespace TDEngine2
 			TRasterizerStatesArray   mRasterizerStates;
 
 			TNativeTexturesArray     mpTexturesArray;
-			TNativeBuffersArray     mpBuffersArray;
+			TNativeBuffersArray      mpBuffersArray;
 	};
 }

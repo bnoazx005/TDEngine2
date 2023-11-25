@@ -10,6 +10,7 @@
 #include <core/IGraphicsContext.h>
 #include <core/IWindowSystem.h>
 #include <core/IResourceManager.h>
+#include <core/IPluginManager.h>
 #include <graphics/IGraphicsObjectManager.h>
 #include <graphics/CBaseShaderLoader.h>
 
@@ -83,7 +84,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		auto pShaderCompilerInstance = TPtr<IShaderCompiler>(CreateVulkanShaderCompiler(pFileSystem, result));
+		auto pShaderCompilerInstance = TPtr<IShaderCompiler>(CreateVulkanShaderCompiler(pFileSystem, pEngineCore->GetSubsystem<IPluginManager>()->GetDLLManager().Get(), result));
 
 		if (result != RC_OK)
 		{

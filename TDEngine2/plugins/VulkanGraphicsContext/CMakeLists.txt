@@ -16,22 +16,6 @@ set(VULKAN_GCTX_LIBRARY_NAME "VulkanGraphicsContext")
 
 find_package(Vulkan REQUIRED FATAL_ERROR)
 
-# TODO: replace this later with correct approach
-if (WIN32)
-	if (CMAKE_BUILD_TYPE STREQUAL "Release")
-		set(SHADERC_LIBRARY "$ENV{VULKAN_SDK}/Lib/shaderc_combined.lib")
-	else()
-		set(SHADERC_LIBRARY "$ENV{VULKAN_SDK}/Lib/shaderc_combinedd.lib")
-	endif()
-
-	message("SHADERC_LIBRARY: " ${SHADERC_LIBRARY})
-endif()
-
-if (UNIX)
-	find_library(SHADERC_LIBRARY NAMES shaderc_combined REQUIRED)
-	message("SHADERC_LIBRARY: " ${SHADERC_LIBRARY})
-endif()
-
 set(VULKAN_GCTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CVulkanGraphicsContext.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/IWindowSurfaceFactory.h"
@@ -114,7 +98,6 @@ target_include_directories(${VULKAN_GCTX_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_S
 
 #vulkan
 target_include_directories(${VULKAN_GCTX_LIBRARY_NAME} PUBLIC Vulkan::Headers)
-target_link_libraries(${VULKAN_GCTX_LIBRARY_NAME} PUBLIC ${SHADERC_LIBRARY})
 
 #vma
 target_include_directories(${VULKAN_GCTX_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/vma/")

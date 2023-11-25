@@ -92,6 +92,7 @@ namespace TDEngine2
 
 		mpGraphicsContextImpl = dynamic_cast<CVulkanGraphicsContext*>(pGraphicsContext);
 		mInitParams = params;
+		mDevice = mpGraphicsContextImpl->GetDevice();
 
 		mAllocator = mpGraphicsContextImpl->GetAllocator();
 
@@ -147,7 +148,7 @@ namespace TDEngine2
 		}
 
 		auto&& createdImageInfo = createResourceResult.Get();
-
+		
 		mInternalImageHandle = createdImageInfo.mImage;
 		mAllocation = createdImageInfo.mAllocation;
 

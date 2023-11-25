@@ -13,6 +13,9 @@
 
 namespace TDEngine2
 {
+	class IDLLManager;
+
+
 	/*!
 		\brief A factory function for creation objects of CVulkanShaderCompiler's type
 		
@@ -23,7 +26,7 @@ namespace TDEngine2
 		\return A pointer to CVulkanShaderCompiler's implementation
 	*/
 
-	TDE2_API IShaderCompiler* CreateVulkanShaderCompiler(IFileSystem* pFileSystem, E_RESULT_CODE& result);
+	TDE2_API IShaderCompiler* CreateVulkanShaderCompiler(IFileSystem* pFileSystem, IDLLManager* pDLLManager, E_RESULT_CODE& result);
 
 
 	/*!
@@ -35,7 +38,7 @@ namespace TDEngine2
 	class CVulkanShaderCompiler: public CBaseShaderCompiler
 	{
 		public:
-			friend TDE2_API IShaderCompiler* CreateVulkanShaderCompiler(IFileSystem*, E_RESULT_CODE&);
+			friend TDE2_API IShaderCompiler* CreateVulkanShaderCompiler(IFileSystem*, IDLLManager*, E_RESULT_CODE&);
 
 			/*!
 				\brief The method compiles specified source code into the bytecode representation.
@@ -64,5 +67,9 @@ namespace TDEngine2
 			TDE2_API TShaderResourcesMap _processShaderResourcesDecls(CTokenizer& tokenizer) const override;
 
 			TDE2_API E_SHADER_RESOURCE_TYPE _isShaderResourceType(const std::string& token) const;
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
+		private:
+			IDLLManager* mpDLLManager = nullptr;
 	};
 }

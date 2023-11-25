@@ -1,16 +1,26 @@
 #include "../include/CVulkanShaderCompiler.h"
 #include "../include/CVulkanMappings.h"
 #include <editor/CPerfProfiler.h>
+#include <core/IDLLManager.h>
 #include <utils/CFileLogger.h>
 #include <shaderc/shaderc.hpp>
+#include <dxc/dxcapi.h>
 #include "stringUtils.hpp"
-
+#include <vector>
+#include <string>
 
 namespace TDEngine2
 {
+	IDxcCompiler3* pDxCompiler = nullptr;
+	IDxcUtils* pDxUtils = nullptr;
+
+	static const std::string DXCLibraryName = "dxcompiler";
+
+
 	CVulkanShaderCompiler::CVulkanShaderCompiler():
 		CBaseShaderCompiler()
 	{
+
 	}
 
 	TResult<TShaderCompilerOutput*> CVulkanShaderCompiler::Compile(const std::string& shaderId, const std::string& source) const
@@ -84,35 +94,113 @@ namespace TDEngine2
 	}
 
 
+	static std::wstring GetShaderTargetVerStr(E_SHADER_STAGE_TYPE stageType, E_SHADER_FEATURE_LEVEL version)
+	{
+		std::wstring result;
+
+		switch (stageType)
+		{
+			case SST_VERTEX:
+				result = L"vs_";
+				break;
+			case SST_PIXEL:
+				result = L"ps_";
+				break;
+			case SST_GEOMETRY:
+				result = L"gs_";
+				break;
+			case SST_COMPUTE:
+				result = L"cs_";
+				break;
+		}
+
+		switch (version)
+		{
+			case SFL_3_0:
+				return result + L"3_0";
+			case SFL_4_0:
+				return result + L"4_0";
+			case SFL_5_0:
+				return result + L"5_0";
+		}
+
+		return L"";
+	}
+
+
 	TResult<std::vector<U8>> CVulkanShaderCompiler::_compileShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source,
 																	   TShaderMetadata& shaderMetadata) const
 	{
 		TDE2_PROFILER_SCOPE("CVulkanShaderCompiler::_compileShaderStage");
 
 		std::string processedSource = _enableShaderStage(shaderStage, shaderMetadata.mShaderStagesRegionsInfo, source);
-		std::string entryPointName  = shaderMetadata.mEntrypointsTable[shaderStage];
+		std::wstring entryPointName = std::wstring(shaderMetadata.mEntrypointsTable[shaderStage].begin(), shaderMetadata.mEntrypointsTable[shaderStage].end());
+		std::wstring shaderName = std::wstring(shaderMetadata.mShaderName.begin(), shaderMetadata.mShaderName.end());
+		std::wstring targetVersion = GetShaderTargetVerStr(shaderStage, shaderMetadata.mFeatureLevel);
 
-		shaderc::Compiler compiler;
-		shaderc::CompileOptions options;
-		options.SetSourceLanguage(shaderc_source_language::shaderc_source_language_hlsl);
-
-		shaderc::SpvCompilationResult module{};
-
+		IDxcIncludeHandler* pIncludeHandler = nullptr;
+		if (FAILED(pDxUtils->CreateDefaultIncludeHandler(&pIncludeHandler)))
 		{
-			TDE2_PROFILER_SCOPE("shaderc::CompileGlslToSpv");
-			module = compiler.CompileGlslToSpv(source, GetShadercInternalShaderStageType(shaderStage), shaderMetadata.mShaderName.c_str(), options);
-		}
-
-		if (shaderc_compilation_status_success != module.GetCompilationStatus()) 
-		{
-			LOG_ERROR(Wrench::StringUtils::Format("[CVulkanShaderCompiler] Compilation error happened: {0}", module.GetErrorMessage()));
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
-		std::vector<U32> spirvBytecode{ module.cbegin(), module.cend() };
-		std::vector<U8> byteCodeArray(spirvBytecode.size() * sizeof(U32));
+		std::vector<LPCWSTR> args
+		{
+			L"-spirv",
+			L"-fspv-target-env=vulkan1.0",
+			L"-fvk-use-dx-layout",
+		};
 
-		memcpy(byteCodeArray.data(), spirvBytecode.data(), byteCodeArray.size());
+		// target
+		args.emplace_back(L"-T");
+		args.emplace_back(targetVersion.c_str());
+
+		// entry point
+		args.emplace_back(L"-E");
+		args.emplace_back(entryPointName.c_str());
+
+		// filename
+		args.emplace_back(shaderName.c_str());
+
+		DxcBuffer sourceCode;
+		sourceCode.Ptr = processedSource.data();
+		sourceCode.Size = processedSource.size();
+		sourceCode.Encoding = DXC_CP_ACP;
+
+		IDxcResult* pResult = nullptr;
+		if (FAILED(pDxCompiler->Compile(&sourceCode, args.data(), static_cast<U32>(args.size()), pIncludeHandler, IID_PPV_ARGS(&pResult))))
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		IDxcBlobUtf8* pErrors = nullptr;
+		pResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&pErrors), nullptr);
+		
+		if (pErrors && pErrors->GetStringLength())
+		{
+			LOG_ERROR(Wrench::StringUtils::Format("[CVulkanShaderCompiler] Compilation error happened: {0}", pErrors->GetStringPointer()));
+		}
+
+		HRESULT hrResult = S_OK;
+		pResult->GetStatus(&hrResult);
+		if (FAILED(hrResult))
+		{
+			LOG_ERROR(Wrench::StringUtils::Format("[CVulkanShaderCompiler] Compilation failed: {0}", shaderMetadata.mShaderName));
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		IDxcBlob* pShaderBlob = nullptr;
+		if (FAILED(pResult->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&pShaderBlob), nullptr)))
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		std::vector<U8> byteCodeArray(pShaderBlob->GetBufferSize());
+		memcpy(byteCodeArray.data(), pShaderBlob->GetBufferPointer(), byteCodeArray.size());
+
+		pShaderBlob->Release();
+		pResult->Release();
+		pIncludeHandler->Release();
 
 		return Wrench::TOkValue<std::vector<U8>>(byteCodeArray);
 	}
@@ -340,10 +428,57 @@ namespace TDEngine2
 
 		return (result == shaderResourcesMap.cend()) ? E_SHADER_RESOURCE_TYPE::SRT_UNKNOWN : result->second;
 	}
+
+	E_RESULT_CODE CVulkanShaderCompiler::_onFreeInternal()
+	{
+		if (pDxCompiler)
+		{
+			pDxCompiler->Release();
+		}
+
+		if (pDxUtils)
+		{
+			pDxUtils->Release();
+		}
+
+		mpDLLManager->Unload(DXCLibraryName);
+
+		return RC_OK;
+	}
 	
 
-	TDE2_API IShaderCompiler* CreateVulkanShaderCompiler(IFileSystem* pFileSystem, E_RESULT_CODE& result)
+	TDE2_API IShaderCompiler* CreateVulkanShaderCompiler(IFileSystem* pFileSystem, IDLLManager* pDLLManager, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IShaderCompiler, CVulkanShaderCompiler, result, pFileSystem);
+		CVulkanShaderCompiler* pShaderCompiler = CREATE_IMPL(CVulkanShaderCompiler, CVulkanShaderCompiler, result, pFileSystem);
+		if (pShaderCompiler)
+		{
+			pShaderCompiler->mpDLLManager = pDLLManager;
+
+			auto libraryHandler = pDLLManager->Load(DXCLibraryName, result);
+			if (libraryHandler == TDynamicLibraryHandler::Invalid)
+			{
+				pShaderCompiler->Free();
+				return nullptr;
+			}
+
+			DxcCreateInstanceProc DxCreateInstance = reinterpret_cast<DxcCreateInstanceProc>(pDLLManager->GetSymbol(libraryHandler, "DxcCreateInstance"));
+			if (!DxCreateInstance)
+			{
+				pShaderCompiler->Free();
+				result = RC_FAIL;
+
+				return nullptr;
+			}
+
+			if (FAILED(DxCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&pDxCompiler))) || FAILED(DxCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&pDxUtils))))
+			{
+				pShaderCompiler->Free();
+				result = RC_FAIL;
+
+				return nullptr;
+			}
+		}
+
+		return dynamic_cast<IShaderCompiler*>(pShaderCompiler);
 	}
 }

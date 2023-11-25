@@ -770,19 +770,19 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanGraphicsContext::SetVertexBuffer(U32 slot, TBufferHandleId vertexBufferHandle, U32 offset, U32 strideSize)
 	{
-		TDE2_UNIMPLEMENTED();
+		//TDE2_UNIMPLEMENTED();
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::SetIndexBuffer(TBufferHandleId indexBufferHandle, U32 offset)
 	{
-		TDE2_UNIMPLEMENTED();
+		//TDE2_UNIMPLEMENTED();
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::SetConstantBuffer(U32 slot, TBufferHandleId constantsBufferHandle)
 	{
-		TDE2_UNIMPLEMENTED();
+		//TDE2_UNIMPLEMENTED();
 		return RC_OK;
 	}
 

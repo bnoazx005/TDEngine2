@@ -17,9 +17,6 @@
 
 namespace TDEngine2
 {
-	class IVertexBuffer;
-	class IConstantBuffer;
-	class IStructuredBuffer;
 	class IGraphicsContext;
 	class IVertexDeclaration;
 	class IDebugUtility;
