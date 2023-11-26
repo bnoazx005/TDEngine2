@@ -4,7 +4,7 @@
 #include <core/IDLLManager.h>
 #include <utils/CFileLogger.h>
 #include <shaderc/shaderc.hpp>
-#include <dxc/dxcapi.h>
+#include <../deps/dxc/dxcapi.h>
 #include "stringUtils.hpp"
 #include <vector>
 #include <string>
