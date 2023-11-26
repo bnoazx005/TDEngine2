@@ -3,7 +3,6 @@
 #include <editor/CPerfProfiler.h>
 #include <core/IDLLManager.h>
 #include <utils/CFileLogger.h>
-#include <shaderc/shaderc.hpp>
 #include <../deps/dxc/dxcapi.h>
 #include "stringUtils.hpp"
 #include <vector>
@@ -72,25 +71,6 @@ namespace TDEngine2
 		pResult->mShaderResourcesInfo = std::move(shaderMetadata.mShaderResources);
 
 		return Wrench::TOkValue<TShaderCompilerOutput*>(pResult);
-	}
-
-
-	static shaderc_shader_kind GetShadercInternalShaderStageType(E_SHADER_STAGE_TYPE shaderStage)
-	{
-		switch (shaderStage)
-		{
-			case E_SHADER_STAGE_TYPE::SST_VERTEX:
-				return shaderc_vertex_shader;
-			case E_SHADER_STAGE_TYPE::SST_GEOMETRY:
-				return shaderc_geometry_shader;
-			case E_SHADER_STAGE_TYPE::SST_PIXEL:
-				return shaderc_fragment_shader;
-			case E_SHADER_STAGE_TYPE::SST_COMPUTE:
-				return shaderc_compute_shader;
-		}
-
-		TDE2_UNREACHABLE();
-		return shaderc_vertex_shader;
 	}
 
 

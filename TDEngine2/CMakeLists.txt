@@ -201,7 +201,6 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/CSkinnedMesh.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/CStaticMesh.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/CBaseMesh.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/VertexData.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/IStaticMeshContainer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/CStaticMeshContainer.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/ISkinnedMeshContainer.h"
