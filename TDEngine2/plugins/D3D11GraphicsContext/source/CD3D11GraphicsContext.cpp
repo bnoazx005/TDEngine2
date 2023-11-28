@@ -448,6 +448,31 @@ namespace TDEngine2
 		return UpdateTexture2D(textureHandle, D3D11CalcSubresource(0, CD3D11Mappings::GetCubemapFace(face), pTexture->GetParams().mNumOfMipLevels), regionRect, pData, dataSize);
 	}
 
+	E_RESULT_CODE CD3D11GraphicsContext::UpdateTexture3D(TTextureHandleId textureHandle, U32 depthFrom, U32 depthTo, const TRectI32& regionRect, const void* pData, USIZE dataSize)
+	{
+		auto pTexture = mpGraphicsObjectManagerD3D11Impl->GetD3D11TexturePtr(textureHandle);
+		if (!pTexture)
+		{
+			return RC_FAIL;
+		}
+
+		D3D11_BOX region;
+
+		region.left = regionRect.x;
+		region.top = regionRect.y;
+		region.right = regionRect.x + regionRect.width;
+		region.bottom = regionRect.y + regionRect.height;
+		region.front = depthFrom;
+		region.back = region.front + (depthTo - depthFrom);
+
+		U32 rowPitch = regionRect.width * CD3D11Mappings::GetNumOfChannelsOfFormat(pTexture->GetParams().mFormat);
+
+		mp3dDeviceContext->UpdateSubresource(pTexture->GetTextureResource(),
+			D3D11CalcSubresource(0, 0, pTexture->GetParams().mNumOfMipLevels), &region, pData, rowPitch, rowPitch * regionRect.height);
+
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CD3D11GraphicsContext::CopyResource(TTextureHandleId sourceHandle, TTextureHandleId destHandle)
 	{
 		auto pSourceTexture = mpGraphicsObjectManagerD3D11Impl->GetD3D11TexturePtr(sourceHandle);

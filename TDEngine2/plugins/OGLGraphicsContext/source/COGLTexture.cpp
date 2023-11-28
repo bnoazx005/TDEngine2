@@ -36,6 +36,7 @@ namespace TDEngine2
 				break;
 
 			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D_ARRAY:
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_3D:
 				GL_SAFE_TRESULT_CALL(glTexImage3D(textureType, 0, COGLMappings::GetInternalFormat(params.mFormat),
 					params.mWidth, params.mHeight, params.mArraySize, 0,
 					COGLMappings::GetPixelDataFormat(params.mFormat),

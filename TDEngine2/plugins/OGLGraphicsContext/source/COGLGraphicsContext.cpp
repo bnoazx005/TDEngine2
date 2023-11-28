@@ -391,6 +391,34 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE COGLGraphicsContext::UpdateTexture3D(TTextureHandleId textureHandle, U32 depthFrom, U32 depthTo, const TRectI32& regionRect, const void* pData, USIZE dataSize)
+	{
+		auto pTexture = mpGraphicsObjectManagerImpl->GetOGLTexturePtr(textureHandle);
+		if (!pTexture)
+		{
+			return RC_FAIL;
+		}
+
+		GL_SAFE_CALL(glBindTexture(GL_TEXTURE_3D, pTexture->GetTextureHandle()));
+
+		GL_SAFE_CALL(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
+
+		/// GL_UNSIGNED_BYTE is used explicitly, because of stb_image stores data as unsigned char array
+		GL_SAFE_CALL(glTexSubImage3D(GL_TEXTURE_3D, 0, 
+			regionRect.x, regionRect.y, static_cast<GLint>(depthFrom),
+			regionRect.width, regionRect.height, static_cast<GLint>(depthTo - depthFrom),
+			COGLMappings::GetPixelDataFormat(pTexture->GetParams().mFormat), GL_UNSIGNED_BYTE, pData));
+
+		if (pTexture->GetParams().mNumOfMipLevels > 1)
+		{
+			GL_SAFE_CALL(glGenerateMipmap(GL_TEXTURE_3D));
+		}
+
+		GL_SAFE_CALL(glBindTexture(GL_TEXTURE_3D, 0));
+
+		return RC_OK;
+	}
+
 	E_RESULT_CODE COGLGraphicsContext::CopyResource(TTextureHandleId sourceHandle, TTextureHandleId destHandle)
 	{
 		return RC_OK;

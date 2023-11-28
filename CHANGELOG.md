@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.23] 2023-11-25
+## [0.6.23] 2023-11-29
 
 ### Added
 
@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The API of **IBuffer** was extended with new method Resize. Also GetUsedSize method was removed and the signature of Map method was changed.
 
 - The API of **IPluginManager** was extended with a new method GetDLLManager.
+
+- A new type of texture which is volumetric one was supported for resource manager.
+
+- The API of **IGraphicsContext** was extended with a new method UpdateTexture3D.
+
 
 ### Changed
 

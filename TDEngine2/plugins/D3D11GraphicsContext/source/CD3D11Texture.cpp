@@ -12,24 +12,15 @@
 
 namespace TDEngine2
 {
-	//TDE2_DEFINE_SCOPED_PTR(CD3D11TextureImpl)
-
-
-	static TResult<ID3D11Texture2D*> CreateTexture2DResourceInternal(ID3D11Device* p3dDevice, const TInitTextureImplParams& params)
+	template <typename T>
+	void FillCommonTextureDesc(T& textureDesc, const TInitTextureImplParams& params)
 	{
-		D3D11_TEXTURE2D_DESC textureDesc;
-
-		memset(&textureDesc, 0, sizeof(textureDesc));
-
 		bool isCPUAccessible = params.mUsageType != E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
 
 		textureDesc.Width = params.mWidth;
 		textureDesc.Height = params.mHeight;
 		textureDesc.Format = CD3D11Mappings::GetDXGIFormat(params.mFormat);
-		textureDesc.SampleDesc.Count = params.mNumOfSamples;
-		textureDesc.SampleDesc.Quality = params.mSamplingQuality;
 		textureDesc.MipLevels = params.mNumOfMipLevels;
-		textureDesc.ArraySize = (params.mType == E_TEXTURE_IMPL_TYPE::CUBEMAP) ? 6 : params.mArraySize;
 
 		textureDesc.BindFlags = 0x0;
 
@@ -56,6 +47,20 @@ namespace TDEngine2
 		textureDesc.Usage = isCPUAccessible ? D3D11_USAGE_STAGING : D3D11_USAGE_DEFAULT;
 		textureDesc.MiscFlags = (params.mType == E_TEXTURE_IMPL_TYPE::CUBEMAP) ? D3D11_RESOURCE_MISC_TEXTURECUBE : 0x0;
 
+	}
+
+
+	static TResult<ID3D11Texture2D*> CreateTexture2DResourceInternal(ID3D11Device* p3dDevice, const TInitTextureImplParams& params)
+	{
+		D3D11_TEXTURE2D_DESC textureDesc;
+
+		memset(&textureDesc, 0, sizeof(textureDesc));
+		FillCommonTextureDesc<D3D11_TEXTURE2D_DESC>(textureDesc, params);
+
+		textureDesc.SampleDesc.Count = params.mNumOfSamples;
+		textureDesc.SampleDesc.Quality = params.mSamplingQuality;
+		textureDesc.ArraySize = (params.mType == E_TEXTURE_IMPL_TYPE::CUBEMAP) ? 6 : params.mArraySize;
+
 		ID3D11Texture2D* pTexture = nullptr;
 
 		/// create blank texture with specified parameters
@@ -69,6 +74,30 @@ namespace TDEngine2
 #endif
 
 		return Wrench::TOkValue<ID3D11Texture2D*>(pTexture);
+	}
+	
+	
+	static TResult<ID3D11Texture3D*> CreateTexture3DResourceInternal(ID3D11Device* p3dDevice, const TInitTextureImplParams& params)
+	{
+		D3D11_TEXTURE3D_DESC textureDesc;
+
+		memset(&textureDesc, 0, sizeof(textureDesc));
+		FillCommonTextureDesc<D3D11_TEXTURE3D_DESC>(textureDesc, params);
+		textureDesc.Depth = params.mDepth;
+
+		ID3D11Texture3D* pTexture = nullptr;
+
+		/// create blank texture with specified parameters
+		if (FAILED(p3dDevice->CreateTexture3D(&textureDesc, nullptr, &pTexture)))
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+#if TDE2_DEBUG_MODE
+		pTexture->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<U32>(params.mName.length()), params.mName.c_str());
+#endif
+
+		return Wrench::TOkValue<ID3D11Texture3D*>(pTexture);
 	}
 
 
@@ -98,6 +127,10 @@ namespace TDEngine2
 				viewDesc.Texture2DArray.ArraySize = params.mArraySize;
 				viewDesc.Texture2DArray.FirstArraySlice = 0;
 				viewDesc.Texture2DArray.MostDetailedMip = 0;
+				break;
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_3D:
+				viewDesc.Texture3D.MipLevels = params.mNumOfMipLevels;
+				viewDesc.Texture3D.MostDetailedMip = 0;
 				break;
 		}
 
@@ -134,6 +167,11 @@ namespace TDEngine2
 				viewDesc.Texture2DArray.MipSlice = 0;
 				viewDesc.Texture2DArray.FirstArraySlice = 0;
 				break;
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_3D:
+				viewDesc.Texture3D.FirstWSlice = 0;
+				viewDesc.Texture3D.MipSlice = 0;
+				viewDesc.Texture3D.WSize = -1;
+				break;
 		}
 
 		ID3D11RenderTargetView* pRenderTargetView = nullptr;
@@ -165,6 +203,7 @@ namespace TDEngine2
 				break;
 			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D_ARRAY:
 			case E_TEXTURE_IMPL_TYPE::CUBEMAP:
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_3D:
 				viewDesc.Texture2DArray.ArraySize = isCubemap ? 6 : params.mArraySize;
 				viewDesc.Texture2DArray.MipSlice = 0;
 				viewDesc.Texture2DArray.FirstArraySlice = 0;
@@ -203,6 +242,11 @@ namespace TDEngine2
 				viewDesc.Texture2DArray.ArraySize = isCubemap ? 6 : params.mArraySize;
 				viewDesc.Texture2DArray.MipSlice = 0;
 				viewDesc.Texture2DArray.FirstArraySlice = 0;
+				break;
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_3D:
+				viewDesc.Texture3D.WSize = -1;
+				viewDesc.Texture3D.MipSlice = 0;
+				viewDesc.Texture3D.FirstWSlice = 0;
 				break;
 		}
 
@@ -343,15 +387,26 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D11TextureImpl::_onInitInternal()
 	{
-		auto createResourceResult = CreateTexture2DResourceInternal(mp3dDevice, mInitParams);
-		if (createResourceResult.HasError())
+		if (E_TEXTURE_IMPL_TYPE::TEXTURE_3D != mInitParams.mType)
 		{
-			return createResourceResult.GetError();
+			auto createResourceResult = CreateTexture2DResourceInternal(mp3dDevice, mInitParams);
+			if (createResourceResult.HasError())
+			{
+				return createResourceResult.GetError();
+			}
+
+			mpTextureResource = createResourceResult.Get();
 		}
+		else
+		{
+			auto createResourceResult = CreateTexture3DResourceInternal(mp3dDevice, mInitParams);
+			if (createResourceResult.HasError())
+			{
+				return createResourceResult.GetError();
+			}
 
-		// \todo Add support of 3D textures
-
-		mpTextureResource = createResourceResult.Get();
+			mpTextureResource = createResourceResult.Get();
+		}
 
 		auto createDefaultSrvResult = CreateShaderResourceViewInternal(mp3dDevice, mpTextureResource, mInitParams);
 		if (createDefaultSrvResult.HasError())

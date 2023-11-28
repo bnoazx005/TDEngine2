@@ -938,6 +938,11 @@ namespace TDEngine2
 		return RC_NOT_IMPLEMENTED_YET;
 	}
 
+	E_RESULT_CODE CVulkanGraphicsContext::UpdateTexture3D(TTextureHandleId textureHandle, U32 depthFrom, U32 depthTo, const TRectI32& regionRect, const void* pData, USIZE dataSize)
+	{
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
 	E_RESULT_CODE CVulkanGraphicsContext::CopyResource(TTextureHandleId sourceHandle, TTextureHandleId destHandle)
 	{
 		return RC_OK;
