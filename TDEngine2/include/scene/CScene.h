@@ -138,6 +138,8 @@ namespace TDEngine2
 
 			TDE2_API CEntity* CreateSkybox(IResourceManager* pResourceManager, const std::string& skyboxTexture) override;
 
+			TDE2_API CEntity* CreateSkydome(IResourceManager* pResourceManager, const std::string& materialName) override;
+
 #if TDE2_EDITORS_ENABLED
 			TDE2_API CEntity* CreateEditorCamera(F32 aspect, F32 fov) override;
 #endif

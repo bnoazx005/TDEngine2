@@ -326,6 +326,167 @@ namespace TDEngine2
 	}
 
 
+	static IStaticMesh* CreateSkydome(IResourceManager* pResourceManager, IJobManager* pJobManager)
+	{
+		constexpr F32 sphereRadius = 2.0f;
+
+		auto pSphereMeshResource = pResourceManager->GetResource<IStaticMesh>(pResourceManager->Create<IStaticMesh>("Skydome", TMeshParameters{}));
+
+		auto meshGenerationRoutine = [pSphereMeshResource, pJobManager, sphereRadius](auto&&)
+		{
+			E_RESULT_CODE result = RC_OK;
+
+			IGeometryBuilder* pGeometryBuilder = CreateGeometryBuilder(result);
+
+			defer([&] { pGeometryBuilder->Free(); });
+
+			if (result != RC_OK)
+			{
+				return;
+			}
+
+			const TVector3 basisVertices[]
+			{
+				TVector3(0.0f, sphereRadius, 0.0f),
+				-TVector3(0.0f, sphereRadius, 0.0f),
+				TVector3(sphereRadius, 0.0f, 0.0f),
+				-TVector3(sphereRadius, 0.0f, 0.0f),
+				TVector3(0.0f, 0.0f, sphereRadius),
+				-TVector3(0.0f, 0.0f, sphereRadius),
+			};
+
+			auto tryFindIndex = [](auto&& vertices, const TVector3& v)
+			{
+				auto it = std::find(vertices.cbegin(), vertices.cend(), v);
+				if (it == vertices.cend())
+				{
+					return std::numeric_limits<USIZE>::max();
+				}
+
+				return static_cast<USIZE>(std::distance(vertices.cbegin(), it));
+			};
+
+			std::function<void(std::vector<TVector3>&, std::vector<U32>&, const TVector3&, const TVector3&, const TVector3&, U16)> triangulateSphereSegment =
+				[&triangulateSphereSegment, &tryFindIndex](auto&& vertices, auto&& indices, const TVector3& v0, const TVector3& v1, const TVector3& v2, U16 depth)
+			{
+				if (!depth)
+				{
+					USIZE i0 = tryFindIndex(vertices, v0);
+					if (i0 >= vertices.size())
+					{
+						vertices.push_back(v0);
+						i0 = vertices.size() - 1;
+					}
+
+					USIZE i1 = tryFindIndex(vertices, v1);
+					if (i1 >= vertices.size())
+					{
+						vertices.push_back(v1);
+						i1 = vertices.size() - 1;
+					}
+
+					USIZE i2 = tryFindIndex(vertices, v2);
+					if (i2 >= vertices.size())
+					{
+						vertices.push_back(v2);
+						i2 = vertices.size() - 1;
+					}
+
+					indices.push_back(static_cast<U32>(i0));
+					indices.push_back(static_cast<U32>(i1));
+					indices.push_back(static_cast<U32>(i2));
+
+					std::tuple<TVector3, U32, U32> edges[3]
+					{
+						{ v1 - v0, static_cast<U32>(i0), static_cast<U32>(i1) }, 
+						{ v2 - v1, static_cast<U32>(i2), static_cast<U32>(i1) }, 
+						{ v0 - v2, static_cast<U32>(i0), static_cast<U32>(i2) }, 
+					};
+
+					// provide bottom fan generation
+					for (U32 i = 0; i < 3; i++)
+					{
+						if (CMathUtils::Abs(std::get<0>(edges[i]).y) > FloatEpsilon || CMathUtils::Abs(vertices[std::get<1>(edges[i])].y) > FloatEpsilon)
+						{
+							continue;
+						}
+
+						indices.push_back(0);
+						indices.push_back(std::get<1>(edges[i]));
+						indices.push_back(std::get<2>(edges[i]));
+					}
+
+					return;
+				}
+
+				triangulateSphereSegment(vertices, indices, v0, Lerp(v0, v1, 0.5f), Lerp(v0, v2, 0.5f), depth - 1);
+				triangulateSphereSegment(vertices, indices, v1, Lerp(v1, v0, 0.5f), Lerp(v1, v2, 0.5f), depth - 1);
+				triangulateSphereSegment(vertices, indices, v2, Lerp(v2, v0, 0.5f), Lerp(v2, v1, 0.5f), depth - 1);
+				triangulateSphereSegment(vertices, indices, Lerp(v0, v1, 0.5f), Lerp(v0, v2, 0.5f), Lerp(v1, v2, 0.5f), depth - 1);
+			};
+
+			U8 indices[][3]
+			{
+				{ 0, 2, 4 },
+				{ 0, 2, 5 },
+				{ 0, 3, 4 },
+				{ 0, 3, 5 },
+			};
+
+			std::vector<TVector3> vertices
+			{
+				TVector3(0.0f, -sphereRadius, 0.0f)
+			};
+
+			std::vector<U32> finalIndices;
+
+			for (const auto& currIndices : indices)
+			{
+				triangulateSphereSegment(vertices, finalIndices, basisVertices[currIndices[0]], basisVertices[currIndices[1]], basisVertices[currIndices[2]], 3);
+			}
+
+			for (U16 i = 0; i < vertices.size(); i++)
+			{
+				auto&& v0 = Normalize(vertices[i]);
+
+				pSphereMeshResource->AddPosition(TVector4(v0 * sphereRadius, 1.0f));
+				pSphereMeshResource->AddTexCoord0(TVector2(v0.x, v0.z) * 0.5f + TVector2(0.5f));
+				pSphereMeshResource->AddNormal(TVector4(-v0, 0.0f));
+				pSphereMeshResource->AddTangent({}); // \todo Implement correct computation of a tangent
+			}
+
+			U32 currFace[3];
+
+			for (U16 i = 0; i < finalIndices.size(); i += 3)
+			{
+				currFace[0] = finalIndices[i];
+				currFace[1] = finalIndices[i + 1];
+				currFace[2] = finalIndices[i + 2];
+
+				pSphereMeshResource->AddFace(currFace);
+			}
+
+			pJobManager->ExecuteInMainThread([pSphereMeshResource]
+			{
+				PANIC_ON_FAILURE(pSphereMeshResource->PostLoad());
+			});
+		};
+
+		if (auto pResource = dynamic_cast<IResource*>(pSphereMeshResource.Get()))
+		{
+			if (E_RESOURCE_LOADING_POLICY::STREAMING != pResource->GetLoadingPolicy())
+			{
+				meshGenerationRoutine(TJobArgs{});
+				return pSphereMeshResource.Get();
+			}
+		}
+
+		pJobManager->SubmitJob(nullptr, meshGenerationRoutine);
+
+		return pSphereMeshResource.Get();
+	}
+
+
 	TDE2_API IStaticMesh* CreateStaticMesh(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IStaticMesh, CStaticMesh, result, pResourceManager, pGraphicsContext, name);
@@ -407,7 +568,8 @@ namespace TDEngine2
 		{
 			{ "Cube", [this, pJobManager] { CStaticMesh::CreateCube(mpResourceManager, pJobManager); } },
 			{ "Plane", [this, pJobManager] {  CStaticMesh::CreatePlane(mpResourceManager, pJobManager); } },
-			{ "Sphere", [this, pJobManager] { CStaticMesh::CreateSphere(mpResourceManager, pJobManager); } }
+			{ "Sphere", [this, pJobManager] { CStaticMesh::CreateSphere(mpResourceManager, pJobManager); } },
+			{ "Skydome", [this, pJobManager] { CreateSkydome(mpResourceManager, pJobManager); } }
 		};
 
 		auto it = builtInMeshesFactories.find(pResource->GetName());

@@ -303,6 +303,32 @@ namespace TDEngine2
 		return pSkyboxEntity;
 	}
 
+	CEntity* CScene::CreateSkydome(IResourceManager* pResourceManager, const std::string& materialName)
+	{
+		if (!pResourceManager)
+		{
+			return nullptr;
+		}
+
+		auto skyboxEntities = mpWorld->FindEntitiesWithComponents<CSkyboxComponent>();
+		if (!skyboxEntities.empty())
+		{
+			return mpWorld->FindEntity(skyboxEntities.front());
+		}
+
+		CEntity* pSkyboxEntity = CreateEntity("Skydome");
+
+		pSkyboxEntity->AddComponent<CSkyboxComponent>();
+
+		if (auto pStaticMeshContainer = pSkyboxEntity->AddComponent<CStaticMeshContainer>())
+		{
+			pStaticMeshContainer->SetMaterialName(materialName);
+			pStaticMeshContainer->SetMeshName("Skydome");
+		}
+
+		return pSkyboxEntity;
+	}
+
 #if TDE2_EDITORS_ENABLED
 
 	CEntity* CScene::CreateEditorCamera(F32 aspect, F32 fov)
