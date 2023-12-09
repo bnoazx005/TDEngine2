@@ -419,7 +419,7 @@ namespace TDEngine2
 		region.back = 1;
 		region.front = 0;
 
-		U32 rowPitch = regionRect.width * CD3D11Mappings::GetNumOfChannelsOfFormat(pTexture->GetParams().mFormat);
+		U32 rowPitch = regionRect.width * CD3D11Mappings::GetFormatSize(pTexture->GetParams().mFormat);
 
 		mp3dDeviceContext->UpdateSubresource(pTexture->GetTextureResource(), mipLevel, &region, pData, rowPitch, rowPitch * regionRect.height);
 
