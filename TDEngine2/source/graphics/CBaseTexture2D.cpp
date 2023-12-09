@@ -364,6 +364,7 @@ namespace TDEngine2
 					if (TINYEXR_SUCCESS != LoadEXR(&pExrData, &width, &height, filename.c_str(), &pExrErrorMessage))
 					{
 						LOG_ERROR(Wrench::StringUtils::Format("[BaseTextureLoader] EXR texture loading failed, message: {0}", pExrErrorMessage));
+						FreeEXRErrorMessage(pExrErrorMessage);
 						TDE2_ASSERT(false);
 						return;
 					}
