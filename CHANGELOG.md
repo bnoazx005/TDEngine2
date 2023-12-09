@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.23] 2023-11-29
+## [0.6.23] 2023-12-09
 
 ### Added
 
@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The API of **IGraphicsContext** was extended with a new method UpdateTexture3D.
 
+- Support of .exr textures was added via **tinyexr** library.
 
 ### Changed
 

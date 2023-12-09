@@ -624,6 +624,9 @@ endif ()
 #set up stb library headers
 target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/stb")
 
+#set up tinyexr library headers
+target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/tinyexr")
+
 #set up Wrench library headers
 target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/Wrench/source")
 

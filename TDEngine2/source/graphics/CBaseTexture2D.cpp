@@ -4,11 +4,14 @@
 #include "../../include/core/IFileSystem.h"
 #include "../../include/core/IJobManager.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
+#include "../../include/utils/CFileLogger.h"
 #define META_EXPORT_GRAPHICS_SECTION
 #include "../../include/metadata.h"
 #include "../../include/editor/CPerfProfiler.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#define TINYEXR_IMPLEMENTATION
+#include <tinyexr.h>
 #include <string>
 #include <cassert>
 
@@ -283,6 +286,31 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+
+	enum class E_TEXTURE_FORMAT_TYPE
+	{
+		DEFAULT,
+		HDR,
+		EXR
+	};
+
+
+	static E_TEXTURE_FORMAT_TYPE GetTypeFromFilename(const std::string& filename)
+	{
+		if (Wrench::StringUtils::EndsWith(filename, ".exr"))
+		{
+			return E_TEXTURE_FORMAT_TYPE::EXR;
+		}
+		
+		if (stbi_is_hdr(filename.c_str()))
+		{
+			return E_TEXTURE_FORMAT_TYPE::EXR;
+		}
+
+		return E_TEXTURE_FORMAT_TYPE::DEFAULT;
+	}
+
+
 	E_RESULT_CODE CBaseTexture2DLoader::LoadResource(IResource* pResource) const
 	{
 		TDE2_PROFILER_SCOPE("CBaseTexture2DLoader::LoadResource");
@@ -302,13 +330,22 @@ namespace TDEngine2
 
 		U8* pTextureData = nullptr;
 
-		/// \todo Reimplement this later using reading from in-memory block rather than using explicit file I/O
-		if (!stbi_info(filename.c_str(), &width, &height, &format))
+		// \todo Replace all types of textures with internal engine format
+		const E_TEXTURE_FORMAT_TYPE textureFormatType = GetTypeFromFilename(filename);
+
+		switch (textureFormatType)
 		{
-			return RC_FILE_NOT_FOUND;
+			case E_TEXTURE_FORMAT_TYPE::DEFAULT:
+			case E_TEXTURE_FORMAT_TYPE::HDR:
+				/// \todo Reimplement this later using reading from in-memory block rather than using explicit file I/O
+				if (!stbi_info(filename.c_str(), &width, &height, &format))
+				{
+					return RC_FILE_NOT_FOUND;
+				}
+				break;
 		}
 
-		auto loadTextureRoutine = [pResource, pJobManager, w = width, h = height, fmt = format, filename, this](auto&&)
+		auto loadTextureRoutine = [pResource, pJobManager, textureFormatType, w = width, h = height, fmt = format, filename, this](auto&&)
 		{
 			TDE2_PROFILER_SCOPE("LoadTextureRoutineJob");
 
@@ -318,31 +355,46 @@ namespace TDEngine2
 			I32 height = h;
 			I32 format = fmt;
 
-			const bool isHDREnabled = stbi_is_hdr(filename.c_str());
+			F32* pExrData = nullptr;
+			const C8* pExrErrorMessage = nullptr;
 
-			if (isHDREnabled)
+			switch (textureFormatType)
 			{
-				pTextureData = reinterpret_cast<U8*>(stbi_loadf(filename.c_str(), &width, &height, &format, (format < 3 ? format : 4))); /// D3D11 doesn't work with 24 bits textures
+				case E_TEXTURE_FORMAT_TYPE::EXR:
+					if (TINYEXR_SUCCESS != LoadEXR(&pExrData, &width, &height, filename.c_str(), &pExrErrorMessage))
+					{
+						LOG_ERROR(Wrench::StringUtils::Format("[BaseTextureLoader] EXR texture loading failed, message: {0}", pExrErrorMessage));
+						TDE2_ASSERT(false);
+						return;
+					}
+					
+					pTextureData = reinterpret_cast<U8*>(pExrData);
+					format = 4; // \note RGBA only
+					break;
+
+				case E_TEXTURE_FORMAT_TYPE::HDR:
+					pTextureData = reinterpret_cast<U8*>(stbi_loadf(filename.c_str(), &width, &height, &format, (format < 3 ? format : 4))); /// D3D11 doesn't work with 24 bits textures
+					break;
+
+				default:
+					pTextureData = stbi_load(filename.c_str(), &width, &height, &format, (format < 3 ? format : 4)); /// D3D11 doesn't work with 24 bits textures
+					break;
 			}
-			else
-			{
-				pTextureData = stbi_load(filename.c_str(), &width, &height, &format, (format < 3 ? format : 4)); /// D3D11 doesn't work with 24 bits textures
-			}
-			
+
 			if (!pTextureData)
 			{
 				return;
 			}
 
-			E_FORMAT_TYPE internalFormat = isHDREnabled ? FT_FLOAT4 : FT_NORM_UBYTE4;
+			E_FORMAT_TYPE internalFormat = (E_TEXTURE_FORMAT_TYPE::DEFAULT != textureFormatType) ? FT_FLOAT4 : FT_NORM_UBYTE4;
 
 			switch (format)
 			{
 				case 1:
-					internalFormat = isHDREnabled ? FT_FLOAT1 : FT_NORM_UBYTE1;
+					internalFormat = (E_TEXTURE_FORMAT_TYPE::DEFAULT != textureFormatType) ? FT_FLOAT1 : FT_NORM_UBYTE1;
 					break;
 				case 2:
-					internalFormat = isHDREnabled ? FT_FLOAT2 : FT_NORM_UBYTE2;
+					internalFormat = (E_TEXTURE_FORMAT_TYPE::DEFAULT != textureFormatType) ? FT_FLOAT2 : FT_NORM_UBYTE2;
 					break;
 			}
 
