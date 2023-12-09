@@ -10,6 +10,8 @@
 #include "../../include/editor/CPerfProfiler.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#define TINYEXR_USE_MINIZ 0
+#include "zlib.h"
 #define TINYEXR_IMPLEMENTATION
 #include <tinyexr.h>
 #include <string>
