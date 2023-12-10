@@ -86,6 +86,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	{
 		pTransform->SetPosition(TVector3(0.0f, 1.5f, 0.0f));
 	}
+
 #endif
 
 #if 0
@@ -227,6 +228,20 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 			auto pScene = pSceneManager->GetScene(pSceneManager->GetSceneId("Test")).Get();
 			
+			pScene->CreateSkydome(mpResourceManager, "DefaultResources/Materials/DefaultSkydome.material");
+
+#if 0
+			auto pSphereEntity = pScene->CreateEntity("Sphere");
+			pSphereEntity->AddComponent<CShadowReceiverComponent>();
+			auto pSphereMeshContainer = pSphereEntity->AddComponent<CStaticMeshContainer>();
+			pSphereMeshContainer->SetMaterialName("ProjectResources/Materials/DefaultMaterial.material");
+			pSphereMeshContainer->SetMeshName("Sphere");
+			if (auto pTransform = pSphereEntity->GetComponent<CTransform>())
+			{
+				pTransform->SetPosition(TVector3(0.0f, 1.5f, 0.0f));
+			}
+#endif
+
 			{
 				TEntityId id0, id1;
 
@@ -802,7 +817,7 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	
 	auto pDebugUtility = mpGraphicsObjectManager->CreateDebugUtility(mpResourceManager, mpEngineCoreInstance->GetSubsystem<IRenderer>().Get()).Get();
 	
-	pDebugUtility->DrawSphere(TVector3(10.0f, 0.0f, 0.0f), 5.0f, TColorUtils::mGreen);
+	pDebugUtility->DrawSphere(TVector3(10.0f, 0.0f, 0.0f), 15.0f, TColorUtils::mGreen);
 	pDebugUtility->DrawSphere(TVector3(-10.0f, 10.0f, 0.0f), 5.0f, TColorUtils::mMagenta);
 
 	// rotate the cube
@@ -816,6 +831,17 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	pTransform->SetRotation(TVector3(0.0f, time, 0.0f));
 	auto&& m = pTransform->GetTransform();
 #endif
+
+	static F32 t = 0.0f;
+	t += 0.25f * dt;
+
+	auto sunEntities = mpWorld->FindEntitiesWithAny<CDirectionalLight>();
+	if (!sunEntities.empty())
+	{
+		CEntity* pSunEntity = mpWorld->FindEntity(sunEntities.front());
+		auto pTransform = pSunEntity->GetComponent<CTransform>();
+		pTransform->SetRotation(TQuaternion(TVector3(-t, 0.0f, 0.0f)));
+	}
 
 	return RC_OK;
 }

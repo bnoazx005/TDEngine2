@@ -37,4 +37,17 @@ resources_meta_collection:
       mips_count: 0
       mips_enabled: 0
       type_id: 308810324
-
+  - resource_meta: 
+      address_mode: AMT_CLAMP
+      filter_type: FT_BILINEAR
+      id: DefaultResources/Textures/Sky/Rayleigh_LUT.exr
+      mips_count: 0
+      mips_enabled: 0
+      type_id: 308810324
+  - resource_meta: 
+      address_mode: AMT_CLAMP
+      filter_type: FT_BILINEAR
+      id: DefaultResources/Textures/Sky/Mie_LUT.exr
+      mips_count: 0
+      mips_enabled: 0
+      type_id: 308810324

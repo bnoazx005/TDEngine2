@@ -178,7 +178,7 @@ namespace TDEngine2
 
 		auto&& variableValue = loadResult.Get();
 
-		return pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, pReader->GetString(TMaterialArchiveKeys::TVariablesPerInstancesKeys::mVariableIdKey), &variableValue);
+		return pMaterial->SetVariableForInstance<T>(DefaultMaterialInstanceId, pReader->GetString(TMaterialArchiveKeys::TVariablesPerInstancesKeys::mVariableIdKey), variableValue);
 	}
 
 
@@ -192,7 +192,7 @@ namespace TDEngine2
 
 		{ TDE2_TYPE_ID(TVector2), [](IArchiveReader* pReader, IMaterial* pMaterial) { return LoadAndAssignVariable<TVector2>(pReader, pMaterial); }},
 		{ TDE2_TYPE_ID(TVector3), [](IArchiveReader* pReader, IMaterial* pMaterial) { return LoadAndAssignVariable<TVector3>(pReader, pMaterial); }},
-		{ TDE2_TYPE_ID(TVector4), [](IArchiveReader* pReader, IMaterial* pMaterial) { return LoadAndAssignVariable<TVector3>(pReader, pMaterial); }},
+		{ TDE2_TYPE_ID(TVector4), [](IArchiveReader* pReader, IMaterial* pMaterial) { return LoadAndAssignVariable<TVector4>(pReader, pMaterial); }},
 	};
 
 

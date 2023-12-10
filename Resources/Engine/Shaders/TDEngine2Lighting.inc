@@ -178,7 +178,7 @@ float4 CalcPointLightContribution(in PointLightData pointLight, in LightingData 
 
 float4 CalcSunLightContribution(in SunLightData sunLight, in LightingData lightingData)
 {
-	return float4(CalcCookTorranceBRDF(normalize(sunLight.mPosition).xyz, lightingData) /* * sunLight.mColor.rgb*/, sunLight.mColor.a);
+	return float4(CalcCookTorranceBRDF(normalize(sunLight.mDirection).xyz, lightingData) /* * sunLight.mColor.rgb*/, sunLight.mColor.a);
 }
 
 	

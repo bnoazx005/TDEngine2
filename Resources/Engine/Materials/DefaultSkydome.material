@@ -1,0 +1,54 @@
+blend_state: 
+  dest_alpha: ZERO
+  dest_color: ZERO
+  op_alpha_type: ADD
+  op_type: ADD
+  src_alpha: ONE
+  src_color: ONE
+depth_stencil_state: 
+  depth_cmp_func: LESS_EQUAL
+  depth_test_enabled: 1
+  depth_write_enabled: 1
+  stencil_back_op: 
+    cmp_func: ALWAYS
+    depth_fail_op: KEEP
+    fail_op: KEEP
+    pass_op: KEEP
+  stencil_front_op: 
+    cmp_func: ALWAYS
+    depth_fail_op: KEEP
+    fail_op: KEEP
+    pass_op: KEEP
+  stencil_read_mask: 255
+  stencil_test_enabled: 0
+  stencil_write_mask: 255
+geom_tag: SKYBOX
+meta: 
+  resource_type: material
+  version_tag: 1
+rasterizer_state: 
+  cull_mode: FRONT
+  depth_bias: 0.000000
+  depth_clipping_enabled: 1
+  front_CCW_mode: 0
+  max_depth_bias: 1.000000
+  scissor_test_enabled: 0
+  wireframe_mode: 0
+shader_id: Shaders/Default/DefaultSkydomeShader.shader
+textures: 
+  - instance_id: 0
+    texture_bindings:       
+      - slot_id: RayleighLUT
+        texture_id: DefaultResources/Textures/Sky/Rayleigh_LUT.exr
+        texture_type_id: 4159152309    
+      - slot_id: MieLUT
+        texture_id: DefaultResources/Textures/Sky/Mie_LUT.exr
+        texture_type_id: 4159152309
+variables:
+  - variable_id: mMieG
+    type_id: 193454960
+    value: 0.91
+  - variable_id: mExposure
+    type_id: 193454960
+    value: 1.0
+transparency_enabled: 0

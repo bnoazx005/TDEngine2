@@ -15,7 +15,6 @@
 #define TINYEXR_IMPLEMENTATION
 #include <tinyexr.h>
 #include <string>
-#include <cassert>
 
 
 namespace TDEngine2

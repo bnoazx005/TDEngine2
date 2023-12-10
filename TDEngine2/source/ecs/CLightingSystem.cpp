@@ -284,7 +284,7 @@ namespace TDEngine2
 			frustumCenter = frustumCenter * 0.125f;
 		}
 
-		const TMatrix4 viewMatrix = LookAt(frustumCenter + handedness * pLightTransform->GetPosition(), UpVector3, frustumCenter, -handedness);
+		const TMatrix4 viewMatrix = LookAt(frustumCenter + handedness * Normalize(pLightTransform->GetForwardVector()) /*pLightTransform->GetPosition()*/, UpVector3, frustumCenter, -handedness);
 
 		F32 minX = std::numeric_limits<F32>::max();
 		F32 maxX = std::numeric_limits<F32>::lowest();

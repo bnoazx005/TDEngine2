@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.23] 2023-12-09
+## [0.6.23] 2023-12-10
 
 ### Added
 
@@ -73,6 +73,8 @@ Alk its derivation were removed from the engine.
 ### Fixed
 
 - An incorrect work of **CProgramOptions::AddArgument** when two arguments were defined with same single-character command was fixed.
+
+- An incorrect deserialization of material's uniforms was fixed.
 
 ## [0.6.21] 2023-10-13
 
