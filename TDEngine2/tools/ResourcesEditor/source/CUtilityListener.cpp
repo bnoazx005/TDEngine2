@@ -122,6 +122,28 @@ static std::unique_ptr<TTexture2DParameters> CreateTexture2DRuntimeParamsFromMet
 }
 
 
+static std::unique_ptr<TTexture3DParameters> CreateTexture3DRuntimeParamsFromMetaInfo(const TTexture2DResourceBuildInfo& textureInfo)
+{
+	std::unique_ptr<TTexture3DParameters> pTextureRuntimeParams = std::make_unique<TTexture3DParameters>();
+
+	pTextureRuntimeParams->mTexSamplerDesc.mFilteringType = textureInfo.mFilteringType;
+
+	pTextureRuntimeParams->mTexSamplerDesc.mUAddressMode = textureInfo.mAddressMode;
+	pTextureRuntimeParams->mTexSamplerDesc.mVAddressMode = textureInfo.mAddressMode;
+	pTextureRuntimeParams->mTexSamplerDesc.mWAddressMode = textureInfo.mAddressMode;
+
+	pTextureRuntimeParams->mTexSamplerDesc.mUseMipMaps = textureInfo.mGenerateMipMaps;
+	pTextureRuntimeParams->mNumOfMipLevels = 1; /// \fixme Replace with corresponding parameter
+
+	pTextureRuntimeParams->mInputSheetColsCount = textureInfo.mInputSheetColsCount;
+	pTextureRuntimeParams->mInputSheetRowsCount = textureInfo.mInputSheetRowsCount;
+
+	pTextureRuntimeParams->mDepth = pTextureRuntimeParams->mInputSheetColsCount * pTextureRuntimeParams->mInputSheetRowsCount;
+
+	return std::move(pTextureRuntimeParams);
+}
+
+
 static TPtr<IResourcesRuntimeManifest> PrepareRuntimeManifest(TPtr<CResourcesBuildManifest>& pManifest)
 {
 	E_RESULT_CODE result = RC_OK;
@@ -131,7 +153,10 @@ static TPtr<IResourcesRuntimeManifest> PrepareRuntimeManifest(TPtr<CResourcesBui
 
 	pManifest->ForEachRegisteredResource<TTexture2DResourceBuildInfo>([&pRuntimeManifest](const TResourceBuildInfo& info)
 	{
-		pRuntimeManifest->AddResourceMeta(info.mRelativePathToResource, CreateTexture2DRuntimeParamsFromMetaInfo(dynamic_cast<const TTexture2DResourceBuildInfo&>(info)));
+		auto pTextureBuildInfo = dynamic_cast<const TTexture2DResourceBuildInfo&>(info);
+
+		pRuntimeManifest->AddResourceMeta(info.mRelativePathToResource, 
+			pTextureBuildInfo.mIsAtlasModeEnabled ? CreateTexture3DRuntimeParamsFromMetaInfo(pTextureBuildInfo) : CreateTexture2DRuntimeParamsFromMetaInfo(pTextureBuildInfo));
 		return true;
 	});
 

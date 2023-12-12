@@ -128,6 +128,10 @@ namespace TDEngine2
 
 		bool                  mGenerateMipMaps = true;
 		bool                  mIsDynamicRangeEnabled = false; /// HDR formats
+		bool                  mIsAtlasModeEnabled = false;
+
+		U32 mInputSheetColsCount = 1;
+		U32 mInputSheetRowsCount = 1;
 	} TTexture2DResourceBuildInfo, *TTexture2DResourceBuildInfoPtr;
 
 

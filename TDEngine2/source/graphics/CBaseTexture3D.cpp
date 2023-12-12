@@ -13,6 +13,16 @@
 
 namespace TDEngine2
 {
+	struct TTexture3DParametersArchiveKeys
+	{
+		static const std::string mSheetRowsCountKeyId;
+		static const std::string mSheetColsCountKeyId;
+	};
+
+	const std::string TTexture3DParametersArchiveKeys::mSheetRowsCountKeyId = "input_sheet_rows_count";
+	const std::string TTexture3DParametersArchiveKeys::mSheetColsCountKeyId = "input_sheet_cols_count";
+
+
 	/*!
 		\note The declaration of TTexture3DParameters is placed at ITexture3D.h
 	*/
@@ -20,6 +30,27 @@ namespace TDEngine2
 	TTexture3DParameters::TTexture3DParameters(U32 width, U32 height, U32 depth, E_FORMAT_TYPE format, U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality):
 		TTexture2DParameters(width, height, format, mipLevelsCount, samplesCount, samplingQuality), mDepth(depth)
 	{
+	}
+
+	E_RESULT_CODE TTexture3DParameters::Load(IArchiveReader* pReader)
+	{
+		E_RESULT_CODE result = TTexture2DParameters::Load(pReader);
+
+		mInputSheetRowsCount = pReader->GetUInt32(TTexture3DParametersArchiveKeys::mSheetRowsCountKeyId);
+		mInputSheetColsCount = pReader->GetUInt32(TTexture3DParametersArchiveKeys::mSheetColsCountKeyId);
+
+		return result;
+	}
+
+	E_RESULT_CODE TTexture3DParameters::Save(IArchiveWriter* pWriter)
+	{
+		E_RESULT_CODE result = TTexture2DParameters::Save(pWriter);
+		
+		result = result | pWriter->SetUInt32("type_id", static_cast<U32>(TDE2_TYPE_ID(TTexture3DParameters)));
+		result = result | pWriter->SetUInt32(TTexture3DParametersArchiveKeys::mSheetRowsCountKeyId, mInputSheetRowsCount);
+		result = result | pWriter->SetUInt32(TTexture3DParametersArchiveKeys::mSheetColsCountKeyId, mInputSheetColsCount);
+
+		return result;
 	}
 
 

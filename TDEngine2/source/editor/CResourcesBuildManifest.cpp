@@ -74,6 +74,9 @@ namespace TDEngine2
 		static const std::string mAddressModeKeyId;
 		static const std::string mGenerateMipMapsKeyId;
 		static const std::string mUseHDRFormatKeyId;
+		static const std::string mIsAtlasModeKeyId;
+		static const std::string mSheetRowsCountKeyId;
+		static const std::string mSheetColsCountKeyId;
 	};
 
 
@@ -81,6 +84,9 @@ namespace TDEngine2
 	const std::string TTexture2DResourceBuildInfoArchiveKeys::mAddressModeKeyId = "address_mode";
 	const std::string TTexture2DResourceBuildInfoArchiveKeys::mGenerateMipMapsKeyId = "mipmaps_generation";
 	const std::string TTexture2DResourceBuildInfoArchiveKeys::mUseHDRFormatKeyId = "hdr_format";
+	const std::string TTexture2DResourceBuildInfoArchiveKeys::mIsAtlasModeKeyId = "sheet_mode";
+	const std::string TTexture2DResourceBuildInfoArchiveKeys::mSheetRowsCountKeyId = "input_sheet_rows_count";
+	const std::string TTexture2DResourceBuildInfoArchiveKeys::mSheetColsCountKeyId = "input_sheet_cols_count";
 
 
 	static std::unique_ptr<TResourceBuildInfo> Deserialize(IArchiveReader* pReader)
@@ -220,6 +226,10 @@ namespace TDEngine2
 		mAddressMode = Meta::EnumTrait<E_ADDRESS_MODE_TYPE>::FromString(pReader->GetString(TTexture2DResourceBuildInfoArchiveKeys::mAddressModeKeyId));
 		mGenerateMipMaps = pReader->GetBool(TTexture2DResourceBuildInfoArchiveKeys::mGenerateMipMapsKeyId);
 		mIsDynamicRangeEnabled = pReader->GetBool(TTexture2DResourceBuildInfoArchiveKeys::mUseHDRFormatKeyId, false);
+		mIsAtlasModeEnabled = pReader->GetBool(TTexture2DResourceBuildInfoArchiveKeys::mIsAtlasModeKeyId, false);
+
+		mInputSheetRowsCount = pReader->GetUInt32(TTexture2DResourceBuildInfoArchiveKeys::mSheetRowsCountKeyId);
+		mInputSheetColsCount = pReader->GetUInt32(TTexture2DResourceBuildInfoArchiveKeys::mSheetColsCountKeyId);
 
 		return result;
 	}
@@ -234,6 +244,10 @@ namespace TDEngine2
 		result = result | pWriter->SetString(TTexture2DResourceBuildInfoArchiveKeys::mAddressModeKeyId, Meta::EnumTrait<E_ADDRESS_MODE_TYPE>::ToString(mAddressMode));
 		result = result | pWriter->SetBool(TTexture2DResourceBuildInfoArchiveKeys::mGenerateMipMapsKeyId, mGenerateMipMaps);
 		result = result | pWriter->SetBool(TTexture2DResourceBuildInfoArchiveKeys::mUseHDRFormatKeyId, mIsDynamicRangeEnabled);
+		result = result | pWriter->SetBool(TTexture2DResourceBuildInfoArchiveKeys::mIsAtlasModeKeyId, mIsAtlasModeEnabled);
+
+		result = result | pWriter->SetUInt32(TTexture2DResourceBuildInfoArchiveKeys::mSheetRowsCountKeyId, mInputSheetRowsCount);
+		result = result | pWriter->SetUInt32(TTexture2DResourceBuildInfoArchiveKeys::mSheetColsCountKeyId, mInputSheetColsCount);
 
 		return result;
 	}

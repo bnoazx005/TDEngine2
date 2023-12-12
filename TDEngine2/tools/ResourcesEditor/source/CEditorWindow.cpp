@@ -603,6 +603,11 @@ namespace TDEngine2
 
 		imgui.Label("Texture Properties");
 
+		imgui.BeginHorizontal();
+		imgui.Label("Is Sheet Mode Enabled");
+		imgui.Checkbox("##3d-texture-mode", pTex2DInfo->mIsAtlasModeEnabled);
+		imgui.EndHorizontal();
+
 		static std::vector<std::string> filterTypes;
 		
 		if (filterTypes.empty())
@@ -659,8 +664,24 @@ namespace TDEngine2
 		imgui.Label("Use Mip-Mapping");
 		imgui.Checkbox("##mip-mapping", pTex2DInfo->mGenerateMipMaps);
 		imgui.EndHorizontal();
-	}
 
+		if (pTex2DInfo->mIsAtlasModeEnabled)
+		{
+			I32 colsCount = static_cast<I32>(pTex2DInfo->mInputSheetColsCount);
+
+			imgui.BeginHorizontal();
+			imgui.Label("Sheet Columns: ");
+			imgui.IntField("##colsCount", colsCount, [&pTex2DInfo, &colsCount] { pTex2DInfo->mInputSheetColsCount = static_cast<U32>(colsCount); });
+			imgui.EndHorizontal();
+
+			I32 rowsCount = static_cast<I32>(pTex2DInfo->mInputSheetRowsCount);
+
+			imgui.BeginHorizontal();
+			imgui.Label("Sheet Rows: ");
+			imgui.IntField("##rowsCount", rowsCount, [&pTex2DInfo, &rowsCount] { pTex2DInfo->mInputSheetRowsCount = static_cast<U32>(rowsCount); });
+			imgui.EndHorizontal();
+		}
+	}
 
 	struct TDrawResourceInspectorParams
 	{
