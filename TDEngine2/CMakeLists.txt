@@ -523,6 +523,7 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TQuaternion.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TPlane.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TAABB.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/MathUtils.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/2D/CBaseCollisionObject2D.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/2D/CBoxCollisionObject2D.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/2D/CCircleCollisionObject2D.cpp"

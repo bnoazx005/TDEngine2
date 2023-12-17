@@ -10,6 +10,7 @@
 #include "./../utils/Config.h"
 #include "./../utils/Types.h"
 #include "../core/Serialization.h"
+#include <array>
 
 
 namespace TDEngine2
@@ -69,6 +70,8 @@ namespace TDEngine2
 
 				return p0 * (invT * invT * (1.0f + 2.0f * t)) + s0 * (invT * invT * t) + p1 * ((3.0f - 2.0f * t) * t * t) + s1 * (t * t * (t - 1.0f));
 			}
+
+			TDE2_API constexpr static F32 EaseInOut(F32 t) { return ((6.0f * t - 15.0f) * t + 10.0f) * t * t * t; }
 	};
 
 
@@ -175,6 +178,28 @@ namespace TDEngine2
 	{
 		public:
 			TDE2_API static F32 GetRandF32Value(const TRangeF32& range) { return range.mLeft + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (range.mRight - range.mLeft))); }
+	};
+
+
+	struct TVector2;
+	struct TVector3;
+
+
+	class CPerlinNoise
+	{
+		public:
+			TDE2_API CPerlinNoise() = delete;
+			TDE2_API explicit CPerlinNoise(U32 seed);
+
+			TDE2_API F32 Compute2D(const TVector2& point);
+			TDE2_API F32 Compute2D(const TVector2& point, I32 octavesCount, F32 frequency = 0.005f);
+
+			TDE2_API F32 Compute3D(const TVector3& point);
+			TDE2_API F32 Compute3D(const TVector3& point, I32 octavesCount);
+		private:
+			static constexpr USIZE mGridSize = 255;
+			std::array<U16, (mGridSize + 1)> mPermutationTemplate;
+			std::array<U16, (mGridSize + 1) << 1> mCurrPermutation;
 	};
 
 }
