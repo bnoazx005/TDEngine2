@@ -195,7 +195,7 @@ namespace TDEngine2
 			TDE2_API F32 Compute2D(const TVector2& point, I32 octavesCount, F32 frequency = 0.005f);
 
 			TDE2_API F32 Compute3D(const TVector3& point);
-			TDE2_API F32 Compute3D(const TVector3& point, I32 octavesCount);
+			TDE2_API F32 Compute3D(const TVector3& point, I32 octavesCount, F32 frequency = 0.005f);
 		private:
 			static constexpr USIZE mGridSize = 255;
 			std::array<U16, (mGridSize + 1)> mPermutationTemplate;

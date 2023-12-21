@@ -85,7 +85,7 @@ namespace TDEngine2
 		const F32 u = index < 8 ? p.x : p.y;
 		const F32 v = index < 4 ? p.y : index == 12 || index == 14 ? p.x : p.z;
 
-		return ((index & 1) == 0 ? u : -u) + ((index & 2) == 0 ? v : -v);
+		return ((index & 1) ? -u : u) + ((index & 2) ? -v : v);
 	}
 
 
@@ -99,7 +99,7 @@ namespace TDEngine2
 		const F32 yFrac = point.y - floor(point.y);
 		const F32 zFrac = point.z - floor(point.z);
 
-		const F32 u = CMathUtils::EaseInOut(zFrac);
+		const F32 u = CMathUtils::EaseInOut(xFrac);
 		const F32 v = CMathUtils::EaseInOut(yFrac);
 		const F32 w = CMathUtils::EaseInOut(zFrac);
 
@@ -128,11 +128,9 @@ namespace TDEngine2
 			w);
 	}
 	
-	F32 CPerlinNoise::Compute3D(const TVector3& point, I32 octavesCount)
+	F32 CPerlinNoise::Compute3D(const TVector3& point, I32 octavesCount, F32 frequency)
 	{
 		F32 amplitude = 1.0f;
-		F32 frequency = 0.005f;
-
 		F32 result = 0.0f;
 
 		for (I32 i = 0; i < octavesCount; i++)
