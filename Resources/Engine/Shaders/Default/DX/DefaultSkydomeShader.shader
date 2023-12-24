@@ -31,7 +31,6 @@ VertexOut mainVS(in VertexIn input)
 
 	float4x4 transformedView = ViewMat;
 	transformedView._14_34 = 0.0f;
-	transformedView._24 = -0.5;
 
 	output.mWorldPos = input.mPos;
 	output.mPos = mul(mul(ProjMat, transformedView), input.mPos).xyww;

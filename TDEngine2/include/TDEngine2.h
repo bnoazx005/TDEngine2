@@ -104,6 +104,7 @@
 #include "ecs/CMeshAnimatorUpdatingSystem.h"
 #include "ecs/components/CBoundsComponent.h"
 #include "ecs/CLODMeshSwitchSystem.h"
+#include "ecs/CWeatherSystem.h"
 
 ///graphics
 #include "graphics/IBuffer.h"

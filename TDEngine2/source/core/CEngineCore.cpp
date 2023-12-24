@@ -29,6 +29,7 @@
 #include "../../include/ecs/CUIEventsSystem.h"
 #include "../../include/ecs/CMeshAnimatorUpdatingSystem.h"
 #include "../../include/ecs/CLODMeshSwitchSystem.h"
+#include "../../include/ecs/CWeatherSystem.h"
 #include "../../include/scene/CSceneManager.h"
 #include "../../include/scene/IScene.h"
 #include "../../include/graphics/IRenderer.h"
@@ -493,6 +494,7 @@ namespace TDEngine2
 									   pRenderer, pGraphicsObjectManager, result),
 			(pCameraSystem = CreateCameraSystem(pWindowSystem, pGraphicsContext, pRenderer, result)),
 			CreateLODMeshSwitchSystem(result),
+			CreateWeatherSystem({ pResourceManager, pGraphicsContext, _getSubsystemAs<IJobManager>(EST_JOB_MANAGER) }, result),
 			CreateStaticMeshRendererSystem(pRenderer, pGraphicsObjectManager, result),
 			CreateAnimationSystem(pResourceManager, pEventManager, result),
 			CreateMeshAnimatorUpdatingSystem(pResourceManager, result),
