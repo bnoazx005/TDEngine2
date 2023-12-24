@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - New functions Fractional, Floor were implemented for **TVector3** type which is fract from GLSL/HLSL languages.
 
+- Two noise generators were implemented which are Perlin 2D/3D noise and Worley noise.
+
 ### Changed
 
 - IGraphicsContext::BindTextureSampler was renamed into IGraphicsContext::SetSampler.

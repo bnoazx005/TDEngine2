@@ -191,15 +191,27 @@ namespace TDEngine2
 			TDE2_API CPerlinNoise() = delete;
 			TDE2_API explicit CPerlinNoise(U32 seed);
 
-			TDE2_API F32 Compute2D(const TVector2& point);
-			TDE2_API F32 Compute2D(const TVector2& point, I32 octavesCount, F32 frequency = 0.005f);
+			TDE2_API F32 Compute2D(const TVector2& point) const;
+			TDE2_API F32 Compute2D(const TVector2& point, I32 octavesCount, F32 frequency = 0.005f) const;
 
-			TDE2_API F32 Compute3D(const TVector3& point);
-			TDE2_API F32 Compute3D(const TVector3& point, I32 octavesCount, F32 frequency = 0.005f);
+			TDE2_API F32 Compute3D(const TVector3& point) const;
+			TDE2_API F32 Compute3D(const TVector3& point, I32 octavesCount, F32 frequency = 0.005f) const;
 		private:
 			static constexpr USIZE mGridSize = 255;
 			std::array<U16, (mGridSize + 1)> mPermutationTemplate;
 			std::array<U16, (mGridSize + 1) << 1> mCurrPermutation;
 	};
 
+
+	class CWorleyNoise
+	{
+		public:
+			/*!
+				\brief
+				\param[in] point Assumes that 3d point's coordinates lay in range of -1 and 1
+			*/
+			
+			TDE2_API F32 Compute3D(const TVector3& point, F32 frequency) const;
+			TDE2_API F32 Compute3D(const TVector3& point, I32 octavesCount, F32 frequency) const;
+	};
 }

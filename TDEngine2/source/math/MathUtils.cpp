@@ -9,6 +9,11 @@
 
 namespace TDEngine2
 {
+	/*!
+		\brief CPerlinNoise's definition
+	*/
+
+
 	CPerlinNoise::CPerlinNoise(U32 seed)
 	{
 		for (USIZE i = 0; i < mPermutationTemplate.size(); i++)
@@ -39,7 +44,7 @@ namespace TDEngine2
 	}
 
 
-	F32 CPerlinNoise::Compute2D(const TVector2& point)
+	F32 CPerlinNoise::Compute2D(const TVector2& point) const
 	{
 		const U32 gridX = static_cast<U32>(floor(point.x)) & mGridSize;
 		const U32 gridY = static_cast<U32>(floor(point.y)) & mGridSize;
@@ -60,7 +65,7 @@ namespace TDEngine2
 			CMathUtils::EaseInOut(xFrac));
 	}
 
-	F32 CPerlinNoise::Compute2D(const TVector2& point, I32 octavesCount, F32 frequency)
+	F32 CPerlinNoise::Compute2D(const TVector2& point, I32 octavesCount, F32 frequency) const
 	{
 		F32 amplitude = 1.0f;
 
@@ -89,7 +94,7 @@ namespace TDEngine2
 	}
 
 
-	F32 CPerlinNoise::Compute3D(const TVector3& point)
+	F32 CPerlinNoise::Compute3D(const TVector3& point) const
 	{
 		const U32 gridX = static_cast<U32>(floor(point.x)) & mGridSize;
 		const U32 gridY = static_cast<U32>(floor(point.y)) & mGridSize;
@@ -128,7 +133,7 @@ namespace TDEngine2
 			w);
 	}
 	
-	F32 CPerlinNoise::Compute3D(const TVector3& point, I32 octavesCount, F32 frequency)
+	F32 CPerlinNoise::Compute3D(const TVector3& point, I32 octavesCount, F32 frequency) const
 	{
 		F32 amplitude = 1.0f;
 		F32 result = 0.0f;
@@ -138,6 +143,67 @@ namespace TDEngine2
 			result += amplitude * Compute3D(frequency * point);
 
 			amplitude *= 0.5f;
+			frequency *= 2.0f;
+		}
+
+		return result;
+	}
+
+
+	/*!
+		\brief CWorleyNoise's definition
+	*/
+
+	static TVector3 GetRandomVec3(const TVector3& p)
+	{
+		TVector3 p1 = Fractional(Scale(p, TVector3(0.1031f, 0.11369f, 0.13787f)));
+		p1 = p1 + TVector3(Dot(p1, TVector3(p1.y, p1.x, p1.z) + TVector3(19.19f)));
+
+		return 2.0f * Fractional(TVector3((p1.x + p1.y) * p1.z, (p1.x + p1.z) * p1.y, (p1.z + p1.y) * p1.x)) - TVector3(1.0f);
+	}
+
+
+	F32 CWorleyNoise::Compute3D(const TVector3& point, F32 frequency) const
+	{
+		const TVector3 p = point * frequency;
+
+		const TVector3 gridPos = Floor(p);
+		const TVector3 localPos = p - gridPos;
+
+		F32 minDist = 1.0f;
+
+		for (I32 x = -1; x <= 1; x++)
+		{
+			for (I32 y = -1; y <= 1; y++)
+			{
+				for (I32 z = -1; z <= 1; z++)
+				{
+					const TVector3 offset(static_cast<F32>(x), static_cast<F32>(y), static_cast<F32>(z));
+
+					TVector3 rand = TVector3(0.5f) + 0.5f * GetRandomVec3(
+						TVector3(fmod(offset.x + gridPos.x, frequency),
+							fmod(offset.y + gridPos.y, frequency),
+							fmod(offset.z + gridPos.z, frequency)));
+
+					TVector3 diff = rand + offset - localPos;
+					minDist = std::min<F32>(minDist, Dot(diff, diff));
+				}
+			}
+		}
+
+		return 1.0f - minDist;
+	}
+
+	F32 CWorleyNoise::Compute3D(const TVector3& point, I32 octavesCount, F32 frequency) const
+	{
+		F32 amplitude = 0.625f;
+		F32 result = 0.0f;
+
+		for (I32 i = 0; i < octavesCount; i++)
+		{
+			result += amplitude * Compute3D(point, frequency);
+
+			amplitude *= 0.4f;
 			frequency *= 2.0f;
 		}
 
