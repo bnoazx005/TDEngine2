@@ -234,6 +234,9 @@ namespace TDEngine2
 
 	TDE2_API TVector3 Reflect(const TVector3& vec, const TVector3& normal);
 
+	TDE2_API TVector3 Fractional(const TVector3& vec);
+	TDE2_API TVector3 Floor(const TVector3& vec);
+
 
 	/*!
 		\brief TVector3's Serialization/Deserialization helpers

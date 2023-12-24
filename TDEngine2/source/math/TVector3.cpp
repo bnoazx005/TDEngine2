@@ -168,7 +168,7 @@ namespace TDEngine2
 		return TVector3(coeff * vec3.x, coeff * vec3.y, coeff * vec3.z);
 	}
 
-	TVector3 Scale(const TVector3& vec3l, const TVector3 vec3r)
+	TVector3 Scale(const TVector3& vec3l, const TVector3& vec3r)
 	{
 		return TVector3(vec3l.x * vec3r.x, vec3l.y * vec3r.y, vec3l.z * vec3r.z);
 	}
@@ -205,6 +205,16 @@ namespace TDEngine2
 	TVector3 Reflect(const TVector3& vec, const TVector3& normal)
 	{
 		return 2.0f * Dot(vec, normal) * Normalize(normal) - vec;
+	}
+
+	TVector3 Fractional(const TVector3& vec)
+	{
+		return vec - Floor(vec);
+	}	
+	
+	TVector3 Floor(const TVector3& vec)
+	{
+		return TVector3(floor(vec.x), floor(vec.y), floor(vec.z));
 	}
 
 
