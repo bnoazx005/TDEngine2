@@ -112,6 +112,11 @@ namespace TDEngine2
 		viewDesc.Format = CD3D11Mappings::GetDXGIFormat(params.mFormat);
 		viewDesc.ViewDimension = isCubemap ? D3D11_SRV_DIMENSION_TEXTURECUBE : (params.mArraySize > 1 ? D3D11_SRV_DIMENSION_TEXTURE2DARRAY : D3D11_SRV_DIMENSION_TEXTURE2D);
 
+		if (E_TEXTURE_IMPL_TYPE::TEXTURE_3D == params.mType)
+		{
+			viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
+		}
+
 		switch (params.mType)
 		{
 			case E_TEXTURE_IMPL_TYPE::CUBEMAP:
