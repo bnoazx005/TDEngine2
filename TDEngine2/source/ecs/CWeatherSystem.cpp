@@ -8,6 +8,7 @@
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IJobManager.h"
 #include "../../include/graphics/CBaseTexture3D.h"
+#include "../../include/graphics/IMaterial.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include "../../include/math/MathUtils.h"
 #include "../../include/utils/CFileLogger.h"
@@ -23,6 +24,8 @@ namespace TDEngine2
 
 	static constexpr U32 LowFreqCloudsNoiseTextureSize  = 128;
 	static constexpr U32 HighFreqCloudsNoiseTextureSize = 32;
+	static constexpr F32 InvLowFreqCloudsNoiseTextureSize = 1.0f / LowFreqCloudsNoiseTextureSize;
+	static constexpr F32 InvHighFreqCloudsNoiseTextureSize = 1.0f / HighFreqCloudsNoiseTextureSize;
 
 
 	CWeatherSystem::CWeatherSystem() :
@@ -51,16 +54,18 @@ namespace TDEngine2
 				return (((perlin - oldMin) / (oldMax - oldMin)) * (newMax - newMin)) + newMin;
 			};
 
-			for (USIZE z = 0; z < HighFreqCloudsNoiseTextureSize; z++)
-			{
-				for (USIZE y = 0; y < HighFreqCloudsNoiseTextureSize; y++)
-				{
-					for (USIZE x = 0; x < HighFreqCloudsNoiseTextureSize; x++)
-					{
-						const USIZE startIndex = x + HighFreqCloudsNoiseTextureSize * y + HighFreqCloudsNoiseTextureSize * HighFreqCloudsNoiseTextureSize * z;
+			TJobCounter counter;
 
-						const TVector3 p0(static_cast<F32>(x), static_cast<F32>(y), static_cast<F32>(z));
-						const TVector3 p1 = 2.0f * p0 - TVector3(1.0f);
+			pJobManager->SubmitMultipleJobs(&counter, LowFreqCloudsNoiseTextureSize, 16, [&](const TJobArgs& jobInfo)
+			{
+				for (USIZE y = 0; y < LowFreqCloudsNoiseTextureSize; y++)
+				{
+					for (USIZE x = 0; x < LowFreqCloudsNoiseTextureSize; x++)
+					{
+						const USIZE startIndex = 4 * (x + LowFreqCloudsNoiseTextureSize * y + LowFreqCloudsNoiseTextureSize * LowFreqCloudsNoiseTextureSize * jobInfo.mJobIndex);
+
+						const TVector3 p0(static_cast<F32>(x), static_cast<F32>(y), static_cast<F32>(jobInfo.mJobIndex));
+						const TVector3 p1 = 2.0f * Scale(p0, TVector3(InvLowFreqCloudsNoiseTextureSize)) - TVector3(1.0f);
 
 						const F32 perlinNoise = CMathUtils::Abs(2.0f * perlinNoiseGenerator.Compute3D(p0, 3) - 1.0f);
 						const F32 worleyNoise = worleyNoiseGenerator.Compute3D(p1, 3, 2.0f);
@@ -71,7 +76,9 @@ namespace TDEngine2
 						lowFreqNoisePixelsData[startIndex + 3] = static_cast<U8>(255.0f * worleyNoiseGenerator.Compute3D(p1, 3, 8.0f));
 					}
 				}
-			}
+			});
+
+			pJobManager->WaitForJobCounter(counter);
 
 			pJobManager->ExecuteInMainThread([=, pixelsData = std::move(lowFreqNoisePixelsData)]
 			{
@@ -103,12 +110,12 @@ namespace TDEngine2
 				{
 					for (USIZE x = 0; x < HighFreqCloudsNoiseTextureSize; x++)
 					{
-						const USIZE startIndex = x + HighFreqCloudsNoiseTextureSize * y + HighFreqCloudsNoiseTextureSize * HighFreqCloudsNoiseTextureSize * z;
+						const USIZE startIndex = 4 * (x + HighFreqCloudsNoiseTextureSize * y + HighFreqCloudsNoiseTextureSize * HighFreqCloudsNoiseTextureSize * z);
 						
 						const TVector3 point(
-							2.0f * static_cast<F32>(x) - 1.0f, 
-							2.0f * static_cast<F32>(y) - 1.0f, 
-							2.0f * static_cast<F32>(z) - 1.0f);
+							2.0f * static_cast<F32>(x) * InvHighFreqCloudsNoiseTextureSize - 1.0f, 
+							2.0f * static_cast<F32>(y) * InvHighFreqCloudsNoiseTextureSize - 1.0f, 
+							2.0f * static_cast<F32>(z) * InvHighFreqCloudsNoiseTextureSize - 1.0f);
 
 						highFreqNoisePixelsData[startIndex] = static_cast<U8>(255.0f * worleyNoiseGenerator.Compute3D(point, 3, 2.0f));
 						highFreqNoisePixelsData[startIndex + 1] = static_cast<U8>(255.0f * worleyNoiseGenerator.Compute3D(point, 3, 4.0f));
@@ -153,6 +160,9 @@ namespace TDEngine2
 
 		const TResourceId lowFreqCloudsTextureHandle = pResourceManager->Create<ITexture3D>(LowFreqCloudsNoise3DTextureId, lowFreqCloudsNoiseTextureParams);
 		const TResourceId highFreqCloudsTextureHandle = pResourceManager->Create<ITexture3D>(HighFreqCloudsNoise3DTextureId, highFreqCloudsNoiseTextureParams);
+
+		auto pMaterial = pResourceManager->GetResource<IMaterial>(pResourceManager->Load<IMaterial>("DefaultResources/Materials/DefaultSkydome.material"));
+		pMaterial->SetTextureResource("Test3D", pResourceManager->GetResource<ITexture>(lowFreqCloudsTextureHandle).Get());
 
 		TDE2_ASSERT(TResourceId::Invalid != lowFreqCloudsTextureHandle);
 		TDE2_ASSERT(TResourceId::Invalid != highFreqCloudsTextureHandle);

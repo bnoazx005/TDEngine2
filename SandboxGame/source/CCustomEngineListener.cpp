@@ -2,6 +2,11 @@
 #include <TDEngine2.h>
 #include <iostream>
 
+#pragma warning( push )
+#pragma warning( disable : 4996 )
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
+#pragma warning(pop)
 
 using namespace TDEngine2;
 
@@ -14,6 +19,33 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	E_RESULT_CODE result = RC_OK;
 
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
+
+#if 1
+	CWorleyNoise noise;
+
+	constexpr U32 textureSize = 32;
+	constexpr F32 invTextureSize = 1.0f / textureSize;
+	
+	std::vector<U8> pixels(textureSize * textureSize);
+
+	for (U32 y = 0; y < textureSize; y++)
+	{
+		for (U32 x = 0; x < textureSize; x++)
+		{
+			//const F32 p = noise.Compute2D(TVector2(static_cast<F32>(x), static_cast<F32>(y)), 3);
+			const F32 p = noise.Compute3D(
+				TVector3(
+					2.0f * static_cast<F32>(x) * invTextureSize - 1.0f, 
+					2.0f * static_cast<F32>(y) * invTextureSize - 1.0f, 
+					-1.0f), 3, 2.0f);
+			pixels[x + y * textureSize] = static_cast<U8>(round(255.0f * std::max<F32>(0.0f, std::min<F32>(1.0f, p))));
+		}
+	}
+#pragma warning( push )
+#pragma warning( disable : 4996 )
+	stbi_write_png("1.png", textureSize, textureSize, 1, pixels.data(), textureSize);
+#pragma warning(pop)
+#endif
 
 	//auto pBufferPtr = mpGraphicsObjectManager->CreateStructuredBuffer({ mpGraphicsContext, E_STRUCTURED_BUFFER_TYPE::DEFAULT, E_BUFFER_USAGE_TYPE::DEFAULT, 30, sizeof(TVector2), false }).Get();
 
