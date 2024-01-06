@@ -1,5 +1,6 @@
 #include "../../include/editor/CDevConsoleWindow.h"
 #include "../../include/core/IImGUIContext.h"
+#include "../../include/core/IInputContext.h"
 #include "../../include/utils/CFileLogger.h"
 #include "stringUtils.hpp"
 
@@ -13,12 +14,19 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CDevConsoleWindow::Init()
+	E_RESULT_CODE CDevConsoleWindow::Init(TPtr<IDesktopInputContext> pInputContext)
 	{
 		if (mIsInitialized)
 		{
 			return RC_OK;
 		}
+
+		if (!pInputContext)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpInputContext = pInputContext;
 
 		// \note Register built-in commands
 		RegisterCommand("clear", [this](auto&&) { ClearHistory(); return Wrench::StringUtils::GetEmptyStr(); });
@@ -70,15 +78,40 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	void CDevConsoleWindow::_onUpdate(F32 dt)
+	{
+		CBaseEditorWindow::_onUpdate(dt);
+
+		if (mpInputContext->IsKey(E_KEYCODES::KC_LCONTROL) && mpInputContext->IsKeyPressed(E_KEYCODES::KC_F1))
+		{
+			mIsVisible = !mIsVisible;
+			mAnimationTime = 0.0f;
+		}
+	}
+
 	void CDevConsoleWindow::_onDraw()
 	{
 		bool isEnabled = mIsVisible;
 
+		static constexpr F32 ConsoleBackgroundHeightRatio = 0.4f; // relative to display's sizes
+		static constexpr F32 SeparatorSize = 10.0f; // between messages and input field
+		static constexpr F32 InputFieldHeight = 20.0f;
+		static constexpr F32 DropDownAnimationDuration = 0.15f;
+		static constexpr TColor32F ConsoleBackgroundColor = TColor32F(0.0f, 0.0f, 0.0f, 0.95f);
+
 		static const IImGUIContext::TWindowParams params
 		{
 			ZeroVector2,
-			TVector2(500.0f, 300.0f),
-			TVector2(500.0f, 300.0f),
+			ZeroVector2,
+			ZeroVector2,
+			ZeroVector2,
+			false,
+			true,
+			false,
+			true,
+			true,
+			false,
+			1.5f
 		};
 
 		std::string message;
@@ -104,36 +137,37 @@ namespace TDEngine2
 
 			mCurrInputBuffer.clear();
 		};
-		
+
 		if (mpImGUIContext->BeginWindow("Dev Console", isEnabled, params))
 		{
-			if (mpImGUIContext->BeginChildWindow("LogRegion", { 480.0f, 235.0f }))
-			{
-				for (auto iter = mLog.cbegin() + mCurrPos; iter != mLog.cend(); ++iter)
-				{
-					std::tie(message, isErrorMessage) = *iter;
-					mpImGUIContext->Label(message, isErrorMessage ? errorTextColor : mainTextColor);
-				}
-			}
-			mpImGUIContext->EndChildWindow();
+			const TVector2 consoleSizes(mpImGUIContext->GetWindowWidth(), CMathUtils::Lerp(0.0f, ConsoleBackgroundHeightRatio, mAnimationTime / DropDownAnimationDuration) * mpImGUIContext->GetWindowHeight());
 
-			if (mpImGUIContext->BeginChildWindow("Toolbar", { 480.0f, 20.0f }))
+			mpImGUIContext->DrawRect(TRectF32(ZeroVector2, consoleSizes), ConsoleBackgroundColor);
+
+			if (consoleSizes.y > InputFieldHeight * 2.0f)
 			{
-				// Draw input field and send button
-				mpImGUIContext->BeginHorizontal();
+				if (mpImGUIContext->BeginChildWindow("LogRegion", consoleSizes - TVector2(0.0f, SeparatorSize + InputFieldHeight)))
 				{
-					mpImGUIContext->TextField(Wrench::StringUtils::GetEmptyStr(), mCurrInputBuffer, [processCommand](auto&&) { processCommand(); });
-					mpImGUIContext->Button("Run", { 100.0f, 20.0f }, processCommand);
+					for (auto iter = mLog.cbegin() + mCurrPos; iter != mLog.cend(); ++iter)
+					{
+						std::tie(message, isErrorMessage) = *iter;
+						mpImGUIContext->Label(message, isErrorMessage ? errorTextColor : mainTextColor);
+					}
 				}
-				mpImGUIContext->EndHorizontal();
+				mpImGUIContext->EndChildWindow();
+
+				mpImGUIContext->SetItemWidth(consoleSizes.x, [this, processCommand]
+					{
+						mpImGUIContext->TextField(Wrench::StringUtils::GetEmptyStr(), mCurrInputBuffer, [processCommand](auto&&) { processCommand(); }, nullptr, true);
+					});
 			}
-			mpImGUIContext->EndChildWindow();
-			
 		}
 
 		mpImGUIContext->EndWindow();
 
 		mIsVisible = isEnabled;
+
+		mAnimationTime = CMathUtils::Clamp(0.0f, DropDownAnimationDuration, mAnimationTime + mCurrDeltaTime);
 	}
 
 	void CDevConsoleWindow::_writeToLog(const std::string& message, bool isError)
@@ -149,9 +183,9 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IEditorWindow* CreateDevConsoleWindow(E_RESULT_CODE& result)
+	TDE2_API IEditorWindow* CreateDevConsoleWindow(TPtr<IDesktopInputContext> pInputContext, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IEditorWindow, CDevConsoleWindow, result);
+		return CREATE_IMPL(IEditorWindow, CDevConsoleWindow, result, pInputContext);
 	}
 }
 

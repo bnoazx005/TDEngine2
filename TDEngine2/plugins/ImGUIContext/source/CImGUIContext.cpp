@@ -907,6 +907,11 @@ namespace TDEngine2
 
 		mpDrawListsContext.push(ImGui::GetWindowDrawList());
 
+		ImGui::SetWindowFontScale(params.mLocalFontScale);
+		
+		ImGuiStyle& style = ImGui::GetStyle();
+		style.WindowBorderSize = params.mIsBorderVisible ? 1.0f : 0.0f;
+
 		return result;
 	}
 

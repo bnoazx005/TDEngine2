@@ -18,6 +18,12 @@
 
 namespace TDEngine2
 {
+	class IDesktopInputContext;
+
+
+	TDE2_DECLARE_SCOPED_PTR(IDesktopInputContext)
+
+
 	/*!
 		\brief A factory function for creation objects of CDevConsoleWindow's type
 
@@ -26,7 +32,7 @@ namespace TDEngine2
 		\return A pointer to IEditorWindow's implementation
 	*/
 
-	TDE2_API IEditorWindow* CreateDevConsoleWindow(E_RESULT_CODE& result);
+	TDE2_API IEditorWindow* CreateDevConsoleWindow(TPtr<IDesktopInputContext> pInputContext, E_RESULT_CODE& result);
 
 
 	/*!
@@ -38,7 +44,7 @@ namespace TDEngine2
 	class CDevConsoleWindow : public CBaseEditorWindow
 	{
 		public:
-			friend TDE2_API IEditorWindow* CreateDevConsoleWindow(E_RESULT_CODE& result);
+			friend TDE2_API IEditorWindow* CreateDevConsoleWindow(TPtr<IDesktopInputContext>, E_RESULT_CODE&);
 		public:
 			typedef std::vector<std::string> TStringsArray;
 			typedef std::vector<std::tuple<std::string, bool>> TConsoleLogArray;
@@ -51,7 +57,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init();
+			TDE2_API virtual E_RESULT_CODE Init(TPtr<IDesktopInputContext> pInputContext);
 
 			/*!
 				\brief The method registers given function as a command with 'commandName' name
@@ -99,9 +105,21 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void _onDraw() override;
+
+			/*!
+				\brief The method could be reimplemented in different classes, put your own update
+				logic of the window here
+
+				\param[in] dt A time elapsed from last frame
+			*/
+
+			TDE2_API void _onUpdate(F32 dt) override;
+
 		private:
 			TDE2_API void _writeToLog(const std::string& message, bool isError = false);
 		protected:
+			TPtr<IDesktopInputContext> mpInputContext;
+
 			TConsoleLogArray mLog;
 
 			TCommandsTable   mRegisteredCommands;
@@ -109,6 +127,8 @@ namespace TDEngine2
 			std::string      mCurrInputBuffer;
 
 			U16              mCurrPos = 0;
+
+			F32 mAnimationTime = 0.0f;
 	};
 }
 

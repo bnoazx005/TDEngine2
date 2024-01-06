@@ -523,7 +523,7 @@ namespace TDEngine2
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::TIME_PROFILER), CreateTimeProfilerEditorWindow(CPerfProfiler::Get(), result), false },
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::MEMORY_PROFILER), CreateMemoryProfilerEditorWindow(DynamicPtrCast<IMemoryProfiler>(CMemoryProfiler::Get()), result), false },
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::LEVEL_EDITOR), pLevelEditorWindow, false },
-			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::DEV_CONSOLE), CreateDevConsoleWindow(result), false },
+			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::DEV_CONSOLE), CreateDevConsoleWindow(DynamicPtrCast<IDesktopInputContext>(pInputContext), result), true },
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::RENDER_TARGET_VIEWER), CreateRenderTargetViewerEditorWindow(mpResourceManagerInstance.Get(), result), false },
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::PROJECT_SETTINGS_EDITOR), CreateProjectSettingsWindow(mpEventManagerInstance, result), false },
 			{ CEditorsManager::mEditorNamesMap.at(E_EDITOR_TYPE::STATISTICS_OVERLAYED_VIEWER), CreateStatsViewerWindow(result), true },
