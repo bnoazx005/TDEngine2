@@ -164,7 +164,7 @@ namespace TDEngine2
 					return nullptr;
 				}
 
-				return &mValues[pVariableInfo->mHandle].As<T>();
+				return &mValues[pVariableInfo->mHandle].template As<T>();
 			}
 
 			const std::string& GetStringVariable(const std::string& name) const

@@ -121,7 +121,7 @@ namespace TDEngine2
 			CProjectSettings::TQualityPreset mCurrent;
 
 		private:
-			std::unique_ptr<CConsoleVariablesStorage> mpCVarsStorage = nullptr;
+			std::unique_ptr<CConsoleVariablesStorage> mpCVarsStorage;
 	};
 
 
