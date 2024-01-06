@@ -628,6 +628,8 @@ namespace TDEngine2
 
 			TDE2_API virtual F32 GetWindowHeight() const = 0;
 
+			TDE2_API virtual TVector2 GetDisplaySize() const = 0;
+
 			/*!
 				\brief The method returns sizes which a given text string occupies
 

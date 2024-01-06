@@ -559,6 +559,8 @@ namespace TDEngine2
 
 			TDE2_API F32 GetWindowHeight() const override;
 
+			TDE2_API TVector2 GetDisplaySize() const override;
+
 			/*!
 				\brief The method returns cursor position in a viewport space. The method is useful when
 				you work with DrawX methods

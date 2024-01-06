@@ -1029,6 +1029,11 @@ namespace TDEngine2
 		return ImGui::GetWindowHeight();
 	}
 
+	TVector2 CImGUIContext::GetDisplaySize() const
+	{
+		return TVector2(mpIOContext->DisplaySize.x, mpIOContext->DisplaySize.y);
+	}
+
 	TVector2 CImGUIContext::GetCursorScreenPos() const
 	{
 		return ImGui::GetCursorScreenPos();
