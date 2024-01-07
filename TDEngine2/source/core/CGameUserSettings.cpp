@@ -126,7 +126,7 @@ namespace TDEngine2
 
 				mValues.emplace_back(value);
 
-				return Wrench::TOkValue< TUserConfigVariableInfo*>(mIdentifiersToVariablesHashTable[name]);
+				return Wrench::TOkValue< TUserConfigVariableInfo*>(&mVariablesPerGroupTable[variableInfo.mGroup][variableInfo.mName]);
 			}
 
 			template <typename T>
