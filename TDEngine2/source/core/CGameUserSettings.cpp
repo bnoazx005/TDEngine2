@@ -372,37 +372,37 @@ namespace TDEngine2
 
 	E_RESULT_CODE CGameUserSettings::SetInt32Variable(const std::string& name, I32 value)
 	{
-		return mpCVarsStorage->SetVariable(name, value);
+		return mpCVarsStorage->SetVariable(PrepareIdentifierStr(name), value);
 	}
 
 	E_RESULT_CODE CGameUserSettings::SetFloatVariable(const std::string& name, F32 value)
 	{
-		return mpCVarsStorage->SetVariable(name, value);
+		return mpCVarsStorage->SetVariable(PrepareIdentifierStr(name), value);
 	}
 
 	E_RESULT_CODE CGameUserSettings::SetStringVariable(const std::string& name, const std::string& value)
 	{
-		return mpCVarsStorage->SetVariable(name, value);
+		return mpCVarsStorage->SetVariable(PrepareIdentifierStr(name), value);
 	}
 
 	const I32* CGameUserSettings::GetInt32Variable(const std::string& name) const
 	{
-		return mpCVarsStorage->GetNumericVariable<I32>(name);
+		return mpCVarsStorage->GetNumericVariable<I32>(PrepareIdentifierStr(name));
 	}
 
 	const F32* CGameUserSettings::GetFloatVariable(const std::string& name) const
 	{
-		return mpCVarsStorage->GetNumericVariable<F32>(name);
+		return mpCVarsStorage->GetNumericVariable<F32>(PrepareIdentifierStr(name));
 	}
 	
 	const std::string& CGameUserSettings::GetStringVariable(const std::string& name) const
 	{
-		return mpCVarsStorage->GetStringVariable(name);
+		return mpCVarsStorage->GetStringVariable(PrepareIdentifierStr(name));
 	}
 
 	const TUserConfigVariableInfo* CGameUserSettings::GetVariableInfo(const std::string& name) const
 	{
-		return mpCVarsStorage->GetVariableInfo(name);
+		return mpCVarsStorage->GetVariableInfo(PrepareIdentifierStr(name));
 	}
 
 

@@ -12,6 +12,7 @@
 #include <vector>
 #include <unordered_map>
 #include <functional>
+#include <tuple>
 
 
 #if TDE2_EDITORS_ENABLED
@@ -48,7 +49,7 @@ namespace TDEngine2
 		public:
 			typedef std::vector<std::string> TStringsArray;
 			typedef std::vector<std::tuple<std::string, bool>> TConsoleLogArray;
-			typedef std::function<std::string(const TStringsArray&)> TCommandHandler;
+			typedef std::function<std::tuple<std::string, bool>(const TStringsArray&)> TCommandHandler;
 			typedef std::unordered_map<std::string, TCommandHandler> TCommandsTable;
 		public:
 			/*!

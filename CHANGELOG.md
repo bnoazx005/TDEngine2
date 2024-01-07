@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.23] 2024-01-06
+## [0.6.23] 2024-01-07
 
 ### Added
 
@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 using in-game console or defined in settings.cfg file.
 
 - A new method GetDisplaySize was added into API of **IImGUIContext** interface. Also ImGUI windows now can define font scale.
+
+- A new command for in-game console was added which is 'set' that allows to declare console variables and change their values.
 
 ## [0.6.23] 2023-12-30
 
