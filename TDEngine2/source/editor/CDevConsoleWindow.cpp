@@ -177,17 +177,38 @@ namespace TDEngine2
 
 		auto processCommand = [this]()
 		{
-			auto&& tokens = Wrench::StringUtils::Split(mCurrInputBuffer, " ");
-			if (tokens.empty())
+			std::vector<std::string> args;
+
+			std::string intpuArgsStr = mCurrInputBuffer;
+			while (!intpuArgsStr.empty())
+			{
+				USIZE escapeSequenceStartPos = intpuArgsStr.find_first_of('\"');
+
+				auto&& tokens = Wrench::StringUtils::Split(intpuArgsStr.substr(0, escapeSequenceStartPos), " ");
+				std::copy(tokens.cbegin(), tokens.cend(), std::back_inserter(args));
+
+				USIZE escapeSequenceLastPos = intpuArgsStr.find_first_of('\"', escapeSequenceStartPos + 1);
+				if (escapeSequenceStartPos != std::string::npos)
+				{
+					args.push_back(intpuArgsStr.substr(escapeSequenceStartPos + 1, escapeSequenceLastPos - escapeSequenceStartPos - 1));
+					intpuArgsStr = intpuArgsStr.substr(escapeSequenceLastPos + 1);
+
+					continue;
+				}
+
+				break;
+			}
+
+			if (args.empty())
 			{
 				_writeToLog("Can't evaluate an empty line", true);
 				return;
 			}
 
 			_writeToLog(mCurrInputBuffer);
-			if (ExecuteCommand(tokens[0], { tokens.cbegin() + 1, tokens.cend() }) != RC_OK)
+			if (ExecuteCommand(args[0], { args.cbegin() + 1, args.cend() }) != RC_OK)
 			{
-				_writeToLog(Wrench::StringUtils::Format("Unrecognized command: {0}", tokens[0]), true);
+				_writeToLog(Wrench::StringUtils::Format("Unrecognized command: {0}", args[0]), true);
 			}
 
 			mCurrInputBuffer.clear();
