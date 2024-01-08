@@ -3,6 +3,7 @@
 #include "../../include/platform/IOStreams.h"
 #include <algorithm>
 #include <cctype>
+#include "stringUtils.hpp"
 
 
 namespace TDEngine2
@@ -62,6 +63,28 @@ namespace TDEngine2
 		}
 
 		return resultValue;
+	}
+
+	void CConfigFileReader::ForEachParameter(const std::function<bool(const std::string&, const std::string&)>& onEachAction)
+	{
+		if (!onEachAction)
+		{
+			return;
+		}
+
+		std::string resultValue;
+		_parseFileUntilParam(Wrench::StringUtils::GetEmptyStr(), Wrench::StringUtils::GetEmptyStr(), mParamsMap, resultValue);
+
+		for (auto&& currGroupParam : mParamsMap)
+		{
+			for (auto&& currOption : currGroupParam.second)
+			{
+				if (!onEachAction(currGroupParam.first, currOption.first))
+				{
+					break;
+				}
+			}
+		}
 	}
 
 	E_RESULT_CODE CConfigFileReader::_parseFileUntilParam(const std::string& group, const std::string& paramName, TConfigParamsMap& paramsMap, std::string& value)

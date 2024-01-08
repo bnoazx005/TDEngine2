@@ -104,6 +104,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API std::string GetString(const std::string& group, const std::string& paramName, std::string defaultValue = "") override;
+
+			TDE2_API void ForEachParameter(const std::function<bool(const std::string&, const std::string&)>& onEachAction) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CConfigFileReader)
 

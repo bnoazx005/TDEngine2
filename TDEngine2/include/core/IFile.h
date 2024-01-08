@@ -11,6 +11,7 @@
 #include "../utils/Utils.h"
 #include "Serialization.h"
 #include <string>
+#include <functional>
 
 
 /// \note forward declaration for mini-yaml library
@@ -244,6 +245,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual std::string GetString(const std::string& group, const std::string& paramName, std::string defaultValue = "") = 0;
+
+			TDE2_API virtual void ForEachParameter(const std::function<bool(const std::string&, const std::string&)>& onEachAction) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IConfigFileReader)
 	};
