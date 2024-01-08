@@ -59,6 +59,12 @@ namespace TDEngine2
 
 			E_RESULT_CODE Load(IConfigFileReader* pConfigFileReader)
 			{
+				pConfigFileReader->ForEachParameter([pConfigFileReader](auto&& groupId, auto&& variableId)
+				{
+					CreateCVarFromString(groupId + mDefaultIdentifierSeparator + variableId, pConfigFileReader->GetString(groupId, variableId));
+					return true;
+				});
+
 				return RC_OK;
 			}
 
@@ -204,7 +210,6 @@ namespace TDEngine2
 				auto&& groupIt = mVariablesPerGroupTable.find(identifiers.front());
 				if (groupIt == mVariablesPerGroupTable.cend())
 				{
-					TDE2_ASSERT_MSG(false, "[CConsoleVariablesStorage] Specified group wasn't found");
 					return nullptr;
 				}
 
@@ -403,6 +408,45 @@ namespace TDEngine2
 	const TUserConfigVariableInfo* CGameUserSettings::GetVariableInfo(const std::string& name) const
 	{
 		return mpCVarsStorage->GetVariableInfo(PrepareIdentifierStr(name));
+	}
+
+
+	E_RESULT_CODE CreateCVarFromString(const std::string& name, const std::string& value)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		if (CGameUserSettings::Get()->GetVariableInfo(name) != nullptr) // change value because variable already declared
+		{
+			if (value.find_first_of('.') != std::string::npos) // \note try parse float value
+			{
+				result = CGameUserSettings::Get()->SetFloatVariable(name, static_cast<F32>(atof(value.c_str())));
+			}
+			else if (value.find_first_of('\"') != std::string::npos) // \note string
+			{
+				result = CGameUserSettings::Get()->SetStringVariable(name, value.substr(1, value.length() - 2));
+			}
+			else
+			{
+				result = CGameUserSettings::Get()->SetInt32Variable(name, atoi(value.c_str()));
+			}
+		}
+		else
+		{
+			if (value.find_first_of('.') != std::string::npos) // \note try parse float value
+			{
+				result = CGameUserSettings::Get()->CreateFloatVariable(name, Wrench::StringUtils::GetEmptyStr(), E_CONSOLE_VARIABLE_FLAGS::NONE, static_cast<F32>(atof(value.c_str())));
+			}
+			else if (value.find_first_of('\"') != std::string::npos) // \note string
+			{
+				result = CGameUserSettings::Get()->CreateStringVariable(name, Wrench::StringUtils::GetEmptyStr(), E_CONSOLE_VARIABLE_FLAGS::NONE, value.substr(1, value.length() - 2));
+			}
+			else
+			{
+				result = CGameUserSettings::Get()->CreateInt32Variable(name, Wrench::StringUtils::GetEmptyStr(), E_CONSOLE_VARIABLE_FLAGS::NONE, atoi(value.c_str()));
+			}
+		}
+
+		return result;
 	}
 
 

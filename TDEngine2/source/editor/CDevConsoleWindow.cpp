@@ -17,41 +17,7 @@ namespace TDEngine2
 			return std::make_tuple(Wrench::StringUtils::Format("Expected 2 arguments <var_name> <var_value> for command set, found {0}", args.size()), true);
 		}
 
-		E_RESULT_CODE result = RC_OK;
-
-		const std::string& valueStr = args.back();
-
-		if (CGameUserSettings::Get()->GetVariableInfo(args.front()) != nullptr) // change value because variable already declared
-		{
-			if (valueStr.find_first_of('.') != std::string::npos) // \note try parse float value
-			{
-				result = CGameUserSettings::Get()->SetFloatVariable(args.front(), static_cast<F32>(atof(valueStr.c_str())));
-			}
-			else if (valueStr.find_first_of('\"') != std::string::npos) // \note string
-			{
-				result = CGameUserSettings::Get()->SetStringVariable(args.front(), valueStr.substr(1, valueStr.length() - 2));
-			}
-			else
-			{
-				result = CGameUserSettings::Get()->SetInt32Variable(args.front(), atoi(valueStr.c_str()));
-			}
-		}
-		else
-		{
-			if (valueStr.find_first_of('.') != std::string::npos) // \note try parse float value
-			{
-				result = CGameUserSettings::Get()->CreateFloatVariable(args.front(), Wrench::StringUtils::GetEmptyStr(), E_CONSOLE_VARIABLE_FLAGS::NONE, static_cast<F32>(atof(valueStr.c_str())));
-			}
-			else if (valueStr.find_first_of('\"') != std::string::npos) // \note string
-			{
-				result = CGameUserSettings::Get()->CreateStringVariable(args.front(), Wrench::StringUtils::GetEmptyStr(), E_CONSOLE_VARIABLE_FLAGS::NONE, valueStr.substr(1, valueStr.length() - 2));
-			}
-			else
-			{
-				result = CGameUserSettings::Get()->CreateInt32Variable(args.front(), Wrench::StringUtils::GetEmptyStr(), E_CONSOLE_VARIABLE_FLAGS::NONE, atoi(valueStr.c_str()));
-			}
-		}
-
+		E_RESULT_CODE result = CreateCVarFromString(args.front(), args.back());
 		if (RC_OK != result)
 		{
 			return std::make_tuple("Cannot create a variable", true);

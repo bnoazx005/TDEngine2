@@ -125,6 +125,13 @@ namespace TDEngine2
 	};
 
 
+	/*!
+		\brief The function parses value and creates or updates cvar based on the string's content
+	*/
+
+	TDE2_API E_RESULT_CODE CreateCVarFromString(const std::string& name, const std::string& value);
+
+
 	template <typename T>
 	struct CBaseConsoleVarDecl
 	{		
