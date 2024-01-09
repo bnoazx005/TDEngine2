@@ -12,6 +12,8 @@
 #include <string>
 #include <memory>
 #include <functional>
+#include <array>
+#include "delegate.hpp"
 
 
 namespace TDEngine2
@@ -48,6 +50,15 @@ namespace TDEngine2
 
 		USIZE mHandle = (std::numeric_limits<U32>::max)();
 	};
+
+
+	struct CInt32ConsoleVarDecl;
+	struct CFloatConsoleVarDecl;
+	struct CStringConsoleVarDecl;
+
+	typedef std::unique_ptr<CInt32ConsoleVarDecl>  CInt32ConsoleVarDeclPtr;
+	typedef std::unique_ptr<CFloatConsoleVarDecl>  CFloatConsoleVarDeclPtr;
+	typedef std::unique_ptr<CStringConsoleVarDecl> CStringConsoleVarDeclPtr;
 
 
 	/*!
@@ -111,14 +122,18 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS_NO_DCTR(CGameUserSettings)
 			TDE2_API virtual ~CGameUserSettings();
 		public:
-			I32 mWindowWidth = 1024;
-			I32 mWindowHeight = 768;
+			CInt32ConsoleVarDeclPtr mpWindowWidthCVar;
+			CInt32ConsoleVarDeclPtr mpWindowHeightCVar;
 
-			bool mIsFullscreenEnabled = false;
+			CInt32ConsoleVarDeclPtr mpFullscreenCVar;
 
-			std::string mCurrLanguage = "en";
+			CStringConsoleVarDeclPtr mpCurrLanguageCVar;
 
-			CProjectSettings::TQualityPreset mCurrent;
+			CInt32ConsoleVarDeclPtr mpIsShadowMappingEnabledCVar;
+			CInt32ConsoleVarDeclPtr mpShadowMapSizesCVar;
+			CInt32ConsoleVarDeclPtr mpShadowCascadesCountCVar;
+
+			std::array<CFloatConsoleVarDeclPtr, 4> mpShadowCascadesSplitsCVar;
 
 		private:
 			std::unique_ptr<CConsoleVariablesStorage> mpCVarsStorage;
@@ -134,7 +149,9 @@ namespace TDEngine2
 
 	template <typename T>
 	struct CBaseConsoleVarDecl
-	{		
+	{
+		Wrench::Delegate<const T&> mOnValueChanged;
+
 		std::string mId;
 	};
 
@@ -155,7 +172,7 @@ namespace TDEngine2
 	};
 
 
-	struct CFloatConsoleVarDecl : CBaseConsoleVarDecl<I32>
+	struct CFloatConsoleVarDecl : CBaseConsoleVarDecl<F32>
 	{
 		typedef std::function<void(F32)> TSetterType;
 		typedef std::function<F32()>     TGetterType;
@@ -171,7 +188,7 @@ namespace TDEngine2
 	};
 
 
-	struct CStringConsoleVarDecl : CBaseConsoleVarDecl<I32>
+	struct CStringConsoleVarDecl : CBaseConsoleVarDecl<std::string>
 	{
 		typedef std::function<void(const std::string&)> TSetterType;
 		typedef std::function<const std::string&()>     TGetterType;

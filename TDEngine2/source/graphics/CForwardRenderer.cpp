@@ -56,7 +56,7 @@ namespace TDEngine2
 
 	static TResult<TResourceId> GetOrCreateDirectionalShadowMap(TPtr<IResourceManager> pResourceManager)
 	{
-		const U32 shadowMapSizes = CGameUserSettings::Get()->mCurrent.mShadowMapSizes;
+		const U32 shadowMapSizes = static_cast<U32>(CGameUserSettings::Get()->mpShadowMapSizesCVar->Get());
 		TDE2_ASSERT(shadowMapSizes > 0 && shadowMapSizes < 65536);
 
 		TRenderTargetParameters shadowMapParams;
@@ -67,7 +67,7 @@ namespace TDEngine2
 		shadowMapParams.mNumOfSamples = 1;
 		shadowMapParams.mSamplingQuality = 0;
 		shadowMapParams.mType = TRenderTargetParameters::E_TARGET_TYPE::TEXTURE2D_ARRAY;
-		shadowMapParams.mArraySize = CGameUserSettings::Get()->mCurrent.mShadowCascadesCount;
+		shadowMapParams.mArraySize = CGameUserSettings::Get()->mpShadowCascadesCountCVar->Get();
 
 		const TResourceId shadowMapHandle = pResourceManager->Create<IDepthBufferTarget>("ShadowMap", shadowMapParams);
 		if (shadowMapHandle == TResourceId::Invalid)
@@ -95,7 +95,7 @@ namespace TDEngine2
 
 	static TResult<TResourceId> GetOrCreatePointShadowMap(TPtr<IResourceManager> pResourceManager, USIZE pointLightIndex)
 	{
-		const U32 shadowMapSizes = CGameUserSettings::Get()->mCurrent.mShadowMapSizes;
+		const U32 shadowMapSizes = static_cast<U32>(CGameUserSettings::Get()->mpShadowMapSizesCVar->Get());
 		TDE2_ASSERT(shadowMapSizes > 0 && shadowMapSizes < 65536);
 
 		TRenderTargetParameters shadowMapParams;
@@ -198,7 +198,7 @@ namespace TDEngine2
 
 		mpDebugUtility = debugUtilityResult.Get();
 
-		if (CGameUserSettings::Get()->mCurrent.mIsShadowMappingEnabled)
+		if (CGameUserSettings::Get()->mpIsShadowMappingEnabledCVar->Get())
 		{
 			GetOrCreateDirectionalShadowMap(mpResourceManager).Get(); /// \note Create a shadow map's texture before any Update will be executed
 			GetOrCreatePointShadowMap(mpResourceManager, 0).Get();
@@ -251,7 +251,7 @@ namespace TDEngine2
 
 	static void RenderShadowCasters(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TResourceId shadowMapHandle, const std::function<void()> action)
 	{
-		const F32 shadowMapSizes = static_cast<F32>(CGameUserSettings::Get()->mCurrent.mShadowMapSizes);
+		const F32 shadowMapSizes = static_cast<F32>(CGameUserSettings::Get()->mpShadowMapSizesCVar->Get());
 
 		pGraphicsContext->SetViewport(0.0f, 0.0f, shadowMapSizes, shadowMapSizes, 0.0f, 1.0f);
 		{
@@ -439,7 +439,7 @@ namespace TDEngine2
 			ProcessEditorSelectionBuffer(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpSelectionManager, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)]);
 #endif
 
-			if (CGameUserSettings::Get()->mCurrent.mIsShadowMappingEnabled)
+			if (CGameUserSettings::Get()->mpIsShadowMappingEnabledCVar->Get())
 			{
 				ProcessShadowPass(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)]);
 			}

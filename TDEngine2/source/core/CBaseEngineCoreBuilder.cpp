@@ -800,9 +800,9 @@ namespace TDEngine2
 
 		PANIC_ON_FAILURE(_configureWindowSystem(
 			CProjectSettings::Get()->mCommonSettings.mApplicationName,
-			CGameUserSettings::Get()->mWindowWidth,
-			CGameUserSettings::Get()->mWindowHeight,
-			(CGameUserSettings::Get()->mIsFullscreenEnabled ? P_FULLSCREEN : 0x0) | CProjectSettings::Get()->mCommonSettings.mFlags));
+			CGameUserSettings::Get()->mpWindowWidthCVar->Get(),
+			CGameUserSettings::Get()->mpWindowHeightCVar->Get(),
+			(CGameUserSettings::Get()->mpFullscreenCVar->Get() ? P_FULLSCREEN : 0x0) | CProjectSettings::Get()->mCommonSettings.mFlags));
 
 		PANIC_ON_FAILURE(_configurePluginManager());
 		PANIC_ON_FAILURE(_configureGraphicsContext(isWindowModeEnabled ? CProjectSettings::Get()->mGraphicsSettings.mRendererPluginFilePath : Wrench::StringUtils::GetEmptyStr()));

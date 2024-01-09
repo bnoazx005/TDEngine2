@@ -29,7 +29,7 @@ namespace TDEngine2
 	const std::string TUserSettingsKeys::mWidthKeyId = "width";
 	const std::string TUserSettingsKeys::mHeightKeyId = "height";
 	const std::string TUserSettingsKeys::mIsFullscreenEnabledKeyId = "fullscreen";
-	const std::string TUserSettingsKeys::mShadowCascadesSplitsKeyId = "shadow_cascades_splits.{0}";
+	const std::string TUserSettingsKeys::mShadowCascadesSplitsKeyId = "shadow_cascades_splits_";
 	const std::string TUserSettingsKeys::mShadowCascadesCountKeyId = "shadow_cascades_count";
 	const std::string TUserSettingsKeys::mShadowsKeyId = "shadows";
 	const std::string TUserSettingsKeys::mShadowMapSizesKeyId = "shadow_map_size";
@@ -300,7 +300,6 @@ namespace TDEngine2
 
 #endif
 
-
 	E_RESULT_CODE CGameUserSettings::Init(IConfigFileReader* pConfigFileReader)
 	{
 		if (!pConfigFileReader)
@@ -308,19 +307,33 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mWindowWidth  = pConfigFileReader->GetInt(TUserSettingsKeys::mMainGroupKeyId, TUserSettingsKeys::mWidthKeyId, 640);
-		mWindowHeight = pConfigFileReader->GetInt(TUserSettingsKeys::mMainGroupKeyId, TUserSettingsKeys::mHeightKeyId, 480);
-	
-		mIsFullscreenEnabled = pConfigFileReader->GetBool(TUserSettingsKeys::mMainGroupKeyId, TUserSettingsKeys::mIsFullscreenEnabledKeyId, false);
+		mpWindowWidthCVar = std::make_unique<CInt32ConsoleVarDecl>(TUserSettingsKeys::mMainGroupKeyId + ".width",
+			"Window's width", E_CONSOLE_VARIABLE_FLAGS::NONE, 640);
+		mpWindowHeightCVar = std::make_unique<CInt32ConsoleVarDecl>(TUserSettingsKeys::mMainGroupKeyId + ".height",
+			"Window's height", E_CONSOLE_VARIABLE_FLAGS::NONE, 480);
 
-		mCurrent.mIsShadowMappingEnabled = pConfigFileReader->GetBool(TUserSettingsKeys::mGraphicsGroupKeyId, TUserSettingsKeys::mShadowsKeyId, true);
-		mCurrent.mShadowMapSizes = static_cast<U32>(pConfigFileReader->GetInt(TUserSettingsKeys::mGraphicsGroupKeyId, TUserSettingsKeys::mShadowMapSizesKeyId, 512));
-		mCurrent.mShadowCascadesCount = static_cast<U32>(pConfigFileReader->GetInt(TUserSettingsKeys::mGraphicsGroupKeyId, TUserSettingsKeys::mShadowCascadesCountKeyId, 3));
+		mpFullscreenCVar = std::make_unique<CInt32ConsoleVarDecl>(TUserSettingsKeys::mMainGroupKeyId + ".fullscreen", 
+			"Flag determines whether or not fullscreen enabled (0 - disabled, 1 - enabled)", E_CONSOLE_VARIABLE_FLAGS::NONE, 0);
 
-		mCurrent.mShadowCascadesSplits.x = static_cast<F32>(pConfigFileReader->GetFloat(TUserSettingsKeys::mGraphicsGroupKeyId, Wrench::StringUtils::Format(TUserSettingsKeys::mShadowCascadesSplitsKeyId, 0), 0.020f));
-		mCurrent.mShadowCascadesSplits.y = static_cast<F32>(pConfigFileReader->GetFloat(TUserSettingsKeys::mGraphicsGroupKeyId, Wrench::StringUtils::Format(TUserSettingsKeys::mShadowCascadesSplitsKeyId, 1), 0.045f));
-		mCurrent.mShadowCascadesSplits.z = static_cast<F32>(pConfigFileReader->GetFloat(TUserSettingsKeys::mGraphicsGroupKeyId, Wrench::StringUtils::Format(TUserSettingsKeys::mShadowCascadesSplitsKeyId, 2), 0.08f));
-		mCurrent.mShadowCascadesSplits.w = static_cast<F32>(pConfigFileReader->GetFloat(TUserSettingsKeys::mGraphicsGroupKeyId, Wrench::StringUtils::Format(TUserSettingsKeys::mShadowCascadesSplitsKeyId, 3), 1.0f));
+		mpCurrLanguageCVar = std::make_unique<CStringConsoleVarDecl>(TUserSettingsKeys::mMainGroupKeyId + ".lang",
+			"Current localization (ru|en|)", E_CONSOLE_VARIABLE_FLAGS::NONE, "en");
+
+		// \note graphics section
+		mpIsShadowMappingEnabledCVar = std::make_unique<CInt32ConsoleVarDecl>(TUserSettingsKeys::mGraphicsGroupKeyId + ".shadows",
+			"Flag determines whether or not shadow mapping enabled (0 - disabled, 1 - enabled)", E_CONSOLE_VARIABLE_FLAGS::NONE, 1);
+		mpShadowMapSizesCVar = std::make_unique<CInt32ConsoleVarDecl>(TUserSettingsKeys::mGraphicsGroupKeyId + ".shadow_map_size",
+			"Shadow map sizes", E_CONSOLE_VARIABLE_FLAGS::NONE, 512);
+		mpShadowCascadesCountCVar = std::make_unique<CInt32ConsoleVarDecl>(TUserSettingsKeys::mGraphicsGroupKeyId + ".shadow_cascades_count",
+			"Amount of shadow maps cascades", E_CONSOLE_VARIABLE_FLAGS::NONE, 3);
+
+		mpShadowCascadesSplitsCVar[0] = std::make_unique<CFloatConsoleVarDecl>(TUserSettingsKeys::mGraphicsGroupKeyId + ".shadow_cascades_splits_0",
+			"Shadow cascade split's range", E_CONSOLE_VARIABLE_FLAGS::NONE, 0.020f);
+		mpShadowCascadesSplitsCVar[1] = std::make_unique<CFloatConsoleVarDecl>(TUserSettingsKeys::mGraphicsGroupKeyId + ".shadow_cascades_splits_1",
+			"Shadow cascade split's range", E_CONSOLE_VARIABLE_FLAGS::NONE, 0.045f);
+		mpShadowCascadesSplitsCVar[2] = std::make_unique<CFloatConsoleVarDecl>(TUserSettingsKeys::mGraphicsGroupKeyId + ".shadow_cascades_splits_2",
+			"Shadow cascade split's range", E_CONSOLE_VARIABLE_FLAGS::NONE, 0.08f);
+		mpShadowCascadesSplitsCVar[3] = std::make_unique<CFloatConsoleVarDecl>(TUserSettingsKeys::mGraphicsGroupKeyId + ".shadow_cascades_splits_3",
+			"Shadow cascade split's range", E_CONSOLE_VARIABLE_FLAGS::NONE, 1.0f);
 
 		return mpCVarsStorage->Load(pConfigFileReader);
 	}
@@ -332,23 +345,7 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		E_RESULT_CODE result = RC_OK;
-
-		result = result | pConfigFileWriter->SetInt(TUserSettingsKeys::mMainGroupKeyId, TUserSettingsKeys::mWidthKeyId, mWindowWidth);
-		result = result | pConfigFileWriter->SetInt(TUserSettingsKeys::mMainGroupKeyId, TUserSettingsKeys::mHeightKeyId, mWindowHeight);
-
-		result = result | pConfigFileWriter->SetBool(TUserSettingsKeys::mGraphicsGroupKeyId, TUserSettingsKeys::mShadowsKeyId, mCurrent.mIsShadowMappingEnabled);
-		result = result | pConfigFileWriter->SetInt(TUserSettingsKeys::mGraphicsGroupKeyId, TUserSettingsKeys::mShadowMapSizesKeyId, mCurrent.mShadowMapSizes);
-		result = result | pConfigFileWriter->SetInt(TUserSettingsKeys::mGraphicsGroupKeyId, TUserSettingsKeys::mShadowCascadesCountKeyId, mCurrent.mShadowCascadesCount);
-
-		result = result | pConfigFileWriter->SetFloat(TUserSettingsKeys::mGraphicsGroupKeyId, Wrench::StringUtils::Format(TUserSettingsKeys::mShadowCascadesSplitsKeyId, 0), mCurrent.mShadowCascadesSplits.x);
-		result = result | pConfigFileWriter->SetFloat(TUserSettingsKeys::mGraphicsGroupKeyId, Wrench::StringUtils::Format(TUserSettingsKeys::mShadowCascadesSplitsKeyId, 1), mCurrent.mShadowCascadesSplits.y);
-		result = result | pConfigFileWriter->SetFloat(TUserSettingsKeys::mGraphicsGroupKeyId, Wrench::StringUtils::Format(TUserSettingsKeys::mShadowCascadesSplitsKeyId, 2), mCurrent.mShadowCascadesSplits.z);
-		result = result | pConfigFileWriter->SetFloat(TUserSettingsKeys::mGraphicsGroupKeyId, Wrench::StringUtils::Format(TUserSettingsKeys::mShadowCascadesSplitsKeyId, 3), mCurrent.mShadowCascadesSplits.w);
-
-		result = result | mpCVarsStorage->Save(pConfigFileWriter);
-
-		return result;
+		return mpCVarsStorage->Save(pConfigFileWriter);
 	}
 
 	TDE2_API TPtr<CGameUserSettings> CGameUserSettings::Get()
@@ -473,6 +470,8 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = CGameUserSettings::Get()->SetInt32Variable(mId, value);
 		TDE2_ASSERT(RC_OK == result);
+
+		mOnValueChanged.Notify(value);
 	}
 
 	I32 CInt32ConsoleVarDecl::Get() const
@@ -511,6 +510,8 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = CGameUserSettings::Get()->SetFloatVariable(mId, value);
 		TDE2_ASSERT(RC_OK == result);
+
+		mOnValueChanged.Notify(value);
 	}
 
 	F32 CFloatConsoleVarDecl::Get() const
@@ -544,6 +545,8 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = CGameUserSettings::Get()->SetStringVariable(mId, value);
 		TDE2_ASSERT(RC_OK == result);
+
+		mOnValueChanged.Notify(value);
 	}
 
 	const std::string& CStringConsoleVarDecl::Get() const

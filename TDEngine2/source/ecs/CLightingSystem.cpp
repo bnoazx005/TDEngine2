@@ -199,18 +199,10 @@ namespace TDEngine2
 
 	static std::vector<F32> CalcShadowSplitsPlane(IGraphicsContext* pGraphicsContext, ICamera* pActiveCamera)
 	{
-		const auto& gameSettings = CGameUserSettings::Get()->mCurrent;
-
-		const std::array<F32, 4> splitCoeffs
-		{
-			gameSettings.mShadowCascadesSplits.x,
-			gameSettings.mShadowCascadesSplits.y,
-			gameSettings.mShadowCascadesSplits.z,
-			gameSettings.mShadowCascadesSplits.w,
-		};
+		const auto& gameSettings = CGameUserSettings::Get();
 
 		std::vector<F32> output;
-		output.resize(gameSettings.mShadowCascadesCount + 1);
+		output.resize(static_cast<USIZE>(CGameUserSettings::Get()->mpShadowCascadesCountCVar->Get()) + 1);
 
 		const F32 zn = pActiveCamera->GetNearPlane();
 		const F32 zf = pActiveCamera->GetFarPlane();
@@ -219,7 +211,7 @@ namespace TDEngine2
 		
 		for (USIZE i = 1; i < output.size() - 1; i++)
 		{
-			output[i] = CMathUtils::Lerp(zn, zf, splitCoeffs[i - 1]);
+			output[i] = CMathUtils::Lerp(zn, zf, CGameUserSettings::Get()->mpShadowCascadesSplitsCVar[i - 1]->Get());
 		}
 
 		output.back() = zf;
@@ -320,7 +312,7 @@ namespace TDEngine2
 	{
 		std::vector<TMatrix4> cascadesMats;
 
-		for (U32 cascadeIndex = 0; cascadeIndex < CGameUserSettings::Get()->mCurrent.mShadowCascadesCount; cascadeIndex++)
+		for (U32 cascadeIndex = 0; cascadeIndex < static_cast<U32>(CGameUserSettings::Get()->mpShadowCascadesCountCVar->Get()); cascadeIndex++)
 		{
 			cascadesMats.emplace_back(ConstructSunLightMatrix(pGraphicsContext, pActiveCamera, pLightTransform, cascadesSplits[cascadeIndex], cascadesSplits[cascadeIndex + 1]));
 		}
@@ -346,8 +338,15 @@ namespace TDEngine2
 			lightingData.mSunLightDirection      = Normalize(TVector4(-0.5f, -0.5f, 0.0f, 0.0f));
 			lightingData.mSunLightPosition       = Normalize(TVector4(0.0f, 10.0f, 0.0f, 1.0f));
 			lightingData.mSunLightColor          = TColorUtils::mWhite;
-			lightingData.mShadowCascadesCount    = CGameUserSettings::Get()->mCurrent.mShadowCascadesCount;
-			lightingData.mShadowCascadesSplits   = CGameUserSettings::Get()->mCurrent.mShadowCascadesSplits;
+			lightingData.mShadowCascadesCount    = CGameUserSettings::Get()->mpShadowCascadesCountCVar->Get();
+			lightingData.mShadowCascadesSplits =
+				TVector4
+				{
+					CGameUserSettings::Get()->mpShadowCascadesSplitsCVar[0]->Get(),
+					CGameUserSettings::Get()->mpShadowCascadesSplitsCVar[1]->Get(),
+					CGameUserSettings::Get()->mpShadowCascadesSplitsCVar[2]->Get(),
+					CGameUserSettings::Get()->mpShadowCascadesSplitsCVar[3]->Get(),
+				};
 
 			return;
 		}
@@ -374,8 +373,8 @@ namespace TDEngine2
 				lightingData.mSunLightMatrix[cascadeIndex] = sunLightMatrices[cascadeIndex];
 			}
 
-			lightingData.mIsShadowMappingEnabled = static_cast<U32>(CGameUserSettings::Get()->mCurrent.mIsShadowMappingEnabled);
-			lightingData.mShadowCascadesCount    = CGameUserSettings::Get()->mCurrent.mShadowCascadesCount;
+			lightingData.mIsShadowMappingEnabled = static_cast<U32>(CGameUserSettings::Get()->mpIsShadowMappingEnabledCVar->Get());
+			lightingData.mShadowCascadesCount    = CGameUserSettings::Get()->mpShadowCascadesCountCVar->Get();
 			lightingData.mShadowCascadesSplits   = TVector4(&cascadesSplitsPlanes[1]);
 		}
 	}
@@ -493,7 +492,7 @@ namespace TDEngine2
 			}
 		}
 
-		if (CGameUserSettings::Get()->mCurrent.mIsShadowMappingEnabled)
+		if (CGameUserSettings::Get()->mpIsShadowMappingEnabledCVar->Get())
 		{
 			TDE2_PROFILER_SCOPE("CLightingSystem::ProcessShadowReceivers");
 

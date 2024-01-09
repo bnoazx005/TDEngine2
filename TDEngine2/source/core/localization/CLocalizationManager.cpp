@@ -137,7 +137,7 @@ namespace TDEngine2
 			mRegisteredLocales.push_back({ currLocaleInfo.mName, currLocaleInfo.mPackagePath, currLocaleInfo.mId });
 		}
 
-		mCurrSelectedLocaleId = _getLocaleHashInternal(CGameUserSettings::Get()->mCurrLanguage);
+		mCurrSelectedLocaleId = _getLocaleHashInternal(CGameUserSettings::Get()->mpCurrLanguageCVar->Get());
 
 		return RC_OK;
 	}

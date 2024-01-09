@@ -23,7 +23,7 @@ namespace TDEngine2
 			return std::make_tuple("Cannot create a variable", true);
 		}
 
-		return std::make_tuple(Wrench::StringUtils::Format("A new variable \"{0}\" successfully created", args.front()), false);
+		return std::make_tuple(Wrench::StringUtils::Format("Variable \"{0}\" successfully updated", args.front()), false);
 	}
 
 

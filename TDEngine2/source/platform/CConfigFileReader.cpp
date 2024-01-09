@@ -73,7 +73,7 @@ namespace TDEngine2
 		}
 
 		std::string resultValue;
-		_parseFileUntilParam(Wrench::StringUtils::GetEmptyStr(), Wrench::StringUtils::GetEmptyStr(), mParamsMap, resultValue);
+		_parseFileUntilParam(" ", " ", mParamsMap, resultValue);
 
 		for (auto&& currGroupParam : mParamsMap)
 		{
