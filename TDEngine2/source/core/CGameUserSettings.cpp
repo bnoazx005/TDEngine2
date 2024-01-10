@@ -12,27 +12,11 @@ namespace TDEngine2
 	{
 		static const std::string mMainGroupKeyId;
 		static const std::string mGraphicsGroupKeyId;
-
-		static const std::string mWidthKeyId;
-		static const std::string mHeightKeyId;
-		static const std::string mIsFullscreenEnabledKeyId;
-		static const std::string mShadowsKeyId;
-		static const std::string mShadowMapSizesKeyId;
-		static const std::string mShadowCascadesSplitsKeyId;
-		static const std::string mShadowCascadesCountKeyId;
 	};
 
 
 	const std::string TUserSettingsKeys::mMainGroupKeyId = "main";
 	const std::string TUserSettingsKeys::mGraphicsGroupKeyId = "graphics";
-
-	const std::string TUserSettingsKeys::mWidthKeyId = "width";
-	const std::string TUserSettingsKeys::mHeightKeyId = "height";
-	const std::string TUserSettingsKeys::mIsFullscreenEnabledKeyId = "fullscreen";
-	const std::string TUserSettingsKeys::mShadowCascadesSplitsKeyId = "shadow_cascades_splits_";
-	const std::string TUserSettingsKeys::mShadowCascadesCountKeyId = "shadow_cascades_count";
-	const std::string TUserSettingsKeys::mShadowsKeyId = "shadows";
-	const std::string TUserSettingsKeys::mShadowMapSizesKeyId = "shadow_map_size";
 
 
 	template <typename T> struct TConvertToVariableType { static const E_CONSOLE_VARIABLE_TYPE mType = E_CONSOLE_VARIABLE_TYPE::INT; };
@@ -132,7 +116,7 @@ namespace TDEngine2
 
 				mValues.emplace_back(value);
 
-				return Wrench::TOkValue< TUserConfigVariableInfo*>(&mVariablesPerGroupTable[variableInfo.mGroup][variableInfo.mName]);
+				return Wrench::TOkValue<TUserConfigVariableInfo*>(&mVariablesPerGroupTable[variableInfo.mGroup][variableInfo.mName]);
 			}
 
 			template <typename T>
@@ -307,33 +291,30 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mpWindowWidthCVar = std::make_unique<CInt32ConsoleVarDecl>(TUserSettingsKeys::mMainGroupKeyId + ".width",
-			"Window's width", E_CONSOLE_VARIABLE_FLAGS::NONE, 640);
-		mpWindowHeightCVar = std::make_unique<CInt32ConsoleVarDecl>(TUserSettingsKeys::mMainGroupKeyId + ".height",
-			"Window's height", E_CONSOLE_VARIABLE_FLAGS::NONE, 480);
+		mpWindowWidthCVar = std::make_unique<CInt32ConsoleVarDecl>(TUserSettingsKeys::mMainGroupKeyId + ".width", "Window's width", 640);
+		mpWindowHeightCVar = std::make_unique<CInt32ConsoleVarDecl>(TUserSettingsKeys::mMainGroupKeyId + ".height", "Window's height", 480);
 
 		mpFullscreenCVar = std::make_unique<CInt32ConsoleVarDecl>(TUserSettingsKeys::mMainGroupKeyId + ".fullscreen", 
-			"Flag determines whether or not fullscreen enabled (0 - disabled, 1 - enabled)", E_CONSOLE_VARIABLE_FLAGS::NONE, 0);
+			"Flag determines whether or not fullscreen enabled (0 - disabled, 1 - enabled)", 0);
 
-		mpCurrLanguageCVar = std::make_unique<CStringConsoleVarDecl>(TUserSettingsKeys::mMainGroupKeyId + ".lang",
-			"Current localization (ru|en|)", E_CONSOLE_VARIABLE_FLAGS::NONE, "en");
+		mpCurrLanguageCVar = std::make_unique<CStringConsoleVarDecl>(TUserSettingsKeys::mMainGroupKeyId + ".lang", "Current localization (ru|en|)", "en");
 
 		// \note graphics section
 		mpIsShadowMappingEnabledCVar = std::make_unique<CInt32ConsoleVarDecl>(TUserSettingsKeys::mGraphicsGroupKeyId + ".shadows",
-			"Flag determines whether or not shadow mapping enabled (0 - disabled, 1 - enabled)", E_CONSOLE_VARIABLE_FLAGS::NONE, 1);
+			"Flag determines whether or not shadow mapping enabled (0 - disabled, 1 - enabled)", 1);
 		mpShadowMapSizesCVar = std::make_unique<CInt32ConsoleVarDecl>(TUserSettingsKeys::mGraphicsGroupKeyId + ".shadow_map_size",
-			"Shadow map sizes", E_CONSOLE_VARIABLE_FLAGS::NONE, 512);
+			"Shadow map sizes", 512);
 		mpShadowCascadesCountCVar = std::make_unique<CInt32ConsoleVarDecl>(TUserSettingsKeys::mGraphicsGroupKeyId + ".shadow_cascades_count",
-			"Amount of shadow maps cascades", E_CONSOLE_VARIABLE_FLAGS::NONE, 3);
+			"Amount of shadow maps cascades", 3);
 
 		mpShadowCascadesSplitsCVar[0] = std::make_unique<CFloatConsoleVarDecl>(TUserSettingsKeys::mGraphicsGroupKeyId + ".shadow_cascades_splits_0",
-			"Shadow cascade split's range", E_CONSOLE_VARIABLE_FLAGS::NONE, 0.020f);
+			"Shadow cascade split's range", 0.020f);
 		mpShadowCascadesSplitsCVar[1] = std::make_unique<CFloatConsoleVarDecl>(TUserSettingsKeys::mGraphicsGroupKeyId + ".shadow_cascades_splits_1",
-			"Shadow cascade split's range", E_CONSOLE_VARIABLE_FLAGS::NONE, 0.045f);
+			"Shadow cascade split's range", 0.045f);
 		mpShadowCascadesSplitsCVar[2] = std::make_unique<CFloatConsoleVarDecl>(TUserSettingsKeys::mGraphicsGroupKeyId + ".shadow_cascades_splits_2",
-			"Shadow cascade split's range", E_CONSOLE_VARIABLE_FLAGS::NONE, 0.08f);
+			"Shadow cascade split's range", 0.08f);
 		mpShadowCascadesSplitsCVar[3] = std::make_unique<CFloatConsoleVarDecl>(TUserSettingsKeys::mGraphicsGroupKeyId + ".shadow_cascades_splits_3",
-			"Shadow cascade split's range", E_CONSOLE_VARIABLE_FLAGS::NONE, 1.0f);
+			"Shadow cascade split's range", 1.0f);
 
 		return mpCVarsStorage->Load(pConfigFileReader);
 	}
@@ -451,7 +432,7 @@ namespace TDEngine2
 		\brief CInt32ConsoleVarDecl's definition
 	*/
 
-	CInt32ConsoleVarDecl::CInt32ConsoleVarDecl(const std::string& name, const std::string& description, E_CONSOLE_VARIABLE_FLAGS flags, const I32& initialValue,
+	CInt32ConsoleVarDecl::CInt32ConsoleVarDecl(const std::string& name, const std::string& description, const I32& initialValue, E_CONSOLE_VARIABLE_FLAGS flags,
 		const TSetterType& setterCallback, const TGetterType& getterCallback):
 		mSetterCallback(setterCallback), mGetterCallback(getterCallback)
 	{
@@ -491,7 +472,7 @@ namespace TDEngine2
 		\brief CFloatConsoleVarDecl's definition
 	*/
 
-	CFloatConsoleVarDecl::CFloatConsoleVarDecl(const std::string& name, const std::string& description, E_CONSOLE_VARIABLE_FLAGS flags, const F32& initialValue,
+	CFloatConsoleVarDecl::CFloatConsoleVarDecl(const std::string& name, const std::string& description, const F32& initialValue, E_CONSOLE_VARIABLE_FLAGS flags,
 		const TSetterType& setterCallback, const TGetterType& getterCallback) :
 		mSetterCallback(setterCallback), mGetterCallback(getterCallback)
 	{
@@ -526,7 +507,7 @@ namespace TDEngine2
 		\brief CStringConsoleVarDecl's definition
 	*/
 
-	CStringConsoleVarDecl::CStringConsoleVarDecl(const std::string& name, const std::string& description, E_CONSOLE_VARIABLE_FLAGS flags, const std::string& initialValue,
+	CStringConsoleVarDecl::CStringConsoleVarDecl(const std::string& name, const std::string& description, const std::string& initialValue, E_CONSOLE_VARIABLE_FLAGS flags,
 		const TSetterType& setterCallback, const TGetterType& getterCallback) :
 		mSetterCallback(setterCallback), mGetterCallback(getterCallback)
 	{

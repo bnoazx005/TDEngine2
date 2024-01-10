@@ -161,7 +161,7 @@ namespace TDEngine2
 		typedef std::function<void(I32)> TSetterType;
 		typedef std::function<I32()>     TGetterType;
 
-		TDE2_API CInt32ConsoleVarDecl(const std::string& name, const std::string& description, E_CONSOLE_VARIABLE_FLAGS flags, const I32& initialValue,
+		TDE2_API CInt32ConsoleVarDecl(const std::string& name, const std::string& description, const I32& initialValue, E_CONSOLE_VARIABLE_FLAGS flags = E_CONSOLE_VARIABLE_FLAGS::NONE,
 			const TSetterType& setterCallback = nullptr, const TGetterType& getterCallback = nullptr);
 
 		TDE2_API void Set(I32 value);
@@ -177,7 +177,7 @@ namespace TDEngine2
 		typedef std::function<void(F32)> TSetterType;
 		typedef std::function<F32()>     TGetterType;
 
-		TDE2_API CFloatConsoleVarDecl(const std::string& name, const std::string& description, E_CONSOLE_VARIABLE_FLAGS flags, const F32& initialValue,
+		TDE2_API CFloatConsoleVarDecl(const std::string& name, const std::string& description, const F32& initialValue, E_CONSOLE_VARIABLE_FLAGS flags = E_CONSOLE_VARIABLE_FLAGS::NONE,
 			const TSetterType& setterCallback = nullptr, const TGetterType& getterCallback = nullptr);
 
 		TDE2_API void Set(F32 value);
@@ -193,7 +193,7 @@ namespace TDEngine2
 		typedef std::function<void(const std::string&)> TSetterType;
 		typedef std::function<const std::string&()>     TGetterType;
 
-		TDE2_API CStringConsoleVarDecl(const std::string& name, const std::string& description, E_CONSOLE_VARIABLE_FLAGS flags, const std::string& initialValue,
+		TDE2_API CStringConsoleVarDecl(const std::string& name, const std::string& description, const std::string& initialValue, E_CONSOLE_VARIABLE_FLAGS flags = E_CONSOLE_VARIABLE_FLAGS::NONE,
 			const TSetterType& setterCallback = nullptr, const TGetterType& getterCallback = nullptr);
 
 		TDE2_API void Set(const std::string& value);
