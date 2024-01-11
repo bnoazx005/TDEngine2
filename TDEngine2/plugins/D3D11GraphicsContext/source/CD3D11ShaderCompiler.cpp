@@ -362,7 +362,8 @@ namespace TDEngine2
 			}
 
 			/// skip template parameters
-			if (E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER == currType || E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER == currType)
+			if (E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER == currType || E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER == currType ||
+				E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D == currType || E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE3D == currType)
 			{
 				while (currToken != ">")
 				{
@@ -373,8 +374,13 @@ namespace TDEngine2
 			/// found a shader resource
 			currToken = tokenizer.GetNextToken();
 
+			const bool isWriteableResource = 
+				E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER == currType ||
+				E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D == currType ||
+				E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE3D == currType;
+
 			/// \note At this point only global scope's declarations should be passed
-			shaderResources[currToken] = { currType, currSlotIndex++ };
+			shaderResources[currToken] = { currType, currSlotIndex++, isWriteableResource };
 		}
 
 		tokenizer.Reset();
@@ -391,6 +397,7 @@ namespace TDEngine2
 			{ "Texture3D", E_SHADER_RESOURCE_TYPE::SRT_TEXTURE3D },
 			{ "TextureCube", E_SHADER_RESOURCE_TYPE::SRT_TEXTURECUBE },
 			{ "RWTexture2D", E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D },
+			{ "RWTexture3D", E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE3D },
 			{ "StructuredBuffer", E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER },
 			{ "RWStructuredBuffer", E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER },
 			{ "TextureCube", E_SHADER_RESOURCE_TYPE::SRT_TEXTURECUBE },

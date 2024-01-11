@@ -48,6 +48,7 @@ namespace TDEngine2
 		SRT_TEXTURECUBE,
 		SRT_SAMPLER_STATE,
 		SRT_RW_IMAGE2D,
+		SRT_RW_IMAGE3D,
 		SRT_STRUCTURED_BUFFER,
 		SRT_RW_STRUCTURED_BUFFER,
 		SRT_UNKNOWN
@@ -64,8 +65,8 @@ namespace TDEngine2
 	typedef struct TShaderResourceDesc
 	{
 		E_SHADER_RESOURCE_TYPE mType;
-
 		U8                     mSlot;
+		bool                   mIsWriteable = false;
 	} TShaderResourceDesc, *TShaderResourceDescPtr;
 
 

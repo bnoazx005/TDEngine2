@@ -285,7 +285,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE COGLGraphicsContext::SetTexture(U32 slot, TTextureHandleId textureHandle)
+	E_RESULT_CODE COGLGraphicsContext::SetTexture(U32 slot, TTextureHandleId textureHandle, bool isWriteEnabled)
 	{
 		auto pTexture = mpGraphicsObjectManagerImpl->GetOGLTexturePtr(textureHandle);
 		if (!pTexture)

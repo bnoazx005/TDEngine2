@@ -362,12 +362,20 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CD3D11GraphicsContext::SetTexture(U32 slot, TTextureHandleId textureHandle)
+	E_RESULT_CODE CD3D11GraphicsContext::SetTexture(U32 slot, TTextureHandleId textureHandle, bool isWriteEnabled)
 	{
 		auto pTexture = mpGraphicsObjectManagerD3D11Impl->GetD3D11TexturePtr(textureHandle);
 		if (!pTexture)
 		{
 			return RC_FAIL;
+		}
+
+		if (pTexture->GetParams().mIsWriteable && isWriteEnabled)
+		{
+			auto pTextureUAV = pTexture->GetUnorderedAccessView();
+			mp3dDeviceContext->CSSetUnorderedAccessViews(slot, 1, &pTextureUAV, nullptr);
+
+			return RC_OK;
 		}
 
 		auto pTextureSRV = pTexture->GetShaderResourceView();

@@ -818,7 +818,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CVulkanGraphicsContext::SetTexture(U32 slot, TTextureHandleId textureHandle)
+	E_RESULT_CODE CVulkanGraphicsContext::SetTexture(U32 slot, TTextureHandleId textureHandle, bool isWriteEnabled)
 	{
 		return RC_OK;
 	}

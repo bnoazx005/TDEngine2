@@ -115,6 +115,7 @@ namespace TDEngine2
 		createTextureParams.mNumOfMipLevels = params.mNumOfMipLevels;
 		createTextureParams.mNumOfSamples = params.mNumOfSamples;
 		createTextureParams.mSamplingQuality = params.mSamplingQuality;
+		createTextureParams.mIsWriteable = params.mIsWriteable;
 		createTextureParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
 		createTextureParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
 		createTextureParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE;

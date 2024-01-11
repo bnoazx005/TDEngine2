@@ -293,7 +293,7 @@ namespace TDEngine2
 				continue;
 			}
 
-			mTexturesHashTable[currName] = currShaderResourceInfo.second.mSlot;
+			mTexturesHashTable[currName] = std::make_tuple(currShaderResourceInfo.second.mSlot, currShaderResourceInfo.second.mIsWriteable);
 
 			GL_SAFE_CALL(glUniform1i(currSlotIndex, currShaderResourceInfo.second.mSlot));
 

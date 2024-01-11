@@ -12,6 +12,7 @@
 #include <vector>
 #include <unordered_map>
 #include <memory>
+#include <tuple>
 
 
 namespace TDEngine2
@@ -31,7 +32,7 @@ namespace TDEngine2
 	class CBaseShader: public IShader, public CBaseResource
 	{
 		public:
-			typedef std::unordered_map<std::string, U8> TResourcesHashTable;
+			typedef std::unordered_map<std::string, std::tuple<U8, bool>> TResourcesHashTable;
 		public:
 			TDE2_REGISTER_RESOURCE_TYPE(CBaseShader)
 			TDE2_REGISTER_TYPE(CBaseShader)

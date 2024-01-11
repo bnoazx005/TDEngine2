@@ -174,7 +174,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mpTextures[hashIter->second] = pTexture;
+		mpTextures[std::get<0>(hashIter->second)] = pTexture;
 
 		return RC_OK;
 	}
@@ -192,7 +192,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mBufferHandles[hashIter->second] = bufferHandle;
+		mBufferHandles[std::get<0>(hashIter->second)] = bufferHandle;
 
 		return RC_OK;
 	}
@@ -234,7 +234,7 @@ namespace TDEngine2
 		{
 			currSlotIndex = currShaderResourceInfo.second.mSlot;
 
-			mTexturesHashTable[currShaderResourceInfo.first] = currSlotIndex;
+			mTexturesHashTable[currShaderResourceInfo.first] = std::make_tuple(currSlotIndex, currShaderResourceInfo.second.mIsWriteable);
 
 			mpTextures.resize(currSlotIndex + 1);
 
@@ -259,7 +259,7 @@ namespace TDEngine2
 		{
 			currSlotIndex = currShaderResourceInfo.second.mSlot;
 
-			mStructuredBuffersHashTable[currShaderResourceInfo.first] = currSlotIndex;
+			mStructuredBuffersHashTable[currShaderResourceInfo.first] = std::make_tuple(currSlotIndex, currShaderResourceInfo.second.mIsWriteable);
 
 			mBufferHandles.resize(currSlotIndex + 1);
 
@@ -472,6 +472,10 @@ namespace TDEngine2
 			TShaderResourceDesc desc;
 			desc.mSlot = pFileReader->ReadUInt8();
 			desc.mType = static_cast<E_SHADER_RESOURCE_TYPE>(pFileReader->ReadUInt32());
+			desc.mIsWriteable = 
+				E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER == desc.mType || 
+				E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D == desc.mType || 
+				E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE3D == desc.mType;
 
 			entry.mShaderResourcesInfo.emplace(resourceName, desc);
 		}

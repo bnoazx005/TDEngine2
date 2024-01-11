@@ -112,7 +112,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CProxyGraphicsContext::SetTexture(U32 slot, TTextureHandleId textureHandle)
+	E_RESULT_CODE CProxyGraphicsContext::SetTexture(U32 slot, TTextureHandleId textureHandle, bool isWriteEnabled)
 	{
 		LOG_MESSAGE("[ProxyGraphicsContext] SetTexture");
 		return RC_OK;
