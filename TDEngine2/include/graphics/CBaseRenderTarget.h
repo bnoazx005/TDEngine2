@@ -56,6 +56,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Resize(U32 width, U32 height) override;
 
+			TDE2_API void SetWriteable(bool value) override;
+
 			/*!
 				\brief The method sets up wrapping mode for U axis
 			*/
@@ -103,6 +105,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_FORMAT_TYPE GetFormat() const override;
+
+			TDE2_API bool IsWriteable() const override;
 
 			/*!
 				\return The method returns a rect of the texture in range [0.0f, 1.0f]

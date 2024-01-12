@@ -99,6 +99,11 @@ namespace TDEngine2
 		return mpGraphicsContext->UpdateCubemapTexture(mCurrTextureHandle, face, regionRect, pData, 0);
 	}
 
+	void CBaseCubemapTexture::SetWriteable(bool value)
+	{
+		mIsWriteEnabled = value;
+	}
+
 	void CBaseCubemapTexture::SetUWrapMode(const E_ADDRESS_MODE_TYPE& mode)
 	{
 		mTextureSamplerParams.mUAddressMode = mode;
@@ -127,6 +132,11 @@ namespace TDEngine2
 		{
 			mState = E_RESOURCE_STATE_TYPE::RST_LOADED;
 		}
+	}
+
+	bool CBaseCubemapTexture::IsWriteable() const
+	{
+		return mIsWriteEnabled;
 	}
 
 	U32 CBaseCubemapTexture::GetWidth() const

@@ -79,6 +79,11 @@ namespace TDEngine2
 		return result;
 	}
 
+	void CBaseRenderTarget::SetWriteable(bool value)
+	{
+		mIsRandomlyWriteable = value;
+	}
+
 	void CBaseRenderTarget::SetUWrapMode(const E_ADDRESS_MODE_TYPE& mode)
 	{
 		mTextureSamplerParams.mUAddressMode = mode;
@@ -112,6 +117,11 @@ namespace TDEngine2
 	E_FORMAT_TYPE CBaseRenderTarget::GetFormat() const
 	{
 		return mFormat;
+	}
+
+	bool CBaseRenderTarget::IsWriteable() const
+	{
+		return mIsRandomlyWriteable;
 	}
 
 	TRectF32 CBaseRenderTarget::GetNormalizedTextureRect() const

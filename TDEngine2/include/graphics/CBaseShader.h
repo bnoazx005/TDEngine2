@@ -153,6 +153,7 @@ namespace TDEngine2
 			TResourcesHashTable             mStructuredBuffersHashTable;
 
 			std::vector<ITexture*>          mpTextures;
+			std::vector<bool>               mpTexturesWritePolicies;
 			std::vector<TBufferHandleId>    mBufferHandles;
 
 			TShaderCompilerOutput*          mpShaderMeta;

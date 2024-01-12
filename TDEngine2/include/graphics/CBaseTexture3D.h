@@ -80,6 +80,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE WriteData(const TRectI32& regionRect, U32 depthFirstSlice, U32 depthLastSlice, const U8* pData) override;
 
+			TDE2_API void SetWriteable(bool value) override;
+
 			/*!
 				\brief The method sets up wrapping mode for U axis
 			*/
@@ -107,6 +109,8 @@ namespace TDEngine2
 			TDE2_API U32 GetWidth() const override;
 			TDE2_API U32 GetHeight() const override;
 			TDE2_API U32 GetDepth() const override;
+
+			TDE2_API bool IsWriteable() const override;
 
 			/*!
 				\brief The method returns current format of the texture
@@ -145,6 +149,8 @@ namespace TDEngine2
 
 			TTextureSamplerId   mCurrTextureSamplerHandle = TTextureSamplerId::Invalid;
 			TTextureHandleId    mCurrTextureHandle;
+
+			bool                mIsWriteEnabled = false;
 	};
 
 

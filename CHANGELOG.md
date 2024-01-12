@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.24] 2024-01-11
+## [0.6.24] 2024-01-12
 
 ### Added
 
@@ -19,6 +19,8 @@ using in-game console or defined in settings.cfg file.
 - A new command for in-game console was added which is 'set' that allows to declare console variables and change their values.
 
 - The API of **IConfigFileReader** was extended with a new method ForEachParameter.
+
+- Extend API of **ITexture** with pair of methods SetWriteable/IsWriteable.
 
 ### Fixed
 

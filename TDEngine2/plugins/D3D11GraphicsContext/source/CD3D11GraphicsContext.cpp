@@ -262,12 +262,11 @@ namespace TDEngine2
 		TDE2_PROFILER_SCOPE("CD3D11GraphicsContext::Present");
 
 		mpSwapChain->Present(mIsVSyncEnabled, 0);
-		
+
 		mCurrNumOfActiveRenderTargets = 1;
 
 		/// \note Restore texture slots
-		ID3D11ShaderResourceView* pNullSRV[]{ nullptr, nullptr };
-		mp3dDeviceContext->PSSetShaderResources(0, 2, pNullSRV);
+		mp3dDeviceContext->ClearState();
 	}
 
 	void CD3D11GraphicsContext::SetViewport(F32 x, F32 y, F32 width, F32 height, F32 minDepth, F32 maxDepth)
@@ -370,12 +369,15 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		if (pTexture->GetParams().mIsWriteable && isWriteEnabled)
+		if (pTexture->GetParams().mIsWriteable)
 		{
-			auto pTextureUAV = pTexture->GetUnorderedAccessView();
-			mp3dDeviceContext->CSSetUnorderedAccessViews(slot, 1, &pTextureUAV, nullptr);
+			if (isWriteEnabled)
+			{
+				auto pTextureUAV = pTexture->GetUnorderedAccessView();
+				mp3dDeviceContext->CSSetUnorderedAccessViews(slot, 1, &pTextureUAV, nullptr);
 
-			return RC_OK;
+				return RC_OK;
+			}
 		}
 
 		auto pTextureSRV = pTexture->GetShaderResourceView();

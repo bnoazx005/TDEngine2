@@ -81,6 +81,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE WriteData(E_CUBEMAP_FACE face, const TRectI32& regionRect, const U8* pData) override;
 
+			TDE2_API void SetWriteable(bool value) override;
+
 			/*!
 				\brief The method sets up wrapping mode for U axis
 			*/
@@ -111,6 +113,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void MarkFaceAsLoaded(E_CUBEMAP_FACE face) override;
+
+			TDE2_API bool IsWriteable() const override;
 
 			/*!
 				\brief The method returns a width of a texture
@@ -155,6 +159,8 @@ namespace TDEngine2
 
 			TTextureSamplerId   mCurrTextureSamplerHandle = TTextureSamplerId::Invalid;
 			TTextureHandleId    mCurrTextureHandle;
+
+			bool                mIsWriteEnabled = false;
 	};
 
 

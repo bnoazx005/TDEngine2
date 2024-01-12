@@ -65,6 +65,11 @@ namespace TDEngine2
 		}
 	}
 
+	void CAtlasSubTexture::SetWriteable(bool value)
+	{
+		mIsWriteEnabled = value;
+	}
+
 	void CAtlasSubTexture::SetUWrapMode(const E_ADDRESS_MODE_TYPE& mode)
 	{
 		mTextureSamplerParams.mUAddressMode = mode;
@@ -123,6 +128,11 @@ namespace TDEngine2
 		}
 
 		return E_FORMAT_TYPE::FT_UNKNOWN;
+	}
+
+	bool CAtlasSubTexture::IsWriteable() const
+	{
+		return mIsWriteEnabled;
 	}
 
 	TRectF32 CAtlasSubTexture::GetNormalizedTextureRect() const

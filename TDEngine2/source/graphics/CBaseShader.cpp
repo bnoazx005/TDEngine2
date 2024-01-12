@@ -134,6 +134,7 @@ namespace TDEngine2
 				continue;
 			}
 
+			pCurrTexture->SetWriteable(mpTexturesWritePolicies[i]);
 			pCurrTexture->Bind(i);
 		}
 
@@ -175,6 +176,7 @@ namespace TDEngine2
 		}
 
 		mpTextures[std::get<0>(hashIter->second)] = pTexture;
+		mpTexturesWritePolicies[std::get<0>(hashIter->second)] = std::get<bool>(hashIter->second);
 
 		return RC_OK;
 	}
@@ -237,8 +239,10 @@ namespace TDEngine2
 			mTexturesHashTable[currShaderResourceInfo.first] = std::make_tuple(currSlotIndex, currShaderResourceInfo.second.mIsWriteable);
 
 			mpTextures.resize(currSlotIndex + 1);
+			mpTexturesWritePolicies.resize(currSlotIndex + 1);
 
 			mpTextures[currSlotIndex] = nullptr;
+			mpTexturesWritePolicies[currSlotIndex] = false;
 		}
 
 		return RC_OK;

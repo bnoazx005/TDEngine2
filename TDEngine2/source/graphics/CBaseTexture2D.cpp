@@ -147,7 +147,7 @@ namespace TDEngine2
 		}
 
 		mpGraphicsContext->SetSampler(slot, mCurrTextureSamplerHandle);
-		mpGraphicsContext->SetTexture(slot, mCurrTextureHandle);
+		mpGraphicsContext->SetTexture(slot, mCurrTextureHandle, mIsWriteEnabled);
 	}
 
 	E_RESULT_CODE CBaseTexture2D::Reset()
@@ -165,6 +165,11 @@ namespace TDEngine2
 	E_RESULT_CODE CBaseTexture2D::WriteData(const TRectI32& regionRect, const U8* pData)
 	{
 		return mpGraphicsContext->UpdateTexture2D(mCurrTextureHandle, 0, regionRect, pData, 0);
+	}
+
+	void CBaseTexture2D::SetWriteable(bool value)
+	{
+		mIsWriteEnabled = value;
 	}
 
 	void CBaseTexture2D::SetUWrapMode(const E_ADDRESS_MODE_TYPE& mode)
@@ -213,6 +218,11 @@ namespace TDEngine2
 		auto pTexture = pGraphicsObjectManager->GetTexturePtr(mCurrTextureHandle);
 
 		return pTexture ? pTexture->GetParams().mFormat : E_FORMAT_TYPE::FT_UNKNOWN;
+	}
+
+	bool CBaseTexture2D::IsWriteable() const
+	{
+		return mIsWriteEnabled;
 	}
 
 	TRectF32 CBaseTexture2D::GetNormalizedTextureRect() const

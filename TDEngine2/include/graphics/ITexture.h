@@ -33,6 +33,8 @@ namespace TDEngine2
 
 			TDE2_API virtual void Bind(U32 slot) = 0;
 
+			TDE2_API virtual void SetWriteable(bool value) = 0;
+
 			/*!
 				\brief The method sets up wrapping mode for U axis
 			*/
@@ -56,6 +58,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void SetFilterType(const E_TEXTURE_FILTER_TYPE& type) = 0;
+
+			TDE2_API virtual bool IsWriteable() const = 0;
 
 			/*!
 				\brief The method returns a width of a texture
