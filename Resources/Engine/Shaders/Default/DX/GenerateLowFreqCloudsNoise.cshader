@@ -1,0 +1,26 @@
+#define COMPUTE_ENTRY MainCS
+
+#program compute
+
+#include <TDEngine2MathUtils.inc>
+
+
+RWTexture3D<float4> noiseTexture;
+
+
+static const float InvNoiseTexSize = 0.0078125; // 1 / 128
+
+
+[numthreads(8, 8, 8)]
+void MainCS(uint3 id : SV_DispatchThreadID)
+{
+	float3 normalizedPoint = InvNoiseTexSize * float3(id.x, id.y, id.z);
+	float3 p = 2.0 * normalizedPoint - 1.0;
+
+	float perlin = abs(2.0 * (CalcPerlinFbmNoise3D(p, 3, 4.0) * 0.5 + 0.5) - 1.0);
+	float worley = CalcWorleyFbmNoise3D(p, 3, 2.0);
+
+	noiseTexture[id.xyz] = float4(Remap(perlin, 0.0, 1.0, worley, 1.), worley, CalcWorleyFbmNoise3D(p, 3, 4.0), CalcWorleyFbmNoise3D(p, 3, 8.0));
+}
+
+#endprogram
