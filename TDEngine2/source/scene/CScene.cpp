@@ -292,6 +292,8 @@ namespace TDEngine2
 
 		CEntity* pSkyboxEntity = CreateEntity("Skybox");
 
+		pSkyboxEntity->AddComponent<CSkyboxComponent>();
+
 		if (auto pStaticMeshContainer = pSkyboxEntity->AddComponent<CStaticMeshContainer>())
 		{
 			pStaticMeshContainer->SetMaterialName(CProjectSettings::Get()->mGraphicsSettings.mDefaultSkyboxMaterial);

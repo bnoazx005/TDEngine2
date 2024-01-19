@@ -7,6 +7,7 @@
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IJobManager.h"
+#include "../../include/core/CProjectSettings.h"
 #include "../../include/graphics/CBaseTexture3D.h"
 #include "../../include/graphics/IMaterial.h"
 #include "../../include/graphics/IShader.h"
@@ -92,8 +93,14 @@ namespace TDEngine2
 		const TResourceId lowFreqCloudsTextureHandle = pResourceManager->Create<ITexture3D>(LowFreqCloudsNoise3DTextureId, lowFreqCloudsNoiseTextureParams);
 		const TResourceId highFreqCloudsTextureHandle = pResourceManager->Create<ITexture3D>(HighFreqCloudsNoise3DTextureId, highFreqCloudsNoiseTextureParams);
 
-		//auto pMaterial = pResourceManager->GetResource<IMaterial>(pResourceManager->Load<IMaterial>("DefaultResources/Materials/DefaultSkydome.material"));
-		//pMaterial->SetTextureResource("Test3D", pResourceManager->GetResource<ITexture>(lowFreqCloudsTextureHandle).Get());
+		const TResourceId cloudsMaterialHandle = pResourceManager->Load<IMaterial>(CProjectSettings::Get()->mGraphicsSettings.mDefaultCloudscapesMaterial);
+		TDE2_ASSERT(TResourceId::Invalid != cloudsMaterialHandle);
+		
+		if (auto pMaterial = pResourceManager->GetResource<IMaterial>(cloudsMaterialHandle))
+		{
+			pMaterial->SetTextureResource("HiFreqCloudsNoiseTex", pResourceManager->GetResource<ITexture>(highFreqCloudsTextureHandle).Get());
+			pMaterial->SetTextureResource("LowFreqCloudsNoiseTex", pResourceManager->GetResource<ITexture>(lowFreqCloudsTextureHandle).Get());
+		}
 
 		TDE2_ASSERT(TResourceId::Invalid != lowFreqCloudsTextureHandle);
 		TDE2_ASSERT(TResourceId::Invalid != highFreqCloudsTextureHandle);
