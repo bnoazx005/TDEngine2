@@ -80,6 +80,12 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE WriteData(const TRectI32& regionRect, const U8* pData) override;
 
+			/*!
+				\brief The method allows to resize internal resources that corresponds to the given texture
+			*/
+
+			TDE2_API E_RESULT_CODE Resize(U32 width, U32 height) override;
+
 			TDE2_API void SetWriteable(bool value) override;
 
 			/*!

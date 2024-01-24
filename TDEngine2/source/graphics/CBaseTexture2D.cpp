@@ -167,6 +167,18 @@ namespace TDEngine2
 		return mpGraphicsContext->UpdateTexture2D(mCurrTextureHandle, 0, regionRect, pData, 0);
 	}
 
+	E_RESULT_CODE CBaseTexture2D::Resize(U32 width, U32 height)
+	{
+		auto pGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
+		auto pTexture = pGraphicsObjectManager->GetTexturePtr(mCurrTextureHandle);
+		if (!pTexture)
+		{
+			return RC_FAIL;
+		}
+
+		return pTexture->Resize(width, height);
+	}
+
 	void CBaseTexture2D::SetWriteable(bool value)
 	{
 		mIsWriteEnabled = value;

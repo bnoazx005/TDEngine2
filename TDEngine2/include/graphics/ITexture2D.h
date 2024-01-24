@@ -123,6 +123,12 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE WriteData(const TRectI32& regionRect, const U8* pData) = 0;
 
 			/*!
+				\brief The method allows to resize internal resources that corresponds to the given texture
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Resize(U32 width, U32 height) = 0;
+
+			/*!
 				\brief The method returns an internal data that the texture stores. (The returned data is allocated
 				on heap so should be manually deleted later) For now we use std::unique_ptr instead
 
