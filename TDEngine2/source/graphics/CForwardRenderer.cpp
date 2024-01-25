@@ -356,12 +356,12 @@ namespace TDEngine2
 	static inline E_RESULT_CODE RenderMainPasses(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties,
 										TPtr<IFramePostProcessor> pFramePostProcessor, TPtr<CRenderQueue> pRenderQueues[])
 	{
-		pGraphicsContext->ClearDepthBuffer(1.0f);
-
 		pFramePostProcessor->PreRender();
 
 		pFramePostProcessor->Render([&]
 		{
+			pGraphicsContext->ClearDepthBuffer(1.0f);
+
 			TDE2_PROFILER_SCOPE("Renderer::RenderAll");
 			TDE_RENDER_SECTION(pGraphicsContext, "RenderMainPass");
 
@@ -381,7 +381,7 @@ namespace TDEngine2
 
 				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pCurrCommandBuffer, true, (std::numeric_limits<U32>::max)());
 			}
-		});
+		}, true, true);
 
 		return RC_OK;
 	}
@@ -445,6 +445,12 @@ namespace TDEngine2
 			}
 
 			RenderMainPasses(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpFramePostProcessor, mpRenderQueues);
+
+			{
+				TDE_RENDER_SECTION(mpGraphicsContext, "VolumetricCloudsPass");
+				mpFramePostProcessor->RunVolumetricCloudsPass();
+			}
+
 			RenderOverlayAndPostEffects(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpFramePostProcessor, 
 				mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OVERLAY)],
 				mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEBUG_UI)]);

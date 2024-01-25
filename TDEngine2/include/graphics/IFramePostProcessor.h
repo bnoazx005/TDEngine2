@@ -70,7 +70,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Render(const TRenderFrameCallback& onRenderFrameCallback, bool clearRenderTarget = true) = 0;
+			TDE2_API virtual E_RESULT_CODE Render(const TRenderFrameCallback& onRenderFrameCallback, bool clearRenderTarget = true, bool bindDepthBuffer = false) = 0;
 
 			/*!
 				\brief The method prepares render targets and materials that're involved into post-processings
@@ -96,6 +96,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE PostRender() = 0;
+
+			TDE2_API virtual E_RESULT_CODE RunVolumetricCloudsPass() = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IFramePostProcessor)
 	};

@@ -79,11 +79,13 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Render(const TRenderFrameCallback& onRenderFrameCallback, bool clearRenderTarget = true) override;
+			TDE2_API E_RESULT_CODE Render(const TRenderFrameCallback& onRenderFrameCallback, bool clearRenderTarget = true, bool bindDepthBuffer = false) override;
 
 			TDE2_API E_RESULT_CODE PreRender() override;
 			TDE2_API E_RESULT_CODE RunPostProcess() override;
 			TDE2_API E_RESULT_CODE PostRender() override;
+
+			TDE2_API E_RESULT_CODE RunVolumetricCloudsPass() override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFramePostProcessor)
 
@@ -107,10 +109,13 @@ namespace TDEngine2
 			TResourceId                   mBloomFinalPassMaterialHandle;
 			TResourceId                   mGaussianBlurMaterialHandle;
 			TResourceId                   mToneMappingPassMaterialHandle;
+			TResourceId                   mVolumetricCloudsComputeShaderHandle;
 
 			TResourceId                   mRenderTargetHandle;
 			TResourceId                   mBloomRenderTargetHandle;
 			TResourceId                   mTemporaryRenderTargetHandle;
+			TResourceId                   mMainDepthBufferHandle;
+			TResourceId                   mVolumetricCloudsScreenBufferHandle;
 
 			IVertexDeclaration*           mpVertexFormatDeclaration;
 

@@ -6,8 +6,10 @@
 #include "../../include/graphics/IGlobalShaderProperties.h"
 #include "../../include/graphics/IPostProcessingProfile.h"
 #include "../../include/graphics/IVertexDeclaration.h"
+#include "../../include/graphics/IShader.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/utils/CFileLogger.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include "../../include/core/IWindowSystem.h"
 #include "../../include/graphics/CBaseRenderTarget.h"
 #include "../../include/graphics/CBaseTexture2D.h"
@@ -50,6 +52,8 @@ namespace TDEngine2
 		mBloomFinalPassMaterialHandle = mpResourceManager->Create<IMaterial>("BloomFinalPassSpaceEffect.material", TMaterialParameters{ "Shaders/PostEffects/BloomFinal.shader", false, TDepthStencilStateDesc { false, false } });
 		mGaussianBlurMaterialHandle = mpResourceManager->Create<IMaterial>("GaussianBlurSpaceEffect.material", TMaterialParameters{ "Shaders/PostEffects/GaussianBlur.shader", false, TDepthStencilStateDesc { false, false } });
 		mToneMappingPassMaterialHandle = mpResourceManager->Create<IMaterial>("ToneMappingPass.material", TMaterialParameters{ "Shaders/PostEffects/ToneMapping.shader", false, TDepthStencilStateDesc { false, false } });
+		
+		mVolumetricCloudsComputeShaderHandle = mpResourceManager->Load<IShader>("Shaders/Default/VolumetricClouds.cshader");
 
 		if (auto vertexFormatResult = desc.mpGraphicsObjectManager->CreateVertexDeclaration())
 		{
@@ -96,7 +100,7 @@ namespace TDEngine2
 	static const std::string BackFrameTextureUniformId = "FrameTexture1";
 
 
-	E_RESULT_CODE CFramePostProcessor::Render(const TRenderFrameCallback& onRenderFrameCallback, bool clearRenderTarget)
+	E_RESULT_CODE CFramePostProcessor::Render(const TRenderFrameCallback& onRenderFrameCallback, bool clearRenderTarget, bool bindDepthBuffer)
 	{
 		if (!onRenderFrameCallback)
 		{
@@ -104,10 +108,15 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		TPtr<IRenderTarget> pCurrRenderTarget  = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
+		TPtr<IRenderTarget> pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
+		TPtr<IDepthBufferTarget> pMainDepthBuffer = mpResourceManager->GetResource<IDepthBufferTarget>(mMainDepthBufferHandle);
 
 		{
 			mpGraphicsContext->BindRenderTarget(0, pCurrRenderTarget.Get());
+			if (bindDepthBuffer)
+			{
+				mpGraphicsContext->BindDepthBufferTarget(pMainDepthBuffer.Get());
+			}
 			
 			if (clearRenderTarget)
 			{
@@ -115,6 +124,12 @@ namespace TDEngine2
 			}
 
 			onRenderFrameCallback();
+			
+			if (bindDepthBuffer)
+			{
+				mpGraphicsContext->BindDepthBufferTarget(nullptr);
+			}
+
 			mpGraphicsContext->BindRenderTarget(0, nullptr);
 		}
 
@@ -160,8 +175,107 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CFramePostProcessor::RunVolumetricCloudsPass()
+	{
+		TDE2_PROFILER_SCOPE("CFramePostProcessor::RunVolumetricCloudsPass");
+
+		auto pVolumetricCloudsScreenBufferTexture = mpResourceManager->GetResource<ITexture2D>(mVolumetricCloudsScreenBufferHandle);
+		if (!pVolumetricCloudsScreenBufferTexture)
+		{
+			return RC_FAIL;
+		}
+
+		auto pDepthBufferResource = mpResourceManager->GetResource<IDepthBufferTarget>(mMainDepthBufferHandle);
+
+		TVector2 invTextureSize(1 / static_cast<F32>(pVolumetricCloudsScreenBufferTexture->GetWidth()), 1 / static_cast<F32>(pVolumetricCloudsScreenBufferTexture->GetHeight()));
+
+		auto pVolumetricCloudsRenderPassShader = mpResourceManager->GetResource<IShader>(mVolumetricCloudsComputeShaderHandle);
+		pVolumetricCloudsRenderPassShader->SetTextureResource("OutputTexture", pVolumetricCloudsScreenBufferTexture.Get());
+		pVolumetricCloudsRenderPassShader->SetTextureResource("DepthTexture", pDepthBufferResource.Get());
+		//pVolumetricCloudsRenderPassShader->SetV(4, &invTextureSize, sizeof(TVector2));
+		pVolumetricCloudsRenderPassShader->Bind();
+
+		mpGraphicsContext->DispatchCompute(pVolumetricCloudsScreenBufferTexture->GetWidth() / 16, pVolumetricCloudsScreenBufferTexture->GetHeight() / 16, 1);
+
+		return RC_OK;
+	}
+
+
+	static TResult<TResourceId> GetOrCreateVolumetricCloudsBuffer(TPtr<IResourceManager> pResourceManager, U32 width, U32 height)
+	{
+		TTexture2DParameters textureParams
+		{
+			width,
+			height,
+			FT_NORM_UBYTE4, 1, 1, 0
+		};
+		textureParams.mIsWriteable = true;
+
+		const TResourceId textureHandle = pResourceManager->Create<ITexture2D>("VolumetricCloudsScreenBuffer", textureParams);
+		if (auto pScreenBufferTexture = pResourceManager->GetResource<ITexture2D>(textureHandle))
+		{
+			pScreenBufferTexture->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
+
+			if (pScreenBufferTexture->GetWidth() != width || pScreenBufferTexture->GetHeight() != height)
+			{
+				LOG_MESSAGE(Wrench::StringUtils::Format("[CFramePostProcessor] The sizes has of volumetric clouds buffer been changed", width, height));
+				pScreenBufferTexture->Resize(width, height);
+			}
+		}
+
+		if (TResourceId::Invalid == textureHandle)
+		{
+			TDE2_ASSERT(false);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		return Wrench::TOkValue<TResourceId>(textureHandle);
+	}
+
+
+	static TResult<TResourceId> GetOrCreateDepthBuffer(TPtr<IResourceManager> pResourceManager, U32 width, U32 height)
+	{
+		TRenderTargetParameters depthBufferParams;
+		depthBufferParams.mWidth = width;
+		depthBufferParams.mHeight = height;
+		depthBufferParams.mFormat = FT_D32;
+		depthBufferParams.mNumOfMipLevels = 1;
+		depthBufferParams.mNumOfSamples = 1;
+		depthBufferParams.mSamplingQuality = 0;
+		depthBufferParams.mType = TRenderTargetParameters::E_TARGET_TYPE::TEXTURE2D;
+
+		const TResourceId depthBufferHandle = pResourceManager->Create<IDepthBufferTarget>("MainDepthBuffer", depthBufferParams);
+		if (TResourceId::Invalid == depthBufferHandle)
+		{
+			TDE2_ASSERT(false);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		if (auto pDepthBufferTexture = pResourceManager->GetResource<IDepthBufferTarget>(depthBufferHandle))
+		{
+			pDepthBufferTexture->SetUWrapMode(E_ADDRESS_MODE_TYPE::AMT_CLAMP);
+			pDepthBufferTexture->SetVWrapMode(E_ADDRESS_MODE_TYPE::AMT_CLAMP);
+			pDepthBufferTexture->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
+
+			if (pDepthBufferTexture->GetWidth() != width || pDepthBufferTexture->GetHeight() != height)
+			{
+				LOG_MESSAGE("[CFramePostProcessor] The sizes has been changed");
+				pDepthBufferTexture->Resize(width, height);
+			}
+		}
+
+		return Wrench::TOkValue<TResourceId>(depthBufferHandle);
+	}
+
+
 	void CFramePostProcessor::_prepareRenderTargetsChain(U32 width, U32 height, bool isHDRSupport)
 	{
+		auto createVolumetricCloudsBufferResult = GetOrCreateVolumetricCloudsBuffer(mpResourceManager, width / 4, height / 4);
+		if (createVolumetricCloudsBufferResult.IsOk())
+		{
+			mVolumetricCloudsScreenBufferHandle = createVolumetricCloudsBufferResult.Get();
+		}
+
 		if (TResourceId::Invalid != mRenderTargetHandle)
 		{
 			if (auto pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle))
@@ -177,6 +291,12 @@ namespace TDEngine2
 
 		mRenderTargetHandle = _getRenderTarget(width, height, isHDRSupport);
 		mTemporaryRenderTargetHandle = _getRenderTarget(width, height, isHDRSupport, false);
+
+		auto mainDepthBufferRetrieveResult = GetOrCreateDepthBuffer(mpResourceManager, width, height);
+		if (mainDepthBufferRetrieveResult.IsOk())
+		{
+			mMainDepthBufferHandle = mainDepthBufferRetrieveResult.Get();
+		}
 
 		auto pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
 		auto pTempRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle);
@@ -214,7 +334,7 @@ namespace TDEngine2
 			{
 				pBloomRenderTarget->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
 			}
-		}
+		}		
 	}
 
 	void CFramePostProcessor::_resizeRenderTargetsChain(U32 width, U32 height)
