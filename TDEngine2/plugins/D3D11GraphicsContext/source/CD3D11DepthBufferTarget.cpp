@@ -176,6 +176,10 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+#if TDE2_DEBUG_MODE
+		mpDepthBufferTexture->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<U32>(mName.length()), mName.c_str());
+#endif
+
 		mArraySize = params.mArraySize;
 
 		E_RESULT_CODE result = _createDepthBufferTargetView(mp3dDevice, mFormat);
