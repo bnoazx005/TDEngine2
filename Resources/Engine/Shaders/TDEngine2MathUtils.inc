@@ -28,7 +28,7 @@ Ray3 MakeRay(float3 origin, float3 dir)
 
 float IntersectRaySphere(Ray3 ray, float4 sphere)
 {
-	float l = ray.origin - sphere.xyz;
+	float3 l = ray.origin - sphere.xyz;
 
 	float a = dot(ray.dir, ray.dir);
 	float b = 2.0 * dot(ray.dir, l);

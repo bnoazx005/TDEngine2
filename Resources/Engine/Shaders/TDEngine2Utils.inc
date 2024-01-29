@@ -42,6 +42,8 @@
 	#define TEX2D_LOD(SamplerName, uv, lod)	textureLod(SamplerName, uv, lod)
 	#define TEX3D_LOD(SamplerName, uv, lod) TEX2D_LOD(SamplerName, uv, lod)
 
+	#define CONVERT_DEPTH_TO_NDC(depth) (2.0 * depth - 1.0)
+
 #endif
 
 #ifdef TDE2_HLSL_SHADER
@@ -72,8 +74,10 @@
 	#define TEXCUBE(SamplerName, uv) TEX2D(SamplerName, uv)
 	#define TEX3D(SamplerName, uv) TEX2D(SamplerName, uv)
 
-	#define TEX2D_LOD(SamplerName, uv, lod) SamplerName.Sample(SamplerName ## _SamplerState, uv, lod)
-	#define TEX3D_LOD(SamplerName, uv, lod) TEX2D_LOD(SamplerName, uv, lod)
+	#define TEX2D_LOD(SamplerName, uv, lod) SamplerName.SampleLevel(SamplerName ## _SamplerState, uv, lod)
+	#define TEX3D_LOD(SamplerName, uv, lod) SamplerName.SampleLevel(SamplerName ## _SamplerState, uv, lod)
+
+	#define CONVERT_DEPTH_TO_NDC(depth) (depth)
 
 #endif
 
@@ -93,6 +97,9 @@
 	#define mul(a, b) (a * b)
 
 #endif
+
+
+float LinearizeDepth(float depth, float zn, float zf) { return (2.0 * zn * zf) / (zn + zf - CONVERT_DEPTH_TO_NDC(depth) * (zf - zn)); }
 
 
 /*!
