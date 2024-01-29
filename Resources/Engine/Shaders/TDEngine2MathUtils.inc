@@ -4,8 +4,57 @@
 	\date 12.01.2024
 */
 
-#ifndef TDENGINE2UTILS_INC
-#define TDENGINE2UTILS_INC
+#ifndef TDENGINE2MATHUTILS_INC
+#define TDENGINE2MATHUTILS_INC
+
+
+struct Ray3
+{
+	float3 origin;
+	float3 dir;	
+};
+
+
+Ray3 MakeRay(float3 origin, float3 dir)
+{
+	Ray3 ray;
+
+	ray.origin = origin;
+	ray.dir = normalize(dir);
+
+	return ray;
+}
+
+
+float IntersectRaySphere(Ray3 ray, float4 sphere)
+{
+	float l = ray.origin - sphere.xyz;
+
+	float a = dot(ray.dir, ray.dir);
+	float b = 2.0 * dot(ray.dir, l);
+	float c = dot(l, l) - sphere.w * sphere.w;
+
+	float discr = b * b - 4.0 * a * c;
+	if (discr < 0.0) 
+	{
+		return -1.0;
+	}
+
+	float t0 = (-b - sqrt(discr)) / (2.0 * a);
+	float t1 = (-b + sqrt(discr)) / (2.0 * a);
+
+	if (t0 > 0)
+	{
+		return t0;
+	}
+
+	if (t0 < 0 && t1 > 0)
+	{
+		return t1;
+	}
+
+	return -1.0;
+}
 
 
 float Remap(float a, float oldMin, float oldMax, float newMin, float newMax)
