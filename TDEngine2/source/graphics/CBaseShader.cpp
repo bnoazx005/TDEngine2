@@ -224,11 +224,18 @@ namespace TDEngine2
 	E_RESULT_CODE CBaseShader::_createTexturesHashTable(const TShaderCompilerOutput* pCompilerData)
 	{
 		auto shaderResourcesMap = pCompilerData->mShaderResourcesInfo;
+		auto&& maxSlotElementIt = std::max_element(shaderResourcesMap.cbegin(), shaderResourcesMap.cend(), [](auto&& left, auto&& right) 
+		{
+			return left.second.mSlot < right.second.mSlot; 
+		});
 
 		if (shaderResourcesMap.empty())
 		{
 			return RC_OK;
 		}
+
+		mpTextures.resize(maxSlotElementIt->second.mSlot + 1);
+		mpTexturesWritePolicies.resize(maxSlotElementIt->second.mSlot + 1);
 
 		U8 currSlotIndex = 0;
 		
@@ -237,9 +244,6 @@ namespace TDEngine2
 			currSlotIndex = currShaderResourceInfo.second.mSlot;
 
 			mTexturesHashTable[currShaderResourceInfo.first] = std::make_tuple(currSlotIndex, currShaderResourceInfo.second.mIsWriteable);
-
-			mpTextures.resize(currSlotIndex + 1);
-			mpTexturesWritePolicies.resize(currSlotIndex + 1);
 
 			mpTextures[currSlotIndex] = nullptr;
 			mpTexturesWritePolicies[currSlotIndex] = false;

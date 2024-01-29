@@ -21,6 +21,7 @@
 #include "../../include/physics/IRaycastContext.h"
 #include "../../include/graphics/IMaterial.h"
 #include "../../include/graphics/ITexture2D.h"
+#include "../../include/graphics/ITexture3D.h"
 #include "../../include/graphics/IBuffer.h"
 #include "../../include/graphics/IGlobalShaderProperties.h"
 #include "../../include/graphics/IFramePostProcessor.h"
@@ -61,6 +62,7 @@ namespace TDEngine2
 	TDE2_DEFINE_SCOPED_PTR(IResource)
 	TDE2_DEFINE_SCOPED_PTR(IEngineCore)
 	TDE2_DEFINE_SCOPED_PTR(ITexture2D)
+	TDE2_DEFINE_SCOPED_PTR(ITexture3D)
 	TDE2_DEFINE_SCOPED_PTR(IGlobalShaderProperties)
 	TDE2_DEFINE_SCOPED_PTR(IGraphicsLayersInfo)
 	TDE2_DEFINE_SCOPED_PTR(IFramePostProcessor)
