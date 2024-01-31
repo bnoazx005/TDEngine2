@@ -356,14 +356,14 @@ namespace TDEngine2
 	static inline E_RESULT_CODE RenderMainPasses(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties,
 										TPtr<IFramePostProcessor> pFramePostProcessor, TPtr<CRenderQueue> pRenderQueues[])
 	{
+		TDE2_PROFILER_SCOPE("Renderer::RenderAll");
+		TDE_RENDER_SECTION(pGraphicsContext, "RenderMainPass");
+
 		pFramePostProcessor->PreRender();
 
 		pFramePostProcessor->Render([&]
 		{
 			pGraphicsContext->ClearDepthBuffer(1.0f);
-
-			TDE2_PROFILER_SCOPE("Renderer::RenderAll");
-			TDE_RENDER_SECTION(pGraphicsContext, "RenderMainPass");
 
 			const U8 firstGroupId = static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_FIRST_GROUP);
 			const U8 lastGroupId = static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_LAST_GROUP);
@@ -396,26 +396,37 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		TDE2_PROFILER_SCOPE("Renderer::UI");
-		TDE_RENDER_SECTION(pGraphicsContext, "RenderUI");
-
-		pFramePostProcessor->RunPostProcess();
-
-		pFramePostProcessor->Render([&] /// Render UI elements
 		{
-			ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pUIRenderGroup, true);
-			ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pDebugUIRenderGroup, true);
-		}, false);
+			TDE2_PROFILER_SCOPE("CFramePostProcessor::RunPostProcess");
+			TDE_RENDER_SECTION(pGraphicsContext, "PostProcessing");
 
-		pFramePostProcessor->PostRender();
-
-		if (pUIRenderGroup->IsEmpty())
-		{
-			return RC_FAIL;
+			pFramePostProcessor->RunPostProcess();
 		}
 
-		pGraphicsContext->ClearDepthBuffer(1.0f);
-		ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pUIRenderGroup, true);
+		{
+			TDE2_PROFILER_SCOPE("Renderer::UI");
+			TDE_RENDER_SECTION(pGraphicsContext, "RenderUI");
+
+			pFramePostProcessor->Render([&] /// Render UI elements
+			{
+				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pUIRenderGroup, true);
+				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pDebugUIRenderGroup, true);
+			}, false);
+		}
+
+		{
+			TDE_RENDER_SECTION(pGraphicsContext, "FinalOutput");
+
+			pFramePostProcessor->PostRender();
+
+			if (pUIRenderGroup->IsEmpty())
+			{
+				return RC_FAIL;
+			}
+
+			pGraphicsContext->ClearDepthBuffer(1.0f);
+			ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pUIRenderGroup, true);
+		}
 
 		return RC_OK;
 	}
