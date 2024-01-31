@@ -81,6 +81,18 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE COGLRenderTarget::GenerateMipMaps()
+	{
+		GL_SAFE_CALL(glActiveTexture(GL_TEXTURE0));
+		GL_SAFE_CALL(glBindTexture(GL_TEXTURE_2D, mTextureHandler));
+
+		GL_SAFE_CALL(glGenerateMipmap(GL_TEXTURE_2D));
+
+		GL_SAFE_CALL(glBindTexture(GL_TEXTURE_2D, 0));
+
+		return RC_OK;
+	}
+
 	GLuint COGLRenderTarget::GetInternalHandler() const
 	{
 		return mTextureHandler;

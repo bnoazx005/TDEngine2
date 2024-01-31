@@ -91,6 +91,22 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CD3D11RenderTarget::GenerateMipMaps()
+	{
+		auto pGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
+		auto pTexture = DynamicPtrCast<CD3D11TextureImpl>(pGraphicsObjectManager->GetTexturePtr(mCurrTextureHandle));
+
+		if (!pTexture)
+		{
+			return RC_FAIL;
+		}
+
+		// \todo Replace with API of IGraphicsContext
+		mp3dDeviceContext->GenerateMips(pTexture->GetShaderResourceView());
+
+		return RC_OK;
+	}
+
 	ID3D11RenderTargetView* CD3D11RenderTarget::GetRenderTargetView() const
 	{
 		auto pGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();

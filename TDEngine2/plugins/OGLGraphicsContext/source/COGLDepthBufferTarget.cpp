@@ -71,6 +71,12 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE COGLDepthBufferTarget::GenerateMipMaps()
+	{
+		TDE2_UNIMPLEMENTED();
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
 	GLuint COGLDepthBufferTarget::GetInternalHandler() const
 	{
 		return mDepthBufferHandle;

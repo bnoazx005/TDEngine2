@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.24] 2024-01-29
+## [0.6.24] 2024-01-31
 
 ### Added
 
@@ -23,6 +23,8 @@ using in-game console or defined in settings.cfg file.
 - Extend API of **ITexture** with pair of methods SetWriteable/IsWriteable.
 
 - Extend API of **ITexture2D** with pair of methods Resize.
+
+- The API of **IRenderTarget** was extended with a new method GenerateMipMaps().
 
 ### Fixed
 

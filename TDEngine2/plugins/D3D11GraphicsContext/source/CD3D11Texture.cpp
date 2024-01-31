@@ -45,7 +45,9 @@ namespace TDEngine2
 
 		textureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
 		textureDesc.Usage = isCPUAccessible ? D3D11_USAGE_STAGING : D3D11_USAGE_DEFAULT;
-		textureDesc.MiscFlags = (params.mType == E_TEXTURE_IMPL_TYPE::CUBEMAP) ? D3D11_RESOURCE_MISC_TEXTURECUBE : 0x0;
+		textureDesc.MiscFlags = 
+			((params.mType == E_TEXTURE_IMPL_TYPE::CUBEMAP) ? D3D11_RESOURCE_MISC_TEXTURECUBE : 0x0) |
+			(params.mNumOfMipLevels > 1 ? D3D11_RESOURCE_MISC_GENERATE_MIPS : 0x0);
 
 	}
 

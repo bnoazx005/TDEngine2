@@ -79,6 +79,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Resize(U32 width, U32 height) = 0;
+
+			TDE2_API virtual E_RESULT_CODE GenerateMipMaps() = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IRenderTarget)
 	};

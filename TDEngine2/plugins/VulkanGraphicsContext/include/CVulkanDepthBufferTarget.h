@@ -87,6 +87,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Blit(ITexture2D*& pDestTexture) override;
 
+			TDE2_API E_RESULT_CODE GenerateMipMaps() override;
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanDepthBufferTarget)
 

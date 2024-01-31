@@ -99,6 +99,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Blit(ITexture2D*& pDestTexture) override;
 
+			TDE2_API E_RESULT_CODE GenerateMipMaps() override;
+
 			/*!
 				\brief The method returns an internal view of the render target
 				\return The method returns an internal view of the render target

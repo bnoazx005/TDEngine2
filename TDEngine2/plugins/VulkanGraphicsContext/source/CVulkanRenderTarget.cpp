@@ -80,7 +80,13 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
-		
+
+	E_RESULT_CODE CVulkanRenderTarget::GenerateMipMaps()
+	{
+		TDE2_UNIMPLEMENTED();
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
 	E_RESULT_CODE CVulkanRenderTarget::_createInternalTextureHandler(IGraphicsContext* pGraphicsContext, const TRenderTargetParameters& params)
 	{
 		//GL_SAFE_CALL(glGenTextures(1, &mTextureHandler));

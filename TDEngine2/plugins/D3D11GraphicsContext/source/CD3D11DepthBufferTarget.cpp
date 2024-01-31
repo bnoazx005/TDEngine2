@@ -104,6 +104,13 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CD3D11DepthBufferTarget::GenerateMipMaps()
+	{
+		// \todo Replace with API of IGraphicsContext
+		mp3dDeviceContext->GenerateMips(mpShaderTextureView);
+		return RC_OK;
+	}
+
 	ID3D11DepthStencilView* CD3D11DepthBufferTarget::GetDepthBufferTargetView() const
 	{
 		return mpDepthBufferTargetView;
