@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.25] 2024-02-01
+
+### Changed
+
+- Now immediate UI (debug) is drawn after all other passes and without any gamma corection.
+
 ## [0.6.24] 2024-01-31
 
 ### Added

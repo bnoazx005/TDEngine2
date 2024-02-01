@@ -48,6 +48,6 @@ float4 mainPS(VertexOut input): SV_TARGET0
 		clip(base.a - 0.001);
 	}
 
-	return GammaToLinear(input.mColor * base);
+	return /*GammaToLinear*/(input.mColor * base); // now Debug UI is drawn after gamma correction
 }
 #endprogram

@@ -410,7 +410,6 @@ namespace TDEngine2
 			pFramePostProcessor->Render([&] /// Render UI elements
 			{
 				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pUIRenderGroup, true);
-				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pDebugUIRenderGroup, true);
 			}, false);
 		}
 
@@ -426,6 +425,11 @@ namespace TDEngine2
 
 			pGraphicsContext->ClearDepthBuffer(1.0f);
 			ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pUIRenderGroup, true);
+		}
+
+		{
+			TDE_RENDER_SECTION(pGraphicsContext, "DebugUI");
+			ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pDebugUIRenderGroup, true);
 		}
 
 		return RC_OK;
