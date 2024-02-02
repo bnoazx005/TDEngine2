@@ -1,6 +1,6 @@
 post_processing_enabled: true
 bloom_parameters: 
-  enabled: 1
+  enabled: 0
   samples_count: 3
   smoothness: "1.5"
   threshold: "1.5"
@@ -11,3 +11,5 @@ color_grading_params:
 tone_mapping_parameters:
   enabled: 1
   exposure: 2.5
+  key_value: 0.05
+  eye_adapt_coeff: 0.5

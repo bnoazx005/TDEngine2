@@ -49,6 +49,8 @@ namespace TDEngine2
 		{
 			bool mIsEnabled = true;
 			F32 mExposure = 2.5f;
+			F32 mKeyValue = 0.2f;
+			F32 mEyeAdaptionCoeff = 0.5f; 
 		} TToneMappingParameters, *TToneMappingParametersPtr;
 
 		bool mIsEnabled = true;

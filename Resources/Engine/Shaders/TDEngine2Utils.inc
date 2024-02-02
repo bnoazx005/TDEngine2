@@ -1,5 +1,5 @@
 /*!
-	\file TDEngine2Globals.inc
+	\file TDEngine2Utils.inc
 	\author Kasimov Ildar
 	\date 03.12.2018
 */

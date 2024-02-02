@@ -28,12 +28,14 @@ VertexOut mainVS(uint id : SV_VertexID)
 #program pixel
 
 DECLARE_TEX2D(FrameTexture);
+DECLARE_TEX2D_EX(LuminanceBuffer, 1);
 DECLARE_TEX2D(ColorGradingLUT);
 
 CBUFFER_SECTION_EX(ToneMappingParameters, 4)
-	float4 toneMappingParams; // x  weight (0 is disabled, 1 is enabled), y - exposure
+	float4 toneMappingParams; // x  weight (0 is disabled, 1 is enabled), y - exposure, z - keyValue
 	float4 colorGradingParams; // x - weight (enabled or not)
 CBUFFER_ENDSECTION
+
 
 // \todo Move this into TDEngine2EffectsUtils.inc later
 float3 ApplyGrading(in float3 color)
@@ -55,10 +57,68 @@ float3 ApplyGrading(in float3 color)
 	return TEX2D(ColorGradingLUT, lutPos).rgb;
 }
 
+static const float MIDDLE_GRAY = 0.72f;
+static const float LUM_WHITE = 1.5f;
+
+
+float GetLuminance() { return TEX2D(LuminanceBuffer, float2(0.0, 0.0)); }
+
+
+float3 ReinhardToneMapping(float3 color, float exposure)
+{
+	return 1 - exp(-color.rgb * exposure);
+}
+
+
+float3 TestToneMapping(float3 color)
+{
+	float lum = GetLuminance();
+
+	color.rgb *= MIDDLE_GRAY / (lum + 0.001f);
+    color.rgb *= (1.0f + color / LUM_WHITE);
+    color.rgb /= (1.0f + color);
+
+    return color;
+}
+
+
+float3 Reinhard2ToneMapping(float3 color, float whiteBalance = 4.0)
+{
+	float3 inLuminance = CalcLuminance(color);
+	float3 avgLuminance = GetLuminance();
+
+	float lp = inLuminance / (9.6 * avgLuminance + 1e-4);
+
+	float y = (lp * (1.0 + lp / (whiteBalance * whiteBalance))) / (1.0 + lp);
+
+	return inLuminance;
+}
+
+
+float3 FilmicToneMapping(float3 color, float exposure)
+{
+	color *= exposure;
+
+	color = max(0, color - 0.004f);
+    return (color * (6.2f * color + 0.5f)) / (color * (6.2f * color + 1.7f)+ 0.06f);
+}
+
+
+float CalcExposure(float avgLuminance, float threshold, float keyValue)
+{
+	avgLuminance = max(avgLuminance, 1e-3);
+
+	float exposure = log2(max((keyValue / avgLuminance + 1e-4), 1e-4));
+    exposure -= threshold;
+
+    return exp2(exposure);
+}
+
+
 float4 mainPS(VertexOut input): SV_TARGET0
 {
 	float4 color = TEX2D(FrameTexture, input.mUV);
-	float3 mappedColor = lerp(color.rgb, 1 - exp(-color.rgb * toneMappingParams.y), toneMappingParams.x);
+	float3 mappedColor = lerp(color.rgb, FilmicToneMapping(color.rgb, CalcExposure(GetLuminance(), 0.0, toneMappingParams.z)), toneMappingParams.x);
 	
 	mappedColor = lerp(mappedColor, ApplyGrading(mappedColor), colorGradingParams.x);
 

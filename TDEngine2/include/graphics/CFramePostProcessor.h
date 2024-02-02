@@ -109,13 +109,19 @@ namespace TDEngine2
 			TResourceId                   mBloomFinalPassMaterialHandle;
 			TResourceId                   mGaussianBlurMaterialHandle;
 			TResourceId                   mToneMappingPassMaterialHandle;
+			TResourceId                   mGenerateLuminanceMaterialHandle;
+			TResourceId                   mLuminanceAdaptationMaterialHandle;
 			TResourceId                   mVolumetricCloudsComputeShaderHandle;
 
 			TResourceId                   mRenderTargetHandle;
 			TResourceId                   mBloomRenderTargetHandle;
 			TResourceId                   mTemporaryRenderTargetHandle;
 			TResourceId                   mMainDepthBufferHandle;
+			TResourceId                   mLuminanceTargetHandle;
 			TResourceId                   mVolumetricCloudsScreenBufferHandle;
+
+			std::array<TResourceId, 2>    mFramesLuminanceHistoryTargets;
+			USIZE                         mCurrActiveLuminanceFrameTargetIndex = 0;
 
 			IVertexDeclaration*           mpVertexFormatDeclaration;
 

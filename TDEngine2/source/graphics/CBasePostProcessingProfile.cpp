@@ -31,6 +31,8 @@ namespace TDEngine2
 		struct TToneMappingParameters
 		{
 			static const std::string mExposureId;
+			static const std::string mKeyValueId;
+			static const std::string mEyeAdaptionId;
 		};
 	};
 
@@ -49,6 +51,8 @@ namespace TDEngine2
 	const std::string TPostProcessingProfileIdentifiers::TColorGradingParameters::mColorLookUpTextureId = "color_lut_id";
 
 	const std::string TPostProcessingProfileIdentifiers::TToneMappingParameters::mExposureId = "exposure";
+	const std::string TPostProcessingProfileIdentifiers::TToneMappingParameters::mKeyValueId = "key_value";
+	const std::string TPostProcessingProfileIdentifiers::TToneMappingParameters::mEyeAdaptionId = "eye_adapt_coeff";
 
 
 	CBasePostProcessingProfile::CBasePostProcessingProfile():
@@ -139,6 +143,8 @@ namespace TDEngine2
 		{
 			mToneMappingParameters.mIsEnabled = pReader->GetBool(TPostProcessingProfileIdentifiers::mIsPassEnabledId);
 			mToneMappingParameters.mExposure = pReader->GetFloat(TPostProcessingProfileIdentifiers::TToneMappingParameters::mExposureId);
+			mToneMappingParameters.mKeyValue = pReader->GetFloat(TPostProcessingProfileIdentifiers::TToneMappingParameters::mKeyValueId, 0.2f);
+			mToneMappingParameters.mEyeAdaptionCoeff = pReader->GetFloat(TPostProcessingProfileIdentifiers::TToneMappingParameters::mEyeAdaptionId, 0.5f);
 		}
 		pReader->EndGroup();
 
@@ -181,6 +187,8 @@ namespace TDEngine2
 		{
 			pWriter->SetBool(TPostProcessingProfileIdentifiers::mIsPassEnabledId, mToneMappingParameters.mIsEnabled);
 			pWriter->SetFloat(TPostProcessingProfileIdentifiers::TToneMappingParameters::mExposureId, mToneMappingParameters.mExposure);
+			pWriter->SetFloat(TPostProcessingProfileIdentifiers::TToneMappingParameters::mKeyValueId, mToneMappingParameters.mKeyValue);
+			pWriter->SetFloat(TPostProcessingProfileIdentifiers::TToneMappingParameters::mEyeAdaptionId, mToneMappingParameters.mEyeAdaptionCoeff);
 		}
 		pWriter->EndGroup();
 

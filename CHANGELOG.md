@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.6.25] 2024-02-01
 
+### Added
+
+- Draft version of eye adaptation effect was implemented.
+
 ### Changed
 
 - Now immediate UI (debug) is drawn after all other passes and without any gamma corection.

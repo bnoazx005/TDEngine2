@@ -7,6 +7,7 @@
 #include "../../include/graphics/IPostProcessingProfile.h"
 #include "../../include/graphics/IVertexDeclaration.h"
 #include "../../include/graphics/IShader.h"
+#include "../../include/graphics/ITexture3D.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/editor/CPerfProfiler.h"
@@ -19,6 +20,39 @@
 
 namespace TDEngine2
 {
+	TDE2_STATIC_CONSTEXPR U32 LuminanceTargetSizes = 1024;
+
+
+	static TResult<TResourceId> GetOrCreateLuminanceTarget(TPtr<IResourceManager> pResourceManager, const std::string& name, U32 sizes)
+	{
+		TRenderTargetParameters luminanceTargetParams;
+		luminanceTargetParams.mWidth = sizes;
+		luminanceTargetParams.mHeight = sizes;
+		luminanceTargetParams.mFormat = FT_FLOAT1;
+		luminanceTargetParams.mNumOfMipLevels = static_cast<U32>(log2(sizes)) + 1;
+		luminanceTargetParams.mNumOfSamples = 1;
+		luminanceTargetParams.mSamplingQuality = 0;
+		luminanceTargetParams.mType = TRenderTargetParameters::E_TARGET_TYPE::TEXTURE2D;
+
+		const TResourceId targetHandle = pResourceManager->Create<IRenderTarget>(name, luminanceTargetParams);
+		if (TResourceId::Invalid == targetHandle)
+		{
+			TDE2_ASSERT(false);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		if (auto pTarget = pResourceManager->GetResource<IRenderTarget>(targetHandle))
+		{
+			pTarget->SetUWrapMode(E_ADDRESS_MODE_TYPE::AMT_CLAMP);
+			pTarget->SetVWrapMode(E_ADDRESS_MODE_TYPE::AMT_CLAMP);
+
+			pTarget->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
+		}
+
+		return Wrench::TOkValue<TResourceId>(targetHandle);
+	}
+
+
 	CFramePostProcessor::CFramePostProcessor() :
 		CBaseObject()
 	{
@@ -39,11 +73,31 @@ namespace TDEngine2
 		mpResourceManager = desc.mpRenderer->GetResourceManager();
 		mpGlobalShaderProperties = desc.mpRenderer->GetGlobalShaderProperties().Get();
 
-		mpPreUIRenderQueue   = desc.mpRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_SPRITES);
-		mpOverlayRenderQueue = desc.mpRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_OVERLAY);
-		mpWindowSystem       = desc.mpWindowSystem;
-		mpGraphicsContext    = desc.mpGraphicsObjectManager->GetGraphicsContext();
-		mRenderTargetHandle  = TResourceId::Invalid;
+		mpPreUIRenderQueue     = desc.mpRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_SPRITES);
+		mpOverlayRenderQueue   = desc.mpRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_OVERLAY);
+		mpWindowSystem         = desc.mpWindowSystem;
+		mpGraphicsContext      = desc.mpGraphicsObjectManager->GetGraphicsContext();
+		mRenderTargetHandle    = TResourceId::Invalid;
+
+		auto luminanceTargetResult = GetOrCreateLuminanceTarget(mpResourceManager, "LuminanceTarget", LuminanceTargetSizes);
+		if (luminanceTargetResult.HasError())
+		{
+			return luminanceTargetResult.GetError();
+		}
+
+		mLuminanceTargetHandle = luminanceTargetResult.Get();
+
+		std::array<TResult<TResourceId>, 2> frameLuminanceBuffers
+		{
+			GetOrCreateLuminanceTarget(mpResourceManager, "LuminancePrevFrame", 1),
+			GetOrCreateLuminanceTarget(mpResourceManager, "LuminanceCurrFrame", 1)
+		};
+
+		std::transform(frameLuminanceBuffers.begin(), frameLuminanceBuffers.end(), mFramesLuminanceHistoryTargets.begin(), [](const TResult<TResourceId>& result)
+		{
+			TDE2_ASSERT(result.IsOk());
+			return result.Get();
+		});
 
 		// Used materials 
 		// \todo Refactor this later
@@ -52,6 +106,8 @@ namespace TDEngine2
 		mBloomFinalPassMaterialHandle = mpResourceManager->Create<IMaterial>("BloomFinalPassSpaceEffect.material", TMaterialParameters{ "Shaders/PostEffects/BloomFinal.shader", false, TDepthStencilStateDesc { false, false } });
 		mGaussianBlurMaterialHandle = mpResourceManager->Create<IMaterial>("GaussianBlurSpaceEffect.material", TMaterialParameters{ "Shaders/PostEffects/GaussianBlur.shader", false, TDepthStencilStateDesc { false, false } });
 		mToneMappingPassMaterialHandle = mpResourceManager->Create<IMaterial>("ToneMappingPass.material", TMaterialParameters{ "Shaders/PostEffects/ToneMapping.shader", false, TDepthStencilStateDesc { false, false } });
+		mGenerateLuminanceMaterialHandle = mpResourceManager->Create<IMaterial>("GenerateLuminance.material", TMaterialParameters{ "Shaders/PostEffects/GenerateLuminance.shader", false, TDepthStencilStateDesc { false, false } });
+		mLuminanceAdaptationMaterialHandle = mpResourceManager->Create<IMaterial>("AdaptLuminance.material", TMaterialParameters{ "Shaders/PostEffects/AdaptLuminance.shader", false, TDepthStencilStateDesc { false, false } });
 		
 		mVolumetricCloudsComputeShaderHandle = mpResourceManager->Load<IShader>("Shaders/Default/VolumetricClouds.cshader");
 
@@ -148,7 +204,7 @@ namespace TDEngine2
 
 		if (auto pToneMappingMaterial = mpResourceManager->GetResource<IMaterial>(mToneMappingPassMaterialHandle))
 		{
-			pToneMappingMaterial->SetVariableForInstance<TVector4>(DefaultMaterialInstanceId, "toneMappingParams", TVector4(isHDREnabled ? 1.0f : 0.0f, toneMappingParameters.mExposure, 0.0f, 0.0f));
+			pToneMappingMaterial->SetVariableForInstance<TVector4>(DefaultMaterialInstanceId, "toneMappingParams", TVector4(isHDREnabled ? 1.0f : 0.0f, toneMappingParameters.mExposure, toneMappingParameters.mKeyValue, 0.0f));
 			pToneMappingMaterial->SetVariableForInstance<TVector4>(DefaultMaterialInstanceId, "colorGradingParams", TVector4(colorGradingParameters.mIsEnabled ? 1.0f : 0.0f, 0.0f, 0.0f, 0.0f));
 		}
 
@@ -159,11 +215,33 @@ namespace TDEngine2
 
 	E_RESULT_CODE CFramePostProcessor::RunPostProcess()
 	{
-		TPtr<IRenderTarget> pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
+		TPtr<IRenderTarget> pCurrRenderTarget  = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
 		TPtr<IRenderTarget> pBloomRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mBloomRenderTargetHandle);
-		TPtr<IRenderTarget> pTempRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle);
+		TPtr<IRenderTarget> pTempRenderTarget  = mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle);
+
+		{ // Luminance calculations
+			TPtr<IRenderTarget> pLuminanceTarget = mpResourceManager->GetResource<IRenderTarget>(mLuminanceTargetHandle);
+
+			_renderTargetToTarget(pCurrRenderTarget, nullptr, pLuminanceTarget, mGenerateLuminanceMaterialHandle); // Extract luminance
+			pLuminanceTarget->GenerateMipMaps();
+
+			// Eye adaptation 
+			TPtr<IRenderTarget> pLuminanceAdaptPrevTarget = mpResourceManager->GetResource<IRenderTarget>(mFramesLuminanceHistoryTargets[(mCurrActiveLuminanceFrameTargetIndex + 1) & 0x1]);
+			TPtr<IRenderTarget> pLuminanceAdaptCurrTarget = mpResourceManager->GetResource<IRenderTarget>(mFramesLuminanceHistoryTargets[mCurrActiveLuminanceFrameTargetIndex]);
+
+			if (auto pMaterial = mpResourceManager->GetResource<IMaterial>(mLuminanceAdaptationMaterialHandle))
+			{
+				const auto& toneMappingParameters = mpCurrPostProcessingProfile->GetToneMappingParameters();
+
+				pMaterial->SetVariableForInstance<F32>(DefaultMaterialInstanceId, "mAdaptationRate", toneMappingParameters.mEyeAdaptionCoeff);
+			}
+
+			_renderTargetToTarget(pLuminanceTarget, pLuminanceAdaptPrevTarget, pLuminanceAdaptCurrTarget, mLuminanceAdaptationMaterialHandle);
+		}
 
 		_processBloomPass(pCurrRenderTarget, pTempRenderTarget, pBloomRenderTarget);
+
+		mpPreUIRenderQueue->Clear(); // commands above are executed immediately, so we don't need to store them anymore
 
 		return RC_OK;
 	}
@@ -172,8 +250,11 @@ namespace TDEngine2
 	{
 		_submitFullScreenTriangle(mpOverlayRenderQueue, mToneMappingPassMaterialHandle);
 
+		mCurrActiveLuminanceFrameTargetIndex = (mCurrActiveLuminanceFrameTargetIndex + 1) & 0x1;
+
 		return RC_OK;
 	}
+
 
 	E_RESULT_CODE CFramePostProcessor::RunVolumetricCloudsPass()
 	{
@@ -187,12 +268,34 @@ namespace TDEngine2
 
 		auto pDepthBufferResource = mpResourceManager->GetResource<IDepthBufferTarget>(mMainDepthBufferHandle);
 
-		TVector2 invTextureSize(1 / static_cast<F32>(pVolumetricCloudsScreenBufferTexture->GetWidth()), 1 / static_cast<F32>(pVolumetricCloudsScreenBufferTexture->GetHeight()));
+		struct
+		{
+			TVector2 mAtmosphereInOutRadiuses;
+			TVector2 mInvTextureSizes;
+			I32      mStepsCount;
+		} uniformsData;
+
+		uniformsData.mAtmosphereInOutRadiuses = TVector2{ 500.0f, 550.0f };
+		uniformsData.mInvTextureSizes = TVector2
+		{
+			1 / static_cast<F32>(pVolumetricCloudsScreenBufferTexture->GetWidth()), 1 / static_cast<F32>(pVolumetricCloudsScreenBufferTexture->GetHeight())
+		};
+		uniformsData.mStepsCount = 64;
 
 		auto pVolumetricCloudsRenderPassShader = mpResourceManager->GetResource<IShader>(mVolumetricCloudsComputeShaderHandle);
 		pVolumetricCloudsRenderPassShader->SetTextureResource("OutputTexture", pVolumetricCloudsScreenBufferTexture.Get());
 		pVolumetricCloudsRenderPassShader->SetTextureResource("DepthTexture", pDepthBufferResource.Get());
-		//pVolumetricCloudsRenderPassShader->SetV(4, &invTextureSize, sizeof(TVector2));
+
+		/// \todo Replace hardcoded values
+		{
+			auto pCloudsHighNoiseTex = mpResourceManager->GetResource<ITexture3D>(mpResourceManager->Load<ITexture3D>("CloudsHighFreqNoise"));
+			auto pCloudsLowNoiseTex = mpResourceManager->GetResource<ITexture3D>(mpResourceManager->Load<ITexture3D>("CloudsLowFreqNoise"));
+
+			pVolumetricCloudsRenderPassShader->SetTextureResource("LowFreqCloudsNoiseTex", pCloudsLowNoiseTex.Get());
+			pVolumetricCloudsRenderPassShader->SetTextureResource("HiFreqCloudsNoiseTex", pCloudsHighNoiseTex.Get());
+		}
+
+		pVolumetricCloudsRenderPassShader->SetUserUniformsBuffer(0, reinterpret_cast<const U8*>(&uniformsData), sizeof(uniformsData));
 		pVolumetricCloudsRenderPassShader->Bind();
 
 		mpGraphicsContext->DispatchCompute(pVolumetricCloudsScreenBufferTexture->GetWidth() / 16, pVolumetricCloudsScreenBufferTexture->GetHeight() / 16, 1);
@@ -207,7 +310,7 @@ namespace TDEngine2
 		{
 			width,
 			height,
-			FT_NORM_UBYTE4, 1, 1, 0
+			FT_FLOAT4, 1, 1, 0
 		};
 		textureParams.mIsWriteable = true;
 
@@ -300,6 +403,7 @@ namespace TDEngine2
 
 		auto pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
 		auto pTempRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle);
+		auto pLuminanceTarget  = mpResourceManager->GetResource<IRenderTarget>(mFramesLuminanceHistoryTargets[mCurrActiveLuminanceFrameTargetIndex]);
 
 		pCurrRenderTarget->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
 		pTempRenderTarget->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
@@ -321,6 +425,8 @@ namespace TDEngine2
 						pToneMappingMaterial->SetTextureResource("ColorGradingLUT", pColorLUT.Get());
 					}
 				}
+
+				pToneMappingMaterial->SetTextureResource("LuminanceBuffer", pLuminanceTarget.Get());
 			}
 		}
 
@@ -389,8 +495,6 @@ namespace TDEngine2
 		_renderTargetToTarget(pBackTarget, nullptr, pBloomTarget, mGaussianBlurMaterialHandle); // Vertical Blur pass
 		_renderTargetToTarget(pFrontTarget, pBloomTarget, pBackTarget, mBloomFinalPassMaterialHandle); // Compose
 		_renderTargetToTarget(pBackTarget, nullptr, pFrontTarget, mDefaultScreenSpaceMaterialHandle); // Blit Temp -> Main render target
-
-		mpPreUIRenderQueue->Clear(); // commands above are executed immediately, so we don't need to store them anymore
 	}
 
 	void CFramePostProcessor::_submitFullScreenTriangle(CRenderQueue* pRenderQueue, TResourceId materialHandle, bool drawImmediately)
@@ -410,7 +514,7 @@ namespace TDEngine2
 	}
 	 
 	void CFramePostProcessor::_renderTargetToTarget(TPtr<IRenderTarget> pSource, TPtr<IRenderTarget> pExtraSource, TPtr<IRenderTarget> pDest, TResourceId materialHandle)
-	{
+	{		
 		mpGraphicsContext->SetDepthBufferEnabled(false);
 		mpGraphicsContext->BindRenderTarget(0, pDest.Get());
 		mpGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(pDest->GetWidth()), static_cast<F32>(pDest->GetHeight()), 0.0f, 1.0f);
