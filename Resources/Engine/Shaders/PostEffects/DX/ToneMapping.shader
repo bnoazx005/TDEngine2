@@ -104,17 +104,6 @@ float3 FilmicToneMapping(float3 color, float exposure)
 }
 
 
-float CalcExposure(float avgLuminance, float threshold, float keyValue)
-{
-	avgLuminance = max(avgLuminance, 1e-3);
-
-	float exposure = log2(max((keyValue / avgLuminance + 1e-4), 1e-4));
-    exposure -= threshold;
-
-    return exp2(exposure);
-}
-
-
 float4 mainPS(VertexOut input): SV_TARGET0
 {
 	float4 color = TEX2D(FrameTexture, input.mUV);

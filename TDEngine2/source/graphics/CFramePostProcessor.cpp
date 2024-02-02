@@ -436,7 +436,7 @@ namespace TDEngine2
 
 			mBloomRenderTargetHandle = _getRenderTarget(width / downsampleCoeff, height / downsampleCoeff, isHDRSupport, false);
 
-			if (auto pBloomRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle))
+			if (auto pBloomRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mBloomRenderTargetHandle))
 			{
 				pBloomRenderTarget->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
 			}
@@ -464,6 +464,7 @@ namespace TDEngine2
 	void CFramePostProcessor::_processBloomPass(TPtr<IRenderTarget> pFrontTarget, TPtr<IRenderTarget> pBackTarget, TPtr<IRenderTarget> pBloomTarget)
 	{
 		const auto& bloomParameters = mpCurrPostProcessingProfile->GetBloomParameters();
+		const auto& toneMappingParameters = mpCurrPostProcessingProfile->GetToneMappingParameters();
 
 		if (!mpCurrPostProcessingProfile->IsPostProcessingEnabled() || !bloomParameters.mIsEnabled)
 		{
@@ -473,6 +474,7 @@ namespace TDEngine2
 		if (auto pBloomMaterial = mpResourceManager->GetResource<IMaterial>(mBloomFilterMaterialHandle))
 		{
 			pBloomMaterial->SetVariableForInstance<F32>(DefaultMaterialInstanceId, "threshold", bloomParameters.mThreshold);
+			pBloomMaterial->SetVariableForInstance<F32>(DefaultMaterialInstanceId, "keyValue", toneMappingParameters.mKeyValue);
 		}
 
 		const TVector4 blurParams{ bloomParameters.mSmoothness, 0.0, 1.0f / static_cast<F32>(pFrontTarget->GetWidth()), 1.0f / static_cast<F32>(pFrontTarget->GetHeight()) };
@@ -484,7 +486,9 @@ namespace TDEngine2
 			pBlurMaterial->SetVariableForInstance<U32>(DefaultMaterialInstanceId, "samplesCount", bloomParameters.mSamplesCount);
 		}
 
-		_renderTargetToTarget(pFrontTarget, nullptr, pBloomTarget, mBloomFilterMaterialHandle); // Bloom pass
+		auto pLuminanceTarget = mpResourceManager->GetResource<IRenderTarget>(mFramesLuminanceHistoryTargets[mCurrActiveLuminanceFrameTargetIndex]);
+
+		_renderTargetToTarget(pFrontTarget, pLuminanceTarget, pBloomTarget, mBloomFilterMaterialHandle); // Bloom pass
 		_renderTargetToTarget(pBloomTarget, nullptr, pBackTarget, mGaussianBlurMaterialHandle); // Horizontal Blur pass
 
 		if (auto pBlurMaterial = mpResourceManager->GetResource<IMaterial>(mGaussianBlurMaterialHandle))

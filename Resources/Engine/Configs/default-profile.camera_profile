@@ -3,7 +3,7 @@ bloom_parameters:
   enabled: 0
   samples_count: 3
   smoothness: "1.5"
-  threshold: "1.5"
+  threshold: 1.5
   quality: 3
 color_grading_params:
   enabled: 0

@@ -28,15 +28,22 @@ VertexOut mainVS(uint id : SV_VertexID)
 #program pixel
 
 DECLARE_TEX2D(FrameTexture);
+DECLARE_TEX2D(FrameTexture1);
 
 CBUFFER_SECTION_EX(BloomParameters, 4)
 	float threshold;
+	float keyValue;
 CBUFFER_ENDSECTION
+
+
+float GetLuminance() { return TEX2D(FrameTexture1, float2(0.0, 0.0)); }
+
 
 float4 mainPS(VertexOut input): SV_TARGET0
 {
 	float4 color = TEX2D(FrameTexture, input.mUV);
 
-	return lerp(float4(0.0, 0.0, 0.0, 0.0), color, dot(color, float4(0.2126, 0.7152, 0.0722, 1.0)) > threshold ? 1.0 : 0.0);
+	return color * CalcExposure(GetLuminance(), threshold, keyValue);
+	//return lerp(float4(0.0, 0.0, 0.0, 0.0), color, dot(color * CalcExposure(GetLuminance(), threshold, keyValue), 0.33) < 1e-3 ? 0.0 : 1.0);
 }
 #endprogram
