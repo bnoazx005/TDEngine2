@@ -30,6 +30,19 @@ namespace TDEngine2
 	} TFramePostProcessorParameters, *TFramePostProcessorParametersPtr;
 
 
+	enum class E_FRAME_RENDER_PARAMS_FLAGS : U32
+	{
+		CLEAR_RENDER_TARGET = 1 << 0,
+		BIND_DEPTH_BUFFER = 1 << 1,
+		RENDER_MAIN = 1 << 2,
+		RENDER_UI = 1 << 3,
+		NONE = 0
+	};
+
+
+	TDE2_DECLARE_BITMASK_OPERATORS_INTERNAL(E_FRAME_RENDER_PARAMS_FLAGS);
+
+
 	/*!
 		interface IFramePostProcessor
 
@@ -70,7 +83,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Render(const TRenderFrameCallback& onRenderFrameCallback, bool clearRenderTarget = true, bool bindDepthBuffer = false) = 0;
+			TDE2_API virtual E_RESULT_CODE Render(const TRenderFrameCallback& onRenderFrameCallback, E_FRAME_RENDER_PARAMS_FLAGS flags) = 0;
 
 			/*!
 				\brief The method prepares render targets and materials that're involved into post-processings

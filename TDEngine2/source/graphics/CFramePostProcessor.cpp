@@ -156,13 +156,16 @@ namespace TDEngine2
 	static const std::string BackFrameTextureUniformId = "FrameTexture1";
 
 
-	E_RESULT_CODE CFramePostProcessor::Render(const TRenderFrameCallback& onRenderFrameCallback, bool clearRenderTarget, bool bindDepthBuffer)
+	E_RESULT_CODE CFramePostProcessor::Render(const TRenderFrameCallback& onRenderFrameCallback, E_FRAME_RENDER_PARAMS_FLAGS flags)
 	{
 		if (!onRenderFrameCallback)
 		{
 			LOG_WARNING("[FramePostProcessor] Render method was got empty \"onRenderFrameCallback\" argument");
 			return RC_INVALID_ARGS;
 		}
+
+		const bool bindDepthBuffer = E_FRAME_RENDER_PARAMS_FLAGS::BIND_DEPTH_BUFFER == (flags & E_FRAME_RENDER_PARAMS_FLAGS::BIND_DEPTH_BUFFER);
+		const bool clearRT = E_FRAME_RENDER_PARAMS_FLAGS::CLEAR_RENDER_TARGET == (flags & E_FRAME_RENDER_PARAMS_FLAGS::CLEAR_RENDER_TARGET);
 
 		TPtr<IRenderTarget> pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
 		TPtr<IDepthBufferTarget> pMainDepthBuffer = mpResourceManager->GetResource<IDepthBufferTarget>(mMainDepthBufferHandle);
@@ -174,7 +177,7 @@ namespace TDEngine2
 				mpGraphicsContext->BindDepthBufferTarget(pMainDepthBuffer.Get());
 			}
 			
-			if (clearRenderTarget)
+			if (clearRT)
 			{
 				mpGraphicsContext->ClearRenderTarget(pCurrRenderTarget.Get(), TColor32F{});
 			}

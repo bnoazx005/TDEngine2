@@ -79,7 +79,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Render(const TRenderFrameCallback& onRenderFrameCallback, bool clearRenderTarget = true, bool bindDepthBuffer = false) override;
+			TDE2_API E_RESULT_CODE Render(const TRenderFrameCallback& onRenderFrameCallback, E_FRAME_RENDER_PARAMS_FLAGS flags) override;
 
 			TDE2_API E_RESULT_CODE PreRender() override;
 			TDE2_API E_RESULT_CODE RunPostProcess() override;

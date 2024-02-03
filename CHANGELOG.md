@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.25] 2024-02-01
+## [0.6.25] 2024-02-03
 
 ### Added
 
@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Now immediate UI (debug) is drawn after all other passes and without any gamma corection.
+
+- All UI elements are rendered into separate LDR render target by default now.
+
+- **TGraphicsContextDebugRegion** and **TDE_RENDER_SECTION** macro were moved into Utils.h.
 
 ## [0.6.24] 2024-01-31
 
