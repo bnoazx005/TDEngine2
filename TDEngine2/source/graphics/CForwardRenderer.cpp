@@ -24,30 +24,6 @@
 
 namespace TDEngine2
 {
-#if TDE2_DEBUG_MODE
-
-	struct TGraphicsContextDebugRegion
-	{
-		TGraphicsContextDebugRegion(TPtr<IGraphicsContext> pGraphicsContext, const std::string& id):
-			mpGraphicsContext(pGraphicsContext)
-		{
-			pGraphicsContext->BeginSectionMarker(id);
-		}
-
-		~TGraphicsContextDebugRegion()
-		{
-			mpGraphicsContext->EndSectionMarker();
-		}
-
-		TPtr<IGraphicsContext> mpGraphicsContext;
-	};
-
-#define TDE_RENDER_SECTION(pGraphicsContext, id) TGraphicsContextDebugRegion TDE2_CONCAT(graphicsSection, __LINE__)(pGraphicsContext, id);
-#else
-#define TDE_RENDER_SECTION(pGraphicsContext, id) 
-#endif
-
-
 	CForwardRenderer::CForwardRenderer():
 		CBaseObject(), mpMainCamera(nullptr), mpResourceManager(nullptr), mpGlobalShaderProperties(nullptr), mpFramePostProcessor(nullptr)
 	{
@@ -381,7 +357,7 @@ namespace TDEngine2
 
 				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pCurrCommandBuffer, true, (std::numeric_limits<U32>::max)());
 			}
-		}, true, true);
+		}, E_FRAME_RENDER_PARAMS_FLAGS::BIND_DEPTH_BUFFER |E_FRAME_RENDER_PARAMS_FLAGS::CLEAR_RENDER_TARGET | E_FRAME_RENDER_PARAMS_FLAGS::RENDER_MAIN);
 
 		return RC_OK;
 	}
@@ -410,7 +386,7 @@ namespace TDEngine2
 			pFramePostProcessor->Render([&] /// Render UI elements
 			{
 				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pUIRenderGroup, true);
-			}, false);
+			}, E_FRAME_RENDER_PARAMS_FLAGS::RENDER_UI);
 		}
 
 		{

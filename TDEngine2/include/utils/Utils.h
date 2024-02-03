@@ -883,4 +883,28 @@ namespace TDEngine2
 
 	#define TDE2_CONCAT_IMPL(A, B) A ## B
 	#define TDE2_CONCAT(A, B) TDE2_CONCAT_IMPL(A, B)
+
+
+#if TDE2_DEBUG_MODE
+
+	class IGraphicsContext;
+	TDE2_DECLARE_SCOPED_PTR(IGraphicsContext);
+
+
+	/*!
+		\brief The helper RAII type to declare named regions for GPU frame debuggers
+	*/
+
+	struct TGraphicsContextDebugRegion
+	{
+		TGraphicsContextDebugRegion(TPtr<IGraphicsContext> pGraphicsContext, const std::string& id);
+		~TGraphicsContextDebugRegion();
+
+		TPtr<IGraphicsContext> mpGraphicsContext;
+	};
+
+#define TDE_RENDER_SECTION(pGraphicsContext, id) TGraphicsContextDebugRegion TDE2_CONCAT(graphicsSection, __LINE__)(pGraphicsContext, id);
+#else
+#define TDE_RENDER_SECTION(pGraphicsContext, id) 
+#endif
 }

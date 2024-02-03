@@ -7,6 +7,7 @@
 #include "../../include/autotests/CTestContext.h"
 #define MEM_TRACKER_IMPLEMENTATION
 #include "memTracker.hpp"
+#include "../../include/core/IGraphicsContext.h"
 #include <algorithm>
 #include <cctype>
 
@@ -407,4 +408,20 @@ namespace TDEngine2
 
 		debug_break();
 	}
+
+
+#if TDE2_DEBUG_MODE
+
+	TGraphicsContextDebugRegion::TGraphicsContextDebugRegion(TPtr<IGraphicsContext> pGraphicsContext, const std::string& id) :
+		mpGraphicsContext(pGraphicsContext)
+	{
+		pGraphicsContext->BeginSectionMarker(id);
+	}
+
+	TGraphicsContextDebugRegion::~TGraphicsContextDebugRegion()
+	{
+		mpGraphicsContext->EndSectionMarker();
+	}
+
+#endif
 }
