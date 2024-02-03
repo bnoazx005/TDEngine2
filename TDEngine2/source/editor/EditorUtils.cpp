@@ -390,7 +390,7 @@ namespace TDEngine2
 				pLayoutElement->SetMaxOffset(TVector2(100.0f, sliderHeight));
 			}
 
-			Setup9ImageSliceComponent(pSliderEntity, DefaultSpritePathId, TColor32F(0.35f));
+			Setup9ImageSliceComponent(pSliderEntity, DefaultSpritePathId, TColor32F(0.75f));
 
 			auto pMarkerEntity = pCurrScene->CreateEntity("Marker");
 			{
@@ -439,7 +439,7 @@ namespace TDEngine2
 				pLayoutElement->SetMaxOffset(TVector2(250.0f, sliderHeight));
 			}
 
-			Setup9ImageSliceComponent(pInputFieldEntity, DefaultSpritePathId, TColor32F(0.35f));
+			Setup9ImageSliceComponent(pInputFieldEntity, DefaultSpritePathId, TColor32F(0.75f));
 
 			auto pCursorEntity = pCurrScene->CreateEntity("Cursor");
 			{
@@ -536,7 +536,7 @@ namespace TDEngine2
 				pLayoutElement->SetMaxOffset(TVector2(250.0f, elementHeight));
 			}
 
-			Setup9ImageSliceComponent(pDropDownEntity, DefaultSpritePathId, TColor32F(0.35f));
+			Setup9ImageSliceComponent(pDropDownEntity, DefaultSpritePathId, TColor32F(0.75f));
 
 			TEntityId contentId = TEntityId::Invalid;
 
@@ -550,7 +550,7 @@ namespace TDEngine2
 					pLayoutElement->SetMaxOffset(TVector2(0.0f, 10.0f));
 				}
 
-				Setup9ImageSliceComponent(pContentEntity, DefaultSpritePathId, TColor32F(0.35f));
+				Setup9ImageSliceComponent(pContentEntity, DefaultSpritePathId, TColor32F(0.75f));
 
 				auto&& scrollerResult = CreateScrollUIArea(pWorld, pCurrScene, pContentEntity->GetId(), [](auto) {});
 
@@ -642,7 +642,7 @@ namespace TDEngine2
 				pLayoutElement->SetMaxOffset(TVector2(250.0f, elementHeight));
 			}
 
-			Setup9ImageSliceComponent(pButtonEntity, DefaultSpritePathId, TColor32F(0.35f));
+			Setup9ImageSliceComponent(pButtonEntity, DefaultSpritePathId, TColor32F(0.75f));
 
 			auto&& labelResult = CreateLabelElement(pWorld, pCurrScene, pButtonEntity->GetId(), [](auto) {});
 			if (auto pLabelEntity = pWorld->FindEntity(labelResult.Get()))
