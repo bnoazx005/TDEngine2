@@ -249,6 +249,11 @@ namespace TDEngine2
 		TPtr<IRenderTarget> pTempRenderTarget  = mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle);
 
 		{ // Luminance calculations
+#if TDE2_EDITORS_ENABLED
+			auto pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(mpGraphicsContext);
+			TDE_RENDER_SECTION(pGraphicsContext, "EyeAdaptation");
+#endif
+
 			TPtr<IRenderTarget> pLuminanceTarget = mpResourceManager->GetResource<IRenderTarget>(mLuminanceTargetHandle);
 
 			_renderTargetToTarget(pCurrRenderTarget, nullptr, pLuminanceTarget, mGenerateLuminanceMaterialHandle); // Extract luminance
@@ -503,6 +508,11 @@ namespace TDEngine2
 		{
 			return;
 		}
+
+#if TDE2_EDITORS_ENABLED
+		auto pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(mpGraphicsContext);
+		TDE_RENDER_SECTION(pGraphicsContext, "Bloom");
+#endif
 
 		if (auto pBloomMaterial = mpResourceManager->GetResource<IMaterial>(mBloomFilterMaterialHandle))
 		{
