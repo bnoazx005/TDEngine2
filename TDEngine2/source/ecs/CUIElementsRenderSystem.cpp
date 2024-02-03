@@ -324,7 +324,7 @@ namespace TDEngine2
 
 		// \note load default editor's material (depth test and writing to the depth buffer are disabled)
 		{
-			TMaterialParameters editorUIMaterialParams{ "Shaders/Default/UI/EditorUI.shader", true, { false, false }, { E_CULL_MODE::BACK } };
+			TMaterialParameters editorUIMaterialParams{ "Shaders/Default/UI/DefaultUI.shader", true, { false, false }, { E_CULL_MODE::BACK } };
 
 			auto& blendingParams = editorUIMaterialParams.mBlendingParams;
 			blendingParams.mScrValue = E_BLEND_FACTOR_VALUE::SOURCE_ALPHA;
