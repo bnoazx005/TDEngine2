@@ -29,6 +29,7 @@ VertexOut mainVS(uint id : SV_VertexID)
 
 DECLARE_TEX2D(FrameTexture);
 DECLARE_TEX2D_EX(LuminanceBuffer, 1);
+DECLARE_TEX2D_EX(UIBuffer, 2);
 DECLARE_TEX2D(ColorGradingLUT);
 
 CBUFFER_SECTION_EX(ToneMappingParameters, 4)
@@ -107,10 +108,12 @@ float3 FilmicToneMapping(float3 color, float exposure)
 float4 mainPS(VertexOut input): SV_TARGET0
 {
 	float4 color = TEX2D(FrameTexture, input.mUV);
-	float3 mappedColor = lerp(color.rgb, FilmicToneMapping(color.rgb, CalcExposure(GetLuminance(), 0.0, toneMappingParams.z)), toneMappingParams.x);
+	float3 mappedColor = lerp(color.rgb, ReinhardToneMapping(color.rgb, CalcExposure(GetLuminance(), 0.0, toneMappingParams.z)), toneMappingParams.x);
 	
 	mappedColor = lerp(mappedColor, ApplyGrading(mappedColor), colorGradingParams.x);
 
-	return float4(LinearToGamma(mappedColor), color.a);
+	float4 uiColor = TEX2D(UIBuffer, input.mUV);
+
+	return float4(LinearToGamma(saturate((1 - uiColor.a) * mappedColor + uiColor.rgb)), max(color.a, uiColor.a));
 }
 #endprogram

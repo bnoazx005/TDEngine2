@@ -96,8 +96,6 @@ namespace TDEngine2
 			TDE2_API void _resizeRenderTargetsChain(U32 width, U32 height);
 
 			TDE2_API void _processBloomPass(TPtr<IRenderTarget> pFrontTarget, TPtr<IRenderTarget> pBackTarget, TPtr<IRenderTarget> pBloomTarget);
-
-			TDE2_API TResourceId _getRenderTarget(U32 width, U32 height, bool isHDRSupport = false, bool isMainTarget = true);
 		protected:
 			CRenderQueue*                 mpPreUIRenderQueue;
 			CRenderQueue*                 mpOverlayRenderQueue;
@@ -114,6 +112,7 @@ namespace TDEngine2
 			TResourceId                   mVolumetricCloudsComputeShaderHandle;
 
 			TResourceId                   mRenderTargetHandle;
+			TResourceId                   mUITargetHandle;
 			TResourceId                   mBloomRenderTargetHandle;
 			TResourceId                   mTemporaryRenderTargetHandle;
 			TResourceId                   mMainDepthBufferHandle;

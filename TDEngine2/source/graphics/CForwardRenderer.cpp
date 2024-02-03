@@ -386,7 +386,7 @@ namespace TDEngine2
 			pFramePostProcessor->Render([&] /// Render UI elements
 			{
 				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pUIRenderGroup, true);
-			}, E_FRAME_RENDER_PARAMS_FLAGS::RENDER_UI);
+			}, E_FRAME_RENDER_PARAMS_FLAGS::CLEAR_RENDER_TARGET | E_FRAME_RENDER_PARAMS_FLAGS::RENDER_UI);
 		}
 
 		{

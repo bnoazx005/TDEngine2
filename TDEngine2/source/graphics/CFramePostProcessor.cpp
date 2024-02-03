@@ -53,6 +53,29 @@ namespace TDEngine2
 	}
 
 
+	static TResourceId GetRenderTarget(TPtr<IResourceManager> pResourceManager, U32 width, U32 height, bool isHDRSupport, E_FRAME_RENDER_PARAMS_FLAGS flags)
+	{
+		static U32 counter = 0;
+
+		std::string renderTargetName;
+
+		if (E_FRAME_RENDER_PARAMS_FLAGS::RENDER_MAIN == (E_FRAME_RENDER_PARAMS_FLAGS::RENDER_MAIN & flags))
+		{
+			renderTargetName = "MainRenderTarget";
+		}
+		else if (E_FRAME_RENDER_PARAMS_FLAGS::RENDER_UI == (E_FRAME_RENDER_PARAMS_FLAGS::RENDER_UI & flags))
+		{
+			renderTargetName = "UITarget";
+		}
+		else
+		{
+			renderTargetName = "SecondaryRenderTarget" + std::to_string(counter++);
+		}
+
+		return pResourceManager->Create<IRenderTarget>(renderTargetName, TTexture2DParameters{ width, height, isHDRSupport ? FT_FLOAT4 : FT_NORM_UBYTE4, 1, 1, 0 });
+	}
+
+
 	CFramePostProcessor::CFramePostProcessor() :
 		CBaseObject()
 	{
@@ -78,6 +101,7 @@ namespace TDEngine2
 		mpWindowSystem         = desc.mpWindowSystem;
 		mpGraphicsContext      = desc.mpGraphicsObjectManager->GetGraphicsContext();
 		mRenderTargetHandle    = TResourceId::Invalid;
+		mUITargetHandle        = TResourceId::Invalid;
 
 		auto luminanceTargetResult = GetOrCreateLuminanceTarget(mpResourceManager, "LuminanceTarget", LuminanceTargetSizes);
 		if (luminanceTargetResult.HasError())
@@ -166,8 +190,10 @@ namespace TDEngine2
 
 		const bool bindDepthBuffer = E_FRAME_RENDER_PARAMS_FLAGS::BIND_DEPTH_BUFFER == (flags & E_FRAME_RENDER_PARAMS_FLAGS::BIND_DEPTH_BUFFER);
 		const bool clearRT = E_FRAME_RENDER_PARAMS_FLAGS::CLEAR_RENDER_TARGET == (flags & E_FRAME_RENDER_PARAMS_FLAGS::CLEAR_RENDER_TARGET);
+		const bool isMainTarget = E_FRAME_RENDER_PARAMS_FLAGS::RENDER_MAIN == (flags & E_FRAME_RENDER_PARAMS_FLAGS::RENDER_MAIN);
 
-		TPtr<IRenderTarget> pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
+
+		TPtr<IRenderTarget> pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(isMainTarget ? mRenderTargetHandle : mUITargetHandle);
 		TPtr<IDepthBufferTarget> pMainDepthBuffer = mpResourceManager->GetResource<IDepthBufferTarget>(mMainDepthBufferHandle);
 
 		{
@@ -395,8 +421,9 @@ namespace TDEngine2
 			return;
 		}
 
-		mRenderTargetHandle = _getRenderTarget(width, height, isHDRSupport);
-		mTemporaryRenderTargetHandle = _getRenderTarget(width, height, isHDRSupport, false);
+		mRenderTargetHandle = GetRenderTarget(mpResourceManager, width, height, isHDRSupport, E_FRAME_RENDER_PARAMS_FLAGS::RENDER_MAIN);
+		mTemporaryRenderTargetHandle = GetRenderTarget(mpResourceManager, width, height, isHDRSupport, E_FRAME_RENDER_PARAMS_FLAGS::NONE);
+		mUITargetHandle = GetRenderTarget(mpResourceManager, width, height, false, E_FRAME_RENDER_PARAMS_FLAGS::RENDER_UI);
 
 		auto mainDepthBufferRetrieveResult = GetOrCreateDepthBuffer(mpResourceManager, width, height);
 		if (mainDepthBufferRetrieveResult.IsOk())
@@ -405,6 +432,7 @@ namespace TDEngine2
 		}
 
 		auto pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
+		auto pUIRenderTarget   = mpResourceManager->GetResource<IRenderTarget>(mUITargetHandle);
 		auto pTempRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle);
 		auto pLuminanceTarget  = mpResourceManager->GetResource<IRenderTarget>(mFramesLuminanceHistoryTargets[mCurrActiveLuminanceFrameTargetIndex]);
 
@@ -430,6 +458,7 @@ namespace TDEngine2
 				}
 
 				pToneMappingMaterial->SetTextureResource("LuminanceBuffer", pLuminanceTarget.Get());
+				pToneMappingMaterial->SetTextureResource("UIBuffer", pUIRenderTarget.Get());
 			}
 		}
 
@@ -437,7 +466,7 @@ namespace TDEngine2
 		{
 			const U16 downsampleCoeff = 1 << (TPostProcessingProfileParameters::TBloomParameters::mMaxQuality - mpCurrPostProcessingProfile->GetBloomParameters().mQuality + 1);
 
-			mBloomRenderTargetHandle = _getRenderTarget(width / downsampleCoeff, height / downsampleCoeff, isHDRSupport, false);
+			mBloomRenderTargetHandle = GetRenderTarget(mpResourceManager, width / downsampleCoeff, height / downsampleCoeff, isHDRSupport, E_FRAME_RENDER_PARAMS_FLAGS::NONE);
 
 			if (auto pBloomRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mBloomRenderTargetHandle))
 			{
@@ -448,9 +477,10 @@ namespace TDEngine2
 
 	void CFramePostProcessor::_resizeRenderTargetsChain(U32 width, U32 height)
 	{
-		const std::array<TResourceId, 3> renderTargetHandles
+		const std::array<TResourceId, 4> renderTargetHandles
 		{
 			mRenderTargetHandle,
+			mUITargetHandle,
 			mBloomRenderTargetHandle,
 			mTemporaryRenderTargetHandle
 		};
@@ -541,21 +571,6 @@ namespace TDEngine2
 		mpGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(mpWindowSystem->GetWidth()), static_cast<F32>(mpWindowSystem->GetHeight()), 0.0f, 1.0f);
 		mpGraphicsContext->SetDepthBufferEnabled(true);
 		mpGraphicsContext->BindRenderTarget(0, nullptr);
-	}
-
-	TResourceId CFramePostProcessor::_getRenderTarget(U32 width, U32 height, bool isHDRSupport, bool isMainTarget)
-	{
-		static const std::string renderTartetIdentifiers[2]
-		{
-			"MainRenderTarget",
-			"SecondaryRenderTarget"
-		};
-
-		static U32 counter = 0;
-
-		const std::string renderTargetName = isMainTarget ? renderTartetIdentifiers[0] : renderTartetIdentifiers[1] + std::to_string(counter++);
-
-		return mpResourceManager->Create<IRenderTarget>(renderTargetName, TTexture2DParameters{ width, height, isHDRSupport ? FT_FLOAT4 : FT_NORM_UBYTE4, 1, 1, 0 });
 	}
 
 

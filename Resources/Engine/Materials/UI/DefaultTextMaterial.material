@@ -1,9 +1,9 @@
 blend_state: 
-  dest_alpha: ZERO
+  dest_alpha: ONE_MINUS_SOURCE_ALPHA
   dest_color: ONE_MINUS_SOURCE_ALPHA
   op_alpha_type: ADD
   op_type: ADD
-  src_alpha: ONE_MINUS_SOURCE_ALPHA
+  src_alpha: DEST_ALPHA
   src_color: SOURCE_ALPHA
 depth_stencil_state: 
   depth_cmp_func: LESS

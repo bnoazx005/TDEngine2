@@ -329,8 +329,8 @@ namespace TDEngine2
 			auto& blendingParams = editorUIMaterialParams.mBlendingParams;
 			blendingParams.mScrValue = E_BLEND_FACTOR_VALUE::SOURCE_ALPHA;
 			blendingParams.mDestValue = E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA;
-			blendingParams.mScrAlphaValue = E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA;
-			blendingParams.mDestAlphaValue = E_BLEND_FACTOR_VALUE::ZERO;
+			blendingParams.mScrAlphaValue = E_BLEND_FACTOR_VALUE::SOURCE_ALPHA;
+			blendingParams.mDestAlphaValue = E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA;
 
 			mDefaultUIMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::DEFAULT)] = mpResourceManager->Create<IMaterial>("DefaultInGameUI.material", editorUIMaterialParams);
 
