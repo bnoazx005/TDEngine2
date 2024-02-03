@@ -984,8 +984,8 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 
 		static const std::array<std::pair<int, U32>, 2> testCases
 		{
-			std::make_pair(-10, 0xf5f5f5ff),
-			std::make_pair(10, 0xf50000ff),
+			std::make_pair(-10, 0xffffffff),
+			std::make_pair(10, 0xff0000ff),
 		};
 
 		/// \note Create an entity
@@ -1116,8 +1116,8 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 
 		pTestCase->ExecuteAction([&]
 		{
-			TDE2_TEST_IS_TRUE(PackColor32F(CTestContext::Get()->GetFrameBufferPixel(70, 200)) == 0xf50000ff); // Red image (child of first element) is drawn on top of all elements
-			TDE2_TEST_IS_TRUE(PackColor32F(CTestContext::Get()->GetFrameBufferPixel(170, 200)) == 0xf5f5f5ff); // right side of elements is visible
+			TDE2_TEST_IS_TRUE(PackColor32F(CTestContext::Get()->GetFrameBufferPixel(70, 200)) == 0xff0000ff); // Red image (child of first element) is drawn on top of all elements
+			TDE2_TEST_IS_TRUE(PackColor32F(CTestContext::Get()->GetFrameBufferPixel(170, 200)) == 0xffffffff); // right side of elements is visible
 		});
 
 		/// \note Destroy the canvas entity
@@ -1165,8 +1165,8 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 
 		pTestCase->ExecuteAction([&]
 		{
-			TDE2_TEST_IS_TRUE(PackColor32F(CTestContext::Get()->GetFrameBufferPixel(100, 700)) == 0xf5f5f5ff);
-			TDE2_TEST_IS_TRUE(PackColor32F(CTestContext::Get()->GetFrameBufferPixel(100, 600)) == 0xf50d0dff);
+			TDE2_TEST_IS_TRUE(PackColor32F(CTestContext::Get()->GetFrameBufferPixel(100, 700)) == 0xffffffff);
+			TDE2_TEST_IS_TRUE(PackColor32F(CTestContext::Get()->GetFrameBufferPixel(100, 600)) == 0xfe0000ff);
 		});
 
 		/// \note Destroy the canvas entity
@@ -1269,8 +1269,8 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 
 		static const std::array<std::tuple<TVector2, U32, U32, U32>, 2> testCases // scroller's position, screen test X, screen test Y pos, U32 encoded RGBA color
 		{
-			std::make_tuple(ZeroVector2, 50, 50, 0xf5f5f5ff),
-			std::make_tuple(TVector2(0.0f, 1.0f), 50, 150, 0xf50000ff),
+			std::make_tuple(ZeroVector2, 50, 50, 0xffffffff),
+			std::make_tuple(TVector2(0.0f, 1.0f), 50, 150, 0xff0000ff),
 		};
 
 		pTestCase->ExecuteAction([&]
@@ -1377,8 +1377,8 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 
 		static const std::array<std::tuple<TVector2, U32>, 2> testCases // scroller's position, U32 encoded RGBA color
 		{
-			std::make_tuple(ZeroVector2, 0xf5f5f5ff),
-			std::make_tuple(TVector2(1.0f, 0.0f), 0xf50000ff),
+			std::make_tuple(ZeroVector2, 0xffffffff),
+			std::make_tuple(TVector2(1.0f, 0.0f), 0xff0000ff),
 		};
 
 		pTestCase->ExecuteAction([&]
