@@ -62,6 +62,10 @@ namespace TDEngine2
 
 	void CD3D11Shader::Unbind()
 	{
+		/// \fixme Hack to unbind all UAVs from the pipeline when shader is used with Dispatch
+		std::array<ID3D11UnorderedAccessView*, 8> pNullUAVs { nullptr };
+		mp3dDeviceContext->CSSetUnorderedAccessViews(0, static_cast<U32>(pNullUAVs.size()), pNullUAVs.data(), 0);
+
 		/*mp3dDeviceContext->VSSetShader(nullptr, nullptr, 0);
 		mp3dDeviceContext->PSSetShader(nullptr, nullptr, 0);
 		mp3dDeviceContext->GSSetShader(nullptr, nullptr, 0);*/
