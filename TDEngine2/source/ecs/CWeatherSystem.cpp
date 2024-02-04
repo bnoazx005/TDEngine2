@@ -93,6 +93,21 @@ namespace TDEngine2
 		const TResourceId lowFreqCloudsTextureHandle = pResourceManager->Create<ITexture3D>(LowFreqCloudsNoise3DTextureId, lowFreqCloudsNoiseTextureParams);
 		const TResourceId highFreqCloudsTextureHandle = pResourceManager->Create<ITexture3D>(HighFreqCloudsNoise3DTextureId, highFreqCloudsNoiseTextureParams);
 
+		const std::array<TResourceId, 2> noiseTextures { lowFreqCloudsTextureHandle, highFreqCloudsTextureHandle };
+		for (auto&& currTextureHandle : noiseTextures)
+		{
+			auto pTexture = pResourceManager->GetResource<ITexture3D>(currTextureHandle);
+			if (!pTexture)
+			{
+				continue;
+			}
+
+			pTexture->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
+			pTexture->SetUWrapMode(E_ADDRESS_MODE_TYPE::AMT_WRAP);
+			pTexture->SetVWrapMode(E_ADDRESS_MODE_TYPE::AMT_WRAP);
+			pTexture->SetWWrapMode(E_ADDRESS_MODE_TYPE::AMT_WRAP);
+		}
+
 		const TResourceId cloudsMaterialHandle = pResourceManager->Load<IMaterial>(CProjectSettings::Get()->mGraphicsSettings.mDefaultCloudscapesMaterial);
 		TDE2_ASSERT(TResourceId::Invalid != cloudsMaterialHandle);
 		
