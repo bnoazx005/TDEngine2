@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Draft version of eye adaptation effect was implemented.
 
+- New global uniform variables InvViewProjMat, InvViewMat, InvProjMat were added for usage in shaders.
+
 ### Changed
 
 - Now immediate UI (debug) is drawn after all other passes and without any gamma corection.

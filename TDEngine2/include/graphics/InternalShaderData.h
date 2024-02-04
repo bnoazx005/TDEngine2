@@ -7,10 +7,10 @@
 #pragma once
 
 
-#include "./../utils/Types.h"
-#include "./../math/TMatrix4.h"
-#include "./../math/TVector4.h"
-#include "./../utils/Color.h"
+#include "../utils/Types.h"
+#include "../math/TMatrix4.h"
+#include "../math/TVector4.h"
+#include "../utils/Color.h"
 
 
 namespace TDEngine2
@@ -63,8 +63,10 @@ namespace TDEngine2
 	typedef struct TPerFrameShaderData
 	{
 		TMatrix4            mProjMatrix;
-
 		TMatrix4            mViewMatrix;
+		TMatrix4            mInvProjMatrix;
+		TMatrix4            mInvViewMatrix;
+		TMatrix4            mInvViewProjMatrix;
 
 		TVector4            mCameraPosition;
 
