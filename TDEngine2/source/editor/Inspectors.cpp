@@ -33,6 +33,7 @@
 #include "../../include/scene/components/CDirectionalLight.h"
 #include "../../include/scene/components/AudioComponents.h"
 #include "../../include/scene/components/CLODStrategyComponent.h"
+#include "../../include/scene/components/CWeatherComponent.h"
 #include "../../include/editor/ecs/EditorComponents.h"
 #include "../../include/editor/CLevelEditorWindow.h"
 #include "../../include/editor/CEditorActionsManager.h"
@@ -1868,6 +1869,17 @@ namespace TDEngine2
 	}
 
 
+	static void DrawWeatherGUI(const TEditorContext& editorContext)
+	{
+		Header("Weather", editorContext, [](const TEditorContext& editorContext)
+		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
+		});
+	}
+
+
 	E_RESULT_CODE CDefaultInspectorsRegistry::RegisterBuiltinInspectors(CLevelEditorWindow& editor)
 	{
 		E_RESULT_CODE result = editor.RegisterInspector(CTransform::GetTypeId(), DrawTransformGUI);
@@ -1916,6 +1928,7 @@ namespace TDEngine2
 		/// Scenes
 		result = result | editor.RegisterInspector(CSelectedEntityComponent::GetTypeId(), [](auto) { /* Do nothing for hidden components */ });
 		result = result | editor.RegisterInspector(CLODStrategyComponent::GetTypeId(), DrawLODStrategyGUI);
+		result = result | editor.RegisterInspector(CWeatherComponent::GetTypeId(), DrawWeatherGUI);
 
 		return result;
 	}
