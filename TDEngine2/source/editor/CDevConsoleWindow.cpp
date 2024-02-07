@@ -106,6 +106,10 @@ namespace TDEngine2
 		if (mpInputContext->IsKey(E_KEYCODES::KC_LCONTROL) && mpInputContext->IsKeyPressed(E_KEYCODES::KC_F1))
 		{
 			mIsVisible = !mIsVisible;
+		}
+
+		if (!mIsVisible)
+		{
 			mAnimationTime = 0.0f;
 		}
 	}
@@ -115,7 +119,7 @@ namespace TDEngine2
 		bool isEnabled = mIsVisible;
 
 		static constexpr F32 ConsoleBackgroundHeightRatio = 0.4f; // relative to display's sizes
-		static constexpr F32 SeparatorSize = 10.0f; // between messages and input field
+		static constexpr F32 SeparatorSize = 20.0f; // between messages and input field
 		static constexpr F32 InputFieldHeight = 20.0f;
 		static constexpr F32 DropDownAnimationDuration = 0.15f;
 		static constexpr TColor32F ConsoleBackgroundColor = TColor32F(0.0f, 0.0f, 0.0f, 0.95f);
