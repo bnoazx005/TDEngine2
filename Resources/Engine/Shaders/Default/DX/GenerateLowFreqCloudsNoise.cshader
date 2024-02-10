@@ -18,9 +18,9 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 	float3 p = 2.0 * normalizedPoint - 1.0;
 
 	float perlin = abs(2.0 * (CalcPerlinFbmNoise3D(p, 3, 4.0) * 0.5 + 0.5) - 1.0);
-	float worley = CalcWorleyFbmNoise3D(p, 3, 2.0);
+	float worley = CalcWorleyFbmNoise3D(p, 3, 4.0);
 
-	noiseTexture[id.xyz] = float4(Remap(perlin, 0.0, 1.0, worley, 1.), worley, CalcWorleyFbmNoise3D(p, 3, 4.0), CalcWorleyFbmNoise3D(p, 3, 8.0));
+	noiseTexture[id.xyz] = float4(Remap(perlin, 0.0, 1.0, worley, 1.), worley, CalcWorleyFbmNoise3D(p, 3, 8.0), CalcWorleyFbmNoise3D(p, 3, 16.0));
 }
 
 #endprogram

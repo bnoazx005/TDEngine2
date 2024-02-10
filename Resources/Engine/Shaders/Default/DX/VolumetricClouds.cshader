@@ -1,0 +1,124 @@
+#define COMPUTE_ENTRY MainCS
+
+#program compute
+
+#include <TDEngine2Globals.inc>
+#include <TDEngine2MathUtils.inc>
+
+
+RWTexture2D<float4> OutputTexture;
+DECLARE_TEX2D_EX(DepthTexture, 1);
+DECLARE_TEX3D_EX(LowFreqCloudsNoiseTex, 2);
+DECLARE_TEX3D_EX(HiFreqCloudsNoiseTex, 3);
+
+
+CBUFFER_SECTION_EX(ShaderParameters, 4)
+	float4 mAtmosphereParameters; // x - Earth radius, y - atmosphere inner radius, z - atmosphere outer radius, w - atmosphere thickness
+	float2 mInvTextureSize;
+	int    mStepsCount;
+CBUFFER_ENDSECTION
+
+
+float SampleCloudDensity(float3 pos)
+{
+	return TEX3D_LOD(LowFreqCloudsNoiseTex, pos, 0).r;
+}
+
+
+float4 DoRayMarch(Ray3 ray, float3 earthCenter, float2 intersectionsParams, float4 atmosphereParams)
+{
+	float thickness = intersectionsParams.y - intersectionsParams.x;
+	float stepSize = thickness / (float)mStepsCount;
+
+	float3 color = float3(0.0, 0.0, 0.0);
+	float alpha = 0.0;
+
+	float transmitance = 1.0;
+
+	int i = 0;
+
+	float a = SampleCloudDensity((ray.origin + intersectionsParams.x * ray.dir) / 10000);
+
+	return float4(a, a, a, a);
+
+	for (float t = intersectionsParams.x; t < intersectionsParams.y; t += stepSize)
+	{
+		float3 pos = ray.origin + t * ray.dir;
+		float3 atmoRelPos = (pos - float3(earthCenter.x, atmosphereParams.y - atmosphereParams.x, earthCenter.z)) / thickness;
+
+		float density = SampleCloudDensity(pos / 10000);
+		density *= smoothstep(0.5, 0.505, density);
+		density = saturate(density);
+
+		float h = (float)i/(float)mStepsCount;
+		i++;
+
+		float T_i = exp(-1.030725 * density * stepSize);
+		transmitance *= T_i;
+
+		if (T_i < 0.01) break;
+
+		color += transmitance * (exp(h) / 1.75) * stepSize * density;
+		alpha += (1. - T_i) * (1. - alpha);
+
+	}
+
+	return float4(color, alpha);
+}
+
+
+[numthreads(16, 16, 1)]
+void MainCS(uint3 id : SV_DispatchThreadID)
+{
+	float2 uv = id.xy * mInvTextureSize; // thread id to [0; 1]
+	uv.x = 2.0 * uv.x - 1.0;
+	uv.y = 1.0 - 2.0 * uv.y;
+
+	float4 viewDir = normalize(mul(InvViewMat, float4(mul(InvProjMat, float4(uv, 0.0, 1.0)).xyz, 0.0)));
+	Ray3 primaryRay = MakeRay(CameraPosition.xyz, float3(viewDir.xyz));
+
+	float3 earthCenter = primaryRay.origin - float3(0.0, mAtmosphereParameters.x, 0.0);
+
+	float startT = IntersectRaySphere(primaryRay, float4(earthCenter, mAtmosphereParameters.y));
+	float endT = IntersectRaySphere(primaryRay, float4(earthCenter, mAtmosphereParameters.z));
+
+	if (TEX2D_LOD(DepthTexture, id.xy * mInvTextureSize, 0).r < 0.999 || dot(primaryRay.dir, float3(0.0, 1.0, 0.0)) < 1e-3)
+	{
+		OutputTexture[id.xy] = float4(0.0, 0.0, 0.0, 0.0);
+		return;
+	}
+
+	OutputTexture[id.xy] = DoRayMarch(primaryRay, earthCenter, float2(startT, endT), mAtmosphereParameters);
+
+
+/*
+	float3 pos = startPos;
+	
+	float3 color = float3(0.0, 0.0, 0.0);
+	float alpha = 0.0;
+
+	float transmitance = 1.0;
+
+	for (int i = 0; i < mStepsCount; i++)
+	{
+		float density = TEX3D_LOD(LowFreqCloudsNoiseTex, pos / 200.0, 0).r;
+		density *= smoothstep(0.5, 0.505, density);
+		density = saturate(density);
+
+		float h = (float)i/(float)mStepsCount;
+
+		float T_i = exp(-1.030725 * density * stepSize);
+		transmitance *= T_i;
+
+		if (T_i < 0.01) break;
+
+		color += transmitance * (exp(h) / 1.75) * stepSize * density;
+		alpha += (1. - T_i) * (1. - alpha);
+
+		pos += primaryRay.dir * stepSize;
+	}
+
+	OutputTexture[id.xy] = float4(color, alpha);*/
+}
+
+#endprogram

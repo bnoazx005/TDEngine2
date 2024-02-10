@@ -19,6 +19,7 @@ namespace TDEngine2
 	class IVertexDeclaration;
 	class IGlobalShaderProperties;
 	class IRenderTarget;
+	class ITexture;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
@@ -90,7 +91,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFramePostProcessor)
 
 			TDE2_API void _submitFullScreenTriangle(CRenderQueue* pRenderQueue, TResourceId materialHandle, bool drawImmediately = false);
-			TDE2_API void _renderTargetToTarget(TPtr<IRenderTarget> pSource, TPtr<IRenderTarget> pExtraSource, TPtr<IRenderTarget> pDest, TResourceId materialHandle);
+			TDE2_API void _renderTargetToTarget(TPtr<IRenderTarget> pSource, ITexture* pExtraSource, TPtr<IRenderTarget> pDest, TResourceId materialHandle);
 
 			TDE2_API void _prepareRenderTargetsChain(U32 width, U32 height, bool isHDRSupport = false);
 			TDE2_API void _resizeRenderTargetsChain(U32 width, U32 height);
@@ -110,6 +111,7 @@ namespace TDEngine2
 			TResourceId                   mGenerateLuminanceMaterialHandle;
 			TResourceId                   mLuminanceAdaptationMaterialHandle;
 			TResourceId                   mVolumetricCloudsComputeShaderHandle;
+			TResourceId                   mVolumetricCloudsComposeMaterialHandle;
 
 			TResourceId                   mRenderTargetHandle;
 			TResourceId                   mUITargetHandle;

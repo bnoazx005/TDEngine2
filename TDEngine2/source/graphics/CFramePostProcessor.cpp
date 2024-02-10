@@ -134,6 +134,7 @@ namespace TDEngine2
 		mLuminanceAdaptationMaterialHandle = mpResourceManager->Create<IMaterial>("AdaptLuminance.material", TMaterialParameters{ "Shaders/PostEffects/AdaptLuminance.shader", false, TDepthStencilStateDesc { false, false } });
 		
 		mVolumetricCloudsComputeShaderHandle = mpResourceManager->Load<IShader>("Shaders/Default/VolumetricClouds.cshader");
+		mVolumetricCloudsComposeMaterialHandle = mpResourceManager->Create<IMaterial>("VolumetricCloudsCompose.material", TMaterialParameters{ "Shaders/Default/VolumetricCloudsCompose.shader", false, TDepthStencilStateDesc { false, false } });
 
 		if (auto vertexFormatResult = desc.mpGraphicsObjectManager->CreateVertexDeclaration())
 		{
@@ -270,7 +271,7 @@ namespace TDEngine2
 				pMaterial->SetVariableForInstance<F32>(DefaultMaterialInstanceId, "mAdaptationRate", toneMappingParameters.mEyeAdaptionCoeff);
 			}
 
-			_renderTargetToTarget(pLuminanceTarget, pLuminanceAdaptPrevTarget, pLuminanceAdaptCurrTarget, mLuminanceAdaptationMaterialHandle);
+			_renderTargetToTarget(pLuminanceTarget, pLuminanceAdaptPrevTarget.Get(), pLuminanceAdaptCurrTarget, mLuminanceAdaptationMaterialHandle);
 		}
 
 		_processBloomPass(pCurrRenderTarget, pTempRenderTarget, pBloomRenderTarget);
@@ -302,14 +303,17 @@ namespace TDEngine2
 
 		auto pDepthBufferResource = mpResourceManager->GetResource<IDepthBufferTarget>(mMainDepthBufferHandle);
 
+		TDE2_STATIC_CONSTEXPR F32 EarthRadius = 6378000.0f;
+		TDE2_STATIC_CONSTEXPR F32 AtmosphereThickness = 10000.0f; // \todo Replace with value from component WeatherComponent later
+
 		struct
 		{
-			TVector2 mAtmosphereInOutRadiuses;
+			TVector4 mAtmosphereParameters;
 			TVector2 mInvTextureSizes;
 			I32      mStepsCount;
 		} uniformsData;
 
-		uniformsData.mAtmosphereInOutRadiuses = TVector2{ 500.0f, 550.0f };
+		uniformsData.mAtmosphereParameters = TVector4{ EarthRadius, EarthRadius + 10000.0f, EarthRadius + 10000.0f + AtmosphereThickness, AtmosphereThickness };
 		uniformsData.mInvTextureSizes = TVector2
 		{
 			1 / static_cast<F32>(pVolumetricCloudsScreenBufferTexture->GetWidth()), 1 / static_cast<F32>(pVolumetricCloudsScreenBufferTexture->GetHeight())
@@ -333,6 +337,16 @@ namespace TDEngine2
 		pVolumetricCloudsRenderPassShader->Bind();
 
 		mpGraphicsContext->DispatchCompute(pVolumetricCloudsScreenBufferTexture->GetWidth() / 16, pVolumetricCloudsScreenBufferTexture->GetHeight() / 16, 1);
+
+		pVolumetricCloudsRenderPassShader->Unbind();
+
+		// Compose pass
+		TPtr<IRenderTarget> pMainRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
+		TPtr<IRenderTarget> pTempRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle);
+		TPtr<ITexture2D> pCloudsRenderTarget = mpResourceManager->GetResource<ITexture2D>(mVolumetricCloudsScreenBufferHandle);
+
+		_renderTargetToTarget(pMainRenderTarget, pCloudsRenderTarget.Get(), pTempRenderTarget, mVolumetricCloudsComposeMaterialHandle); // Compose
+		_renderTargetToTarget(pTempRenderTarget, nullptr, pMainRenderTarget, mDefaultScreenSpaceMaterialHandle); // Blit Temp -> Main RT
 
 		return RC_OK;
 	}
@@ -531,7 +545,7 @@ namespace TDEngine2
 
 		auto pLuminanceTarget = mpResourceManager->GetResource<IRenderTarget>(mFramesLuminanceHistoryTargets[mCurrActiveLuminanceFrameTargetIndex]);
 
-		_renderTargetToTarget(pFrontTarget, pLuminanceTarget, pBloomTarget, mBloomFilterMaterialHandle); // Bloom pass
+		_renderTargetToTarget(pFrontTarget, pLuminanceTarget.Get(), pBloomTarget, mBloomFilterMaterialHandle); // Bloom pass
 		_renderTargetToTarget(pBloomTarget, nullptr, pBackTarget, mGaussianBlurMaterialHandle); // Horizontal Blur pass
 
 		if (auto pBlurMaterial = mpResourceManager->GetResource<IMaterial>(mGaussianBlurMaterialHandle))
@@ -540,7 +554,7 @@ namespace TDEngine2
 		}
 
 		_renderTargetToTarget(pBackTarget, nullptr, pBloomTarget, mGaussianBlurMaterialHandle); // Vertical Blur pass
-		_renderTargetToTarget(pFrontTarget, pBloomTarget, pBackTarget, mBloomFinalPassMaterialHandle); // Compose
+		_renderTargetToTarget(pFrontTarget, pBloomTarget.Get(), pBackTarget, mBloomFinalPassMaterialHandle); // Compose
 		_renderTargetToTarget(pBackTarget, nullptr, pFrontTarget, mDefaultScreenSpaceMaterialHandle); // Blit Temp -> Main render target
 	}
 
@@ -560,7 +574,7 @@ namespace TDEngine2
 		}
 	}
 	 
-	void CFramePostProcessor::_renderTargetToTarget(TPtr<IRenderTarget> pSource, TPtr<IRenderTarget> pExtraSource, TPtr<IRenderTarget> pDest, TResourceId materialHandle)
+	void CFramePostProcessor::_renderTargetToTarget(TPtr<IRenderTarget> pSource, ITexture* pExtraSource, TPtr<IRenderTarget> pDest, TResourceId materialHandle)
 	{		
 		mpGraphicsContext->SetDepthBufferEnabled(false);
 		mpGraphicsContext->BindRenderTarget(0, pDest.Get());
@@ -572,7 +586,7 @@ namespace TDEngine2
 
 			if (pExtraSource)
 			{
-				pMaterial->SetTextureResource(BackFrameTextureUniformId, pExtraSource.Get());
+				pMaterial->SetTextureResource(BackFrameTextureUniformId, pExtraSource);
 			}
 		}
 

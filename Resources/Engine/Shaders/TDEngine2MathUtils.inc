@@ -48,12 +48,7 @@ float IntersectRaySphere(Ray3 ray, float4 sphere)
 		return t0;
 	}
 
-	if (t0 < 0 && t1 > 0)
-	{
-		return t1;
-	}
-
-	return -1.0;
+	return t1;
 }
 
 
