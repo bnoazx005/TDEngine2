@@ -303,17 +303,12 @@ namespace TDEngine2
 
 		auto pDepthBufferResource = mpResourceManager->GetResource<IDepthBufferTarget>(mMainDepthBufferHandle);
 
-		TDE2_STATIC_CONSTEXPR F32 EarthRadius = 6378000.0f;
-		TDE2_STATIC_CONSTEXPR F32 AtmosphereThickness = 10000.0f; // \todo Replace with value from component WeatherComponent later
-
 		struct
 		{
-			TVector4 mAtmosphereParameters;
 			TVector2 mInvTextureSizes;
 			I32      mStepsCount;
 		} uniformsData;
 
-		uniformsData.mAtmosphereParameters = TVector4{ EarthRadius, EarthRadius + 10000.0f, EarthRadius + 10000.0f + AtmosphereThickness, AtmosphereThickness };
 		uniformsData.mInvTextureSizes = TVector2
 		{
 			1 / static_cast<F32>(pVolumetricCloudsScreenBufferTexture->GetWidth()), 1 / static_cast<F32>(pVolumetricCloudsScreenBufferTexture->GetHeight())
@@ -323,15 +318,6 @@ namespace TDEngine2
 		auto pVolumetricCloudsRenderPassShader = mpResourceManager->GetResource<IShader>(mVolumetricCloudsComputeShaderHandle);
 		pVolumetricCloudsRenderPassShader->SetTextureResource("OutputTexture", pVolumetricCloudsScreenBufferTexture.Get());
 		pVolumetricCloudsRenderPassShader->SetTextureResource("DepthTexture", pDepthBufferResource.Get());
-
-		/// \todo Replace hardcoded values
-		{
-			auto pCloudsHighNoiseTex = mpResourceManager->GetResource<ITexture3D>(mpResourceManager->Load<ITexture3D>("CloudsHighFreqNoise"));
-			auto pCloudsLowNoiseTex = mpResourceManager->GetResource<ITexture3D>(mpResourceManager->Load<ITexture3D>("CloudsLowFreqNoise"));
-
-			pVolumetricCloudsRenderPassShader->SetTextureResource("LowFreqCloudsNoiseTex", pCloudsLowNoiseTex.Get());
-			pVolumetricCloudsRenderPassShader->SetTextureResource("HiFreqCloudsNoiseTex", pCloudsHighNoiseTex.Get());
-		}
 
 		pVolumetricCloudsRenderPassShader->SetUserUniformsBuffer(0, reinterpret_cast<const U8*>(&uniformsData), sizeof(uniformsData));
 		pVolumetricCloudsRenderPassShader->Bind();

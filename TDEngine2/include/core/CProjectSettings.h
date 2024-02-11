@@ -77,7 +77,7 @@ namespace TDEngine2
 #endif
 
 				std::string mDefaultSkyboxMaterial = "DefaultResources/Materials/DefaultSkybox.material";
-				std::string mDefaultCloudscapesMaterial = "DefaultResources/Materials/VolumetricClouds.material";
+				std::string mVolumetricCloudsMainShader = "Shaders/Default/VolumetricClouds.cshader";
 
 				std::string mShaderCachePathPattern = "ProjectResources/ShadersPack_{0}.cache";
 				bool        mIsShaderCacheEnabled = true;

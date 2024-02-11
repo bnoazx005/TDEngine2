@@ -14,6 +14,7 @@
 #include "../../include/editor/CPerfProfiler.h"
 #include "../../include/math/MathUtils.h"
 #include "../../include/utils/CFileLogger.h"
+#include "../../include/scene/components/CWeatherComponent.h"
 #include "stringUtils.hpp"
 #include "randomUtils.hpp"
 #include <vector>
@@ -108,13 +109,13 @@ namespace TDEngine2
 			pTexture->SetWWrapMode(E_ADDRESS_MODE_TYPE::AMT_WRAP);
 		}
 
-		const TResourceId cloudsMaterialHandle = pResourceManager->Load<IMaterial>(CProjectSettings::Get()->mGraphicsSettings.mDefaultCloudscapesMaterial);
-		TDE2_ASSERT(TResourceId::Invalid != cloudsMaterialHandle);
+		const TResourceId volumetricCloudsShaderHandle = pResourceManager->Load<IMaterial>(CProjectSettings::Get()->mGraphicsSettings.mVolumetricCloudsMainShader);
+		TDE2_ASSERT(TResourceId::Invalid != volumetricCloudsShaderHandle);
 		
-		if (auto pMaterial = pResourceManager->GetResource<IMaterial>(cloudsMaterialHandle))
+		if (auto pVolumetricCloudsMainShader = pResourceManager->GetResource<IShader>(volumetricCloudsShaderHandle))
 		{
-			pMaterial->SetTextureResource("HiFreqCloudsNoiseTex", pResourceManager->GetResource<ITexture>(highFreqCloudsTextureHandle).Get());
-			pMaterial->SetTextureResource("LowFreqCloudsNoiseTex", pResourceManager->GetResource<ITexture>(lowFreqCloudsTextureHandle).Get());
+			pVolumetricCloudsMainShader->SetTextureResource("LowFreqCloudsNoiseTex", pResourceManager->GetResource<ITexture>(lowFreqCloudsTextureHandle).Get());
+			pVolumetricCloudsMainShader->SetTextureResource("HiFreqCloudsNoiseTex", pResourceManager->GetResource<ITexture>(highFreqCloudsTextureHandle).Get());
 		}
 
 		TDE2_ASSERT(TResourceId::Invalid != lowFreqCloudsTextureHandle);
@@ -165,6 +166,37 @@ namespace TDEngine2
 	void CWeatherSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		TDE2_PROFILER_SCOPE("CWeatherSystem::Update");
+
+		CEntity* pEntity = pWorld->FindEntity(pWorld->FindEntityWithUniqueComponent<CWeatherComponent>());
+		if (!pEntity)
+		{
+			return;
+		}
+
+		CWeatherComponent* pWeatherComponent = pEntity->GetComponent<CWeatherComponent>();
+		if (!pWeatherComponent)
+		{
+			return;
+		}
+
+		TDE2_STATIC_CONSTEXPR F32 EarthRadius = 600000.0f;
+
+		struct
+		{
+			TVector4 mAtmosphereParameters; // x - Earth's radius, y - inner atmosphere's radius, z - thickness
+			TVector4 mWindParameters; // xy - direction, w - scale factor
+		} uniformsData;
+
+		uniformsData.mAtmosphereParameters = TVector4{ EarthRadius, 1500.0f, pWeatherComponent->mAtmosphereThickness, 0.0f };
+		uniformsData.mWindParameters = TVector4{ pWeatherComponent->mWindDirection.x, pWeatherComponent->mWindDirection.y, 0.0f, 1.0f };
+
+		const TResourceId volumetricCloudsShaderHandle = mpResourceManager->Load<IMaterial>(CProjectSettings::Get()->mGraphicsSettings.mVolumetricCloudsMainShader);
+		TDE2_ASSERT(TResourceId::Invalid != volumetricCloudsShaderHandle);
+
+		if (auto pVolumetricCloudsMainShader = mpResourceManager->GetResource<IShader>(volumetricCloudsShaderHandle))
+		{
+			pVolumetricCloudsMainShader->SetUserUniformsBuffer(1, reinterpret_cast<const U8*>(&uniformsData), sizeof(uniformsData));
+		}
 	}
 
 

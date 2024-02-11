@@ -69,6 +69,9 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWeatherComponent)
 		public:
+			float mAtmosphereThickness = 4000.0f;
+
+			TVector2 mWindDirection = RightVector2;
 	};
 
 

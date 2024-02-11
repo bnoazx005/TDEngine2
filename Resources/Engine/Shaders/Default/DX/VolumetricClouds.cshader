@@ -12,20 +12,110 @@ DECLARE_TEX3D_EX(LowFreqCloudsNoiseTex, 2);
 DECLARE_TEX3D_EX(HiFreqCloudsNoiseTex, 3);
 
 
-CBUFFER_SECTION_EX(ShaderParameters, 4)
-	float4 mAtmosphereParameters; // x - Earth radius, y - atmosphere inner radius, z - atmosphere outer radius, w - atmosphere thickness
+CBUFFER_SECTION_EX(RenderParameters, 4)
 	float2 mInvTextureSize;
 	int    mStepsCount;
 CBUFFER_ENDSECTION
 
 
-float SampleCloudDensity(float3 pos)
+CBUFFER_SECTION_EX(CloudsParameters, 5)
+	float4 mAtmosphereParameters; // x - Earth radius, y - atmosphere inner radius, z - atmosphere thickness
+	float4 mWindParameters; // xy - direction, w - scale factor
+CBUFFER_ENDSECTION
+
+
+float GetHeightFraction(float3 pos)
 {
-	return TEX3D_LOD(LowFreqCloudsNoiseTex, pos, 0).r;
+	float innerAtmosphereRadius = mAtmosphereParameters.x  + mAtmosphereParameters.y;
+	float outerAtmosphereRadius = innerAtmosphereRadius + mAtmosphereParameters.z;
+
+    return (length(pos - float3(0.0, -mAtmosphereParameters.x, 0.0)) - innerAtmosphereRadius) / (outerAtmosphereRadius - innerAtmosphereRadius);
 }
 
 
-float4 DoRayMarch(Ray3 ray, float3 earthCenter, float2 intersectionsParams, float4 atmosphereParams)
+float2 GetUVProjection(float3 p)
+{
+    float innerRadius = mAtmosphereParameters.x + mAtmosphereParameters.y;
+    return p.xz / innerRadius + 0.5f;
+}
+
+
+// Cloud types height density gradients
+static const float4 STRATUS_GRADIENT       = float4(0.0, 0.1, 0.2, 0.3);
+static const float4 STRATOCUMULUS_GRADIENT = float4(0.02, 0.2, 0.48, 0.625);
+static const float4 CUMULUS_GRADIENT       = float4(0.0, 0.1625, 0.88, 0.98);
+
+
+float GetDensityForCloud(float heightFraction, float cloudType)
+{
+    float stratusFactor = 1.0 - clamp(cloudType * 2.0, 0.0, 1.0);
+    float stratoCumulusFactor = 1.0 - abs(cloudType - 0.5) * 2.0;
+    float cumulusFactor = clamp(cloudType - 0.5, 0.0, 1.0) * 2.0;
+
+    float4 baseGradient = stratusFactor * STRATUS_GRADIENT + stratoCumulusFactor * STRATOCUMULUS_GRADIENT + cumulusFactor * CUMULUS_GRADIENT;
+    return smoothstep(baseGradient.x, baseGradient.y, heightFraction) - smoothstep(baseGradient.z, baseGradient.w, heightFraction);
+}
+
+
+float SampleCloudDensity(float3 pos)
+{
+	float heightFraction = GetHeightFraction(pos) + 1e-2;
+	float2 uv = GetUVProjection(pos);
+
+    if (heightFraction < 1e-3 || heightFraction > 1.0)
+        return 0.0f;
+
+	float4 lowFreqNoises = TEX3D_LOD(LowFreqCloudsNoiseTex, float3(uv * 45.0, heightFraction), 0);
+
+	float lowFreqFBM = dot(lowFreqNoises.gba, float3(0.625, 0.25, 0.125));
+    float cloudSample = Remap(lowFreqNoises.r, -(1.0f - lowFreqFBM), 1.0, 0.0, 1.0);
+
+	float density = GetDensityForCloud(heightFraction, 1.0f);
+    cloudSample *= (density / heightFraction);
+
+    float cloudWeatherCoverage = 0.305; // TODO implement weather coverage
+
+    float cloudSampleWithCoverage = Remap(cloudSample, cloudWeatherCoverage, 1.0f, 0.0f, 1.0f);
+    cloudSampleWithCoverage *= cloudWeatherCoverage;
+
+	return saturate(cloudSampleWithCoverage);
+}
+
+
+float DoRayMarchToSun(float3 pos, float stepSize)
+{
+	int StepsCount = 8;
+
+    float deltaStep = stepSize * (float)StepsCount;
+	float3 dirStep = SunLightDirection.xyz * deltaStep;
+
+	float transmitance = 1.0; // transmitance
+    float density = 0.0;
+    float sigmaDeltaStep = -deltaStep * 0.03;
+
+	for (int i = 0; i < StepsCount; i++) 
+	{
+        float heightFraction = GetHeightFraction(pos);
+        if (heightFraction > 0)
+        {        	
+            float cloudDensity = SampleCloudDensity(pos);
+            if (cloudDensity > 0.0)
+            {
+                float currTransmittance = exp(cloudDensity * sigmaDeltaStep);
+                transmitance *= currTransmittance;
+                density += cloudDensity;
+            }
+        }
+
+		pos += dirStep;
+	}
+
+	return transmitance;
+}
+
+
+
+float4 DoRayMarchToCloud(Ray3 ray, float3 earthCenter, float2 intersectionsParams)
 {
 	float thickness = intersectionsParams.y - intersectionsParams.x;
 	float stepSize = thickness / (float)mStepsCount;
@@ -34,36 +124,28 @@ float4 DoRayMarch(Ray3 ray, float3 earthCenter, float2 intersectionsParams, floa
 	float alpha = 0.0;
 
 	float transmitance = 1.0;
+    float sigmaDeltaStep = -stepSize * 0.01;
 
 	int i = 0;
 
-	float a = SampleCloudDensity((ray.origin + intersectionsParams.x * ray.dir) / 10000);
-
-	return float4(a, a, a, a);
+	//float h = SampleCloudDensity(ray.origin + intersectionsParams.x * ray.dir);
+	//return float4(h, h, h, h);
 
 	for (float t = intersectionsParams.x; t < intersectionsParams.y; t += stepSize)
 	{
 		float3 pos = ray.origin + t * ray.dir;
-		float3 atmoRelPos = (pos - float3(earthCenter.x, atmosphereParams.y - atmosphereParams.x, earthCenter.z)) / thickness;
 
-		float density = SampleCloudDensity(pos / 10000);
-		density *= smoothstep(0.5, 0.505, density);
-		density = saturate(density);
-
-		float h = (float)i/(float)mStepsCount;
-		i++;
-
-		float T_i = exp(-1.030725 * density * stepSize);
-		transmitance *= T_i;
-
-		if (T_i < 0.01) break;
-
-		color += transmitance * (exp(h) / 1.75) * stepSize * density;
-		alpha += (1. - T_i) * (1. - alpha);
-
+		float densitySample = SampleCloudDensity(pos);
+		if (densitySample > 0.0)
+		{
+            float deltaTransmittance = exp(densitySample * sigmaDeltaStep);
+            float3 Sint =  deltaTransmittance * (1.0f / densitySample);
+            color.rgb += DoRayMarchToSun(pos, stepSize * 0.1) *transmitance * Sint;
+            transmitance *= deltaTransmittance;
+		}
 	}
 
-	return float4(color, alpha);
+	return float4(color, 1.0 - transmitance);
 }
 
 
@@ -77,19 +159,21 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 	float4 viewDir = normalize(mul(InvViewMat, float4(mul(InvProjMat, float4(uv, 0.0, 1.0)).xyz, 0.0)));
 	Ray3 primaryRay = MakeRay(CameraPosition.xyz, float3(viewDir.xyz));
 
-	float3 earthCenter = primaryRay.origin - float3(0.0, mAtmosphereParameters.x, 0.0);
-
-	float startT = IntersectRaySphere(primaryRay, float4(earthCenter, mAtmosphereParameters.y));
-	float endT = IntersectRaySphere(primaryRay, float4(earthCenter, mAtmosphereParameters.z));
-
 	if (TEX2D_LOD(DepthTexture, id.xy * mInvTextureSize, 0).r < 0.999 || dot(primaryRay.dir, float3(0.0, 1.0, 0.0)) < 1e-3)
 	{
 		OutputTexture[id.xy] = float4(0.0, 0.0, 0.0, 0.0);
 		return;
 	}
 
-	OutputTexture[id.xy] = DoRayMarch(primaryRay, earthCenter, float2(startT, endT), mAtmosphereParameters);
+	float3 earthCenter = float3(0.0, -mAtmosphereParameters.x, 0.0);
 
+	float innerAtmosphereRadius = mAtmosphereParameters.x  + mAtmosphereParameters.y;
+	float outerAtmosphereRadius = innerAtmosphereRadius + mAtmosphereParameters.z;
+
+	float startT = IntersectRaySphere(primaryRay, float4(float3(CameraPosition.x, -mAtmosphereParameters.x, CameraPosition.z), innerAtmosphereRadius));
+	float endT = IntersectRaySphere(primaryRay, float4(float3(CameraPosition.x, -mAtmosphereParameters.x, CameraPosition.z), outerAtmosphereRadius));
+
+	OutputTexture[id.xy] = DoRayMarchToCloud(primaryRay, earthCenter, float2(startT, endT));
 
 /*
 	float3 pos = startPos;
