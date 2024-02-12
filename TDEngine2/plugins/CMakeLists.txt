@@ -9,6 +9,7 @@ option(BUILD_IMGUI_CTX_PLUGIN "Build IMGUI context plugin" ON)
 option(BUILD_FMOD_AUDIO_CTX_PLUGIN "Build FMOD audio context plugin" ON)
 option(BUILD_LEVEL_STREAMING_PLUGIN "Build level streaming implementation plugin" ON)
 option(BUILD_BULLET_PHYSICS_PLUGIN "Build Bullet physics plugin" ON)
+option(BUILD_VIDEO_PLAYERS_PLUGIN "Build support of video players" ON)
 
 if (BUILD_D3D11_GCTX_PLUGIN)
 	if (MSVC)
@@ -69,3 +70,8 @@ if (BUILD_BULLET_PHYSICS_PLUGIN)
 
 	add_subdirectory(TDE2BulletPhysics)
 endif (BUILD_BULLET_PHYSICS_PLUGIN)
+
+if (BUILD_VIDEO_PLAYERS_PLUGIN)
+	message(STATUS "TDE2VideoPlayers's compilation is enabled")
+	add_subdirectory(TDE2VideoPlayers)
+endif (BUILD_VIDEO_PLAYERS_PLUGIN)
