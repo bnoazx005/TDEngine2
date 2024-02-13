@@ -21,6 +21,7 @@ set(TDE2_VIDEO_PLAYERS_HEADERS
 
 set(TDE2_VIDEO_PLAYERS_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CTDE2VideoPlayersPlugin.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/deps/theoraplay/theoraplay.c"
 	)
 
 source_group("includes" FILES ${TDE2_VIDEO_PLAYERS_HEADERS})
@@ -42,6 +43,7 @@ if (MSVC) 	#cl.exe compiler's options
 
 endif(MSVC)
 
+
 add_library(${TDE2_VIDEO_PLAYERS_LIBRARY_NAME} SHARED ${TDE2_VIDEO_PLAYERS_SOURCES} ${TDE2_VIDEO_PLAYERS_HEADERS})
 
 SET_TARGET_PROPERTIES(${TDE2_VIDEO_PLAYERS_LIBRARY_NAME} PROPERTIES PREFIX "")
@@ -54,3 +56,17 @@ set_target_properties(${TDE2_VIDEO_PLAYERS_LIBRARY_NAME} PROPERTIES DEFINE_SYMBO
 
 # bad decision to create a circular dependency TODO: dettach the plugin from TDEngine2
 target_link_libraries(${TDE2_VIDEO_PLAYERS_LIBRARY_NAME} PUBLIC ${TDENGINE2_LIBRARY_NAME})
+
+
+if (MSVC)
+	set(OGG_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/deps/libogg/include/")
+	set(THEORA_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/deps/theora/include/")
+	set(VORBIS_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/deps/vorbis/include/")
+
+	set(OGG_LIBS "${CMAKE_CURRENT_SOURCE_DIR}/deps/libogg/lib/win64/$<CONFIGURATION>/libogg_static.lib")
+	set(THEORA_LIBS "${CMAKE_CURRENT_SOURCE_DIR}/deps/theora/win64/$<CONFIGURATION>/libtheora_static.lib")
+	set(VORBIS_LIBS "${CMAKE_CURRENT_SOURCE_DIR}/deps/vorbis/win64/$<CONFIGURATION>/libvorbis_static.lib")
+		
+	target_include_directories(${TDE2_VIDEO_PLAYERS_LIBRARY_NAME} PUBLIC ${OGG_HEADERS} ${THEORA_HEADERS} ${VORBIS_HEADER})
+	target_link_libraries(${TDE2_VIDEO_PLAYERS_LIBRARY_NAME} PUBLIC ${OGG_LIBS} ${THEORA_LIBS} ${VORBIS_LIBS})
+endif(MSVC)
