@@ -1,5 +1,6 @@
 #include "../include/CVideoProcessSystem.h"
 #include "../include/CUIVideoContainerComponent.h"
+#include <core/IResourceManager.h>
 #include <ecs/IWorld.h>
 #include <graphics/UI/CImageComponent.h>
 #include <editor/CPerfProfiler.h>
@@ -13,12 +14,19 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CVideoProcessSystem::Init()
+	E_RESULT_CODE CVideoProcessSystem::Init(IResourceManager* pResourceManager)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
+
+		if (!pResourceManager)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpResourceManager = pResourceManager;
 
 		mIsInitialized = true;
 
@@ -31,6 +39,8 @@ namespace TDEngine2
 		mVideoReceivers.clear();
 
 		CImage* pImage = nullptr;
+
+		U32 counter = 0;
 
 		for (const TEntityId currEntityId : pWorld->FindEntitiesWithComponents<CUIVideoContainerComponent>())
 		{
@@ -61,8 +71,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API ISystem* CreateVideoProcessSystem(E_RESULT_CODE& result)
+	TDE2_API ISystem* CreateVideoProcessSystem(IResourceManager* pResourceManager, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(ISystem, CVideoProcessSystem, result);
+		return CREATE_IMPL(ISystem, CVideoProcessSystem, result, pResourceManager);
 	}
 }

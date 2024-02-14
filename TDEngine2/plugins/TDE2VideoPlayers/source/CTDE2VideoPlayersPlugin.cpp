@@ -2,6 +2,7 @@
 #include "../include/CVideoProcessSystem.h"
 #include "../include/CUIVideoContainerComponent.h"
 #include <core/IEngineCore.h>
+#include <core/IResourceManager.h>
 #if TDE2_EDITORS_ENABLED
 #include <editor/IEditorsManager.h>
 #endif
@@ -39,7 +40,7 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		auto systemRegistrationResult = pWorld->RegisterSystem(CreateVideoProcessSystem(result));
+		auto systemRegistrationResult = pWorld->RegisterSystem(CreateVideoProcessSystem(pEngineCore->GetSubsystem<IResourceManager>().Get(), result));
 		if (systemRegistrationResult.HasError())
 		{
 			return systemRegistrationResult.GetError();
