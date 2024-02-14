@@ -1,4 +1,6 @@
 #include "../include/CTDE2VideoPlayersPlugin.h"
+#include "../include/CVideoProcessSystem.h"
+#include "../include/CUIVideoContainerComponent.h"
 #include <core/IEngineCore.h>
 #if TDE2_EDITORS_ENABLED
 #include <editor/IEditorsManager.h>
@@ -37,11 +39,30 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
+		auto systemRegistrationResult = pWorld->RegisterSystem(CreateVideoProcessSystem(result));
+		if (systemRegistrationResult.HasError())
+		{
+			return systemRegistrationResult.GetError();
+		}
+
 		return result;
 	}
 
 	E_RESULT_CODE CVideoPlayersPlugin::OnRegisterComponents(IEngineCore* pEngineCore, IWorld* pWorld)
 	{
+		E_RESULT_CODE result = pWorld->RegisterComponentFactory(TPtr<IComponentFactory>(CreateUIVideoContainerComponentFactory(result)));
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+#if TDE2_EDITORS_ENABLED
+		if (auto pEditorsManager = pEngineCore->GetSubsystem<IEditorsManager>())
+		{
+			pEditorsManager->RegisterComponentInspector(CUIVideoContainerComponent::GetTypeId(), CUIVideoContainerComponent::DrawInspectorGUI);
+		}
+#endif
+
 		return RC_OK;
 	}
 

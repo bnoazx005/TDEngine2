@@ -17,10 +17,14 @@ set(TDE2_VIDEO_PLAYERS_LIBRARY_NAME "TDE2VideoPlayers")
 
 set(TDE2_VIDEO_PLAYERS_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CTDE2VideoPlayersPlugin.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/CVideoProcessSystem.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/CUIVideoContainerComponent.h"
 	)
 
 set(TDE2_VIDEO_PLAYERS_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CTDE2VideoPlayersPlugin.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/CVideoProcessSystem.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/CUIVideoContainerComponent.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/deps/theoraplay/theoraplay.c"
 	)
 
@@ -67,6 +71,6 @@ if (MSVC)
 	set(THEORA_LIBS "${CMAKE_CURRENT_SOURCE_DIR}/deps/theora/win64/$<CONFIGURATION>/libtheora_static.lib")
 	set(VORBIS_LIBS "${CMAKE_CURRENT_SOURCE_DIR}/deps/vorbis/win64/$<CONFIGURATION>/libvorbis_static.lib")
 		
-	target_include_directories(${TDE2_VIDEO_PLAYERS_LIBRARY_NAME} PUBLIC ${OGG_HEADERS} ${THEORA_HEADERS} ${VORBIS_HEADER})
+	target_include_directories(${TDE2_VIDEO_PLAYERS_LIBRARY_NAME} PUBLIC ${OGG_HEADERS} ${THEORA_HEADERS} ${VORBIS_HEADERS})
 	target_link_libraries(${TDE2_VIDEO_PLAYERS_LIBRARY_NAME} PUBLIC ${OGG_LIBS} ${THEORA_LIBS} ${VORBIS_LIBS})
 endif(MSVC)

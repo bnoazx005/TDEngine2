@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.25] 2024-02-13
+## [0.6.25] 2024-02-14
 
 ### Added
 
@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New global uniform variables InvViewProjMat, InvViewMat, InvProjMat were added for usage in shaders.
 
 - A new plugin that adds video player was added.
+
+- A new component **UIVideoContainerComponent** and a system **CVideoProcessingSystem** were added. 
 
 ### Changed
 
