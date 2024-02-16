@@ -56,6 +56,20 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
+			/*!
+				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
+				The original state of the object stays the same
+
+				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
+			*/
+
+			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
+
+			TDE2_API void StartPlayback();
+			TDE2_API void StopPlayback();
+
+			TDE2_API void ResetState();
+
 #if TDE2_EDITORS_ENABLED
 			TDE2_API static void DrawInspectorGUI(const TEditorContext& context);
 #endif
@@ -64,9 +78,21 @@ namespace TDEngine2
 		
 		public:
 			std::string mVideoResourceId;
+
+			U16         mFPS = 30;
+
 			bool        mIsLooped = false;
 			bool        mIsAutoplayEnabled = true;
 			bool        mIsDirty = true;
+
+			bool        mIsPlaying = false;
+
+			// control flags
+			bool        mStopPlayback = false;
+			
+
+			F32         mCurrTime = 0.0f;
+			U32         mFrameTime = 0; // equals to 1000.0f / mFPS
 	};
 
 

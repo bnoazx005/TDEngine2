@@ -14,11 +14,19 @@
 #include <vector>
 
 
+struct THEORAPLAY_Decoder;
+struct THEORAPLAY_VideoFrame;
+
+
 namespace TDEngine2
 {
 	class CUIVideoContainerComponent;
 	class CImage;
 	class IResourceManager;
+	class IFileSystem;
+
+
+	enum class TResourceId : U32;
 
 
 	/*!
@@ -29,7 +37,7 @@ namespace TDEngine2
 		\return A pointer to CVideoProcessSystem's implementation
 	*/
 
-	TDE2_API ISystem* CreateVideoProcessSystem(IResourceManager* pResourceManager, E_RESULT_CODE& result);
+	TDE2_API ISystem* CreateVideoProcessSystem(IResourceManager* pResourceManager, IFileSystem* pFileSystem, E_RESULT_CODE& result);
 
 
 	/*!
@@ -39,7 +47,7 @@ namespace TDEngine2
 	class CVideoProcessSystem : public CBaseSystem
 	{
 		public:
-			friend TDE2_API ISystem* CreateVideoProcessSystem(IResourceManager*, E_RESULT_CODE&);
+			friend TDE2_API ISystem* CreateVideoProcessSystem(IResourceManager*, IFileSystem*, E_RESULT_CODE&);
 		public:
 			TDE2_SYSTEM(CVideoProcessSystem);
 
@@ -49,7 +57,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager);
+			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IFileSystem* pFileSystem);
 
 			/*!
 				\brief The method inject components array into a system
@@ -73,9 +81,14 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVideoProcessSystem)
 
 		protected:
-			IResourceManager*                        mpResourceManager = nullptr;
+			IResourceManager*                         mpResourceManager = nullptr;
+			IFileSystem*                              mpFileSystem = nullptr;
 
-			std::vector<CUIVideoContainerComponent*> mVideoContainers;
-			std::vector<CImage*>                     mVideoReceivers;
+			std::vector<CUIVideoContainerComponent*>  mpVideoContainers;
+			std::vector<CImage*>                      mpVideoReceivers;
+			std::vector<THEORAPLAY_Decoder*>          mpActiveDecoders;
+			std::vector<const THEORAPLAY_VideoFrame*> mpCurrVideoFrames;
+
+			std::vector<TResourceId>                  mVideoTextures;
 	};
 }
