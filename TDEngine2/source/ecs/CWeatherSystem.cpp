@@ -163,6 +163,10 @@ namespace TDEngine2
 	{
 	}
 
+
+	TDE2_STATIC_CONSTEXPR F32 EarthRadius = 600000.0f;
+
+
 	void CWeatherSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		TDE2_PROFILER_SCOPE("CWeatherSystem::Update");
@@ -178,8 +182,6 @@ namespace TDEngine2
 		{
 			return;
 		}
-
-		TDE2_STATIC_CONSTEXPR F32 EarthRadius = 600000.0f;
 
 		struct
 		{
