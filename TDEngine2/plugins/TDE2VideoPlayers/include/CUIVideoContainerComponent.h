@@ -10,10 +10,14 @@
 #include <core/memory/CPoolAllocator.h>
 #include <ecs/CBaseComponent.h>
 #include <editor/IEditorsManager.h>
+#include <memory>
 
 
 namespace TDEngine2
 {
+	struct TInternalVideoData;
+
+
 	/*!
 		\brief A factory function for creation objects of CUIVideoContainerComponent's type.
 
@@ -74,7 +78,8 @@ namespace TDEngine2
 			TDE2_API static void DrawInspectorGUI(const TEditorContext& context);
 #endif
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUIVideoContainerComponent)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS_NO_DCTR(CUIVideoContainerComponent)
+			TDE2_API virtual ~CUIVideoContainerComponent();
 		
 		public:
 			std::string mVideoResourceId;
@@ -93,6 +98,8 @@ namespace TDEngine2
 
 			F32         mCurrTime = 0.0f;
 			U32         mFrameTime = 0; // equals to 1000.0f / mFPS
+
+			std::unique_ptr<TInternalVideoData> mpInternalData;
 	};
 
 

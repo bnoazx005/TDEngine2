@@ -29,6 +29,18 @@ namespace TDEngine2
 	enum class TResourceId : U32;
 
 
+	struct TInternalVideoData
+	{
+		TDE2_API ~TInternalVideoData();
+
+		THEORAPLAY_Decoder*          mpDecoder = nullptr;
+		const THEORAPLAY_VideoFrame* mpCurrVideoFrame = nullptr;
+		TResourceId                  mVideoTextureHandle = TResourceId::Invalid;
+	};
+
+
+
+
 	/*!
 		\brief A factory function for creation objects of CVideoProcessSystem's type.
 
@@ -78,7 +90,8 @@ namespace TDEngine2
 
 			TDE2_API void Update(IWorld* pWorld, F32 dt) override;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVideoProcessSystem)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS_NO_DCTR(CVideoProcessSystem)
+			TDE2_API virtual ~CVideoProcessSystem();
 
 		protected:
 			IResourceManager*                         mpResourceManager = nullptr;
@@ -86,9 +99,5 @@ namespace TDEngine2
 
 			std::vector<CUIVideoContainerComponent*>  mpVideoContainers;
 			std::vector<CImage*>                      mpVideoReceivers;
-			std::vector<THEORAPLAY_Decoder*>          mpActiveDecoders;
-			std::vector<const THEORAPLAY_VideoFrame*> mpCurrVideoFrames;
-
-			std::vector<TResourceId>                  mVideoTextures;
 	};
 }

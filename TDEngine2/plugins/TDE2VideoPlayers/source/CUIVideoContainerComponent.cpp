@@ -1,4 +1,5 @@
 #include "../include/CUIVideoContainerComponent.h"
+#include "../include/CVideoProcessSystem.h"
 #include <editor/Inspectors.h>
 #include <core/IImGUIContext.h>
 
@@ -21,9 +22,13 @@ namespace TDEngine2
 
 
 	CUIVideoContainerComponent::CUIVideoContainerComponent():
-		CBaseComponent()
+		CBaseComponent(), mpInternalData(std::make_unique<TInternalVideoData>())
 	{
 		ResetState();
+	}
+
+	CUIVideoContainerComponent::~CUIVideoContainerComponent()
+	{
 	}
 
 	E_RESULT_CODE CUIVideoContainerComponent::Load(IArchiveReader* pReader)

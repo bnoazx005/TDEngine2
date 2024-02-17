@@ -12,8 +12,19 @@
 
 namespace TDEngine2
 {
+	TInternalVideoData::~TInternalVideoData()
+	{
+		THEORAPLAY_stopDecode(mpDecoder);
+		THEORAPLAY_freeVideo(mpCurrVideoFrame);
+	}
+
+
 	CVideoProcessSystem::CVideoProcessSystem() :
 		CBaseSystem()
+	{
+	}
+
+	CVideoProcessSystem::~CVideoProcessSystem()
 	{
 	}
 
@@ -45,9 +56,6 @@ namespace TDEngine2
 	{
 		mpVideoContainers.clear();
 		mpVideoReceivers.clear();
-		mpActiveDecoders.clear();
-		mVideoTextures.clear();
-		mpCurrVideoFrames.clear();
 
 		for (const TEntityId currEntityId : pWorld->FindEntitiesWithComponents<CUIVideoContainerComponent>())
 		{
@@ -55,11 +63,7 @@ namespace TDEngine2
 
 			mpVideoContainers.push_back(pEntity->GetComponent<CUIVideoContainerComponent>());
 			mpVideoReceivers.push_back(pEntity->AddComponent<CImage>());
-			mVideoTextures.push_back(TResourceId::Invalid);
 		}
-
-		mpActiveDecoders.resize(mpVideoContainers.size());
-		mpCurrVideoFrames.resize(mpVideoContainers.size());
 	}
 
 	void CVideoProcessSystem::Update(IWorld* pWorld, F32 dt)
@@ -77,9 +81,9 @@ namespace TDEngine2
 		for (USIZE i = 0; i < mpVideoContainers.size(); i++)
 		{
 			pVideoContainer = mpVideoContainers[i];
-			pCurrVideoDecoder = mpActiveDecoders[i];
 			pCurrImageSource = mpVideoReceivers[i];
-			pCurrVideoFrame = mpCurrVideoFrames[i];
+			pCurrVideoDecoder = pVideoContainer->mpInternalData->mpDecoder;
+			pCurrVideoFrame = pVideoContainer->mpInternalData->mpCurrVideoFrame;
 
 			if (!pVideoContainer->mIsPlaying)
 			{
@@ -92,7 +96,7 @@ namespace TDEngine2
 					mpFileSystem->ResolveVirtualPath(pVideoContainer->mVideoResourceId, false).c_str(),
 					static_cast<U32>(pVideoContainer->mFPS), THEORAPLAY_VIDFMT_RGBA);
 
-				mpActiveDecoders[i] = pCurrVideoDecoder;
+				pVideoContainer->mpInternalData->mpDecoder = pCurrVideoDecoder;
 			}
 
 			if (!THEORAPLAY_isInitialized(pCurrVideoDecoder) || !THEORAPLAY_isDecoding(pCurrVideoDecoder))
@@ -105,11 +109,8 @@ namespace TDEngine2
 				pVideoContainer->mStopPlayback = false;
 				pVideoContainer->mIsPlaying = false;
 
-				THEORAPLAY_freeVideo(pCurrVideoFrame);
-				mpCurrVideoFrames[i] = nullptr;
-
-				THEORAPLAY_stopDecode(pCurrVideoDecoder);
-				mpActiveDecoders[i] = nullptr;
+				pVideoContainer->mpInternalData->mpDecoder = nullptr;
+				pVideoContainer->mpInternalData->mpCurrVideoFrame = nullptr;
 
 				continue;
 			}
@@ -123,7 +124,7 @@ namespace TDEngine2
 				}
 			}
 
-			mpCurrVideoFrames[i] = pCurrVideoFrame;
+			pVideoContainer->mpInternalData->mpCurrVideoFrame = pCurrVideoFrame;
 
 			const U32 currTimeMs = static_cast<U32>(1000 * pVideoContainer->mCurrTime);
 			const U32 frameTime = static_cast<U32>(1000 / std::min(pCurrVideoFrame->fps, static_cast<F64>(pVideoContainer->mFPS)));
@@ -154,11 +155,11 @@ namespace TDEngine2
 					pCurrVideoFrame = pPrevVideoFrame;
 				}
 
-				mpCurrVideoFrames[i] = pCurrVideoFrame;
+				pVideoContainer->mpInternalData->mpCurrVideoFrame = pCurrVideoFrame;
 			}
 
 			// \note Update the texture, create a new one if it doesn't exist
-			TResourceId currVideoTextureHandle = mVideoTextures[i];
+			TResourceId currVideoTextureHandle = pVideoContainer->mpInternalData->mVideoTextureHandle;
 			if (TResourceId::Invalid == currVideoTextureHandle)
 			{
 				const TTexture2DParameters params{ pCurrVideoFrame->width, pCurrVideoFrame->height, FT_NORM_UBYTE4, 1, 1, 0 };
@@ -168,7 +169,7 @@ namespace TDEngine2
 
 				TDE2_ASSERT(TResourceId::Invalid != currVideoTextureHandle);
 
-				mVideoTextures[i] = currVideoTextureHandle;
+				pVideoContainer->mpInternalData->mVideoTextureHandle = currVideoTextureHandle;
 				
 				pCurrImageSource->SetImageId(textureId);
 				pCurrImageSource->SetImageResourceId(currVideoTextureHandle);
@@ -188,7 +189,7 @@ namespace TDEngine2
 			pTexture->WriteData(TRectI32(0, 0, static_cast<I32>(pCurrVideoFrame->width), static_cast<I32>(pCurrVideoFrame->height)), pCurrVideoFrame->pixels);
 
 			THEORAPLAY_freeVideo(pCurrVideoFrame);
-			mpCurrVideoFrames[i] = nullptr;
+			pVideoContainer->mpInternalData->mpCurrVideoFrame = nullptr;
 
 			pVideoContainer->mCurrTime += dt;
 		}
