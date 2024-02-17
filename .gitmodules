@@ -19,3 +19,12 @@
 [submodule "TDEngine2/plugins/VulkanGraphicsContext/deps/volk"]
 	path = TDEngine2/plugins/VulkanGraphicsContext/deps/volk
 	url = https://github.com/zeux/volk.git
+[submodule "TDEngine2/plugins/TDE2VideoPlayers/deps/ogg"]
+	path = TDEngine2/plugins/TDE2VideoPlayers/deps/ogg
+	url = https://github.com/xiph/ogg.git
+[submodule "TDEngine2/plugins/TDE2VideoPlayers/deps/theora"]
+	path = TDEngine2/plugins/TDE2VideoPlayers/deps/theora
+	url = https://github.com/xiph/theora.git
+[submodule "TDEngine2/plugins/TDE2VideoPlayers/deps/vorbis"]
+	path = TDEngine2/plugins/TDE2VideoPlayers/deps/vorbis
+	url = https://github.com/xiph/vorbis.git

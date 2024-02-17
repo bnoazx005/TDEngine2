@@ -47,6 +47,9 @@ if (MSVC) 	#cl.exe compiler's options
 
 endif(MSVC)
 
+add_subdirectory(deps/ogg)
+add_subdirectory(deps/vorbis)
+
 
 add_library(${TDE2_VIDEO_PLAYERS_LIBRARY_NAME} SHARED ${TDE2_VIDEO_PLAYERS_SOURCES} ${TDE2_VIDEO_PLAYERS_HEADERS})
 
@@ -62,15 +65,25 @@ set_target_properties(${TDE2_VIDEO_PLAYERS_LIBRARY_NAME} PROPERTIES DEFINE_SYMBO
 target_link_libraries(${TDE2_VIDEO_PLAYERS_LIBRARY_NAME} PUBLIC ${TDENGINE2_LIBRARY_NAME})
 
 
-if (MSVC)
-	set(OGG_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/deps/libogg/include/")
-	set(THEORA_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/deps/theora/include/")
-	set(VORBIS_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/deps/vorbis/include/")
+set(OGG_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/deps/ogg/include/")
+set(THEORA_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/deps/theora/include/")
+set(VORBIS_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/deps/vorbis/include/")
 
-	set(OGG_LIBS "${CMAKE_CURRENT_SOURCE_DIR}/deps/libogg/lib/win64/$<CONFIGURATION>/libogg_static.lib")
-	set(THEORA_LIBS "${CMAKE_CURRENT_SOURCE_DIR}/deps/theora/win64/$<CONFIGURATION>/libtheora_static.lib")
-	set(VORBIS_LIBS "${CMAKE_CURRENT_SOURCE_DIR}/deps/vorbis/win64/$<CONFIGURATION>/libvorbis_static.lib")
-		
-	target_include_directories(${TDE2_VIDEO_PLAYERS_LIBRARY_NAME} PUBLIC ${OGG_HEADERS} ${THEORA_HEADERS} ${VORBIS_HEADERS})
-	target_link_libraries(${TDE2_VIDEO_PLAYERS_LIBRARY_NAME} PUBLIC ${OGG_LIBS} ${THEORA_LIBS} ${VORBIS_LIBS})
-endif(MSVC)
+# theora building
+set(THEORA_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/theora/")
+
+add_library(theoradec OBJECT ${LIBTHEORA_DEC} "${THEORA_SRC_DIR}/lib/apiwrapper.c"
+	"${THEORA_SRC_DIR}/lib/bitpack.c" "${THEORA_SRC_DIR}/lib/dequant.c"
+	"${THEORA_SRC_DIR}/lib/fragment.c" "${THEORA_SRC_DIR}/lib/idct.c"
+	"${THEORA_SRC_DIR}/lib/info.c" "${THEORA_SRC_DIR}/lib/internal.c"
+	"${THEORA_SRC_DIR}/lib/state.c" "${THEORA_SRC_DIR}/lib/quant.c"
+	"${THEORA_SRC_DIR}/lib/decapiwrapper.c" "${THEORA_SRC_DIR}/lib/decinfo.c"
+	"${THEORA_SRC_DIR}/lib/decode.c" "${THEORA_SRC_DIR}/lib/huffdec.c")
+
+target_include_directories(theoradec PRIVATE ${OGG_HEADERS} "${THEORA_SRC_DIR}/include")
+if (UNIX)
+	target_compile_options(theoradec PRIVATE -Wno-shift-negative-value -Wno-shift-op-parentheses)
+endif()
+
+target_include_directories(${TDE2_VIDEO_PLAYERS_LIBRARY_NAME} PUBLIC ${OGG_HEADERS} ${VORBIS_HEADERS} ${THEORA_HEADERS})
+target_link_libraries(${TDE2_VIDEO_PLAYERS_LIBRARY_NAME} PUBLIC ogg vorbis theoradec)
