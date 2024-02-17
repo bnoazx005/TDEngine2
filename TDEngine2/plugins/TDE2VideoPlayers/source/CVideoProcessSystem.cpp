@@ -109,6 +109,9 @@ namespace TDEngine2
 				pVideoContainer->mStopPlayback = false;
 				pVideoContainer->mIsPlaying = false;
 
+				THEORAPLAY_freeVideo(pCurrVideoFrame);
+				THEORAPLAY_stopDecode(pCurrVideoDecoder);
+
 				pVideoContainer->mpInternalData->mpDecoder = nullptr;
 				pVideoContainer->mpInternalData->mpCurrVideoFrame = nullptr;
 
@@ -120,6 +123,26 @@ namespace TDEngine2
 				pCurrVideoFrame = THEORAPLAY_getVideo(pCurrVideoDecoder);
 				if (!pCurrVideoFrame)
 				{
+					if (!pVideoContainer->mIsLooped)
+					{
+						pVideoContainer->StopPlayback();
+						continue;
+					}
+
+					if (!pVideoContainer->mpInternalData->mCurrVideoFrameIndex)
+					{
+						continue;
+					}
+
+					THEORAPLAY_freeVideo(pCurrVideoFrame);
+					THEORAPLAY_stopDecode(pCurrVideoDecoder);
+
+					pVideoContainer->mpInternalData->mpDecoder = nullptr;
+					pVideoContainer->mpInternalData->mpCurrVideoFrame = nullptr;
+					pVideoContainer->mpInternalData->mCurrVideoFrameIndex = 0;
+
+					pVideoContainer->ResetState();
+
 					continue;
 				}
 			}
@@ -190,6 +213,7 @@ namespace TDEngine2
 
 			THEORAPLAY_freeVideo(pCurrVideoFrame);
 			pVideoContainer->mpInternalData->mpCurrVideoFrame = nullptr;
+			pVideoContainer->mpInternalData->mCurrVideoFrameIndex++;
 
 			pVideoContainer->mCurrTime += dt;
 		}

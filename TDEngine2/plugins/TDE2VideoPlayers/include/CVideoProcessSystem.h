@@ -36,6 +36,7 @@ namespace TDEngine2
 		THEORAPLAY_Decoder*          mpDecoder = nullptr;
 		const THEORAPLAY_VideoFrame* mpCurrVideoFrame = nullptr;
 		TResourceId                  mVideoTextureHandle = TResourceId::Invalid;
+		U32                          mCurrVideoFrameIndex = 0;
 	};
 
 
