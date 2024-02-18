@@ -82,7 +82,8 @@ add_library(theoradec OBJECT ${LIBTHEORA_DEC} "${THEORA_SRC_DIR}/lib/apiwrapper.
 
 target_include_directories(theoradec PRIVATE ${OGG_HEADERS} "${THEORA_SRC_DIR}/include")
 if (UNIX)
-	target_compile_options(theoradec PRIVATE -Wno-shift-negative-value -Wno-shift-op-parentheses)
+	target_compile_options(theoradec PRIVATE -Wno-shift-negative-value -Wno-shift-op-parentheses -fPIC)
+	target_compile_options(vorbis PRIVATE -fPIC)
 endif()
 
 target_include_directories(${TDE2_VIDEO_PLAYERS_LIBRARY_NAME} PUBLIC ${OGG_HEADERS} ${VORBIS_HEADERS} ${THEORA_HEADERS})
