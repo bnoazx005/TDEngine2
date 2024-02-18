@@ -28,6 +28,11 @@ namespace TDEngine2
 	{
 	}
 
+
+	static const std::string VideoTextureIdPattern = "Internal/VideoTexture_{0}";
+	static const std::string EmptyVideoTextureIdPattern = Wrench::StringUtils::Format(VideoTextureIdPattern, "Empty");
+
+
 	E_RESULT_CODE CVideoProcessSystem::Init(IResourceManager* pResourceManager, IFileSystem* pFileSystem)
 	{
 		if (mIsInitialized)
@@ -43,14 +48,13 @@ namespace TDEngine2
 		mpResourceManager = pResourceManager;
 		mpFileSystem = pFileSystem;
 
+		const TTexture2DParameters emptyVideoTextureParams{ 2, 2, FT_NORM_UBYTE4, 1, 1, 0 };
+		mEmptyVideoTextureHandle = mpResourceManager->Create<ITexture2D>(EmptyVideoTextureIdPattern, emptyVideoTextureParams);
+
 		mIsInitialized = true;
 
 		return RC_OK;
 	}
-
-
-	static const std::string VideoTextureIdPattern = "Internal/VideoTexture_{0}";
-
 
 	void CVideoProcessSystem::InjectBindings(IWorld* pWorld)
 	{
@@ -61,8 +65,17 @@ namespace TDEngine2
 		{
 			CEntity* pEntity = pWorld->FindEntity(currEntityId);
 
-			mpVideoContainers.push_back(pEntity->GetComponent<CUIVideoContainerComponent>());
+			CUIVideoContainerComponent* pContainer = pEntity->GetComponent<CUIVideoContainerComponent>();
+
+			mpVideoContainers.push_back(pContainer);
 			mpVideoReceivers.push_back(pEntity->AddComponent<CImage>());
+
+			CImage* pImage = mpVideoReceivers.back();
+			if (pImage && !pContainer->mpInternalData->mpDecoder)
+			{
+				pImage->SetImageId(EmptyVideoTextureIdPattern);
+				pImage->SetImageResourceId(mEmptyVideoTextureHandle);
+			}
 		}
 	}
 

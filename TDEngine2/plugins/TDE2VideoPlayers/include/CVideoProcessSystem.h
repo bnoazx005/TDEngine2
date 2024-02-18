@@ -100,5 +100,7 @@ namespace TDEngine2
 
 			std::vector<CUIVideoContainerComponent*>  mpVideoContainers;
 			std::vector<CImage*>                      mpVideoReceivers;
+
+			TResourceId                               mEmptyVideoTextureHandle;
 	};
 }
