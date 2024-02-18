@@ -68,6 +68,18 @@ if [ $? -ne 0 ]; then
 fi
 
 
+# Build ogg library
+
+pushd "../TDEngine2/plugins/TDE2VideoPlayers/deps/ogg/"
+	cmake -G "$GENERATOR_NAME" -DCMAKE_GENERATOR_PLATFORM=$2 -DCMAKE_BUILD_TYPE=$1 . && cmake --build . --config $1
+popd
+
+if [ $? -ne 0 ]; then
+	pause
+	exit $?
+fi
+
+
 # Install FMOD's libraries
 #pushd "../TDEngine2/plugins/FmodAudioContext/deps/fmod/lib/linux/"
 
