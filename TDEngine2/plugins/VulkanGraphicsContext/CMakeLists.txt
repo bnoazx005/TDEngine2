@@ -59,13 +59,10 @@ if (MSVC) 	#cl.exe compiler's options
 	set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 	#Debug compiler's options
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd /W3 /GS /Zc:inline /Od /Zi  /Zc:wchar_t")
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /RTC1 /Gd /Oy- /EHsc /nologo /diagnostics:classic /errorReport:prompt /sdl /permissive- /analyze-  /wd4250")
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /D _DEBUG")
+	set(CMAKE_CXX_FLAGS_DEBUG "/MDd /W3 /GS /Zc:inline /Od /Zi  /Zc:wchar_t /RTC1 /Gd /Oy- /EHsc /nologo /diagnostics:classic /errorReport:prompt /sdl /permissive- /analyze-  /wd4250 /D _DEBUG")
 
 	#Release compiler's options
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /permissive- /GS /Vulkan /analyze- /W3 /Gy /Zc:wchar_t /Zi /O2 /sdl /Zc:inline  /wd4250")
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /fp:precise /D _WINDLL /D _MBCS /errorReport:prompt /WX- /Zc:forScope /Gd /Oy- /Oi /MD /EHsc /nologo /diagnostics:classic")
+	set(CMAKE_CXX_FLAGS_RELEASE "/permissive- /GS /Vulkan /analyze- /W3 /Gy /Zc:wchar_t /Zi /O2 /sdl /Zc:inline /wd4250 /fp:precise /D _WINDLL /D _MBCS /errorReport:prompt /WX- /Zc:forScope /Gd /Oy- /Oi /MD /EHsc /nologo /diagnostics:classic")
 
 endif(MSVC)
 
