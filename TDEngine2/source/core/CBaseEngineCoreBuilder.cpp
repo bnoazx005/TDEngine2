@@ -771,7 +771,7 @@ namespace TDEngine2
 																		pSubsystem.Get(),
 																		pEngineCore->GetSubsystem<ISceneManager>(),
 																		{
-																			CProjectSettings::Get()->mSplashScreenSettings.mShowDuration
+																			CProjectSettings::Get()->mSplashScreenSettings.mMaxShowDuration
 																		},
 																		result)));
 			TDE2_ASSERT(RC_OK == result);

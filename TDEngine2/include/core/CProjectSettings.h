@@ -142,7 +142,8 @@ namespace TDEngine2
 			struct TSplashScreenSettings
 			{
 				bool mIsEnabled = false;
-				F32  mShowDuration = 4.0f;
+				F32  mMaxShowDuration = 4.0f;
+				std::string mSplashScreenSceneId = "ProjectResources/Scenes/SplashScreen.scene";
 			} mSplashScreenSettings;
 
 

@@ -4,8 +4,11 @@ entities:
         - component: 
             Children: 
               - child_id: 42
+              - child_id: 2436477339
             owner_id: 41
             parent_id: 4294967295
+            pivot: 
+              x: 0.000000
             position: 
               x: 0.000000
             rotation: 
@@ -18,9 +21,11 @@ entities:
         - component: 
             height: 768
             inherit_camera_sizes: 0
+            priority: 10000
             type_id: 3433087876
             width: 1024
         - component: 
+            angle: 0.000000
             max_anchor: 
               x: 1.000000
               y: 1.000000
@@ -32,6 +37,9 @@ entities:
               x: 0.000000
             pivot: 
               x: 0.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
             type_id: 2172495824
       id: 41
       name: Canvas
@@ -45,9 +53,11 @@ entities:
         - component: 
             owner_id: 42
             parent_id: 41
-            position: 
+            pivot: 
               x: 512.000000
               y: 384.000000
+            position: 
+              x: 0.000000
             rotation: 
               w: 1.000000
             scale: 
@@ -56,6 +66,7 @@ entities:
               z: 1.000000
             type_id: 3864726948
         - component: 
+            angle: 0.000000
             max_anchor: 
               x: 1.000000
               y: 1.000000
@@ -68,11 +79,47 @@ entities:
             pivot: 
               x: 0.500000
               y: 0.500000
+            scale: 
+              x: 1.000000
+              y: 1.000000
             type_id: 2172495824
-        - component: 
-            type_id: 4238380769
       id: 42
       name: Background
+  - entity: 
+      components: 
+        - component: 
+            owner_id: 2436477339
+            parent_id: 41
+            pivot: 
+              x: 0.000000
+            position: 
+              x: 0.000000
+            rotation: 
+              w: 1.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+              z: 1.000000
+            type_id: 3864726948
+        - component: 
+            angle: 0.000000
+            max_anchor: 
+              x: 1.000000
+              y: 1.000000
+            max_offset: 
+              x: 0.000000
+            min_anchor: 
+              x: 0.000000
+            min_offset: 
+              x: 0.000000
+            pivot: 
+              x: 0.000000
+            scale: 
+              x: 1.000000
+              y: 1.000000
+            type_id: 2172495824
+      id: 2436477339
+      name: ScreensContainer
 name: SplashScreen
 scene_properties: 
   is_main: 0

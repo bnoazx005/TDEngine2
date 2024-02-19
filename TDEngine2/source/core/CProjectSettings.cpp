@@ -80,6 +80,7 @@ namespace TDEngine2
 		{
 			static const std::string mIsEnabledKey;
 			static const std::string mShowDurationKey;
+			static const std::string mSceneIdKey;
 		};
 
 		struct T3DPhysicsSettingsKeys
@@ -138,6 +139,7 @@ namespace TDEngine2
 
 	const std::string TProjectSettingsArchiveKeys::TSplashScreenSettingsKeys::mIsEnabledKey = "enabled";
 	const std::string TProjectSettingsArchiveKeys::TSplashScreenSettingsKeys::mShowDurationKey = "show_duration";
+	const std::string TProjectSettingsArchiveKeys::TSplashScreenSettingsKeys::mSceneIdKey = "scene_id";
 
 	const std::string TProjectSettingsArchiveKeys::T3DPhysicsSettingsKeys::mGravityKey = "gravity";
 
@@ -320,7 +322,8 @@ namespace TDEngine2
 		result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::mSplashScreenSettingsGroupId);
 		{
 			settings.mIsEnabled = pFileReader->GetBool(TProjectSettingsArchiveKeys::TSplashScreenSettingsKeys::mIsEnabledKey, settings.mIsEnabled);
-			settings.mShowDuration = pFileReader->GetFloat(TProjectSettingsArchiveKeys::TSplashScreenSettingsKeys::mShowDurationKey, settings.mShowDuration);
+			settings.mMaxShowDuration = pFileReader->GetFloat(TProjectSettingsArchiveKeys::TSplashScreenSettingsKeys::mShowDurationKey, settings.mMaxShowDuration);
+			settings.mSplashScreenSceneId = pFileReader->GetString(TProjectSettingsArchiveKeys::TSplashScreenSettingsKeys::mSceneIdKey, settings.mSplashScreenSceneId);
 		}
 		result = result | pFileReader->EndGroup();
 

@@ -188,7 +188,7 @@ namespace TDEngine2
 	{
 		mCurrTime += dt;
 
-		if (CMathUtils::IsGreatOrEqual(mCurrTime, mShowDuration))
+		if (CMathUtils::IsGreatOrEqual(mCurrTime, mMaxShowDuration))
 		{
 			E_RESULT_CODE result = mpOwner->PopMode();
 			TDE2_ASSERT(RC_OK == result);
@@ -203,7 +203,7 @@ namespace TDEngine2
 		if (auto pMode = CREATE_IMPL(CSplashScreenGameMode, CSplashScreenGameMode, result, pOwner))
 		{
 			pMode->mpSceneManager = pSceneManager;
-			pMode->mShowDuration = params.mShowDuration;
+			pMode->mMaxShowDuration = params.mMaxShowDuration;
 
 			return dynamic_cast<IGameMode*>(pMode);
 		}

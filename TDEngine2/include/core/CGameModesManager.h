@@ -150,7 +150,7 @@ namespace TDEngine2
 
 	typedef struct TSplashScreenModeParams
 	{
-		F32 mShowDuration = 4.0f;
+		F32 mMaxShowDuration = 4.0f;
 	} TSplashScreenModeParams, *TSplashScreenModeParamsPtr;
 
 
@@ -198,7 +198,7 @@ namespace TDEngine2
 		private:
 			TPtr<ISceneManager> mpSceneManager;
 
-			F32                 mShowDuration = 4.0f;
+			F32                 mMaxShowDuration = 4.0f;
 			F32                 mCurrTime = 0.0f;
 
 			TSceneId            mSplashScreenSceneHandle;
