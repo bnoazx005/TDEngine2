@@ -270,6 +270,7 @@
 #include "scene/components/CObjIdComponent.h"
 #include "scene/components/CPrefabLinkInfoComponent.h"
 #include "scene/components/CWeatherComponent.h"
+#include "scene/components/CSplashScreenItemComponent.h"
 #include "scene/ISceneManager.h"
 #include "scene/CSceneManager.h"
 #include "scene/IScene.h"

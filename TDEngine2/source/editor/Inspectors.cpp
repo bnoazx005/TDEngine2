@@ -34,6 +34,7 @@
 #include "../../include/scene/components/AudioComponents.h"
 #include "../../include/scene/components/CLODStrategyComponent.h"
 #include "../../include/scene/components/CWeatherComponent.h"
+#include "../../include/scene/components/CSplashScreenItemComponent.h"
 #include "../../include/editor/ecs/EditorComponents.h"
 #include "../../include/editor/CLevelEditorWindow.h"
 #include "../../include/editor/CEditorActionsManager.h"
@@ -1880,6 +1881,18 @@ namespace TDEngine2
 	}
 
 
+	static void DrawSplashScreenItemGUI(const TEditorContext& editorContext)
+	{
+		Header("Splash Screen Item", editorContext, [](const TEditorContext& editorContext)
+		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
+			CSplashScreenItemComponent& splashScreenItem = dynamic_cast<CSplashScreenItemComponent&>(component);
+		});
+	}
+
+
 	E_RESULT_CODE CDefaultInspectorsRegistry::RegisterBuiltinInspectors(CLevelEditorWindow& editor)
 	{
 		E_RESULT_CODE result = editor.RegisterInspector(CTransform::GetTypeId(), DrawTransformGUI);
@@ -1929,6 +1942,7 @@ namespace TDEngine2
 		result = result | editor.RegisterInspector(CSelectedEntityComponent::GetTypeId(), [](auto) { /* Do nothing for hidden components */ });
 		result = result | editor.RegisterInspector(CLODStrategyComponent::GetTypeId(), DrawLODStrategyGUI);
 		result = result | editor.RegisterInspector(CWeatherComponent::GetTypeId(), DrawWeatherGUI);
+		result = result | editor.RegisterInspector(CSplashScreenItemComponent::GetTypeId(), DrawSplashScreenItemGUI);
 
 		return result;
 	}
