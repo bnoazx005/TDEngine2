@@ -3,6 +3,8 @@
 #include "../../include/math/MathUtils.h"
 #include "../../include/scene/ISceneManager.h"
 #include "../../include/scene/IScene.h"
+#include "../../include/ecs/IWorld.h"
+#include "../../include/ecs/CSplashScreenLogicSystem.h"
 #include "stringUtils.hpp"
 
 
@@ -169,18 +171,28 @@ namespace TDEngine2
 		LOG_MESSAGE(Wrench::StringUtils::Format("[BaseGameMode] Invoke OnEnter, mode: \"{0}\"", mName));
 		mCurrTime = 0.0f;
 
-		/// \todo Load splash screen's scene
+		/// \note Load splash screen's scene
 		if (auto loadSceneResult = mpSceneManager->LoadScene("ProjectResources/Scenes/SplashScreen.scene"))
 		{
 			mSplashScreenSceneHandle = loadSceneResult.Get();
 		}
+
+		/// \note Register the system that processes splash screens
+		E_RESULT_CODE result = RC_OK;
+
+		auto registerResult = mpWorld->RegisterSystem(CreateSplashScreenLogicSystem({ mpSceneManager, mMaxShowDuration, mShouldSkipScreenCallback }, result));
+		TDE2_ASSERT(registerResult.IsOk() && RC_OK == result);
+
+		mSplashScreenSystemHandle = registerResult.Get();
 	}
 
 	void CSplashScreenGameMode::OnExit()
 	{
 		LOG_MESSAGE(Wrench::StringUtils::Format("[BaseGameMode] Invoke OnExit, mode: \"{0}\"", mName));
 		
-		E_RESULT_CODE result = mpSceneManager->UnloadScene(mSplashScreenSceneHandle);
+		E_RESULT_CODE result = mpWorld->UnregisterSystem(mSplashScreenSystemHandle);
+
+		result = result | mpSceneManager->UnloadScene(mSplashScreenSceneHandle);
 		TDE2_ASSERT(RC_OK == result);
 	}
 
@@ -198,12 +210,14 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IGameMode* CreateSplashScreenGameMode(IGameModesManager* pOwner, TPtr<ISceneManager> pSceneManager, const TSplashScreenModeParams& params, E_RESULT_CODE& result)
+	TDE2_API IGameMode* CreateSplashScreenGameMode(IGameModesManager* pOwner, const TSplashScreenModeParams& params, E_RESULT_CODE& result)
 	{
 		if (auto pMode = CREATE_IMPL(CSplashScreenGameMode, CSplashScreenGameMode, result, pOwner))
 		{
-			pMode->mpSceneManager = pSceneManager;
+			pMode->mpSceneManager = params.mpSceneManager;
+			pMode->mpWorld = params.mpSceneManager->GetWorld();
 			pMode->mMaxShowDuration = params.mMaxShowDuration;
+			pMode->mShouldSkipScreenCallback = params.mOnSkipAction;
 
 			return dynamic_cast<IGameMode*>(pMode);
 		}

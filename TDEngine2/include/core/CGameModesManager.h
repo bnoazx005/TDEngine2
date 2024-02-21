@@ -11,6 +11,7 @@
 #include "CBaseObject.h"
 #include <stack>
 #include <string>
+#include <functional>
 
 
 namespace TDEngine2
@@ -146,11 +147,20 @@ namespace TDEngine2
 
 
 	class ISceneManager;
+	class IWorld;
+
+
+	enum class TSystemId : U32;
 
 
 	typedef struct TSplashScreenModeParams
 	{
-		F32 mMaxShowDuration = 4.0f;
+		typedef std::function<bool()> TSkipCallbackAction;
+				
+		TPtr<ISceneManager> mpSceneManager;
+		F32                 mMaxShowDuration = 4.0f;
+
+		TSkipCallbackAction mOnSkipAction = nullptr;
 	} TSplashScreenModeParams, *TSplashScreenModeParamsPtr;
 
 
@@ -162,7 +172,7 @@ namespace TDEngine2
 		\return A pointer to CBaseGameMode's implementation
 	*/
 
-	TDE2_API IGameMode* CreateSplashScreenGameMode(IGameModesManager* pOwner, TPtr<ISceneManager> pSceneManager, const TSplashScreenModeParams& params, E_RESULT_CODE& result);
+	TDE2_API IGameMode* CreateSplashScreenGameMode(IGameModesManager* pOwner, const TSplashScreenModeParams& params, E_RESULT_CODE& result);
 
 
 	/*!
@@ -174,7 +184,7 @@ namespace TDEngine2
 	class CSplashScreenGameMode : public CBaseGameMode
 	{
 		public:
-			friend TDE2_API IGameMode* CreateSplashScreenGameMode(IGameModesManager*, TPtr<ISceneManager>, const TSplashScreenModeParams& params, E_RESULT_CODE&);
+			friend TDE2_API IGameMode* CreateSplashScreenGameMode(IGameModesManager*, const TSplashScreenModeParams& params, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method is invoked when game modes manager activates the state
@@ -197,13 +207,19 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSplashScreenGameMode)
 		private:
 			TPtr<ISceneManager> mpSceneManager;
+			TPtr<IWorld>        mpWorld;
 
 			F32                 mMaxShowDuration = 4.0f;
 			F32                 mCurrTime = 0.0f;
 
 			TSceneId            mSplashScreenSceneHandle;
+
+			TSystemId           mSplashScreenSystemHandle;
+
+			TSplashScreenModeParams::TSkipCallbackAction mShouldSkipScreenCallback;
 	};
 
 
 	TDE2_DECLARE_SCOPED_PTR(ISceneManager)
+	TDE2_DECLARE_SCOPED_PTR(IWorld)
 }

@@ -8,11 +8,15 @@
 
 
 #include "CBaseSystem.h"
+#include "../core/CGameModesManager.h"
 #include "../ecs/IWorld.h"
 
 
 namespace TDEngine2
 {
+	class CSplashScreenItemComponent;
+
+
 	/*!
 		\brief A factory function for creation objects of CSplashScreenLogicSystem's type.
 
@@ -22,13 +26,13 @@ namespace TDEngine2
 		\return A pointer to CSplashScreenLogicSystem's implementation
 	*/
 
-	TDE2_API ISystem* CreateSplashScreenLogicSystem(E_RESULT_CODE& result);
+	TDE2_API ISystem* CreateSplashScreenLogicSystem(const TSplashScreenModeParams& params, E_RESULT_CODE& result);
 
 
 	class CSplashScreenLogicSystem : public CBaseSystem
 	{
 		public:
-			friend TDE2_API ISystem* CreateSplashScreenLogicSystem(E_RESULT_CODE&);
+			friend TDE2_API ISystem* CreateSplashScreenLogicSystem(const TSplashScreenModeParams&, E_RESULT_CODE&);
 		public:
 			TDE2_SYSTEM(CSplashScreenLogicSystem);
 
@@ -38,7 +42,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init();
+			TDE2_API E_RESULT_CODE Init(const TSplashScreenModeParams& params);
 
 			/*!
 				\brief The method inject components array into a system
@@ -61,5 +65,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSplashScreenLogicSystem)
 		protected:
+			TComponentsQueryLocalSlice<CSplashScreenItemComponent> mContext;
+
+			TSplashScreenModeParams::TSkipCallbackAction mShouldSkipPredicate = nullptr;
 	};
 }

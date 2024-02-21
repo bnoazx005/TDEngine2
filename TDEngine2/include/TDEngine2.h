@@ -105,6 +105,7 @@
 #include "ecs/components/CBoundsComponent.h"
 #include "ecs/CLODMeshSwitchSystem.h"
 #include "ecs/CWeatherSystem.h"
+#include "ecs/CSplashScreenLogicSystem.h"
 
 ///graphics
 #include "graphics/IBuffer.h"

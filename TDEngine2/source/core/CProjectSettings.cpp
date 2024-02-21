@@ -79,6 +79,7 @@ namespace TDEngine2
 		struct TSplashScreenSettingsKeys
 		{
 			static const std::string mIsEnabledKey;
+			static const std::string mIsSkipAllowedKey;
 			static const std::string mShowDurationKey;
 			static const std::string mSceneIdKey;
 		};
@@ -138,6 +139,7 @@ namespace TDEngine2
 	const std::string TProjectSettingsArchiveKeys::TSceneManagerSettingsKeys::mMainLevelPathKey = "main_scene_path";
 
 	const std::string TProjectSettingsArchiveKeys::TSplashScreenSettingsKeys::mIsEnabledKey = "enabled";
+	const std::string TProjectSettingsArchiveKeys::TSplashScreenSettingsKeys::mIsSkipAllowedKey = "skip_allowed";
 	const std::string TProjectSettingsArchiveKeys::TSplashScreenSettingsKeys::mShowDurationKey = "show_duration";
 	const std::string TProjectSettingsArchiveKeys::TSplashScreenSettingsKeys::mSceneIdKey = "scene_id";
 
@@ -322,6 +324,7 @@ namespace TDEngine2
 		result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::mSplashScreenSettingsGroupId);
 		{
 			settings.mIsEnabled = pFileReader->GetBool(TProjectSettingsArchiveKeys::TSplashScreenSettingsKeys::mIsEnabledKey, settings.mIsEnabled);
+			settings.mIsSkipAllowed = pFileReader->GetBool(TProjectSettingsArchiveKeys::TSplashScreenSettingsKeys::mIsSkipAllowedKey, settings.mIsSkipAllowed);
 			settings.mMaxShowDuration = pFileReader->GetFloat(TProjectSettingsArchiveKeys::TSplashScreenSettingsKeys::mShowDurationKey, settings.mMaxShowDuration);
 			settings.mSplashScreenSceneId = pFileReader->GetString(TProjectSettingsArchiveKeys::TSplashScreenSettingsKeys::mSceneIdKey, settings.mSplashScreenSceneId);
 		}
