@@ -69,9 +69,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSplashScreenItemComponent)
 		public:
-			float mAtmosphereThickness = 4000.0f;
-
-			TVector2 mWindDirection = RightVector2;
+			F32 mElapsedTime = 0.0f;
+			F32 mDuration = 1.0f;
 	};
 
 
@@ -81,4 +80,7 @@ namespace TDEngine2
 
 
 	TDE2_DECLARE_COMPONENT_FACTORY(SplashScreenItemComponent, TSplashScreenItemComponentParameters);
+
+
+	TDE2_DECLARE_FLAG_COMPONENT(SplashScreenContainerRoot);
 }

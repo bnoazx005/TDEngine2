@@ -5,8 +5,17 @@
 
 namespace TDEngine2
 {
+	struct TSplashScreenItemArchiveKeys
+	{
+		static const std::string mDurationKeyId;
+	};
+
+
+	const std::string TSplashScreenItemArchiveKeys::mDurationKeyId = "duration";
+
+
+
 	TDE2_REGISTER_COMPONENT_FACTORY(CreateSplashScreenItemComponentFactory)
-	TDE2_REGISTER_UNIQUE_COMPONENT(CSplashScreenItemComponent)
 
 
 	CSplashScreenItemComponent::CSplashScreenItemComponent() :
@@ -21,9 +30,9 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		E_RESULT_CODE result = RC_OK;
+		mDuration = pReader->GetFloat(TSplashScreenItemArchiveKeys::mDurationKeyId, mDuration);
 
-		return result;
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CSplashScreenItemComponent::Save(IArchiveWriter* pWriter)
@@ -36,6 +45,8 @@ namespace TDEngine2
 		pWriter->BeginGroup("component");
 		{
 			pWriter->SetUInt32("type_id", static_cast<U32>(CSplashScreenItemComponent::GetTypeId()));
+			
+			pWriter->SetFloat(TSplashScreenItemArchiveKeys::mDurationKeyId, mDuration);
 
 		}
 		pWriter->EndGroup();
@@ -47,6 +58,8 @@ namespace TDEngine2
 	{
 		if (auto pSourceComponent = dynamic_cast<CSplashScreenItemComponent*>(pDestObject))
 		{
+			pSourceComponent->mDuration = mDuration;
+
 			return RC_OK;
 		}
 
@@ -96,4 +109,7 @@ namespace TDEngine2
 	{
 		return CREATE_IMPL(IComponentFactory, CSplashScreenItemComponentFactory, result);
 	}
+
+
+	TDE2_DEFINE_FLAG_COMPONENT(SplashScreenContainerRoot);
 }

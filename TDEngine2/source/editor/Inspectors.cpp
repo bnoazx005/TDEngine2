@@ -1889,6 +1889,23 @@ namespace TDEngine2
 			IComponent& component = editorContext.mComponent;
 
 			CSplashScreenItemComponent& splashScreenItem = dynamic_cast<CSplashScreenItemComponent&>(component);
+
+			/// Duration
+			{
+				F32 duration = splashScreenItem.mDuration;
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Duration: ");
+				imguiContext.FloatField("##Duration", duration, [&duration, &splashScreenItem]
+				{
+					if (duration != splashScreenItem.mDuration)
+					{
+						splashScreenItem.mDuration = duration;
+					}
+
+				});
+				imguiContext.EndHorizontal();
+			}
 		});
 	}
 
