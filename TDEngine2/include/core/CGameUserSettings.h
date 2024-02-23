@@ -135,6 +135,8 @@ namespace TDEngine2
 
 			std::array<CFloatConsoleVarDeclPtr, 4> mpShadowCascadesSplitsCVar;
 
+			CInt32ConsoleVarDeclPtr mpIsVolumetricCloudsEnabledCVar;
+
 		private:
 			std::unique_ptr<CConsoleVariablesStorage> mpCVarsStorage;
 	};

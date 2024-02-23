@@ -9,6 +9,7 @@
 #include "../../include/graphics/IShader.h"
 #include "../../include/graphics/ITexture3D.h"
 #include "../../include/core/IResourceManager.h"
+#include "../../include/core/CGameUserSettings.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include "../../include/core/IWindowSystem.h"
@@ -294,6 +295,11 @@ namespace TDEngine2
 	E_RESULT_CODE CFramePostProcessor::RunVolumetricCloudsPass()
 	{
 		TDE2_PROFILER_SCOPE("CFramePostProcessor::RunVolumetricCloudsPass");
+
+		if (!CGameUserSettings::Get()->mpIsVolumetricCloudsEnabledCVar->Get())
+		{
+			return RC_OK;
+		}
 
 		auto pVolumetricCloudsScreenBufferTexture = mpResourceManager->GetResource<ITexture2D>(mVolumetricCloudsScreenBufferHandle);
 		if (!pVolumetricCloudsScreenBufferTexture)

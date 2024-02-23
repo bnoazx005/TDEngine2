@@ -316,6 +316,9 @@ namespace TDEngine2
 		mpShadowCascadesSplitsCVar[3] = std::make_unique<CFloatConsoleVarDecl>(TUserSettingsKeys::mGraphicsGroupKeyId + ".shadow_cascades_splits_3",
 			"Shadow cascade split's range", 1.0f);
 
+		mpIsVolumetricCloudsEnabledCVar = std::make_unique<CInt32ConsoleVarDecl>(TUserSettingsKeys::mGraphicsGroupKeyId + ".volumetric_clouds",
+			"Flag determines whether or not volumetric clouds enabled (0 - disabled, 1 - enabled)", 0);
+
 		return mpCVarsStorage->Load(pConfigFileReader);
 	}
 

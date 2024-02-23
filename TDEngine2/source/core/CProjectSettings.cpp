@@ -95,6 +95,7 @@ namespace TDEngine2
 			static const std::string mIsShadowMapEnabledKey;
 			static const std::string mShadowCascadesCountKey;
 			static const std::string mShadowCascadesSplitsKey;
+			static const std::string mIsVolumetricCloudsEnabledKey;
 		};
 	};
 
@@ -149,6 +150,7 @@ namespace TDEngine2
 	const std::string TProjectSettingsArchiveKeys::TQualityPresetKeys::mIsShadowMapEnabledKey = "shadow_maps_enabled";
 	const std::string TProjectSettingsArchiveKeys::TQualityPresetKeys::mShadowCascadesCountKey = "shadow_cascades_count";
 	const std::string TProjectSettingsArchiveKeys::TQualityPresetKeys::mShadowCascadesSplitsKey = "shadow_cascades_splits";
+	const std::string TProjectSettingsArchiveKeys::TQualityPresetKeys::mIsVolumetricCloudsEnabledKey = "volumetric_clouds_enabled";
 
 	CProjectSettings::CProjectSettings():
 		CBaseObject()
@@ -405,6 +407,8 @@ namespace TDEngine2
 
 					result = result | pFileReader->EndGroup();
 				}
+
+				currPreset.mIsVolumetricCloudsEnabled = pFileReader->GetBool(TProjectSettingsArchiveKeys::TQualityPresetKeys::mIsVolumetricCloudsEnabledKey);
 
 				result = result | pFileReader->EndGroup();
 			}
