@@ -32,7 +32,7 @@ source_group("includes" FILES ${UTILITY_HEADERS})
 source_group("sources" FILES ${UTILITY_SOURCES})
 
 
-if (MSVC) 	#cl.exe compiler's options
+if (PROJECT_IS_TOP_LEVEL AND MSVC) 	#cl.exe compiler's options
 	add_definitions(-D_SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING)
 
 	#Debug compiler's options
@@ -44,7 +44,7 @@ if (MSVC) 	#cl.exe compiler's options
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /std:c++14 /permissive- /GS /GL /analyze- /W3 /Gy /Zc:wchar_t /Zi /O2 /sdl /Zc:inline /wd4250")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /fp:precise /D _WINDLL /D _MBCS /errorReport:prompt /WX- /Zc:forScope /Gd /Oy- /Oi /MD /EHsc /nologo /diagnostics:classic")
 
-endif(MSVC)
+endif()
 
 if (UNIX)
 

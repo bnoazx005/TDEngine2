@@ -32,7 +32,7 @@ source_group("includes" FILES ${TDE2_LEVEL_STREAMING_HEADERS})
 source_group("sources" FILES ${TDE2_LEVEL_STREAMING_SOURCES})
 
 
-if (MSVC) 	#cl.exe compiler's options
+if (PROJECT_IS_TOP_LEVEL AND MSVC) 	#cl.exe compiler's options
 	set(CMAKE_CXX_STANDARD 14)
 	set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -45,7 +45,7 @@ if (MSVC) 	#cl.exe compiler's options
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /std:c++14 /permissive- /GS /GL /analyze- /W3 /Gy /Zc:wchar_t /Zi /O2 /sdl /Zc:inline  /wd4250")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /fp:precise /D _WINDLL /D _MBCS /errorReport:prompt /WX- /Zc:forScope /Gd /Oy- /Oi /MD /EHsc /nologo /diagnostics:classic")
 
-endif(MSVC)
+endif()
 
 add_library(${TDE2_LEVEL_STREAMING_LIBRARY_NAME} SHARED ${TDE2_LEVEL_STREAMING_SOURCES} ${TDE2_LEVEL_STREAMING_HEADERS})
 

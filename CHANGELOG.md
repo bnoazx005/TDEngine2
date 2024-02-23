@@ -33,6 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The opening animation of developer's console was fixed.
 
+- (Issue #97) Too long line with compiler flags due to recursion was fixed.
+
 ## [0.6.24] 2024-01-31
 
 ### Added

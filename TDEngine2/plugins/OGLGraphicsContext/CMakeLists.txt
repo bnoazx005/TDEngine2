@@ -64,7 +64,7 @@ if (MSVC) 	#cl.exe compiler's options
 	#Release compiler's options
 	set(CMAKE_CXX_FLAGS_RELEASE "/permissive- /GS /GL /analyze- /W3 /Gy /Zc:wchar_t /Zi /O2 /sdl /Zc:inline  /wd4250 /fp:precise /D _WINDLL /D _MBCS /errorReport:prompt /WX- /Zc:forScope /Gd /Oy- /Oi /MD /EHsc /nologo /diagnostics:classic")
 
-endif(MSVC)
+endif()
 
 if (UNIX)
 
