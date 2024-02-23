@@ -10,11 +10,32 @@
 #include "CBaseSystem.h"
 #include "../core/CGameModesManager.h"
 #include "../ecs/IWorld.h"
+#include "../core/Event.h"
 
 
 namespace TDEngine2
 {
 	class CSplashScreenItemComponent;
+	class CTransform;
+	class IEventManager;
+
+
+	TDE2_DECLARE_SCOPED_PTR(IEventManager)
+
+
+	/*!
+		struct TOnSplashScreensFinishedEvent
+
+		\brief The structure represents an event which occurs when all splash screen were shown
+	*/
+
+	typedef struct TOnSplashScreensFinishedEvent : TBaseEvent
+	{
+		virtual ~TOnSplashScreensFinishedEvent() = default;
+
+		TDE2_REGISTER_TYPE(TOnSplashScreensFinishedEvent)
+		REGISTER_EVENT_TYPE(TOnSplashScreensFinishedEvent)
+	} TOnSplashScreensFinishedEvent, *TOnSplashScreensFinishedEventPtr;
 
 
 	/*!
@@ -65,8 +86,12 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSplashScreenLogicSystem)
 		protected:
-			TComponentsQueryLocalSlice<CSplashScreenItemComponent> mContext;
-
 			TSplashScreenModeParams::TSkipCallbackAction mShouldSkipPredicate = nullptr;
+
+			USIZE                                        mCurrActiveScreenIndex = 0;
+
+			TPtr<IEventManager>                          mpEventManager = nullptr;
+
+			bool                                         mIsFirstTimeInvokation = true;
 	};
 }

@@ -9,6 +9,7 @@
 
 #include "IGameModesManager.h"
 #include "CBaseObject.h"
+#include "Event.h"
 #include <stack>
 #include <string>
 #include <functional>
@@ -148,6 +149,7 @@ namespace TDEngine2
 
 	class ISceneManager;
 	class IWorld;
+	class IEventManager;
 
 
 	enum class TSystemId : U32;
@@ -158,6 +160,8 @@ namespace TDEngine2
 		typedef std::function<bool()> TSkipCallbackAction;
 				
 		TPtr<ISceneManager> mpSceneManager;
+		TPtr<IEventManager> mpEventManager;
+
 		F32                 mMaxShowDuration = 4.0f;
 
 		TSkipCallbackAction mOnSkipAction = nullptr;
@@ -181,11 +185,13 @@ namespace TDEngine2
 		\brief The class represents a mode which is active when application is launched
 	*/
 
-	class CSplashScreenGameMode : public CBaseGameMode
+	class CSplashScreenGameMode : public CBaseGameMode, public IEventHandler
 	{
 		public:
 			friend TDE2_API IGameMode* CreateSplashScreenGameMode(IGameModesManager*, const TSplashScreenModeParams& params, E_RESULT_CODE&);
 		public:
+			TDE2_REGISTER_TYPE(CSplashScreenGameMode)
+
 			/*!
 				\brief The method is invoked when game modes manager activates the state
 			*/
@@ -199,15 +205,34 @@ namespace TDEngine2
 			TDE2_API void OnExit() override;
 
 			/*!
+				\brief The method receives a given event and processes it
+
+				\param[in] pEvent A pointer to event data
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE OnEvent(const TBaseEvent* pEvent) override;
+
+			/*!
 				\brief The method is invoked at least once per frame when the current mode is active
 			*/
 
 			TDE2_API void Update(F32 dt) override;
+
+			/*!
+				\brief The method returns an identifier of a listener
+
+				\return The method returns an identifier of a listener
+			*/
+
+			TDE2_API TEventListenerId GetListenerId() const override;
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSplashScreenGameMode)
 		private:
 			TPtr<ISceneManager> mpSceneManager;
 			TPtr<IWorld>        mpWorld;
+			TPtr<IEventManager> mpEventManager;
 
 			F32                 mMaxShowDuration = 4.0f;
 			F32                 mCurrTime = 0.0f;
@@ -222,4 +247,5 @@ namespace TDEngine2
 
 	TDE2_DECLARE_SCOPED_PTR(ISceneManager)
 	TDE2_DECLARE_SCOPED_PTR(IWorld)
+	TDE2_DECLARE_SCOPED_PTR(IEventManager)
 }

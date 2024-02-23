@@ -767,11 +767,18 @@ namespace TDEngine2
 		/// \note Register the splash screen if it's enabled
 		if (CProjectSettings::Get()->mSplashScreenSettings.mIsEnabled)
 		{
+			auto&& skipScreenCallback = [pEngineCore]
+			{
+				return DynamicPtrCast<IDesktopInputContext>(pEngineCore->GetSubsystem<IInputContext>())->IsKeyPressed(E_KEYCODES::KC_ESCAPE);
+			};
+
 			result = result | pSubsystem->PushMode(TPtr<IGameMode>(CreateSplashScreenGameMode(
 																		pSubsystem.Get(),
-																		pEngineCore->GetSubsystem<ISceneManager>(),
 																		{
-																			CProjectSettings::Get()->mSplashScreenSettings.mMaxShowDuration
+																			pEngineCore->GetSubsystem<ISceneManager>(),
+																			pEngineCore->GetSubsystem<IEventManager>(),
+																			CProjectSettings::Get()->mSplashScreenSettings.mMaxShowDuration,
+																			skipScreenCallback
 																		},
 																		result)));
 			TDE2_ASSERT(RC_OK == result);

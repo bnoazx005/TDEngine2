@@ -1,4 +1,5 @@
 #include "../../include/core/CGameModesManager.h"
+#include "../../include/core/IEventManager.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/math/MathUtils.h"
 #include "../../include/scene/ISceneManager.h"
@@ -180,10 +181,13 @@ namespace TDEngine2
 		/// \note Register the system that processes splash screens
 		E_RESULT_CODE result = RC_OK;
 
-		auto registerResult = mpWorld->RegisterSystem(CreateSplashScreenLogicSystem({ mpSceneManager, mMaxShowDuration, mShouldSkipScreenCallback }, result));
+		auto registerResult = mpWorld->RegisterSystem(CreateSplashScreenLogicSystem({ mpSceneManager, mpEventManager, mMaxShowDuration, mShouldSkipScreenCallback }, result));
 		TDE2_ASSERT(registerResult.IsOk() && RC_OK == result);
 
 		mSplashScreenSystemHandle = registerResult.Get();
+
+		result = mpEventManager->Subscribe(TOnSplashScreensFinishedEvent::GetTypeId(), this);
+		TDE2_ASSERT(RC_OK == result);
 	}
 
 	void CSplashScreenGameMode::OnExit()
@@ -193,6 +197,9 @@ namespace TDEngine2
 		E_RESULT_CODE result = mpWorld->UnregisterSystem(mSplashScreenSystemHandle);
 
 		result = result | mpSceneManager->UnloadScene(mSplashScreenSceneHandle);
+		TDE2_ASSERT(RC_OK == result);
+
+		result = result | mpEventManager->Unsubscribe(TOnSplashScreensFinishedEvent::GetTypeId(), this);
 		TDE2_ASSERT(RC_OK == result);
 	}
 
@@ -209,6 +216,17 @@ namespace TDEngine2
 		}
 	}
 
+	E_RESULT_CODE CSplashScreenGameMode::OnEvent(const TBaseEvent* pEvent)
+	{
+		mCurrTime += mMaxShowDuration;
+		return RC_OK;
+	}
+
+	TEventListenerId CSplashScreenGameMode::GetListenerId() const
+	{
+		return TEventListenerId(GetTypeId());
+	}
+
 
 	TDE2_API IGameMode* CreateSplashScreenGameMode(IGameModesManager* pOwner, const TSplashScreenModeParams& params, E_RESULT_CODE& result)
 	{
@@ -218,6 +236,7 @@ namespace TDEngine2
 			pMode->mpWorld = params.mpSceneManager->GetWorld();
 			pMode->mMaxShowDuration = params.mMaxShowDuration;
 			pMode->mShouldSkipScreenCallback = params.mOnSkipAction;
+			pMode->mpEventManager = params.mpEventManager;
 
 			return dynamic_cast<IGameMode*>(pMode);
 		}
