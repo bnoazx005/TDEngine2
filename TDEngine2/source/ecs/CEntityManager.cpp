@@ -3,6 +3,7 @@
 #include "../../include/ecs/CTransform.h"
 #include "../../include/core/IEventManager.h"
 #include "../../include/editor/CPerfProfiler.h"
+#include "../../include/editor/CStatsCounters.h"
 #include <unordered_set>
 #include "randomUtils.hpp"
 
@@ -135,6 +136,8 @@ namespace TDEngine2
 
 		mpEventManager->Notify(&onEntityRemoved);
 
+		TDE2_STATS_COUNTER_DECREMENT(mTotalEntitiesCount);
+
 		return RC_OK;
 	}
 
@@ -252,6 +255,8 @@ namespace TDEngine2
 		}
 
 		mpEventManager->Notify(&onEntityCreated);
+
+		TDE2_STATS_COUNTER_INCREMENT(mTotalEntitiesCount);
 
 		return pEntity;
 	}

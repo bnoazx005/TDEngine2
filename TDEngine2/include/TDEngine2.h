@@ -229,6 +229,7 @@
 #include "editor/CResourcesBuildManifest.h"
 #include "editor/CStatsViewerWindow.h"
 #include "editor/CEditorSettings.h"
+#include "editor/CStatsCounters.h"
 
 ///math
 #include "math/TVector2.h"

@@ -1,6 +1,7 @@
 #include "../../include/editor/CStatsViewerWindow.h"
 #include "../../include/core/IImGUIContext.h"
 #include "../../include/editor/CPerfProfiler.h"
+#include "../../include/editor/CStatsCounters.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -70,25 +71,46 @@ namespace TDEngine2
 				currPos = DrawTextLine(mpImGUIContext, currPos + vOffset, 0.0f, vOffset.y, "FPS: ", std::to_string(static_cast<I32>(1.0f / CMathUtils::Max(1e-3f, mCurrDeltaTime))));
 				
 				{
+					// Frame
 					currPos = DrawTextLine(mpImGUIContext, currPos, 0.0f, vOffset.y);
 					currPos = DrawTextLine(mpImGUIContext, currPos, 0.0f, vOffset.y, "Frame Time (ms): ", std::to_string(mCurrDeltaTime * 1000.0f));
+					{
+						currPos = DrawTextLine(mpImGUIContext, currPos, 20.0f, vOffset.y, "Update Time (ms): ",
+							std::to_string(CPerfProfiler::Get()->GetAverageTimeByEventName(E_SPECIAL_PROFILE_EVENT::UPDATE) * 1000.0f));
 
-					currPos = DrawTextLine(mpImGUIContext, currPos, 20.0f, vOffset.y, "Update Time (ms): ",
-						std::to_string(CPerfProfiler::Get()->GetAverageTimeByEventName(E_SPECIAL_PROFILE_EVENT::UPDATE) * 1000.0f));
+						currPos = DrawTextLine(mpImGUIContext, currPos, 25.0f, vOffset.y, "World Update (ms): ",
+							std::to_string(CPerfProfiler::Get()->GetAverageTimeByEventName(E_SPECIAL_PROFILE_EVENT::WORLD_UPDATE) * 1000.0f));
 
-					currPos = DrawTextLine(mpImGUIContext, currPos, 25.0f, vOffset.y, "World Update (ms): ",
-						std::to_string(CPerfProfiler::Get()->GetAverageTimeByEventName(E_SPECIAL_PROFILE_EVENT::WORLD_UPDATE) * 1000.0f));
+						currPos = DrawTextLine(mpImGUIContext, currPos, 25.0f, vOffset.y, "Audio Update (ms): ",
+							std::to_string(CPerfProfiler::Get()->GetAverageTimeByEventName(E_SPECIAL_PROFILE_EVENT::AUDIO_UPDATE) * 1000.0f));
 
-					currPos = DrawTextLine(mpImGUIContext, currPos, 25.0f, vOffset.y, "Audio Update (ms): ",
-						std::to_string(CPerfProfiler::Get()->GetAverageTimeByEventName(E_SPECIAL_PROFILE_EVENT::AUDIO_UPDATE) * 1000.0f));
+						currPos = DrawTextLine(mpImGUIContext, currPos, 20.0f, vOffset.y, "Render Time (ms): ",
+							std::to_string(CPerfProfiler::Get()->GetAverageTimeByEventName(E_SPECIAL_PROFILE_EVENT::RENDER) * 1000.0f));
 
-					currPos = DrawTextLine(mpImGUIContext, currPos, 20.0f, vOffset.y, "Render Time (ms): ",
-						std::to_string(CPerfProfiler::Get()->GetAverageTimeByEventName(E_SPECIAL_PROFILE_EVENT::RENDER) * 1000.0f));
+						currPos = DrawTextLine(mpImGUIContext, currPos, 20.0f, vOffset.y, "Present (ms): ",
+							std::to_string(CPerfProfiler::Get()->GetAverageTimeByEventName(E_SPECIAL_PROFILE_EVENT::PRESENT) * 1000.0f));
 
-					currPos = DrawTextLine(mpImGUIContext, currPos, 20.0f, vOffset.y, "Present (ms): ",
-						std::to_string(CPerfProfiler::Get()->GetAverageTimeByEventName(E_SPECIAL_PROFILE_EVENT::PRESENT) * 1000.0f));
+						currPos = currPos + TVector2(0.0f, vOffset.y);
+					}
+					
+					// Render
+					{
+						currPos = DrawTextLine(mpImGUIContext, currPos, 0.0f, vOffset.y, "Draw Calls: ", std::to_string(CStatsCounters::mDrawCallsCount));
+						currPos = currPos + TVector2(0.0f, vOffset.y);
+					}
 
-					currPos = DrawTextLine(mpImGUIContext, currPos, 0.0f, vOffset.y);
+					// ECS
+					{
+						currPos = DrawTextLine(mpImGUIContext, currPos, 0.0f, vOffset.y, "Entities Count: ", std::to_string(CStatsCounters::mTotalEntitiesCount));
+						currPos = DrawTextLine(mpImGUIContext, currPos, 0.0f, vOffset.y, "Components Count: ", std::to_string(CStatsCounters::mTotalComponentsCount));
+						currPos = currPos + TVector2(0.0f, vOffset.y);
+					}
+
+					// Resources
+					{
+						currPos = DrawTextLine(mpImGUIContext, currPos, 0.0f, vOffset.y, "Loaded Resources: ", std::to_string(CStatsCounters::mLoadedResourcesCount));
+						currPos = currPos + TVector2(0.0f, vOffset.y);
+					}
 				}
 
 				mpImGUIContext->EndChildWindow();

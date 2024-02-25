@@ -6,6 +6,7 @@
 #include "../../include/core/IResourcesRuntimeManifest.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/editor/CPerfProfiler.h"
+#include "../../include/editor/CStatsCounters.h"
 #include <memory>
 #include <algorithm>
 
@@ -340,6 +341,8 @@ namespace TDEngine2
 
 		pResource->Load(); /// \note Load is executed in sequential manner, but internally it can create background tasks
 
+		TDE2_STATS_COUNTER_INCREMENT(mLoadedResourcesCount);
+
 		return resourceId;
 	}
 
@@ -372,6 +375,8 @@ namespace TDEngine2
 		mResourcesMap[name] = resourceId;
 
 		pResource->OnCreated(this);
+
+		TDE2_STATS_COUNTER_INCREMENT(mLoadedResourcesCount);
 
 		return resourceId;
 	}
@@ -413,6 +418,8 @@ namespace TDEngine2
 
 		result = result | mResources.ReplaceAt(static_cast<U32>(id), TPtr<IResource>(nullptr));
 		mResourcesMap.erase(mResourcesMap.find(pResource->GetName()));
+
+		TDE2_STATS_COUNTER_DECREMENT(mLoadedResourcesCount);
 
 		return result;
 	}

@@ -14,6 +14,7 @@
 #include "../../include/graphics/IMaterial.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/editor/CPerfProfiler.h"
+#include "../../include/editor/CStatsCounters.h"
 #include "../../include/graphics/IFramePostProcessor.h"
 #include "../../include/graphics/CBaseRenderTarget.h"
 #include "../../include/graphics/CBaseCubemapTexture.h"
@@ -423,6 +424,7 @@ namespace TDEngine2
 		
 		{
 			TDE2_BUILTIN_SPEC_PROFILER_EVENT(E_SPECIAL_PROFILE_EVENT::RENDER);
+			TDE2_STATS_COUNTER_SET(mDrawCallsCount, 0);
 
 			_prepareFrame(currTime, deltaTime);
 

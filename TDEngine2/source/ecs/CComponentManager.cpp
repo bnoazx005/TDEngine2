@@ -2,6 +2,7 @@
 #include "../../include/ecs/IComponentFactory.h"
 #include "../../include/ecs/CBaseComponent.h"
 #include "../../include/editor/CPerfProfiler.h"
+#include "../../include/editor/CStatsCounters.h"
 
 
 namespace TDEngine2
@@ -112,6 +113,8 @@ namespace TDEngine2
 		mEntityComponentMap[entityId].erase(componentTypeId);
 		mComponentEntityMap[componentTypeId].erase(entityId);
 
+		TDE2_STATS_COUNTER_DECREMENT(mTotalComponentsCount);
+
 		return RC_OK;
 	}
 
@@ -193,6 +196,8 @@ namespace TDEngine2
 			// mark handlers as invalid
 			mEntityComponentMap[entityId].erase(componentType);
 			mComponentEntityMap[componentType].erase(entityId);
+
+			TDE2_STATS_COUNTER_DECREMENT(mTotalComponentsCount);
 		}
 
 		return RC_OK;
@@ -360,6 +365,8 @@ namespace TDEngine2
 		{
 			mUniqueComponentsRegistry[componentTypeId] = entityId;
 		}
+
+		TDE2_STATS_COUNTER_INCREMENT(mTotalComponentsCount);
 
 		return pNewComponent;
 	}
