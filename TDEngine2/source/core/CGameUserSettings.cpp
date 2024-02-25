@@ -12,11 +12,13 @@ namespace TDEngine2
 	{
 		static const std::string mMainGroupKeyId;
 		static const std::string mGraphicsGroupKeyId;
+		static const std::string mDebugGroupKeyId;
 	};
 
 
 	const std::string TUserSettingsKeys::mMainGroupKeyId = "main";
 	const std::string TUserSettingsKeys::mGraphicsGroupKeyId = "graphics";
+	const std::string TUserSettingsKeys::mDebugGroupKeyId = "debug";
 
 
 	template <typename T> struct TConvertToVariableType { static const E_CONSOLE_VARIABLE_TYPE mType = E_CONSOLE_VARIABLE_TYPE::INT; };
@@ -318,6 +320,11 @@ namespace TDEngine2
 
 		mpIsVolumetricCloudsEnabledCVar = std::make_unique<CInt32ConsoleVarDecl>(TUserSettingsKeys::mGraphicsGroupKeyId + ".volumetric_clouds",
 			"Flag determines whether or not volumetric clouds enabled (0 - disabled, 1 - enabled)", 0);
+
+#if TDE2_EDITORS_ENABLED
+		mpIsVersionWatermarkEnabledCVar = std::make_unique<CInt32ConsoleVarDecl>(TUserSettingsKeys::mDebugGroupKeyId + ".show_version",
+			"Show version overlay at window's corner (0 - disabled, 1 - enabled)", 0);
+#endif
 
 		return mpCVarsStorage->Load(pConfigFileReader);
 	}

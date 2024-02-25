@@ -244,9 +244,9 @@ namespace TDEngine2
 		VkApplicationInfo appInfo;
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 		appInfo.pApplicationName = appName.c_str();
-		appInfo.applicationVersion = VK_MAKE_VERSION(TDE2_MAJOR_VERSON, TDE2_MINOR_VERSION, TDE2_PATCH_VERSION);
+		appInfo.applicationVersion = VK_MAKE_VERSION(TDE2_MAJOR_VERSION, TDE2_MINOR_VERSION, TDE2_PATCH_VERSION);
 		appInfo.pEngineName = "TDEngine2";
-		appInfo.engineVersion = VK_MAKE_VERSION(TDE2_MAJOR_VERSON, TDE2_MINOR_VERSION, TDE2_PATCH_VERSION);
+		appInfo.engineVersion = VK_MAKE_VERSION(TDE2_MAJOR_VERSION, TDE2_MINOR_VERSION, TDE2_PATCH_VERSION);
 		appInfo.apiVersion = VK_API_VERSION_1_0;
 
 		VkInstanceCreateInfo createInfo;

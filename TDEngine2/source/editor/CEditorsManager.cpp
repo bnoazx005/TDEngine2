@@ -5,6 +5,7 @@
 #include "../../include/core/IImGUIContext.h"
 #include "../../include/core/IInputContext.h"
 #include "../../include/core/IWindowSystem.h"
+#include "../../include/core/CGameUserSettings.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include "../../include/editor/ecs/CEditorCameraControlSystem.h"
 #include "../../include/ecs/CWorld.h"
@@ -285,8 +286,39 @@ namespace TDEngine2
 	}
 
 
+	static void DrawVersionWatermarkWindow(IImGUIContext* pImGUIContext)
+	{
+		if (!CGameUserSettings::Get()->mpIsVersionWatermarkEnabledCVar->Get())
+		{
+			return;
+		}
+		
+		static const IImGUIContext::TWindowParams params
+		{
+			ZeroVector2,
+			TVector2(500.0f, 300.0f),
+			TVector2(1e+30f, 1e+30f),
+			TVector2(0.0f, pImGUIContext->GetDisplaySize().y - 25.0f),
+			false,
+			true,
+			true,
+			true
+		};
+
+		bool isEnabled = true;
+
+		if (pImGUIContext->BeginWindow("Version Watermark", isEnabled, params))
+		{
+			pImGUIContext->Label(Wrench::StringUtils::Format("Ver. {0}.{1}.{2}", TDE2_MAJOR_VERSION, TDE2_MINOR_VERSION, TDE2_PATCH_VERSION));
+			pImGUIContext->EndWindow();
+		}
+	}
+
+
 	E_RESULT_CODE CEditorsManager::_showEditorWindows(F32 dt)
 	{
+		DrawVersionWatermarkWindow(mpImGUIContext.Get());
+
 		if (!mIsVisible)
 		{
 			DrawAllWindows(mpImGUIContext.Get(), mRegisteredEditors, dt, true); /// editor windows with overlay mode is drawn no matter on current state of the manager

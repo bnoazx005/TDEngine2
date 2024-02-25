@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.25] 2024-02-23
+## [0.6.25] 2024-02-25
 
 ### Added
 
@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new component **UIVideoContainerComponent** and a system **CVideoProcessingSystem** were added. 
 
 - A new component **CSplashScreenItemComponent** was introduced to configure logos parade on application start up.
+
+- Utility script **tde2CsvToLocalizationConverter.py** was added for preparing localization packages from CSV spreadsheets.
 
 ### Changed
 
@@ -34,6 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The opening animation of developer's console was fixed.
 
 - (Issue #97) Too long line with compiler flags due to recursion was fixed.
+
+- Typo in name of TDE2_MAJOR_VERSION was fixed.
 
 ## [0.6.24] 2024-01-31
 

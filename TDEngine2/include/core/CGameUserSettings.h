@@ -137,6 +137,10 @@ namespace TDEngine2
 
 			CInt32ConsoleVarDeclPtr mpIsVolumetricCloudsEnabledCVar;
 
+#if TDE2_EDITORS_ENABLED
+			CInt32ConsoleVarDeclPtr mpIsVersionWatermarkEnabledCVar;
+#endif
+
 		private:
 			std::unique_ptr<CConsoleVariablesStorage> mpCVarsStorage;
 	};
