@@ -69,3 +69,9 @@ resources_collection:
       mipmaps_generation: 1
       path: .\Textures\rust_albedo.png
       type_id: 1584570564
+  - resource_info: 
+      address_mode: AMT_WRAP
+      filter_type: FT_BILINEAR
+      mipmaps_generation: 1
+      path: .\Textures\weather.png
+      type_id: 1584570564

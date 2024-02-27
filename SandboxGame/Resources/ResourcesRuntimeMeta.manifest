@@ -51,3 +51,10 @@ resources_meta_collection:
       mips_count: 0
       mips_enabled: 0
       type_id: 308810324
+  - resource_meta: 
+      address_mode: AMT_WRAP
+      filter_type: FT_BILINEAR
+      id: ./Textures/weather.png
+      mips_count: 0
+      mips_enabled: 0
+      type_id: 308810324
