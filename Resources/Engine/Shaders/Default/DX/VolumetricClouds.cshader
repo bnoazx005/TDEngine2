@@ -10,6 +10,7 @@ RWTexture2D<float4> OutputTexture;
 DECLARE_TEX2D_EX(DepthTexture, 1);
 DECLARE_TEX3D_EX(LowFreqCloudsNoiseTex, 2);
 DECLARE_TEX3D_EX(HiFreqCloudsNoiseTex, 3);
+DECLARE_TEX2D_EX(WeatherMap, 4);
 
 
 CBUFFER_SECTION_EX(RenderParameters, 4)
@@ -21,6 +22,9 @@ CBUFFER_ENDSECTION
 CBUFFER_SECTION_EX(CloudsParameters, 5)
 	float4 mAtmosphereParameters; // x - Earth radius, y - atmosphere inner radius, z - atmosphere thickness
 	float4 mWindParameters; // xy - direction, w - scale factor
+	float  mCoverage;
+	float  mCurliness;
+	float  mCrispiness;
 CBUFFER_ENDSECTION
 
 
@@ -57,15 +61,17 @@ float GetDensityForCloud(float heightFraction, float cloudType)
 }
 
 
-float SampleCloudDensity(float3 pos)
+float SampleCloudDensity(float3 pos, bool applyHiFreqNoise = true)
 {
 	float heightFraction = GetHeightFraction(pos) + 1e-2;
+
 	float2 uv = GetUVProjection(pos);
+	float2 scrolledUV = GetUVProjection(pos + float3((heightFraction * 750.0f + mWindParameters.w * Time.x) * mWindParameters.xy, 0.0));
 
     if (heightFraction < 1e-3 || heightFraction > 1.0)
         return 0.0f;
 
-	float4 lowFreqNoises = TEX3D_LOD(LowFreqCloudsNoiseTex, float3(uv * 45.0, heightFraction), 0);
+	float4 lowFreqNoises = TEX3D_LOD(LowFreqCloudsNoiseTex, float3(uv * mCrispiness, heightFraction), 0);
 
 	float lowFreqFBM = dot(lowFreqNoises.gba, float3(0.625, 0.25, 0.125));
     float cloudSample = Remap(lowFreqNoises.r, -(1.0f - lowFreqFBM), 1.0, 0.0, 1.0);
@@ -73,10 +79,21 @@ float SampleCloudDensity(float3 pos)
 	float density = GetDensityForCloud(heightFraction, 1.0f);
     cloudSample *= (density / heightFraction);
 
-    float cloudWeatherCoverage = 0.305; // TODO implement weather coverage
+    float4 weatherData = TEX2D_LOD(WeatherMap, scrolledUV, 0);
+    float cloudWeatherCoverage = weatherData.x * mCoverage;
 
     float cloudSampleWithCoverage = Remap(cloudSample, cloudWeatherCoverage, 1.0f, 0.0f, 1.0f);
     cloudSampleWithCoverage *= cloudWeatherCoverage;
+
+    // high freq noise application
+    if (applyHiFreqNoise)
+    {
+    	float3 highFreqNoise = TEX3D_LOD(HiFreqCloudsNoiseTex, float3(scrolledUV * mCrispiness, heightFraction) * mCurliness, 0).rgb;
+    	float highFreqFBM = dot(highFreqNoise.rgb, float3(0.625, 0.25, 0.125));    
+    	float highFreqNoiseModifier = lerp(highFreqFBM, 1.0f - highFreqFBM, clamp(heightFraction * 10.0f, 0.0f, 1.0f));
+    	cloudSampleWithCoverage = cloudSampleWithCoverage - highFreqNoiseModifier * (1.0 - cloudSampleWithCoverage);
+    	cloudSampleWithCoverage = Remap(cloudSampleWithCoverage * 2.0, highFreqNoiseModifier * 0.2, 1.0f, 0.0f, 1.0f);
+    }
 
 	return saturate(cloudSampleWithCoverage);
 }
@@ -140,7 +157,7 @@ float4 DoRayMarchToCloud(Ray3 ray, float3 earthCenter, float2 intersectionsParam
 		{
             float deltaTransmittance = exp(densitySample * sigmaDeltaStep);
             float3 Sint =  deltaTransmittance * (1.0f / densitySample);
-            color.rgb += DoRayMarchToSun(pos, stepSize * 0.1) *transmitance * Sint;
+            color.rgb += transmitance * Sint;
             transmitance *= deltaTransmittance;
 		}
 	}

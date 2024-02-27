@@ -69,9 +69,17 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWeatherComponent)
 		public:
-			float mAtmosphereThickness = 4000.0f;
+			F32 mAtmosphereStartRadius = 1500.0f;
+			F32 mAtmosphereThickness = 4000.0f;
+			F32 mWindScaleFactor = 10000.0f;
+
+			F32 mCoverage = 0.3f;
+			F32 mCurliness = 1.1f;
+			F32 mCrispiness = 43.0f;
 
 			TVector2 mWindDirection = RightVector2;
+
+			std::string mWeatherMapTextureId;
 	};
 
 

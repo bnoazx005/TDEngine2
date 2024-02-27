@@ -1877,6 +1877,126 @@ namespace TDEngine2
 			IImGUIContext& imguiContext = editorContext.mImGUIContext;
 			IComponent& component = editorContext.mComponent;
 
+			CWeatherComponent& weatherComponent = dynamic_cast<CWeatherComponent&>(component);
+
+			/// Atmosphere Start Radius
+			{
+				F32 atmosphereRadius = weatherComponent.mAtmosphereStartRadius;
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Atmosphere Start Radius: ");
+				imguiContext.FloatField("##AtmoStartRadius", atmosphereRadius, [&atmosphereRadius, &weatherComponent]
+				{
+					if (atmosphereRadius != weatherComponent.mAtmosphereStartRadius)
+					{
+						weatherComponent.mAtmosphereStartRadius = atmosphereRadius;
+					}
+
+				});
+				imguiContext.EndHorizontal();
+			}
+
+			/// Atmosphere Thickness
+			{
+				F32 atmosphereThickness = weatherComponent.mAtmosphereThickness;
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Atmosphere Thickness: ");
+				imguiContext.FloatField("##AtmoThickness", atmosphereThickness, [&atmosphereThickness, &weatherComponent]
+				{
+					if (atmosphereThickness != weatherComponent.mAtmosphereThickness)
+					{
+						weatherComponent.mAtmosphereThickness = atmosphereThickness;
+					}
+
+				});
+				imguiContext.EndHorizontal();
+			}
+
+			/// Coverage
+			{
+				F32 coverage = weatherComponent.mCoverage;
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Coverage: ");
+				imguiContext.FloatSlider("##Coverage", coverage, 0.0f, 1.0f, [&coverage, &weatherComponent]
+				{
+					if (coverage != weatherComponent.mCoverage)
+					{
+						weatherComponent.mCoverage = coverage;
+					}
+
+				});
+				imguiContext.EndHorizontal();
+			}
+
+			/// Curliness
+			{
+				F32 curliness = weatherComponent.mCurliness;
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Curliness: ");
+				imguiContext.FloatSlider("##Curliness", curliness, 0.0f, 10.0f, [&curliness, &weatherComponent]
+				{
+					if (curliness != weatherComponent.mCurliness)
+					{
+						weatherComponent.mCurliness = curliness;
+					}
+
+				});
+				imguiContext.EndHorizontal();
+			}
+
+			/// Crispiness
+			{
+				F32 crispiness = weatherComponent.mCrispiness;
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Crispiness: ");
+				imguiContext.FloatSlider("##Crispiness", crispiness, 0.0f, 100.0f, [&crispiness, &weatherComponent]
+				{
+					if (crispiness != weatherComponent.mCrispiness)
+					{
+						weatherComponent.mCrispiness = crispiness;
+					}
+
+				});
+				imguiContext.EndHorizontal();
+			}
+
+			/// Wind direction
+			{
+				TVector2 windDirection = weatherComponent.mWindDirection;
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Wind Direction: ");
+				imguiContext.Vector2Field("##WindDirection", windDirection, [&windDirection, &weatherComponent]
+				{
+					if (windDirection != weatherComponent.mWindDirection)
+					{
+						weatherComponent.mWindDirection = windDirection;
+					}
+
+				});
+				imguiContext.EndHorizontal();
+			}
+
+			/// Wind Scale factor
+			{
+				F32 windScaleFactor = weatherComponent.mWindScaleFactor;
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Wind Scale Factor: ");
+				imguiContext.FloatField("##WindScaleFactor", windScaleFactor, [&windScaleFactor, &weatherComponent]
+				{
+					if (windScaleFactor != weatherComponent.mWindScaleFactor)
+					{
+						weatherComponent.mWindScaleFactor = windScaleFactor;
+					}
+
+				});
+				imguiContext.EndHorizontal();
+			}
 		});
 	}
 

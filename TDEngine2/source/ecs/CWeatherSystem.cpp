@@ -187,10 +187,16 @@ namespace TDEngine2
 		{
 			TVector4 mAtmosphereParameters; // x - Earth's radius, y - inner atmosphere's radius, z - thickness
 			TVector4 mWindParameters; // xy - direction, w - scale factor
+			F32      mCoverage;
+			F32      mCurliness;
+			F32      mCrispiness;
 		} uniformsData;
 
-		uniformsData.mAtmosphereParameters = TVector4{ EarthRadius, 1500.0f, pWeatherComponent->mAtmosphereThickness, 0.0f };
-		uniformsData.mWindParameters = TVector4{ pWeatherComponent->mWindDirection.x, pWeatherComponent->mWindDirection.y, 0.0f, 1.0f };
+		uniformsData.mAtmosphereParameters = TVector4{ EarthRadius, pWeatherComponent->mAtmosphereStartRadius, pWeatherComponent->mAtmosphereThickness, 0.0f };
+		uniformsData.mWindParameters = TVector4{ pWeatherComponent->mWindDirection.x, pWeatherComponent->mWindDirection.y, 0.0f, pWeatherComponent->mWindScaleFactor };
+		uniformsData.mCoverage = pWeatherComponent->mCoverage;
+		uniformsData.mCurliness = pWeatherComponent->mCurliness;
+		uniformsData.mCrispiness = pWeatherComponent->mCrispiness;
 
 		const TResourceId volumetricCloudsShaderHandle = mpResourceManager->Load<IMaterial>(CProjectSettings::Get()->mGraphicsSettings.mVolumetricCloudsMainShader);
 		TDE2_ASSERT(TResourceId::Invalid != volumetricCloudsShaderHandle);
@@ -198,6 +204,9 @@ namespace TDEngine2
 		if (auto pVolumetricCloudsMainShader = mpResourceManager->GetResource<IShader>(volumetricCloudsShaderHandle))
 		{
 			pVolumetricCloudsMainShader->SetUserUniformsBuffer(1, reinterpret_cast<const U8*>(&uniformsData), sizeof(uniformsData));
+
+			auto pWeatherMapTexture = mpResourceManager->GetResource<ITexture2D>(mpResourceManager->Load<ITexture2D>(pWeatherComponent->mWeatherMapTextureId));
+			pVolumetricCloudsMainShader->SetTextureResource("WeatherMap", pWeatherMapTexture.Get());
 		}
 	}
 
