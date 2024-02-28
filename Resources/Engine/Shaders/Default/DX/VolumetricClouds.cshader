@@ -50,6 +50,9 @@ static const float4 STRATOCUMULUS_GRADIENT = float4(0.02, 0.2, 0.48, 0.625);
 static const float4 CUMULUS_GRADIENT       = float4(0.0, 0.1625, 0.88, 0.98);
 
 
+static const float3 FBM_COEFFS = float3(0.625, 0.25, 0.125);
+
+
 float GetDensityForCloud(float heightFraction, float cloudType)
 {
     float stratusFactor = 1.0 - clamp(cloudType * 2.0, 0.0, 1.0);
@@ -73,13 +76,14 @@ float SampleCloudDensity(float3 pos, bool applyHiFreqNoise = true)
 
 	float4 lowFreqNoises = TEX3D_LOD(LowFreqCloudsNoiseTex, float3(uv * mCrispiness, heightFraction), 0);
 
-	float lowFreqFBM = dot(lowFreqNoises.gba, float3(0.625, 0.25, 0.125));
+	float lowFreqFBM = dot(lowFreqNoises.gba, FBM_COEFFS);
     float cloudSample = Remap(lowFreqNoises.r, -(1.0f - lowFreqFBM), 1.0, 0.0, 1.0);
 
-	float density = GetDensityForCloud(heightFraction, 1.0f);
+    float4 weatherData = TEX2D_LOD(WeatherMap, scrolledUV, 0);
+
+	float density = GetDensityForCloud(heightFraction, weatherData.y);
     cloudSample *= (density / heightFraction);
 
-    float4 weatherData = TEX2D_LOD(WeatherMap, scrolledUV, 0);
     float cloudWeatherCoverage = weatherData.x * mCoverage;
 
     float cloudSampleWithCoverage = Remap(cloudSample, cloudWeatherCoverage, 1.0f, 0.0f, 1.0f);
@@ -89,7 +93,7 @@ float SampleCloudDensity(float3 pos, bool applyHiFreqNoise = true)
     if (applyHiFreqNoise)
     {
     	float3 highFreqNoise = TEX3D_LOD(HiFreqCloudsNoiseTex, float3(scrolledUV * mCrispiness, heightFraction) * mCurliness, 0).rgb;
-    	float highFreqFBM = dot(highFreqNoise.rgb, float3(0.625, 0.25, 0.125));    
+    	float highFreqFBM = dot(highFreqNoise.rgb, FBM_COEFFS);    
     	float highFreqNoiseModifier = lerp(highFreqFBM, 1.0f - highFreqFBM, clamp(heightFraction * 10.0f, 0.0f, 1.0f));
     	cloudSampleWithCoverage = cloudSampleWithCoverage - highFreqNoiseModifier * (1.0 - cloudSampleWithCoverage);
     	cloudSampleWithCoverage = Remap(cloudSampleWithCoverage * 2.0, highFreqNoiseModifier * 0.2, 1.0f, 0.0f, 1.0f);
@@ -162,7 +166,7 @@ float4 DoRayMarchToCloud(Ray3 ray, float3 earthCenter, float2 intersectionsParam
 		}
 	}
 
-	return float4(color, 1.0 - transmitance);
+	return float4(color * 0.05, 1.0 - transmitance);//TODO temp fix
 }
 
 

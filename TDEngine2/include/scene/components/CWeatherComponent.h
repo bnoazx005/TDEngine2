@@ -70,8 +70,8 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWeatherComponent)
 		public:
 			F32 mAtmosphereStartRadius = 1500.0f;
-			F32 mAtmosphereThickness = 4000.0f;
-			F32 mWindScaleFactor = 10000.0f;
+			F32 mAtmosphereThickness = 14000.0f;
+			F32 mWindScaleFactor = 5000.0f;
 
 			F32 mCoverage = 0.3f;
 			F32 mCurliness = 1.1f;
