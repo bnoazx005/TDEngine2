@@ -8,6 +8,7 @@
 
 
 #include "../../utils/Types.h"
+#include "../../utils/Color.h"
 #include "../../core/memory/CPoolAllocator.h"
 #include "../../ecs/CBaseComponent.h"
 
@@ -69,6 +70,9 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWeatherComponent)
 		public:
+			TColor32F mAmbientCloudColor = TColorUtils::mWhite;
+
+			// clouds
 			F32 mAtmosphereStartRadius = 1500.0f;
 			F32 mAtmosphereThickness = 14000.0f;
 			F32 mWindScaleFactor = 5000.0f;
@@ -76,6 +80,8 @@ namespace TDEngine2
 			F32 mCoverage = 0.3f;
 			F32 mCurliness = 1.1f;
 			F32 mCrispiness = 43.0f;
+
+			F32 mDensityFactor = 0.006f;
 
 			TVector2 mWindDirection = RightVector2;
 

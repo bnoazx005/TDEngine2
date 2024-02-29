@@ -18,6 +18,8 @@ namespace TDEngine2
 		static const std::string mCoverageKeyId;
 		static const std::string mCurlinessKeyId;
 		static const std::string mCrispinessKeyId;
+		static const std::string mDensityFactorKeyId;
+		static const std::string mAmbientCloudsColorKeyId;
 		static const std::string mWeatherMapKeyId;
 	};
 
@@ -28,6 +30,8 @@ namespace TDEngine2
 	const std::string TWeatherComponentArchiveKeys::mCoverageKeyId = "coverage";
 	const std::string TWeatherComponentArchiveKeys::mCurlinessKeyId = "curliness";
 	const std::string TWeatherComponentArchiveKeys::mCrispinessKeyId = "crispiness";
+	const std::string TWeatherComponentArchiveKeys::mDensityFactorKeyId = "density_factor";
+	const std::string TWeatherComponentArchiveKeys::mAmbientCloudsColorKeyId = "ambient_clouds_color";
 	const std::string TWeatherComponentArchiveKeys::mWeatherMapKeyId = "weather_texture";
 
 
@@ -63,6 +67,18 @@ namespace TDEngine2
 		mCoverage = pReader->GetFloat(TWeatherComponentArchiveKeys::mCoverageKeyId, mCoverage);
 		mCurliness = pReader->GetFloat(TWeatherComponentArchiveKeys::mCurlinessKeyId, mCurliness);
 		mCrispiness = pReader->GetFloat(TWeatherComponentArchiveKeys::mCrispinessKeyId, mCrispiness);
+		
+		mDensityFactor = pReader->GetFloat(TWeatherComponentArchiveKeys::mDensityFactorKeyId, mDensityFactor);
+
+		pReader->BeginGroup(TWeatherComponentArchiveKeys::mAmbientCloudsColorKeyId);
+		{
+			auto loadAmbientCloudsColorResult = LoadColor32F(pReader);
+			if (loadAmbientCloudsColorResult.IsOk())
+			{
+				mAmbientCloudColor = loadAmbientCloudsColorResult.Get();
+			}
+		}
+		pReader->EndGroup();
 
 		mWeatherMapTextureId = pReader->GetString(TWeatherComponentArchiveKeys::mWeatherMapKeyId);
 
@@ -95,6 +111,12 @@ namespace TDEngine2
 			result = result | pWriter->SetFloat(TWeatherComponentArchiveKeys::mCurlinessKeyId, mCurliness);
 			result = result | pWriter->SetFloat(TWeatherComponentArchiveKeys::mCrispinessKeyId, mCrispiness);
 
+			result = result | pWriter->SetFloat(TWeatherComponentArchiveKeys::mDensityFactorKeyId, mDensityFactor);
+
+			result = result | pWriter->BeginGroup(TWeatherComponentArchiveKeys::mAmbientCloudsColorKeyId);
+			result = result | SaveColor32F(pWriter, mAmbientCloudColor);
+			result = result | pWriter->EndGroup();
+
 			result = result | pWriter->SetString(TWeatherComponentArchiveKeys::mWeatherMapKeyId, mWeatherMapTextureId);
 		}
 		result = result | pWriter->EndGroup();
@@ -114,6 +136,10 @@ namespace TDEngine2
 			pSourceComponent->mCoverage = mCoverage;
 			pSourceComponent->mCurliness = mCurliness;
 			pSourceComponent->mCrispiness = mCrispiness;
+
+			pSourceComponent->mDensityFactor = mDensityFactor;
+
+			pSourceComponent->mAmbientCloudColor = mAmbientCloudColor;
 
 			pSourceComponent->mWeatherMapTextureId = mWeatherMapTextureId;
 
