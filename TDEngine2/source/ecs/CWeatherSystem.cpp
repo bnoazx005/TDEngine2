@@ -171,7 +171,13 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("CWeatherSystem::Update");
 
-		CEntity* pEntity = pWorld->FindEntity(pWorld->FindEntityWithUniqueComponent<CWeatherComponent>());
+		auto&& entities = pWorld->FindEntitiesWithComponents<CWeatherComponent>();
+		if (entities.empty())
+		{
+			return;
+		}
+
+		CEntity* pEntity = pWorld->FindEntity(entities.front());
 		if (!pEntity)
 		{
 			return;
@@ -185,18 +191,25 @@ namespace TDEngine2
 
 		struct
 		{
-			TVector4 mAtmosphereParameters; // x - Earth's radius, y - inner atmosphere's radius, z - thickness
-			TVector4 mWindParameters; // xy - direction, w - scale factor
-			F32      mCoverage;
-			F32      mCurliness;
-			F32      mCrispiness;
+			TVector4  mAtmosphereParameters; // x - Earth's radius, y - inner atmosphere's radius, z - thickness
+			TVector4  mWindParameters; // xy - direction, w - scale factor
+			TColor32F mAmbientCloudsColor;
+			F32       mAbsorption;
+			F32       mCoverage;
+			F32       mCurliness;
+			F32       mCrispiness;
+			F32       mDensityFactor;
 		} uniformsData;
 
+
+		uniformsData.mAmbientCloudsColor = pWeatherComponent->mAmbientCloudColor;
 		uniformsData.mAtmosphereParameters = TVector4{ EarthRadius, pWeatherComponent->mAtmosphereStartRadius, pWeatherComponent->mAtmosphereThickness, 0.0f };
 		uniformsData.mWindParameters = TVector4{ pWeatherComponent->mWindDirection.x, pWeatherComponent->mWindDirection.y, 0.0f, pWeatherComponent->mWindScaleFactor };
+		uniformsData.mAbsorption = pWeatherComponent->mSunLightAbsorption;
 		uniformsData.mCoverage = pWeatherComponent->mCoverage;
 		uniformsData.mCurliness = pWeatherComponent->mCurliness;
 		uniformsData.mCrispiness = pWeatherComponent->mCrispiness;
+		uniformsData.mDensityFactor = pWeatherComponent->mDensityFactor;
 
 		const TResourceId volumetricCloudsShaderHandle = mpResourceManager->Load<IMaterial>(CProjectSettings::Get()->mGraphicsSettings.mVolumetricCloudsMainShader);
 		TDE2_ASSERT(TResourceId::Invalid != volumetricCloudsShaderHandle);

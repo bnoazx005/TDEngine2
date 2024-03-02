@@ -1879,6 +1879,36 @@ namespace TDEngine2
 
 			CWeatherComponent& weatherComponent = dynamic_cast<CWeatherComponent&>(component);
 
+			/// Ambient color
+			{
+				TColor32F ambientCloudsColor = weatherComponent.mAmbientCloudColor;
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Ambient Color: ");
+				imguiContext.ColorPickerField("##AmbientColor", ambientCloudsColor, [&ambientCloudsColor, &weatherComponent]
+				{
+					weatherComponent.mAmbientCloudColor = ambientCloudsColor;
+				});
+				imguiContext.EndHorizontal();
+			}
+
+			/// Light absorption
+			{
+				F32 lightAbsorption = weatherComponent.mSunLightAbsorption;
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Light Absorption: ");
+				imguiContext.FloatSlider("##LightAbsorption", lightAbsorption, 0.0f, 0.02f, [&lightAbsorption, &weatherComponent]
+				{
+					if (lightAbsorption != weatherComponent.mSunLightAbsorption)
+					{
+						weatherComponent.mSunLightAbsorption = lightAbsorption;
+					}
+
+				});
+				imguiContext.EndHorizontal();
+			}
+
 			/// Atmosphere Start Radius
 			{
 				F32 atmosphereRadius = weatherComponent.mAtmosphereStartRadius;
@@ -1958,6 +1988,23 @@ namespace TDEngine2
 					if (crispiness != weatherComponent.mCrispiness)
 					{
 						weatherComponent.mCrispiness = crispiness;
+					}
+
+				});
+				imguiContext.EndHorizontal();
+			}
+
+			/// Density factor
+			{
+				F32 densityFactor = weatherComponent.mDensityFactor;
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Density Factor: ");
+				imguiContext.FloatSlider("##DensityFactor", densityFactor, 0.0f, 1.0f, [&densityFactor, &weatherComponent]
+				{
+					if (densityFactor != weatherComponent.mDensityFactor)
+					{
+						weatherComponent.mDensityFactor = densityFactor;
 					}
 
 				});

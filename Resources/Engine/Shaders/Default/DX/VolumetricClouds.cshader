@@ -1,3 +1,5 @@
+// based on https://github.com/steaklive/EveryRay-Rendering-Engine and https://www.guerrilla-games.com/read/the-real-time-volumetric-cloudscapes-of-horizon-zero-dawn
+
 #define COMPUTE_ENTRY MainCS
 
 #program compute
@@ -11,6 +13,7 @@ DECLARE_TEX2D_EX(DepthTexture, 1);
 DECLARE_TEX3D_EX(LowFreqCloudsNoiseTex, 2);
 DECLARE_TEX3D_EX(HiFreqCloudsNoiseTex, 3);
 DECLARE_TEX2D_EX(WeatherMap, 4);
+DECLARE_TEX2D_EX(MainTexture, 5);
 
 
 CBUFFER_SECTION_EX(RenderParameters, 4)
@@ -22,9 +25,12 @@ CBUFFER_ENDSECTION
 CBUFFER_SECTION_EX(CloudsParameters, 5)
 	float4 mAtmosphereParameters; // x - Earth radius, y - atmosphere inner radius, z - atmosphere thickness
 	float4 mWindParameters; // xy - direction, w - scale factor
+	float4 mAmbientCloudColor;
+	float  mAbsorption;
 	float  mCoverage;
 	float  mCurliness;
 	float  mCrispiness;
+	float  mDensityFactor;
 CBUFFER_ENDSECTION
 
 
@@ -33,14 +39,14 @@ float GetHeightFraction(float3 pos)
 	float innerAtmosphereRadius = mAtmosphereParameters.x  + mAtmosphereParameters.y;
 	float outerAtmosphereRadius = innerAtmosphereRadius + mAtmosphereParameters.z;
 
-    return (length(pos - float3(0.0, -mAtmosphereParameters.x, 0.0)) - innerAtmosphereRadius) / (outerAtmosphereRadius - innerAtmosphereRadius);
+	return (length(pos - float3(0.0, -mAtmosphereParameters.x, 0.0)) - innerAtmosphereRadius) / (outerAtmosphereRadius - innerAtmosphereRadius);
 }
 
 
 float2 GetUVProjection(float3 p)
 {
-    float innerRadius = mAtmosphereParameters.x + mAtmosphereParameters.y;
-    return p.xz / innerRadius + 0.5f;
+	float innerRadius = mAtmosphereParameters.x + mAtmosphereParameters.y;
+	return p.xz / innerRadius + 0.5f;
 }
 
 
@@ -52,83 +58,127 @@ static const float4 CUMULUS_GRADIENT       = float4(0.0, 0.1625, 0.88, 0.98);
 
 static const float3 FBM_COEFFS = float3(0.625, 0.25, 0.125);
 
+static const float MIN_TRANSMITTANCE = 0.1f;
+
+
+static const float BAYER_FACTOR = 1.0f / 16.0f;
+static const float BAYER_FILTER[16] =
+{
+	0.0f * BAYER_FACTOR, 8.0f * BAYER_FACTOR, 2.0f * BAYER_FACTOR, 10.0f * BAYER_FACTOR,
+	12.0f * BAYER_FACTOR, 4.0f * BAYER_FACTOR, 14.0f * BAYER_FACTOR, 6.0f * BAYER_FACTOR,
+	3.0f * BAYER_FACTOR, 11.0f * BAYER_FACTOR, 1.0f * BAYER_FACTOR, 9.0f * BAYER_FACTOR,
+	15.0f * BAYER_FACTOR, 7.0f * BAYER_FACTOR, 13.0f * BAYER_FACTOR, 5.0f * BAYER_FACTOR
+};
+
+
+// Cone sampling random offsets (for light)
+static float3 NOISE_KERNEL_CONE_SAMPLING[6] =
+{
+	float3(0.38051305, 0.92453449, -0.02111345),
+	float3(-0.50625799, -0.03590792, -0.86163418),
+	float3(-0.32509218, -0.94557439, 0.01428793),
+	float3(0.09026238, -0.27376545, 0.95755165),
+	float3(0.28128598, 0.42443639, -0.86065785),
+	float3(-0.16852403, 0.14748697, 0.97460106)
+};
+
+
+static const int MAX_STEPS_TO_SUN = 6;
+
+
+float HenyeyGreenstein(float dotLightView, float g)
+{
+	float gg = g * g;
+	return (1.0f - gg) / pow(1.0f + gg - 2.0f * g * dotLightView, 1.5f);
+}
+
 
 float GetDensityForCloud(float heightFraction, float cloudType)
 {
-    float stratusFactor = 1.0 - clamp(cloudType * 2.0, 0.0, 1.0);
-    float stratoCumulusFactor = 1.0 - abs(cloudType - 0.5) * 2.0;
-    float cumulusFactor = clamp(cloudType - 0.5, 0.0, 1.0) * 2.0;
+	float stratusFactor = 1.0 - clamp(cloudType * 2.0, 0.0, 1.0);
+	float stratoCumulusFactor = 1.0 - abs(cloudType - 0.5) * 2.0;
+	float cumulusFactor = clamp(cloudType - 0.5, 0.0, 1.0) * 2.0;
 
-    float4 baseGradient = stratusFactor * STRATUS_GRADIENT + stratoCumulusFactor * STRATOCUMULUS_GRADIENT + cumulusFactor * CUMULUS_GRADIENT;
-    return smoothstep(baseGradient.x, baseGradient.y, heightFraction) - smoothstep(baseGradient.z, baseGradient.w, heightFraction);
+	float4 baseGradient = stratusFactor * STRATUS_GRADIENT + stratoCumulusFactor * STRATOCUMULUS_GRADIENT + cumulusFactor * CUMULUS_GRADIENT;
+	return smoothstep(baseGradient.x, baseGradient.y, heightFraction) - smoothstep(baseGradient.z, baseGradient.w, heightFraction);
 }
 
 
 float SampleCloudDensity(float3 pos, bool applyHiFreqNoise = true)
 {
-	float heightFraction = GetHeightFraction(pos) + 1e-2;
+	float heightFraction = GetHeightFraction(pos);
 
 	float2 uv = GetUVProjection(pos);
 	float2 scrolledUV = GetUVProjection(pos + float3((heightFraction * 750.0f + mWindParameters.w * Time.x) * mWindParameters.xy, 0.0));
 
-    if (heightFraction < 1e-3 || heightFraction > 1.0)
-        return 0.0f;
+	if (heightFraction < 1e-3 || heightFraction > 1.0)
+		return 0.0f;
 
 	float4 lowFreqNoises = TEX3D_LOD(LowFreqCloudsNoiseTex, float3(uv * mCrispiness, heightFraction), 0);
 
 	float lowFreqFBM = dot(lowFreqNoises.gba, FBM_COEFFS);
-    float cloudSample = Remap(lowFreqNoises.r, -(1.0f - lowFreqFBM), 1.0, 0.0, 1.0);
+	float cloudSample = Remap(lowFreqNoises.r, -(1.0f - lowFreqFBM), 1.0, 0.0, 1.0);
 
-    float4 weatherData = TEX2D_LOD(WeatherMap, scrolledUV, 0);
+	float4 weatherData = TEX2D_LOD(WeatherMap, scrolledUV, 0);
 
 	float density = GetDensityForCloud(heightFraction, weatherData.y);
-    cloudSample *= (density / heightFraction);
+	cloudSample *= (density / heightFraction);
 
-    float cloudWeatherCoverage = weatherData.x * mCoverage;
+	float cloudWeatherCoverage = weatherData.x * mCoverage;
 
-    float cloudSampleWithCoverage = Remap(cloudSample, cloudWeatherCoverage, 1.0f, 0.0f, 1.0f);
-    cloudSampleWithCoverage *= cloudWeatherCoverage;
+	float cloudSampleWithCoverage = Remap(cloudSample, cloudWeatherCoverage, 1.0f, 0.0f, 1.0f);
+	cloudSampleWithCoverage *= cloudWeatherCoverage;
 
-    // high freq noise application
-    if (applyHiFreqNoise)
-    {
-    	float3 highFreqNoise = TEX3D_LOD(HiFreqCloudsNoiseTex, float3(scrolledUV * mCrispiness, heightFraction) * mCurliness, 0).rgb;
-    	float highFreqFBM = dot(highFreqNoise.rgb, FBM_COEFFS);    
-    	float highFreqNoiseModifier = lerp(highFreqFBM, 1.0f - highFreqFBM, clamp(heightFraction * 10.0f, 0.0f, 1.0f));
-    	cloudSampleWithCoverage = cloudSampleWithCoverage - highFreqNoiseModifier * (1.0 - cloudSampleWithCoverage);
-    	cloudSampleWithCoverage = Remap(cloudSampleWithCoverage * 2.0, highFreqNoiseModifier * 0.2, 1.0f, 0.0f, 1.0f);
-    }
+	// high freq noise application
+	if (applyHiFreqNoise)
+	{
+		float3 highFreqNoise = TEX3D_LOD(HiFreqCloudsNoiseTex, float3(scrolledUV * mCrispiness, heightFraction) * mCurliness, 0).rgb;
+		float highFreqFBM = dot(highFreqNoise.rgb, FBM_COEFFS);    
+		float highFreqNoiseModifier = lerp(highFreqFBM, 1.0f - highFreqFBM, clamp(heightFraction * 10.0f, 0.0f, 1.0f));
+		cloudSampleWithCoverage = cloudSampleWithCoverage - highFreqNoiseModifier * (1.0 - cloudSampleWithCoverage);
+		cloudSampleWithCoverage = Remap(cloudSampleWithCoverage * 2.0, highFreqNoiseModifier * 0.2, 1.0f, 0.0f, 1.0f);
+	}
 
 	return saturate(cloudSampleWithCoverage);
 }
 
 
-float DoRayMarchToSun(float3 pos, float stepSize)
+float DoRayMarchToSun(float3 originPos, float stepSize, float3 lightDir, float lightDotEye)
 {
-	int StepsCount = 8;
+	float3 startPos = originPos;
 
-    float deltaStep = stepSize * (float)StepsCount;
-	float3 dirStep = SunLightDirection.xyz * deltaStep;
+	float deltaStep = stepSize * 6.0f;
+	float3 rayStep = lightDir * deltaStep;
+
+	float coneRadius = 1.0;
+	const float coneStep = 1.0f / 6.0f;
 
 	float transmitance = 1.0; // transmitance
-    float density = 0.0;
-    float sigmaDeltaStep = -deltaStep * 0.03;
+	float density = 0.0;
+	const float densityThreshold = 0.3f;
 
-	for (int i = 0; i < StepsCount; i++) 
+	float sigmaDeltaStep = -deltaStep * mAbsorption;
+
+	float3 pos = originPos;
+
+	for (int i = 0; i < MAX_STEPS_TO_SUN; i++) 
 	{
-        float heightFraction = GetHeightFraction(pos);
-        if (heightFraction > 0)
-        {        	
-            float cloudDensity = SampleCloudDensity(pos);
-            if (cloudDensity > 0.0)
-            {
-                float currTransmittance = exp(cloudDensity * sigmaDeltaStep);
-                transmitance *= currTransmittance;
-                density += cloudDensity;
-            }
-        }
+		pos = startPos + coneRadius * NOISE_KERNEL_CONE_SAMPLING[i] * float(i);
 
-		pos += dirStep;
+		float heightFraction = GetHeightFraction(pos);
+		if (heightFraction >= 0)
+		{
+			float cloudDensity = SampleCloudDensity(pos, density > densityThreshold);
+			if (cloudDensity > 0.0)
+			{
+				float curTransmittance = exp(cloudDensity * sigmaDeltaStep);
+				transmitance *= curTransmittance;
+				density += cloudDensity;
+			}
+		}
+
+		startPos += rayStep;
+		coneRadius += coneStep;
 	}
 
 	return transmitance;
@@ -136,37 +186,44 @@ float DoRayMarchToSun(float3 pos, float stepSize)
 
 
 
-float4 DoRayMarchToCloud(Ray3 ray, float3 earthCenter, float2 intersectionsParams)
-{
+float4 DoRayMarchToCloud(Ray3 ray, uint2 pixelCoords, float3 earthCenter, float2 intersectionsParams, float3 skyColor)
+{    
 	float thickness = intersectionsParams.y - intersectionsParams.x;
 	float stepSize = thickness / (float)mStepsCount;
 
 	float3 color = float3(0.0, 0.0, 0.0);
-	float alpha = 0.0;
 
 	float transmitance = 1.0;
-    float sigmaDeltaStep = -stepSize * 0.01;
+	float sigmaDeltaStep = -stepSize * mDensityFactor;
 
-	int i = 0;
+	float dotLightView = dot(normalize(SunLightDirection.xyz), normalize(ray.dir));
 
-	//float h = SampleCloudDensity(ray.origin + intersectionsParams.x * ray.dir);
-	//return float4(h, h, h, h);
+	int a = int(pixelCoords.x) % 4;
+	int b = int(pixelCoords.y) % 4;
 
 	for (float t = intersectionsParams.x; t < intersectionsParams.y; t += stepSize)
 	{
-		float3 pos = ray.origin + t * ray.dir;
+		float3 pos = ray.origin + (BAYER_FILTER[a * 4 + b] * stepSize + t) * ray.dir;
 
 		float densitySample = SampleCloudDensity(pos);
 		if (densitySample > 0.0)
 		{
-            float deltaTransmittance = exp(densitySample * sigmaDeltaStep);
-            float3 Sint =  deltaTransmittance * (1.0f / densitySample);
-            color.rgb += transmitance * Sint;
-            transmitance *= deltaTransmittance;
+			float lightDensity = DoRayMarchToSun(pos, stepSize * 0.1f, SunLightDirection.xyz, dotLightView);
+			float scattering = max(lerp(HenyeyGreenstein(dotLightView, -0.08f), HenyeyGreenstein(dotLightView, 0.08f), clamp(dotLightView * 0.5f + 0.5f, 0.0f, 1.0f)), 1.0f);
+
+			float3 S = 0.6f * lerp(lerp(mAmbientCloudColor.rgb * 1.8f, skyColor, 0.2f), scattering * SunLightColor.rgb, lightDensity) * densitySample;
+			float deltaTransmittance = exp(densitySample * sigmaDeltaStep);
+			float3 Sint = (S - S * deltaTransmittance) * (1.0f / densitySample);
+
+			color.rgb += transmitance * Sint;
+			transmitance *= deltaTransmittance;
 		}
+
+		if (transmitance <= MIN_TRANSMITTANCE)
+			break;
 	}
 
-	return float4(color * 0.05, 1.0 - transmitance);//TODO temp fix
+	return float4(color, 1.0 - transmitance);
 }
 
 
@@ -180,9 +237,11 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 	float4 viewDir = normalize(mul(InvViewMat, float4(mul(InvProjMat, float4(uv, 0.0, 1.0)).xyz, 0.0)));
 	Ray3 primaryRay = MakeRay(CameraPosition.xyz, float3(viewDir.xyz));
 
+	float3 skyColor = TEX2D_LOD(MainTexture, id.xy * mInvTextureSize, 0).rgb;
+
 	if (TEX2D_LOD(DepthTexture, id.xy * mInvTextureSize, 0).r < 0.999 || dot(primaryRay.dir, float3(0.0, 1.0, 0.0)) < 1e-3)
 	{
-		OutputTexture[id.xy] = float4(0.0, 0.0, 0.0, 0.0);
+		OutputTexture[id.xy] = float4(skyColor, 1.0);
 		return;
 	}
 
@@ -194,36 +253,10 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 	float startT = IntersectRaySphere(primaryRay, float4(float3(CameraPosition.x, -mAtmosphereParameters.x, CameraPosition.z), innerAtmosphereRadius));
 	float endT = IntersectRaySphere(primaryRay, float4(float3(CameraPosition.x, -mAtmosphereParameters.x, CameraPosition.z), outerAtmosphereRadius));
 
-	OutputTexture[id.xy] = DoRayMarchToCloud(primaryRay, earthCenter, float2(startT, endT));
+	float4 cloudsColor = DoRayMarchToCloud(primaryRay, id.xy, earthCenter, float2(startT, endT), skyColor);
+	cloudsColor.rgb = cloudsColor.rgb * 1.8f - 0.1f;
 
-/*
-	float3 pos = startPos;
-	
-	float3 color = float3(0.0, 0.0, 0.0);
-	float alpha = 0.0;
-
-	float transmitance = 1.0;
-
-	for (int i = 0; i < mStepsCount; i++)
-	{
-		float density = TEX3D_LOD(LowFreqCloudsNoiseTex, pos / 200.0, 0).r;
-		density *= smoothstep(0.5, 0.505, density);
-		density = saturate(density);
-
-		float h = (float)i/(float)mStepsCount;
-
-		float T_i = exp(-1.030725 * density * stepSize);
-		transmitance *= T_i;
-
-		if (T_i < 0.01) break;
-
-		color += transmitance * (exp(h) / 1.75) * stepSize * density;
-		alpha += (1. - T_i) * (1. - alpha);
-
-		pos += primaryRay.dir * stepSize;
-	}
-
-	OutputTexture[id.xy] = float4(color, alpha);*/
+	OutputTexture[id.xy] = float4(lerp(skyColor, skyColor * (1.0f - cloudsColor.a) + cloudsColor.rgb, cloudsColor.a), 1.0);
 }
 
 #endprogram

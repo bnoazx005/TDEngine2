@@ -27,12 +27,17 @@ VertexOut mainVS(uint id : SV_VertexID)
 
 #program pixel
 
-DECLARE_TEX2D(FrameTexture);
+DECLARE_TEX2D(FrameTexture); // depth buffer
 DECLARE_TEX2D(FrameTexture1);
 
 float4 mainPS(VertexOut input): SV_TARGET0
-{
-	return TEX2D(FrameTexture, input.mUV) + TEX2D(FrameTexture1, input.mUV);
+{    
+    float4 cloudCol = TEX2D(FrameTexture1, input.mUV);
+
+    if (TEX2D(FrameTexture, input.mUV).r < 0.999f)
+        discard;
+    
+    return cloudCol;
 }
 
 #endprogram

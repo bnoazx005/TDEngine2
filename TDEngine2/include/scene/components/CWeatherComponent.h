@@ -70,12 +70,14 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWeatherComponent)
 		public:
-			TColor32F mAmbientCloudColor = TColorUtils::mWhite;
+			TColor32F mAmbientCloudColor = TColor32F(0.41f, 0.41f, 0.41f, 1.0f);
+
+			F32 mSunLightAbsorption = 0.002f;
 
 			// clouds
 			F32 mAtmosphereStartRadius = 1500.0f;
 			F32 mAtmosphereThickness = 14000.0f;
-			F32 mWindScaleFactor = 5000.0f;
+			F32 mWindScaleFactor = 2500.0f;
 
 			F32 mCoverage = 0.3f;
 			F32 mCurliness = 1.1f;

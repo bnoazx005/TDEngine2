@@ -4,7 +4,7 @@
 namespace TDEngine2
 {
 	CBaseLight::CBaseLight() :
-		CBaseComponent()
+		CBaseComponent(), mColor(TColorUtils::mWhite)
 	{
 	}
 

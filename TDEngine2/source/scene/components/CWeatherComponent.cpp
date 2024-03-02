@@ -15,6 +15,7 @@ namespace TDEngine2
 		static const std::string mAtmosphereThicknessKeyId;
 		static const std::string mWindDirectionKeyId;
 		static const std::string mWindScaleFactorKeyId;
+		static const std::string mLightAbsorptionKeyId;
 		static const std::string mCoverageKeyId;
 		static const std::string mCurlinessKeyId;
 		static const std::string mCrispinessKeyId;
@@ -27,6 +28,7 @@ namespace TDEngine2
 	const std::string TWeatherComponentArchiveKeys::mAtmosphereThicknessKeyId = "atmo_thickness";
 	const std::string TWeatherComponentArchiveKeys::mWindDirectionKeyId = "wind_direction";
 	const std::string TWeatherComponentArchiveKeys::mWindScaleFactorKeyId = "wind_scale";
+	const std::string TWeatherComponentArchiveKeys::mLightAbsorptionKeyId = "absorption";
 	const std::string TWeatherComponentArchiveKeys::mCoverageKeyId = "coverage";
 	const std::string TWeatherComponentArchiveKeys::mCurlinessKeyId = "curliness";
 	const std::string TWeatherComponentArchiveKeys::mCrispinessKeyId = "crispiness";
@@ -64,6 +66,8 @@ namespace TDEngine2
 
 		mWindScaleFactor = pReader->GetFloat(TWeatherComponentArchiveKeys::mWindScaleFactorKeyId, mWindScaleFactor);
 		
+		mSunLightAbsorption = pReader->GetFloat(TWeatherComponentArchiveKeys::mLightAbsorptionKeyId, mSunLightAbsorption);
+
 		mCoverage = pReader->GetFloat(TWeatherComponentArchiveKeys::mCoverageKeyId, mCoverage);
 		mCurliness = pReader->GetFloat(TWeatherComponentArchiveKeys::mCurlinessKeyId, mCurliness);
 		mCrispiness = pReader->GetFloat(TWeatherComponentArchiveKeys::mCrispinessKeyId, mCrispiness);
@@ -107,6 +111,8 @@ namespace TDEngine2
 
 			result = result | pWriter->SetFloat(TWeatherComponentArchiveKeys::mWindScaleFactorKeyId, mWindScaleFactor);
 
+			result = result | pWriter->SetFloat(TWeatherComponentArchiveKeys::mLightAbsorptionKeyId, mSunLightAbsorption);
+
 			result = result | pWriter->SetFloat(TWeatherComponentArchiveKeys::mCoverageKeyId, mCoverage);
 			result = result | pWriter->SetFloat(TWeatherComponentArchiveKeys::mCurlinessKeyId, mCurliness);
 			result = result | pWriter->SetFloat(TWeatherComponentArchiveKeys::mCrispinessKeyId, mCrispiness);
@@ -132,6 +138,8 @@ namespace TDEngine2
 			pSourceComponent->mAtmosphereThickness = mAtmosphereThickness;
 			pSourceComponent->mWindDirection = mWindDirection;
 			pSourceComponent->mWindScaleFactor = mWindScaleFactor;
+
+			pSourceComponent->mSunLightAbsorption = mSunLightAbsorption;
 
 			pSourceComponent->mCoverage = mCoverage;
 			pSourceComponent->mCurliness = mCurliness;

@@ -308,6 +308,7 @@ namespace TDEngine2
 		}
 
 		auto pDepthBufferResource = mpResourceManager->GetResource<IDepthBufferTarget>(mMainDepthBufferHandle);
+		auto pMainRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
 
 		struct
 		{
@@ -324,6 +325,7 @@ namespace TDEngine2
 		auto pVolumetricCloudsRenderPassShader = mpResourceManager->GetResource<IShader>(mVolumetricCloudsComputeShaderHandle);
 		pVolumetricCloudsRenderPassShader->SetTextureResource("OutputTexture", pVolumetricCloudsScreenBufferTexture.Get());
 		pVolumetricCloudsRenderPassShader->SetTextureResource("DepthTexture", pDepthBufferResource.Get());
+		pVolumetricCloudsRenderPassShader->SetTextureResource("MainTexture", pMainRenderTarget.Get());
 
 		pVolumetricCloudsRenderPassShader->SetUserUniformsBuffer(0, reinterpret_cast<const U8*>(&uniformsData), sizeof(uniformsData));
 		pVolumetricCloudsRenderPassShader->Bind();
@@ -333,12 +335,10 @@ namespace TDEngine2
 		pVolumetricCloudsRenderPassShader->Unbind();
 
 		// Compose pass
-		TPtr<IRenderTarget> pMainRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
 		TPtr<IRenderTarget> pTempRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle);
 		TPtr<ITexture2D> pCloudsRenderTarget = mpResourceManager->GetResource<ITexture2D>(mVolumetricCloudsScreenBufferHandle);
 
-		_renderTargetToTarget(pMainRenderTarget, pCloudsRenderTarget.Get(), pTempRenderTarget, mVolumetricCloudsComposeMaterialHandle); // Compose
-		_renderTargetToTarget(pTempRenderTarget, nullptr, pMainRenderTarget, mDefaultScreenSpaceMaterialHandle); // Blit Temp -> Main RT
+		_renderTargetToTarget(DynamicPtrCast<IRenderTarget>(pDepthBufferResource), pCloudsRenderTarget.Get(), pMainRenderTarget, mVolumetricCloudsComposeMaterialHandle); // Compose
 
 		return RC_OK;
 	}
