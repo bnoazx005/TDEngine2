@@ -135,6 +135,7 @@ namespace TDEngine2
 		mLuminanceAdaptationMaterialHandle = mpResourceManager->Create<IMaterial>("AdaptLuminance.material", TMaterialParameters{ "Shaders/PostEffects/AdaptLuminance.shader", false, TDepthStencilStateDesc { false, false } });
 		
 		mVolumetricCloudsComputeShaderHandle = mpResourceManager->Load<IShader>("Shaders/Default/VolumetricClouds.cshader");
+		mVolumetricCloudsUpsampleBlurShaderHandle = mpResourceManager->Load<IShader>("Shaders/Default/VolumetricCloudsBlur.cshader");
 		mVolumetricCloudsComposeMaterialHandle = mpResourceManager->Create<IMaterial>("VolumetricCloudsCompose.material", TMaterialParameters{ "Shaders/Default/VolumetricCloudsCompose.shader", false, TDepthStencilStateDesc { false, false } });
 
 		if (auto vertexFormatResult = desc.mpGraphicsObjectManager->CreateVertexDeclaration())
@@ -310,41 +311,61 @@ namespace TDEngine2
 		auto pDepthBufferResource = mpResourceManager->GetResource<IDepthBufferTarget>(mMainDepthBufferHandle);
 		auto pMainRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
 
-		struct
+		// Main pass
 		{
-			TVector2 mInvTextureSizes;
-			I32      mStepsCount;
-		} uniformsData;
+			struct
+			{
+				TVector2 mInvTextureSizes;
+				I32      mStepsCount;
+			} uniformsData;
 
-		uniformsData.mInvTextureSizes = TVector2
+			uniformsData.mInvTextureSizes = TVector2
+			{
+				1 / static_cast<F32>(pVolumetricCloudsScreenBufferTexture->GetWidth()), 1 / static_cast<F32>(pVolumetricCloudsScreenBufferTexture->GetHeight())
+			};
+			uniformsData.mStepsCount = 64;
+
+			auto pVolumetricCloudsRenderPassShader = mpResourceManager->GetResource<IShader>(mVolumetricCloudsComputeShaderHandle);
+			pVolumetricCloudsRenderPassShader->SetTextureResource("OutputTexture", pVolumetricCloudsScreenBufferTexture.Get());
+			pVolumetricCloudsRenderPassShader->SetTextureResource("DepthTexture", pDepthBufferResource.Get());
+			pVolumetricCloudsRenderPassShader->SetTextureResource("MainTexture", pMainRenderTarget.Get());
+
+			pVolumetricCloudsRenderPassShader->SetUserUniformsBuffer(0, reinterpret_cast<const U8*>(&uniformsData), sizeof(uniformsData));
+			pVolumetricCloudsRenderPassShader->Bind();
+
+			mpGraphicsContext->DispatchCompute(pVolumetricCloudsScreenBufferTexture->GetWidth() / 16, pVolumetricCloudsScreenBufferTexture->GetHeight() / 16, 1);
+
+			pVolumetricCloudsRenderPassShader->Unbind();
+		}
+
+		auto pVolumetricCloudsFullSizeBufferTexture = mpResourceManager->GetResource<ITexture2D>(mVolumetricCloudsFullResScreenBufferHandle);
+
+		// Blur + Upsample
 		{
-			1 / static_cast<F32>(pVolumetricCloudsScreenBufferTexture->GetWidth()), 1 / static_cast<F32>(pVolumetricCloudsScreenBufferTexture->GetHeight())
-		};
-		uniformsData.mStepsCount = 64;
+			auto pVolumetricCloudsUpsampleBlurPassShader = mpResourceManager->GetResource<IShader>(mVolumetricCloudsUpsampleBlurShaderHandle);
+			pVolumetricCloudsUpsampleBlurPassShader->SetTextureResource("OutputTexture", pVolumetricCloudsFullSizeBufferTexture.Get());
+			pVolumetricCloudsUpsampleBlurPassShader->SetTextureResource("DepthTexture", pDepthBufferResource.Get());
+			pVolumetricCloudsUpsampleBlurPassShader->SetTextureResource("MainTexture", pVolumetricCloudsScreenBufferTexture.Get());
 
-		auto pVolumetricCloudsRenderPassShader = mpResourceManager->GetResource<IShader>(mVolumetricCloudsComputeShaderHandle);
-		pVolumetricCloudsRenderPassShader->SetTextureResource("OutputTexture", pVolumetricCloudsScreenBufferTexture.Get());
-		pVolumetricCloudsRenderPassShader->SetTextureResource("DepthTexture", pDepthBufferResource.Get());
-		pVolumetricCloudsRenderPassShader->SetTextureResource("MainTexture", pMainRenderTarget.Get());
+			pVolumetricCloudsUpsampleBlurPassShader->Bind();
 
-		pVolumetricCloudsRenderPassShader->SetUserUniformsBuffer(0, reinterpret_cast<const U8*>(&uniformsData), sizeof(uniformsData));
-		pVolumetricCloudsRenderPassShader->Bind();
+			mpGraphicsContext->DispatchCompute(pVolumetricCloudsFullSizeBufferTexture->GetWidth() / 16, pVolumetricCloudsFullSizeBufferTexture->GetHeight() / 16, 1);
 
-		mpGraphicsContext->DispatchCompute(pVolumetricCloudsScreenBufferTexture->GetWidth() / 16, pVolumetricCloudsScreenBufferTexture->GetHeight() / 16, 1);
-
-		pVolumetricCloudsRenderPassShader->Unbind();
+			pVolumetricCloudsUpsampleBlurPassShader->Unbind();
+		}
 
 		// Compose pass
-		TPtr<IRenderTarget> pTempRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle);
-		TPtr<ITexture2D> pCloudsRenderTarget = mpResourceManager->GetResource<ITexture2D>(mVolumetricCloudsScreenBufferHandle);
-
-		_renderTargetToTarget(DynamicPtrCast<IRenderTarget>(pDepthBufferResource), pCloudsRenderTarget.Get(), pMainRenderTarget, mVolumetricCloudsComposeMaterialHandle); // Compose
+		_renderTargetToTarget(
+			DynamicPtrCast<IRenderTarget>(pDepthBufferResource), 
+			pVolumetricCloudsFullSizeBufferTexture.Get(), 
+			pMainRenderTarget, 
+			mVolumetricCloudsComposeMaterialHandle); // Compose
 
 		return RC_OK;
 	}
 
 
-	static TResult<TResourceId> GetOrCreateVolumetricCloudsBuffer(TPtr<IResourceManager> pResourceManager, U32 width, U32 height)
+	static TResult<TResourceId> GetOrCreateVolumetricCloudsBuffer(TPtr<IResourceManager> pResourceManager, U32 width, U32 height, const std::string& suffix = "Main")
 	{
 		TTexture2DParameters textureParams
 		{
@@ -354,7 +375,7 @@ namespace TDEngine2
 		};
 		textureParams.mIsWriteable = true;
 
-		const TResourceId textureHandle = pResourceManager->Create<ITexture2D>("VolumetricCloudsScreenBuffer", textureParams);
+		const TResourceId textureHandle = pResourceManager->Create<ITexture2D>("VolumetricCloudsScreenBuffer_" + suffix, textureParams);
 		if (auto pScreenBufferTexture = pResourceManager->GetResource<ITexture2D>(textureHandle))
 		{
 			pScreenBufferTexture->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
@@ -417,6 +438,12 @@ namespace TDEngine2
 		if (createVolumetricCloudsBufferResult.IsOk())
 		{
 			mVolumetricCloudsScreenBufferHandle = createVolumetricCloudsBufferResult.Get();
+		}
+
+		auto createVolumetricCloudsFullResBufferResult = GetOrCreateVolumetricCloudsBuffer(mpResourceManager, width, height, "FullRes");
+		if (createVolumetricCloudsFullResBufferResult.IsOk())
+		{
+			mVolumetricCloudsFullResScreenBufferHandle = createVolumetricCloudsFullResBufferResult.Get();
 		}
 
 		if (TResourceId::Invalid != mRenderTargetHandle)

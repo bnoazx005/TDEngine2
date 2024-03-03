@@ -1,0 +1,75 @@
+#define COMPUTE_ENTRY MainCS
+
+#program compute
+
+#include <TDEngine2Globals.inc>
+#include <TDEngine2MathUtils.inc>
+
+
+RWTexture2D<float4> OutputTexture;
+DECLARE_TEX2D_EX(DepthTexture, 1);
+DECLARE_TEX2D_EX(MainTexture, 2);
+
+
+static const uint KERNEL_SIZE = 9;
+static const float KERNEL_RADIUS = 16.0f;
+
+
+float4 UpsampleBlur(float2 uv, uint2 screenSize)
+{
+	float offset_x = 1.0f / (float)screenSize.x;
+	float offset_y = 1.0f / (float)screenSize.y;
+	
+	float2 offsets[KERNEL_SIZE] =
+	{
+		float2(-offset_x, offset_y), 
+		float2(0.0f, offset_y), 
+		float2(offset_x, offset_y), 
+		float2(-offset_x, 0.0f),
+		float2(0.0f, 0.0f),
+		float2(offset_x, 0.0f),
+		float2(-offset_x, -offset_y),
+		float2(0.0f, -offset_y),
+		float2(offset_x, -offset_y)
+	};
+
+	float kernel[KERNEL_SIZE] =
+	{
+		1.0f / KERNEL_RADIUS, 2.0f / KERNEL_RADIUS, 1.0 / KERNEL_RADIUS,
+		2.0f / KERNEL_RADIUS, 4.0f / KERNEL_RADIUS, 2.0 / KERNEL_RADIUS,
+		1.0f / KERNEL_RADIUS, 2.0f / KERNEL_RADIUS, 1.0 / KERNEL_RADIUS
+	};
+	
+	float4 sampleTex[KERNEL_SIZE];
+
+	for (int i = 0; i < KERNEL_SIZE; i++)
+	{
+		if (TEX2D_LOD(DepthTexture, uv + offsets[i], 0).r < 0.999f)
+		{
+			return TEX2D_LOD(MainTexture, uv, 0);
+		}
+		
+		sampleTex[i] = TEX2D_LOD(MainTexture, uv + offsets[i], 0);
+	}
+		
+	float4 col = float4(0.0f, 0.0f, 0.0f, 0.0f);
+
+	for (int j = 0; j < KERNEL_SIZE; j++)
+		col += sampleTex[j] * kernel[j];
+	
+	return float4(col.rgb, 1.0f);
+}
+
+
+[numthreads(16, 16, 1)]
+void MainCS(uint3 id : SV_DispatchThreadID)
+{
+	uint width, height;
+	MainTexture.GetDimensions(width, height);
+
+	float2 uv = id.xy / float2(width, height) * 0.25;
+
+	OutputTexture[id.xy] = TEX2D_LOD(DepthTexture, uv, 0).r < 0.999f ? TEX2D_LOD(MainTexture, uv, 0) : UpsampleBlur(uv, uint2(width, height));
+}
+
+#endprogram

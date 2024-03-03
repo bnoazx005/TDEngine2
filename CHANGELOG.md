@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.25] 2024-03-02
+## [0.6.25] 2024-03-03
 
 ### Added
 
@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new component **CSplashScreenItemComponent** was introduced to configure logos parade on application start up.
 
 - Utility script **tde2CsvToLocalizationConverter.py** was added for preparing localization packages from CSV spreadsheets.
+
+- The first iteration of volumetric clouds rendering was added.
 
 ### Changed
 

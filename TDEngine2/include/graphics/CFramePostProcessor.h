@@ -110,7 +110,9 @@ namespace TDEngine2
 			TResourceId                   mToneMappingPassMaterialHandle;
 			TResourceId                   mGenerateLuminanceMaterialHandle;
 			TResourceId                   mLuminanceAdaptationMaterialHandle;
+
 			TResourceId                   mVolumetricCloudsComputeShaderHandle;
+			TResourceId                   mVolumetricCloudsUpsampleBlurShaderHandle;
 			TResourceId                   mVolumetricCloudsComposeMaterialHandle;
 
 			TResourceId                   mRenderTargetHandle;
@@ -120,6 +122,7 @@ namespace TDEngine2
 			TResourceId                   mMainDepthBufferHandle;
 			TResourceId                   mLuminanceTargetHandle;
 			TResourceId                   mVolumetricCloudsScreenBufferHandle;
+			TResourceId                   mVolumetricCloudsFullResScreenBufferHandle;
 
 			std::array<TResourceId, 2>    mFramesLuminanceHistoryTargets;
 			USIZE                         mCurrActiveLuminanceFrameTargetIndex = 0;
