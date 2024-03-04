@@ -154,8 +154,6 @@
 #include "graphics/CStaticMeshContainer.h"
 #include "graphics/ISkinnedMeshContainer.h"
 #include "graphics/CSkinnedMeshContainer.h"
-#include "graphics/IFramePostProcessor.h"
-#include "graphics/CFramePostProcessor.h"
 #include "graphics/IPostProcessingProfile.h"
 #include "graphics/CBasePostProcessingProfile.h"
 #include "graphics/IGeometryBuilder.h"

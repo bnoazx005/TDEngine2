@@ -23,6 +23,8 @@ namespace TDEngine2
 	class ISelectionManager;
 	struct TLightingShaderData;
 	class IGlobalShaderProperties;
+	class IPostProcessingProfile;
+	class IWindowSystem;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IGraphicsContext)
@@ -30,6 +32,7 @@ namespace TDEngine2
 	TDE2_DECLARE_SCOPED_PTR(IAllocator)
 	TDE2_DECLARE_SCOPED_PTR(IGlobalShaderProperties)
 	TDE2_DECLARE_SCOPED_PTR(IFramePostProcessor)
+	TDE2_DECLARE_SCOPED_PTR(IWindowSystem)
 
 
 	enum class E_RENDER_QUEUE_GROUP: U8
@@ -70,8 +73,8 @@ namespace TDEngine2
 	{
 		TPtr<IGraphicsContext>   mpGraphicsContext;
 		TPtr<IResourceManager>   mpResourceManager;
+		TPtr<IWindowSystem>      mpWindowSystem;
 		TAllocatorFactoryFunctor mAllocatorFactoryFunctor;
-		IFramePostProcessor*     mpFramePostProcessor;
 	};
 
 
@@ -112,14 +115,14 @@ namespace TDEngine2
 			TDE2_API virtual void SetCamera(const ICamera* pCamera) = 0;
 
 			/*!
-				\brief The method assigns a pointer to frame post-processor 
+				\brief The method assigns a processing profile that defines post processing parameters
 
-				\param[in, out] A pointer to IFramePostProcessor implementation
+				\param[in] pProfileResource A pointer to IPostProcessingProfile implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE SetFramePostProcessor(TPtr<IFramePostProcessor> pFramePostProcessor) = 0;
+			TDE2_API virtual E_RESULT_CODE SetPostProcessProfile(const IPostProcessingProfile* pProfileResource) = 0;
 
 			/*!
 				\brief The method sets up a pointer to selection manager

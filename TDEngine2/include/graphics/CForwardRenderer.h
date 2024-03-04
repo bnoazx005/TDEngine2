@@ -74,14 +74,14 @@ namespace TDEngine2
 			TDE2_API void SetCamera(const ICamera* pCamera) override;
 
 			/*!
-				\brief The method assigns a pointer to frame post-processor
+				\brief The method assigns a processing profile that defines post processing parameters
 
-				\param[in, out] A pointer to IFramePostProcessor implementation
+				\param[in] pProfileResource A pointer to IPostProcessingProfile implementation
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE SetFramePostProcessor(TPtr<IFramePostProcessor> pFramePostProcessor) override;
+			TDE2_API E_RESULT_CODE SetPostProcessProfile(const IPostProcessingProfile* pProfileResource) override;
 
 			/*!
 				\brief The method stores given data that will be passed into the shaders to compute lighting and shadows
@@ -142,8 +142,8 @@ namespace TDEngine2
 			TDE2_API void _prepareFrame(F32 currTime, F32 deltaTime);
 		protected:
 			TPtr<IGraphicsContext>        mpGraphicsContext;
-							         
 			TPtr<IResourceManager>        mpResourceManager;
+			TPtr<IWindowSystem>           mpWindowSystem;
 							         
 			const ICamera*                mpMainCamera;
 							         

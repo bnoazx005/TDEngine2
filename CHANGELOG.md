@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.26] 2024-03-04
+
+### Changed
+
+- **IFramePostProcessor** and its derived type were hidden within CForwardRenderer.cpp translation unit.
+
 ## [0.6.25] 2024-03-03
 
 ### Added

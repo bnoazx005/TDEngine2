@@ -24,7 +24,6 @@
 #include "../../include/graphics/ITexture3D.h"
 #include "../../include/graphics/IBuffer.h"
 #include "../../include/graphics/IGlobalShaderProperties.h"
-#include "../../include/graphics/IFramePostProcessor.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/graphics/CRenderQueue.h"
 #include "../../include/graphics/IGraphicsLayersInfo.h"
@@ -65,7 +64,6 @@ namespace TDEngine2
 	TDE2_DEFINE_SCOPED_PTR(ITexture3D)
 	TDE2_DEFINE_SCOPED_PTR(IGlobalShaderProperties)
 	TDE2_DEFINE_SCOPED_PTR(IGraphicsLayersInfo)
-	TDE2_DEFINE_SCOPED_PTR(IFramePostProcessor)
 	TDE2_DEFINE_SCOPED_PTR(CRenderQueue)
 	TDE2_DEFINE_SCOPED_PTR(IPrefabsRegistry)
 	TDE2_DEFINE_SCOPED_PTR(IResourcesRuntimeManifest)

@@ -66,7 +66,6 @@
 #include "../../include/editor/CProjectSettingsWindow.h"
 #include "../../include/editor/Inspectors.h"
 #include "../../include/editor/CStatsViewerWindow.h"
-#include "../../include/graphics/CFramePostProcessor.h"
 #include "../../include/graphics/CBasePostProcessingProfile.h"
 #include "../../include/graphics/IDebugUtility.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
@@ -376,33 +375,19 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IRenderer* pRenderer = CreateForwardRenderer({ mpGraphicsContextInstance, mpResourceManagerInstance, CreateLinearAllocator, nullptr }, result);
+		IRenderer* pRenderer = CreateForwardRenderer({ mpGraphicsContextInstance, mpResourceManagerInstance, mpWindowSystemInstance, CreateLinearAllocator }, result);
 		if (result != RC_OK)
 		{
 			return result;
 		}
 
-		auto pFramePostProcessor = TPtr<IFramePostProcessor>(CreateFramePostProcessor({ pRenderer, mpGraphicsContextInstance->GetGraphicsObjectManager(), mpWindowSystemInstance.Get() }, result));
-		if (result != RC_OK)
+		const TResourceId defaultProfileResourceId = mpResourceManagerInstance->Load<IPostProcessingProfile>("DefaultResources/Configs/default-profile.camera_profile");
+		if (TResourceId::Invalid == defaultProfileResourceId)
 		{
-			return result;
+			return RC_FILE_NOT_FOUND;
 		}
 
-		if (pFramePostProcessor)
-		{
-			const TResourceId defaultProfileResourceId = mpResourceManagerInstance->Load<IPostProcessingProfile>("DefaultResources/Configs/default-profile.camera_profile");
-			if (TResourceId::Invalid == defaultProfileResourceId)
-			{
-				return RC_FILE_NOT_FOUND;
-			}
-
-			pFramePostProcessor->SetProcessingProfile(mpResourceManagerInstance->GetResource<IPostProcessingProfile>(defaultProfileResourceId).Get());
-		}
-
-		if ((result = pRenderer->SetFramePostProcessor(pFramePostProcessor)) != RC_OK)
-		{
-			return result;
-		}
+		pRenderer->SetPostProcessProfile(mpResourceManagerInstance->GetResource<IPostProcessingProfile>(defaultProfileResourceId).Get());
 
 		return mpEngineCoreInstance->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(TPtr<IRenderer>(pRenderer)));
 	}
