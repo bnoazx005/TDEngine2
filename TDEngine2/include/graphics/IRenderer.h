@@ -19,7 +19,6 @@ namespace TDEngine2
 	class CRenderQueue;
 	class IAllocator;
 	class IResourceManager;
-	class IFramePostProcessor;
 	class ISelectionManager;
 	struct TLightingShaderData;
 	class IGlobalShaderProperties;
@@ -31,7 +30,6 @@ namespace TDEngine2
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
 	TDE2_DECLARE_SCOPED_PTR(IAllocator)
 	TDE2_DECLARE_SCOPED_PTR(IGlobalShaderProperties)
-	TDE2_DECLARE_SCOPED_PTR(IFramePostProcessor)
 	TDE2_DECLARE_SCOPED_PTR(IWindowSystem)
 
 

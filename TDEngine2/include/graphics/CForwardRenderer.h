@@ -18,10 +18,12 @@ namespace TDEngine2
 {
 	class IGlobalShaderProperties;
 	class IDebugUtility;
+	class IFramePostProcessor;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IGlobalShaderProperties);
 	TDE2_DECLARE_SCOPED_PTR(CRenderQueue);
+	TDE2_DECLARE_SCOPED_PTR(IFramePostProcessor)
 
 
 	/*!
