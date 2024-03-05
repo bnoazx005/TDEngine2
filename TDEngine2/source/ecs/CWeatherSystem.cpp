@@ -37,41 +37,35 @@ namespace TDEngine2
 	}
 
 
-	static void GenerateCloudsNoiseTexture(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IJobManager* pJobManager,
+	static void GenerateCloudsNoiseTexture(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext,
 		TResourceId lowFreqCloudsNoiseTexHandle, TResourceId highFreqCloudsNoiseTexHandle)
 	{
 		TDE2_PROFILER_SCOPE("CWeatherSystem::GenerateCloudsNoiseTexture");
 
 		// \note Generate low frequency clouds noise
-		pJobManager->SubmitJob(nullptr, [pGraphicsContext, pResourceManager, lowFreqCloudsNoiseTexHandle](auto)
-		{
-			LOG_MESSAGE("[GenerateCloudsNoiseTexture] Start generate low frequency clouds noise 3D texture...");
-			auto pLowFreqCloudsNoiseGenerationShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>("Shaders/Default/GenerateLowFreqCloudsNoise.cshader"));
-			pLowFreqCloudsNoiseGenerationShader->SetTextureResource("noiseTexture", pResourceManager->GetResource<ITexture>(lowFreqCloudsNoiseTexHandle).Get());
-			pLowFreqCloudsNoiseGenerationShader->Bind();
+		LOG_MESSAGE("[GenerateCloudsNoiseTexture] Start generate low frequency clouds noise 3D texture...");
+		auto pLowFreqCloudsNoiseGenerationShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>("Shaders/Default/GenerateLowFreqCloudsNoise.cshader"));
+		pLowFreqCloudsNoiseGenerationShader->SetTextureResource("noiseTexture", pResourceManager->GetResource<ITexture>(lowFreqCloudsNoiseTexHandle).Get());
+		pLowFreqCloudsNoiseGenerationShader->Bind();
 
-			pGraphicsContext->DispatchCompute(LowFreqCloudsNoiseTextureSize / 8, LowFreqCloudsNoiseTextureSize / 8, LowFreqCloudsNoiseTextureSize / 8);
+		pGraphicsContext->DispatchCompute(LowFreqCloudsNoiseTextureSize / 8, LowFreqCloudsNoiseTextureSize / 8, LowFreqCloudsNoiseTextureSize / 8);
 
-			LOG_MESSAGE("[GenerateCloudsNoiseTexture] Generation LowFreqNoise finished");
-		}, { E_JOB_PRIORITY_TYPE::NORMAL, false, "GenerateLowFreqCloudsNoiseJob" });
+		LOG_MESSAGE("[GenerateCloudsNoiseTexture] Generation LowFreqNoise finished");
 
 		// \note Generate high frequency clouds noise
-		pJobManager->SubmitJob(nullptr, [pGraphicsContext, pResourceManager, highFreqCloudsNoiseTexHandle](auto)
-		{
-			LOG_MESSAGE("[GenerateCloudsNoiseTexture] Start generate high frequency clouds noise 3D texture...");
+		LOG_MESSAGE("[GenerateCloudsNoiseTexture] Start generate high frequency clouds noise 3D texture...");
 
-			auto pHighFreqCloudsNoiseGenerationShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>("Shaders/Default/GenerateHiFreqCloudsNoise.cshader"));
-			pHighFreqCloudsNoiseGenerationShader->SetTextureResource("noiseTexture", pResourceManager->GetResource<ITexture>(highFreqCloudsNoiseTexHandle).Get());
-			pHighFreqCloudsNoiseGenerationShader->Bind();
+		auto pHighFreqCloudsNoiseGenerationShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>("Shaders/Default/GenerateHiFreqCloudsNoise.cshader"));
+		pHighFreqCloudsNoiseGenerationShader->SetTextureResource("noiseTexture", pResourceManager->GetResource<ITexture>(highFreqCloudsNoiseTexHandle).Get());
+		pHighFreqCloudsNoiseGenerationShader->Bind();
 
-			pGraphicsContext->DispatchCompute(HighFreqCloudsNoiseTextureSize, HighFreqCloudsNoiseTextureSize, HighFreqCloudsNoiseTextureSize);
+		pGraphicsContext->DispatchCompute(HighFreqCloudsNoiseTextureSize, HighFreqCloudsNoiseTextureSize, HighFreqCloudsNoiseTextureSize);
 
-			LOG_MESSAGE("[GenerateCloudsNoiseTexture] Generation HiFreqNoise finished");
-		}, { E_JOB_PRIORITY_TYPE::NORMAL, false, "GenerateHighFreqCloudsNoiseJob" });
+		LOG_MESSAGE("[GenerateCloudsNoiseTexture] Generation HiFreqNoise finished");
 	}
 
 
-	static E_RESULT_CODE CreateCloudsNoiseTexture(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IJobManager* pJobManager)
+	static E_RESULT_CODE CreateCloudsNoiseTexture(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext)
 	{
 		TTexture3DParameters lowFreqCloudsNoiseTextureParams 
 		{ 
@@ -121,10 +115,7 @@ namespace TDEngine2
 		TDE2_ASSERT(TResourceId::Invalid != lowFreqCloudsTextureHandle);
 		TDE2_ASSERT(TResourceId::Invalid != highFreqCloudsTextureHandle);
 
-		pJobManager->SubmitJob(nullptr, [=](const TJobArgs& args)
-		{
-			GenerateCloudsNoiseTexture(pResourceManager, pGraphicsContext, pJobManager, lowFreqCloudsTextureHandle, highFreqCloudsTextureHandle);
-		}, { E_JOB_PRIORITY_TYPE::NORMAL, false, "GenerateCloudTexturesJob" });
+		GenerateCloudsNoiseTexture(pResourceManager, pGraphicsContext, lowFreqCloudsTextureHandle, highFreqCloudsTextureHandle);
 
 		return RC_OK;
 	}
@@ -148,7 +139,7 @@ namespace TDEngine2
 		mpGraphicsContext = params.mpGraphicsContext;
 		mpJobManager = params.mpJobManager;
 
-		E_RESULT_CODE result = CreateCloudsNoiseTexture(mpResourceManager, mpGraphicsContext, mpJobManager);
+		E_RESULT_CODE result = CreateCloudsNoiseTexture(mpResourceManager, mpGraphicsContext);
 		if (RC_OK != result)
 		{
 			return result;
