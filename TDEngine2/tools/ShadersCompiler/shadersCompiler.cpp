@@ -27,7 +27,7 @@ namespace TDEngine2
 			return {};
 		}
 
-		auto&& hasValidExtension = [=](const std::string& ext) { return ext == ".shader"; };
+		auto&& hasValidExtension = [=](const std::string& ext) { return ext == ".shader" || ext == ".cshader"; };
 
 		std::unordered_set<std::string> processedPaths; // contains absolute paths that already have been processed 
 
