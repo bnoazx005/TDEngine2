@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.26] 2024-03-05
+## [0.6.26] 2024-03-10
+
+### Added
+
+- An experimental implementation of a frame graph was added. But it's not integrated yet.
 
 ### Changed
 

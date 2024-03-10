@@ -43,6 +43,7 @@ set(SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/graphics/CGraphicsLayersInfoTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/graphics/CFrustumTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/graphics/CAnimationCurveTests.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/graphics/CFrameGraphTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/ecs/CBaseComponentsTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/ecs/CEntityManagerTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/ecs/CComponentManagerTests.cpp"

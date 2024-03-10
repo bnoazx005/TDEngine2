@@ -907,4 +907,23 @@ namespace TDEngine2
 #else
 #define TDE_RENDER_SECTION(pGraphicsContext, id) 
 #endif
+
+
+	/*!
+		\brief Provides better replacement for direct friendship between classes
+	*/
+
+	template <typename T>
+	class CPassKey
+	{
+		friend T;
+
+		public:
+			CPassKey(CPassKey<T>&&) = delete;
+			CPassKey& operator=(const CPassKey<T>&) = delete;
+			CPassKey& operator=(CPassKey<T>&&) = delete;
+		private:
+			CPassKey() {}
+			CPassKey(const CPassKey<T>&) {}
+	};
 }
