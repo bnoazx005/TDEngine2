@@ -1,5 +1,7 @@
 #include "../../include/graphics/CFrameGraph.h"
+#include "../../include/core/IFile.h"
 #include <stack>
+#include "stringUtils.hpp"
 
 
 namespace TDEngine2
@@ -92,6 +94,16 @@ namespace TDEngine2
 	bool CFrameGraphResource::IsTransient() const
 	{
 		return mpCreator != nullptr;
+	}
+
+	const std::string& CFrameGraphResource::GetName() const
+	{
+		return mName;
+	}
+
+	TFrameGraphResourceHandle CFrameGraphResource::GetHandle() const
+	{
+		return mId;
 	}
 
 
@@ -251,6 +263,74 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
+
+#if TDE2_EDITORS_ENABLED
+
+	E_RESULT_CODE CFrameGraph::Dump(ITextFileWriter* pFileWriter)
+	{
+		if (!pFileWriter)
+		{
+			return RC_INVALID_FILE;
+		}
+
+		// \note Writes file in DOT format
+		pFileWriter->WriteLine("digraph FrameGraph {");
+		pFileWriter->WriteLine("rankdir = LR\nsplines=spline\nnode [shape=rectangle, fontname=\"helvetica\", fontsize=12]\n");
+
+		// \note Write passes nodes
+		for (auto&& pCurrPass : mpActivePasses)
+		{
+			pFileWriter->WriteLine(Wrench::StringUtils::Format("\"{0}\" [label=\"{0}\\nRefs:{1}\", style=\"rounded, filled\", fillcolor=darkorange]", pCurrPass->GetName(), pCurrPass->GetRefCount()));
+		}
+
+		pFileWriter->WriteLine(Wrench::StringUtils::GetEmptyStr());
+
+		// \note Write resources nodes
+		for (auto&& currResource : mResources)
+		{
+			pFileWriter->WriteLine(Wrench::StringUtils::Format("\"{0}\" [label=\"{0}\\nRefs:{1}\\nHandle:{2}\", style=filled, fillcolor={3}]", 
+				currResource.GetName(), currResource.GetRefCount(), static_cast<U32>(currResource.GetHandle()), currResource.IsTransient() ? "skyblue" : "steelblue"));
+		}
+
+		pFileWriter->WriteLine(Wrench::StringUtils::GetEmptyStr());
+
+		// \note Create edges between passes and resources
+		for (auto&& pCurrPass : mpActivePasses)
+		{
+			pFileWriter->WriteLine(Wrench::StringUtils::Format("\"{0}\" -> {", pCurrPass->GetName()));				
+
+			for (TFrameGraphResourceHandle currResourceHandle : pCurrPass->GetCreations())
+			{
+				pFileWriter->WriteLine("\"" + mResources[static_cast<USIZE>(currResourceHandle)].GetName() + "\" ");
+			}
+
+			pFileWriter->WriteLine("} [color = seagreen]");
+
+			pFileWriter->WriteLine(Wrench::StringUtils::Format("\"{0}\" -> {", pCurrPass->GetName()));
+
+			for (TFrameGraphResourceHandle currResourceHandle : pCurrPass->GetWrites())
+			{
+				pFileWriter->WriteLine("\"" + mResources[static_cast<USIZE>(currResourceHandle)].GetName() + "\" ");
+			}
+
+			pFileWriter->WriteLine("} [color = gold]");
+
+			pFileWriter->WriteLine(Wrench::StringUtils::Format("\"{0}\" -> {", pCurrPass->GetName()));
+
+			for (TFrameGraphResourceHandle currResourceHandle : pCurrPass->GetReads())
+			{
+				pFileWriter->WriteLine("\"" + mResources[static_cast<USIZE>(currResourceHandle)].GetName() + "\" ");
+			}
+
+			pFileWriter->WriteLine("} [color = firebrick]");
+		}
+
+		pFileWriter->WriteLine("}");
+
+		return RC_OK;
+	}
+
+#endif
 
 	CFrameGraph::TResourcesRegistry& CFrameGraph::GetResources(const CPassKey<CFrameGraphBuilder>& passkey)
 	{

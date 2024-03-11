@@ -37,6 +37,11 @@ TEST_CASE("CFrameGraph Tests")
 		bool isSetupInvoked = false;
 		bool isExecuteInvoked = false;
 
+		E_RESULT_CODE result = RC_OK;
+
+		auto pFileStream = TPtr<TDEngine2::IStream>(CreateFileOutputStream("framegraph.dot", result));
+		ITextFileWriter* pDumpWriter = dynamic_cast<ITextFileWriter*>(CreateTextFileWriter(nullptr, pFileStream, result));
+
 		pFrameGraph->AddPass<TEmptyPassData>("Empty", [&](CFrameGraphBuilder& builder, TEmptyPassData& data) 
 		{
 			data.mOutput = builder.Create<TFrameGraphTexture>("OutputTarget", {});
@@ -56,6 +61,9 @@ TEST_CASE("CFrameGraph Tests")
 
 		REQUIRE(RC_OK == pFrameGraph->Compile());
 		REQUIRE(RC_OK == pFrameGraph->Execute());
+
+		pFrameGraph->Dump(pDumpWriter);
+		pDumpWriter->Close();
 
 		REQUIRE(isSetupInvoked);
 		REQUIRE(isExecuteInvoked);

@@ -20,6 +20,7 @@ namespace TDEngine2
 	class CFrameGraph;
 	class CFrameGraphBuilder;
 	class CFrameGraphResource;
+	class ITextFileWriter;
 
 
 	TDE2_DECLARE_HANDLE_TYPE(TFrameGraphResourceHandle);
@@ -58,6 +59,8 @@ namespace TDEngine2
 
 			TDE2_API virtual bool IsActive() const = 0;
 			TDE2_API virtual bool IsPersistent() const = 0;
+
+			TDE2_API virtual const std::string& GetName() const = 0;
 	};
 
 
@@ -211,9 +214,10 @@ namespace TDEngine2
 			};
 		public:
 			template <typename TResourceType>
-			CFrameGraphResource(TFrameGraphResourceHandle handle, const typename TResourceType::TDesc& desc, TResourceType&& resource,
+			CFrameGraphResource(const std::string& name, TFrameGraphResourceHandle handle, const typename TResourceType::TDesc& desc, TResourceType&& resource,
 				IFrameGraphPass* pPass = nullptr, U32 version = mInitialVersion) :
-				mId(handle), mVersion(version), mpCreator(pPass), mpResourceHolder(std::make_unique<TResourceHolder<TResourceType>>(desc, std::forward<TResourceType>(resource)))
+				mName(name), mId(handle), mVersion(version), mpCreator(pPass), 
+				mpResourceHolder(std::make_unique<TResourceHolder<TResourceType>>(desc, std::forward<TResourceType>(resource)))
 			{
 			}
 
@@ -236,8 +240,13 @@ namespace TDEngine2
 
 			TDE2_API bool IsTransient() const;
 
+			TDE2_API const std::string& GetName() const;
+			TDE2_API TFrameGraphResourceHandle GetHandle() const;
+
 		private:
 			TDE2_STATIC_CONSTEXPR U32 mInitialVersion = 1;
+
+			std::string mName;
 
 			TFrameGraphResourceHandle mId = TFrameGraphResourceHandle::Invalid;
 			U32 mVersion = mInitialVersion;
@@ -298,6 +307,7 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Execute();
 
 #if TDE2_EDITORS_ENABLED
+			TDE2_API E_RESULT_CODE Dump(ITextFileWriter* pFileWriter);
 #endif
 
 			template <typename TResourceType>
@@ -321,7 +331,7 @@ namespace TDEngine2
 		auto& pResources = mpFrameGraph->GetResources({});
 
 		const TFrameGraphResourceHandle handle = static_cast<TFrameGraphResourceHandle>(pResources.size());
-		pResources.emplace_back(CFrameGraphResource{ handle, desc, TResourceType{}, mpPass });
+		pResources.emplace_back(CFrameGraphResource{ id, handle, desc, TResourceType{}, mpPass });
 
 		mpPass->AddCreation(handle);
 
