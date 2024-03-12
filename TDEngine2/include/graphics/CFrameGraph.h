@@ -105,17 +105,20 @@ namespace TDEngine2
 
 			TFrameGraphResourceHandle AddCreation(TFrameGraphResourceHandle handle) override
 			{
-				return mCreates.emplace_back(handle);
+				mCreates.emplace_back(handle);
+				return handle;
 			}
 
 			TFrameGraphResourceHandle AddRead(TFrameGraphResourceHandle handle) override
 			{
-				return mReads.emplace_back(handle);
+				mReads.emplace_back(handle);
+				return handle;
 			}
 
 			TFrameGraphResourceHandle AddWrite(TFrameGraphResourceHandle handle) override
 			{
-				return mWrites.emplace_back(handle);
+				mWrites.emplace_back(handle);
+				return handle;
 			}
 
 			void SetName(const std::string& id) { mName = id; }
