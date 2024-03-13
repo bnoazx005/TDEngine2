@@ -299,7 +299,7 @@ namespace TDEngine2
 			TFrameGraphResourceHandle ImportResource(const std::string& name, const typename TResourceType::TDesc& desc, TResourceType&& resource)
 			{
 				const TFrameGraphResourceHandle handle = static_cast<TFrameGraphResourceHandle>(mResources.size());
-				mResources.emplace_back(CFrameGraphResource{ handle, desc, std::forward<TResourceType>(resource), nullptr });
+				mResources.emplace_back(CFrameGraphResource{ name, handle, desc, std::forward<TResourceType>(resource), nullptr });
 
 				return handle;
 			}
