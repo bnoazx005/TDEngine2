@@ -6,6 +6,12 @@
 
 namespace TDEngine2
 {
+	TFrameGraphResourceNode::TFrameGraphResourceNode(const std::string& name, TFrameGraphResourceHandle id, TFrameGraphResourceHandle resourceHandle, U32 version):
+		mName(name), mId(id), mRefCount(0), mResourceHandle(resourceHandle), mVersion(version)
+	{
+	}
+
+
 	/*!
 		\brief CFrameGraphBuilder's definition
 	*/
@@ -28,7 +34,20 @@ namespace TDEngine2
 		}
 
 		Read(handle);
-		return mpPass->AddWrite(handle); // \todo Update version of handle for the resource
+
+		// increment version of the resource on write
+		auto& resources = mpFrameGraph->GetResources({});
+		auto& resourcesGraph = mpFrameGraph->GetResourcesGraph({});
+
+		auto&& nodeIt = std::find_if(resourcesGraph.cbegin(), resourcesGraph.cend(), [handle](const TFrameGraphResourceNode& node) { return node.mId == handle; });
+		auto&& resourceIt = std::find_if(resources.begin(), resources.end(), [&nodeIt](const CFrameGraphResource& resource) { return resource.GetHandle() == nodeIt->mResourceHandle; });
+
+		resourceIt->SetVersion(resourceIt->GetVersion() + 1);
+
+		const TFrameGraphResourceHandle resourceNodeHandle = static_cast<TFrameGraphResourceHandle>(resourcesGraph.size());
+		resourcesGraph.emplace_back(TFrameGraphResourceNode{ nodeIt->mName, resourceNodeHandle, nodeIt->mResourceHandle, resourceIt->GetVersion() });
+
+		return mpPass->AddWrite(resourceNodeHandle); // \todo Update version of handle for the resource
 	}
 
 	void CFrameGraphBuilder::MarkAsPersistent()
@@ -91,6 +110,16 @@ namespace TDEngine2
 		return mRefCount;
 	}
 
+	void CFrameGraphResource::SetVersion(U32 value)
+	{
+		mVersion = value;
+	}
+
+	U32 CFrameGraphResource::GetVersion() const
+	{
+		return mVersion;
+	}
+
 	bool CFrameGraphResource::IsTransient() const
 	{
 		return mpCreator != nullptr;
@@ -141,16 +170,17 @@ namespace TDEngine2
 		{
 			pCurrPass->SetRefCount(static_cast<U32>(pCurrPass->GetWrites().size()));
 
-			for (const TFrameGraphResourceHandle currResourceHandle : pCurrPass->GetReads())
+			for (const TFrameGraphResourceHandle currResourceNodeHandle : pCurrPass->GetReads())
 			{
-				auto& resource = mResources[static_cast<USIZE>(currResourceHandle)];
-				resource.SetRefCount(resource.GetRefCount() + 1);
+				auto& resourceNode = mResourcesGraph[static_cast<USIZE>(currResourceNodeHandle)];
+				++resourceNode.mRefCount;
 			}
 
-			for (const TFrameGraphResourceHandle currResourceHandle : pCurrPass->GetWrites())
+			for (const TFrameGraphResourceHandle currResourceNodeHandle : pCurrPass->GetWrites())
 			{
-				auto& resource = mResources[static_cast<USIZE>(currResourceHandle)];
-				resource.SetProducerPass(pCurrPass.get());
+				auto& resourceNode = mResourcesGraph[static_cast<USIZE>(currResourceNodeHandle)];
+				++resourceNode.mRefCount;
+				resourceNode.mpProducerPass = pCurrPass.get();
 			}
 		}
 
@@ -158,9 +188,9 @@ namespace TDEngine2
 		{
 			std::stack<USIZE> unreferencedResourcesHandles;
 
-			for (USIZE i = 0; i < mResources.size(); i++)
+			for (USIZE i = 0; i < mResourcesGraph.size(); i++)
 			{
-				if (mResources[i].GetRefCount() > 0)
+				if (mResourcesGraph[i].mRefCount)
 				{
 					continue;
 				}
@@ -170,10 +200,10 @@ namespace TDEngine2
 
 			while (!unreferencedResourcesHandles.empty())
 			{
-				CFrameGraphResource& currResource = mResources[unreferencedResourcesHandles.top()];
+				TFrameGraphResourceNode& currResourceNode = mResourcesGraph[unreferencedResourcesHandles.top()];
 				unreferencedResourcesHandles.pop();
 
-				IFrameGraphPass* pProducerPass = currResource.GetProducerPass();
+				IFrameGraphPass* pProducerPass = currResourceNode.mpProducerPass;
 				if (!pProducerPass)
 				{
 					continue;
@@ -187,8 +217,8 @@ namespace TDEngine2
 
 				for (const TFrameGraphResourceHandle currResourceHandle : pProducerPass->GetReads())
 				{
-					auto& resource = mResources[static_cast<USIZE>(currResourceHandle)];
-					resource.SetRefCount(resource.GetRefCount() - 1);
+					auto& resourceNode = mResourcesGraph[static_cast<USIZE>(currResourceHandle)];
+					--resourceNode.mRefCount;
 
 					unreferencedResourcesHandles.push(static_cast<USIZE>(currResourceHandle));
 				}
@@ -205,19 +235,19 @@ namespace TDEngine2
 
 			for (const TFrameGraphResourceHandle currResourceHandle : pCurrPass->GetCreations())
 			{
-				auto& resource = mResources[static_cast<USIZE>(currResourceHandle)];
+				auto& resource = _getResource(currResourceHandle);
 				resource.SetProducerPass(pCurrPass.get());
 			}
 
 			for (const TFrameGraphResourceHandle currResourceHandle : pCurrPass->GetReads())
 			{
-				auto& resource = mResources[static_cast<USIZE>(currResourceHandle)];
+				auto& resource = _getResource(currResourceHandle);
 				resource.SetLastUserPass(pCurrPass.get());
 			}
 
 			for (const TFrameGraphResourceHandle currResourceHandle : pCurrPass->GetWrites())
 			{
-				auto& resource = mResources[static_cast<USIZE>(currResourceHandle)];
+				auto& resource = _getResource(currResourceHandle);
 				resource.SetLastUserPass(pCurrPass.get());
 			}
 		}
@@ -235,17 +265,17 @@ namespace TDEngine2
 			// \note de-virtualize resources that is used by the pass
 			for (const TFrameGraphResourceHandle currResourceHandle : pCurrPass->GetCreations())
 			{
-				mResources[static_cast<USIZE>(currResourceHandle)].Acquire();
+				_getResource(currResourceHandle).Acquire();
 			}
 
 			for (const TFrameGraphResourceHandle currResourceHandle : pCurrPass->GetReads())
 			{
-				mResources[static_cast<USIZE>(currResourceHandle)].BeforeReadOp();
+				_getResource(currResourceHandle).BeforeReadOp();
 			}
 
 			for (const TFrameGraphResourceHandle currResourceHandle : pCurrPass->GetWrites())
 			{
-				mResources[static_cast<USIZE>(currResourceHandle)].BeforeWriteOp();
+				_getResource(currResourceHandle).BeforeWriteOp();
 			}
 			
 			// \note invoke execute
@@ -286,10 +316,13 @@ namespace TDEngine2
 		pFileWriter->WriteLine(Wrench::StringUtils::GetEmptyStr());
 
 		// \note Write resources nodes
-		for (auto&& currResource : mResources)
+		for (auto&& currResource : mResourcesGraph)
 		{
 			pFileWriter->WriteLine(Wrench::StringUtils::Format("\"{0}\" [label=\"{0}\\nRefs:{1}\\nHandle:{2}\", style=filled, fillcolor={3}]", 
-				currResource.GetName(), currResource.GetRefCount(), static_cast<U32>(currResource.GetHandle()), currResource.IsTransient() ? "skyblue" : "steelblue"));
+				currResource.ToString(),
+				currResource.mRefCount, 
+				static_cast<U32>(currResource.mResourceHandle), 
+				_getResource(currResource.mResourceHandle).IsTransient() ? "skyblue" : "steelblue"));
 		}
 
 		pFileWriter->WriteLine(Wrench::StringUtils::GetEmptyStr());
@@ -301,7 +334,7 @@ namespace TDEngine2
 
 			for (TFrameGraphResourceHandle currResourceHandle : pCurrPass->GetCreations())
 			{
-				pFileWriter->WriteLine("\"" + mResources[static_cast<USIZE>(currResourceHandle)].GetName() + "\" ");
+				pFileWriter->WriteLine("\"" + mResourcesGraph[static_cast<USIZE>(currResourceHandle)].ToString() + "\" ");
 			}
 
 			pFileWriter->WriteLine("} [color = seagreen]");
@@ -310,19 +343,20 @@ namespace TDEngine2
 
 			for (TFrameGraphResourceHandle currResourceHandle : pCurrPass->GetWrites())
 			{
-				pFileWriter->WriteLine("\"" + mResources[static_cast<USIZE>(currResourceHandle)].GetName() + "\" ");
+				pFileWriter->WriteLine("\"" + mResourcesGraph[static_cast<USIZE>(currResourceHandle)].ToString() + "\" ");
 			}
 
-			pFileWriter->WriteLine("} [color = gold]");
+			pFileWriter->WriteLine("} [color = gold]");			
+		}
 
-			pFileWriter->WriteLine(Wrench::StringUtils::Format("\"{0}\" -> {", pCurrPass->GetName()));
-
+		for (auto&& pCurrPass : mpActivePasses)
+		{
 			for (TFrameGraphResourceHandle currResourceHandle : pCurrPass->GetReads())
 			{
-				pFileWriter->WriteLine("\"" + mResources[static_cast<USIZE>(currResourceHandle)].GetName() + "\" ");
+				pFileWriter->WriteLine(Wrench::StringUtils::Format("\"{0}\" -> {", mResourcesGraph[static_cast<USIZE>(currResourceHandle)].ToString()));
+				pFileWriter->WriteLine("\"" + pCurrPass->GetName() + "\" ");
+				pFileWriter->WriteLine("} [color = firebrick]");
 			}
-
-			pFileWriter->WriteLine("} [color = firebrick]");
 		}
 
 		pFileWriter->WriteLine("}");
@@ -335,6 +369,11 @@ namespace TDEngine2
 	CFrameGraph::TResourcesRegistry& CFrameGraph::GetResources(const CPassKey<CFrameGraphBuilder>& passkey)
 	{
 		return mResources;
+	}
+
+	std::vector<TFrameGraphResourceNode>& CFrameGraph::GetResourcesGraph(const CPassKey<CFrameGraphBuilder>& passkey)
+	{
+		return mResourcesGraph;
 	}
 
 

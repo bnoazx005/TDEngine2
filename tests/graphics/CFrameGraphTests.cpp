@@ -48,7 +48,7 @@ TEST_CASE("CFrameGraph Tests")
 
 		E_RESULT_CODE result = RC_OK;
 		
-		auto pFileStream = TPtr<TDEngine2::IStream>(CreateFileOutputStream("framegraph.dot", result));
+		auto pFileStream = TPtr<TDEngine2::IStream>(CreateFileOutputStream("framegraph_empty.dot", result));
 		ITextFileWriter* pDumpWriter = dynamic_cast<ITextFileWriter*>(CreateTextFileWriter(nullptr, pFileStream, result));
 
 		pFrameGraph->AddPass<TEmptyPassData>("Empty", [&](CFrameGraphBuilder& builder, TEmptyPassData& data) 
@@ -111,7 +111,7 @@ TEST_CASE("CFrameGraph Tests")
 
 		E_RESULT_CODE result = RC_OK;
 
-		auto pFileStream = TPtr<TDEngine2::IStream>(CreateFileOutputStream("framegraph.dot", result));
+		auto pFileStream = TPtr<TDEngine2::IStream>(CreateFileOutputStream("framegraph_import.dot", result));
 		ITextFileWriter* pDumpWriter = dynamic_cast<ITextFileWriter*>(CreateTextFileWriter(nullptr, pFileStream, result));
 		
 		constexpr TTextureHandleId expectedBackBufferTextureHandle = TTextureHandleId(42);
@@ -141,5 +141,52 @@ TEST_CASE("CFrameGraph Tests")
 
 		REQUIRE(isSetupInvoked);
 		REQUIRE(isExecuteInvoked);
+	}
+
+
+	SECTION("TestExecute_SameTargetProcessedThroughPasses_TheResourceVersionedCorrectly")
+	{
+		struct TEmptyPassData
+		{
+			TFrameGraphResourceHandle mOutput;
+		};
+
+		bool isSetupInvoked[2] = { false };
+
+		E_RESULT_CODE result = RC_OK;
+
+		auto pFileStream = TPtr<TDEngine2::IStream>(CreateFileOutputStream("framegraph_renamed.dot", result));
+		ITextFileWriter* pDumpWriter = dynamic_cast<ITextFileWriter*>(CreateTextFileWriter(nullptr, pFileStream, result));
+
+		auto&& pass1Data = pFrameGraph->AddPass<TEmptyPassData>("Pass1", [&](CFrameGraphBuilder& builder, TEmptyPassData& data)
+		{
+			data.mOutput = builder.Create<TFrameGraphTexture>("OutputTarget", {});
+			data.mOutput = builder.Write(data.mOutput);
+
+			REQUIRE(data.mOutput != TFrameGraphResourceHandle::Invalid);
+
+			isSetupInvoked[0] = true;
+		}, [&](const TEmptyPassData& data)
+		{
+		});
+
+		pFrameGraph->AddPass<TEmptyPassData>("Pass2", [&](CFrameGraphBuilder& builder, TEmptyPassData& data)
+		{
+			data.mOutput = builder.Write(builder.Read(pass1Data.mOutput));
+
+			REQUIRE(data.mOutput != TFrameGraphResourceHandle::Invalid);
+
+			isSetupInvoked[1] = true;
+		}, [&](const TEmptyPassData& data)
+		{
+		});
+
+		REQUIRE(RC_OK == pFrameGraph->Compile());
+		REQUIRE(RC_OK == pFrameGraph->Execute());
+
+		pFrameGraph->Dump(pDumpWriter);
+		pDumpWriter->Close();
+
+		REQUIRE((isSetupInvoked[0] && isSetupInvoked[1]));
 	}
 }

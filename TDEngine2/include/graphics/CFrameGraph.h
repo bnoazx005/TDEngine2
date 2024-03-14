@@ -150,6 +150,23 @@ namespace TDEngine2
 	};
 
 
+	struct TFrameGraphResourceNode
+	{
+		TDE2_API TFrameGraphResourceNode(const std::string& name, TFrameGraphResourceHandle id, TFrameGraphResourceHandle resourceHandle, U32 version);
+
+		TDE2_API inline std::string ToString() const { return mName + " ver: " + std::to_string(mVersion); }
+
+		const std::string mName;
+		const TFrameGraphResourceHandle mId = TFrameGraphResourceHandle::Invalid;
+		const TFrameGraphResourceHandle mResourceHandle = TFrameGraphResourceHandle::Invalid;
+		const U32 mVersion = 0;
+		U32 mRefCount = 0;
+
+		IFrameGraphPass* mpProducerPass = nullptr;
+		IFrameGraphPass* mpLastUserPass = nullptr;
+	};
+
+
 	class CFrameGraphBuilder
 	{
 		public:
@@ -239,6 +256,9 @@ namespace TDEngine2
 			TDE2_API void SetRefCount(U32 value);
 			TDE2_API U32 GetRefCount() const;
 
+			TDE2_API void SetVersion(U32 value);
+			TDE2_API U32 GetVersion() const;
+
 			template <typename T> T& Get() { return dynamic_cast<TResourceHolder<T>*>(mpResourceHolder.get())->mResource; }
 
 			TDE2_API bool IsTransient() const;
@@ -246,9 +266,9 @@ namespace TDEngine2
 			TDE2_API const std::string& GetName() const;
 			TDE2_API TFrameGraphResourceHandle GetHandle() const;
 
-		private:
+		public:
 			TDE2_STATIC_CONSTEXPR U32 mInitialVersion = 1;
-
+		private:
 			std::string mName;
 
 			TFrameGraphResourceHandle mId = TFrameGraphResourceHandle::Invalid;
@@ -298,10 +318,13 @@ namespace TDEngine2
 			template <typename TResourceType>
 			TFrameGraphResourceHandle ImportResource(const std::string& name, const typename TResourceType::TDesc& desc, TResourceType&& resource)
 			{
-				const TFrameGraphResourceHandle handle = static_cast<TFrameGraphResourceHandle>(mResources.size());
-				mResources.emplace_back(CFrameGraphResource{ name, handle, desc, std::forward<TResourceType>(resource), nullptr });
+				const TFrameGraphResourceHandle resourceHandle = static_cast<TFrameGraphResourceHandle>(mResources.size());
+				const TFrameGraphResourceHandle resourceNodeHandle = static_cast<TFrameGraphResourceHandle>(mResourcesGraph.size());
 
-				return handle;
+				mResources.emplace_back(CFrameGraphResource{ name, resourceHandle, desc, std::forward<TResourceType>(resource), nullptr });
+				mResourcesGraph.emplace_back(TFrameGraphResourceNode{ name, resourceNodeHandle, resourceHandle, CFrameGraphResource::mInitialVersion });
+
+				return resourceNodeHandle;
 			}
 
 			TDE2_API void Reset();
@@ -316,28 +339,42 @@ namespace TDEngine2
 			template <typename TResourceType>
 			TResourceType& GetResource(TFrameGraphResourceHandle handle)
 			{
-				return mResources[static_cast<USIZE>(handle)].Get<TResourceType>();
+				return _getResource(handle).Get<TResourceType>();
 			}
 
 			TDE2_API TResourcesRegistry& GetResources(const CPassKey<CFrameGraphBuilder>& passkey);
+			TDE2_API std::vector<TFrameGraphResourceNode>& GetResourcesGraph(const CPassKey<CFrameGraphBuilder>& passkey);
+
+		private:
+			CFrameGraphResource& _getResource(TFrameGraphResourceHandle handle)
+			{
+				TDE2_ASSERT(static_cast<USIZE>(handle) < mResourcesGraph.size());
+				return mResources[static_cast<USIZE>(mResourcesGraph[static_cast<USIZE>(handle)].mResourceHandle)];
+			}
+
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFrameGraph)
 		private:
 			std::vector<std::unique_ptr<IFrameGraphPass>> mpActivePasses;
 			TResourcesRegistry                            mResources;
+			std::vector<TFrameGraphResourceNode>          mResourcesGraph;
 	};
 
 
 	template <typename TResourceType>
 	TFrameGraphResourceHandle CFrameGraphBuilder::Create(const std::string& id, const typename TResourceType::TDesc& desc)
 	{
-		auto& pResources = mpFrameGraph->GetResources({});
+		auto& resources = mpFrameGraph->GetResources({});
+		auto& resourcesGraph = mpFrameGraph->GetResourcesGraph({});
 
-		const TFrameGraphResourceHandle handle = static_cast<TFrameGraphResourceHandle>(pResources.size());
-		pResources.emplace_back(CFrameGraphResource{ id, handle, desc, TResourceType{}, mpPass });
+		const TFrameGraphResourceHandle handle = static_cast<TFrameGraphResourceHandle>(resources.size());
+		const TFrameGraphResourceHandle resourceNodeHandle = static_cast<TFrameGraphResourceHandle>(resourcesGraph.size());
 
-		mpPass->AddCreation(handle);
+		resources.emplace_back(CFrameGraphResource{ id, handle, desc, TResourceType{}, mpPass });
+		resourcesGraph.emplace_back(TFrameGraphResourceNode{ id, resourceNodeHandle, handle, CFrameGraphResource::mInitialVersion });
 
-		return handle;
+		mpPass->AddCreation(resourceNodeHandle);
+
+		return resourceNodeHandle;
 	}
 }
