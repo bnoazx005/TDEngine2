@@ -35,19 +35,22 @@ namespace TDEngine2
 
 		Read(handle);
 
-		// increment version of the resource on write
+		// increment version of the resource on each write to it
 		auto& resources = mpFrameGraph->GetResources({});
 		auto& resourcesGraph = mpFrameGraph->GetResourcesGraph({});
 
 		auto&& nodeIt = std::find_if(resourcesGraph.cbegin(), resourcesGraph.cend(), [handle](const TFrameGraphResourceNode& node) { return node.mId == handle; });
 		auto&& resourceIt = std::find_if(resources.begin(), resources.end(), [&nodeIt](const CFrameGraphResource& resource) { return resource.GetHandle() == nodeIt->mResourceHandle; });
 
+		TDE2_ASSERT(nodeIt != resourcesGraph.cend());
+		TDE2_ASSERT(resourceIt != resources.end());
+
 		resourceIt->SetVersion(resourceIt->GetVersion() + 1);
 
 		const TFrameGraphResourceHandle resourceNodeHandle = static_cast<TFrameGraphResourceHandle>(resourcesGraph.size());
 		resourcesGraph.emplace_back(TFrameGraphResourceNode{ nodeIt->mName, resourceNodeHandle, nodeIt->mResourceHandle, resourceIt->GetVersion() });
 
-		return mpPass->AddWrite(resourceNodeHandle); // \todo Update version of handle for the resource
+		return mpPass->AddWrite(resourceNodeHandle);
 	}
 
 	void CFrameGraphBuilder::MarkAsPersistent()
@@ -162,6 +165,7 @@ namespace TDEngine2
 	{
 		mpActivePasses.clear();
 		mResources.clear();
+		mResourcesGraph.clear();
 	}
 
 	E_RESULT_CODE CFrameGraph::Compile()

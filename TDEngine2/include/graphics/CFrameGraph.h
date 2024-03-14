@@ -349,6 +349,8 @@ namespace TDEngine2
 			CFrameGraphResource& _getResource(TFrameGraphResourceHandle handle)
 			{
 				TDE2_ASSERT(static_cast<USIZE>(handle) < mResourcesGraph.size());
+				TDE2_ASSERT(static_cast<USIZE>(mResourcesGraph[static_cast<USIZE>(handle)].mResourceHandle) < mResources.size());
+
 				return mResources[static_cast<USIZE>(mResourcesGraph[static_cast<USIZE>(handle)].mResourceHandle)];
 			}
 
