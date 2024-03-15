@@ -363,6 +363,9 @@ namespace TDEngine2
 	};
 
 
+	TDE2_DECLARE_SCOPED_PTR_INLINED(CFrameGraph)
+
+
 	template <typename TResourceType>
 	TFrameGraphResourceHandle CFrameGraphBuilder::Create(const std::string& id, const typename TResourceType::TDesc& desc)
 	{

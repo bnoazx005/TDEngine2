@@ -11,6 +11,7 @@
 #include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/graphics/CBaseRenderTarget.h"
 #include "../../include/graphics/CBaseCubemapTexture.h"
+#include "../../include/graphics/CFrameGraph.h"
 #include "../../include/core/memory/IAllocator.h"
 #include "../../include/core/memory/CLinearAllocator.h"
 #include "../../include/core/IGraphicsContext.h"
@@ -949,6 +950,8 @@ namespace TDEngine2
 		
 		E_RESULT_CODE result = RC_OK;
 
+		mpFrameGraph = CreateFrameGraph(result);
+
 		auto allocatorFactory = params.mAllocatorFactoryFunctor;
 				
 		IAllocator* pCurrAllocator = nullptr;
@@ -1254,6 +1257,33 @@ namespace TDEngine2
 		{
 			TDE2_BUILTIN_SPEC_PROFILER_EVENT(E_SPECIAL_PROFILE_EVENT::RENDER);
 			TDE2_STATS_COUNTER_SET(mDrawCallsCount, 0);
+
+			mpFrameGraph->Reset();
+
+			// \todo shadow pass
+			// \todo directional shadow pass
+			// \todo omni shadow pass
+			// 
+			// \todo main pass
+			// 
+			// \todo volumetric clouds main pass
+			// \todo volumetric clouds blur pass
+			// \todo volumetric clouds compose pass
+			// 
+			// \todo eye-adaptation pass
+			// 
+			// \todo bloom threshold
+			// \todo bloom horizontal pass
+			// \todo bloom vertical pass
+			// \todo bloom compose
+			// 
+			// \todo tone-mapping pass
+			// \todo ui pass
+			// \todo compose pass
+			// \todo imgui pass
+
+			mpFrameGraph->Compile();
+			mpFrameGraph->Execute();
 
 			_prepareFrame(currTime, deltaTime);
 
