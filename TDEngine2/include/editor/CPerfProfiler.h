@@ -20,6 +20,8 @@
 	#include "optick.h"
 #endif
 
+#include "tracy/Tracy.hpp"
+
 
 namespace TDEngine2
 {
@@ -227,8 +229,9 @@ namespace TDEngine2
 
 
 #ifdef TDE2_USE_WINPLATFORM
-	#define TDE2_PROFILER_SCOPE(Name)				\
-		OPTICK_EVENT(#Name);						\
+	#define TDE2_PROFILER_SCOPE(Name)		\
+		OPTICK_EVENT(#Name);				\
+		ZoneScoped;							\
 		TDE2_BUILTIN_PROFILER_EVENT(Name)	
 
 	#define TDE2_START_REPORT_PROFILE() OPTICK_START_CAPTURE()

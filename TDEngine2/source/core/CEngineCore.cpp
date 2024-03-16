@@ -58,8 +58,15 @@
 #include <cstring>
 #include <algorithm>
 #include "deferOperation.hpp"
+
+#if TDE2_EDITORS_ENABLED
+
 #ifdef TDE2_USEWINPLATFORM
 	#include "optick.h"
+#endif
+
+#include "tracy/Tracy.hpp"
+
 #endif
 
 
@@ -360,6 +367,7 @@ namespace TDEngine2
 	#ifdef TDE2_USE_WINPLATFORM
 		OPTICK_FRAME("MainThread");
 	#endif
+		FrameMarkNamed("MainThread");
 #endif
 		{
 			TDE2_BUILTIN_SPEC_PROFILER_EVENT(E_SPECIAL_PROFILE_EVENT::UPDATE);

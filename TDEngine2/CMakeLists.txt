@@ -15,6 +15,7 @@ option(TDE2_EDITORS_ENABLED "The option shows whether engine's toolset should be
 option(USE_EXTERNAL_BULLET_LIBRARY "The options determines whether bullet from deps/ directory or system one will be used" OFF)
 option(USE_EXTERNAL_ZLIB_LIBRARY "The options determines whether zlib from deps/ directory or system one will be used" OFF)
 option(OPTICK_PROFILER_ENABLED "The option enables/disables usage of optick as a main profiler" ON)
+option(TRACY_PROFILER_ENABLED "The option enables/disables usage of tracy as a main profiler" ON)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/$<CONFIGURATION>/")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/$<CONFIGURATION>/")
@@ -540,6 +541,13 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/CBaseRaycastContext.cpp"
 	)
 
+if (TRACY_PROFILER_ENABLED AND MSVC)
+	add_definitions(-DTRACY_ENABLE)
+	add_definitions(-DTRACY_EXPORTS)
+	add_definitions(-DTRACY_FIBERS)
+	set(TDENGINE2_SOURCES ${TDENGINE2_SOURCES} "${CMAKE_CURRENT_SOURCE_DIR}/deps/tracy/public/TracyClient.cpp")
+endif ()
+
 source_group("includes" FILES ${TDENGINE2_HEADERS})
 source_group("sources" FILES ${TDENGINE2_SOURCES})
 
@@ -600,6 +608,11 @@ add_subdirectory(deps)
 
 
 add_library(${TDENGINE2_LIBRARY_NAME} SHARED ${TDENGINE2_SOURCES} ${TDENGINE2_HEADERS} ${TDENGINE2_CGEN_HEADER})
+
+
+if (TRACY_PROFILER_ENABLED AND MSVC)
+	target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/tracy/public")
+endif ()
 
 
 if (OPTICK_PROFILER_ENABLED AND MSVC)

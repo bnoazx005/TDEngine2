@@ -10,6 +10,8 @@
 #include "optick.h"
 #endif
 
+#include "tracy/Tracy.hpp"
+
 
 #define TDE2_JOB_MANAGER_VERBOSE_LOG_ENABLED 0
 
@@ -44,9 +46,11 @@ namespace TDEngine2
 		cfg.setFiberStackSize(desc.mFiberStackSize);
 		cfg.setWorkerThreadInitializer([](int workerId)
 		{
+			auto&& threadName = Wrench::StringUtils::Format("WorkerThread_{0}", workerId);
 #ifdef TDE2_USE_WINPLATFORM
-			OPTICK_START_THREAD(Wrench::StringUtils::Format("WorkerThread_{0}", workerId).c_str());
+			OPTICK_START_THREAD(threadName.c_str());
 #endif
+			tracy::SetThreadName(threadName.c_str());
 		});
 
 		mpScheduler = std::make_unique<marl::Scheduler>(cfg);

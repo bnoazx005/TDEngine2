@@ -6,7 +6,6 @@
 #include <memory>
 #include <algorithm>
 
-
 namespace TDEngine2
 {
 	ITimeProfiler::TSampleRecord::TSampleRecord(F32 startTime, F32 duration, USIZE threadID, const std::string& name):

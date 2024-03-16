@@ -28,3 +28,6 @@
 [submodule "TDEngine2/plugins/TDE2VideoPlayers/deps/vorbis"]
 	path = TDEngine2/plugins/TDE2VideoPlayers/deps/vorbis
 	url = https://github.com/xiph/vorbis.git
+[submodule "TDEngine2/deps/tracy"]
+	path = TDEngine2/deps/tracy
+	url = https://github.com/wolfpld/tracy.git
