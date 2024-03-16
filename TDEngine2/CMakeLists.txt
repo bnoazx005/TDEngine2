@@ -541,7 +541,7 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/physics/CBaseRaycastContext.cpp"
 	)
 
-if (TRACY_PROFILER_ENABLED AND MSVC)
+if (TRACY_PROFILER_ENABLED)
 	add_definitions(-DTRACY_ENABLE)
 	add_definitions(-DTRACY_EXPORTS)
 	add_definitions(-DTRACY_FIBERS)
@@ -610,7 +610,7 @@ add_subdirectory(deps)
 add_library(${TDENGINE2_LIBRARY_NAME} SHARED ${TDENGINE2_SOURCES} ${TDENGINE2_HEADERS} ${TDENGINE2_CGEN_HEADER})
 
 
-if (TRACY_PROFILER_ENABLED AND MSVC)
+if (TRACY_PROFILER_ENABLED)
 	target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/tracy/public")
 endif ()
 
