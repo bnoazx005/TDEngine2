@@ -63,14 +63,14 @@ namespace TDEngine2
 			GL_SAFE_TRESULT_CALL(glBindImageTexture(0, textureHandle, 0, GL_FALSE, 0, GL_READ_WRITE, COGLMappings::GetInternalFormat(params.mFormat)));
 		}
 
-		glBindTexture(textureType, 0);
-
 #if TDE2_DEBUG_MODE
 		if (GLEW_KHR_debug)
 		{
-			glObjectLabel(textureType, 0, -1, params.mName.c_str());
+			glObjectLabel(GL_TEXTURE, textureHandle, -1, params.mName.c_str());
 		}
 #endif
+
+		glBindTexture(textureType, 0);
 
 		return Wrench::TOkValue<GLuint>(textureHandle);
 	}

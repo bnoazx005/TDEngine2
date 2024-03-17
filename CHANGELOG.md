@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.26] 2024-03-16
+## [0.6.26] 2024-03-17
 
 ### Added
 
@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **IFramePostProcessor** and its derived type were hidden within CForwardRenderer.cpp translation unit.
 
 - Provide support of compute shaders caching via **tde2_shaders_compiler** utility.
+
+### Fixed
+
+- GL_INVALID_OPERATION caused with incorrect glObjectLabel's calls was fixed.
 
 ## [0.6.25] 2024-03-03
 

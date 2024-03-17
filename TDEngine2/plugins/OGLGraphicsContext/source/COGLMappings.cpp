@@ -110,6 +110,7 @@ namespace TDEngine2
 		{
 			case FT_FLOAT1:
 			case FT_FLOAT1_TYPELESS:
+				return GL_RED;
 			case FT_D32:
 				return GL_DEPTH_COMPONENT;
 			case FT_NORM_BYTE1:
