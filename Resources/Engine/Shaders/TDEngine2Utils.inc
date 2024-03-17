@@ -95,6 +95,8 @@
 	#define uint4 uvec4
 
 	#define mul(a, b) (a * b)
+	#define frac fract
+	#define fmod mod
 
 #endif
 

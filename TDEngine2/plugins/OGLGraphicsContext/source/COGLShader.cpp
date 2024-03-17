@@ -159,6 +159,11 @@ namespace TDEngine2
 			/// skip internal buffer's creation, because they are created separately by IGlobalShaderProperties implementation
 			if ((currDesc.mFlags & E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL) == E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL)
 			{
+				if (GL_INVALID_INDEX == mUniformBuffersMap[currDesc.mSlot])
+				{
+					continue; // \note means the UBO isn't used
+				}
+
 				/// bind this shader to internal uniform buffers here, so it can access right here
 
 				GL_SAFE_CALL(glUniformBlockBinding(mShaderHandler, mUniformBuffersMap[currDesc.mSlot], currDesc.mSlot));
@@ -281,6 +286,7 @@ namespace TDEngine2
 		const C8* currName;
 
 		mpTextures.resize(shaderResourcesMap.size() + 1);
+		mpTexturesWritePolicies.resize(shaderResourcesMap.size() + 1);
 
 		for (auto currShaderResourceInfo : shaderResourcesMap)
 		{
@@ -297,7 +303,10 @@ namespace TDEngine2
 
 			GL_SAFE_CALL(glUniform1i(currSlotIndex, currShaderResourceInfo.second.mSlot));
 
-			mpTextures[currShaderResourceInfo.second.mSlot] = nullptr;
+			const U32 slotIndex = currShaderResourceInfo.second.mSlot;
+
+			mpTextures[slotIndex] = nullptr;
+			mpTexturesWritePolicies[slotIndex] = false;
 		}
 
 		glUseProgram(0);

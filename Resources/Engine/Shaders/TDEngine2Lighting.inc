@@ -25,14 +25,14 @@ struct PointLightData
 
 PointLightData CreatePointLight(float4 pos, float4 color, float range, float intensity)
 {
-	PointLightData output;
+	PointLightData newPointLight;
 
-	output.mPosition = pos;
-	output.mColor = color;
-	output.mRange = range;
-	output.mIntensity = intensity;
+	newPointLight.mPosition = pos;
+	newPointLight.mColor = color;
+	newPointLight.mRange = range;
+	newPointLight.mIntensity = intensity;
 
-	return output;
+	return newPointLight;
 }
 
 
@@ -54,13 +54,13 @@ struct SunLightData
 
 SunLightData CreateSunLight(float4 pos, float4 dir, float4 color)
 {
-	SunLightData output;
+	SunLightData sunLight;
 	
-	output.mDirection = dir;
-	output.mPosition = pos;
-	output.mColor = color;
+	sunLight.mDirection = dir;
+	sunLight.mPosition = pos;
+	sunLight.mColor = color;
 
-	return output;
+	return sunLight;
 }
 
 
@@ -76,15 +76,15 @@ struct LightingData
 
 LightingData CreateLightingData(float4 pos, float4 normal, float4 viewDir, float4 albedo, float4 materialProperties)
 {
-	LightingData output;
+	LightingData lightData;
 	
-	output.mPosition = pos;
-	output.mNormal = normal;
-	output.mViewDir = viewDir;
-	output.mAlbedo = albedo;
-	output.mMaterialProperties = materialProperties;
+	lightData.mPosition = pos;
+	lightData.mNormal = normal;
+	lightData.mViewDir = viewDir;
+	lightData.mAlbedo = albedo;
+	lightData.mMaterialProperties = materialProperties;
 
-	return output;
+	return lightData;
 }
 
 

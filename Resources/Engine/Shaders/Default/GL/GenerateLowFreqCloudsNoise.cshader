@@ -1,0 +1,28 @@
+#version 430 core
+
+#define COMPUTE_ENTRY main
+
+#program compute
+
+#include <TDEngine2Utils.inc>
+#include <TDEngine2MathUtils.inc>
+
+layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
+layout(rgba32f, binding = 0) uniform image3D noiseTexture;
+
+
+const float InvNoiseTexSize = 0.0078125; // 1 / 128
+
+
+void main()
+{
+	vec3 normalizedPoint = InvNoiseTexSize * vec3(float(gl_GlobalInvocationID.x), float(gl_GlobalInvocationID.y), float(gl_GlobalInvocationID.z));
+	vec3 p = 2.0 * normalizedPoint - 1.0;
+
+	float perlin = abs(2.0 * (CalcPerlinFbmNoise3D(p, 3, 4.0) * 0.5 + 0.5) - 1.0);
+	float worley = CalcWorleyFbmNoise3D(p, 3, 4.0);
+
+	imageStore(noiseTexture, ivec3(gl_GlobalInvocationID), float4(Remap(perlin, 0.0, 1.0, worley, 1.), worley, CalcWorleyFbmNoise3D(p, 3, 8.0), CalcWorleyFbmNoise3D(p, 3, 16.0)));
+}
+
+#endprogram

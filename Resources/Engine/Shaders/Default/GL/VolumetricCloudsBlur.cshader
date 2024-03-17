@@ -1,0 +1,76 @@
+#version 430 core
+
+#define COMPUTE_ENTRY main
+
+#program compute
+
+#include <TDEngine2Globals.inc>
+#include <TDEngine2MathUtils.inc>
+
+
+layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+layout(rgba32f, binding = 0) uniform image2D OutputTexture;
+
+DECLARE_TEX2D_EX(DepthTexture, 1);
+DECLARE_TEX2D_EX(MainTexture, 2);
+
+
+const uint KERNEL_SIZE = 9;
+const float KERNEL_RADIUS = 16.0f;
+
+
+vec4 UpsampleBlur(vec2 uv, ivec2 screenSize)
+{
+	float offset_x = 1.0f / float(screenSize.x);
+	float offset_y = 1.0f / float(screenSize.y);
+	
+	vec2 offsets[KERNEL_SIZE] = vec2[KERNEL_SIZE]
+	(
+		vec2(-offset_x, offset_y), 
+		vec2(0.0f, offset_y), 
+		vec2(offset_x, offset_y), 
+		vec2(-offset_x, 0.0f),
+		vec2(0.0f, 0.0f),
+		vec2(offset_x, 0.0f),
+		vec2(-offset_x, -offset_y),
+		vec2(0.0f, -offset_y),
+		vec2(offset_x, -offset_y)
+	);
+
+	float kernel[KERNEL_SIZE] = float[KERNEL_SIZE]
+	(
+		1.0f / KERNEL_RADIUS, 2.0f / KERNEL_RADIUS, 1.0 / KERNEL_RADIUS,
+		2.0f / KERNEL_RADIUS, 4.0f / KERNEL_RADIUS, 2.0 / KERNEL_RADIUS,
+		1.0f / KERNEL_RADIUS, 2.0f / KERNEL_RADIUS, 1.0 / KERNEL_RADIUS
+	);
+	
+	vec4 sampleTex[KERNEL_SIZE];
+
+	for (int i = 0; i < KERNEL_SIZE; i++)
+	{
+		if (TEX2D_LOD(DepthTexture, uv + offsets[i], 0).r < 0.999f)
+		{
+			return TEX2D_LOD(MainTexture, uv, 0);
+		}
+		
+		sampleTex[i] = TEX2D_LOD(MainTexture, uv + offsets[i], 0);
+	}
+		
+	vec4 col = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+
+	for (int j = 0; j < KERNEL_SIZE; j++)
+		col += sampleTex[j] * kernel[j];
+	
+	return vec4(col.rgb, 1.0f);
+}
+
+
+void main()
+{
+	ivec2 textureSizes = textureSize(MainTexture, 0);
+	vec2 uv = vec2(float(gl_GlobalInvocationID.x), float(gl_GlobalInvocationID.y)) / textureSizes * 0.25;
+
+	imageStore(OutputTexture, ivec2(gl_GlobalInvocationID), TEX2D_LOD(DepthTexture, uv, 0).r < 0.999f ? TEX2D_LOD(MainTexture, uv, 0) : UpsampleBlur(uv, textureSizes));
+}
+
+#endprogram

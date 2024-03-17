@@ -216,7 +216,6 @@ namespace TDEngine2
 		}
 
 		result = result | _createTexturesHashTable(mpShaderMeta);
-		result = result | _createTexturesHashTable(mpShaderMeta);
 
 		return result;
 	}

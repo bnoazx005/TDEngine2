@@ -66,10 +66,21 @@ float3 EaseInOut(float3 t)
 
 float3 RandVec3(float3 p)
 {
+#ifdef TDE2_GLSL_SHADER
+
+	vec3 p1 = fract(p * vec3(0.1031, 0.11369, 0.13787));
+	p1 += dot(p1, p1.yxz + 19.19);
+
+	return -1.0 + 2.0 * fract(vec3((p1.x + p1.y) * p1.z, (p1.x + p1.z) * p1.y, (p1.z + p1.y) * p1.x));
+
+#else
+
 	float3 p1 = frac(p * float3(0.1031, 0.11369, 0.13787));
 	p1 += dot(p1, p1.yxz + 19.19);
 
 	return -1.0 + 2.0 * frac(float3((p1.x + p1.y) * p1.z, (p1.x + p1.z) * p1.y, (p1.z + p1.y) * p1.x));
+
+#endif
 }
 
 

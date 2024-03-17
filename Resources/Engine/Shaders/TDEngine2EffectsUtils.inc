@@ -54,7 +54,7 @@ float4 LinearToGamma(float4 color, float gammaValue = 2.2)
 */
 
 
-float3 CalcLuminance(float3 color) { return max(1e-4, dot(float3(0.299, 0.587, 0.114), color)); }
+float CalcLuminance(float3 color) { return max(1e-4, dot(float3(0.299, 0.587, 0.114), color)); }
 
 
 float CalcExposure(float avgLuminance, float threshold, float keyValue)

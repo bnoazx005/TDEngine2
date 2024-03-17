@@ -1,0 +1,265 @@
+// based on https://github.com/steaklive/EveryRay-Rendering-Engine and https://www.guerrilla-games.com/read/the-real-time-volumetric-cloudscapes-of-horizon-zero-dawn
+#version 430 core
+
+#define COMPUTE_ENTRY main
+
+#program compute
+
+#include <TDEngine2Globals.inc>
+#include <TDEngine2MathUtils.inc>
+
+
+layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+layout(rgba32f, binding = 0) uniform image2D OutputTexture;
+
+DECLARE_TEX2D_EX(DepthTexture, 1);
+DECLARE_TEX3D_EX(LowFreqCloudsNoiseTex, 2);
+DECLARE_TEX3D_EX(HiFreqCloudsNoiseTex, 3);
+DECLARE_TEX2D_EX(WeatherMap, 4);
+DECLARE_TEX2D_EX(MainTexture, 5);
+
+
+CBUFFER_SECTION_EX(RenderParameters, 4)
+	vec2 mInvTextureSize;
+	int  mStepsCount;
+CBUFFER_ENDSECTION
+
+
+CBUFFER_SECTION_EX(CloudsParameters, 5)
+	vec4  mAtmosphereParameters; // x - Earth radius, y - atmosphere inner radius, z - atmosphere thickness
+	vec4  mWindParameters; // xy - direction, w - scale factor
+	vec4  mAmbientCloudColor;
+	float mAbsorption;
+	float mCoverage;
+	float mCurliness;
+	float mCrispiness;
+	float mDensityFactor;
+CBUFFER_ENDSECTION
+
+
+float GetHeightFraction(vec3 pos)
+{
+	float innerAtmosphereRadius = mAtmosphereParameters.x  + mAtmosphereParameters.y;
+	float outerAtmosphereRadius = innerAtmosphereRadius + mAtmosphereParameters.z;
+
+	return (length(pos - vec3(0.0, -mAtmosphereParameters.x, 0.0)) - innerAtmosphereRadius) / (outerAtmosphereRadius - innerAtmosphereRadius);
+}
+
+
+vec2 GetUVProjection(vec3 p)
+{
+	float innerRadius = mAtmosphereParameters.x + mAtmosphereParameters.y;
+	return p.xz / innerRadius + 0.5f;
+}
+
+
+// Cloud types height density gradients
+const vec4 STRATUS_GRADIENT       = vec4(0.0, 0.1, 0.2, 0.3);
+const vec4 STRATOCUMULUS_GRADIENT = vec4(0.02, 0.2, 0.48, 0.625);
+const vec4 CUMULUS_GRADIENT       = vec4(0.0, 0.1625, 0.88, 0.98);
+
+
+const vec3 FBM_COEFFS = vec3(0.625, 0.25, 0.125);
+
+const float MIN_TRANSMITTANCE = 0.1f;
+
+
+const float BAYER_FACTOR = 1.0f / 16.0f;
+const float BAYER_FILTER[16] = float[16]
+(
+	0.0f * BAYER_FACTOR, 8.0f * BAYER_FACTOR, 2.0f * BAYER_FACTOR, 10.0f * BAYER_FACTOR,
+	12.0f * BAYER_FACTOR, 4.0f * BAYER_FACTOR, 14.0f * BAYER_FACTOR, 6.0f * BAYER_FACTOR,
+	3.0f * BAYER_FACTOR, 11.0f * BAYER_FACTOR, 1.0f * BAYER_FACTOR, 9.0f * BAYER_FACTOR,
+	15.0f * BAYER_FACTOR, 7.0f * BAYER_FACTOR, 13.0f * BAYER_FACTOR, 5.0f * BAYER_FACTOR
+);
+
+
+// Cone sampling random offsets (for light)
+vec3 NOISE_KERNEL_CONE_SAMPLING[6] = vec3[6]
+(
+	vec3(0.38051305, 0.92453449, -0.02111345),
+	vec3(-0.50625799, -0.03590792, -0.86163418),
+	vec3(-0.32509218, -0.94557439, 0.01428793),
+	vec3(0.09026238, -0.27376545, 0.95755165),
+	vec3(0.28128598, 0.42443639, -0.86065785),
+	vec3(-0.16852403, 0.14748697, 0.97460106)
+);
+
+
+const int MAX_STEPS_TO_SUN = 6;
+
+
+float HenyeyGreenstein(float dotLightView, float g)
+{
+	float gg = g * g;
+	return (1.0f - gg) / pow(1.0f + gg - 2.0f * g * dotLightView, 1.5f);
+}
+
+
+float GetDensityForCloud(float heightFraction, float cloudType)
+{
+	float stratusFactor = 1.0 - clamp(cloudType * 2.0, 0.0, 1.0);
+	float stratoCumulusFactor = 1.0 - abs(cloudType - 0.5) * 2.0;
+	float cumulusFactor = clamp(cloudType - 0.5, 0.0, 1.0) * 2.0;
+
+	vec4 baseGradient = stratusFactor * STRATUS_GRADIENT + stratoCumulusFactor * STRATOCUMULUS_GRADIENT + cumulusFactor * CUMULUS_GRADIENT;
+	return smoothstep(baseGradient.x, baseGradient.y, heightFraction) - smoothstep(baseGradient.z, baseGradient.w, heightFraction);
+}
+
+
+float SampleCloudDensity(vec3 pos, bool applyHiFreqNoise = true)
+{
+	float heightFraction = GetHeightFraction(pos);
+
+	vec2 uv = GetUVProjection(pos);
+	vec2 scrolledUV = GetUVProjection(pos + vec3((heightFraction * 750.0f + mWindParameters.w * Time.x) * mWindParameters.xy, 0.0));
+
+	if (heightFraction < 1e-3 || heightFraction > 1.0)
+		return 0.0f;
+
+	vec4 lowFreqNoises = TEX3D_LOD(LowFreqCloudsNoiseTex, vec3(uv * mCrispiness, heightFraction), 0);
+
+	float lowFreqFBM = dot(lowFreqNoises.gba, FBM_COEFFS);
+	float cloudSample = Remap(lowFreqNoises.r, -(1.0f - lowFreqFBM), 1.0, 0.0, 1.0);
+
+	vec4 weatherData = TEX2D_LOD(WeatherMap, scrolledUV, 0);
+
+	float density = GetDensityForCloud(heightFraction, weatherData.y);
+	cloudSample *= (density / heightFraction);
+
+	float cloudWeatherCoverage = weatherData.x * mCoverage;
+
+	float cloudSampleWithCoverage = Remap(cloudSample, cloudWeatherCoverage, 1.0f, 0.0f, 1.0f);
+	cloudSampleWithCoverage *= cloudWeatherCoverage;
+
+	// high freq noise application
+	if (applyHiFreqNoise)
+	{
+		vec3 highFreqNoise = TEX3D_LOD(HiFreqCloudsNoiseTex, vec3(scrolledUV * mCrispiness, heightFraction) * mCurliness, 0).rgb;
+		float highFreqFBM = dot(highFreqNoise.rgb, FBM_COEFFS);    
+		float highFreqNoiseModifier = mix(highFreqFBM, 1.0f - highFreqFBM, clamp(heightFraction * 10.0f, 0.0f, 1.0f));
+		cloudSampleWithCoverage = cloudSampleWithCoverage - highFreqNoiseModifier * (1.0 - cloudSampleWithCoverage);
+		cloudSampleWithCoverage = Remap(cloudSampleWithCoverage * 2.0, highFreqNoiseModifier * 0.2, 1.0f, 0.0f, 1.0f);
+	}
+
+	return clamp(cloudSampleWithCoverage, 0, 1);
+}
+
+
+float DoRayMarchToSun(vec3 originPos, float stepSize, vec3 lightDir, float lightDotEye)
+{
+	vec3 startPos = originPos;
+
+	float deltaStep = stepSize * 6.0f;
+	vec3 rayStep = lightDir * deltaStep;
+
+	float coneRadius = 1.0;
+	const float coneStep = 1.0f / 6.0f;
+
+	float transmitance = 1.0; // transmitance
+	float density = 0.0;
+	const float densityThreshold = 0.3f;
+
+	float sigmaDeltaStep = -deltaStep * mAbsorption;
+
+	vec3 pos = originPos;
+
+	for (int i = 0; i < MAX_STEPS_TO_SUN; i++) 
+	{
+		pos = startPos + coneRadius * NOISE_KERNEL_CONE_SAMPLING[i] * float(i);
+
+		float heightFraction = GetHeightFraction(pos);
+		if (heightFraction >= 0)
+		{
+			float cloudDensity = SampleCloudDensity(pos, density > densityThreshold);
+			if (cloudDensity > 0.0)
+			{
+				float curTransmittance = exp(cloudDensity * sigmaDeltaStep);
+				transmitance *= curTransmittance;
+				density += cloudDensity;
+			}
+		}
+
+		startPos += rayStep;
+		coneRadius += coneStep;
+	}
+
+	return transmitance;
+}
+
+
+
+vec4 DoRayMarchToCloud(Ray3 ray, uvec2 pixelCoords, vec3 earthCenter, vec2 intersectionsParams, vec3 skyColor)
+{    
+	float thickness = intersectionsParams.y - intersectionsParams.x;
+	float stepSize = thickness / float(mStepsCount);
+
+	vec3 color = vec3(0.0, 0.0, 0.0);
+
+	float transmitance = 1.0;
+	float sigmaDeltaStep = -stepSize * mDensityFactor;
+
+	float dotLightView = dot(normalize(SunLightDirection.xyz), normalize(ray.dir));
+
+	int a = int(pixelCoords.x) % 4;
+	int b = int(pixelCoords.y) % 4;
+
+	for (float t = intersectionsParams.x; t < intersectionsParams.y; t += stepSize)
+	{
+		vec3 pos = ray.origin + (BAYER_FILTER[a * 4 + b] * stepSize + t) * ray.dir;
+
+		float densitySample = SampleCloudDensity(pos);
+		if (densitySample > 0.0)
+		{
+			float lightDensity = DoRayMarchToSun(pos, stepSize * 0.1f, SunLightDirection.xyz, dotLightView);
+			float scattering = max(mix(HenyeyGreenstein(dotLightView, -0.08f), HenyeyGreenstein(dotLightView, 0.08f), clamp(dotLightView * 0.5f + 0.5f, 0.0f, 1.0f)), 1.0f);
+
+			vec3 S = 0.6f * mix(mix(mAmbientCloudColor.rgb * 1.8f, skyColor, 0.2f), scattering * SunLightColor.rgb, lightDensity) * densitySample;
+			float deltaTransmittance = exp(densitySample * sigmaDeltaStep);
+			vec3 Sint = (S - S * deltaTransmittance) * (1.0f / densitySample);
+
+			color.rgb += transmitance * Sint;
+			transmitance *= deltaTransmittance;
+		}
+
+		if (transmitance <= MIN_TRANSMITTANCE)
+			break;
+	}
+
+	return vec4(color, 1.0 - transmitance);
+}
+
+
+void main()
+{
+	vec2 id = vec2(float(gl_GlobalInvocationID.x), float(gl_GlobalInvocationID.y));
+	vec2 uv = id.xy * mInvTextureSize; // thread id to [0; 1]
+	uv.x = 2.0 * uv.x - 1.0;
+	uv.y = 1.0 - 2.0 * uv.y;
+
+	vec4 viewDir = normalize(InvViewMat * vec4((InvProjMat * vec4(uv, 0.0, 1.0)).xyz, 0.0));
+	Ray3 primaryRay = MakeRay(CameraPosition.xyz, vec3(viewDir.xyz));
+
+	vec3 skyColor = TEX2D_LOD(MainTexture, id.xy * mInvTextureSize, 0).rgb;
+
+	if (TEX2D_LOD(DepthTexture, id.xy * mInvTextureSize, 0).r < 0.999 || dot(primaryRay.dir, vec3(0.0, 1.0, 0.0)) < 1e-3)
+	{
+		imageStore(OutputTexture, ivec2(gl_GlobalInvocationID), vec4(skyColor, 1.0));
+		return;
+	}
+
+	vec3 earthCenter = vec3(0.0, -mAtmosphereParameters.x, 0.0);
+
+	float innerAtmosphereRadius = mAtmosphereParameters.x  + mAtmosphereParameters.y;
+	float outerAtmosphereRadius = innerAtmosphereRadius + mAtmosphereParameters.z;
+
+	float startT = IntersectRaySphere(primaryRay, vec4(vec3(CameraPosition.x, -mAtmosphereParameters.x, CameraPosition.z), innerAtmosphereRadius));
+	float endT = IntersectRaySphere(primaryRay, vec4(vec3(CameraPosition.x, -mAtmosphereParameters.x, CameraPosition.z), outerAtmosphereRadius));
+
+	vec4 cloudsColor = DoRayMarchToCloud(primaryRay, gl_GlobalInvocationID.xy, earthCenter, vec2(startT, endT), skyColor);
+	cloudsColor.rgb = cloudsColor.rgb * 1.8f - 0.1f;
+
+	imageStore(OutputTexture, ivec2(gl_GlobalInvocationID), vec4(mix(skyColor, skyColor * (1.0f - cloudsColor.a) + cloudsColor.rgb, cloudsColor.a), 1.0));
+}
+
+#endprogram
