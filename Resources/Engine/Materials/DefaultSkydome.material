@@ -27,7 +27,7 @@ meta:
   resource_type: material
   version_tag: 1
 rasterizer_state: 
-  cull_mode: FRONT
+  cull_mode: NONE
   depth_bias: 0.000000
   depth_clipping_enabled: 1
   front_CCW_mode: 0
