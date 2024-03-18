@@ -321,13 +321,15 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		const E_FORMAT_TYPE textureFormat = pTexture->GetParams().mFormat;
+
 		GL_SAFE_CALL(glBindTexture(GL_TEXTURE_2D, pTexture->GetTextureHandle()));
 
 		GL_SAFE_CALL(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
 
 		/// GL_UNSIGNED_BYTE is used explicitly, because of stb_image stores data as unsigned char array
 		GL_SAFE_CALL(glTexSubImage2D(GL_TEXTURE_2D, mipLevel, regionRect.x, regionRect.y, regionRect.width, regionRect.height, 
-			COGLMappings::GetPixelDataFormat(pTexture->GetParams().mFormat), GL_UNSIGNED_BYTE, pData));
+			COGLMappings::GetPixelDataFormat(textureFormat), COGLMappings::GetBaseTypeOfFormat(textureFormat), pData));
 
 		if (pTexture->GetParams().mNumOfMipLevels > 1)
 		{
