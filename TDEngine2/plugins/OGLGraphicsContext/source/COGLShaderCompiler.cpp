@@ -564,7 +564,12 @@ namespace TDEngine2
 			/// found a shader resource
 			currToken = tokenizer.GetNextToken();
 
-			shaderResources[currToken] = { currType, currSlotIndex++ };
+			const bool isWriteableResource =
+				E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER == currType ||
+				E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D == currType ||
+				E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE3D == currType;
+
+			shaderResources[currToken] = { currType, currSlotIndex++, isWriteableResource };
 		}
 
 		tokenizer.Reset();

@@ -8,7 +8,7 @@
 #include <TDEngine2MathUtils.inc>
 
 layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
-layout(rgba32f, binding = 0) uniform image3D noiseTexture;
+layout(rgba8, binding = 0) uniform image3D noiseTexture;
 
 
 const float InvNoiseTexSize = 0.0078125; // 1 / 128
