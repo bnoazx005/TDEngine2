@@ -7,7 +7,7 @@
 
 namespace TDEngine2
 {
-	static TResult<GLuint> CreateTexture2DResourceInternal(const TInitTextureImplParams& params)
+	static TResult<GLuint> CreateTextureResourceInternal(const TInitTextureImplParams& params)
 	{
 		GLuint textureHandle = 0;
 
@@ -38,7 +38,7 @@ namespace TDEngine2
 			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D_ARRAY:
 			case E_TEXTURE_IMPL_TYPE::TEXTURE_3D:
 				GL_SAFE_TRESULT_CALL(glTexImage3D(textureType, 0, COGLMappings::GetInternalFormat(params.mFormat),
-					params.mWidth, params.mHeight, params.mArraySize, 0,
+					params.mWidth, params.mHeight, E_TEXTURE_IMPL_TYPE::TEXTURE_3D == params.mType ? params.mDepth : params.mArraySize, 0,
 					COGLMappings::GetPixelDataFormat(params.mFormat),
 					GL_UNSIGNED_BYTE, nullptr));
 				break;
@@ -151,13 +151,11 @@ namespace TDEngine2
 
 	E_RESULT_CODE COGLTextureImpl::_onInitInternal()
 	{
-		auto createResourceResult = CreateTexture2DResourceInternal(mInitParams);
+		auto createResourceResult = CreateTextureResourceInternal(mInitParams);
 		if (createResourceResult.HasError())
 		{
 			return createResourceResult.GetError();
 		}
-
-		// \todo Add support of 3D textures
 
 		mTextureHandle = createResourceResult.Get();
 
