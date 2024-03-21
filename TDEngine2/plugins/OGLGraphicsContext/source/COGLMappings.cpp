@@ -163,6 +163,18 @@ namespace TDEngine2
 		return GL_DEPTH_STENCIL;
 	}
 
+	GLenum COGLMappings::GetWritableTextureFormat(E_FORMAT_TYPE format)
+	{
+		switch (format)
+		{
+			case FT_FLOAT4:
+			case FT_FLOAT4_TYPELESS:
+				return GL_RGBA32F;
+		}
+
+		return GL_RGBA8;
+	}
+
 	GLenum COGLMappings::GetShaderStageType(E_SHADER_STAGE_TYPE shaderStageType)
 	{
 		switch (shaderStageType)

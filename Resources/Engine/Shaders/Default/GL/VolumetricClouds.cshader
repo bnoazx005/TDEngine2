@@ -235,7 +235,7 @@ void main()
 	vec2 id = vec2(float(gl_GlobalInvocationID.x), float(gl_GlobalInvocationID.y));
 	vec2 uv = id.xy * mInvTextureSize; // thread id to [0; 1]
 	uv.x = 2.0 * uv.x - 1.0;
-	uv.y = 1.0 - 2.0 * uv.y;
+	uv.y = 1.0 - 2.0 * (1.0 - uv.y);
 
 	vec4 viewDir = normalize(InvViewMat * vec4((InvProjMat * vec4(uv, 0.0, 1.0)).xyz, 0.0));
 	Ray3 primaryRay = MakeRay(CameraPosition.xyz, vec3(viewDir.xyz));

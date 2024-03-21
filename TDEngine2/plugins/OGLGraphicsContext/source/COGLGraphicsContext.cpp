@@ -293,6 +293,17 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		if (pTexture->GetParams().mIsWriteable)
+		{
+			if (isWriteEnabled)
+			{
+				GL_SAFE_VOID_CALL(glBindImageTexture(0, pTexture->GetTextureHandle(), 0, GL_FALSE, 0, GL_WRITE_ONLY, 
+					COGLMappings::GetWritableTextureFormat(pTexture->GetParams().mFormat)));
+
+				return RC_OK;
+			}
+		}
+
 		GL_SAFE_VOID_CALL(glActiveTexture(GL_TEXTURE0 + slot));
 		GL_SAFE_VOID_CALL(glBindTexture(COGLMappings::GetTextureType(pTexture->GetParams().mType), pTexture->GetTextureHandle()));
 

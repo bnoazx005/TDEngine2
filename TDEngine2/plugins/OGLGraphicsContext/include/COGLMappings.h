@@ -68,6 +68,16 @@ namespace TDEngine2
 			TDE2_API static GLenum GetPixelDataFormat(E_FORMAT_TYPE format);
 
 			/*!
+				\brief The function maps an internal format type into pixel data's format
+
+				\param[in] format An internal format
+
+				\return A value of pixel data's format
+			*/
+
+			TDE2_API static GLenum GetWritableTextureFormat(E_FORMAT_TYPE format);
+
+			/*!
 				\brief The function maps an internal shader stage's type into GL defined one
 
 				\param[in] shaderStageType An internal type which represents a shader stage type
