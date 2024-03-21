@@ -805,8 +805,8 @@ namespace TDEngine2
 		GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mMainFBOHandler));
 		GL_SAFE_VOID_CALL(glBindRenderbuffer(GL_RENDERBUFFER, mMainDepthStencilRenderbuffer));
 		{
-			LOG_MESSAGE(Wrench::StringUtils::Format("[COGLGraphicsContext] SRGB framebuffer status, enabled: {0}", creationFlags & P_HARDWARE_GAMMA_CORRECTION));
-			GL_SAFE_CALL(((creationFlags & P_HARDWARE_GAMMA_CORRECTION) ? glEnable : glDisable)(GL_FRAMEBUFFER_SRGB));
+			LOG_MESSAGE(Wrench::StringUtils::Format("[COGLGraphicsContext] SRGB framebuffer status, enabled: {0}", !(creationFlags & P_HARDWARE_GAMMA_CORRECTION)));
+			GL_SAFE_CALL(((creationFlags & P_HARDWARE_GAMMA_CORRECTION) ? glDisable : glEnable)(GL_FRAMEBUFFER_SRGB));
 
 			defer([] { glBindRenderbuffer(GL_RENDERBUFFER, 0); glBindFramebuffer(GL_FRAMEBUFFER, 0); });
 

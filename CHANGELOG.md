@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix initialization of 3D texture under GLGraphicsContext.
 
+- The display output was unified for both graphics contexts.
+
 ## [0.6.25] 2024-03-03
 
 ### Added

@@ -47,6 +47,6 @@ void main(void)
 		}
 	}
 
-	FragColor = VertOutColor * base;
+	FragColor = GammaToLinear(VertOutColor * base); // convert to linear because of format of backbuffer under GL which is RGBA8_SRGB
 }
 #endprogram
