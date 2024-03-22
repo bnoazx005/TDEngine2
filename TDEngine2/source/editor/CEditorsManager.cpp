@@ -293,7 +293,7 @@ namespace TDEngine2
 			return;
 		}
 		
-		static const IImGUIContext::TWindowParams params
+		const IImGUIContext::TWindowParams params
 		{
 			ZeroVector2,
 			TVector2(500.0f, 300.0f),

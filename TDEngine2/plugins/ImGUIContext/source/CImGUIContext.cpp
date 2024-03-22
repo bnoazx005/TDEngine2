@@ -891,7 +891,7 @@ namespace TDEngine2
 			ImGui::SetNextWindowPos(ImVec2(0, 0));
 		}
 
-		ImGui::SetNextWindowPos(params.mDefaultPos, ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowPos(params.mDefaultPos, ImGuiCond_Always);
 
 		if (params.mIsTransparent)
 		{
