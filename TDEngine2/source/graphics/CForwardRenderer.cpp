@@ -668,6 +668,12 @@ namespace TDEngine2
 			mVolumetricCloudsFullResScreenBufferHandle = createVolumetricCloudsFullResBufferResult.Get();
 		}
 
+		auto mainDepthBufferRetrieveResult = GetOrCreateDepthBuffer(mpResourceManager, width, height);
+		if (mainDepthBufferRetrieveResult.IsOk())
+		{
+			mMainDepthBufferHandle = mainDepthBufferRetrieveResult.Get();
+		}
+
 		if (TResourceId::Invalid != mRenderTargetHandle)
 		{
 			if (auto pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle))
@@ -684,12 +690,6 @@ namespace TDEngine2
 		mRenderTargetHandle = GetRenderTarget(mpResourceManager, width, height, isHDRSupport, E_FRAME_RENDER_PARAMS_FLAGS::RENDER_MAIN);
 		mTemporaryRenderTargetHandle = GetRenderTarget(mpResourceManager, width, height, isHDRSupport, E_FRAME_RENDER_PARAMS_FLAGS::NONE);
 		mUITargetHandle = GetRenderTarget(mpResourceManager, width, height, false, E_FRAME_RENDER_PARAMS_FLAGS::RENDER_UI);
-
-		auto mainDepthBufferRetrieveResult = GetOrCreateDepthBuffer(mpResourceManager, width, height);
-		if (mainDepthBufferRetrieveResult.IsOk())
-		{
-			mMainDepthBufferHandle = mainDepthBufferRetrieveResult.Get();
-		}
 
 		auto pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
 		auto pUIRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mUITargetHandle);
