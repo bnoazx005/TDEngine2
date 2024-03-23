@@ -119,8 +119,6 @@ namespace TDEngine2
 
 	/*!
 		interface IPointLight
-
-		\brief The interface describes a functionality of a perspective camera component
 	*/
 
 	class IPointLight : public virtual ILight
@@ -144,6 +142,45 @@ namespace TDEngine2
 			TDE2_API virtual F32 GetRange() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPointLight)
+	};
+
+
+	/*!
+		struct TSpotLightParameters
+
+		\brief The structure contains parameters for creation of a Spot light's component
+	*/
+
+	typedef struct TSpotLightParameters : public TBaseLightParameters
+	{
+		F32 mAngle = 0.0f;
+	} TSpotLightParameters;
+
+
+	/*!
+		interface ISpotLight
+	*/
+
+	class ISpotLight : public virtual ILight
+	{
+		public:
+			/*!
+				\brief The method specifies an angle of a spotlight
+
+				\param[in] angle value of cone's angle in radians
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SetAngle(F32 value) = 0;
+
+			/*!
+				\brief The method returns an angle of a cone of the Spot light
+			*/
+
+			TDE2_API virtual F32 GetAngle() const = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISpotLight)
 	};
 
 

@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.26] 2024-03-22
+## [0.6.26] 2024-03-24
 
 ### Added
 
 - An experimental implementation of a frame graph was added. But it's not integrated yet.
 
 - **tracy** profiling library was integrated into the runtime.
+
+- A new type of a light source was integrated which is a spotlight.
 
 ### Changed
 

@@ -31,6 +31,7 @@
 #include "../../include/scene/components/ShadowMappingComponents.h"
 #include "../../include/scene/components/CPointLight.h"
 #include "../../include/scene/components/CDirectionalLight.h"
+#include "../../include/scene/components/CSpotLight.h"
 #include "../../include/scene/components/AudioComponents.h"
 #include "../../include/scene/components/CLODStrategyComponent.h"
 #include "../../include/scene/components/CWeatherComponent.h"
@@ -350,7 +351,76 @@ namespace TDEngine2
 
 			CPointLight& pointLight = dynamic_cast<CPointLight&>(component);
 
-			// \todo Implement this drawer
+			/// \note color
+			{
+				TColor32F color = pointLight.GetColor();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Color: ");
+				imguiContext.ColorPickerField("##Color", color, [&pointLight, &color] { pointLight.SetColor(color); });
+				imguiContext.EndHorizontal();
+			}
+
+			/// \note range
+			{
+				F32 range = pointLight.GetRange();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Range: ");
+				imguiContext.FloatField("##Range", range, [&pointLight, &range] { pointLight.SetRange(range); });
+				imguiContext.EndHorizontal();
+			}
+
+			/// \note intensity
+			{
+				F32 intensity = pointLight.GetIntensity();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Intensity: ");
+				imguiContext.FloatField("##Intensity", intensity, [&pointLight, &intensity] { pointLight.SetIntensity(intensity); });
+				imguiContext.EndHorizontal();
+			}
+		});
+	}
+
+	static void DrawSpotLightGUI(const TEditorContext& editorContext)
+	{
+		Header("Spot Light", editorContext, [](const TEditorContext& editorContext)
+		{
+			IImGUIContext& imguiContext = editorContext.mImGUIContext;
+			IComponent& component = editorContext.mComponent;
+
+			CSpotLight& spotLight = dynamic_cast<CSpotLight&>(component);
+
+			/// \note color
+			{
+				TColor32F color = spotLight.GetColor();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Color: ");
+				imguiContext.ColorPickerField("##Color", color, [&spotLight, &color] { spotLight.SetColor(color); });
+				imguiContext.EndHorizontal();
+			}
+
+			/// \note angle
+			{
+				F32 angle = spotLight.GetAngle();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Angle: ");
+				imguiContext.FloatField("##Angle", angle, [&spotLight, &angle] { spotLight.SetAngle(angle); });
+				imguiContext.EndHorizontal();
+			}
+
+			/// \note intensity
+			{
+				F32 intensity = spotLight.GetIntensity();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Intensity: ");
+				imguiContext.FloatField("##Intensity", intensity, [&spotLight, &intensity] { spotLight.SetIntensity(intensity); });
+				imguiContext.EndHorizontal();
+			}
 		});
 	}
 
@@ -2092,6 +2162,7 @@ namespace TDEngine2
 		result = result | editor.RegisterInspector(CShadowCasterComponent::GetTypeId(), DrawShadowCasterGUI);
 		result = result | editor.RegisterInspector(CDirectionalLight::GetTypeId(), DrawDirectionalLightGUI);
 		result = result | editor.RegisterInspector(CPointLight::GetTypeId(), DrawPointLightGUI);
+		result = result | editor.RegisterInspector(CSpotLight::GetTypeId(), DrawSpotLightGUI);
 		result = result | editor.RegisterInspector(CAnimationContainerComponent::GetTypeId(), DrawAnimationContainerGUI);
 		result = result | editor.RegisterInspector(CSkyboxComponent::GetTypeId(), DrawSkyboxGUI);
 		result = result | editor.RegisterInspector(CParticleEmitter::GetTypeId(), DrawParticleEmitterGUI);

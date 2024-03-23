@@ -25,6 +25,7 @@ namespace TDEngine2
 	struct TLightingShaderData;
 	class CDirectionalLight;
 	class CPointLight;
+	class CSpotLight;
 	class CTransform;
 	class CShadowCasterComponent;
 	class CShadowReceiverComponent;
@@ -60,6 +61,7 @@ namespace TDEngine2
 		public:
 			typedef TComponentsQueryLocalSlice<CDirectionalLight, CTransform>                             TDirLightsContext;
 			typedef TComponentsQueryLocalSlice<CPointLight, CTransform>                                   TPointLightsContext;
+			typedef TComponentsQueryLocalSlice<CSpotLight, CTransform>                                    TSpotLightsContext;
 			typedef TComponentsQueryLocalSlice<CShadowCasterComponent, CStaticMeshContainer, CTransform>  TStaticShadowCastersContext;
 			typedef TComponentsQueryLocalSlice<CShadowReceiverComponent, CStaticMeshContainer>            TStaticShadowReceiverContext;
 			typedef TComponentsQueryLocalSlice<CShadowReceiverComponent, CSkinnedMeshContainer>           TSkinnedShadowReceiverContext;
@@ -111,6 +113,7 @@ namespace TDEngine2
 
 			TDirLightsContext            mDirectionalLightsContext;
 			TPointLightsContext          mPointLightsContext;
+			TSpotLightsContext           mSpotLightsContext;
 
 			TStaticShadowCastersContext  mStaticShadowCastersContext;
 			TSkinnedShadowCastersContext mSkinnedShadowCastersContext;

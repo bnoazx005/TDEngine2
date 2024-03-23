@@ -9,6 +9,7 @@
 
 
 #define MAX_POINT_LIGHTS_COUNT 8
+#define MAX_SPOT_LIGHTS_COUNT 8
 #define MAX_SHADOW_CASCADES_COUNT 4
 
 
@@ -42,6 +43,17 @@ float PointLightGetAttenuation(in PointLightData pointLight, in float4 pos)
 
 	return 1.0 / (distance * distance + 0.00001); //* min(1, max(distance - pointLight.mMaxRange, 0.0));
 }
+
+
+struct SpotLightData
+{
+	float4 mPosition;
+	float4 mDirection;
+	float4 mColor;
+	float  mAngle;
+	float  mIntensity;
+	float2 mUnused;
+};
 
 
 struct SunLightData
@@ -173,6 +185,29 @@ float4 CalcPointLightContribution(in PointLightData pointLight, in LightingData 
 	float3 radiance = pointLight.mColor.rgb * PointLightGetAttenuation(pointLight, lightingData.mPosition);
 
 	return float4(CalcCookTorranceBRDF(lightDir, lightingData) * radiance, pointLight.mColor.a);
+}
+
+
+float4 CalcSpotLightContribution(in SpotLightData spotLight, in LightingData lightingData)
+{
+	float3 lightDir = normalize(spotLight.mPosition - lightingData.mPosition).xyz;
+
+	float minCos = cos(radians(spotLight.mAngle));
+
+#if TDE2_HLSL_SHADER
+	float maxCos = lerp(minCos, 1.0, 0.5);
+#else
+	float maxCos = mix(minCos, 1.0, 0.5);
+#endif	
+
+	float intensity = smoothstep(minCos, maxCos, max(0.0, dot(spotLight.mDirection.xyz, -lightDir)));
+
+	float distance = length(spotLight.mPosition - lightingData.mPosition);
+	float attenuation = 1.0 / (distance * distance + 0.00001);
+
+	float3 radiance = spotLight.mColor.rgb * intensity * attenuation;
+
+	return float4(CalcCookTorranceBRDF(lightDir, lightingData) * radiance, spotLight.mColor.a);
 }
 
 

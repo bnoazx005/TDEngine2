@@ -95,7 +95,14 @@ void main(void)
 		pointLightsContribution += CalcPointLightContribution(PointLights[i], lightingData) * (1.0 - ComputePointLightShadowFactor(PointLights[i], VertOutWorldPos, 0.1));
 	}
 
-	FragColor = (sunLight + pointLightsContribution) * (1.0 - ComputeSunShadowFactorPCF(8, GetSunShadowCascadeIndex(VertOutViewWorldPos), VertOutWorldPos, 0.0001, 1000.0)) * VertOutColor;
+	vec4 spotLightsContribution = vec4(0.0);
+
+	for (int i = 0; i < ActiveSpotLightsCount; ++i)
+	{
+		spotLightsContribution += CalcSpotLightContribution(SpotLights[i], lightingData);
+	}
+
+	FragColor = (sunLight + pointLightsContribution + spotLightsContribution) * (1.0 - ComputeSunShadowFactorPCF(8, GetSunShadowCascadeIndex(VertOutViewWorldPos), VertOutWorldPos, 0.0001, 1000.0)) * VertOutColor;
 }
 
 #endprogram

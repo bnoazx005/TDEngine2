@@ -19,6 +19,7 @@ namespace TDEngine2
 
 
 	constexpr U32 MaxPointLightsCount = 8;
+	constexpr U32 MaxSpotLightsCount = 8;
 	constexpr U32 MaxShadowCascadesCount = 4;
 
 
@@ -33,6 +34,17 @@ namespace TDEngine2
 	} TPointLightData, *TPointLightDataPtr;
 
 
+	typedef struct TSpotLightData
+	{
+		TVector4  mPosition;
+		TVector4  mDirection;
+		TColor32F mColor;
+		F32       mAngle;
+		F32       mIntensity;
+		F32       mUnused[2];
+	} TSpotLightData, *TSpotLightDataPtr;
+
+
 	/*!
 		\brief The structure contains all the information about light sources in the scene
 	*/
@@ -45,13 +57,13 @@ namespace TDEngine2
 		TVector4        mShadowCascadesSplits;
 		TMatrix4        mSunLightMatrix[MaxShadowCascadesCount];
 
-		TPointLightData mPointLights[MaxPointLightsCount];
-
 		U32             mPointLightsCount;
 		U32             mShadowCascadesCount;
 		U32             mIsShadowMappingEnabled;
+		U32             mSpotLightsCount;
 
-		U32             mPadding[1];
+		TPointLightData mPointLights[MaxPointLightsCount];
+		TSpotLightData  mSpotLights[MaxSpotLightsCount];
 	};
 
 	/*!

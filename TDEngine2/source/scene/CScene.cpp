@@ -5,6 +5,7 @@
 #include "../../include/editor/CPerfProfiler.h"
 #include "../../include/scene/components/CDirectionalLight.h"
 #include "../../include/scene/components/CPointLight.h"
+#include "../../include/scene/components/CSpotLight.h"
 #include "../../include/scene/components/ShadowMappingComponents.h"
 #include "../../include/scene/components/CPrefabLinkInfoComponent.h"
 #include "../../include/scene/IPrefabsRegistry.h"
@@ -275,6 +276,20 @@ namespace TDEngine2
 		}
 
 		return pPointLightEntity;
+	}
+
+	CEntity* CScene::CreateSpotLight(const TColor32F& tint, F32 intensity, F32 angle)
+	{
+		CEntity* pSpotLightEntity = CreateEntity("SpotLight");
+
+		if (auto pSpotLight = pSpotLightEntity->AddComponent<CSpotLight>())
+		{
+			pSpotLight->SetColor(tint);
+			pSpotLight->SetIntensity(intensity);
+			pSpotLight->SetAngle(angle);
+		}
+
+		return pSpotLightEntity;
 	}
 
 	CEntity* CScene::CreateSkybox(IResourceManager* pResourceManager, const std::string& skyboxTexture)

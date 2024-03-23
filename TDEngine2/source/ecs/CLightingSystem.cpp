@@ -19,6 +19,7 @@
 #include "../../include/core/CGameUserSettings.h"
 #include "../../include/scene/components/CDirectionalLight.h"
 #include "../../include/scene/components/CPointLight.h"
+#include "../../include/scene/components/CSpotLight.h"
 #include "../../include/scene/components/ShadowMappingComponents.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/editor/CPerfProfiler.h"
@@ -65,6 +66,7 @@ namespace TDEngine2
 	{
 		mDirectionalLightsContext = pWorld->CreateLocalComponentsSlice<CDirectionalLight, CTransform>();
 		mPointLightsContext       = pWorld->CreateLocalComponentsSlice<CPointLight, CTransform>();
+		mSpotLightsContext        = pWorld->CreateLocalComponentsSlice<CSpotLight, CTransform>();
 		
 		mStaticShadowCastersContext  = pWorld->CreateLocalComponentsSlice<CShadowCasterComponent, CStaticMeshContainer, CTransform>();
 		mSkinnedShadowCastersContext = pWorld->CreateLocalComponentsSlice<CShadowCasterComponent, CSkinnedMeshContainer, CTransform>();
@@ -441,6 +443,33 @@ namespace TDEngine2
 	}
 
 
+	static void ProcessSpotLights(IGraphicsContext* pGraphicsContext, TLightingShaderData& lightingData, CLightingSystem::TSpotLightsContext& SpotLightsContext)
+	{
+		TDE2_PROFILER_SCOPE("CLightingSystem::ProcessSpotLights");
+
+		const auto& transforms = std::get<std::vector<CTransform*>>(SpotLightsContext.mComponentsSlice);
+		const auto& lights = std::get<std::vector<CSpotLight*>>(SpotLightsContext.mComponentsSlice);
+
+		lightingData.mSpotLightsCount = std::min<U32>(MaxSpotLightsCount, static_cast<U32>(lights.size()));
+
+		auto& spotLights = lightingData.mSpotLights;
+
+		for (USIZE i = 0; i < transforms.size(); ++i)
+		{
+			auto& currSpotLight = spotLights[i];
+
+			CTransform* pLightTransform = transforms[i];
+			CSpotLight* pLight = lights[i];
+
+			currSpotLight.mPosition = TVector4(pLightTransform->GetPosition(), 1.0f);
+			currSpotLight.mDirection = Normalize(TVector4(pLightTransform->GetForwardVector(), 0.0f));
+			currSpotLight.mColor = pLight->GetColor();
+			currSpotLight.mIntensity = pLight->GetIntensity();
+			currSpotLight.mAngle = pLight->GetAngle();
+		}
+	}
+
+
 	template <typename TRenderable>
 	static void ProcessShadowReceivers(TPtr<IResourceManager> pResourceManager, const std::vector<TRenderable*> shadowReceivers,
 		TPtr<ITexture> pSunLightShadowMap)
@@ -469,6 +498,7 @@ namespace TDEngine2
 
 		ProcessDirectionalLights(mpGraphicsContext, GetCurrentActiveCamera(pWorld), lightingData, mDirectionalLightsContext);
 		ProcessPointLights(mpGraphicsContext, lightingData, mPointLightsContext);
+		ProcessSpotLights(mpGraphicsContext, lightingData, mSpotLightsContext);
 
 		if (mpRenderer)
 		{
