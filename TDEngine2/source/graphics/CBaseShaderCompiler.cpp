@@ -289,6 +289,12 @@ namespace TDEngine2
 			return "";
 		});
 
+		// bypass #extension to support glsl syntax
+		preprocessor.AddCustomDirectiveHandler("extension", [&colorDataUniforms](auto&&, tcpp::Lexer& lexer, const std::string& str)
+		{
+			return "#extension";
+		});
+
 		std::string processedSource = preprocessor.Process();
 		
 		TDefinesMap definesTable;

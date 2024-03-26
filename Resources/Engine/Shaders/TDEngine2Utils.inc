@@ -7,6 +7,10 @@
 #ifndef TDENGINE2UTILS_INC
 #define TDENGINE2UTILS_INC
 
+#ifdef TDE2_GLSL_SHADER
+#extension GL_ARB_shader_storage_buffer_object : require
+#endif
+
 
 ///< Define constant buffer's macro
 
@@ -23,6 +27,20 @@
 	#define CBUFFER_SECTION_EX(name, reg)	cbuffer name : register(b#reg) {
 	#define CBUFFER_ENDSECTION 				};
 
+#endif
+
+
+///< Define macroes for buffers
+#ifdef TDE2_GLSL_SHADER
+	#define TYPED_BUFFER_ACCESS(BufferName) m##BufferName
+	#define DECLARE_TYPED_BUFFER(Type, BufferName) layout(std140) buffer BufferName { Type TYPED_BUFFER_ACCESS(BufferName)[]; }
+	#define DECLARE_TYPED_BUFFER_EX(Type, BufferName, slot) layout(std430, binding=slot) buffer BufferName { Type TYPED_BUFFER_ACCESS(BufferName)[]; }
+#endif
+
+#ifdef TDE2_HLSL_SHADER
+	#define TYPED_BUFFER_ACCESS(BufferName) BufferName
+	#define DECLARE_TYPED_BUFFER(Type, BufferName) StructuredBuffer<Type> BufferName
+	#define DECLARE_TYPED_BUFFER_EX(Type, BufferName, slot) StructuredBuffer<Type> BufferName: register(t#slot)
 #endif
 
 

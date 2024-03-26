@@ -60,4 +60,7 @@ CBUFFER_SECTION_EX(TDEngine2Constants, 3)
 CBUFFER_ENDSECTION
 
 
+DECLARE_TYPED_BUFFER_EX(PointLightData, Lights, 10);
+
+
 #endif
