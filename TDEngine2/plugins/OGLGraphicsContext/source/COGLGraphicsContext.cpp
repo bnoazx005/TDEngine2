@@ -472,6 +472,7 @@ namespace TDEngine2
 	void COGLGraphicsContext::DispatchCompute(U32 groupsCountX, U32 groupsCountY, U32 groupsCountZ)
 	{
 		GL_SAFE_VOID_CALL(glDispatchCompute(groupsCountX, groupsCountY, groupsCountZ));
+		GL_SAFE_VOID_CALL(glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT));
 	}
 
 	void COGLGraphicsContext::BindBlendState(TBlendStateId blendStateId)

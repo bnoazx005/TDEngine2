@@ -5,12 +5,12 @@
 
 #program compute
 
+layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+layout(rgba32f, binding = 0) uniform image2D OutputTexture;
+
 #include <TDEngine2Globals.inc>
 #include <TDEngine2MathUtils.inc>
 
-
-layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
-layout(rgba32f, binding = 0) uniform image2D OutputTexture;
 
 DECLARE_TEX2D_EX(DepthTexture, 1);
 DECLARE_TEX3D_EX(LowFreqCloudsNoiseTex, 2);
