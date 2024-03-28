@@ -166,6 +166,21 @@ namespace TDEngine2
 			}
 		}
 
+#if 0
+		D3D11_SHADER_INPUT_BIND_DESC bindingInfo{};
+
+		auto&& shaderResources = shaderMetadata.mShaderResources;
+		for (auto&& currShaderResource : shaderResources)
+		{
+			if (FAILED(pReflector->GetResourceBindingDescByName(currShaderResource.first.c_str(), &bindingInfo)))
+			{
+				continue;
+			}
+
+			currShaderResource.second.mSlot = static_cast<U8>(bindingInfo.BindPoint);
+		}
+#endif
+
 		USIZE size = pBytecodeBuffer->GetBufferSize();
 
 		U8* pBuffer = static_cast<U8*>(pBytecodeBuffer->GetBufferPointer());
@@ -336,16 +351,37 @@ namespace TDEngine2
 		return size * 4; // other types sizes equal to 4 bytes
 	}
 
+
+	static U8 ExtractRegisterSlot(const std::string& registerInfo)
+	{
+		U8 slot = 0;
+
+		const USIZE delimiterPos = registerInfo.find(',');
+		if (std::string::npos != delimiterPos) // case of register of the following view ( [shader_profile], Type#[subcomponent] )
+		{
+			TDE2_UNIMPLEMENTED(); // unsupported for now
+			return slot;
+		}
+
+		TDE2_ASSERT(registerInfo[0] == 'b' || registerInfo[0] == 't' || registerInfo[0] == 'c' || registerInfo[0] == 's' || registerInfo[0] == 'u');
+
+		return static_cast<I8>(std::stoi(registerInfo.substr(1)));
+	}
+
+
 	CD3D11ShaderCompiler::TShaderResourcesMap CD3D11ShaderCompiler::_processShaderResourcesDecls(CTokenizer& tokenizer) const
 	{
 		TShaderResourcesMap shaderResources {};
 
 		std::string currToken;
+		std::string registerInfo;
 
 		E_SHADER_RESOURCE_TYPE currType = E_SHADER_RESOURCE_TYPE::SRT_UNKNOWN;
 
 		U8 currSlotIndex = 0;
 		U8 currScopeIndex = 0; // \note 0th is a global scope
+
+		std::unordered_set<U8> usedSlots;
 
 		while (tokenizer.HasNext())
 		{
@@ -372,15 +408,47 @@ namespace TDEngine2
 			}
 
 			/// found a shader resource
-			currToken = tokenizer.GetNextToken();
+			const std::string& resourceId = tokenizer.GetNextToken();
 
 			const bool isWriteableResource = 
 				E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER == currType ||
 				E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D == currType ||
 				E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE3D == currType;
+			
+			registerInfo.clear();
+
+			currToken = tokenizer.GetNextToken();
+			if (currToken == ":" && tokenizer.Peek(1) == "register")
+			{
+				tokenizer.GetNextToken(); // take register
+				tokenizer.GetNextToken(); // take (
+
+				while ((currToken = tokenizer.GetNextToken()) != ")")
+				{
+					registerInfo.append(currToken);
+				}
+
+				tokenizer.GetNextToken(); // take )
+				tokenizer.GetNextToken(); // take ;
+			}
+
+			U8 currSlot = 0;
+			
+			if (registerInfo.empty())
+			{
+				do
+				{
+					currSlot = currSlotIndex++;
+				} while (usedSlots.find(currSlot) != usedSlots.cend());
+			}
+			else
+			{
+				currSlot = ExtractRegisterSlot(registerInfo);
+			}
 
 			/// \note At this point only global scope's declarations should be passed
-			shaderResources[currToken] = { currType, currSlotIndex++, isWriteableResource };
+			shaderResources[resourceId] = { currType, currSlot, isWriteableResource};
+			usedSlots.emplace(currSlot);
 		}
 
 		tokenizer.Reset();

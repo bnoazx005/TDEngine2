@@ -123,19 +123,20 @@ namespace TDEngine2
 	void CBaseShader::Bind()
 	{
 		ITexture* pCurrTexture = nullptr;
+		U8 currSlot = 0;
+		bool isWritable = false;
 
 		/// \note Bind textures
 		for (U32 i = 0; i < mpTextures.size(); ++i)
 		{
-			pCurrTexture = mpTextures[i];
-
+			std::tie(pCurrTexture, currSlot, isWritable) = mpTextures[i];
 			if (!pCurrTexture)
 			{
 				continue;
 			}
 
-			pCurrTexture->SetWriteable(mpTexturesWritePolicies[i]);
-			pCurrTexture->Bind(i);
+			pCurrTexture->SetWriteable(isWritable);
+			pCurrTexture->Bind(currSlot);
 		}
 
 #if 0
@@ -175,8 +176,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mpTextures[std::get<0>(hashIter->second)] = pTexture;
-		mpTexturesWritePolicies[std::get<0>(hashIter->second)] = std::get<bool>(hashIter->second);
+		std::get<ITexture*>(mpTextures[hashIter->second]) = pTexture;
 
 		return RC_OK;
 	}
@@ -194,7 +194,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mBufferHandles[std::get<0>(hashIter->second)] = bufferHandle;
+		//mBufferHandles[std::get<0>(hashIter->second)] = bufferHandle;
 
 		return RC_OK;
 	}
@@ -223,29 +223,30 @@ namespace TDEngine2
 	E_RESULT_CODE CBaseShader::_createTexturesHashTable(const TShaderCompilerOutput* pCompilerData)
 	{
 		auto shaderResourcesMap = pCompilerData->mShaderResourcesInfo;
-		auto&& maxSlotElementIt = std::max_element(shaderResourcesMap.cbegin(), shaderResourcesMap.cend(), [](auto&& left, auto&& right) 
-		{
-			return left.second.mSlot < right.second.mSlot; 
-		});
-
 		if (shaderResourcesMap.empty())
 		{
 			return RC_OK;
 		}
 
-		mpTextures.resize(maxSlotElementIt->second.mSlot + 1);
-		mpTexturesWritePolicies.resize(maxSlotElementIt->second.mSlot + 1);
+		mpTextures.clear();
 
-		U8 currSlotIndex = 0;
+		USIZE currSlotIndex = 0;
 		
 		for (auto currShaderResourceInfo : shaderResourcesMap)
 		{
-			currSlotIndex = currShaderResourceInfo.second.mSlot;
+			const TShaderResourceDesc& desc = currShaderResourceInfo.second;
 
-			mTexturesHashTable[currShaderResourceInfo.first] = std::make_tuple(currSlotIndex, currShaderResourceInfo.second.mIsWriteable);
+			if (E_SHADER_RESOURCE_TYPE::SRT_SAMPLER_STATE == desc.mType
+				|| E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER == desc.mType
+				|| E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER == desc.mType)
+			{
+				continue;
+			}
 
-			mpTextures[currSlotIndex] = nullptr;
-			mpTexturesWritePolicies[currSlotIndex] = false;
+			currSlotIndex = mpTextures.size();
+
+			mTexturesHashTable[currShaderResourceInfo.first] = currSlotIndex;
+			mpTextures.emplace_back(std::make_tuple(nullptr, desc.mSlot, desc.mIsWriteable));
 		}
 
 		return RC_OK;
@@ -266,7 +267,7 @@ namespace TDEngine2
 		{
 			currSlotIndex = currShaderResourceInfo.second.mSlot;
 
-			mStructuredBuffersHashTable[currShaderResourceInfo.first] = std::make_tuple(currSlotIndex, currShaderResourceInfo.second.mIsWriteable);
+			//mStructuredBuffersHashTable[currShaderResourceInfo.first] = std::make_tuple(currSlotIndex, currShaderResourceInfo.second.mIsWriteable);
 
 			mBufferHandles.resize(currSlotIndex + 1);
 

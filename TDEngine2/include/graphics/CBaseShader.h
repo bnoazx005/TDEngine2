@@ -32,7 +32,7 @@ namespace TDEngine2
 	class CBaseShader: public IShader, public CBaseResource
 	{
 		public:
-			typedef std::unordered_map<std::string, std::tuple<U8, bool>> TResourcesHashTable;
+			typedef std::unordered_map<std::string, USIZE> TResourcesHashTable;
 		public:
 			TDE2_REGISTER_RESOURCE_TYPE(CBaseShader)
 			TDE2_REGISTER_TYPE(CBaseShader)
@@ -152,8 +152,7 @@ namespace TDEngine2
 			TResourcesHashTable             mTexturesHashTable;
 			TResourcesHashTable             mStructuredBuffersHashTable;
 
-			std::vector<ITexture*>          mpTextures;
-			std::vector<bool>               mpTexturesWritePolicies;
+			std::vector<std::tuple<ITexture*, U8, bool>> mpTextures;
 			std::vector<TBufferHandleId>    mBufferHandles;
 
 			TShaderCompilerOutput*          mpShaderMeta;

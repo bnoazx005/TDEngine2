@@ -270,50 +270,6 @@ namespace TDEngine2
 	}
 #endif
 
-	E_RESULT_CODE COGLShader::_createTexturesHashTable(const TShaderCompilerOutput* pCompilerData)
-	{
-		GL_SAFE_CALL(glUseProgram(mShaderHandler));
-
-		auto shaderResourcesMap = pCompilerData->mShaderResourcesInfo;
-
-		if (shaderResourcesMap.empty())
-		{
-			return RC_OK;
-		}
-
-		I16 currSlotIndex = 0;
-
-		const C8* currName;
-
-		mpTextures.resize(shaderResourcesMap.size() + 1);
-		mpTexturesWritePolicies.resize(shaderResourcesMap.size() + 1);
-
-		for (auto currShaderResourceInfo : shaderResourcesMap)
-		{
-			currName = currShaderResourceInfo.first.c_str();
-
-			currSlotIndex = glGetUniformLocation(mShaderHandler, currName);
-
-			if (currSlotIndex < 0)
-			{
-				continue;
-			}
-
-			mTexturesHashTable[currName] = std::make_tuple(currShaderResourceInfo.second.mSlot, currShaderResourceInfo.second.mIsWriteable);
-
-			GL_SAFE_CALL(glUniform1i(currSlotIndex, currShaderResourceInfo.second.mSlot));
-
-			const U32 slotIndex = currShaderResourceInfo.second.mSlot;
-
-			mpTextures[slotIndex] = nullptr;
-			mpTexturesWritePolicies[slotIndex] = false;
-		}
-
-		glUseProgram(0);
-
-		return RC_OK;
-	}
-
 	void COGLShader::_bindUniformBuffer(U32 slot, TBufferHandleId uniformsBufferHandle)
 	{
 		CBaseShader::_bindUniformBuffer(slot, uniformsBufferHandle);
