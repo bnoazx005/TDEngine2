@@ -540,19 +540,33 @@ namespace TDEngine2
 		return (iter->second)(size);
 	}
 
+
 	COGLShaderCompiler::TShaderResourcesMap COGLShaderCompiler::_processShaderResourcesDecls(CTokenizer& tokenizer) const
 	{
 		TShaderResourcesMap shaderResources{};
 
 		std::string currToken;
+		std::string registerInfo;
 
 		E_SHADER_RESOURCE_TYPE currType = E_SHADER_RESOURCE_TYPE::SRT_UNKNOWN;
 
 		U8 currSlotIndex = 0;
 
+		std::unordered_set<U8> usedSlots;
+
 		while (tokenizer.HasNext())
 		{
 			currToken = tokenizer.GetCurrToken();
+
+			if (Wrench::StringUtils::StartsWith(currToken, "binding"))
+			{
+				while (currToken != "=")
+				{
+					currToken = tokenizer.GetNextToken();
+				}
+
+				registerInfo = tokenizer.GetNextToken();
+			}
 
 			if ((currType = _isShaderResourceType(currToken)) == E_SHADER_RESOURCE_TYPE::SRT_UNKNOWN)
 			{
@@ -562,14 +576,30 @@ namespace TDEngine2
 			}
 
 			/// found a shader resource
-			currToken = tokenizer.GetNextToken();
+			const std::string& resourceId = tokenizer.GetNextToken();
 
 			const bool isWriteableResource =
 				E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER == currType ||
 				E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D == currType ||
 				E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE3D == currType;
 
-			shaderResources[currToken] = { currType, currSlotIndex++, isWriteableResource };
+			U8 currSlot = 0;
+
+			if (registerInfo.empty())
+			{
+				do
+				{
+					currSlot = currSlotIndex++;
+				} while (usedSlots.find(currSlot) != usedSlots.cend());
+			}
+			else
+			{
+				currSlot = std::stoi(registerInfo);
+				registerInfo.clear();
+			}
+
+			shaderResources[resourceId] = { currType, currSlot, isWriteableResource };
+			usedSlots.emplace(currSlot);
 		}
 
 		tokenizer.Reset();

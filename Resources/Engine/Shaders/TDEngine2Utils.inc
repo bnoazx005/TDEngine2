@@ -34,7 +34,7 @@
 #ifdef TDE2_GLSL_SHADER
 	#define TYPED_BUFFER_ACCESS(BufferName) m##BufferName
 	#define DECLARE_TYPED_BUFFER(Type, BufferName) layout(std140) buffer BufferName { Type TYPED_BUFFER_ACCESS(BufferName)[]; }
-	#define DECLARE_TYPED_BUFFER_EX(Type, BufferName, slot) layout(std430, binding=slot) buffer BufferName { Type TYPED_BUFFER_ACCESS(BufferName)[]; }
+	#define DECLARE_TYPED_BUFFER_EX(Type, BufferName, slot) layout(std430, binding = slot) buffer BufferName { Type TYPED_BUFFER_ACCESS(BufferName)[]; }
 #endif
 
 #ifdef TDE2_HLSL_SHADER

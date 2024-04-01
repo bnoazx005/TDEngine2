@@ -276,6 +276,50 @@ namespace TDEngine2
 		GL_SAFE_VOID_CALL(glUniformBlockBinding(mShaderHandler, mUniformBuffersMap[slot], slot));
 	}
 
+	E_RESULT_CODE COGLShader::_createTexturesHashTable(const TShaderCompilerOutput* pCompilerData)
+	{
+		E_RESULT_CODE result = CBaseShader::_createTexturesHashTable(pCompilerData);
+
+		GL_SAFE_CALL(glUseProgram(mShaderHandler));
+
+		auto shaderResourcesMap = pCompilerData->mShaderResourcesInfo;
+
+		if (shaderResourcesMap.empty())
+		{
+			return RC_OK;
+		}
+
+		I16 currSlotIndex = 0;
+
+		const C8* currName;
+
+		for (auto currShaderResourceInfo : shaderResourcesMap)
+		{
+			currName = currShaderResourceInfo.first.c_str();
+
+			auto& desc = currShaderResourceInfo.second;
+
+			if (E_SHADER_RESOURCE_TYPE::SRT_SAMPLER_STATE == desc.mType
+				|| E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER == desc.mType
+				|| E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER == desc.mType)
+			{
+				continue;
+			}
+
+			currSlotIndex = glGetUniformLocation(mShaderHandler, currName);
+			if (currSlotIndex < 0)
+			{
+				continue;
+			}
+
+			GL_SAFE_CALL(glUniform1i(currSlotIndex, desc.mSlot));
+		}
+
+		glUseProgram(0);
+
+		return result;
+	}
+
 
 	TDE2_API IShader* CreateOGLShader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
 	{
