@@ -216,9 +216,19 @@ namespace TDEngine2
 		}
 
 		result = result | _createTexturesHashTable(mpShaderMeta);
+		result = result | _createStructuredBuffersHashTable(mpShaderMeta);
 
 		return result;
 	}
+
+
+	static bool IsTextureShaderResource(E_SHADER_RESOURCE_TYPE type)
+	{
+		return E_SHADER_RESOURCE_TYPE::SRT_SAMPLER_STATE != type
+			&& E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER != type
+			&& E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER != type;
+	}
+
 
 	E_RESULT_CODE CBaseShader::_createTexturesHashTable(const TShaderCompilerOutput* pCompilerData)
 	{
@@ -236,9 +246,7 @@ namespace TDEngine2
 		{
 			const TShaderResourceDesc& desc = currShaderResourceInfo.second;
 
-			if (E_SHADER_RESOURCE_TYPE::SRT_SAMPLER_STATE == desc.mType
-				|| E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER == desc.mType
-				|| E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER == desc.mType)
+			if (!IsTextureShaderResource(desc.mType))
 			{
 				continue;
 			}
@@ -261,17 +269,23 @@ namespace TDEngine2
 			return RC_OK;
 		}
 
-		U8 currSlotIndex = 0;
+		mBufferHandles.clear();
+
+		USIZE currSlotIndex = 0;
 
 		for (auto currShaderResourceInfo : shaderResourcesMap)
 		{
-			currSlotIndex = currShaderResourceInfo.second.mSlot;
+			const TShaderResourceDesc& desc = currShaderResourceInfo.second;
 
-			//mStructuredBuffersHashTable[currShaderResourceInfo.first] = std::make_tuple(currSlotIndex, currShaderResourceInfo.second.mIsWriteable);
+			if (IsTextureShaderResource(desc.mType))
+			{
+				continue;
+			}
 
-			mBufferHandles.resize(currSlotIndex + 1);
+			currSlotIndex = mBufferHandles.size();
 
-			mBufferHandles[currSlotIndex] = TBufferHandleId::Invalid;
+			mStructuredBuffersHashTable[currShaderResourceInfo.first] = currSlotIndex;
+			mBufferHandles.emplace_back(std::make_tuple(TBufferHandleId::Invalid, desc.mSlot, desc.mIsWriteable));
 		}
 
 		return RC_OK;
