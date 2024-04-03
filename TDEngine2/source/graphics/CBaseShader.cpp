@@ -138,12 +138,11 @@ namespace TDEngine2
 			pCurrTexture->SetWriteable(isWritable);
 			pCurrTexture->Bind(currSlot);
 		}
-
 #if 0
 		/// \note Binds structured buffers
 		IStructuredBuffer* pCurrBuffer = nullptr;
 
-		for (U32 i = 0; i < mpBuffers.size(); ++i)
+		for (U32 i = 0; i < mBufferHandles.size(); ++i)
 		{
 			pCurrBuffer = mpBuffers[i];
 
@@ -194,7 +193,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		//mBufferHandles[std::get<0>(hashIter->second)] = bufferHandle;
+		std::get<TBufferHandleId>(mBufferHandles[hashIter->second]) = bufferHandle;
 
 		return RC_OK;
 	}

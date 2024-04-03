@@ -281,6 +281,18 @@ namespace TDEngine2
 
 		GL_SAFE_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, slot, pBuffer->GetOGLHandle()));
 
+		return RC_OK;
+	}
+
+	E_RESULT_CODE COGLGraphicsContext::SetStructuredBuffer(U32 slot, TBufferHandleId bufferHandle, bool isWriteEnabled)
+	{
+		auto pBuffer = mpGraphicsObjectManagerImpl->GetOGLBufferPtr(bufferHandle);
+		if (!pBuffer)
+		{
+			return RC_FAIL;
+		}
+
+		GL_SAFE_CALL(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, pBuffer->GetOGLHandle()));
 
 		return RC_OK;
 	}

@@ -112,6 +112,12 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CProxyGraphicsContext::SetStructuredBuffer(U32 slot, TBufferHandleId bufferHandle, bool isWriteEnabled)
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] SetStructuredBuffer");
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CProxyGraphicsContext::SetTexture(U32 slot, TTextureHandleId textureHandle, bool isWriteEnabled)
 	{
 		LOG_MESSAGE("[ProxyGraphicsContext] SetTexture");

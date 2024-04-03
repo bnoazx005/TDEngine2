@@ -106,9 +106,13 @@ namespace TDEngine2
 			TDE2_API const TInitBufferParams& GetParams() const override;
 
 			TDE2_API ID3D11Buffer* GetD3D11Buffer();
+
+			TDE2_API ID3D11ShaderResourceView* GetShaderView();
+			TDE2_API ID3D11UnorderedAccessView* GetWriteableShaderView();
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11Buffer)
 			
+			TDE2_API E_RESULT_CODE _onInitInternal(const TInitBufferParams& params);
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			ID3D11DeviceContext*     mp3dDeviceContext;
@@ -129,6 +133,9 @@ namespace TDEngine2
 			void*                    mpLockDataPtr;
 
 			TInitBufferParams        mInitParams;
+
+			ID3D11ShaderResourceView*  mpShaderView = nullptr;
+			ID3D11UnorderedAccessView* mpWritableShaderView = nullptr;
 	};
 
 

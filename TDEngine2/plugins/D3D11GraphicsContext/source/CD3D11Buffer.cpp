@@ -75,6 +75,54 @@ namespace TDEngine2
 	}
 
 
+	static TResult<ID3D11ShaderResourceView*> CreateTypedBufferViewInternal(ID3D11Device* p3dDevice, ID3D11Resource* pBuffer, const TInitBufferParams& params)
+	{
+		if (!params.mElementStrideSize)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+		}
+
+		ID3D11ShaderResourceView* pView = nullptr;
+
+		D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
+		viewDesc.Format = DXGI_FORMAT_UNKNOWN;
+		viewDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+		viewDesc.Buffer.FirstElement = 0;
+		viewDesc.Buffer.NumElements = static_cast<U32>(params.mTotalBufferSize / params.mElementStrideSize);
+
+		if (FAILED(p3dDevice->CreateShaderResourceView(pBuffer, &viewDesc, &pView)))
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		return Wrench::TOkValue<ID3D11ShaderResourceView*>(pView);
+	}
+
+
+	static TResult<ID3D11UnorderedAccessView*> CreateWriteableTypedBufferViewInternal(ID3D11Device* p3dDevice, ID3D11Resource* pBuffer, const TInitBufferParams& params)
+	{
+		if (!params.mElementStrideSize)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
+		}
+
+		ID3D11UnorderedAccessView* pView = nullptr;
+
+		D3D11_UNORDERED_ACCESS_VIEW_DESC viewDesc;
+		viewDesc.Format = DXGI_FORMAT_UNKNOWN;
+		viewDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+		viewDesc.Buffer.FirstElement = 0;
+		viewDesc.Buffer.NumElements = static_cast<U32>(params.mTotalBufferSize / params.mElementStrideSize);
+
+		if (FAILED(p3dDevice->CreateUnorderedAccessView(pBuffer, &viewDesc, &pView)))
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		return Wrench::TOkValue<ID3D11UnorderedAccessView*>(pView);
+	}
+
+
 	CD3D11Buffer::CD3D11Buffer() :
 		CBaseObject()
 	{
@@ -107,7 +155,22 @@ namespace TDEngine2
 		mBufferUsageType = params.mUsageType;
 		mBufferType = params.mBufferType;
 
-		auto createBufferResourceResult = CreateBufferInternal(internalD3D11Data.mp3dDevice, params, false);
+		E_RESULT_CODE result = _onInitInternal(params);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		mInitParams = params;
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D11Buffer::_onInitInternal(const TInitBufferParams& params)
+	{
+		auto createBufferResourceResult = CreateBufferInternal(mp3dDevice, params, false);
 		if (createBufferResourceResult.HasError())
 		{
 			return createBufferResourceResult.GetError();
@@ -115,9 +178,27 @@ namespace TDEngine2
 
 		mpBufferInstance = createBufferResourceResult.Get();
 
-		mInitParams = params;
+		if (E_BUFFER_TYPE::STRUCTURED == params.mBufferType)
+		{
+			auto createViewResourceResult = CreateTypedBufferViewInternal(mp3dDevice, mpBufferInstance, params);
+			if (createBufferResourceResult.HasError())
+			{
+				return createBufferResourceResult.GetError();
+			}
 
-		mIsInitialized = true;
+			mpShaderView = createViewResourceResult.Get();
+		}
+
+		if (params.mIsUnorderedAccessResource)
+		{
+			auto createWritableViewResourceResult = CreateWriteableTypedBufferViewInternal(mp3dDevice, mpBufferInstance, params);
+			if (createWritableViewResourceResult.HasError())
+			{
+				return createWritableViewResourceResult.GetError();
+			}
+
+			mpWritableShaderView = createWritableViewResourceResult.Get();
+		}
 
 		return RC_OK;
 	}
@@ -198,24 +279,22 @@ namespace TDEngine2
 		auto paramsCopy = mInitParams;
 		paramsCopy.mTotalBufferSize = newSize;
 
-		auto createBufferHandleResult = CreateBufferInternal(mp3dDevice, paramsCopy, true);
-		if (createBufferHandleResult.HasError())
-		{
-			return createBufferHandleResult.GetError();
-		}
-
 		if (mpLockDataPtr)
 		{
 			Unmap();
 		}
 
-		E_RESULT_CODE result = SafeReleaseCOMPtr<ID3D11Buffer>(&mpBufferInstance);
+		E_RESULT_CODE result = _onFreeInternal();
 		if (RC_OK != result)
 		{
 			return result;
 		}
 
-		mpBufferInstance = createBufferHandleResult.Get();
+		result = _onInitInternal(paramsCopy);
+		if (RC_OK != result)
+		{
+			return result;
+		}
 
 		mBufferSize = newSize;
 		mInitParams.mTotalBufferSize = mBufferSize;
@@ -246,6 +325,16 @@ namespace TDEngine2
 	ID3D11Buffer* CD3D11Buffer::GetD3D11Buffer()
 	{
 		return mpBufferInstance;
+	}
+
+	ID3D11ShaderResourceView* CD3D11Buffer::GetShaderView()
+	{
+		return mpShaderView;
+	}
+
+	ID3D11UnorderedAccessView* CD3D11Buffer::GetWriteableShaderView()
+	{
+		return mpWritableShaderView;
 	}
 
 

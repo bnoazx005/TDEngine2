@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A new type of a light source was integrated which is a spotlight.
 
+- The API of **IGraphicsContext** was extended with a new public method SetStructuredBuffer.
+
 ### Changed
 
 - **IFramePostProcessor** and its derived type were hidden within CForwardRenderer.cpp translation unit.

@@ -361,6 +361,37 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CD3D11GraphicsContext::SetStructuredBuffer(U32 slot, TBufferHandleId bufferHandle, bool isWriteEnabled)
+	{
+		auto pBuffer = mpGraphicsObjectManagerD3D11Impl->GetD3D11BufferPtr(bufferHandle);
+		if (!pBuffer)
+		{
+			return RC_FAIL;
+		}
+
+		TDE2_ASSERT(E_BUFFER_TYPE::STRUCTURED == pBuffer->GetParams().mBufferType);
+
+		if (pBuffer->GetParams().mIsUnorderedAccessResource)
+		{
+			if (isWriteEnabled)
+			{
+				auto pUAVResource = pBuffer->GetWriteableShaderView();
+				mp3dDeviceContext->CSSetUnorderedAccessViews(slot, 1, &pUAVResource, nullptr);
+
+				return RC_OK;
+			}
+		}
+
+		auto pBufferSRV = pBuffer->GetShaderView();
+
+		mp3dDeviceContext->VSSetShaderResources(slot, 1, &pBufferSRV);
+		mp3dDeviceContext->PSSetShaderResources(slot, 1, &pBufferSRV);
+		mp3dDeviceContext->GSSetShaderResources(slot, 1, &pBufferSRV);
+		mp3dDeviceContext->CSSetShaderResources(slot, 1, &pBufferSRV);
+
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CD3D11GraphicsContext::SetTexture(U32 slot, TTextureHandleId textureHandle, bool isWriteEnabled)
 	{
 		auto pTexture = mpGraphicsObjectManagerD3D11Impl->GetD3D11TexturePtr(textureHandle);
