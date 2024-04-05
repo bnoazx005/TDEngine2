@@ -138,22 +138,20 @@ namespace TDEngine2
 			pCurrTexture->SetWriteable(isWritable);
 			pCurrTexture->Bind(currSlot);
 		}
-#if 0
+
 		/// \note Binds structured buffers
-		IStructuredBuffer* pCurrBuffer = nullptr;
+		TBufferHandleId currBufferHandle = TBufferHandleId::Invalid;
 
 		for (U32 i = 0; i < mBufferHandles.size(); ++i)
 		{
-			pCurrBuffer = mpBuffers[i];
-
-			if (!pCurrBuffer)
+			std::tie(currBufferHandle, currSlot, isWritable) = mBufferHandles[i];
+			if (TBufferHandleId::Invalid == currBufferHandle)
 			{
 				continue;
 			}
 
-			pCurrBuffer->Bind(i);
+			mpGraphicsContext->SetStructuredBuffer(currSlot, currBufferHandle, isWritable);
 		}
-#endif
 
 		U8 currUserBufferId = 0;
 		for (auto& currUniformBufferHandle : mUniformBuffers)
