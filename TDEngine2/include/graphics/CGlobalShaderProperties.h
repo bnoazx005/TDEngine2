@@ -10,6 +10,7 @@
 #include "IGlobalShaderProperties.h"
 #include "../core/CBaseObject.h"
 #include "IBuffer.h"
+#include <array>
 
 
 namespace TDEngine2
@@ -68,16 +69,26 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE SetInternalUniformsBuffer(E_INTERNAL_UNIFORM_BUFFER_REGISTERS slot, const U8* pData, U32 dataSize) override;
-		protected:
+
+			/*!
+				\brief The method writes data into one of the predefined shader typed buffer
+
+				\param[in] slot A slot specifies the buffer, in which data will be written
+				\param[in] pData A pointer to data that should be written into a buffer
+				\param[in] dataSize A size of data in bytes
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetInternalShaderBuffer(E_INTERNAL_SHADER_BUFFERS_REGISTERS slot, const U8* pData, U32 dataSize) override;
+		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CGlobalShaderProperties)
 
 			TDE2_API E_RESULT_CODE _initializeUniformsBuffers(IGraphicsObjectManager* pGraphicsObjectManager, U8 numOfBuffers);
-
-			TDE2_API E_BUFFER_USAGE_TYPE _getInternalBufferUsageType(E_INTERNAL_UNIFORM_BUFFER_REGISTERS slot);
-
-			TDE2_API U32 _getInternalBufferSize(E_INTERNAL_UNIFORM_BUFFER_REGISTERS slot);
-		protected:
-			IGraphicsObjectManager* mpGraphicsObjectManager;
-			TBufferHandleId mpInternalEngineUniforms[TotalNumberOfInternalConstantBuffers];
+			E_RESULT_CODE _initializeShaderBuffers(IGraphicsObjectManager* pGraphicsObjectManager);
+		private:
+			IGraphicsObjectManager*                                                                     mpGraphicsObjectManager = nullptr;
+			std::array<TBufferHandleId, TotalNumberOfInternalConstantBuffers>                           mInternalEngineUniforms{};
+			std::array<TBufferHandleId, static_cast<USIZE>(E_INTERNAL_SHADER_BUFFERS_REGISTERS::COUNT)> mInternalShaderBuffers{};
 	};
 }

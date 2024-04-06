@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.26] 2024-04-05
+## [0.6.26] 2024-04-06
 
 ### Added
 
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new type of a light source was integrated which is a spotlight.
 
 - The API of **IGraphicsContext** was extended with a new public method SetStructuredBuffer.
+
+- The API of **IGlobalShaderProperties** was extended to support system typed shader buffers updates.
 
 ### Changed
 

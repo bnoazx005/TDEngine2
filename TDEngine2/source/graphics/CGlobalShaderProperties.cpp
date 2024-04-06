@@ -26,7 +26,12 @@ namespace TDEngine2
 		mpGraphicsObjectManager = pGraphicsObjectManager;
 
 		E_RESULT_CODE result = _initializeUniformsBuffers(pGraphicsObjectManager, TotalNumberOfInternalConstantBuffers);
+		if (result != RC_OK)
+		{
+			return result;
+		}
 
+		result = _initializeShaderBuffers(pGraphicsObjectManager);
 		if (result != RC_OK)
 		{
 			return result;
@@ -44,7 +49,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		auto pCurrUniformsBuffer = mpGraphicsObjectManager->GetBufferPtr(mpInternalEngineUniforms[slot]);
+		auto pCurrUniformsBuffer = mpGraphicsObjectManager->GetBufferPtr(mInternalEngineUniforms[slot]);
 		if (!pCurrUniformsBuffer)
 		{
 			return RC_FAIL;
@@ -70,8 +75,33 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		return pGraphicsContext->SetConstantBuffer(slot, mpInternalEngineUniforms[slot]);
+		return pGraphicsContext->SetConstantBuffer(slot, mInternalEngineUniforms[slot]);
 	}
+
+	E_RESULT_CODE CGlobalShaderProperties::SetInternalShaderBuffer(E_INTERNAL_SHADER_BUFFERS_REGISTERS slot, const U8* pData, U32 dataSize)
+	{
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+
+	static U32 GetInternalBufferSize(E_INTERNAL_UNIFORM_BUFFER_REGISTERS slot)
+	{
+		switch (slot)
+		{
+			case IUBR_PER_FRAME:
+				return sizeof(TPerFrameShaderData);
+			case IUBR_PER_OBJECT:
+				return sizeof(TPerObjectShaderData);
+			case IUBR_RARE_UDATED:
+				return sizeof(TRareUpdateShaderData);
+			case IUBR_CONSTANTS:
+				return sizeof(TConstantShaderData);
+		}
+
+		TDE2_UNREACHABLE();
+		return 0;
+	}
+
 
 	E_RESULT_CODE CGlobalShaderProperties::_initializeUniformsBuffers(IGraphicsObjectManager* pGraphicsObjectManager, U8 numOfBuffers)
 	{
@@ -91,10 +121,10 @@ namespace TDEngine2
 						
 			auto createBufferResult = pGraphicsObjectManager->CreateBuffer(
 				{					 
-					_getInternalBufferUsageType(currSlot), 
+					E_BUFFER_USAGE_TYPE::DYNAMIC,
 					E_BUFFER_TYPE::CONSTANT, 
-					_getInternalBufferSize(currSlot), 
-					nullptr 
+					GetInternalBufferSize(currSlot), 
+					nullptr,
 				});
 
 			if (createBufferResult.HasError())
@@ -103,45 +133,58 @@ namespace TDEngine2
 				continue;
 			}
 
-			mpInternalEngineUniforms[i] = createBufferResult.Get();
+			mInternalEngineUniforms[i] = createBufferResult.Get();
 		}
 
 		return RC_OK;
 	}
 
-	E_BUFFER_USAGE_TYPE CGlobalShaderProperties::_getInternalBufferUsageType(E_INTERNAL_UNIFORM_BUFFER_REGISTERS slot)
+	E_RESULT_CODE CGlobalShaderProperties::_initializeShaderBuffers(IGraphicsObjectManager* pGraphicsObjectManager)
 	{
-		/// all the buffers except IUBR_CONSTANTS can be updated at any moment, IUBR_CONSTANTS buffer is attached on application's start
-
-		return E_BUFFER_USAGE_TYPE::DYNAMIC;
-		/*switch (slot)
+		auto pGraphicsContext = pGraphicsObjectManager->GetGraphicsContext();
+		if (!pGraphicsContext)
 		{
-			case IUBR_PER_FRAME:
-			case IUBR_PER_OBJECT:
-			case IUBR_RARE_UDATED:
-				return BUT_DYNAMIC;
-			case IUBR_CONSTANTS:
-				return BUT_DEFAULT;
+			return RC_FAIL;
 		}
 
-		return BUT_DEFAULT;*/
-	}
-
-	U32 CGlobalShaderProperties::_getInternalBufferSize(E_INTERNAL_UNIFORM_BUFFER_REGISTERS slot)
-	{
-		switch (slot)
+		static const std::vector<std::tuple<E_INTERNAL_SHADER_BUFFERS_REGISTERS, E_BUFFER_USAGE_TYPE, USIZE, USIZE>> allRegisters
 		{
-			case IUBR_PER_FRAME:
-				return sizeof(TPerFrameShaderData);
-			case IUBR_PER_OBJECT:
-				return sizeof(TPerObjectShaderData);
-			case IUBR_RARE_UDATED:
-				return sizeof(TRareUpdateShaderData);
-			case IUBR_CONSTANTS:
-				return sizeof(TConstantShaderData);
+			{ E_INTERNAL_SHADER_BUFFERS_REGISTERS::LIGHTS_SLOT, E_BUFFER_USAGE_TYPE::DYNAMIC, 1024, 16 },
+		};
+
+		E_RESULT_CODE result = RC_OK;
+
+		E_INTERNAL_SHADER_BUFFERS_REGISTERS currSlot = E_INTERNAL_SHADER_BUFFERS_REGISTERS::COUNT;
+		E_BUFFER_USAGE_TYPE usageType = E_BUFFER_USAGE_TYPE::DEFAULT;
+		USIZE bufferSize = 0;
+		USIZE strideSize = 0;
+
+		for (USIZE i = 0; i < allRegisters.size(); ++i)
+		{			
+			std::tie(currSlot, usageType, bufferSize, strideSize) = allRegisters[i];
+
+			auto createBufferResult = pGraphicsObjectManager->CreateBuffer(
+				{
+					usageType,
+					E_BUFFER_TYPE::STRUCTURED,
+					bufferSize,
+					nullptr,
+					bufferSize, 
+					false, 
+					strideSize, 
+					E_STRUCTURED_BUFFER_TYPE::DEFAULT
+				});
+
+			if (createBufferResult.HasError())
+			{
+				result = result | createBufferResult.GetError();
+				continue;
+			}
+
+			mInternalShaderBuffers[i] = createBufferResult.Get();
 		}
 
-		return 0;
+		return result;
 	}
 
 

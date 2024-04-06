@@ -543,8 +543,21 @@ namespace TDEngine2
 
 
 	constexpr U8 TotalNumberOfInternalConstantBuffers = static_cast<U8>(IUBR_LAST_USED_SLOT) + 1;
-
 	constexpr U8 MaxNumberOfUserConstantBuffers = 10;
+
+
+	/*!
+		enum class E_INTERNAL_SHADER_BUFFERS_REGISTERS
+
+		\brief The enumeration defines shader registers for typed buffers (structured (D3D) / SSBO (GL)) that
+		are globally available in all shaders
+	*/
+
+	enum class E_INTERNAL_SHADER_BUFFERS_REGISTERS : U8
+	{
+		LIGHTS_SLOT = 10,
+		COUNT
+	};
 
 
 	TDE2_DECLARE_HANDLE_TYPE(TEventListenerId);
