@@ -32,13 +32,10 @@ CBUFFER_SECTION_EX(TDEngine2PerFrame, 0)
 	float4   ShadowCascadesSplits;
 	float4x4 SunLightMat[MAX_SHADOW_CASCADES_COUNT]; 
 
-	int      ActivePointLightsCount; 
+	int      ActiveLightsCount; 
 	int      ShadowCascadesCount;
 	int      ShadowMapsEnabled;
-	int      ActiveSpotLightsCount; 
-
-	PointLightData PointLights[MAX_POINT_LIGHTS_COUNT];
-	SpotLightData  SpotLights[MAX_SPOT_LIGHTS_COUNT];
+	int      Unused;
 CBUFFER_ENDSECTION
 
 
@@ -58,9 +55,6 @@ CBUFFER_ENDSECTION
 CBUFFER_SECTION_EX(TDEngine2Constants, 3)
 	float4x4 mReserved;
 CBUFFER_ENDSECTION
-
-
-DECLARE_TYPED_BUFFER_EX(PointLightData, Lights, 10);
 
 
 #endif

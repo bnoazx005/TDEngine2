@@ -35,7 +35,20 @@ namespace TDEngine2
 		const GLenum glInternalBufferType = GetBufferType(type);
 
 		GL_SAFE_TRESULT_CALL(glBindBuffer(glInternalBufferType, bufferHandle));
+
+#if TDE2_DEBUG_MODE
+		if (!pData)
+		{
+			std::vector<U8> zeroInitializedSpace(size);
+			GL_SAFE_TRESULT_CALL(glBufferData(glInternalBufferType, size, zeroInitializedSpace.data(), COGLMappings::GetUsageType(usageType)));
+		}
+		else
+		{
+			GL_SAFE_TRESULT_CALL(glBufferData(glInternalBufferType, size, pData, COGLMappings::GetUsageType(usageType)));
+		}
+#else
 		GL_SAFE_TRESULT_CALL(glBufferData(glInternalBufferType, size, pData, COGLMappings::GetUsageType(usageType)));
+#endif
 		GL_SAFE_TRESULT_CALL(glBindBuffer(glInternalBufferType, 0));
 
 		return Wrench::TOkValue<GLuint>(bufferHandle);

@@ -10,6 +10,7 @@
 #include "../utils/Utils.h"
 #include "../utils/Types.h"
 #include "../core/IEngineSubsystem.h"
+#include <vector>
 
 
 namespace TDEngine2
@@ -21,9 +22,13 @@ namespace TDEngine2
 	class IResourceManager;
 	class ISelectionManager;
 	struct TLightingShaderData;
+	struct TLightData;
 	class IGlobalShaderProperties;
 	class IPostProcessingProfile;
 	class IWindowSystem;
+
+
+	typedef std::vector<TLightData> TLightsDataArray;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IGraphicsContext)
@@ -135,12 +140,13 @@ namespace TDEngine2
 			/*!
 				\brief The method stores given data that will be passed into the shaders to compute lighting and shadows
 
-				\param[in] lightingData A parameter that contains all information about light sources
+				\param[in] commonLightData An object contains common lighting data plus sun light's information
+				\param[in] activeLightSources The vector contains all active light sources including point/spot lights
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE SetLightingData(const TLightingShaderData& lightingData) = 0;
+			TDE2_API virtual E_RESULT_CODE SetLightingData(const TLightingShaderData& commonLightData, const TLightsDataArray& activeLightSources) = 0;
 
 			/*!
 				\brief The method returns a pointer to CRenderQueue which contains objects of specific group

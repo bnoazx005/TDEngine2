@@ -18,31 +18,30 @@ namespace TDEngine2
 #pragma pack(push, 16)
 
 
-	constexpr U32 MaxPointLightsCount = 8;
-	constexpr U32 MaxSpotLightsCount = 8;
+	constexpr USIZE MaxLightsCount = 1024;
 	constexpr U32 MaxShadowCascadesCount = 4;
 
 
-	typedef struct TPointLightData
+	enum class E_LIGHT_SOURCE_TYPE : I32
 	{
-		TVector4  mPosition;
-		TColor32F mColor;
-		F32       mRange;
-		F32       mIntensity;
-		F32       mUnused[2];
-		TMatrix4  mLightMatrix[6]; /// For each side of a cubemap
-	} TPointLightData, *TPointLightDataPtr;
+		POINT = 0,
+		SPOT = 1,
+	};
 
 
-	typedef struct TSpotLightData
+	typedef struct TLightData
 	{
 		TVector4  mPosition;
 		TVector4  mDirection;
 		TColor32F mColor;
-		F32       mAngle;
 		F32       mIntensity;
-		F32       mUnused[2];
-	} TSpotLightData, *TSpotLightDataPtr;
+		F32       mRange;
+		F32       mAngle;
+		F32       mUnused;
+		I32       mLightType = 0;
+		I32       mUnused2[3] { 0, 0, 0 };
+		TMatrix4  mLightMatrix[6]; /// For each side of a cubemap
+	} TLightData, *TLightDataPtr;
 
 
 	/*!
@@ -51,19 +50,16 @@ namespace TDEngine2
 
 	struct TLightingShaderData
 	{
-		TVector4        mSunLightDirection;
-		TVector4        mSunLightPosition;
-		TColor32F       mSunLightColor;
-		TVector4        mShadowCascadesSplits;
-		TMatrix4        mSunLightMatrix[MaxShadowCascadesCount];
+		TVector4  mSunLightDirection;
+		TVector4  mSunLightPosition;
+		TColor32F mSunLightColor;
+		TVector4  mShadowCascadesSplits;
+		TMatrix4  mSunLightMatrix[MaxShadowCascadesCount];
 
-		U32             mPointLightsCount;
-		U32             mShadowCascadesCount;
-		U32             mIsShadowMappingEnabled;
-		U32             mSpotLightsCount;
-
-		TPointLightData mPointLights[MaxPointLightsCount];
-		TSpotLightData  mSpotLights[MaxSpotLightsCount];
+		U32       mActiveLightSourcesCount;
+		U32       mShadowCascadesCount;
+		U32       mIsShadowMappingEnabled;
+		U32       mUnused;
 	};
 
 	/*!

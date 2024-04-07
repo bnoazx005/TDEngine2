@@ -247,7 +247,7 @@ float ComputeSunShadowFactorPCF(int samplesCount, int cascadeIndex, vec4 worldSp
 #endif
 
 
-float ComputePointLightShadowFactor(in PointLightData pointLight, float4 fragPos, float bias)
+float ComputePointLightShadowFactor(in LightSourceData pointLight, float4 fragPos, float bias)
 {	
 	float3 lightDir = (fragPos - pointLight.mPosition).xyz;
 	float closestDepth = pointLight.mRange * TEXCUBE(PointLightShadowMapTexture_0, lightDir).r;

@@ -33,8 +33,8 @@
 ///< Define macroes for buffers
 #ifdef TDE2_GLSL_SHADER
 	#define TYPED_BUFFER_ACCESS(BufferName) m##BufferName
-	#define DECLARE_TYPED_BUFFER(Type, BufferName) layout(std140) buffer BufferName { Type TYPED_BUFFER_ACCESS(BufferName)[]; }
-	#define DECLARE_TYPED_BUFFER_EX(Type, BufferName, slot) layout(std430, binding = slot) buffer BufferName { Type TYPED_BUFFER_ACCESS(BufferName)[]; }
+	#define DECLARE_TYPED_BUFFER(Type, BufferName) layout(std430) readonly buffer BufferName { Type TYPED_BUFFER_ACCESS(BufferName)[]; }
+	#define DECLARE_TYPED_BUFFER_EX(Type, BufferName, slot) layout(std430, binding = slot) readonly buffer BufferName { Type TYPED_BUFFER_ACCESS(BufferName)[]; }
 #endif
 
 #ifdef TDE2_HLSL_SHADER
@@ -111,6 +111,7 @@
 	#define float3 vec3
 	#define float4 vec4
 	#define uint4 uvec4
+	#define int3 ivec3
 
 	#define mul(a, b) (a * b)
 	#define frac fract

@@ -11,6 +11,7 @@
 #include "../core/CBaseObject.h"
 #include "IBuffer.h"
 #include <array>
+#include <unordered_map>
 
 
 namespace TDEngine2
@@ -87,8 +88,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _initializeUniformsBuffers(IGraphicsObjectManager* pGraphicsObjectManager, U8 numOfBuffers);
 			E_RESULT_CODE _initializeShaderBuffers(IGraphicsObjectManager* pGraphicsObjectManager);
 		private:
-			IGraphicsObjectManager*                                                                     mpGraphicsObjectManager = nullptr;
-			std::array<TBufferHandleId, TotalNumberOfInternalConstantBuffers>                           mInternalEngineUniforms{};
-			std::array<TBufferHandleId, static_cast<USIZE>(E_INTERNAL_SHADER_BUFFERS_REGISTERS::COUNT)> mInternalShaderBuffers{};
+			IGraphicsObjectManager*                                                  mpGraphicsObjectManager = nullptr;
+			std::array<TBufferHandleId, TotalNumberOfInternalConstantBuffers>        mInternalEngineUniforms{};
+			std::unordered_map<E_INTERNAL_SHADER_BUFFERS_REGISTERS, TBufferHandleId> mInternalShaderBuffers{};
 	};
 }

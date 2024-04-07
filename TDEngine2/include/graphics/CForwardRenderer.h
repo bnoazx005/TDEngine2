@@ -90,12 +90,13 @@ namespace TDEngine2
 			/*!
 				\brief The method stores given data that will be passed into the shaders to compute lighting and shadows
 
-				\param[in] lightingData A parameter that contains all information about light sources
+				\param[in] commonLightData An object contains common lighting data plus sun light's information
+				\param[in] activeLightSources The vector contains all active light sources including point/spot lights
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE SetLightingData(const TLightingShaderData& lightingData) override;
+			TDE2_API E_RESULT_CODE SetLightingData(const TLightingShaderData& commonLightData, const TLightsDataArray& activeLightSources) override;
 
 			/*!
 				\brief The method sets up a pointer to selection manager
@@ -163,7 +164,8 @@ namespace TDEngine2
 
 			ISelectionManager*            mpSelectionManager;
 
-			TLightingShaderData           mLightingData;
+			TLightingShaderData           mCommonLightingData;
+			TLightsDataArray              mActiveLightSources;
 
 			TPtr<CFrameGraph>             mpFrameGraph;
 	};

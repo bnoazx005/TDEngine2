@@ -412,24 +412,21 @@ namespace TDEngine2
 	}
 
 
-	static void ProcessPointLights(IGraphicsContext* pGraphicsContext, TLightingShaderData& lightingData, CLightingSystem::TPointLightsContext& pointLightsContext)
+	static void ProcessPointLights(IGraphicsContext* pGraphicsContext, TLightingShaderData& lightingData, std::vector<TLightData>& lightsData, 
+		CLightingSystem::TPointLightsContext& pointLightsContext)
 	{
 		TDE2_PROFILER_SCOPE("CLightingSystem::ProcessPointLights");
 
 		const auto& transforms = std::get<std::vector<CTransform*>>(pointLightsContext.mComponentsSlice);
 		const auto& lights = std::get<std::vector<CPointLight*>>(pointLightsContext.mComponentsSlice);
 
-		lightingData.mPointLightsCount = std::min<U32>(MaxPointLightsCount, static_cast<U32>(lights.size()));
-
-		auto& pointLights = lightingData.mPointLights;
-
 		for (USIZE i = 0; i < transforms.size(); ++i)
 		{
-			auto& currPointLight = pointLights[i];
-
 			CTransform* pLightTransform = transforms[i];
 			CPointLight* pLight = lights[i];
 
+			TLightData currPointLight;
+			currPointLight.mLightType = static_cast<I32>(E_LIGHT_SOURCE_TYPE::POINT);
 			currPointLight.mPosition = TVector4(pLightTransform->GetPosition(), 1.0f);
 			currPointLight.mColor = pLight->GetColor();
 			currPointLight.mIntensity = pLight->GetIntensity();
@@ -439,34 +436,39 @@ namespace TDEngine2
 			{
 				currPointLight.mLightMatrix[sideIndex] = ConstructPointLightMatrix(pGraphicsContext, pLight, pLightTransform->GetPosition(), sideIndex);
 			}
+
+			lightsData.emplace_back(currPointLight);
 		}
+
+		lightingData.mActiveLightSourcesCount = std::min<U32>(MaxLightsCount, static_cast<U32>(lightsData.size()));
 	}
 
 
-	static void ProcessSpotLights(IGraphicsContext* pGraphicsContext, TLightingShaderData& lightingData, CLightingSystem::TSpotLightsContext& SpotLightsContext)
+	static void ProcessSpotLights(IGraphicsContext* pGraphicsContext, TLightingShaderData& lightingData, std::vector<TLightData>& lightsData,
+		CLightingSystem::TSpotLightsContext& SpotLightsContext)
 	{
 		TDE2_PROFILER_SCOPE("CLightingSystem::ProcessSpotLights");
 
 		const auto& transforms = std::get<std::vector<CTransform*>>(SpotLightsContext.mComponentsSlice);
 		const auto& lights = std::get<std::vector<CSpotLight*>>(SpotLightsContext.mComponentsSlice);
 
-		lightingData.mSpotLightsCount = std::min<U32>(MaxSpotLightsCount, static_cast<U32>(lights.size()));
-
-		auto& spotLights = lightingData.mSpotLights;
-
 		for (USIZE i = 0; i < transforms.size(); ++i)
 		{
-			auto& currSpotLight = spotLights[i];
-
 			CTransform* pLightTransform = transforms[i];
 			CSpotLight* pLight = lights[i];
 
+			TLightData currSpotLight;
+			currSpotLight.mLightType = static_cast<I32>(E_LIGHT_SOURCE_TYPE::SPOT);
 			currSpotLight.mPosition = TVector4(pLightTransform->GetPosition(), 1.0f);
 			currSpotLight.mDirection = Normalize(TVector4(pLightTransform->GetForwardVector(), 0.0f));
 			currSpotLight.mColor = pLight->GetColor();
 			currSpotLight.mIntensity = pLight->GetIntensity();
 			currSpotLight.mAngle = pLight->GetAngle();
+
+			lightsData.emplace_back(currSpotLight);
 		}
+
+		lightingData.mActiveLightSourcesCount = std::min<U32>(MaxLightsCount, static_cast<U32>(lightsData.size()));
 	}
 
 
@@ -495,14 +497,15 @@ namespace TDEngine2
 		TDE2_ASSERT(mpRenderer);
 		
 		TLightingShaderData lightingData;
+		mActiveLightsData.clear();
 
 		ProcessDirectionalLights(mpGraphicsContext, GetCurrentActiveCamera(pWorld), lightingData, mDirectionalLightsContext);
-		ProcessPointLights(mpGraphicsContext, lightingData, mPointLightsContext);
-		ProcessSpotLights(mpGraphicsContext, lightingData, mSpotLightsContext);
+		ProcessPointLights(mpGraphicsContext, lightingData, mActiveLightsData, mPointLightsContext);
+		ProcessSpotLights(mpGraphicsContext, lightingData, mActiveLightsData, mSpotLightsContext);
 
 		if (mpRenderer)
 		{
-			PANIC_ON_FAILURE(mpRenderer->SetLightingData(lightingData));
+			PANIC_ON_FAILURE(mpRenderer->SetLightingData(lightingData, mActiveLightsData));
 		}
 
 		U32 drawIndex = 0;

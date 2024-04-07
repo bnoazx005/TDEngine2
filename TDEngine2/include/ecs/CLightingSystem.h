@@ -10,7 +10,7 @@
 #include "CBaseSystem.h"
 #include "../math/TMatrix4.h"
 #include "../ecs/IWorld.h"
-#include <vector>
+#include "../graphics/InternalShaderData.h"
 
 
 namespace TDEngine2
@@ -128,5 +128,7 @@ namespace TDEngine2
 			TResourceId                  mShadowPassSkinnedMaterialHandle;
 
 			CRenderQueue*                mpShadowPassRenderQueue;
+
+			std::vector<TLightData>      mActiveLightsData;
 	};
 }

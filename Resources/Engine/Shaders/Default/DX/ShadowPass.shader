@@ -70,7 +70,7 @@ void mainGS(triangle VertexOutput gin[3], inout TriangleStream<GeometryOutput> t
 		[unroll]
 		for (int i = 0; i < 3; i++)
 		{
-			output.mPos = mul(PointLights[mPointLightIndex].mLightMats[faceIndex], gin[i].mPos);
+			output.mPos = mul(Lights[mPointLightIndex].mLightMats[faceIndex], gin[i].mPos);
 			output.mLPos = gin[i].mPos;
 			triStream.Append(output);
 		}
@@ -91,6 +91,6 @@ void mainPS(GeometryOutput input, out float depth : SV_Depth)
 		return;
 	}
 
-	depth = length(input.mLPos.xyz - PointLights[mPointLightIndex].mPosition.xyz) / PointLights[mPointLightIndex].mRange;
+	depth = length(input.mLPos.xyz - Lights[mPointLightIndex].mPosition.xyz) / Lights[mPointLightIndex].mRange;
 }
 #endprogram

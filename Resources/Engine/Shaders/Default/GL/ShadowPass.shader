@@ -59,7 +59,7 @@ void main()
 
 		for (int i = 0; i < 3; i++)
 		{
-			gl_Position = mul(PointLights[mPointLightIndex].mLightMats[faceIndex], gl_in[i].gl_Position);
+			gl_Position = mul(mLights[mPointLightIndex].mLightMats[faceIndex], gl_in[i].gl_Position);
 			FragPos = gl_in[i].gl_Position;
 
 			EmitVertex();
@@ -83,7 +83,7 @@ void main(void)
 		return;
 	}
 
-	gl_FragDepth = length(FragPos.xyz - PointLights[mPointLightIndex].mPosition.xyz) / PointLights[mPointLightIndex].mRange;
+	gl_FragDepth = length(FragPos.xyz - mLights[mPointLightIndex].mPosition.xyz) / mLights[mPointLightIndex].mRange;
 }
 
 #endprogram

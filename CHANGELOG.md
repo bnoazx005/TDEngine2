@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.26] 2024-04-06
+## [0.6.26] 2024-04-07
 
 ### Added
 
@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **IFramePostProcessor** and its derived type were hidden within CForwardRenderer.cpp translation unit.
 
 - Provide support of compute shaders caching via **tde2_shaders_compiler** utility.
+
+- Lights information storage moved from PerFrame constant buffer into separate shader typed buffer **Lights**.
 
 ### Fixed
 

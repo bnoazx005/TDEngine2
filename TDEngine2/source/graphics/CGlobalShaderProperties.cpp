@@ -80,7 +80,38 @@ namespace TDEngine2
 
 	E_RESULT_CODE CGlobalShaderProperties::SetInternalShaderBuffer(E_INTERNAL_SHADER_BUFFERS_REGISTERS slot, const U8* pData, U32 dataSize)
 	{
-		return RC_NOT_IMPLEMENTED_YET;
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		auto pCurrTypedBuffer = mpGraphicsObjectManager->GetBufferPtr(mInternalShaderBuffers[slot]);
+		if (!pCurrTypedBuffer)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = pCurrTypedBuffer->Map(BMT_WRITE_DISCARD);
+
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		if ((result = pCurrTypedBuffer->Write(pData, dataSize)) != RC_OK)
+		{
+			return result;
+		}
+
+		pCurrTypedBuffer->Unmap();
+
+		auto pGraphicsContext = mpGraphicsObjectManager->GetGraphicsContext();
+		if (!pGraphicsContext)
+		{
+			return RC_FAIL;
+		}
+
+		return pGraphicsContext->SetStructuredBuffer(static_cast<U32>(slot), mInternalShaderBuffers[slot]);
 	}
 
 
@@ -149,7 +180,7 @@ namespace TDEngine2
 
 		static const std::vector<std::tuple<E_INTERNAL_SHADER_BUFFERS_REGISTERS, E_BUFFER_USAGE_TYPE, USIZE, USIZE>> allRegisters
 		{
-			{ E_INTERNAL_SHADER_BUFFERS_REGISTERS::LIGHTS_SLOT, E_BUFFER_USAGE_TYPE::DYNAMIC, 1024, 16 },
+			{ E_INTERNAL_SHADER_BUFFERS_REGISTERS::LIGHTS_SLOT, E_BUFFER_USAGE_TYPE::DYNAMIC, MaxLightsCount * sizeof(TLightData), sizeof(TLightData) },
 		};
 
 		E_RESULT_CODE result = RC_OK;
@@ -181,7 +212,7 @@ namespace TDEngine2
 				continue;
 			}
 
-			mInternalShaderBuffers[i] = createBufferResult.Get();
+			mInternalShaderBuffers.emplace(currSlot, createBufferResult.Get());
 		}
 
 		return result;

@@ -86,21 +86,7 @@ float4 mainPS(VertexOut input): SV_TARGET0
 
 	float4 sunLight = CalcSunLightContribution(CreateSunLight(SunLightPosition, SunLightDirection, float4(1.0, 1.0, 1.0, 1.0)), lightingData);
 
-	float4 pointLightsContribution = float4(0.0, 0.0, 0.0, 0.0);
-
-	for (int i = 0; i < ActivePointLightsCount; ++i)
-	{
-		pointLightsContribution += CalcPointLightContribution(PointLights[i], lightingData) * (1.0 - ComputePointLightShadowFactor(PointLights[i], input.mWorldPos, 0.1));
-	}
-
-	float4 spotLightsContribution = float4(0.0, 0.0, 0.0, 0.0);
-
-	for (int i = 0; i < ActiveSpotLightsCount; ++i)
-	{
-		spotLightsContribution += CalcSpotLightContribution(SpotLights[i], lightingData);
-	}
-
-	return (sunLight * (1.0 - ComputeSunShadowFactorPCF(8, GetSunShadowCascadeIndex(input.mViewWorldPos), input.mWorldPos, 0.0001, 1000.0)) + pointLightsContribution + spotLightsContribution) * input.mColor;
+	return ((sunLight + CalcLightsContribution(lightingData, ActiveLightsCount)) * (1.0 - ComputeSunShadowFactorPCF(8, GetSunShadowCascadeIndex(input.mViewWorldPos), input.mWorldPos, 0.0001, 1000.0))) * input.mColor;
 }
 
 #endprogram

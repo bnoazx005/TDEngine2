@@ -13,47 +13,37 @@
 #define MAX_SHADOW_CASCADES_COUNT 4
 
 
-struct PointLightData
+#define POINT_LIGHT_TYPE 0
+#define SPOT_LIGHT_TYPE 1
+
+
+struct LightSourceData
 {
 	float4   mPosition;
+	float4   mDirection;
 	float4   mColor;
-	float    mRange;
 	float    mIntensity;
-	float2   mUnused;
+	float    mRange;
+	float    mAngle;
+	float    mUnused;
+    int      mType;
+
+#if TDE2_HLSL_SHADER
+    int3     mUnused2;
+#endif
+
 	float4x4 mLightMats[6];
 };
 
 
-PointLightData CreatePointLight(float4 pos, float4 color, float range, float intensity)
+DECLARE_TYPED_BUFFER_EX(LightSourceData, Lights, 10);
+
+
+float GetLightAttenuation(in LightSourceData light, in float4 pos)
 {
-	PointLightData newPointLight;
-
-	newPointLight.mPosition = pos;
-	newPointLight.mColor = color;
-	newPointLight.mRange = range;
-	newPointLight.mIntensity = intensity;
-
-	return newPointLight;
+	float distance = length(light.mPosition - pos);
+	return 1.0 / (distance * distance + 0.00001);
 }
-
-
-float PointLightGetAttenuation(in PointLightData pointLight, in float4 pos)
-{
-	float distance = length(pointLight.mPosition - pos);
-
-	return 1.0 / (distance * distance + 0.00001); //* min(1, max(distance - pointLight.mMaxRange, 0.0));
-}
-
-
-struct SpotLightData
-{
-	float4 mPosition;
-	float4 mDirection;
-	float4 mColor;
-	float  mAngle;
-	float  mIntensity;
-	float2 mUnused;
-};
 
 
 struct SunLightData
@@ -178,17 +168,17 @@ float3 CalcCookTorranceBRDF(float3 lightDir, in LightingData lightingData)
 }
 
 
-float4 CalcPointLightContribution(in PointLightData pointLight, in LightingData lightingData)
+float4 CalcPointLightContribution(in LightSourceData pointLight, in LightingData lightingData)
 {
 	float3 lightDir = normalize(pointLight.mPosition - lightingData.mPosition).xyz;
 
-	float3 radiance = pointLight.mColor.rgb * PointLightGetAttenuation(pointLight, lightingData.mPosition);
+	float3 radiance = pointLight.mColor.rgb * GetLightAttenuation(pointLight, lightingData.mPosition);
 
 	return float4(CalcCookTorranceBRDF(lightDir, lightingData) * radiance, pointLight.mColor.a);
 }
 
 
-float4 CalcSpotLightContribution(in SpotLightData spotLight, in LightingData lightingData)
+float4 CalcSpotLightContribution(in LightSourceData spotLight, in LightingData lightingData)
 {
 	float3 lightDir = normalize(spotLight.mPosition - lightingData.mPosition).xyz;
 
@@ -214,6 +204,30 @@ float4 CalcSpotLightContribution(in SpotLightData spotLight, in LightingData lig
 float4 CalcSunLightContribution(in SunLightData sunLight, in LightingData lightingData)
 {
 	return float4(CalcCookTorranceBRDF(normalize(sunLight.mDirection).xyz, lightingData) /* * sunLight.mColor.rgb*/, sunLight.mColor.a);
+}
+
+
+float ComputePointLightShadowFactor(in LightSourceData pointLight, float4 fragPos, float bias);
+
+
+float4 CalcLightsContribution(in LightingData lightingData, int activeLightsCount)
+{
+	float4 lightContribution = float4(0.0, 0.0, 0.0, 0.0);
+
+	for (int i = 0; i < activeLightsCount; ++i)
+	{
+		switch (TYPED_BUFFER_ACCESS(Lights)[i].mType)
+		{
+			case POINT_LIGHT_TYPE:
+				lightContribution += CalcPointLightContribution(TYPED_BUFFER_ACCESS(Lights)[i], lightingData) * (1.0 - ComputePointLightShadowFactor(TYPED_BUFFER_ACCESS(Lights)[i], lightingData.mPosition, 0.1));
+				break;
+			case SPOT_LIGHT_TYPE:
+				lightContribution += CalcSpotLightContribution(TYPED_BUFFER_ACCESS(Lights)[i], lightingData);
+				break;
+		}
+	}
+
+	return lightContribution;
 }
 
 	

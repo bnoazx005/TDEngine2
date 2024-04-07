@@ -1350,9 +1350,9 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CForwardRenderer::SetLightingData(const TLightingShaderData& lightingData)
+	E_RESULT_CODE CForwardRenderer::SetLightingData(const TLightingShaderData& commonLightData, const TLightsDataArray& activeLightSources)
 	{
-		if (Length(lightingData.mSunLightDirection) < 1e-3f)
+		if (Length(commonLightData.mSunLightDirection) < 1e-3f)
 		{
 			LOG_ERROR("[ForwardRenderer] Sun light's direction could not be a zero vector");
 			TDE2_ASSERT(false);
@@ -1360,7 +1360,9 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mLightingData = lightingData;
+		mCommonLightingData = commonLightData;
+		mActiveLightSources = activeLightSources;
+
 		return RC_OK;
 	}
 	
@@ -1392,7 +1394,7 @@ namespace TDEngine2
 		///set up global shader properties for TPerFrameShaderData buffer
 		TPerFrameShaderData perFrameShaderData;
 
-		perFrameShaderData.mLightingData = mLightingData;
+		perFrameShaderData.mLightingData = mCommonLightingData;
 		
 		if (mpMainCamera)
 		{
@@ -1407,6 +1409,10 @@ namespace TDEngine2
 		perFrameShaderData.mTime = TVector4(currTime, deltaTime, 0.0f, 0.0f);
 
 		mpGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_FRAME, reinterpret_cast<const U8*>(&perFrameShaderData), sizeof(perFrameShaderData));
+		mpGlobalShaderProperties->SetInternalShaderBuffer(
+			E_INTERNAL_SHADER_BUFFERS_REGISTERS::LIGHTS_SLOT,
+			reinterpret_cast<const U8*>(mActiveLightSources.data()), 
+			static_cast<U32>(mActiveLightSources.size() * sizeof(TLightData)));
 
 		mpGraphicsContext->ClearBackBuffer(TColor32F(0.0f, 0.0f, 0.5f, 1.0f));
 		mpGraphicsContext->ClearDepthBuffer(1.0f);
