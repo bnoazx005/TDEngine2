@@ -95,7 +95,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CBaseEngineCoreBuilder::_configureGraphicsContext(const std::string& rendererPluginPath)
+	E_RESULT_CODE CBaseEngineCoreBuilder::_configureGraphicsContext(const std::string& graphicsPluginPath)
 	{
 		TDE2_PROFILER_SCOPE("ConfigureGraphicsContext");
 
@@ -106,7 +106,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		if (rendererPluginPath.empty())
+		if (graphicsPluginPath.empty())
 		{
 			mpGraphicsContextInstance = CreateProxyGraphicsContext(mpWindowSystemInstance, result);
 			if (RC_OK != result)
@@ -118,8 +118,8 @@ namespace TDEngine2
 			return result;
 		}
 
-		auto&& renderPluginFromCLI = CProgramOptions::Get()->GetValueOrDefault("graphics", rendererPluginPath);
-		result = mpPluginManagerInstance->LoadPlugin(renderPluginFromCLI.empty() ? rendererPluginPath : renderPluginFromCLI);
+		auto&& renderPluginFromCLI = CProgramOptions::Get()->GetValueOrDefault("graphics", graphicsPluginPath);
+		result = mpPluginManagerInstance->LoadPlugin(renderPluginFromCLI.empty() ? graphicsPluginPath : renderPluginFromCLI);
 
 		mpGraphicsContextInstance = mpEngineCoreInstance->GetSubsystem<IGraphicsContext>();
 
@@ -797,7 +797,7 @@ namespace TDEngine2
 			(CGameUserSettings::Get()->mpFullscreenCVar->Get() ? P_FULLSCREEN : 0x0) | CProjectSettings::Get()->mCommonSettings.mFlags));
 
 		PANIC_ON_FAILURE(_configurePluginManager());
-		PANIC_ON_FAILURE(_configureGraphicsContext(isWindowModeEnabled ? CProjectSettings::Get()->mGraphicsSettings.mRendererPluginFilePath : Wrench::StringUtils::GetEmptyStr()));
+		PANIC_ON_FAILURE(_configureGraphicsContext(isWindowModeEnabled ? CProjectSettings::Get()->mGraphicsSettings.mGraphicsPluginFilePath : Wrench::StringUtils::GetEmptyStr()));
 
 		PANIC_ON_FAILURE(MountGraphicsDirectories(mpFileSystemInstance, mpGraphicsContextInstance->GetContextInfo().mGapiType));
 

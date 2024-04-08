@@ -15,7 +15,7 @@ common_settings:
   base_resources_path: ../../Resources/
 
 graphics_settings:
-  renderer_plugin: ./D3D11GraphicsContext
+  graphics_plugin: ./D3D11GraphicsContext
   renderer_settings:
     shadow_maps_size: 1024
     shadow_maps_enabled: true

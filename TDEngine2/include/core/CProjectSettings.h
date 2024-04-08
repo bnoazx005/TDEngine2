@@ -73,9 +73,9 @@ namespace TDEngine2
 			struct
 			{
 #if defined(TDE2_USE_UNIXPLATFORM)
-				std::string mRendererPluginFilePath = "GLGraphicsContext";
+				std::string mGraphicsPluginFilePath = "GLGraphicsContext";
 #else
-				std::string mRendererPluginFilePath = "D3D11GraphicsContext";
+				std::string mGraphicsPluginFilePath = "D3D11GraphicsContext";
 #endif
 
 				std::string mDefaultSkyboxMaterial = "DefaultResources/Materials/DefaultSkybox.material";

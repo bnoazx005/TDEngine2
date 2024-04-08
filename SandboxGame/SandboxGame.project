@@ -15,9 +15,10 @@ common_settings:
   user_plugins_list:
     - id: ./TDE2LevelStreamingUtils
     - id: ./TDE2BulletPhysics
+    - id: ./TDE2VideoPlayers
 
 graphics_settings:
-  renderer_plugin: ./D3D11GraphicsContext
+  graphics_plugin: ./D3D11GraphicsContext
   
 quality_presets:
   LOW:
@@ -47,3 +48,4 @@ localization_settings:
         package_path: ffffff
 
   current_locale: ru
+  

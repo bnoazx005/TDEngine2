@@ -63,7 +63,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE _configureGraphicsContext(const std::string& rendererPluginPath) override;
+			TDE2_API E_RESULT_CODE _configureGraphicsContext(const std::string& graphicsPluginPath) override;
 
 			/*!
 				\brief The method configures an audio context based on type of middleware API

@@ -46,6 +46,7 @@ namespace TDEngine2
 		struct TGraphicsSettingsKeys
 		{
 			static const std::string mGraphicsTypeKey;
+			static const std::string mRendererTypeKey;
 			static const std::string mRendererSettingsGroupKey;
 			static const std::string mDefaultSkyboxMaterialKey;
 			static const std::string mIsShaderCachingEnabledKey;
@@ -122,7 +123,8 @@ namespace TDEngine2
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::TFilepathAliasArchiveKeys::mPathKey = "path";
 	const std::string TProjectSettingsArchiveKeys::TCommonSettingsKeys::TPluginArchiveKeys::mId = "id";
 
-	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mGraphicsTypeKey = "renderer_plugin";
+	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mGraphicsTypeKey = "graphics_plugin";
+	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mRendererTypeKey = "renderer_plugin";
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mDefaultSkyboxMaterialKey = "default_skybox_mat_id";
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mIsShaderCachingEnabledKey = "shader_caching_enabled";
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mVolumetricCloudsMainShaderKey = "volumetric_clouds_main_shader_id";
@@ -227,7 +229,7 @@ namespace TDEngine2
 
 		result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::mGraphicsSettingsGroupId);
 		{
-			graphicsSettings.mRendererPluginFilePath = pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mGraphicsTypeKey, graphicsSettings.mRendererPluginFilePath);
+			graphicsSettings.mGraphicsPluginFilePath = pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mGraphicsTypeKey, graphicsSettings.mGraphicsPluginFilePath);
 
 			const auto& skyboxMaterialId = pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mDefaultSkyboxMaterialKey);
 			if (!skyboxMaterialId.empty())
