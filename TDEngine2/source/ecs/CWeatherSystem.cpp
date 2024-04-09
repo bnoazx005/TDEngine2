@@ -44,7 +44,7 @@ namespace TDEngine2
 
 		// \note Generate low frequency clouds noise
 		LOG_MESSAGE("[GenerateCloudsNoiseTexture] Start generate low frequency clouds noise 3D texture...");
-		auto pLowFreqCloudsNoiseGenerationShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>("Shaders/Default/GenerateLowFreqCloudsNoise.cshader"));
+		auto pLowFreqCloudsNoiseGenerationShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>("Shaders/Default/Volumetrics/GenerateLowFreqCloudsNoise.cshader"));
 		pLowFreqCloudsNoiseGenerationShader->SetTextureResource("noiseTexture", pResourceManager->GetResource<ITexture>(lowFreqCloudsNoiseTexHandle).Get());
 		pLowFreqCloudsNoiseGenerationShader->Bind();
 
@@ -55,7 +55,7 @@ namespace TDEngine2
 		// \note Generate high frequency clouds noise
 		LOG_MESSAGE("[GenerateCloudsNoiseTexture] Start generate high frequency clouds noise 3D texture...");
 
-		auto pHighFreqCloudsNoiseGenerationShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>("Shaders/Default/GenerateHiFreqCloudsNoise.cshader"));
+		auto pHighFreqCloudsNoiseGenerationShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>("Shaders/Default/Volumetrics/GenerateHiFreqCloudsNoise.cshader"));
 		pHighFreqCloudsNoiseGenerationShader->SetTextureResource("noiseTexture", pResourceManager->GetResource<ITexture>(highFreqCloudsNoiseTexHandle).Get());
 		pHighFreqCloudsNoiseGenerationShader->Bind();
 

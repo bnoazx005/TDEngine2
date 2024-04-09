@@ -356,9 +356,9 @@ namespace TDEngine2
 		mGenerateLuminanceMaterialHandle = mpResourceManager->Create<IMaterial>("GenerateLuminance.material", TMaterialParameters{ "Shaders/PostEffects/GenerateLuminance.shader", false, TDepthStencilStateDesc { false, false } });
 		mLuminanceAdaptationMaterialHandle = mpResourceManager->Create<IMaterial>("AdaptLuminance.material", TMaterialParameters{ "Shaders/PostEffects/AdaptLuminance.shader", false, TDepthStencilStateDesc { false, false } });
 
-		mVolumetricCloudsComputeShaderHandle = mpResourceManager->Load<IShader>("Shaders/Default/VolumetricClouds.cshader");
-		mVolumetricCloudsUpsampleBlurShaderHandle = mpResourceManager->Load<IShader>("Shaders/Default/VolumetricCloudsBlur.cshader");
-		mVolumetricCloudsComposeMaterialHandle = mpResourceManager->Create<IMaterial>("VolumetricCloudsCompose.material", TMaterialParameters{ "Shaders/Default/VolumetricCloudsCompose.shader", false, TDepthStencilStateDesc { false, false } });
+		mVolumetricCloudsComputeShaderHandle = mpResourceManager->Load<IShader>("Shaders/Default/Volumetrics/VolumetricClouds.cshader");
+		mVolumetricCloudsUpsampleBlurShaderHandle = mpResourceManager->Load<IShader>("Shaders/Default/Volumetrics/VolumetricCloudsBlur.cshader");
+		mVolumetricCloudsComposeMaterialHandle = mpResourceManager->Create<IMaterial>("VolumetricCloudsCompose.material", TMaterialParameters{ "Shaders/Default/Volumetrics/VolumetricCloudsCompose.shader", false, TDepthStencilStateDesc { false, false } });
 
 		if (auto vertexFormatResult = desc.mpGraphicsObjectManager->CreateVertexDeclaration())
 		{

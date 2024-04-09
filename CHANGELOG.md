@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Now render hardware interface is set up through 'graphics_plugin' field instead of 'renderer_plugin'. 'renderer_plugin' now is reserved for using with renderers plugins.
 
+- The shaders that are related with volumetric clouds were moved into Volumetrics/ subdirectory.
+
 ### Fixed
 
 ## [0.6.26] 2024-04-07
