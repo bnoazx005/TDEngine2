@@ -412,6 +412,16 @@ namespace TDEngine2
 				imguiContext.EndHorizontal();
 			}
 
+			/// \note range
+			{
+				F32 range = spotLight.GetRange();
+
+				imguiContext.BeginHorizontal();
+				imguiContext.Label("Range: ");
+				imguiContext.FloatField("##Range", range, [&spotLight, &range] { spotLight.SetRange(range); });
+				imguiContext.EndHorizontal();
+			}
+
 			/// \note intensity
 			{
 				F32 intensity = spotLight.GetIntensity();

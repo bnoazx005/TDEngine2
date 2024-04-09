@@ -154,6 +154,7 @@ namespace TDEngine2
 	typedef struct TSpotLightParameters : public TBaseLightParameters
 	{
 		F32 mAngle = 0.0f;
+		F32 mRange = 1.0f;
 	} TSpotLightParameters;
 
 
@@ -179,6 +180,23 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual F32 GetAngle() const = 0;
+
+			/*!
+				\brief The method specifies radius of the point light
+
+				\param[in] range A maximum distance at which the light affects to objects
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE SetRange(F32 range) = 0;
+
+			/*!
+				\brief The method returns a radius of the point light
+				\return The method returns a radius of the point light
+			*/
+
+			TDE2_API virtual F32 GetRange() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISpotLight)
 	};

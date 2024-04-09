@@ -19,6 +19,7 @@ namespace TDEngine2
 		}
 
 		mConeAngle = pReader->GetFloat("angle");
+		mRange = pReader->GetFloat("range");
 
 		return RC_OK;
 	}
@@ -34,6 +35,7 @@ namespace TDEngine2
 		{
 			pWriter->SetUInt32("type_id", static_cast<U32>(CSpotLight::GetTypeId()));
 			pWriter->SetFloat("angle", mConeAngle);
+			pWriter->SetFloat("range", mRange);
 		}
 		pWriter->EndGroup();
 
@@ -47,6 +49,7 @@ namespace TDEngine2
 			pComponent->mColor = mColor;
 			pComponent->mIntensity = mIntensity;
 			pComponent->mConeAngle = mConeAngle;
+			pComponent->mRange = mRange;
 
 			return RC_OK;
 		}
@@ -63,6 +66,23 @@ namespace TDEngine2
 	F32 CSpotLight::GetAngle() const
 	{
 		return mConeAngle;
+	}
+
+	E_RESULT_CODE CSpotLight::SetRange(F32 range)
+	{
+		if (range < 0.0f)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mRange = range;
+
+		return RC_OK;
+	}
+
+	F32 CSpotLight::GetRange() const
+	{
+		return mRange;
 	}
 
 
@@ -97,6 +117,7 @@ namespace TDEngine2
 		pComponent->SetColor(params.mColor);
 		pComponent->SetIntensity(params.mIntensity);
 		pComponent->SetAngle(params.mAngle);
+		pComponent->SetRange(params.mRange);
 
 		return RC_OK;
 	}

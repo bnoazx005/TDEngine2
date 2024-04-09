@@ -79,10 +79,28 @@ namespace TDEngine2
 			*/
 
 			TDE2_API F32 GetAngle() const override;
+
+			/*!
+				\brief The method specifies radius of the point light
+
+				\param[in] range A maximum distance at which the light affects to objects
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE SetRange(F32 range) override;
+
+			/*!
+				\brief The method returns a radius of the point light
+				\return The method returns a radius of the point light
+			*/
+
+			TDE2_API F32 GetRange() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSpotLight)
 		protected:
 			F32 mConeAngle = 0.0f;
+			F32 mRange = 1.0f;
 	};
 
 

@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.27] 2024-04-08
+## [0.6.27] 2024-04-09
 
 ### Added
+
+- Extend API of **ISpotLight** with new public methods SetRange/GetRange.
 
 ### Changed
 

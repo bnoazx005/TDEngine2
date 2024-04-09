@@ -464,6 +464,7 @@ namespace TDEngine2
 			currSpotLight.mColor = pLight->GetColor();
 			currSpotLight.mIntensity = pLight->GetIntensity();
 			currSpotLight.mAngle = pLight->GetAngle();
+			currSpotLight.mRange = pLight->GetRange();
 
 			lightsData.emplace_back(currSpotLight);
 		}
