@@ -35,12 +35,18 @@
 	#define TYPED_BUFFER_ACCESS(BufferName) m##BufferName
 	#define DECLARE_TYPED_BUFFER(Type, BufferName) layout(std430) readonly buffer BufferName { Type TYPED_BUFFER_ACCESS(BufferName)[]; }
 	#define DECLARE_TYPED_BUFFER_EX(Type, BufferName, slot) layout(std430, binding = slot) readonly buffer BufferName { Type TYPED_BUFFER_ACCESS(BufferName)[]; }
+
+	#define DECLARE_WRITEABLE_TYPED_BUFFER(Type, BufferName) DECLARE_TYPED_BUFFER(Type, BufferName)
+	#define DECLARE_WRITEABLE_TYPED_BUFFER_EX(Type, BufferName, slot) DECLARE_WRITEABLE_TYPED_BUFFER_EX(Type, BufferName, slot)
 #endif
 
 #ifdef TDE2_HLSL_SHADER
 	#define TYPED_BUFFER_ACCESS(BufferName) BufferName
 	#define DECLARE_TYPED_BUFFER(Type, BufferName) StructuredBuffer<Type> BufferName
 	#define DECLARE_TYPED_BUFFER_EX(Type, BufferName, slot) StructuredBuffer<Type> BufferName: register(t#slot)
+
+	#define DECLARE_WRITEABLE_TYPED_BUFFER(Type, BufferName) RWStructuredBuffer<Type> BufferName
+	#define DECLARE_WRITEABLE_TYPED_BUFFER_EX(Type, BufferName, slot) RWStructuredBuffer<Type> BufferName: register(u#slot)
 #endif
 
 

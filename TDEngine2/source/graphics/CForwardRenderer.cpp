@@ -17,6 +17,7 @@
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IWindowSystem.h"
+#include "../../include/core/IEventManager.h"
 #include "../../include/core/CGameUserSettings.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/editor/CPerfProfiler.h"
@@ -947,7 +948,13 @@ namespace TDEngine2
 		mpGraphicsContext    = params.mpGraphicsContext;
 		mpResourceManager    = params.mpResourceManager;
 		mpWindowSystem       = params.mpWindowSystem;
-		
+
+		auto pEventManager = mpWindowSystem->GetEventManager();
+		if (pEventManager)
+		{
+			pEventManager->Subscribe(TOnWindowResized::GetTypeId(), this);
+		}
+
 		E_RESULT_CODE result = RC_OK;
 
 		mpFrameGraph = CreateFrameGraph(result);
@@ -1364,6 +1371,23 @@ namespace TDEngine2
 		mActiveLightSources = activeLightSources;
 
 		return RC_OK;
+	}
+
+	E_RESULT_CODE CForwardRenderer::OnEvent(const TBaseEvent* pEvent)
+	{
+		if (pEvent->GetEventType() != TOnWindowResized::GetTypeId())
+		{
+			return RC_OK;
+		}
+
+
+
+		return RC_OK;
+	}
+
+	TEventListenerId CForwardRenderer::GetListenerId() const
+	{
+		return static_cast<TEventListenerId>(EST_RENDERER);
 	}
 	
 	E_ENGINE_SUBSYSTEM_TYPE CForwardRenderer::GetType() const

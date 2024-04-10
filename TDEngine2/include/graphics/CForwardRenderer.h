@@ -10,6 +10,7 @@
 #include "../utils/Utils.h"
 #include "../utils/Types.h"
 #include "../core/CBaseObject.h"
+#include "../core/Event.h"
 #include "IRenderer.h"
 #include "InternalShaderData.h"
 
@@ -45,7 +46,7 @@ namespace TDEngine2
 		\brief The interface represents a functionality of a renderer
 	*/
 
-	class CForwardRenderer : public IRenderer, public CBaseObject
+	class CForwardRenderer : public IRenderer, public CBaseObject, public IEventHandler
 	{
 		public:
 			friend TDE2_API IRenderer* CreateForwardRenderer(const TRendererInitParams&, E_RESULT_CODE&);
@@ -107,6 +108,24 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE SetSelectionManager(ISelectionManager* pSelectionManager) override;
+			
+			/*!
+				\brief The method receives a given event and processes it
+
+				\param[in] pEvent A pointer to event data
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE OnEvent(const TBaseEvent* pEvent) override;
+
+			/*!
+				\brief The method returns an identifier of a listener
+
+				\return The method returns an identifier of a listener
+			*/
+
+			TDE2_API TEventListenerId GetListenerId() const override;
 
 			/*!
 				\brief The method returns a type of the subsystem
