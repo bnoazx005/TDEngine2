@@ -812,7 +812,7 @@ namespace TDEngine2
 
 		if (drawImmediately)
 		{
-			pDrawCommand->Submit(mpGraphicsContext, mpResourceManager.Get(), mpGlobalShaderProperties);
+			pDrawCommand->Submit({ mpGraphicsContext, mpResourceManager.Get(), mpGlobalShaderProperties });
 		}
 	}
 
@@ -1033,6 +1033,8 @@ namespace TDEngine2
 
 		TRenderCommand* pCurrDrawCommand = nullptr;
 
+		const TRenderCommandSubmitParams drawContext { pGraphicsContext.Get(), pResourceManager.Get(), pGlobalShaderProperties.Get() };
+
 		while (iter.HasNext())
 		{
 			pCurrDrawCommand = *(iter++);
@@ -1047,7 +1049,7 @@ namespace TDEngine2
 				break;
 			}
 
-			pCurrDrawCommand->Submit(pGraphicsContext.Get(), pResourceManager.Get(), pGlobalShaderProperties.Get());
+			pCurrDrawCommand->Submit(drawContext);
 		}
 	}
 
@@ -1260,7 +1262,7 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
-		
+				
 		{
 			TDE2_BUILTIN_SPEC_PROFILER_EVENT(E_SPECIAL_PROFILE_EVENT::RENDER);
 			TDE2_STATS_COUNTER_SET(mDrawCallsCount, 0);

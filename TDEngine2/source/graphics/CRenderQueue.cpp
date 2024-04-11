@@ -19,7 +19,7 @@ namespace TDEngine2
 	static const std::string InvalidMaterialMessage = "{0} Invalid material was passed into the render command";
 
 
-	E_RESULT_CODE TDrawCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
+	E_RESULT_CODE TDrawCommand::Submit(const TRenderCommandSubmitParams& params)
 	{
 		if (TResourceId::Invalid == mMaterialHandle)
 		{
@@ -28,6 +28,10 @@ namespace TDEngine2
 		}
 
 		TDE2_STATS_COUNTER_INCREMENT(mDrawCallsCount);
+
+		IGraphicsContext* pGraphicsContext = params.mpGraphicsContext;
+		IResourceManager* pResourceManager = params.mpResourceManager;
+		IGlobalShaderProperties* pGlobalShaderProperties = params.mpGlobalShaderProperties;
 
 		auto pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
 
@@ -54,13 +58,17 @@ namespace TDEngine2
 	}
 
 
-	E_RESULT_CODE TDrawIndexedCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
+	E_RESULT_CODE TDrawIndexedCommand::Submit(const TRenderCommandSubmitParams& params)
 	{
 		if (TResourceId::Invalid == mMaterialHandle)
 		{
 			LOG_ERROR(Wrench::StringUtils::Format(InvalidMaterialMessage, "[TDrawIndexedCommand]"));
 			return RC_INVALID_ARGS;
 		}
+
+		IGraphicsContext* pGraphicsContext = params.mpGraphicsContext;
+		IResourceManager* pResourceManager = params.mpResourceManager;
+		IGlobalShaderProperties* pGlobalShaderProperties = params.mpGlobalShaderProperties;
 
 		auto pMaterial = pResourceManager->GetResource<IMaterial>(mMaterialHandle);
 		if (!pMaterial)
@@ -99,13 +107,13 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE TDrawInstancedCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
+	E_RESULT_CODE TDrawInstancedCommand::Submit(const TRenderCommandSubmitParams& params)
 	{
 		TDE2_STATS_COUNTER_INCREMENT(mDrawCallsCount);
 		return RC_NOT_IMPLEMENTED_YET;
 	}
 
-	E_RESULT_CODE TDrawIndexedInstancedCommand::Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties)
+	E_RESULT_CODE TDrawIndexedInstancedCommand::Submit(const TRenderCommandSubmitParams& params)
 	{
 		if (TResourceId::Invalid == mMaterialHandle)
 		{
@@ -114,6 +122,10 @@ namespace TDEngine2
 		}
 
 		TDE2_STATS_COUNTER_INCREMENT(mDrawCallsCount);
+
+		IGraphicsContext* pGraphicsContext = params.mpGraphicsContext;
+		IResourceManager* pResourceManager = params.mpResourceManager;
+		IGlobalShaderProperties* pGlobalShaderProperties = params.mpGlobalShaderProperties;
 
 		auto pMaterial = pResourceManager->GetResource<IMaterial>(mMaterialHandle);
 

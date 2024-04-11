@@ -35,6 +35,14 @@ namespace TDEngine2
 	enum class TBufferHandleId : U32;
 
 
+	typedef struct TRenderCommandSubmitParams
+	{
+		IGraphicsContext*        mpGraphicsContext = nullptr; 
+		IResourceManager*        mpResourceManager = nullptr;
+		IGlobalShaderProperties* mpGlobalShaderProperties = nullptr;
+	} TRenderCommandSubmitParams, *TRenderCommandSubmitParamsPtr;
+
+
 	typedef struct TRenderCommand
 	{
 		TDE2_API virtual ~TRenderCommand() = default;
@@ -42,16 +50,12 @@ namespace TDEngine2
 		/*!
 			\brief The method submits a command to a rendering pipeline
 
-			\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
-
-			\param[in, out] pResourceManager A pointer to IResourceManager implementation
-
-			\param[in, out] pGlobalShaderProperties A pointer to IGlobalShaderProperties implementation
+			\param[in] pParams The object contains content for executing the command
 
 			\return RC_OK if everything went ok, or some other code, which describes an error
 		*/
 
-		TDE2_API virtual E_RESULT_CODE Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties) = 0;
+		TDE2_API virtual E_RESULT_CODE Submit(const TRenderCommandSubmitParams& params) = 0;
 
 		E_PRIMITIVE_TOPOLOGY_TYPE mPrimitiveType;
 
@@ -74,16 +78,12 @@ namespace TDEngine2
 		/*!
 			\brief The method submits a command to a rendering pipeline
 
-			\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
-
-			\param[in, out] pResourceManager A pointer to IResourceManager implementation
-
-			\param[in, out] pGlobalShaderProperties A pointer to IGlobalShaderProperties implementation
+			\param[in] pParams The object contains content for executing the command
 
 			\return RC_OK if everything went ok, or some other code, which describes an error
 		*/
 
-		TDE2_API E_RESULT_CODE Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties) override;
+		TDE2_API E_RESULT_CODE Submit(const TRenderCommandSubmitParams& params) override;
 
 		U32 mNumOfVertices;
 		U32 mStartVertex;
@@ -95,16 +95,12 @@ namespace TDEngine2
 		/*!
 			\brief The method submits a command to a rendering pipeline
 
-			\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
-
-			\param[in, out] pResourceManager A pointer to IResourceManager implementation
-
-			\param[in, out] pGlobalShaderProperties A pointer to IGlobalShaderProperties implementation
+			\param[in] pParams The object contains content for executing the command
 
 			\return RC_OK if everything went ok, or some other code, which describes an error
 		*/
 
-		TDE2_API E_RESULT_CODE Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties) override;
+		TDE2_API E_RESULT_CODE Submit(const TRenderCommandSubmitParams& params) override;
 
 		U32             mNumOfIndices;
 		U32             mStartIndex;
@@ -119,16 +115,12 @@ namespace TDEngine2
 		/*!
 			\brief The method submits a command to a rendering pipeline
 
-			\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
-
-			\param[in, out] pResourceManager A pointer to IResourceManager implementation
-
-			\param[in, out] pGlobalShaderProperties A pointer to IGlobalShaderProperties implementation
+			\param[in] pParams The object contains content for executing the command
 
 			\return RC_OK if everything went ok, or some other code, which describes an error
 		*/
 
-		TDE2_API E_RESULT_CODE Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties) override;
+		TDE2_API E_RESULT_CODE Submit(const TRenderCommandSubmitParams& params) override;
 
 		U32            mStartVertex;
 
@@ -147,16 +139,12 @@ namespace TDEngine2
 		/*!
 			\brief The method submits a command to a rendering pipeline
 
-			\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
-
-			\param[in, out] pResourceManager A pointer to IResourceManager implementation
-
-			\param[in, out] pGlobalShaderProperties A pointer to IGlobalShaderProperties implementation
+			\param[in] pParams The object contains content for executing the command
 
 			\return RC_OK if everything went ok, or some other code, which describes an error
 		*/
 
-		TDE2_API E_RESULT_CODE Submit(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, IGlobalShaderProperties* pGlobalShaderProperties) override;
+		TDE2_API E_RESULT_CODE Submit(const TRenderCommandSubmitParams& params) override;
 
 		U32            mBaseVertexIndex;
 		U32            mStartIndex;

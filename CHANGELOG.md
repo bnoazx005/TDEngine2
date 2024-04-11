@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.27] 2024-04-09
+## [0.6.27] 2024-04-11
 
 ### Added
 
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Now render hardware interface is set up through 'graphics_plugin' field instead of 'renderer_plugin'. 'renderer_plugin' now is reserved for using with renderers plugins.
 
 - The shaders that are related with volumetric clouds were moved into Volumetrics/ subdirectory.
+
+- The signature of TDrawCommand::Submit was changed. All the arguments were grouped into the single structure.
 
 ### Fixed
 
