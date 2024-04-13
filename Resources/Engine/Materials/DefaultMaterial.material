@@ -6,7 +6,7 @@ blend_state:
   src_alpha: ONE
   src_color: ONE
 depth_stencil_state: 
-  depth_cmp_func: LESS
+  depth_cmp_func: LESS_EQUAL
   depth_test_enabled: 1
   depth_write_enabled: 1
   stencil_read_mask: 255

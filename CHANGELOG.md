@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.27] 2024-04-11
+## [0.6.27] 2024-04-13
 
 ### Added
 
 - Extend API of **ISpotLight** with new public methods SetRange/GetRange.
+
+- Depth pre-pass was implemented for the forward renderer.
 
 ### Changed
 

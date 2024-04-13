@@ -25,6 +25,11 @@ namespace TDEngine2
 	{
 	}
 
+
+	static TResourceId DepthOnlyMaterialHandle = TResourceId::Invalid;
+	static IVertexDeclaration* pDepthOnlyVertDecl = nullptr;
+
+
 	E_RESULT_CODE CStaticMeshRendererSystem::Init(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager)
 	{
 		if (mIsInitialized)
@@ -39,10 +44,24 @@ namespace TDEngine2
 
 		mpOpaqueRenderGroup      = pRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_OPAQUE_GEOMETRY);
 		mpTransparentRenderGroup = pRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_TRANSPARENT_GEOMETRY);
-
+		mpDepthOnlyRenderGroup   = pRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_DEPTH_PREPASS);
+		
 		mpGraphicsObjectManager = pGraphicsObjectManager;
 
 		mpResourceManager = pRenderer->GetResourceManager();
+
+		DepthOnlyMaterialHandle = mpResourceManager->Create<IMaterial>("DepthOnly.material", TMaterialParameters
+			{
+				"Shaders/Default/DepthOnly.shader", false,
+				TDepthStencilStateDesc { true, true, E_COMPARISON_FUNC::LESS_EQUAL},
+				TRasterizerStateDesc { E_CULL_MODE::NONE, false, false, 0.1f, 1.0f, false } 
+			});
+		
+		if (auto newVertDeclResult = mpGraphicsObjectManager->CreateVertexDeclaration())
+		{
+			pDepthOnlyVertDecl = newVertDeclResult.Get();
+			pDepthOnlyVertDecl->AddElement({ FT_FLOAT4, 0, VEST_POSITION });
+		}
 
 		mIsInitialized = true;
 
@@ -94,13 +113,13 @@ namespace TDEngine2
 		// \note construct commands for opaque geometry
 		std::for_each(mCurrMaterialsArray.cbegin(), firstTransparentMatIter, [this, &pCameraComponent](auto&& pCurrMaterial)
 		{
-			_populateCommandsBuffer(mProcessingEntities, mpOpaqueRenderGroup, pCurrMaterial, pCameraComponent);
+			_populateCommandsBuffer(mProcessingEntities, mpOpaqueRenderGroup, mpDepthOnlyRenderGroup, pCurrMaterial, pCameraComponent);
 		});
 
 		// \note construct commands for transparent geometry
 		std::for_each(firstTransparentMatIter, mCurrMaterialsArray.cend(), [this, &pCameraComponent](auto&& pCurrMaterial)
 		{
-			_populateCommandsBuffer(mProcessingEntities, mpTransparentRenderGroup, pCurrMaterial, pCameraComponent);
+			_populateCommandsBuffer(mProcessingEntities, mpTransparentRenderGroup, nullptr, pCurrMaterial, pCameraComponent);
 		});
 	}
 
@@ -141,8 +160,8 @@ namespace TDEngine2
 		std::sort(usedMaterials.begin(), usedMaterials.end(), CBaseMaterial::AlphaBasedMaterialComparator);
 	}
 
-	void CStaticMeshRendererSystem::_populateCommandsBuffer(const TEntitiesArray& entities, CRenderQueue*& pRenderGroup, TPtr<IMaterial> pCurrMaterial,
-															const ICamera* pCamera)
+	void CStaticMeshRendererSystem::_populateCommandsBuffer(const TEntitiesArray& entities, CRenderQueue*& pRenderGroup, CRenderQueue* pDepthOnlyRenderGroup,
+															TPtr<IMaterial> pCurrMaterial, const ICamera* pCamera)
 	{
 		auto iter = entities.begin();
 
@@ -234,6 +253,21 @@ namespace TDEngine2
 			pCommand->mPrimitiveType              = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 			pCommand->mObjectData.mModelMatrix    = Transpose(objectTransformMatrix);
 			pCommand->mObjectData.mInvModelMatrix = Transpose(Inverse(objectTransformMatrix));
+
+			if (pDepthOnlyRenderGroup && E_GEOMETRY_SUBGROUP_TAGS::SKYBOX != pCastedMaterial->GetGeometrySubGroupTag())
+			{
+				auto pDepthOnlyCommand = pDepthOnlyRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(static_cast<U32>(fabs(distanceToCamera)));
+
+				pDepthOnlyCommand->mVertexBufferHandle = pSharedMeshResource->GetPositionOnlyVertexBuffer();
+				pDepthOnlyCommand->mIndexBufferHandle = pCommand->mIndexBufferHandle;
+				pDepthOnlyCommand->mMaterialHandle = DepthOnlyMaterialHandle;
+				pDepthOnlyCommand->mpVertexDeclaration = pDepthOnlyVertDecl;
+				pDepthOnlyCommand->mStartIndex = pCommand->mStartIndex;
+				pDepthOnlyCommand->mNumOfIndices = pCommand->mNumOfIndices;
+				pDepthOnlyCommand->mPrimitiveType = pCommand->mPrimitiveType;
+				pDepthOnlyCommand->mObjectData.mModelMatrix = pCommand->mObjectData.mModelMatrix;
+				pDepthOnlyCommand->mObjectData.mInvModelMatrix = pCommand->mObjectData.mInvModelMatrix;
+			}
 
 			++iter;
 		}

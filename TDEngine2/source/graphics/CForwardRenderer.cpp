@@ -422,6 +422,18 @@ namespace TDEngine2
 		TPtr<IRenderTarget> pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(isMainTarget ? mRenderTargetHandle : mUITargetHandle);
 		TPtr<IDepthBufferTarget> pMainDepthBuffer = mpResourceManager->GetResource<IDepthBufferTarget>(mMainDepthBufferHandle);
 
+		if (bindDepthBuffer && !isMainTarget) // depth only pass
+		{
+			mpGraphicsContext->BindDepthBufferTarget(pMainDepthBuffer.Get(), true);
+			mpGraphicsContext->ClearDepthBuffer(1.0f);
+
+			onRenderFrameCallback();
+
+			mpGraphicsContext->BindDepthBufferTarget(nullptr);
+
+			return RC_OK;
+		}
+
 		{
 			mpGraphicsContext->BindRenderTarget(0, pCurrRenderTarget.Get());
 			if (bindDepthBuffer)
@@ -1175,31 +1187,41 @@ namespace TDEngine2
 										TPtr<IFramePostProcessor> pFramePostProcessor, TPtr<CRenderQueue> pRenderQueues[])
 	{
 		TDE2_PROFILER_SCOPE("Renderer::RenderAll");
-		TDE_RENDER_SECTION(pGraphicsContext, "RenderMainPass");
 
 		pFramePostProcessor->PreRender();
 
-		pFramePostProcessor->Render([&]
 		{
-			pGraphicsContext->ClearDepthBuffer(1.0f);
+			TDE_RENDER_SECTION(pGraphicsContext, "DepthPrePass");
 
-			const U8 firstGroupId = static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_FIRST_GROUP);
-			const U8 lastGroupId = static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_LAST_GROUP);
-
-			TPtr<CRenderQueue> pCurrCommandBuffer;
-
-			for (U8 currGroup = firstGroupId; currGroup <= lastGroupId; ++currGroup)
+			pFramePostProcessor->Render([&]
 			{
-				pCurrCommandBuffer = pRenderQueues[currGroup];
+				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEPTH_PREPASS)], true);
+			}, E_FRAME_RENDER_PARAMS_FLAGS::BIND_DEPTH_BUFFER);
+		}
 
-				if (!pCurrCommandBuffer || pCurrCommandBuffer->IsEmpty() || static_cast<E_RENDER_QUEUE_GROUP>(currGroup) == E_RENDER_QUEUE_GROUP::RQG_OVERLAY)
+		{
+			TDE_RENDER_SECTION(pGraphicsContext, "RenderMainPass");
+
+			pFramePostProcessor->Render([&]
+			{
+				const U8 firstGroupId = static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_FIRST_GROUP);
+				const U8 lastGroupId = static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_LAST_GROUP);
+
+				TPtr<CRenderQueue> pCurrCommandBuffer;
+
+				for (U8 currGroup = firstGroupId; currGroup <= lastGroupId; ++currGroup)
 				{
-					continue;
-				}
+					pCurrCommandBuffer = pRenderQueues[currGroup];
 
-				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pCurrCommandBuffer, true, (std::numeric_limits<U32>::max)());
-			}
-		}, E_FRAME_RENDER_PARAMS_FLAGS::BIND_DEPTH_BUFFER |E_FRAME_RENDER_PARAMS_FLAGS::CLEAR_RENDER_TARGET | E_FRAME_RENDER_PARAMS_FLAGS::RENDER_MAIN);
+					if (!pCurrCommandBuffer || pCurrCommandBuffer->IsEmpty() || static_cast<E_RENDER_QUEUE_GROUP>(currGroup) == E_RENDER_QUEUE_GROUP::RQG_OVERLAY)
+					{
+						continue;
+					}
+
+					ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pCurrCommandBuffer, true, (std::numeric_limits<U32>::max)());
+				}
+			}, E_FRAME_RENDER_PARAMS_FLAGS::BIND_DEPTH_BUFFER | E_FRAME_RENDER_PARAMS_FLAGS::CLEAR_RENDER_TARGET | E_FRAME_RENDER_PARAMS_FLAGS::RENDER_MAIN);
+		}
 
 		return RC_OK;
 	}

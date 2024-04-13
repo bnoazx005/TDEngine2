@@ -289,7 +289,7 @@ namespace TDEngine2
 		internalStateDesc.DepthClipEnable       = rasterizerStateDesc.mIsDepthClippingEnabled;
 		internalStateDesc.FrontCounterClockwise = rasterizerStateDesc.mIsFrontCCWEnabled;
 		internalStateDesc.ScissorEnable         = rasterizerStateDesc.mIsScissorTestEnabled;
-		internalStateDesc.SlopeScaledDepthBias  = 0.0f;
+		internalStateDesc.SlopeScaledDepthBias  = rasterizerStateDesc.mDepthBias;
 
 		if (FAILED(p3dDevice->CreateRasterizerState(&internalStateDesc, &pRasterizerState)))
 		{
