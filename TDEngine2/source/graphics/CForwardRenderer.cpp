@@ -118,6 +118,8 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE PostRender() = 0;
 
 			TDE2_API virtual E_RESULT_CODE RunVolumetricCloudsPass() = 0;
+
+			TDE2_API virtual TResourceId GetMainDepthBufferHandle() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IFramePostProcessor)
 	};
@@ -193,6 +195,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE PostRender() override;
 
 			TDE2_API E_RESULT_CODE RunVolumetricCloudsPass() override;
+
+			TDE2_API TResourceId GetMainDepthBufferHandle() const override { return mMainDepthBufferHandle; }
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFramePostProcessor)
 
@@ -945,6 +949,66 @@ namespace TDEngine2
 	}
 
 
+	static TResult<TLightGridData> InitLightGrid(const TRendererInitParams& params)
+	{
+		TLightGridData data;
+
+		auto&& graphicsObjectManager = params.mpGraphicsContext->GetGraphicsObjectManager();
+
+		const U32 width = params.mpWindowSystem->GetWidth();
+		const U32 height = params.mpWindowSystem->GetHeight();
+
+		data.mWorkGroupsX = (width + (width % LIGHT_GRID_TILE_BLOCK_SIZE)) / LIGHT_GRID_TILE_BLOCK_SIZE;
+		data.mWorkGroupsY = (height + (height % LIGHT_GRID_TILE_BLOCK_SIZE)) / LIGHT_GRID_TILE_BLOCK_SIZE;
+
+		const U32 tilesCount = data.mWorkGroupsX * data.mWorkGroupsY;
+		const USIZE bufferSize = sizeof(U32) * tilesCount * MAX_LIGHTS_PER_TILE_BLOCK;
+
+		// \note Create lights indices buffer
+		auto createBufferResult = graphicsObjectManager->CreateBuffer(
+			{
+				E_BUFFER_USAGE_TYPE::DEFAULT,
+				E_BUFFER_TYPE::STRUCTURED,
+				bufferSize,
+				nullptr,
+				bufferSize,
+				true,
+				sizeof(U32),
+				E_STRUCTURED_BUFFER_TYPE::DEFAULT
+			});
+
+		if (createBufferResult.HasError())
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(createBufferResult.GetError());
+		}
+
+		data.mVisibleLightsBufferHandle = createBufferResult.Get();
+
+		// \note Create the light grid's texture
+		TInitTextureImplParams lightGridTextureParams{};
+		lightGridTextureParams.mWidth = data.mWorkGroupsX;
+		lightGridTextureParams.mHeight = data.mWorkGroupsY;
+		lightGridTextureParams.mFormat = FT_SHORT2;
+		lightGridTextureParams.mNumOfMipLevels = 1;
+		lightGridTextureParams.mNumOfSamples = 1;
+		lightGridTextureParams.mSamplingQuality = 0;
+		lightGridTextureParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
+		lightGridTextureParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+		lightGridTextureParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS;
+		lightGridTextureParams.mName = "LightGridTexture";
+
+		auto createLightGridTextureResult = graphicsObjectManager->CreateTexture(lightGridTextureParams);
+		if (createLightGridTextureResult.HasError())
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(createLightGridTextureResult.GetError());
+		}
+
+		data.mLightGridTextureHandle = createLightGridTextureResult.Get();
+
+		return Wrench::TOkValue<TLightGridData>(data);
+	}
+
+
 	E_RESULT_CODE CForwardRenderer::Init(const TRendererInitParams& params)
 	{
 		if (mIsInitialized)
@@ -1031,6 +1095,14 @@ namespace TDEngine2
 		{
 			return result;
 		}
+
+		auto lightGridDataResult = InitLightGrid(params);
+		if (lightGridDataResult.HasError())
+		{
+			return lightGridDataResult.GetError();
+		}
+
+		mLightGridData = lightGridDataResult.Get();
 
 		mIsInitialized = true;
 
@@ -1183,6 +1255,16 @@ namespace TDEngine2
 #endif
 
 
+	static E_RESULT_CODE CullLights(TPtr<IGraphicsContext> pGraphicsContext)
+	{
+		TDE_RENDER_SECTION(pGraphicsContext, "LightCulling");
+
+
+
+		return RC_OK;
+	}
+
+
 	static inline E_RESULT_CODE RenderMainPasses(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties,
 										TPtr<IFramePostProcessor> pFramePostProcessor, TPtr<CRenderQueue> pRenderQueues[])
 	{
@@ -1198,6 +1280,8 @@ namespace TDEngine2
 				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEPTH_PREPASS)], true);
 			}, E_FRAME_RENDER_PARAMS_FLAGS::BIND_DEPTH_BUFFER);
 		}
+
+		CullLights(pGraphicsContext);
 
 		{
 			TDE_RENDER_SECTION(pGraphicsContext, "RenderMainPass");
@@ -1404,7 +1488,23 @@ namespace TDEngine2
 			return RC_OK;
 		}
 
+		auto pGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
+		
+		E_RESULT_CODE result = RC_OK;
+		
+		if (TTextureHandleId::Invalid != mLightGridData.mLightGridTextureHandle)
+		{
+			result = result | pGraphicsObjectManager->DestroyBuffer(mLightGridData.mVisibleLightsBufferHandle);
+			result = result | pGraphicsObjectManager->DestroyTexture(mLightGridData.mLightGridTextureHandle);
+		}
 
+		auto lightGridInitResult = InitLightGrid({ mpGraphicsContext, mpResourceManager, mpWindowSystem, nullptr });
+		if (lightGridInitResult.IsOk())
+		{
+			mLightGridData = lightGridInitResult.Get();
+		}
+
+		TDE2_ASSERT(RC_OK == result);
 
 		return RC_OK;
 	}

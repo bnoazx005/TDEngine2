@@ -23,10 +23,28 @@ namespace TDEngine2
 	class CFrameGraph;
 
 
+	enum class TTextureHandleId : U32;
+	enum class TBufferHandleId : U32;
+
+
 	TDE2_DECLARE_SCOPED_PTR(IGlobalShaderProperties);
 	TDE2_DECLARE_SCOPED_PTR(CRenderQueue);
 	TDE2_DECLARE_SCOPED_PTR(IFramePostProcessor)
 	TDE2_DECLARE_SCOPED_PTR(CFrameGraph)
+
+
+	constexpr U16 LIGHT_GRID_TILE_BLOCK_SIZE = 16; // in pixels
+	constexpr U16 MAX_LIGHTS_PER_TILE_BLOCK = 256;
+
+
+	typedef struct TLightGridData
+	{
+		U32              mWorkGroupsX = 0;
+		U32              mWorkGroupsY = 0;
+
+		TTextureHandleId mLightGridTextureHandle;
+		TBufferHandleId  mVisibleLightsBufferHandle;
+	} TLightGridData, *TLightGridDataPtr;
 
 
 	/*!
@@ -187,5 +205,7 @@ namespace TDEngine2
 			TLightsDataArray              mActiveLightSources;
 
 			TPtr<CFrameGraph>             mpFrameGraph;
+			
+			TLightGridData                mLightGridData;
 	};
 }
