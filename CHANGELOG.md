@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.27] 2024-04-13
+## [0.6.27] 2024-04-16
 
 ### Added
 
@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The signature of TDrawCommand::Submit was changed. All the arguments were grouped into the single structure.
 
 ### Fixed
+
+- Incorrect initialization of structured buffers under D3D11 graphics context was fixed.
 
 ## [0.6.26] 2024-04-07
 

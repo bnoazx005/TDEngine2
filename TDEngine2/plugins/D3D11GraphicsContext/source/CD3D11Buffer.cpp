@@ -27,7 +27,7 @@ namespace TDEngine2
 				bufferCreationFlags = D3D11_BIND_CONSTANT_BUFFER;
 				break;
 			case E_BUFFER_TYPE::STRUCTURED:
-				bufferCreationFlags = params.mIsUnorderedAccessResource ? D3D11_BIND_UNORDERED_ACCESS : D3D11_BIND_SHADER_RESOURCE;
+				bufferCreationFlags = D3D11_BIND_SHADER_RESOURCE | (params.mIsUnorderedAccessResource ? D3D11_BIND_UNORDERED_ACCESS : 0x0);
 				break;
 		}
 
@@ -112,6 +112,7 @@ namespace TDEngine2
 		viewDesc.Format = DXGI_FORMAT_UNKNOWN;
 		viewDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
 		viewDesc.Buffer.FirstElement = 0;
+		viewDesc.Buffer.Flags = 0;
 		viewDesc.Buffer.NumElements = static_cast<U32>(params.mTotalBufferSize / params.mElementStrideSize);
 
 		if (FAILED(p3dDevice->CreateUnorderedAccessView(pBuffer, &viewDesc, &pView)))
