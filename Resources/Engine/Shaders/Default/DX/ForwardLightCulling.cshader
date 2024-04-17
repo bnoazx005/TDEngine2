@@ -1,0 +1,19 @@
+#define COMPUTE_ENTRY MainCS
+
+#program compute
+
+#include <TDEngine2Globals.inc>
+#include <TDEngine2MathUtils.inc>
+
+
+RWTexture2D<uint2> LightGridTexture;
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, VisibleLightsBuffer, 11);
+
+
+[numthreads(16, 16, 1)]
+void MainCS(uint3 id : SV_DispatchThreadID)
+{
+	LightGridTexture[id.xy] = id.xy;
+}
+
+#endprogram

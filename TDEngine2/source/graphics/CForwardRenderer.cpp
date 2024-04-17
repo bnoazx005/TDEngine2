@@ -985,25 +985,22 @@ namespace TDEngine2
 		data.mVisibleLightsBufferHandle = createBufferResult.Get();
 
 		// \note Create the light grid's texture
-		TInitTextureImplParams lightGridTextureParams{};
-		lightGridTextureParams.mWidth = data.mWorkGroupsX;
-		lightGridTextureParams.mHeight = data.mWorkGroupsY;
-		lightGridTextureParams.mFormat = FT_SHORT2;
-		lightGridTextureParams.mNumOfMipLevels = 1;
-		lightGridTextureParams.mNumOfSamples = 1;
-		lightGridTextureParams.mSamplingQuality = 0;
-		lightGridTextureParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
-		lightGridTextureParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
-		lightGridTextureParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS;
-		lightGridTextureParams.mName = "LightGridTexture";
-
-		auto createLightGridTextureResult = graphicsObjectManager->CreateTexture(lightGridTextureParams);
-		if (createLightGridTextureResult.HasError())
+		TTexture2DParameters lightGridTextureParams
 		{
-			return Wrench::TErrValue<E_RESULT_CODE>(createLightGridTextureResult.GetError());
-		}
+			data.mWorkGroupsX,
+			data.mWorkGroupsY,
+			FT_USHORT2, 1, 1, 0
+		};
+		lightGridTextureParams.mIsWriteable = true;
 
-		data.mLightGridTextureHandle = createLightGridTextureResult.Get();
+		data.mLightGridTextureHandle = params.mpResourceManager->Create<ITexture2D>("LightGridTexture", lightGridTextureParams);
+		if (auto pTexture = params.mpResourceManager->GetResource<ITexture2D>(data.mLightGridTextureHandle))
+		{
+			pTexture->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
+			pTexture->SetUWrapMode(E_ADDRESS_MODE_TYPE::AMT_WRAP);
+			pTexture->SetVWrapMode(E_ADDRESS_MODE_TYPE::AMT_WRAP);
+			pTexture->SetWWrapMode(E_ADDRESS_MODE_TYPE::AMT_WRAP);
+		}
 
 		return Wrench::TOkValue<TLightGridData>(data);
 	}
@@ -1255,18 +1252,29 @@ namespace TDEngine2
 #endif
 
 
-	static E_RESULT_CODE CullLights(TPtr<IGraphicsContext> pGraphicsContext)
+	static E_RESULT_CODE CullLights(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, const TLightGridData& lightGridData)
 	{
+		TDE2_PROFILER_SCOPE("LightCulling");
 		TDE_RENDER_SECTION(pGraphicsContext, "LightCulling");
 
+		E_RESULT_CODE result = RC_OK;
 
+		result = result | pGraphicsContext->SetStructuredBuffer(static_cast<U32>(E_INTERNAL_SHADER_BUFFERS_REGISTERS::VISIBLE_LIGHTS_BUFFER_SLOT), lightGridData.mVisibleLightsBufferHandle, true);
 
-		return RC_OK;
+		auto pLightCullShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>("Shaders/Default/ForwardLightCulling.cshader"));
+		pLightCullShader->SetTextureResource("LightGridTexture", pResourceManager->GetResource<ITexture>(lightGridData.mLightGridTextureHandle).Get());
+		pLightCullShader->Bind();
+
+		pGraphicsContext->DispatchCompute(lightGridData.mWorkGroupsX, lightGridData.mWorkGroupsY, 1);
+
+		result = result | pGraphicsContext->SetStructuredBuffer(static_cast<U32>(E_INTERNAL_SHADER_BUFFERS_REGISTERS::VISIBLE_LIGHTS_BUFFER_SLOT), TBufferHandleId::Invalid, true);
+
+		return result;
 	}
 
 
 	static inline E_RESULT_CODE RenderMainPasses(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties,
-										TPtr<IFramePostProcessor> pFramePostProcessor, TPtr<CRenderQueue> pRenderQueues[])
+										TPtr<IFramePostProcessor> pFramePostProcessor, TPtr<CRenderQueue> pRenderQueues[], const TLightGridData& lightGridData)
 	{
 		TDE2_PROFILER_SCOPE("Renderer::RenderAll");
 
@@ -1281,7 +1289,7 @@ namespace TDEngine2
 			}, E_FRAME_RENDER_PARAMS_FLAGS::BIND_DEPTH_BUFFER);
 		}
 
-		CullLights(pGraphicsContext);
+		CullLights(pGraphicsContext, pResourceManager, lightGridData);
 
 		{
 			TDE_RENDER_SECTION(pGraphicsContext, "RenderMainPass");
@@ -1411,7 +1419,7 @@ namespace TDEngine2
 				ProcessShadowPass(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)]);
 			}
 
-			RenderMainPasses(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpFramePostProcessor, mpRenderQueues);
+			RenderMainPasses(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpFramePostProcessor, mpRenderQueues, mLightGridData);
 
 			{
 				TDE_RENDER_SECTION(mpGraphicsContext, "VolumetricCloudsPass");
@@ -1492,10 +1500,9 @@ namespace TDEngine2
 		
 		E_RESULT_CODE result = RC_OK;
 		
-		if (TTextureHandleId::Invalid != mLightGridData.mLightGridTextureHandle)
+		if (TBufferHandleId::Invalid != mLightGridData.mVisibleLightsBufferHandle)
 		{
 			result = result | pGraphicsObjectManager->DestroyBuffer(mLightGridData.mVisibleLightsBufferHandle);
-			result = result | pGraphicsObjectManager->DestroyTexture(mLightGridData.mLightGridTextureHandle);
 		}
 
 		auto lightGridInitResult = InitLightGrid({ mpGraphicsContext, mpResourceManager, mpWindowSystem, nullptr });

@@ -42,7 +42,7 @@ namespace TDEngine2
 		U32              mWorkGroupsX = 0;
 		U32              mWorkGroupsY = 0;
 
-		TTextureHandleId mLightGridTextureHandle;
+		TResourceId      mLightGridTextureHandle;
 		TBufferHandleId  mVisibleLightsBufferHandle;
 	} TLightGridData, *TLightGridDataPtr;
 
