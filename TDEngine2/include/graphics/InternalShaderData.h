@@ -112,7 +112,9 @@ namespace TDEngine2
 
 	typedef struct TRareUpdateShaderData
 	{
-		TMatrix4 mUnused;
+		U32 mScreenWidth = 0;
+		U32 mScreenHeight = 0;
+		U32 mPadding[2];
 	} TRareUpdateShaderData, *TRareUpdateShaderDataPtr;
 
 

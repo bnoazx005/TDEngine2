@@ -1513,6 +1513,11 @@ namespace TDEngine2
 
 		TDE2_ASSERT(RC_OK == result);
 
+		// \todo Later move into Draw method and set only the flag here to invoke the update
+		TRareUpdateShaderData rareUpdatedData{ mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight() };
+
+		mpGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_RARE_UDATED, reinterpret_cast<const U8*>(&rareUpdatedData), sizeof(rareUpdatedData));
+
 		return RC_OK;
 	}
 

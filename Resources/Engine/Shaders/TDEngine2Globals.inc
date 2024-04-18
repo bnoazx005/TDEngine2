@@ -48,7 +48,7 @@ CBUFFER_ENDSECTION
 
 
 CBUFFER_SECTION_EX(TDEngine2RareUpdate, 2)
-	float4x4 mUnused1;
+	uint2 ScreenResolution;
 CBUFFER_ENDSECTION
 
 
