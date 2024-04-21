@@ -62,6 +62,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE SetInternalShaderBuffer(E_INTERNAL_SHADER_BUFFERS_REGISTERS slot, const U8* pData, U32 dataSize) = 0;
+
+			TDE2_API virtual E_RESULT_CODE Bind() = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IGlobalShaderProperties)
 	};

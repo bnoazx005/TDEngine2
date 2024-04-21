@@ -114,6 +114,21 @@ namespace TDEngine2
 		return pGraphicsContext->SetStructuredBuffer(static_cast<U32>(slot), mInternalShaderBuffers[slot]);
 	}
 
+	E_RESULT_CODE CGlobalShaderProperties::Bind()
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		auto pGraphicsContext = mpGraphicsObjectManager->GetGraphicsContext();
+
+		// \note Bind only those buffers that are not updated every frame
+		result = result | pGraphicsContext->SetConstantBuffer(static_cast<U32>(E_INTERNAL_UNIFORM_BUFFER_REGISTERS::IUBR_RARE_UDATED), 
+			mInternalEngineUniforms[static_cast<U32>(E_INTERNAL_UNIFORM_BUFFER_REGISTERS::IUBR_RARE_UDATED)]);
+		result = result | pGraphicsContext->SetConstantBuffer(static_cast<U32>(E_INTERNAL_UNIFORM_BUFFER_REGISTERS::IUBR_CONSTANTS), 
+			mInternalEngineUniforms[static_cast<U32>(E_INTERNAL_UNIFORM_BUFFER_REGISTERS::IUBR_CONSTANTS)]);
+
+		return result;
+	}
+
 
 	static U32 GetInternalBufferSize(E_INTERNAL_UNIFORM_BUFFER_REGISTERS slot)
 	{

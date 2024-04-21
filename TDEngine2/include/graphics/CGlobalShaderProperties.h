@@ -82,6 +82,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE SetInternalShaderBuffer(E_INTERNAL_SHADER_BUFFERS_REGISTERS slot, const U8* pData, U32 dataSize) override;
+
+			TDE2_API E_RESULT_CODE Bind() override;
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CGlobalShaderProperties)
 
