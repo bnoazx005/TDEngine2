@@ -191,4 +191,23 @@ float CalcWorleyFbmNoise3D(float3 p, int octavesCount, float frequency)
 	return result;
 }
 
+
+struct TileFrustum
+{
+	float4 mPlanes[4];	// near and far planes are computed right before lights culling
+};
+
+
+// Creates a plane based on three points and packs it into float4 variable where first three x, y, z form plane's normal, w is distance to origin 
+float4 PackPlaneIntoFloat4(float3 p0, float3 p1, float3 p2)
+{ 
+    float3 v0 = p1 - p0;
+    float3 v2 = p2 - p0;
+ 
+    float3 normal = normalize(cross(v0, v2));
+ 	
+ 	return float4(normal, dot(normal, p0));
+}
+
+
 #endif

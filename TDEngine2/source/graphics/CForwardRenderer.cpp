@@ -50,6 +50,10 @@ namespace TDEngine2
 	TDE2_DECLARE_BITMASK_OPERATORS_INTERNAL(E_FRAME_RENDER_PARAMS_FLAGS);
 
 
+	constexpr U32 TILE_FRUSTUMS_BUFFER_SLOT = 0;
+	constexpr U32 FRUSTUM_TILES_PER_GROUP = 16;
+
+
 	/*!
 		interface IFramePostProcessor
 
@@ -949,9 +953,40 @@ namespace TDEngine2
 	}
 
 
-	static TResult<TLightGridData> InitLightGrid(const TRendererInitParams& params)
+	static E_RESULT_CODE PrepareTileFrustums(const TLightCullingData& data, TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager)
 	{
-		TLightGridData data;
+		E_RESULT_CODE result = RC_OK;
+
+		struct
+		{
+			U32 mWorkGroupsX = 0;
+			U32 mWorkGroupsY = 0;
+		} shaderParameters;
+
+		shaderParameters.mWorkGroupsX = data.mWorkGroupsX;
+		shaderParameters.mWorkGroupsY = data.mWorkGroupsY;
+
+		result = pGraphicsContext->SetStructuredBuffer(TILE_FRUSTUMS_BUFFER_SLOT, data.mTileFrustumsBufferHandle, true);
+
+		auto pTileFrustumInitializationShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>("Shaders/Default/TileFrustumsConstruction.cshader"));
+		
+		pTileFrustumInitializationShader->SetUserUniformsBuffer(0, reinterpret_cast<const U8*>(&shaderParameters), sizeof(shaderParameters));
+		pTileFrustumInitializationShader->Bind();
+
+		pGraphicsContext->DispatchCompute(
+			(data.mWorkGroupsX + FRUSTUM_TILES_PER_GROUP - 1) / FRUSTUM_TILES_PER_GROUP, 
+			(data.mWorkGroupsY + FRUSTUM_TILES_PER_GROUP - 1) / FRUSTUM_TILES_PER_GROUP, 
+			1);
+
+		result = result | pGraphicsContext->SetStructuredBuffer(TILE_FRUSTUMS_BUFFER_SLOT, TBufferHandleId::Invalid, true);
+
+		return result;
+	}
+
+
+	static TResult<TLightCullingData> InitLightGrid(const TRendererInitParams& params)
+	{
+		TLightCullingData data;
 
 		auto&& graphicsObjectManager = params.mpGraphicsContext->GetGraphicsObjectManager();
 
@@ -984,12 +1019,34 @@ namespace TDEngine2
 
 		data.mVisibleLightsBufferHandle = createBufferResult.Get();
 
+		// \note Create frustums buffer
+		const USIZE frustumsBufferSize = tilesCount * sizeof(TVector4) * 4;
+
+		auto createFrustumsBufferResult = graphicsObjectManager->CreateBuffer(
+			{
+				E_BUFFER_USAGE_TYPE::DEFAULT,
+				E_BUFFER_TYPE::STRUCTURED,
+				frustumsBufferSize,
+				nullptr,
+				frustumsBufferSize,
+				true,
+				sizeof(TVector4) * 4,
+				E_STRUCTURED_BUFFER_TYPE::DEFAULT
+			});
+
+		if (createFrustumsBufferResult.HasError())
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(createFrustumsBufferResult.GetError());
+		}
+
+		data.mTileFrustumsBufferHandle = createFrustumsBufferResult.Get();
+
 		// \note Create the light grid's texture
 		TTexture2DParameters lightGridTextureParams
 		{
 			data.mWorkGroupsX,
 			data.mWorkGroupsY,
-			FT_USHORT2, 1, 1, 0
+			FT_UINT2, 1, 1, 0
 		};
 		lightGridTextureParams.mIsWriteable = true;
 
@@ -1002,7 +1059,7 @@ namespace TDEngine2
 			pTexture->SetWWrapMode(E_ADDRESS_MODE_TYPE::AMT_WRAP);
 		}
 
-		return Wrench::TOkValue<TLightGridData>(data);
+		return Wrench::TOkValue<TLightCullingData>(data);
 	}
 
 
@@ -1067,11 +1124,13 @@ namespace TDEngine2
 
 		/// \todo fill in data into TConstantsShaderData buffer
 		mpGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_CONSTANTS, nullptr, 0);
-
 		if (result != RC_OK)
 		{
 			return result;
 		}
+		
+		TRareUpdateShaderData rareUpdatedData{ mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight() };
+		mpGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_RARE_UDATED, reinterpret_cast<const U8*>(&rareUpdatedData), sizeof(rareUpdatedData));
 
 		auto debugUtilityResult = pGraphicsObjectManager->CreateDebugUtility(mpResourceManager.Get(), this);
 		if (debugUtilityResult.HasError())
@@ -1252,17 +1311,20 @@ namespace TDEngine2
 #endif
 
 
-	static E_RESULT_CODE CullLights(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, const TLightGridData& lightGridData)
+	static E_RESULT_CODE CullLights(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, const TLightCullingData& lightGridData)
 	{
 		TDE2_PROFILER_SCOPE("LightCulling");
 		TDE_RENDER_SECTION(pGraphicsContext, "LightCulling");
 
 		E_RESULT_CODE result = RC_OK;
 
+		// \note Cull lighting shader
 		result = result | pGraphicsContext->SetStructuredBuffer(static_cast<U32>(E_INTERNAL_SHADER_BUFFERS_REGISTERS::VISIBLE_LIGHTS_BUFFER_SLOT), lightGridData.mVisibleLightsBufferHandle, true);
 
 		auto pLightCullShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>("Shaders/Default/ForwardLightCulling.cshader"));
 		pLightCullShader->SetTextureResource("LightGridTexture", pResourceManager->GetResource<ITexture>(lightGridData.mLightGridTextureHandle).Get());
+		pLightCullShader->SetTextureResource("DepthTexture", pResourceManager->GetResource<ITexture>(lightGridData.mMainDepthBufferHandle).Get());
+		pLightCullShader->SetStructuredBufferResource("TileFrustums", lightGridData.mTileFrustumsBufferHandle);
 		pLightCullShader->Bind();
 
 		pGraphicsContext->DispatchCompute(lightGridData.mWorkGroupsX, lightGridData.mWorkGroupsY, 1);
@@ -1274,7 +1336,7 @@ namespace TDEngine2
 
 
 	static inline E_RESULT_CODE RenderMainPasses(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties,
-										TPtr<IFramePostProcessor> pFramePostProcessor, TPtr<CRenderQueue> pRenderQueues[], const TLightGridData& lightGridData)
+										TPtr<IFramePostProcessor> pFramePostProcessor, TPtr<CRenderQueue> pRenderQueues[], const TLightCullingData& lightGridData)
 	{
 		TDE2_PROFILER_SCOPE("Renderer::RenderAll");
 
@@ -1505,6 +1567,10 @@ namespace TDEngine2
 			result = result | pGraphicsObjectManager->DestroyBuffer(mLightGridData.mVisibleLightsBufferHandle);
 		}
 
+		// \todo Later move into Draw method and set only the flag here to invoke the update
+		TRareUpdateShaderData rareUpdatedData{ mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight() };
+		mpGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_RARE_UDATED, reinterpret_cast<const U8*>(&rareUpdatedData), sizeof(rareUpdatedData));
+
 		auto lightGridInitResult = InitLightGrid({ mpGraphicsContext, mpResourceManager, mpWindowSystem, nullptr });
 		if (lightGridInitResult.IsOk())
 		{
@@ -1512,11 +1578,6 @@ namespace TDEngine2
 		}
 
 		TDE2_ASSERT(RC_OK == result);
-
-		// \todo Later move into Draw method and set only the flag here to invoke the update
-		TRareUpdateShaderData rareUpdatedData{ mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight() };
-
-		mpGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_RARE_UDATED, reinterpret_cast<const U8*>(&rareUpdatedData), sizeof(rareUpdatedData));
 
 		return RC_OK;
 	}
@@ -1574,11 +1635,21 @@ namespace TDEngine2
 			reinterpret_cast<const U8*>(mActiveLightSources.data()), 
 			static_cast<U32>(mActiveLightSources.size() * sizeof(TLightData)));
 
+		mpGlobalShaderProperties->Bind();
+
 		mpGraphicsContext->ClearBackBuffer(TColor32F(0.0f, 0.0f, 0.5f, 1.0f));
 		mpGraphicsContext->ClearDepthBuffer(1.0f);
 		mpGraphicsContext->ClearStencilBuffer(0x0);
 
 		mpDebugUtility->PreRender();
+
+		mLightGridData.mMainDepthBufferHandle = mpFramePostProcessor->GetMainDepthBufferHandle();
+
+		if (!mLightGridData.mIsTileFrustumsInitialized)
+		{
+			PrepareTileFrustums(mLightGridData, mpGraphicsContext, mpResourceManager);
+			mLightGridData.mIsTileFrustumsInitialized = true;
+		}
 	}
 
 

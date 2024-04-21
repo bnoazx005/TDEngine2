@@ -37,14 +37,19 @@ namespace TDEngine2
 	constexpr U16 MAX_LIGHTS_PER_TILE_BLOCK = 256;
 
 
-	typedef struct TLightGridData
+	typedef struct TLightCullingData
 	{
 		U32              mWorkGroupsX = 0;
 		U32              mWorkGroupsY = 0;
 
 		TResourceId      mLightGridTextureHandle;
+		TResourceId      mMainDepthBufferHandle;
 		TBufferHandleId  mVisibleLightsBufferHandle;
-	} TLightGridData, *TLightGridDataPtr;
+
+		TBufferHandleId  mTileFrustumsBufferHandle;
+
+		bool             mIsTileFrustumsInitialized = false;
+	} TLightCullingData, *TLightCullingDataPtr;
 
 
 	/*!
@@ -206,6 +211,6 @@ namespace TDEngine2
 
 			TPtr<CFrameGraph>             mpFrameGraph;
 			
-			TLightGridData                mLightGridData;
+			TLightCullingData             mLightGridData;
 	};
 }
