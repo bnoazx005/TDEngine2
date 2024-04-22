@@ -117,13 +117,13 @@ float CalcPerlinNoise3D(float3 p, float frequency)
 	float vh = dot(gh, localPos - float3(1.0, 1.0, 1.0));
 
 	return va + 
-	       u.x * (vb - va) + 
-	       u.y * (vc - va) + 
-	       u.z * (ve - va) + 
-	       u.x * u.y * (va - vb - vc + vd) + 
-	       u.y * u.z * (va - vc - ve + vg) + 
-	       u.z * u.x * (va - vb - ve + vf) + 
-	       u.x * u.y * u.z * (-va + vb + vc - vd + ve - vf - vg + vh);
+		   u.x * (vb - va) + 
+		   u.y * (vc - va) + 
+		   u.z * (ve - va) + 
+		   u.x * u.y * (va - vb - vc + vd) + 
+		   u.y * u.z * (va - vc - ve + vg) + 
+		   u.z * u.x * (va - vb - ve + vf) + 
+		   u.x * u.y * u.z * (-va + vb + vc - vd + ve - vf - vg + vh);
 }
 
 
@@ -198,15 +198,110 @@ struct TileFrustum
 };
 
 
+struct Cone
+{
+	float3 T;   // Cone tip.
+	float  h;   // Height of the cone.
+	float3 d;   // Direction of the cone.
+	float  r;   // bottom radius of the cone.
+};
+
+
 // Creates a plane based on three points and packs it into float4 variable where first three x, y, z form plane's normal, w is distance to origin 
 float4 PackPlaneIntoFloat4(float3 p0, float3 p1, float3 p2)
 { 
-    float3 v0 = p1 - p0;
-    float3 v2 = p2 - p0;
+	float3 v0 = p1 - p0;
+	float3 v2 = p2 - p0;
  
-    float3 normal = normalize(cross(v0, v2));
- 	
- 	return float4(normal, dot(normal, p0));
+	float3 normal = normalize(cross(v0, v2));
+	
+	return float4(normal, dot(normal, p0));
+}
+
+
+// Convert clip space coordinates to view space
+float4 ClipToView(float4 clipPos)
+{
+	float4 view = mul(InvProjMat, clipPos);
+	view = view / view.w;
+ 
+	return view;
+}
+
+
+bool SphereInsidePlane(float4 sphere, float4 plane)
+{
+	return dot(plane.xyz, sphere.xyz) - plane.w < -sphere.w;
+}
+
+
+bool SphereInsideFrustum(float4 sphere, TileFrustum frustum, float zNear, float zFar)
+{
+	bool result = true;
+ 
+	// First check depth
+	// Note: Here, the view vector points in the -Z axis so the 
+	// far depth value will be approaching -infinity.
+	if (sphere.z - sphere.w > zNear || sphere.z + sphere.w < zFar)
+	{
+		result = false;
+	}
+ 
+	// Then check frustum planes
+	for (int i = 0; i < 4 && result; i++)
+	{
+		if (SphereInsidePlane(sphere, frustum.mPlanes[i]))
+		{
+			result = false;
+		}
+	}
+ 
+	return result;
+}
+
+
+bool PointInsidePlane(float3 p, float4 plane) 
+{ 
+	return dot(plane.xyz, p) - plane.w < 0.0; 
+}
+
+
+bool ConeInsidePlane(Cone cone, float4 plane)
+{
+	// Compute the farthest point on the end of the cone to the positive space of the plane.
+	float3 Q = cone.T + cone.d * cone.h - cross(cross(plane.xyz, cone.d), cone.d) * cone.r;
+
+	// The cone is in the negative halfspace of the plane if both
+	// the tip of the cone and the farthest point on the end of the cone to the 
+	// positive halfspace of the plane are both inside the negative halfspace 
+	// of the plane.
+	return PointInsidePlane(cone.T, plane) && PointInsidePlane(Q, plane);
+}
+
+
+bool ConeInsideFrustum(Cone cone, TileFrustum frustum, float zNear, float zFar)
+{
+	bool result = true;
+
+	float4 nearPlane = float4(0.0, 0.0, -1.0, -zNear);
+	float4 farPlane = float4(0.0, 0.0, 1.0, zFar);
+
+	// First check the near and far clipping planes.
+	if (ConeInsidePlane(cone, nearPlane) || ConeInsidePlane(cone, farPlane))
+	{
+		result = false;
+	}
+
+	// Then check frustum planes
+	for (int i = 0; i < 4 && result; i++)
+	{
+		if (ConeInsidePlane(cone, frustum.mPlanes[i]))
+		{
+			result = false;
+		}
+	}
+
+	return result;
 }
 
 

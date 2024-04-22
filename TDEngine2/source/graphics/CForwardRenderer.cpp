@@ -53,6 +53,10 @@ namespace TDEngine2
 	constexpr U32 TILE_FRUSTUMS_BUFFER_SLOT = 0;
 	constexpr U32 FRUSTUM_TILES_PER_GROUP = 16;
 
+	constexpr U32 OPAQUE_VISIBLE_LIGHTS_BUFFER_SLOT = 11;
+	constexpr U32 TRANSPARENT_VISIBLE_LIGHTS_BUFFER_SLOT = 12;
+	constexpr U32 LIGHT_INDEX_COUNTERS_BUFFER_SLOT = 13;
+
 
 	/*!
 		interface IFramePostProcessor
@@ -984,19 +988,11 @@ namespace TDEngine2
 	}
 
 
-	static TResult<TLightCullingData> InitLightGrid(const TRendererInitParams& params)
+	static TResult<std::tuple<TResourceId, TBufferHandleId>> InitLightGridAndBuffer(const TRendererInitParams& params, U32 workGroupsX, U32 workGroupsY, const std::string& prefix)
 	{
-		TLightCullingData data;
-
 		auto&& graphicsObjectManager = params.mpGraphicsContext->GetGraphicsObjectManager();
 
-		const U32 width = params.mpWindowSystem->GetWidth();
-		const U32 height = params.mpWindowSystem->GetHeight();
-
-		data.mWorkGroupsX = (width + (width % LIGHT_GRID_TILE_BLOCK_SIZE)) / LIGHT_GRID_TILE_BLOCK_SIZE;
-		data.mWorkGroupsY = (height + (height % LIGHT_GRID_TILE_BLOCK_SIZE)) / LIGHT_GRID_TILE_BLOCK_SIZE;
-
-		const U32 tilesCount = data.mWorkGroupsX * data.mWorkGroupsY;
+		const U32 tilesCount = workGroupsX * workGroupsY;
 		const USIZE bufferSize = sizeof(U32) * tilesCount * MAX_LIGHTS_PER_TILE_BLOCK;
 
 		// \note Create lights indices buffer
@@ -1017,10 +1013,78 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(createBufferResult.GetError());
 		}
 
-		data.mVisibleLightsBufferHandle = createBufferResult.Get();
+		// \note Create the light grid's texture
+		TTexture2DParameters lightGridTextureParams
+		{
+			workGroupsX,
+			workGroupsY,
+			FT_UINT2, 1, 1, 0
+		};
+		lightGridTextureParams.mIsWriteable = true;
+
+		TResourceId lightGridHandle = params.mpResourceManager->Create<ITexture2D>("LightGridTexture" + prefix, lightGridTextureParams);
+		if (auto pTexture = params.mpResourceManager->GetResource<ITexture2D>(lightGridHandle))
+		{
+			pTexture->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
+			pTexture->SetUWrapMode(E_ADDRESS_MODE_TYPE::AMT_WRAP);
+			pTexture->SetVWrapMode(E_ADDRESS_MODE_TYPE::AMT_WRAP);
+			pTexture->SetWWrapMode(E_ADDRESS_MODE_TYPE::AMT_WRAP);
+		}
+
+		return Wrench::TOkValue<std::tuple<TResourceId, TBufferHandleId>>(std::make_tuple(lightGridHandle, createBufferResult.Get()));
+	}
+
+
+	static TResult<TLightCullingData> InitLightGrid(const TRendererInitParams& params)
+	{
+		TLightCullingData data;
+
+		auto&& graphicsObjectManager = params.mpGraphicsContext->GetGraphicsObjectManager();
+
+		const U32 width = params.mpWindowSystem->GetWidth();
+		const U32 height = params.mpWindowSystem->GetHeight();
+
+		data.mWorkGroupsX = (width + (width % LIGHT_GRID_TILE_BLOCK_SIZE)) / LIGHT_GRID_TILE_BLOCK_SIZE;
+		data.mWorkGroupsY = (height + (height % LIGHT_GRID_TILE_BLOCK_SIZE)) / LIGHT_GRID_TILE_BLOCK_SIZE;
+
+		auto opaqueLightCullingStructsResult = InitLightGridAndBuffer(params, data.mWorkGroupsX, data.mWorkGroupsY, "_OpaqueObjects");
+		if (opaqueLightCullingStructsResult.HasError())
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(opaqueLightCullingStructsResult.GetError());
+		}
+		
+		std::tie(data.mOpaqueLightGridTextureHandle, data.mOpaqueVisibleLightsBufferHandle) = opaqueLightCullingStructsResult.Get();
+
+		auto transparentLightCullingStructsResult = InitLightGridAndBuffer(params, data.mWorkGroupsX, data.mWorkGroupsY, "_TransparentObjects");
+		if (transparentLightCullingStructsResult.HasError())
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(transparentLightCullingStructsResult.GetError());
+		}
+
+		std::tie(data.mTransparentLightGridTextureHandle, data.mTransparentVisibleLightsBufferHandle) = transparentLightCullingStructsResult.Get();
+
+		// \note Create buffer for light index counters
+		auto lightIndexCountersCreateResult = graphicsObjectManager->CreateBuffer(
+			{
+				E_BUFFER_USAGE_TYPE::DEFAULT,
+				E_BUFFER_TYPE::STRUCTURED,
+				sizeof(U32) * 4,
+				nullptr,
+				sizeof(U32) * 4,
+				true,
+				sizeof(U32),
+				E_STRUCTURED_BUFFER_TYPE::DEFAULT
+			});
+
+		if (lightIndexCountersCreateResult.HasError())
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(lightIndexCountersCreateResult.GetError());
+		}
+
+		data.mLightIndexCountersBufferHandle = lightIndexCountersCreateResult.Get();
 
 		// \note Create frustums buffer
-		const USIZE frustumsBufferSize = tilesCount * sizeof(TVector4) * 4;
+		const USIZE frustumsBufferSize = data.mWorkGroupsX * data.mWorkGroupsY * sizeof(TVector4) * 4;
 
 		auto createFrustumsBufferResult = graphicsObjectManager->CreateBuffer(
 			{
@@ -1040,24 +1104,7 @@ namespace TDEngine2
 		}
 
 		data.mTileFrustumsBufferHandle = createFrustumsBufferResult.Get();
-
-		// \note Create the light grid's texture
-		TTexture2DParameters lightGridTextureParams
-		{
-			data.mWorkGroupsX,
-			data.mWorkGroupsY,
-			FT_UINT2, 1, 1, 0
-		};
-		lightGridTextureParams.mIsWriteable = true;
-
-		data.mLightGridTextureHandle = params.mpResourceManager->Create<ITexture2D>("LightGridTexture", lightGridTextureParams);
-		if (auto pTexture = params.mpResourceManager->GetResource<ITexture2D>(data.mLightGridTextureHandle))
-		{
-			pTexture->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
-			pTexture->SetUWrapMode(E_ADDRESS_MODE_TYPE::AMT_WRAP);
-			pTexture->SetVWrapMode(E_ADDRESS_MODE_TYPE::AMT_WRAP);
-			pTexture->SetWWrapMode(E_ADDRESS_MODE_TYPE::AMT_WRAP);
-		}
+		data.mIsTileFrustumsInitialized = false;
 
 		return Wrench::TOkValue<TLightCullingData>(data);
 	}
@@ -1319,17 +1366,36 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 		// \note Cull lighting shader
-		result = result | pGraphicsContext->SetStructuredBuffer(static_cast<U32>(E_INTERNAL_SHADER_BUFFERS_REGISTERS::VISIBLE_LIGHTS_BUFFER_SLOT), lightGridData.mVisibleLightsBufferHandle, true);
+		result = result | pGraphicsContext->SetStructuredBuffer(OPAQUE_VISIBLE_LIGHTS_BUFFER_SLOT, lightGridData.mOpaqueVisibleLightsBufferHandle, true);
+		result = result | pGraphicsContext->SetStructuredBuffer(TRANSPARENT_VISIBLE_LIGHTS_BUFFER_SLOT, lightGridData.mTransparentVisibleLightsBufferHandle, true);
+		result = result | pGraphicsContext->SetStructuredBuffer(LIGHT_INDEX_COUNTERS_BUFFER_SLOT, lightGridData.mLightIndexCountersBufferHandle, true);
 
-		auto pLightCullShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>("Shaders/Default/ForwardLightCulling.cshader"));
-		pLightCullShader->SetTextureResource("LightGridTexture", pResourceManager->GetResource<ITexture>(lightGridData.mLightGridTextureHandle).Get());
-		pLightCullShader->SetTextureResource("DepthTexture", pResourceManager->GetResource<ITexture>(lightGridData.mMainDepthBufferHandle).Get());
-		pLightCullShader->SetStructuredBufferResource("TileFrustums", lightGridData.mTileFrustumsBufferHandle);
-		pLightCullShader->Bind();
+		struct
+		{
+			U32 mWorkGroupsX = 0;
+			U32 mWorkGroupsY = 0;
+		} shaderParameters;
+
+		shaderParameters.mWorkGroupsX = lightGridData.mWorkGroupsX;
+		shaderParameters.mWorkGroupsY = lightGridData.mWorkGroupsY;
+
+		if (auto pLightCullShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>("Shaders/Default/ForwardLightCulling.cshader")))
+		{
+			pLightCullShader->SetTextureResource("OpaqueLightGridTexture", pResourceManager->GetResource<ITexture>(lightGridData.mOpaqueLightGridTextureHandle).Get());
+			pLightCullShader->SetTextureResource("TransparentLightGridTexture", pResourceManager->GetResource<ITexture>(lightGridData.mTransparentLightGridTextureHandle).Get());
+			pLightCullShader->SetTextureResource("DepthTexture", pResourceManager->GetResource<ITexture>(lightGridData.mMainDepthBufferHandle).Get());
+			pLightCullShader->SetStructuredBufferResource("TileFrustums", lightGridData.mTileFrustumsBufferHandle);
+			pLightCullShader->SetUserUniformsBuffer(0, reinterpret_cast<U8*>(&shaderParameters), sizeof(shaderParameters));
+
+			pLightCullShader->Bind();
+		}
 
 		pGraphicsContext->DispatchCompute(lightGridData.mWorkGroupsX, lightGridData.mWorkGroupsY, 1);
 
-		result = result | pGraphicsContext->SetStructuredBuffer(static_cast<U32>(E_INTERNAL_SHADER_BUFFERS_REGISTERS::VISIBLE_LIGHTS_BUFFER_SLOT), TBufferHandleId::Invalid, true);
+		// unbind lights indices buffers
+		result = result | pGraphicsContext->SetStructuredBuffer(OPAQUE_VISIBLE_LIGHTS_BUFFER_SLOT, TBufferHandleId::Invalid, true);
+		result = result | pGraphicsContext->SetStructuredBuffer(TRANSPARENT_VISIBLE_LIGHTS_BUFFER_SLOT, TBufferHandleId::Invalid, true);
+		result = result | pGraphicsContext->SetStructuredBuffer(LIGHT_INDEX_COUNTERS_BUFFER_SLOT, TBufferHandleId::Invalid, true);
 
 		return result;
 	}
@@ -1562,9 +1628,11 @@ namespace TDEngine2
 		
 		E_RESULT_CODE result = RC_OK;
 		
-		if (TBufferHandleId::Invalid != mLightGridData.mVisibleLightsBufferHandle)
+		if (TBufferHandleId::Invalid != mLightGridData.mOpaqueVisibleLightsBufferHandle)
 		{
-			result = result | pGraphicsObjectManager->DestroyBuffer(mLightGridData.mVisibleLightsBufferHandle);
+			result = result | pGraphicsObjectManager->DestroyBuffer(mLightGridData.mOpaqueVisibleLightsBufferHandle);
+			result = result | pGraphicsObjectManager->DestroyBuffer(mLightGridData.mTransparentVisibleLightsBufferHandle);
+			result = result | pGraphicsObjectManager->DestroyBuffer(mLightGridData.mLightIndexCountersBufferHandle);
 		}
 
 		// \todo Later move into Draw method and set only the flag here to invoke the update

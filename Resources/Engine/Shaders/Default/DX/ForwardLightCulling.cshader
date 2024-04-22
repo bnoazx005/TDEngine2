@@ -6,14 +6,176 @@
 #include <TDEngine2MathUtils.inc>
 
 
-RWTexture2D<uint2> LightGridTexture;
-DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, VisibleLightsBuffer, 11);
+DECLARE_TEX2D_EX(DepthTexture, 1);
+DECLARE_TYPED_BUFFER_EX(TileFrustum, TileFrustums, 2);
+
+RWTexture2D<uint2> OpaqueLightGridTexture : register(u2);
+RWTexture2D<uint2> TransparentLightGridTexture : register(u3);
+
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, OpaqueVisibleLightsBuffer, 11);
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, TransparentVisibleLightsBuffer, 12);
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, LightIndexCounters, 13); // first index is used for opaque counter, the second is for transparent one
 
 
-[numthreads(16, 16, 1)]
-void MainCS(uint3 id : SV_DispatchThreadID)
+CBUFFER_SECTION_EX(Parameters, 4)
+	int2 mWorkGroups;
+CBUFFER_ENDSECTION
+
+
+#define MAX_LIGHTS_PER_TILE 256 // \todo Move into common include file
+#define LIGHT_TILE_SIZE 16  // \todo Move into common include file
+
+
+groupshared uint minDepthInt;
+groupshared uint maxDepthInt;
+
+groupshared TileFrustum GroupFrustum;
+
+groupshared uint OpaqueVisibleLightsCount;
+groupshared uint OpaqueLightsIndexStartOffset;
+groupshared uint OpaqueVisibleLightsIndices[MAX_LIGHTS_PER_TILE];
+
+groupshared uint TransparentVisibleLightsCount;
+groupshared uint TransparentLightsIndexStartOffset;
+groupshared uint TransparentVisibleLightsIndices[MAX_LIGHTS_PER_TILE];
+
+
+void AppendLightToOpaqueList(uint lightIndex)
 {
-	LightGridTexture[id.xy] = id.xy;
+	uint index;
+	InterlockedAdd(OpaqueVisibleLightsCount, 1, index);
+
+	if (index < MAX_LIGHTS_PER_TILE)
+	{
+		OpaqueVisibleLightsIndices[index] = lightIndex;
+	}
+}
+
+void AppendLightToTransparentList(uint lightIndex)
+{
+	uint index;
+	InterlockedAdd(TransparentVisibleLightsCount, 1, index);
+
+	if (index < MAX_LIGHTS_PER_TILE)
+	{
+		TransparentVisibleLightsIndices[index] = lightIndex;
+	}
+}
+
+
+[numthreads(LIGHT_TILE_SIZE, LIGHT_TILE_SIZE, 1)]
+void MainCS(uint3 groupId : SV_GroupID, uint3 groupThreadId : SV_GroupThreadID, uint groupIndex : SV_GroupIndex, uint3 dispatchThreadId : SV_DispatchThreadID)
+{
+	// initialization of shared state and global values
+	if (groupIndex == 0)
+	{
+		minDepthInt = 0xffffffff;
+		maxDepthInt = 0;
+
+		GroupFrustum = TileFrustums[groupId.x + groupId.y * mWorkGroups.x];
+
+		LightIndexCounters[0] = 0;
+		LightIndexCounters[1] = 0;
+
+		OpaqueLightsIndexStartOffset = 0;
+		OpaqueVisibleLightsCount = 0;
+		TransparentLightsIndexStartOffset = 0;
+		TransparentVisibleLightsCount = 0;
+
+		OpaqueLightGridTexture[groupId.xy] = uint2(0, 0);
+		TransparentLightGridTexture[groupId.xy] = uint2(0, 0);
+	}
+
+	GroupMemoryBarrierWithGroupSync();
+
+	// compute max/min depth values for the tile
+	uint2 texCoords = dispatchThreadId.xy;
+
+	// \todo Implement depth's linearization
+	uint currIntDepth = asuint(DepthTexture.Load(int3(texCoords, 0)).r);
+	InterlockedMin(minDepthInt, currIntDepth);
+	InterlockedMax(maxDepthInt, currIntDepth);
+
+	float minTileDepth = asfloat(minDepthInt);
+	float maxTileDepth = asfloat(maxDepthInt);
+
+	// Convert depth values to view space
+	float minDepthViewSpace = ClipToView(float4(0.0, 0.0, minTileDepth, 1.0)).z;
+	float maxDepthViewSpace = ClipToView(float4(0.0, 0.0, maxTileDepth, 1.0)).z;
+	float nearClipViewSpace = ClipToView(float4(0.0, 0.0, 0.0, 1.0)).z;
+
+	float4 minPlane = float4(0.0, 0.0, 1.0, minDepthViewSpace);
+
+	GroupMemoryBarrierWithGroupSync();
+
+	// cull lights
+	for (uint i = groupIndex; i < ActiveLightsCount; i += LIGHT_TILE_SIZE * LIGHT_TILE_SIZE)
+	{
+		LightSourceData currLight = Lights[i];
+
+		switch (currLight.mType)
+		{
+			case POINT_LIGHT_TYPE:
+				{
+					// \todo Replace with view space positions/directions/etc...
+					float4 sphere = float4(currLight.mPosition.xyz, currLight.mRange);
+
+					if (SphereInsideFrustum(sphere, GroupFrustum, nearClipViewSpace, maxDepthViewSpace))
+					{
+						AppendLightToTransparentList(i);
+	
+						if (!SphereInsidePlane(sphere, minPlane))
+						{
+							AppendLightToOpaqueList(i);
+						}
+					}
+				}
+				break;
+			
+			case SPOT_LIGHT_TYPE:
+				{
+					// \todo Replace with view space positions/directions/etc...					
+					float coneRadius = tan(radians(currLight.mAngle)) * currLight.mRange;
+					Cone cone = { currLight.mPosition.xyz, currLight.mRange, currLight.mDirection.xyz, coneRadius };
+					
+					if (ConeInsideFrustum(cone, GroupFrustum, nearClipViewSpace, maxDepthViewSpace))
+					{
+						AppendLightToTransparentList(i);
+	 
+						if (!ConeInsidePlane(cone, minPlane))
+						{
+							AppendLightToOpaqueList(i);
+						}
+					}
+				}
+				break;
+		}
+	}
+
+	GroupMemoryBarrierWithGroupSync();
+	
+	// Update global memory with visible light buffer
+	if (groupIndex == 0)
+	{
+		InterlockedAdd(LightIndexCounters[0], OpaqueVisibleLightsCount, OpaqueLightsIndexStartOffset);
+		OpaqueLightGridTexture[groupId.xy] = uint2(OpaqueLightsIndexStartOffset, OpaqueVisibleLightsCount);
+ 
+		InterlockedAdd(LightIndexCounters[1], TransparentVisibleLightsCount, TransparentLightsIndexStartOffset);
+		TransparentLightGridTexture[groupId.xy] = uint2(TransparentLightsIndexStartOffset, TransparentVisibleLightsCount);
+	}
+ 
+	GroupMemoryBarrierWithGroupSync();
+
+	// final gathering
+	for (uint i = groupIndex; i < OpaqueVisibleLightsCount; i += LIGHT_TILE_SIZE * LIGHT_TILE_SIZE)
+	{
+		OpaqueVisibleLightsBuffer[OpaqueLightsIndexStartOffset + i] = OpaqueVisibleLightsIndices[i];
+	}
+	
+	for (uint i = groupIndex; i < TransparentVisibleLightsCount; i += LIGHT_TILE_SIZE * LIGHT_TILE_SIZE)
+	{
+		TransparentVisibleLightsBuffer[TransparentLightsIndexStartOffset + i] = TransparentVisibleLightsIndices[i];
+	}
 }
 
 #endprogram
