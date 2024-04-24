@@ -1,4 +1,5 @@
 #define COMPUTE_ENTRY MainCS
+#define ENABLE_MATH
 
 #program compute
 
@@ -48,10 +49,10 @@ void MainCS(uint3 dispatchThreadId : SV_DispatchThreadID)
 	}
 
 	TileFrustum frustum;
-	frustum.mPlanes[0] = PackPlaneIntoFloat4(cameraOrigin, viewSpaceVerts[2], viewSpaceVerts[0]);
-	frustum.mPlanes[1] = PackPlaneIntoFloat4(cameraOrigin, viewSpaceVerts[1], viewSpaceVerts[3]);
-	frustum.mPlanes[2] = PackPlaneIntoFloat4(cameraOrigin, viewSpaceVerts[0], viewSpaceVerts[1]);
-	frustum.mPlanes[3] = PackPlaneIntoFloat4(cameraOrigin, viewSpaceVerts[3], viewSpaceVerts[2]);
+	frustum.mPlanes[0] = PackPlaneIntoFloat4(viewSpaceVerts[2], cameraOrigin, viewSpaceVerts[0]);
+	frustum.mPlanes[1] = PackPlaneIntoFloat4(viewSpaceVerts[1], cameraOrigin, viewSpaceVerts[3]);
+	frustum.mPlanes[2] = PackPlaneIntoFloat4(viewSpaceVerts[0], cameraOrigin, viewSpaceVerts[1]);
+	frustum.mPlanes[3] = PackPlaneIntoFloat4(viewSpaceVerts[3], cameraOrigin, viewSpaceVerts[2]);
 
 	OutputTileFrustums[index] = frustum;
 }

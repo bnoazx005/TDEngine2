@@ -1,4 +1,5 @@
 #define COMPUTE_ENTRY MainCS
+#define ENABLE_MATH
 
 #program compute
 
@@ -96,17 +97,17 @@ void MainCS(uint3 groupId : SV_GroupID, uint3 groupThreadId : SV_GroupThreadID, 
 	InterlockedMin(minDepthInt, currIntDepth);
 	InterlockedMax(maxDepthInt, currIntDepth);
 
+	GroupMemoryBarrierWithGroupSync();
+
 	float minTileDepth = asfloat(minDepthInt);
 	float maxTileDepth = asfloat(maxDepthInt);
 
 	// Convert depth values to view space
 	float minDepthViewSpace = ClipToView(float4(0.0, 0.0, minTileDepth, 1.0)).z;
-	float maxDepthViewSpace = ClipToView(float4(0.0, 0.0, maxTileDepth, 1.0)).z;
+	float maxDepthViewSpace = ClipToView(float4(0.0, 0.0, 1.0, 1.0)).z; // \todo z replaced with 1.0 instead of maxTileDepth
 	float nearClipViewSpace = ClipToView(float4(0.0, 0.0, 0.0, 1.0)).z;
 
-	float4 minPlane = float4(0.0, 0.0, 1.0, minDepthViewSpace);
-
-	GroupMemoryBarrierWithGroupSync();
+	Plane minPlane = { float3(0.0, 0.0, 1.0), minDepthViewSpace };
 
 	// cull lights
 	for (uint i = groupIndex; i < ActiveLightsCount; i += LIGHT_TILE_SIZE * LIGHT_TILE_SIZE)
@@ -118,25 +119,27 @@ void MainCS(uint3 groupId : SV_GroupID, uint3 groupThreadId : SV_GroupThreadID, 
 			case POINT_LIGHT_TYPE:
 				{
 					// \todo Replace with view space positions/directions/etc...
-					float4 sphere = float4(currLight.mPosition.xyz, currLight.mRange);
+					float4 sphere = float4(mul(ViewMat, currLight.mPosition).xyz, currLight.mRange);
 
 					if (SphereInsideFrustum(sphere, GroupFrustum, nearClipViewSpace, maxDepthViewSpace))
 					{
 						AppendLightToTransparentList(i);
+						TransparentLightGridTexture[groupId.xy] = uint2(10000, 0);
 	
 						if (!SphereInsidePlane(sphere, minPlane))
 						{
 							AppendLightToOpaqueList(i);
+							//OpaqueLightGridTexture[groupId.xy] = uint2(10000, 0);
 						}
 					}
 				}
 				break;
 			
 			case SPOT_LIGHT_TYPE:
-				{
+				/*{
 					// \todo Replace with view space positions/directions/etc...					
 					float coneRadius = tan(radians(currLight.mAngle)) * currLight.mRange;
-					Cone cone = { currLight.mPosition.xyz, currLight.mRange, currLight.mDirection.xyz, coneRadius };
+					Cone cone = { mul(ViewMat, currLight.mPosition).xyz, currLight.mRange, mul(ViewMat, currLight.mDirection).xyz, coneRadius };
 					
 					if (ConeInsideFrustum(cone, GroupFrustum, nearClipViewSpace, maxDepthViewSpace))
 					{
@@ -147,13 +150,13 @@ void MainCS(uint3 groupId : SV_GroupID, uint3 groupThreadId : SV_GroupThreadID, 
 							AppendLightToOpaqueList(i);
 						}
 					}
-				}
+				}*/
 				break;
 		}
 	}
 
 	GroupMemoryBarrierWithGroupSync();
-	
+	/*
 	// Update global memory with visible light buffer
 	if (groupIndex == 0)
 	{
@@ -175,7 +178,7 @@ void MainCS(uint3 groupId : SV_GroupID, uint3 groupThreadId : SV_GroupThreadID, 
 	for (uint i = groupIndex; i < TransparentVisibleLightsCount; i += LIGHT_TILE_SIZE * LIGHT_TILE_SIZE)
 	{
 		TransparentVisibleLightsBuffer[TransparentLightsIndexStartOffset + i] = TransparentVisibleLightsIndices[i];
-	}
+	}*/
 }
 
 #endprogram

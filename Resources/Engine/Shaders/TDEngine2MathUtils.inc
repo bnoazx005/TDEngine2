@@ -192,9 +192,18 @@ float CalcWorleyFbmNoise3D(float3 p, int octavesCount, float frequency)
 }
 
 
+#ifdef ENABLE_MATH
+
+struct Plane
+{
+	float3 normal;
+	float dist;
+};
+
+
 struct TileFrustum
 {
-	float4 mPlanes[4];	// near and far planes are computed right before lights culling
+	Plane mPlanes[4];	// near and far planes are computed right before lights culling
 };
 
 
@@ -208,14 +217,17 @@ struct Cone
 
 
 // Creates a plane based on three points and packs it into float4 variable where first three x, y, z form plane's normal, w is distance to origin 
-float4 PackPlaneIntoFloat4(float3 p0, float3 p1, float3 p2)
-{ 
+Plane PackPlaneIntoFloat4(float3 p0, float3 p1, float3 p2)
+{
+	Plane result;
+
 	float3 v0 = p1 - p0;
 	float3 v2 = p2 - p0;
  
-	float3 normal = normalize(cross(v0, v2));
+	result.normal = normalize(cross(v2, v0));
+	result.dist = -dot(result.normal, p0);
 	
-	return float4(normal, dot(normal, p0));
+	return result;
 }
 
 
@@ -229,9 +241,9 @@ float4 ClipToView(float4 clipPos)
 }
 
 
-bool SphereInsidePlane(float4 sphere, float4 plane)
+bool SphereInsidePlane(float4 sphere, Plane plane)
 {
-	return dot(plane.xyz, sphere.xyz) - plane.w < -sphere.w;
+	return dot(plane.normal, sphere.xyz) - plane.dist < -sphere.w;
 }
 
 
@@ -260,16 +272,16 @@ bool SphereInsideFrustum(float4 sphere, TileFrustum frustum, float zNear, float 
 }
 
 
-bool PointInsidePlane(float3 p, float4 plane) 
+bool PointInsidePlane(float3 p, Plane plane) 
 { 
-	return dot(plane.xyz, p) - plane.w < 0.0; 
+	return dot(plane.normal, p) - plane.dist < 0.0; 
 }
 
 
-bool ConeInsidePlane(Cone cone, float4 plane)
+bool ConeInsidePlane(Cone cone, Plane plane)
 {
 	// Compute the farthest point on the end of the cone to the positive space of the plane.
-	float3 Q = cone.T + cone.d * cone.h - cross(cross(plane.xyz, cone.d), cone.d) * cone.r;
+	float3 Q = cone.T + cone.d * cone.h - cross(cross(plane.normal, cone.d), cone.d) * cone.r;
 
 	// The cone is in the negative halfspace of the plane if both
 	// the tip of the cone and the farthest point on the end of the cone to the 
@@ -283,8 +295,8 @@ bool ConeInsideFrustum(Cone cone, TileFrustum frustum, float zNear, float zFar)
 {
 	bool result = true;
 
-	float4 nearPlane = float4(0.0, 0.0, -1.0, -zNear);
-	float4 farPlane = float4(0.0, 0.0, 1.0, zFar);
+	Plane nearPlane = { float3(0.0, 0.0, -1.0), -zNear };
+	Plane farPlane = { float3(0.0, 0.0, 1.0), zFar };
 
 	// First check the near and far clipping planes.
 	if (ConeInsidePlane(cone, nearPlane) || ConeInsidePlane(cone, farPlane))
@@ -303,6 +315,8 @@ bool ConeInsideFrustum(Cone cone, TileFrustum frustum, float zNear, float zFar)
 
 	return result;
 }
+
+#endif
 
 
 #endif
