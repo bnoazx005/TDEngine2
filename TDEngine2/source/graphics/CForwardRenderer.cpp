@@ -29,6 +29,9 @@
 
 namespace TDEngine2
 {
+	CInt32ConsoleVarDecl EnableLightsHeatMapCfgVar("lights_heatmap_enabled", "", 0);
+
+
 	typedef struct TFramePostProcessorParameters
 	{
 		IRenderer* mpRenderer;
@@ -231,6 +234,7 @@ namespace TDEngine2
 			TResourceId                   mToneMappingPassMaterialHandle;
 			TResourceId                   mGenerateLuminanceMaterialHandle;
 			TResourceId                   mLuminanceAdaptationMaterialHandle;
+			TResourceId                   mBuildLightsHeatMapMaterialHandle;
 
 			TResourceId                   mVolumetricCloudsComputeShaderHandle;
 			TResourceId                   mVolumetricCloudsUpsampleBlurShaderHandle;
@@ -238,6 +242,7 @@ namespace TDEngine2
 
 			TResourceId                   mRenderTargetHandle;
 			TResourceId                   mUITargetHandle;
+			TResourceId                   mLightsHeatmapTargetHandle;
 			TResourceId                   mBloomRenderTargetHandle;
 			TResourceId                   mTemporaryRenderTargetHandle;
 			TResourceId                   mMainDepthBufferHandle;
@@ -341,6 +346,7 @@ namespace TDEngine2
 		mpGraphicsContext = desc.mpGraphicsObjectManager->GetGraphicsContext();
 		mRenderTargetHandle = TResourceId::Invalid;
 		mUITargetHandle = TResourceId::Invalid;
+		mLightsHeatmapTargetHandle = TResourceId::Invalid;
 
 		auto luminanceTargetResult = GetOrCreateLuminanceTarget(mpResourceManager, "LuminanceTarget", LuminanceTargetSizes);
 		if (luminanceTargetResult.HasError())
@@ -371,6 +377,7 @@ namespace TDEngine2
 		mToneMappingPassMaterialHandle = mpResourceManager->Create<IMaterial>("ToneMappingPass.material", TMaterialParameters{ "Shaders/PostEffects/ToneMapping.shader", false, TDepthStencilStateDesc { false, false } });
 		mGenerateLuminanceMaterialHandle = mpResourceManager->Create<IMaterial>("GenerateLuminance.material", TMaterialParameters{ "Shaders/PostEffects/GenerateLuminance.shader", false, TDepthStencilStateDesc { false, false } });
 		mLuminanceAdaptationMaterialHandle = mpResourceManager->Create<IMaterial>("AdaptLuminance.material", TMaterialParameters{ "Shaders/PostEffects/AdaptLuminance.shader", false, TDepthStencilStateDesc { false, false } });
+		mBuildLightsHeatMapMaterialHandle = mpResourceManager->Create<IMaterial>("BuildLightsHeatmap.material", TMaterialParameters{ "Shaders/PostEffects/LightsHeatmap.shader", false, TDepthStencilStateDesc { false, false } });
 
 		mVolumetricCloudsComputeShaderHandle = mpResourceManager->Load<IShader>("Shaders/Default/Volumetrics/VolumetricClouds.cshader");
 		mVolumetricCloudsUpsampleBlurShaderHandle = mpResourceManager->Load<IShader>("Shaders/Default/Volumetrics/VolumetricCloudsBlur.cshader");
@@ -500,6 +507,17 @@ namespace TDEngine2
 		TPtr<IRenderTarget> pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
 		TPtr<IRenderTarget> pBloomRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mBloomRenderTargetHandle);
 		TPtr<IRenderTarget> pTempRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle);
+
+		if (EnableLightsHeatMapCfgVar.Get())
+		{ // Light heatmap rendering
+#if TDE2_EDITORS_ENABLED
+			auto pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(mpGraphicsContext);
+			TDE_RENDER_SECTION(pGraphicsContext, "LightHeatmapRendering");
+#endif
+			TPtr<IRenderTarget> pLightsHeatmapTarget = mpResourceManager->GetResource<IRenderTarget>(mLightsHeatmapTargetHandle);
+			_renderTargetToTarget(pCurrRenderTarget, nullptr, pLightsHeatmapTarget, mBuildLightsHeatMapMaterialHandle);
+			_renderTargetToTarget(pLightsHeatmapTarget, nullptr, pCurrRenderTarget, mDefaultScreenSpaceMaterialHandle);
+		}
 
 		{ // Luminance calculations
 #if TDE2_EDITORS_ENABLED
@@ -718,6 +736,7 @@ namespace TDEngine2
 		mRenderTargetHandle = GetRenderTarget(mpResourceManager, width, height, isHDRSupport, E_FRAME_RENDER_PARAMS_FLAGS::RENDER_MAIN);
 		mTemporaryRenderTargetHandle = GetRenderTarget(mpResourceManager, width, height, isHDRSupport, E_FRAME_RENDER_PARAMS_FLAGS::NONE);
 		mUITargetHandle = GetRenderTarget(mpResourceManager, width, height, false, E_FRAME_RENDER_PARAMS_FLAGS::RENDER_UI);
+		mLightsHeatmapTargetHandle = GetRenderTarget(mpResourceManager, width, height, false, E_FRAME_RENDER_PARAMS_FLAGS::NONE);
 
 		auto pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mRenderTargetHandle);
 		auto pUIRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mUITargetHandle);

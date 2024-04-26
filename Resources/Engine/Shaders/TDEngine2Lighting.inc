@@ -42,6 +42,7 @@ DECLARE_TYPED_BUFFER_EX(LightSourceData, Lights, 10);
 #ifdef TILED_LIGHTING_ENABLED
 
 #define LIGHT_TILE_BLOCK_SIZE 16
+#define MAX_LIGHTS_PER_TILE 256
 
 DECLARE_TEX2D_TYPED_EX(LightGridTexture, 11, uint2);
 DECLARE_TYPED_BUFFER_EX(uint, VisibleLightIndices, 12);
@@ -234,7 +235,7 @@ float4 CalcLightsContribution(in LightingData lightingData, int activeLightsCoun
 	uint startOffset = LightGridTexture[lightingData.mTileIndex].x;
 	uint lightsCount = LightGridTexture[lightingData.mTileIndex].y;
 
-	[unroll(32)]
+	[unroll(16)]
 	for (int i = 0; i < lightsCount; ++i)
 	{
 		uint lightIndex = VisibleLightIndices[startOffset + i];
