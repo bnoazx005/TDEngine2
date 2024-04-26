@@ -104,7 +104,7 @@ void MainCS(uint3 groupId : SV_GroupID, uint3 groupThreadId : SV_GroupThreadID, 
 
 	// Convert depth values to view space
 	float minDepthViewSpace = ClipToView(float4(0.0, 0.0, minTileDepth, 1.0)).z;
-	float maxDepthViewSpace = ClipToView(float4(0.0, 0.0, 1.0, 1.0)).z; // \todo z replaced with 1.0 instead of maxTileDepth
+	float maxDepthViewSpace = ClipToView(float4(0.0, 0.0, maxTileDepth, 1.0)).z;
 	float nearClipViewSpace = ClipToView(float4(0.0, 0.0, 0.0, 1.0)).z;
 
 	Plane minPlane = { float3(0.0, 0.0, 1.0), minDepthViewSpace };
@@ -118,19 +118,12 @@ void MainCS(uint3 groupId : SV_GroupID, uint3 groupThreadId : SV_GroupThreadID, 
 		{
 			case POINT_LIGHT_TYPE:
 				{
-					// \todo Replace with view space positions/directions/etc...
 					float4 sphere = float4(mul(ViewMat, currLight.mPosition).xyz, currLight.mRange);
 
 					if (SphereInsideFrustum(sphere, GroupFrustum, nearClipViewSpace, maxDepthViewSpace))
 					{
 						AppendLightToTransparentList(i);
-						TransparentLightGridTexture[groupId.xy] = uint2(10000, 0);
-	
-						if (!SphereInsidePlane(sphere, minPlane))
-						{
-							AppendLightToOpaqueList(i);
-							//OpaqueLightGridTexture[groupId.xy] = uint2(10000, 0);
-						}
+						AppendLightToOpaqueList(i);
 					}
 				}
 				break;
@@ -156,7 +149,7 @@ void MainCS(uint3 groupId : SV_GroupID, uint3 groupThreadId : SV_GroupThreadID, 
 	}
 
 	GroupMemoryBarrierWithGroupSync();
-	/*
+	
 	// Update global memory with visible light buffer
 	if (groupIndex == 0)
 	{
@@ -178,7 +171,7 @@ void MainCS(uint3 groupId : SV_GroupID, uint3 groupThreadId : SV_GroupThreadID, 
 	for (uint i = groupIndex; i < TransparentVisibleLightsCount; i += LIGHT_TILE_SIZE * LIGHT_TILE_SIZE)
 	{
 		TransparentVisibleLightsBuffer[TransparentLightsIndexStartOffset + i] = TransparentVisibleLightsIndices[i];
-	}*/
+	}
 }
 
 #endprogram

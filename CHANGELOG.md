@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.27] 2024-04-18
+## [0.6.27] 2024-04-26
 
 ### Added
 
@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Depth pre-pass was implemented for the forward renderer.
 
 - A new global uniform ScreenResolution was added into RareUpdates uniform buffer.
+
+- Now the forward renderer uses tile based lighting optimization.
 
 ### Changed
 

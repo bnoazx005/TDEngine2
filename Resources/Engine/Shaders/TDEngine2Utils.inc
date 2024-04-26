@@ -37,7 +37,7 @@
 	#define DECLARE_TYPED_BUFFER_EX(Type, BufferName, slot) layout(std430, binding = slot) readonly buffer BufferName { Type TYPED_BUFFER_ACCESS(BufferName)[]; }
 
 	#define DECLARE_WRITEABLE_TYPED_BUFFER(Type, BufferName) DECLARE_TYPED_BUFFER(Type, BufferName)
-	#define DECLARE_WRITEABLE_TYPED_BUFFER_EX(Type, BufferName, slot) DECLARE_WRITEABLE_TYPED_BUFFER_EX(Type, BufferName, slot)
+	#define DECLARE_WRITEABLE_TYPED_BUFFER_EX(Type, BufferName, slot) DECLARE_WRITEABLE_TYPED_BUFFER_EX(Type, BufferName,)
 #endif
 
 #ifdef TDE2_HLSL_SHADER
@@ -55,6 +55,7 @@
 
 	#define DECLARE_TEX2D(SamplerName)				 uniform sampler2D SamplerName
 	#define DECLARE_TEX2D_EX(SamplerName, slot)		 uniform sampler2D SamplerName
+	#define DECLARE_TEX2D_TYPED_EX(SamplerName, slot, Type) uniform sampler2D SamplerName
 	#define DECLARE_CUBETEX_EX(SamplerName, slot) 	 uniform samplerCube SamplerName
 	#define DECLARE_TEX2DARRAY_EX(SamplerName, slot) uniform sampler2DArray SamplerName
 	#define DECLARE_TEX3D_EX(SamplerName, slot) 	 uniform sampler3D SamplerName
@@ -81,6 +82,9 @@
 	#define DECLARE_TEX2D_EX(SamplerName, slot)				\
 				Texture2D SamplerName : register(t#slot); 	\
 				SamplerState SamplerName ## _SamplerState : register(s#slot);
+
+	#define DECLARE_TEX2D_TYPED_EX(SamplerName, slot, Type) \
+				Texture2D<Type> SamplerName : register(t#slot)
 
 	#define DECLARE_CUBETEX_EX(SamplerName, slot)			\
 				TextureCube SamplerName : register(t#slot); \

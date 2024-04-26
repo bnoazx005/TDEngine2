@@ -1,6 +1,7 @@
 #define VERTEX_ENTRY mainVS
 #define PIXEL_ENTRY mainPS
 
+#define TILED_LIGHTING_ENABLED
 
 #include <TDEngine2Globals.inc>
 
@@ -72,6 +73,7 @@ CBUFFER_SECTION_EX(ShaderParameters, 4)
 CBUFFER_ENDSECTION
 
 
+[earlydepthstencil]
 float4 mainPS(VertexOut input): SV_TARGET0
 {
 	float2 uv = input.mUV;//lerp(input.mUV, CalcParallaxMappingOffset(input.mUV, normalize(input.mTangentViewDir).xyz, normalize(input.mNormal), 0.2, 8.0, 32.0), parallaxMappingEnabled);
@@ -82,7 +84,8 @@ float4 mainPS(VertexOut input): SV_TARGET0
 	LightingData lightingData = CreateLightingData(input.mWorldPos, float4(normal, 0.0), 
 												   normalize(CameraPosition - input.mWorldPos), 
 												   GammaToLinear(TEX2D(AlbedoMap, uv)),
-												   TEX2D(PropertiesMap, uv));
+												   TEX2D(PropertiesMap, uv),
+												   input.mPos);
 
 	float4 sunLight = CalcSunLightContribution(CreateSunLight(SunLightPosition, SunLightDirection, float4(1.0, 1.0, 1.0, 1.0)), lightingData);
 

@@ -57,6 +57,9 @@ namespace TDEngine2
 	constexpr U32 TRANSPARENT_VISIBLE_LIGHTS_BUFFER_SLOT = 12;
 	constexpr U32 LIGHT_INDEX_COUNTERS_BUFFER_SLOT = 13;
 
+	constexpr U32 LIGHT_GRID_TEXTURE_SLOT = 11;
+	constexpr U32 VISIBLE_LIGHTS_BUFFER_SLOT = 12;
+
 
 	/*!
 		interface IFramePostProcessor
@@ -1244,6 +1247,11 @@ namespace TDEngine2
 	static inline void ExecuteDrawCommands(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties,
 									TPtr<CRenderQueue> pCommandsBuffer, bool shouldClearBuffers, U32 upperRenderIndexLimit = (std::numeric_limits<U32>::max)())
 	{
+		if (pCommandsBuffer->IsEmpty())
+		{
+			return;
+		}
+
 		pCommandsBuffer->Sort();
 		SubmitCommandsToDraw(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pCommandsBuffer, upperRenderIndexLimit);
 
@@ -1379,7 +1387,8 @@ namespace TDEngine2
 		shaderParameters.mWorkGroupsX = lightGridData.mWorkGroupsX;
 		shaderParameters.mWorkGroupsY = lightGridData.mWorkGroupsY;
 
-		if (auto pLightCullShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>("Shaders/Default/ForwardLightCulling.cshader")))
+		auto pLightCullShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>("Shaders/Default/ForwardLightCulling.cshader"));
+		if (pLightCullShader)
 		{
 			pLightCullShader->SetTextureResource("OpaqueLightGridTexture", pResourceManager->GetResource<ITexture>(lightGridData.mOpaqueLightGridTextureHandle).Get());
 			pLightCullShader->SetTextureResource("TransparentLightGridTexture", pResourceManager->GetResource<ITexture>(lightGridData.mTransparentLightGridTextureHandle).Get());
@@ -1391,6 +1400,11 @@ namespace TDEngine2
 		}
 
 		pGraphicsContext->DispatchCompute(lightGridData.mWorkGroupsX, lightGridData.mWorkGroupsY, 1);
+
+		if (pLightCullShader)
+		{
+			pLightCullShader->Unbind();
+		}
 
 		// unbind lights indices buffers
 		result = result | pGraphicsContext->SetStructuredBuffer(OPAQUE_VISIBLE_LIGHTS_BUFFER_SLOT, TBufferHandleId::Invalid, true);
@@ -1424,22 +1438,33 @@ namespace TDEngine2
 
 			pFramePostProcessor->Render([&]
 			{
-				const U8 firstGroupId = static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_FIRST_GROUP);
-				const U8 lastGroupId = static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_LAST_GROUP);
-
-				TPtr<CRenderQueue> pCurrCommandBuffer;
-
-				for (U8 currGroup = firstGroupId; currGroup <= lastGroupId; ++currGroup)
+				pGraphicsContext->SetStructuredBuffer(VISIBLE_LIGHTS_BUFFER_SLOT, lightGridData.mOpaqueVisibleLightsBufferHandle, false);
+				
+				if (auto pLightGridTexture = pResourceManager->GetResource<ITexture>(lightGridData.mOpaqueLightGridTextureHandle))
 				{
-					pCurrCommandBuffer = pRenderQueues[currGroup];
-
-					if (!pCurrCommandBuffer || pCurrCommandBuffer->IsEmpty() || static_cast<E_RENDER_QUEUE_GROUP>(currGroup) == E_RENDER_QUEUE_GROUP::RQG_OVERLAY)
-					{
-						continue;
-					}
-
-					ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pCurrCommandBuffer, true, (std::numeric_limits<U32>::max)());
+					pLightGridTexture->SetWriteable(false);
+					pLightGridTexture->Bind(LIGHT_GRID_TEXTURE_SLOT);
 				}
+
+				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, 
+					pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OPAQUE_GEOMETRY)], true); // opaque
+
+				pGraphicsContext->SetStructuredBuffer(VISIBLE_LIGHTS_BUFFER_SLOT, lightGridData.mOpaqueVisibleLightsBufferHandle, false);
+
+				if (auto pLightGridTexture = pResourceManager->GetResource<ITexture>(lightGridData.mTransparentLightGridTextureHandle))
+				{
+					pLightGridTexture->SetWriteable(false);
+					pLightGridTexture->Bind(LIGHT_GRID_TEXTURE_SLOT);
+				}
+
+				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, 
+					pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_TRANSPARENT_GEOMETRY)], true); // transparent
+
+				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties,
+					pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SPRITES)], true); // sprites
+
+				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties,
+					pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEBUG)], true); // debug
 			}, E_FRAME_RENDER_PARAMS_FLAGS::BIND_DEPTH_BUFFER | E_FRAME_RENDER_PARAMS_FLAGS::CLEAR_RENDER_TARGET | E_FRAME_RENDER_PARAMS_FLAGS::RENDER_MAIN);
 		}
 

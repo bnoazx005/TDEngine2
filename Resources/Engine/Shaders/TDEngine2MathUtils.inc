@@ -241,34 +241,38 @@ float4 ClipToView(float4 clipPos)
 }
 
 
+float CalcDistanceFromPlaneToPoint(Plane plane, float3 p)
+{
+	return dot(plane.normal, p) + plane.dist;
+}
+
+
 bool SphereInsidePlane(float4 sphere, Plane plane)
 {
-	return dot(plane.normal, sphere.xyz) - plane.dist < -sphere.w;
+	return CalcDistanceFromPlaneToPoint(plane, sphere.xyz) > -sphere.w;
 }
 
 
 bool SphereInsideFrustum(float4 sphere, TileFrustum frustum, float zNear, float zFar)
-{
-	bool result = true;
- 
+{ 
 	// First check depth
 	// Note: Here, the view vector points in the -Z axis so the 
 	// far depth value will be approaching -infinity.
-	if (sphere.z - sphere.w > zNear || sphere.z + sphere.w < zFar)
-	{
-		result = false;
-	}
+	//if (sphere.z - sphere.w > zNear || sphere.z + sphere.w < zFar)
+	//{
+	//	result = false;
+	//}
  
 	// Then check frustum planes
-	for (int i = 0; i < 4 && result; i++)
+	for (int i = 0; i < 4; i++)
 	{
-		if (SphereInsidePlane(sphere, frustum.mPlanes[i]))
+		if (!SphereInsidePlane(sphere, frustum.mPlanes[i]))
 		{
-			result = false;
+			return false;
 		}
 	}
  
-	return result;
+	return true;
 }
 
 

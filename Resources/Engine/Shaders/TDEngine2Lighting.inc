@@ -17,6 +17,7 @@
 #define SPOT_LIGHT_TYPE 1
 
 
+
 struct LightSourceData
 {
 	float4   mPosition;
@@ -37,6 +38,15 @@ struct LightSourceData
 
 
 DECLARE_TYPED_BUFFER_EX(LightSourceData, Lights, 10);
+
+#ifdef TILED_LIGHTING_ENABLED
+
+#define LIGHT_TILE_BLOCK_SIZE 16
+
+DECLARE_TEX2D_TYPED_EX(LightGridTexture, 11, uint2);
+DECLARE_TYPED_BUFFER_EX(uint, VisibleLightIndices, 12);
+
+#endif
 
 
 float GetLightAttenuation(in LightSourceData light, in float4 pos)
@@ -73,10 +83,11 @@ struct LightingData
 	float4 mViewDir;
 	float4 mAlbedo;
 	float4 mMaterialProperties; // x - roughness, y - metalness
+	uint2  mTileIndex;
 };
 
 
-LightingData CreateLightingData(float4 pos, float4 normal, float4 viewDir, float4 albedo, float4 materialProperties)
+LightingData CreateLightingData(float4 pos, float4 normal, float4 viewDir, float4 albedo, float4 materialProperties, float4 fragPos)
 {
 	LightingData lightData;
 	
@@ -85,6 +96,10 @@ LightingData CreateLightingData(float4 pos, float4 normal, float4 viewDir, float
 	lightData.mViewDir = viewDir;
 	lightData.mAlbedo = albedo;
 	lightData.mMaterialProperties = materialProperties;
+
+#ifdef TILED_LIGHTING_ENABLED
+	lightData.mTileIndex = uint2(floor(fragPos.xy / LIGHT_TILE_BLOCK_SIZE));
+#endif
 
 	return lightData;
 }
@@ -214,6 +229,32 @@ float4 CalcLightsContribution(in LightingData lightingData, int activeLightsCoun
 {
 	float4 lightContribution = float4(0.0, 0.0, 0.0, 0.0);
 
+#ifdef TILED_LIGHTING_ENABLED
+	
+	uint startOffset = LightGridTexture[lightingData.mTileIndex].x;
+	uint lightsCount = LightGridTexture[lightingData.mTileIndex].y;
+
+	[unroll(32)]
+	for (int i = 0; i < lightsCount; ++i)
+	{
+		uint lightIndex = VisibleLightIndices[startOffset + i];
+
+		if (length(TYPED_BUFFER_ACCESS(Lights)[lightIndex].mPosition - lightingData.mPosition) < TYPED_BUFFER_ACCESS(Lights)[lightIndex].mRange)
+		{
+			switch (TYPED_BUFFER_ACCESS(Lights)[lightIndex].mType)
+			{
+				case POINT_LIGHT_TYPE:
+					lightContribution += CalcPointLightContribution(TYPED_BUFFER_ACCESS(Lights)[lightIndex], lightingData) * (1.0 - ComputePointLightShadowFactor(TYPED_BUFFER_ACCESS(Lights)[lightIndex], lightingData.mPosition, 0.1));
+					break;
+				case SPOT_LIGHT_TYPE:
+					lightContribution += CalcSpotLightContribution(TYPED_BUFFER_ACCESS(Lights)[lightIndex], lightingData);
+					break;
+			}
+		}
+	}
+
+#else
+
 	for (int i = 0; i < activeLightsCount; ++i)
 	{
 		if (length(TYPED_BUFFER_ACCESS(Lights)[i].mPosition - lightingData.mPosition) < TYPED_BUFFER_ACCESS(Lights)[i].mRange)
@@ -229,6 +270,7 @@ float4 CalcLightsContribution(in LightingData lightingData, int activeLightsCoun
 			}
 		}
 	}
+#endif
 
 	return lightContribution;
 }
