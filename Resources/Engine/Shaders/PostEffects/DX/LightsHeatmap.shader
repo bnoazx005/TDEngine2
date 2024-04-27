@@ -34,10 +34,22 @@ DECLARE_TEX2D_EX(FrameTexture, 0);
 float4 mainPS(VertexOut input): SV_TARGET0
 {
 	uint2 tileIndex = uint2(floor(input.mPos.xy / LIGHT_TILE_BLOCK_SIZE));
-	uint lightsCount = LightGridTexture[tileIndex].y;
 
-	float t = lightsCount / float(MAX_LIGHTS_PER_TILE);
+	const float3 mapTex[] = {
+		float3(0,0,0),
+		float3(0,0,1),
+		float3(0,1,1),
+		float3(0,1,0),
+		float3(1,1,0),
+		float3(1,0,0),
+	};
 
-	return TEX2D(FrameTexture, input.mUV) + float4(sin(t), sin(t * 2.0), cos(t), 0.0);
+	const uint mapTexLen = 5;
+	const uint maxHeat = 50;
+
+	float l = saturate((float)LightGridTexture[tileIndex].y / maxHeat) * mapTexLen;
+	float4 heatmap = float4(lerp(mapTex[floor(l)], mapTex[ceil(l)], l - floor(l)), 0.8);
+
+	return TEX2D(FrameTexture, input.mUV) + heatmap;
 }
 #endprogram
