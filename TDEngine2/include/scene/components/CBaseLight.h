@@ -62,8 +62,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseLight)
 		protected:
-			TColor32F mColor;
-
-			F32       mIntensity;
+			TColor32F mColor = TColorUtils::mWhite;
+			F32       mIntensity = 1.0f;
 	};
 }
