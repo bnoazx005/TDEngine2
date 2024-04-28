@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.27] 2024-04-26
+## [0.6.27] 2024-04-28
 
 ### Added
 
@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Incorrect initialization of structured buffers under D3D11 graphics context was fixed.
+
+- Incorrect hashing of blend states was fixed.
 
 ## [0.6.26] 2024-04-07
 
