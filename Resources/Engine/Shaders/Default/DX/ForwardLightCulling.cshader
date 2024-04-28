@@ -75,9 +75,6 @@ void MainCS(uint3 groupId : SV_GroupID, uint3 groupThreadId : SV_GroupThreadID, 
 
 		GroupFrustum = TileFrustums[groupId.x + groupId.y * mWorkGroups.x];
 
-		LightIndexCounters[0] = 0;
-		LightIndexCounters[1] = 0;
-
 		OpaqueLightsIndexStartOffset = 0;
 		OpaqueVisibleLightsCount = 0;
 		TransparentLightsIndexStartOffset = 0;

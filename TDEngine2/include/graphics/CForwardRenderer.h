@@ -42,7 +42,7 @@ namespace TDEngine2
 		U32              mWorkGroupsX = 0;
 		U32              mWorkGroupsY = 0;
 
-		TResourceId      mMainDepthBufferHandle;
+		TResourceId      mMainDepthBufferHandle = TResourceId::Invalid;
 
 		TResourceId      mOpaqueLightGridTextureHandle;
 		TBufferHandleId  mOpaqueVisibleLightsBufferHandle;
@@ -52,6 +52,7 @@ namespace TDEngine2
 
 		TBufferHandleId  mTileFrustumsBufferHandle;
 		TBufferHandleId  mLightIndexCountersBufferHandle;
+		TBufferHandleId  mLightIndexCountersInitializerBufferHandle;
 
 		bool             mIsTileFrustumsInitialized = false;
 	} TLightCullingData, *TLightCullingDataPtr;

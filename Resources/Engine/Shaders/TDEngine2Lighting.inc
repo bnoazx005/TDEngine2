@@ -239,16 +239,17 @@ float4 CalcLightsContribution(in LightingData lightingData, int activeLightsCoun
 	for (int i = 0; i < lightsCount; ++i)
 	{
 		uint lightIndex = VisibleLightIndices[startOffset + i];
+		LightSourceData currLight = TYPED_BUFFER_ACCESS(Lights)[lightIndex];
 
-		if (length(TYPED_BUFFER_ACCESS(Lights)[lightIndex].mPosition - lightingData.mPosition) < TYPED_BUFFER_ACCESS(Lights)[lightIndex].mRange)
+		if (length(currLight.mPosition - lightingData.mPosition) < currLight.mRange)
 		{
-			switch (TYPED_BUFFER_ACCESS(Lights)[lightIndex].mType)
+			switch (currLight.mType)
 			{
 				case POINT_LIGHT_TYPE:
-					lightContribution += CalcPointLightContribution(TYPED_BUFFER_ACCESS(Lights)[lightIndex], lightingData) * (1.0 - ComputePointLightShadowFactor(TYPED_BUFFER_ACCESS(Lights)[lightIndex], lightingData.mPosition, 0.1));
+					lightContribution += CalcPointLightContribution(currLight, lightingData) * (1.0 - ComputePointLightShadowFactor(currLight, lightingData.mPosition, 0.1));
 					break;
 				case SPOT_LIGHT_TYPE:
-					lightContribution += CalcSpotLightContribution(TYPED_BUFFER_ACCESS(Lights)[lightIndex], lightingData);
+					lightContribution += CalcSpotLightContribution(currLight, lightingData);
 					break;
 			}
 		}

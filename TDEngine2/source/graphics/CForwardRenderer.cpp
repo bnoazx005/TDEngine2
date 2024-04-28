@@ -508,7 +508,7 @@ namespace TDEngine2
 		TPtr<IRenderTarget> pBloomRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mBloomRenderTargetHandle);
 		TPtr<IRenderTarget> pTempRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle);
 
-		if (EnableLightsHeatMapCfgVar.Get())
+		//if (EnableLightsHeatMapCfgVar.Get())
 		{ // Light heatmap rendering
 #if TDE2_EDITORS_ENABLED
 			auto pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(mpGraphicsContext);
@@ -1057,6 +1057,33 @@ namespace TDEngine2
 	}
 
 
+	static TResult<TBufferHandleId> CreateLightIndexCountersBuffer(IGraphicsObjectManager* pGraphicsObjectManager, bool isInitializerBuffer = false, 
+		const std::string& debugName = "LightIndexCounters")
+	{
+		static const std::array<U32, 4> initialValues{ 0 };
+
+		auto lightIndexCountersCreateResult = pGraphicsObjectManager->CreateBuffer(
+			{
+				isInitializerBuffer ? E_BUFFER_USAGE_TYPE::STATIC : E_BUFFER_USAGE_TYPE::DEFAULT,
+				E_BUFFER_TYPE::STRUCTURED,
+				sizeof(U32) * initialValues.size(),
+				initialValues.data(),
+				sizeof(U32) * initialValues.size(),
+				!isInitializerBuffer,
+				sizeof(U32),
+				E_STRUCTURED_BUFFER_TYPE::DEFAULT,
+				E_INDEX_FORMAT_TYPE::INDEX16, debugName
+			});
+
+		if (lightIndexCountersCreateResult.HasError())
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(lightIndexCountersCreateResult.GetError());
+		}
+
+		return Wrench::TOkValue<TBufferHandleId>(lightIndexCountersCreateResult.Get());
+	}
+
+
 	static TResult<TLightCullingData> InitLightGrid(const TRendererInitParams& params)
 	{
 		TLightCullingData data;
@@ -1086,24 +1113,22 @@ namespace TDEngine2
 		std::tie(data.mTransparentLightGridTextureHandle, data.mTransparentVisibleLightsBufferHandle) = transparentLightCullingStructsResult.Get();
 
 		// \note Create buffer for light index counters
-		auto lightIndexCountersCreateResult = graphicsObjectManager->CreateBuffer(
-			{
-				E_BUFFER_USAGE_TYPE::DEFAULT,
-				E_BUFFER_TYPE::STRUCTURED,
-				sizeof(U32) * 4,
-				nullptr,
-				sizeof(U32) * 4,
-				true,
-				sizeof(U32),
-				E_STRUCTURED_BUFFER_TYPE::DEFAULT
-			});
-
+		auto lightIndexCountersCreateResult = CreateLightIndexCountersBuffer(graphicsObjectManager);
 		if (lightIndexCountersCreateResult.HasError())
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(lightIndexCountersCreateResult.GetError());
 		}
 
 		data.mLightIndexCountersBufferHandle = lightIndexCountersCreateResult.Get();
+
+		// \note Create buffer for initialization of mLightIndexCountersBuffer buffer on per frame basis
+		auto lightIndexCountersInitializerCreateResult = CreateLightIndexCountersBuffer(graphicsObjectManager, true, "LightIndexCountersInitial");
+		if (lightIndexCountersInitializerCreateResult.HasError())
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(lightIndexCountersInitializerCreateResult.GetError());
+		}
+
+		data.mLightIndexCountersInitializerBufferHandle = lightIndexCountersInitializerCreateResult.Get();
 
 		// \note Create frustums buffer
 		const USIZE frustumsBufferSize = data.mWorkGroupsX * data.mWorkGroupsY * sizeof(TVector4) * 4;
@@ -1390,7 +1415,7 @@ namespace TDEngine2
 		TDE2_PROFILER_SCOPE("LightCulling");
 		TDE_RENDER_SECTION(pGraphicsContext, "LightCulling");
 
-		E_RESULT_CODE result = RC_OK;
+		E_RESULT_CODE result = pGraphicsContext->CopyResource(lightGridData.mLightIndexCountersInitializerBufferHandle, lightGridData.mLightIndexCountersBufferHandle);
 
 		// \note Cull lighting shader
 		result = result | pGraphicsContext->SetStructuredBuffer(OPAQUE_VISIBLE_LIGHTS_BUFFER_SLOT, lightGridData.mOpaqueVisibleLightsBufferHandle, true);
@@ -1435,7 +1460,7 @@ namespace TDEngine2
 
 
 	static inline E_RESULT_CODE RenderMainPasses(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties,
-										TPtr<IFramePostProcessor> pFramePostProcessor, TPtr<CRenderQueue> pRenderQueues[], const TLightCullingData& lightGridData)
+										TPtr<IFramePostProcessor> pFramePostProcessor, TPtr<CRenderQueue> pRenderQueues[], TLightCullingData& lightGridData)
 	{
 		TDE2_PROFILER_SCOPE("Renderer::RenderAll");
 
@@ -1450,6 +1475,7 @@ namespace TDEngine2
 			}, E_FRAME_RENDER_PARAMS_FLAGS::BIND_DEPTH_BUFFER);
 		}
 
+		lightGridData.mMainDepthBufferHandle = pFramePostProcessor->GetMainDepthBufferHandle();
 		CullLights(pGraphicsContext, pResourceManager, lightGridData);
 
 		{
@@ -1468,7 +1494,7 @@ namespace TDEngine2
 				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, 
 					pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OPAQUE_GEOMETRY)], true); // opaque
 
-				pGraphicsContext->SetStructuredBuffer(VISIBLE_LIGHTS_BUFFER_SLOT, lightGridData.mOpaqueVisibleLightsBufferHandle, false);
+				pGraphicsContext->SetStructuredBuffer(VISIBLE_LIGHTS_BUFFER_SLOT, lightGridData.mTransparentVisibleLightsBufferHandle, false);
 
 				if (auto pLightGridTexture = pResourceManager->GetResource<ITexture>(lightGridData.mTransparentLightGridTextureHandle))
 				{
@@ -1754,8 +1780,6 @@ namespace TDEngine2
 		mpGraphicsContext->ClearStencilBuffer(0x0);
 
 		mpDebugUtility->PreRender();
-
-		mLightGridData.mMainDepthBufferHandle = mpFramePostProcessor->GetMainDepthBufferHandle();
 
 		if (!mLightGridData.mIsTileFrustumsInitialized)
 		{
