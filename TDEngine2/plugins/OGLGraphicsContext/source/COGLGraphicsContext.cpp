@@ -459,6 +459,11 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE COGLGraphicsContext::CopyResource(TBufferHandleId sourceHandle, TBufferHandleId destHandle)
+	{
+		return RC_OK;
+	}
+
 	void COGLGraphicsContext::Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices)
 	{
 		GL_SAFE_VOID_CALL(glDrawArrays(COGLMappings::GetPrimitiveTopology(topology), startVertex, numOfVertices));

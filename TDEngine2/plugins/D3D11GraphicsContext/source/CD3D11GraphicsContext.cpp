@@ -574,6 +574,21 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CD3D11GraphicsContext::CopyResource(TBufferHandleId sourceHandle, TBufferHandleId destHandle)
+	{
+		auto pSourceBuffer = mpGraphicsObjectManagerD3D11Impl->GetD3D11BufferPtr(sourceHandle);
+		auto pDestBuffer = mpGraphicsObjectManagerD3D11Impl->GetD3D11BufferPtr(destHandle);
+
+		if (!pSourceBuffer || !pDestBuffer)
+		{
+			return RC_FAIL;
+		}
+
+		mp3dDeviceContext->CopyResource(pDestBuffer->GetD3D11Buffer(), pSourceBuffer->GetD3D11Buffer());
+		
+		return RC_OK;
+	}
+
 	void CD3D11GraphicsContext::Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices)
 	{
 		mp3dDeviceContext->IASetPrimitiveTopology(CD3D11Mappings::GetPrimitiveTopology(topology));

@@ -193,6 +193,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE CopyResource(TBufferHandleId sourceHandle, TTextureHandleId destHandle) override;
 			// Readback data from texture into a buffer
 			TDE2_API E_RESULT_CODE CopyResource(TTextureHandleId sourceHandle, TBufferHandleId destHandle) override;
+			// Copy buffer to buffer
+			TDE2_API E_RESULT_CODE CopyResource(TBufferHandleId sourceHandle, TBufferHandleId destHandle) override;
 
 			/*!
 				\brief The method sends a command to a GPU to draw current attached graphics data

@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Now the forward renderer uses tile based lighting optimization.
 
+- The API of **IGraphicsContext** was extended with CopyResource overloading.
+
 ### Changed
 
 - Now render hardware interface is set up through 'graphics_plugin' field instead of 'renderer_plugin'. 'renderer_plugin' now is reserved for using with renderers plugins.

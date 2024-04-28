@@ -223,6 +223,8 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE CopyResource(TBufferHandleId sourceHandle, TTextureHandleId destHandle) = 0;
 			// Readback data from texture into a buffer
 			TDE2_API virtual E_RESULT_CODE CopyResource(TTextureHandleId sourceHandle, TBufferHandleId destHandle) = 0;
+			// Copy buffer to buffer
+			TDE2_API virtual E_RESULT_CODE CopyResource(TBufferHandleId sourceHandle, TBufferHandleId destHandle) = 0;
 
 			/*!
 				\brief The method sends a command to a GPU to draw current attached graphics data
