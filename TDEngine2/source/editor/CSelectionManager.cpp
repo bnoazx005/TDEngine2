@@ -74,6 +74,8 @@ namespace TDEngine2
 		mpGraphicsContext->ClearDepthBuffer(1.0f);
 		mpGraphicsContext->ClearRenderTarget(pCurrRenderTarget.Get(), TColor32F(0.0f, 0.0f, 0.0f, 0.0f));
 
+		mpGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(pCurrRenderTarget->GetWidth()), static_cast<F32>(pCurrRenderTarget->GetHeight()), 0.0f, 1.0f);
+
 		if (onDrawVisibleObjectsCallback)
 		{
 			onDrawVisibleObjectsCallback();
