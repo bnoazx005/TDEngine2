@@ -77,6 +77,12 @@ namespace TDEngine2
 			TDE2_API void Bind() override;
 
 			/*!
+				\brief The method rejects a shader from a rendering pipeline
+			*/
+
+			TDE2_API void Unbind() override;
+
+			/*!
 				\brief The method unloads resource data from memory
 
 				\return RC_OK if everything went ok, or some other code, which describes an error

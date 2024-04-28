@@ -39,6 +39,7 @@ namespace TDEngine2
 
 	void COGLShader::Unbind()
 	{
+		CBaseShader::Unbind();
 		GL_SAFE_VOID_CALL(glUseProgram(0));
 	}
 

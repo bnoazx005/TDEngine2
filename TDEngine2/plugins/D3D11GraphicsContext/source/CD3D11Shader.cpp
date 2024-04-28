@@ -5,6 +5,7 @@
 #include <graphics/CBaseShader.h>
 #include <graphics/IShaderCompiler.h>
 #include <graphics/IGraphicsObjectManager.h>
+#include <graphics/ITexture.h>
 #include <editor/CPerfProfiler.h>
 #include <cstring>
 #include <array>
@@ -62,6 +63,8 @@ namespace TDEngine2
 
 	void CD3D11Shader::Unbind()
 	{
+		CBaseShader::Unbind();
+
 		/// \fixme Hack to unbind all UAVs from the pipeline when shader is used with Dispatch
 		std::array<ID3D11UnorderedAccessView*, 8> pNullUAVs { nullptr };
 		mp3dDeviceContext->CSSetUnorderedAccessViews(0, static_cast<U32>(pNullUAVs.size()), pNullUAVs.data(), 0);

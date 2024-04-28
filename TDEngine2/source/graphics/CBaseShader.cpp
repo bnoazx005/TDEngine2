@@ -160,6 +160,25 @@ namespace TDEngine2
 		}
 	}
 
+	void CBaseShader::Unbind()
+	{
+		ITexture* pCurrTexture = nullptr;
+		U8 currSlot = 0;
+		bool isWritable = false;
+
+		/// \note Unbind textures
+		for (U32 i = 0; i < mpTextures.size(); ++i)
+		{
+			std::tie(pCurrTexture, currSlot, isWritable) = mpTextures[i];
+			if (!pCurrTexture)
+			{
+				continue;
+			}
+
+			mpGraphicsContext->SetTexture(currSlot, TTextureHandleId::Invalid, isWritable);
+		}
+	}
+
 	E_RESULT_CODE CBaseShader::SetTextureResource(const std::string& resourceName, ITexture* pTexture)
 	{
 		if (resourceName.empty() || !pTexture)
