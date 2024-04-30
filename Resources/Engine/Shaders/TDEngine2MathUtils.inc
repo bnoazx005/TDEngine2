@@ -243,13 +243,13 @@ float4 ClipToView(float4 clipPos)
 
 float CalcDistanceFromPlaneToPoint(Plane plane, float3 p)
 {
-	return dot(plane.normal, p) + plane.dist;
+	return dot(plane.normal, p) - plane.dist;
 }
 
 
 bool SphereInsidePlane(float4 sphere, Plane plane)
 {
-	return CalcDistanceFromPlaneToPoint(plane, sphere.xyz) > -sphere.w;
+	return CalcDistanceFromPlaneToPoint(plane, sphere.xyz) < -sphere.w;
 }
 
 
@@ -258,15 +258,15 @@ bool SphereInsideFrustum(float4 sphere, TileFrustum frustum, float zNear, float 
 	// First check depth
 	// Note: Here, the view vector points in the -Z axis so the 
 	// far depth value will be approaching -infinity.
-	//if (sphere.z - sphere.w > zNear || sphere.z + sphere.w < zFar)
-	//{
-	//	result = false;
-	//}
+	if (sphere.z - sphere.w > zFar || sphere.z + sphere.w < zNear) 
+	{
+		return false;
+	}
  
 	// Then check frustum planes
 	for (int i = 0; i < 4; i++)
 	{
-		if (!SphereInsidePlane(sphere, frustum.mPlanes[i]))
+		if (SphereInsidePlane(sphere, frustum.mPlanes[i]))
 		{
 			return false;
 		}
@@ -278,7 +278,7 @@ bool SphereInsideFrustum(float4 sphere, TileFrustum frustum, float zNear, float 
 
 bool PointInsidePlane(float3 p, Plane plane) 
 { 
-	return dot(plane.normal, p) - plane.dist < 0.0; 
+	return CalcDistanceFromPlaneToPoint(plane, p) < 0.0; 
 }
 
 
@@ -297,27 +297,25 @@ bool ConeInsidePlane(Cone cone, Plane plane)
 
 bool ConeInsideFrustum(Cone cone, TileFrustum frustum, float zNear, float zFar)
 {
-	bool result = true;
-
-	Plane nearPlane = { float3(0.0, 0.0, -1.0), -zNear };
+	Plane nearPlane = { float3(0.0, 0.0, 1.0), zNear };
 	Plane farPlane = { float3(0.0, 0.0, 1.0), zFar };
 
 	// First check the near and far clipping planes.
 	if (ConeInsidePlane(cone, nearPlane) || ConeInsidePlane(cone, farPlane))
 	{
-		result = false;
+		return false;
 	}
 
 	// Then check frustum planes
-	for (int i = 0; i < 4 && result; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		if (ConeInsidePlane(cone, frustum.mPlanes[i]))
 		{
-			result = false;
+			return false;
 		}
 	}
 
-	return result;
+	return true;
 }
 
 #endif
