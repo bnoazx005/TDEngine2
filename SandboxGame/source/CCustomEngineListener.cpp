@@ -1,4 +1,5 @@
 #include "../include/CCustomEngineListener.h"
+#include "../plugins/TDE2VideoPlayers/include/CUIVideoContainerComponent.h"
 #include <TDEngine2.h>
 #include <iostream>
 
@@ -13,41 +14,11 @@ using namespace TDEngine2;
 
 static const std::string DefaultSpriteId = "ProjectResources/Textures/DefaultSprite.tga";
 
-
 E_RESULT_CODE CCustomEngineListener::OnStart()
 {
 	E_RESULT_CODE result = RC_OK;
 
 	mpWorld = mpEngineCoreInstance->GetWorldInstance();
-
-#if 1
-	CWorleyNoise noise;
-
-	constexpr U32 textureSize = 32;
-	constexpr F32 invTextureSize = 1.0f / textureSize;
-	
-	std::vector<U8> pixels(textureSize * textureSize);
-
-	for (U32 y = 0; y < textureSize; y++)
-	{
-		for (U32 x = 0; x < textureSize; x++)
-		{
-			//const F32 p = noise.Compute2D(TVector2(static_cast<F32>(x), static_cast<F32>(y)), 3);
-			const F32 p = noise.Compute3D(
-				TVector3(
-					2.0f * static_cast<F32>(x) * invTextureSize - 1.0f, 
-					2.0f * static_cast<F32>(y) * invTextureSize - 1.0f, 
-					-1.0f), 3, 2.0f);
-			pixels[x + y * textureSize] = static_cast<U8>(round(255.0f * std::max<F32>(0.0f, std::min<F32>(1.0f, p))));
-		}
-	}
-#pragma warning( push )
-#pragma warning( disable : 4996 )
-	stbi_write_png("1.png", textureSize, textureSize, 1, pixels.data(), textureSize);
-#pragma warning(pop)
-#endif
-
-	//auto pBufferPtr = mpGraphicsObjectManager->CreateStructuredBuffer({ mpGraphicsContext, E_STRUCTURED_BUFFER_TYPE::DEFAULT, E_BUFFER_USAGE_TYPE::DEFAULT, 30, sizeof(TVector2), false }).Get();
 
 	//auto pComputeShader = mpResourceManager->GetResource<IShader>(mpResourceManager->Load<IShader>("ProjectShaders/TestCompute.cshader"));
 	////pComputeShader->SetTextureResource()
@@ -157,6 +128,13 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 			}
 
 			pMainScene->Spawn("TestPrefab");
+
+
+			if (auto pWeatherComponent = pMainScene->CreateEntity("Weather")->AddComponent<CWeatherComponent>())
+			{
+				pWeatherComponent->mWeatherMapTextureId = "ProjectResources/Textures/weather.png";
+			}
+
 		}
 
 #if 0
@@ -325,8 +303,18 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 				pAnimationContainer->SetAnimationClipId("ProjectResources/Animations/Animation2.animation");
 			}
 
-			pScene->CreateSkybox(mpResourceManager, "DefaultResources/Textures/DefaultSkybox");
-			pScene->CreatePointLight(TColorUtils::mWhite, 1.0f, 10.0f);
+			//pScene->CreateSkybox(mpResourceManager, "DefaultResources/Textures/DefaultSkybox");
+			std::array<CTransform*, 3> lightsTranfsforms
+			{
+				pScene->CreatePointLight(TColorUtils::mWhite, 1.0f, 1.0f)->GetComponent<CTransform>(),
+				pScene->CreatePointLight(TColorUtils::mWhite, 1.0f, 1.0f)->GetComponent<CTransform>(),
+				pScene->CreateSpotLight(TColorUtils::mWhite, 1.0f, 30.0f)->GetComponent<CTransform>()
+			};
+
+			lightsTranfsforms[0]->SetPosition(TVector3(0.0f, 0.0f, -1.5f));
+			lightsTranfsforms[1]->SetPosition(TVector3(1.0f, 0.0f, -1.2f));
+			lightsTranfsforms[2]->SetPosition(TVector3(0.0f, 0.0f, 1.2f));
+
 
 #if 1 /// 3D Physics Tests
 			if (auto pPhysicsObject0 = pScene->CreateEntity("PhysicsObject1"))
@@ -623,7 +611,22 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 #endif
 
 			auto canvasEntityResult = CSceneHierarchyUtils::CreateCanvasUIElement(mpWorld, pScene, TEntityId::Invalid, [](auto) {});
-			
+
+#if 0
+			if (auto pVideoEntity = mpWorld->FindEntity(CSceneHierarchyUtils::CreateImageUIElement(mpWorld, pScene, canvasEntityResult.Get(), [](auto) {}).Get()))
+			{
+				CUIVideoContainerComponent* pContainer = pVideoEntity->AddComponent<CUIVideoContainerComponent>();
+				pContainer->mVideoResourceId = "ProjectResources/Videos/Sample01.ogv";
+				//pContainer->mIsAutoplayEnabled = true;
+				//pContainer->mIsLooped = true;
+
+				if (CLayoutElement* pLayoutElement = pVideoEntity->AddComponent<CLayoutElement>())
+				{
+					pLayoutElement->SetMinOffset(TVector2(100.0f, 200.0f));
+					pLayoutElement->SetMaxOffset(TVector2(896.0f, 504.0f));
+				}
+			}
+#endif
 #if 0
 			if (auto pScrollerEntity = mpWorld->FindEntity(CSceneHierarchyUtils::CreateScrollUIArea(mpWorld, pScene, canvasEntityResult.Get(), [](auto) {}).Get()))
 			{
@@ -821,11 +824,14 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	}	
 #endif
 
+#if 0
 	if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_ESCAPE))
 	{
 		return mpEngineCoreInstance->Quit();
 	}
+#endif
 
+#if 0
 	if (mpInputContext->IsKeyPressed(E_KEYCODES::KC_SPACE))
 	{
 		auto pSoundEntity = mpEngineCoreInstance->GetSubsystem<ISceneManager>()->GetScene(TSceneId(1)).Get()->CreateEntity("Sound");
@@ -835,6 +841,7 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 			pAudioSource->SetAudioClipId("test.mp3");
 		}
 	}
+#endif
 
 #if TDE2_EDITORS_ENABLED
 	CTestContext::Get()->Update(dt);
@@ -864,15 +871,21 @@ E_RESULT_CODE CCustomEngineListener::OnUpdate(const float& dt)
 	auto&& m = pTransform->GetTransform();
 #endif
 
-	static F32 t = 0.0f;
-	t += 0.25f * dt;
+	static bool isInitialized = false;
+	static F32 t = 1.0f;
+	//t += 0.25f * dt;
 
-	auto sunEntities = mpWorld->FindEntitiesWithAny<CDirectionalLight>();
-	if (!sunEntities.empty())
+	if (!isInitialized)
 	{
-		CEntity* pSunEntity = mpWorld->FindEntity(sunEntities.front());
-		auto pTransform = pSunEntity->GetComponent<CTransform>();
-		pTransform->SetRotation(TQuaternion(TVector3(-t, 0.0f, 0.0f)));
+		isInitialized = true;
+
+		auto sunEntities = mpWorld->FindEntitiesWithAny<CDirectionalLight>();
+		if (!sunEntities.empty())
+		{
+			CEntity* pSunEntity = mpWorld->FindEntity(sunEntities.front());
+			auto pTransform = pSunEntity->GetComponent<CTransform>();
+			pTransform->SetRotation(TQuaternion(TVector3(-t, 0.0f, 0.0f)));
+		}
 	}
 
 	return RC_OK;

@@ -298,7 +298,7 @@ bool ConeInsidePlane(Cone cone, Plane plane)
 bool ConeInsideFrustum(Cone cone, TileFrustum frustum, float zNear, float zFar)
 {
 	Plane nearPlane = { float3(0.0, 0.0, 1.0), zNear };
-	Plane farPlane = { float3(0.0, 0.0, 1.0), zFar };
+	Plane farPlane = { float3(0.0, 0.0, -1.0), -zFar };
 
 	// First check the near and far clipping planes.
 	if (ConeInsidePlane(cone, nearPlane) || ConeInsidePlane(cone, farPlane))

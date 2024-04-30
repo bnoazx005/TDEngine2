@@ -120,14 +120,17 @@ void MainCS(uint3 groupId : SV_GroupID, uint3 groupThreadId : SV_GroupThreadID, 
 					if (SphereInsideFrustum(sphere, GroupFrustum, nearClipViewSpace, maxDepthViewSpace))
 					{
 						AppendLightToTransparentList(i);
-						AppendLightToOpaqueList(i);
+
+						if (!SphereInsidePlane(sphere, minPlane))
+						{
+							AppendLightToOpaqueList(i);							
+						}
 					}
 				}
 				break;
 			
 			case SPOT_LIGHT_TYPE:
-				/*{
-					// \todo Replace with view space positions/directions/etc...					
+				{				
 					float coneRadius = tan(radians(currLight.mAngle)) * currLight.mRange;
 					Cone cone = { mul(ViewMat, currLight.mPosition).xyz, currLight.mRange, mul(ViewMat, currLight.mDirection).xyz, coneRadius };
 					
@@ -140,7 +143,7 @@ void MainCS(uint3 groupId : SV_GroupID, uint3 groupThreadId : SV_GroupThreadID, 
 							AppendLightToOpaqueList(i);
 						}
 					}
-				}*/
+				}
 				break;
 		}
 	}

@@ -29,7 +29,7 @@
 
 namespace TDEngine2
 {
-	CInt32ConsoleVarDecl EnableLightsHeatMapCfgVar("lights_heatmap_enabled", "", 0);
+	CInt32ConsoleVarDecl EnableLightsHeatMapCfgVar("graphics.lights_heatmap_enabled", "", 0);
 
 
 	typedef struct TFramePostProcessorParameters
@@ -508,7 +508,7 @@ namespace TDEngine2
 		TPtr<IRenderTarget> pBloomRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mBloomRenderTargetHandle);
 		TPtr<IRenderTarget> pTempRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mTemporaryRenderTargetHandle);
 
-		//if (EnableLightsHeatMapCfgVar.Get())
+		if (EnableLightsHeatMapCfgVar.Get())
 		{ // Light heatmap rendering
 #if TDE2_EDITORS_ENABLED
 			auto pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(mpGraphicsContext);
