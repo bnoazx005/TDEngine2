@@ -17,6 +17,12 @@
 #define SPOT_LIGHT_TYPE 1
 
 
+#ifdef TDE2_HLSL_SHADER
+#define TILE_INDEX_TYPE uint2
+#else
+#define TILE_INDEX_TYPE ivec2
+#endif
+
 
 struct LightSourceData
 {
@@ -84,7 +90,8 @@ struct LightingData
 	float4 mViewDir;
 	float4 mAlbedo;
 	float4 mMaterialProperties; // x - roughness, y - metalness
-	uint2  mTileIndex;
+
+	TILE_INDEX_TYPE mTileIndex;
 };
 
 
@@ -99,7 +106,7 @@ LightingData CreateLightingData(float4 pos, float4 normal, float4 viewDir, float
 	lightData.mMaterialProperties = materialProperties;
 
 #ifdef TILED_LIGHTING_ENABLED
-	lightData.mTileIndex = uint2(floor(fragPos.xy / LIGHT_TILE_BLOCK_SIZE));
+	lightData.mTileIndex = TILE_INDEX_TYPE(floor(fragPos.xy / LIGHT_TILE_BLOCK_SIZE));
 #endif
 
 	return lightData;
@@ -232,15 +239,15 @@ float4 CalcLightsContribution(in LightingData lightingData, int activeLightsCoun
 
 #ifdef TILED_LIGHTING_ENABLED
 	
-	uint startOffset = LightGridTexture[lightingData.mTileIndex].x;
-	uint lightsCount = LightGridTexture[lightingData.mTileIndex].y;
+	uint startOffset = FETCH_TEX2D_LOD(LightGridTexture, lightingData.mTileIndex, 0).x;
+	uint lightsCount = FETCH_TEX2D_LOD(LightGridTexture, lightingData.mTileIndex, 0).y;
 
 #ifdef TDE2_HLSL_SHADER
 	[unroll(16)]
 #endif
-	for (int i = 0; i < lightsCount; ++i)
+	for (int i = 0; i < int(lightsCount); ++i)
 	{
-		uint lightIndex = VisibleLightIndices[startOffset + i];
+		uint lightIndex = TYPED_BUFFER_ACCESS(VisibleLightIndices)[startOffset + uint(i)];
 		LightSourceData currLight = TYPED_BUFFER_ACCESS(Lights)[lightIndex];
 
 		if (length(currLight.mPosition - lightingData.mPosition) < currLight.mRange)

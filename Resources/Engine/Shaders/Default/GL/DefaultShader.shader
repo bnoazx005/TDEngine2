@@ -1,9 +1,12 @@
 #version 330 core
 
+#define TILED_LIGHTING_ENABLED
+
 #include <TDEngine2Globals.inc>
 
 #define VERTEX_ENTRY main
 #define PIXEL_ENTRY main
+
 
 #program vertex
 

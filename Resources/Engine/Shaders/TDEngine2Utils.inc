@@ -55,7 +55,7 @@
 
 	#define DECLARE_TEX2D(SamplerName)				 uniform sampler2D SamplerName
 	#define DECLARE_TEX2D_EX(SamplerName, slot)		 uniform sampler2D SamplerName
-	#define DECLARE_TEX2D_TYPED_EX(SamplerName, slot, Type) uniform sampler2D SamplerName
+	#define DECLARE_TEX2D_TYPED_EX(SamplerName, slot, Type) uniform usampler2D SamplerName
 	#define DECLARE_CUBETEX_EX(SamplerName, slot) 	 uniform samplerCube SamplerName
 	#define DECLARE_TEX2DARRAY_EX(SamplerName, slot) uniform sampler2DArray SamplerName
 	#define DECLARE_TEX3D_EX(SamplerName, slot) 	 uniform sampler3D SamplerName
@@ -66,6 +66,8 @@
 
 	#define TEX2D_LOD(SamplerName, uv, lod)	textureLod(SamplerName, uv, lod)
 	#define TEX3D_LOD(SamplerName, uv, lod) TEX2D_LOD(SamplerName, uv, lod)
+
+	#define FETCH_TEX2D_LOD(SamplerName, uv, lod) texelFetch(SamplerName, uv, lod)
 
 	#define CONVERT_DEPTH_TO_NDC(depth) (2.0 * depth - 1.0)
 
@@ -104,6 +106,8 @@
 
 	#define TEX2D_LOD(SamplerName, uv, lod) SamplerName.SampleLevel(SamplerName ## _SamplerState, uv, lod)
 	#define TEX3D_LOD(SamplerName, uv, lod) SamplerName.SampleLevel(SamplerName ## _SamplerState, uv, lod)
+
+	#define FETCH_TEX2D_LOD(SamplerName, uv, lod) SamplerName[uv]
 
 	#define CONVERT_DEPTH_TO_NDC(depth) (depth)
 
