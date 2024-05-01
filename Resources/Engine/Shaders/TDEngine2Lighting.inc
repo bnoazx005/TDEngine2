@@ -235,7 +235,9 @@ float4 CalcLightsContribution(in LightingData lightingData, int activeLightsCoun
 	uint startOffset = LightGridTexture[lightingData.mTileIndex].x;
 	uint lightsCount = LightGridTexture[lightingData.mTileIndex].y;
 
+#ifdef TDE2_HLSL_SHADER
 	[unroll(16)]
+#endif
 	for (int i = 0; i < lightsCount; ++i)
 	{
 		uint lightIndex = VisibleLightIndices[startOffset + i];

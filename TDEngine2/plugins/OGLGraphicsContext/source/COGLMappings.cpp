@@ -126,18 +126,18 @@ namespace TDEngine2
 			case FT_SINT1:
 				return GL_RED_INTEGER;
 			case FT_NORM_BYTE2:
-			case FT_BYTE2:
 			case FT_FLOAT2:
 			case FT_FLOAT2_TYPELESS:
 			case FT_NORM_UBYTE2:
-			case FT_UBYTE2:
 			case FT_NORM_SHORT2:
-			case FT_SHORT2:
 			case FT_NORM_USHORT2:
+				return GL_RG;
+			case FT_BYTE2:
+			case FT_UBYTE2:
 			case FT_USHORT2:
 			case FT_UINT2:
 			case FT_SINT2:
-				return GL_RG;
+				return GL_RG_INTEGER;
 			case FT_FLOAT3:
 			case FT_FLOAT3_TYPELESS:
 			case FT_UINT3:

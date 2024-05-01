@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.27] 2024-04-30
+## [0.6.27] 2024-05-01
 
 ### Added
 
@@ -34,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Incorrect initialization of structured buffers under D3D11 graphics context was fixed.
 
 - Incorrect hashing of blend states was fixed.
+
+- Now COGLMappings::GetPixelDataFormat method returns correct tags for FT_UBYTE2, FT_USHORT2 types.
 
 ## [0.6.26] 2024-04-07
 

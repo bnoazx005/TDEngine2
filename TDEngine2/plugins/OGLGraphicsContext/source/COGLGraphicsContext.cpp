@@ -7,6 +7,7 @@
 #include "../include/COGLBuffer.h"
 #include "../include/COGLTexture.h"
 #include "../include/COGLUtils.h"
+#include <utils/CFileLogger.h>
 #include <core/IEventManager.h>
 #include <core/IWindowSystem.h>
 #include <string>
@@ -25,6 +26,84 @@
 
 namespace TDEngine2
 {
+	static void APIENTRY DebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
+		const GLchar* msg, const void* data)
+	{
+		const char* sourceTypeStr = "Unknown";
+
+		switch (source) 
+		{
+			case GL_DEBUG_SOURCE_API:
+				sourceTypeStr = "API";
+				break;
+			case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+				sourceTypeStr = "Window System";
+				break;
+			case GL_DEBUG_SOURCE_SHADER_COMPILER:
+				sourceTypeStr = "Shader Compiler";
+				break;
+			case GL_DEBUG_SOURCE_THIRD_PARTY:
+				sourceTypeStr = "Third Party";
+				break;
+			case GL_DEBUG_SOURCE_APPLICATION:
+				sourceTypeStr = "App";
+				break;
+		}
+
+		const char* typeStr = "Unknown";
+
+		switch (type) 
+		{
+			case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+				typeStr = "Deprecated Behaviour";
+				break;
+			case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+				typeStr = "Undefined Behaviour";
+				break;
+			case GL_DEBUG_TYPE_PORTABILITY:
+				typeStr = "Portability";
+				break;
+			case GL_DEBUG_TYPE_PERFORMANCE:
+				typeStr = "Performance";
+				break;
+			case GL_DEBUG_TYPE_OTHER:
+				typeStr = "Other";
+				break;
+			case GL_DEBUG_TYPE_MARKER:
+				typeStr = "Marker";
+				break;
+		}
+
+		const char* severityStr = "Unknown";
+
+		switch (severity) 
+		{
+			case GL_DEBUG_SEVERITY_HIGH:
+				severityStr = "High";
+				break;
+			case GL_DEBUG_SEVERITY_MEDIUM:
+				severityStr = "Medium";
+				break;
+			case GL_DEBUG_SEVERITY_LOW:
+				severityStr = "Low";
+				break;
+			case GL_DEBUG_SEVERITY_NOTIFICATION:
+				severityStr = "Notification";
+				break;
+		}
+
+		if (GL_DEBUG_TYPE_ERROR == type)
+		{
+			LOG_ERROR(Wrench::StringUtils::Format("[COGLGraphicsContext] {0}: {1} severity, raised from {2} : {3}\n",
+				id, severityStr, sourceTypeStr, msg));
+			return;
+		}
+
+		LOG_MESSAGE(Wrench::StringUtils::Format("[COGLGraphicsContext] {0}: {1} of {2} severity, raised from {3} : {4}", 
+			id, typeStr, severityStr, sourceTypeStr, msg));
+	}
+
+
 	COGLGraphicsContext::COGLGraphicsContext(TCreateGLContextFactoryCallback glContextFactoryCallback):
 		CBaseObject(), mGLContextFactoryCallback(glContextFactoryCallback)
 	{
@@ -83,6 +162,11 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+
+#if TDE2_DEBUG_MODE
+		GL_SAFE_CALL(glEnable(GL_DEBUG_OUTPUT));
+		GL_SAFE_CALL(glDebugMessageCallback(DebugMessageCallback, nullptr));
+#endif
 
 		mpGraphicsObjectManager = TPtr<IGraphicsObjectManager>(CreateOGLGraphicsObjectManager(this, result));
 		mpGraphicsObjectManagerImpl = dynamic_cast<COGLGraphicsObjectManager*>(mpGraphicsObjectManager.Get());
