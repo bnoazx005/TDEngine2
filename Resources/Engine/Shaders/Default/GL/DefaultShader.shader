@@ -73,7 +73,6 @@ TDE2_ENABLE_PARALLAX_MAPPING
 
 CBUFFER_SECTION_EX(ShaderParameters, 4)
 	float parallaxMappingEnabled;
-	float4 tttt;
 CBUFFER_ENDSECTION
 
 
@@ -87,7 +86,8 @@ void main(void)
 	LightingData lightingData = CreateLightingData(VertOutWorldPos, vec4(normal, 0.0), 
 												   normalize(CameraPosition - VertOutWorldPos), 
 												   GammaToLinear(TEX2D(AlbedoMap, uv)),
-												   TEX2D(PropertiesMap, uv));
+												   TEX2D(PropertiesMap, uv),
+												   gl_FragCoord);
 
 	vec4 sunLight = CalcSunLightContribution(CreateSunLight(SunLightPosition, SunLightDirection, vec4(1.0)), lightingData);
 
