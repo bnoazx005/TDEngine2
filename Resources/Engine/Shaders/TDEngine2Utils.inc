@@ -36,8 +36,8 @@
 	#define DECLARE_TYPED_BUFFER(Type, BufferName) layout(std430) readonly buffer BufferName { Type TYPED_BUFFER_ACCESS(BufferName)[]; }
 	#define DECLARE_TYPED_BUFFER_EX(Type, BufferName, slot) layout(std430, binding = slot) readonly buffer BufferName { Type TYPED_BUFFER_ACCESS(BufferName)[]; }
 
-	#define DECLARE_WRITEABLE_TYPED_BUFFER(Type, BufferName) DECLARE_TYPED_BUFFER(Type, BufferName)
-	#define DECLARE_WRITEABLE_TYPED_BUFFER_EX(Type, BufferName, slot) DECLARE_WRITEABLE_TYPED_BUFFER_EX(Type, BufferName,)
+	#define DECLARE_WRITEABLE_TYPED_BUFFER(Type, BufferName) layout(std430) buffer BufferName { Type TYPED_BUFFER_ACCESS(BufferName)[]; }
+	#define DECLARE_WRITEABLE_TYPED_BUFFER_EX(Type, BufferName, slot) layout(std430, binding = slot) buffer BufferName { Type TYPED_BUFFER_ACCESS(BufferName)[]; }
 #endif
 
 #ifdef TDE2_HLSL_SHADER
