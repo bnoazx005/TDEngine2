@@ -77,7 +77,7 @@ namespace TDEngine2
 				return GL_R16;
 			case FT_NORM_USHORT2:
 			case FT_USHORT2:
-				return GL_RG16;
+				return GL_RG16UI;
 			case FT_NORM_USHORT4:
 			case FT_USHORT4:
 				return GL_RGBA16;
@@ -135,6 +135,7 @@ namespace TDEngine2
 			case FT_BYTE2:
 			case FT_UBYTE2:
 			case FT_USHORT2:
+			case FT_SHORT2:
 			case FT_UINT2:
 			case FT_SINT2:
 				return GL_RG_INTEGER;
@@ -167,6 +168,9 @@ namespace TDEngine2
 	{
 		switch (format)
 		{
+			case FT_SHORT2:
+				return GL_RG16UI;
+
 			case FT_FLOAT4:
 			case FT_FLOAT4_TYPELESS:
 				return GL_RGBA32F;
