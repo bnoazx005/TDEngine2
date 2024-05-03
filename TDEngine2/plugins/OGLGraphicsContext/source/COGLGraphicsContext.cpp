@@ -545,6 +545,18 @@ namespace TDEngine2
 
 	E_RESULT_CODE COGLGraphicsContext::CopyResource(TBufferHandleId sourceHandle, TBufferHandleId destHandle)
 	{
+		auto pSourceBuffer = mpGraphicsObjectManagerImpl->GetOGLBufferPtr(sourceHandle);
+		auto pDestBuffer = mpGraphicsObjectManagerImpl->GetOGLBufferPtr(destHandle);
+
+		if (!pSourceBuffer || !pDestBuffer)
+		{
+			return RC_FAIL;
+		}
+
+		GL_SAFE_CALL(glBindBuffer(GL_COPY_READ_BUFFER, pSourceBuffer->GetOGLHandle()));
+		GL_SAFE_CALL(glBindBuffer(GL_COPY_WRITE_BUFFER, pDestBuffer->GetOGLHandle()));
+		GL_SAFE_CALL(glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, std::min(pSourceBuffer->GetSize(), pDestBuffer->GetSize())));
+
 		return RC_OK;
 	}
 
