@@ -20,8 +20,8 @@ layout (local_size_x = LIGHT_TILE_SIZE, local_size_y = LIGHT_TILE_SIZE, local_si
 DECLARE_TEX2D_EX(DepthTexture, 1);
 DECLARE_TYPED_BUFFER_EX(TileFrustum, TileFrustums, 2);
 
-uniform layout(binding = 3, rg16ui) writeonly uimage2D OpaqueLightGridTexture;
-uniform layout(binding = 4, rg16ui) writeonly uimage2D TransparentLightGridTexture;
+uniform layout(binding = 3, rg32ui) writeonly uimage2D OpaqueLightGridTexture;
+uniform layout(binding = 4, rg32ui) writeonly uimage2D TransparentLightGridTexture;
 
 DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, OpaqueVisibleLightsBuffer, 11);
 DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, TransparentVisibleLightsBuffer, 12);
