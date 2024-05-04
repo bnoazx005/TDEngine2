@@ -9,6 +9,7 @@
 
 #ifdef TDE2_GLSL_SHADER
 #extension GL_ARB_shader_storage_buffer_object : require
+#extension GL_ARB_shading_language_420pack: require
 #endif
 
 
@@ -54,11 +55,11 @@
 #ifdef TDE2_GLSL_SHADER
 
 	#define DECLARE_TEX2D(SamplerName)				 uniform sampler2D SamplerName
-	#define DECLARE_TEX2D_EX(SamplerName, slot)		 uniform sampler2D SamplerName
-	#define DECLARE_TEX2D_TYPED_EX(SamplerName, slot, Type) uniform usampler2D SamplerName
-	#define DECLARE_CUBETEX_EX(SamplerName, slot) 	 uniform samplerCube SamplerName
-	#define DECLARE_TEX2DARRAY_EX(SamplerName, slot) uniform sampler2DArray SamplerName
-	#define DECLARE_TEX3D_EX(SamplerName, slot) 	 uniform sampler3D SamplerName
+	#define DECLARE_TEX2D_EX(SamplerName, slot)		 layout(binding = slot) uniform sampler2D SamplerName
+	#define DECLARE_TEX2D_TYPED_EX(SamplerName, slot, Type) layout(binding = slot) uniform usampler2D SamplerName
+	#define DECLARE_CUBETEX_EX(SamplerName, slot) 	 layout(binding = slot) uniform samplerCube SamplerName
+	#define DECLARE_TEX2DARRAY_EX(SamplerName, slot) layout(binding = slot) uniform sampler2DArray SamplerName
+	#define DECLARE_TEX3D_EX(SamplerName, slot) 	 layout(binding = slot) uniform sampler3D SamplerName
 
 	#define TEX2D(SamplerName, uv)			texture(SamplerName, uv)
 	#define TEXCUBE(SamplerName, uv) 		TEX2D(SamplerName, uv)

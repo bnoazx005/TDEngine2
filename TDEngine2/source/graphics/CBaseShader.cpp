@@ -6,6 +6,7 @@
 #include "../../include/graphics/CBaseShaderCompiler.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include "../../include/core/IGraphicsContext.h"
+#include "deferOperation.hpp"
 #include <algorithm>
 
 
@@ -101,18 +102,19 @@ namespace TDEngine2
 		}
 
 		E_RESULT_CODE result = pCurrUniformBuffer->Map(BMT_WRITE_DISCARD);
-
-		if (result != RC_OK)
 		{
-			return result;
-		}
+			defer([pCurrUniformBuffer] { pCurrUniformBuffer->Unmap(); });
 
-		if ((result = pCurrUniformBuffer->Write(pData, dataSize)) != RC_OK)
-		{
-			return result;
-		}
+			if (result != RC_OK)
+			{
+				return result;
+			}
 
-		pCurrUniformBuffer->Unmap();
+			if ((result = pCurrUniformBuffer->Write(pData, dataSize)) != RC_OK)
+			{
+				return result;
+			}
+		}
 
 		/// \note add the offset because all user-defined buffers go after the internal ones
 		mpGraphicsContext->SetConstantBuffer(TotalNumberOfInternalConstantBuffers + slot, mUniformBuffers[slot]);

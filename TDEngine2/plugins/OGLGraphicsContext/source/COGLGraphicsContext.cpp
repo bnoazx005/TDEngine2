@@ -52,6 +52,11 @@ namespace TDEngine2
 
 		const char* typeStr = "Unknown";
 
+		if (GL_DEBUG_TYPE_OTHER == type)
+		{
+			return;
+		}
+
 		switch (type) 
 		{
 			case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
@@ -66,15 +71,14 @@ namespace TDEngine2
 			case GL_DEBUG_TYPE_PERFORMANCE:
 				typeStr = "Performance";
 				break;
-			case GL_DEBUG_TYPE_OTHER:
-				typeStr = "Other";
-				break;
-			case GL_DEBUG_TYPE_MARKER:
-				typeStr = "Marker";
-				break;
 		}
 
 		const char* severityStr = "Unknown";
+
+		if (GL_DEBUG_SEVERITY_NOTIFICATION == severity)
+		{
+			return;
+		}
 
 		switch (severity) 
 		{
@@ -86,9 +90,6 @@ namespace TDEngine2
 				break;
 			case GL_DEBUG_SEVERITY_LOW:
 				severityStr = "Low";
-				break;
-			case GL_DEBUG_SEVERITY_NOTIFICATION:
-				severityStr = "Notification";
 				break;
 		}
 
@@ -393,7 +394,7 @@ namespace TDEngine2
 		{
 			if (isWriteEnabled)
 			{
-				GL_SAFE_VOID_CALL(glBindImageTexture(0, pTexture->GetTextureHandle(), 0, GL_FALSE, 0, GL_WRITE_ONLY, 
+				GL_SAFE_VOID_CALL(glBindImageTexture(slot, pTexture->GetTextureHandle(), 0, GL_FALSE, 0, GL_WRITE_ONLY, 
 					COGLMappings::GetWritableTextureFormat(pTexture->GetParams().mFormat)));
 
 				return RC_OK;

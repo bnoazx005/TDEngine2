@@ -171,6 +171,9 @@ namespace TDEngine2
 			case FT_SHORT2:
 				return GL_RG16UI;
 
+			case FT_UINT2:
+				return GL_RG32UI;
+
 			case FT_FLOAT4:
 			case FT_FLOAT4_TYPELESS:
 				return GL_RGBA32F;
