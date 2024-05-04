@@ -26,7 +26,7 @@
 
 namespace TDEngine2
 {
-	static void APIENTRY DebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
+	static void TDE2_APIENTRY DebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
 		const GLchar* msg, const void* data)
 	{
 		const char* sourceTypeStr = "Unknown";

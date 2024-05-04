@@ -224,8 +224,13 @@ Plane PackPlaneIntoFloat4(float3 p0, float3 p1, float3 p2)
 	float3 v0 = p1 - p0;
 	float3 v2 = p2 - p0;
  
+#ifdef TDE2_HLSL_SHADER // left handed
 	result.normal = normalize(cross(v2, v0));
 	result.dist = -dot(result.normal, p0);
+#else // GL uses right handed
+	result.normal = normalize(cross(v0, v2));
+	result.dist = dot(result.normal, p0);
+#endif
 	
 	return result;
 }
@@ -254,7 +259,8 @@ bool SphereInsidePlane(float4 sphere, Plane plane)
 
 
 bool SphereInsideFrustum(float4 sphere, TileFrustum frustum, float zNear, float zFar)
-{ 
+{
+#ifdef TDE2_DEPTH_CLIP_ENABLED
 	// First check depth
 	// Note: Here, the view vector points in the -Z axis so the 
 	// far depth value will be approaching -infinity.
@@ -262,6 +268,7 @@ bool SphereInsideFrustum(float4 sphere, TileFrustum frustum, float zNear, float 
 	{
 		return false;
 	}
+#endif
  
 	// Then check frustum planes
 	for (int i = 0; i < 4; i++)
@@ -297,6 +304,7 @@ bool ConeInsidePlane(Cone cone, Plane plane)
 
 bool ConeInsideFrustum(Cone cone, TileFrustum frustum, float zNear, float zFar)
 {
+#ifdef TDE2_DEPTH_CLIP_ENABLED
 	Plane nearPlane = { float3(0.0, 0.0, 1.0), zNear };
 	Plane farPlane = { float3(0.0, 0.0, -1.0), -zFar };
 
@@ -305,6 +313,7 @@ bool ConeInsideFrustum(Cone cone, TileFrustum frustum, float zNear, float zFar)
 	{
 		return false;
 	}
+#endif
 
 	// Then check frustum planes
 	for (int i = 0; i < 4; i++)

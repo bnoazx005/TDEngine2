@@ -3,6 +3,8 @@
 
 #program compute
 
+#define TDE2_DEPTH_CLIP_ENABLED
+
 #include <TDEngine2Globals.inc>
 #include <TDEngine2MathUtils.inc>
 

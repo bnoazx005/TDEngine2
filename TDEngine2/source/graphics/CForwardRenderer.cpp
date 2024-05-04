@@ -1513,6 +1513,12 @@ namespace TDEngine2
 			}, E_FRAME_RENDER_PARAMS_FLAGS::BIND_DEPTH_BUFFER | E_FRAME_RENDER_PARAMS_FLAGS::CLEAR_RENDER_TARGET | E_FRAME_RENDER_PARAMS_FLAGS::RENDER_MAIN);
 		}
 
+		if (auto pLightGridTexture = pResourceManager->GetResource<ITexture>(lightGridData.mOpaqueLightGridTextureHandle))
+		{
+			pLightGridTexture->SetWriteable(false);
+			pLightGridTexture->Bind(LIGHT_GRID_TEXTURE_SLOT);
+		}
+
 		return RC_OK;
 	}
 

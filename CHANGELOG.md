@@ -30,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The signature of TDrawCommand::Submit was changed. All the arguments were grouped into the single structure.
 
 - Now GLGraphicsContext requires 'GL_ARB_shading_language_420pack' extension support for shaders. It could be disabled manually in TDEngine2Utils.inc shader include file but
-in that case lights culling should be disabled too.  
+in that case lights culling should be disabled too.
 
 ### Fixed
 

@@ -35,10 +35,10 @@ void main(void)
 	const uint index = gl_GlobalInvocationID.y * mWorkGroups.x + gl_GlobalInvocationID.x;
 
 	vec4 screenSpaceFarPlaneVertices[4]; // top left, top right, bottom left, bottom right
-	screenSpaceFarPlaneVertices[0] = vec4(gl_GlobalInvocationID.xy * LIGHT_TILE_SIZE, 1.0, 1.0);
-	screenSpaceFarPlaneVertices[1] = vec4(vec2(gl_GlobalInvocationID.x + 1, gl_GlobalInvocationID.y) * LIGHT_TILE_SIZE, 1.0, 1.0);
-	screenSpaceFarPlaneVertices[2] = vec4(vec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y + 1) * LIGHT_TILE_SIZE, 1.0, 1.0);
-	screenSpaceFarPlaneVertices[3] = vec4(vec2(gl_GlobalInvocationID.x + 1, gl_GlobalInvocationID.y + 1) * LIGHT_TILE_SIZE, 1.0, 1.0);
+	screenSpaceFarPlaneVertices[0] = vec4(gl_GlobalInvocationID.xy * LIGHT_TILE_SIZE, -1.0, 1.0);
+	screenSpaceFarPlaneVertices[1] = vec4(vec2(gl_GlobalInvocationID.x + 1, gl_GlobalInvocationID.y) * LIGHT_TILE_SIZE, -1.0, 1.0);
+	screenSpaceFarPlaneVertices[2] = vec4(vec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y + 1) * LIGHT_TILE_SIZE, -1.0, 1.0);
+	screenSpaceFarPlaneVertices[3] = vec4(vec2(gl_GlobalInvocationID.x + 1, gl_GlobalInvocationID.y + 1) * LIGHT_TILE_SIZE, -1.0, 1.0);
 
 	vec3 viewSpaceVerts[4];
 	for (int i = 0; i < 4; i++)
@@ -46,17 +46,17 @@ void main(void)
 		vec4 screenPos = screenSpaceFarPlaneVertices[i];
     	vec2 texCoord = screenPos.xy / ScreenResolution; 
     	
-    	vec4 viewSpacePos = InvProjMat * vec4(vec2(texCoord.x, 1.0f - texCoord.y) * 2.0f - 1.0f, screenPos.z, screenPos.w);
+    	vec4 viewSpacePos = InvProjMat * vec4(texCoord * 2.0f - 1.0f, screenPos.z, screenPos.w);
     	viewSpacePos = viewSpacePos / viewSpacePos.w;
 
 		viewSpaceVerts[i] = viewSpacePos.xyz;
 	}
 
 	TileFrustum frustum;
-	frustum.mPlanes[0] = PackPlaneIntoFloat4(viewSpaceVerts[2], cameraOrigin, viewSpaceVerts[0]);
-	frustum.mPlanes[1] = PackPlaneIntoFloat4(viewSpaceVerts[1], cameraOrigin, viewSpaceVerts[3]);
-	frustum.mPlanes[2] = PackPlaneIntoFloat4(viewSpaceVerts[0], cameraOrigin, viewSpaceVerts[1]);
-	frustum.mPlanes[3] = PackPlaneIntoFloat4(viewSpaceVerts[3], cameraOrigin, viewSpaceVerts[2]);
+	frustum.mPlanes[0] = PackPlaneIntoFloat4(cameraOrigin, viewSpaceVerts[2], viewSpaceVerts[0]);
+	frustum.mPlanes[1] = PackPlaneIntoFloat4(cameraOrigin, viewSpaceVerts[1], viewSpaceVerts[3]);
+	frustum.mPlanes[2] = PackPlaneIntoFloat4(cameraOrigin, viewSpaceVerts[0], viewSpaceVerts[1]);
+	frustum.mPlanes[3] = PackPlaneIntoFloat4(cameraOrigin, viewSpaceVerts[3], viewSpaceVerts[2]);
 
 	TYPED_BUFFER_ACCESS(OutputTileFrustums)[index] = frustum;
 }
