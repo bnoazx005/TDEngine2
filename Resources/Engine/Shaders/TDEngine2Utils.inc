@@ -25,7 +25,7 @@
 #ifdef TDE2_HLSL_SHADER
 
 	#define CBUFFER_SECTION(name)			cbuffer name {
-	#define CBUFFER_SECTION_EX(name, reg)	cbuffer name : register(b#reg) {
+	#define CBUFFER_SECTION_EX(name, reg)	cbuffer name : register(b ## reg) {
 	#define CBUFFER_ENDSECTION 				};
 
 #endif
@@ -44,10 +44,10 @@
 #ifdef TDE2_HLSL_SHADER
 	#define TYPED_BUFFER_ACCESS(BufferName) BufferName
 	#define DECLARE_TYPED_BUFFER(Type, BufferName) StructuredBuffer<Type> BufferName
-	#define DECLARE_TYPED_BUFFER_EX(Type, BufferName, slot) StructuredBuffer<Type> BufferName: register(t#slot)
+	#define DECLARE_TYPED_BUFFER_EX(Type, BufferName, slot) StructuredBuffer<Type> BufferName: register(t ## slot)
 
 	#define DECLARE_WRITEABLE_TYPED_BUFFER(Type, BufferName) RWStructuredBuffer<Type> BufferName
-	#define DECLARE_WRITEABLE_TYPED_BUFFER_EX(Type, BufferName, slot) RWStructuredBuffer<Type> BufferName: register(u#slot)
+	#define DECLARE_WRITEABLE_TYPED_BUFFER_EX(Type, BufferName, slot) RWStructuredBuffer<Type> BufferName: register(u ## slot)
 #endif
 
 
@@ -83,22 +83,22 @@
 				SamplerState SamplerName ## _SamplerState;
 
 	#define DECLARE_TEX2D_EX(SamplerName, slot)				\
-				Texture2D SamplerName : register(t#slot); 	\
-				SamplerState SamplerName ## _SamplerState : register(s#slot);
+				Texture2D SamplerName : register(t ## slot); 	\
+				SamplerState SamplerName ## _SamplerState : register(s ## slot);
 
 	#define DECLARE_TEX2D_TYPED_EX(SamplerName, slot, Type) \
-				Texture2D<Type> SamplerName : register(t#slot)
+				Texture2D<Type> SamplerName : register(t ## slot)
 
 	#define DECLARE_CUBETEX_EX(SamplerName, slot)			\
-				TextureCube SamplerName : register(t#slot); \
+				TextureCube SamplerName : register(t ## slot); \
 				SamplerState SamplerName ## _SamplerState;
 
 	#define DECLARE_TEX2DARRAY_EX(SamplerName, slot)			\
-				Texture2DArray SamplerName : register(t#slot); 	\
+				Texture2DArray SamplerName : register(t ## slot); 	\
 				SamplerState SamplerName ## _SamplerState;
 
 	#define DECLARE_TEX3D_EX(SamplerName, slot)				\
-				Texture3D SamplerName : register(t#slot); 	\
+				Texture3D SamplerName : register(t ## slot); 	\
 				SamplerState SamplerName ## _SamplerState;
 
 	#define TEX2D(SamplerName, uv) SamplerName.Sample(SamplerName ## _SamplerState, uv)
