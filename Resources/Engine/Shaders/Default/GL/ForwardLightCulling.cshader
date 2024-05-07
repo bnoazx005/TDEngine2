@@ -4,6 +4,7 @@
 
 #program compute
 
+//#define TDE2_DEPTH_CLIP_ENABLED // TODO: Doesn't work in GL implementation
 #define ENABLE_MATH
 
 #include <TDEngine2Globals.inc>
@@ -80,18 +81,15 @@ void main(void)
 		OpaqueVisibleLightsCount = 0;
 		TransparentLightsIndexStartOffset = 0;
 		TransparentVisibleLightsCount = 0;
-
-		imageStore(OpaqueLightGridTexture, ivec2(gl_WorkGroupID.xy), uvec4(0));
-		imageStore(TransparentLightGridTexture, ivec2(gl_WorkGroupID.xy), uvec4(0));
 	}
 
 	barrier();
 
 	// compute max/min depth values for the tile
-	uvec2 texCoords = gl_GlobalInvocationID.xy;
+	uvec2 texCoords = gl_GlobalInvocationID.xy / ScreenResolution;
 
 	// \note depth's linearization
-	float depth = TEX2D(DepthTexture, ivec2(texCoords)).r;
+	float depth = TEX2D(DepthTexture, ivec2(texCoords.x, texCoords.y)).r;
 	depth = (0.5 * ProjMat[3][2]) / (depth + 0.5 * ProjMat[2][2] - 0.5);
 
 	uint currIntDepth = floatBitsToUint(depth);
@@ -127,7 +125,7 @@ void main(void)
 
 						if (!SphereInsidePlane(sphere, minPlane))
 						{
-							AppendLightToOpaqueList(i);							
+							AppendLightToOpaqueList(i);
 						}
 					}
 				}

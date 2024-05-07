@@ -224,10 +224,10 @@ Plane PackPlaneIntoFloat4(float3 p0, float3 p1, float3 p2)
 	float3 v0 = p1 - p0;
 	float3 v2 = p2 - p0;
  
-#ifdef TDE2_HLSL_SHADER // left handed
+#ifdef TDE2_HLSL_SHADER
 	result.normal = normalize(cross(v2, v0));
 	result.dist = -dot(result.normal, p0);
-#else // GL uses right handed
+#else
 	result.normal = normalize(cross(v0, v2));
 	result.dist = dot(result.normal, p0);
 #endif
@@ -264,7 +264,11 @@ bool SphereInsideFrustum(float4 sphere, TileFrustum frustum, float zNear, float 
 	// First check depth
 	// Note: Here, the view vector points in the -Z axis so the 
 	// far depth value will be approaching -infinity.
+#ifdef TDE2_HLSL_SHADER
 	if (sphere.z - sphere.w > zFar || sphere.z + sphere.w < zNear) 
+#else
+	if (sphere.z - sphere.w > zNear || sphere.z + sphere.w < zFar)
+#endif
 	{
 		return false;
 	}
@@ -305,8 +309,14 @@ bool ConeInsidePlane(Cone cone, Plane plane)
 bool ConeInsideFrustum(Cone cone, TileFrustum frustum, float zNear, float zFar)
 {
 #ifdef TDE2_DEPTH_CLIP_ENABLED
+
+#ifdef TDE2_HLSL_SHADER
 	Plane nearPlane = { float3(0.0, 0.0, 1.0), zNear };
 	Plane farPlane = { float3(0.0, 0.0, -1.0), -zFar };
+#else
+	Plane nearPlane = { float3(0.0, 0.0, -1.0), -zNear };
+	Plane farPlane = { float3(0.0, 0.0, 1.0), zFar };
+#endif 
 
 	// First check the near and far clipping planes.
 	if (ConeInsidePlane(cone, nearPlane) || ConeInsidePlane(cone, farPlane))
