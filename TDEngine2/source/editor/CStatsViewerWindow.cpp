@@ -59,7 +59,7 @@ namespace TDEngine2
 
 		if (mpImGUIContext->BeginWindow("Stats Viewer", isEnabled, params))
 		{
-			mpImGUIContext->SetCursorScreenPos(TVector2(mpImGUIContext->GetWindowWidth() * 0.77f, 10.0f));
+			mpImGUIContext->SetCursorScreenPos(TVector2(10.0f/*mpImGUIContext->GetWindowWidth() * 0.77f*/, 10.0f));
 
 			if (mpImGUIContext->BeginChildWindow("##Stats", TVector2(400.0f, 600.0f)))
 			{
