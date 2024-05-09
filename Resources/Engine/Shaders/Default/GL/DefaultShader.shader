@@ -91,7 +91,9 @@ void main(void)
 
 	vec4 sunLight = CalcSunLightContribution(CreateSunLight(SunLightPosition, SunLightDirection, vec4(1.0)), lightingData);
 
-	FragColor = (sunLight + CalcLightsContribution(lightingData, ActiveLightsCount)) * (1.0 - ComputeSunShadowFactorPCF(8, GetSunShadowCascadeIndex(VertOutViewWorldPos), VertOutWorldPos, 0.0001, 1000.0)) * VertOutColor;
+	FragColor = (
+		sunLight * (1.0 - ComputeSunShadowFactorPCF(8, GetSunShadowCascadeIndex(VertOutViewWorldPos), VertOutWorldPos, 0.0001, 1000.0))
+		+ CalcLightsContribution(lightingData, ActiveLightsCount)) * VertOutColor;
 }
 
 #endprogram

@@ -197,7 +197,7 @@ float4 CalcPointLightContribution(in LightSourceData pointLight, in LightingData
 {
 	float3 lightDir = normalize(pointLight.mPosition - lightingData.mPosition).xyz;
 
-	float3 radiance = pointLight.mColor.rgb * GetLightAttenuation(pointLight, lightingData.mPosition);
+	float3 radiance = pointLight.mColor.rgb * pointLight.mIntensity * GetLightAttenuation(pointLight, lightingData.mPosition);
 
 	return float4(CalcCookTorranceBRDF(lightDir, lightingData) * radiance, pointLight.mColor.a);
 }
@@ -215,7 +215,7 @@ float4 CalcSpotLightContribution(in LightSourceData spotLight, in LightingData l
 	float maxCos = mix(minCos, 1.0, 0.5);
 #endif	
 
-	float intensity = smoothstep(minCos, maxCos, max(0.0, dot(spotLight.mDirection.xyz, -lightDir)));
+	float intensity = spotLight.mIntensity * smoothstep(minCos, maxCos, max(0.0, dot(spotLight.mDirection.xyz, -lightDir)));
 	float3 radiance = spotLight.mColor.rgb * intensity * GetLightAttenuation(spotLight, lightingData.mPosition);
 
 	return float4(CalcCookTorranceBRDF(lightDir, lightingData) * radiance, spotLight.mColor.a);
