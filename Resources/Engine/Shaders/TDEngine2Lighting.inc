@@ -59,7 +59,9 @@ DECLARE_TYPED_BUFFER_EX(uint, VisibleLightIndices, 12);
 float GetLightAttenuation(in LightSourceData light, in float4 pos)
 {
 	float distance = length(light.mPosition - pos);
-	return 1.0 / (distance * distance + 0.00001);
+
+	//return 1.0 / (5.0 * distance * distance + 0.00001); // \note Correct PBR based approach
+	return 1.0 - smoothstep(light.mRange * 0.75f, light.mRange, distance);
 }
 
 
@@ -214,11 +216,7 @@ float4 CalcSpotLightContribution(in LightSourceData spotLight, in LightingData l
 #endif	
 
 	float intensity = smoothstep(minCos, maxCos, max(0.0, dot(spotLight.mDirection.xyz, -lightDir)));
-
-	float distance = length(spotLight.mPosition - lightingData.mPosition);
-	float attenuation = 1.0 / (distance * distance + 0.00001);
-
-	float3 radiance = spotLight.mColor.rgb * intensity * attenuation;
+	float3 radiance = spotLight.mColor.rgb * intensity * GetLightAttenuation(spotLight, lightingData.mPosition);
 
 	return float4(CalcCookTorranceBRDF(lightDir, lightingData) * radiance, spotLight.mColor.a);
 }

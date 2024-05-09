@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.27] 2024-05-06
+## [0.6.27] 2024-05-09
 
 ### Added
 
@@ -41,6 +41,8 @@ in that case lights culling should be disabled too.
 - Now COGLMappings::GetPixelDataFormat method returns correct tags for FT_UBYTE2, FT_USHORT2 types.
 
 - The issue with binding a writable texture to different than 0th slot was fixed.
+
+- Hard edges on small ranged point lights were fixed.
 
 ## [0.6.26] 2024-04-07
 
