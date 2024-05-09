@@ -784,12 +784,13 @@ namespace TDEngine2
 
 	void CFramePostProcessor::_resizeRenderTargetsChain(U32 width, U32 height)
 	{
-		const std::array<TResourceId, 4> renderTargetHandles
+		const std::array<TResourceId, 5> renderTargetHandles
 		{
 			mRenderTargetHandle,
 			mUITargetHandle,
 			mBloomRenderTargetHandle,
-			mTemporaryRenderTargetHandle
+			mTemporaryRenderTargetHandle,
+			mLightsHeatmapTargetHandle
 		};
 
 		for (const TResourceId& currTargetHandle : renderTargetHandles)
@@ -1051,6 +1052,11 @@ namespace TDEngine2
 			pTexture->SetUWrapMode(E_ADDRESS_MODE_TYPE::AMT_WRAP);
 			pTexture->SetVWrapMode(E_ADDRESS_MODE_TYPE::AMT_WRAP);
 			pTexture->SetWWrapMode(E_ADDRESS_MODE_TYPE::AMT_WRAP);
+
+			if (pTexture->GetWidth() != workGroupsX || pTexture->GetHeight() != workGroupsY)
+			{
+				pTexture->Resize(workGroupsX, workGroupsY);
+			}
 		}
 
 		return Wrench::TOkValue<std::tuple<TResourceId, TBufferHandleId>>(std::make_tuple(lightGridHandle, createBufferResult.Get()));
@@ -1590,6 +1596,8 @@ namespace TDEngine2
 			// \todo shadow pass
 			// \todo directional shadow pass
 			// \todo omni shadow pass
+			// 
+			// \todo depth pre-pass
 			// 
 			// \todo main pass
 			// 
