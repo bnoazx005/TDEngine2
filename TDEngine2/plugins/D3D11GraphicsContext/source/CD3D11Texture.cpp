@@ -72,7 +72,7 @@ namespace TDEngine2
 		}
 
 #if TDE2_DEBUG_MODE
-		pTexture->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<U32>(params.mName.length()), params.mName.c_str());
+		pTexture->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<U32>(strlen(params.mName)), params.mName);
 #endif
 
 		return Wrench::TOkValue<ID3D11Texture2D*>(pTexture);
@@ -96,7 +96,7 @@ namespace TDEngine2
 		}
 
 #if TDE2_DEBUG_MODE
-		pTexture->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<U32>(params.mName.length()), params.mName.c_str());
+		pTexture->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<U32>(strlen(params.mName)), params.mName);
 #endif
 
 		return Wrench::TOkValue<ID3D11Texture3D*>(pTexture);

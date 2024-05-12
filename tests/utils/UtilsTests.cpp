@@ -224,3 +224,65 @@ TEST_CASE("CScopedPtr Tests")
 		REQUIRE((hasBeenTestCounterDestroyed && hasBeenHolderDestroyed));
 	}
 }
+
+
+TEST_CASE("ComputeStateDescHash Tests")
+{
+	SECTION("PassTextureInitParams_DifferentParamsSetsProduceDifferentHashes")
+	{
+		const std::vector<U32> hashes
+		{
+			ComputeStateDescHash(TInitTextureImplParams{ E_TEXTURE_IMPL_TYPE::TEXTURE_2D, E_TEXTURE_IMPL_USAGE_TYPE::STATIC, 65535, 65535, 1 }),
+			ComputeStateDescHash(TInitTextureImplParams{ E_TEXTURE_IMPL_TYPE::TEXTURE_2D, E_TEXTURE_IMPL_USAGE_TYPE::STATIC, 1024, 256, 1 }),
+			ComputeStateDescHash(TInitTextureImplParams{ E_TEXTURE_IMPL_TYPE::TEXTURE_2D, E_TEXTURE_IMPL_USAGE_TYPE::DYNAMIC, 1024, 256, 1 }),
+			ComputeStateDescHash(TInitTextureImplParams{ E_TEXTURE_IMPL_TYPE::CUBEMAP, E_TEXTURE_IMPL_USAGE_TYPE::DYNAMIC, 1024, 256, 1 }),
+			ComputeStateDescHash(TInitTextureImplParams{ E_TEXTURE_IMPL_TYPE::TEXTURE_2D_ARRAY, E_TEXTURE_IMPL_USAGE_TYPE::DYNAMIC, 1024, 256, 1 }),
+			ComputeStateDescHash(TInitTextureImplParams{ E_TEXTURE_IMPL_TYPE::TEXTURE_3D, E_TEXTURE_IMPL_USAGE_TYPE::DYNAMIC, 1024, 256, 1 }),
+			ComputeStateDescHash(TInitTextureImplParams{ E_TEXTURE_IMPL_TYPE::TEXTURE_3D, E_TEXTURE_IMPL_USAGE_TYPE::DYNAMIC, 1024, 256, 256 }),
+			ComputeStateDescHash(TInitTextureImplParams{ E_TEXTURE_IMPL_TYPE::TEXTURE_3D, E_TEXTURE_IMPL_USAGE_TYPE::DYNAMIC, 1024, 256, 256, E_FORMAT_TYPE::FT_BYTE4 }),
+			ComputeStateDescHash(TInitTextureImplParams
+				{ 
+					E_TEXTURE_IMPL_TYPE::TEXTURE_2D, E_TEXTURE_IMPL_USAGE_TYPE::STATIC, 65535, 65535, 1, E_FORMAT_TYPE::FT_BYTE4,
+					E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER
+				}),
+			ComputeStateDescHash(TInitTextureImplParams
+				{
+					E_TEXTURE_IMPL_TYPE::TEXTURE_2D, E_TEXTURE_IMPL_USAGE_TYPE::STATIC, 65535, 65535, 1, E_FORMAT_TYPE::FT_BYTE4,
+					E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER | E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE
+				}),
+			ComputeStateDescHash(TInitTextureImplParams
+				{
+					E_TEXTURE_IMPL_TYPE::TEXTURE_2D, E_TEXTURE_IMPL_USAGE_TYPE::STATIC, 65535, 65535, 1, E_FORMAT_TYPE::FT_BYTE4,
+					E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER | E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE, 10, 
+				}),
+			ComputeStateDescHash(TInitTextureImplParams
+				{
+					E_TEXTURE_IMPL_TYPE::CUBEMAP, E_TEXTURE_IMPL_USAGE_TYPE::STATIC, 65535, 65535, 1, E_FORMAT_TYPE::FT_BYTE4,
+					E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER | E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE, 10, 6, 2, 1,
+				}),
+			ComputeStateDescHash(TInitTextureImplParams
+				{
+					E_TEXTURE_IMPL_TYPE::CUBEMAP, E_TEXTURE_IMPL_USAGE_TYPE::STATIC, 65535, 65535, 1, E_FORMAT_TYPE::FT_BYTE4,
+					E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER | E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE, 10, 6, 2, 1, true
+				}),
+			ComputeStateDescHash(TInitTextureImplParams
+				{
+					E_TEXTURE_IMPL_TYPE::CUBEMAP, E_TEXTURE_IMPL_USAGE_TYPE::STATIC, 65535, 65535, 1, E_FORMAT_TYPE::FT_BYTE4,
+					E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER | E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS, 10, 6, 2, 1, true
+				}),
+		};
+
+		std::unordered_set<U32> uniqueHashes;
+
+		for (auto&& currHashValue : hashes)
+		{
+			auto it = uniqueHashes.find(currHashValue);
+			if (it != uniqueHashes.cend())
+			{
+				REQUIRE(false);
+			}
+
+			uniqueHashes.insert(currHashValue);
+		}
+	}
+}

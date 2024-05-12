@@ -98,7 +98,7 @@ namespace TDEngine2
 		createTextureParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_3D;
 		createTextureParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
 		createTextureParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE;
-		createTextureParams.mName = mName;
+		createTextureParams.mName = mName.c_str();
 
 		if (params.mIsWriteable)
 		{

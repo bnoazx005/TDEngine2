@@ -429,6 +429,7 @@ namespace TDEngine2
 	}
 
 	TDE2_DECLARE_BITMASK_OPERATORS_INTERNAL(E_RESULT_CODE);
+	TDE2_DECLARE_BITMASK_OPERATORS_INTERNAL(E_GRAPHICS_RESOURCE_INIT_FLAGS);
 
 
 	/*!
@@ -820,9 +821,26 @@ namespace TDEngine2
 	template <typename T>
 	U32 ComputeStateDescHash(const T& object)
 	{
-		TDE2_UNIMPLEMENTED();
-		return 0;
+		static_assert(std::is_trivially_copyable<T>::value);
+
+		const C8* pObjectPtr = reinterpret_cast<const C8*>(&object);
+
+		std::array<C8, sizeof(T) + 1> objectBytes{ 0 };
+		std::copy(pObjectPtr, pObjectPtr + sizeof(T), objectBytes.begin());
+
+		U32 hash = 5381;
+
+		for (const C8 currCh : objectBytes)
+		{
+			hash = ((hash << 5) + hash) + currCh;
+		}
+
+		return hash;
 	}
+
+
+	struct TInitTextureImplParams;
+	struct TInitBufferParams;
 
 
 	template <> TDE2_API U32 ComputeStateDescHash<TBlendStateDesc>(const TBlendStateDesc& object);

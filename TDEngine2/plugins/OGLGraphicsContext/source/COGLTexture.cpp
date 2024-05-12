@@ -66,7 +66,7 @@ namespace TDEngine2
 #if TDE2_DEBUG_MODE
 		if (GLEW_KHR_debug)
 		{
-			glObjectLabel(GL_TEXTURE, textureHandle, -1, params.mName.c_str());
+			glObjectLabel(GL_TEXTURE, textureHandle, -1, params.mName);
 		}
 #endif
 

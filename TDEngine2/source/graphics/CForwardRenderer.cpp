@@ -1605,6 +1605,7 @@ namespace TDEngine2
 			// \todo volumetric clouds blur pass
 			// \todo volumetric clouds compose pass
 			// 
+			// \todo lights heatmap debug pass
 			// \todo eye-adaptation pass
 			// 
 			// \todo bloom threshold

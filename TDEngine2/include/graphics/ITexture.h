@@ -120,26 +120,30 @@ namespace TDEngine2
 
 	typedef struct TInitTextureImplParams
 	{
-		E_TEXTURE_IMPL_TYPE       mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
-		E_TEXTURE_IMPL_USAGE_TYPE mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+		E_TEXTURE_IMPL_TYPE            mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
+		E_TEXTURE_IMPL_USAGE_TYPE      mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
 
-		U32                       mWidth  = 2;
-		U32                       mHeight = 2;
-		U32                       mDepth  = 1;
+		U32                            mWidth  = 2;
+		U32                            mHeight = 2;
+		U32                            mDepth  = 1;
 
-		E_FORMAT_TYPE             mFormat = E_FORMAT_TYPE::FT_NORM_UBYTE4;
-		E_BIND_GRAPHICS_TYPE      mBindFlags = E_BIND_GRAPHICS_TYPE::EMPTY;
+		E_FORMAT_TYPE                  mFormat = E_FORMAT_TYPE::FT_NORM_UBYTE4;
+		E_BIND_GRAPHICS_TYPE           mBindFlags = E_BIND_GRAPHICS_TYPE::EMPTY;
 
-		U32                       mNumOfMipLevels = 1;
-		U32                       mArraySize = 1;
+		U32                            mNumOfMipLevels = 1;
+		U32                            mArraySize = 1;
 
-		U32                       mNumOfSamples = 1;
-		U32                       mSamplingQuality = 0;
+		U32                            mNumOfSamples = 1;
+		U32                            mSamplingQuality = 0;
 
-		bool                      mIsWriteable = false; ///< The field is used to make a texture writeable in a compute shader
+		bool                           mIsWriteable = false; ///< The field is used to make a texture writeable in a compute shader
 
-		std::string               mName;
+		const C8*                      mName = nullptr;
+
+		E_GRAPHICS_RESOURCE_INIT_FLAGS mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::NONE;
 	} TInitTextureParams, *TInitTextureParamsPtr;
+
+	static_assert(std::is_trivially_copyable<TInitTextureImplParams>::value, "TInitTextureImplParams type should be trivially copyable by design");
 
 
 	/*!

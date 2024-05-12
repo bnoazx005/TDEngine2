@@ -868,4 +868,11 @@ namespace TDEngine2
 		BIND_SHADER_RESOURCE = 1 << 2,
 		BIND_UNORDERED_ACCESS = 1 << 3,
 	};
+
+
+	enum class E_GRAPHICS_RESOURCE_INIT_FLAGS : U32
+	{
+		NONE = 0,
+		TRANSIENT = 1 << 0, ///< The graphics resources created with the flag are reusable and not actually destroyed on DestroyTexture/DestroyBuffer calls
+	};
 }
