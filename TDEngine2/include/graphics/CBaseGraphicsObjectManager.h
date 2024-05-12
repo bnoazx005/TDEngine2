@@ -30,7 +30,7 @@ namespace TDEngine2
 		protected:
 			typedef std::list<U32>                   TFreeEntitiesRegistry;
 			typedef std::vector<IVertexDeclaration*> TVertexDeclarationsArray;
-			typedef std::unordered_map<U32, U32>     TStatesHashTable;
+			typedef std::unordered_map<U32, USIZE>   THashTable;
 		public:
 			/*!
 				\brief The method initializes an initial state of a buffer
@@ -94,8 +94,8 @@ namespace TDEngine2
 
 			TFreeEntitiesRegistry    mFreeVertDeclsSlots;
 
-			TStatesHashTable         mTextureSamplesHashTable;
-			TStatesHashTable         mBlendStatesHashTable;
+			THashTable               mTextureSamplesHashTable;
+			THashTable               mBlendStatesHashTable;
 
 			IDebugUtility*           mpDebugUtility;
 	};

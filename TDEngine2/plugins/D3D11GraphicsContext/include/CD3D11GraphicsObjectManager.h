@@ -202,6 +202,9 @@ namespace TDEngine2
 
 			TNativeTexturesArray     mpTexturesArray;
 			TNativeBuffersArray      mpBuffersArray;
+
+			std::unordered_map<U32, std::vector<TTextureHandleId>> mTransientTexturesPool;
+			std::unordered_map<U32, std::vector<TBufferHandleId>>  mTransientBuffersPool;
 	};
 }
 

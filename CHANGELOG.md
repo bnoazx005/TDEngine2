@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Now **CD3D11GraphicsObjectManager** and **COGLGraphicsObjectManager** support transient resources via pools.
+
 ### Changed
 
 ### Fixed

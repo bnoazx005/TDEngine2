@@ -26,6 +26,24 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
+		if (E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT == (params.mFlags & E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT))
+		{
+			const U32 hash = ComputeStateDescHash(params);
+
+			auto&& it = mTransientBuffersPool.find(hash);
+			if (it != mTransientBuffersPool.cend())
+			{
+				auto& availableTransientBuffers = it->second;
+				if (!availableTransientBuffers.empty())
+				{
+					const TBufferHandleId resourceId = availableTransientBuffers.back();
+					availableTransientBuffers.pop_back();
+
+					return TResult<TBufferHandleId>(resourceId);
+				}
+			}
+		}
+
 		TPtr<IBuffer> pBuffer = TPtr<IBuffer>(CreateD3D11Buffer(mpGraphicsContext, params, result));
 		if (!pBuffer || RC_OK != result)
 		{
@@ -51,6 +69,24 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
+		if (E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT == (params.mFlags & E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT))
+		{
+			const U32 hash = ComputeStateDescHash(params);
+			
+			auto&& it = mTransientTexturesPool.find(hash);
+			if (it != mTransientTexturesPool.cend())
+			{
+				auto& availableTransientTextures = it->second;
+				if (!availableTransientTextures.empty())
+				{
+					const TTextureHandleId resourceId = availableTransientTextures.back();
+					availableTransientTextures.pop_back();
+
+					return TResult<TTextureHandleId>(resourceId);
+				}
+			}
+		}
+
 		TPtr<ITextureImpl> pTexture = TPtr<ITextureImpl>(CreateD3D11TextureImpl(mpGraphicsContext, params, result));
 		if (!pTexture || RC_OK != result)
 		{
@@ -59,7 +95,7 @@ namespace TDEngine2
 
 		auto it = std::find(mpTexturesArray.begin(), mpTexturesArray.end(), nullptr);
 		const USIZE placementIndex = static_cast<USIZE>(std::distance(mpTexturesArray.begin(), it));
-
+		
 		if (placementIndex >= mpTexturesArray.size())
 		{
 			mpTexturesArray.emplace_back(DynamicPtrCast<CD3D11TextureImpl>(pTexture));
@@ -85,6 +121,14 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		const auto& bufferParams = mpBuffersArray[bufferPlacementIndex]->GetParams();
+
+		if (E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT == (bufferParams.mFlags & E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT))
+		{
+			mTransientBuffersPool[ComputeStateDescHash(bufferParams)].push_back(bufferHandle);
+			return RC_OK;
+		}
+
 		mpBuffersArray[bufferPlacementIndex] = nullptr;
 
 		return RC_OK;
@@ -97,13 +141,21 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		const USIZE bufferPlacementIndex = static_cast<USIZE>(textureHandle);
-		if (bufferPlacementIndex >= mpTexturesArray.size())
+		const USIZE texturePlacementIndex = static_cast<USIZE>(textureHandle);
+		if (texturePlacementIndex >= mpTexturesArray.size())
 		{
 			return RC_FAIL;
 		}
 
-		mpTexturesArray[bufferPlacementIndex] = nullptr;
+		const auto& textureParams = mpTexturesArray[texturePlacementIndex]->GetParams();
+
+		if (E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT == (textureParams.mFlags & E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT))
+		{
+			mTransientTexturesPool[ComputeStateDescHash(textureParams)].push_back(textureHandle);
+			return RC_OK;
+		}
+
+		mpTexturesArray[texturePlacementIndex] = nullptr;
 
 		return RC_OK;
 	}
@@ -162,7 +214,7 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
-		U32 samplerId = static_cast<U32>(mpTextureSamplersArray.size());
+		const USIZE samplerId = mpTextureSamplersArray.size();
 
 		mpTextureSamplersArray.push_back(pNewTextureSampler);
 		mTextureSamplesHashTable.insert({ hashValue, samplerId });
@@ -207,7 +259,7 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
-		U32 stateId = static_cast<U32>(mpBlendStates.Add(pBlendState));
+		const USIZE stateId = mpBlendStates.Add(pBlendState);
 		mBlendStatesHashTable.insert({ hashValue, stateId });
 
 		return Wrench::TOkValue<TBlendStateId>(TBlendStateId(stateId));

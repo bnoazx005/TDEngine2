@@ -93,7 +93,7 @@ namespace TDEngine2
 		E_STRUCTURED_BUFFER_TYPE       mStructuredBufferType;
 		/// Index buffer part
 		E_INDEX_FORMAT_TYPE            mIndexFormat = E_INDEX_FORMAT_TYPE::INDEX16;
-		std::string                    mName;
+		const C8*                      mName = nullptr;
 
 		E_GRAPHICS_RESOURCE_INIT_FLAGS mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::NONE;
 	};

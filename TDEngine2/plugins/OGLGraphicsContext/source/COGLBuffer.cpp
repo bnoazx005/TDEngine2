@@ -84,7 +84,7 @@ namespace TDEngine2
 #if TDE2_DEBUG_MODE
 		if (GLEW_KHR_debug)
 		{
-			glObjectLabel(GL_BUFFER, mBufferHandler, -1, mInitParams.mName.c_str());
+			glObjectLabel(GL_BUFFER, mBufferHandler, -1, mInitParams.mName);
 		}
 #endif
 

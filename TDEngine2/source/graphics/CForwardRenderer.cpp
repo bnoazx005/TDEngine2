@@ -1064,7 +1064,7 @@ namespace TDEngine2
 
 
 	static TResult<TBufferHandleId> CreateLightIndexCountersBuffer(IGraphicsObjectManager* pGraphicsObjectManager, bool isInitializerBuffer = false, 
-		const std::string& debugName = "LightIndexCounters")
+		const C8* debugName = "LightIndexCounters")
 	{
 		static const std::array<U32, 4> initialValues{ 0 };
 
