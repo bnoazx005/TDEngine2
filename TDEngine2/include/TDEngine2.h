@@ -190,6 +190,7 @@
 #include "graphics/UI/CScrollableUIAreaComponent.h"
 #include "graphics/UI/CDropDownComponent.h"
 #include "graphics/CFrameGraph.h"
+#include "graphics/CFrameGraphResources.h"
 
 /// audio
 #include "audio/IAudioSource.h"

@@ -21,9 +21,18 @@ namespace TDEngine2
 	class CFrameGraphBuilder;
 	class CFrameGraphResource;
 	class ITextFileWriter;
+	class IGraphicsObjectManager;
+	class IGraphicsContext;
 
 
 	TDE2_DECLARE_HANDLE_TYPE(TFrameGraphResourceHandle);
+
+
+	struct TFramePassExecutionContext
+	{
+		IGraphicsContext* mpGraphicsContext = nullptr;
+		CFrameGraph*      mOwnerGraph = nullptr;
+	};
 
 
 	/*!
@@ -38,7 +47,7 @@ namespace TDEngine2
 			TDE2_API virtual ~IFrameGraphPass() = default;
 
 			TDE2_API virtual E_RESULT_CODE Setup(CFrameGraphBuilder& builder) = 0;
-			TDE2_API virtual E_RESULT_CODE Execute() = 0;
+			TDE2_API virtual E_RESULT_CODE Execute(const TFramePassExecutionContext& executionContext) = 0;
 
 			TDE2_API virtual bool ContainsResourceCreation(TFrameGraphResourceHandle handle) const = 0;
 			TDE2_API virtual bool ContainsResourceRead(TFrameGraphResourceHandle handle) const = 0;
@@ -85,9 +94,9 @@ namespace TDEngine2
 				return RC_OK;
 			}
 
-			E_RESULT_CODE Execute() override
+			E_RESULT_CODE Execute(const TFramePassExecutionContext& executionContext) override
 			{
-				mExecuteCallback(mData);
+				mExecuteCallback(mData, executionContext);
 				return RC_OK;
 			}
 
@@ -197,8 +206,8 @@ namespace TDEngine2
 			{
 				virtual ~IResourceHolder() = default;
 
-				TDE2_API virtual void Acquire() = 0;
-				TDE2_API virtual void Release() = 0;
+				TDE2_API virtual E_RESULT_CODE Acquire(IGraphicsObjectManager* pGraphicsObjectManager) = 0;
+				TDE2_API virtual E_RESULT_CODE Release(IGraphicsObjectManager* pGraphicsObjectManager) = 0;
 
 				TDE2_API virtual void BeforeReadOp() = 0;
 				TDE2_API virtual void BeforeWriteOp() = 0;
@@ -209,14 +218,14 @@ namespace TDEngine2
 			{
 				TResourceHolder(const typename TResource::TDesc& desc, TResource&& resource) : mDesc(desc), mResource(std::forward<TResource>(resource)) {}
 
-				void Acquire() override
+				E_RESULT_CODE Acquire(IGraphicsObjectManager* pGraphicsObjectManager) override
 				{
-					mResource.Acquire();
+					return mResource.Acquire(pGraphicsObjectManager, mDesc);
 				}
 
-				void Release() override
+				E_RESULT_CODE Release(IGraphicsObjectManager* pGraphicsObjectManager) override
 				{
-					mResource.Release();
+					return mResource.Release(pGraphicsObjectManager);
 				}
 
 				void BeforeReadOp() override
@@ -241,8 +250,8 @@ namespace TDEngine2
 			{
 			}
 
-			TDE2_API void Acquire();
-			TDE2_API void Release();
+			TDE2_API E_RESULT_CODE Acquire(IGraphicsObjectManager* pGraphicsObjectManager);
+			TDE2_API E_RESULT_CODE Release(IGraphicsObjectManager* pGraphicsObjectManager);
 
 			TDE2_API void BeforeReadOp();
 			TDE2_API void BeforeWriteOp();
@@ -283,7 +292,7 @@ namespace TDEngine2
 	};
 
 
-	TDE2_API CFrameGraph* CreateFrameGraph(E_RESULT_CODE& result);
+	TDE2_API CFrameGraph* CreateFrameGraph(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
 
 
 	/*!
@@ -293,11 +302,11 @@ namespace TDEngine2
 	class CFrameGraph: public CBaseObject
 	{
 		public:
-			friend TDE2_API CFrameGraph* CreateFrameGraph(E_RESULT_CODE&);
+			friend TDE2_API CFrameGraph* CreateFrameGraph(IGraphicsContext*, E_RESULT_CODE&);
 		public:
 			typedef std::vector<CFrameGraphResource> TResourcesRegistry;
 		public:
-			TDE2_API E_RESULT_CODE Init();
+			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext);
 
 			template <typename TPassData, typename TSetupCallback, typename TExecuteCallback>
 			const TPassData& AddPass(const std::string& name, TSetupCallback&& setupCallback, TExecuteCallback&& executeCallback)
@@ -360,6 +369,11 @@ namespace TDEngine2
 			std::vector<std::unique_ptr<IFrameGraphPass>> mpActivePasses;
 			TResourcesRegistry                            mResources;
 			std::vector<TFrameGraphResourceNode>          mResourcesGraph;
+			
+			IGraphicsContext*                             mpGraphicsContext = nullptr;
+			IGraphicsObjectManager*                       mpGraphicsObjectManager = nullptr;
+
+			TFramePassExecutionContext                    mExecutionContext;
 	};
 
 

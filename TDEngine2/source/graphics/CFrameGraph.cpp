@@ -1,4 +1,5 @@
 #include "../../include/graphics/CFrameGraph.h"
+#include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IFile.h"
 #include <stack>
 #include "stringUtils.hpp"
@@ -63,14 +64,14 @@ namespace TDEngine2
 		\brief CFrameGraphResource's definition
 	*/
 
-	void CFrameGraphResource::Acquire()
+	E_RESULT_CODE CFrameGraphResource::Acquire(IGraphicsObjectManager* pGraphicsObjectManager)
 	{
-		mpResourceHolder->Acquire();
+		return mpResourceHolder->Acquire(pGraphicsObjectManager);
 	}
 
-	void CFrameGraphResource::Release()
+	E_RESULT_CODE CFrameGraphResource::Release(IGraphicsObjectManager* pGraphicsObjectManager)
 	{
-		mpResourceHolder->Release();
+		return mpResourceHolder->Release(pGraphicsObjectManager);
 	}
 
 	void CFrameGraphResource::BeforeReadOp()
@@ -145,16 +146,21 @@ namespace TDEngine2
 
 
 	CFrameGraph::CFrameGraph() :
-		CBaseObject()
+		CBaseObject(), mpGraphicsObjectManager(nullptr)
 	{
 	}
 
-	E_RESULT_CODE CFrameGraph::Init()
+	E_RESULT_CODE CFrameGraph::Init(IGraphicsContext* pGraphicsContext)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
+
+		mpGraphicsContext = pGraphicsContext;
+		mpGraphicsObjectManager = pGraphicsContext ? pGraphicsContext->GetGraphicsObjectManager() : nullptr;
+
+		mExecutionContext = { mpGraphicsContext, this };
 
 		mIsInitialized = true;
 
@@ -269,7 +275,7 @@ namespace TDEngine2
 			// \note de-virtualize resources that is used by the pass
 			for (const TFrameGraphResourceHandle currResourceHandle : pCurrPass->GetCreations())
 			{
-				_getResource(currResourceHandle).Acquire();
+				_getResource(currResourceHandle).Acquire(mpGraphicsObjectManager);
 			}
 
 			for (const TFrameGraphResourceHandle currResourceHandle : pCurrPass->GetReads())
@@ -283,14 +289,14 @@ namespace TDEngine2
 			}
 			
 			// \note invoke execute
-			pCurrPass->Execute();
+			pCurrPass->Execute(mExecutionContext);
 
 			// \note destroy resources
 			for (auto& currResource: mResources)
 			{
 				if (currResource.GetLastUserPass() == pCurrPass.get() && currResource.IsTransient())
 				{
-					currResource.Release();
+					currResource.Release(mpGraphicsObjectManager);
 				}
 			}
 		}
@@ -381,8 +387,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API CFrameGraph* CreateFrameGraph(E_RESULT_CODE& result)
+	TDE2_API CFrameGraph* CreateFrameGraph(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(CFrameGraph, CFrameGraph, result);
+		return CREATE_IMPL(CFrameGraph, CFrameGraph, result, pGraphicsContext);
 	}
 }

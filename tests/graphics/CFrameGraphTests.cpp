@@ -22,8 +22,8 @@ TEST_CASE("CFrameGraph Tests")
 			U32 mHeight = 128;
 		};
 
-		TDE2_API void Acquire() {}
-		TDE2_API void Release() {}
+		TDE2_API E_RESULT_CODE Acquire(IGraphicsObjectManager* pGraphicsObjectManager, const TDesc& desc) { return RC_OK; }
+		TDE2_API E_RESULT_CODE Release(IGraphicsObjectManager* pGraphicsObjectManager) { return RC_OK; }
 
 		TDE2_API void BeforeReadOp() {}
 		TDE2_API void BeforeWriteOp() {}
@@ -34,7 +34,7 @@ TEST_CASE("CFrameGraph Tests")
 
 	E_RESULT_CODE result = RC_OK;
 
-	TPtr<CFrameGraph> pFrameGraph = TPtr<CFrameGraph>(CreateFrameGraph(result));
+	TPtr<CFrameGraph> pFrameGraph = TPtr<CFrameGraph>(CreateFrameGraph(nullptr, result));
 
 	SECTION("TestExecuteAndCompile_PassSinglePassWithSingleOutput_BothSetupAndExecuteShouldBeCreated")
 	{
@@ -61,7 +61,7 @@ TEST_CASE("CFrameGraph Tests")
 			isSetupInvoked = true;
 
 			builder.MarkAsPersistent(); // Mark the pass as persistent one to prevent its culling
-		}, [&](const TEmptyPassData& data) 
+		}, [&](const TEmptyPassData& data, const TFramePassExecutionContext&)
 		{
 			TFrameGraphTexture& outputTex = pFrameGraph->GetResource<TFrameGraphTexture>(data.mOutput);
 
@@ -88,7 +88,7 @@ TEST_CASE("CFrameGraph Tests")
 
 		pFrameGraph->AddPass<TEmptyPassData>("Culled", [&](CFrameGraphBuilder& builder, TEmptyPassData& data)
 		{
-		}, [&](const TEmptyPassData&)
+		}, [&](const TEmptyPassData&, const TFramePassExecutionContext&)
 		{
 			isExecuteInvoked = true;
 		});
@@ -125,7 +125,7 @@ TEST_CASE("CFrameGraph Tests")
 			REQUIRE(data.mOutput != TFrameGraphResourceHandle::Invalid);
 
 			isSetupInvoked = true;
-		}, [&](const TEmptyPassData& data)
+		}, [&](const TEmptyPassData& data, const TFramePassExecutionContext& executionContext)
 		{
 			TFrameGraphTexture& outputTex = pFrameGraph->GetResource<TFrameGraphTexture>(data.mOutput);
 			REQUIRE(expectedBackBufferTextureHandle == outputTex.mTextureHandle);
@@ -166,7 +166,7 @@ TEST_CASE("CFrameGraph Tests")
 			REQUIRE(data.mOutput != TFrameGraphResourceHandle::Invalid);
 
 			isSetupInvoked[0] = true;
-		}, [&](const TEmptyPassData& data)
+		}, [&](const TEmptyPassData& data, const TFramePassExecutionContext& executionContext)
 		{
 		});
 
@@ -177,7 +177,7 @@ TEST_CASE("CFrameGraph Tests")
 			REQUIRE(data.mOutput != TFrameGraphResourceHandle::Invalid);
 
 			isSetupInvoked[1] = true;
-		}, [&](const TEmptyPassData& data)
+		}, [&](const TEmptyPassData& data, const TFramePassExecutionContext& executionContext)
 		{
 		});
 

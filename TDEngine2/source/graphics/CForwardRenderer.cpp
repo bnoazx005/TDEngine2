@@ -64,6 +64,12 @@ namespace TDEngine2
 	constexpr U32 VISIBLE_LIGHTS_BUFFER_SLOT = 12;
 
 
+	class CDepthPrePass
+	{
+		public:
+	};
+
+
 	/*!
 		interface IFramePostProcessor
 
@@ -1175,9 +1181,9 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mpGraphicsContext    = params.mpGraphicsContext;
-		mpResourceManager    = params.mpResourceManager;
-		mpWindowSystem       = params.mpWindowSystem;
+		mpGraphicsContext = params.mpGraphicsContext;
+		mpResourceManager = params.mpResourceManager;
+		mpWindowSystem    = params.mpWindowSystem;
 
 		auto pEventManager = mpWindowSystem->GetEventManager();
 		if (pEventManager)
@@ -1187,7 +1193,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		mpFrameGraph = CreateFrameGraph(result);
+		mpFrameGraph = CreateFrameGraph(mpGraphicsContext.Get(), result);
 
 		auto allocatorFactory = params.mAllocatorFactoryFunctor;
 				
@@ -1593,6 +1599,8 @@ namespace TDEngine2
 
 			mpFrameGraph->Reset();
 
+			// \todo editor mode (draw into selection buffer)
+			// 
 			// \todo shadow pass
 			// \todo directional shadow pass
 			// \todo omni shadow pass
