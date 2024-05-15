@@ -31,7 +31,7 @@ namespace TDEngine2
 	struct TFramePassExecutionContext
 	{
 		IGraphicsContext* mpGraphicsContext = nullptr;
-		CFrameGraph*      mOwnerGraph = nullptr;
+		CFrameGraph*      mpOwnerGraph = nullptr;
 	};
 
 

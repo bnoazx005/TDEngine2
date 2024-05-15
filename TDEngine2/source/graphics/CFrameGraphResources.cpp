@@ -22,6 +22,11 @@ namespace TDEngine2
 
 	E_RESULT_CODE TFrameGraphTexture::Release(IGraphicsObjectManager* pGraphicsObjectManager)
 	{
+		if (TTextureHandleId::Invalid == mTextureHandle)
+		{
+			return RC_OK;
+		}
+
 		E_RESULT_CODE result = pGraphicsObjectManager->DestroyTexture(mTextureHandle);
 		TDE2_ASSERT(RC_OK == result);
 
@@ -57,6 +62,11 @@ namespace TDEngine2
 
 	E_RESULT_CODE TFrameGraphBuffer::Release(IGraphicsObjectManager* pGraphicsObjectManager)
 	{
+		if (TBufferHandleId::Invalid == mBufferHandle)
+		{
+			return RC_OK;
+		}
+
 		E_RESULT_CODE result = pGraphicsObjectManager->DestroyBuffer(mBufferHandle);
 		TDE2_ASSERT(RC_OK == result);
 

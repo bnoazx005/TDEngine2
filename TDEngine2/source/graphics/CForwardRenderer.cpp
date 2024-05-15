@@ -12,6 +12,7 @@
 #include "../../include/graphics/CBaseRenderTarget.h"
 #include "../../include/graphics/CBaseCubemapTexture.h"
 #include "../../include/graphics/CFrameGraph.h"
+#include "../../include/graphics/CFrameGraphResources.h"
 #include "../../include/core/memory/IAllocator.h"
 #include "../../include/core/memory/CLinearAllocator.h"
 #include "../../include/core/IGraphicsContext.h"
@@ -64,9 +65,97 @@ namespace TDEngine2
 	constexpr U32 VISIBLE_LIGHTS_BUFFER_SLOT = 12;
 
 
+	static inline void ExecuteDrawCommands(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, 
+		TPtr<IGlobalShaderProperties> pGlobalShaderProperties, TPtr<CRenderQueue> pCommandsBuffer, bool shouldClearBuffers, 
+		U32 upperRenderIndexLimit = (std::numeric_limits<U32>::max)());
+
+
 	class CDepthPrePass
 	{
 		public:
+			struct TAddPassInvokeParams
+			{
+				TPtr<IGraphicsContext>        mpGraphicsContext = nullptr;
+				TPtr<IResourceManager>        mpResourceManager = nullptr;
+				TPtr<IGlobalShaderProperties> mpGlobalShaderProperties = nullptr;
+				TPtr<CRenderQueue>            mpCommandsBuffer = nullptr;
+
+				U32                           mWindowWidth = 0;
+				U32                           mWindowHeight = 0;
+			};
+
+			struct TPassData
+			{
+				TFrameGraphResourceHandle mDepthBufferHandle = TFrameGraphResourceHandle::Invalid;
+			};
+		public:
+			explicit CDepthPrePass()
+			{
+			/*	TRenderTargetParameters depthBufferParams;
+				depthBufferParams.mWidth = width;
+				depthBufferParams.mHeight = height;
+				depthBufferParams.mFormat = FT_D32;
+				depthBufferParams.mNumOfMipLevels = 1;
+				depthBufferParams.mNumOfSamples = 1;
+				depthBufferParams.mSamplingQuality = 0;
+				depthBufferParams.mType = TRenderTargetParameters::E_TARGET_TYPE::TEXTURE2D;
+
+				const TResourceId depthBufferHandle = pResourceManager->Create<IDepthBufferTarget>("MainDepthBuffer", depthBufferParams);
+				if (TResourceId::Invalid == depthBufferHandle)
+				{
+					TDE2_ASSERT(false);
+					return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+				}
+
+				if (auto pDepthBufferTexture = pResourceManager->GetResource<IDepthBufferTarget>(depthBufferHandle))
+				{
+					pDepthBufferTexture->SetUWrapMode(E_ADDRESS_MODE_TYPE::AMT_CLAMP);
+					pDepthBufferTexture->SetVWrapMode(E_ADDRESS_MODE_TYPE::AMT_CLAMP);
+					pDepthBufferTexture->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);*/
+
+			}
+
+			TPassData AddPass(TPtr<CFrameGraph> pFrameGraph, const TAddPassInvokeParams& context)
+			{
+				constexpr const C8* DEPTH_PRE_PASS_BUFFER_ID = "PrePassDepthBuffer";
+
+				return pFrameGraph->AddPass<TPassData>("DepthPrePass", [&](CFrameGraphBuilder& builder, TPassData& data)
+				{
+					TFrameGraphTexture::TDesc depthBufferParams{};
+
+					depthBufferParams.mWidth           = context.mWindowWidth;
+					depthBufferParams.mHeight          = context.mWindowHeight;
+					depthBufferParams.mFormat          = FT_D32;
+					depthBufferParams.mNumOfMipLevels  = 1;
+					depthBufferParams.mNumOfSamples    = 1;
+					depthBufferParams.mSamplingQuality = 0;
+					depthBufferParams.mType            = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
+					depthBufferParams.mUsageType       = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+					depthBufferParams.mBindFlags       = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER;
+					depthBufferParams.mName            = DEPTH_PRE_PASS_BUFFER_ID;
+
+					data.mDepthBufferHandle = builder.Create<TFrameGraphTexture>(DEPTH_PRE_PASS_BUFFER_ID, depthBufferParams);
+					data.mDepthBufferHandle = builder.Write(data.mDepthBufferHandle);
+
+					TDE2_ASSERT(data.mDepthBufferHandle != TFrameGraphResourceHandle::Invalid);
+
+					builder.MarkAsPersistent(); // TODO remove when the whole graph will be provided
+				}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+				{
+					auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
+					TDE_RENDER_SECTION(pGraphicsContext, "DepthPrePass");
+					
+					TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mDepthBufferHandle);
+
+					// \todo Implement BindDepthBufferTarget for ITextureImpl or TTextureHandleId
+					//pGraphicsContext->BindDepthBufferTarget(pMainDepthBuffer.Get(), true);
+					pGraphicsContext->ClearDepthBuffer(1.0f);
+
+					ExecuteDrawCommands(pGraphicsContext, context.mpResourceManager, context.mpGlobalShaderProperties, context.mpCommandsBuffer, true);
+
+					pGraphicsContext->BindDepthBufferTarget(nullptr);
+				});
+			}
 	};
 
 
@@ -1301,7 +1390,7 @@ namespace TDEngine2
 
 
 	static inline void ExecuteDrawCommands(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties,
-									TPtr<CRenderQueue> pCommandsBuffer, bool shouldClearBuffers, U32 upperRenderIndexLimit = (std::numeric_limits<U32>::max)())
+									TPtr<CRenderQueue> pCommandsBuffer, bool shouldClearBuffers, U32 upperRenderIndexLimit)
 	{
 		if (pCommandsBuffer->IsEmpty())
 		{
@@ -1597,6 +1686,8 @@ namespace TDEngine2
 			TDE2_BUILTIN_SPEC_PROFILER_EVENT(E_SPECIAL_PROFILE_EVENT::RENDER);
 			TDE2_STATS_COUNTER_SET(mDrawCallsCount, 0);
 
+			_prepareFrame(currTime, deltaTime);
+
 			mpFrameGraph->Reset();
 
 			// \todo editor mode (draw into selection buffer)
@@ -1604,8 +1695,18 @@ namespace TDEngine2
 			// \todo shadow pass
 			// \todo directional shadow pass
 			// \todo omni shadow pass
-			// 
-			// \todo depth pre-pass
+
+			// \note depth pre-pass
+			CDepthPrePass{}.AddPass(mpFrameGraph, CDepthPrePass::TAddPassInvokeParams
+				{ 
+					mpGraphicsContext, 
+					mpResourceManager, 
+					mpGlobalShaderProperties, 
+					mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEPTH_PREPASS)],
+					mpWindowSystem->GetWidth(), 
+					mpWindowSystem->GetHeight()
+				});
+
 			// 
 			// \todo main pass
 			// 
@@ -1628,8 +1729,6 @@ namespace TDEngine2
 
 			mpFrameGraph->Compile();
 			mpFrameGraph->Execute();
-
-			_prepareFrame(currTime, deltaTime);
 
 #if TDE2_EDITORS_ENABLED
 			ProcessEditorSelectionBuffer(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpSelectionManager, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)]);

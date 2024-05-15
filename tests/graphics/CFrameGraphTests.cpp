@@ -127,7 +127,7 @@ TEST_CASE("CFrameGraph Tests")
 			isSetupInvoked = true;
 		}, [&](const TEmptyPassData& data, const TFramePassExecutionContext& executionContext)
 		{
-			TFrameGraphTexture& outputTex = pFrameGraph->GetResource<TFrameGraphTexture>(data.mOutput);
+			TFrameGraphTexture& outputTex = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mOutput);
 			REQUIRE(expectedBackBufferTextureHandle == outputTex.mTextureHandle);
 
 			isExecuteInvoked = true;
