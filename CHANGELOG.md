@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.27] 2024-05-10
+## [0.6.27] 2024-05-15
 
 ### Added
 
@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 ### Fixed
+
+- Depth buffers' creation via **CD3D11TextureImpl** was fixed.
 
 ## [0.6.27] 2024-05-09
 

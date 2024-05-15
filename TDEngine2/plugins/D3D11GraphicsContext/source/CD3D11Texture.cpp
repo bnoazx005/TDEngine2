@@ -15,13 +15,14 @@ namespace TDEngine2
 	template <typename T>
 	void FillCommonTextureDesc(T& textureDesc, const TInitTextureImplParams& params)
 	{
-		bool isCPUAccessible = params.mUsageType != E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+		const bool isCPUAccessible = params.mUsageType != E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+		const bool isDepthBufferResource = E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER);
 
 		textureDesc.Width = params.mWidth;
 		textureDesc.Height = params.mHeight;
-		textureDesc.Format = CD3D11Mappings::GetDXGIFormat(params.mFormat);
+		textureDesc.Format = isDepthBufferResource ? CD3D11Mappings::GetTypelessVersionOfFormat(params.mFormat) : CD3D11Mappings::GetDXGIFormat(params.mFormat);
 		textureDesc.MipLevels = params.mNumOfMipLevels;
-
+		
 		textureDesc.BindFlags = 0x0;
 
 		if (E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE))
@@ -29,7 +30,7 @@ namespace TDEngine2
 			textureDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
 		}
 
-		if (E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER))
+		if (isDepthBufferResource)
 		{
 			textureDesc.BindFlags |= D3D11_BIND_DEPTH_STENCIL;
 		}
@@ -43,7 +44,7 @@ namespace TDEngine2
 			textureDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 		}
 
-		textureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
+		textureDesc.CPUAccessFlags = isDepthBufferResource ? 0 : D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
 		textureDesc.Usage = isCPUAccessible ? D3D11_USAGE_STAGING : D3D11_USAGE_DEFAULT;
 		textureDesc.MiscFlags = 
 			((params.mType == E_TEXTURE_IMPL_TYPE::CUBEMAP) ? D3D11_RESOURCE_MISC_TEXTURECUBE : 0x0) |
@@ -113,8 +114,9 @@ namespace TDEngine2
 		memset(&viewDesc, 0, sizeof(viewDesc));
 
 		const bool isCubemap = (params.mType == E_TEXTURE_IMPL_TYPE::CUBEMAP);
+		const bool isDepthBufferResource = E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER);
 
-		viewDesc.Format = CD3D11Mappings::GetDXGIFormat(params.mFormat);
+		viewDesc.Format = CD3D11Mappings::GetDXGIFormat(isDepthBufferResource ? CD3D11Mappings::GetBestFitStrongTypeFormat(params.mFormat) : params.mFormat);
 		viewDesc.ViewDimension = isCubemap ? D3D11_SRV_DIMENSION_TEXTURECUBE : (params.mArraySize > 1 ? D3D11_SRV_DIMENSION_TEXTURE2DARRAY : D3D11_SRV_DIMENSION_TEXTURE2D);
 
 		if (E_TEXTURE_IMPL_TYPE::TEXTURE_3D == params.mType)
