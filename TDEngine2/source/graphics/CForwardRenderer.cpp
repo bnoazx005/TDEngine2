@@ -133,6 +133,7 @@ namespace TDEngine2
 					depthBufferParams.mUsageType       = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
 					depthBufferParams.mBindFlags       = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER;
 					depthBufferParams.mName            = DEPTH_PRE_PASS_BUFFER_ID;
+					depthBufferParams.mFlags           = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
 
 					data.mDepthBufferHandle = builder.Create<TFrameGraphTexture>(DEPTH_PRE_PASS_BUFFER_ID, depthBufferParams);
 					data.mDepthBufferHandle = builder.Write(data.mDepthBufferHandle);
