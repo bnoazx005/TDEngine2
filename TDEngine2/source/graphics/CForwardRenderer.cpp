@@ -148,13 +148,13 @@ namespace TDEngine2
 					
 					TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mDepthBufferHandle);
 
-					// \todo Implement BindDepthBufferTarget for ITextureImpl or TTextureHandleId
-					//pGraphicsContext->BindDepthBufferTarget(pMainDepthBuffer.Get(), true);
+					pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(context.mWindowWidth), static_cast<F32>(context.mWindowHeight), 0.0f, 1.0f);
+					pGraphicsContext->BindDepthBufferTarget(depthBufferTarget.mTextureHandle, true);
 					pGraphicsContext->ClearDepthBuffer(1.0f);
 
-					ExecuteDrawCommands(pGraphicsContext, context.mpResourceManager, context.mpGlobalShaderProperties, context.mpCommandsBuffer, true);
+					ExecuteDrawCommands(pGraphicsContext, context.mpResourceManager, context.mpGlobalShaderProperties, context.mpCommandsBuffer, false); // \todo Replace false with true when the graph will be completed
 
-					pGraphicsContext->BindDepthBufferTarget(nullptr);
+					pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
 				});
 			}
 	};
