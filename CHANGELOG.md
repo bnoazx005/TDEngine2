@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A new overloading of BindDepthBufferTarget was added for **IGraphicsContext** implementations.
 
+- The API of **IGraphicsObjectManager** was extended with a new public method GetDefaultTextureSampler.
+
 ### Changed
 
 ### Fixed

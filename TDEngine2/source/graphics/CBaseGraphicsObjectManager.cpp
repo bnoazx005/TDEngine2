@@ -13,7 +13,7 @@
 namespace TDEngine2
 {
 	CBaseGraphicsObjectManager::CBaseGraphicsObjectManager() :
-		CBaseObject(), mpDebugUtility(nullptr)
+		CBaseObject(), mpDebugUtility(nullptr), mpGraphicsContext(nullptr)
 	{
 	}
 
@@ -94,6 +94,17 @@ namespace TDEngine2
 	E_DEFAULT_SHADER_TYPE CBaseGraphicsObjectManager::GetDefaultShaderTypeByName(const std::string& name)
 	{
 		return E_DEFAULT_SHADER_TYPE::DST_BASIC;
+	}
+
+	TTextureSamplerId CBaseGraphicsObjectManager::GetDefaultTextureSampler(E_TEXTURE_FILTER_TYPE filterType)
+	{
+		auto textureSamplerResult = CreateTextureSampler({ filterType, E_ADDRESS_MODE_TYPE::AMT_CLAMP, E_ADDRESS_MODE_TYPE::AMT_CLAMP, E_ADDRESS_MODE_TYPE::AMT_CLAMP, true });
+		if (textureSamplerResult.HasError())
+		{
+			return TTextureSamplerId::Invalid;
+		}
+
+		return textureSamplerResult.Get();
 	}
 
 	void CBaseGraphicsObjectManager::_insertVertexDeclaration(IVertexDeclaration* pVertDecl)

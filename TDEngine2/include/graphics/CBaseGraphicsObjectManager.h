@@ -69,6 +69,15 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static E_DEFAULT_SHADER_TYPE GetDefaultShaderTypeByName(const std::string& name);
+
+			/*!
+				Prefer to use CreateSampler if you need unique set of parameters for a texture
+
+				\return The method returns one of prebuilt texture samplers based on given filtering type
+			*/
+
+			TDE2_API TTextureSamplerId GetDefaultTextureSampler(E_TEXTURE_FILTER_TYPE filterType) override;
+
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseGraphicsObjectManager)
 

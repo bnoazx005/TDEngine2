@@ -162,6 +162,14 @@ namespace TDEngine2
 			TDE2_API virtual std::string GetDefaultShaderCode(const E_DEFAULT_SHADER_TYPE& type) const = 0;
 
 			/*!
+				Prefer to use CreateSampler if you need unique set of parameters for a texture
+
+				\return The method returns one of prebuilt texture samplers based on given filtering type
+			*/
+
+			TDE2_API virtual TTextureSamplerId GetDefaultTextureSampler(E_TEXTURE_FILTER_TYPE filterType) = 0;
+
+			/*!
 				\brief The method returns vertices of a screen-quad triangle specific for the current GAPI.
 				XY of each element mean the position and ZW are texture coordinates
 
