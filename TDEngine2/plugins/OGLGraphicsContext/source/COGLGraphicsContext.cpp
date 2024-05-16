@@ -745,6 +745,11 @@ namespace TDEngine2
 		TDE2_ASSERT(GL_FRAMEBUFFER_COMPLETE == checkStatus);
 	}
 
+	void COGLGraphicsContext::BindDepthBufferTarget(TTextureHandleId targetHandle, bool disableRTWrite)
+	{
+		TDE2_UNIMPLEMENTED();
+	}
+
 	void COGLGraphicsContext::SetDepthBufferEnabled(bool value)
 	{
 		GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mMainFBOHandler));

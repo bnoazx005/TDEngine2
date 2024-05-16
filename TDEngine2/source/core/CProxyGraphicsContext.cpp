@@ -229,6 +229,11 @@ namespace TDEngine2
 		LOG_MESSAGE("[ProxyGraphicsContext] BindDepthBufferTarget(IDepthBufferTarget*, bool)");
 	}
 
+	void CProxyGraphicsContext::BindDepthBufferTarget(TTextureHandleId targetHandle, bool disableRTWrite)
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] BindDepthBufferTarget(TTextureHandleId*, bool)");
+	}
+
 	void CProxyGraphicsContext::SetDepthBufferEnabled(bool value)
 	{
 		LOG_MESSAGE("[ProxyGraphicsContext] SetDepthBufferEnabled(bool)");

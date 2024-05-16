@@ -704,6 +704,36 @@ namespace TDEngine2
 		mp3dDeviceContext->OMSetRenderTargets(disableRTWrite ? 1 : mCurrNumOfActiveRenderTargets, disableRTWrite ? pNullRT : mpRenderTargets, mpCurrDepthStencilView);
 	}
 
+	void CD3D11GraphicsContext::BindDepthBufferTarget(TTextureHandleId targetHandle, bool disableRTWrite)
+	{
+		if (TTextureHandleId::Invalid == targetHandle)
+		{
+			mpCurrDepthStencilView = mpDefaultDepthStencilView;
+			mp3dDeviceContext->OMSetRenderTargets(1, &mpBackBufferView, mpCurrDepthStencilView);
+
+			return;
+		}
+
+		auto pDepthTargetTexture = mpGraphicsObjectManagerD3D11Impl->GetD3D11TexturePtr(targetHandle);
+		if (!pDepthTargetTexture)
+		{
+			TDE2_ASSERT(false);
+			return;
+		}
+
+		if (E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER != (pDepthTargetTexture->GetParams().mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER))
+		{
+			TDE2_ASSERT_MSG(false, "[CD3D11GraphicsContext] Try to bind texture that is not a depth buffer to depth buffer slot");
+			return;
+		}
+
+		mpCurrDepthStencilView = pDepthTargetTexture->GetDepthStencilView();
+
+		static ID3D11RenderTargetView* pNullRT[]{ nullptr };
+
+		mp3dDeviceContext->OMSetRenderTargets(disableRTWrite ? 1 : mCurrNumOfActiveRenderTargets, disableRTWrite ? pNullRT : mpRenderTargets, mpCurrDepthStencilView);
+	}
+
 	void CD3D11GraphicsContext::SetDepthBufferEnabled(bool value)
 	{
 		auto pPrevDepthView = mpCurrDepthStencilView;

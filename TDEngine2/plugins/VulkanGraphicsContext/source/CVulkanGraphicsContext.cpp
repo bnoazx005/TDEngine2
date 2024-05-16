@@ -1010,6 +1010,10 @@ namespace TDEngine2
 	{
 	}
 
+	void CVulkanGraphicsContext::BindDepthBufferTarget(TTextureHandleId targetHandle, bool disableRTWrite)
+	{
+	}
+
 	void CVulkanGraphicsContext::SetDepthBufferEnabled(bool value)
 	{
 	}

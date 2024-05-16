@@ -339,6 +339,15 @@ namespace TDEngine2
 			TDE2_API void BindDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, bool disableRTWrite = false) override;
 
 			/*!
+				\brief The method binds a given depth buffer to rendering pipeline
+
+				\param[in] targetHandle Handle to texture object that's created as a depth buffer
+				\param[in] disableRTWrite A flag determines whether the write to RT should be enabled or not
+			*/
+
+			TDE2_API void BindDepthBufferTarget(TTextureHandleId targetHandle, bool disableRTWrite = false) override;
+
+			/*!
 				\brief The method disables or enables a depth buffer usage
 
 				\param[in] value If true the depth buffer will be used, false turns off it
