@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The predefined slots for internal lighting shader data were changed.
+
 ### Fixed
 
 - Depth buffers' creation via **CD3D11TextureImpl** was fixed.

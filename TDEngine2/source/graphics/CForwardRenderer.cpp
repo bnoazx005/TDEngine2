@@ -61,8 +61,8 @@ namespace TDEngine2
 	constexpr U32 TRANSPARENT_VISIBLE_LIGHTS_BUFFER_SLOT = 12;
 	constexpr U32 LIGHT_INDEX_COUNTERS_BUFFER_SLOT = 13;
 
-	constexpr U32 LIGHT_GRID_TEXTURE_SLOT = 11;
-	constexpr U32 VISIBLE_LIGHTS_BUFFER_SLOT = 12;
+	constexpr U32 LIGHT_GRID_TEXTURE_SLOT = 10;
+	constexpr U32 VISIBLE_LIGHTS_BUFFER_SLOT = 11;
 
 
 	static inline void ExecuteDrawCommands(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, 
@@ -1703,7 +1703,6 @@ namespace TDEngine2
 
 			// \todo editor mode (draw into selection buffer)
 			// 
-			// \todo shadow pass
 			// \todo directional shadow pass
 			// \todo omni shadow pass
 

@@ -555,7 +555,7 @@ namespace TDEngine2
 
 	enum class E_INTERNAL_SHADER_BUFFERS_REGISTERS : U8
 	{
-		LIGHTS_SLOT = 10,
+		LIGHTS_SLOT = 20,
 		COUNT
 	};
 

@@ -43,15 +43,15 @@ struct LightSourceData
 };
 
 
-DECLARE_TYPED_BUFFER_EX(LightSourceData, Lights, 10);
+DECLARE_TYPED_BUFFER_EX(LightSourceData, Lights, 20);
 
 #ifdef TILED_LIGHTING_ENABLED
 
 #define LIGHT_TILE_BLOCK_SIZE 16
 #define MAX_LIGHTS_PER_TILE 256
 
-DECLARE_TEX2D_TYPED_EX(LightGridTexture, 11, uint2);
-DECLARE_TYPED_BUFFER_EX(uint, VisibleLightIndices, 12);
+DECLARE_TEX2D_TYPED_EX(LightGridTexture, 10, uint2);
+DECLARE_TYPED_BUFFER_EX(uint, VisibleLightIndices, 11);
 
 #endif
 
