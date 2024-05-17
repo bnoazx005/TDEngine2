@@ -70,6 +70,12 @@ namespace TDEngine2
 		U32 upperRenderIndexLimit = (std::numeric_limits<U32>::max)());
 
 
+	struct TFrameGraphBlackboard // \todo For now just use hardcoded struct with fields instead of special storage type
+	{
+		TFrameGraphResourceHandle mDepthBufferHandle = TFrameGraphResourceHandle::Invalid;
+	};
+
+
 	class CDepthPrePass
 	{
 		public:
@@ -115,11 +121,11 @@ namespace TDEngine2
 
 			}
 
-			TPassData AddPass(TPtr<CFrameGraph> pFrameGraph, const TAddPassInvokeParams& context)
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, const TAddPassInvokeParams& context)
 			{
 				constexpr const C8* DEPTH_PRE_PASS_BUFFER_ID = "PrePassDepthBuffer";
 
-				return pFrameGraph->AddPass<TPassData>("DepthPrePass", [&](CFrameGraphBuilder& builder, TPassData& data)
+				auto&& output = pFrameGraph->AddPass<TPassData>("DepthPrePass", [&](CFrameGraphBuilder& builder, TPassData& data)
 				{
 					TFrameGraphTexture::TDesc depthBufferParams{};
 
@@ -156,6 +162,8 @@ namespace TDEngine2
 
 					pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
 				});
+
+				frameGraphBlackboard.mDepthBufferHandle = output.mDepthBufferHandle;
 			}
 	};
 
@@ -1541,7 +1549,7 @@ namespace TDEngine2
 			pLightCullShader->SetTextureResource("DepthTexture", pResourceManager->GetResource<ITexture>(lightGridData.mMainDepthBufferHandle).Get());
 			pLightCullShader->SetStructuredBufferResource("TileFrustums", lightGridData.mTileFrustumsBufferHandle);
 			pLightCullShader->SetUserUniformsBuffer(0, reinterpret_cast<U8*>(&shaderParameters), sizeof(shaderParameters));
-
+			
 			pLightCullShader->Bind();
 		}
 
@@ -1689,6 +1697,8 @@ namespace TDEngine2
 
 			_prepareFrame(currTime, deltaTime);
 
+			TFrameGraphBlackboard frameGraphBlackboard;
+
 			mpFrameGraph->Reset();
 
 			// \todo editor mode (draw into selection buffer)
@@ -1698,7 +1708,7 @@ namespace TDEngine2
 			// \todo omni shadow pass
 
 			// \note depth pre-pass
-			CDepthPrePass{}.AddPass(mpFrameGraph, CDepthPrePass::TAddPassInvokeParams
+			CDepthPrePass{}.AddPass(mpFrameGraph, frameGraphBlackboard, CDepthPrePass::TAddPassInvokeParams
 				{ 
 					mpGraphicsContext, 
 					mpResourceManager, 
