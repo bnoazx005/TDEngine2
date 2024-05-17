@@ -222,6 +222,24 @@ namespace TDEngine2
 		return mpShaderMeta;
 	}
 
+	U32 CBaseShader::GetResourceBindingSlot(const std::string& resourceName) const
+	{
+		constexpr U32 INVALID_SLOT = (std::numeric_limits<U32>::max)();
+
+		if (!mpShaderMeta)
+		{
+			return INVALID_SLOT;
+		}
+
+		auto&& it = mpShaderMeta->mShaderResourcesInfo.find(resourceName);
+		if (it == mpShaderMeta->mShaderResourcesInfo.cend())
+		{
+			return INVALID_SLOT;
+		}
+
+		return it->second.mSlot;
+	}
+
 	E_RESULT_CODE CBaseShader::_initShaderInternal(TShaderCompilerOutput* pShaderMetaData)
 	{
 		mpShaderMeta = pShaderMetaData;

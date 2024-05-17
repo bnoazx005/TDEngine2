@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The API of **IGraphicsObjectManager** was extended with a new public method GetDefaultTextureSampler.
 
+- The API of **IShader** was extended with a new method GetResourceBindingSlot.
+
 ### Changed
 
 ### Fixed

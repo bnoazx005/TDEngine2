@@ -135,6 +135,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual const TShaderCompilerOutput* GetShaderMetaData() const = 0;
+
+			TDE2_API virtual U32 GetResourceBindingSlot(const std::string& resourceName) const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IShader)
 	};

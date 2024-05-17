@@ -135,6 +135,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API const TShaderCompilerOutput* GetShaderMetaData() const override;
+
+			TDE2_API U32 GetResourceBindingSlot(const std::string& resourceName) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseShader)
 
