@@ -64,6 +64,9 @@ namespace TDEngine2
 	constexpr U32 LIGHT_GRID_TEXTURE_SLOT = 10;
 	constexpr U32 VISIBLE_LIGHTS_BUFFER_SLOT = 11;
 
+	constexpr U32 SUN_SHADOWS_MAP_SLOT = 0;
+	constexpr U32 POINT_LIGHT_0_SHADOWS_MAP_SLOT = 1;
+
 
 	static inline void ExecuteDrawCommands(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, 
 		TPtr<IGlobalShaderProperties> pGlobalShaderProperties, TPtr<CRenderQueue> pCommandsBuffer, bool shouldClearBuffers, 
@@ -95,32 +98,6 @@ namespace TDEngine2
 				TFrameGraphResourceHandle mDepthBufferHandle = TFrameGraphResourceHandle::Invalid;
 			};
 		public:
-			explicit CDepthPrePass()
-			{
-			/*	TRenderTargetParameters depthBufferParams;
-				depthBufferParams.mWidth = width;
-				depthBufferParams.mHeight = height;
-				depthBufferParams.mFormat = FT_D32;
-				depthBufferParams.mNumOfMipLevels = 1;
-				depthBufferParams.mNumOfSamples = 1;
-				depthBufferParams.mSamplingQuality = 0;
-				depthBufferParams.mType = TRenderTargetParameters::E_TARGET_TYPE::TEXTURE2D;
-
-				const TResourceId depthBufferHandle = pResourceManager->Create<IDepthBufferTarget>("MainDepthBuffer", depthBufferParams);
-				if (TResourceId::Invalid == depthBufferHandle)
-				{
-					TDE2_ASSERT(false);
-					return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
-				}
-
-				if (auto pDepthBufferTexture = pResourceManager->GetResource<IDepthBufferTarget>(depthBufferHandle))
-				{
-					pDepthBufferTexture->SetUWrapMode(E_ADDRESS_MODE_TYPE::AMT_CLAMP);
-					pDepthBufferTexture->SetVWrapMode(E_ADDRESS_MODE_TYPE::AMT_CLAMP);
-					pDepthBufferTexture->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);*/
-
-			}
-
 			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, const TAddPassInvokeParams& context)
 			{
 				constexpr const C8* DEPTH_PRE_PASS_BUFFER_ID = "PrePassDepthBuffer";
