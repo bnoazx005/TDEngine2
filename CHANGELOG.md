@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.27] 2024-05-19
+## [0.6.27] 2024-05-20
 
 ### Added
 
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The API of **IGraphicsObjectManager** was extended with a new public method GetDefaultTextureSampler.
 
 - The API of **IShader** was extended with a new method GetResourceBindingSlot.
+
+- A new setting 'max_omni_light_shadow_maps_count' was added into quality settings group of CProjectSettings type.
 
 ### Changed
 

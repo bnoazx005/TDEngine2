@@ -63,6 +63,7 @@ namespace TDEngine2
 				bool mIsShadowMappingEnabled = true;
 				U32  mShadowMapSizes = 512;
 				U32  mShadowCascadesCount = 4;
+				U32  mMaxOmniLightsShadowMapCount = 4;
 				TVector4 mShadowCascadesSplits = TVector4(0.25f, 0.5f, 0.75f, 1.0f);
 
 				bool mIsVolumetricCloudsEnabled = false;

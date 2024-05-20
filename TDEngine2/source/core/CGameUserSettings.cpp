@@ -308,6 +308,8 @@ namespace TDEngine2
 			"Shadow map sizes", 512);
 		mpShadowCascadesCountCVar = std::make_unique<CInt32ConsoleVarDecl>(TUserSettingsKeys::mGraphicsGroupKeyId + ".shadow_cascades_count",
 			"Amount of shadow maps cascades", 3);
+		mpMaxOmniLightShadowMapsCVar = std::make_unique<CInt32ConsoleVarDecl>(TUserSettingsKeys::mGraphicsGroupKeyId + ".max_omni_light_shadow_maps_count",
+			"Amount of shadow maps for omni lights", 3);
 
 		mpShadowCascadesSplitsCVar[0] = std::make_unique<CFloatConsoleVarDecl>(TUserSettingsKeys::mGraphicsGroupKeyId + ".shadow_cascades_splits_0",
 			"Shadow cascade split's range", 0.020f);

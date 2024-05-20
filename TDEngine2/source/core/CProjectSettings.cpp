@@ -94,6 +94,7 @@ namespace TDEngine2
 		{
 			static const std::string mShadowMapSizesKey;
 			static const std::string mIsShadowMapEnabledKey;
+			static const std::string mMaxOmniLightsShadowMapCountKey;
 			static const std::string mShadowCascadesCountKey;
 			static const std::string mShadowCascadesSplitsKey;
 			static const std::string mIsVolumetricCloudsEnabledKey;
@@ -150,6 +151,7 @@ namespace TDEngine2
 
 	const std::string TProjectSettingsArchiveKeys::TQualityPresetKeys::mShadowMapSizesKey = "shadow_maps_size";
 	const std::string TProjectSettingsArchiveKeys::TQualityPresetKeys::mIsShadowMapEnabledKey = "shadow_maps_enabled";
+	const std::string TProjectSettingsArchiveKeys::TQualityPresetKeys::mMaxOmniLightsShadowMapCountKey = "max_omni_light_shadow_maps_count";
 	const std::string TProjectSettingsArchiveKeys::TQualityPresetKeys::mShadowCascadesCountKey = "shadow_cascades_count";
 	const std::string TProjectSettingsArchiveKeys::TQualityPresetKeys::mShadowCascadesSplitsKey = "shadow_cascades_splits";
 	const std::string TProjectSettingsArchiveKeys::TQualityPresetKeys::mIsVolumetricCloudsEnabledKey = "volumetric_clouds_enabled";
@@ -392,6 +394,7 @@ namespace TDEngine2
 				currPreset.mIsShadowMappingEnabled = pFileReader->GetBool(TProjectSettingsArchiveKeys::TQualityPresetKeys::mIsShadowMapEnabledKey, true);
 				currPreset.mShadowMapSizes = pFileReader->GetUInt32(TProjectSettingsArchiveKeys::TQualityPresetKeys::mShadowMapSizesKey, 1024);
 				currPreset.mShadowCascadesCount = pFileReader->GetUInt32(TProjectSettingsArchiveKeys::TQualityPresetKeys::mShadowCascadesCountKey, 3);
+				currPreset.mMaxOmniLightsShadowMapCount = pFileReader->GetUInt32(TProjectSettingsArchiveKeys::TQualityPresetKeys::mMaxOmniLightsShadowMapCountKey, 3);
 				
 				result = result | pFileReader->BeginGroup(TProjectSettingsArchiveKeys::TQualityPresetKeys::mShadowCascadesSplitsKey);
 				{

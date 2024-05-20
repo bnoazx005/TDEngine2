@@ -132,6 +132,7 @@ namespace TDEngine2
 			CInt32ConsoleVarDeclPtr mpIsShadowMappingEnabledCVar;
 			CInt32ConsoleVarDeclPtr mpShadowMapSizesCVar;
 			CInt32ConsoleVarDeclPtr mpShadowCascadesCountCVar;
+			CInt32ConsoleVarDeclPtr mpMaxOmniLightShadowMapsCVar;
 
 			std::array<CFloatConsoleVarDeclPtr, 4> mpShadowCascadesSplitsCVar;
 
