@@ -75,9 +75,10 @@ namespace TDEngine2
 
 	struct TFrameGraphBlackboard // \todo For now just use hardcoded struct with fields instead of special storage type
 	{
-		TFrameGraphResourceHandle mDepthBufferHandle = TFrameGraphResourceHandle::Invalid;
+		TFrameGraphResourceHandle              mDepthBufferHandle = TFrameGraphResourceHandle::Invalid;
 
-		TFrameGraphResourceHandle mSunLightShadowMapHandle = TFrameGraphResourceHandle::Invalid;
+		TFrameGraphResourceHandle              mSunLightShadowMapHandle = TFrameGraphResourceHandle::Invalid;
+		std::vector<TFrameGraphResourceHandle> mOmniLightShadowMapHandles;
 	};
 
 
@@ -223,6 +224,85 @@ namespace TDEngine2
 				});
 
 				frameGraphBlackboard.mSunLightShadowMapHandle = output.mShadowMapHandle;
+			}
+	};
+
+
+	class COmniLightShadowPass
+	{
+		public:
+			struct TAddPassInvokeParams
+			{
+				TPtr<IGraphicsContext>        mpGraphicsContext = nullptr;
+				TPtr<IResourceManager>        mpResourceManager = nullptr;
+				TPtr<IGlobalShaderProperties> mpGlobalShaderProperties = nullptr;
+				TPtr<CRenderQueue>            mpCommandsBuffer = nullptr;
+			};
+
+		public:
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, const TAddPassInvokeParams& context, U32 lightIndex = 0)
+			{
+				const std::string OMNI_LIGHT_SHADOW_MAP_ID = Wrench::StringUtils::Format("OmniLightShadowMap_{0}", lightIndex);
+
+				struct TPassData
+				{
+					TFrameGraphResourceHandle mShadowMapHandle = TFrameGraphResourceHandle::Invalid;
+				};
+
+				const U32 shadowMapSizes = static_cast<U32>(CGameUserSettings::Get()->mpShadowMapSizesCVar->Get());
+				TDE2_ASSERT(shadowMapSizes > 0 && shadowMapSizes < 65536);
+
+				auto&& output = pFrameGraph->AddPass<TPassData>(Wrench::StringUtils::Format("OmniLight{0}ShadowPass", lightIndex), [&](CFrameGraphBuilder& builder, TPassData& data)
+					{
+						TFrameGraphTexture::TDesc shadowMapParams{};
+
+						shadowMapParams.mWidth           = shadowMapSizes;
+						shadowMapParams.mHeight          = shadowMapSizes;
+						shadowMapParams.mFormat          = FT_D32;
+						shadowMapParams.mNumOfMipLevels  = 1;
+						shadowMapParams.mNumOfSamples    = 1;
+						shadowMapParams.mSamplingQuality = 0;
+						shadowMapParams.mType            = E_TEXTURE_IMPL_TYPE::CUBEMAP;
+						shadowMapParams.mUsageType       = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+						shadowMapParams.mBindFlags       = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER;
+						shadowMapParams.mName            = OMNI_LIGHT_SHADOW_MAP_ID.c_str();
+						shadowMapParams.mFlags           = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+
+						data.mShadowMapHandle = builder.Create<TFrameGraphTexture>(OMNI_LIGHT_SHADOW_MAP_ID, shadowMapParams);
+						data.mShadowMapHandle = builder.Write(data.mShadowMapHandle);
+
+						TDE2_ASSERT(data.mShadowMapHandle != TFrameGraphResourceHandle::Invalid);
+
+						builder.MarkAsPersistent(); // TODO remove when the whole graph will be provided
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					{
+						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
+						TDE_RENDER_SECTION(pGraphicsContext, "RenderOmniLightShadows_" + std::to_string(lightIndex));
+
+						TFrameGraphTexture& shadowMapTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mShadowMapHandle);
+
+						pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(shadowMapSizes), static_cast<F32>(shadowMapSizes), 0.0f, 1.0f);
+						pGraphicsContext->BindDepthBufferTarget(shadowMapTarget.mTextureHandle, true);
+						pGraphicsContext->ClearDepthBuffer(1.0f);
+
+						TPtr<IResourceManager> pResourceManager = context.mpResourceManager;
+
+						/// \todo Replace hardcoded identifiers
+						const TResourceId shadowPassMaterialHandle = pResourceManager->Load<IMaterial>("ShadowPassMaterial.material");
+
+						/// \todo Assign "ShadowPass" material's variables that defines which type of a light casts shadows
+						if (auto pMaterial = pResourceManager->GetResource<IMaterial>(shadowPassMaterialHandle))
+						{
+							pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, "mIsSunLight", 0);
+							pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, "mPointLightIndex", lightIndex);
+						}
+
+						ExecuteDrawCommands(pGraphicsContext, context.mpResourceManager, context.mpGlobalShaderProperties, context.mpCommandsBuffer, false);
+
+						pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
+					});
+
+				frameGraphBlackboard.mOmniLightShadowMapHandles.emplace_back(output.mShadowMapHandle);
 			}
 	};
 
@@ -1772,9 +1852,33 @@ namespace TDEngine2
 						mpGlobalShaderProperties,
 						mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)],
 					});
-			}
 
-			// \todo omni shadow pass
+				U32 currPointLightIndex = 0;
+
+				// \note omni shadow passes
+				for (auto&& currLightSource : mActiveLightSources)
+				{
+					if (static_cast<I32>(E_LIGHT_SOURCE_TYPE::POINT) != currLightSource.mLightType)
+					{
+						continue;
+					}
+
+					if (currPointLightIndex >= static_cast<U32>(CGameUserSettings::Get()->mpMaxOmniLightShadowMapsCVar->Get()))
+					{
+						break;
+					}
+
+					COmniLightShadowPass{}.AddPass(mpFrameGraph, frameGraphBlackboard, COmniLightShadowPass::TAddPassInvokeParams
+					{
+						mpGraphicsContext,
+							mpResourceManager,
+							mpGlobalShaderProperties,
+							mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)],
+					}, currPointLightIndex);
+
+					++currPointLightIndex;
+				}
+			}
 
 			// \note depth pre-pass
 			CDepthPrePass{}.AddPass(mpFrameGraph, frameGraphBlackboard, CDepthPrePass::TAddPassInvokeParams
