@@ -285,4 +285,18 @@ TEST_CASE("ComputeStateDescHash Tests")
 			uniqueHashes.insert(currHashValue);
 		}
 	}
+
+	SECTION("PassTextureInitParams_PassSameParametersButDifferentDebugNamesForTextures_ReturnsSameHashes")
+	{
+		const TInitTextureImplParams originalTextureParams { E_TEXTURE_IMPL_TYPE::TEXTURE_2D, E_TEXTURE_IMPL_USAGE_TYPE::STATIC, 65535, 65535, 1 };
+		
+		TInitTextureImplParams tex1Params{ originalTextureParams };
+		tex1Params.mName = "Texture1";
+
+		TInitTextureImplParams tex2Params{ originalTextureParams };
+		tex2Params.mName = "Texture2";
+
+		const bool actualComparisonValue = ComputeStateDescHash(tex1Params) == ComputeStateDescHash(tex2Params);
+		REQUIRE(actualComparisonValue);
+	}
 }

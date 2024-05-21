@@ -8,6 +8,8 @@
 #define MEM_TRACKER_IMPLEMENTATION
 #include "memTracker.hpp"
 #include "../../include/core/IGraphicsContext.h"
+#include "../../include/graphics/ITexture.h"
+#include "../../include/graphics/IBuffer.h"
 #include <algorithm>
 #include <cctype>
 
@@ -370,6 +372,45 @@ namespace TDEngine2
 			(static_cast<U32>(object.mIsWireframeModeEnabled) << 4) |
 			(static_cast<U16>(object.mDepthBias * 1000.0f) << 18) |
 			(static_cast<U16>(object.mMaxDepthBias * 1000.0f) << 5);
+	}
+
+
+	template <> TDE2_API U32 ComputeStateDescHash<TInitTextureImplParams>(const TInitTextureImplParams& object)
+	{
+		const C8* pObjectPtr = reinterpret_cast<const C8*>(&object);
+
+		std::array<C8, sizeof(TInitTextureImplParams) + 1> objectBytes{ 0 };
+		std::copy(pObjectPtr, pObjectPtr + offsetof(TInitTextureImplParams, mName), objectBytes.begin());
+
+		U32 hash = 5381;
+
+		for (const C8 currCh : objectBytes)
+		{
+			hash = ((hash << 5) + hash) + currCh;
+		}
+
+		return hash;
+	}
+
+
+	template <> TDE2_API U32 ComputeStateDescHash<TInitBufferParams>(const TInitBufferParams& object)
+	{
+		const C8* pObjectPtr = reinterpret_cast<const C8*>(&object);
+
+		std::array<C8, sizeof(TInitBufferParams) + 1> objectBytes{ 0 };
+
+		USIZE currOffset = 0;
+		std::copy(pObjectPtr, pObjectPtr + offsetof(TInitBufferParams, mpDataPtr), objectBytes.begin()); currOffset += offsetof(TInitBufferParams, mpDataPtr);
+		std::copy(pObjectPtr + offsetof(TInitBufferParams, mIsUnorderedAccessResource), pObjectPtr + offsetof(TInitBufferParams, mName), objectBytes.begin() + currOffset);
+
+		U32 hash = 5381;
+
+		for (const C8 currCh : objectBytes)
+		{
+			hash = ((hash << 5) + hash) + currCh;
+		}
+
+		return hash;
 	}
 
 
