@@ -23,7 +23,11 @@
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include "../../include/editor/CStatsCounters.h"
+#include "deferOperation.hpp"
 #if TDE2_EDITORS_ENABLED
+	#include "../../include/platform/CBaseFile.h"
+	#include "../../include/platform/IOStreams.h"
+	#include "../../include/platform/CTextFileWriter.h"
 	#include "../../include/editor/ISelectionManager.h"
 #endif
 
@@ -73,16 +77,61 @@ namespace TDEngine2
 		U32 upperRenderIndexLimit = (std::numeric_limits<U32>::max)());
 
 
+	struct TLightCullData
+	{
+		TFrameGraphResourceHandle mTileFrustumsBufferHandle = TFrameGraphResourceHandle::Invalid;
+
+		TFrameGraphResourceHandle mOpaqueLightGridTextureHandle = TFrameGraphResourceHandle::Invalid;
+		TFrameGraphResourceHandle mOpaqueVisibleLightsBufferHandle = TFrameGraphResourceHandle::Invalid;
+
+		TFrameGraphResourceHandle mTransparentLightGridTextureHandle = TFrameGraphResourceHandle::Invalid;
+		TFrameGraphResourceHandle mTransparentVisibleLightsBufferHandle = TFrameGraphResourceHandle::Invalid;
+
+		TFrameGraphResourceHandle mLightIndexCountersBufferHandle = TFrameGraphResourceHandle::Invalid;
+		TFrameGraphResourceHandle mLightIndexCountersInitializerBufferHandle = TFrameGraphResourceHandle::Invalid;
+	};
+
+
 	struct TFrameGraphBlackboard // \todo For now just use hardcoded struct with fields instead of special storage type
 	{
 		TFrameGraphResourceHandle              mDepthBufferHandle = TFrameGraphResourceHandle::Invalid;
 
 		TFrameGraphResourceHandle              mSunLightShadowMapHandle = TFrameGraphResourceHandle::Invalid;
 		std::vector<TFrameGraphResourceHandle> mOmniLightShadowMapHandles;
+
+		TFrameGraphResourceHandle              mLightsBufferHandle = TFrameGraphResourceHandle::Invalid;
+		TLightCullData                         mLightCullingData;
 	};
 
 
-	class CDepthPrePass
+	struct TPassInvokeContext
+	{
+		TPtr<IGraphicsContext>        mpGraphicsContext = nullptr;
+		TPtr<IResourceManager>        mpResourceManager = nullptr;
+		TPtr<IGlobalShaderProperties> mpGlobalShaderProperties = nullptr;
+		TPtr<CRenderQueue>            mpCommandsBuffer = nullptr;
+
+		U32                           mWindowWidth = 0;
+		U32                           mWindowHeight = 0;
+	};
+
+
+	class CBaseRenderPass
+	{
+		public:
+			explicit CBaseRenderPass(const TPassInvokeContext& context) :
+				mContext(context)
+			{
+			}
+
+		protected:
+			const TPassInvokeContext& mContext;
+	};
+
+
+#if TDE2_EDITORS_ENABLED
+
+	class CRenderSelectionBufferPass
 	{
 		public:
 			struct TAddPassInvokeParams
@@ -99,6 +148,72 @@ namespace TDEngine2
 		public:
 			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, const TAddPassInvokeParams& context)
 			{
+				constexpr const C8* SELECTION_BUFFER_PASS_ID = "SelectionBuffer";
+
+				struct TPassData
+				{
+					TFrameGraphResourceHandle mDepthBufferHandle = TFrameGraphResourceHandle::Invalid;
+				};
+
+				auto&& output = pFrameGraph->AddPass<TPassData>("RenderSelectionBuffer", [&](CFrameGraphBuilder& builder, TPassData& data)
+					{
+						/*TFrameGraphTexture::TDesc depthBufferParams{};
+
+						depthBufferParams.mWidth = context.mWindowWidth;
+						depthBufferParams.mHeight = context.mWindowHeight;
+						depthBufferParams.mFormat = FT_D32;
+						depthBufferParams.mNumOfMipLevels = 1;
+						depthBufferParams.mNumOfSamples = 1;
+						depthBufferParams.mSamplingQuality = 0;
+						depthBufferParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
+						depthBufferParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+						depthBufferParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER;
+						depthBufferParams.mName = SELECTION_BUFFER_PASS_ID;
+						depthBufferParams.mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+
+						data.mDepthBufferHandle = builder.Create<TFrameGraphTexture>(SELECTION_BUFFER_PASS_ID, depthBufferParams);
+						data.mDepthBufferHandle = builder.Write(data.mDepthBufferHandle);
+
+						TDE2_ASSERT(data.mDepthBufferHandle != TFrameGraphResourceHandle::Invalid);*/
+
+						builder.MarkAsPersistent(); // TODO remove when the whole graph will be provided
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					{
+						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
+
+						TDE2_PROFILER_SCOPE("RenderSelectionBuffer");
+						TDE_RENDER_SECTION(pGraphicsContext, "RenderSelectionBuffer");
+
+						//ProcessEditorSelectionBuffer(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpSelectionManager, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)]);
+
+						//TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mDepthBufferHandle);
+
+						//pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(context.mWindowWidth), static_cast<F32>(context.mWindowHeight), 0.0f, 1.0f);
+						//pGraphicsContext->BindDepthBufferTarget(depthBufferTarget.mTextureHandle, true);
+						//pGraphicsContext->ClearDepthBuffer(1.0f);
+
+						//ExecuteDrawCommands(pGraphicsContext, context.mpResourceManager, context.mpGlobalShaderProperties, context.mpCommandsBuffer, false); // \todo Replace false with true when the graph will be completed
+
+						//pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
+					});
+
+				frameGraphBlackboard.mDepthBufferHandle = output.mDepthBufferHandle;
+			}
+	};
+
+#endif
+
+
+	class CDepthPrePass: public CBaseRenderPass
+	{
+		public:
+			explicit CDepthPrePass(const TPassInvokeContext& context):
+				CBaseRenderPass(context)
+			{
+			}
+
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard)
+			{
 				constexpr const C8* DEPTH_PRE_PASS_BUFFER_ID = "PrePassDepthBuffer";
 
 				struct TPassData
@@ -106,12 +221,12 @@ namespace TDEngine2
 					TFrameGraphResourceHandle mDepthBufferHandle = TFrameGraphResourceHandle::Invalid;
 				};
 
-				auto&& output = pFrameGraph->AddPass<TPassData>("DepthPrePass", [&](CFrameGraphBuilder& builder, TPassData& data)
+				auto&& output = pFrameGraph->AddPass<TPassData>("DepthPrePass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
 				{
 					TFrameGraphTexture::TDesc depthBufferParams{};
 
-					depthBufferParams.mWidth           = context.mWindowWidth;
-					depthBufferParams.mHeight          = context.mWindowHeight;
+					depthBufferParams.mWidth           = mContext.mWindowWidth;
+					depthBufferParams.mHeight          = mContext.mWindowHeight;
 					depthBufferParams.mFormat          = FT_D32;
 					depthBufferParams.mNumOfMipLevels  = 1;
 					depthBufferParams.mNumOfSamples    = 1;
@@ -131,15 +246,17 @@ namespace TDEngine2
 				}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
 				{
 					auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
+
+					TDE2_PROFILER_SCOPE("DepthPrePass");
 					TDE_RENDER_SECTION(pGraphicsContext, "DepthPrePass");
 					
 					TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mDepthBufferHandle);
 
-					pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(context.mWindowWidth), static_cast<F32>(context.mWindowHeight), 0.0f, 1.0f);
+					pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(mContext.mWindowWidth), static_cast<F32>(mContext.mWindowHeight), 0.0f, 1.0f);
 					pGraphicsContext->BindDepthBufferTarget(depthBufferTarget.mTextureHandle, true);
 					pGraphicsContext->ClearDepthBuffer(1.0f);
 
-					ExecuteDrawCommands(pGraphicsContext, context.mpResourceManager, context.mpGlobalShaderProperties, context.mpCommandsBuffer, false); // \todo Replace false with true when the graph will be completed
+					ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mContext.mpCommandsBuffer, false); // \todo Replace false with true when the graph will be completed
 
 					pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
 				});
@@ -149,19 +266,15 @@ namespace TDEngine2
 	};
 
 
-	class CSunLightShadowPass
+	class CSunLightShadowPass: public CBaseRenderPass
 	{
 		public:
-			struct TAddPassInvokeParams
+			explicit CSunLightShadowPass(const TPassInvokeContext& context) :
+				CBaseRenderPass(context)
 			{
-				TPtr<IGraphicsContext>        mpGraphicsContext = nullptr;
-				TPtr<IResourceManager>        mpResourceManager = nullptr;
-				TPtr<IGlobalShaderProperties> mpGlobalShaderProperties = nullptr;
-				TPtr<CRenderQueue>            mpCommandsBuffer = nullptr;
-			};
+			}
 
-		public:
-			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, const TAddPassInvokeParams& context)
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard)
 			{
 				constexpr const C8* SUN_LIGHT_SHADOW_MAP_ID = "SunLightShadowMap";
 
@@ -199,6 +312,8 @@ namespace TDEngine2
 				}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
 				{
 					auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
+
+					TDE2_PROFILER_SCOPE("RenderSunLightShadows");
 					TDE_RENDER_SECTION(pGraphicsContext, "RenderSunLightShadows");
 
 					TFrameGraphTexture& shadowMapTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mShadowMapHandle);
@@ -207,7 +322,7 @@ namespace TDEngine2
 					pGraphicsContext->BindDepthBufferTarget(shadowMapTarget.mTextureHandle, true);
 					pGraphicsContext->ClearDepthBuffer(1.0f);
 
-					TPtr<IResourceManager> pResourceManager = context.mpResourceManager;
+					TPtr<IResourceManager> pResourceManager = mContext.mpResourceManager;
 
 					/// \todo Replace hardcoded identifiers
 					const TResourceId shadowPassMaterialHandle = pResourceManager->Load<IMaterial>("ShadowPassMaterial.material");
@@ -218,7 +333,7 @@ namespace TDEngine2
 						pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, "mIsSunLight", 1);
 					}
 
-					ExecuteDrawCommands(pGraphicsContext, context.mpResourceManager, context.mpGlobalShaderProperties, context.mpCommandsBuffer, false);
+					ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mContext.mpCommandsBuffer, false);
 
 					pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
 				});
@@ -228,19 +343,15 @@ namespace TDEngine2
 	};
 
 
-	class COmniLightShadowPass
+	class COmniLightShadowPass: public CBaseRenderPass
 	{
 		public:
-			struct TAddPassInvokeParams
+			explicit COmniLightShadowPass(const TPassInvokeContext& context) :
+				CBaseRenderPass(context)
 			{
-				TPtr<IGraphicsContext>        mpGraphicsContext = nullptr;
-				TPtr<IResourceManager>        mpResourceManager = nullptr;
-				TPtr<IGlobalShaderProperties> mpGlobalShaderProperties = nullptr;
-				TPtr<CRenderQueue>            mpCommandsBuffer = nullptr;
-			};
+			}
 
-		public:
-			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, const TAddPassInvokeParams& context, U32 lightIndex = 0)
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, U32 lightIndex = 0)
 			{
 				const std::string OMNI_LIGHT_SHADOW_MAP_ID = Wrench::StringUtils::Format("OmniLightShadowMap_{0}", lightIndex);
 
@@ -277,7 +388,9 @@ namespace TDEngine2
 					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
 					{
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
-						TDE_RENDER_SECTION(pGraphicsContext, "RenderOmniLightShadows_" + std::to_string(lightIndex));
+
+						TDE2_PROFILER_SCOPE("RenderOmniLightShadows" + std::to_string(lightIndex));
+						TDE_RENDER_SECTION(pGraphicsContext, "RenderOmniLightShadows" + std::to_string(lightIndex));
 
 						TFrameGraphTexture& shadowMapTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mShadowMapHandle);
 
@@ -285,7 +398,7 @@ namespace TDEngine2
 						pGraphicsContext->BindDepthBufferTarget(shadowMapTarget.mTextureHandle, true);
 						pGraphicsContext->ClearDepthBuffer(1.0f);
 
-						TPtr<IResourceManager> pResourceManager = context.mpResourceManager;
+						TPtr<IResourceManager> pResourceManager = mContext.mpResourceManager;
 
 						/// \todo Replace hardcoded identifiers
 						const TResourceId shadowPassMaterialHandle = pResourceManager->Load<IMaterial>("ShadowPassMaterial.material");
@@ -297,12 +410,257 @@ namespace TDEngine2
 							pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, "mPointLightIndex", lightIndex);
 						}
 
-						ExecuteDrawCommands(pGraphicsContext, context.mpResourceManager, context.mpGlobalShaderProperties, context.mpCommandsBuffer, false);
+						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mContext.mpCommandsBuffer, false);
 
 						pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
 					});
 
 				frameGraphBlackboard.mOmniLightShadowMapHandles.emplace_back(output.mShadowMapHandle);
+			}
+	};
+
+
+	class CUploadLightsPass : public CBaseRenderPass
+	{
+		public:
+			explicit CUploadLightsPass(const TPassInvokeContext& context) :
+				CBaseRenderPass(context)
+			{
+			}
+
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, const std::vector<TLightData>& lights)
+			{
+				struct TPassData
+				{
+					TFrameGraphResourceHandle mLightsBufferHandle = TFrameGraphResourceHandle::Invalid;
+				};
+
+				auto&& output = pFrameGraph->AddPass<TPassData>("UploadLightsPass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
+					{
+						constexpr const C8* LIGHTS_BUFFER_ID = "ActiveLightsBuffer";
+
+						TFrameGraphBuffer::TDesc lightsBufferParams{};
+						lightsBufferParams.mBufferType                = E_BUFFER_TYPE::STRUCTURED;
+						lightsBufferParams.mDataSize                  = MaxLightsCount * sizeof(TLightData);
+						lightsBufferParams.mElementStrideSize         = sizeof(TLightData);
+						lightsBufferParams.mFlags                     = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+						lightsBufferParams.mIsUnorderedAccessResource = false;
+						lightsBufferParams.mName                      = LIGHTS_BUFFER_ID;
+						lightsBufferParams.mpDataPtr                  = nullptr;
+						lightsBufferParams.mStructuredBufferType      = E_STRUCTURED_BUFFER_TYPE::DEFAULT;
+						lightsBufferParams.mTotalBufferSize           = lightsBufferParams.mDataSize;
+						lightsBufferParams.mUsageType                 = E_BUFFER_USAGE_TYPE::DYNAMIC;
+
+						data.mLightsBufferHandle = builder.Create<TFrameGraphBuffer>(LIGHTS_BUFFER_ID, lightsBufferParams);
+						data.mLightsBufferHandle = builder.Write(data.mLightsBufferHandle);
+
+						TDE2_ASSERT(data.mLightsBufferHandle != TFrameGraphResourceHandle::Invalid);
+
+						builder.MarkAsPersistent(); // TODO remove when the whole graph will be provided
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					{
+						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
+
+						TDE2_PROFILER_SCOPE("UploadLightsPass");
+						TDE_RENDER_SECTION(pGraphicsContext, "UploadLightsPass");
+
+						constexpr U32 LIGHT_SLOT_INDEX = static_cast<U32>(E_INTERNAL_SHADER_BUFFERS_REGISTERS::LIGHTS_SLOT);
+
+						TFrameGraphBuffer& lightsBuffer = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(data.mLightsBufferHandle);
+						
+						if (auto pCurrTypedBuffer = mContext.mpGraphicsContext->GetGraphicsObjectManager()->GetBufferPtr(lightsBuffer.mBufferHandle))
+						{
+							E_RESULT_CODE result = pCurrTypedBuffer->Map(BMT_WRITE_DISCARD);
+							if (result != RC_OK)
+							{
+								return;
+							}
+
+							if ((result = pCurrTypedBuffer->Write(reinterpret_cast<const U8*>(lights.data()), static_cast<U32>(lights.size() * sizeof(TLightData)))) != RC_OK)
+							{
+								return;
+							}
+
+							pCurrTypedBuffer->Unmap();
+
+							pGraphicsContext->SetStructuredBuffer(LIGHT_SLOT_INDEX, lightsBuffer.mBufferHandle);
+						}						
+					});
+
+				frameGraphBlackboard.mLightsBufferHandle = output.mLightsBufferHandle;
+			}
+	};
+
+
+	class CLightCullingPass : public CBaseRenderPass
+	{
+		public:
+			explicit CLightCullingPass(const TPassInvokeContext& context) :
+				CBaseRenderPass(context)
+			{
+			}
+
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard)
+			{
+				TLightCullData& lightCullingData = frameGraphBlackboard.mLightCullingData;
+				TFrameGraphResourceHandle depthBufferResourceHandle = frameGraphBlackboard.mDepthBufferHandle;
+
+				const U32 workGroupsX = (mContext.mWindowWidth + (mContext.mWindowWidth % LIGHT_GRID_TILE_BLOCK_SIZE)) / LIGHT_GRID_TILE_BLOCK_SIZE;
+				const U32 workGroupsY = (mContext.mWindowHeight + (mContext.mWindowHeight % LIGHT_GRID_TILE_BLOCK_SIZE)) / LIGHT_GRID_TILE_BLOCK_SIZE;
+
+				auto&& output = pFrameGraph->AddPass<TLightCullData>("LightCullingPass", [&, this](CFrameGraphBuilder& builder, TLightCullData& data)
+					{
+						builder.Read(frameGraphBlackboard.mDepthBufferHandle);
+						builder.Read(frameGraphBlackboard.mLightsBufferHandle);
+						builder.Read(lightCullingData.mTileFrustumsBufferHandle);
+						builder.Read(lightCullingData.mLightIndexCountersInitializerBufferHandle);
+
+						if (auto opaqueLightCullingStructsResult = _initLightGridAndBuffer(mContext, builder, workGroupsX, workGroupsY, "OpaqueVisibleLightsBuffer", "OpaqueLightGridTexture"))
+						{
+							std::tie(data.mOpaqueVisibleLightsBufferHandle, data.mOpaqueLightGridTextureHandle) = opaqueLightCullingStructsResult.Get();
+						}
+
+						if (auto transparentLightCullingStructsResult = _initLightGridAndBuffer(mContext, builder, workGroupsX, workGroupsY, "TransparentVisibleLightsBuffer", "TransparentLightGridTexture"))
+						{
+							std::tie(data.mTransparentVisibleLightsBufferHandle, data.mTransparentLightGridTextureHandle) = transparentLightCullingStructsResult.Get();
+						}
+
+						// \note Create a light index counters buffer
+						TFrameGraphBuffer::TDesc lightIndexCountersBufferParams{};
+
+						lightIndexCountersBufferParams.mBufferType                = E_BUFFER_TYPE::STRUCTURED;
+						lightIndexCountersBufferParams.mDataSize                  = 4 * sizeof(U32);
+						lightIndexCountersBufferParams.mElementStrideSize         = sizeof(U32);
+						lightIndexCountersBufferParams.mFlags                     = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+						lightIndexCountersBufferParams.mIsUnorderedAccessResource = true;
+						lightIndexCountersBufferParams.mpDataPtr                  = nullptr;
+						lightIndexCountersBufferParams.mName                      = "LightIndexCountersBuffer";
+						lightIndexCountersBufferParams.mStructuredBufferType      = E_STRUCTURED_BUFFER_TYPE::DEFAULT;
+						lightIndexCountersBufferParams.mTotalBufferSize           = lightIndexCountersBufferParams.mDataSize;
+						lightIndexCountersBufferParams.mUsageType                 = E_BUFFER_USAGE_TYPE::DEFAULT;
+
+						data.mLightIndexCountersBufferHandle = builder.Create<TFrameGraphBuffer>(lightIndexCountersBufferParams.mName, lightIndexCountersBufferParams);
+						data.mLightIndexCountersBufferHandle = builder.Write(data.mLightIndexCountersBufferHandle);
+
+						builder.MarkAsPersistent(); // TODO remove when the whole graph will be provided
+					}, [=](const TLightCullData& data, const TFramePassExecutionContext& executionContext)
+					{
+						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
+						
+						TDE2_PROFILER_SCOPE("LightCullingPass");
+						TDE_RENDER_SECTION(pGraphicsContext, "LightCullingPass");
+
+						E_RESULT_CODE result = RC_OK;
+						defer([&result] { TDE2_ASSERT(RC_OK == result); });
+
+						TFrameGraphBuffer& opaqueVisibleLightsBuffer = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(data.mOpaqueVisibleLightsBufferHandle);
+						TFrameGraphBuffer& transparentVisibleLightsBuffer = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(data.mTransparentVisibleLightsBufferHandle);
+						TFrameGraphBuffer& lightIndexCountersBufferHandle = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(data.mLightIndexCountersBufferHandle);
+
+						//// \note Cull lighting shader
+						result = result | pGraphicsContext->SetStructuredBuffer(OPAQUE_VISIBLE_LIGHTS_BUFFER_SLOT, opaqueVisibleLightsBuffer.mBufferHandle, true);
+						result = result | pGraphicsContext->SetStructuredBuffer(TRANSPARENT_VISIBLE_LIGHTS_BUFFER_SLOT, transparentVisibleLightsBuffer.mBufferHandle, true);
+						result = result | pGraphicsContext->SetStructuredBuffer(LIGHT_INDEX_COUNTERS_BUFFER_SLOT, lightIndexCountersBufferHandle.mBufferHandle, true);
+
+						struct
+						{
+							U32 mWorkGroupsX = 0;
+							U32 mWorkGroupsY = 0;
+						} shaderParameters;
+
+						shaderParameters.mWorkGroupsX = workGroupsX;
+						shaderParameters.mWorkGroupsY = workGroupsY;
+
+						auto&& pResourceManager = mContext.mpResourceManager;
+
+						TFrameGraphTexture& opaqueLightGridTextureHandle = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mOpaqueLightGridTextureHandle);
+						TFrameGraphTexture& transparentLightGridTextureHandle = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mTransparentLightGridTextureHandle);
+						TFrameGraphTexture& depthBufferHandle = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(depthBufferResourceHandle);
+
+						TFrameGraphBuffer& tileFrustumsBufferHandle = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(lightCullingData.mTileFrustumsBufferHandle);
+
+						auto pLightCullShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>("Shaders/Default/ForwardLightCulling.cshader"));
+						if (pLightCullShader)
+						{
+							const TTextureSamplerId linearSamplerHandle = pGraphicsContext->GetGraphicsObjectManager()->GetDefaultTextureSampler(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
+
+							// \todo Refactor access to binding slots values
+							pGraphicsContext->SetTexture(pLightCullShader->GetResourceBindingSlot("OpaqueLightGridTexture"), opaqueLightGridTextureHandle.mTextureHandle);
+							pGraphicsContext->SetSampler(pLightCullShader->GetResourceBindingSlot("OpaqueLightGridTexture"), linearSamplerHandle);
+							pGraphicsContext->SetTexture(pLightCullShader->GetResourceBindingSlot("TransparentLightGridTexture"), transparentLightGridTextureHandle.mTextureHandle);
+							pGraphicsContext->SetSampler(pLightCullShader->GetResourceBindingSlot("TransparentLightGridTexture"), linearSamplerHandle);
+							pGraphicsContext->SetTexture(pLightCullShader->GetResourceBindingSlot("DepthTexture"), depthBufferHandle.mTextureHandle);
+							pGraphicsContext->SetSampler(pLightCullShader->GetResourceBindingSlot("DepthTexture"), linearSamplerHandle);
+
+							pLightCullShader->SetStructuredBufferResource("TileFrustums", tileFrustumsBufferHandle.mBufferHandle);
+							pLightCullShader->SetUserUniformsBuffer(0, reinterpret_cast<U8*>(&shaderParameters), sizeof(shaderParameters));
+
+							pLightCullShader->Bind();
+						}
+
+						pGraphicsContext->DispatchCompute(workGroupsX, workGroupsY, 1);
+
+						if (pLightCullShader)
+						{
+							pLightCullShader->Unbind();
+						}
+
+						// unbind lights indices buffers
+						result = result | pGraphicsContext->SetStructuredBuffer(OPAQUE_VISIBLE_LIGHTS_BUFFER_SLOT, TBufferHandleId::Invalid, true);
+						result = result | pGraphicsContext->SetStructuredBuffer(TRANSPARENT_VISIBLE_LIGHTS_BUFFER_SLOT, TBufferHandleId::Invalid, true);
+						result = result | pGraphicsContext->SetStructuredBuffer(LIGHT_INDEX_COUNTERS_BUFFER_SLOT, TBufferHandleId::Invalid, true);
+
+					});
+
+				lightCullingData.mLightIndexCountersBufferHandle       = output.mLightIndexCountersBufferHandle;
+				lightCullingData.mOpaqueLightGridTextureHandle         = output.mOpaqueLightGridTextureHandle;
+				lightCullingData.mOpaqueVisibleLightsBufferHandle      = output.mOpaqueVisibleLightsBufferHandle;
+				lightCullingData.mTransparentLightGridTextureHandle    = output.mTransparentLightGridTextureHandle;
+				lightCullingData.mTransparentVisibleLightsBufferHandle = output.mTransparentVisibleLightsBufferHandle;
+			}
+		private:
+			static TResult<std::tuple<TFrameGraphResourceHandle, TFrameGraphResourceHandle>> _initLightGridAndBuffer(const TPassInvokeContext& context, CFrameGraphBuilder& builder, U32 workGroupsX, U32 workGroupsY, 
+				const C8* visibleLightsBufferName, const C8* lightGridTextureName)
+			{
+				const U32 tilesCount = workGroupsX * workGroupsY;
+				const USIZE bufferSize = sizeof(U32) * tilesCount * MAX_LIGHTS_PER_TILE_BLOCK;
+
+				// \note Create lights indices buffer
+				TFrameGraphBuffer::TDesc visibleLightsBufferParams{};
+
+				visibleLightsBufferParams.mBufferType = E_BUFFER_TYPE::STRUCTURED;
+				visibleLightsBufferParams.mDataSize = bufferSize;
+				visibleLightsBufferParams.mElementStrideSize = sizeof(U32);
+				visibleLightsBufferParams.mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+				visibleLightsBufferParams.mIsUnorderedAccessResource = true;
+				visibleLightsBufferParams.mpDataPtr = nullptr;
+				visibleLightsBufferParams.mName = visibleLightsBufferName;
+				visibleLightsBufferParams.mStructuredBufferType = E_STRUCTURED_BUFFER_TYPE::DEFAULT;
+				visibleLightsBufferParams.mTotalBufferSize = visibleLightsBufferParams.mDataSize;
+				visibleLightsBufferParams.mUsageType = E_BUFFER_USAGE_TYPE::DEFAULT;
+
+				TFrameGraphResourceHandle visibleLightsBufferHandle = builder.Create<TFrameGraphBuffer>(visibleLightsBufferName, visibleLightsBufferParams);
+				visibleLightsBufferHandle = builder.Write(visibleLightsBufferHandle);
+
+				// \note Create the light grid's texture
+				TFrameGraphTexture::TDesc lightGridTextureParams{};
+
+				lightGridTextureParams.mWidth = workGroupsX;
+				lightGridTextureParams.mHeight = workGroupsY;
+				lightGridTextureParams.mFormat = FT_UINT2;
+				lightGridTextureParams.mNumOfMipLevels = 1;
+				lightGridTextureParams.mNumOfSamples = 1;
+				lightGridTextureParams.mSamplingQuality = 0;
+				lightGridTextureParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
+				lightGridTextureParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+				lightGridTextureParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS;
+				lightGridTextureParams.mName = lightGridTextureName;
+				lightGridTextureParams.mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+
+				TFrameGraphResourceHandle lightGridTextureHandle = builder.Create<TFrameGraphTexture>(lightGridTextureName, lightGridTextureParams);
+				lightGridTextureHandle = builder.Write(lightGridTextureHandle);
+
+				return Wrench::TOkValue<std::tuple<TFrameGraphResourceHandle, TFrameGraphResourceHandle>>(std::make_tuple(visibleLightsBufferHandle, lightGridTextureHandle));
 			}
 	};
 
@@ -1836,22 +2194,39 @@ namespace TDEngine2
 
 			_prepareFrame(currTime, deltaTime);
 
-			TFrameGraphBlackboard frameGraphBlackboard;
-
 			mpFrameGraph->Reset();
 
-			// \todo editor mode (draw into selection buffer)
+			TFrameGraphBlackboard frameGraphBlackboard;
+			frameGraphBlackboard.mLightCullingData.mTileFrustumsBufferHandle = mpFrameGraph->ImportResource("TileFrustums", TFrameGraphBuffer::TDesc { }, TFrameGraphBuffer{ mLightGridData.mTileFrustumsBufferHandle });
+			frameGraphBlackboard.mLightCullingData.mLightIndexCountersInitializerBufferHandle = mpFrameGraph->ImportResource("InitialLightIndexCounters", TFrameGraphBuffer::TDesc { }, TFrameGraphBuffer{ mLightGridData.mLightIndexCountersInitializerBufferHandle });
+
+			TPassInvokeContext passInvokeContext
+			{
+				mpGraphicsContext,
+					mpResourceManager,
+					mpGlobalShaderProperties,
+					mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEPTH_PREPASS)],
+					mpWindowSystem->GetWidth(),
+					mpWindowSystem->GetHeight()
+			};
+
+			// \note editor mode (draw into selection buffer)
+#if TDE2_EDITORS_ENABLED
+			CRenderSelectionBufferPass{}.AddPass(mpFrameGraph, frameGraphBlackboard, CRenderSelectionBufferPass::TAddPassInvokeParams
+				{
+					mpGraphicsContext,
+					mpResourceManager,
+					mpGlobalShaderProperties,
+					mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)],
+					mpWindowSystem->GetWidth(),
+					mpWindowSystem->GetHeight()
+				});
+#endif
 
 			// \note directional shadow pass
 			if (CGameUserSettings::Get()->mpIsShadowMappingEnabledCVar->Get())
 			{
-				CSunLightShadowPass{}.AddPass(mpFrameGraph, frameGraphBlackboard, CSunLightShadowPass::TAddPassInvokeParams
-					{
-						mpGraphicsContext,
-						mpResourceManager,
-						mpGlobalShaderProperties,
-						mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)],
-					});
+				CSunLightShadowPass{ passInvokeContext }.AddPass(mpFrameGraph, frameGraphBlackboard);
 
 				U32 currPointLightIndex = 0;
 
@@ -1868,28 +2243,20 @@ namespace TDEngine2
 						break;
 					}
 
-					COmniLightShadowPass{}.AddPass(mpFrameGraph, frameGraphBlackboard, COmniLightShadowPass::TAddPassInvokeParams
-					{
-						mpGraphicsContext,
-							mpResourceManager,
-							mpGlobalShaderProperties,
-							mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)],
-					}, currPointLightIndex);
+					COmniLightShadowPass{ passInvokeContext }.AddPass(mpFrameGraph, frameGraphBlackboard, currPointLightIndex);
 
 					++currPointLightIndex;
 				}
 			}
 
 			// \note depth pre-pass
-			CDepthPrePass{}.AddPass(mpFrameGraph, frameGraphBlackboard, CDepthPrePass::TAddPassInvokeParams
-				{ 
-					mpGraphicsContext, 
-					mpResourceManager, 
-					mpGlobalShaderProperties, 
-					mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEPTH_PREPASS)],
-					mpWindowSystem->GetWidth(), 
-					mpWindowSystem->GetHeight()
-				});
+			CDepthPrePass{ passInvokeContext }.AddPass(mpFrameGraph, frameGraphBlackboard);
+
+			// \note upload lights buffer pass
+			CUploadLightsPass{ passInvokeContext }.AddPass(mpFrameGraph, frameGraphBlackboard, mActiveLightSources);
+
+			// \note light culling pass
+			CLightCullingPass{ passInvokeContext }.AddPass(mpFrameGraph, frameGraphBlackboard);
 
 			// 
 			// \todo main pass
@@ -1915,6 +2282,17 @@ namespace TDEngine2
 			mpFrameGraph->Execute();
 
 #if TDE2_EDITORS_ENABLED
+#if 1
+			{
+				E_RESULT_CODE result = RC_OK;
+				auto pFileStream = TPtr<TDEngine2::IStream>(CreateFileOutputStream("forward_renderer.dot", result));
+				ITextFileWriter* pDumpWriter = dynamic_cast<ITextFileWriter*>(CreateTextFileWriter(nullptr, pFileStream, result));
+
+				mpFrameGraph->Dump(pDumpWriter);
+				pDumpWriter->Close();
+			}
+#endif
+
 			ProcessEditorSelectionBuffer(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpSelectionManager, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)]);
 #endif
 
@@ -2073,12 +2451,7 @@ namespace TDEngine2
 
 		perFrameShaderData.mTime = TVector4(currTime, deltaTime, 0.0f, 0.0f);
 
-		mpGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_FRAME, reinterpret_cast<const U8*>(&perFrameShaderData), sizeof(perFrameShaderData));
-		mpGlobalShaderProperties->SetInternalShaderBuffer(
-			E_INTERNAL_SHADER_BUFFERS_REGISTERS::LIGHTS_SLOT,
-			reinterpret_cast<const U8*>(mActiveLightSources.data()), 
-			static_cast<U32>(mActiveLightSources.size() * sizeof(TLightData)));
-
+		mpGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_FRAME, reinterpret_cast<const U8*>(&perFrameShaderData), sizeof(perFrameShaderData));		
 		mpGlobalShaderProperties->Bind();
 
 		mpGraphicsContext->ClearBackBuffer(TColor32F(0.0f, 0.0f, 0.5f, 1.0f));
