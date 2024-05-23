@@ -1006,6 +1006,10 @@ namespace TDEngine2
 	{
 	}
 
+	void CVulkanGraphicsContext::BindRenderTarget(U8 slot, TTextureHandleId targetHandle)
+	{
+	}
+
 	void CVulkanGraphicsContext::BindDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, bool disableRTWrite)
 	{
 	}

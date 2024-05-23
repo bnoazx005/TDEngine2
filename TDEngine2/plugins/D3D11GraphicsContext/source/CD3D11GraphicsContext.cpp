@@ -687,6 +687,40 @@ namespace TDEngine2
 		mp3dDeviceContext->OMSetRenderTargets(mCurrNumOfActiveRenderTargets, mpRenderTargets, mpCurrDepthStencilView);
 	}
 
+	void CD3D11GraphicsContext::BindRenderTarget(U8 slot, TTextureHandleId targetHandle)
+	{
+		TDE2_ASSERT(slot < mMaxNumOfRenderTargets);
+		if (slot >= mMaxNumOfRenderTargets)
+		{
+			LOG_WARNING("[CD3D11GraphicsContext] Render target's slot goes out of limits");
+			return;
+		}
+
+		if (!slot && TTextureHandleId::Invalid == targetHandle)
+		{
+			mp3dDeviceContext->OMSetRenderTargets(1, &mpBackBufferView, mpCurrDepthStencilView);
+			return;
+		}
+
+		auto pRenderTargetTexture = mpGraphicsObjectManagerD3D11Impl->GetD3D11TexturePtr(targetHandle);
+		if (!pRenderTargetTexture)
+		{
+			TDE2_ASSERT(false);
+			return;
+		}
+
+		if (E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET != (pRenderTargetTexture->GetParams().mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET))
+		{
+			TDE2_ASSERT_MSG(false, "[CD3D11GraphicsContext] Try to bind texture that is not a render target to render target slot");
+			return;
+		}
+		
+		mpRenderTargets[slot] = pRenderTargetTexture->GetRenderTargetView();
+
+		mCurrNumOfActiveRenderTargets = std::max<U8>(mCurrNumOfActiveRenderTargets, slot + 1);
+		mp3dDeviceContext->OMSetRenderTargets(mCurrNumOfActiveRenderTargets, mpRenderTargets, mpCurrDepthStencilView);
+	}
+
 	void CD3D11GraphicsContext::BindDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, bool disableRTWrite)
 	{
 		if (!pDepthBufferTarget)

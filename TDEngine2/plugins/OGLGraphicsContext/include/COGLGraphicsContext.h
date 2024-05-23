@@ -308,6 +308,16 @@ namespace TDEngine2
 			TDE2_API void BindRenderTarget(U8 slot, IRenderTarget* pRenderTarget) override;
 
 			/*!
+				\brief The method binds a given render target object to rendering pipeline
+
+				\param[in] slot An index of the slot into which the render target will be bound
+
+				\param[in] targetHandle Handle to texture object that's created as a render target
+			*/
+
+			TDE2_API void BindRenderTarget(U8 slot, TTextureHandleId targetHandle) override;
+
+			/*!
 				\brief The method binds a given depth buffer to rendering pipeline
 
 				\param[in, out] pDepthBufferTarget A pointer to IDepthBufferTarget implementation

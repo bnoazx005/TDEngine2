@@ -7,13 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.27] 2024-05-20
+## [0.6.27] 2024-05-23
 
 ### Added
 
 - Now **CD3D11GraphicsObjectManager** and **COGLGraphicsObjectManager** support transient resources via pools.
 
-- A new overloading of BindDepthBufferTarget was added for **IGraphicsContext** implementations.
+- New overloadings of BindDepthBufferTarget and BindRenderTarget were added for **IGraphicsContext** implementations.
 
 - The API of **IGraphicsObjectManager** was extended with a new public method GetDefaultTextureSampler.
 

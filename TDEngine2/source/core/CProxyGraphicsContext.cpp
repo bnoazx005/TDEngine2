@@ -224,6 +224,11 @@ namespace TDEngine2
 		LOG_MESSAGE("[ProxyGraphicsContext] BindRenderTarget(U8, IRenderTarget*)");
 	}
 
+	void CProxyGraphicsContext::BindRenderTarget(U8 slot, TTextureHandleId targetHandle)
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] BindRenderTarget(U8, TTextureHandleId)");
+	}
+
 	void CProxyGraphicsContext::BindDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, bool disableRTWrite)
 	{
 		LOG_MESSAGE("[ProxyGraphicsContext] BindDepthBufferTarget(IDepthBufferTarget*, bool)");
