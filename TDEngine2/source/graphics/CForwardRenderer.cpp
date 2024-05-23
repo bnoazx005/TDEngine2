@@ -94,6 +94,7 @@ namespace TDEngine2
 
 	struct TFrameGraphBlackboard // \todo For now just use hardcoded struct with fields instead of special storage type
 	{
+		TFrameGraphResourceHandle              mMainRenderTargetHandle = TFrameGraphResourceHandle::Invalid;
 		TFrameGraphResourceHandle              mDepthBufferHandle = TFrameGraphResourceHandle::Invalid;
 
 		TFrameGraphResourceHandle              mSunLightShadowMapHandle = TFrameGraphResourceHandle::Invalid;
@@ -661,6 +662,196 @@ namespace TDEngine2
 				lightGridTextureHandle = builder.Write(lightGridTextureHandle);
 
 				return Wrench::TOkValue<std::tuple<TFrameGraphResourceHandle, TFrameGraphResourceHandle>>(std::make_tuple(visibleLightsBufferHandle, lightGridTextureHandle));
+			}
+	};
+
+
+	class COpaqueRenderPass : public CBaseRenderPass
+	{
+		public:
+			explicit COpaqueRenderPass(const TPassInvokeContext& context) :
+				CBaseRenderPass(context)
+			{
+			}
+
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, bool isHDRSupportEnabled)
+			{
+				struct TPassData
+				{
+					TFrameGraphResourceHandle mMainRenderTargetHandle = TFrameGraphResourceHandle::Invalid;
+				};
+
+				auto& lightCullData = frameGraphBlackboard.mLightCullingData;
+
+				auto&& output = pFrameGraph->AddPass<TPassData>("OpaqueRenderPass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
+					{
+						builder.Read(lightCullData.mOpaqueVisibleLightsBufferHandle);
+						builder.Read(lightCullData.mOpaqueLightGridTextureHandle);
+						builder.Read(frameGraphBlackboard.mDepthBufferHandle);
+						builder.Read(frameGraphBlackboard.mSunLightShadowMapHandle);
+
+						for (auto&& currOmniLightTargetHandle : frameGraphBlackboard.mOmniLightShadowMapHandles)
+						{
+							builder.Read(currOmniLightTargetHandle);
+						}
+
+						TFrameGraphTexture::TDesc mainRenderTargetParams{};
+
+						mainRenderTargetParams.mWidth           = mContext.mWindowWidth;
+						mainRenderTargetParams.mHeight          = mContext.mWindowHeight;
+						mainRenderTargetParams.mFormat          = isHDRSupportEnabled ? FT_FLOAT4 : FT_NORM_UBYTE4;
+						mainRenderTargetParams.mNumOfMipLevels  = 1;
+						mainRenderTargetParams.mNumOfSamples    = 1;
+						mainRenderTargetParams.mSamplingQuality = 0;
+						mainRenderTargetParams.mType            = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
+						mainRenderTargetParams.mUsageType       = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+						mainRenderTargetParams.mBindFlags       = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET;
+						mainRenderTargetParams.mName            = "MainRenderTaget";
+						mainRenderTargetParams.mFlags           = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+
+						data.mMainRenderTargetHandle = builder.Create<TFrameGraphTexture>(mainRenderTargetParams.mName, mainRenderTargetParams);
+						data.mMainRenderTargetHandle = builder.Write(data.mMainRenderTargetHandle);
+
+						TDE2_ASSERT(data.mMainRenderTargetHandle != TFrameGraphResourceHandle::Invalid);
+
+						builder.MarkAsPersistent(); // TODO remove when the whole graph will be provided
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					{
+						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
+
+						TDE2_PROFILER_SCOPE("OpaqueRenderPass");
+						TDE_RENDER_SECTION(pGraphicsContext, "OpaqueRenderPass");
+
+						//pGraphicsContext->BindRenderTarget
+
+						/*{
+							mpGraphicsContext->BindRenderTarget(0, pCurrRenderTarget.Get());
+							if (bindDepthBuffer)
+							{
+								mpGraphicsContext->BindDepthBufferTarget(pMainDepthBuffer.Get());
+							}
+
+							if (clearRT)
+							{
+								mpGraphicsContext->ClearRenderTarget(pCurrRenderTarget.Get(), TColor32F{});
+							}
+
+							onRenderFrameCallback();
+
+							if (bindDepthBuffer)
+							{
+								mpGraphicsContext->BindDepthBufferTarget(nullptr);
+							}
+
+							mpGraphicsContext->BindRenderTarget(0, nullptr);
+						}*/
+
+						/*pGraphicsContext->SetStructuredBuffer(VISIBLE_LIGHTS_BUFFER_SLOT, lightCullData.mOpaqueVisibleLightsBufferHandle, false);
+
+						if (auto pLightGridTexture = pResourceManager->GetResource<ITexture>(lightGridData.mOpaqueLightGridTextureHandle))
+						{
+							pLightGridTexture->SetWriteable(false);
+							pLightGridTexture->Bind(LIGHT_GRID_TEXTURE_SLOT);
+						}
+
+						ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OPAQUE_GEOMETRY)], true);*/
+
+						//TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mDepthBufferHandle);
+
+						//pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(mContext.mWindowWidth), static_cast<F32>(mContext.mWindowHeight), 0.0f, 1.0f);
+						//pGraphicsContext->BindDepthBufferTarget(depthBufferTarget.mTextureHandle, true);
+						//pGraphicsContext->ClearDepthBuffer(1.0f);
+
+						//ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mContext.mpCommandsBuffer, false); // \todo Replace false with true when the graph will be completed
+
+						//pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
+					});
+
+				frameGraphBlackboard.mMainRenderTargetHandle = output.mMainRenderTargetHandle;
+			}
+	};
+
+
+	class CTransparentRenderPass : public CBaseRenderPass
+	{
+		public:
+			explicit CTransparentRenderPass(const TPassInvokeContext& context) :
+				CBaseRenderPass(context)
+			{
+			}
+
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard)
+			{
+				struct TPassData
+				{
+					TFrameGraphResourceHandle mMainRenderTargetHandle = TFrameGraphResourceHandle::Invalid;
+				};
+
+				auto& lightCullData = frameGraphBlackboard.mLightCullingData;
+
+				auto&& output = pFrameGraph->AddPass<TPassData>("TransparentRenderPass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
+					{
+						builder.Read(lightCullData.mTransparentVisibleLightsBufferHandle);
+						builder.Read(lightCullData.mTransparentLightGridTextureHandle);
+						builder.Read(frameGraphBlackboard.mDepthBufferHandle);
+						builder.Read(frameGraphBlackboard.mMainRenderTargetHandle);
+
+						data.mMainRenderTargetHandle = builder.Write(frameGraphBlackboard.mMainRenderTargetHandle);
+
+						builder.MarkAsPersistent(); // TODO remove when the whole graph will be provided
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					{
+						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
+
+						TDE2_PROFILER_SCOPE("TransparentRenderPass");
+						TDE_RENDER_SECTION(pGraphicsContext, "TransparentRenderPass");
+
+						//pGraphicsContext->BindRenderTarget
+
+						/*{
+							mpGraphicsContext->BindRenderTarget(0, pCurrRenderTarget.Get());
+							if (bindDepthBuffer)
+							{
+								mpGraphicsContext->BindDepthBufferTarget(pMainDepthBuffer.Get());
+							}
+
+							if (clearRT)
+							{
+								mpGraphicsContext->ClearRenderTarget(pCurrRenderTarget.Get(), TColor32F{});
+							}
+
+							onRenderFrameCallback();
+
+							if (bindDepthBuffer)
+							{
+								mpGraphicsContext->BindDepthBufferTarget(nullptr);
+							}
+
+							mpGraphicsContext->BindRenderTarget(0, nullptr);
+						}*/
+
+						/*pGraphicsContext->SetStructuredBuffer(VISIBLE_LIGHTS_BUFFER_SLOT, lightCullData.mOpaqueVisibleLightsBufferHandle, false);
+
+						if (auto pLightGridTexture = pResourceManager->GetResource<ITexture>(lightGridData.mOpaqueLightGridTextureHandle))
+						{
+							pLightGridTexture->SetWriteable(false);
+							pLightGridTexture->Bind(LIGHT_GRID_TEXTURE_SLOT);
+						}
+
+						ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OPAQUE_GEOMETRY)], true);*/
+
+						//TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mDepthBufferHandle);
+
+						//pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(mContext.mWindowWidth), static_cast<F32>(mContext.mWindowHeight), 0.0f, 1.0f);
+						//pGraphicsContext->BindDepthBufferTarget(depthBufferTarget.mTextureHandle, true);
+						//pGraphicsContext->ClearDepthBuffer(1.0f);
+
+						//ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mContext.mpCommandsBuffer, false); // \todo Replace false with true when the graph will be completed
+
+						//pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
+					});
+
+				frameGraphBlackboard.mMainRenderTargetHandle = output.mMainRenderTargetHandle;
 			}
 	};
 
@@ -2200,16 +2391,6 @@ namespace TDEngine2
 			frameGraphBlackboard.mLightCullingData.mTileFrustumsBufferHandle = mpFrameGraph->ImportResource("TileFrustums", TFrameGraphBuffer::TDesc { }, TFrameGraphBuffer{ mLightGridData.mTileFrustumsBufferHandle });
 			frameGraphBlackboard.mLightCullingData.mLightIndexCountersInitializerBufferHandle = mpFrameGraph->ImportResource("InitialLightIndexCounters", TFrameGraphBuffer::TDesc { }, TFrameGraphBuffer{ mLightGridData.mLightIndexCountersInitializerBufferHandle });
 
-			TPassInvokeContext passInvokeContext
-			{
-				mpGraphicsContext,
-					mpResourceManager,
-					mpGlobalShaderProperties,
-					mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEPTH_PREPASS)],
-					mpWindowSystem->GetWidth(),
-					mpWindowSystem->GetHeight()
-			};
-
 			// \note editor mode (draw into selection buffer)
 #if TDE2_EDITORS_ENABLED
 			CRenderSelectionBufferPass{}.AddPass(mpFrameGraph, frameGraphBlackboard, CRenderSelectionBufferPass::TAddPassInvokeParams
@@ -2226,7 +2407,18 @@ namespace TDEngine2
 			// \note directional shadow pass
 			if (CGameUserSettings::Get()->mpIsShadowMappingEnabledCVar->Get())
 			{
-				CSunLightShadowPass{ passInvokeContext }.AddPass(mpFrameGraph, frameGraphBlackboard);
+				CSunLightShadowPass
+				{
+					TPassInvokeContext
+					{
+						mpGraphicsContext,
+						mpResourceManager,
+						mpGlobalShaderProperties,
+						mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)],
+						mpWindowSystem->GetWidth(),
+						mpWindowSystem->GetHeight()
+					}
+				}.AddPass(mpFrameGraph, frameGraphBlackboard);
 
 				U32 currPointLightIndex = 0;
 
@@ -2243,23 +2435,93 @@ namespace TDEngine2
 						break;
 					}
 
-					COmniLightShadowPass{ passInvokeContext }.AddPass(mpFrameGraph, frameGraphBlackboard, currPointLightIndex);
+					COmniLightShadowPass
+					{
+						TPassInvokeContext
+						{
+							mpGraphicsContext,
+							mpResourceManager,
+							mpGlobalShaderProperties,
+							mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)],
+							mpWindowSystem->GetWidth(),
+							mpWindowSystem->GetHeight()
+						}
+					}.AddPass(mpFrameGraph, frameGraphBlackboard, currPointLightIndex);
 
 					++currPointLightIndex;
 				}
 			}
 
 			// \note depth pre-pass
-			CDepthPrePass{ passInvokeContext }.AddPass(mpFrameGraph, frameGraphBlackboard);
+			CDepthPrePass
+			{
+				TPassInvokeContext
+				{
+					mpGraphicsContext,
+					mpResourceManager,
+					mpGlobalShaderProperties,
+					mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEPTH_PREPASS)],
+					mpWindowSystem->GetWidth(),
+					mpWindowSystem->GetHeight()
+				}
+			}.AddPass(mpFrameGraph, frameGraphBlackboard);
 
 			// \note upload lights buffer pass
-			CUploadLightsPass{ passInvokeContext }.AddPass(mpFrameGraph, frameGraphBlackboard, mActiveLightSources);
+			CUploadLightsPass
+			{ 
+				TPassInvokeContext
+				{
+					mpGraphicsContext,
+					mpResourceManager,
+					mpGlobalShaderProperties,
+					nullptr,
+					mpWindowSystem->GetWidth(),
+					mpWindowSystem->GetHeight()
+				}
+			}.AddPass(mpFrameGraph, frameGraphBlackboard, mActiveLightSources);
 
 			// \note light culling pass
-			CLightCullingPass{ passInvokeContext }.AddPass(mpFrameGraph, frameGraphBlackboard);
+			CLightCullingPass
+			{
+				TPassInvokeContext
+				{
+					mpGraphicsContext,
+					mpResourceManager,
+					mpGlobalShaderProperties,
+					nullptr,
+					mpWindowSystem->GetWidth(),
+					mpWindowSystem->GetHeight()
+				}
+			}.AddPass(mpFrameGraph, frameGraphBlackboard);
 
 			// 
 			// \todo main pass
+			COpaqueRenderPass
+			{ 
+				TPassInvokeContext
+				{
+					mpGraphicsContext,
+					mpResourceManager,
+					mpGlobalShaderProperties,
+					mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OPAQUE_GEOMETRY)],
+					mpWindowSystem->GetWidth(),
+					mpWindowSystem->GetHeight()
+				}
+			}.AddPass(mpFrameGraph, frameGraphBlackboard, true); // \todo replace with configuration of hdr support
+
+			CTransparentRenderPass
+			{
+				TPassInvokeContext
+				{
+					mpGraphicsContext,
+					mpResourceManager,
+					mpGlobalShaderProperties,
+					mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_TRANSPARENT_GEOMETRY)],
+					mpWindowSystem->GetWidth(),
+					mpWindowSystem->GetHeight()
+				}
+			}.AddPass(mpFrameGraph, frameGraphBlackboard); 
+
 			// 
 			// \todo volumetric clouds main pass
 			// \todo volumetric clouds blur pass
