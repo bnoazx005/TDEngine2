@@ -102,6 +102,9 @@ namespace TDEngine2
 
 		TFrameGraphResourceHandle              mLightsBufferHandle = TFrameGraphResourceHandle::Invalid;
 		TLightCullData                         mLightCullingData;
+
+		TFrameGraphResourceHandle mVolumetricCloudsMainTargetHandle = TFrameGraphResourceHandle::Invalid;
+		TFrameGraphResourceHandle mVolumetricCloudsFullSizeTargetHandle = TFrameGraphResourceHandle::Invalid;
 	};
 
 
@@ -880,6 +883,226 @@ namespace TDEngine2
 
 				frameGraphBlackboard.mMainRenderTargetHandle = output.mMainRenderTargetHandle;
 			}
+	};
+
+
+	class CVolumetricCloudsMainPass : public CBaseRenderPass
+	{
+		public:
+			explicit CVolumetricCloudsMainPass(const TPassInvokeContext& context) :
+				CBaseRenderPass(context)
+			{
+			}
+
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard)
+			{
+				struct TPassData
+				{
+					TFrameGraphResourceHandle mVolumetricCloudsMainBufferHandle = TFrameGraphResourceHandle::Invalid;
+				};
+
+				const U32 textureWidth = mContext.mWindowWidth / 4;
+				const U32 textureHeight = mContext.mWindowHeight / 4;
+
+				auto&& output = pFrameGraph->AddPass<TPassData>("VolumetricCloudsMainPass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
+					{
+						builder.Read(frameGraphBlackboard.mMainRenderTargetHandle);
+						builder.Read(frameGraphBlackboard.mDepthBufferHandle);
+
+						TFrameGraphTexture::TDesc volumetricCloudsMainBufferParams{};
+
+						volumetricCloudsMainBufferParams.mWidth = textureWidth;
+						volumetricCloudsMainBufferParams.mHeight = textureHeight;
+						volumetricCloudsMainBufferParams.mFormat = FT_FLOAT4;
+						volumetricCloudsMainBufferParams.mNumOfMipLevels = 1;
+						volumetricCloudsMainBufferParams.mNumOfSamples = 1;
+						volumetricCloudsMainBufferParams.mSamplingQuality = 0;
+						volumetricCloudsMainBufferParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
+						volumetricCloudsMainBufferParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+						volumetricCloudsMainBufferParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS;
+						volumetricCloudsMainBufferParams.mName = "VolumetricCloudsMainTarget";
+						volumetricCloudsMainBufferParams.mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+
+						data.mVolumetricCloudsMainBufferHandle = builder.Create<TFrameGraphTexture>(volumetricCloudsMainBufferParams.mName, volumetricCloudsMainBufferParams);
+						data.mVolumetricCloudsMainBufferHandle = builder.Write(data.mVolumetricCloudsMainBufferHandle);
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					{
+						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
+						auto&& pResourceManager = mContext.mpResourceManager;
+
+						TDE2_PROFILER_SCOPE("VolumetricCloudsMainPass");
+						TDE_RENDER_SECTION(pGraphicsContext, "VolumetricCloudsMainPass");
+
+						struct
+						{
+							TVector2 mInvTextureSizes;
+							I32      mStepsCount;
+						} uniformsData;
+
+						uniformsData.mInvTextureSizes = TVector2{ 1 / static_cast<F32>(textureWidth), 1 / static_cast<F32>(textureHeight) };
+						uniformsData.mStepsCount = 64;
+
+						TFrameGraphTexture& mainRenderTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mMainRenderTargetHandle);
+						TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mDepthBufferHandle);
+						TFrameGraphTexture& cloudsMainTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mVolumetricCloudsMainBufferHandle);
+
+						const TTextureSamplerId linearSamplerHandle = pGraphicsContext->GetGraphicsObjectManager()->GetDefaultTextureSampler(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
+
+						auto pVolumetricCloudsRenderPassShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>("Shaders/Default/Volumetrics/VolumetricClouds.cshader")); // \todo add caching
+						
+						if (pVolumetricCloudsRenderPassShader)
+						{
+							pGraphicsContext->SetTexture(pVolumetricCloudsRenderPassShader->GetResourceBindingSlot("OutputTexture"), cloudsMainTarget.mTextureHandle);
+							pGraphicsContext->SetSampler(pVolumetricCloudsRenderPassShader->GetResourceBindingSlot("OutputTexture"), linearSamplerHandle);
+							pGraphicsContext->SetTexture(pVolumetricCloudsRenderPassShader->GetResourceBindingSlot("DepthTexture"), depthBufferTarget.mTextureHandle);
+							pGraphicsContext->SetSampler(pVolumetricCloudsRenderPassShader->GetResourceBindingSlot("DepthTexture"), linearSamplerHandle);
+							pGraphicsContext->SetTexture(pVolumetricCloudsRenderPassShader->GetResourceBindingSlot("MainTexture"), mainRenderTarget.mTextureHandle);
+							pGraphicsContext->SetSampler(pVolumetricCloudsRenderPassShader->GetResourceBindingSlot("MainTexture"), linearSamplerHandle);
+
+							pVolumetricCloudsRenderPassShader->SetUserUniformsBuffer(0, reinterpret_cast<const U8*>(&uniformsData), sizeof(uniformsData));
+							pVolumetricCloudsRenderPassShader->Bind();
+
+							pGraphicsContext->DispatchCompute(textureWidth / 16, textureHeight / 16, 1);
+
+							pVolumetricCloudsRenderPassShader->Unbind();
+						}
+					});
+
+				frameGraphBlackboard.mVolumetricCloudsMainTargetHandle = output.mVolumetricCloudsMainBufferHandle;
+			}
+	};
+
+
+	class CVolumetricCloudsUpscalePass : public CBaseRenderPass
+	{
+		public:
+			explicit CVolumetricCloudsUpscalePass(const TPassInvokeContext& context) :
+				CBaseRenderPass(context)
+			{
+			}
+
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard)
+			{
+				struct TPassData
+				{
+					TFrameGraphResourceHandle mVolumetricCloudsFullSizeBufferHandle = TFrameGraphResourceHandle::Invalid;
+				};
+
+				auto&& output = pFrameGraph->AddPass<TPassData>("VolumetricCloudsBlurUpscalePass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
+					{
+						builder.Read(frameGraphBlackboard.mVolumetricCloudsMainTargetHandle);
+						builder.Read(frameGraphBlackboard.mDepthBufferHandle);
+
+						TFrameGraphTexture::TDesc volumetricCloudsFullSizeBufferParams{};
+
+						volumetricCloudsFullSizeBufferParams.mWidth = mContext.mWindowWidth;
+						volumetricCloudsFullSizeBufferParams.mHeight = mContext.mWindowHeight;
+						volumetricCloudsFullSizeBufferParams.mFormat = FT_FLOAT4;
+						volumetricCloudsFullSizeBufferParams.mNumOfMipLevels = 1;
+						volumetricCloudsFullSizeBufferParams.mNumOfSamples = 1;
+						volumetricCloudsFullSizeBufferParams.mSamplingQuality = 0;
+						volumetricCloudsFullSizeBufferParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
+						volumetricCloudsFullSizeBufferParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+						volumetricCloudsFullSizeBufferParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS;
+						volumetricCloudsFullSizeBufferParams.mName = "VolumetricCloudsFulLSizeTarget";
+						volumetricCloudsFullSizeBufferParams.mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+
+						data.mVolumetricCloudsFullSizeBufferHandle = builder.Create<TFrameGraphTexture>(volumetricCloudsFullSizeBufferParams.mName, volumetricCloudsFullSizeBufferParams);
+						data.mVolumetricCloudsFullSizeBufferHandle = builder.Write(data.mVolumetricCloudsFullSizeBufferHandle);
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					{
+						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
+						auto&& pResourceManager = mContext.mpResourceManager;
+
+						TDE2_PROFILER_SCOPE("VolumetricCloudsBlurUpscalePass");
+						TDE_RENDER_SECTION(pGraphicsContext, "VolumetricCloudsBlurUpscalePass");
+
+						TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mDepthBufferHandle);
+						TFrameGraphTexture& cloudsMainTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mVolumetricCloudsMainTargetHandle);
+						TFrameGraphTexture& cloudsFullSizeTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mVolumetricCloudsFullSizeBufferHandle);
+
+						const TTextureSamplerId linearSamplerHandle = pGraphicsContext->GetGraphicsObjectManager()->GetDefaultTextureSampler(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
+
+						auto pVolumetricCloudsUpsampleBlurPassShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>("Shaders/Default/Volumetrics/VolumetricCloudsBlur.cshader")); // \todo Add caching
+						if (pVolumetricCloudsUpsampleBlurPassShader)
+						{
+							pGraphicsContext->SetTexture(pVolumetricCloudsUpsampleBlurPassShader->GetResourceBindingSlot("OutputTexture"), cloudsFullSizeTarget.mTextureHandle);
+							pGraphicsContext->SetSampler(pVolumetricCloudsUpsampleBlurPassShader->GetResourceBindingSlot("OutputTexture"), linearSamplerHandle);
+
+							pGraphicsContext->SetTexture(pVolumetricCloudsUpsampleBlurPassShader->GetResourceBindingSlot("DepthTexture"), depthBufferTarget.mTextureHandle);
+							pGraphicsContext->SetSampler(pVolumetricCloudsUpsampleBlurPassShader->GetResourceBindingSlot("DepthTexture"), linearSamplerHandle);
+
+							pGraphicsContext->SetTexture(pVolumetricCloudsUpsampleBlurPassShader->GetResourceBindingSlot("MainTexture"), cloudsMainTarget.mTextureHandle);
+							pGraphicsContext->SetSampler(pVolumetricCloudsUpsampleBlurPassShader->GetResourceBindingSlot("MainTexture"), linearSamplerHandle);
+							
+							pVolumetricCloudsUpsampleBlurPassShader->Bind();
+
+							pGraphicsContext->DispatchCompute(mContext.mWindowWidth / 16, mContext.mWindowHeight / 16, 1);
+
+							pVolumetricCloudsUpsampleBlurPassShader->Unbind();
+						}
+					});
+
+				frameGraphBlackboard.mVolumetricCloudsFullSizeTargetHandle = output.mVolumetricCloudsFullSizeBufferHandle;
+			}
+	};
+
+
+	class CVolumetricCloudsComposePass : public CBaseRenderPass
+	{
+		public:
+			explicit CVolumetricCloudsComposePass(const TPassInvokeContext& context) :
+				CBaseRenderPass(context)
+			{
+				mVolumetricCloudsComposeMaterialHandle = mContext.mpResourceManager->Create<IMaterial>("VolumetricCloudsCompose.material", TMaterialParameters{ "Shaders/Default/Volumetrics/VolumetricCloudsCompose.shader", false, TDepthStencilStateDesc { false, false } });
+			}
+
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard)
+			{
+				struct TPassData
+				{
+					TFrameGraphResourceHandle mMainRenderTargetHandle = TFrameGraphResourceHandle::Invalid;
+				};
+
+				auto&& output = pFrameGraph->AddPass<TPassData>("VolumetricCloudsBlurComposePass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
+					{
+						builder.Read(frameGraphBlackboard.mVolumetricCloudsFullSizeTargetHandle);
+						builder.Read(frameGraphBlackboard.mDepthBufferHandle);
+
+						builder.Read(frameGraphBlackboard.mMainRenderTargetHandle);
+						data.mMainRenderTargetHandle = builder.Write(frameGraphBlackboard.mMainRenderTargetHandle);
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					{
+						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
+						auto&& pResourceManager = mContext.mpResourceManager;
+
+						TDE2_PROFILER_SCOPE("VolumetricCloudsBlurComposePass");
+						TDE_RENDER_SECTION(pGraphicsContext, "VolumetricCloudsBlurComposePass");
+
+						TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mDepthBufferHandle);
+						TFrameGraphTexture& cloudsFullSizeTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mVolumetricCloudsFullSizeTargetHandle);
+						TFrameGraphTexture& mainRenderTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mMainRenderTargetHandle);
+
+						pGraphicsContext->SetDepthBufferEnabled(false);
+						pGraphicsContext->BindRenderTarget(0, mainRenderTarget.mTextureHandle);
+						pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(mContext.mWindowWidth), static_cast<F32>(mContext.mWindowHeight), 0.0f, 1.0f);
+
+						/*if (auto pMaterial = pResourceManager->GetResource<IMaterial>(mVolumetricCloudsComposeMaterialHandle))
+						{
+							pMaterial->SetTextureResource(FrontFrameTextureUniformId, pSource.Get());
+							pMaterial->SetTextureResource(BackFrameTextureUniformId, pExtraSource);
+						}
+
+						_submitFullScreenTriangle(mpPreUIRenderQueue, materialHandle, true);*/
+
+						pGraphicsContext->SetDepthBufferEnabled(true);
+						pGraphicsContext->BindRenderTarget(0, nullptr);
+					});
+
+				frameGraphBlackboard.mMainRenderTargetHandle = output.mMainRenderTargetHandle;
+			}
+		private:
+			TResourceId mVolumetricCloudsComposeMaterialHandle = TResourceId::Invalid;
 	};
 
 
@@ -2575,10 +2798,51 @@ namespace TDEngine2
 				}
 			}.AddPass(mpFrameGraph, frameGraphBlackboard);
 
-			// 
-			// \todo volumetric clouds main pass
-			// \todo volumetric clouds blur pass
-			// \todo volumetric clouds compose pass
+			if (CGameUserSettings::Get()->mpIsVolumetricCloudsEnabledCVar->Get())
+			{
+				// \note volumetric clouds main pass
+				CVolumetricCloudsMainPass
+				{
+					TPassInvokeContext
+					{
+						mpGraphicsContext,
+						mpResourceManager,
+						mpGlobalShaderProperties,
+						nullptr,
+						mpWindowSystem->GetWidth(),
+						mpWindowSystem->GetHeight()
+					}
+				}.AddPass(mpFrameGraph, frameGraphBlackboard);
+
+				// \note volumetric clouds blur pass
+				CVolumetricCloudsUpscalePass
+				{
+					TPassInvokeContext
+					{
+						mpGraphicsContext,
+						mpResourceManager,
+						mpGlobalShaderProperties,
+						nullptr,
+						mpWindowSystem->GetWidth(),
+						mpWindowSystem->GetHeight()
+					}
+				}.AddPass(mpFrameGraph, frameGraphBlackboard);
+
+				// \note volumetric clouds compose pass
+				CVolumetricCloudsComposePass
+				{
+					TPassInvokeContext
+					{
+						mpGraphicsContext,
+						mpResourceManager,
+						mpGlobalShaderProperties,
+						nullptr,
+						mpWindowSystem->GetWidth(),
+						mpWindowSystem->GetHeight()
+					}
+				}.AddPass(mpFrameGraph, frameGraphBlackboard);
+			}
+
 			// 
 			// \todo lights heatmap debug pass
 			// \todo eye-adaptation pass
