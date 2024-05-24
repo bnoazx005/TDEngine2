@@ -97,6 +97,8 @@ namespace TDEngine2
 		TFrameGraphResourceHandle              mMainRenderTargetHandle = TFrameGraphResourceHandle::Invalid;
 		TFrameGraphResourceHandle              mDepthBufferHandle = TFrameGraphResourceHandle::Invalid;
 
+		TFrameGraphResourceHandle              mUIRenderTargetHandle = TFrameGraphResourceHandle::Invalid;
+
 		TFrameGraphResourceHandle              mSunLightShadowMapHandle = TFrameGraphResourceHandle::Invalid;
 		std::vector<TFrameGraphResourceHandle> mOmniLightShadowMapHandles;
 
@@ -1087,13 +1089,22 @@ namespace TDEngine2
 						pGraphicsContext->BindRenderTarget(0, mainRenderTarget.mTextureHandle);
 						pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(mContext.mWindowWidth), static_cast<F32>(mContext.mWindowHeight), 0.0f, 1.0f);
 
-						/*if (auto pMaterial = pResourceManager->GetResource<IMaterial>(mVolumetricCloudsComposeMaterialHandle))
+						if (auto pMaterial = pResourceManager->GetResource<IMaterial>(mVolumetricCloudsComposeMaterialHandle))
 						{
-							pMaterial->SetTextureResource(FrontFrameTextureUniformId, pSource.Get());
-							pMaterial->SetTextureResource(BackFrameTextureUniformId, pExtraSource);
+							//pMaterial->SetTextureResource(FrontFrameTextureUniformId, pSource.Get());
+							//pMaterial->SetTextureResource(BackFrameTextureUniformId, pExtraSource);
 						}
 
-						_submitFullScreenTriangle(mpPreUIRenderQueue, materialHandle, true);*/
+						/*
+						TDrawCommandPtr pDrawCommand = mpPreUIRenderQueue->SubmitDrawCommand<TDrawCommand>(static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::IMAGE_EFFECTS));
+						pDrawCommand->mNumOfVertices = 3;
+						pDrawCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+						pDrawCommand->mMaterialHandle = materialHandle;
+						pDrawCommand->mVertexBufferHandle = mFullScreenTriangleVertexBufferHandle;
+						pDrawCommand->mpVertexDeclaration = mpVertexFormatDeclaration;
+
+						pDrawCommand->Submit({ mpGraphicsContext, mpResourceManager.Get(), mpGlobalShaderProperties });
+						*/
 
 						pGraphicsContext->SetDepthBufferEnabled(true);
 						pGraphicsContext->BindRenderTarget(0, nullptr);
@@ -1103,6 +1114,72 @@ namespace TDEngine2
 			}
 		private:
 			TResourceId mVolumetricCloudsComposeMaterialHandle = TResourceId::Invalid;
+	};
+
+
+	class CUIRenderPass : public CBaseRenderPass
+	{
+		public:
+			explicit CUIRenderPass(const TPassInvokeContext& context) :
+				CBaseRenderPass(context)
+			{
+			}
+
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard)
+			{
+				struct TPassData
+				{
+					TFrameGraphResourceHandle mUIRenderTargetHandle = TFrameGraphResourceHandle::Invalid;
+				};
+
+				auto& lightCullData = frameGraphBlackboard.mLightCullingData;
+
+				auto&& output = pFrameGraph->AddPass<TPassData>("UIRenderPass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
+					{
+						TFrameGraphTexture::TDesc uiRenderTargetParams{};
+
+						uiRenderTargetParams.mWidth = mContext.mWindowWidth;
+						uiRenderTargetParams.mHeight = mContext.mWindowHeight;
+						uiRenderTargetParams.mFormat = FT_NORM_UBYTE4;
+						uiRenderTargetParams.mNumOfMipLevels = 1;
+						uiRenderTargetParams.mNumOfSamples = 1;
+						uiRenderTargetParams.mSamplingQuality = 0;
+						uiRenderTargetParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
+						uiRenderTargetParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+						uiRenderTargetParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET;
+						uiRenderTargetParams.mName = "UIRenderTaget";
+						uiRenderTargetParams.mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+
+						data.mUIRenderTargetHandle = builder.Create<TFrameGraphTexture>(uiRenderTargetParams.mName, uiRenderTargetParams);
+						data.mUIRenderTargetHandle = builder.Write(data.mUIRenderTargetHandle);
+
+						TDE2_ASSERT(data.mUIRenderTargetHandle != TFrameGraphResourceHandle::Invalid);
+
+						builder.MarkAsPersistent();
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					{
+						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
+						auto&& pResourceManager = mContext.mpResourceManager;
+
+						TDE2_PROFILER_SCOPE("UIRenderPass");
+						TDE_RENDER_SECTION(pGraphicsContext, "UIRenderPass");
+
+						TFrameGraphTexture& uiRenderTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mUIRenderTargetHandle);
+
+						pGraphicsContext->SetDepthBufferEnabled(false);
+						pGraphicsContext->BindRenderTarget(0, uiRenderTarget.mTextureHandle);
+						pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(mContext.mWindowWidth), static_cast<F32>(mContext.mWindowHeight), 0.0f, 1.0f);
+
+						pGraphicsContext->ClearRenderTarget(static_cast<U8>(0), TColorUtils::mBlack);
+
+						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mContext.mpCommandsBuffer, false); // \todo Replace false with true when the graph will be completed
+
+						pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
+						pGraphicsContext->BindRenderTarget(0, TTextureHandleId::Invalid);
+					});
+
+				frameGraphBlackboard.mUIRenderTargetHandle = output.mUIRenderTargetHandle;
+			}
 	};
 
 
@@ -2853,7 +2930,21 @@ namespace TDEngine2
 			// \todo bloom compose
 			// 
 			// \todo tone-mapping pass
-			// \todo ui pass
+			
+			// \note ui pass
+			CUIRenderPass
+			{
+				TPassInvokeContext
+				{
+					mpGraphicsContext,
+					mpResourceManager,
+					mpGlobalShaderProperties,
+					mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OVERLAY)],
+					mpWindowSystem->GetWidth(),
+					mpWindowSystem->GetHeight()
+				}
+			}.AddPass(mpFrameGraph, frameGraphBlackboard);
+
 			// \todo compose pass
 			// \todo imgui pass
 
