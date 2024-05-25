@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.27] 2024-05-23
+## [0.6.27] 2024-05-25
 
 ### Added
 
@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The API of **IShader** was extended with a new method GetResourceBindingSlot.
 
 - A new setting 'max_omni_light_shadow_maps_count' was added into quality settings group of CProjectSettings type.
+
+- A concept of a single graphics pipeline state instead of separate states configurations was implemented via IGraphicsObjectManager::CreateGraphicsPipelineState. 
 
 ### Changed
 

@@ -29,6 +29,7 @@ namespace TDEngine2
 	struct TStructuredBuffersInitParams;
 	struct TInitBufferParams;
 	struct TInitTextureImplParams;
+	struct TGraphicsPipelineConfigDesc;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IShaderCache);
@@ -126,6 +127,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual TResult<TRasterizerStateId> CreateRasterizerState(const TRasterizerStateDesc& rasterizerStateDesc) = 0;
+
+			TDE2_API virtual TResult<TGraphicsPipelineStateId> CreateGraphicsPipelineState(const TGraphicsPipelineConfigDesc& pipelineConfigDesc) = 0;
 
 			/*!
 				\brief The method is a factory for creation of a debug helper object

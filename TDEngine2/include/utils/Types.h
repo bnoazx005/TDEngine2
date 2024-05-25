@@ -831,6 +831,25 @@ namespace TDEngine2
 
 
 	/*!
+		struct TGraphicsPipelineConfigDesc
+	
+		\brief The type is intended to consolidate all the graphics pipeline's parameters in fashion of new GAPIs like Vulkan/D3D12
+	*/
+	
+	typedef struct TGraphicsPipelineConfigDesc
+	{
+		std::string            mShaderIdStr;
+
+		TBlendStateDesc        mBlendStateParams;
+		TDepthStencilStateDesc mDepthStencilStateParams;							   
+		TRasterizerStateDesc   mRasterizerStateParams;
+	} TGraphicsPipelineConfigDesc, *TGraphicsPipelineConfigDescPtr;
+
+
+	TDE2_DECLARE_HANDLE_TYPE(TGraphicsPipelineStateId);
+
+
+	/*!
 		struct TVideoAdapterInfo
 
 		\brief The structure contains all information about used video adapter

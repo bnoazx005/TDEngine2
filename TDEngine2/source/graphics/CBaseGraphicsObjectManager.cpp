@@ -6,6 +6,7 @@
 #include "../../include/graphics/CDebugUtility.h"
 #include "../../include/graphics/IRenderer.h"
 #include "../../include/graphics/CBaseShader.h"
+#include "../../include/graphics/CBaseGraphicsPipeline.h"
 #include <unordered_map>
 #include <algorithm>
 
@@ -67,6 +68,31 @@ namespace TDEngine2
 		}
 
 		return Wrench::TOkValue<IDebugUtility*>(mpDebugUtility);
+	}
+
+	TResult<TGraphicsPipelineStateId> CBaseGraphicsObjectManager::CreateGraphicsPipelineState(const TGraphicsPipelineConfigDesc& pipelineConfigDesc)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		TPtr<IGraphicsPipeline> pGraphicsPipeline = TPtr<IGraphicsPipeline>(CreateBaseGraphicsPipeline(mpGraphicsContext, pipelineConfigDesc, result));
+		if (!pGraphicsPipeline || RC_OK != result)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
+		}
+
+		auto it = std::find(mpGraphicsPipelines.begin(), mpGraphicsPipelines.end(), nullptr);
+		const USIZE placementIndex = static_cast<USIZE>(std::distance(mpGraphicsPipelines.begin(), it));
+
+		if (placementIndex >= mpGraphicsPipelines.size())
+		{
+			mpGraphicsPipelines.emplace_back(pGraphicsPipeline);
+		}
+		else
+		{
+			mpGraphicsPipelines[placementIndex] = pGraphicsPipeline;
+		}
+
+		return Wrench::TOkValue<TGraphicsPipelineStateId>(static_cast<TGraphicsPipelineStateId>(placementIndex));
 	}
 
 	TResult<TPtr<IShaderCache>> CBaseGraphicsObjectManager::CreateShaderCache(IFileSystem* pFileSystem, bool isReadOnly)

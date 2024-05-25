@@ -17,6 +17,10 @@
 namespace TDEngine2
 {
 	class IBinaryFileReader;
+	class IGraphicsPipeline;
+
+
+	TDE2_DECLARE_SCOPED_PTR(IGraphicsPipeline);
 
 
 	/*!
@@ -52,6 +56,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TResult<IDebugUtility*> CreateDebugUtility(IResourceManager* pResourceManager, IRenderer* pRenderer) override;
+
+			TDE2_API TResult<TGraphicsPipelineStateId> CreateGraphicsPipelineState(const TGraphicsPipelineConfigDesc& pipelineConfigDesc) override;
 
 			TDE2_API TResult<TPtr<IShaderCache>> CreateShaderCache(IFileSystem* pFileSystem, bool isReadOnly = true) override;
 			
@@ -107,5 +113,7 @@ namespace TDEngine2
 			THashTable               mBlendStatesHashTable;
 
 			IDebugUtility*           mpDebugUtility;
+
+			std::vector<TPtr<IGraphicsPipeline>> mpGraphicsPipelines;
 	};
 }

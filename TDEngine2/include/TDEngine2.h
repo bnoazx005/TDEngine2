@@ -191,6 +191,8 @@
 #include "graphics/UI/CDropDownComponent.h"
 #include "graphics/CFrameGraph.h"
 #include "graphics/CFrameGraphResources.h"
+#include "graphics/IGraphicsPipeline.h"
+#include "graphics/CBaseGraphicsPipeline.h"
 
 /// audio
 #include "audio/IAudioSource.h"
