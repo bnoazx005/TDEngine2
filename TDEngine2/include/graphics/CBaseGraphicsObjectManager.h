@@ -70,6 +70,8 @@ namespace TDEngine2
 
 			TDE2_API IGraphicsContext* GetGraphicsContext() const override;
 
+			TDE2_API TPtr<IGraphicsPipeline> GetGraphicsPipeline(TGraphicsPipelineStateId handle) override;
+
 			/*!
 				\brief The method convert input shader's name into E_DEFAULT_SHADER_TYPE's value
 
@@ -86,6 +88,7 @@ namespace TDEngine2
 
 			TDE2_API TTextureSamplerId GetDefaultTextureSampler(E_TEXTURE_FILTER_TYPE filterType) override;
 
+			TDE2_API IVertexDeclaration* GetDefaultPositionOnlyVertexDeclaration() override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseGraphicsObjectManager)
 
@@ -115,6 +118,8 @@ namespace TDEngine2
 			THashTable               mBlendStatesHashTable;
 
 			IDebugUtility*           mpDebugUtility;
+
+			IVertexDeclaration* mpDefaultPositionOnlyVertDeclaration = nullptr;
 
 			std::vector<TPtr<IGraphicsPipeline>> mpGraphicsPipelines;
 			

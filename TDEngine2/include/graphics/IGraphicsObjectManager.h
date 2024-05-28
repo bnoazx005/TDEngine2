@@ -26,6 +26,7 @@ namespace TDEngine2
 	class IFileSystem;
 	class IBuffer;
 	class ITextureImpl;
+	class IGraphicsPipeline;
 	struct TStructuredBuffersInitParams;
 	struct TInitBufferParams;
 	struct TInitTextureImplParams;
@@ -35,6 +36,7 @@ namespace TDEngine2
 	TDE2_DECLARE_SCOPED_PTR(IShaderCache);
 	TDE2_DECLARE_SCOPED_PTR(IBuffer);
 	TDE2_DECLARE_SCOPED_PTR(ITextureImpl);
+	TDE2_DECLARE_SCOPED_PTR(IGraphicsPipeline);
 
 
 	/*!
@@ -145,6 +147,8 @@ namespace TDEngine2
 			TDE2_API virtual TPtr<IBuffer> GetBufferPtr(TBufferHandleId handle) = 0;
 			TDE2_API virtual TPtr<ITextureImpl> GetTexturePtr(TTextureHandleId handle) = 0;
 
+			TDE2_API virtual TPtr<IGraphicsPipeline> GetGraphicsPipeline(TGraphicsPipelineStateId handle) = 0;
+
 			/*!
 				\brief The method returns a pointer to IGraphicsContext
 				\return The method returns a pointer to IGraphicsContext
@@ -171,6 +175,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual TTextureSamplerId GetDefaultTextureSampler(E_TEXTURE_FILTER_TYPE filterType) = 0;
+
+			TDE2_API virtual IVertexDeclaration* GetDefaultPositionOnlyVertexDeclaration() = 0;
 
 			/*!
 				\brief The method returns vertices of a screen-quad triangle specific for the current GAPI.

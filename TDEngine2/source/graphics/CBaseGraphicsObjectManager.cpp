@@ -127,6 +127,22 @@ namespace TDEngine2
 		return mpGraphicsContext;
 	}
 
+	TPtr<IGraphicsPipeline> CBaseGraphicsObjectManager::GetGraphicsPipeline(TGraphicsPipelineStateId handle)
+	{
+		if (TGraphicsPipelineStateId::Invalid == handle)
+		{
+			return nullptr;
+		}
+
+		const USIZE placementIndex = static_cast<USIZE>(handle);
+		if (placementIndex >= mpGraphicsPipelines.size())
+		{
+			return nullptr;
+		}
+
+		return mpGraphicsPipelines[placementIndex];
+	}
+
 	E_DEFAULT_SHADER_TYPE CBaseGraphicsObjectManager::GetDefaultShaderTypeByName(const std::string& name)
 	{
 		return E_DEFAULT_SHADER_TYPE::DST_BASIC;
@@ -141,6 +157,17 @@ namespace TDEngine2
 		}
 
 		return textureSamplerResult.Get();
+	}
+
+	IVertexDeclaration* CBaseGraphicsObjectManager::GetDefaultPositionOnlyVertexDeclaration()
+	{
+		if (!mpDefaultPositionOnlyVertDeclaration)
+		{
+			mpDefaultPositionOnlyVertDeclaration = CreateVertexDeclaration().Get();
+			mpDefaultPositionOnlyVertDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
+		}
+
+		return mpDefaultPositionOnlyVertDeclaration;
 	}
 
 	void CBaseGraphicsObjectManager::_insertVertexDeclaration(IVertexDeclaration* pVertDecl)
