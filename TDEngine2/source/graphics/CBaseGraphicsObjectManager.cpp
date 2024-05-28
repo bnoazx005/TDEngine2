@@ -74,6 +74,14 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
+		const U32 hash = ComputeStateDescHash(pipelineConfigDesc);
+
+		auto existingItemIt = mGraphicsPipelinesHashTable.find(hash);
+		if (existingItemIt != mGraphicsPipelinesHashTable.cend())
+		{
+			return Wrench::TOkValue<TGraphicsPipelineStateId>(existingItemIt->second);
+		}
+
 		TPtr<IGraphicsPipeline> pGraphicsPipeline = TPtr<IGraphicsPipeline>(CreateBaseGraphicsPipeline(mpGraphicsContext, pipelineConfigDesc, result));
 		if (!pGraphicsPipeline || RC_OK != result)
 		{
@@ -91,6 +99,8 @@ namespace TDEngine2
 		{
 			mpGraphicsPipelines[placementIndex] = pGraphicsPipeline;
 		}
+
+		mGraphicsPipelinesHashTable.emplace(hash, static_cast<TGraphicsPipelineStateId>(placementIndex));
 
 		return Wrench::TOkValue<TGraphicsPipelineStateId>(static_cast<TGraphicsPipelineStateId>(placementIndex));
 	}

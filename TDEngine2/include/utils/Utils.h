@@ -841,6 +841,7 @@ namespace TDEngine2
 
 	struct TInitTextureImplParams;
 	struct TInitBufferParams;
+	struct TGraphicsPipelineConfigDesc;
 
 
 	template <> TDE2_API U32 ComputeStateDescHash<TBlendStateDesc>(const TBlendStateDesc& object);
@@ -849,6 +850,7 @@ namespace TDEngine2
 	template <> TDE2_API U32 ComputeStateDescHash<TRasterizerStateDesc>(const TRasterizerStateDesc& object);
 	template <> TDE2_API U32 ComputeStateDescHash<TInitTextureImplParams>(const TInitTextureImplParams& object);
 	template <> TDE2_API U32 ComputeStateDescHash<TInitBufferParams>(const TInitBufferParams& object);
+	template <> TDE2_API U32 ComputeStateDescHash<TGraphicsPipelineConfigDesc>(const TGraphicsPipelineConfigDesc& object);
 
 
 	/*!

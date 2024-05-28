@@ -53,7 +53,6 @@ namespace TDEngine2
 			typedef CResourceContainer<ID3D11BlendState*>        TBlendStatesArray;
 			typedef CResourceContainer<ID3D11DepthStencilState*> TDepthStencilStatesArray;
 			typedef CResourceContainer<ID3D11RasterizerState*>   TRasterizerStatesArray;
-			template <typename T> using                          TStateHashesTable = std::unordered_map<U32, T>;
 			typedef TStateHashesTable<TDepthStencilStateId>      TDepthStencilStatesTable;
 			typedef TStateHashesTable<TRasterizerStateId>        TRasterizerStatesTable;
 			typedef std::vector<TPtr<CD3D11TextureImpl>>         TNativeTexturesArray;

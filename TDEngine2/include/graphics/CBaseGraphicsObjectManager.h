@@ -32,9 +32,11 @@ namespace TDEngine2
 	class CBaseGraphicsObjectManager : public IGraphicsObjectManager, public CBaseObject
 	{
 		protected:
-			typedef std::list<U32>                   TFreeEntitiesRegistry;
-			typedef std::vector<IVertexDeclaration*> TVertexDeclarationsArray;
-			typedef std::unordered_map<U32, USIZE>   THashTable;
+			typedef std::list<U32>                              TFreeEntitiesRegistry;
+			typedef std::vector<IVertexDeclaration*>            TVertexDeclarationsArray;
+			typedef std::unordered_map<U32, USIZE>              THashTable;
+			template <typename T> using                         TStateHashesTable = std::unordered_map<U32, T>;
+			typedef TStateHashesTable<TGraphicsPipelineStateId> TGraphicsPipelineStatesTable;
 		public:
 			/*!
 				\brief The method initializes an initial state of a buffer
@@ -115,5 +117,8 @@ namespace TDEngine2
 			IDebugUtility*           mpDebugUtility;
 
 			std::vector<TPtr<IGraphicsPipeline>> mpGraphicsPipelines;
+			
+			TGraphicsPipelineStatesTable mGraphicsPipelinesHashTable;
+
 	};
 }

@@ -414,6 +414,34 @@ namespace TDEngine2
 	}
 
 
+	template <> TDE2_API U32 ComputeStateDescHash<TGraphicsPipelineConfigDesc>(const TGraphicsPipelineConfigDesc& object)
+	{
+		constexpr USIZE COMPONENTS_COUNT = 4;
+
+		union
+		{
+			U32 mAsU32[COMPONENTS_COUNT];
+			U8 mAsU8[sizeof(U32) * COMPONENTS_COUNT];
+		} objectBytes;
+
+		auto&& shaderIdStr = object.mShaderIdStr.c_str();
+
+		objectBytes.mAsU32[0] = ComputeHash(shaderIdStr);
+		objectBytes.mAsU32[1] = ComputeStateDescHash(object.mBlendStateParams);
+		objectBytes.mAsU32[2] = ComputeStateDescHash(object.mDepthStencilStateParams);
+		objectBytes.mAsU32[3] = ComputeStateDescHash(object.mRasterizerStateParams);
+
+		U32 hash = 5381;
+
+		for (const C8 currCh : objectBytes.mAsU8)
+		{
+			hash = ((hash << 5) + hash) + currCh;
+		}
+
+		return hash;
+	}
+
+
 	static std::string GetStackTrace() {
 		std::ostringstream ss;
 
