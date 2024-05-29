@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.27] 2024-05-28
+## [0.6.27] 2024-05-29
 
 ### Added
 
@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - New overloadings of BindDepthBufferTarget and BindRenderTarget were added for **IGraphicsContext** implementations.
 
-- The API of **IGraphicsObjectManager** was extended with a new public method GetDefaultTextureSampler.
+- The API of **IGraphicsObjectManager** was extended with new public methods GetDefaultTextureSampler, GetDefaultPositionOnlyVertexDeclaration.
 
 - The API of **IShader** was extended with a new method GetResourceBindingSlot.
 
@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - The predefined slots for internal lighting shader data were changed.
+
+- Now COGLVertexDeclaration::Bind can accept TBufferHandle::Invalid handle as a vertex buffer. That will produce an empty VAO object.
 
 ### Fixed
 

@@ -61,6 +61,11 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
+		if (pVertexBuffersArray.GetSize() == 1 && TBufferHandleId::Invalid == pVertexBuffersArray[0])
+		{
+			return Wrench::TOkValue<GLuint>(vaoHandler);
+		}
+
 		/// generate vertex attribute pointers
 		GLuint currIndex = 0;
 
