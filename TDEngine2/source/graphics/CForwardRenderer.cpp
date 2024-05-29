@@ -13,6 +13,7 @@
 #include "../../include/graphics/CBaseCubemapTexture.h"
 #include "../../include/graphics/CFrameGraph.h"
 #include "../../include/graphics/CFrameGraphResources.h"
+#include "../../include/graphics/IGraphicsPipeline.h"
 #include "../../include/core/memory/IAllocator.h"
 #include "../../include/core/memory/CLinearAllocator.h"
 #include "../../include/core/IGraphicsContext.h"
@@ -122,6 +123,80 @@ namespace TDEngine2
 	};
 
 
+	static const std::string FrontFrameTextureUniformId = "FrameTexture";
+	static const std::string BackFrameTextureUniformId = "FrameTexture1";
+
+
+	struct TFullScreenShaderInvokationConfig
+	{
+		TPtr<IGraphicsContext>   mpGraphicsContext = nullptr;
+		TPtr<IResourceManager>   mpResourceManager = nullptr;
+		
+		TTextureHandleId         mSourceTarget = TTextureHandleId::Invalid;
+		TTextureHandleId         mExtraTarget = TTextureHandleId::Invalid;		
+		TTextureHandleId         mDestTarget = TTextureHandleId::Invalid;
+
+		TGraphicsPipelineStateId mPipelineHandle = TGraphicsPipelineStateId::Invalid;
+		
+		std::string              mShaderId;
+
+		U32 mScreenWidth = 0;
+		U32 mScreenHeight = 0;
+	};
+
+
+	static void ExecuteFullScreenShader(const TFullScreenShaderInvokationConfig& config)
+	{
+		TDE2_ASSERT(config.mpGraphicsContext);
+		TDE2_ASSERT(config.mpResourceManager);
+		TDE2_ASSERT(TTextureHandleId::Invalid != config.mSourceTarget);
+		TDE2_ASSERT(TTextureHandleId::Invalid != config.mExtraTarget);
+		TDE2_ASSERT(TTextureHandleId::Invalid != config.mDestTarget);
+		TDE2_ASSERT(TGraphicsPipelineStateId::Invalid != config.mPipelineHandle);
+		TDE2_ASSERT(!config.mShaderId.empty());
+		TDE2_ASSERT(config.mScreenWidth > 0);
+		TDE2_ASSERT(config.mScreenHeight > 0);
+
+		auto pGraphicsContext = config.mpGraphicsContext;
+		auto pResourceManager = config.mpResourceManager;
+
+		pGraphicsContext->SetDepthBufferEnabled(false);
+		pGraphicsContext->BindRenderTarget(0, config.mDestTarget);
+		pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(config.mScreenWidth), static_cast<F32>(config.mScreenHeight), 0.0f, 1.0f);
+
+		const TTextureSamplerId linearSamplerHandle = pGraphicsContext->GetGraphicsObjectManager()->GetDefaultTextureSampler(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
+
+		if (auto pShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>(config.mShaderId)))
+		{
+			pShader->Bind();
+
+			pGraphicsContext->SetTexture(pShader->GetResourceBindingSlot(FrontFrameTextureUniformId), config.mSourceTarget);
+			pGraphicsContext->SetSampler(pShader->GetResourceBindingSlot(FrontFrameTextureUniformId), linearSamplerHandle);
+
+			pGraphicsContext->SetTexture(pShader->GetResourceBindingSlot(BackFrameTextureUniformId), config.mExtraTarget);
+			pGraphicsContext->SetSampler(pShader->GetResourceBindingSlot(BackFrameTextureUniformId), linearSamplerHandle);
+
+			if (auto pDefaultPositionOnlyVertDeclaration = pGraphicsContext->GetGraphicsObjectManager()->GetDefaultPositionOnlyVertexDeclaration())
+			{
+				pDefaultPositionOnlyVertDeclaration->Bind(pGraphicsContext.Get(), { TBufferHandleId::Invalid }, pShader.Get());
+			}
+		}
+
+		auto pGraphicsPipeline = pGraphicsContext->GetGraphicsObjectManager()->GetGraphicsPipeline(config.mPipelineHandle);
+		if (!pGraphicsPipeline)
+		{
+			return;
+		}
+
+		pGraphicsPipeline->Bind();
+
+		pGraphicsContext->Draw(E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST, 0, 3);
+
+		pGraphicsContext->SetDepthBufferEnabled(true);
+		pGraphicsContext->BindRenderTarget(0, nullptr);
+	}
+
+
 	class CBaseRenderPass
 	{
 		public:
@@ -131,7 +206,7 @@ namespace TDEngine2
 			}
 
 		protected:
-			const TPassInvokeContext& mContext;
+			TPassInvokeContext mContext;
 	};
 
 
@@ -1056,15 +1131,25 @@ namespace TDEngine2
 			explicit CVolumetricCloudsComposePass(const TPassInvokeContext& context) :
 				CBaseRenderPass(context)
 			{
-				mVolumetricCloudsComposeMaterialHandle = mContext.mpResourceManager->Create<IMaterial>("VolumetricCloudsCompose.material", TMaterialParameters{ "Shaders/Default/Volumetrics/VolumetricCloudsCompose.shader", false, TDepthStencilStateDesc { false, false } });
+				mGraphicsPipelineHandle = mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateGraphicsPipelineState(
+					{
+						mShaderId,
+						{},
+						TDepthStencilStateDesc { false, false },
+						{}
+					}
+				).GetOrDefault(TGraphicsPipelineStateId::Invalid);
 			}
 
-			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard)
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, U32 windowWidth, U32 windowHeight)
 			{
 				struct TPassData
 				{
 					TFrameGraphResourceHandle mMainRenderTargetHandle = TFrameGraphResourceHandle::Invalid;
 				};
+
+				mContext.mWindowWidth = windowWidth;
+				mContext.mWindowHeight = windowHeight;
 
 				auto&& output = pFrameGraph->AddPass<TPassData>("VolumetricCloudsBlurComposePass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
 					{
@@ -1085,36 +1170,30 @@ namespace TDEngine2
 						TFrameGraphTexture& cloudsFullSizeTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mVolumetricCloudsFullSizeTargetHandle);
 						TFrameGraphTexture& mainRenderTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mMainRenderTargetHandle);
 
-						pGraphicsContext->SetDepthBufferEnabled(false);
-						pGraphicsContext->BindRenderTarget(0, mainRenderTarget.mTextureHandle);
-						pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(mContext.mWindowWidth), static_cast<F32>(mContext.mWindowHeight), 0.0f, 1.0f);
-
-						if (auto pMaterial = pResourceManager->GetResource<IMaterial>(mVolumetricCloudsComposeMaterialHandle))
-						{
-							//pMaterial->SetTextureResource(FrontFrameTextureUniformId, pSource.Get());
-							//pMaterial->SetTextureResource(BackFrameTextureUniformId, pExtraSource);
-						}
-
-						/*
-						TDrawCommandPtr pDrawCommand = mpPreUIRenderQueue->SubmitDrawCommand<TDrawCommand>(static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::IMAGE_EFFECTS));
-						pDrawCommand->mNumOfVertices = 3;
-						pDrawCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-						pDrawCommand->mMaterialHandle = materialHandle;
-						pDrawCommand->mVertexBufferHandle = mFullScreenTriangleVertexBufferHandle;
-						pDrawCommand->mpVertexDeclaration = mpVertexFormatDeclaration;
-
-						pDrawCommand->Submit({ mpGraphicsContext, mpResourceManager.Get(), mpGlobalShaderProperties });
-						*/
-
-						pGraphicsContext->SetDepthBufferEnabled(true);
-						pGraphicsContext->BindRenderTarget(0, nullptr);
+						ExecuteFullScreenShader(
+							{ 
+								mContext.mpGraphicsContext, 
+								mContext.mpResourceManager, 
+								depthBufferTarget.mTextureHandle, 
+								cloudsFullSizeTarget.mTextureHandle,
+								mainRenderTarget.mTextureHandle,
+								mGraphicsPipelineHandle,
+								mShaderId,
+								mContext.mWindowWidth,
+								mContext.mWindowHeight 
+							});
 					});
 
 				frameGraphBlackboard.mMainRenderTargetHandle = output.mMainRenderTargetHandle;
 			}
 		private:
-			TResourceId mVolumetricCloudsComposeMaterialHandle = TResourceId::Invalid;
+			static const std::string mShaderId;
+
+			TGraphicsPipelineStateId mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
 	};
+
+
+	const std::string CVolumetricCloudsComposePass::mShaderId = "Shaders/Default/Volumetrics/VolumetricCloudsCompose.shader";
 
 
 	class CUIRenderPass : public CBaseRenderPass
@@ -1181,6 +1260,28 @@ namespace TDEngine2
 				frameGraphBlackboard.mUIRenderTargetHandle = output.mUIRenderTargetHandle;
 			}
 	};
+
+
+
+	static std::unique_ptr<CVolumetricCloudsComposePass> pVolumetricCloudsComposePass = nullptr;
+
+
+	E_RESULT_CODE InitStaticRenderPasses(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		pVolumetricCloudsComposePass = std::make_unique<CVolumetricCloudsComposePass>(
+			TPassInvokeContext
+			{
+				pGraphicsContext,
+				pResourceManager,
+				pGlobalShaderProperties,
+				nullptr,
+				0, 0
+			});
+
+		return result;
+	}
 
 
 
@@ -1543,9 +1644,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-
-	static const std::string FrontFrameTextureUniformId = "FrameTexture";
-	static const std::string BackFrameTextureUniformId = "FrameTexture1";
 
 
 	E_RESULT_CODE CFramePostProcessor::Render(const TRenderFrameCallback& onRenderFrameCallback, E_FRAME_RENDER_PARAMS_FLAGS flags)
@@ -2380,6 +2478,12 @@ namespace TDEngine2
 
 		mLightGridData = lightGridDataResult.Get();
 
+		result = InitStaticRenderPasses(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -2907,18 +3011,7 @@ namespace TDEngine2
 				}.AddPass(mpFrameGraph, frameGraphBlackboard);
 
 				// \note volumetric clouds compose pass
-				CVolumetricCloudsComposePass
-				{
-					TPassInvokeContext
-					{
-						mpGraphicsContext,
-						mpResourceManager,
-						mpGlobalShaderProperties,
-						nullptr,
-						mpWindowSystem->GetWidth(),
-						mpWindowSystem->GetHeight()
-					}
-				}.AddPass(mpFrameGraph, frameGraphBlackboard);
+				pVolumetricCloudsComposePass->AddPass(mpFrameGraph, frameGraphBlackboard, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight());
 			}
 
 			// 
