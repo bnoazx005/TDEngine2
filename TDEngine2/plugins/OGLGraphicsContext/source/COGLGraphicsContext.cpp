@@ -345,6 +345,12 @@ namespace TDEngine2
 
 	E_RESULT_CODE COGLGraphicsContext::SetIndexBuffer(TBufferHandleId indexBufferHandle, U32 offset)
 	{
+		if (TBufferHandleId::Invalid == indexBufferHandle)
+		{
+			GL_SAFE_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+			return RC_OK;
+		}
+
 		auto pBuffer = mpGraphicsObjectManagerImpl->GetOGLBufferPtr(indexBufferHandle);
 		if (!pBuffer)
 		{
@@ -358,6 +364,12 @@ namespace TDEngine2
 
 	E_RESULT_CODE COGLGraphicsContext::SetConstantBuffer(U32 slot, TBufferHandleId constantsBufferHandle)
 	{
+		if (TBufferHandleId::Invalid == constantsBufferHandle)
+		{
+			GL_SAFE_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, slot, 0));
+			return RC_OK;
+		}
+
 		auto pBuffer = mpGraphicsObjectManagerImpl->GetOGLBufferPtr(constantsBufferHandle);
 		if (!pBuffer)
 		{
@@ -371,6 +383,12 @@ namespace TDEngine2
 
 	E_RESULT_CODE COGLGraphicsContext::SetStructuredBuffer(U32 slot, TBufferHandleId bufferHandle, bool isWriteEnabled)
 	{
+		if (TBufferHandleId::Invalid == bufferHandle)
+		{
+			GL_SAFE_CALL(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, 0));
+			return RC_OK;
+		}
+
 		auto pBuffer = mpGraphicsObjectManagerImpl->GetOGLBufferPtr(bufferHandle);
 		if (!pBuffer)
 		{
@@ -384,6 +402,11 @@ namespace TDEngine2
 
 	E_RESULT_CODE COGLGraphicsContext::SetTexture(U32 slot, TTextureHandleId textureHandle, bool isWriteEnabled)
 	{
+		if (TTextureHandleId::Invalid == textureHandle)
+		{
+			return RC_OK;
+		}
+
 		auto pTexture = mpGraphicsObjectManagerImpl->GetOGLTexturePtr(textureHandle);
 		if (!pTexture)
 		{
