@@ -150,7 +150,6 @@ namespace TDEngine2
 		TDE2_ASSERT(config.mpGraphicsContext);
 		TDE2_ASSERT(config.mpResourceManager);
 		TDE2_ASSERT(TTextureHandleId::Invalid != config.mSourceTarget);
-		TDE2_ASSERT(TTextureHandleId::Invalid != config.mExtraTarget);
 		TDE2_ASSERT(TTextureHandleId::Invalid != config.mDestTarget);
 		TDE2_ASSERT(TGraphicsPipelineStateId::Invalid != config.mPipelineHandle);
 		TDE2_ASSERT(!config.mShaderId.empty());
@@ -173,8 +172,11 @@ namespace TDEngine2
 			pGraphicsContext->SetTexture(pShader->GetResourceBindingSlot(FrontFrameTextureUniformId), config.mSourceTarget);
 			pGraphicsContext->SetSampler(pShader->GetResourceBindingSlot(FrontFrameTextureUniformId), linearSamplerHandle);
 
-			pGraphicsContext->SetTexture(pShader->GetResourceBindingSlot(BackFrameTextureUniformId), config.mExtraTarget);
-			pGraphicsContext->SetSampler(pShader->GetResourceBindingSlot(BackFrameTextureUniformId), linearSamplerHandle);
+			if (TTextureHandleId::Invalid != config.mExtraTarget)
+			{
+				pGraphicsContext->SetTexture(pShader->GetResourceBindingSlot(BackFrameTextureUniformId), config.mExtraTarget);
+				pGraphicsContext->SetSampler(pShader->GetResourceBindingSlot(BackFrameTextureUniformId), linearSamplerHandle);
+			}
 
 			if (auto pDefaultPositionOnlyVertDeclaration = pGraphicsContext->GetGraphicsObjectManager()->GetDefaultPositionOnlyVertexDeclaration())
 			{
@@ -1262,8 +1264,96 @@ namespace TDEngine2
 	};
 
 
+	class CLightsHeatmapDebugPostProcessPass : public CBaseRenderPass
+	{
+		public:
+			explicit CLightsHeatmapDebugPostProcessPass(const TPassInvokeContext& context) :
+				CBaseRenderPass(context)
+			{
+				mGraphicsPipelineHandle = mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateGraphicsPipelineState(
+					{
+						mShaderId,
+						{},
+						TDepthStencilStateDesc { false, false },
+						{}
+					}
+				).GetOrDefault(TGraphicsPipelineStateId::Invalid);
+			}
+
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, TFrameGraphResourceHandle target, U32 windowWidth, U32 windowHeight, bool isHDRSupportEnabled)
+			{
+				struct TPassData
+				{
+					TFrameGraphResourceHandle mSourceTargetHandle = TFrameGraphResourceHandle::Invalid;
+					TFrameGraphResourceHandle mDestTargetHandle = TFrameGraphResourceHandle::Invalid;
+				};
+
+				mContext.mWindowWidth = windowWidth;
+				mContext.mWindowHeight = windowHeight;
+
+				auto&& output = pFrameGraph->AddPass<TPassData>("LightsHeatmapDebugPostProcessPass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
+					{
+						builder.Read(frameGraphBlackboard.mLightCullingData.mOpaqueLightGridTextureHandle);
+
+						data.mSourceTargetHandle = builder.Read(frameGraphBlackboard.mMainRenderTargetHandle);						
+						
+						TFrameGraphTexture::TDesc outputTargetParams{};
+
+						outputTargetParams.mWidth           = mContext.mWindowWidth;
+						outputTargetParams.mHeight          = mContext.mWindowHeight;
+						outputTargetParams.mFormat          = isHDRSupportEnabled ? FT_FLOAT4 : FT_NORM_UBYTE4;
+						outputTargetParams.mNumOfMipLevels  = 1;
+						outputTargetParams.mNumOfSamples    = 1;
+						outputTargetParams.mSamplingQuality = 0;
+						outputTargetParams.mType            = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
+						outputTargetParams.mUsageType       = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+						outputTargetParams.mBindFlags       = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET;
+						outputTargetParams.mName            = "IntermediateRenderTaget";
+						outputTargetParams.mFlags           = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+
+						data.mDestTargetHandle = builder.Create<TFrameGraphTexture>(outputTargetParams.mName, outputTargetParams);
+						data.mDestTargetHandle = builder.Write(data.mDestTargetHandle);
+
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					{
+						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
+						auto&& pResourceManager = mContext.mpResourceManager;
+
+						TDE2_PROFILER_SCOPE("LightsHeatmapDebugPostProcessPass");
+						TDE_RENDER_SECTION(pGraphicsContext, "LightsHeatmapDebugPostProcessPass");
+
+						TFrameGraphTexture& opaqueLightsGridTexture = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mLightCullingData.mOpaqueLightGridTextureHandle);
+						TFrameGraphTexture& sourceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mSourceTargetHandle);
+						TFrameGraphTexture& destTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mDestTargetHandle);
+
+						ExecuteFullScreenShader(
+							{
+								mContext.mpGraphicsContext,
+								mContext.mpResourceManager,
+								sourceTarget.mTextureHandle,
+								TTextureHandleId::Invalid,
+								destTarget.mTextureHandle,
+								mGraphicsPipelineHandle,
+								mShaderId,
+								mContext.mWindowWidth,
+								mContext.mWindowHeight
+							});
+					});
+
+				frameGraphBlackboard.mMainRenderTargetHandle = output.mDestTargetHandle;
+			}
+		private:
+			static const std::string mShaderId;
+
+			TGraphicsPipelineStateId mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
+	};
+
+
+	const std::string CLightsHeatmapDebugPostProcessPass::mShaderId = "Shaders/PostEffects/LightsHeatmap.shader";
+
 
 	static std::unique_ptr<CVolumetricCloudsComposePass> pVolumetricCloudsComposePass = nullptr;
+	static std::unique_ptr<CLightsHeatmapDebugPostProcessPass> pLightsHeatmapDebugPostProcessPass = nullptr;
 
 
 	E_RESULT_CODE InitStaticRenderPasses(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties)
@@ -1280,9 +1370,18 @@ namespace TDEngine2
 				0, 0
 			});
 
+		pLightsHeatmapDebugPostProcessPass = std::make_unique<CLightsHeatmapDebugPostProcessPass>(
+			TPassInvokeContext
+			{
+				pGraphicsContext,
+				pResourceManager,
+				pGlobalShaderProperties,
+				nullptr,
+				0, 0
+			});
+
 		return result;
 	}
-
 
 
 	/*!
@@ -3014,8 +3113,12 @@ namespace TDEngine2
 				pVolumetricCloudsComposePass->AddPass(mpFrameGraph, frameGraphBlackboard, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight());
 			}
 
-			// 
-			// \todo lights heatmap debug pass
+			// \note lights heatmap debug pass
+			if (EnableLightsHeatMapCfgVar.Get())
+			{
+				pLightsHeatmapDebugPostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, frameGraphBlackboard.mMainRenderTargetHandle, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true); // \todo replace with configuration of hdr support
+			}
+
 			// \todo eye-adaptation pass
 			// 
 			// \todo bloom threshold
