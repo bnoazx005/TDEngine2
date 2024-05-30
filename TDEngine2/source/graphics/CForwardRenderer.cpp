@@ -95,7 +95,10 @@ namespace TDEngine2
 
 	struct TFrameGraphBlackboard // \todo For now just use hardcoded struct with fields instead of special storage type
 	{
+		TFrameGraphResourceHandle              mBackBufferHandle = TFrameGraphResourceHandle::Invalid;
+
 		TFrameGraphResourceHandle              mMainRenderTargetHandle = TFrameGraphResourceHandle::Invalid;
+		TFrameGraphResourceHandle              mLDRMainRenderTargetHandle = TFrameGraphResourceHandle::Invalid;
 		TFrameGraphResourceHandle              mDepthBufferHandle = TFrameGraphResourceHandle::Invalid;
 
 		TFrameGraphResourceHandle              mUIRenderTargetHandle = TFrameGraphResourceHandle::Invalid;
@@ -150,7 +153,6 @@ namespace TDEngine2
 		TDE2_ASSERT(config.mpGraphicsContext);
 		TDE2_ASSERT(config.mpResourceManager);
 		TDE2_ASSERT(TTextureHandleId::Invalid != config.mSourceTarget);
-		TDE2_ASSERT(TTextureHandleId::Invalid != config.mDestTarget);
 		TDE2_ASSERT(TGraphicsPipelineStateId::Invalid != config.mPipelineHandle);
 		TDE2_ASSERT(!config.mShaderId.empty());
 		TDE2_ASSERT(config.mScreenWidth > 0);
@@ -1235,8 +1237,6 @@ namespace TDEngine2
 						data.mUIRenderTargetHandle = builder.Write(data.mUIRenderTargetHandle);
 
 						TDE2_ASSERT(data.mUIRenderTargetHandle != TFrameGraphResourceHandle::Invalid);
-
-						builder.MarkAsPersistent();
 					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
 					{
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
@@ -1260,6 +1260,42 @@ namespace TDEngine2
 					});
 
 				frameGraphBlackboard.mUIRenderTargetHandle = output.mUIRenderTargetHandle;
+			}
+	};
+
+
+	class CDebugUIRenderPass : public CBaseRenderPass
+	{
+		public:
+			explicit CDebugUIRenderPass(const TPassInvokeContext& context) :
+				CBaseRenderPass(context)
+			{
+			}
+
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard)
+			{
+				struct TPassData
+				{
+					TFrameGraphResourceHandle mTargetHandle = TFrameGraphResourceHandle::Invalid;
+				};
+
+				auto& lightCullData = frameGraphBlackboard.mLightCullingData;
+
+				auto&& output = pFrameGraph->AddPass<TPassData>("DebugUIRenderPass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
+					{
+						data.mTargetHandle = builder.Write(builder.Read(frameGraphBlackboard.mLDRMainRenderTargetHandle));
+
+						TDE2_ASSERT(data.mTargetHandle != TFrameGraphResourceHandle::Invalid);
+
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					{
+						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
+
+						TDE2_PROFILER_SCOPE("DebugUIRenderPass");
+						TDE_RENDER_SECTION(pGraphicsContext, "DebugUIRenderPass");
+
+						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mContext.mpCommandsBuffer, false); // \todo Replace false with true when the graph will be completed
+					});
 			}
 	};
 
@@ -1352,8 +1388,178 @@ namespace TDEngine2
 	const std::string CLightsHeatmapDebugPostProcessPass::mShaderId = "Shaders/PostEffects/LightsHeatmap.shader";
 
 
+	class CExtractLuminancePostProcessPass : public CBaseRenderPass
+	{
+		public:
+			explicit CExtractLuminancePostProcessPass(const TPassInvokeContext& context) :
+				CBaseRenderPass(context)
+			{
+				mGraphicsPipelineHandle = mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateGraphicsPipelineState(
+					{
+						mShaderId,
+						{},
+						TDepthStencilStateDesc { false, false },
+						{}
+					}
+				).GetOrDefault(TGraphicsPipelineStateId::Invalid);
+
+				mContext.mWindowWidth  = mLuminanceTargetSizes;
+				mContext.mWindowHeight = mLuminanceTargetSizes;
+			}
+
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard)
+			{
+				struct TPassData
+				{
+					TFrameGraphResourceHandle mSourceTargetHandle = TFrameGraphResourceHandle::Invalid;
+					TFrameGraphResourceHandle mDestTargetHandle = TFrameGraphResourceHandle::Invalid;
+				};
+
+				auto&& output = pFrameGraph->AddPass<TPassData>("ExtractLuminancePostProcessPass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
+					{
+						builder.Read(frameGraphBlackboard.mLightCullingData.mOpaqueLightGridTextureHandle);
+
+						data.mSourceTargetHandle = builder.Read(frameGraphBlackboard.mMainRenderTargetHandle);
+
+						TFrameGraphTexture::TDesc outputTargetParams{};
+
+						outputTargetParams.mWidth           = mLuminanceTargetSizes;
+						outputTargetParams.mHeight          = mLuminanceTargetSizes;
+						outputTargetParams.mFormat          = FT_FLOAT1;
+						outputTargetParams.mNumOfMipLevels  = static_cast<U32>(log2(mLuminanceTargetSizes)) + 1;
+						outputTargetParams.mNumOfSamples    = 1;
+						outputTargetParams.mSamplingQuality = 0;
+						outputTargetParams.mType            = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
+						outputTargetParams.mUsageType       = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+						outputTargetParams.mBindFlags       = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET;
+						outputTargetParams.mName            = "LuminanceTarget";
+						outputTargetParams.mFlags           = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+
+						data.mDestTargetHandle = builder.Create<TFrameGraphTexture>(outputTargetParams.mName, outputTargetParams);
+						data.mDestTargetHandle = builder.Write(data.mDestTargetHandle);
+
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					{
+						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
+						auto&& pResourceManager = mContext.mpResourceManager;
+
+						TDE2_PROFILER_SCOPE("ExtractLuminancePostProcessPass");
+						TDE_RENDER_SECTION(pGraphicsContext, "ExtractLuminancePostProcessPass");
+
+						TFrameGraphTexture& opaqueLightsGridTexture = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mLightCullingData.mOpaqueLightGridTextureHandle);
+						TFrameGraphTexture& sourceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mSourceTargetHandle);
+						TFrameGraphTexture& destTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mDestTargetHandle);
+
+						ExecuteFullScreenShader(
+							{
+								mContext.mpGraphicsContext,
+								mContext.mpResourceManager,
+								sourceTarget.mTextureHandle,
+								TTextureHandleId::Invalid,
+								destTarget.mTextureHandle,
+								mGraphicsPipelineHandle,
+								mShaderId,
+								mContext.mWindowWidth,
+								mContext.mWindowHeight
+							});
+
+						pGraphicsContext->GenerateMipMaps(destTarget.mTextureHandle);
+					});
+
+				frameGraphBlackboard.mMainRenderTargetHandle = output.mDestTargetHandle;
+			}
+		private:
+			TDE2_STATIC_CONSTEXPR U32 mLuminanceTargetSizes = 1024;
+
+			static const std::string mShaderId;
+
+			TGraphicsPipelineStateId mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
+	};
+
+
+	const std::string CExtractLuminancePostProcessPass::mShaderId = "Shaders/PostEffects/GenerateLuminance.shader";
+
+
+	class CToneMapAndComposePostProcessPass : public CBaseRenderPass
+	{
+		public:
+			explicit CToneMapAndComposePostProcessPass(const TPassInvokeContext& context) :
+				CBaseRenderPass(context)
+			{
+				mGraphicsPipelineHandle = mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateGraphicsPipelineState(
+					{
+						mShaderId,
+						{},
+						TDepthStencilStateDesc { false, false },
+						{}
+					}
+				).GetOrDefault(TGraphicsPipelineStateId::Invalid);
+			}
+
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, U32 windowWidth, U32 windowHeight, bool isHDRSupportEnabled)
+			{
+				struct TPassData
+				{
+					TFrameGraphResourceHandle mSourceTargetHandle = TFrameGraphResourceHandle::Invalid;
+					TFrameGraphResourceHandle mDestTargetHandle = TFrameGraphResourceHandle::Invalid;
+				};
+
+				mContext.mWindowWidth = windowWidth;
+				mContext.mWindowHeight = windowHeight;
+
+				auto&& output = pFrameGraph->AddPass<TPassData>("ToneMapAndComposePass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
+					{
+						builder.Read(frameGraphBlackboard.mUIRenderTargetHandle);
+
+						data.mSourceTargetHandle = builder.Read(frameGraphBlackboard.mMainRenderTargetHandle);
+						data.mDestTargetHandle = builder.Write(frameGraphBlackboard.mBackBufferHandle);
+
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					{
+						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
+						auto&& pResourceManager = mContext.mpResourceManager;
+
+						TDE2_PROFILER_SCOPE("ToneMapAndComposePass");
+						TDE_RENDER_SECTION(pGraphicsContext, "ToneMapAndComposePass");
+
+						TFrameGraphTexture& uiTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mUIRenderTargetHandle);
+						TFrameGraphTexture& sourceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mSourceTargetHandle);
+						TFrameGraphTexture& destTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mDestTargetHandle);
+
+						// \todo Pass uniform buffer for tone map parameters
+						// \todo Pass uiTarget texure
+						// \todo Pass color LUT texture
+
+						ExecuteFullScreenShader(
+							{
+								mContext.mpGraphicsContext,
+								mContext.mpResourceManager,
+								sourceTarget.mTextureHandle,
+								TTextureHandleId::Invalid,
+								destTarget.mTextureHandle, // draw onto the screen, destTarget.mTextureHandle is always Invalid
+								mGraphicsPipelineHandle,
+								mShaderId,
+								mContext.mWindowWidth,
+								mContext.mWindowHeight
+							});
+					});
+
+				frameGraphBlackboard.mLDRMainRenderTargetHandle = output.mDestTargetHandle;
+			}
+		private:
+			static const std::string mShaderId;
+
+			TGraphicsPipelineStateId mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
+	};
+
+
+	const std::string CToneMapAndComposePostProcessPass::mShaderId = "Shaders/PostEffects/ToneMapping.shader";
+
+
 	static std::unique_ptr<CVolumetricCloudsComposePass> pVolumetricCloudsComposePass = nullptr;
 	static std::unique_ptr<CLightsHeatmapDebugPostProcessPass> pLightsHeatmapDebugPostProcessPass = nullptr;
+	static std::unique_ptr<CExtractLuminancePostProcessPass> pExtractLuminancePostProcessPass = nullptr;
+	static std::unique_ptr<CToneMapAndComposePostProcessPass> pToneMappingComposePostProcessPass = nullptr;
 
 
 	E_RESULT_CODE InitStaticRenderPasses(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties)
@@ -1371,6 +1577,26 @@ namespace TDEngine2
 			});
 
 		pLightsHeatmapDebugPostProcessPass = std::make_unique<CLightsHeatmapDebugPostProcessPass>(
+			TPassInvokeContext
+			{
+				pGraphicsContext,
+				pResourceManager,
+				pGlobalShaderProperties,
+				nullptr,
+				0, 0
+			});
+
+		pExtractLuminancePostProcessPass = std::make_unique<CExtractLuminancePostProcessPass>(
+			TPassInvokeContext
+			{
+				pGraphicsContext,
+				pResourceManager,
+				pGlobalShaderProperties,
+				nullptr,
+				0, 0
+			});
+
+		pToneMappingComposePostProcessPass = std::make_unique<CToneMapAndComposePostProcessPass>(
 			TPassInvokeContext
 			{
 				pGraphicsContext,
@@ -1477,9 +1703,6 @@ namespace TDEngine2
 	*/
 
 	static IFramePostProcessor* CreateFramePostProcessor(const TFramePostProcessorParameters& desc, E_RESULT_CODE& result);
-
-
-	TDE2_STATIC_CONSTEXPR U32 LuminanceTargetSizes = 1024;
 
 
 	/*!
@@ -1668,7 +1891,7 @@ namespace TDEngine2
 		mUITargetHandle = TResourceId::Invalid;
 		mLightsHeatmapTargetHandle = TResourceId::Invalid;
 
-		auto luminanceTargetResult = GetOrCreateLuminanceTarget(mpResourceManager, "LuminanceTarget", LuminanceTargetSizes);
+		auto luminanceTargetResult = GetOrCreateLuminanceTarget(mpResourceManager, "LuminanceTarget", 1024);
 		if (luminanceTargetResult.HasError())
 		{
 			return luminanceTargetResult.GetError();
@@ -2919,6 +3142,7 @@ namespace TDEngine2
 			mpFrameGraph->Reset();
 
 			TFrameGraphBlackboard frameGraphBlackboard;
+			frameGraphBlackboard.mBackBufferHandle = mpFrameGraph->ImportResource("BackBuffer", TFrameGraphTexture::TDesc { }, TFrameGraphTexture{ TTextureHandleId::Invalid });
 			frameGraphBlackboard.mLightCullingData.mTileFrustumsBufferHandle = mpFrameGraph->ImportResource("TileFrustums", TFrameGraphBuffer::TDesc { }, TFrameGraphBuffer{ mLightGridData.mTileFrustumsBufferHandle });
 			frameGraphBlackboard.mLightCullingData.mLightIndexCountersInitializerBufferHandle = mpFrameGraph->ImportResource("InitialLightIndexCounters", TFrameGraphBuffer::TDesc { }, TFrameGraphBuffer{ mLightGridData.mLightIndexCountersInitializerBufferHandle });
 
@@ -3119,8 +3343,10 @@ namespace TDEngine2
 				pLightsHeatmapDebugPostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, frameGraphBlackboard.mMainRenderTargetHandle, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true); // \todo replace with configuration of hdr support
 			}
 
-			// \todo eye-adaptation pass
-			// 
+			// \note eye-adaptation pass
+			pExtractLuminancePostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard);
+
+
 			// \todo bloom threshold
 			// \todo bloom horizontal pass
 			// \todo bloom vertical pass
@@ -3142,8 +3368,22 @@ namespace TDEngine2
 				}
 			}.AddPass(mpFrameGraph, frameGraphBlackboard);
 
-			// \todo compose pass
-			// \todo imgui pass
+			// \note compose pass + tone mapping
+			pToneMappingComposePostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true); // \todo replace with configuration of hdr support
+
+			// \note imgui pass
+			CDebugUIRenderPass
+			{
+				TPassInvokeContext
+				{
+					mpGraphicsContext,
+					mpResourceManager,
+					mpGlobalShaderProperties,
+					mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEBUG_UI)],
+					mpWindowSystem->GetWidth(),
+					mpWindowSystem->GetHeight()
+				}
+			}.AddPass(mpFrameGraph, frameGraphBlackboard);
 
 			mpFrameGraph->Compile();
 			mpFrameGraph->Execute();
