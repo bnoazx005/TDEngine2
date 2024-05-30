@@ -236,9 +236,11 @@ namespace TDEngine2
 
 		U8 renderTargetBoundSlot = (std::numeric_limits<U8>::max)();
 
+		COGLRenderTarget* pOGLRenderTarget = dynamic_cast<COGLRenderTarget*>(pRenderTarget);
+
 		for (U8 currSlotIndex = 0; currSlotIndex < mMaxNumOfRenderTargets; ++currSlotIndex)
 		{
-			if (mpRenderTargets[currSlotIndex] == pRenderTarget)
+			if (mRenderTargets[currSlotIndex] == pOGLRenderTarget->GetInternalHandler())
 			{
 				renderTargetBoundSlot = currSlotIndex;
 				break;
@@ -262,7 +264,7 @@ namespace TDEngine2
 			return;
 		}
 
-		if (!mpRenderTargets[slot])
+		if (!mRenderTargets[slot])
 		{
 			LOG_WARNING(Wrench::StringUtils::Format("[COGLGraphicsContext] Try to clear the render target in slot {0}, but it's empty", slot));
 			return;
@@ -750,13 +752,12 @@ namespace TDEngine2
 
 			return;
 		}
-
-		mpRenderTargets[slot] = pRenderTarget;
-		
+				
 		COGLRenderTarget* pOGLRenderTarget = dynamic_cast<COGLRenderTarget*>(pRenderTarget);
+		mRenderTargets[slot] = pOGLRenderTarget->GetInternalHandler();
 
 		GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mMainFBOHandler));
-		GL_SAFE_VOID_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + slot, GL_TEXTURE_2D, pOGLRenderTarget->GetInternalHandler(), 0));
+		GL_SAFE_VOID_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + slot, GL_TEXTURE_2D, mRenderTargets[slot], 0));
 		GL_SAFE_VOID_CALL(glDrawBuffer(GL_COLOR_ATTACHMENT0 + slot));
 		GL_SAFE_VOID_CALL(glReadBuffer(GL_COLOR_ATTACHMENT0 + slot));
 
@@ -765,7 +766,47 @@ namespace TDEngine2
 
 	void COGLGraphicsContext::BindRenderTarget(U8 slot, TTextureHandleId targetHandle)
 	{
-		TDE2_UNIMPLEMENTED();
+		TDE2_ASSERT(slot < mMaxNumOfRenderTargets);
+		if (slot >= mMaxNumOfRenderTargets)
+		{
+			LOG_WARNING("[COGLGraphicsContext] Render target's slot goes out of limits");
+			return;
+		}
+
+		if (!slot && TTextureHandleId::Invalid == targetHandle)
+		{
+			GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mMainFBOHandler));
+
+			for (U8 i = 0; i < mMaxNumOfRenderTargets; ++i)
+			{
+				GL_SAFE_VOID_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, 0, 0));
+			}
+
+			GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+
+			return;
+		}
+
+		auto pRenderTargetTexture = mpGraphicsObjectManagerImpl->GetOGLTexturePtr(targetHandle);
+		if (!pRenderTargetTexture)
+		{
+			return;
+		}
+
+		if (E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET != (pRenderTargetTexture->GetParams().mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET))
+		{
+			TDE2_ASSERT_MSG(false, "[COGLGraphicsContext] Try to bind texture that is not a render target to render target slot");
+			return;
+		}
+
+		mRenderTargets[slot] = pRenderTargetTexture->GetTextureHandle();
+
+		GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mMainFBOHandler));
+		GL_SAFE_VOID_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + slot, GL_TEXTURE_2D, mRenderTargets[slot], 0));
+		GL_SAFE_VOID_CALL(glDrawBuffer(GL_COLOR_ATTACHMENT0 + slot));
+		GL_SAFE_VOID_CALL(glReadBuffer(GL_COLOR_ATTACHMENT0 + slot));
+
+		TDE2_ASSERT(GL_FRAMEBUFFER_COMPLETE == glCheckFramebufferStatus(GL_FRAMEBUFFER));
 	}
 
 	void COGLGraphicsContext::BindDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, bool disableRTWrite)
@@ -819,8 +860,9 @@ namespace TDEngine2
 			return;
 		}
 
-		if (E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER == (pDepthBufferTexture->GetParams().mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER))
+		if (E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER != (pDepthBufferTexture->GetParams().mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER))
 		{
+			TDE2_ASSERT_MSG(false, "[COGLGraphicsContext] Try to bind texture that is not a depth buffer to depth buffer slot");
 			return;
 		}
 

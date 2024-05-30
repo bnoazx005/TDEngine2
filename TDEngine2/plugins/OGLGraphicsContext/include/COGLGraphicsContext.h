@@ -445,8 +445,8 @@ namespace TDEngine2
 			TCreateGLContextFactoryCallback mGLContextFactoryCallback;
 			TWindowSystemInternalData       mWindowInternalData;
 
-			TPtr<IGraphicsObjectManager> mpGraphicsObjectManager = nullptr;
-			COGLGraphicsObjectManager*   mpGraphicsObjectManagerImpl = nullptr;
+			TPtr<IGraphicsObjectManager>    mpGraphicsObjectManager = nullptr;
+			COGLGraphicsObjectManager*      mpGraphicsObjectManagerImpl = nullptr;
 
 			TPtr<IWindowSystem>             mpWindowSystem;
 			TPtr<IEventManager>             mpEventManager;
@@ -455,7 +455,7 @@ namespace TDEngine2
 			GLuint                          mMainDepthStencilRenderbuffer;
 			GLuint                          mCurrDepthBufferHandle;
 
-			IRenderTarget*                  mpRenderTargets[mMaxNumOfRenderTargets];
+			GLuint                          mRenderTargets[mMaxNumOfRenderTargets];
 	};
 
 

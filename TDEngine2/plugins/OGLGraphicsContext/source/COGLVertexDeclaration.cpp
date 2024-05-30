@@ -44,14 +44,21 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
-		auto doesExistResult = DoesHandleExist(pGraphicsContext, mRootNode, pVertexBuffersArray);
+		GLuint vaoHandler = 0x0;
 
+		if (pVertexBuffersArray.GetSize() == 1 && TBufferHandleId::Invalid == pVertexBuffersArray[0])
+		{
+			GL_SAFE_VOID_CALL(glGenVertexArrays(1, &vaoHandler));
+			GL_SAFE_VOID_CALL(glBindVertexArray(vaoHandler));
+
+			return Wrench::TOkValue<GLuint>(vaoHandler);
+		}
+
+		auto doesExistResult = DoesHandleExist(pGraphicsContext, mRootNode, pVertexBuffersArray);
 		if (doesExistResult.IsOk())
 		{
 			return doesExistResult;
 		}
-
-		GLuint vaoHandler = 0x0;
 
 		GL_SAFE_VOID_CALL(glGenVertexArrays(1, &vaoHandler));
 		GL_SAFE_VOID_CALL(glBindVertexArray(vaoHandler));
@@ -59,11 +66,6 @@ namespace TDEngine2
 		if (glGetError() != GL_NO_ERROR)
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
-		}
-
-		if (pVertexBuffersArray.GetSize() == 1 && TBufferHandleId::Invalid == pVertexBuffersArray[0])
-		{
-			return Wrench::TOkValue<GLuint>(vaoHandler);
 		}
 
 		/// generate vertex attribute pointers
