@@ -219,6 +219,12 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE CopyResource(TBufferHandleId sourceHandle, TBufferHandleId destHandle) override;
 
 			/*!
+				\brief The method generates all mip levels for the specified texture
+			*/
+
+			TDE2_API E_RESULT_CODE GenerateMipMaps(TTextureHandleId textureHandle) override;
+
+			/*!
 				\brief The method sends a command to a GPU to draw current attached graphics data
 
 				\param[in] topology A primitive topology's type

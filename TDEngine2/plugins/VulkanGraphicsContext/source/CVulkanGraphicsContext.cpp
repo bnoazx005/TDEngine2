@@ -969,6 +969,11 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CVulkanGraphicsContext::GenerateMipMaps(TTextureHandleId textureHandle)
+	{
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
 	void CVulkanGraphicsContext::Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices)
 	{
 	}

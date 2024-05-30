@@ -178,6 +178,12 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CProxyGraphicsContext::GenerateMipMaps(TTextureHandleId textureHandle)
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] GenerateMipMaps");
+		return RC_OK;
+	}
+
 	void CProxyGraphicsContext::Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices)
 	{
 		LOG_MESSAGE("[ProxyGraphicsContext] Draw(E_PRIMITIVE_TOPOLOGY_TYPE, U32, U32)");

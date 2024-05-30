@@ -584,6 +584,31 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE COGLGraphicsContext::GenerateMipMaps(TTextureHandleId textureHandle)
+	{
+		if (TTextureHandleId::Invalid == textureHandle)
+		{
+			return RC_FAIL;
+		}
+
+		auto&& pTexture = mpGraphicsObjectManagerImpl->GetOGLTexturePtr(textureHandle);
+		if (!pTexture)
+		{
+			return RC_FAIL;
+		}
+
+		const GLenum textureType = COGLMappings::GetTextureType(pTexture->GetParams().mType);
+
+		GL_SAFE_CALL(glActiveTexture(GL_TEXTURE0));
+		GL_SAFE_CALL(glBindTexture(textureType, pTexture->GetTextureHandle()));
+
+		GL_SAFE_CALL(glGenerateMipmap(textureType));
+
+		GL_SAFE_CALL(glBindTexture(textureType, 0));
+
+		return RC_OK;
+	}
+
 	void COGLGraphicsContext::Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices)
 	{
 		GL_SAFE_VOID_CALL(glDrawArrays(COGLMappings::GetPrimitiveTopology(topology), startVertex, numOfVertices));

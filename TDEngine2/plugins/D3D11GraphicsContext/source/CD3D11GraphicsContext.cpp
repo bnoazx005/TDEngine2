@@ -589,6 +589,24 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CD3D11GraphicsContext::GenerateMipMaps(TTextureHandleId textureHandle)
+	{
+		if (TTextureHandleId::Invalid == textureHandle)
+		{
+			return RC_FAIL;
+		}
+
+		auto&& pTexture = mpGraphicsObjectManagerD3D11Impl->GetD3D11TexturePtr(textureHandle);
+		if (!pTexture)
+		{
+			return RC_FAIL;
+		}
+
+		mp3dDeviceContext->GenerateMips(pTexture->GetShaderResourceView());
+
+		return RC_OK;
+	}
+
 	void CD3D11GraphicsContext::Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices)
 	{
 		mp3dDeviceContext->IASetPrimitiveTopology(CD3D11Mappings::GetPrimitiveTopology(topology));
