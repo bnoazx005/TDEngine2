@@ -114,6 +114,8 @@ namespace TDEngine2
 
 		TFrameGraphResourceHandle              mLuminanceTargetHandle = TFrameGraphResourceHandle::Invalid;
 		TFrameGraphResourceHandle              mAvgLuminanceTargetHandle = TFrameGraphResourceHandle::Invalid;
+
+		TFrameGraphResourceHandle              mBloomThresholdTargetHandle = TFrameGraphResourceHandle::Invalid;
 	};
 
 
@@ -1581,6 +1583,299 @@ namespace TDEngine2
 	const std::string CCalcAverageLuminancePostProcessPass::mShaderId = "Shaders/PostEffects/AdaptLuminance.shader";
 
 
+	class CBloomThresholdPostProcessPass : public CBaseRenderPass
+	{
+		public:
+			explicit CBloomThresholdPostProcessPass(const TPassInvokeContext& context) :
+				CBaseRenderPass(context)
+			{
+				mGraphicsPipelineHandle = mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateGraphicsPipelineState(
+					{
+						mShaderId,
+						{},
+						TDepthStencilStateDesc { false, false },
+						{}
+					}
+				).GetOrDefault(TGraphicsPipelineStateId::Invalid);
+			}
+
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, U32 windowWidth, U32 windowHeight, bool isHDRSupportEnabled, const IPostProcessingProfile* pPostProcessProfile)
+			{
+				struct TPassData
+				{
+					TFrameGraphResourceHandle mSourceTargetHandle = TFrameGraphResourceHandle::Invalid;
+					TFrameGraphResourceHandle mDestTargetHandle = TFrameGraphResourceHandle::Invalid;
+				};
+
+				mContext.mWindowWidth = windowWidth;
+				mContext.mWindowHeight = windowHeight;
+
+				auto&& output = pFrameGraph->AddPass<TPassData>("BloomPostProcessPass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
+					{
+						builder.Read(frameGraphBlackboard.mAvgLuminanceTargetHandle);
+						data.mSourceTargetHandle = builder.Read(frameGraphBlackboard.mMainRenderTargetHandle);
+
+						TFrameGraphTexture::TDesc outputTargetParams{};
+
+						outputTargetParams.mWidth = mContext.mWindowWidth;
+						outputTargetParams.mHeight = mContext.mWindowHeight;
+						outputTargetParams.mFormat = isHDRSupportEnabled ? FT_FLOAT4 : FT_NORM_UBYTE4;
+						outputTargetParams.mNumOfMipLevels = 1;
+						outputTargetParams.mNumOfSamples = 1;
+						outputTargetParams.mSamplingQuality = 0;
+						outputTargetParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
+						outputTargetParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+						outputTargetParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET;
+						outputTargetParams.mName = "BloomThresholdTarget";
+						outputTargetParams.mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+
+						data.mDestTargetHandle = builder.Create<TFrameGraphTexture>(outputTargetParams.mName, outputTargetParams);
+						data.mDestTargetHandle = builder.Write(data.mDestTargetHandle);
+
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					{
+						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
+						auto&& pResourceManager = mContext.mpResourceManager;
+
+						TDE2_PROFILER_SCOPE("BloomPostProcessPass");
+						TDE_RENDER_SECTION(pGraphicsContext, "BloomPostProcessPass");
+
+						TFrameGraphTexture& sourceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mSourceTargetHandle);
+						TFrameGraphTexture& destTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mDestTargetHandle);
+						TFrameGraphTexture& avgLuminanceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mAvgLuminanceTargetHandle);
+
+						struct
+						{
+							F32 mThreshold;
+							F32 mKeyValue;
+						} uniformsData;
+
+						if (pPostProcessProfile)
+						{
+							uniformsData.mThreshold = pPostProcessProfile->GetBloomParameters().mThreshold;
+							uniformsData.mKeyValue = pPostProcessProfile->GetToneMappingParameters().mKeyValue;
+						}
+
+						if (auto pShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>(mShaderId)))
+						{
+							pShader->SetUserUniformsBuffer(0, reinterpret_cast<const U8*>(&uniformsData), sizeof(uniformsData));
+						}
+
+						ExecuteFullScreenShader(
+							{
+								mContext.mpGraphicsContext,
+								mContext.mpResourceManager,
+								sourceTarget.mTextureHandle,
+								avgLuminanceTarget.mTextureHandle,
+								destTarget.mTextureHandle,
+								mGraphicsPipelineHandle,
+								mShaderId,
+								mContext.mWindowWidth,
+								mContext.mWindowHeight
+							});
+					});
+
+				frameGraphBlackboard.mBloomThresholdTargetHandle = output.mDestTargetHandle;
+			}
+		private:
+			static const std::string mShaderId;
+
+			TGraphicsPipelineStateId mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
+	};
+
+
+	const std::string CBloomThresholdPostProcessPass::mShaderId = "Shaders/PostEffects/Bloom.shader";
+
+
+	class CBloomComposePostProcessPass : public CBaseRenderPass
+	{
+		public:
+			explicit CBloomComposePostProcessPass(const TPassInvokeContext& context) :
+				CBaseRenderPass(context)
+			{
+				mGraphicsPipelineHandle = mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateGraphicsPipelineState(
+					{
+						mShaderId,
+						{},
+						TDepthStencilStateDesc { false, false },
+						{}
+					}
+				).GetOrDefault(TGraphicsPipelineStateId::Invalid);
+			}
+
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, TFrameGraphResourceHandle blurredTargetHandle, U32 windowWidth, U32 windowHeight, bool isHDRSupportEnabled)
+			{
+				struct TPassData
+				{
+					TFrameGraphResourceHandle mSourceTargetHandle = TFrameGraphResourceHandle::Invalid;
+					TFrameGraphResourceHandle mDestTargetHandle = TFrameGraphResourceHandle::Invalid;
+				};
+
+				mContext.mWindowWidth = windowWidth;
+				mContext.mWindowHeight = windowHeight;
+
+				auto&& output = pFrameGraph->AddPass<TPassData>("BloomComposePostProcessPass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
+					{
+						builder.Read(blurredTargetHandle);
+						data.mSourceTargetHandle = builder.Read(frameGraphBlackboard.mMainRenderTargetHandle);
+
+						TFrameGraphTexture::TDesc outputTargetParams{};
+
+						outputTargetParams.mWidth = mContext.mWindowWidth;
+						outputTargetParams.mHeight = mContext.mWindowHeight;
+						outputTargetParams.mFormat = isHDRSupportEnabled ? FT_FLOAT4 : FT_NORM_UBYTE4;
+						outputTargetParams.mNumOfMipLevels = 1;
+						outputTargetParams.mNumOfSamples = 1;
+						outputTargetParams.mSamplingQuality = 0;
+						outputTargetParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
+						outputTargetParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+						outputTargetParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET;
+						outputTargetParams.mName = "MainTargetBloomApplied";
+						outputTargetParams.mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+
+						data.mDestTargetHandle = builder.Create<TFrameGraphTexture>(outputTargetParams.mName, outputTargetParams);
+						data.mDestTargetHandle = builder.Write(data.mDestTargetHandle);
+
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					{
+						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
+						auto&& pResourceManager = mContext.mpResourceManager;
+
+						TDE2_PROFILER_SCOPE("BloomComposePostProcessPass");
+						TDE_RENDER_SECTION(pGraphicsContext, "BloomComposePostProcessPass");
+
+						TFrameGraphTexture& sourceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mSourceTargetHandle);
+						TFrameGraphTexture& destTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mDestTargetHandle);
+						TFrameGraphTexture& blurredTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(blurredTargetHandle);
+
+						ExecuteFullScreenShader(
+							{
+								mContext.mpGraphicsContext,
+								mContext.mpResourceManager,
+								sourceTarget.mTextureHandle,
+								blurredTarget.mTextureHandle,
+								destTarget.mTextureHandle,
+								mGraphicsPipelineHandle,
+								mShaderId,
+								mContext.mWindowWidth,
+								mContext.mWindowHeight
+							});
+					});
+
+				frameGraphBlackboard.mMainRenderTargetHandle = output.mDestTargetHandle;
+			}
+		private:
+			static const std::string mShaderId;
+
+			TGraphicsPipelineStateId mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
+	};
+
+
+	const std::string CBloomComposePostProcessPass::mShaderId = "Shaders/PostEffects/BloomFinal.shader";
+
+
+
+	class CBlurPostProcessPass : public CBaseRenderPass
+	{
+		public:
+			explicit CBlurPostProcessPass(const TPassInvokeContext& context) :
+				CBaseRenderPass(context)
+			{
+				mGraphicsPipelineHandle = mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateGraphicsPipelineState(
+					{
+						mShaderId,
+						{},
+						TDepthStencilStateDesc { false, false },
+						{}
+					}
+				).GetOrDefault(TGraphicsPipelineStateId::Invalid);
+			}
+
+			TFrameGraphResourceHandle AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, 
+				TFrameGraphResourceHandle source, U32 windowWidth, U32 windowHeight, bool isHDRSupportEnabled, const TVector4& blurParams, U32 samplesCount)
+			{
+				struct TPassData
+				{
+					TFrameGraphResourceHandle mSourceTargetHandle = TFrameGraphResourceHandle::Invalid;
+					TFrameGraphResourceHandle mDestTargetHandle = TFrameGraphResourceHandle::Invalid;
+				};
+
+				mContext.mWindowWidth = windowWidth;
+				mContext.mWindowHeight = windowHeight;
+
+				std::string blurPassId = blurParams.y > 0.0f ? "VerticalBlurPostProcessPass" : "HorizontalBlurPostProcessPass";
+
+				auto&& output = pFrameGraph->AddPass<TPassData>(blurPassId, [&, this](CFrameGraphBuilder& builder, TPassData& data)
+					{
+						data.mSourceTargetHandle = builder.Read(source);
+
+						TFrameGraphTexture::TDesc outputTargetParams{};
+
+						outputTargetParams.mWidth = mContext.mWindowWidth;
+						outputTargetParams.mHeight = mContext.mWindowHeight;
+						outputTargetParams.mFormat = isHDRSupportEnabled ? FT_FLOAT4 : FT_NORM_UBYTE4;
+						outputTargetParams.mNumOfMipLevels = 1;
+						outputTargetParams.mNumOfSamples = 1;
+						outputTargetParams.mSamplingQuality = 0;
+						outputTargetParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
+						outputTargetParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+						outputTargetParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET;
+						outputTargetParams.mName = blurParams.y > 0.0f ? "VerticalBlurOutputTarget" : "HorizontalBlurOutputTarget";
+						outputTargetParams.mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+
+						data.mDestTargetHandle = builder.Create<TFrameGraphTexture>(outputTargetParams.mName, outputTargetParams);
+						data.mDestTargetHandle = builder.Write(data.mDestTargetHandle);
+
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					{
+						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
+						auto&& pResourceManager = mContext.mpResourceManager;
+
+						TDE2_PROFILER_SCOPE(blurPassId);
+						TDE_RENDER_SECTION(pGraphicsContext, blurPassId);
+
+						TFrameGraphTexture& sourceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mSourceTargetHandle);
+						TFrameGraphTexture& destTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mDestTargetHandle);
+						
+						struct
+						{
+							TVector4 mBlurParams;
+							U32      mSamplesCount = 1;
+						} uniformsData;
+
+						uniformsData.mBlurParams = blurParams;
+						uniformsData.mSamplesCount = samplesCount;
+
+						if (auto pShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>(mShaderId)))
+						{
+							pShader->SetUserUniformsBuffer(0, reinterpret_cast<const U8*>(&uniformsData), sizeof(uniformsData));
+						}
+
+						ExecuteFullScreenShader(
+							{
+								mContext.mpGraphicsContext,
+								mContext.mpResourceManager,
+								sourceTarget.mTextureHandle,
+								TTextureHandleId::Invalid,
+								destTarget.mTextureHandle,
+								mGraphicsPipelineHandle,
+								mShaderId,
+								mContext.mWindowWidth,
+								mContext.mWindowHeight
+							});
+					});
+
+				return output.mDestTargetHandle;
+			}
+		private:
+			static const std::string mShaderId;
+
+			TGraphicsPipelineStateId mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
+	};
+
+
+	const std::string CBlurPostProcessPass::mShaderId = "Shaders/PostEffects/GaussianBlur.shader";
+
 
 	class CToneMapAndComposePostProcessPass : public CBaseRenderPass
 	{
@@ -1598,7 +1893,7 @@ namespace TDEngine2
 				).GetOrDefault(TGraphicsPipelineStateId::Invalid);
 			}
 
-			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, U32 windowWidth, U32 windowHeight, bool isHDRSupportEnabled)
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, U32 windowWidth, U32 windowHeight, bool isHDRSupportEnabled, const IPostProcessingProfile* pCurrPostProcessProfile)
 			{
 				struct TPassData
 				{
@@ -1612,6 +1907,7 @@ namespace TDEngine2
 				auto&& output = pFrameGraph->AddPass<TPassData>("ToneMapAndComposePass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
 					{
 						builder.Read(frameGraphBlackboard.mUIRenderTargetHandle);
+						builder.Read(frameGraphBlackboard.mAvgLuminanceTargetHandle);
 
 						data.mSourceTargetHandle = builder.Read(frameGraphBlackboard.mMainRenderTargetHandle);
 						data.mDestTargetHandle = builder.Write(frameGraphBlackboard.mBackBufferHandle);
@@ -1625,12 +1921,39 @@ namespace TDEngine2
 						TDE_RENDER_SECTION(pGraphicsContext, "ToneMapAndComposePass");
 
 						TFrameGraphTexture& uiTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mUIRenderTargetHandle);
+						TFrameGraphTexture& avgLuminanceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mAvgLuminanceTargetHandle);
 						TFrameGraphTexture& sourceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mSourceTargetHandle);
 						TFrameGraphTexture& destTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mDestTargetHandle);
 
-						// \todo Pass uniform buffer for tone map parameters
-						// \todo Pass uiTarget texure
+						const TTextureSamplerId linearSamplerHandle = pGraphicsContext->GetGraphicsObjectManager()->GetDefaultTextureSampler(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
+
 						// \todo Pass color LUT texture
+
+						if (auto pShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>(mShaderId)))
+						{
+							pGraphicsContext->SetTexture(pShader->GetResourceBindingSlot("LuminanceBuffer"), avgLuminanceTarget.mTextureHandle);
+							pGraphicsContext->SetSampler(pShader->GetResourceBindingSlot("LuminanceBuffer"), linearSamplerHandle);
+
+							pGraphicsContext->SetTexture(pShader->GetResourceBindingSlot("UIBuffer"), uiTarget.mTextureHandle);
+							pGraphicsContext->SetSampler(pShader->GetResourceBindingSlot("UIBuffer"), linearSamplerHandle);
+
+							struct
+							{
+								TVector4 mToneMappingParams; // \todo Add default values
+								TVector4 mColorGradingParams;
+							} uniformsData;
+
+							if (pCurrPostProcessProfile)
+							{
+								const auto& toneMappingParameters = pCurrPostProcessProfile->GetToneMappingParameters();
+								const auto& colorGradingParameters = pCurrPostProcessProfile->GetColorGradingParameters();
+
+								uniformsData.mToneMappingParams = TVector4(isHDRSupportEnabled ? 1.0f : 0.0f, toneMappingParameters.mExposure, toneMappingParameters.mKeyValue, 0.0f);
+								uniformsData.mColorGradingParams = TVector4(colorGradingParameters.mIsEnabled ? 1.0f : 0.0f, 0.0f, 0.0f, 0.0f);
+							}
+
+							pShader->SetUserUniformsBuffer(0, reinterpret_cast<const U8*>(&uniformsData), sizeof(uniformsData));
+						}
 
 						ExecuteFullScreenShader(
 							{
@@ -1662,6 +1985,9 @@ namespace TDEngine2
 	static std::unique_ptr<CLightsHeatmapDebugPostProcessPass> pLightsHeatmapDebugPostProcessPass = nullptr;
 	static std::unique_ptr<CExtractLuminancePostProcessPass> pExtractLuminancePostProcessPass = nullptr;
 	static std::unique_ptr<CCalcAverageLuminancePostProcessPass> pCalcAverageLuminancePostProcessPass = nullptr;
+	static std::unique_ptr<CBloomThresholdPostProcessPass> pBloomThresholdPostProcessPass = nullptr;
+	static std::unique_ptr<CBloomComposePostProcessPass> pBloomComposePostProcessPass = nullptr;
+	static std::unique_ptr<CBlurPostProcessPass> pBlurPostProcessPass = nullptr;
 	static std::unique_ptr<CToneMapAndComposePostProcessPass> pToneMappingComposePostProcessPass = nullptr;
 
 
@@ -1700,6 +2026,36 @@ namespace TDEngine2
 			});
 
 		pCalcAverageLuminancePostProcessPass = std::make_unique<CCalcAverageLuminancePostProcessPass>(
+			TPassInvokeContext
+			{
+				pGraphicsContext,
+				pResourceManager,
+				pGlobalShaderProperties,
+				nullptr,
+				0, 0
+			});
+
+		pBloomThresholdPostProcessPass = std::make_unique<CBloomThresholdPostProcessPass>(
+			TPassInvokeContext
+			{
+				pGraphicsContext,
+				pResourceManager,
+				pGlobalShaderProperties,
+				nullptr,
+				0, 0
+			});
+
+		pBloomComposePostProcessPass = std::make_unique<CBloomComposePostProcessPass>(
+			TPassInvokeContext
+			{
+				pGraphicsContext,
+				pResourceManager,
+				pGlobalShaderProperties,
+				nullptr,
+				0, 0
+			});
+
+		pBlurPostProcessPass = std::make_unique<CBlurPostProcessPass>(
 			TPassInvokeContext
 			{
 				pGraphicsContext,
@@ -3461,14 +3817,17 @@ namespace TDEngine2
 			pExtractLuminancePostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard);
 			pCalcAverageLuminancePostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, 0.5f); // \todo Replace coeff with correct value from post-processing profile
 
+			// \todo Add support to disable bloom pass
+			// \note bloom threshold
+			pBloomThresholdPostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true, nullptr); // \todo replace with configuration of hdr support
 
-			// \todo bloom threshold
-			// \todo bloom horizontal pass
-			// \todo bloom vertical pass
-			// \todo bloom compose
-			// 
-			// \todo tone-mapping pass
-			
+			TFrameGraphResourceHandle horizontalBlurTargetHandle = pBlurPostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, frameGraphBlackboard.mBloomThresholdTargetHandle, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true,
+				TVector4(0.0f), 1); // \todo replace with configuration of hdr support
+			TFrameGraphResourceHandle verticalBlurTargetHandle = pBlurPostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, horizontalBlurTargetHandle, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true,
+				TVector4(0.0f, 1.0f, 0.0f, 0.0f), 1); // \todo replace with configuration of hdr support
+
+			pBloomComposePostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, verticalBlurTargetHandle, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true); // \todo replace with configuration of hdr support
+
 			// \note ui pass
 			CUIRenderPass
 			{
@@ -3484,7 +3843,7 @@ namespace TDEngine2
 			}.AddPass(mpFrameGraph, frameGraphBlackboard);
 
 			// \note compose pass + tone mapping
-			pToneMappingComposePostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true); // \todo replace with configuration of hdr support
+			pToneMappingComposePostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true, nullptr); // \todo replace with configuration of hdr support
 
 			// \note imgui pass
 			CDebugUIRenderPass
