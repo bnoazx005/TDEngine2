@@ -109,8 +109,11 @@ namespace TDEngine2
 		TFrameGraphResourceHandle              mLightsBufferHandle = TFrameGraphResourceHandle::Invalid;
 		TLightCullData                         mLightCullingData;
 
-		TFrameGraphResourceHandle mVolumetricCloudsMainTargetHandle = TFrameGraphResourceHandle::Invalid;
-		TFrameGraphResourceHandle mVolumetricCloudsFullSizeTargetHandle = TFrameGraphResourceHandle::Invalid;
+		TFrameGraphResourceHandle              mVolumetricCloudsMainTargetHandle = TFrameGraphResourceHandle::Invalid;
+		TFrameGraphResourceHandle              mVolumetricCloudsFullSizeTargetHandle = TFrameGraphResourceHandle::Invalid;
+
+		TFrameGraphResourceHandle              mLuminanceTargetHandle = TFrameGraphResourceHandle::Invalid;
+		TFrameGraphResourceHandle              mAvgLuminanceTargetHandle = TFrameGraphResourceHandle::Invalid;
 	};
 
 
@@ -1466,7 +1469,7 @@ namespace TDEngine2
 						pGraphicsContext->GenerateMipMaps(destTarget.mTextureHandle);
 					});
 
-				frameGraphBlackboard.mMainRenderTargetHandle = output.mDestTargetHandle;
+				frameGraphBlackboard.mLuminanceTargetHandle = output.mDestTargetHandle;
 			}
 		private:
 			TDE2_STATIC_CONSTEXPR U32 mLuminanceTargetSizes = 1024;
@@ -1478,6 +1481,105 @@ namespace TDEngine2
 
 
 	const std::string CExtractLuminancePostProcessPass::mShaderId = "Shaders/PostEffects/GenerateLuminance.shader";
+
+
+	class CCalcAverageLuminancePostProcessPass : public CBaseRenderPass
+	{
+		public:
+			explicit CCalcAverageLuminancePostProcessPass(const TPassInvokeContext& context) :
+				CBaseRenderPass(context)
+			{
+				mGraphicsPipelineHandle = mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateGraphicsPipelineState(
+					{
+						mShaderId,
+						{},
+						TDepthStencilStateDesc { false, false },
+						{}
+					}
+				).GetOrDefault(TGraphicsPipelineStateId::Invalid);
+
+				mContext.mWindowWidth  = 1;
+				mContext.mWindowHeight = 1;
+			}
+
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, F32 adaptationRate)
+			{
+				struct TPassData
+				{
+					TFrameGraphResourceHandle mOutAvgLuminanceTargetHandle = TFrameGraphResourceHandle::Invalid;
+				};
+
+				auto&& output = pFrameGraph->AddPass<TPassData>("CalcAverageLuminancePostProcessPass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
+					{
+						builder.Read(frameGraphBlackboard.mLuminanceTargetHandle);
+						builder.Read(frameGraphBlackboard.mAvgLuminanceTargetHandle);
+
+						TFrameGraphTexture::TDesc outputTargetParams{};
+
+						outputTargetParams.mWidth  = mContext.mWindowWidth;
+						outputTargetParams.mHeight = mContext.mWindowHeight;
+						outputTargetParams.mFormat = FT_FLOAT1;
+						outputTargetParams.mNumOfMipLevels = 1;
+						outputTargetParams.mNumOfSamples = 1;
+						outputTargetParams.mSamplingQuality = 0;
+						outputTargetParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
+						outputTargetParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+						outputTargetParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET;
+						outputTargetParams.mName = "AverageLuminanceTarget";
+						outputTargetParams.mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+
+						data.mOutAvgLuminanceTargetHandle = builder.Create<TFrameGraphTexture>(outputTargetParams.mName, outputTargetParams);
+						data.mOutAvgLuminanceTargetHandle = builder.Write(data.mOutAvgLuminanceTargetHandle);
+
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					{
+						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
+						auto&& pResourceManager = mContext.mpResourceManager;
+
+						TDE2_PROFILER_SCOPE("CalcAverageLuminancePostProcessPass");
+						TDE_RENDER_SECTION(pGraphicsContext, "CalcAverageLuminancePostProcessPass");
+
+						TFrameGraphTexture& sceneLuminanceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mLuminanceTargetHandle);
+						TFrameGraphTexture& prevLuminanceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mAvgLuminanceTargetHandle);
+						TFrameGraphTexture& currLuminanceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mOutAvgLuminanceTargetHandle);
+						
+						struct
+						{
+							F32 mAdaptationRate;
+						} uniformsData;
+
+						uniformsData.mAdaptationRate = adaptationRate;
+
+						if (auto pShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>(mShaderId)))
+						{
+							pShader->SetUserUniformsBuffer(0, reinterpret_cast<const U8*>(&uniformsData), sizeof(uniformsData));
+						}
+
+						ExecuteFullScreenShader(
+							{
+								mContext.mpGraphicsContext,
+								mContext.mpResourceManager,
+								sceneLuminanceTarget.mTextureHandle,
+								prevLuminanceTarget.mTextureHandle,
+								currLuminanceTarget.mTextureHandle,
+								mGraphicsPipelineHandle,
+								mShaderId,
+								mContext.mWindowWidth,
+								mContext.mWindowHeight
+							});
+					});
+
+				frameGraphBlackboard.mAvgLuminanceTargetHandle = output.mOutAvgLuminanceTargetHandle;
+			}
+		private:
+			static const std::string mShaderId;
+
+			TGraphicsPipelineStateId mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
+	};
+
+
+	const std::string CCalcAverageLuminancePostProcessPass::mShaderId = "Shaders/PostEffects/AdaptLuminance.shader";
+
 
 
 	class CToneMapAndComposePostProcessPass : public CBaseRenderPass
@@ -1559,6 +1661,7 @@ namespace TDEngine2
 	static std::unique_ptr<CVolumetricCloudsComposePass> pVolumetricCloudsComposePass = nullptr;
 	static std::unique_ptr<CLightsHeatmapDebugPostProcessPass> pLightsHeatmapDebugPostProcessPass = nullptr;
 	static std::unique_ptr<CExtractLuminancePostProcessPass> pExtractLuminancePostProcessPass = nullptr;
+	static std::unique_ptr<CCalcAverageLuminancePostProcessPass> pCalcAverageLuminancePostProcessPass = nullptr;
 	static std::unique_ptr<CToneMapAndComposePostProcessPass> pToneMappingComposePostProcessPass = nullptr;
 
 
@@ -1587,6 +1690,16 @@ namespace TDEngine2
 			});
 
 		pExtractLuminancePostProcessPass = std::make_unique<CExtractLuminancePostProcessPass>(
+			TPassInvokeContext
+			{
+				pGraphicsContext,
+				pResourceManager,
+				pGlobalShaderProperties,
+				nullptr,
+				0, 0
+			});
+
+		pCalcAverageLuminancePostProcessPass = std::make_unique<CCalcAverageLuminancePostProcessPass>(
 			TPassInvokeContext
 			{
 				pGraphicsContext,
@@ -3143,6 +3256,7 @@ namespace TDEngine2
 
 			TFrameGraphBlackboard frameGraphBlackboard;
 			frameGraphBlackboard.mBackBufferHandle = mpFrameGraph->ImportResource("BackBuffer", TFrameGraphTexture::TDesc { }, TFrameGraphTexture{ TTextureHandleId::Invalid });
+			frameGraphBlackboard.mAvgLuminanceTargetHandle = mpFrameGraph->ImportResource("AverageLuminanceTarget", TFrameGraphTexture::TDesc { }, TFrameGraphTexture{ TTextureHandleId::Invalid }); // \fixme Little hack to provide prev avg luminance at first frame
 			frameGraphBlackboard.mLightCullingData.mTileFrustumsBufferHandle = mpFrameGraph->ImportResource("TileFrustums", TFrameGraphBuffer::TDesc { }, TFrameGraphBuffer{ mLightGridData.mTileFrustumsBufferHandle });
 			frameGraphBlackboard.mLightCullingData.mLightIndexCountersInitializerBufferHandle = mpFrameGraph->ImportResource("InitialLightIndexCounters", TFrameGraphBuffer::TDesc { }, TFrameGraphBuffer{ mLightGridData.mLightIndexCountersInitializerBufferHandle });
 
@@ -3345,6 +3459,7 @@ namespace TDEngine2
 
 			// \note eye-adaptation pass
 			pExtractLuminancePostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard);
+			pCalcAverageLuminancePostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, 0.5f); // \todo Replace coeff with correct value from post-processing profile
 
 
 			// \todo bloom threshold
