@@ -58,6 +58,8 @@ namespace TDEngine2
 
 	TDE2_DECLARE_BITMASK_OPERATORS_INTERNAL(E_FRAME_RENDER_PARAMS_FLAGS);
 
+	constexpr U32 SUN_LIGHT_SHADOW_MAP_TEXTURE_SLOT = 12;
+	constexpr U32 OMNI_LIGHT_SHADOW_MAP_START_SLOT = 13;
 
 	constexpr U32 TILE_FRUSTUMS_BUFFER_SLOT = 0;
 	constexpr U32 FRUSTUM_TILES_PER_GROUP = 16;
@@ -179,10 +181,11 @@ namespace TDEngine2
 			pGraphicsContext->SetTexture(pShader->GetResourceBindingSlot(FrontFrameTextureUniformId), config.mSourceTarget);
 			pGraphicsContext->SetSampler(pShader->GetResourceBindingSlot(FrontFrameTextureUniformId), linearSamplerHandle);
 
-			if (TTextureHandleId::Invalid != config.mExtraTarget)
+			const U32 extraTextureSlotId = pShader->GetResourceBindingSlot(BackFrameTextureUniformId);
+			if (extraTextureSlotId < std::numeric_limits<U32>::max())
 			{
-				pGraphicsContext->SetTexture(pShader->GetResourceBindingSlot(BackFrameTextureUniformId), config.mExtraTarget);
-				pGraphicsContext->SetSampler(pShader->GetResourceBindingSlot(BackFrameTextureUniformId), linearSamplerHandle);
+				pGraphicsContext->SetTexture(extraTextureSlotId, TTextureHandleId::Invalid != config.mExtraTarget ? config.mExtraTarget : TTextureHandleId::Invalid);
+				pGraphicsContext->SetSampler(extraTextureSlotId, linearSamplerHandle);
 			}
 
 			if (auto pDefaultPositionOnlyVertDeclaration = pGraphicsContext->GetGraphicsObjectManager()->GetDefaultPositionOnlyVertexDeclaration())
@@ -344,7 +347,7 @@ namespace TDEngine2
 					pGraphicsContext->BindDepthBufferTarget(depthBufferTarget.mTextureHandle, true);
 					pGraphicsContext->ClearDepthBuffer(1.0f);
 
-					ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mContext.mpCommandsBuffer, false); // \todo Replace false with true when the graph will be completed
+					ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mContext.mpCommandsBuffer, true);
 
 					pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
 				});
@@ -664,9 +667,9 @@ namespace TDEngine2
 							const TTextureSamplerId linearSamplerHandle = pGraphicsContext->GetGraphicsObjectManager()->GetDefaultTextureSampler(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
 
 							// \todo Refactor access to binding slots values
-							pGraphicsContext->SetTexture(pLightCullShader->GetResourceBindingSlot("OpaqueLightGridTexture"), opaqueLightGridTextureHandle.mTextureHandle);
+							pGraphicsContext->SetTexture(pLightCullShader->GetResourceBindingSlot("OpaqueLightGridTexture"), opaqueLightGridTextureHandle.mTextureHandle, true);
 							pGraphicsContext->SetSampler(pLightCullShader->GetResourceBindingSlot("OpaqueLightGridTexture"), linearSamplerHandle);
-							pGraphicsContext->SetTexture(pLightCullShader->GetResourceBindingSlot("TransparentLightGridTexture"), transparentLightGridTextureHandle.mTextureHandle);
+							pGraphicsContext->SetTexture(pLightCullShader->GetResourceBindingSlot("TransparentLightGridTexture"), transparentLightGridTextureHandle.mTextureHandle, true);
 							pGraphicsContext->SetSampler(pLightCullShader->GetResourceBindingSlot("TransparentLightGridTexture"), linearSamplerHandle);
 							pGraphicsContext->SetTexture(pLightCullShader->GetResourceBindingSlot("DepthTexture"), depthBufferHandle.mTextureHandle);
 							pGraphicsContext->SetSampler(pLightCullShader->GetResourceBindingSlot("DepthTexture"), linearSamplerHandle);
@@ -681,7 +684,9 @@ namespace TDEngine2
 
 						if (pLightCullShader)
 						{
-							pLightCullShader->Unbind();
+							pGraphicsContext->SetTexture(pLightCullShader->GetResourceBindingSlot("OpaqueLightGridTexture"), TTextureHandleId::Invalid, true);
+							pGraphicsContext->SetTexture(pLightCullShader->GetResourceBindingSlot("TransparentLightGridTexture"), TTextureHandleId::Invalid, true);
+							pGraphicsContext->SetTexture(pLightCullShader->GetResourceBindingSlot("DepthTexture"), TTextureHandleId::Invalid);
 						}
 
 						// unbind lights indices buffers
@@ -735,6 +740,7 @@ namespace TDEngine2
 				lightGridTextureParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS;
 				lightGridTextureParams.mName = lightGridTextureName;
 				lightGridTextureParams.mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+				lightGridTextureParams.mIsWriteable = true;
 
 				TFrameGraphResourceHandle lightGridTextureHandle = builder.Create<TFrameGraphTexture>(lightGridTextureName, lightGridTextureParams);
 				lightGridTextureHandle = builder.Write(lightGridTextureHandle);
@@ -810,10 +816,25 @@ namespace TDEngine2
 						TFrameGraphBuffer& opaqueVisibleLightsBuffer = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(lightCullData.mOpaqueVisibleLightsBufferHandle);
 						TFrameGraphTexture& opaqueLightGridTexture = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(lightCullData.mOpaqueLightGridTextureHandle);
 
+						TFrameGraphTexture& sunLightShadowMapTexture = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mSunLightShadowMapHandle);
+
 						pGraphicsContext->SetStructuredBuffer(VISIBLE_LIGHTS_BUFFER_SLOT, opaqueVisibleLightsBuffer.mBufferHandle, false);
 						pGraphicsContext->SetTexture(LIGHT_GRID_TEXTURE_SLOT, opaqueLightGridTexture.mTextureHandle, false);
 
-						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mContext.mpCommandsBuffer, false); // \todo Replace false with true when the graph will be completed
+						const TTextureSamplerId linearSamplerHandle = pGraphicsContext->GetGraphicsObjectManager()->GetDefaultTextureSampler(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
+
+						pGraphicsContext->SetTexture(SUN_LIGHT_SHADOW_MAP_TEXTURE_SLOT, sunLightShadowMapTexture.mTextureHandle, false);
+						pGraphicsContext->SetSampler(SUN_LIGHT_SHADOW_MAP_TEXTURE_SLOT, linearSamplerHandle);
+
+						for (USIZE i = 0; i < frameGraphBlackboard.mOmniLightShadowMapHandles.size(); i++)
+						{
+							TFrameGraphTexture& omniLightShadowMapTexture = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mOmniLightShadowMapHandles[i]);
+
+							pGraphicsContext->SetTexture(OMNI_LIGHT_SHADOW_MAP_START_SLOT + static_cast<U32>(i), omniLightShadowMapTexture.mTextureHandle, false);
+							pGraphicsContext->SetSampler(OMNI_LIGHT_SHADOW_MAP_START_SLOT + static_cast<U32>(i), linearSamplerHandle);
+						}
+
+						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mContext.mpCommandsBuffer, true);
 
 						pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
 						pGraphicsContext->BindRenderTarget(0, TTextureHandleId::Invalid);
@@ -869,7 +890,7 @@ namespace TDEngine2
 						pGraphicsContext->SetStructuredBuffer(VISIBLE_LIGHTS_BUFFER_SLOT, transparentVisibleLightsBuffer.mBufferHandle, false);
 						pGraphicsContext->SetTexture(LIGHT_GRID_TEXTURE_SLOT, transparentLightGridTexture.mTextureHandle, false);
 
-						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mContext.mpCommandsBuffer, false); // \todo Replace false with true when the graph will be completed
+						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mContext.mpCommandsBuffer, true);
 
 						pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
 						pGraphicsContext->BindRenderTarget(0, TTextureHandleId::Invalid);
@@ -915,7 +936,7 @@ namespace TDEngine2
 						pGraphicsContext->BindRenderTarget(0, mainRenderTarget.mTextureHandle);
 						pGraphicsContext->BindDepthBufferTarget(depthBufferTarget.mTextureHandle);
 
-						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mContext.mpCommandsBuffer, false); // \todo Replace false with true when the graph will be completed
+						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mContext.mpCommandsBuffer, true);
 
 						pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
 						pGraphicsContext->BindRenderTarget(0, TTextureHandleId::Invalid);
@@ -961,7 +982,7 @@ namespace TDEngine2
 						pGraphicsContext->BindRenderTarget(0, mainRenderTarget.mTextureHandle);
 						pGraphicsContext->BindDepthBufferTarget(depthBufferTarget.mTextureHandle);
 
-						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mContext.mpCommandsBuffer, false); // \todo Replace false with true when the graph will be completed
+						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mContext.mpCommandsBuffer, true);
 
 						pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
 						pGraphicsContext->BindRenderTarget(0, TTextureHandleId::Invalid);
@@ -1008,6 +1029,7 @@ namespace TDEngine2
 						volumetricCloudsMainBufferParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS;
 						volumetricCloudsMainBufferParams.mName = "VolumetricCloudsMainTarget";
 						volumetricCloudsMainBufferParams.mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+						volumetricCloudsMainBufferParams.mIsWriteable = true;
 
 						data.mVolumetricCloudsMainBufferHandle = builder.Create<TFrameGraphTexture>(volumetricCloudsMainBufferParams.mName, volumetricCloudsMainBufferParams);
 						data.mVolumetricCloudsMainBufferHandle = builder.Write(data.mVolumetricCloudsMainBufferHandle);
@@ -1038,7 +1060,7 @@ namespace TDEngine2
 						
 						if (pVolumetricCloudsRenderPassShader)
 						{
-							pGraphicsContext->SetTexture(pVolumetricCloudsRenderPassShader->GetResourceBindingSlot("OutputTexture"), cloudsMainTarget.mTextureHandle);
+							pGraphicsContext->SetTexture(pVolumetricCloudsRenderPassShader->GetResourceBindingSlot("OutputTexture"), cloudsMainTarget.mTextureHandle, true);
 							pGraphicsContext->SetSampler(pVolumetricCloudsRenderPassShader->GetResourceBindingSlot("OutputTexture"), linearSamplerHandle);
 							pGraphicsContext->SetTexture(pVolumetricCloudsRenderPassShader->GetResourceBindingSlot("DepthTexture"), depthBufferTarget.mTextureHandle);
 							pGraphicsContext->SetSampler(pVolumetricCloudsRenderPassShader->GetResourceBindingSlot("DepthTexture"), linearSamplerHandle);
@@ -1050,7 +1072,10 @@ namespace TDEngine2
 
 							pGraphicsContext->DispatchCompute(textureWidth / 16, textureHeight / 16, 1);
 
-							pVolumetricCloudsRenderPassShader->Unbind();
+							// \note Unbind resources
+							pGraphicsContext->SetTexture(pVolumetricCloudsRenderPassShader->GetResourceBindingSlot("OutputTexture"), TTextureHandleId::Invalid, true);
+							pGraphicsContext->SetTexture(pVolumetricCloudsRenderPassShader->GetResourceBindingSlot("DepthTexture"), TTextureHandleId::Invalid);
+							pGraphicsContext->SetTexture(pVolumetricCloudsRenderPassShader->GetResourceBindingSlot("MainTexture"), TTextureHandleId::Invalid);
 						}
 					});
 
@@ -1092,6 +1117,7 @@ namespace TDEngine2
 						volumetricCloudsFullSizeBufferParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS;
 						volumetricCloudsFullSizeBufferParams.mName = "VolumetricCloudsFulLSizeTarget";
 						volumetricCloudsFullSizeBufferParams.mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+						volumetricCloudsFullSizeBufferParams.mIsWriteable = true;
 
 						data.mVolumetricCloudsFullSizeBufferHandle = builder.Create<TFrameGraphTexture>(volumetricCloudsFullSizeBufferParams.mName, volumetricCloudsFullSizeBufferParams);
 						data.mVolumetricCloudsFullSizeBufferHandle = builder.Write(data.mVolumetricCloudsFullSizeBufferHandle);
@@ -1112,7 +1138,7 @@ namespace TDEngine2
 						auto pVolumetricCloudsUpsampleBlurPassShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>("Shaders/Default/Volumetrics/VolumetricCloudsBlur.cshader")); // \todo Add caching
 						if (pVolumetricCloudsUpsampleBlurPassShader)
 						{
-							pGraphicsContext->SetTexture(pVolumetricCloudsUpsampleBlurPassShader->GetResourceBindingSlot("OutputTexture"), cloudsFullSizeTarget.mTextureHandle);
+							pGraphicsContext->SetTexture(pVolumetricCloudsUpsampleBlurPassShader->GetResourceBindingSlot("OutputTexture"), cloudsFullSizeTarget.mTextureHandle, true);
 							pGraphicsContext->SetSampler(pVolumetricCloudsUpsampleBlurPassShader->GetResourceBindingSlot("OutputTexture"), linearSamplerHandle);
 
 							pGraphicsContext->SetTexture(pVolumetricCloudsUpsampleBlurPassShader->GetResourceBindingSlot("DepthTexture"), depthBufferTarget.mTextureHandle);
@@ -1125,7 +1151,10 @@ namespace TDEngine2
 
 							pGraphicsContext->DispatchCompute(mContext.mWindowWidth / 16, mContext.mWindowHeight / 16, 1);
 
-							pVolumetricCloudsUpsampleBlurPassShader->Unbind();
+							// \note unbind
+							pGraphicsContext->SetTexture(pVolumetricCloudsUpsampleBlurPassShader->GetResourceBindingSlot("OutputTexture"), TTextureHandleId::Invalid, true);
+							pGraphicsContext->SetTexture(pVolumetricCloudsUpsampleBlurPassShader->GetResourceBindingSlot("DepthTexture"), TTextureHandleId::Invalid);
+							pGraphicsContext->SetTexture(pVolumetricCloudsUpsampleBlurPassShader->GetResourceBindingSlot("MainTexture"), TTextureHandleId::Invalid);
 						}
 					});
 
@@ -1256,9 +1285,9 @@ namespace TDEngine2
 						pGraphicsContext->BindRenderTarget(0, uiRenderTarget.mTextureHandle);
 						pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(mContext.mWindowWidth), static_cast<F32>(mContext.mWindowHeight), 0.0f, 1.0f);
 
-						pGraphicsContext->ClearRenderTarget(static_cast<U8>(0), TColorUtils::mBlack);
+						pGraphicsContext->ClearRenderTarget(static_cast<U8>(0), TColor32F(0.0f));
 
-						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mContext.mpCommandsBuffer, false); // \todo Replace false with true when the graph will be completed
+						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mContext.mpCommandsBuffer, true);
 
 						pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
 						pGraphicsContext->BindRenderTarget(0, TTextureHandleId::Invalid);
@@ -1299,7 +1328,7 @@ namespace TDEngine2
 						TDE2_PROFILER_SCOPE("DebugUIRenderPass");
 						TDE_RENDER_SECTION(pGraphicsContext, "DebugUIRenderPass");
 
-						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mContext.mpCommandsBuffer, false); // \todo Replace false with true when the graph will be completed
+						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mContext.mpCommandsBuffer, true);
 					});
 			}
 	};
@@ -1366,6 +1395,8 @@ namespace TDEngine2
 						TFrameGraphTexture& opaqueLightsGridTexture = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mLightCullingData.mOpaqueLightGridTextureHandle);
 						TFrameGraphTexture& sourceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mSourceTargetHandle);
 						TFrameGraphTexture& destTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mDestTargetHandle);
+
+						pGraphicsContext->SetTexture(LIGHT_GRID_TEXTURE_SLOT, opaqueLightsGridTexture.mTextureHandle, false);
 
 						ExecuteFullScreenShader(
 							{
@@ -1927,8 +1958,6 @@ namespace TDEngine2
 
 						const TTextureSamplerId linearSamplerHandle = pGraphicsContext->GetGraphicsObjectManager()->GetDefaultTextureSampler(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
 
-						// \todo Pass color LUT texture
-
 						if (auto pShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>(mShaderId)))
 						{
 							pGraphicsContext->SetTexture(pShader->GetResourceBindingSlot("LuminanceBuffer"), avgLuminanceTarget.mTextureHandle);
@@ -1936,6 +1965,10 @@ namespace TDEngine2
 
 							pGraphicsContext->SetTexture(pShader->GetResourceBindingSlot("UIBuffer"), uiTarget.mTextureHandle);
 							pGraphicsContext->SetSampler(pShader->GetResourceBindingSlot("UIBuffer"), linearSamplerHandle);
+
+							// \todo Pass color LUT texture
+							pGraphicsContext->SetTexture(pShader->GetResourceBindingSlot("ColorGradingLUT"), TTextureHandleId::Invalid);
+							pGraphicsContext->SetSampler(pShader->GetResourceBindingSlot("ColorGradingLUT"), linearSamplerHandle);
 
 							struct
 							{
@@ -3327,6 +3360,7 @@ namespace TDEngine2
 	};
 
 
+#if 0
 	static void RenderShadowCasters(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TResourceId shadowMapHandle, const std::function<void()> action)
 	{
 		const F32 shadowMapSizes = static_cast<F32>(CGameUserSettings::Get()->mpShadowMapSizesCVar->Get());
@@ -3350,7 +3384,6 @@ namespace TDEngine2
 			pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(pWindowSystem->GetWidth()), static_cast<F32>(pWindowSystem->GetHeight()), 0.0f, 1.0f);
 		}
 	}
-
 
 	static E_RESULT_CODE ProcessShadowPass(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties,
 										TPtr<CRenderQueue> pShadowCastersRenderGroup)
@@ -3397,6 +3430,7 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
+#endif
 
 
 #if TDE2_EDITORS_ENABLED
@@ -3430,7 +3464,7 @@ namespace TDEngine2
 
 #endif
 
-
+#if 0
 	static E_RESULT_CODE CullLights(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, const TLightCullingData& lightGridData)
 	{
 		TDE2_PROFILER_SCOPE("LightCulling");
@@ -3478,119 +3512,7 @@ namespace TDEngine2
 
 		return result;
 	}
-
-
-	static inline E_RESULT_CODE RenderMainPasses(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties,
-										TPtr<IFramePostProcessor> pFramePostProcessor, TPtr<CRenderQueue> pRenderQueues[], TLightCullingData& lightGridData)
-	{
-		TDE2_PROFILER_SCOPE("Renderer::RenderAll");
-
-		pFramePostProcessor->PreRender();
-
-		{
-			TDE_RENDER_SECTION(pGraphicsContext, "DepthPrePass");
-
-			pFramePostProcessor->Render([&]
-			{
-				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEPTH_PREPASS)], true);
-			}, E_FRAME_RENDER_PARAMS_FLAGS::BIND_DEPTH_BUFFER);
-		}
-
-		lightGridData.mMainDepthBufferHandle = pFramePostProcessor->GetMainDepthBufferHandle();
-		CullLights(pGraphicsContext, pResourceManager, lightGridData);
-
-		{
-			TDE_RENDER_SECTION(pGraphicsContext, "RenderMainPass");
-
-			pFramePostProcessor->Render([&]
-			{
-				pGraphicsContext->SetStructuredBuffer(VISIBLE_LIGHTS_BUFFER_SLOT, lightGridData.mOpaqueVisibleLightsBufferHandle, false);
-				
-				if (auto pLightGridTexture = pResourceManager->GetResource<ITexture>(lightGridData.mOpaqueLightGridTextureHandle))
-				{
-					pLightGridTexture->SetWriteable(false);
-					pLightGridTexture->Bind(LIGHT_GRID_TEXTURE_SLOT);
-				}
-
-				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, 
-					pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OPAQUE_GEOMETRY)], true); // opaque
-
-				pGraphicsContext->SetStructuredBuffer(VISIBLE_LIGHTS_BUFFER_SLOT, lightGridData.mTransparentVisibleLightsBufferHandle, false);
-
-				if (auto pLightGridTexture = pResourceManager->GetResource<ITexture>(lightGridData.mTransparentLightGridTextureHandle))
-				{
-					pLightGridTexture->SetWriteable(false);
-					pLightGridTexture->Bind(LIGHT_GRID_TEXTURE_SLOT);
-				}
-
-				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, 
-					pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_TRANSPARENT_GEOMETRY)], true); // transparent
-
-				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties,
-					pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SPRITES)], true); // sprites
-
-				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties,
-					pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEBUG)], true); // debug
-			}, E_FRAME_RENDER_PARAMS_FLAGS::BIND_DEPTH_BUFFER | E_FRAME_RENDER_PARAMS_FLAGS::CLEAR_RENDER_TARGET | E_FRAME_RENDER_PARAMS_FLAGS::RENDER_MAIN);
-		}
-
-		if (auto pLightGridTexture = pResourceManager->GetResource<ITexture>(lightGridData.mOpaqueLightGridTextureHandle))
-		{
-			pLightGridTexture->SetWriteable(false);
-			pLightGridTexture->Bind(LIGHT_GRID_TEXTURE_SLOT);
-		}
-
-		return RC_OK;
-	}
-
-
-	static E_RESULT_CODE RenderOverlayAndPostEffects(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties,
-		TPtr<IFramePostProcessor> pFramePostProcessor, TPtr<CRenderQueue> pUIRenderGroup, TPtr<CRenderQueue> pDebugUIRenderGroup)
-	{
-		if (!pUIRenderGroup)
-		{
-			LOG_ERROR("[ForwardRenderer] Invalid \"Overlays\" commands buffer was found");
-			return RC_INVALID_ARGS;
-		}
-
-		{
-			TDE2_PROFILER_SCOPE("CFramePostProcessor::RunPostProcess");
-			TDE_RENDER_SECTION(pGraphicsContext, "PostProcessing");
-
-			pFramePostProcessor->RunPostProcess();
-		}
-
-		{
-			TDE2_PROFILER_SCOPE("Renderer::UI");
-			TDE_RENDER_SECTION(pGraphicsContext, "RenderUI");
-
-			pFramePostProcessor->Render([&] /// Render UI elements
-			{
-				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pUIRenderGroup, true);
-			}, E_FRAME_RENDER_PARAMS_FLAGS::CLEAR_RENDER_TARGET | E_FRAME_RENDER_PARAMS_FLAGS::RENDER_UI);
-		}
-
-		{
-			TDE_RENDER_SECTION(pGraphicsContext, "FinalOutput");
-
-			pFramePostProcessor->PostRender();
-
-			if (pUIRenderGroup->IsEmpty())
-			{
-				return RC_FAIL;
-			}
-
-			pGraphicsContext->ClearDepthBuffer(1.0f);
-			ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pUIRenderGroup, true);
-		}
-
-		{
-			TDE_RENDER_SECTION(pGraphicsContext, "DebugUI");
-			ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pDebugUIRenderGroup, true);
-		}
-
-		return RC_OK;
-	}
+#endif
 
 
 	E_RESULT_CODE CForwardRenderer::Draw(F32 currTime, F32 deltaTime)
@@ -3817,17 +3739,45 @@ namespace TDEngine2
 			pExtractLuminancePostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard);
 			pCalcAverageLuminancePostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, 0.5f); // \todo Replace coeff with correct value from post-processing profile
 
-			// \todo Add support to disable bloom pass
-			// \note bloom threshold
-			pBloomThresholdPostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true, nullptr); // \todo replace with configuration of hdr support
+			const auto& bloomParameters = mpCurrPostProcessingProfile->GetBloomParameters();
+			const auto& toneMappingParameters = mpCurrPostProcessingProfile->GetToneMappingParameters();
 
-			TFrameGraphResourceHandle horizontalBlurTargetHandle = pBlurPostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, frameGraphBlackboard.mBloomThresholdTargetHandle, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true,
-				TVector4(0.0f), 1); // \todo replace with configuration of hdr support
-			TFrameGraphResourceHandle verticalBlurTargetHandle = pBlurPostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, horizontalBlurTargetHandle, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true,
-				TVector4(0.0f, 1.0f, 0.0f, 0.0f), 1); // \todo replace with configuration of hdr support
+			if (mpCurrPostProcessingProfile->IsPostProcessingEnabled() && bloomParameters.mIsEnabled)
+			{
+				// \note bloom threshold
+				pBloomThresholdPostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true, mpCurrPostProcessingProfile); // \todo replace with configuration of hdr support
 
-			pBloomComposePostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, verticalBlurTargetHandle, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true); // \todo replace with configuration of hdr support
+				TFrameGraphResourceHandle horizontalBlurTargetHandle = pBlurPostProcessPass->AddPass(
+					mpFrameGraph, 
+					frameGraphBlackboard, 
+					frameGraphBlackboard.mBloomThresholdTargetHandle, 
+					mpWindowSystem->GetWidth(), 
+					mpWindowSystem->GetHeight(),
+					true,
+					TVector4(
+						bloomParameters.mSmoothness,
+						0.0f, 
+						1.0f / static_cast<F32>(mpWindowSystem->GetWidth()), 
+						1.0f / static_cast<F32>(mpWindowSystem->GetHeight())), 
+					bloomParameters.mSamplesCount); // \todo replace with configuration of hdr support
 
+				TFrameGraphResourceHandle verticalBlurTargetHandle = pBlurPostProcessPass->AddPass(
+					mpFrameGraph, 
+					frameGraphBlackboard, 
+					horizontalBlurTargetHandle,
+					mpWindowSystem->GetWidth(), 
+					mpWindowSystem->GetHeight(), 
+					true,
+					TVector4(
+						bloomParameters.mSmoothness,
+						CMathConstants::Pi * 0.5f,
+						1.0f / static_cast<F32>(mpWindowSystem->GetWidth()),
+						1.0f / static_cast<F32>(mpWindowSystem->GetHeight())),
+					bloomParameters.mSamplesCount); // \todo replace with configuration of hdr support
+
+				pBloomComposePostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, verticalBlurTargetHandle, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true); // \todo replace with configuration of hdr support
+			}
+			
 			// \note ui pass
 			CUIRenderPass
 			{
@@ -3843,7 +3793,7 @@ namespace TDEngine2
 			}.AddPass(mpFrameGraph, frameGraphBlackboard);
 
 			// \note compose pass + tone mapping
-			pToneMappingComposePostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true, nullptr); // \todo replace with configuration of hdr support
+			pToneMappingComposePostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true, mpCurrPostProcessingProfile); // \todo replace with configuration of hdr support
 
 			// \note imgui pass
 			CDebugUIRenderPass
@@ -3863,7 +3813,7 @@ namespace TDEngine2
 			mpFrameGraph->Execute();
 
 #if TDE2_EDITORS_ENABLED
-#if 1
+#if 0
 			{
 				E_RESULT_CODE result = RC_OK;
 				auto pFileStream = TPtr<TDEngine2::IStream>(CreateFileOutputStream("forward_renderer.dot", result));
@@ -3874,25 +3824,11 @@ namespace TDEngine2
 			}
 #endif
 
-			ProcessEditorSelectionBuffer(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpSelectionManager, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)]);
+			//ProcessEditorSelectionBuffer(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpSelectionManager, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)]);
 #endif
-
-			if (CGameUserSettings::Get()->mpIsShadowMappingEnabledCVar->Get())
-			{
-				ProcessShadowPass(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)]);
-			}
-
-			RenderMainPasses(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpFramePostProcessor, mpRenderQueues, mLightGridData);
-
-			{
-				TDE_RENDER_SECTION(mpGraphicsContext, "VolumetricCloudsPass");
-				mpFramePostProcessor->RunVolumetricCloudsPass();
-			}
-
-			RenderOverlayAndPostEffects(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpFramePostProcessor, 
-				mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OVERLAY)],
-				mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEBUG_UI)]);
 		}
+
+		mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)]->Clear();
 
 		{
 			TDE2_BUILTIN_SPEC_PROFILER_EVENT(E_SPECIAL_PROFILE_EVENT::PRESENT);
@@ -3916,11 +3852,7 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		if (!mpFramePostProcessor)
-		{
-			return RC_FAIL;
-		}
-
+		mpCurrPostProcessingProfile = pProfileResource;
 		return mpFramePostProcessor->SetProcessingProfile(pProfileResource);
 	}
 

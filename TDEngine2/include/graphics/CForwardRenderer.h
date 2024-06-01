@@ -210,6 +210,8 @@ namespace TDEngine2
 
 			TPtr<IFramePostProcessor>     mpFramePostProcessor;
 
+			const IPostProcessingProfile* mpCurrPostProcessingProfile;
+
 			ISelectionManager*            mpSelectionManager;
 
 			TLightingShaderData           mCommonLightingData;

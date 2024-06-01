@@ -93,8 +93,9 @@ int getRandomIndex(vec4 seed, int minValue, int maxValue)
 #endif
 
 
-DECLARE_TEX2DARRAY_EX(DirectionalShadowMapTexture, 0);
-DECLARE_CUBETEX_EX(PointLightShadowMapTexture_0, 1);
+DECLARE_TEX2DARRAY_EX(DirectionalShadowMapTexture, 12);
+DECLARE_CUBETEX_EX(PointLightShadowMapTexture_0, 13);
+DECLARE_CUBETEX_EX(PointLightShadowMapTexture_1, 14);
 
 
 int GetSunShadowCascadeIndex(float4 fragViewPos)

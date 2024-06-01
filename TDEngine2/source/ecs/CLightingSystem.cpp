@@ -473,25 +473,6 @@ namespace TDEngine2
 	}
 
 
-	template <typename TRenderable>
-	static void ProcessShadowReceivers(TPtr<IResourceManager> pResourceManager, const std::vector<TRenderable*> shadowReceivers,
-		TPtr<ITexture> pSunLightShadowMap)
-	{
-		// \note Inject shadow map buffer into materials 
-		for (USIZE i = 0; i < shadowReceivers.size(); ++i)
-		{
-			if (TRenderable* pMeshContainer = shadowReceivers[i])
-			{
-				if (auto pMaterial = pResourceManager->GetResource<IMaterial>(pResourceManager->Load<IMaterial>(pMeshContainer->GetMaterialName())))
-				{
-					pMaterial->SetTextureResource("DirectionalShadowMapTexture", pSunLightShadowMap.Get());
-					pMaterial->SetTextureResource("PointLightShadowMapTexture_0", pResourceManager->GetResource<ITexture>(pResourceManager->Load<IDepthBufferTarget>("PointShadowMap0")).Get());
-				}
-			}
-		}
-	}
-
-
 	void CLightingSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		TDE2_PROFILER_SCOPE("CLightingSystem::Update");
@@ -524,16 +505,6 @@ namespace TDEngine2
 			{
 				drawIndex = ProcessSkinnedMeshCasterEntity({ mpResourceManager.Get(), mpSkinnedShadowVertDecl, mShadowPassSkinnedMaterialHandle, drawIndex, mpShadowPassRenderQueue }, mSkinnedShadowCastersContext, i);
 			}
-		}
-
-		if (CGameUserSettings::Get()->mpIsShadowMappingEnabledCVar->Get())
-		{
-			TDE2_PROFILER_SCOPE("CLightingSystem::ProcessShadowReceivers");
-
-			auto pShadowMapTexture = mpResourceManager->GetResource<ITexture>(mpResourceManager->Load<IDepthBufferTarget>("ShadowMap"));
-
-			ProcessShadowReceivers(mpResourceManager, std::get<std::vector<CStaticMeshContainer*>>(mStaticShadowReceiversContext.mComponentsSlice), pShadowMapTexture);
-			ProcessShadowReceivers(mpResourceManager, std::get<std::vector<CSkinnedMeshContainer*>>(mSkinnedShadowReceiversContext.mComponentsSlice), pShadowMapTexture);
 		}
 	}
 
