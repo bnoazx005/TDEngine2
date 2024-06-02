@@ -42,16 +42,7 @@ namespace TDEngine2
 		U32              mWorkGroupsX = 0;
 		U32              mWorkGroupsY = 0;
 
-		TResourceId      mMainDepthBufferHandle = TResourceId::Invalid;
-
-		TResourceId      mOpaqueLightGridTextureHandle;
-		TBufferHandleId  mOpaqueVisibleLightsBufferHandle;
-
-		TResourceId      mTransparentLightGridTextureHandle;
-		TBufferHandleId  mTransparentVisibleLightsBufferHandle;
-
 		TBufferHandleId  mTileFrustumsBufferHandle;
-		TBufferHandleId  mLightIndexCountersBufferHandle;
 		TBufferHandleId  mLightIndexCountersInitializerBufferHandle;
 
 		bool             mIsTileFrustumsInitialized = false;

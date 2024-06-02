@@ -598,7 +598,7 @@ namespace TDEngine2
 						builder.Read(frameGraphBlackboard.mDepthBufferHandle);
 						builder.Read(frameGraphBlackboard.mLightsBufferHandle);
 						builder.Read(lightCullingData.mTileFrustumsBufferHandle);
-						builder.Read(lightCullingData.mLightIndexCountersInitializerBufferHandle);
+						data.mLightIndexCountersInitializerBufferHandle = builder.Read(lightCullingData.mLightIndexCountersInitializerBufferHandle);
 
 						if (auto opaqueLightCullingStructsResult = _initLightGridAndBuffer(mContext, builder, workGroupsX, workGroupsY, "OpaqueVisibleLightsBuffer", "OpaqueLightGridTexture"))
 						{
@@ -634,11 +634,15 @@ namespace TDEngine2
 						TDE_RENDER_SECTION(pGraphicsContext, "LightCullingPass");
 
 						E_RESULT_CODE result = RC_OK;
+
 						defer([&result] { TDE2_ASSERT(RC_OK == result); });
 
 						TFrameGraphBuffer& opaqueVisibleLightsBuffer = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(data.mOpaqueVisibleLightsBufferHandle);
 						TFrameGraphBuffer& transparentVisibleLightsBuffer = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(data.mTransparentVisibleLightsBufferHandle);
 						TFrameGraphBuffer& lightIndexCountersBufferHandle = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(data.mLightIndexCountersBufferHandle);
+						TFrameGraphBuffer& lightIndexInitCountersBufferHandle = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(data.mLightIndexCountersInitializerBufferHandle);
+						
+						result = result | pGraphicsContext->CopyResource(lightIndexInitCountersBufferHandle.mBufferHandle, lightIndexCountersBufferHandle.mBufferHandle);
 
 						//// \note Cull lighting shader
 						result = result | pGraphicsContext->SetStructuredBuffer(OPAQUE_VISIBLE_LIGHTS_BUFFER_SLOT, opaqueVisibleLightsBuffer.mBufferHandle, true);
@@ -3151,31 +3155,6 @@ namespace TDEngine2
 		data.mWorkGroupsX = (width + (width % LIGHT_GRID_TILE_BLOCK_SIZE)) / LIGHT_GRID_TILE_BLOCK_SIZE;
 		data.mWorkGroupsY = (height + (height % LIGHT_GRID_TILE_BLOCK_SIZE)) / LIGHT_GRID_TILE_BLOCK_SIZE;
 
-		auto opaqueLightCullingStructsResult = InitLightGridAndBuffer(params, data.mWorkGroupsX, data.mWorkGroupsY, "_OpaqueObjects");
-		if (opaqueLightCullingStructsResult.HasError())
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(opaqueLightCullingStructsResult.GetError());
-		}
-		
-		std::tie(data.mOpaqueLightGridTextureHandle, data.mOpaqueVisibleLightsBufferHandle) = opaqueLightCullingStructsResult.Get();
-
-		auto transparentLightCullingStructsResult = InitLightGridAndBuffer(params, data.mWorkGroupsX, data.mWorkGroupsY, "_TransparentObjects");
-		if (transparentLightCullingStructsResult.HasError())
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(transparentLightCullingStructsResult.GetError());
-		}
-
-		std::tie(data.mTransparentLightGridTextureHandle, data.mTransparentVisibleLightsBufferHandle) = transparentLightCullingStructsResult.Get();
-
-		// \note Create buffer for light index counters
-		auto lightIndexCountersCreateResult = CreateLightIndexCountersBuffer(graphicsObjectManager);
-		if (lightIndexCountersCreateResult.HasError())
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(lightIndexCountersCreateResult.GetError());
-		}
-
-		data.mLightIndexCountersBufferHandle = lightIndexCountersCreateResult.Get();
-
 		// \note Create buffer for initialization of mLightIndexCountersBuffer buffer on per frame basis
 		auto lightIndexCountersInitializerCreateResult = CreateLightIndexCountersBuffer(graphicsObjectManager, true, "LightIndexCountersInitial");
 		if (lightIndexCountersInitializerCreateResult.HasError())
@@ -3908,13 +3887,6 @@ namespace TDEngine2
 		
 		E_RESULT_CODE result = RC_OK;
 		
-		if (TBufferHandleId::Invalid != mLightGridData.mOpaqueVisibleLightsBufferHandle)
-		{
-			result = result | pGraphicsObjectManager->DestroyBuffer(mLightGridData.mOpaqueVisibleLightsBufferHandle);
-			result = result | pGraphicsObjectManager->DestroyBuffer(mLightGridData.mTransparentVisibleLightsBufferHandle);
-			result = result | pGraphicsObjectManager->DestroyBuffer(mLightGridData.mLightIndexCountersBufferHandle);
-		}
-
 		// \todo Later move into Draw method and set only the flag here to invoke the update
 		TRareUpdateShaderData rareUpdatedData{ mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight() };
 		mpGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_RARE_UDATED, reinterpret_cast<const U8*>(&rareUpdatedData), sizeof(rareUpdatedData));
