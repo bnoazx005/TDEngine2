@@ -2039,85 +2039,23 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		pVolumetricCloudsComposePass = std::make_unique<CVolumetricCloudsComposePass>(
-			TPassInvokeContext
-			{
-				pGraphicsContext,
-				pResourceManager,
-				pGlobalShaderProperties,
-				nullptr,
-				0, 0
-			});
+		TPassInvokeContext passConfig
+		{
+			pGraphicsContext,
+			pResourceManager,
+			pGlobalShaderProperties,
+			nullptr,
+			0, 0
+		};
 
-		pLightsHeatmapDebugPostProcessPass = std::make_unique<CLightsHeatmapDebugPostProcessPass>(
-			TPassInvokeContext
-			{
-				pGraphicsContext,
-				pResourceManager,
-				pGlobalShaderProperties,
-				nullptr,
-				0, 0
-			});
-
-		pExtractLuminancePostProcessPass = std::make_unique<CExtractLuminancePostProcessPass>(
-			TPassInvokeContext
-			{
-				pGraphicsContext,
-				pResourceManager,
-				pGlobalShaderProperties,
-				nullptr,
-				0, 0
-			});
-
-		pCalcAverageLuminancePostProcessPass = std::make_unique<CCalcAverageLuminancePostProcessPass>(
-			TPassInvokeContext
-			{
-				pGraphicsContext,
-				pResourceManager,
-				pGlobalShaderProperties,
-				nullptr,
-				0, 0
-			});
-
-		pBloomThresholdPostProcessPass = std::make_unique<CBloomThresholdPostProcessPass>(
-			TPassInvokeContext
-			{
-				pGraphicsContext,
-				pResourceManager,
-				pGlobalShaderProperties,
-				nullptr,
-				0, 0
-			});
-
-		pBloomComposePostProcessPass = std::make_unique<CBloomComposePostProcessPass>(
-			TPassInvokeContext
-			{
-				pGraphicsContext,
-				pResourceManager,
-				pGlobalShaderProperties,
-				nullptr,
-				0, 0
-			});
-
-		pBlurPostProcessPass = std::make_unique<CBlurPostProcessPass>(
-			TPassInvokeContext
-			{
-				pGraphicsContext,
-				pResourceManager,
-				pGlobalShaderProperties,
-				nullptr,
-				0, 0
-			});
-
-		pToneMappingComposePostProcessPass = std::make_unique<CToneMapAndComposePostProcessPass>(
-			TPassInvokeContext
-			{
-				pGraphicsContext,
-				pResourceManager,
-				pGlobalShaderProperties,
-				nullptr,
-				0, 0
-			});
+		pVolumetricCloudsComposePass = std::make_unique<CVolumetricCloudsComposePass>(passConfig);
+		pLightsHeatmapDebugPostProcessPass = std::make_unique<CLightsHeatmapDebugPostProcessPass>(passConfig);
+		pExtractLuminancePostProcessPass = std::make_unique<CExtractLuminancePostProcessPass>(passConfig);
+		pCalcAverageLuminancePostProcessPass = std::make_unique<CCalcAverageLuminancePostProcessPass>(passConfig);
+		pBloomThresholdPostProcessPass = std::make_unique<CBloomThresholdPostProcessPass>(passConfig);
+		pBloomComposePostProcessPass = std::make_unique<CBloomComposePostProcessPass>(passConfig);
+		pBlurPostProcessPass = std::make_unique<CBlurPostProcessPass>(passConfig);
+		pToneMappingComposePostProcessPass = std::make_unique<CToneMapAndComposePostProcessPass>(passConfig);
 
 		return result;
 	}
@@ -2956,83 +2894,6 @@ namespace TDEngine2
 	}
 
 
-	static TResult<TResourceId> GetOrCreateDirectionalShadowMap(TPtr<IResourceManager> pResourceManager)
-	{
-		const U32 shadowMapSizes = static_cast<U32>(CGameUserSettings::Get()->mpShadowMapSizesCVar->Get());
-		TDE2_ASSERT(shadowMapSizes > 0 && shadowMapSizes < 65536);
-
-		TRenderTargetParameters shadowMapParams;
-		shadowMapParams.mWidth = shadowMapSizes;
-		shadowMapParams.mHeight = shadowMapSizes;
-		shadowMapParams.mFormat = FT_D32;
-		shadowMapParams.mNumOfMipLevels = 1;
-		shadowMapParams.mNumOfSamples = 1;
-		shadowMapParams.mSamplingQuality = 0;
-		shadowMapParams.mType = TRenderTargetParameters::E_TARGET_TYPE::TEXTURE2D_ARRAY;
-		shadowMapParams.mArraySize = CGameUserSettings::Get()->mpShadowCascadesCountCVar->Get();
-
-		const TResourceId shadowMapHandle = pResourceManager->Create<IDepthBufferTarget>("ShadowMap", shadowMapParams);
-		if (shadowMapHandle == TResourceId::Invalid)
-		{
-			TDE2_ASSERT(false);
-			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
-		}
-
-		if (auto pShadowMapBuffer = pResourceManager->GetResource<IDepthBufferTarget>(shadowMapHandle))
-		{
-			pShadowMapBuffer->SetUWrapMode(E_ADDRESS_MODE_TYPE::AMT_CLAMP);
-			pShadowMapBuffer->SetVWrapMode(E_ADDRESS_MODE_TYPE::AMT_CLAMP);
-			pShadowMapBuffer->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
-
-			if (pShadowMapBuffer->GetWidth() != shadowMapSizes)
-			{
-				LOG_MESSAGE(Wrench::StringUtils::Format("[CForwardRenderer] The shadow map sizes has been changed, from {0}x{0} to {1}x{1}", pShadowMapBuffer->GetWidth(), shadowMapSizes));
-				pShadowMapBuffer->Resize(shadowMapSizes, shadowMapSizes);
-			}
-		}
-
-		return Wrench::TOkValue<TResourceId>(shadowMapHandle);
-	}
-
-
-	static TResult<TResourceId> GetOrCreatePointShadowMap(TPtr<IResourceManager> pResourceManager, USIZE pointLightIndex)
-	{
-		const U32 shadowMapSizes = static_cast<U32>(CGameUserSettings::Get()->mpShadowMapSizesCVar->Get());
-		TDE2_ASSERT(shadowMapSizes > 0 && shadowMapSizes < 65536);
-
-		TRenderTargetParameters shadowMapParams;
-		shadowMapParams.mWidth = shadowMapSizes;
-		shadowMapParams.mHeight = shadowMapSizes;
-		shadowMapParams.mFormat = FT_D32;
-		shadowMapParams.mNumOfMipLevels = 1;
-		shadowMapParams.mNumOfSamples = 1;
-		shadowMapParams.mSamplingQuality = 0;
-		shadowMapParams.mType = TRenderTargetParameters::E_TARGET_TYPE::CUBEMAP;
-
-		const TResourceId shadowMapHandle = pResourceManager->Create<IDepthBufferTarget>("PointShadowMap" + std::to_string(pointLightIndex), shadowMapParams);
-		if (shadowMapHandle == TResourceId::Invalid)
-		{
-			TDE2_ASSERT(false);
-			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
-		}
-
-		if (auto pShadowMapBuffer = pResourceManager->GetResource<IDepthBufferTarget>(shadowMapHandle))
-		{
-			pShadowMapBuffer->SetUWrapMode(E_ADDRESS_MODE_TYPE::AMT_CLAMP);
-			pShadowMapBuffer->SetVWrapMode(E_ADDRESS_MODE_TYPE::AMT_CLAMP);
-			pShadowMapBuffer->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
-
-			if (pShadowMapBuffer->GetWidth() != shadowMapSizes)
-			{
-				LOG_MESSAGE(Wrench::StringUtils::Format("[CForwardRenderer] The shadow map sizes has been changed, from {0}x{0} to {1}x{1}", pShadowMapBuffer->GetWidth(), shadowMapSizes));
-				pShadowMapBuffer->Resize(shadowMapSizes, shadowMapSizes);
-			}
-		}
-
-		return Wrench::TOkValue<TResourceId>(shadowMapHandle);
-	}
-
-
 	static E_RESULT_CODE PrepareTileFrustums(const TLightCullingData& data, TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager)
 	{
 		E_RESULT_CODE result = RC_OK;
@@ -3061,58 +2922,6 @@ namespace TDEngine2
 		result = result | pGraphicsContext->SetStructuredBuffer(TILE_FRUSTUMS_BUFFER_SLOT, TBufferHandleId::Invalid, true);
 
 		return result;
-	}
-
-
-	static TResult<std::tuple<TResourceId, TBufferHandleId>> InitLightGridAndBuffer(const TRendererInitParams& params, U32 workGroupsX, U32 workGroupsY, const std::string& prefix)
-	{
-		auto&& graphicsObjectManager = params.mpGraphicsContext->GetGraphicsObjectManager();
-
-		const U32 tilesCount = workGroupsX * workGroupsY;
-		const USIZE bufferSize = sizeof(U32) * tilesCount * MAX_LIGHTS_PER_TILE_BLOCK;
-
-		// \note Create lights indices buffer
-		auto createBufferResult = graphicsObjectManager->CreateBuffer(
-			{
-				E_BUFFER_USAGE_TYPE::DEFAULT,
-				E_BUFFER_TYPE::STRUCTURED,
-				bufferSize,
-				nullptr,
-				bufferSize,
-				true,
-				sizeof(U32),
-				E_STRUCTURED_BUFFER_TYPE::DEFAULT
-			});
-
-		if (createBufferResult.HasError())
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(createBufferResult.GetError());
-		}
-
-		// \note Create the light grid's texture
-		TTexture2DParameters lightGridTextureParams
-		{
-			workGroupsX,
-			workGroupsY,
-			FT_UINT2, 1, 1, 0
-		};
-		lightGridTextureParams.mIsWriteable = true;
-
-		TResourceId lightGridHandle = params.mpResourceManager->Create<ITexture2D>("LightGridTexture" + prefix, lightGridTextureParams);
-		if (auto pTexture = params.mpResourceManager->GetResource<ITexture2D>(lightGridHandle))
-		{
-			pTexture->SetFilterType(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
-			pTexture->SetUWrapMode(E_ADDRESS_MODE_TYPE::AMT_WRAP);
-			pTexture->SetVWrapMode(E_ADDRESS_MODE_TYPE::AMT_WRAP);
-			pTexture->SetWWrapMode(E_ADDRESS_MODE_TYPE::AMT_WRAP);
-
-			if (pTexture->GetWidth() != workGroupsX || pTexture->GetHeight() != workGroupsY)
-			{
-				pTexture->Resize(workGroupsX, workGroupsY);
-			}
-		}
-
-		return Wrench::TOkValue<std::tuple<TResourceId, TBufferHandleId>>(std::make_tuple(lightGridHandle, createBufferResult.Get()));
 	}
 
 
@@ -3267,12 +3076,6 @@ namespace TDEngine2
 		}
 
 		mpDebugUtility = debugUtilityResult.Get();
-
-		if (CGameUserSettings::Get()->mpIsShadowMappingEnabledCVar->Get())
-		{
-			GetOrCreateDirectionalShadowMap(mpResourceManager).Get(); /// \note Create a shadow map's texture before any Update will be executed
-			GetOrCreatePointShadowMap(mpResourceManager, 0).Get();
-		}
 
 		mpFramePostProcessor = TPtr<IFramePostProcessor>(CreateFramePostProcessor({ this, mpGraphicsContext->GetGraphicsObjectManager(), mpWindowSystem.Get() }, result));
 		if (result != RC_OK)
