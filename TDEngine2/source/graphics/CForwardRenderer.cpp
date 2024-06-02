@@ -118,6 +118,7 @@ namespace TDEngine2
 		TFrameGraphResourceHandle              mAvgLuminanceTargetHandle = TFrameGraphResourceHandle::Invalid;
 
 		TFrameGraphResourceHandle              mBloomThresholdTargetHandle = TFrameGraphResourceHandle::Invalid;
+		TFrameGraphResourceHandle              mColorGradingLUTHandle = TFrameGraphResourceHandle::Invalid;
 	};
 
 
@@ -1940,6 +1941,11 @@ namespace TDEngine2
 						builder.Read(frameGraphBlackboard.mUIRenderTargetHandle);
 						builder.Read(frameGraphBlackboard.mAvgLuminanceTargetHandle);
 
+						if (pCurrPostProcessProfile && pCurrPostProcessProfile->GetColorGradingParameters().mIsEnabled)
+						{
+							builder.Read(frameGraphBlackboard.mColorGradingLUTHandle);
+						}
+
 						data.mSourceTargetHandle = builder.Read(frameGraphBlackboard.mMainRenderTargetHandle);
 						data.mDestTargetHandle = builder.Write(frameGraphBlackboard.mBackBufferHandle);
 
@@ -1955,6 +1961,7 @@ namespace TDEngine2
 						TFrameGraphTexture& avgLuminanceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mAvgLuminanceTargetHandle);
 						TFrameGraphTexture& sourceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mSourceTargetHandle);
 						TFrameGraphTexture& destTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mDestTargetHandle);
+						TFrameGraphTexture& colorGradingLUTTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mColorGradingLUTHandle);
 
 						const TTextureSamplerId linearSamplerHandle = pGraphicsContext->GetGraphicsObjectManager()->GetDefaultTextureSampler(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
 
@@ -1967,7 +1974,7 @@ namespace TDEngine2
 							pGraphicsContext->SetSampler(pShader->GetResourceBindingSlot("UIBuffer"), linearSamplerHandle);
 
 							// \todo Pass color LUT texture
-							pGraphicsContext->SetTexture(pShader->GetResourceBindingSlot("ColorGradingLUT"), TTextureHandleId::Invalid);
+							pGraphicsContext->SetTexture(pShader->GetResourceBindingSlot("ColorGradingLUT"), colorGradingLUTTarget.mTextureHandle);
 							pGraphicsContext->SetSampler(pShader->GetResourceBindingSlot("ColorGradingLUT"), linearSamplerHandle);
 
 							struct
@@ -3534,6 +3541,12 @@ namespace TDEngine2
 
 			TFrameGraphBlackboard frameGraphBlackboard;
 			frameGraphBlackboard.mBackBufferHandle = mpFrameGraph->ImportResource("BackBuffer", TFrameGraphTexture::TDesc { }, TFrameGraphTexture{ TTextureHandleId::Invalid });
+			
+			if (auto pColorLUT = mpResourceManager->GetResource<ITexture2D>(mpResourceManager->Load<ITexture2D>(mpCurrPostProcessingProfile->GetColorGradingParameters().mLookUpTextureId)))
+			{
+				frameGraphBlackboard.mColorGradingLUTHandle = mpFrameGraph->ImportResource("ColorGradingLUT", TFrameGraphTexture::TDesc{ }, TFrameGraphTexture{ pColorLUT->GetHandle() });
+			}
+			
 			frameGraphBlackboard.mAvgLuminanceTargetHandle = mpFrameGraph->ImportResource("AverageLuminanceTarget", TFrameGraphTexture::TDesc { }, TFrameGraphTexture{ TTextureHandleId::Invalid }); // \fixme Little hack to provide prev avg luminance at first frame
 			frameGraphBlackboard.mLightCullingData.mTileFrustumsBufferHandle = mpFrameGraph->ImportResource("TileFrustums", TFrameGraphBuffer::TDesc { }, TFrameGraphBuffer{ mLightGridData.mTileFrustumsBufferHandle });
 			frameGraphBlackboard.mLightCullingData.mLightIndexCountersInitializerBufferHandle = mpFrameGraph->ImportResource("InitialLightIndexCounters", TFrameGraphBuffer::TDesc { }, TFrameGraphBuffer{ mLightGridData.mLightIndexCountersInitializerBufferHandle });
