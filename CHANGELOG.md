@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The API of **IGraphicsContext** was extended with a new method GenerateMipMaps.
 
+- Now the renderer is working via frame graph.
+
 ### Changed
 
 - The predefined slots for internal lighting shader data were changed.

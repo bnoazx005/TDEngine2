@@ -59,17 +59,16 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init(TPtr<IResourceManager> pResourceManager, TPtr<IWindowSystem> pWindowSystem, TPtr<IGraphicsContext> pGraphicsContext, IEditorsManager* pEditorsManager) override;
-
+			
 			/*!
-				\brief The method builds so called selection map which is a render target that contains
-				information about which object occupies each pixel of the screen
+				\brief The method is used to update internal selection buffer based on incoming texture with selectables data
 
-				\param[in] onDrawVisibleObjectsCallback A callback in which all visible objects should be drawn
+				\param[in] newSelectionMapHandle A handle that point to ITexture2D instance that hold all the on-screen objects that can be selected
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE BuildSelectionMap(const TRenderFrameCallback& onDrawVisibleObjectsCallback) override;
+			TDE2_API E_RESULT_CODE UpdateSelectionsBuffer(TTextureHandleId newSelectionMapHandle) override;
 
 			/*!
 				\brief The method receives a given event and processes it

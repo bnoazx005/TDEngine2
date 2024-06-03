@@ -9,6 +9,7 @@
 #include "../../include/core/IEventManager.h"
 #include "../../include/graphics/CBaseRenderTarget.h"
 #include "../../include/graphics/CBaseTexture2D.h"
+#include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/core/IWindowSystem.h"
 #include "../../include/core/IGraphicsContext.h"
 #include <functional>
@@ -60,33 +61,25 @@ namespace TDEngine2
 		return mpResourceManager->ReleaseResource(mSelectionGeometryBufferHandle);
 	}
 
-	E_RESULT_CODE CSelectionManager::BuildSelectionMap(const TRenderFrameCallback& onDrawVisibleObjectsCallback)
+	E_RESULT_CODE CSelectionManager::UpdateSelectionsBuffer(TTextureHandleId newSelectionMapHandle)
 	{
 		if (!mpEditorsManager->IsEditorModeEnabled())
 		{
 			return RC_OK;
 		}
 
-		TPtr<IRenderTarget> pCurrRenderTarget = mpResourceManager->GetResource<IRenderTarget>(mSelectionGeometryBufferHandle);
-
-		mpGraphicsContext->BindRenderTarget(0, pCurrRenderTarget.Get());
-
-		mpGraphicsContext->ClearDepthBuffer(1.0f);
-		mpGraphicsContext->ClearRenderTarget(pCurrRenderTarget.Get(), TColor32F(0.0f, 0.0f, 0.0f, 0.0f));
-
-		mpGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(pCurrRenderTarget->GetWidth()), static_cast<F32>(pCurrRenderTarget->GetHeight()), 0.0f, 1.0f);
-
-		if (onDrawVisibleObjectsCallback)
+		if (TTextureHandleId::Invalid == newSelectionMapHandle)
 		{
-			onDrawVisibleObjectsCallback();
+			return RC_INVALID_ARGS;
 		}
 
 		ITexture2D* pReadableRTCopyTexture = mpResourceManager->GetResource<ITexture2D>(mReadableSelectionBufferHandle).Get();
-		pCurrRenderTarget->Blit(pReadableRTCopyTexture);
+		if (!pReadableRTCopyTexture)
+		{
+			return RC_FAIL;
+		}
 
-		mpGraphicsContext->BindRenderTarget(0, nullptr);
-
-		return RC_OK;
+		return mpGraphicsContext->CopyResource(newSelectionMapHandle, pReadableRTCopyTexture->GetHandle());
 	}
 
 	TEntityId CSelectionManager::PickObject(const TVector2& position)

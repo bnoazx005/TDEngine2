@@ -97,6 +97,10 @@ namespace TDEngine2
 
 	struct TFrameGraphBlackboard // \todo For now just use hardcoded struct with fields instead of special storage type
 	{
+#if TDE2_EDITORS_ENABLED
+		TFrameGraphResourceHandle              mSelectionMapTargetHandle = TFrameGraphResourceHandle::Invalid;
+#endif
+
 		TFrameGraphResourceHandle              mBackBufferHandle = TFrameGraphResourceHandle::Invalid;
 
 		TFrameGraphResourceHandle              mMainRenderTargetHandle = TFrameGraphResourceHandle::Invalid;
@@ -226,52 +230,41 @@ namespace TDEngine2
 
 #if TDE2_EDITORS_ENABLED
 
-	class CRenderSelectionBufferPass
+	class CRenderSelectionBufferPass : public CBaseRenderPass
 	{
 		public:
-			struct TAddPassInvokeParams
+			explicit CRenderSelectionBufferPass(const TPassInvokeContext& context) :
+				CBaseRenderPass(context)
 			{
-				TPtr<IGraphicsContext>        mpGraphicsContext = nullptr;
-				TPtr<IResourceManager>        mpResourceManager = nullptr;
-				TPtr<IGlobalShaderProperties> mpGlobalShaderProperties = nullptr;
-				TPtr<CRenderQueue>            mpCommandsBuffer = nullptr;
+			}
 
-				U32                           mWindowWidth = 0;
-				U32                           mWindowHeight = 0;
-			};
-
-		public:
-			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, const TAddPassInvokeParams& context)
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, ISelectionManager* pSelectionManager)
 			{
-				constexpr const C8* SELECTION_BUFFER_PASS_ID = "SelectionBuffer";
-
 				struct TPassData
 				{
-					TFrameGraphResourceHandle mDepthBufferHandle = TFrameGraphResourceHandle::Invalid;
+					TFrameGraphResourceHandle mSelectionMapTargetHandle = TFrameGraphResourceHandle::Invalid;
 				};
 
 				auto&& output = pFrameGraph->AddPass<TPassData>("RenderSelectionBuffer", [&](CFrameGraphBuilder& builder, TPassData& data)
 					{
-						/*TFrameGraphTexture::TDesc depthBufferParams{};
+						TFrameGraphTexture::TDesc selectionMapTargetParams{};
 
-						depthBufferParams.mWidth = context.mWindowWidth;
-						depthBufferParams.mHeight = context.mWindowHeight;
-						depthBufferParams.mFormat = FT_D32;
-						depthBufferParams.mNumOfMipLevels = 1;
-						depthBufferParams.mNumOfSamples = 1;
-						depthBufferParams.mSamplingQuality = 0;
-						depthBufferParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
-						depthBufferParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
-						depthBufferParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER;
-						depthBufferParams.mName = SELECTION_BUFFER_PASS_ID;
-						depthBufferParams.mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+						selectionMapTargetParams.mWidth = mContext.mWindowWidth;
+						selectionMapTargetParams.mHeight = mContext.mWindowHeight;
+						selectionMapTargetParams.mFormat = FT_UINT1;
+						selectionMapTargetParams.mNumOfMipLevels = 1;
+						selectionMapTargetParams.mNumOfSamples = 1;
+						selectionMapTargetParams.mSamplingQuality = 0;
+						selectionMapTargetParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
+						selectionMapTargetParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+						selectionMapTargetParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET;
+						selectionMapTargetParams.mName = "SelectionMapTarget";
+						selectionMapTargetParams.mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
 
-						data.mDepthBufferHandle = builder.Create<TFrameGraphTexture>(SELECTION_BUFFER_PASS_ID, depthBufferParams);
-						data.mDepthBufferHandle = builder.Write(data.mDepthBufferHandle);
+						data.mSelectionMapTargetHandle = builder.Create<TFrameGraphTexture>(selectionMapTargetParams.mName, selectionMapTargetParams);
+						data.mSelectionMapTargetHandle = builder.Write(data.mSelectionMapTargetHandle);
 
-						TDE2_ASSERT(data.mDepthBufferHandle != TFrameGraphResourceHandle::Invalid);*/
-
-						builder.MarkAsPersistent(); // TODO remove when the whole graph will be provided
+						builder.MarkAsPersistent(); // Mark as persistent because the output of the pass isn't used in other passes of the graph
 					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
 					{
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
@@ -279,20 +272,23 @@ namespace TDEngine2
 						TDE2_PROFILER_SCOPE("RenderSelectionBuffer");
 						TDE_RENDER_SECTION(pGraphicsContext, "RenderSelectionBuffer");
 
-						//ProcessEditorSelectionBuffer(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpSelectionManager, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)]);
+						TFrameGraphTexture& selectionMapTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mSelectionMapTargetHandle);
 
-						//TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mDepthBufferHandle);
+						pGraphicsContext->SetDepthBufferEnabled(false);
+						pGraphicsContext->BindRenderTarget(0, selectionMapTarget.mTextureHandle);
+						pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(mContext.mWindowWidth), static_cast<F32>(mContext.mWindowHeight), 0.0f, 1.0f);
 
-						//pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(context.mWindowWidth), static_cast<F32>(context.mWindowHeight), 0.0f, 1.0f);
-						//pGraphicsContext->BindDepthBufferTarget(depthBufferTarget.mTextureHandle, true);
-						//pGraphicsContext->ClearDepthBuffer(1.0f);
+						pGraphicsContext->ClearRenderTarget(static_cast<U8>(0), TColor32F(0.0f));
 
-						//ExecuteDrawCommands(pGraphicsContext, context.mpResourceManager, context.mpGlobalShaderProperties, context.mpCommandsBuffer, false); // \todo Replace false with true when the graph will be completed
+						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mContext.mpCommandsBuffer, true);
 
-						//pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
+						pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
+						pGraphicsContext->BindRenderTarget(0, TTextureHandleId::Invalid);
+
+						pSelectionManager->UpdateSelectionsBuffer(selectionMapTarget.mTextureHandle);
 					});
 
-				frameGraphBlackboard.mDepthBufferHandle = output.mDepthBufferHandle;
+				frameGraphBlackboard.mSelectionMapTargetHandle = output.mSelectionMapTargetHandle;
 			}
 	};
 
@@ -3164,161 +3160,6 @@ namespace TDEngine2
 	};
 
 
-#if 0
-	static void RenderShadowCasters(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TResourceId shadowMapHandle, const std::function<void()> action)
-	{
-		const F32 shadowMapSizes = static_cast<F32>(CGameUserSettings::Get()->mpShadowMapSizesCVar->Get());
-
-		pGraphicsContext->SetViewport(0.0f, 0.0f, shadowMapSizes, shadowMapSizes, 0.0f, 1.0f);
-		{
-			pGraphicsContext->BindDepthBufferTarget(pResourceManager->GetResource<IDepthBufferTarget>(shadowMapHandle).Get(), true);
-
-			pGraphicsContext->ClearDepthBuffer(1.0f);
-
-			if (action)
-			{
-				action();
-			}
-
-			pGraphicsContext->BindDepthBufferTarget(nullptr);
-		}
-
-		if (auto pWindowSystem = pGraphicsContext->GetWindowSystem())
-		{
-			pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(pWindowSystem->GetWidth()), static_cast<F32>(pWindowSystem->GetHeight()), 0.0f, 1.0f);
-		}
-	}
-
-	static E_RESULT_CODE ProcessShadowPass(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties,
-										TPtr<CRenderQueue> pShadowCastersRenderGroup)
-	{
-		if (!pShadowCastersRenderGroup)
-		{
-			LOG_ERROR("[ForwardRenderer] Invalid \"Shadow Pass\" commands buffer was found");
-			return RC_FAIL;
-		}
-
-		TDE2_PROFILER_SCOPE("Renderer::RenderShadows");
-		TDE_RENDER_SECTION(pGraphicsContext, "RenderShadows");
-
-		static std::vector<TResourceId> shadowMapHandles;
-		shadowMapHandles.clear();
-
-		shadowMapHandles.push_back(GetOrCreateDirectionalShadowMap(pResourceManager).Get());
-		shadowMapHandles.push_back(GetOrCreatePointShadowMap(pResourceManager, 0).Get());
-
-		/// \todo Replace hardcoded identifiers
-		const TResourceId shadowPassMaterialHandle = pResourceManager->Load<IMaterial>("ShadowPassMaterial.material");
-
-		for (const TResourceId currShadowMapHandle : shadowMapHandles)
-		{
-			/// \todo Assign "ShadowPass" material's variables that defines which type of a light casts shadows
-			if (auto pMaterial = pResourceManager->GetResource<IMaterial>(shadowPassMaterialHandle))
-			{
-				pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, "mIsSunLight", shadowMapHandles.front() == currShadowMapHandle);
-				pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, "mPointLightIndex", 0);
-			}
-
-			if (!pShadowCastersRenderGroup->IsEmpty())
-			{
-				RenderShadowCasters(pGraphicsContext, pResourceManager, currShadowMapHandle, [&]
-				{
-					ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pShadowCastersRenderGroup, shadowMapHandles.back() == currShadowMapHandle);
-				});
-			}
-			else
-			{
-				RenderShadowCasters(pGraphicsContext, pResourceManager, currShadowMapHandle, nullptr);
-			}
-		}
-
-		return RC_OK;
-	}
-#endif
-
-
-#if TDE2_EDITORS_ENABLED
-
-	static E_RESULT_CODE ProcessEditorSelectionBuffer(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties,
-													ISelectionManager* pSelectionManager, TPtr<CRenderQueue> pRenderGroup)
-	{
-		if (!pRenderGroup)
-		{
-			LOG_ERROR("[ForwardRenderer] Invalid \"Editor Only\" commands buffer was found");
-			return RC_FAIL;
-		}
-
-		TDE2_PROFILER_SCOPE("Renderer::RenderSelectionBuffer");
-		TDE_RENDER_SECTION(pGraphicsContext, "RenderSelectionBuffer");
-
-		if (!pRenderGroup->IsEmpty() && pSelectionManager)
-		{
-			if (pSelectionManager->BuildSelectionMap([&, pRenderGroup]
-			{
-				ExecuteDrawCommands(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pRenderGroup, true);
-				return RC_OK;
-			}) != RC_OK)
-			{
-				TDE2_ASSERT(false);
-			}
-		}
-
-		return RC_OK;
-	}
-
-#endif
-
-#if 0
-	static E_RESULT_CODE CullLights(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, const TLightCullingData& lightGridData)
-	{
-		TDE2_PROFILER_SCOPE("LightCulling");
-		TDE_RENDER_SECTION(pGraphicsContext, "LightCulling");
-
-		E_RESULT_CODE result = pGraphicsContext->CopyResource(lightGridData.mLightIndexCountersInitializerBufferHandle, lightGridData.mLightIndexCountersBufferHandle);
-
-		// \note Cull lighting shader
-		result = result | pGraphicsContext->SetStructuredBuffer(OPAQUE_VISIBLE_LIGHTS_BUFFER_SLOT, lightGridData.mOpaqueVisibleLightsBufferHandle, true);
-		result = result | pGraphicsContext->SetStructuredBuffer(TRANSPARENT_VISIBLE_LIGHTS_BUFFER_SLOT, lightGridData.mTransparentVisibleLightsBufferHandle, true);
-		result = result | pGraphicsContext->SetStructuredBuffer(LIGHT_INDEX_COUNTERS_BUFFER_SLOT, lightGridData.mLightIndexCountersBufferHandle, true);
-
-		struct
-		{
-			U32 mWorkGroupsX = 0;
-			U32 mWorkGroupsY = 0;
-		} shaderParameters;
-
-		shaderParameters.mWorkGroupsX = lightGridData.mWorkGroupsX;
-		shaderParameters.mWorkGroupsY = lightGridData.mWorkGroupsY;
-
-		auto pLightCullShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>("Shaders/Default/ForwardLightCulling.cshader"));
-		if (pLightCullShader)
-		{
-			pLightCullShader->SetTextureResource("OpaqueLightGridTexture", pResourceManager->GetResource<ITexture>(lightGridData.mOpaqueLightGridTextureHandle).Get());
-			pLightCullShader->SetTextureResource("TransparentLightGridTexture", pResourceManager->GetResource<ITexture>(lightGridData.mTransparentLightGridTextureHandle).Get());
-			pLightCullShader->SetTextureResource("DepthTexture", pResourceManager->GetResource<ITexture>(lightGridData.mMainDepthBufferHandle).Get());
-			pLightCullShader->SetStructuredBufferResource("TileFrustums", lightGridData.mTileFrustumsBufferHandle);
-			pLightCullShader->SetUserUniformsBuffer(0, reinterpret_cast<U8*>(&shaderParameters), sizeof(shaderParameters));
-			
-			pLightCullShader->Bind();
-		}
-
-		pGraphicsContext->DispatchCompute(lightGridData.mWorkGroupsX, lightGridData.mWorkGroupsY, 1);
-
-		if (pLightCullShader)
-		{
-			pLightCullShader->Unbind();
-		}
-
-		// unbind lights indices buffers
-		result = result | pGraphicsContext->SetStructuredBuffer(OPAQUE_VISIBLE_LIGHTS_BUFFER_SLOT, TBufferHandleId::Invalid, true);
-		result = result | pGraphicsContext->SetStructuredBuffer(TRANSPARENT_VISIBLE_LIGHTS_BUFFER_SLOT, TBufferHandleId::Invalid, true);
-		result = result | pGraphicsContext->SetStructuredBuffer(LIGHT_INDEX_COUNTERS_BUFFER_SLOT, TBufferHandleId::Invalid, true);
-
-		return result;
-	}
-#endif
-
-
 	E_RESULT_CODE CForwardRenderer::Draw(F32 currTime, F32 deltaTime)
 	{
 		TDE2_PROFILER_SCOPE("Renderer::Draw"); 
@@ -3349,7 +3190,9 @@ namespace TDEngine2
 
 			// \note editor mode (draw into selection buffer)
 #if TDE2_EDITORS_ENABLED
-			CRenderSelectionBufferPass{}.AddPass(mpFrameGraph, frameGraphBlackboard, CRenderSelectionBufferPass::TAddPassInvokeParams
+			CRenderSelectionBufferPass
+			{
+				TPassInvokeContext
 				{
 					mpGraphicsContext,
 					mpResourceManager,
@@ -3357,7 +3200,8 @@ namespace TDEngine2
 					mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)],
 					mpWindowSystem->GetWidth(),
 					mpWindowSystem->GetHeight()
-				});
+				}
+			}.AddPass(mpFrameGraph, frameGraphBlackboard, mpSelectionManager);
 #endif
 
 			// \note directional shadow pass
@@ -3623,7 +3467,6 @@ namespace TDEngine2
 			mpFrameGraph->Compile();
 			mpFrameGraph->Execute();
 
-#if TDE2_EDITORS_ENABLED
 #if 1
 			{
 				E_RESULT_CODE result = RC_OK;
@@ -3633,9 +3476,6 @@ namespace TDEngine2
 				mpFrameGraph->Dump(pDumpWriter);
 				pDumpWriter->Close();
 			}
-#endif
-
-			//ProcessEditorSelectionBuffer(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties, mpSelectionManager, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)]);
 #endif
 		}
 
