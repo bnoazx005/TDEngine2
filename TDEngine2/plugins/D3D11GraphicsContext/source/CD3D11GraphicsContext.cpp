@@ -559,7 +559,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mp3dDeviceContext->CopyResource(pSourceTexture->GetTextureResource(), pDestTexture->GetTextureResource());
+		mp3dDeviceContext->CopyResource(pDestTexture->GetTextureResource(), pSourceTexture->GetTextureResource());
 
 		return RC_OK;
 	}

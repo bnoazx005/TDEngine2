@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.28] 2024-06-02
+## [0.6.28] 2024-06-03
 
 ### Added
 
@@ -34,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Depth buffers' creation via **CD3D11TextureImpl** was fixed.
+
+- The behaviour of **CD3D11GraphicsContext::CopyResource(TTextureHandleId, TTextureHandleId)** was fixed. The copy operation was executed in incorrect order (from dest to source).
 
 ## [0.6.27] 2024-05-09
 
