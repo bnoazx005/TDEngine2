@@ -103,7 +103,7 @@ namespace TDEngine2
 			pTexture->SetWWrapMode(E_ADDRESS_MODE_TYPE::AMT_WRAP);
 		}
 
-		const TResourceId volumetricCloudsShaderHandle = pResourceManager->Load<IMaterial>(CProjectSettings::Get()->mGraphicsSettings.mVolumetricCloudsMainShader);
+		const TResourceId volumetricCloudsShaderHandle = pResourceManager->Load<IShader>(CProjectSettings::Get()->mGraphicsSettings.mVolumetricCloudsMainShader);
 		TDE2_ASSERT(TResourceId::Invalid != volumetricCloudsShaderHandle);
 		
 		if (auto pVolumetricCloudsMainShader = pResourceManager->GetResource<IShader>(volumetricCloudsShaderHandle))

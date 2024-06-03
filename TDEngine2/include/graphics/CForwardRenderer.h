@@ -19,7 +19,6 @@ namespace TDEngine2
 {
 	class IGlobalShaderProperties;
 	class IDebugUtility;
-	class IFramePostProcessor;
 	class CFrameGraph;
 
 
@@ -29,7 +28,6 @@ namespace TDEngine2
 
 	TDE2_DECLARE_SCOPED_PTR(IGlobalShaderProperties);
 	TDE2_DECLARE_SCOPED_PTR(CRenderQueue);
-	TDE2_DECLARE_SCOPED_PTR(IFramePostProcessor)
 	TDE2_DECLARE_SCOPED_PTR(CFrameGraph)
 
 
@@ -198,8 +196,6 @@ namespace TDEngine2
 			TPtr<IGlobalShaderProperties> mpGlobalShaderProperties;
 
 			IDebugUtility*                mpDebugUtility;
-
-			TPtr<IFramePostProcessor>     mpFramePostProcessor;
 
 			const IPostProcessingProfile* mpCurrPostProcessingProfile;
 
