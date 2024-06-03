@@ -115,7 +115,8 @@ namespace TDEngine2
 		TFrameGraphResourceHandle              mVolumetricCloudsFullSizeTargetHandle = TFrameGraphResourceHandle::Invalid;
 
 		TFrameGraphResourceHandle              mLuminanceTargetHandle = TFrameGraphResourceHandle::Invalid;
-		TFrameGraphResourceHandle              mAvgLuminanceTargetHandle = TFrameGraphResourceHandle::Invalid;
+		TFrameGraphResourceHandle              mPrevAvgLuminanceTargetHandle = TFrameGraphResourceHandle::Invalid;
+		TFrameGraphResourceHandle              mCurrAvgLuminanceTargetHandle = TFrameGraphResourceHandle::Invalid;
 
 		TFrameGraphResourceHandle              mBloomThresholdTargetHandle = TFrameGraphResourceHandle::Invalid;
 		TFrameGraphResourceHandle              mColorGradingLUTHandle = TFrameGraphResourceHandle::Invalid;
@@ -1538,6 +1539,9 @@ namespace TDEngine2
 
 				mContext.mWindowWidth  = 1;
 				mContext.mWindowHeight = 1;
+
+				mAvgLuminanceTargets[0] = _createLuminanceTarget("PrevAvgLuminanceTarget");
+				mAvgLuminanceTargets[1] = _createLuminanceTarget("CurrAvgLuminanceTarget");
 			}
 
 			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, F32 adaptationRate)
@@ -1547,27 +1551,17 @@ namespace TDEngine2
 					TFrameGraphResourceHandle mOutAvgLuminanceTargetHandle = TFrameGraphResourceHandle::Invalid;
 				};
 
+				frameGraphBlackboard.mPrevAvgLuminanceTargetHandle = pFrameGraph->ImportResource("PrevAvgLuminanceTarget", TFrameGraphTexture::TDesc{}, TFrameGraphTexture{ mAvgLuminanceTargets[(mCurrActiveLuminanceTarget + 1) & 0x1] });
+				frameGraphBlackboard.mCurrAvgLuminanceTargetHandle = pFrameGraph->ImportResource("CurrAvgLuminanceTarget", TFrameGraphTexture::TDesc{}, TFrameGraphTexture{ mAvgLuminanceTargets[mCurrActiveLuminanceTarget] });
+
 				auto&& output = pFrameGraph->AddPass<TPassData>("CalcAverageLuminancePostProcessPass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
-					{
+					{						
 						builder.Read(frameGraphBlackboard.mLuminanceTargetHandle);
-						builder.Read(frameGraphBlackboard.mAvgLuminanceTargetHandle);
+						builder.Read(frameGraphBlackboard.mPrevAvgLuminanceTargetHandle);
 
-						TFrameGraphTexture::TDesc outputTargetParams{};
+						data.mOutAvgLuminanceTargetHandle = builder.Write(frameGraphBlackboard.mCurrAvgLuminanceTargetHandle);
 
-						outputTargetParams.mWidth  = mContext.mWindowWidth;
-						outputTargetParams.mHeight = mContext.mWindowHeight;
-						outputTargetParams.mFormat = FT_FLOAT1;
-						outputTargetParams.mNumOfMipLevels = 1;
-						outputTargetParams.mNumOfSamples = 1;
-						outputTargetParams.mSamplingQuality = 0;
-						outputTargetParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
-						outputTargetParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
-						outputTargetParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET;
-						outputTargetParams.mName = "AverageLuminanceTarget";
-						outputTargetParams.mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
-
-						data.mOutAvgLuminanceTargetHandle = builder.Create<TFrameGraphTexture>(outputTargetParams.mName, outputTargetParams);
-						data.mOutAvgLuminanceTargetHandle = builder.Write(data.mOutAvgLuminanceTargetHandle);
+						mCurrActiveLuminanceTarget = (mCurrActiveLuminanceTarget + 1) & 0x1;
 
 					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
 					{
@@ -1578,7 +1572,7 @@ namespace TDEngine2
 						TDE_RENDER_SECTION(pGraphicsContext, "CalcAverageLuminancePostProcessPass");
 
 						TFrameGraphTexture& sceneLuminanceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mLuminanceTargetHandle);
-						TFrameGraphTexture& prevLuminanceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mAvgLuminanceTargetHandle);
+						TFrameGraphTexture& prevLuminanceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mPrevAvgLuminanceTargetHandle);
 						TFrameGraphTexture& currLuminanceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mOutAvgLuminanceTargetHandle);
 						
 						struct
@@ -1606,13 +1600,34 @@ namespace TDEngine2
 								mContext.mWindowHeight
 							});
 					});
-
-				frameGraphBlackboard.mAvgLuminanceTargetHandle = output.mOutAvgLuminanceTargetHandle;
 			}
+		private:
+			TTextureHandleId _createLuminanceTarget(const std::string& name)
+			{
+				TInitTextureImplParams luminanceTargetParams{};
+
+				luminanceTargetParams.mWidth           = 1;
+				luminanceTargetParams.mHeight          = 1;
+				luminanceTargetParams.mFormat          = FT_FLOAT1;
+				luminanceTargetParams.mNumOfMipLevels  = 1;
+				luminanceTargetParams.mNumOfSamples    = 1;
+				luminanceTargetParams.mSamplingQuality = 0;
+				luminanceTargetParams.mType            = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
+				luminanceTargetParams.mUsageType       = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+				luminanceTargetParams.mBindFlags       = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET;
+				luminanceTargetParams.mName            = name.c_str();
+
+				return mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateTexture(luminanceTargetParams).Get();
+			}
+
 		private:
 			static const std::string mShaderId;
 
 			TGraphicsPipelineStateId mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
+
+			std::array<TTextureHandleId, 2> mAvgLuminanceTargets;
+
+			U32 mCurrActiveLuminanceTarget = 0;
 	};
 
 
@@ -1648,7 +1663,7 @@ namespace TDEngine2
 
 				auto&& output = pFrameGraph->AddPass<TPassData>("BloomPostProcessPass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
 					{
-						builder.Read(frameGraphBlackboard.mAvgLuminanceTargetHandle);
+						builder.Read(frameGraphBlackboard.mCurrAvgLuminanceTargetHandle);
 						data.mSourceTargetHandle = builder.Read(frameGraphBlackboard.mMainRenderTargetHandle);
 
 						TFrameGraphTexture::TDesc outputTargetParams{};
@@ -1678,7 +1693,7 @@ namespace TDEngine2
 
 						TFrameGraphTexture& sourceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mSourceTargetHandle);
 						TFrameGraphTexture& destTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mDestTargetHandle);
-						TFrameGraphTexture& avgLuminanceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mAvgLuminanceTargetHandle);
+						TFrameGraphTexture& avgLuminanceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mCurrAvgLuminanceTargetHandle);
 
 						struct
 						{
@@ -1943,7 +1958,7 @@ namespace TDEngine2
 				auto&& output = pFrameGraph->AddPass<TPassData>("ToneMapAndComposePass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
 					{
 						builder.Read(frameGraphBlackboard.mUIRenderTargetHandle);
-						builder.Read(frameGraphBlackboard.mAvgLuminanceTargetHandle);
+						builder.Read(frameGraphBlackboard.mPrevAvgLuminanceTargetHandle);
 
 						if (pCurrPostProcessProfile && pCurrPostProcessProfile->GetColorGradingParameters().mIsEnabled)
 						{
@@ -1962,7 +1977,7 @@ namespace TDEngine2
 						TDE_RENDER_SECTION(pGraphicsContext, "ToneMapAndComposePass");
 
 						TFrameGraphTexture& uiTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mUIRenderTargetHandle);
-						TFrameGraphTexture& avgLuminanceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mAvgLuminanceTargetHandle);
+						TFrameGraphTexture& avgLuminanceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mPrevAvgLuminanceTargetHandle);
 						TFrameGraphTexture& sourceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mSourceTargetHandle);
 						TFrameGraphTexture& destTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mDestTargetHandle);
 						TFrameGraphTexture& colorGradingLUTTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mColorGradingLUTHandle);
@@ -3329,7 +3344,6 @@ namespace TDEngine2
 				frameGraphBlackboard.mColorGradingLUTHandle = mpFrameGraph->ImportResource("ColorGradingLUT", TFrameGraphTexture::TDesc{ }, TFrameGraphTexture{ pColorLUT->GetHandle() });
 			}
 			
-			frameGraphBlackboard.mAvgLuminanceTargetHandle = mpFrameGraph->ImportResource("AverageLuminanceTarget", TFrameGraphTexture::TDesc { }, TFrameGraphTexture{ TTextureHandleId::Invalid }); // \fixme Little hack to provide prev avg luminance at first frame
 			frameGraphBlackboard.mLightCullingData.mTileFrustumsBufferHandle = mpFrameGraph->ImportResource("TileFrustums", TFrameGraphBuffer::TDesc { }, TFrameGraphBuffer{ mLightGridData.mTileFrustumsBufferHandle });
 			frameGraphBlackboard.mLightCullingData.mLightIndexCountersInitializerBufferHandle = mpFrameGraph->ImportResource("InitialLightIndexCounters", TFrameGraphBuffer::TDesc { }, TFrameGraphBuffer{ mLightGridData.mLightIndexCountersInitializerBufferHandle });
 
