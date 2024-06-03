@@ -3553,15 +3553,17 @@ namespace TDEngine2
 
 			if (mpCurrPostProcessingProfile->IsPostProcessingEnabled() && bloomParameters.mIsEnabled)
 			{
+				const U16 downsampleCoeff = 1 << (TPostProcessingProfileParameters::TBloomParameters::mMaxQuality - bloomParameters.mQuality + 1);
+
 				// \note bloom threshold
-				pBloomThresholdPostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true, mpCurrPostProcessingProfile); // \todo replace with configuration of hdr support
+				pBloomThresholdPostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, mpWindowSystem->GetWidth() / downsampleCoeff, mpWindowSystem->GetHeight() / downsampleCoeff, true, mpCurrPostProcessingProfile); // \todo replace with configuration of hdr support
 
 				TFrameGraphResourceHandle horizontalBlurTargetHandle = pBlurPostProcessPass->AddPass(
 					mpFrameGraph, 
 					frameGraphBlackboard, 
 					frameGraphBlackboard.mBloomThresholdTargetHandle, 
-					mpWindowSystem->GetWidth(), 
-					mpWindowSystem->GetHeight(),
+					mpWindowSystem->GetWidth() / downsampleCoeff,
+					mpWindowSystem->GetHeight() / downsampleCoeff,
 					true,
 					TVector4(
 						bloomParameters.mSmoothness,
@@ -3574,8 +3576,8 @@ namespace TDEngine2
 					mpFrameGraph, 
 					frameGraphBlackboard, 
 					horizontalBlurTargetHandle,
-					mpWindowSystem->GetWidth(), 
-					mpWindowSystem->GetHeight(), 
+					mpWindowSystem->GetWidth() / downsampleCoeff,
+					mpWindowSystem->GetHeight() / downsampleCoeff,
 					true,
 					TVector4(
 						bloomParameters.mSmoothness,
@@ -3622,7 +3624,7 @@ namespace TDEngine2
 			mpFrameGraph->Execute();
 
 #if TDE2_EDITORS_ENABLED
-#if 0
+#if 1
 			{
 				E_RESULT_CODE result = RC_OK;
 				auto pFileStream = TPtr<TDEngine2::IStream>(CreateFileOutputStream("forward_renderer.dot", result));
