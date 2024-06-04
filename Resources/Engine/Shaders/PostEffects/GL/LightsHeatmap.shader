@@ -9,14 +9,14 @@
 
 #program vertex
 
-layout (location = 0) in vec4 inPosUV;
-
 out vec2 VertOutUV;
 
 void main(void)
 {
-	gl_Position = vec4(inPosUV.xy, 0.0f, 1.0);
-	VertOutUV   = inPosUV.zw;
+    vec2 position = vec2(gl_VertexID & 2, gl_VertexID >> 1) * 4.0 - 1;
+
+	gl_Position = vec4(position, 0.0f, 1.0);
+	VertOutUV   = (position + 1) * 0.5;
 }
 
 #endprogram

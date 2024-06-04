@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.28] 2024-06-03
+## [0.6.28] 2024-06-04
 
 ### Added
 
@@ -33,11 +33,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Now COGLVertexDeclaration::Bind can accept TBufferHandle::Invalid handle as a vertex buffer. That will produce an empty VAO object.
 
+- Now GL graphics context also uses bufferless rendering to draw full-screen triangle for screen-space shaders.
+
 ### Fixed
 
 - Depth buffers' creation via **CD3D11TextureImpl** was fixed.
 
 - The behaviour of **CD3D11GraphicsContext::CopyResource(TTextureHandleId, TTextureHandleId)** was fixed. The copy operation was executed in incorrect order (from dest to source).
+
+- Fix memory leaks caused with **CD3D11GraphicsObjectManager**.
 
 ## [0.6.27] 2024-05-09
 
