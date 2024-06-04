@@ -211,9 +211,16 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		if ((result = SafeReleaseCOMPtr<ID3D11Buffer>(&mpBufferInstance)) != RC_OK)
+		result = SafeReleaseCOMPtr<ID3D11Buffer>(&mpBufferInstance);
+
+		if (mpShaderView)
 		{
-			return result;
+			result = result | SafeReleaseCOMPtr<ID3D11ShaderResourceView>(&mpShaderView);
+		}
+
+		if (mpWritableShaderView)
+		{
+			result = result | SafeReleaseCOMPtr<ID3D11UnorderedAccessView>(&mpWritableShaderView);
 		}
 
 		return RC_OK;

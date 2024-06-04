@@ -214,6 +214,14 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
+		auto&& it = std::find(mpTextureSamplersArray.cbegin(), mpTextureSamplersArray.cend(), pNewTextureSampler);
+		if (it != mpTextureSamplersArray.cend())
+		{
+			pNewTextureSampler->Release();
+
+			return Wrench::TOkValue<TTextureSamplerId>(TTextureSamplerId(std::distance(mpTextureSamplersArray.cbegin(), it)));
+		}
+
 		const USIZE samplerId = mpTextureSamplersArray.size();
 
 		mpTextureSamplersArray.push_back(pNewTextureSampler);
@@ -464,6 +472,14 @@ namespace TDEngine2
 	{
 		// \todo D3D11 supports rendering without VB, so we don't use this vertices to draw triangle
 		return { TVector4(0.0f), TVector4(0.0f), TVector4(0.0f) };
+	}
+
+	E_RESULT_CODE CD3D11GraphicsObjectManager::_onFreeInternal()
+	{
+		mpBuffersArray.clear();
+		mpTexturesArray.clear();
+
+		return CBaseGraphicsObjectManager::_onFreeInternal();
 	}
 
 	E_RESULT_CODE CD3D11GraphicsObjectManager::_freeTextureSamplers()

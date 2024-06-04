@@ -181,7 +181,9 @@ namespace TDEngine2
 			TDE2_API std::array<TVector4, 3> GetScreenTriangleVertices() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11GraphicsObjectManager)
-			
+
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
+
 			TDE2_API E_RESULT_CODE _freeTextureSamplers() override;
 
 			TDE2_API E_RESULT_CODE _freeBlendStates() override;

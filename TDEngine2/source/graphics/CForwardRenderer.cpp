@@ -2051,6 +2051,18 @@ namespace TDEngine2
 		return result;
 	}
 
+	void DestroyStaticRenderPasses()
+	{
+		pVolumetricCloudsComposePass = nullptr;
+		pLightsHeatmapDebugPostProcessPass = nullptr;
+		pExtractLuminancePostProcessPass = nullptr;
+		pCalcAverageLuminancePostProcessPass = nullptr;
+		pBloomThresholdPostProcessPass = nullptr;
+		pBloomComposePostProcessPass = nullptr;
+		pBlurPostProcessPass = nullptr;
+		pToneMappingComposePostProcessPass = nullptr;
+	}
+
 
 	/*!
 		\brief CForwardRenderer's definition
@@ -2763,6 +2775,12 @@ namespace TDEngine2
 			PrepareTileFrustums(mLightGridData, mpGraphicsContext, mpResourceManager);
 			mLightGridData.mIsTileFrustumsInitialized = true;
 		}
+	}
+
+	E_RESULT_CODE CForwardRenderer::_onFreeInternal()
+	{
+		DestroyStaticRenderPasses();
+		return RC_OK;
 	}
 
 
