@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Now the renderer is working via frame graph.
 
+- A new cfg-var was added 'dump_frame_graph' which triggers graphviz dump generation for current state of the frame graph.
+
 ### Changed
 
 - The predefined slots for internal lighting shader data were changed.

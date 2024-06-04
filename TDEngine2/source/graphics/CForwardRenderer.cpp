@@ -36,6 +36,7 @@
 namespace TDEngine2
 {
 	CInt32ConsoleVarDecl EnableLightsHeatMapCfgVar("graphics.lights_heatmap_enabled", "", 0);
+	CInt32ConsoleVarDecl TriggetDumpFrameGraph("graphics.dump_frame_graph", "", 0); // \todo For now triggers are not supported so mimic them using usual cvars
 
 
 	constexpr U32 SUN_LIGHT_SHADOW_MAP_TEXTURE_SLOT = 12;
@@ -2320,7 +2321,24 @@ namespace TDEngine2
 		{
 			pCommandsBuffer->Clear();
 		}
-	};
+	}
+
+
+#if TDE2_EDITORS_ENABLED
+	static inline void DumpFrameGraph(TPtr<CFrameGraph> pFrameGraph)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		auto pFileStream = TPtr<TDEngine2::IStream>(CreateFileOutputStream("ForwardRenderer_FrameGraphDump.dot", result));
+		ITextFileWriter* pDumpWriter = dynamic_cast<ITextFileWriter*>(CreateTextFileWriter(nullptr, pFileStream, result));
+
+		pFrameGraph->Dump(pDumpWriter);
+		pDumpWriter->Close();
+
+		TriggetDumpFrameGraph.Set(0);
+	}
+	
+#endif
 
 
 	E_RESULT_CODE CForwardRenderer::Draw(F32 currTime, F32 deltaTime)
@@ -2639,6 +2657,13 @@ namespace TDEngine2
 		}
 
 		mpDebugUtility->PostRender();
+
+#if TDE2_EDITORS_ENABLED
+		if (TriggetDumpFrameGraph.Get())
+		{
+			DumpFrameGraph(mpFrameGraph);
+		}
+#endif
 
 		return RC_OK;
 	}
