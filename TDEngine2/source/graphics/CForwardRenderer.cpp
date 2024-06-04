@@ -417,6 +417,7 @@ namespace TDEngine2
 			explicit COmniLightShadowPass(const TPassInvokeContext& context) :
 				CBaseRenderPass(context)
 			{
+				mShadowMapsIdentifiers.resize(static_cast<USIZE>(CGameUserSettings::Get()->mpMaxOmniLightShadowMapsCVar->Get()));
 			}
 
 			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, U32 lightIndex = 0)
@@ -433,7 +434,7 @@ namespace TDEngine2
 					{
 						TFrameGraphTexture::TDesc shadowMapParams{};
 
-						const std::string OMNI_LIGHT_SHADOW_MAP_ID = Wrench::StringUtils::Format("OmniLightShadowMap_{0}", lightIndex);
+						mShadowMapsIdentifiers[lightIndex] = Wrench::StringUtils::Format("OmniLightShadowMap_{0}", lightIndex);
 
 						shadowMapParams.mWidth           = shadowMapSizes;
 						shadowMapParams.mHeight          = shadowMapSizes;
@@ -444,10 +445,10 @@ namespace TDEngine2
 						shadowMapParams.mType            = E_TEXTURE_IMPL_TYPE::CUBEMAP;
 						shadowMapParams.mUsageType       = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
 						shadowMapParams.mBindFlags       = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER;
-						shadowMapParams.mName            = OMNI_LIGHT_SHADOW_MAP_ID.c_str();
+						shadowMapParams.mName            = mShadowMapsIdentifiers[lightIndex].c_str();
 						shadowMapParams.mFlags           = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
 
-						data.mShadowMapHandle = builder.Create<TFrameGraphTexture>(OMNI_LIGHT_SHADOW_MAP_ID, shadowMapParams);
+						data.mShadowMapHandle = builder.Create<TFrameGraphTexture>(shadowMapParams.mName, shadowMapParams);
 						data.mShadowMapHandle = builder.Write(data.mShadowMapHandle);
 
 						TDE2_ASSERT(data.mShadowMapHandle != TFrameGraphResourceHandle::Invalid);
@@ -483,7 +484,12 @@ namespace TDEngine2
 
 				frameGraphBlackboard.mOmniLightShadowMapHandles.emplace_back(output.mShadowMapHandle);
 			}
+
+		private:
+			static std::vector<std::string> mShadowMapsIdentifiers;
 	};
+
+	std::vector<std::string> COmniLightShadowPass::mShadowMapsIdentifiers {};
 
 
 	class CUploadLightsPass : public CBaseRenderPass
