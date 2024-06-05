@@ -99,7 +99,7 @@
 
 	#define DECLARE_TEX3D_EX(SamplerName, slot)				\
 				Texture3D SamplerName : register(t ## slot); 	\
-				SamplerState SamplerName ## _SamplerState;
+				SamplerState SamplerName ## _SamplerState : register(s ## slot);
 
 	#define TEX2D(SamplerName, uv) SamplerName.Sample(SamplerName ## _SamplerState, uv)
 	#define TEXCUBE(SamplerName, uv) TEX2D(SamplerName, uv)
