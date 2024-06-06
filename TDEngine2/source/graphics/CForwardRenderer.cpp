@@ -137,8 +137,10 @@ namespace TDEngine2
 		
 		std::string              mShaderId;
 
-		U32 mScreenWidth = 0;
-		U32 mScreenHeight = 0;
+		U32                      mScreenWidth = 0;
+		U32                      mScreenHeight = 0;
+
+		TTextureSamplerId*       mpFrameTexture0SamplerId = nullptr;
 	};
 
 
@@ -166,7 +168,7 @@ namespace TDEngine2
 			pShader->Bind();
 
 			pGraphicsContext->SetTexture(pShader->GetResourceBindingSlot(FrontFrameTextureUniformId), config.mSourceTarget);
-			pGraphicsContext->SetSampler(pShader->GetResourceBindingSlot(FrontFrameTextureUniformId), linearSamplerHandle);
+			pGraphicsContext->SetSampler(pShader->GetResourceBindingSlot(FrontFrameTextureUniformId), config.mpFrameTexture0SamplerId ? *config.mpFrameTexture0SamplerId : linearSamplerHandle);
 
 			const U32 extraTextureSlotId = pShader->GetResourceBindingSlot(BackFrameTextureUniformId);
 			if (extraTextureSlotId < std::numeric_limits<U32>::max())
@@ -1525,6 +1527,11 @@ namespace TDEngine2
 
 				mAvgLuminanceTargets[0] = _createLuminanceTarget("PrevAvgLuminanceTarget");
 				mAvgLuminanceTargets[1] = _createLuminanceTarget("CurrAvgLuminanceTarget");
+
+				mTrilinearSamplerId = mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateTextureSampler(
+					{
+						E_TEXTURE_FILTER_TYPE::FT_TRILINEAR, E_ADDRESS_MODE_TYPE::AMT_CLAMP, E_ADDRESS_MODE_TYPE::AMT_CLAMP, E_ADDRESS_MODE_TYPE::AMT_CLAMP, true
+					}).Get();
 			}
 
 			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, F32 adaptationRate)
@@ -1580,7 +1587,8 @@ namespace TDEngine2
 								mGraphicsPipelineHandle,
 								mShaderId,
 								mContext.mWindowWidth,
-								mContext.mWindowHeight
+								mContext.mWindowHeight,
+								&mTrilinearSamplerId
 							});
 					});
 			}
@@ -1604,13 +1612,15 @@ namespace TDEngine2
 			}
 
 		private:
-			static const std::string mShaderId;
+			static const std::string        mShaderId;
 
-			TGraphicsPipelineStateId mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
+			TGraphicsPipelineStateId        mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
 
 			std::array<TTextureHandleId, 2> mAvgLuminanceTargets;
 
-			U32 mCurrActiveLuminanceTarget = 0;
+			TTextureSamplerId               mTrilinearSamplerId = TTextureSamplerId::Invalid;
+
+			U32                             mCurrActiveLuminanceTarget = 0;
 	};
 
 

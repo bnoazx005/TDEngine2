@@ -11,7 +11,7 @@ out vec2 VertOutUV;
 
 void main(void)
 {
-	vec2 position = vec2(gl_VertexID & 1, gl_VertexID >> 1) * 4.0 - 1;
+	vec2 position = vec2(gl_VertexID >> 1, gl_VertexID & 1) * 4.0 - 1;
 
 	gl_Position = vec4(position, 0.0f, 1.0);
 	VertOutUV   = (position + 1) * 0.5;

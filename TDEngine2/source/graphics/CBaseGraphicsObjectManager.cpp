@@ -152,7 +152,7 @@ namespace TDEngine2
 
 	TTextureSamplerId CBaseGraphicsObjectManager::GetDefaultTextureSampler(E_TEXTURE_FILTER_TYPE filterType)
 	{
-		auto textureSamplerResult = CreateTextureSampler({ filterType, E_ADDRESS_MODE_TYPE::AMT_CLAMP, E_ADDRESS_MODE_TYPE::AMT_CLAMP, E_ADDRESS_MODE_TYPE::AMT_CLAMP, true });
+		auto textureSamplerResult = CreateTextureSampler({ filterType, E_ADDRESS_MODE_TYPE::AMT_CLAMP, E_ADDRESS_MODE_TYPE::AMT_CLAMP, E_ADDRESS_MODE_TYPE::AMT_CLAMP, false });
 		if (textureSamplerResult.HasError())
 		{
 			return TTextureSamplerId::Invalid;
