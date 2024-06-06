@@ -253,7 +253,7 @@ namespace TDEngine2
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 
 						TDE2_PROFILER_SCOPE("RenderSelectionBuffer");
-						TDE_RENDER_SECTION(pGraphicsContext, "RenderSelectionBuffer");
+						TDE_RENDER_SECTION(pGraphicsContext, renderPassName);
 
 						TFrameGraphTexture& selectionMapTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mSelectionMapTargetHandle);
 
@@ -320,7 +320,7 @@ namespace TDEngine2
 					auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 
 					TDE2_PROFILER_SCOPE("DepthPrePass");
-					TDE_RENDER_SECTION(pGraphicsContext, "DepthPrePass");
+					TDE_RENDER_SECTION(pGraphicsContext, renderPassName);
 					
 					TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mDepthBufferHandle);
 
@@ -384,6 +384,8 @@ namespace TDEngine2
 					auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 
 					TDE2_PROFILER_SCOPE("RenderSunLightShadows");
+
+					pGraphicsContext->BeginSectionMarker("RenderShadows");
 					TDE_RENDER_SECTION(pGraphicsContext, "RenderSunLightShadows");
 
 					TFrameGraphTexture& shadowMapTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mShadowMapHandle);
@@ -416,10 +418,10 @@ namespace TDEngine2
 	class COmniLightShadowPass: public CBaseRenderPass
 	{
 		public:
-			explicit COmniLightShadowPass(const TPassInvokeContext& context) :
+			explicit COmniLightShadowPass(const TPassInvokeContext& context, USIZE pointLightsCount) :
 				CBaseRenderPass(context)
 			{
-				mShadowMapsIdentifiers.resize(static_cast<USIZE>(CGameUserSettings::Get()->mpMaxOmniLightShadowMapsCVar->Get()));
+				mShadowMapsIdentifiers.resize(pointLightsCount);
 			}
 
 			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, U32 lightIndex = 0)
@@ -432,7 +434,7 @@ namespace TDEngine2
 				const U32 shadowMapSizes = static_cast<U32>(CGameUserSettings::Get()->mpShadowMapSizesCVar->Get());
 				TDE2_ASSERT(shadowMapSizes > 0 && shadowMapSizes < 65536);
 
-				auto&& output = pFrameGraph->AddPass<TPassData>(Wrench::StringUtils::Format("OmniLight{0}ShadowPass", lightIndex), [&](CFrameGraphBuilder& builder, TPassData& data)
+				auto&& output = pFrameGraph->AddPass<TPassData>(Wrench::StringUtils::Format("RenderOmniLightShadows{0}", lightIndex), [&](CFrameGraphBuilder& builder, TPassData& data)
 					{
 						TFrameGraphTexture::TDesc shadowMapParams{};
 
@@ -459,7 +461,7 @@ namespace TDEngine2
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 
 						TDE2_PROFILER_SCOPE("RenderOmniLightShadows" + std::to_string(lightIndex));
-						TDE_RENDER_SECTION(pGraphicsContext, "RenderOmniLightShadows" + std::to_string(lightIndex));
+						TDE_RENDER_SECTION(pGraphicsContext, renderPassName);
 
 						TFrameGraphTexture& shadowMapTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mShadowMapHandle);
 
@@ -482,6 +484,11 @@ namespace TDEngine2
 						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mContext.mpCommandsBuffer, false);
 
 						pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
+
+						if (lightIndex == mShadowMapsIdentifiers.size() - 1)
+						{
+							pGraphicsContext->EndSectionMarker();
+						}
 					});
 
 				frameGraphBlackboard.mOmniLightShadowMapHandles.emplace_back(output.mShadowMapHandle);
@@ -794,6 +801,8 @@ namespace TDEngine2
 						auto&& pResourceManager = mContext.mpResourceManager;
 
 						TDE2_PROFILER_SCOPE("OpaqueRenderPass");
+
+						pGraphicsContext->BeginSectionMarker("RenderGeometry");
 						TDE_RENDER_SECTION(pGraphicsContext, "OpaqueRenderPass");
 
 						TFrameGraphTexture& mainRenderTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mMainRenderTargetHandle);
@@ -977,6 +986,8 @@ namespace TDEngine2
 
 						pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
 						pGraphicsContext->BindRenderTarget(0, TTextureHandleId::Invalid);
+
+						pGraphicsContext->EndSectionMarker();
 					});
 
 				frameGraphBlackboard.mMainRenderTargetHandle = output.mMainRenderTargetHandle;
@@ -1030,7 +1041,7 @@ namespace TDEngine2
 						auto&& pResourceManager = mContext.mpResourceManager;
 
 						TDE2_PROFILER_SCOPE("VolumetricCloudsMainPass");
-						TDE_RENDER_SECTION(pGraphicsContext, "VolumetricCloudsMainPass");
+						pGraphicsContext->BeginSectionMarker("RenderVolumetricsClouds");
 
 						struct
 						{
@@ -1118,7 +1129,6 @@ namespace TDEngine2
 						auto&& pResourceManager = mContext.mpResourceManager;
 
 						TDE2_PROFILER_SCOPE("VolumetricCloudsBlurUpscalePass");
-						TDE_RENDER_SECTION(pGraphicsContext, "VolumetricCloudsBlurUpscalePass");
 
 						TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mDepthBufferHandle);
 						TFrameGraphTexture& cloudsMainTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mVolumetricCloudsMainTargetHandle);
@@ -1193,7 +1203,6 @@ namespace TDEngine2
 						auto&& pResourceManager = mContext.mpResourceManager;
 
 						TDE2_PROFILER_SCOPE("VolumetricCloudsBlurComposePass");
-						TDE_RENDER_SECTION(pGraphicsContext, "VolumetricCloudsBlurComposePass");
 
 						TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mDepthBufferHandle);
 						TFrameGraphTexture& cloudsFullSizeTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mVolumetricCloudsFullSizeTargetHandle);
@@ -1211,6 +1220,9 @@ namespace TDEngine2
 								mContext.mWindowWidth,
 								mContext.mWindowHeight 
 							});
+
+						pGraphicsContext->EndSectionMarker();
+						pGraphicsContext->BeginSectionMarker("PostProcessing");
 					});
 
 				frameGraphBlackboard.mMainRenderTargetHandle = output.mMainRenderTargetHandle;
@@ -1268,6 +1280,8 @@ namespace TDEngine2
 						auto&& pResourceManager = mContext.mpResourceManager;
 
 						TDE2_PROFILER_SCOPE("UIRenderPass");
+
+						pGraphicsContext->EndSectionMarker(); // pop PostProcessing section
 						TDE_RENDER_SECTION(pGraphicsContext, "UIRenderPass");
 
 						TFrameGraphTexture& uiRenderTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mUIRenderTargetHandle);
@@ -1471,7 +1485,7 @@ namespace TDEngine2
 						auto&& pResourceManager = mContext.mpResourceManager;
 
 						TDE2_PROFILER_SCOPE("ExtractLuminancePostProcessPass");
-						TDE_RENDER_SECTION(pGraphicsContext, "ExtractLuminancePostProcessPass");
+						pGraphicsContext->BeginSectionMarker("EyeAdaptation");
 
 						TFrameGraphTexture& opaqueLightsGridTexture = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mLightCullingData.mOpaqueLightGridTextureHandle);
 						TFrameGraphTexture& sourceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mSourceTargetHandle);
@@ -1559,7 +1573,6 @@ namespace TDEngine2
 						auto&& pResourceManager = mContext.mpResourceManager;
 
 						TDE2_PROFILER_SCOPE("CalcAverageLuminancePostProcessPass");
-						TDE_RENDER_SECTION(pGraphicsContext, "CalcAverageLuminancePostProcessPass");
 
 						TFrameGraphTexture& sceneLuminanceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mLuminanceTargetHandle);
 						TFrameGraphTexture& prevLuminanceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mPrevAvgLuminanceTargetHandle);
@@ -1590,6 +1603,8 @@ namespace TDEngine2
 								mContext.mWindowHeight,
 								&mTrilinearSamplerId
 							});
+
+						pGraphicsContext->EndSectionMarker();
 					});
 			}
 		private:
@@ -1682,7 +1697,7 @@ namespace TDEngine2
 						auto&& pResourceManager = mContext.mpResourceManager;
 
 						TDE2_PROFILER_SCOPE("BloomPostProcessPass");
-						TDE_RENDER_SECTION(pGraphicsContext, "BloomPostProcessPass");
+						pGraphicsContext->BeginSectionMarker("BloomPostProcessPass");
 
 						TFrameGraphTexture& sourceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mSourceTargetHandle);
 						TFrameGraphTexture& destTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mDestTargetHandle);
@@ -1804,6 +1819,8 @@ namespace TDEngine2
 								mContext.mWindowWidth,
 								mContext.mWindowHeight
 							});
+
+						pGraphicsContext->EndSectionMarker();
 					});
 
 				frameGraphBlackboard.mMainRenderTargetHandle = output.mDestTargetHandle;
@@ -2420,6 +2437,10 @@ namespace TDEngine2
 				U32 currPointLightIndex = 0;
 
 				// \note omni shadow passes
+				const USIZE pointLightsCount = std::min<USIZE>(
+					std::count_if(mActiveLightSources.cbegin(), mActiveLightSources.cend(), [](auto&& currLightSource) { return static_cast<I32>(E_LIGHT_SOURCE_TYPE::POINT) == currLightSource.mLightType; }),
+					static_cast<USIZE>(CGameUserSettings::Get()->mpMaxOmniLightShadowMapsCVar->Get()));
+
 				for (auto&& currLightSource : mActiveLightSources)
 				{
 					if (static_cast<I32>(E_LIGHT_SOURCE_TYPE::POINT) != currLightSource.mLightType)
@@ -2442,7 +2463,8 @@ namespace TDEngine2
 							mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)],
 							mpWindowSystem->GetWidth(),
 							mpWindowSystem->GetHeight()
-						}
+						},
+						pointLightsCount
 					}.AddPass(mpFrameGraph, frameGraphBlackboard, currPointLightIndex);
 
 					++currPointLightIndex;
