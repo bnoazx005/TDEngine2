@@ -30,8 +30,8 @@ namespace TDEngine2
 
 	struct TFramePassExecutionContext
 	{
-		IGraphicsContext* mpGraphicsContext = nullptr;
-		CFrameGraph*      mpOwnerGraph = nullptr;
+		IGraphicsContext*  mpGraphicsContext = nullptr;
+		CFrameGraph*       mpOwnerGraph = nullptr;
 	};
 
 
@@ -96,7 +96,7 @@ namespace TDEngine2
 
 			E_RESULT_CODE Execute(const TFramePassExecutionContext& executionContext) override
 			{
-				mExecuteCallback(mData, executionContext);
+				mExecuteCallback(mData, executionContext, GetName());
 				return RC_OK;
 			}
 

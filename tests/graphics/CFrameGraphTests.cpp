@@ -61,7 +61,7 @@ TEST_CASE("CFrameGraph Tests")
 			isSetupInvoked = true;
 
 			builder.MarkAsPersistent(); // Mark the pass as persistent one to prevent its culling
-		}, [&](const TEmptyPassData& data, const TFramePassExecutionContext&)
+		}, [&](const TEmptyPassData& data, const TFramePassExecutionContext&, const std::string& renderPassName)
 		{
 			TFrameGraphTexture& outputTex = pFrameGraph->GetResource<TFrameGraphTexture>(data.mOutput);
 
@@ -88,7 +88,7 @@ TEST_CASE("CFrameGraph Tests")
 
 		pFrameGraph->AddPass<TEmptyPassData>("Culled", [&](CFrameGraphBuilder& builder, TEmptyPassData& data)
 		{
-		}, [&](const TEmptyPassData&, const TFramePassExecutionContext&)
+		}, [&](const TEmptyPassData&, const TFramePassExecutionContext&, const std::string& renderPassName)
 		{
 			isExecuteInvoked = true;
 		});
@@ -125,7 +125,7 @@ TEST_CASE("CFrameGraph Tests")
 			REQUIRE(data.mOutput != TFrameGraphResourceHandle::Invalid);
 
 			isSetupInvoked = true;
-		}, [&](const TEmptyPassData& data, const TFramePassExecutionContext& executionContext)
+		}, [&](const TEmptyPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 		{
 			TFrameGraphTexture& outputTex = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mOutput);
 			REQUIRE(expectedBackBufferTextureHandle == outputTex.mTextureHandle);
@@ -166,7 +166,7 @@ TEST_CASE("CFrameGraph Tests")
 			REQUIRE(data.mOutput != TFrameGraphResourceHandle::Invalid);
 
 			isSetupInvoked[0] = true;
-		}, [&](const TEmptyPassData& data, const TFramePassExecutionContext& executionContext)
+		}, [&](const TEmptyPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 		{
 		});
 
@@ -177,7 +177,7 @@ TEST_CASE("CFrameGraph Tests")
 			REQUIRE(data.mOutput != TFrameGraphResourceHandle::Invalid);
 
 			isSetupInvoked[1] = true;
-		}, [&](const TEmptyPassData& data, const TFramePassExecutionContext& executionContext)
+		}, [&](const TEmptyPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 		{
 		});
 

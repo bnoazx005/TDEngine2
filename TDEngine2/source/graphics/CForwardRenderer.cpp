@@ -120,8 +120,8 @@ namespace TDEngine2
 	};
 
 
-	static const std::string FrontFrameTextureUniformId = "FrameTexture";
-	static const std::string BackFrameTextureUniformId = "FrameTexture1";
+	static const std::string FRONT_FRAME_TEXTURE_UNIFORM_ID = "FrameTexture";
+	static const std::string BACK_FRAME_TEXTURE_UNIFORM_ID = "FrameTexture1";
 
 
 	struct TFullScreenShaderInvokationConfig
@@ -140,7 +140,7 @@ namespace TDEngine2
 		U32                      mScreenWidth = 0;
 		U32                      mScreenHeight = 0;
 
-		TTextureSamplerId*       mpFrameTexture0SamplerId = nullptr;
+		TTextureSamplerId*       mpFrameTexture0SamplerId = nullptr; // \todo replace with std::optional later when C++20 standard will be enabled on the project
 	};
 
 
@@ -167,10 +167,10 @@ namespace TDEngine2
 		{
 			pShader->Bind();
 
-			pGraphicsContext->SetTexture(pShader->GetResourceBindingSlot(FrontFrameTextureUniformId), config.mSourceTarget);
-			pGraphicsContext->SetSampler(pShader->GetResourceBindingSlot(FrontFrameTextureUniformId), config.mpFrameTexture0SamplerId ? *config.mpFrameTexture0SamplerId : linearSamplerHandle);
+			pGraphicsContext->SetTexture(pShader->GetResourceBindingSlot(FRONT_FRAME_TEXTURE_UNIFORM_ID), config.mSourceTarget);
+			pGraphicsContext->SetSampler(pShader->GetResourceBindingSlot(FRONT_FRAME_TEXTURE_UNIFORM_ID), config.mpFrameTexture0SamplerId ? *config.mpFrameTexture0SamplerId : linearSamplerHandle);
 
-			const U32 extraTextureSlotId = pShader->GetResourceBindingSlot(BackFrameTextureUniformId);
+			const U32 extraTextureSlotId = pShader->GetResourceBindingSlot(BACK_FRAME_TEXTURE_UNIFORM_ID);
 			if (extraTextureSlotId < std::numeric_limits<U32>::max())
 			{
 				pGraphicsContext->SetTexture(extraTextureSlotId, TTextureHandleId::Invalid != config.mExtraTarget ? config.mExtraTarget : TTextureHandleId::Invalid);
@@ -248,7 +248,7 @@ namespace TDEngine2
 						data.mSelectionMapTargetHandle = builder.Write(data.mSelectionMapTargetHandle);
 
 						builder.MarkAsPersistent(); // Mark as persistent because the output of the pass isn't used in other passes of the graph
-					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 
@@ -315,7 +315,7 @@ namespace TDEngine2
 					data.mDepthBufferHandle = builder.Write(data.mDepthBufferHandle);
 
 					TDE2_ASSERT(data.mDepthBufferHandle != TFrameGraphResourceHandle::Invalid);
-				}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+				}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 				{
 					auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 
@@ -379,7 +379,7 @@ namespace TDEngine2
 					data.mShadowMapHandle = builder.Write(data.mShadowMapHandle);
 
 					TDE2_ASSERT(data.mShadowMapHandle != TFrameGraphResourceHandle::Invalid);
-				}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+				}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 				{
 					auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 
@@ -454,7 +454,7 @@ namespace TDEngine2
 						data.mShadowMapHandle = builder.Write(data.mShadowMapHandle);
 
 						TDE2_ASSERT(data.mShadowMapHandle != TFrameGraphResourceHandle::Invalid);
-					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 
@@ -529,7 +529,7 @@ namespace TDEngine2
 						data.mLightsBufferHandle = builder.Write(data.mLightsBufferHandle);
 
 						TDE2_ASSERT(data.mLightsBufferHandle != TFrameGraphResourceHandle::Invalid);
-					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 
@@ -612,7 +612,7 @@ namespace TDEngine2
 
 						data.mLightIndexCountersBufferHandle = builder.Create<TFrameGraphBuffer>(lightIndexCountersBufferParams.mName, lightIndexCountersBufferParams);
 						data.mLightIndexCountersBufferHandle = builder.Write(data.mLightIndexCountersBufferHandle);
-					}, [=](const TLightCullData& data, const TFramePassExecutionContext& executionContext)
+					}, [=](const TLightCullData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 						
@@ -788,7 +788,7 @@ namespace TDEngine2
 						data.mMainRenderTargetHandle = builder.Write(data.mMainRenderTargetHandle);
 
 						TDE2_ASSERT(data.mMainRenderTargetHandle != TFrameGraphResourceHandle::Invalid);
-					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 						auto&& pResourceManager = mContext.mpResourceManager;
@@ -861,7 +861,7 @@ namespace TDEngine2
 						builder.Read(frameGraphBlackboard.mMainRenderTargetHandle);
 
 						data.mMainRenderTargetHandle = builder.Write(frameGraphBlackboard.mMainRenderTargetHandle);
-					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 						auto&& pResourceManager = mContext.mpResourceManager;
@@ -913,7 +913,7 @@ namespace TDEngine2
 						builder.Read(frameGraphBlackboard.mMainRenderTargetHandle);
 
 						data.mMainRenderTargetHandle = builder.Write(frameGraphBlackboard.mMainRenderTargetHandle);
-					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 						auto&& pResourceManager = mContext.mpResourceManager;
@@ -959,7 +959,7 @@ namespace TDEngine2
 						builder.Read(frameGraphBlackboard.mMainRenderTargetHandle);
 
 						data.mMainRenderTargetHandle = builder.Write(frameGraphBlackboard.mMainRenderTargetHandle);
-					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 						auto&& pResourceManager = mContext.mpResourceManager;
@@ -1024,7 +1024,7 @@ namespace TDEngine2
 
 						data.mVolumetricCloudsMainBufferHandle = builder.Create<TFrameGraphTexture>(volumetricCloudsMainBufferParams.mName, volumetricCloudsMainBufferParams);
 						data.mVolumetricCloudsMainBufferHandle = builder.Write(data.mVolumetricCloudsMainBufferHandle);
-					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 						auto&& pResourceManager = mContext.mpResourceManager;
@@ -1112,7 +1112,7 @@ namespace TDEngine2
 
 						data.mVolumetricCloudsFullSizeBufferHandle = builder.Create<TFrameGraphTexture>(volumetricCloudsFullSizeBufferParams.mName, volumetricCloudsFullSizeBufferParams);
 						data.mVolumetricCloudsFullSizeBufferHandle = builder.Write(data.mVolumetricCloudsFullSizeBufferHandle);
-					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 						auto&& pResourceManager = mContext.mpResourceManager;
@@ -1187,7 +1187,7 @@ namespace TDEngine2
 
 						builder.Read(frameGraphBlackboard.mMainRenderTargetHandle);
 						data.mMainRenderTargetHandle = builder.Write(frameGraphBlackboard.mMainRenderTargetHandle);
-					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 						auto&& pResourceManager = mContext.mpResourceManager;
@@ -1262,7 +1262,7 @@ namespace TDEngine2
 						data.mUIRenderTargetHandle = builder.Write(data.mUIRenderTargetHandle);
 
 						TDE2_ASSERT(data.mUIRenderTargetHandle != TFrameGraphResourceHandle::Invalid);
-					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 						auto&& pResourceManager = mContext.mpResourceManager;
@@ -1312,7 +1312,7 @@ namespace TDEngine2
 
 						TDE2_ASSERT(data.mTargetHandle != TFrameGraphResourceHandle::Invalid);
 
-					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 
@@ -1375,7 +1375,7 @@ namespace TDEngine2
 						data.mDestTargetHandle = builder.Create<TFrameGraphTexture>(outputTargetParams.mName, outputTargetParams);
 						data.mDestTargetHandle = builder.Write(data.mDestTargetHandle);
 
-					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 						auto&& pResourceManager = mContext.mpResourceManager;
@@ -1465,7 +1465,7 @@ namespace TDEngine2
 						data.mDestTargetHandle = builder.Create<TFrameGraphTexture>(outputTargetParams.mName, outputTargetParams);
 						data.mDestTargetHandle = builder.Write(data.mDestTargetHandle);
 
-					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 						auto&& pResourceManager = mContext.mpResourceManager;
@@ -1553,7 +1553,7 @@ namespace TDEngine2
 
 						mCurrActiveLuminanceTarget = (mCurrActiveLuminanceTarget + 1) & 0x1;
 
-					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 						auto&& pResourceManager = mContext.mpResourceManager;
@@ -1676,7 +1676,7 @@ namespace TDEngine2
 						data.mDestTargetHandle = builder.Create<TFrameGraphTexture>(outputTargetParams.mName, outputTargetParams);
 						data.mDestTargetHandle = builder.Write(data.mDestTargetHandle);
 
-					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 						auto&& pResourceManager = mContext.mpResourceManager;
@@ -1780,7 +1780,7 @@ namespace TDEngine2
 						data.mDestTargetHandle = builder.Create<TFrameGraphTexture>(outputTargetParams.mName, outputTargetParams);
 						data.mDestTargetHandle = builder.Write(data.mDestTargetHandle);
 
-					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 						auto&& pResourceManager = mContext.mpResourceManager;
@@ -1870,7 +1870,7 @@ namespace TDEngine2
 						data.mDestTargetHandle = builder.Create<TFrameGraphTexture>(outputTargetParams.mName, outputTargetParams);
 						data.mDestTargetHandle = builder.Write(data.mDestTargetHandle);
 
-					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 						auto&& pResourceManager = mContext.mpResourceManager;
@@ -1961,7 +1961,7 @@ namespace TDEngine2
 						data.mSourceTargetHandle = builder.Read(frameGraphBlackboard.mMainRenderTargetHandle);
 						data.mDestTargetHandle = builder.Write(frameGraphBlackboard.mBackBufferHandle);
 
-					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext)
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 						auto&& pResourceManager = mContext.mpResourceManager;
