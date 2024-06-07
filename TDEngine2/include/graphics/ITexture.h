@@ -107,7 +107,7 @@ namespace TDEngine2
 	};
 
 
-	enum class E_TEXTURE_IMPL_USAGE_TYPE : U8
+	enum class E_TEXTURE_IMPL_USAGE_TYPE : U32
 	{
 		STAGING,
 		DYNAMIC,
