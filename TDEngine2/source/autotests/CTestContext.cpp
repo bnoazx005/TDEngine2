@@ -137,6 +137,12 @@ namespace TDEngine2
 
 	E_RESULT_CODE CTestContext::RunAllTests()
 	{
+		TDE2_ASSERT(mIsInitialized);
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
 		if (mIsRunning)
 		{
 			return RC_FAIL;
@@ -153,6 +159,12 @@ namespace TDEngine2
 
 	void CTestContext::Update(F32 dt)
 	{
+		TDE2_ASSERT(mIsInitialized);
+		if (!mIsInitialized)
+		{
+			return;
+		}
+
 		if (!mIsRunning)
 		{
 			return;
@@ -173,16 +185,34 @@ namespace TDEngine2
 
 	void CTestContext::SetMousePosition(const TVector3& position)
 	{
+		TDE2_ASSERT(mIsInitialized);
+		if (!mIsInitialized)
+		{
+			return;
+		}
+
 		pProxyInputContextDesc->mMousePosition = position;
 	}
 
 	void CTestContext::NotifyOnKeyPressEvent(E_KEYCODES keyCode)
 	{
+		TDE2_ASSERT(mIsInitialized);
+		if (!mIsInitialized)
+		{
+			return;
+		}
+
 		pProxyInputContextDesc->mFrameKeysInputBuffer.insert(keyCode);
 	}
 	
 	void CTestContext::NotifyOnMouseButtonPressEvent(U8 buttonId)
 	{
+		TDE2_ASSERT(mIsInitialized);
+		if (!mIsInitialized)
+		{
+			return;
+		}
+
 		if (buttonId >= pProxyInputContextDesc->mMouseButtonsCount)
 		{
 			TDE2_ASSERT(false);
@@ -194,6 +224,12 @@ namespace TDEngine2
 
 	E_RESULT_CODE CTestContext::TakeScreenshot(const std::string& filename)
 	{
+		TDE2_ASSERT(mIsInitialized);
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
 		auto pFileSystem = mpEngineCore->GetSubsystem<IFileSystem>();
 
 		auto screenshotFileWriterResult = pFileSystem->Open<IImageFileWriter>(filename, true);
@@ -218,6 +254,12 @@ namespace TDEngine2
 
 	E_RESULT_CODE CTestContext::TakeScreenshot(const std::string& testFixture, const std::string& testCase)
 	{
+		TDE2_ASSERT(mIsInitialized);
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
 		auto pFileSystem = mpEngineCore->GetSubsystem<IFileSystem>();
 		if (!pFileSystem)
 		{
@@ -286,6 +328,12 @@ namespace TDEngine2
 
 	TColor32F CTestContext::GetFrameBufferPixel(U32 x, U32 y) const
 	{
+		TDE2_ASSERT(mIsInitialized);
+		if (!mIsInitialized)
+		{
+			return TColorUtils::mBlack;
+		}
+
 		auto pGraphicsContext = mpEngineCore->GetSubsystem<IGraphicsContext>();
 		auto pWindowSystem = mpEngineCore->GetSubsystem<IWindowSystem>();
 
@@ -314,6 +362,12 @@ namespace TDEngine2
 
 	E_RESULT_CODE CTestContext::SetArtifactsOutputDirectory(const std::string& path)
 	{
+		TDE2_ASSERT(mIsInitialized);
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
 		if (auto pFileSystem = mpEngineCore->GetSubsystem<IFileSystem>())
 		{
 			if (!pFileSystem->IsPathValid(path))
