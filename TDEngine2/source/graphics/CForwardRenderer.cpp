@@ -383,7 +383,9 @@ namespace TDEngine2
 
 					TDE2_PROFILER_SCOPE("RenderSunLightShadows");
 
+#if TDE2_DEBUG_MODE
 					pGraphicsContext->BeginSectionMarker("RenderShadows");
+#endif
 					TDE_RENDER_SECTION(pGraphicsContext, "RenderSunLightShadows");
 
 					TFrameGraphTexture& shadowMapTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mShadowMapHandle);
@@ -483,10 +485,13 @@ namespace TDEngine2
 
 						pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
 
+#if TDE2_DEBUG_MODE
 						if (lightIndex == mShadowMapsIdentifiers.size() - 1)
 						{
+
 							pGraphicsContext->EndSectionMarker();
 						}
+#endif
 					});
 
 				frameGraphBlackboard.mOmniLightShadowMapHandles.emplace_back(output.mShadowMapHandle);
@@ -798,7 +803,9 @@ namespace TDEngine2
 
 						TDE2_PROFILER_SCOPE("OpaqueRenderPass");
 
+#if TDE2_DEBUG_MODE
 						pGraphicsContext->BeginSectionMarker("RenderGeometry");
+#endif
 						TDE_RENDER_SECTION(pGraphicsContext, "OpaqueRenderPass");
 
 						TFrameGraphTexture& mainRenderTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mMainRenderTargetHandle);
@@ -983,7 +990,9 @@ namespace TDEngine2
 						pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
 						pGraphicsContext->BindRenderTarget(0, TTextureHandleId::Invalid);
 
+#if TDE2_DEBUG_MODE
 						pGraphicsContext->EndSectionMarker();
+#endif
 					});
 
 				frameGraphBlackboard.mMainRenderTargetHandle = output.mMainRenderTargetHandle;
@@ -1037,7 +1046,10 @@ namespace TDEngine2
 						auto&& pResourceManager = mContext.mpResourceManager;
 
 						TDE2_PROFILER_SCOPE("VolumetricCloudsMainPass");
+
+#if TDE2_DEBUG_MODE
 						pGraphicsContext->BeginSectionMarker("RenderVolumetricsClouds");
+#endif
 
 						struct
 						{
@@ -1217,8 +1229,10 @@ namespace TDEngine2
 								mContext.mWindowHeight 
 							});
 
+#if TDE2_DEBUG_MODE
 						pGraphicsContext->EndSectionMarker();
 						pGraphicsContext->BeginSectionMarker("PostProcessing");
+#endif
 					});
 
 				frameGraphBlackboard.mMainRenderTargetHandle = output.mMainRenderTargetHandle;
@@ -1277,7 +1291,9 @@ namespace TDEngine2
 
 						TDE2_PROFILER_SCOPE("UIRenderPass");
 
+#if TDE2_DEBUG_MODE
 						pGraphicsContext->EndSectionMarker(); // pop PostProcessing section
+#endif
 						TDE_RENDER_SECTION(pGraphicsContext, "UIRenderPass");
 
 						TFrameGraphTexture& uiRenderTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mUIRenderTargetHandle);
@@ -1481,7 +1497,10 @@ namespace TDEngine2
 						auto&& pResourceManager = mContext.mpResourceManager;
 
 						TDE2_PROFILER_SCOPE("ExtractLuminancePostProcessPass");
+
+#if TDE2_DEBUG_MODE
 						pGraphicsContext->BeginSectionMarker("EyeAdaptation");
+#endif
 
 						TFrameGraphTexture& opaqueLightsGridTexture = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mLightCullingData.mOpaqueLightGridTextureHandle);
 						TFrameGraphTexture& sourceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mSourceTargetHandle);
@@ -1600,7 +1619,9 @@ namespace TDEngine2
 								&mTrilinearSamplerId
 							});
 
+#if TDE2_DEBUG_MODE
 						pGraphicsContext->EndSectionMarker();
+#endif
 					});
 			}
 		private:
@@ -1693,7 +1714,10 @@ namespace TDEngine2
 						auto&& pResourceManager = mContext.mpResourceManager;
 
 						TDE2_PROFILER_SCOPE("BloomPostProcessPass");
-						pGraphicsContext->BeginSectionMarker("BloomPostProcessPass");
+
+#if TDE2_DEBUG_MODE
+						pGraphicsContext->BeginSectionMarker("BloomPostProcessPass"); 
+#endif
 
 						TFrameGraphTexture& sourceTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mSourceTargetHandle);
 						TFrameGraphTexture& destTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mDestTargetHandle);
@@ -1816,7 +1840,9 @@ namespace TDEngine2
 								mContext.mWindowHeight
 							});
 
-						pGraphicsContext->EndSectionMarker();
+#if TDE2_DEBUG_MODE
+						pGraphicsContext->EndSectionMarker(); 
+#endif
 					});
 
 				frameGraphBlackboard.mMainRenderTargetHandle = output.mDestTargetHandle;

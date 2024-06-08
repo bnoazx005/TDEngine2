@@ -159,12 +159,6 @@ namespace TDEngine2
 
 	void CTestContext::Update(F32 dt)
 	{
-		TDE2_ASSERT(mIsInitialized);
-		if (!mIsInitialized)
-		{
-			return;
-		}
-
 		if (!mIsRunning)
 		{
 			return;
