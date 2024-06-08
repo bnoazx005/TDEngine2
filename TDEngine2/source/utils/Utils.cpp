@@ -379,8 +379,10 @@ namespace TDEngine2
 	{
 		const C8* pObjectPtr = reinterpret_cast<const C8*>(&object);
 
-		std::array<C8, offsetof(TInitTextureImplParams, mName) + 1> objectBytes{ 0 };
-		std::copy(pObjectPtr, pObjectPtr + offsetof(TInitTextureImplParams, mName), objectBytes.begin());
+		std::array<C8, offsetof(TInitTextureImplParams, mIsWriteable) + 1> objectBytes{ 0 };
+		std::copy(pObjectPtr, pObjectPtr + offsetof(TInitTextureImplParams, mIsWriteable), objectBytes.begin());
+
+		objectBytes.back() = static_cast<C8>(object.mIsWriteable);
 
 		U32 hash = 5381;
 
