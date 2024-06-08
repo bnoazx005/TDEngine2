@@ -10,9 +10,6 @@
 [submodule "TDEngine2/tools/Introspector/source"]
 	path = TDEngine2/tools/Introspector/source
 	url = ../tde2_introspector.git
-[submodule "TDEngine2/deps/argparse"]
-	path = TDEngine2/deps/argparse
-	url = https://github.com/cofyc/argparse.git
 [submodule "TDEngine2/deps/tina"]
 	path = TDEngine2/deps/tina
 	url = ../Tina.git

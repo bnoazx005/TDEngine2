@@ -531,7 +531,6 @@ set(TDENGINE2_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/utils/CGradientColor.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/utils/CProgramOptions.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/utils/ScopedPtrDefinitions.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/deps/argparse/argparse.c"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TVector2.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TVector3.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/math/TVector4.cpp"
@@ -670,10 +669,6 @@ add_backward(${TDENGINE2_LIBRARY_NAME})
 target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/marl/include")
 target_link_libraries(${TDENGINE2_LIBRARY_NAME} PUBLIC marl)
 add_dependencies(${TDENGINE2_LIBRARY_NAME} marl)
-
-# set up argparse library
-target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/argparse")
-
 
 # link Box2D library
 target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/Box2D/")
