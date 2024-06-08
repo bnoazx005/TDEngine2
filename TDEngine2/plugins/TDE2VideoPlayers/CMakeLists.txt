@@ -47,8 +47,11 @@ if (PROJECT_IS_TOP_LEVEL AND MSVC) 	#cl.exe compiler's options
 
 endif()
 
+set (CURR_BUILD_TESTING ${BUILD_TESTING}) # hack to disable ogg and vorbis tests
+set (BUILD_TESTING OFF)
 add_subdirectory(deps/ogg)
 add_subdirectory(deps/vorbis)
+set (BUILD_TESTING ${CURR_BUILD_TESTING})
 
 
 add_library(${TDE2_VIDEO_PLAYERS_LIBRARY_NAME} SHARED ${TDE2_VIDEO_PLAYERS_SOURCES} ${TDE2_VIDEO_PLAYERS_HEADERS})
