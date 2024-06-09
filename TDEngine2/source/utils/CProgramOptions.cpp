@@ -1,6 +1,7 @@
 #include "../../include/utils/CProgramOptions.h"
 #include "stringUtils.hpp"
 #include <algorithm>
+#include <cstdlib>
 
 
 namespace TDEngine2
@@ -11,30 +12,107 @@ namespace TDEngine2
 	}
 
 
-	static argparse_option ConvertArgumentToOption(CProgramOptions::TArgumentParams& arg)
+	constexpr I32 SUCCESS_EXIT_CODE = 0;
+
+	static const std::string SINGLE_CHAR_COMMAND_ID_PREFIX = "-";
+	static const std::string LONG_COMMAND_ID_PREFIX = "--";
+	static const std::string ASSIGNMENT_TOKEN = "=";
+
+
+	static void PrintArgumentsInfo(const CProgramOptions::TParseArgsParams& params, const std::vector<CProgramOptions::TArgumentParams>& argumentsInfo)
 	{
-		auto& value = arg.mValue;
+		std::cout << params.mProgramDescriptionStr << std::endl
+			<< "Usage:\nt" << params.mpProgramUsageStr << std::endl
+			<< std::endl << "Options: " << std::endl;
 
-		switch (arg.mValueType)
+		for (auto&& currArgInfo : argumentsInfo)
 		{
-			case CProgramOptions::TArgumentParams::E_VALUE_TYPE::INTEGER:
-				value = 0;
-				return OPT_INTEGER(arg.mSingleCharCommand, arg.mCommand.c_str(), &value.As<I32>(), arg.mCommandInfo.c_str());
+			std::cout << '\t';
 
-			case CProgramOptions::TArgumentParams::E_VALUE_TYPE::FLOAT:
-				value = 0.0f;
-				return OPT_FLOAT(arg.mSingleCharCommand, arg.mCommand.c_str(), &value.As<F32>(), arg.mCommandInfo.c_str());
+			if (currArgInfo.mSingleCharCommand)
+			{
+				std::cout << SINGLE_CHAR_COMMAND_ID_PREFIX << currArgInfo.mSingleCharCommand << ", ";
+			}
 
-			case CProgramOptions::TArgumentParams::E_VALUE_TYPE::STRING:
-				value = std::string();
-				return OPT_STRING(arg.mSingleCharCommand, arg.mCommand.c_str(), &value.As<std::string>(), arg.mCommandInfo.c_str());
+			if (!currArgInfo.mCommand.empty())
+			{
+				std::cout << LONG_COMMAND_ID_PREFIX << currArgInfo.mCommand << "\t\t\t";
+			}
 
-			case CProgramOptions::TArgumentParams::E_VALUE_TYPE::BOOLEAN:
-				value = false;
-				return OPT_BOOLEAN(arg.mSingleCharCommand, arg.mCommand.c_str(), &value.As<bool>(), arg.mCommandInfo.c_str());
+			std::cout << currArgInfo.mCommandInfo;
+		}
+	}
+
+
+	static CProgramOptions::TArgumentParams::E_VALUE_TYPE GetStringValueType(const std::string& id)
+	{
+		if (strtol(id.c_str(), nullptr, 10))
+		{
+			return CProgramOptions::TArgumentParams::E_VALUE_TYPE::INTEGER;
 		}
 
-		return OPT_END();
+		if (strtof(id.c_str(), nullptr))
+		{
+			return CProgramOptions::TArgumentParams::E_VALUE_TYPE::FLOAT;
+		}
+
+		return CProgramOptions::TArgumentParams::E_VALUE_TYPE::STRING;
+	}
+
+
+	static void PackArgValueAsType(const std::string& value, CProgramOptions::TArgumentParams& param)
+	{
+		switch (param.mValueType)
+		{
+			case CProgramOptions::TArgumentParams::E_VALUE_TYPE::INTEGER:
+				param.mValue = std::stoi(value);
+				break;
+
+			case CProgramOptions::TArgumentParams::E_VALUE_TYPE::FLOAT:
+				param.mValue = std::stof(value);
+				break;
+
+			case CProgramOptions::TArgumentParams::E_VALUE_TYPE::STRING:
+				param.mValue = value;
+				break;
+		}
+	}
+
+
+	static void InitArguments(std::vector<CProgramOptions::TArgumentParams>& argumentsInfo)
+	{
+		for (auto&& currArg : argumentsInfo)
+		{
+			switch (currArg.mValueType)
+			{
+				case CProgramOptions::TArgumentParams::E_VALUE_TYPE::INTEGER:
+					currArg.mValue = 0;
+					break;
+
+				case CProgramOptions::TArgumentParams::E_VALUE_TYPE::FLOAT:
+					currArg.mValue = 0.0f;
+					break;
+
+				case CProgramOptions::TArgumentParams::E_VALUE_TYPE::STRING:
+					currArg.mValue = Wrench::StringUtils::GetEmptyStr();
+					break;
+
+				case CProgramOptions::TArgumentParams::E_VALUE_TYPE::BOOLEAN:
+					currArg.mValue = false;
+					break;
+			}
+		}
+	}
+
+
+	static void StoreArgumentValue(CProgramOptions::TArgumentParams& param, const std::string& valueStr)
+	{
+		if (GetStringValueType(valueStr) != param.mValueType)
+		{
+			return;
+		}
+
+		PackArgValueAsType(valueStr, param);
 	}
 
 
@@ -45,27 +123,58 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		argparse argparse;
+		std::vector<std::string> args(params.mpArgsValues, params.mpArgsValues + params.mArgsCount);
 
-		const C8* pUsage[] =
+		if (std::find(args.cbegin(), args.cend(), "--help") != args.cend() || std::find(args.cbegin(), args.cend(), "-h") != args.cend())
 		{
-			params.mpProgramUsageStr.c_str(), nullptr
-		};
+			PrintArgumentsInfo(params, mArgumentsInfo);
+			exit(SUCCESS_EXIT_CODE);
+		}
 
-		std::vector<argparse_option> internalOptions;
-		internalOptions.push_back(OPT_HELP());
+		InitArguments(mArgumentsInfo);
+		mPositionalArguments.clear();
 
-		std::transform(mArgumentsInfo.begin(), mArgumentsInfo.end(), std::back_inserter(internalOptions), ConvertArgumentToOption);
-
-		internalOptions.push_back(OPT_END());
-
-		argparse_init(&argparse, &internalOptions.front(), pUsage, 0);
-		argparse_describe(&argparse, params.mProgramDescriptionStr.c_str(), nullptr);
-		I32 argc = argparse_parse(&argparse, params.mArgsCount, params.mpArgsValues);
-
-		for (I32 i = 0; i < argc; ++i)
+		for (USIZE i = 0; i < args.size();)
 		{
-			mPositionalArguments.emplace_back(params.mpArgsValues[i]);
+			if (Wrench::StringUtils::StartsWith(args[i], LONG_COMMAND_ID_PREFIX) || Wrench::StringUtils::StartsWith(args[i], SINGLE_CHAR_COMMAND_ID_PREFIX))
+			{
+				auto it = std::find_if(mArgumentsInfo.begin(), mArgumentsInfo.end(), [argName = args[i]](const TArgumentParams& param) 
+				{
+					return argName.find(param.mCommand, LONG_COMMAND_ID_PREFIX.size()) != std::string::npos || (argName.size() > 1 && argName[1] == param.mSingleCharCommand);
+				});
+
+				if (it == mArgumentsInfo.end())
+				{
+					i += 2; // skip current argument and its value, because they are not recognized
+					continue;
+				}
+
+				if (it->mValueType == CProgramOptions::TArgumentParams::E_VALUE_TYPE::BOOLEAN)
+				{
+					it->mValue = true;
+					i++;
+
+					continue;
+				}
+
+				// check if there is '=' sign
+				const USIZE pos = args[i].find(ASSIGNMENT_TOKEN);
+				if (pos != std::string::npos)
+				{
+					StoreArgumentValue(*it, args[i++].substr(pos + 1));
+					continue;
+				}
+
+				if (i + 1 >= args.size())
+				{
+					return RC_FAIL;
+				}
+
+				StoreArgumentValue(*it, args[++i]);
+				continue;
+			}
+
+			mPositionalArguments.emplace_back(args[i++]);
 		}
 
 		mIsInternalStateInitialized = true;

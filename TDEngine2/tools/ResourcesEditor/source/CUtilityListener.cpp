@@ -1,6 +1,5 @@
 #include "../include/CUtilityListener.h"
 #include "../../include/metadata.h"
-#include "../deps/argparse/argparse.h"
 #include <functional>
 
 #if _HAS_CXX17

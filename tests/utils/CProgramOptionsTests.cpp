@@ -115,8 +115,7 @@ TEST_CASE("CProgramOptions Tests")
 		REQUIRE((CProgramOptions::Get()->GetValueOrDefault<std::string>("test", expectedValue) == expectedValue));
 	}
 
-
-	SECTION("TestGetValue_PassExistingArgumentIdBySingleCharId_ReturnsItsValue")
+	SECTION("TestParseArgs_PassArgumentWithValueAsSingleString_ReturnsRC_FAIL")
 	{
 		static const C8* args[] =
 		{
@@ -126,6 +125,26 @@ TEST_CASE("CProgramOptions Tests")
 
 		CProgramOptions::TParseArgsParams argsParams;
 		argsParams.mArgsCount = 2;
+		argsParams.mpArgsValues = args;
+
+		static const std::string argumentId = "F";
+
+		CProgramOptions::Get()->AddArgument({ 'F', Wrench::StringUtils::GetEmptyStr(), Wrench::StringUtils::GetEmptyStr() });
+
+		REQUIRE(RC_FAIL == CProgramOptions::Get()->ParseArgs(argsParams));
+	}
+
+	SECTION("TestGetValue_PassExistingArgumentIdBySingleCharId_ReturnsItsValue")
+	{
+		static const C8* args[] =
+		{
+			"Program Path",
+			"-F",
+			"4"
+		};
+
+		CProgramOptions::TParseArgsParams argsParams;
+		argsParams.mArgsCount = 3;
 		argsParams.mpArgsValues = args;
 
 		static const std::string argumentId = "F";

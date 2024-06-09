@@ -1,7 +1,6 @@
 #include "../include/CUtilityListener.h"
 #define META_EXPORT_GRAPHICS_SECTION
 #include "../../include/metadata.h"
-#include "../deps/argparse/argparse.h"
 #include <functional>
 
 #if _HAS_CXX17
