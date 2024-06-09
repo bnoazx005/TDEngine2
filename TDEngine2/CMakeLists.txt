@@ -561,7 +561,8 @@ source_group("sources" FILES ${TDENGINE2_SOURCES})
 if (MSVC) 	#cl.exe compiler's options
 	message(STATUS "Windows system has detected...")
 	
-	add_definitions(-D_SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING -DNOMINMAX -D_CRT_SECURE_NO_WARNINGS)
+	# _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR is set up due to https://github.com/actions/runner-images/issues/10004 issue with Windows builds
+	add_definitions(-D_SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING -DNOMINMAX -D_CRT_SECURE_NO_WARNINGS -D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR)
 	
 	include(CheckCXXCompilerFlag)
 

@@ -72,6 +72,9 @@ source_group("sources" FILES ${SOURCES})
 
 if (MSVC) 	#cl.exe compiler's options
 
+	# _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR is set up due to https://github.com/actions/runner-images/issues/10004 issue with Windows builds
+	add_definitions(-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR)
+
 	#Debug compiler's options
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /std:c++17 /MDd /W3 /GS /Zc:inline /Od /Zi  /Zc:wchar_t /wd4250")
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /RTC1 /Gd /Oy- /EHsc /nologo /diagnostics:classic /errorReport:prompt /sdl /permissive- /analyze-")
