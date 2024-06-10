@@ -275,6 +275,12 @@ namespace TDEngine2
 			TDE2_API const std::string& GetName() const;
 			TDE2_API TFrameGraphResourceHandle GetHandle() const;
 
+			template <typename TResourceType>
+			const typename TResourceType::TDesc& GetDesc() const
+			{
+				return dynamic_cast<TResourceHolder<TResourceType>*>(mpResourceHolder.get())->mDesc;
+			}
+
 		public:
 			TDE2_STATIC_CONSTEXPR U32 mInitialVersion = 1;
 		private:
@@ -349,6 +355,15 @@ namespace TDEngine2
 			TResourceType& GetResource(TFrameGraphResourceHandle handle)
 			{
 				return _getResource(handle).Get<TResourceType>();
+			}
+
+			template <typename TResourceType>
+			const typename TResourceType::TDesc& GetResourceDesc(TFrameGraphResourceHandle handle) const
+			{
+				TDE2_ASSERT(static_cast<USIZE>(handle) < mResourcesGraph.size());
+				TDE2_ASSERT(static_cast<USIZE>(mResourcesGraph[static_cast<USIZE>(handle)].mResourceHandle) < mResources.size());
+
+				return mResources[static_cast<USIZE>(mResourcesGraph[static_cast<USIZE>(handle)].mResourceHandle)].GetDesc<TResourceType>();
 			}
 
 			TDE2_API TResourcesRegistry& GetResources(const CPassKey<CFrameGraphBuilder>& passkey);

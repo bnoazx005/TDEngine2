@@ -189,4 +189,15 @@ TEST_CASE("CFrameGraph Tests")
 
 		REQUIRE((isSetupInvoked[0] && isSetupInvoked[1]));
 	}
+
+	SECTION("TestGetResourceDesc_CreateTextureAndTryToGetItsDesc_TheMethodReturnsCorrectInformationAboutTexture")
+	{
+		const TFrameGraphTexture::TDesc expectedDesc { 1024, 768 };
+
+		const TFrameGraphResourceHandle texHandle = pFrameGraph->ImportResource<TFrameGraphTexture>("TestTexture", expectedDesc, {});
+		REQUIRE(texHandle != TFrameGraphResourceHandle::Invalid);
+
+		const auto& actualTexDesc = pFrameGraph->GetResourceDesc<TFrameGraphTexture>(texHandle);
+		REQUIRE((expectedDesc.mWidth == actualTexDesc.mWidth && expectedDesc.mHeight == actualTexDesc.mHeight));
+	}
 }

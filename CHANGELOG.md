@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- The API of **CFrameGraph** was extended with a new method GetResourceDesc.
+
 ### Changed
 
 - The internal implementation of **CProgramOptions** was replaced with own solution instead of argparse library.

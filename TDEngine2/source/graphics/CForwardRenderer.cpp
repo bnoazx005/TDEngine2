@@ -1114,20 +1114,11 @@ namespace TDEngine2
 						builder.Read(frameGraphBlackboard.mVolumetricCloudsMainTargetHandle);
 						builder.Read(frameGraphBlackboard.mDepthBufferHandle);
 
-						TFrameGraphTexture::TDesc volumetricCloudsFullSizeBufferParams{};
+						TFrameGraphTexture::TDesc volumetricCloudsFullSizeBufferParams = pFrameGraph->GetResourceDesc<TFrameGraphTexture>(frameGraphBlackboard.mVolumetricCloudsMainTargetHandle);
 
-						volumetricCloudsFullSizeBufferParams.mWidth = mContext.mWindowWidth;
+						volumetricCloudsFullSizeBufferParams.mWidth  = mContext.mWindowWidth;
 						volumetricCloudsFullSizeBufferParams.mHeight = mContext.mWindowHeight;
-						volumetricCloudsFullSizeBufferParams.mFormat = FT_FLOAT4;
-						volumetricCloudsFullSizeBufferParams.mNumOfMipLevels = 1;
-						volumetricCloudsFullSizeBufferParams.mNumOfSamples = 1;
-						volumetricCloudsFullSizeBufferParams.mSamplingQuality = 0;
-						volumetricCloudsFullSizeBufferParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
-						volumetricCloudsFullSizeBufferParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
-						volumetricCloudsFullSizeBufferParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS;
-						volumetricCloudsFullSizeBufferParams.mName = "VolumetricCloudsFulLSizeTarget";
-						volumetricCloudsFullSizeBufferParams.mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
-						volumetricCloudsFullSizeBufferParams.mIsWriteable = true;
+						volumetricCloudsFullSizeBufferParams.mName   = "VolumetricCloudsFullSizeTarget";
 
 						data.mVolumetricCloudsFullSizeBufferHandle = builder.Create<TFrameGraphTexture>(volumetricCloudsFullSizeBufferParams.mName, volumetricCloudsFullSizeBufferParams);
 						data.mVolumetricCloudsFullSizeBufferHandle = builder.Write(data.mVolumetricCloudsFullSizeBufferHandle);
@@ -1188,15 +1179,12 @@ namespace TDEngine2
 				).GetOrDefault(TGraphicsPipelineStateId::Invalid);
 			}
 
-			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, U32 windowWidth, U32 windowHeight)
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard)
 			{
 				struct TPassData
 				{
 					TFrameGraphResourceHandle mMainRenderTargetHandle = TFrameGraphResourceHandle::Invalid;
 				};
-
-				mContext.mWindowWidth = windowWidth;
-				mContext.mWindowHeight = windowHeight;
 
 				auto&& output = pFrameGraph->AddPass<TPassData>("VolumetricCloudsBlurComposePass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
 					{
@@ -1204,6 +1192,12 @@ namespace TDEngine2
 						builder.Read(frameGraphBlackboard.mDepthBufferHandle);
 
 						builder.Read(frameGraphBlackboard.mMainRenderTargetHandle);
+
+						const TFrameGraphTexture::TDesc& mainTargetDesc = pFrameGraph->GetResourceDesc<TFrameGraphTexture>(frameGraphBlackboard.mMainRenderTargetHandle);
+
+						mContext.mWindowWidth = mainTargetDesc.mWidth;
+						mContext.mWindowHeight = mainTargetDesc.mHeight;
+
 						data.mMainRenderTargetHandle = builder.Write(frameGraphBlackboard.mMainRenderTargetHandle);
 					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
@@ -1266,19 +1260,8 @@ namespace TDEngine2
 
 				auto&& output = pFrameGraph->AddPass<TPassData>("UIRenderPass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
 					{
-						TFrameGraphTexture::TDesc uiRenderTargetParams{};
-
-						uiRenderTargetParams.mWidth = mContext.mWindowWidth;
-						uiRenderTargetParams.mHeight = mContext.mWindowHeight;
-						uiRenderTargetParams.mFormat = FT_NORM_UBYTE4;
-						uiRenderTargetParams.mNumOfMipLevels = 1;
-						uiRenderTargetParams.mNumOfSamples = 1;
-						uiRenderTargetParams.mSamplingQuality = 0;
-						uiRenderTargetParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
-						uiRenderTargetParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
-						uiRenderTargetParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET;
+						TFrameGraphTexture::TDesc uiRenderTargetParams = pFrameGraph->GetResourceDesc<TFrameGraphTexture>(frameGraphBlackboard.mMainRenderTargetHandle);
 						uiRenderTargetParams.mName = "UIRenderTaget";
-						uiRenderTargetParams.mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
 
 						data.mUIRenderTargetHandle = builder.Create<TFrameGraphTexture>(uiRenderTargetParams.mName, uiRenderTargetParams);
 						data.mUIRenderTargetHandle = builder.Write(data.mUIRenderTargetHandle);
@@ -1367,7 +1350,7 @@ namespace TDEngine2
 				).GetOrDefault(TGraphicsPipelineStateId::Invalid);
 			}
 
-			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, TFrameGraphResourceHandle target, U32 windowWidth, U32 windowHeight, bool isHDRSupportEnabled)
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, TFrameGraphResourceHandle target)
 			{
 				struct TPassData
 				{
@@ -1375,28 +1358,17 @@ namespace TDEngine2
 					TFrameGraphResourceHandle mDestTargetHandle = TFrameGraphResourceHandle::Invalid;
 				};
 
-				mContext.mWindowWidth = windowWidth;
-				mContext.mWindowHeight = windowHeight;
-
 				auto&& output = pFrameGraph->AddPass<TPassData>("LightsHeatmapDebugPostProcessPass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
 					{
 						builder.Read(frameGraphBlackboard.mLightCullingData.mOpaqueLightGridTextureHandle);
 
 						data.mSourceTargetHandle = builder.Read(frameGraphBlackboard.mMainRenderTargetHandle);						
 						
-						TFrameGraphTexture::TDesc outputTargetParams{};
+						TFrameGraphTexture::TDesc outputTargetParams = pFrameGraph->GetResourceDesc<TFrameGraphTexture>(frameGraphBlackboard.mMainRenderTargetHandle);
+						outputTargetParams.mName = "IntermediateRenderTaget";
 
-						outputTargetParams.mWidth           = mContext.mWindowWidth;
-						outputTargetParams.mHeight          = mContext.mWindowHeight;
-						outputTargetParams.mFormat          = isHDRSupportEnabled ? FT_FLOAT4 : FT_NORM_UBYTE4;
-						outputTargetParams.mNumOfMipLevels  = 1;
-						outputTargetParams.mNumOfSamples    = 1;
-						outputTargetParams.mSamplingQuality = 0;
-						outputTargetParams.mType            = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
-						outputTargetParams.mUsageType       = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
-						outputTargetParams.mBindFlags       = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET;
-						outputTargetParams.mName            = "IntermediateRenderTaget";
-						outputTargetParams.mFlags           = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+						mContext.mWindowWidth  = outputTargetParams.mWidth;
+						mContext.mWindowHeight = outputTargetParams.mHeight;
 
 						data.mDestTargetHandle = builder.Create<TFrameGraphTexture>(outputTargetParams.mName, outputTargetParams);
 						data.mDestTargetHandle = builder.Write(data.mDestTargetHandle);
@@ -1563,7 +1535,7 @@ namespace TDEngine2
 					}).Get();
 			}
 
-			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, F32 adaptationRate)
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, const IPostProcessingProfile* pPostProcessProfile)
 			{
 				struct TPassData
 				{
@@ -1595,10 +1567,13 @@ namespace TDEngine2
 						
 						struct
 						{
-							F32 mAdaptationRate;
+							F32 mAdaptationRate = 0.5f;
 						} uniformsData;
 
-						uniformsData.mAdaptationRate = adaptationRate;
+						if (pPostProcessProfile)
+						{
+							uniformsData.mAdaptationRate = pPostProcessProfile->GetToneMappingParameters().mEyeAdaptionCoeff;
+						}
 
 						if (auto pShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>(mShaderId)))
 						{
@@ -1675,7 +1650,7 @@ namespace TDEngine2
 				).GetOrDefault(TGraphicsPipelineStateId::Invalid);
 			}
 
-			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, U32 windowWidth, U32 windowHeight, bool isHDRSupportEnabled, const IPostProcessingProfile* pPostProcessProfile)
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, U32 windowWidth, U32 windowHeight, const IPostProcessingProfile* pPostProcessProfile)
 			{
 				struct TPassData
 				{
@@ -1691,19 +1666,10 @@ namespace TDEngine2
 						builder.Read(frameGraphBlackboard.mCurrAvgLuminanceTargetHandle);
 						data.mSourceTargetHandle = builder.Read(frameGraphBlackboard.mMainRenderTargetHandle);
 
-						TFrameGraphTexture::TDesc outputTargetParams{};
-
-						outputTargetParams.mWidth = mContext.mWindowWidth;
+						TFrameGraphTexture::TDesc outputTargetParams = pFrameGraph->GetResourceDesc<TFrameGraphTexture>(frameGraphBlackboard.mMainRenderTargetHandle);
+						outputTargetParams.mWidth  = mContext.mWindowWidth;
 						outputTargetParams.mHeight = mContext.mWindowHeight;
-						outputTargetParams.mFormat = isHDRSupportEnabled ? FT_FLOAT4 : FT_NORM_UBYTE4;
-						outputTargetParams.mNumOfMipLevels = 1;
-						outputTargetParams.mNumOfSamples = 1;
-						outputTargetParams.mSamplingQuality = 0;
-						outputTargetParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
-						outputTargetParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
-						outputTargetParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET;
-						outputTargetParams.mName = "BloomThresholdTarget";
-						outputTargetParams.mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+						outputTargetParams.mName   = "BloomThresholdTarget";
 
 						data.mDestTargetHandle = builder.Create<TFrameGraphTexture>(outputTargetParams.mName, outputTargetParams);
 						data.mDestTargetHandle = builder.Write(data.mDestTargetHandle);
@@ -1782,7 +1748,7 @@ namespace TDEngine2
 				).GetOrDefault(TGraphicsPipelineStateId::Invalid);
 			}
 
-			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, TFrameGraphResourceHandle blurredTargetHandle, U32 windowWidth, U32 windowHeight, bool isHDRSupportEnabled)
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, TFrameGraphResourceHandle blurredTargetHandle)
 			{
 				struct TPassData
 				{
@@ -1790,27 +1756,16 @@ namespace TDEngine2
 					TFrameGraphResourceHandle mDestTargetHandle = TFrameGraphResourceHandle::Invalid;
 				};
 
-				mContext.mWindowWidth = windowWidth;
-				mContext.mWindowHeight = windowHeight;
-
 				auto&& output = pFrameGraph->AddPass<TPassData>("BloomComposePostProcessPass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
 					{
 						builder.Read(blurredTargetHandle);
 						data.mSourceTargetHandle = builder.Read(frameGraphBlackboard.mMainRenderTargetHandle);
 
-						TFrameGraphTexture::TDesc outputTargetParams{};
-
-						outputTargetParams.mWidth = mContext.mWindowWidth;
-						outputTargetParams.mHeight = mContext.mWindowHeight;
-						outputTargetParams.mFormat = isHDRSupportEnabled ? FT_FLOAT4 : FT_NORM_UBYTE4;
-						outputTargetParams.mNumOfMipLevels = 1;
-						outputTargetParams.mNumOfSamples = 1;
-						outputTargetParams.mSamplingQuality = 0;
-						outputTargetParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
-						outputTargetParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
-						outputTargetParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET;
+						TFrameGraphTexture::TDesc outputTargetParams = pFrameGraph->GetResourceDesc<TFrameGraphTexture>(frameGraphBlackboard.mMainRenderTargetHandle);
 						outputTargetParams.mName = "MainTargetBloomApplied";
-						outputTargetParams.mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+
+						mContext.mWindowWidth  = outputTargetParams.mWidth;
+						mContext.mWindowHeight = outputTargetParams.mHeight;
 
 						data.mDestTargetHandle = builder.Create<TFrameGraphTexture>(outputTargetParams.mName, outputTargetParams);
 						data.mDestTargetHandle = builder.Write(data.mDestTargetHandle);
@@ -1875,7 +1830,7 @@ namespace TDEngine2
 			}
 
 			TFrameGraphResourceHandle AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, 
-				TFrameGraphResourceHandle source, U32 windowWidth, U32 windowHeight, bool isHDRSupportEnabled, const TVector4& blurParams, U32 samplesCount)
+				TFrameGraphResourceHandle source, U32 windowWidth, U32 windowHeight, const TVector4& blurParams, U32 samplesCount)
 			{
 				struct TPassData
 				{
@@ -1892,19 +1847,11 @@ namespace TDEngine2
 					{
 						data.mSourceTargetHandle = builder.Read(source);
 
-						TFrameGraphTexture::TDesc outputTargetParams{};
+						TFrameGraphTexture::TDesc outputTargetParams = pFrameGraph->GetResourceDesc<TFrameGraphTexture>(frameGraphBlackboard.mMainRenderTargetHandle);
 
-						outputTargetParams.mWidth = mContext.mWindowWidth;
+						outputTargetParams.mWidth  = mContext.mWindowWidth;
 						outputTargetParams.mHeight = mContext.mWindowHeight;
-						outputTargetParams.mFormat = isHDRSupportEnabled ? FT_FLOAT4 : FT_NORM_UBYTE4;
-						outputTargetParams.mNumOfMipLevels = 1;
-						outputTargetParams.mNumOfSamples = 1;
-						outputTargetParams.mSamplingQuality = 0;
-						outputTargetParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
-						outputTargetParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
-						outputTargetParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET;
-						outputTargetParams.mName = blurParams.y > 0.0f ? "VerticalBlurOutputTarget" : "HorizontalBlurOutputTarget";
-						outputTargetParams.mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+						outputTargetParams.mName   = blurParams.y > 0.0f ? "VerticalBlurOutputTarget" : "HorizontalBlurOutputTarget";
 
 						data.mDestTargetHandle = builder.Create<TFrameGraphTexture>(outputTargetParams.mName, outputTargetParams);
 						data.mDestTargetHandle = builder.Write(data.mDestTargetHandle);
@@ -2484,19 +2431,18 @@ namespace TDEngine2
 				CVolumetricCloudsMainPass{ passInvokeContext }.AddPass(mpFrameGraph, frameGraphBlackboard);
 				CVolumetricCloudsUpscalePass{ passInvokeContext }.AddPass(mpFrameGraph, frameGraphBlackboard);
 
-				// \note volumetric clouds compose pass
-				pVolumetricCloudsComposePass->AddPass(mpFrameGraph, frameGraphBlackboard, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight());
+				pVolumetricCloudsComposePass->AddPass(mpFrameGraph, frameGraphBlackboard);
 			}
 
 			// \note lights heatmap debug pass
 			if (EnableLightsHeatMapCfgVar.Get())
 			{
-				pLightsHeatmapDebugPostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, frameGraphBlackboard.mMainRenderTargetHandle, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true); // \todo replace with configuration of hdr support
+				pLightsHeatmapDebugPostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, frameGraphBlackboard.mMainRenderTargetHandle);
 			}
 
 			// \note eye-adaptation pass
 			pExtractLuminancePostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard);
-			pCalcAverageLuminancePostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, 0.5f); // \todo Replace coeff with correct value from post-processing profile
+			pCalcAverageLuminancePostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, mpCurrPostProcessingProfile); // \todo Replace coeff with correct value from post-processing profile
 
 			const auto& bloomParameters = mpCurrPostProcessingProfile->GetBloomParameters();
 			const auto& toneMappingParameters = mpCurrPostProcessingProfile->GetToneMappingParameters();
@@ -2506,37 +2452,38 @@ namespace TDEngine2
 				const U16 downsampleCoeff = 1 << (TPostProcessingProfileParameters::TBloomParameters::mMaxQuality - bloomParameters.mQuality + 1);
 
 				// \note bloom threshold
-				pBloomThresholdPostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, mpWindowSystem->GetWidth() / downsampleCoeff, mpWindowSystem->GetHeight() / downsampleCoeff, true, mpCurrPostProcessingProfile); // \todo replace with configuration of hdr support
+				pBloomThresholdPostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, mpWindowSystem->GetWidth() / downsampleCoeff, mpWindowSystem->GetHeight() / downsampleCoeff, mpCurrPostProcessingProfile);
+
+				const U32 bloomTargetWidth = mpWindowSystem->GetWidth() / downsampleCoeff;
+				const U32 bloomTargetHeight = mpWindowSystem->GetHeight() / downsampleCoeff;
 
 				TFrameGraphResourceHandle horizontalBlurTargetHandle = pBlurPostProcessPass->AddPass(
 					mpFrameGraph, 
 					frameGraphBlackboard, 
 					frameGraphBlackboard.mBloomThresholdTargetHandle, 
-					mpWindowSystem->GetWidth() / downsampleCoeff,
-					mpWindowSystem->GetHeight() / downsampleCoeff,
-					true,
+					bloomTargetWidth,
+					bloomTargetHeight,
 					TVector4(
 						bloomParameters.mSmoothness,
 						0.0f, 
-						1.0f / static_cast<F32>(mpWindowSystem->GetWidth()), 
-						1.0f / static_cast<F32>(mpWindowSystem->GetHeight())), 
+						1.0f / static_cast<F32>(bloomTargetWidth),
+						1.0f / static_cast<F32>(bloomTargetHeight)),
 					bloomParameters.mSamplesCount); // \todo replace with configuration of hdr support
 
 				TFrameGraphResourceHandle verticalBlurTargetHandle = pBlurPostProcessPass->AddPass(
 					mpFrameGraph, 
 					frameGraphBlackboard, 
 					horizontalBlurTargetHandle,
-					mpWindowSystem->GetWidth() / downsampleCoeff,
-					mpWindowSystem->GetHeight() / downsampleCoeff,
-					true,
+					bloomTargetWidth,
+					bloomTargetHeight,
 					TVector4(
 						bloomParameters.mSmoothness,
 						CMathConstants::Pi * 0.5f,
-						1.0f / static_cast<F32>(mpWindowSystem->GetWidth()),
-						1.0f / static_cast<F32>(mpWindowSystem->GetHeight())),
+						1.0f / static_cast<F32>(bloomTargetWidth),
+						1.0f / static_cast<F32>(bloomTargetHeight)),
 					bloomParameters.mSamplesCount); // \todo replace with configuration of hdr support
 
-				pBloomComposePostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, verticalBlurTargetHandle, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true); // \todo replace with configuration of hdr support
+				pBloomComposePostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, verticalBlurTargetHandle);
 			}
 			
 			// \note ui pass
