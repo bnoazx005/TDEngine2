@@ -68,6 +68,7 @@ namespace TDEngine2
 				std::vector<T*>          mpRenderables;
 				std::vector<CTransform*> mpTransforms;
 				std::vector<bool>        mHasSelectedEntityComponent;
+				std::vector<bool>        mVisibleFlags;
 				std::vector<TEntityId>   mEntityIds;
 			};
 

@@ -3,6 +3,7 @@
 #include "../../include/graphics/ITexture.h"
 #include "../../include/graphics/IShaderCompiler.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
+#include "../../include/graphics/CBaseGraphicsPipeline.h"
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IFileSystem.h"
@@ -23,62 +24,7 @@ namespace TDEngine2
 {
 	struct TMaterialArchiveKeys
 	{
-		static const std::string mShaderIdKey;
-		static const std::string mTransparencyKey;
-
 		static const std::string mGeometryTagKey;
-		
-		static const std::string mBlendStateGroup;
-
-		struct TBlendStateKeys
-		{
-			static const std::string mSrcColorKey;
-			static const std::string mDestColorKey;
-			static const std::string mOpTypeKey;
-
-			static const std::string mSrcAlphaColorKey;
-			static const std::string mDestAlphaColorKey;
-			static const std::string mOpAlphaTypeKey;
-
-			static const std::string mWriteMaskKey;
-		};
-
-		static const std::string mDepthStencilStateGroup;
-
-		struct TDepthStencilStateKeys
-		{
-			static const std::string mDepthTestKey;
-			static const std::string mDepthWriteKey;
-			static const std::string mDepthCmpFuncKey;
-			static const std::string mStencilTestKey;
-			static const std::string mStencilReadMaskKey;
-			static const std::string mStencilWriteMaskKey;
-			static const std::string mStencilFrontOpGroup;
-			static const std::string mStencilBackOpGroup;
-			static const std::string mStencilRefKey;
-		};
-
-		struct TStencilOpDescKeys
-		{
-			static const std::string mComparisonFuncKey;
-			static const std::string mStencilPassOpKey;
-			static const std::string mStencilFailOpKey;
-			static const std::string mDepthFailOpKey;
-		};
-
-		static const std::string mRasterizerStateGroup;
-
-		struct TRasterizerStateKeys
-		{
-			static const std::string mCullModeKey;
-			static const std::string mWireframeModeKey;
-			static const std::string mFrontCCWModeKey;
-			static const std::string mDepthBiasKey;
-			static const std::string mMaxDepthBiasKey;
-			static const std::string mDepthClippingKey;
-			static const std::string mScissorTestKey;
-		};
-
 		static const std::string mTexturesGroup;
 		
 		struct TTextureKeys
@@ -98,46 +44,7 @@ namespace TDEngine2
 		};
 	};
 
-	const std::string TMaterialArchiveKeys::mShaderIdKey     = "shader_id";
-	const std::string TMaterialArchiveKeys::mTransparencyKey = "transparency_enabled";
-	const std::string TMaterialArchiveKeys::mBlendStateGroup = "blend_state";
 	const std::string TMaterialArchiveKeys::mGeometryTagKey  = "geom_tag";
-
-	const std::string TMaterialArchiveKeys::TBlendStateKeys::mSrcColorKey       = "src_color";
-	const std::string TMaterialArchiveKeys::TBlendStateKeys::mDestColorKey      = "dest_color";
-	const std::string TMaterialArchiveKeys::TBlendStateKeys::mOpTypeKey         = "op_type";
-	const std::string TMaterialArchiveKeys::TBlendStateKeys::mSrcAlphaColorKey  = "src_alpha";
-	const std::string TMaterialArchiveKeys::TBlendStateKeys::mDestAlphaColorKey = "dest_alpha";
-	const std::string TMaterialArchiveKeys::TBlendStateKeys::mOpAlphaTypeKey    = "op_alpha_type";
-	const std::string TMaterialArchiveKeys::TBlendStateKeys::mWriteMaskKey      = "write_mask";
-
-	const std::string TMaterialArchiveKeys::mDepthStencilStateGroup = "depth_stencil_state";
-
-	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthTestKey        = "depth_test_enabled";
-	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthWriteKey       = "depth_write_enabled";
-	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthCmpFuncKey     = "depth_cmp_func";
-	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilTestKey      = "stencil_test_enabled";
-	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilReadMaskKey  = "stencil_read_mask";
-	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilWriteMaskKey = "stencil_write_mask";
-	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilFrontOpGroup = "stencil_front_op";
-	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilBackOpGroup  = "stencil_back_op";
-	const std::string TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilRefKey       = "stencil_ref";
-
-	const std::string TMaterialArchiveKeys::TStencilOpDescKeys::mComparisonFuncKey = "cmp_func";
-	const std::string TMaterialArchiveKeys::TStencilOpDescKeys::mStencilPassOpKey = "pass_op";
-	const std::string TMaterialArchiveKeys::TStencilOpDescKeys::mStencilFailOpKey = "fail_op";
-	const std::string TMaterialArchiveKeys::TStencilOpDescKeys::mDepthFailOpKey = "depth_fail_op";
-
-	const std::string TMaterialArchiveKeys::mRasterizerStateGroup = "rasterizer_state";
-
-	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mCullModeKey      = "cull_mode";
-	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mWireframeModeKey = "wireframe_mode";
-	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mFrontCCWModeKey  = "front_CCW_mode";
-	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mDepthBiasKey     = "depth_bias";
-	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mMaxDepthBiasKey  = "max_depth_bias";
-	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mDepthClippingKey = "depth_clipping_enabled";
-	const std::string TMaterialArchiveKeys::TRasterizerStateKeys::mScissorTestKey   = "scissor_test_enabled";
-
 	const std::string TMaterialArchiveKeys::mTexturesGroup = "textures";
 
 	const std::string TMaterialArchiveKeys::TTextureKeys::mSlotKey        = "slot_id";
@@ -233,6 +140,8 @@ namespace TDEngine2
 		mpGraphicsContext = pGraphicsContext;
 		mpGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
 
+		mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -305,72 +214,25 @@ namespace TDEngine2
 			LOG_WARNING(Wrench::StringUtils::Format("[BaseMaterial] Missing \"{0}\" group of parameters", groupName));
 		};
 
-		SetShader(pReader->GetString(TMaterialArchiveKeys::mShaderIdKey));
-		SetTransparentState(pReader->GetBool(TMaterialArchiveKeys::mTransparencyKey));
 		SetGeometrySubGroupTag(Meta::EnumTrait<E_GEOMETRY_SUBGROUP_TAGS>::FromString(pReader->GetString(TMaterialArchiveKeys::mGeometryTagKey)));
 
-		processGroup(TMaterialArchiveKeys::mBlendStateGroup, [pReader, this]
+		// \note Load graphics pipeline as a single object
+		auto pipelineConfigLoadResult = Deserialize<TGraphicsPipelineConfigDesc>(pReader);
+		if (pipelineConfigLoadResult.HasError())
 		{
-			TDE2_PROFILER_SCOPE("CBaseMaterial::ProcessBlendGroup");
-			TBlendStateDesc blendStateDesc;
+			return pipelineConfigLoadResult.GetError();
+		}
 
-			blendStateDesc.mScrValue = Meta::EnumTrait<E_BLEND_FACTOR_VALUE>::FromString(pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mSrcColorKey));
-			blendStateDesc.mDestValue = Meta::EnumTrait<E_BLEND_FACTOR_VALUE>::FromString(pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mDestColorKey));
-			blendStateDesc.mOpType = Meta::EnumTrait<E_BLEND_OP_TYPE>::FromString(pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mOpTypeKey));
-
-			blendStateDesc.mScrAlphaValue = Meta::EnumTrait<E_BLEND_FACTOR_VALUE>::FromString(pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mSrcAlphaColorKey));
-			blendStateDesc.mDestAlphaValue = Meta::EnumTrait<E_BLEND_FACTOR_VALUE>::FromString(pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mDestAlphaColorKey));
-			blendStateDesc.mAlphaOpType = Meta::EnumTrait<E_BLEND_OP_TYPE>::FromString(pReader->GetString(TMaterialArchiveKeys::TBlendStateKeys::mOpAlphaTypeKey));
-
-			blendStateDesc.mWriteMask = pReader->GetUInt8(TMaterialArchiveKeys::TBlendStateKeys::mWriteMaskKey, 0xF);
-
-			SetBlendFactors(blendStateDesc.mScrValue, blendStateDesc.mDestValue, blendStateDesc.mScrAlphaValue, blendStateDesc.mDestAlphaValue);
-			SetBlendOp(blendStateDesc.mOpType, blendStateDesc.mAlphaOpType);
-		});
-
-		processGroup(TMaterialArchiveKeys::mDepthStencilStateGroup, [pReader, this]
+		mGraphicsPipelineConfigDesc = pipelineConfigLoadResult.Get();
+		SetShader(mGraphicsPipelineConfigDesc.mShaderIdStr);
+		
+		auto pipelineCreationResult = mpGraphicsObjectManager->CreateGraphicsPipelineState(mGraphicsPipelineConfigDesc);
+		if (pipelineCreationResult.HasError())
 		{
-			TDE2_PROFILER_SCOPE("CBaseMaterial::ProcessDepthStencilGroup");
+			return pipelineCreationResult.GetError();
+		}
 
-			SetDepthComparisonFunc(Meta::EnumTrait<E_COMPARISON_FUNC>::FromString(pReader->GetString(TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthCmpFuncKey)));
-
-			SetDepthBufferEnabled(pReader->GetBool(TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthTestKey));
-			SetDepthWriteEnabled(pReader->GetBool(TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthWriteKey));
-
-			SetStencilBufferEnabled(pReader->GetBool(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilTestKey));
-			SetStencilReadMask(pReader->GetUInt8(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilReadMaskKey));
-			SetStencilWriteMask(pReader->GetUInt8(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilWriteMaskKey));
-			SetStencilRefValue(pReader->GetUInt8(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilRefKey));
-
-			auto readStencilGroup = [this, pReader](const std::string& groupId, TStencilOpDesc& desc)
-			{
-				pReader->BeginGroup(groupId);
-				{
-					desc.mFunc = Meta::EnumTrait<E_COMPARISON_FUNC>::FromString(pReader->GetString(TMaterialArchiveKeys::TStencilOpDescKeys::mComparisonFuncKey));
-					desc.mPassOp = Meta::EnumTrait<E_STENCIL_OP>::FromString(pReader->GetString(TMaterialArchiveKeys::TStencilOpDescKeys::mStencilPassOpKey));
-					desc.mFailOp = Meta::EnumTrait<E_STENCIL_OP>::FromString(pReader->GetString(TMaterialArchiveKeys::TStencilOpDescKeys::mStencilFailOpKey));
-					desc.mDepthFailOp = Meta::EnumTrait<E_STENCIL_OP>::FromString(pReader->GetString(TMaterialArchiveKeys::TStencilOpDescKeys::mDepthFailOpKey));
-				}
-				pReader->EndGroup();
-			};
-
-			readStencilGroup(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilFrontOpGroup, mDepthStencilStateParams.mStencilFrontFaceOp);
-			readStencilGroup(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilBackOpGroup, mDepthStencilStateParams.mStencilBackFaceOp);
-		});
-
-		processGroup(TMaterialArchiveKeys::mRasterizerStateGroup, [pReader, this]
-		{
-			TDE2_PROFILER_SCOPE("CBaseMaterial::ProcessRasterizerGroup");
-
-			SetCullMode(Meta::EnumTrait<E_CULL_MODE>::FromString(pReader->GetString(TMaterialArchiveKeys::TRasterizerStateKeys::mCullModeKey)));
-
-			SetWireframeMode(pReader->GetBool(TMaterialArchiveKeys::TRasterizerStateKeys::mWireframeModeKey));
-			SetScissorEnabled(pReader->GetBool(TMaterialArchiveKeys::TRasterizerStateKeys::mScissorTestKey));
-			SetFrontCCWOrderEnabled(pReader->GetBool(TMaterialArchiveKeys::TRasterizerStateKeys::mFrontCCWModeKey));
-			SetDepthBias(pReader->GetFloat(TMaterialArchiveKeys::TRasterizerStateKeys::mDepthBiasKey), pReader->GetFloat(TMaterialArchiveKeys::TRasterizerStateKeys::mMaxDepthBiasKey));
-			SetDepthClippingEnabled(pReader->GetBool(TMaterialArchiveKeys::TRasterizerStateKeys::mDepthClippingKey));
-			// \todo Add another parameters
-		});
+		mGraphicsPipelineHandle = pipelineCreationResult.Get();
 
 		processGroup(TMaterialArchiveKeys::mTexturesGroup, [pReader, this]
 		{
@@ -471,63 +333,13 @@ namespace TDEngine2
 		}
 		pWriter->EndGroup();
 
-		pWriter->SetString(TMaterialArchiveKeys::mShaderIdKey, mpResourceManager->GetResource(mShaderHandle)->GetName());
-		pWriter->SetBool(TMaterialArchiveKeys::mTransparencyKey, mBlendStateParams.mIsEnabled);
 		pWriter->SetString(TMaterialArchiveKeys::mGeometryTagKey, Meta::EnumTrait<E_GEOMETRY_SUBGROUP_TAGS>::ToString(mTag));
 
-		pWriter->BeginGroup(TMaterialArchiveKeys::mBlendStateGroup);
+		if (TGraphicsPipelineStateId::Invalid != mGraphicsPipelineHandle)
 		{
-			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mSrcColorKey, Meta::EnumTrait<E_BLEND_FACTOR_VALUE>::ToString(mBlendStateParams.mScrValue));
-			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mDestColorKey, Meta::EnumTrait<E_BLEND_FACTOR_VALUE>::ToString(mBlendStateParams.mDestValue));
-			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mOpTypeKey, Meta::EnumTrait<E_BLEND_OP_TYPE>::ToString(mBlendStateParams.mOpType));
-
-			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mSrcAlphaColorKey, Meta::EnumTrait<E_BLEND_FACTOR_VALUE>::ToString(mBlendStateParams.mScrAlphaValue));
-			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mDestAlphaColorKey, Meta::EnumTrait<E_BLEND_FACTOR_VALUE>::ToString(mBlendStateParams.mDestAlphaValue));
-			pWriter->SetString(TMaterialArchiveKeys::TBlendStateKeys::mOpAlphaTypeKey, Meta::EnumTrait<E_BLEND_OP_TYPE>::ToString(mBlendStateParams.mAlphaOpType));
-
-			pWriter->SetUInt8(TMaterialArchiveKeys::TBlendStateKeys::mWriteMaskKey, mBlendStateParams.mWriteMask);
+			auto pGraphicsPipeline = mpGraphicsObjectManager->GetGraphicsPipeline(mGraphicsPipelineHandle);
+			Serialize(pWriter, pGraphicsPipeline->GetConfig());
 		}
-		pWriter->EndGroup();
-
-		pWriter->BeginGroup(TMaterialArchiveKeys::mDepthStencilStateGroup);
-		{
-			pWriter->SetBool(TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthTestKey, mDepthStencilStateParams.mIsDepthTestEnabled);
-			pWriter->SetBool(TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthWriteKey, mDepthStencilStateParams.mIsDepthWritingEnabled);
-			pWriter->SetString(TMaterialArchiveKeys::TDepthStencilStateKeys::mDepthCmpFuncKey, Meta::EnumTrait<E_COMPARISON_FUNC>::ToString(mDepthStencilStateParams.mDepthCmpFunc));
-
-			pWriter->SetBool(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilTestKey, mDepthStencilStateParams.mIsStencilTestEnabled);
-			pWriter->SetUInt8(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilReadMaskKey, mDepthStencilStateParams.mStencilReadMaskValue);
-			pWriter->SetUInt8(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilWriteMaskKey, mDepthStencilStateParams.mStencilWriteMaskValue);
-			pWriter->SetUInt8(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilRefKey, mDepthStencilStateParams.mStencilRefValue);
-
-			auto writeStencilGroup = [this, pWriter](const std::string& groupId, const TStencilOpDesc& desc)
-			{
-				pWriter->BeginGroup(groupId);
-				{
-					pWriter->SetString(TMaterialArchiveKeys::TStencilOpDescKeys::mComparisonFuncKey, Meta::EnumTrait<E_COMPARISON_FUNC>::ToString(desc.mFunc));
-					pWriter->SetString(TMaterialArchiveKeys::TStencilOpDescKeys::mStencilPassOpKey, Meta::EnumTrait<E_STENCIL_OP>::ToString(desc.mPassOp));
-					pWriter->SetString(TMaterialArchiveKeys::TStencilOpDescKeys::mStencilFailOpKey, Meta::EnumTrait<E_STENCIL_OP>::ToString(desc.mFailOp));
-					pWriter->SetString(TMaterialArchiveKeys::TStencilOpDescKeys::mDepthFailOpKey, Meta::EnumTrait<E_STENCIL_OP>::ToString(desc.mDepthFailOp));
-				}
-				pWriter->EndGroup();
-			};
-
-			writeStencilGroup(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilFrontOpGroup, mDepthStencilStateParams.mStencilFrontFaceOp);
-			writeStencilGroup(TMaterialArchiveKeys::TDepthStencilStateKeys::mStencilBackOpGroup, mDepthStencilStateParams.mStencilBackFaceOp);
-		}
-		pWriter->EndGroup();
-
-		pWriter->BeginGroup(TMaterialArchiveKeys::mRasterizerStateGroup);
-		{
-			pWriter->SetString(TMaterialArchiveKeys::TRasterizerStateKeys::mCullModeKey, Meta::EnumTrait<E_CULL_MODE>::ToString(mRasterizerStateParams.mCullMode));
-			pWriter->SetBool(TMaterialArchiveKeys::TRasterizerStateKeys::mWireframeModeKey, mRasterizerStateParams.mIsWireframeModeEnabled);
-			pWriter->SetBool(TMaterialArchiveKeys::TRasterizerStateKeys::mFrontCCWModeKey, mRasterizerStateParams.mIsFrontCCWEnabled);
-			pWriter->SetFloat(TMaterialArchiveKeys::TRasterizerStateKeys::mDepthBiasKey, mRasterizerStateParams.mDepthBias);
-			pWriter->SetFloat(TMaterialArchiveKeys::TRasterizerStateKeys::mMaxDepthBiasKey, mRasterizerStateParams.mMaxDepthBias);
-			pWriter->SetBool(TMaterialArchiveKeys::TRasterizerStateKeys::mDepthClippingKey, mRasterizerStateParams.mIsDepthClippingEnabled);
-			pWriter->SetBool(TMaterialArchiveKeys::TRasterizerStateKeys::mScissorTestKey, mRasterizerStateParams.mIsScissorTestEnabled);
-		}
-		pWriter->EndGroup();
 
 		pWriter->BeginGroup(TMaterialArchiveKeys::mTexturesGroup, true);
 		{
@@ -614,10 +426,10 @@ namespace TDEngine2
 		const TMaterialParameters params
 		{
 			(TResourceId::Invalid == mShaderHandle) ? Wrench::StringUtils::GetEmptyStr() : mpResourceManager->GetResource<IResource>(mShaderHandle)->GetName(),
-			mBlendStateParams.mIsEnabled,
-			mDepthStencilStateParams,
-			mRasterizerStateParams,
-			mBlendStateParams
+			mGraphicsPipelineConfigDesc.mBlendStateParams.mIsEnabled, // \todo Refactor this later
+			mGraphicsPipelineConfigDesc.mDepthStencilStateParams,
+			mGraphicsPipelineConfigDesc.mRasterizerStateParams,
+			mGraphicsPipelineConfigDesc.mBlendStateParams
 		};
 
 		U16 counter = 1;
@@ -656,22 +468,29 @@ namespace TDEngine2
 
 	void CBaseMaterial::SetTransparentState(bool isTransparent)
 	{
-		mBlendStateParams.mIsEnabled = isTransparent;
+		mGraphicsPipelineConfigDesc.mBlendStateParams.mIsEnabled = isTransparent;
+		mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
 	}
 
 	void CBaseMaterial::SetBlendFactors(const E_BLEND_FACTOR_VALUE& srcFactor, const E_BLEND_FACTOR_VALUE& destFactor,
 										const E_BLEND_FACTOR_VALUE& srcAlphaFactor, const E_BLEND_FACTOR_VALUE& destAlphaFactor)
 	{
-		mBlendStateParams.mScrValue       = srcFactor;
-		mBlendStateParams.mDestValue      = destFactor;
-		mBlendStateParams.mScrAlphaValue  = srcAlphaFactor;
-		mBlendStateParams.mDestAlphaValue = destAlphaFactor;
+		TBlendStateDesc& blendStateDesc = mGraphicsPipelineConfigDesc.mBlendStateParams;
+		blendStateDesc.mScrValue       = srcFactor;
+		blendStateDesc.mDestValue      = destFactor;
+		blendStateDesc.mScrAlphaValue  = srcAlphaFactor;
+		blendStateDesc.mDestAlphaValue = destAlphaFactor;
+
+		mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
 	}
 
 	void CBaseMaterial::SetBlendOp(const E_BLEND_OP_TYPE& opType, const E_BLEND_OP_TYPE& alphaOpType)
 	{
-		mBlendStateParams.mOpType      = opType;
-		mBlendStateParams.mAlphaOpType = alphaOpType;
+		TBlendStateDesc& blendStateDesc = mGraphicsPipelineConfigDesc.mBlendStateParams;
+		blendStateDesc.mOpType      = opType;
+		blendStateDesc.mAlphaOpType = alphaOpType;
+
+		mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
 	}
 
 	void CBaseMaterial::Bind(TMaterialInstanceId instanceId)
@@ -683,26 +502,19 @@ namespace TDEngine2
 			return;
 		}
 
-		if (mBlendStateHandle == TBlendStateId::Invalid)
+		if (TGraphicsPipelineStateId::Invalid == mGraphicsPipelineHandle)
 		{
-			mBlendStateHandle = mpGraphicsObjectManager->CreateBlendState(mBlendStateParams).Get();
+			auto pipelineCreationResult = mpGraphicsObjectManager->CreateGraphicsPipelineState(mGraphicsPipelineConfigDesc);
+			if (pipelineCreationResult.IsOk())
+			{
+				mGraphicsPipelineHandle = pipelineCreationResult.Get();
+			}
 		}
 
-		mpGraphicsContext->BindBlendState(mBlendStateHandle);
-
-		if (mDepthStencilStateHandle == TDepthStencilStateId::Invalid)
+		if (auto pGraphicsPipeline = mpGraphicsObjectManager->GetGraphicsPipeline(mGraphicsPipelineHandle))
 		{
-			mDepthStencilStateHandle = mpGraphicsObjectManager->CreateDepthStencilState(mDepthStencilStateParams).Get();
+			pGraphicsPipeline->Bind();
 		}
-
-		mpGraphicsContext->BindDepthStencilState(mDepthStencilStateHandle, mDepthStencilStateParams.mStencilRefValue);
-
-		if (mRasterizerStateHandle == TRasterizerStateId::Invalid)
-		{
-			mRasterizerStateHandle = mpGraphicsObjectManager->CreateRasterizerState(mRasterizerStateParams).Get();
-		}
-
-		mpGraphicsContext->BindRasterizerState(mRasterizerStateHandle);
 
 		auto iter = mpInstancesUserUniformBuffers.find(instanceId);
 		if (iter != mpInstancesUserUniformBuffers.cend())
@@ -750,80 +562,98 @@ namespace TDEngine2
 
 	void CBaseMaterial::SetDepthBufferEnabled(bool state)
 	{
-		mDepthStencilStateParams.mIsDepthTestEnabled = state;
+		mGraphicsPipelineConfigDesc.mDepthStencilStateParams.mIsDepthTestEnabled = state;
+		mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
 	}
 
 	void CBaseMaterial::SetStencilBufferEnabled(bool state)
 	{
-		mDepthStencilStateParams.mIsStencilTestEnabled = state;
+		mGraphicsPipelineConfigDesc.mDepthStencilStateParams.mIsStencilTestEnabled = state;
+		mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
 	}
 
 	void CBaseMaterial::SetDepthWriteEnabled(bool state)
 	{
-		mDepthStencilStateParams.mIsDepthWritingEnabled = state;
+		mGraphicsPipelineConfigDesc.mDepthStencilStateParams.mIsDepthWritingEnabled = state;
+		mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
 	}
 
 	void CBaseMaterial::SetDepthComparisonFunc(const E_COMPARISON_FUNC& funcType)
 	{
-		mDepthStencilStateParams.mDepthCmpFunc = funcType;
+		mGraphicsPipelineConfigDesc.mDepthStencilStateParams.mDepthCmpFunc = funcType;
+		mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
 	}
 
 	void CBaseMaterial::SetStencilReadMask(U8 value)
 	{
-		mDepthStencilStateParams.mStencilReadMaskValue = value;
+		mGraphicsPipelineConfigDesc.mDepthStencilStateParams.mStencilReadMaskValue = value;
+		mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
 	}
 
 	void CBaseMaterial::SetStencilWriteMask(U8 value)
 	{
-		mDepthStencilStateParams.mStencilWriteMaskValue = value;
+		mGraphicsPipelineConfigDesc.mDepthStencilStateParams.mStencilWriteMaskValue = value;
+		mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
 	}
 
 	void CBaseMaterial::SetStencilRefValue(U8 value)
 	{
-		mDepthStencilStateParams.mStencilRefValue = value;
+		mGraphicsPipelineConfigDesc.mDepthStencilStateParams.mStencilRefValue = value;
+		mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
 	}
 
 	void CBaseMaterial::SetStencilFrontOp(const TStencilOperationDesc& op)
 	{
-		mDepthStencilStateParams.mStencilFrontFaceOp = op;
+		mGraphicsPipelineConfigDesc.mDepthStencilStateParams.mStencilFrontFaceOp = op;
+		mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
 	}
 
 	void CBaseMaterial::SetStencilBackOp(const TStencilOperationDesc& op)
 	{
-		mDepthStencilStateParams.mStencilBackFaceOp = op;
+		mGraphicsPipelineConfigDesc.mDepthStencilStateParams.mStencilBackFaceOp = op;
+		mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
 	}
 
 	void CBaseMaterial::SetCullMode(const E_CULL_MODE& cullMode)
 	{
-		mRasterizerStateParams.mCullMode = cullMode;
+		mGraphicsPipelineConfigDesc.mRasterizerStateParams.mCullMode = cullMode;
+		mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
 	}
 
 	void CBaseMaterial::SetScissorEnabled(bool state)
 	{
-		mRasterizerStateParams.mIsScissorTestEnabled = state;
+		mGraphicsPipelineConfigDesc.mRasterizerStateParams.mIsScissorTestEnabled = state;
+		mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
 	}
 
 	void CBaseMaterial::SetWireframeMode(bool state)
 	{
-		mRasterizerStateParams.mIsWireframeModeEnabled = state;
+		mGraphicsPipelineConfigDesc.mRasterizerStateParams.mIsWireframeModeEnabled = state;
+		mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
 	}
 
 	void CBaseMaterial::SetFrontCCWOrderEnabled(bool state)
 	{
-		mRasterizerStateParams.mIsFrontCCWEnabled = state;
+		mGraphicsPipelineConfigDesc.mRasterizerStateParams.mIsFrontCCWEnabled = state;
+		mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
 	}
 	
 	void CBaseMaterial::SetDepthBias(F32 bias, F32 maxBias)
 	{
 		TDE2_ASSERT(CMathUtils::IsLessOrEqual(bias, maxBias));
 
-		mRasterizerStateParams.mDepthBias = bias;
-		mRasterizerStateParams.mMaxDepthBias = maxBias;
+		TRasterizerStateDesc& rasterizerStateDesc = mGraphicsPipelineConfigDesc.mRasterizerStateParams;
+
+		rasterizerStateDesc.mDepthBias = bias;
+		rasterizerStateDesc.mMaxDepthBias = maxBias;
+
+		mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
 	}
 
 	void CBaseMaterial::SetDepthClippingEnabled(bool value)
 	{
-		mRasterizerStateParams.mIsDepthClippingEnabled = value;
+		mGraphicsPipelineConfigDesc.mRasterizerStateParams.mIsDepthClippingEnabled = value;
+		mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
 	}
 
 	void CBaseMaterial::SetGeometrySubGroupTag(const E_GEOMETRY_SUBGROUP_TAGS& tag)
@@ -848,7 +678,7 @@ namespace TDEngine2
 
 	bool CBaseMaterial::IsTransparent() const
 	{
-		return mBlendStateParams.mIsEnabled;
+		return mGraphicsPipelineConfigDesc.mBlendStateParams.mIsEnabled;
 	}
 
 	const E_GEOMETRY_SUBGROUP_TAGS& CBaseMaterial::GetGeometrySubGroupTag() const
@@ -885,17 +715,17 @@ namespace TDEngine2
 
 	bool CBaseMaterial::IsScissorTestEnabled() const
 	{
-		return mRasterizerStateParams.mIsScissorTestEnabled;
+		return mGraphicsPipelineConfigDesc.mRasterizerStateParams.mIsScissorTestEnabled;
 	}
 
 	const TBlendStateDesc& CBaseMaterial::GetBlendingParams() const
 	{
-		return mBlendStateParams;
+		return mGraphicsPipelineConfigDesc.mBlendStateParams;
 	}
 
 	const TDepthStencilStateDesc& CBaseMaterial::GetDepthStencilParams() const
 	{
-		return mDepthStencilStateParams;
+		return mGraphicsPipelineConfigDesc.mDepthStencilStateParams;
 	}
 
 #if TDE2_EDITORS_ENABLED
@@ -1119,17 +949,11 @@ namespace TDEngine2
 		{
 			pMaterialInstance->SetShader(params.mShaderName);
 
-			// \note blending group
-			auto&& blendingParams = params.mBlendingParams;
-
-			pMaterialInstance->SetTransparentState(blendingParams.mIsEnabled);
-			pMaterialInstance->SetBlendFactors(blendingParams.mScrValue, blendingParams.mDestValue, 
-											   blendingParams.mScrAlphaValue, blendingParams.mDestAlphaValue);
-			pMaterialInstance->SetBlendOp(blendingParams.mOpType, blendingParams.mAlphaOpType);
-			pMaterialInstance->mBlendStateParams.mWriteMask = blendingParams.mWriteMask;
-
-			pMaterialInstance->mDepthStencilStateParams = params.mDepthStencilParams;
-			pMaterialInstance->mRasterizerStateParams = params.mRasterizerParams;
+			auto& graphicsPipelineConfig = pMaterialInstance->mGraphicsPipelineConfigDesc;
+			graphicsPipelineConfig.mBlendStateParams        = params.mBlendingParams;
+			graphicsPipelineConfig.mDepthStencilStateParams = params.mDepthStencilParams;
+			graphicsPipelineConfig.mRasterizerStateParams   = params.mRasterizerParams;
+			graphicsPipelineConfig.mShaderIdStr             = params.mShaderName;
 		}
 
 		return pMaterialInstance;

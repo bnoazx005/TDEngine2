@@ -36,6 +36,8 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, const TGraphicsPipelineConfigDesc& pipelineConfig) = 0;
 
 			TDE2_API virtual E_RESULT_CODE Bind() = 0;
+
+			TDE2_API virtual const TGraphicsPipelineConfigDesc& GetConfig() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IGraphicsPipeline)
 	};

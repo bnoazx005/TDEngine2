@@ -7,15 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.29] 2024-06-09
+## [0.6.29] 2024-06-11
 
 ### Added
 
 - The API of **CFrameGraph** was extended with a new method GetResourceDesc.
 
+- The API of **IGraphicsPipeline** was extended with a new method GetConfig.
+
 ### Changed
 
 - The internal implementation of **CProgramOptions** was replaced with own solution instead of argparse library.
+
+- **CBaseMaterial**'s implementation was refactored to integrate support of graphics pipeline objects. Now every change of some material's state causes invalidation
+and derives a new graphics pipeline object. 
 
 ### Fixed
 

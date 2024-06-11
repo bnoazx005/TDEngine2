@@ -125,6 +125,7 @@ namespace TDEngine2
 				result.mpRenderables.push_back(pEntity->template GetComponent<CUIElementMeshData>());
 				result.mLayoutElements.push_back(pEntity->template GetComponent<CLayoutElement>());
 				result.mHasSelectedEntityComponent.push_back(pEntity->template HasComponent<CSelectedEntityComponent>());
+				result.mVisibleFlags.push_back(!pEntity->template HasComponent<CCanvas>());
 				result.mEntityIds.push_back(currEntityId);
 			}
 		}

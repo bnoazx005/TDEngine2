@@ -25,6 +25,9 @@ namespace TDEngine2
 	struct TShaderCompilerOutput;
 	class IGraphicsObjectManager;
 
+	
+	enum class TGraphicsPipelineStateId : U32;
+
 
 	TDE2_DECLARE_SCOPED_PTR(IMaterialInstance)
 
@@ -431,17 +434,8 @@ namespace TDEngine2
 
 			TInstanceTexturesArray   mInstancesAssignedTextures;
 
-			TBlendStateDesc          mBlendStateParams;
-
-			TBlendStateId            mBlendStateHandle = TBlendStateId::Invalid;
-
-			TDepthStencilStateDesc   mDepthStencilStateParams;
-
-			TDepthStencilStateId     mDepthStencilStateHandle = TDepthStencilStateId::Invalid;
-
-			TRasterizerStateDesc     mRasterizerStateParams;
-
-			TRasterizerStateId       mRasterizerStateHandle = TRasterizerStateId::Invalid;
+			TGraphicsPipelineConfigDesc mGraphicsPipelineConfigDesc;
+			TGraphicsPipelineStateId    mGraphicsPipelineHandle;
 
 			E_GEOMETRY_SUBGROUP_TAGS mTag = E_GEOMETRY_SUBGROUP_TAGS::BASE;
 	};
