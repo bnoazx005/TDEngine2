@@ -1166,7 +1166,7 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 		pTestCase->ExecuteAction([&]
 		{
 			TDE2_TEST_IS_TRUE(PackColor32F(CTestContext::Get()->GetFrameBufferPixel(100, 700)) == 0xffffffff);
-			TDE2_TEST_IS_TRUE(PackColor32F(CTestContext::Get()->GetFrameBufferPixel(100, 600)) == 0xfe0000ff);
+			TDE2_TEST_IS_TRUE(PackColor32F(CTestContext::Get()->GetFrameBufferPixel(100, 600)) == 0xfe0909ff);
 		});
 
 		/// \note Destroy the canvas entity

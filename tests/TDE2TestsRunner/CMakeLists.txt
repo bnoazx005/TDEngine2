@@ -29,6 +29,7 @@ set(HEADERS
 
 set(SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CCustomEngineListener.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/CCameraTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CTransformTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CSceneTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CUIElementsTests.cpp"

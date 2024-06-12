@@ -9,6 +9,7 @@
 #include "../../include/ecs/CTransform.h"
 #include "../../include/ecs/CWorld.h"
 #include "../../include/ecs/CEntity.h"
+#include "../../include/ecs/components/CBoundsComponent.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/graphics/COrthoCamera.h"
@@ -70,7 +71,7 @@ namespace TDEngine2
 
 	void CStaticMeshRendererSystem::InjectBindings(IWorld* pWorld)
 	{
-		std::vector<TEntityId> entities = pWorld->FindEntitiesWithComponents<CTransform, CStaticMeshContainer>();
+		std::vector<TEntityId> entities = pWorld->FindEntitiesWithComponents<CTransform, CStaticMeshContainer, CBoundsComponent>();
 
 		mProcessingEntities.clear();
 
@@ -85,7 +86,7 @@ namespace TDEngine2
 				continue;
 			}
 
-			mProcessingEntities.push_back({ pCurrEntity->GetComponent<CTransform>(), pCurrEntity->GetComponent<CStaticMeshContainer>() });
+			mProcessingEntities.push_back({ pCurrEntity->GetComponent<CTransform>(), pCurrEntity->GetComponent<CStaticMeshContainer>(), pCurrEntity->GetComponent<CBoundsComponent>() });
 		}
 	}
 
@@ -180,6 +181,13 @@ namespace TDEngine2
 		{
 			auto pStaticMeshContainer = std::get<CStaticMeshContainer*>(*iter);
 			auto pTransform           = std::get<CTransform*>(*iter);
+			auto pBounds              = std::get<CBoundsComponent*>(*iter);
+
+			if (E_GEOMETRY_SUBGROUP_TAGS::SKYBOX != pCastedMaterial->GetGeometrySubGroupTag() && !pCamera->GetFrustum()->TestAABB(pBounds->GetBounds()))
+			{
+				++iter;
+				continue;
+			}
 
 			const TResourceId sharedMeshId = mpResourceManager->Load<IStaticMesh>(pStaticMeshContainer->GetMeshName());
 

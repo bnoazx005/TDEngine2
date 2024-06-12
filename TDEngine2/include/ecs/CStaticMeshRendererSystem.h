@@ -27,6 +27,7 @@ namespace TDEngine2
 	class CPerspectiveCamera;
 	class CEntity;
 	class ICamera;
+	class CBoundsComponent;
 
 
 	enum class TBufferHandleId : U32;
@@ -69,9 +70,9 @@ namespace TDEngine2
 				IVertexDeclaration* mpVertexDecl;
 			} TMeshBuffersEntry, *TMeshBuffersEntryPtr;
 
-			typedef std::vector<std::tuple<CTransform*, CStaticMeshContainer*>> TEntitiesArray;
-			typedef std::vector<TPtr<IMaterial>>                                TMaterialsArray;
-			typedef std::vector<TMeshBuffersEntry>                              TMeshBuffersMap;
+			typedef std::vector<std::tuple<CTransform*, CStaticMeshContainer*, CBoundsComponent*>> TEntitiesArray;
+			typedef std::vector<TPtr<IMaterial>>                                                   TMaterialsArray;
+			typedef std::vector<TMeshBuffersEntry>                                                 TMeshBuffersMap;
 		public:
 			TDE2_SYSTEM(CStaticMeshRendererSystem);
 
