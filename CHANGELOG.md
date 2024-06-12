@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.29] 2024-06-11
+## [0.6.29] 2024-06-12
 
 ### Added
 
@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 and derives a new graphics pipeline object. 
 
 ### Fixed
+
+- Incorrect test between AABBs and camera's frustum was fixed.
+
+- Entities boundaries incomplete initialization issue was fixed.
 
 ## [0.6.28] 2024-06-07
 

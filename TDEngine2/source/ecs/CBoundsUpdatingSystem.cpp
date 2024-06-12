@@ -82,7 +82,7 @@ namespace TDEngine2
 	}
 
 
-	static void ComputeStaticMeshBounds(IResourceManager* pResourceManager, CBoundsUpdatingSystem::TStaticMeshesBoundsContext& staticMeshesContext, USIZE id)
+	static bool ComputeStaticMeshBounds(IResourceManager* pResourceManager, CBoundsUpdatingSystem::TStaticMeshesBoundsContext& staticMeshesContext, USIZE id)
 	{
 		TDE2_PROFILER_SCOPE("ComputeStaticMeshBounds");
 
@@ -95,7 +95,7 @@ namespace TDEngine2
 			/// \note Skip meshes that's not been loaded yet
 			if ((TResourceId::Invalid == meshId) || E_RESOURCE_STATE_TYPE::RST_LOADED != pResourceManager->GetResource<IResource>(meshId)->GetState())
 			{
-				return;
+				return false;
 			}
 
 			if (auto pStaticMesh = pResourceManager->GetResource<IStaticMesh>(meshId))
@@ -121,9 +121,11 @@ namespace TDEngine2
 				}
 			}
 		}
+
+		return true;
 	}
 
-	static void ComputeSkinnedMeshBounds(IResourceManager* pResourceManager, CBoundsUpdatingSystem::TSkinnedMeshesBoundsContext& skinnedMeshesContext, USIZE id)
+	static bool ComputeSkinnedMeshBounds(IResourceManager* pResourceManager, CBoundsUpdatingSystem::TSkinnedMeshesBoundsContext& skinnedMeshesContext, USIZE id)
 	{
 		TDE2_PROFILER_SCOPE("ComputeSkinnedMeshBounds");
 
@@ -136,7 +138,7 @@ namespace TDEngine2
 			/// \note Skip meshes that's not been loaded yet
 			if ((TResourceId::Invalid == meshId) || E_RESOURCE_STATE_TYPE::RST_LOADED != pResourceManager->GetResource<IResource>(meshId)->GetState())
 			{
-				return;
+				return false;
 			}
 
 			if (auto pSkinnedMesh = pResourceManager->GetResource<ISkinnedMesh>(meshId))
@@ -179,6 +181,8 @@ namespace TDEngine2
 				}
 			}
 		}
+
+		return true;
 	}
 
 	template <typename T, typename TFunc>
@@ -202,7 +206,10 @@ namespace TDEngine2
 					continue;
 				}
 
-				functor(pResourceManager, meshesContext, i);
+				if (!functor(pResourceManager, meshesContext, i))
+				{
+					continue;
+				}
 
 				pBounds->SetDirty(false);
 			}
