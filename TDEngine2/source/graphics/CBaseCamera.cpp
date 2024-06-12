@@ -208,32 +208,31 @@ namespace TDEngine2
 		return true;
 	}
 
+	// Based on https://gdbooks.gitbooks.io/3dcollisions/content/Chapter2/static_aabb_plane.html
+	static inline bool IsAABBInsidePlane(const TVector3& center, const TVector3& extents, const TPlaneF32& plane)
+	{
+		const F32 radius = extents.x * std::abs(plane.a) + extents.y * std::abs(plane.b) + extents.z * std::abs(plane.c);
+		return CalcDistanceFromPlaneToPoint(plane, center) >= -radius;
+	}
+
+
 	bool CFrustum::TestAABB(const TAABB& box) const
 	{
 		TVector3 min = box.min;
 		TVector3 max = box.max;
 
-		std::array<TVector3, 8> boxVertices
-		{
-			min,
-			TVector3(min.x, min.y, max.z),
-			TVector3(min.x, max.y, min.z),
-			TVector3(min.x, max.y, max.z),
-			TVector3(max.x, min.y, min.z),
-			TVector3(max.x, min.y, max.z),
-			TVector3(max.x, max.y, min.z),
-			max,
-		};
+		const TVector3 center = 0.5f * (min + max);
+		const TVector3 extents = max - center;
 
-		for (auto&& v : boxVertices)
+		for (auto&& currPlane : mPlanes)
 		{
-			if (TestPoint(v))
+			if (!IsAABBInsidePlane(center, extents, currPlane))
 			{
-				return true;
+				return false;
 			}
 		}
 
-		return false;
+		return true;
 	}
 
 

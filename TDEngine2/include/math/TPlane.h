@@ -57,7 +57,7 @@ namespace TDEngine2
 			a = n.x;
 			b = n.y;
 			c = n.z;
-			d = -Dot(n, points[0]);
+			d = Dot(n, points[0]);
 		}
 
 		TDE2_API TPlane& operator= (const TPlane& plane) = default;

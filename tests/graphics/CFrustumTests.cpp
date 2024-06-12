@@ -78,5 +78,25 @@ TEST_CASE("CFrustum Tests")
 		}
 	}
 
+	SECTION("TestTestSphere_PassSphereThatPartiallyStayInsideFrustumButCenterIsNot_ReturnsTrue")
+	{
+		REQUIRE(pFrustum->TestSphere(TVector3(0.0f, 0.0f, -10.0f), 100.0f));
+	}
+
+	SECTION("TestTestAABB_PassAABBThatLiesInsideOfFrustum_ReturnsTrue")
+	{
+		REQUIRE(pFrustum->TestAABB(TAABB(TVector3(10.0f), 1.0f, 1.0f, 1.0f)));
+	}
+
+	SECTION("TestTestAABB_PassAABBThatPartiallyLiesInsideOfFrustum_ReturnsTrue")
+	{
+		REQUIRE(pFrustum->TestAABB(TAABB(ZeroVector3, 15.0f, 15.0f, 15.0f)));
+	}
+
+	SECTION("TestTestAABB_PassAABBThatLiesOutesideOfFrustum_ReturnsTrue")
+	{
+		REQUIRE(!pFrustum->TestAABB(TAABB(TVector3(-100.0f, 0.0f, 0.0f), 15.0f, 15.0f, 15.0f)));
+	}
+
 	REQUIRE(pFrustum->Free() == RC_OK);
 }
