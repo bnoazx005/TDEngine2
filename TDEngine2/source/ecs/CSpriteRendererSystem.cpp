@@ -1,9 +1,10 @@
 #include "../../include/ecs/CSpriteRendererSystem.h"
-#include "../../include/ecs/IWorld.h"
+#include "../../include/ecs/CWorld.h"
 #include "../../include/graphics/CQuadSprite.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/CTransform.h"
+#include "../../include/ecs/components/CBoundsComponent.h"
 #include "../../include/graphics/CRenderQueue.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/graphics/IVertexDeclaration.h"
@@ -11,9 +12,11 @@
 #include "../../include/graphics/ITexture.h"
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/graphics/IRenderer.h"
+#include "../../include/graphics/ICamera.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/graphics/CBaseMaterial.h"
 #include "../../include/core/memory/IAllocator.h"
+#include "../../include/utils/CFileLogger.h"
 
 
 namespace TDEngine2
@@ -114,6 +117,7 @@ namespace TDEngine2
 
 		mTransforms.clear();		
 		mSprites.clear();
+		mSpritesBounds.clear();
 		mBatches.clear();
 
 		CEntity* pCurrEntity = nullptr;
@@ -128,9 +132,11 @@ namespace TDEngine2
 
 			mTransforms.push_back(pCurrEntity->GetComponent<CTransform>());
 			mSprites.push_back(pCurrEntity->GetComponent<CQuadSprite>());
+			mSpritesBounds.push_back(pCurrEntity->GetComponent<CBoundsComponent>());
 
 			TDE2_ASSERT(mTransforms.back());
 			TDE2_ASSERT(mSprites.back());
+			TDE2_ASSERT(mSpritesBounds.back());
 		}
 	}
 
@@ -139,8 +145,8 @@ namespace TDEngine2
 		TDrawIndexedInstancedCommand* pCurrCommand = nullptr;
 
 		CTransform* pCurrTransform = nullptr;
-
 		CQuadSprite* pCurrSprite = nullptr;
+		CBoundsComponent* pCurrBounds = nullptr;
 
 		U32 groupKey = 0x0;
 
@@ -150,11 +156,27 @@ namespace TDEngine2
 			_initializeBatchVertexBuffers(mpGraphicsObjectManager, PreCreatedNumOfVertexBuffers);
 		}
 
+		ICamera* pCameraComponent = GetCurrentActiveCamera(pWorld);
+		if (!pCameraComponent)
+		{
+			LOG_WARNING("[CSpriteRendererSystem] An entity with Camera component attached to that wasn't found, frustum culling is disabled");
+		}
+
 		for (U32 i = 0; i < static_cast<U32>(mSprites.size()); ++i)
 		{
 			pCurrTransform = mTransforms[i];
-
 			pCurrSprite = mSprites[i];
+			pCurrBounds = mSpritesBounds[i];
+
+			bool isvisible = true;
+			if (pCameraComponent)
+			{
+				IFrustum* pCameraFrustum = pCameraComponent->GetFrustum();
+				if (pCameraFrustum && !pCameraFrustum->TestAABB(pCurrBounds->GetBounds()))
+				{
+					continue;
+				}
+			}
 			
 			const TResourceId currMaterialHandle = mpResourceManager->Load<IMaterial>(pCurrSprite->GetMaterialName());
 
@@ -187,6 +209,11 @@ namespace TDEngine2
 
 			instancesCount    = static_cast<U32>(currBatchEntry.mpInstancesData->GetSize());
 			U32 currBatchSize = instancesCount * sizeof(TSpriteInstanceData);
+
+			if (!instancesCount)
+			{
+				continue;
+			}
 
 			if (currBatchSize <= SpriteInstanceDataBufferSize)
 			{

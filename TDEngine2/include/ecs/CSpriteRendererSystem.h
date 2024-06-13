@@ -28,6 +28,7 @@ namespace TDEngine2
 	class IRenderer;
 	class IResourceManager;
 	class IAllocator;
+	class CBoundsComponent;
 
 
 	enum class TBufferHandleId : U32;
@@ -132,31 +133,32 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			TPtr<IAllocator>            mpTempAllocator;
+			TPtr<IAllocator>               mpTempAllocator;
 
-			std::vector<CTransform*>    mTransforms;
+			std::vector<CTransform*>       mTransforms;
 
-			std::vector<CQuadSprite*>   mSprites;
+			std::vector<CQuadSprite*>      mSprites;
+			std::vector<CBoundsComponent*> mSpritesBounds;
 
-			IRenderer*                  mpRenderer;
+			IRenderer*                     mpRenderer;
 
-			TPtr<IResourceManager>      mpResourceManager;
+			TPtr<IResourceManager>         mpResourceManager;
 
-			CRenderQueue*               mpRenderQueue;
+			CRenderQueue*                  mpRenderQueue;
 
-			IGraphicsObjectManager*     mpGraphicsObjectManager;
+			IGraphicsObjectManager*        mpGraphicsObjectManager;
 
-			std::vector<TBufferHandleId> mSpritesPerInstanceDataHandles;
+			std::vector<TBufferHandleId>   mSpritesPerInstanceDataHandles;
 
-			TBufferHandleId             mSpriteVertexBufferHandle;
-			TBufferHandleId             mSpriteIndexBufferHandle;
+			TBufferHandleId                mSpriteVertexBufferHandle;
+			TBufferHandleId                mSpriteIndexBufferHandle;
 
-			IVertexDeclaration*         mpSpriteVertexDeclaration;
+			IVertexDeclaration*            mpSpriteVertexDeclaration;
 
-			U16                         mSpriteFaces[6];
+			U16                            mSpriteFaces[6];
 
-			IGraphicsLayersInfo*        mpGraphicsLayers;
+			IGraphicsLayersInfo*           mpGraphicsLayers;
 
-			TBatchesBuffer              mBatches;
+			TBatchesBuffer                 mBatches;
 	};
 }
