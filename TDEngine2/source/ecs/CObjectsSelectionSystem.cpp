@@ -19,6 +19,7 @@
 #include "../../include/ecs/CTransform.h"
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CEntity.h"
+#include "../../include/ecs/components/CBoundsComponent.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/editor/ecs/EditorComponents.h"
 #include "../../include/editor/CPerfProfiler.h"
@@ -103,6 +104,7 @@ namespace TDEngine2
 				result.mpTransforms.push_back(pEntity->template GetComponent<CTransform>());
 				result.mpRenderables.push_back(pEntity->template GetComponent<T>());
 				result.mHasSelectedEntityComponent.push_back(pEntity->template HasComponent<CSelectedEntityComponent>());
+				result.mpBounds.push_back(pEntity->template GetComponent<CBoundsComponent>());
 				result.mEntityIds.push_back(currEntityId);
 			}
 		}
@@ -328,6 +330,11 @@ namespace TDEngine2
 		/// \note Static meshes
 		for (USIZE i = 0; i < static_cast<U32>(mStaticMeshesContext.mpRenderables.size()); ++i)
 		{
+			if (!pEditorCameraComponent->GetFrustum()->TestAABB(mStaticMeshesContext.mpBounds[i]->GetBounds()))
+			{
+				continue;
+			}
+
 			ProcessStaticMeshEntity(mStaticMeshesContext, mpResourceManager, mpSelectionVertDecl, commandIndex++, mpEditorOnlyRenderQueue, i, mSelectionMaterialHandle);
 
 			if (mStaticMeshesContext.mHasSelectedEntityComponent[i])
@@ -340,6 +347,11 @@ namespace TDEngine2
 		/// \note Skinned meshes
 		for (USIZE i = 0; i < static_cast<U32>(mSkinnedMeshesContext.mpRenderables.size()); ++i)
 		{
+			if (!pEditorCameraComponent->GetFrustum()->TestAABB(mSkinnedMeshesContext.mpBounds[i]->GetBounds()))
+			{
+				continue;
+			}
+
 			ProcessSkinnedMeshEntity(mSkinnedMeshesContext, mpResourceManager, mpSelectionSkinnedVertDecl, commandIndex++, mpEditorOnlyRenderQueue, i, mSelectionSkinnedMaterialHandle);
 
 			if (mSkinnedMeshesContext.mHasSelectedEntityComponent[i])
@@ -352,6 +364,11 @@ namespace TDEngine2
 		/// \note Quad sprites
 		for (USIZE i = 0; i < static_cast<U32>(mSpritesContext.mpRenderables.size()); ++i)
 		{
+			if (!pEditorCameraComponent->GetFrustum()->TestAABB(mSpritesContext.mpBounds[i]->GetBounds()))
+			{
+				continue;
+			}
+
 			ProcessSpriteEntity(mSpritesContext, mpResourceManager, mpSelectionVertDecl, mSpritesVertexBufferHandle, mSpritesIndexBufferHandle,
 				commandIndex++, mpEditorOnlyRenderQueue, i, mSelectionMaterialHandle);
 

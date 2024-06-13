@@ -29,6 +29,7 @@ namespace TDEngine2
 	class CQuadSprite;
 	class CUIElementMeshData;
 	class CLayoutElement;
+	class CBoundsComponent;
 
 
 	enum class TBufferHandleId : U32;
@@ -65,11 +66,12 @@ namespace TDEngine2
 			template <typename T>
 			struct TSystemContext
 			{
-				std::vector<T*>          mpRenderables;
-				std::vector<CTransform*> mpTransforms;
-				std::vector<bool>        mHasSelectedEntityComponent;
-				std::vector<bool>        mVisibleFlags;
-				std::vector<TEntityId>   mEntityIds;
+				std::vector<T*>                mpRenderables;
+				std::vector<CTransform*>       mpTransforms;
+				std::vector<CBoundsComponent*> mpBounds;
+				std::vector<bool>              mHasSelectedEntityComponent;
+				std::vector<bool>              mVisibleFlags;
+				std::vector<TEntityId>         mEntityIds;
 			};
 
 			struct TUIElementsSystemContext : TSystemContext<CUIElementMeshData>
