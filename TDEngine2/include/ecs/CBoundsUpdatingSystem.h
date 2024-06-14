@@ -107,13 +107,13 @@ namespace TDEngine2
 			TSkinnedMeshesBoundsContext mSkinnedMeshesContext;
 			TSpritesBoundsContext       mSpritesContext;
 
-			IResourceManager*           mpResourceManager;
+			IResourceManager*           mpResourceManager = nullptr;
 
-			IDebugUtility*              mpDebugUtility;
+			IDebugUtility*              mpDebugUtility = nullptr;
 
-			ISceneManager*              mpSceneManager;
+			ISceneManager*              mpSceneManager = nullptr;
 
-			IJobManager*                mpJobManager;
+			IJobManager*                mpJobManager = nullptr;
 
 			F32                         mCurrTimer = 0.0f;
 	};

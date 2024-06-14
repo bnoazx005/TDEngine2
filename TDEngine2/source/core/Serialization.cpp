@@ -59,7 +59,7 @@ namespace TDEngine2
 	{
 	}
 
-	CValueWrapper::CValueWrapper(CValueWrapper&& object):
+	CValueWrapper::CValueWrapper(CValueWrapper&& object) noexcept:
 		mpImpl(std::move(object.mpImpl))
 	{
 		object.mpImpl = nullptr;

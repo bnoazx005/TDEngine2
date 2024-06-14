@@ -125,8 +125,8 @@ namespace TDEngine2
 
 			std::vector<U8>         mFontInfoBytes;
 
-			F32                     mFontHeight;
-			F32                     mFontInternalScale;
+			F32                     mFontHeight = 0.0f;
+			F32                     mFontInternalScale = 1.0f;
 
 			U32                     mDataVersionId = 0;
 	};
@@ -193,9 +193,9 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CRuntimeFontLoader)
 		protected:
-			IResourceManager* mpResourceManager;
+			IResourceManager* mpResourceManager = nullptr;
 
-			IFileSystem*      mpFileSystem;
+			IFileSystem*      mpFileSystem = nullptr;
 	};
 
 
@@ -274,8 +274,8 @@ namespace TDEngine2
 		protected:
 			static constexpr U32 mAtlasSize = 1024;
 
-			IResourceManager* mpResourceManager;
+			IResourceManager* mpResourceManager = nullptr;
 
-			IFileSystem*      mpFileSystem;
+			IFileSystem*      mpFileSystem = nullptr;
 	};
 }

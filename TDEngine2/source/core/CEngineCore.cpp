@@ -73,11 +73,7 @@
 namespace TDEngine2
 {
 	CEngineCore::CEngineCore():
-		CBaseObject(),
-		mpInternalTimer(nullptr),
-		mpWorldInstance(nullptr),
-		mpInputContext(nullptr),
-		mpEditorsManager(nullptr)
+		CBaseObject()
 	{
 	}
 	

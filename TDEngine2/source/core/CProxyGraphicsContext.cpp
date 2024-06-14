@@ -313,7 +313,7 @@ namespace TDEngine2
 	std::vector<U8> CProxyGraphicsContext::GetBackBufferData() const
 	{
 		std::vector<U8> backBufferData;
-		return std::move(backBufferData);
+		return backBufferData;
 	}
 
 

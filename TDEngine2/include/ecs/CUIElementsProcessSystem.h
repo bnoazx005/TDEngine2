@@ -142,10 +142,10 @@ namespace TDEngine2
 			TUIRenderableElementsContext<C9SliceImage> mSlicedImagesContext;
 			TUIRenderableElementsContext<CLabel>       mLabelsContext;
 
-			IGraphicsContext*                          mpGraphicsContext;
+			IGraphicsContext*                          mpGraphicsContext = nullptr;
 
-			IResourceManager*                          mpResourceManager;
+			IResourceManager*                          mpResourceManager = nullptr;
 			
-			ISceneManager*                             mpSceneManager;
+			ISceneManager*                             mpSceneManager = nullptr;
 	};
 }

@@ -761,7 +761,7 @@ namespace TDEngine2
 			inserter(currEntity, pLayoutElement);
 		}
 
-		return std::move(context);
+		return context;
 	}
 
 

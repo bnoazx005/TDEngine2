@@ -223,11 +223,11 @@ namespace TDEngine2
 
 			static const U32      mDefaultPositionIterations;
 
-			b2World*              mpWorldInstance;
+			b2World*              mpWorldInstance = nullptr;
 
-			b2ContactListener*    mpContactsListener;
+			b2ContactListener*    mpContactsListener = nullptr;
 
-			IEventManager*        mpEventManager;
+			IEventManager*        mpEventManager = nullptr;
 
 			THandles2EntitiesMap  mHandles2EntitiesMap;
 
@@ -235,11 +235,10 @@ namespace TDEngine2
 
 			TVector2              mCurrGravity;
 
-			F32                   mCurrTimeStep;
+			F32                   mCurrTimeStep = 0.0f;
 
-			U32                   mCurrVelocityIterations;
-
-			U32                   mCurrPositionIterations;
+			U32                   mCurrVelocityIterations = 0;
+			U32                   mCurrPositionIterations = 0;
 	};
 
 

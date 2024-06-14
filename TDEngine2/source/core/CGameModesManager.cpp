@@ -163,7 +163,7 @@ namespace TDEngine2
 	*/
 
 	CSplashScreenGameMode::CSplashScreenGameMode():
-		CBaseGameMode("SplashScreenMode"), mSplashScreenSceneHandle(TSceneId::Invalid)
+		CBaseGameMode("SplashScreenMode"), mSplashScreenSceneHandle(TSceneId::Invalid), mSplashScreenSystemHandle(TSystemId::Invalid)
 	{
 	}
 

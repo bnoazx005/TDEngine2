@@ -181,17 +181,17 @@ namespace TDEngine2
 
 			TListenersArray    mEngineListeners;
 
-			TPtr<ITimer>       mpInternalTimer;
+			TPtr<ITimer>       mpInternalTimer = nullptr;
 
-			TPtr<IWorld>       mpWorldInstance;
+			TPtr<IWorld>       mpWorldInstance = nullptr;
 
-			IInputContext*     mpInputContext;
+			IInputContext*     mpInputContext = nullptr;
 
-			IImGUIContext*     mpImGUIContext;
+			IImGUIContext*     mpImGUIContext = nullptr;
 
-			IEditorsManager*   mpEditorsManager;
+			IEditorsManager*   mpEditorsManager = nullptr;
 
-			IDebugUtility*     mpDebugUtility;
+			IDebugUtility*     mpDebugUtility = nullptr;
 
 			mutable std::mutex mMutex; ///< \todo the mutex doesn't use in the code, should be fixed later!
 	};

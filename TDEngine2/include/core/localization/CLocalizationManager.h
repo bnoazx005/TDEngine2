@@ -142,7 +142,7 @@ namespace TDEngine2
 
 			std::string mConfigFilePath;
 
-			TLocaleId mCurrSelectedLocaleId;
+			TLocaleId mCurrSelectedLocaleId = TLocaleId::Invalid;
 
 			TLocalesRegistry mRegisteredLocales;
 

@@ -22,8 +22,15 @@
 namespace TDEngine2
 {
 	CSpriteRendererSystem::CSpriteRendererSystem() :
-		CBaseSystem(), mpRenderQueue(nullptr), mSpriteVertexBufferHandle(TBufferHandleId::Invalid), mSpriteIndexBufferHandle(TBufferHandleId::Invalid),
-		mpSpriteVertexDeclaration(nullptr), mSpriteFaces {0, 1, 2, 2, 1, 3}, mpGraphicsLayers(nullptr)
+		CBaseSystem(), 
+		mpRenderQueue(nullptr), 
+		mSpriteVertexBufferHandle(TBufferHandleId::Invalid), 
+		mSpriteIndexBufferHandle(TBufferHandleId::Invalid),
+		mpSpriteVertexDeclaration(nullptr), 
+		mSpriteFaces {0, 1, 2, 2, 1, 3}, 
+		mpGraphicsLayers(nullptr),
+		mpRenderer(nullptr),
+		mpGraphicsObjectManager(nullptr)
 	{
 	}
 

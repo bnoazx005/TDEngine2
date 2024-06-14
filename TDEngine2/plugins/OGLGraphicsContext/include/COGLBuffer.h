@@ -13,9 +13,6 @@
 
 namespace TDEngine2
 {
-	
-
-
 	/*!
 		class COGLBuffer
 
@@ -103,17 +100,17 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			GLuint                   mBufferHandler;
+			GLuint                   mBufferHandler = 0;
 
-			USIZE                    mBufferSize;
+			USIZE                    mBufferSize = 0;
 
-			E_BUFFER_USAGE_TYPE      mBufferUsageType;
+			E_BUFFER_USAGE_TYPE      mBufferUsageType = E_BUFFER_USAGE_TYPE::DEFAULT;
 
-			E_BUFFER_TYPE            mBufferType;
+			E_BUFFER_TYPE            mBufferType = E_BUFFER_TYPE::GENERIC;
 
-			void*                    mpMappedBufferData;
+			void*                    mpMappedBufferData = nullptr;
 
-			TInitBufferParams        mInitParams;
+			TInitBufferParams        mInitParams{};
 
 #if TDE2_DEBUG_MODE
 			U8                       mLockChecker = 0;

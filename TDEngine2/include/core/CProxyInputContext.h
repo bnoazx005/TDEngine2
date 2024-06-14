@@ -33,11 +33,11 @@ namespace TDEngine2
 		static constexpr U16 mKeysCount = 256;
 		static constexpr U16 mMouseButtonsCount = 8;
 
-		U8                   mKeyboardState[mKeysCount]{};
-		U8                   mPrevKeyboardState[mKeysCount]{};
+		U8                   mKeyboardState[mKeysCount]{ 0 };
+		U8                   mPrevKeyboardState[mKeysCount]{ 0 };
 
-		U8                   mMouseButtonsState[mMouseButtonsCount];
-		U8                   mPrevMouseButtonsState[mMouseButtonsCount];
+		U8                   mMouseButtonsState[mMouseButtonsCount]{ 0 };
+		U8                   mPrevMouseButtonsState[mMouseButtonsCount]{ 0 };
 
 		std::unordered_set<E_KEYCODES> mFrameKeysInputBuffer{};
 		std::unordered_set<U8>         mFrameMouseButtonsInputBuffer{};
@@ -208,6 +208,6 @@ namespace TDEngine2
 
 			TPtr<IWindowSystem>     mpWindowSystem;
 
-			TProxyInputContextDesc* mpContextDesc;
+			TProxyInputContextDesc* mpContextDesc = nullptr;
 	};
 }

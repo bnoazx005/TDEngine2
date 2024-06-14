@@ -30,7 +30,15 @@
 namespace TDEngine2
 {
 	CObjectsSelectionSystem::CObjectsSelectionSystem() :
-		CBaseSystem()
+		CBaseSystem(),
+		mSpritesVertexBufferHandle(TBufferHandleId::Invalid),
+		mSpritesIndexBufferHandle(TBufferHandleId::Invalid),
+		mUIElementsVertexBufferHandle(TBufferHandleId::Invalid),
+		mSelectionMaterialHandle(TResourceId::Invalid),
+		mSelectionSkinnedMaterialHandle(TResourceId::Invalid),
+		mSelectionUIMaterialHandle(TResourceId::Invalid),
+		mSelectionOutlineMaterialHandle(TResourceId::Invalid),
+		mSelectionSkinnedOutlineMaterialHandle(TResourceId::Invalid)
 	{
 	}
 

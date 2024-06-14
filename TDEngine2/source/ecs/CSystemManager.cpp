@@ -13,7 +13,7 @@
 namespace TDEngine2
 {
 	CSystemManager::CSystemManager() :
-		CBaseObject(), mpEventManager(nullptr), mpWorld(nullptr)
+		CBaseObject(), mpEventManager(nullptr), mpWorld(nullptr), mIsDirty(true)
 	{
 	}
 

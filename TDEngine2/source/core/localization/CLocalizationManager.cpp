@@ -14,7 +14,8 @@
 namespace TDEngine2
 {
 	CLocalizationManager::CLocalizationManager() :
-		CBaseObject()
+		CBaseObject(),
+		mCurrLocalePackageId(TResourceId::Invalid)
 	{
 	}
 

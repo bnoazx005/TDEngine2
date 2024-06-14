@@ -261,19 +261,19 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			CEntityManager*       mpEntityManager;
+			CEntityManager*       mpEntityManager = nullptr;
 
-			IComponentManager*    mpComponentManager;
+			IComponentManager*    mpComponentManager = nullptr;
 
-			ISystemManager*       mpSystemManager;
+			ISystemManager*       mpSystemManager = nullptr;
 
 			TPtr<IEventManager>   mpEventManager;
 
-			TPtr<IJobManager>     mpJobManager;
+			TPtr<IJobManager>     mpJobManager = nullptr;
 
-			TPtr<IRaycastContext> mpRaycastContext;
+			TPtr<IRaycastContext> mpRaycastContext = nullptr;
 
-			F32                   mTimeScaleFactor;
+			F32                   mTimeScaleFactor = 1.0f;
 
 			mutable std::mutex    mMutex;
 	};

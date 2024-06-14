@@ -28,7 +28,9 @@
 namespace TDEngine2
 {
 	CLightingSystem::CLightingSystem() :
-		CBaseSystem()
+		CBaseSystem(),
+		mShadowPassMaterialHandle(TResourceId::Invalid),
+		mShadowPassSkinnedMaterialHandle(TResourceId::Invalid)
 	{
 	}
 
@@ -218,7 +220,7 @@ namespace TDEngine2
 
 		output.back() = zf;
 
-		return std::move(output);
+		return output;
 	}
 
 
@@ -252,7 +254,7 @@ namespace TDEngine2
 			currVertex = currVertex * (1.0f / currVertex.w);
 		}
 
-		return std::move(frustumVertices);
+		return frustumVertices;
 	}
 
 
@@ -319,7 +321,7 @@ namespace TDEngine2
 			cascadesMats.emplace_back(ConstructSunLightMatrix(pGraphicsContext, pActiveCamera, pLightTransform, cascadesSplits[cascadeIndex], cascadesSplits[cascadeIndex + 1]));
 		}
 
-		return std::move(cascadesMats);
+		return cascadesMats;
 	}
 
 

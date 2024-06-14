@@ -489,7 +489,7 @@ namespace TDEngine2
 					}
 				}
 
-				return std::move(components);
+				return components;
 			}
 	};
 

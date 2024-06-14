@@ -505,7 +505,7 @@ namespace TDEngine2
 		public:
 			TDE2_API CValueWrapper() = default;
 			TDE2_API CValueWrapper(const CValueWrapper& object);
-			TDE2_API CValueWrapper(CValueWrapper&& object);
+			TDE2_API CValueWrapper(CValueWrapper&& object) noexcept;
 
 			template <typename T>
 			explicit CValueWrapper(T&& value):

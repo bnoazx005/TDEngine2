@@ -207,6 +207,11 @@ namespace TDEngine2
 			[pDesc] 
 			{ 
 				auto pPtr = new(std::nothrow) CProxyInputContext(); 
+				if (!pPtr)
+				{
+					return pPtr;
+				}
+
 				TDE2_REGISTER_BASE_OBJECT(CProxyInputContext, pPtr); 
 
 				pPtr->mpContextDesc = pDesc;

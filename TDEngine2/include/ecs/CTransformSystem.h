@@ -84,6 +84,6 @@ namespace TDEngine2
 		protected:
 			TSystemContext    mComponentsContext;
 
-			IGraphicsContext* mpGraphicsContext;
+			IGraphicsContext* mpGraphicsContext = nullptr;
 	};
 }

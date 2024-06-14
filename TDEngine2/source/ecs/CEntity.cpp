@@ -250,7 +250,7 @@ namespace TDEngine2
 			path.push_back(static_cast<U32>(atoll(currId.c_str())));
 		}
 
-		return std::move(path);
+		return path;
 	}
 
 

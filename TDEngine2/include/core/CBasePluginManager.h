@@ -118,9 +118,9 @@ namespace TDEngine2
 		protected:
 			TPluginsMap        mLoadedPlugins;
 
-			IEngineCore*       mpEngineCore;
+			IEngineCore*       mpEngineCore = nullptr;
 
-			TPtr<IDLLManager>  mpDLLManager;
+			TPtr<IDLLManager>  mpDLLManager = nullptr;
 
 			mutable std::mutex mMutex; ///< \todo the mutex doesn't use in the code, should be fixed later!
 	};

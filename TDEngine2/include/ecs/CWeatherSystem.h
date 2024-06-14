@@ -81,8 +81,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWeatherSystem)
 		protected:
-			IGraphicsContext* mpGraphicsContext;
-			IResourceManager* mpResourceManager;
-			IJobManager*      mpJobManager;
+			IGraphicsContext* mpGraphicsContext = nullptr;
+			IResourceManager* mpResourceManager = nullptr;
+			IJobManager*      mpJobManager = nullptr;
 	};
 }

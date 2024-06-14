@@ -202,9 +202,9 @@ namespace TDEngine2
 
 			TDE2_API IComponent* _addComponentInternal(TypeId typeId);
 		protected:
-			CEntityManager* mpEntityManager;
+			CEntityManager* mpEntityManager = nullptr;
 
-			TEntityId       mId;
+			TEntityId       mId = TEntityId::Invalid;
 
 			std::string     mName;
 	};

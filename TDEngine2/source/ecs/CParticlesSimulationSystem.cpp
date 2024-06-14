@@ -66,7 +66,9 @@ namespace TDEngine2
 
 
 	CParticlesSimulationSystem::CParticlesSimulationSystem() :
-		CBaseSystem()
+		CBaseSystem(),
+		mParticleQuadVertexBufferHandle(TBufferHandleId::Invalid),
+		mParticleQuadIndexBufferHandle(TBufferHandleId::Invalid)
 	{
 	}
 

@@ -103,13 +103,13 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _prepareResources();
 		protected:
-			IRenderer*                   mpRenderer;
+			IRenderer*                   mpRenderer = nullptr;
 
-			IGraphicsContext*            mpGraphicsContext;
+			IGraphicsContext*            mpGraphicsContext = nullptr;
 
-			TPtr<IResourceManager>       mpResourceManager;
+			TPtr<IResourceManager>       mpResourceManager = nullptr;
 
-			IGraphicsObjectManager*      mpGraphicsObjectManager;
+			IGraphicsObjectManager*      mpGraphicsObjectManager = nullptr;
 
 			TDirLightsContext            mDirectionalLightsContext;
 			TPointLightsContext          mPointLightsContext;
@@ -121,13 +121,13 @@ namespace TDEngine2
 			TStaticShadowReceiverContext mStaticShadowReceiversContext;
 			TSkinnedShadowReceiverContext mSkinnedShadowReceiversContext;
 
-			IVertexDeclaration*          mpShadowVertDecl;
-			IVertexDeclaration*          mpSkinnedShadowVertDecl;
+			IVertexDeclaration*          mpShadowVertDecl = nullptr;
+			IVertexDeclaration*          mpSkinnedShadowVertDecl = nullptr;
 
 			TResourceId                  mShadowPassMaterialHandle;
 			TResourceId                  mShadowPassSkinnedMaterialHandle;
 
-			CRenderQueue*                mpShadowPassRenderQueue;
+			CRenderQueue*                mpShadowPassRenderQueue = nullptr;
 
 			std::vector<TLightData>      mActiveLightsData;
 	};

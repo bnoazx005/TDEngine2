@@ -80,7 +80,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CStackAllocator)
 		protected:
-			void*     mpCurrPos;
+			void*     mpCurrPos = nullptr;
 
 			static U8 mHeaderSize;
 	};

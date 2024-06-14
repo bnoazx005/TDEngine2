@@ -130,20 +130,20 @@ namespace TDEngine2
 			TDE2_API U32 _computeRenderCommandHash(TResourceId materialId, F32 distanceToCamera);
 
 		protected:
-			IRenderer*              mpRenderer;
+			IRenderer*              mpRenderer = nullptr;
 
-			TPtr<IResourceManager>  mpResourceManager;
+			TPtr<IResourceManager>  mpResourceManager = nullptr;
 
-			CRenderQueue*           mpRenderQueue;
+			CRenderQueue*           mpRenderQueue = nullptr;
 
-			IGraphicsObjectManager* mpGraphicsObjectManager;
+			IGraphicsObjectManager* mpGraphicsObjectManager = nullptr;
 
 			TBufferHandleId          mParticleQuadVertexBufferHandle;			
 			TBufferHandleId          mParticleQuadIndexBufferHandle;
 
-			IVertexDeclaration*     mpParticleVertexDeclaration;
+			IVertexDeclaration*     mpParticleVertexDeclaration = nullptr;
 
-			CEntity*                mpCameraEntity;
+			CEntity*                mpCameraEntity = nullptr;
 
 			TParticlesArray         mParticlesInstancesData;
 

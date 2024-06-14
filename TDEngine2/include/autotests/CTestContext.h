@@ -150,7 +150,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTestContext);
 
 		private:
-			IEngineCore*                                       mpEngineCore;
+			IEngineCore*                                       mpEngineCore = nullptr;
 
 			std::unordered_map<std::string, TTestResultsTable> mTestResults; ///< The key is a test fixture's name, the table contains test cases execution's results
 			
@@ -162,7 +162,7 @@ namespace TDEngine2
 			U32                                                mPassedTestsCount = 0;
 			U32                                                mFailedTestsCount = 0;
 
-			IDesktopInputContext*                              mpProxyInputContext;
+			IDesktopInputContext*                              mpProxyInputContext = nullptr;
 
 			std::string                                        mArtifactsOutputDirectoryPath;
 	};

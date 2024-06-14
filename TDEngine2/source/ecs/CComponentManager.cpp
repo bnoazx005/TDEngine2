@@ -515,7 +515,7 @@ namespace TDEngine2
 			filter.push_back(entityComponentsTablePair.first);
 		}
 
-		return std::move(filter);
+		return filter;
 	}
 
 	std::vector<TEntityId> CComponentManager::FindEntitiesWithAny(const std::vector<TypeId>& types)
@@ -545,7 +545,7 @@ namespace TDEngine2
 			}
 		}
 
-		return std::move(filter);
+		return filter;
 	}
 
 	TEntityId CComponentManager::FindEntityWithUniqueComponent(TypeId typeId)

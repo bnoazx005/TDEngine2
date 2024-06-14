@@ -112,7 +112,7 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			IResourceManager*                  mpResourceManager;
+			IResourceManager*                  mpResourceManager = nullptr;
 
 			std::string                        mName;					///< The name's value is unique for each resource
 

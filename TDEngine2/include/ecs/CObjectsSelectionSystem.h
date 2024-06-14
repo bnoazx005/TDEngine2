@@ -131,17 +131,17 @@ namespace TDEngine2
 			TSpritesMeshesContext   mSpritesContext;
 			TUIElementsContext      mUIElementsContext;
 
-			IGraphicsObjectManager* mpGraphicsObjectManager;
+			IGraphicsObjectManager* mpGraphicsObjectManager = nullptr;
 
-			TPtr<IResourceManager>  mpResourceManager;
+			TPtr<IResourceManager>  mpResourceManager = nullptr;
 
-			CRenderQueue*           mpEditorOnlyRenderQueue;
-			CRenderQueue*           mpDebugRenderQueue;
+			CRenderQueue*           mpEditorOnlyRenderQueue = nullptr;
+			CRenderQueue*           mpDebugRenderQueue = nullptr;
 
-			TEntityId               mCameraEntityId;
+			TEntityId               mCameraEntityId = TEntityId::Invalid;
 
-			IVertexDeclaration*     mpSelectionVertDecl;
-			IVertexDeclaration*     mpSelectionSkinnedVertDecl;
+			IVertexDeclaration*     mpSelectionVertDecl = nullptr;
+			IVertexDeclaration*     mpSelectionSkinnedVertDecl = nullptr;
 
 			TBufferHandleId         mSpritesVertexBufferHandle;
 			TBufferHandleId         mSpritesIndexBufferHandle;

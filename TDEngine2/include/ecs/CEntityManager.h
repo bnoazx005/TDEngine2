@@ -196,11 +196,11 @@ namespace TDEngine2
 			TEntitiesArray     mActiveEntities;
 			TEntitiesHashTable mEntitiesHashTable;
 
-			U32                mNextIdValue;
+			U32                mNextIdValue = 0;
 
-			IComponentManager* mpComponentManager;
+			IComponentManager* mpComponentManager = nullptr;
 
-			IEventManager*     mpEventManager;
+			IEventManager*     mpEventManager = nullptr;
 
 			bool               mCreateEntitiesWithPredefinedComponents = false;
 	};

@@ -142,7 +142,7 @@ namespace TDEngine2
 
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseGameMode)
 		protected:
-			IGameModesManager* mpOwner;
+			IGameModesManager* mpOwner = nullptr;
 			std::string        mName;
 	};
 
@@ -159,8 +159,8 @@ namespace TDEngine2
 	{
 		typedef std::function<bool()> TSkipCallbackAction;
 				
-		TPtr<ISceneManager> mpSceneManager;
-		TPtr<IEventManager> mpEventManager;
+		TPtr<ISceneManager> mpSceneManager = nullptr;
+		TPtr<IEventManager> mpEventManager = nullptr;
 
 		F32                 mMaxShowDuration = 4.0f;
 
@@ -230,9 +230,9 @@ namespace TDEngine2
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSplashScreenGameMode)
 		private:
-			TPtr<ISceneManager> mpSceneManager;
-			TPtr<IWorld>        mpWorld;
-			TPtr<IEventManager> mpEventManager;
+			TPtr<ISceneManager> mpSceneManager = nullptr;
+			TPtr<IWorld>        mpWorld = nullptr;
+			TPtr<IEventManager> mpEventManager = nullptr;
 
 			F32                 mMaxShowDuration = 4.0f;
 			F32                 mCurrTime = 0.0f;

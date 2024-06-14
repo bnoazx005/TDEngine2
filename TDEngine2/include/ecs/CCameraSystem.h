@@ -141,18 +141,18 @@ namespace TDEngine2
 		protected:
 			TSystemContext            mCamerasContext;
 
-			IGraphicsContext*         mpGraphicsContext;
+			IGraphicsContext*         mpGraphicsContext = nullptr;
 
-			CCamerasContextComponent* mpCamerasContextComponent;
+			CCamerasContextComponent* mpCamerasContextComponent = nullptr;
 
-			const IWindowSystem*      mpWindowSystem;
+			const IWindowSystem*      mpWindowSystem = nullptr;
 
-			IRenderer*                mpRenderer;
+			IRenderer*                mpRenderer = nullptr;
 
-			const ICamera*            mpMainCamera;
+			const ICamera*            mpMainCamera = nullptr;
 
 #if TDE2_EDITORS_ENABLED
-			IDebugUtility*            mpDebugUtility;
+			IDebugUtility*            mpDebugUtility = nullptr;
 #endif
 	};
 

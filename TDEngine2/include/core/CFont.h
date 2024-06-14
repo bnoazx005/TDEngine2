@@ -157,13 +157,13 @@ namespace TDEngine2
 
 			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
 		protected:
-			TResourceId mFontTextureAtlasHandle;
+			TResourceId mFontTextureAtlasHandle = TResourceId::Invalid;
 
 			//std::unordered_map<U32, TTextVertices> mGeneratedMeshesTable;
 
 			TGlyphsMap mGlyphsMap;
 
-			F32        mFontHeight;
+			F32        mFontHeight = 0.0f;
 	};
 
 
@@ -228,9 +228,9 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFontLoader)
 		protected:
-			IResourceManager* mpResourceManager;
+			IResourceManager* mpResourceManager = nullptr;
 
-			IFileSystem*      mpFileSystem;
+			IFileSystem*      mpFileSystem = nullptr;
 	};
 
 
@@ -305,6 +305,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFontFactory)
 		protected:
-			IResourceManager* mpResourceManager;
+			IResourceManager* mpResourceManager = nullptr;
 	};
 }

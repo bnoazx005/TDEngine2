@@ -144,11 +144,11 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CLocalizationPackageLoader)
 		protected:
-			IResourceManager* mpResourceManager;
+			IResourceManager* mpResourceManager = nullptr;
 
-			IFileSystem*      mpFileSystem;
+			IFileSystem*      mpFileSystem = nullptr;
 
-			IGraphicsContext* mpGraphicsContext;
+			IGraphicsContext* mpGraphicsContext = nullptr;
 	};
 
 
@@ -223,8 +223,8 @@ namespace TDEngine2
 		protected:
 			bool              mIsInitialized;
 
-			IResourceManager* mpResourceManager;
+			IResourceManager* mpResourceManager = nullptr;
 
-			IGraphicsContext* mpGraphicsContext;
+			IGraphicsContext* mpGraphicsContext = nullptr;
 	};
 }

@@ -79,6 +79,6 @@ namespace TDEngine2
 		protected:
 			TComponentsQueryLocalSlice<CSkinnedMeshContainer, CMeshAnimatorComponent, CAnimationContainerComponent, CBoundsComponent> mEntitiesContext;
 			
-			IResourceManager* mpResourceManager;
+			IResourceManager* mpResourceManager = nullptr;
 	};
 }

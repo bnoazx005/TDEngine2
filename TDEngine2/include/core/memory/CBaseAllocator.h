@@ -166,7 +166,7 @@ namespace TDEngine2
 		protected:
 			std::unique_ptr<TMemoryBlockEntity> mpRootBlock;
 			
-			TSizeType                           mPageSize;
+			TSizeType                           mPageSize = 0;
 			
 			U32                                 mAllocationsCount;
 

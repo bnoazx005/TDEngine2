@@ -118,13 +118,13 @@ namespace TDEngine2
 		protected:
 			TEntitiesArray          mProcessingEntities;
 
-			IGraphicsObjectManager* mpGraphicsObjectManager;
+			IGraphicsObjectManager* mpGraphicsObjectManager = nullptr;
 
-			TPtr<IResourceManager>  mpResourceManager;
+			TPtr<IResourceManager>  mpResourceManager = nullptr;
 
-			CRenderQueue*           mpOpaqueRenderGroup;
-			CRenderQueue*           mpTransparentRenderGroup;
-			CRenderQueue*           mpDepthOnlyRenderGroup;
+			CRenderQueue*           mpOpaqueRenderGroup = nullptr;
+			CRenderQueue*           mpTransparentRenderGroup = nullptr;
+			CRenderQueue*           mpDepthOnlyRenderGroup = nullptr;
 
 			TMaterialsArray         mCurrMaterialsArray;
 

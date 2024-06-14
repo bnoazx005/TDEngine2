@@ -91,8 +91,8 @@ namespace TDEngine2
 			TDE2_API void _notifyOnAnimationEvent(TEntityId id, const std::string& eventId);
 
 		protected:
-			IResourceManager*   mpResourceManager;
-			IEventManager*      mpEventManager;
+			IResourceManager*   mpResourceManager = nullptr;
+			IEventManager*      mpEventManager = nullptr;
 			
 			TSystemContext      mAnimationContainersContext;
 

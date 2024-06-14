@@ -18,7 +18,7 @@ namespace TDEngine2
 
 
 	CTestResultsTextReporter::CTestResultsTextReporter() :
-		CBaseObject()
+		CBaseObject(), mFileHandler(TFileEntryId::Invalid)
 	{
 	}
 

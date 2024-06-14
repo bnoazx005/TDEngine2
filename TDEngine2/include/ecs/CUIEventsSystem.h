@@ -90,10 +90,10 @@ namespace TDEngine2
 		protected:
 			TSystemContext mContext;
 
-			IInputContext* mpInputContext; 
-			IDesktopInputContext* mpDesktopInputContext;
+			IInputContext* mpInputContext = nullptr; 
+			IDesktopInputContext* mpDesktopInputContext = nullptr;
 
-			IImGUIContext* mpImGUIContext;
+			IImGUIContext* mpImGUIContext = nullptr;
 
 			std::string mInputBuffer;
 
