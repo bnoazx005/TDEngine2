@@ -284,8 +284,8 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseResourceLoader)
 
 		protected:
-			IResourceManager* mpResourceManager;
-			IFileSystem* mpFileSystem;
+			IResourceManager* mpResourceManager = nullptr;
+			IFileSystem* mpFileSystem = nullptr;
 	};
 
 

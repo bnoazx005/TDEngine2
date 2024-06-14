@@ -151,11 +151,11 @@ namespace TDEngine2
 			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
 
 		protected:
-			IGraphicsContext*   mpGraphicsContext;
+			IGraphicsContext*   mpGraphicsContext = nullptr;
 
-			std::atomic_uint8_t mFacesLoadingStatusBitset; /// \todo Refactor this later, each bit determines whether a face loaded or not
+			std::atomic_uint8_t mFacesLoadingStatusBitset{0}; /// \todo Refactor this later, each bit determines whether a face loaded or not
 
-			TTextureSamplerDesc mTextureSamplerParams;
+			TTextureSamplerDesc mTextureSamplerParams{};
 
 			TTextureSamplerId   mCurrTextureSamplerHandle = TTextureSamplerId::Invalid;
 			TTextureHandleId    mCurrTextureHandle;
@@ -195,13 +195,12 @@ namespace TDEngine2
 		protected:
 			typedef struct TCubemapMetaInfo
 			{
-				E_FORMAT_TYPE mFormat;
+				E_FORMAT_TYPE mFormat = E_FORMAT_TYPE::FT_UNKNOWN;
 
-				U32           mWidth;
+				U32           mWidth = 1;
+				U32           mHeight = 1;
 
-				U32           mHeight;
-
-				U16           mMipLevelsCount;
+				U16           mMipLevelsCount = 1;
 
 				std::string   mFaceTexturePaths[6];
 			} TCubemapMetaInfo;
@@ -247,11 +246,11 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _loadFaceTexture(ICubemapTexture* pCubemapTexture, const TCubemapMetaInfo& info, E_CUBEMAP_FACE face) const;
 		protected:
-			IResourceManager* mpResourceManager;
+			IResourceManager* mpResourceManager = nullptr;
 
-			IFileSystem*      mpFileSystem;
+			IFileSystem*      mpFileSystem = nullptr;
 
-			IGraphicsContext* mpGraphicsContext;
+			IGraphicsContext* mpGraphicsContext = nullptr;
 	};
 
 
@@ -317,8 +316,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseCubemapTextureFactory)
 		protected:
-			IResourceManager* mpResourceManager;
+			IResourceManager* mpResourceManager = nullptr;
 
-			IGraphicsContext* mpGraphicsContext;
+			IGraphicsContext* mpGraphicsContext = nullptr;
 	};
 }

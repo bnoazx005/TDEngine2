@@ -109,7 +109,7 @@ namespace TDEngine2
 			}
 		}
 
-		return std::move(result);
+		return result;
 	}
 
 
@@ -132,7 +132,7 @@ namespace TDEngine2
 			}
 		}
 
-		return std::move(result);
+		return result;
 	}
 
 

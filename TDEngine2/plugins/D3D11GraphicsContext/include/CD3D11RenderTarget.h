@@ -112,9 +112,9 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _createInternalTextureHandler(IGraphicsContext* pGraphicsContext, const TRenderTargetParameters& params) override;
 		protected:
-			ID3D11Device*        mp3dDevice;
+			ID3D11Device*        mp3dDevice = nullptr;
 
-			ID3D11DeviceContext* mp3dDeviceContext;
+			ID3D11DeviceContext* mp3dDeviceContext = nullptr;
 
 			TTextureHandleId     mCurrTextureHandle;
 	};
@@ -195,9 +195,9 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11RenderTargetFactory)
 		protected:
-			IResourceManager* mpResourceManager;
+			IResourceManager* mpResourceManager = nullptr;
 
-			IGraphicsContext* mpGraphicsContext;
+			IGraphicsContext* mpGraphicsContext = nullptr;
 	};
 }
 

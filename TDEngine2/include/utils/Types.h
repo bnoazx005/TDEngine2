@@ -694,11 +694,11 @@ namespace TDEngine2
 		bool                 mIsEnabled = false;
 
 		E_BLEND_FACTOR_VALUE mScrValue = E_BLEND_FACTOR_VALUE::ONE;
-		E_BLEND_FACTOR_VALUE mDestValue;
+		E_BLEND_FACTOR_VALUE mDestValue = E_BLEND_FACTOR_VALUE::ZERO;
 		E_BLEND_OP_TYPE      mOpType = E_BLEND_OP_TYPE::ADD;
 
 		E_BLEND_FACTOR_VALUE mScrAlphaValue = E_BLEND_FACTOR_VALUE::ONE;
-		E_BLEND_FACTOR_VALUE mDestAlphaValue;
+		E_BLEND_FACTOR_VALUE mDestAlphaValue = E_BLEND_FACTOR_VALUE::ZERO;
 		E_BLEND_OP_TYPE      mAlphaOpType = E_BLEND_OP_TYPE::ADD;
 
 		U8                   mWriteMask = 15;

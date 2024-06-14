@@ -52,8 +52,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWindowsInputCtxPlugin)
 		protected:
-			IEngineCore*   mpEngineCoreInstance;
+			IEngineCore*   mpEngineCoreInstance = nullptr;
 
-			TPtr<IInputContext> mpInputContext;
+			TPtr<IInputContext> mpInputContext = nullptr;
 	};
 }

@@ -114,7 +114,7 @@ namespace TDEngine2
 		TDE2_API TBaseAllocatorParams(USIZE size);
 		TDE2_API virtual ~TBaseAllocatorParams() = default;
 
-		USIZE mMemoryBlockSize;
+		USIZE mMemoryBlockSize = 0;
 	} TBaseAllocatorParams, *TBaseAllocatorParamsPtr;
 
 

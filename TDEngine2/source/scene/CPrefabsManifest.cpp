@@ -139,7 +139,7 @@ namespace TDEngine2
 			prefabsIdentifiers.emplace_back(prefabInfoEntity.first);
 		}
 
-		return std::move(prefabsIdentifiers);
+		return prefabsIdentifiers;
 	}
 
 	const TPtr<IResourceLoader> CPrefabsManifest::_getResourceLoader()

@@ -137,14 +137,14 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		private:
-			IResourceManager*       mpResourceManager;
-			IFileSystem*            mpFileSystem;
-			IWorld*                 mpWorld;
-			IEventManager*          mpMainEventManager;
-			TPtr<IComponentManager> mpComponentsManager;
-			TPtr<CEntityManager>    mpEntitiesManager;
-			TPtr<IEventManager>     mpProxyEventsManager;
+			IResourceManager*       mpResourceManager = nullptr;
+			IFileSystem*            mpFileSystem = nullptr;
+			IWorld*                 mpWorld = nullptr;
+			IEventManager*          mpMainEventManager = nullptr;
+			TPtr<IComponentManager> mpComponentsManager = nullptr;
+			TPtr<CEntityManager>    mpEntitiesManager = nullptr;
+			TPtr<IEventManager>     mpProxyEventsManager = nullptr;
 
-			TPrefabsTable           mPrefabsToEntityTable;
+			TPrefabsTable           mPrefabsToEntityTable{};
 	};
 }

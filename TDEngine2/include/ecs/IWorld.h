@@ -74,8 +74,8 @@ namespace TDEngine2
 		TDE2_REGISTER_TYPE(TOnHierarchyChangedEvent)
 		REGISTER_EVENT_TYPE(TOnHierarchyChangedEvent)
 
-		TEntityId mParentEntityId;
-		TEntityId mChildEntityId;
+		TEntityId mParentEntityId = TEntityId::Invalid;
+		TEntityId mChildEntityId = TEntityId::Invalid;
 	} TOnHierarchyChangedEvent, *TOnHierarchyChangedEventPtr;
 
 
@@ -403,7 +403,7 @@ namespace TDEngine2
 				result.mComponentsSlice = std::make_tuple(_getComponentsOfTypeFromEntities<TArgs>(entities)...);
 				result.mComponentsCount = entities.size();
 
-				return std::move(result);
+				return result;
 			}
 			
 			/*!

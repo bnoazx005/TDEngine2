@@ -228,9 +228,9 @@ namespace TDEngine2
 			std::string mName;
 			std::string mPath;
 
-			bool mIsMainScene;
+			bool mIsMainScene = false;
 
-			TEntityId mSceneInfoEntityId;
+			TEntityId mSceneInfoEntityId = TEntityId::Invalid;
 
 			TEntitiesRegistry mEntities;
 			std::unordered_set<TEntityId> mRegisteredEntities;

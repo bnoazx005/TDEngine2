@@ -34,7 +34,7 @@ namespace TDEngine2
 
 		TResourceId mTextureAtlasId = TResourceId::Invalid;
 
-		TRectI32 mTextureRectInfo;
+		TRectI32 mTextureRectInfo{};
 	} TAtlasSubTextureParameters, *TAtlasSubTextureParametersPtr;
 
 

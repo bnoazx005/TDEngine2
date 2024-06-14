@@ -239,11 +239,11 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseTexture2DLoader)
 		protected:
-			IResourceManager* mpResourceManager;
+			IResourceManager* mpResourceManager = nullptr;
 
-			IFileSystem*      mpFileSystem;
+			IFileSystem*      mpFileSystem = nullptr;
 
-			IGraphicsContext* mpGraphicsContext;
+			IGraphicsContext* mpGraphicsContext = nullptr;
 	};
 
 

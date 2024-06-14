@@ -119,9 +119,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COrthoCamera)
 		protected:
-			F32 mWidth;
-
-			F32 mHeight;
+			F32 mWidth = 1.0f;
+			F32 mHeight = 1.0f;
 	};
 
 

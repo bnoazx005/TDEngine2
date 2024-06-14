@@ -139,11 +139,10 @@ namespace TDEngine2
 
 			TDE2_API TVector2 _filterStickRawData(I16 x, I16 y, U16 deadzoneValue) const;
 		protected:
-			XINPUT_STATE mPrevGamepadState;
+			XINPUT_STATE mPrevGamepadState{};
+			XINPUT_STATE mCurrGamepadState{};
 
-			XINPUT_STATE mCurrGamepadState;
-
-			U16          mGamepadId;
+			U16          mGamepadId = 0;
 	};
 }
 

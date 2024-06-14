@@ -103,9 +103,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _createInternalHandlers(const TInternalInputData& params) override;
 		protected:
-			DIMOUSESTATE2 mPrevMouseState;
-
-			DIMOUSESTATE2 mCurrMouseState;
+			DIMOUSESTATE2 mPrevMouseState{};
+			DIMOUSESTATE2 mCurrMouseState{};
 	};
 }
 

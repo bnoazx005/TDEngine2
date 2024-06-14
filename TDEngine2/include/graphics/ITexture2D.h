@@ -63,19 +63,18 @@ namespace TDEngine2
 
 		TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
-		U32                 mWidth;
+		U32                 mWidth = 1;
+		U32                 mHeight = 1;
 
-		U32                 mHeight;
+		E_FORMAT_TYPE       mFormat = E_FORMAT_TYPE::FT_UNKNOWN;
 
-		E_FORMAT_TYPE       mFormat;
+		U32                 mNumOfMipLevels = 1;
 
-		U32                 mNumOfMipLevels;
+		U32                 mNumOfSamples = 1;
 
-		U32                 mNumOfSamples;
+		U32                 mSamplingQuality = 0;
 
-		U32                 mSamplingQuality;
-
-		TTextureSamplerDesc mTexSamplerDesc;
+		TTextureSamplerDesc mTexSamplerDesc{};
 
 		bool                mIsWriteable = false; ///< The field is used to make a texture writeable in a compute shader
 	} TTexture2DParameters, *TTexture2DParametersPtr;

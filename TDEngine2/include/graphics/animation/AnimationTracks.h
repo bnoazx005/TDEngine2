@@ -22,7 +22,7 @@ namespace TDEngine2
 		TDE2_API TGenericKeyFrame() = default;
 		TDE2_API TGenericKeyFrame(F32 time, T value) : mTime(time), mValue(value) {}
 
-		F32          mTime;
+		F32          mTime = 0.0f;
 		T            mValue;
 		TBitsetType  mUsedChannels;
 	};

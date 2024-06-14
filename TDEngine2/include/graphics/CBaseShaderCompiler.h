@@ -38,7 +38,7 @@ namespace TDEngine2
 								const std::string& specDelims = "<>{}(),;:");
 
 			TDE2_API CTokenizer(const CTokenizer& tokenizer);
-			TDE2_API CTokenizer(CTokenizer&& tokenizer);
+			TDE2_API CTokenizer(CTokenizer&& tokenizer) noexcept;
 			TDE2_API ~CTokenizer();
 
 			TDE2_API const std::string& GetCurrToken() const;
@@ -80,7 +80,7 @@ namespace TDEngine2
 		private:
 			std::vector<std::string> mTokens;
 			
-			U32                      mCurrPos;
+			U32                      mCurrPos = 0;
 	};
 
 	

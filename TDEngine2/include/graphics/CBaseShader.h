@@ -151,19 +151,19 @@ namespace TDEngine2
 
 			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
 		protected:
-			IGraphicsContext*               mpGraphicsContext;
+			IGraphicsContext*               mpGraphicsContext = nullptr;
 
 			std::string                     mSourceCode;
 
-			std::vector<TBufferHandleId>    mUniformBuffers;
+			std::vector<TBufferHandleId>    mUniformBuffers {};
 
-			TResourcesHashTable             mTexturesHashTable;
-			TResourcesHashTable             mStructuredBuffersHashTable;
+			TResourcesHashTable             mTexturesHashTable {};
+			TResourcesHashTable             mStructuredBuffersHashTable {};
 
-			std::vector<std::tuple<ITexture*, U8, bool>>       mpTextures;
-			std::vector<std::tuple<TBufferHandleId, U8, bool>> mBufferHandles;
+			std::vector<std::tuple<ITexture*, U8, bool>>       mpTextures {};
+			std::vector<std::tuple<TBufferHandleId, U8, bool>> mBufferHandles {};
 
-			TShaderCompilerOutput*          mpShaderMeta;
+			TShaderCompilerOutput*          mpShaderMeta = nullptr;
 	};
 
 	/*!

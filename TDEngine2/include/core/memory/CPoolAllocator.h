@@ -123,8 +123,8 @@ namespace TDEngine2
 		TDE2_API TPoolAllocatorParams() = default;
 		TDE2_API TPoolAllocatorParams(USIZE size, USIZE perElementSize, USIZE elementAlignment);
 
-		USIZE mPerObjectSize;
-		USIZE mObjectAlignment;
+		USIZE mPerObjectSize = 0;
+		USIZE mObjectAlignment = 0;
 	} TPoolAllocatorParams, *TPoolAllocatorParamsPtr;
 
 

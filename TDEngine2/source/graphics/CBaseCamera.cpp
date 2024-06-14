@@ -179,7 +179,7 @@ namespace TDEngine2
 			currVertex = currVertex * (1.0f / currVertex.w);
 		}
 
-		return std::move(frustumVertices);
+		return frustumVertices;
 	}
 
 	bool CFrustum::TestPoint(const TVector3& point) const

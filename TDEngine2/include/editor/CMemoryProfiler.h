@@ -43,7 +43,7 @@ namespace TDEngine2
 			{
 				std::string mTypeIdStr;
 				std::string mAllocationStacktrace;
-				U32Ptr mAddress;
+				U32Ptr mAddress = 0x0;
 			} TBaseObjectAllocInfo, *TBaseObjectAllocInfoPtr;
 
 			typedef std::unordered_map<U32Ptr, TBaseObjectAllocInfo> TBaseObjectsRegistry;

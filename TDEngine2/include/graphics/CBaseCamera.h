@@ -242,7 +242,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFrustum)
 		protected:
-			std::array<TPlaneF32, 6> mPlanes;
+			std::array<TPlaneF32, 6> mPlanes {};
 	};
 
 

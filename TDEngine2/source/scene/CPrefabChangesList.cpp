@@ -219,8 +219,8 @@ namespace TDEngine2
 
 	struct TEntityInfo
 	{
-		TEntityId mEntityId;
-		std::unordered_map<TypeId, std::tuple<std::string, IPropertyWrapperPtr>> mPropertiesTable;
+		TEntityId mEntityId = TEntityId::Invalid;
+		std::unordered_map<TypeId, std::tuple<std::string, IPropertyWrapperPtr>> mPropertiesTable {};
 	};
 
 	using TPropertiesTable = std::unordered_map<std::string, TEntityInfo>;

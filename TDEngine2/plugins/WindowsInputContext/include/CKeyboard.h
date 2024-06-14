@@ -74,13 +74,13 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _createInternalHandlers(const TInternalInputData& params) override;
 		protected:
-			IDirectInputDevice8* mpKeyboardDevice;
+			IDirectInputDevice8* mpKeyboardDevice = nullptr;
 
 			static const U16     mKeysCount = 256;
 
-			U8                   mKeyboardState[mKeysCount];
+			U8                   mKeyboardState[mKeysCount]{0};
 
-			U8                   mPrevKeyboardState[mKeysCount];
+			U8                   mPrevKeyboardState[mKeysCount]{0};
 
 	};
 }

@@ -39,7 +39,7 @@ namespace TDEngine2
 		TDE2_REGISTER_TYPE(TAnimationPlaybackEvent)
 		REGISTER_EVENT_TYPE(TAnimationPlaybackEvent)
 
-		TEntityId mAnimationSourceEntityId;
+		TEntityId mAnimationSourceEntityId = TEntityId::Invalid;
 
 		std::string mEventId;
 	} TAnimationPlaybackEvent, *TAnimationPlaybackEventPtr;

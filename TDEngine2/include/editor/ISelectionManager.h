@@ -142,9 +142,9 @@ namespace TDEngine2
 	{
 		TDE2_EVENT(TOnObjectSelected);
 		
-		IWorld*   mpWorld;
+		IWorld*   mpWorld = nullptr;
 
-		TEntityId mObjectID;
+		TEntityId mObjectID = TEntityId::Invalid;
 	} TOnObjectSelected, *TBaseEventTOnObjectSelectedPtr;
 }
 

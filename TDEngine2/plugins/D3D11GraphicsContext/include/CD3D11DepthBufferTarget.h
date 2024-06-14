@@ -113,17 +113,17 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _createDepthBufferTargetView(ID3D11Device* p3dDevice, E_FORMAT_TYPE format);
 		protected:
-			ID3D11Device*              mp3dDevice;
+			ID3D11Device*              mp3dDevice = nullptr;
 
-			ID3D11DeviceContext*       mp3dDeviceContext;
+			ID3D11DeviceContext*       mp3dDeviceContext = nullptr;
 
-			ID3D11Texture2D*           mpDepthBufferTexture;
+			ID3D11Texture2D*           mpDepthBufferTexture = nullptr;
 
-			ID3D11ShaderResourceView*  mpShaderTextureView;
+			ID3D11ShaderResourceView*  mpShaderTextureView = nullptr;
 
-			ID3D11DepthStencilView*    mpDepthBufferTargetView;
+			ID3D11DepthStencilView*    mpDepthBufferTargetView = nullptr;
 
-			ID3D11UnorderedAccessView* mpUavDepthBufferView;
+			ID3D11UnorderedAccessView* mpUavDepthBufferView = nullptr;
 	};
 
 
@@ -202,9 +202,9 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11DepthBufferTargetFactory)
 		protected:
-			IResourceManager* mpResourceManager;
+			IResourceManager* mpResourceManager = nullptr;
 
-			IGraphicsContext* mpGraphicsContext;
+			IGraphicsContext* mpGraphicsContext = nullptr;
 	};
 }
 

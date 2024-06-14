@@ -86,7 +86,7 @@ namespace TDEngine2
 		struct TAnimationClipImportInfo
 		{
 			std::string mOutputAnimationPath;
-			bool mIsLooped;
+			bool mIsLooped = false;
 			U32 mStartRange = 0;
 			U32 mEndRange = 0;
 		};

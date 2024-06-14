@@ -221,9 +221,9 @@ namespace TDEngine2
 		TDE2_REGISTER_TYPE(TOnComponentCreatedEvent)
 		REGISTER_EVENT_TYPE(TOnComponentCreatedEvent)
 		
-		TEntityId mEntityId;
+		TEntityId mEntityId = TEntityId::Invalid;
 
-		TypeId    mCreatedComponentTypeId;
+		TypeId    mCreatedComponentTypeId = TypeId::Invalid;
 	} TOnComponentCreatedEvent, * TOnComponentCreatedEventPtr;
 
 
@@ -241,9 +241,9 @@ namespace TDEngine2
 		TDE2_REGISTER_TYPE(TOnComponentRemovedEvent)
 		REGISTER_EVENT_TYPE(TOnComponentRemovedEvent)
 
-		TEntityId           mEntityId;
+		TEntityId           mEntityId = TEntityId::Invalid;
 
-		std::vector<TypeId> mRemovedComponentsTypeId;
+		std::vector<TypeId> mRemovedComponentsTypeId {};
 	} TOnComponentRemovedEvent, * TOnComponentRemovedEventPtr;
 
 
@@ -260,8 +260,8 @@ namespace TDEngine2
 		TDE2_REGISTER_TYPE(TOnEntityActivityChangedEvent)
 		REGISTER_EVENT_TYPE(TOnEntityActivityChangedEvent)
 
-		TEntityId mEntityId;
-		bool      mNewActivityState;
+		TEntityId mEntityId = TEntityId::Invalid;
+		bool      mNewActivityState = false;
 	} TOnEntityActivityChangedEvent, *TOnEntityActivityChangedEventPtr;
 
 

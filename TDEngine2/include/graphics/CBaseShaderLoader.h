@@ -94,14 +94,14 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseShaderLoader)
 		protected:
-			IResourceManager*      mpResourceManager;
+			IResourceManager*      mpResourceManager = nullptr;
 
-			IFileSystem*           mpFileSystem;
+			IFileSystem*           mpFileSystem = nullptr;
 
-			IGraphicsContext*      mpGraphicsContext;
+			IGraphicsContext*      mpGraphicsContext = nullptr;
 
-			TPtr<IShaderCompiler>  mpShaderCompiler;
+			TPtr<IShaderCompiler>  mpShaderCompiler = nullptr;
 
-			mutable TPtr<IShaderCache> mpShaderCache;
+			mutable TPtr<IShaderCache> mpShaderCache = nullptr;
 	};
 }

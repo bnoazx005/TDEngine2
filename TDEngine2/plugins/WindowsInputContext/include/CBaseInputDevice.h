@@ -43,9 +43,9 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			IDirectInputDevice8*  mpInputDevice;
+			IDirectInputDevice8*  mpInputDevice = nullptr;
 
-			CWindowsInputContext* mpWinInputContext;
+			CWindowsInputContext* mpWinInputContext = nullptr;
 	};
 }
 

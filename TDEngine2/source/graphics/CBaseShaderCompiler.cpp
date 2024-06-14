@@ -33,7 +33,7 @@ namespace TDEngine2
 	{
 	}
 
-	CTokenizer::CTokenizer(CTokenizer&& tokenizer) :
+	CTokenizer::CTokenizer(CTokenizer&& tokenizer) noexcept :
 		mTokens(std::move(tokenizer.mTokens)), mCurrPos(tokenizer.mCurrPos)
 	{
 	}
@@ -179,7 +179,7 @@ namespace TDEngine2
 			tokens.emplace_back(std::move(str.substr(currPos, str.length() - currPos)));
 		}
 
-		return std::move(tokens);
+		return tokens;
 	}
 
 

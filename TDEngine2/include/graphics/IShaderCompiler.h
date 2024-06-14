@@ -96,15 +96,15 @@ namespace TDEngine2
 
 	typedef struct TUniformBufferDesc
 	{
-		U8                              mSlot;
+		U8                              mSlot = 0;
 
-		USIZE                           mSize;
+		USIZE                           mSize = 0;
 
-		E_UNIFORM_BUFFER_DESC_FLAGS     mFlags;			/// The field is used to provide additional information about a buffer
+		E_UNIFORM_BUFFER_DESC_FLAGS     mFlags = E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_EMPTY;			/// The field is used to provide additional information about a buffer
 
-		U32                             mBufferIndex; /// for OpenGL usage only
+		U32                             mBufferIndex = 0; /// for OpenGL usage only
 
-		std::vector<TShaderUniformDesc> mVariables;
+		std::vector<TShaderUniformDesc> mVariables {};
 	} TUniformBufferDesc, *TUniformBufferDescPtr;
 
 

@@ -82,15 +82,15 @@ namespace TDEngine2
 
 	struct TInitBufferParams
 	{
-		E_BUFFER_USAGE_TYPE            mUsageType;
-		E_BUFFER_TYPE                  mBufferType;
-		USIZE                          mTotalBufferSize;
+		E_BUFFER_USAGE_TYPE            mUsageType = E_BUFFER_USAGE_TYPE::DEFAULT;
+		E_BUFFER_TYPE                  mBufferType = E_BUFFER_TYPE::GENERIC;
+		USIZE                          mTotalBufferSize = 0;
 		const void*                    mpDataPtr = nullptr;
 		USIZE                          mDataSize = 0;
 		/// Structured buffers part
 		bool                           mIsUnorderedAccessResource = false;
 		USIZE                          mElementStrideSize = 0;
-		E_STRUCTURED_BUFFER_TYPE       mStructuredBufferType;
+		E_STRUCTURED_BUFFER_TYPE       mStructuredBufferType = E_STRUCTURED_BUFFER_TYPE::DEFAULT;
 		/// Index buffer part
 		E_INDEX_FORMAT_TYPE            mIndexFormat = E_INDEX_FORMAT_TYPE::INDEX16;
 		const C8*                      mName = nullptr;

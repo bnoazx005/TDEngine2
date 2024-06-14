@@ -259,7 +259,7 @@ namespace TDEngine2
 
 		REGISTER_EVENT_TYPE(TOnEntityCreatedEvent)
 
-		TEntityId mCreatedEntityId;
+		TEntityId mCreatedEntityId = TEntityId::Invalid;
 	} TOnEntityCreatedEvent, *TOnEntityCreatedEventPtr;
 
 	
@@ -278,7 +278,7 @@ namespace TDEngine2
 
 		REGISTER_EVENT_TYPE(TOnEntityRemovedEvent)
 
-		TEntityId mRemovedEntityId;
+		TEntityId mRemovedEntityId = TEntityId::Invalid;
 	} TOnEntityRemovedEvent, *TOnEntityRemovedEventPtr;
 
 
@@ -327,7 +327,7 @@ namespace TDEngine2
 
 			TDE2_API bool operator== (const CEntityRef& ref) const;
 		private:
-			CEntityManager* mpEntityManager;
+			CEntityManager* mpEntityManager = nullptr;
 
 			TEntityId mEntityRef = TEntityId::Invalid;
 

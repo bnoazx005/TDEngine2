@@ -722,7 +722,7 @@ namespace TDEngine2
 				}
 			}
 
-			CScopedPtr(CScopedPtr<T>&& ptr) : mpPtr(ptr.mpPtr) { ptr.mpPtr = nullptr; }
+			CScopedPtr(CScopedPtr<T>&& ptr) noexcept : mpPtr(ptr.mpPtr) { ptr.mpPtr = nullptr; }
 			explicit CScopedPtr(T* pPtr) : mpPtr(pPtr) {}
 			CScopedPtr(std::nullptr_t) : mpPtr(nullptr) {}
 

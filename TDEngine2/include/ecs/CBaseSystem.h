@@ -75,9 +75,9 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(CBaseSystem)
 		protected:
-			TPtr<IJobManager>            mpJobManager;
+			TPtr<IJobManager>            mpJobManager = nullptr;
 		private:
-			std::vector<TCommandFunctor> mDefferedCommandsBuffer;
-			bool                         mIsActive;
+			std::vector<TCommandFunctor> mDefferedCommandsBuffer {};
+			bool                         mIsActive = true;
 	};
 }

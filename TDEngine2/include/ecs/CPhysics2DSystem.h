@@ -257,7 +257,7 @@ namespace TDEngine2
 		TDE2_REGISTER_TYPE(TOnTrigger2DEnterEvent)
 		REGISTER_EVENT_TYPE(TOnTrigger2DEnterEvent)
 
-		TEntityId mEntities[2]; ///< Two bodies that were collided
+		TEntityId mEntities[2]{ TEntityId::Invalid, TEntityId::Invalid }; ///< Two bodies that were collided
 	} TOnTrigger2DEnterEvent, *TOnTrigger2DEnterEventPtr;
 
 
@@ -275,6 +275,6 @@ namespace TDEngine2
 		TDE2_REGISTER_TYPE(TOnTrigger2DExitEvent)
 		REGISTER_EVENT_TYPE(TOnTrigger2DExitEvent)
 
-		TEntityId mEntities[2]; ///< Two bodies that were collided
+		TEntityId mEntities[2]{ TEntityId::Invalid, TEntityId::Invalid }; ///< Two bodies that were collided
 	} TOnTrigger2DExitEvent, *TOnTrigger2DExitEventPtr;
 }

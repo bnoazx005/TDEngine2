@@ -117,13 +117,13 @@ namespace TDEngine2
 
 			typedef struct TPlotGridParams
 			{
-				F32 mWidth;
-				F32 mHeight;
+				F32 mWidth = 1;
+				F32 mHeight = 1;
 				
 				U8 mColsCount = 5;
 				U8 mRowsCount = 5;
 
-				TRectF32 mFrame;
+				TRectF32 mFrame{};
 
 				TColor32F mBackgroundColor = { 0.5f, 0.5f, 0.5f, 1.0f };
 				TColor32F mAxesColor = { 0.4f, 0.4f, 0.4f, 1.0f };

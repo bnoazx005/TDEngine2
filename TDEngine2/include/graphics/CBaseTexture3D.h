@@ -143,9 +143,9 @@ namespace TDEngine2
 
 			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
 		protected:
-			IGraphicsContext*   mpGraphicsContext;
+			IGraphicsContext*   mpGraphicsContext = nullptr;
 
-			TTextureSamplerDesc mTextureSamplerParams;
+			TTextureSamplerDesc mTextureSamplerParams{};
 
 			TTextureSamplerId   mCurrTextureSamplerHandle = TTextureSamplerId::Invalid;
 			TTextureHandleId    mCurrTextureHandle;
@@ -221,11 +221,11 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseTexture3DLoader)
 		protected:
-			IResourceManager* mpResourceManager;
+			IResourceManager* mpResourceManager = nullptr;
 
-			IFileSystem*      mpFileSystem;
+			IFileSystem*      mpFileSystem = nullptr;
 
-			IGraphicsContext* mpGraphicsContext;
+			IGraphicsContext* mpGraphicsContext = nullptr;
 	};
 
 
@@ -291,8 +291,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseTexture3DFactory)
 		protected:
-			IResourceManager* mpResourceManager;
+			IResourceManager* mpResourceManager = nullptr;
 
-			IGraphicsContext* mpGraphicsContext;
+			IGraphicsContext* mpGraphicsContext = nullptr;
 	};
 }

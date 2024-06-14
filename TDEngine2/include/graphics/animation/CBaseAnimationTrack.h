@@ -554,7 +554,7 @@ namespace TDEngine2
 			static const std::string mBindingKeyId;
 			static const std::string mInterpolationModeKeyId;
 
-			IAnimationClip* mpTrackOwnerAnimation;
+			IAnimationClip* mpTrackOwnerAnimation = nullptr;
 
 			std::string mName;
 			std::string mPropertyBinding; ///< Format of the bindings: component_name.property_name
@@ -562,7 +562,7 @@ namespace TDEngine2
 			TKeysHandleRegistry mKeysHandlesMap;
 			TKeysArray mKeys;
 
-			E_ANIMATION_INTERPOLATION_MODE_TYPE mInterpolationMode;
+			E_ANIMATION_INTERPOLATION_MODE_TYPE mInterpolationMode = E_ANIMATION_INTERPOLATION_MODE_TYPE::LINEAR;
 	};
 
 
