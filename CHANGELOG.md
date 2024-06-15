@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.29] 2024-06-12
+## [0.6.29] 2024-06-15
 
 ### Added
 
 - The API of **CFrameGraph** was extended with a new method GetResourceDesc.
 
 - The API of **IGraphicsPipeline** was extended with a new method GetConfig.
+
+- A new function **ContainsSphere** that allows to test AABB - sphere intersection was added. 
 
 ### Changed
 

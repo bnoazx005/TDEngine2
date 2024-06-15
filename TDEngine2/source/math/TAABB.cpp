@@ -60,6 +60,30 @@ namespace TDEngine2
 	}
 
 
+	static TVector3 ClosestPointOnAABB(const TAABB& aabb, const TVector3& p)
+	{
+		TVector3 result = p;
+
+		if (result.x < aabb.min.x) { result.x = aabb.min.x; }
+		if (result.x > aabb.max.x) { result.x = aabb.max.x; }
+
+		if (result.y < aabb.min.y) { result.y = aabb.min.y; }
+		if (result.y > aabb.max.y) { result.y = aabb.max.y; }
+
+		if (result.z < aabb.min.z) { result.z = aabb.min.z; }
+		if (result.z > aabb.max.z) { result.z = aabb.max.z; }
+
+		return p;
+	}
+
+	
+	bool ContainsSphere(const TAABB& aabb, const TVector3& sphereCenter, F32 sphereRadius)
+	{
+		const TVector3 dist = sphereCenter - ClosestPointOnAABB(aabb, sphereCenter);
+		return Dot(dist, dist) < sphereRadius * sphereRadius;
+	}
+
+
 	TAABB UnionBoundingBoxes(const TAABB& left, const TAABB& right)
 	{
 		auto minVec3 = [](const TVector3& lvec3, const TVector3& rvec3)

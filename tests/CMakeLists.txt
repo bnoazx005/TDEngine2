@@ -58,6 +58,7 @@ set(SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/math/TMatrix3Tests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/math/TMatrix4Tests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/math/TPlaneTests.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/math/TAABBTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/scene/CPrefabChangesListTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/utils/CStringUtils.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/utils/CU8StringTests.cpp"

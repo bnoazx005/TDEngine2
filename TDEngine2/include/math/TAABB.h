@@ -72,6 +72,8 @@ namespace TDEngine2
 
 	TDE2_API bool ContainsAABB(const TAABB& aabb0, const TAABB& aabb1);
 
+	TDE2_API bool ContainsSphere(const TAABB& aabb, const TVector3& sphereCenter, F32 sphereRadius);
+
 	TDE2_API TAABB UnionBoundingBoxes(const TAABB& left, const TAABB& right);
 
 }
