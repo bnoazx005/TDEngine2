@@ -250,6 +250,10 @@ namespace TDEngine2
 		/// \note Emitter's shape type
 		{
 			auto pSharedEmitter = mpCurrParticleEffect->GetSharedEmitter();
+			if (!pSharedEmitter)
+			{
+				return;
+			}
 
 			auto&& emittersInfo = CBaseParticlesEmitter::GetEmittersTypes();
 			

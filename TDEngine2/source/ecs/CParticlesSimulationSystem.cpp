@@ -41,6 +41,10 @@ namespace TDEngine2
 					}
 
 					TPtr<IParticleEffect> pParticleEffect = pResourceManager->GetResource<IParticleEffect>(particleEffectResourceHandle);
+					if (!pParticleEffect)
+					{
+						continue;
+					}
 
 					const TResourceId materialHandle = pResourceManager->Load<IMaterial>(pParticleEffect->GetMaterialName());
 					if (TResourceId::Invalid == materialHandle)
@@ -155,7 +159,7 @@ namespace TDEngine2
 			{
 				auto pCurrEffectResource = mpResourceManager->GetResource<IParticleEffect>(pEmitterComponent->GetParticleEffectHandle());
 				
-				const size_t particlesCount = static_cast<size_t>(pCurrEffectResource->GetMaxParticlesCount());
+				const size_t particlesCount = pCurrEffectResource ? static_cast<size_t>(pCurrEffectResource->GetMaxParticlesCount()) : 0;
 
 				mParticlesInstancesData[i].resize(particlesCount);
 				mParticles[i].resize(particlesCount);
@@ -322,6 +326,10 @@ namespace TDEngine2
 			if (CParticleEmitter* pEmitterComponent = mParticleEmitters.mpParticleEmitters[i])
 			{
 				auto pCurrEffectResource = mpResourceManager->GetResource<IParticleEffect>(pEmitterComponent->GetParticleEffectHandle());
+				if (!pCurrEffectResource)
+				{
+					continue;
+				}
 
 				auto& particles = mParticles[i];
 
