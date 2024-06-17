@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.29] 2024-06-15
+## [0.6.29] 2024-06-17
 
 ### Added
 
@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **CBaseMaterial**'s implementation was refactored to integrate support of graphics pipeline objects. Now every change of some material's state causes invalidation
 and derives a new graphics pipeline object. 
+
+- Now Volumetric clouds pass is moved before main geometry passes.
 
 ### Fixed
 

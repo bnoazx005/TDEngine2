@@ -58,7 +58,7 @@ namespace TDEngine2
 
 	static inline void ExecuteDrawCommands(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, 
 		TPtr<IGlobalShaderProperties> pGlobalShaderProperties, TPtr<CRenderQueue> pCommandsBuffer, bool shouldClearBuffers, 
-		U32 upperRenderIndexLimit = (std::numeric_limits<U32>::max)());
+		U32 startRange = 0, U32 endRange = (std::numeric_limits<U32>::max)());
 
 
 	struct TLightCullData
@@ -778,22 +778,7 @@ namespace TDEngine2
 							builder.Read(currOmniLightTargetHandle);
 						}
 
-						TFrameGraphTexture::TDesc mainRenderTargetParams{};
-
-						mainRenderTargetParams.mWidth           = mContext.mWindowWidth;
-						mainRenderTargetParams.mHeight          = mContext.mWindowHeight;
-						mainRenderTargetParams.mFormat          = isHDRSupportEnabled ? FT_FLOAT4 : FT_NORM_UBYTE4;
-						mainRenderTargetParams.mNumOfMipLevels  = 1;
-						mainRenderTargetParams.mNumOfSamples    = 1;
-						mainRenderTargetParams.mSamplingQuality = 0;
-						mainRenderTargetParams.mType            = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
-						mainRenderTargetParams.mUsageType       = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
-						mainRenderTargetParams.mBindFlags       = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET;
-						mainRenderTargetParams.mName            = "MainRenderTaget";
-						mainRenderTargetParams.mFlags           = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
-
-						data.mMainRenderTargetHandle = builder.Create<TFrameGraphTexture>(mainRenderTargetParams.mName, mainRenderTargetParams);
-						data.mMainRenderTargetHandle = builder.Write(data.mMainRenderTargetHandle);
+						data.mMainRenderTargetHandle = builder.Write(builder.Read(frameGraphBlackboard.mMainRenderTargetHandle));
 
 						TDE2_ASSERT(data.mMainRenderTargetHandle != TFrameGraphResourceHandle::Invalid);
 					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
@@ -813,8 +798,6 @@ namespace TDEngine2
 
 						pGraphicsContext->BindRenderTarget(0, mainRenderTarget.mTextureHandle);
 						pGraphicsContext->BindDepthBufferTarget(depthBufferTarget.mTextureHandle);
-
-						pGraphicsContext->ClearRenderTarget(static_cast<U8>(0), TColorUtils::mBlack);
 
 						TFrameGraphBuffer& opaqueVisibleLightsBuffer = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(lightCullData.mOpaqueVisibleLightsBufferHandle);
 						TFrameGraphTexture& opaqueLightGridTexture = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(lightCullData.mOpaqueLightGridTextureHandle);
@@ -837,7 +820,7 @@ namespace TDEngine2
 							pGraphicsContext->SetSampler(OMNI_LIGHT_SHADOW_MAP_START_SLOT + static_cast<U32>(i), linearSamplerHandle);
 						}
 
-						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, true);
+						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, true, 1);
 
 						pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
 						pGraphicsContext->BindRenderTarget(0, TTextureHandleId::Invalid);
@@ -993,6 +976,77 @@ namespace TDEngine2
 #if TDE2_DEBUG_MODE
 						pGraphicsContext->EndSectionMarker();
 #endif
+					});
+
+				frameGraphBlackboard.mMainRenderTargetHandle = output.mMainRenderTargetHandle;
+			}
+	};
+
+
+	class CSkyGeometryRenderPass : public CBaseRenderPass
+	{
+		public:
+			explicit CSkyGeometryRenderPass(const TPassInvokeContext& context, TPtr<CRenderQueue> pCommandsBuffer) :
+				CBaseRenderPass(context, pCommandsBuffer)
+			{
+			}
+
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, bool isHDRSupportEnabled)
+			{
+				struct TPassData
+				{
+					TFrameGraphResourceHandle mMainRenderTargetHandle = TFrameGraphResourceHandle::Invalid;
+				};
+
+				auto& lightCullData = frameGraphBlackboard.mLightCullingData;
+
+				auto&& output = pFrameGraph->AddPass<TPassData>("RenderSkyGeometryRenderPass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
+					{
+						builder.Read(frameGraphBlackboard.mDepthBufferHandle);
+
+						TFrameGraphTexture::TDesc mainRenderTargetParams{};
+
+						mainRenderTargetParams.mWidth = mContext.mWindowWidth;
+						mainRenderTargetParams.mHeight = mContext.mWindowHeight;
+						mainRenderTargetParams.mFormat = isHDRSupportEnabled ? FT_FLOAT4 : FT_NORM_UBYTE4;
+						mainRenderTargetParams.mNumOfMipLevels = 1;
+						mainRenderTargetParams.mNumOfSamples = 1;
+						mainRenderTargetParams.mSamplingQuality = 0;
+						mainRenderTargetParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
+						mainRenderTargetParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+						mainRenderTargetParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET;
+						mainRenderTargetParams.mName = "MainRenderTaget";
+						mainRenderTargetParams.mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+
+						data.mMainRenderTargetHandle = builder.Create<TFrameGraphTexture>(mainRenderTargetParams.mName, mainRenderTargetParams);
+						data.mMainRenderTargetHandle = builder.Write(data.mMainRenderTargetHandle);
+
+						TDE2_ASSERT(data.mMainRenderTargetHandle != TFrameGraphResourceHandle::Invalid);
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
+					{
+						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
+						auto&& pResourceManager = mContext.mpResourceManager;
+
+						TDE2_PROFILER_SCOPE("RenderSkyGeometryRenderPass");
+
+#if TDE2_DEBUG_MODE
+						pGraphicsContext->BeginSectionMarker("RenderSky");
+#endif
+
+						TDE_RENDER_SECTION(pGraphicsContext, "RenderSkyGeometryRenderPass");
+
+						TFrameGraphTexture& mainRenderTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mMainRenderTargetHandle);
+						TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mDepthBufferHandle);
+
+						pGraphicsContext->BindRenderTarget(0, mainRenderTarget.mTextureHandle);
+						pGraphicsContext->BindDepthBufferTarget(depthBufferTarget.mTextureHandle);
+
+						pGraphicsContext->ClearRenderTarget(static_cast<U8>(0), TColorUtils::mBlack);
+
+						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, false, 0, 1);
+
+						pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
+						pGraphicsContext->BindRenderTarget(0, TTextureHandleId::Invalid);
 					});
 
 				frameGraphBlackboard.mMainRenderTargetHandle = output.mMainRenderTargetHandle;
@@ -1225,7 +1279,6 @@ namespace TDEngine2
 
 #if TDE2_DEBUG_MODE
 						pGraphicsContext->EndSectionMarker();
-						pGraphicsContext->BeginSectionMarker("PostProcessing");
 #endif
 					});
 
@@ -2280,7 +2333,7 @@ namespace TDEngine2
 
 
 	static inline void SubmitCommandsToDraw(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties,
-									TPtr<CRenderQueue> pRenderQueue, U32 upperRenderIndexLimit)
+									TPtr<CRenderQueue> pRenderQueue, U32 startRange, U32 endRange)
 	{
 		CRenderQueue::CRenderQueueIterator iter = pRenderQueue->GetIterator();
 
@@ -2290,16 +2343,22 @@ namespace TDEngine2
 
 		while (iter.HasNext())
 		{
+			if (iter.GetIndex() < startRange)
+			{
+				++iter;
+				continue;
+			}
+
+			if (iter.GetIndex() >= endRange)
+			{
+				break;
+			}
+
 			pCurrDrawCommand = *(iter++);
 
 			if (!pCurrDrawCommand)
 			{
 				continue;
-			}
-
-			if (iter.GetIndex() >= upperRenderIndexLimit)
-			{
-				break;
 			}
 
 			pCurrDrawCommand->Submit(drawContext);
@@ -2308,7 +2367,7 @@ namespace TDEngine2
 
 
 	static inline void ExecuteDrawCommands(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties,
-									TPtr<CRenderQueue> pCommandsBuffer, bool shouldClearBuffers, U32 upperRenderIndexLimit)
+									TPtr<CRenderQueue> pCommandsBuffer, bool shouldClearBuffers, U32 startRange, U32 endRange)
 	{
 		if (pCommandsBuffer->IsEmpty())
 		{
@@ -2316,7 +2375,7 @@ namespace TDEngine2
 		}
 
 		pCommandsBuffer->Sort();
-		SubmitCommandsToDraw(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pCommandsBuffer, upperRenderIndexLimit);
+		SubmitCommandsToDraw(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pCommandsBuffer, startRange, endRange);
 
 		if (shouldClearBuffers)
 		{
@@ -2417,14 +2476,7 @@ namespace TDEngine2
 			// \note depth pre-pass
 			CDepthPrePass{ passInvokeContext, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEPTH_PREPASS)] }.AddPass(mpFrameGraph, frameGraphBlackboard);
 
-			CUploadLightsPass{ passInvokeContext }.AddPass(mpFrameGraph, frameGraphBlackboard, mActiveLightSources);
-			CLightCullingPass{ passInvokeContext }.AddPass(mpFrameGraph, frameGraphBlackboard);
-
-			// \note main pass
-			COpaqueRenderPass{ passInvokeContext, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OPAQUE_GEOMETRY)] }.AddPass(mpFrameGraph, frameGraphBlackboard, true); // \todo replace with configuration of hdr
-			CTransparentRenderPass{ passInvokeContext, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_TRANSPARENT_GEOMETRY)] }.AddPass(mpFrameGraph, frameGraphBlackboard); 
-			CSpritesRenderPass{ passInvokeContext, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SPRITES)] }.AddPass(mpFrameGraph, frameGraphBlackboard);
-			CDebugRenderPass{ passInvokeContext, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEBUG)] }.AddPass(mpFrameGraph, frameGraphBlackboard);
+			CSkyGeometryRenderPass{ passInvokeContext, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OPAQUE_GEOMETRY)] }.AddPass(mpFrameGraph, frameGraphBlackboard, true); // \todo replace with configuration of hdr
 
 			if (CGameUserSettings::Get()->mpIsVolumetricCloudsEnabledCVar->Get())
 			{
@@ -2433,6 +2485,15 @@ namespace TDEngine2
 
 				pVolumetricCloudsComposePass->AddPass(mpFrameGraph, frameGraphBlackboard);
 			}
+
+			CUploadLightsPass{ passInvokeContext }.AddPass(mpFrameGraph, frameGraphBlackboard, mActiveLightSources);
+			CLightCullingPass{ passInvokeContext }.AddPass(mpFrameGraph, frameGraphBlackboard);
+
+			// \note main pass
+			COpaqueRenderPass{ passInvokeContext, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OPAQUE_GEOMETRY)] }.AddPass(mpFrameGraph, frameGraphBlackboard, true); // \todo replace with configuration of hdr
+			CTransparentRenderPass{ passInvokeContext, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_TRANSPARENT_GEOMETRY)] }.AddPass(mpFrameGraph, frameGraphBlackboard); 
+			CSpritesRenderPass{ passInvokeContext, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SPRITES)] }.AddPass(mpFrameGraph, frameGraphBlackboard);
+			CDebugRenderPass{ passInvokeContext, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEBUG)] }.AddPass(mpFrameGraph, frameGraphBlackboard);
 
 			// \note lights heatmap debug pass
 			if (EnableLightsHeatMapCfgVar.Get())
