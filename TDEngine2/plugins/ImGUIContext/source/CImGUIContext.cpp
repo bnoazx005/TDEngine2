@@ -891,16 +891,11 @@ namespace TDEngine2
 			ImGui::SetNextWindowPos(ImVec2(0, 0));
 		}
 
-		ImGui::SetNextWindowPos(params.mDefaultPos, ImGuiCond_Always);
+		ImGui::SetNextWindowPos(params.mDefaultPos, params.mIsPositionLocked ? ImGuiCond_Always : ImGuiCond_FirstUseEver);
 
 		if (params.mIsTransparent)
 		{
 			ImGui::SetNextWindowBgAlpha(0.0f);
-		}
-
-		if (params.mIsPositionLocked)
-		{
-			ImGui::SetNextWindowPos(params.mDefaultPos);
 		}
 
 		bool result = ImGui::Begin(name.c_str(), &isOpened, flags);

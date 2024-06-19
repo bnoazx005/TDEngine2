@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.29] 2024-06-17
+## [0.6.29] 2024-06-19
 
 ### Added
 
@@ -31,6 +31,8 @@ and derives a new graphics pipeline object.
 - Incorrect test between AABBs and camera's frustum was fixed.
 
 - Entities boundaries incomplete initialization issue was fixed.
+
+- Locked position of ImGUI windows was fixed.
 
 ## [0.6.28] 2024-06-07
 
