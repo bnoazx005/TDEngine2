@@ -26,6 +26,8 @@ and derives a new graphics pipeline object.
 
 - Now Volumetric clouds pass is moved before main geometry passes.
 
+- The loading of cubemaps was speeded up due to fix of loading tasks scheduling.
+
 ### Fixed
 
 - Incorrect test between AABBs and camera's frustum was fixed.

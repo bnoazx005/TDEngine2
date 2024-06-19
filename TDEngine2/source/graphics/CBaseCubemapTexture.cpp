@@ -243,12 +243,19 @@ namespace TDEngine2
 		}
 
 		/// \note load cubemap's faces
-		for (U8 i = 0; i < 6; ++i)
-		{
-			if ((result = _loadFaceTexture(pTextureResource, metaInfo, static_cast<E_CUBEMAP_FACE>(i))) != RC_OK)
+		IJobManager* pJobManager = mpFileSystem->GetJobManager();
+
+		TJobCounter counter{};
+
+		pJobManager->SubmitMultipleJobs(&counter, 6, 1, [this, pTextureResource, metaInfo](const TJobArgs& args)
 			{
-				return result;
-			}
+				E_RESULT_CODE result = _loadFaceTexture(pTextureResource, metaInfo, static_cast<E_CUBEMAP_FACE>(args.mJobIndex));
+				TDE2_ASSERT(RC_OK == result);
+			});
+
+		if (E_RESOURCE_LOADING_POLICY::STREAMING != pResource->GetLoadingPolicy())
+		{
+			pJobManager->WaitForJobCounter(counter);
 		}
 
 		return RC_OK;
