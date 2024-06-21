@@ -8,33 +8,13 @@
 
 
 #include "CBaseSystem.h"
-#include "../graphics/effects/TParticle.h"
-#include "../math/TVector2.h"
-#include "../math/TVector4.h"
-#include "../utils/Color.h"
-#include <vector>
 
 
 namespace TDEngine2
 {
 	class IResourceManager;
 	class IRenderer;
-	class IGraphicsObjectManager;
-	class CRenderQueue;
-	class IVertexDeclaration;
-	class CEntity;
-	class IMaterial;
-	class ICamera;
-	class CTransform;
-	class CParticleEmitter;
-	
-
-	enum class TEntityId : U32;
-	enum class TBufferHandleId : U32;
-
-
-	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
-	TDE2_DECLARE_SCOPED_PTR(IMaterial)
+	class IGraphicsObjectManager;	
 
 
 	/*!
@@ -48,114 +28,4 @@ namespace TDEngine2
 	*/
 
 	TDE2_API ISystem* CreateParticlesSimulationSystem(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result);
-
-
-	/*!
-		class CParticlesSimulationSystem
-
-		\brief The class is a system that processes CParticleEmitter components
-	*/
-
-	class CParticlesSimulationSystem : public CBaseSystem
-	{
-		public:
-			friend TDE2_API ISystem* CreateParticlesSimulationSystem(IRenderer*, IGraphicsObjectManager*, E_RESULT_CODE&);
-
-		private:
-			typedef struct TParticleVertex
-			{
-				TVector4 mPosition;
-				TVector2 mUVs;
-			} TParticleVertex, *TParticleVertexPtr;
-
-			typedef struct TParticleInstanceData
-			{
-				TColor32F mColor;
-				TVector4 mPositionAndSize;
-				TVector4 mRotation;
-			} TParticleInstanceData, *TParticleInstanceDataPtr;			
-
-			typedef std::vector<std::vector<TParticleInstanceData>> TParticlesArray;
-			typedef std::vector<std::vector<TParticleInfo>> TParticlesInfoArray;
-
-			typedef std::vector<CParticleEmitter*> TParticleEmmitters;
-
-			struct TSystemContext
-			{
-				std::vector<CTransform*>       mpTransform;
-				std::vector<CParticleEmitter*> mpParticleEmitters;
-			};
-	public:
-			TDE2_SYSTEM(CParticlesSimulationSystem);
-
-			/*!
-				\brief The method initializes an inner state of a system
-
-				\param[in, out] pRenderer A pointer to IRenderer implementation
-
-				\param[in, out] pGraphicsObjectManager A pointer to IGraphicsObjectManager implementation
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Init(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager);
-
-			/*!
-				\brief The method inject components array into a system
-
-				\param[in] pWorld A pointer to a main scene's object
-			*/
-
-			TDE2_API void InjectBindings(IWorld* pWorld) override;
-
-			/*!
-				\brief The main method that should be implemented in all derived classes.
-				It contains all the logic that the system will execute during engine's work.
-
-				\param[in] pWorld A pointer to a main scene's object
-
-				\param[in] dt A delta time's value
-			*/
-
-			TDE2_API void Update(IWorld* pWorld, F32 dt) override;
-		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CParticlesSimulationSystem)
-
-			TDE2_API E_RESULT_CODE _initInternalVertexData();
-			
-			TDE2_API void _simulateParticles(IWorld* pWorld, F32 dt);
-
-			TDE2_API void _populateCommandsBuffer(TSystemContext& context, CRenderQueue*& pRenderGroup, const IMaterial* pCurrMaterial, const ICamera* pCamera);
-
-			TDE2_API U32 _computeRenderCommandHash(TResourceId materialId, F32 distanceToCamera);
-
-		protected:
-			IRenderer*              mpRenderer = nullptr;
-
-			TPtr<IResourceManager>  mpResourceManager = nullptr;
-
-			CRenderQueue*           mpRenderQueue = nullptr;
-
-			IGraphicsObjectManager* mpGraphicsObjectManager = nullptr;
-
-			TBufferHandleId          mParticleQuadVertexBufferHandle;			
-			TBufferHandleId          mParticleQuadIndexBufferHandle;
-
-			IVertexDeclaration*     mpParticleVertexDeclaration = nullptr;
-
-			CEntity*                mpCameraEntity = nullptr;
-
-			TParticlesArray         mParticlesInstancesData;
-
-			TParticlesInfoArray     mParticles;
-
-			TSystemContext          mParticleEmitters;
-
-			std::vector<U32>        mActiveParticlesCount;
-
-			std::vector<TPtr<IMaterial>> mUsedMaterials;
-
-			std::vector<TBufferHandleId> mParticlesInstancesBufferHandles;
-
-	};
 }
