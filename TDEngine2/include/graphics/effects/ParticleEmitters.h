@@ -164,8 +164,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBoxParticlesEmitter)
 		protected:
-			TVector3 mBoxSizes;
-			TVector3 mBoxOrigin;
+			TVector3 mBoxSizes = ZeroVector3;
+			TVector3 mBoxOrigin = ZeroVector3;
 	};
 
 
@@ -234,8 +234,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSphereParticlesEmitter)
 		protected:
-			TVector3 mOrigin;
-			F32      mRadius;
+			TVector3 mOrigin = ZeroVector3;
+			F32      mRadius = 1.0f;
 	};
 
 
@@ -304,7 +304,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CConeParticlesEmitter)
 		protected:
-			F32 mRadius;
-			F32 mHeight;
+			F32 mRadius = 1.0f;
+			F32 mHeight = 1.0f;
 	};
 }

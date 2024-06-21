@@ -36,6 +36,8 @@ and derives a new graphics pipeline object.
 
 - Locked position of ImGUI windows was fixed.
 
+- Cone and Sphere particle emitter's types were fixed.
+
 ## [0.6.28] 2024-06-07
 
 ### Added

@@ -442,7 +442,7 @@ namespace TDEngine2
 		particleInfo.mLifeTime = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetLifetime());
 		particleInfo.mColor = _getInitColor();
 		particleInfo.mSize = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetInitialSize());
-		particleInfo.mPosition = pTransform->GetPosition() + mOrigin + Normalize(RandVector3(TVector3 { 0.001f }, TVector3 { 1.0f })) * mRadius; // \todo Fix this with proper computation of transformed position
+		particleInfo.mPosition = pTransform->GetPosition() + mOrigin + Normalize(RandVector3(TVector3 { -1.0f }, TVector3 { 1.0f })) * mRadius; // \todo Fix this with proper computation of transformed position
 		particleInfo.mVelocity = _getInitVelocity();
 
 		if (mIs2DEmitter)
@@ -551,7 +551,7 @@ namespace TDEngine2
 		}
 
 		// \todo Clean up this listing
-		TVector2 pos = TVector2(CRandomUtils::GetRandF32Value({ 0.0f, 1.0f }), CRandomUtils::GetRandF32Value({ 0.0f, 1.0f })); // \todo Replace with helper functions
+		TVector2 pos = TVector2(CRandomUtils::GetRandF32Value({ -1.0f, 1.0f }), CRandomUtils::GetRandF32Value({ -1.0f, 1.0f })); // \todo Replace with helper functions
 		const F32 h = CRandomUtils::GetRandF32Value({ 0.0f, 1.0f });
 
 		F32 r = h * mRadius * 0.5f / mHeight;
