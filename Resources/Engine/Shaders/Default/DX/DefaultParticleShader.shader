@@ -17,12 +17,19 @@ struct VertexOut
 
 struct VertexIn
 {
-	float4 mPos                : POSITION0;
-	float2 mUV                 : TEXCOORD0;
+	uint vertIndex             : SV_VertexID;
 	float4 mColor              : COLOR0;
 	float4 mParticlePosAndSize : TEXCOORD1;
 	float4 mParticleRotation   : TEXCOORD2;
     uint mInstanceId           : SV_InstanceID;
+};
+
+static const float4 BILLBOARD_QUAD_VERTICES[] = 
+{
+  float4(-0.5f, 0.5f, 0.0f, 0.0f),
+  float4(0.5f, 0.5f, 1.0f, 0.0f),
+  float4(-0.5f, -0.5f, 0.0f, 1.0f),
+  float4(0.5f, -0.5f, 1.0f, 1.0f),
 };
 
 
@@ -36,12 +43,12 @@ VertexOut mainVS(in VertexIn input)
 	float3x3 rotZAxisMat = float3x3(cosAngle, -sinAngle, 0.0f, sinAngle, cosAngle, 0.0f, 0.0f, 0.0f, 1.0f);
 
 	float3 particleCenter = input.mParticlePosAndSize.xyz;
-	float3 localPos       = mul(rotZAxisMat, input.mPos.xyz * input.mParticlePosAndSize.w);
+	float3 localPos       = mul(rotZAxisMat, float3(BILLBOARD_QUAD_VERTICES[input.vertIndex].xy, 0.0) * input.mParticlePosAndSize.w);
 
 	float4 pos = mul(ViewMat, float4(particleCenter.x, particleCenter.y, particleCenter.z, 1.0)) + float4(localPos.x, localPos.y, localPos.z, 0.0);
 
 	output.mPos        = mul(ProjMat, pos);
-	output.mUV         = input.mUV;
+	output.mUV         = BILLBOARD_QUAD_VERTICES[input.vertIndex].zw;
 	output.mColor      = input.mColor;
 	output.mInstanceId = input.mInstanceId;
 
