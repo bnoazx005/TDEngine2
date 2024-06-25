@@ -337,6 +337,7 @@ namespace TDEngine2
 		auto pBuffer = mpGraphicsObjectManagerImpl->GetOGLBufferPtr(vertexBufferHandle);
 		if (!pBuffer)
 		{
+			GL_SAFE_VOID_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 			return RC_FAIL;
 		}
 

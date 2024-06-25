@@ -312,6 +312,9 @@ namespace TDEngine2
 		auto pBuffer = mpGraphicsObjectManagerD3D11Impl->GetD3D11BufferPtr(vertexBufferHandle);
 		if (!pBuffer)
 		{
+			ID3D11Buffer* pNullD3D11BufferImpl = nullptr;
+			mp3dDeviceContext->IASetVertexBuffers(slot, 1, &pNullD3D11BufferImpl, &strideSize, &offset);
+
 			return RC_FAIL;
 		}
 
