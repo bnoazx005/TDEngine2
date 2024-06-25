@@ -319,6 +319,9 @@ namespace TDEngine2
 				{
 					auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 
+#if TDE2_DEBUG_MODE
+					pGraphicsContext->EndSectionMarker();
+#endif
 					TDE2_PROFILER_SCOPE("DepthPrePass");
 					TDE_RENDER_SECTION(pGraphicsContext, renderPassName);
 					
@@ -484,14 +487,6 @@ namespace TDEngine2
 						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, false);
 
 						pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
-
-#if TDE2_DEBUG_MODE
-						if (lightIndex == mShadowMapsIdentifiers.size() - 1)
-						{
-
-							pGraphicsContext->EndSectionMarker();
-						}
-#endif
 					});
 
 				frameGraphBlackboard.mOmniLightShadowMapHandles.emplace_back(output.mShadowMapHandle);
@@ -623,7 +618,11 @@ namespace TDEngine2
 					}, [=](const TLightCullData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
-						
+
+#if TDE2_DEBUG_MODE
+						pGraphicsContext->EndSectionMarker();
+#endif
+
 						TDE2_PROFILER_SCOPE("LightCullingPass");
 						TDE_RENDER_SECTION(pGraphicsContext, "LightCullingPass");
 
