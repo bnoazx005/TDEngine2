@@ -504,7 +504,9 @@ namespace TDEngine2
 			CreateMeshAnimatorUpdatingSystem(pResourceManager, result),
 			CreateSkinnedMeshRendererSystem(pRenderer, pGraphicsObjectManager, result),
 			CreateLightingSystem(pRenderer, pGraphicsObjectManager, result),
-			CreateParticlesSimulationSystem(pRenderer, pGraphicsObjectManager, result),
+			CProjectSettings::Get()->mGraphicsSettings.mIsGPUParticlesSimulationEnabled ? 
+				CreateParticlesGPUSimulationSystem(pRenderer, pGraphicsObjectManager, result) :
+				CreateParticlesSimulationSystem(pRenderer, pGraphicsObjectManager, result),
 			CreateUIElementsProcessSystem(pGraphicsContext, pResourceManager,_getSubsystemAs<ISceneManager>(EST_SCENE_MANAGER), result),
 			CreateUIElementsRenderSystem(pRenderer, pGraphicsObjectManager, result),
 #if TDE2_EDITORS_ENABLED

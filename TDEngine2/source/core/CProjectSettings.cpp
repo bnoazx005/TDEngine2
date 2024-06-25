@@ -51,6 +51,7 @@ namespace TDEngine2
 			static const std::string mDefaultSkyboxMaterialKey;
 			static const std::string mIsShaderCachingEnabledKey;
 			static const std::string mVolumetricCloudsMainShaderKey;
+			static const std::string mIsGPUParticlesSimulationEnabledKey;
 		};
 
 		struct TAudioSettingsKeys
@@ -129,6 +130,7 @@ namespace TDEngine2
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mDefaultSkyboxMaterialKey = "default_skybox_mat_id";
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mIsShaderCachingEnabledKey = "shader_caching_enabled";
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mVolumetricCloudsMainShaderKey = "volumetric_clouds_main_shader_id";
+	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mIsGPUParticlesSimulationEnabledKey = "gpu_particles_simulation_enabled";
 
 	const std::string TProjectSettingsArchiveKeys::TAudioSettingsKeys::mAudioTypeKey = "audio_plugin";
 
@@ -243,6 +245,8 @@ namespace TDEngine2
 
 			graphicsSettings.mVolumetricCloudsMainShader = 
 				pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mVolumetricCloudsMainShaderKey, graphicsSettings.mVolumetricCloudsMainShader);
+
+			graphicsSettings.mIsGPUParticlesSimulationEnabled = pFileReader->GetBool(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mIsGPUParticlesSimulationEnabledKey, true);
 		}
 		result = result | pFileReader->EndGroup();
 

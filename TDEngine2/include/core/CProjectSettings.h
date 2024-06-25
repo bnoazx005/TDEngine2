@@ -84,6 +84,8 @@ namespace TDEngine2
 
 				std::string mShaderCachePathPattern = "ProjectResources/ShadersPack_{0}.cache";
 				bool        mIsShaderCacheEnabled = true;
+
+				bool        mIsGPUParticlesSimulationEnabled = true;
 			} mGraphicsSettings;
 
 			struct
