@@ -86,6 +86,10 @@ namespace TDEngine2
 				bool        mIsShaderCacheEnabled = true;
 
 				bool        mIsGPUParticlesSimulationEnabled = true;
+
+				// Two identifiers below is used only if the member mIsGPUParticlesSimulationEnabled is enabled
+				std::string mEmitParticlesComputeShader = "Shaders/Default/Particles/EmitParticles.cshader";
+				std::string mSimulateParticlesComputeShader = "Shaders/Default/Particles/SimulateParticles.cshader";
 			} mGraphicsSettings;
 
 			struct

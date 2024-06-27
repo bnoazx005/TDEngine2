@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.29] 2024-06-21
+## [0.6.29] 2024-06-27
 
 ### Added
 
@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The API of **IGraphicsPipeline** was extended with a new method GetConfig.
 
 - A new function **ContainsSphere** that allows to test AABB - sphere intersection was added. 
+
+- Two new project settings to store paths to GPU particles simulation shaders.
 
 ### Changed
 
