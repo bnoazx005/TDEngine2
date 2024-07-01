@@ -54,6 +54,7 @@ namespace TDEngine2
 			static const std::string mIsGPUParticlesSimulationEnabledKey;
 			static const std::string mEmitParticlesComputeShaderKey;
 			static const std::string mSimulateParticlesComputeShaderKey;
+			static const std::string mRandTextureIdKey;
 		};
 
 		struct TAudioSettingsKeys
@@ -135,6 +136,7 @@ namespace TDEngine2
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mIsGPUParticlesSimulationEnabledKey = "gpu_particles_simulation_enabled";
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mEmitParticlesComputeShaderKey = "emit_particles_compute_shader_id";
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mSimulateParticlesComputeShaderKey = "simulate_particles_compute_shader_id";
+	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mRandTextureIdKey = "rand_tex_id";
 
 	const std::string TProjectSettingsArchiveKeys::TAudioSettingsKeys::mAudioTypeKey = "audio_plugin";
 
@@ -254,6 +256,8 @@ namespace TDEngine2
 
 			graphicsSettings.mEmitParticlesComputeShader = pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mEmitParticlesComputeShaderKey, graphicsSettings.mEmitParticlesComputeShader);
 			graphicsSettings.mSimulateParticlesComputeShader = pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mSimulateParticlesComputeShaderKey, graphicsSettings.mSimulateParticlesComputeShader);
+
+			graphicsSettings.mRandomTextureId = pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mRandTextureIdKey, graphicsSettings.mRandomTextureId);
 		}
 		result = result | pFileReader->EndGroup();
 

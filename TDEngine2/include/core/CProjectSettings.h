@@ -90,6 +90,8 @@ namespace TDEngine2
 				// Two identifiers below is used only if the member mIsGPUParticlesSimulationEnabled is enabled
 				std::string mEmitParticlesComputeShader = "Shaders/Default/Particles/EmitParticles.cshader";
 				std::string mSimulateParticlesComputeShader = "Shaders/Default/Particles/SimulateParticles.cshader";
+
+				std::string mRandomTextureId = "DefaultResources/Textures/MainRndTexture";
 			} mGraphicsSettings;
 
 			struct
