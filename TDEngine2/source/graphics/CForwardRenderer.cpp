@@ -2234,6 +2234,26 @@ namespace TDEngine2
 	}
 
 
+	static E_RESULT_CODE CreateRandomTexture(TPtr<IResourceManager> pResourceManager)
+	{
+		const TTexture2DParameters randTextureParams(1024, 1024, FT_FLOAT4);
+		
+		TPtr<ITexture2D> pTexture = pResourceManager->GetResource<ITexture2D>(pResourceManager->Create<ITexture2D>(CProjectSettings::Get()->mGraphicsSettings.mRandomTextureId, randTextureParams));
+		if (!pTexture)
+		{
+			return RC_FAIL;
+		}
+
+		std::vector<F32> values(randTextureParams.mWidth * randTextureParams.mHeight * sizeof(F32) * 4);
+		for (F32& value : values)
+		{
+			value = CRandomUtils::GetRandF32Value({ 0.0f, 1.0f });
+		}
+
+		return pTexture->WriteData({ 0, 0, static_cast<I32>(randTextureParams.mWidth), static_cast<I32>(randTextureParams.mHeight) }, reinterpret_cast<const U8*>(values.data()));
+	}
+
+
 	E_RESULT_CODE CForwardRenderer::Init(const TRendererInitParams& params)
 	{
 		if (mIsInitialized)
@@ -2320,6 +2340,12 @@ namespace TDEngine2
 		mLightGridData = lightGridDataResult.Get();
 
 		result = InitStaticRenderPasses(mpGraphicsContext, mpResourceManager, mpGlobalShaderProperties);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		result = CreateRandomTexture(mpResourceManager);
 		if (RC_OK != result)
 		{
 			return result;
