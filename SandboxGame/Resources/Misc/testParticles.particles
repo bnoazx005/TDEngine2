@@ -12,7 +12,7 @@ duration: 0.500000
     z: 1.000000
   type_id: 4254875826
 "loop-mode": 1
-"material-id": Resources/Materials/DefaultParticleMaterial.material
+"material-id": DefaultResources/Materials/DefaultParticleMaterial.material
 "max-particles-count": 1000
 meta: 
   "resource-type": "particle-effect"

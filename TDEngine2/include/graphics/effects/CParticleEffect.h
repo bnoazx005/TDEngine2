@@ -261,39 +261,39 @@ namespace TDEngine2
 
 			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
 		protected:
-			F32                               mDuration;
+			F32                               mDuration = 1.0f;
 
-			bool                              mIsLooped;
+			bool                              mIsLooped = false;
 
-			U16                               mMaxParticlesCount;
+			U16                               mMaxParticlesCount = 10;
 
 			std::string                       mMaterialName;
 
-			TRangeF32                         mLifeTime;
-			TRangeF32                         mInitialSize;
-			TRangeF32                         mInitialRotation;
+			TRangeF32                         mLifeTime{ 1.0f };
+			TRangeF32                         mInitialSize{ 1.0f };
+			TRangeF32                         mInitialRotation{ 0.0f };
 			TParticleColorParameter           mInitialColor;
-			TVector3                          mInitialMoveDirection; // \note always should be normalized
-			F32                               mInitialSpeedFactor;
-			F32                               mGravityModifier;
+			TVector3                          mInitialMoveDirection = ZeroVector3; // \note always should be normalized
+			F32                               mInitialSpeedFactor = 0.0f;
+			F32                               mGravityModifier = 1.0f;
 
-			U32                               mEmissionRate;
+			U32                               mEmissionRate = 10;
 
-			E_PARTICLE_SIMULATION_SPACE       mSimulationSpaceType;
+			E_PARTICLE_SIMULATION_SPACE       mSimulationSpaceType = E_PARTICLE_SIMULATION_SPACE::LOCAL;
 
-			E_PARTICLE_EFFECT_INFO_FLAGS      mModifiersInfoFlags;
+			E_PARTICLE_EFFECT_INFO_FLAGS      mModifiersInfoFlags = E_PARTICLE_EFFECT_INFO_FLAGS::DEFAULT;
 
-			CScopedPtr<CAnimationCurve>       mpSizeCurve;
+			CScopedPtr<CAnimationCurve>       mpSizeCurve = nullptr;
 
 			TParticleColorParameter           mColorOverLifetimeData;
 
 			TParticleVelocityParameter        mVelocityOverLifetimeData;
 
-			F32                               mRotationPerFrame;
+			F32                               mRotationPerFrame = 0.0f;
 
 			TVector3                          mForcePerFrame = ZeroVector3;
 
-			CScopedPtr<CBaseParticlesEmitter> mpSharedEmitter;
+			CScopedPtr<CBaseParticlesEmitter> mpSharedEmitter = nullptr;
 	};
 
 
@@ -360,11 +360,11 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CParticleEffectLoader)
 		protected:
-			IResourceManager* mpResourceManager;
+			IResourceManager* mpResourceManager = nullptr;
 
-			IFileSystem*      mpFileSystem;
+			IFileSystem*      mpFileSystem = nullptr;
 
-			IGraphicsContext* mpGraphicsContext;
+			IGraphicsContext* mpGraphicsContext = nullptr;
 	};
 
 
@@ -443,8 +443,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CParticleEffectFactory)
 		protected:
-			IResourceManager* mpResourceManager;
+			IResourceManager* mpResourceManager = nullptr;
 
-			IGraphicsContext* mpGraphicsContext;
+			IGraphicsContext* mpGraphicsContext = nullptr;
 	};
 }

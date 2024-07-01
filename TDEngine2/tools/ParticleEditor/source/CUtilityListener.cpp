@@ -39,7 +39,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	mCurrEditableEffectId = TResourceId::Invalid;
 	mLastSavedPath = Wrench::StringUtils::GetEmptyStr();
 
-	mCurrEditableEffectId = mpResourceManager->Load<IParticleEffect>("testParticles.particles");
+	mCurrEditableEffectId = mpResourceManager->Load<IParticleEffect>("ProjectResources/Misc/testParticles.particles");
 	TDE2_ASSERT(TResourceId::Invalid != mCurrEditableEffectId);
 
 	mpParticleEditor->SetParticleEffectResourceHandle(mCurrEditableEffectId);
@@ -57,11 +57,13 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 			if (auto pParticles = pParticlesEntity->AddComponent<CParticleEmitter>())
 			{
-				pParticles->SetParticleEffect("testParticles.particles");
+				pParticles->SetParticleEffect("ProjectResources/Misc/testParticles.particles");
 			}
 
 			mpEditableEntity = pParticlesEntity;
 		}
+
+		getSceneResult.Get()->CreateSkybox(mpResourceManager.Get(), "DefaultResources/Textures/DefaultSkybox");
 	}
 
 	return RC_OK;
