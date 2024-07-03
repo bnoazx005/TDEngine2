@@ -178,6 +178,12 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CProxyGraphicsContext::CopyCount(TBufferHandleId sourceHandle, TBufferHandleId destHandle, U32 offset)
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] CopyCount");
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CProxyGraphicsContext::GenerateMipMaps(TTextureHandleId textureHandle)
 	{
 		LOG_MESSAGE("[ProxyGraphicsContext] GenerateMipMaps");

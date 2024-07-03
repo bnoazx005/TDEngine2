@@ -592,6 +592,30 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CD3D11GraphicsContext::CopyCount(TBufferHandleId sourceHandle, TBufferHandleId destHandle, U32 offset)
+	{
+		auto pSourceBuffer = mpGraphicsObjectManagerD3D11Impl->GetD3D11BufferPtr(sourceHandle);
+		auto pDestBuffer = mpGraphicsObjectManagerD3D11Impl->GetD3D11BufferPtr(destHandle);
+
+		if (!pSourceBuffer || !pDestBuffer)
+		{
+			return RC_FAIL;
+		}
+
+		const TInitBufferParams& sourceBufferParams = pSourceBuffer->GetParams();
+
+		if (E_STRUCTURED_BUFFER_TYPE::APPENDABLE != sourceBufferParams.mStructuredBufferType ||
+			E_BUFFER_TYPE::STRUCTURED != sourceBufferParams.mBufferType ||
+			!sourceBufferParams.mIsUnorderedAccessResource)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mp3dDeviceContext->CopyStructureCount(pDestBuffer->GetD3D11Buffer(), offset, pSourceBuffer->GetWriteableShaderView());
+
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CD3D11GraphicsContext::GenerateMipMaps(TTextureHandleId textureHandle)
 	{
 		if (TTextureHandleId::Invalid == textureHandle)

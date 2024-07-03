@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.29] 2024-06-27
+## [0.6.29] 2024-07-03
 
 ### Added
 
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new function **ContainsSphere** that allows to test AABB - sphere intersection was added. 
 
 - Two new project settings to store paths to GPU particles simulation shaders.
+
+- The API of **IGraphicsContext** was extended with a new method CopyCount.
 
 ### Changed
 

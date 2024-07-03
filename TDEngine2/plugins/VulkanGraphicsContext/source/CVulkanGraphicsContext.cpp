@@ -969,6 +969,11 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CVulkanGraphicsContext::CopyCount(TBufferHandleId sourceHandle, TBufferHandleId destHandle, U32 offset)
+	{
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
 	E_RESULT_CODE CVulkanGraphicsContext::GenerateMipMaps(TTextureHandleId textureHandle)
 	{
 		return RC_NOT_IMPLEMENTED_YET;

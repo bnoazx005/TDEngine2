@@ -183,6 +183,16 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE CopyResource(TBufferHandleId sourceHandle, TBufferHandleId destHandle) override;
 
 			/*!
+				\brief The method copies counter of sourceHandle buffer into destHandle's one
+
+				\param[in] sourceHandle A handle to structured appendable buffer resource that should be created with unordered access write flag
+				\param[in] destHandle A handle to any buffer resource
+				\param[in] offset An offset within dest buffer
+			*/
+
+			TDE2_API E_RESULT_CODE CopyCount(TBufferHandleId sourceHandle, TBufferHandleId destHandle, U32 offset) override;
+
+			/*!
 				\brief The method generates all mip levels for the specified texture
 			*/
 

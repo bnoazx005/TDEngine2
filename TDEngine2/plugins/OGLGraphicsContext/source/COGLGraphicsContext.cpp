@@ -587,6 +587,12 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE COGLGraphicsContext::CopyCount(TBufferHandleId sourceHandle, TBufferHandleId destHandle, U32 offset)
+	{
+		TDE2_UNIMPLEMENTED();
+		return RC_OK;
+	}
+
 	E_RESULT_CODE COGLGraphicsContext::GenerateMipMaps(TTextureHandleId textureHandle)
 	{
 		if (TTextureHandleId::Invalid == textureHandle)
