@@ -326,7 +326,7 @@ namespace TDEngine2
 
 		if (mIs2DEmitter)
 		{
-			particleInfo.mPosition.z = pTransform->GetPosition().z; // \todo Fix this with proper computation of transformed position
+			particleInfo.mPosition.z = isLocalSpaceParticles ? 0.0f : pTransform->GetPosition().z; // \todo Fix this with proper computation of transformed position
 		}
 
 		return RC_OK;
@@ -462,7 +462,7 @@ namespace TDEngine2
 
 		if (mIs2DEmitter)
 		{
-			particleInfo.mPosition.z = pTransform->GetPosition().z; // \todo Fix this with proper computation of transformed position
+			particleInfo.mPosition.z = isLocalSpaceParticles ? 0.0f : pTransform->GetPosition().z; // \todo Fix this with proper computation of transformed position
 		}
 
 		return RC_OK;
@@ -588,7 +588,7 @@ namespace TDEngine2
 
 		if (mIs2DEmitter)
 		{
-			particleInfo.mPosition.z = pTransform->GetPosition().z; // \todo Fix this with proper computation of transformed position
+			particleInfo.mPosition.z = isLocalSpaceParticles ? 0.0f : pTransform->GetPosition().z; // \todo Fix this with proper computation of transformed position
 		}
 
 		return RC_OK;
