@@ -7,6 +7,7 @@
 #include "../../include/graphics/effects/CParticleEmitterComponent.h"
 #include "../../include/graphics/effects/CParticleEffect.h"
 #include "../../include/graphics/effects/TParticle.h"
+#include "../../include/graphics/effects/ParticleEmitters.h"
 #include "../../include/ecs/CTransform.h"
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CEntity.h"
@@ -720,8 +721,10 @@ namespace TDEngine2
 				ICamera* pCameraComponent = GetValidPtrOrDefault<ICamera*>(mpCameraEntity->GetComponent<CPerspectiveCamera>(), mpCameraEntity->GetComponent<COrthoCamera>());
 				TDE2_ASSERT(pCameraComponent);
 
+#if TDE2_DEBUG_MODE
 				IGraphicsContext* pGraphicsContext = mpGraphicsObjectManager->GetGraphicsContext();
 				pGraphicsContext->BeginSectionMarker("GPUParticlesSimulationPass");
+#endif
 				{
 					// \todo reset particles if the flag is true
 
@@ -734,7 +737,9 @@ namespace TDEngine2
 					_emitParticles(pWorld, deltaTime);
 					_simulateParticles(pWorld, deltaTime);
 				}
+#if TDE2_DEBUG_MODE
 				pGraphicsContext->EndSectionMarker();
+#endif
 
 				// \note Render particles 
 				for (auto&& pCurrMaterial : mUsedMaterials)
@@ -788,7 +793,9 @@ namespace TDEngine2
 				}
 
 				IGraphicsContext* pGraphicsContext = mpGraphicsObjectManager->GetGraphicsContext();
+#if TDE2_DEBUG_MODE
 				pGraphicsContext->BeginSectionMarker("EmitParticles");
+#endif
 
 				for (USIZE i = 0; i < mParticleEmitters.mpParticleEmitters.size(); ++i)
 				{
@@ -832,7 +839,9 @@ namespace TDEngine2
 					pGraphicsContext->SetStructuredBuffer(0, TBufferHandleId::Invalid, true);
 				}
 
+#if TDE2_DEBUG_MODE
 				pGraphicsContext->EndSectionMarker();
+#endif
 			}
 
 			void _simulateParticles(IWorld* pWorld, F32 dt)
