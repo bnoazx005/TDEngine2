@@ -12,6 +12,7 @@
 #include "../../core/CBaseObject.h"
 #include "../../core/Serialization.h"
 #include "../../math/TVector3.h"
+#include "../../math/TVector4.h"
 #include "../../utils/Color.h"
 #include <vector>
 #include <string>
@@ -25,6 +26,31 @@ namespace TDEngine2
 	struct TParticle;
 	struct TParticleColorParameter;
 	struct TParticleVelocityParameter;
+
+
+	struct TEmitterUniformsData
+	{
+		// box emitter's data
+		TVector4 mBoxSizes;
+
+		// sphere/cone emitter's data
+		F32      mSphereConeRadius;
+		F32      mConeHeight;
+		F32      mPad0[2];
+
+		// common 
+		TVector4 mPosition;
+		TVector4 mVelocity;
+		F32      mDuration;
+		TVector4 mInitialLifetime;
+		TVector4 mInitialSize;
+		TVector4 mInitialRotation;
+
+		U32      mIs2DEmitter;
+		U32      mMaxParticles;
+		U32      mEmitRate;
+		U32      mPad1[1];
+	};
 
 
 	/*!
@@ -79,6 +105,8 @@ namespace TDEngine2
 			TDE2_API bool Is2DModeEnabled() const;
 
 			TDE2_API virtual TypeId GetEmitterTypeId() const { return TypeId::Invalid; }
+
+			TDE2_API virtual TEmitterUniformsData GetShaderUniformsData() const;
 
 			TDE2_API static TColor32F GetColorData(const TParticleColorParameter& colorData, F32 time);
 			TDE2_API static TVector3 GetVelocityData(const TParticleVelocityParameter& velocityData, F32 time);
@@ -161,6 +189,8 @@ namespace TDEngine2
 
 			TDE2_API const TVector3& GetSizes() const;
 			TDE2_API const TVector3& GetOrigin() const;
+
+			TDE2_API TEmitterUniformsData GetShaderUniformsData() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBoxParticlesEmitter)
 		protected:
@@ -231,6 +261,8 @@ namespace TDEngine2
 
 			TDE2_API const TVector3& GetOrigin() const;
 			TDE2_API F32 GetRadius() const;
+
+			TDE2_API TEmitterUniformsData GetShaderUniformsData() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSphereParticlesEmitter)
 		protected:
@@ -301,6 +333,8 @@ namespace TDEngine2
 
 			TDE2_API F32 GetHeight() const;
 			TDE2_API F32 GetRadius() const;
+
+			TDE2_API TEmitterUniformsData GetShaderUniformsData() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CConeParticlesEmitter)
 		protected:

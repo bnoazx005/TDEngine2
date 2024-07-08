@@ -127,6 +127,12 @@ namespace TDEngine2
 		return ZeroVector3;
 	}
 
+	TEmitterUniformsData CBaseParticlesEmitter::GetShaderUniformsData() const
+	{
+		TDE2_UNREACHABLE();
+		return {};
+	}
+
 	TColor32F CBaseParticlesEmitter::_getInitColor() const
 	{
 		if (!mpOwnerEffect)
@@ -308,11 +314,13 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		const bool isLocalSpaceParticles = E_PARTICLE_SIMULATION_SPACE::LOCAL == mpOwnerEffect->GetSimulationSpaceType();
+
 		particleInfo.mAge = 0.0f;
 		particleInfo.mLifeTime = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetLifetime());
 		particleInfo.mColor = _getInitColor();
 		particleInfo.mSize = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetInitialSize());
-		particleInfo.mPosition = pTransform->GetPosition() + RandVector3(mBoxOrigin - 0.5f * mBoxSizes, mBoxOrigin + 0.5f * mBoxSizes); // \todo Fix this with proper computation of transformed position
+		particleInfo.mPosition = (isLocalSpaceParticles ? ZeroVector3 : pTransform->GetPosition()) + RandVector3(mBoxOrigin - 0.5f * mBoxSizes, mBoxOrigin + 0.5f * mBoxSizes); // \todo Fix this with proper computation of transformed position
 		particleInfo.mVelocity = _getInitVelocity();
 		particleInfo.mRotation = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetInitialRotation());
 
@@ -350,6 +358,11 @@ namespace TDEngine2
 	const TVector3& CBoxParticlesEmitter::GetOrigin() const
 	{
 		return mBoxOrigin;
+	}
+
+	TEmitterUniformsData CBoxParticlesEmitter::GetShaderUniformsData() const
+	{
+		return {};
 	}
 
 
@@ -438,11 +451,13 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		const bool isLocalSpaceParticles = E_PARTICLE_SIMULATION_SPACE::LOCAL == mpOwnerEffect->GetSimulationSpaceType();
+
 		particleInfo.mAge = 0.0f;
 		particleInfo.mLifeTime = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetLifetime());
 		particleInfo.mColor = _getInitColor();
 		particleInfo.mSize = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetInitialSize());
-		particleInfo.mPosition = pTransform->GetPosition() + mOrigin + Normalize(RandVector3(TVector3 { -1.0f }, TVector3 { 1.0f })) * mRadius; // \todo Fix this with proper computation of transformed position
+		particleInfo.mPosition = (isLocalSpaceParticles ? ZeroVector3 : pTransform->GetPosition()) + mOrigin + Normalize(RandVector3(TVector3 { -1.0f }, TVector3 { 1.0f })) * mRadius; // \todo Fix this with proper computation of transformed position
 		particleInfo.mVelocity = _getInitVelocity();
 
 		if (mIs2DEmitter)
@@ -478,6 +493,11 @@ namespace TDEngine2
 	F32 CSphereParticlesEmitter::GetRadius() const
 	{
 		return mRadius;
+	}
+
+	TEmitterUniformsData CSphereParticlesEmitter::GetShaderUniformsData() const
+	{
+		return {};
 	}
 
 
@@ -550,6 +570,8 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		const bool isLocalSpaceParticles = E_PARTICLE_SIMULATION_SPACE::LOCAL == mpOwnerEffect->GetSimulationSpaceType();
+
 		// \todo Clean up this listing
 		TVector2 pos = TVector2(CRandomUtils::GetRandF32Value({ -1.0f, 1.0f }), CRandomUtils::GetRandF32Value({ -1.0f, 1.0f })); // \todo Replace with helper functions
 		const F32 h = CRandomUtils::GetRandF32Value({ 0.0f, 1.0f });
@@ -561,7 +583,7 @@ namespace TDEngine2
 		particleInfo.mLifeTime = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetLifetime());
 		particleInfo.mColor = _getInitColor();
 		particleInfo.mSize = CRandomUtils::GetRandF32Value(mpOwnerEffect->GetInitialSize());
-		particleInfo.mPosition = pTransform->GetPosition() + TVector3(pos.x, h, pos.y); // \todo Fix this with proper computation of transformed position
+		particleInfo.mPosition = (isLocalSpaceParticles ? ZeroVector3 : pTransform->GetPosition()) + TVector3(pos.x, h, pos.y); // \todo Fix this with proper computation of transformed position
 		particleInfo.mVelocity = ZeroVector3;
 
 		if (mIs2DEmitter)
@@ -604,6 +626,11 @@ namespace TDEngine2
 	F32 CConeParticlesEmitter::GetRadius() const
 	{
 		return mRadius;
+	}
+
+	TEmitterUniformsData CConeParticlesEmitter::GetShaderUniformsData() const
+	{
+		return {};
 	}
 
 

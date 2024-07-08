@@ -42,6 +42,8 @@ and derives a new graphics pipeline object.
 
 - Cone and Sphere particle emitter's types were fixed.
 
+- LOCAL simulation mode's behaviour for particle systems was fixed.
+
 ## [0.6.28] 2024-06-07
 
 ### Added
