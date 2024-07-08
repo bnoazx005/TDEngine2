@@ -218,7 +218,7 @@ void CUtilityListener::_drawTimeControlBar()
 
 	if (mShouldPauseOnNextFrame)
 	{
-		pWorld->SetTimeScaleFactor(0.0f);
+		CGameUserSettings::Get()->SetFloatVariable(SIMULATION_TIME_COEFF_CFG_VAR_ID, 0.0f);
 		mShouldPauseOnNextFrame = false;
 	}
 
@@ -226,14 +226,16 @@ void CUtilityListener::_drawTimeControlBar()
 	{
 		pImGUIContext->BeginHorizontal();
 
-		pImGUIContext->Button(pWorld->GetTimeScaleFactor() > 0.0f ? "Pause" : "Play", TVector2(80.0f, 20.0f), [pWorld]
+		const F32* pSimulationTimeCoeff = CGameUserSettings::Get()->GetFloatVariable(SIMULATION_TIME_COEFF_CFG_VAR_ID);
+
+		pImGUIContext->Button(pSimulationTimeCoeff && *pSimulationTimeCoeff > 0.0f ? "Pause" : "Play", TVector2(80.0f, 20.0f), [pSimulationTimeCoeff, pWorld]
 		{
-			pWorld->SetTimeScaleFactor(1.0f - pWorld->GetTimeScaleFactor());
+			CGameUserSettings::Get()->SetFloatVariable(SIMULATION_TIME_COEFF_CFG_VAR_ID, 1.0f - *pSimulationTimeCoeff);
 		});
 
 		pImGUIContext->Button("Step", TVector2(80.0f, 20.0f), [pWorld, this]
 		{
-			pWorld->SetTimeScaleFactor(1.0f);
+			CGameUserSettings::Get()->SetFloatVariable(SIMULATION_TIME_COEFF_CFG_VAR_ID, 1.0f);
 			mShouldPauseOnNextFrame = true;
 		});
 

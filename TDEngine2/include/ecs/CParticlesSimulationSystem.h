@@ -41,4 +41,9 @@ namespace TDEngine2
 	*/
 
 	TDE2_API ISystem* CreateParticlesGPUSimulationSystem(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result);
+
+
+#if TDE2_EDITORS_ENABLED
+	constexpr const C8* SIMULATION_TIME_COEFF_CFG_VAR_ID = "graphics.particles_simulation_time_coeff";
+#endif
 }

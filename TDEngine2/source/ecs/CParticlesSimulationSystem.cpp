@@ -11,9 +11,13 @@
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/core/IResourceManager.h"
+#include "../../include/core/CProjectSettings.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/graphics/COrthoCamera.h"
+#include "../../include/graphics/IShader.h"
+#include "../../include/graphics/ITexture2D.h"
 #include "../../include/utils/CFileLogger.h"
+#include "../../include/core/CGameUserSettings.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include <algorithm>
 #include <cmath>
@@ -22,6 +26,10 @@
 
 namespace TDEngine2
 {
+#if TDE2_EDITORS_ENABLED
+	CFloatConsoleVarDecl SimulationTimeCoeffCfgVar(SIMULATION_TIME_COEFF_CFG_VAR_ID, "", 1.0f);
+#endif
+
 	static U32 GetFirstDeadParticleIndex(std::vector<TParticleInfo>& particles, bool isLoopedModeEnabled)
 	{
 		U32 index = 0;
@@ -257,7 +265,12 @@ namespace TDEngine2
 				TDE2_ASSERT(pCameraComponent);
 
 				// \note Process a new step of particles simulation
-				_simulateParticles(pWorld, dt);
+				_simulateParticles(pWorld, 
+#if TDE2_EDITORS_ENABLED
+					SimulationTimeCoeffCfgVar.Get() * 
+#endif
+					dt
+				);
 
 				// \note Render particles 
 				for (auto&& pCurrMaterial : mUsedMaterials)
@@ -608,6 +621,12 @@ namespace TDEngine2
 					return result;
 				}
 
+				mEmitParticlesShaderHandle = mpResourceManager->Load<IShader>(CProjectSettings::Get()->mGraphicsSettings.mEmitParticlesComputeShader);
+				mSimulateParticlesShaderHandle = mpResourceManager->Load<IShader>(CProjectSettings::Get()->mGraphicsSettings.mSimulateParticlesComputeShader);
+
+				TDE2_ASSERT(TResourceId::Invalid != mEmitParticlesShaderHandle);
+				TDE2_ASSERT(TResourceId::Invalid != mSimulateParticlesShaderHandle);
+
 				mIsInitialized = true;
 
 				return RC_OK;
@@ -701,8 +720,21 @@ namespace TDEngine2
 				ICamera* pCameraComponent = GetValidPtrOrDefault<ICamera*>(mpCameraEntity->GetComponent<CPerspectiveCamera>(), mpCameraEntity->GetComponent<COrthoCamera>());
 				TDE2_ASSERT(pCameraComponent);
 
-				_emitParticles(pWorld, dt);
-				_simulateParticles(pWorld, dt);
+				IGraphicsContext* pGraphicsContext = mpGraphicsObjectManager->GetGraphicsContext();
+				pGraphicsContext->BeginSectionMarker("GPUParticlesSimulationPass");
+				{
+					// \todo reset particles if the flag is true
+
+					const F32 deltaTime =
+#if TDE2_EDITORS_ENABLED
+						SimulationTimeCoeffCfgVar.Get() *
+#endif
+						dt;
+
+					_emitParticles(pWorld, deltaTime);
+					_simulateParticles(pWorld, deltaTime);
+				}
+				pGraphicsContext->EndSectionMarker();
 
 				// \note Render particles 
 				for (auto&& pCurrMaterial : mUsedMaterials)
@@ -749,7 +781,58 @@ namespace TDEngine2
 
 			void _emitParticles(IWorld* pWorld, F32 dt)
 			{
+				TPtr<IShader> pEmitParticlesShader = mpResourceManager->GetResource<IShader>(mEmitParticlesShaderHandle);
+				if (!pEmitParticlesShader)
+				{
+					return;
+				}
 
+				IGraphicsContext* pGraphicsContext = mpGraphicsObjectManager->GetGraphicsContext();
+				pGraphicsContext->BeginSectionMarker("EmitParticles");
+
+				for (USIZE i = 0; i < mParticleEmitters.mpParticleEmitters.size(); ++i)
+				{
+					CParticleEmitter* pEmitterComponent = mParticleEmitters.mpParticleEmitters[i];
+					if (!pEmitterComponent)
+					{
+						continue;
+					}
+
+					auto pCurrEffectResource = mpResourceManager->GetResource<IParticleEffect>(pEmitterComponent->GetParticleEffectHandle());
+					if (!pCurrEffectResource)
+					{
+						continue;
+					}
+
+					if (!pCurrEffectResource->GetEmissionRate())
+					{
+						continue;
+					}
+
+					auto pSharedEmitter = pCurrEffectResource->GetSharedEmitter();
+					if (!pSharedEmitter)
+					{
+						continue;
+					}
+
+					// \note Fill in constant buffer with current emitter's data
+					TEmitterUniformsData currEmitterShaderData = pSharedEmitter->GetShaderUniformsData();
+					currEmitterShaderData.mPosition = TVector4(mParticleEmitters.mpTransform[i]->GetPosition(), 1.0f);
+					
+					// \note Bind the buffer
+					pEmitParticlesShader->SetStructuredBufferResource("TileFrustums", TBufferHandleId::Invalid);
+					pEmitParticlesShader->SetTextureResource("RandTexture", mpResourceManager->GetResource<ITexture2D>(mpResourceManager->Load<ITexture2D>(CProjectSettings::Get()->mGraphicsSettings.mRandomTextureId)).Get());
+					pEmitParticlesShader->SetUserUniformsBuffer(0, reinterpret_cast<U8*>(&currEmitterShaderData), sizeof(currEmitterShaderData));
+					pEmitParticlesShader->Bind();
+
+					// \todo update constant buffer with dead particles count
+					
+					pGraphicsContext->DispatchCompute((currEmitterShaderData.mEmitRate + (currEmitterShaderData.mEmitRate % EMIT_DISPATCH_WORK_GROUP_SIZE)) / EMIT_DISPATCH_WORK_GROUP_SIZE, 1, 1);
+
+					pGraphicsContext->SetStructuredBuffer(0, TBufferHandleId::Invalid, true);
+				}
+
+				pGraphicsContext->EndSectionMarker();
 			}
 
 			void _simulateParticles(IWorld* pWorld, F32 dt)
@@ -943,6 +1026,8 @@ namespace TDEngine2
 			}
 
 		protected:
+			TDE2_STATIC_CONSTEXPR U32    EMIT_DISPATCH_WORK_GROUP_SIZE = 1024;
+
 			IRenderer* mpRenderer = nullptr;
 
 			TPtr<IResourceManager>       mpResourceManager = nullptr;
@@ -968,6 +1053,9 @@ namespace TDEngine2
 			std::vector<TPtr<IMaterial>> mUsedMaterials;
 
 			std::vector<TBufferHandleId> mParticlesInstancesBufferHandles;
+
+			TResourceId                  mEmitParticlesShaderHandle = TResourceId::Invalid;
+			TResourceId                  mSimulateParticlesShaderHandle = TResourceId::Invalid;
 	};
 
 
