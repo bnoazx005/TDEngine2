@@ -43,6 +43,7 @@ namespace TDEngine2
 			switch (params.mStructuredBufferType)
 			{
 				case E_STRUCTURED_BUFFER_TYPE::DEFAULT:
+				case E_STRUCTURED_BUFFER_TYPE::APPENDABLE:
 					bufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
 					break;
 				case E_STRUCTURED_BUFFER_TYPE::RAW:
@@ -115,7 +116,7 @@ namespace TDEngine2
 		viewDesc.Format = DXGI_FORMAT_UNKNOWN;
 		viewDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
 		viewDesc.Buffer.FirstElement = 0;
-		viewDesc.Buffer.Flags = 0;
+		viewDesc.Buffer.Flags = E_STRUCTURED_BUFFER_TYPE::APPENDABLE == params.mStructuredBufferType ? D3D11_BUFFER_UAV_FLAG_APPEND : 0x0;
 		viewDesc.Buffer.NumElements = static_cast<U32>(params.mTotalBufferSize / params.mElementStrideSize);
 
 		if (FAILED(p3dDevice->CreateUnorderedAccessView(pBuffer, &viewDesc, &pView)))
