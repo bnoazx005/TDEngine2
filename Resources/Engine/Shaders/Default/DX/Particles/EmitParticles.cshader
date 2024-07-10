@@ -1,0 +1,55 @@
+#define COMPUTE_ENTRY MainCS
+
+#program compute
+
+#include <TDEngine2Globals.inc>
+#include <TDEngine2MathUtils.inc>
+#include <TDEngine2ParticlesUtils.inc>
+
+
+struct Particle
+{
+	float4 t;
+};
+
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(Particle, OutputParticles, 0);
+
+DECLARE_TEX2D_EX(RandTexture, 1)
+
+// particles buffer
+// deat particles buffer
+
+// emitter's configuration
+CBUFFER_SECTION_EX(EmitterParameters, 4)
+	// box emitter's data
+	float4 mBoxSizes;
+
+	// sphere/cone emitter's data
+	float  mSphereConeRadius;
+	float  mConeHeight;
+	float  mPad0;
+
+	// common 
+	float  mDuration;
+	float4 mPosition;
+	float4 mShapeOrigin;
+	float4 mVelocity;
+	float4 mInitialLifetime;
+	float4 mInitialSize;
+	float4 mInitialRotation;
+	float4 mInitialColor;
+
+	uint   mIs2DEmitter;
+	uint   mMaxParticles;
+	uint   mEmitRate;
+	uint   mEmitterType;
+CBUFFER_ENDSECTION
+
+
+[numthreads(1024, 1, 1)]
+void MainCS(uint3 id : SV_DispatchThreadID)
+{
+	OutputParticles[id.x].t = RandTexture.Load(int3(id.xy * mConeHeight, 0));
+}
+
+#endprogram

@@ -36,20 +36,22 @@ namespace TDEngine2
 		// sphere/cone emitter's data
 		F32      mSphereConeRadius;
 		F32      mConeHeight;
-		F32      mPad0[2];
+		F32      mPad0;
 
 		// common 
-		TVector4 mPosition;
-		TVector4 mVelocity;
-		F32      mDuration;
-		TVector4 mInitialLifetime;
-		TVector4 mInitialSize;
-		TVector4 mInitialRotation;
+		F32       mDuration;
+		TVector4  mPosition;
+		TVector4  mShapeOrigin;
+		TVector4  mVelocity;
+		TVector4  mInitialLifetime;
+		TVector4  mInitialSize;
+		TVector4  mInitialRotation;
+		TColor32F mInitialColor;
 
 		U32      mIs2DEmitter;
 		U32      mMaxParticles;
 		U32      mEmitRate;
-		U32      mPad1[1];
+		U32      mEmitterType; // contains TypeId of used emitter
 	};
 
 

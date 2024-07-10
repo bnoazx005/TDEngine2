@@ -129,8 +129,19 @@ namespace TDEngine2
 
 	TEmitterUniformsData CBaseParticlesEmitter::GetShaderUniformsData() const
 	{
-		TDE2_UNREACHABLE();
-		return {};
+		TEmitterUniformsData uniformData{};
+
+		uniformData.mIs2DEmitter     = static_cast<U32>(mIs2DEmitter);
+		uniformData.mInitialLifetime = TVector4(mpOwnerEffect->GetLifetime().mLeft, mpOwnerEffect->GetLifetime().mRight, 0.0f, 0.0f);
+		uniformData.mInitialRotation = TVector4(mpOwnerEffect->GetInitialRotation().mLeft, mpOwnerEffect->GetInitialRotation().mRight, 0.0f, 0.0f);
+		uniformData.mInitialSize     = TVector4(mpOwnerEffect->GetInitialSize().mLeft, mpOwnerEffect->GetInitialSize().mLeft, 0.0f, 0.0f);
+		uniformData.mVelocity        = TVector4(_getInitVelocity(), 0.0f);
+		uniformData.mDuration        = mpOwnerEffect->GetDuration();
+		uniformData.mEmitRate        = mpOwnerEffect->GetEmissionRate();
+		uniformData.mMaxParticles    = mpOwnerEffect->GetMaxParticlesCount();
+		uniformData.mInitialColor    = _getInitColor();
+
+		return uniformData;
 	}
 
 	TColor32F CBaseParticlesEmitter::_getInitColor() const
@@ -362,7 +373,13 @@ namespace TDEngine2
 
 	TEmitterUniformsData CBoxParticlesEmitter::GetShaderUniformsData() const
 	{
-		return {};
+		TEmitterUniformsData uniformData = CBaseParticlesEmitter::GetShaderUniformsData();
+		
+		uniformData.mEmitterType = static_cast<U32>(GetTypeId());
+		uniformData.mBoxSizes    = TVector4(mBoxSizes, 1.0f);
+		uniformData.mShapeOrigin = TVector4(mBoxOrigin, 1.0f);
+
+		return uniformData;
 	}
 
 
@@ -497,7 +514,13 @@ namespace TDEngine2
 
 	TEmitterUniformsData CSphereParticlesEmitter::GetShaderUniformsData() const
 	{
-		return {};
+		TEmitterUniformsData uniformData = CBaseParticlesEmitter::GetShaderUniformsData();
+
+		uniformData.mEmitterType      = static_cast<U32>(GetTypeId());
+		uniformData.mShapeOrigin      = TVector4(mOrigin, 1.0f);
+		uniformData.mSphereConeRadius = mRadius;
+
+		return uniformData;
 	}
 
 
@@ -630,7 +653,13 @@ namespace TDEngine2
 
 	TEmitterUniformsData CConeParticlesEmitter::GetShaderUniformsData() const
 	{
-		return {};
+		TEmitterUniformsData uniformData = CBaseParticlesEmitter::GetShaderUniformsData();
+
+		uniformData.mEmitterType = static_cast<U32>(GetTypeId());
+		uniformData.mSphereConeRadius = mRadius;
+		uniformData.mConeHeight = mHeight;
+
+		return uniformData;
 	}
 
 
