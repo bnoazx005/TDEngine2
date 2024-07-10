@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The API of **IGraphicsContext** was extended with a new method CopyCount.
 
+- Now AppendStructuredBuffer/ConsumeStructuredBuffer types are supported in the HLSL parser.
+
 ### Changed
 
 - The internal implementation of **CProgramOptions** was replaced with own solution instead of argparse library.
@@ -43,6 +45,8 @@ and derives a new graphics pipeline object.
 - Cone and Sphere particle emitter's types were fixed.
 
 - LOCAL simulation mode's behaviour for particle systems was fixed.
+
+- Incorrect initialization of append/consume buffers under D3D11 graphics context was fixed.
 
 ## [0.6.28] 2024-06-07
 
