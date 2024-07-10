@@ -80,9 +80,7 @@ namespace TDEngine2
 
 			TDE2_API TResourceId GetParticleEffectHandle() const;
 
-#if TDE2_EDITORS_ENABLED
-			bool mResetStateOnNextFrame = false;
-#endif
+			bool mResetStateOnNextFrame = true;
 
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CParticleEmitter)

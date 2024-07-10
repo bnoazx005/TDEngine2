@@ -104,7 +104,7 @@ namespace TDEngine2
 	{
 		return mParticleEffectId;
 	}
-
+	
 
 	IComponent* CreateParticleEmitter(E_RESULT_CODE& result)
 	{

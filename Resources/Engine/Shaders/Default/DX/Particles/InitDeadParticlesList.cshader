@@ -1,0 +1,18 @@
+#define COMPUTE_ENTRY MainCS
+
+#program compute
+
+#include <TDEngine2Globals.inc>
+#include <TDEngine2MathUtils.inc>
+
+
+AppendStructuredBuffer<uint> ParticlesDeadListIndicesBuffer : register(u0);
+
+
+[numthreads(256, 1, 1)]
+void MainCS(uint3 id : SV_DispatchThreadID)
+{
+	ParticlesDeadListIndicesBuffer.Append(id.x);
+}
+
+#endprogram
