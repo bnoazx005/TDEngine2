@@ -277,7 +277,28 @@ namespace TDEngine2
 
 			TDE2_API void DrawIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, U32 baseVertex, U32 startIndex,
 											   U32 startInstance, U32 indicesPerInstance, U32 numOfInstances) override;
-			
+
+			/*!
+				\brief The method sends a command to a GPU with enabled instancing but all the parameters are stored within GPU buffer
+
+				\param[in] topology A primitive topology's type
+				\param[in] argsBufferHandle A GPU buffer that holds arguments for draw command
+				\param[in] alignedOffset Aligned offset to the beginning of GPU data
+			*/
+
+			TDE2_API void DrawIndirectInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, TBufferHandleId argsBufferHandle, U32 alignedOffset) override;
+
+			/*!
+				\brief The method sends a command to a GPU with enabled instancing but all the parameters are stored within GPU buffer
+
+				\param[in] topology A primitive topology's type
+				\param[in] indexFormatType A format of a single index
+				\param[in] argsBufferHandle A GPU buffer that holds arguments for draw command
+				\param[in] alignedOffset Aligned offset to the beginning of GPU data
+			*/
+
+			TDE2_API void DrawIndirectIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, TBufferHandleId argsBufferHandle, U32 alignedOffset) override;
+
 			/*!
 				\brief The method invokes a computation kernel over a given threads grid. A compute shader should be bound to the device first
 

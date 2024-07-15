@@ -211,6 +211,16 @@ namespace TDEngine2
 		LOG_MESSAGE("[ProxyGraphicsContext] DrawIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE, E_INDEX_FORMAT_TYPE, U32, U32, U32, U32, U32)");
 	}
 
+	void CProxyGraphicsContext::DrawIndirectInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, TBufferHandleId argsBufferHandle, U32 alignedOffset)
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] DrawIndirectInstanced(E_PRIMITIVE_TOPOLOGY_TYPE, TBufferHandleId, U32)");
+	}
+
+	void CProxyGraphicsContext::DrawIndirectIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, TBufferHandleId argsBufferHandle, U32 alignedOffset)
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] DrawIndirectInstanced(E_PRIMITIVE_TOPOLOGY_TYPE, E_INDEX_FORMAT_TYPE, TBufferHandleId, U32)");
+	}
+
 	void CProxyGraphicsContext::DispatchCompute(U32 groupsCountX, U32 groupsCountY, U32 groupsCountZ)
 	{
 		LOG_MESSAGE("[ProxyGraphicsContext] DispatchCompute(U32, U32, U32)");

@@ -640,6 +640,16 @@ namespace TDEngine2
 		GL_SAFE_VOID_CALL(glDrawElementsInstanced(COGLMappings::GetPrimitiveTopology(topology), indicesPerInstance, COGLMappings::GetIndexFormat(indexFormatType), 0, numOfInstances));
 	}
 
+	void COGLGraphicsContext::DrawIndirectInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, TBufferHandleId argsBufferHandle, U32 alignedOffset)
+	{
+		GL_SAFE_VOID_CALL(glDrawArraysIndirect(COGLMappings::GetPrimitiveTopology(topology), reinterpret_cast<void*>(alignedOffset))); 
+	}
+
+	void COGLGraphicsContext::DrawIndirectIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, TBufferHandleId argsBufferHandle, U32 alignedOffset)
+	{
+		GL_SAFE_VOID_CALL(glDrawElementsIndirect(COGLMappings::GetPrimitiveTopology(topology), COGLMappings::GetIndexFormat(indexFormatType), reinterpret_cast<void*>(alignedOffset)));
+	}
+
 	void COGLGraphicsContext::DispatchCompute(U32 groupsCountX, U32 groupsCountY, U32 groupsCountZ)
 	{
 		GL_SAFE_VOID_CALL(glDispatchCompute(groupsCountX, groupsCountY, groupsCountZ));
