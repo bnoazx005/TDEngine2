@@ -50,6 +50,7 @@ namespace TDEngine2
 	constexpr U32 LIGHT_INDEX_COUNTERS_BUFFER_SLOT = 13;
 
 	constexpr U32 LIGHT_GRID_TEXTURE_SLOT = 10;
+	constexpr U32 READ_ONLY_DEPTH_TEXTURE_SLOT = 15;
 	constexpr U32 VISIBLE_LIGHTS_BUFFER_SLOT = 11;
 
 	constexpr U32 SUN_SHADOWS_MAP_SLOT = 0;
@@ -87,6 +88,7 @@ namespace TDEngine2
 		TFrameGraphResourceHandle              mMainRenderTargetHandle = TFrameGraphResourceHandle::Invalid;
 		TFrameGraphResourceHandle              mLDRMainRenderTargetHandle = TFrameGraphResourceHandle::Invalid;
 		TFrameGraphResourceHandle              mDepthBufferHandle = TFrameGraphResourceHandle::Invalid;
+		TFrameGraphResourceHandle              mReadonlyDepthBufferHandle = TFrameGraphResourceHandle::Invalid;
 
 		TFrameGraphResourceHandle              mUIRenderTargetHandle = TFrameGraphResourceHandle::Invalid;
 
@@ -293,6 +295,7 @@ namespace TDEngine2
 				struct TPassData
 				{
 					TFrameGraphResourceHandle mDepthBufferHandle = TFrameGraphResourceHandle::Invalid;
+					TFrameGraphResourceHandle mReadonlyDepthBufferHandle = TFrameGraphResourceHandle::Invalid;
 				};
 
 				auto&& output = pFrameGraph->AddPass<TPassData>("DepthPrePass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
@@ -314,7 +317,13 @@ namespace TDEngine2
 					data.mDepthBufferHandle = builder.Create<TFrameGraphTexture>(DEPTH_PRE_PASS_BUFFER_ID, depthBufferParams);
 					data.mDepthBufferHandle = builder.Write(data.mDepthBufferHandle);
 
+					depthBufferParams.mName = "ReadonlyDepthBufferCopy";
+
+					data.mReadonlyDepthBufferHandle = builder.Create<TFrameGraphTexture>(depthBufferParams.mName, depthBufferParams);
+					data.mReadonlyDepthBufferHandle = builder.Write(data.mReadonlyDepthBufferHandle);
+
 					TDE2_ASSERT(data.mDepthBufferHandle != TFrameGraphResourceHandle::Invalid);
+					TDE2_ASSERT(data.mReadonlyDepthBufferHandle != TFrameGraphResourceHandle::Invalid);
 				}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 				{
 					auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
@@ -326,6 +335,7 @@ namespace TDEngine2
 					TDE_RENDER_SECTION(pGraphicsContext, renderPassName);
 					
 					TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mDepthBufferHandle);
+					TFrameGraphTexture& readOnlyDepthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mReadonlyDepthBufferHandle);
 
 					pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(mContext.mWindowWidth), static_cast<F32>(mContext.mWindowHeight), 0.0f, 1.0f);
 					pGraphicsContext->BindDepthBufferTarget(depthBufferTarget.mTextureHandle, true);
@@ -334,9 +344,12 @@ namespace TDEngine2
 					ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, true);
 
 					pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
+
+					pGraphicsContext->CopyResource(depthBufferTarget.mTextureHandle, readOnlyDepthBufferTarget.mTextureHandle);
 				});
 
 				frameGraphBlackboard.mDepthBufferHandle = output.mDepthBufferHandle;
+				frameGraphBlackboard.mReadonlyDepthBufferHandle = output.mReadonlyDepthBufferHandle;
 			}
 	};
 
@@ -852,6 +865,7 @@ namespace TDEngine2
 						builder.Read(lightCullData.mTransparentVisibleLightsBufferHandle);
 						builder.Read(lightCullData.mTransparentLightGridTextureHandle);
 						builder.Read(frameGraphBlackboard.mDepthBufferHandle);
+						builder.Read(frameGraphBlackboard.mReadonlyDepthBufferHandle);
 						builder.Read(frameGraphBlackboard.mMainRenderTargetHandle);
 
 						data.mMainRenderTargetHandle = builder.Write(frameGraphBlackboard.mMainRenderTargetHandle);
@@ -865,6 +879,7 @@ namespace TDEngine2
 
 						TFrameGraphTexture& mainRenderTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mMainRenderTargetHandle);
 						TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mDepthBufferHandle);
+						TFrameGraphTexture& readonlyDepthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mReadonlyDepthBufferHandle); // contains same data as depth buffer but used for effects that needs depth data
 
 						pGraphicsContext->BindRenderTarget(0, mainRenderTarget.mTextureHandle);
 						pGraphicsContext->BindDepthBufferTarget(depthBufferTarget.mTextureHandle);
@@ -874,6 +889,7 @@ namespace TDEngine2
 
 						pGraphicsContext->SetStructuredBuffer(VISIBLE_LIGHTS_BUFFER_SLOT, transparentVisibleLightsBuffer.mBufferHandle, false);
 						pGraphicsContext->SetTexture(LIGHT_GRID_TEXTURE_SLOT, transparentLightGridTexture.mTextureHandle, false);
+						pGraphicsContext->SetTexture(READ_ONLY_DEPTH_TEXTURE_SLOT, readonlyDepthBufferTarget.mTextureHandle, false);
 
 						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, true);
 
