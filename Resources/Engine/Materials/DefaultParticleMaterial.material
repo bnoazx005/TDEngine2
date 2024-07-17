@@ -1,14 +1,14 @@
 blend_state: 
   dest_alpha: ZERO
-  dest_color: ZERO
+  dest_color: ONE_MINUS_SOURCE_ALPHA
   op_alpha_type: ADD
   op_type: ADD
-  src_alpha: ONE
-  src_color: ONE
+  src_alpha: ONE_MINUS_SOURCE_ALPHA
+  src_color: SOURCE_ALPHA
 depth_stencil_state: 
   depth_cmp_func: LESS
   depth_test_enabled: 1
-  depth_write_enabled: 1
+  depth_write_enabled: 0
   stencil_back_op: 
     cmp_func: ALWAYS
     depth_fail_op: KEEP
@@ -35,3 +35,17 @@ rasterizer_state:
   wireframe_mode: 0
 shader_id: Shaders/Default/DefaultParticleShader.shader
 transparency_enabled: 1
+textures: 
+  - instance_id: 0
+    texture_bindings:
+      - slot_id: DepthTexture
+      - slot_id: MainTexture
+        texture_id: DefaultResources/Textures/ParticleDot.tga
+        texture_type_id: 4159152309
+variables: 
+  - type_id: 193471295
+    value: 1
+    variable_id: mIsTexturingEnabled
+  - type_id: 193471295
+    value: 0
+    variable_id: mIsSoftParticlesEnabled

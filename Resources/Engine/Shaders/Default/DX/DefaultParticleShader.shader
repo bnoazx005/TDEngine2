@@ -59,13 +59,35 @@ VertexOut mainVS(in VertexIn input)
 
 #program pixel
 
+CBUFFER_SECTION_EX(Parameters, 4)
+	uint mIsTexturingEnabled;
+	uint mIsSoftParticlesEnabled;
+CBUFFER_ENDSECTION
 
+DECLARE_TEX2D_EX(DepthTexture, 15);
 DECLARE_TEX2D(MainTexture);
 
 
 float4 mainPS(VertexOut input): SV_TARGET0
 {
-	return input.mColor;// TEX2D(MainTexture, input.mUV) * input.mColor;
+	float4 baseColor = input.mColor;
+
+	if (mIsTexturingEnabled)
+	{
+		baseColor *= GammaToLinear(TEX2D(MainTexture, input.mUV));
+	}
+
+	if (mIsSoftParticlesEnabled)
+	{
+		float depth = DepthTexture.Load(int4(input.mPos.xy, 0, 0)).r;
+		// \todo linearize depth
+		// float fadeCoeff = saturate((zScene - zParticle) * mSmoothScale);
+		// or
+		// float output = 0.5 * pow(saturate(2 * ((input > 0.5) ? 1 - input : input)), contrastPower);
+		// output = input > 0.5 ? 1 - output : output; input is depth
+	}
+
+	return baseColor;
 }
 
 #endprogram
