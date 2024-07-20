@@ -47,5 +47,11 @@ variables:
     value: 1
     variable_id: mIsTexturingEnabled
   - type_id: 193471295
-    value: 0
+    value: 1
     variable_id: mIsSoftParticlesEnabled
+  - type_id: 193454960
+    value: 1.000000
+    variable_id: mSmoothScale
+  - type_id: 193454960
+    value: 1.000000
+    variable_id: mContrastPower

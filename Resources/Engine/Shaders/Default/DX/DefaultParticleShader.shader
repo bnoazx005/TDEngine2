@@ -8,8 +8,9 @@ struct VertexOut
 {
 	float4 mPos      : SV_POSITION;
 	float2 mUV       : TEXCOORD0;
+	float4 mViewPos  : TEXCOORD1;
 	float4 mColor    : COLOR;
-    uint mInstanceId : SV_InstanceID;
+	uint mInstanceId : SV_InstanceID;
 };
 
 
@@ -21,7 +22,7 @@ struct VertexIn
 	float4 mColor              : COLOR0;
 	float4 mParticlePosAndSize : TEXCOORD1;
 	float4 mParticleRotation   : TEXCOORD2;
-    uint mInstanceId           : SV_InstanceID;
+	uint mInstanceId           : SV_InstanceID;
 };
 
 static const float4 BILLBOARD_QUAD_VERTICES[] = 
@@ -47,6 +48,7 @@ VertexOut mainVS(in VertexIn input)
 
 	float4 pos = mul(ViewMat, float4(particleCenter.x, particleCenter.y, particleCenter.z, 1.0)) + float4(localPos.x, localPos.y, localPos.z, 0.0);
 
+	output.mViewPos    = pos;
 	output.mPos        = mul(ProjMat, pos);
 	output.mUV         = BILLBOARD_QUAD_VERTICES[input.vertIndex].zw;
 	output.mColor      = input.mColor;
@@ -60,12 +62,22 @@ VertexOut mainVS(in VertexIn input)
 #program pixel
 
 CBUFFER_SECTION_EX(Parameters, 4)
-	uint mIsTexturingEnabled;
-	uint mIsSoftParticlesEnabled;
+	uint  mIsTexturingEnabled;
+	uint  mIsSoftParticlesEnabled;
+	float mSmoothScale;
+	float mContrastPower;
 CBUFFER_ENDSECTION
 
 DECLARE_TEX2D_EX(DepthTexture, 15);
 DECLARE_TEX2D(MainTexture);
+
+
+float ApplyContrast(float input, float contrastPower)
+{
+	bool isAboveHalf = input > 0.5 ;
+	float result = 0.5 * pow(saturate(2.0 * (isAboveHalf ? 1.0 - input : input)), contrastPower); 
+	return isAboveHalf ? 1.0 - result : result;
+}
 
 
 float4 mainPS(VertexOut input): SV_TARGET0
@@ -79,12 +91,14 @@ float4 mainPS(VertexOut input): SV_TARGET0
 
 	if (mIsSoftParticlesEnabled)
 	{
-		float depth = DepthTexture.Load(int4(input.mPos.xy, 0, 0)).r;
-		// \todo linearize depth
-		// float fadeCoeff = saturate((zScene - zParticle) * mSmoothScale);
-		// or
-		// float output = 0.5 * pow(saturate(2 * ((input > 0.5) ? 1 - input : input)), contrastPower);
-		// output = input > 0.5 ? 1 - output : output; input is depth
+		float z = CameraProjectionParams.x * CameraProjectionParams.y / (CameraProjectionParams.y - DepthTexture.Load(int4(input.mPos.xy, 0, 0)).r * (CameraProjectionParams.y - CameraProjectionParams.x));
+		float zdiff = (z - input.mViewPos.z);
+
+		float output = ApplyContrast(zdiff * mSmoothScale, mContrastPower);
+		if (zdiff * output <= 1e-3f) 
+			discard;
+
+		return baseColor * output;
 	}
 
 	return baseColor;
