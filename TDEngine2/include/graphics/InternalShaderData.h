@@ -77,6 +77,7 @@ namespace TDEngine2
 		TMatrix4            mInvViewProjMatrix;
 
 		TVector4            mCameraPosition;
+		TVector4            mCameraProjectionParams;  /// Contains parameters of current active camera: x - near plane, y - far plane
 
 		TVector4            mTime; ///< The vector contains time related values, where x is current game time, y is delta time 
 

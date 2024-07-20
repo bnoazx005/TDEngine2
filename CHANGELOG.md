@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.29] 2024-07-17
+## [0.6.29] 2024-07-20
 
 ### Added
 
@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The API of **IGraphicsContext** was extended with new methods CopyCount, DrawIndirectInstanced and DrawIndirectIndexedInstanced.
 
 - Now AppendStructuredBuffer/ConsumeStructuredBuffer types are supported in the HLSL parser.
+
+- A new global uniform variable **CameraProjectionParams** was introduced.
 
 ### Changed
 

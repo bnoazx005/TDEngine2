@@ -2728,12 +2728,13 @@ namespace TDEngine2
 		
 		if (mpMainCamera)
 		{
-			perFrameShaderData.mProjMatrix        = Transpose(mpMainCamera->GetProjMatrix());
-			perFrameShaderData.mViewMatrix        = Transpose(mpMainCamera->GetViewMatrix());
-			perFrameShaderData.mInvProjMatrix     = Transpose(Inverse(mpMainCamera->GetProjMatrix()));
-			perFrameShaderData.mInvViewMatrix     = Transpose(Inverse(mpMainCamera->GetViewMatrix()));
-			perFrameShaderData.mInvViewProjMatrix = Transpose(mpMainCamera->GetInverseViewProjMatrix());
-			perFrameShaderData.mCameraPosition    = TVector4(mpMainCamera->GetPosition(), 1.0f);
+			perFrameShaderData.mProjMatrix             = Transpose(mpMainCamera->GetProjMatrix());
+			perFrameShaderData.mViewMatrix             = Transpose(mpMainCamera->GetViewMatrix());
+			perFrameShaderData.mInvProjMatrix          = Transpose(Inverse(mpMainCamera->GetProjMatrix()));
+			perFrameShaderData.mInvViewMatrix          = Transpose(Inverse(mpMainCamera->GetViewMatrix()));
+			perFrameShaderData.mInvViewProjMatrix      = Transpose(mpMainCamera->GetInverseViewProjMatrix());
+			perFrameShaderData.mCameraPosition         = TVector4(mpMainCamera->GetPosition(), 1.0f);
+			perFrameShaderData.mCameraProjectionParams = TVector4(mpMainCamera->GetNearPlane(), mpMainCamera->GetFarPlane(), 0.0f, 0.0f);
 		}
 
 		perFrameShaderData.mTime = TVector4(currTime, deltaTime, 0.0f, 0.0f);

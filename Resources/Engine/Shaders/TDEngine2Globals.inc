@@ -23,6 +23,7 @@ CBUFFER_SECTION_EX(TDEngine2PerFrame, 0)
 	float4x4 InvViewProjMat;
 
 	float4   CameraPosition;
+	float4   CameraProjectionParams; // x - near plane, y  - far plane
 
 	float4   Time; ///< The vector contains time related values, where x is current game time, y is delta time
 
