@@ -7,17 +7,12 @@
 #include <TDEngine2ParticlesUtils.inc>
 
 
-struct Particle
-{
-	float4 t;
-};
-
-DECLARE_WRITEABLE_TYPED_BUFFER_EX(Particle, OutputParticles, 0);
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(TParticle, OutputParticles, 0);
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, DeadParticlesIndexList, 1); // first index is used for counter
 
 DECLARE_TEX2D_EX(RandTexture, 1)
 
 // particles buffer
-// deat particles buffer
 
 // emitter's configuration
 CBUFFER_SECTION_EX(EmitterParameters, 4)
@@ -49,7 +44,26 @@ CBUFFER_ENDSECTION
 [numthreads(1024, 1, 1)]
 void MainCS(uint3 id : SV_DispatchThreadID)
 {
-	OutputParticles[id.x].t = RandTexture.Load(int3(id.xy * mConeHeight, 0));
+	uint deadParticlesCount = DeadParticlesIndexList[0];
+
+	if (id.x >= deadParticlesCount || id.x >= mEmitRate) 
+		return;
+
+	TParticle newParticle = (TParticle)0;
+
+	// decrement counter for dead particles list
+	uint counter = 0;
+
+	InterlockedAdd(DeadParticlesIndexList[0], -1, counter);
+	if (counter < 0)
+	{
+		InterlockedAdd(DeadParticlesIndexList[0], 1);
+		return;
+	}
+
+	uint index = DeadParticlesIndexList[counter];
+
+	OutputParticles[index] = newParticle;
 }
 
 #endprogram

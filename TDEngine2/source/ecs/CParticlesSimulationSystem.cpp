@@ -120,7 +120,7 @@ namespace TDEngine2
 			{
 				TVector4 mPosition;
 				TVector2 mUVs;
-			} TParticleVertex, * TParticleVertexPtr;
+			} TParticleVertex, *TParticleVertexPtr;
 
 			typedef struct TParticleInstanceData
 			{
@@ -634,6 +634,8 @@ namespace TDEngine2
 				TDE2_ASSERT(TResourceId::Invalid != mSimulateParticlesShaderHandle);
 				TDE2_ASSERT(TResourceId::Invalid != mInitDeadParticlesListShaderHandle);
 
+				_initDeadParticlesList();
+
 				mIsInitialized = true;
 
 				return RC_OK;
@@ -791,12 +793,12 @@ namespace TDEngine2
 					{
 						E_BUFFER_USAGE_TYPE::DEFAULT,
 						E_BUFFER_TYPE::STRUCTURED,
-						sizeof(U32) * MAX_PARTICLES_COUNT,
+						sizeof(U32) * (MAX_PARTICLES_COUNT + 1), // +1 for counter
 						nullptr,
-						sizeof(U32) * MAX_PARTICLES_COUNT,
+						sizeof(U32) * (MAX_PARTICLES_COUNT + 1),
 						true,
 						sizeof(U32),
-						E_STRUCTURED_BUFFER_TYPE::APPENDABLE,
+						E_STRUCTURED_BUFFER_TYPE::DEFAULT,
 						E_INDEX_FORMAT_TYPE::INDEX16, // unused
 						"DeadParticlesListBuffer"
 					});
@@ -891,14 +893,6 @@ namespace TDEngine2
 					}
 
 					auto& particles = mParticles[i];
-
-					if (pEmitterComponent->mResetStateOnNextFrame)
-					{
-						_initDeadParticlesList();
-
-						std::fill(particles.begin(), particles.end(), TParticleInfo{});
-						pEmitterComponent->mResetStateOnNextFrame = false;
-					}
 
 					// \note Process emission
 					if ((mActiveParticlesCount[i] < pCurrEffectResource->GetMaxParticlesCount()))
@@ -1069,12 +1063,18 @@ namespace TDEngine2
 				pGraphicsContext->BeginSectionMarker("InitDeadParticles");
 #endif
 
-				pInitDeadParticlesListShader->SetStructuredBufferResource("ParticlesDeadListIndicesBuffer", TBufferHandleId::Invalid);
+				struct
+				{
+					U32 mMaxParticlesCount = MAX_PARTICLES_COUNT;
+				} shaderParams{};
+
+				pInitDeadParticlesListShader->SetUserUniformsBuffer(0, reinterpret_cast<const U8*>(&shaderParams), sizeof(shaderParams));
+				pInitDeadParticlesListShader->SetStructuredBufferResource("DeadParticlesIndexList", mDeadListBufferHandle);
 				pInitDeadParticlesListShader->Bind();
 
-				pGraphicsContext->DispatchCompute(Align(MAX_PARTICLES_COUNT, INIT_DEAD_PARTICLES_DISPATCH_WORK_GROUP_SIZE) / INIT_DEAD_PARTICLES_DISPATCH_WORK_GROUP_SIZE, 1, 1);
+				pGraphicsContext->DispatchCompute(Align(MAX_PARTICLES_COUNT + 1, INIT_DEAD_PARTICLES_DISPATCH_WORK_GROUP_SIZE) / INIT_DEAD_PARTICLES_DISPATCH_WORK_GROUP_SIZE, 1, 1);
 
-				pGraphicsContext->SetStructuredBuffer(0, TBufferHandleId::Invalid, true);
+				pGraphicsContext->SetStructuredBuffer(pInitDeadParticlesListShader->GetResourceBindingSlot("DeadParticlesIndexList"), TBufferHandleId::Invalid, true);
 
 #if TDE2_DEBUG_MODE
 				pGraphicsContext->EndSectionMarker();
@@ -1121,7 +1121,6 @@ namespace TDEngine2
 			TResourceId                  mEmitParticlesShaderHandle = TResourceId::Invalid;
 			TResourceId                  mSimulateParticlesShaderHandle = TResourceId::Invalid;
 			TResourceId                  mInitDeadParticlesListShaderHandle = TResourceId::Invalid;
-			TResourceId                  mInitDeadParticlesShaderHandle = TResourceId::Invalid;
 
 			TBufferHandleId              mDeadListBufferHandle = TBufferHandleId::Invalid;
 	};

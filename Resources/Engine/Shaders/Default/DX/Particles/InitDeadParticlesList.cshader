@@ -3,16 +3,28 @@
 #program compute
 
 #include <TDEngine2Globals.inc>
-#include <TDEngine2MathUtils.inc>
+#include <TDEngine2ParticlesUtils.inc>
 
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, DeadParticlesIndexList, 0); // first index is used for counter
 
-AppendStructuredBuffer<uint> ParticlesDeadListIndicesBuffer : register(u0);
+CBUFFER_SECTION_EX(DeadParticlesInfo, 4)
+	uint mMaxParticlesCount;
+CBUFFER_ENDSECTION
 
 
 [numthreads(256, 1, 1)]
 void MainCS(uint3 id : SV_DispatchThreadID)
 {
-	ParticlesDeadListIndicesBuffer.Append(id.x);
+	if (id.x == 0)
+	{
+		DeadParticlesIndexList[0] = mMaxParticlesCount;
+		return;
+	}
+
+	if (id.x > mMaxParticlesCount)
+		return;
+
+	DeadParticlesIndexList[id.x] = id.x - 1;
 }
 
 #endprogram
