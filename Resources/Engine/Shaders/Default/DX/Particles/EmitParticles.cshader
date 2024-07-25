@@ -29,8 +29,8 @@ CBUFFER_SECTION_EX(EmitterParameters, 4)
 	float4 mPosition;
 	float4 mShapeOrigin;
 	float4 mVelocity;
-	float4 mInitialLifetime;
-	float4 mInitialSize;
+	float4 mInitialLifetime; // x - left bound, y - right bound, value lies in range of [x; y] 
+	float4 mInitialSize; // x - left bound, y - right bound, value lies in range of [x; y] 
 	float4 mInitialRotation;
 	float4 mInitialColor;
 
@@ -44,16 +44,29 @@ CBUFFER_ENDSECTION
 [numthreads(1024, 1, 1)]
 void MainCS(uint3 id : SV_DispatchThreadID)
 {
-	uint deadParticlesCount = DeadParticlesIndexList[0];
+	uint counter = DeadParticlesIndexList[0];
 
-	if (id.x >= deadParticlesCount || id.x >= mEmitRate) 
+	if (id.x >= counter || id.x >= mEmitRate) 
 		return;
 
 	TParticle newParticle = (TParticle)0;
 
-	// decrement counter for dead particles list
-	uint counter = 0;
+	float4 randValue = TEX2D_LOD(RandTexture, float2(id.x / 1024.0, Time.x), 0);
+	float4 randValue1 = TEX2D_LOD(RandTexture, float2((id.x + 1.0) / 1024.0, Time.x), 0);
 
+	newParticle.mPosition = float4(0.0, 0.0, 0.0, 0.0); // TODO
+	newParticle.mVelocity = mVelocity; // TODO
+
+	newParticle.mRotation = lerp(mInitialRotation.x, mInitialRotation.y, randValue.x);
+
+	newParticle.mColor = mInitialColor;
+
+	newParticle.mLifetime = lerp(mInitialLifetime.x, mInitialLifetime.y, randValue.y);
+	newParticle.mAge = newParticle.mLifetime;
+
+	newParticle.mSize = lerp(mInitialSize.x, mInitialSize.y, randValue.z); // TODO
+
+	// decrement counter for dead particles list
 	InterlockedAdd(DeadParticlesIndexList[0], -1, counter);
 	if (counter < 0)
 	{
