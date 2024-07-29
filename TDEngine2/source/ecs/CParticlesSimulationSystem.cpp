@@ -587,6 +587,20 @@ namespace TDEngine2
 				std::vector<CTransform*>       mpTransform;
 				std::vector<CParticleEmitter*> mpParticleEmitters;
 			};
+
+			// duplicates the structure from TDEngine2ParticleUtils.inc, needed to compute size for storage buffer
+			struct TGPUParticle
+			{
+				TVector4 mPosition;
+				TVector4 mVelocity;
+				TVector4 mColor;
+				F32      mAge;
+				F32      mLifetime;
+				F32      mRotation;
+				F32      mSize;
+				U32      mEmitterIndex;
+				U32      mPadding0[3];
+			};
 		public:
 			TDE2_SYSTEM(CParticlesGPUSimulationSystem);
 
@@ -810,6 +824,28 @@ namespace TDEngine2
 
 				mDeadListBufferHandle = deadParticlesListBufferCreateResult.Get();
 
+				// particles buffer
+				auto particlesBufferCreateResult = mpGraphicsObjectManager->CreateBuffer(
+					{
+						E_BUFFER_USAGE_TYPE::DEFAULT,
+						E_BUFFER_TYPE::STRUCTURED,
+						sizeof(TGPUParticle) * MAX_PARTICLES_COUNT,
+						nullptr,
+						sizeof(TGPUParticle) * MAX_PARTICLES_COUNT,
+						true,
+						sizeof(TGPUParticle),
+						E_STRUCTURED_BUFFER_TYPE::DEFAULT,
+						E_INDEX_FORMAT_TYPE::INDEX16, // unused
+						"ParticlesBuffer"
+					});
+
+				if (particlesBufferCreateResult.HasError())
+				{
+					return particlesBufferCreateResult.GetError();
+				}
+
+				mParticlesBufferHandle = particlesBufferCreateResult.Get();
+
 				return RC_OK;
 			}
 
@@ -825,6 +861,8 @@ namespace TDEngine2
 #if TDE2_DEBUG_MODE
 				pGraphicsContext->BeginSectionMarker("EmitParticles");
 #endif
+
+				// \todo Bind texture with baked animation curves per emitter
 
 				for (USIZE i = 0; i < mParticleEmitters.mpParticleEmitters.size(); ++i)
 				{
@@ -854,18 +892,19 @@ namespace TDEngine2
 					// \note Fill in constant buffer with current emitter's data
 					TEmitterUniformsData currEmitterShaderData = pSharedEmitter->GetShaderUniformsData();
 					currEmitterShaderData.mPosition = TVector4(mParticleEmitters.mpTransform[i]->GetPosition(), 1.0f);
+					currEmitterShaderData.mEmitterIndex = static_cast<U32>(i);
 					
 					// \note Bind the buffer
-					pEmitParticlesShader->SetStructuredBufferResource("OutputParticles", TBufferHandleId::Invalid);
+					pEmitParticlesShader->SetStructuredBufferResource("OutputParticles", mParticlesBufferHandle);
+					pEmitParticlesShader->SetStructuredBufferResource("DeadParticlesIndexList", mDeadListBufferHandle);
 					pEmitParticlesShader->SetTextureResource("RandTexture", mpResourceManager->GetResource<ITexture2D>(mpResourceManager->Load<ITexture2D>(CProjectSettings::Get()->mGraphicsSettings.mRandomTextureId)).Get());
 					pEmitParticlesShader->SetUserUniformsBuffer(0, reinterpret_cast<U8*>(&currEmitterShaderData), sizeof(currEmitterShaderData));
 					pEmitParticlesShader->Bind();
-
-					// \todo update constant buffer with dead particles count
-					
+										
 					pGraphicsContext->DispatchCompute(Align(currEmitterShaderData.mEmitRate, EMIT_DISPATCH_WORK_GROUP_SIZE) / EMIT_DISPATCH_WORK_GROUP_SIZE, 1, 1);
 
-					pGraphicsContext->SetStructuredBuffer(0, TBufferHandleId::Invalid, true);
+					pGraphicsContext->SetStructuredBuffer(pEmitParticlesShader->GetResourceBindingSlot("OutputParticles"), TBufferHandleId::Invalid, true);
+					pGraphicsContext->SetStructuredBuffer(pEmitParticlesShader->GetResourceBindingSlot("DeadParticlesIndexList"), TBufferHandleId::Invalid, true);
 				}
 
 #if TDE2_DEBUG_MODE
@@ -875,6 +914,33 @@ namespace TDEngine2
 
 			void _simulateParticles(IWorld* pWorld, F32 dt)
 			{
+				TPtr<IShader> pSimulateParticlesShader = mpResourceManager->GetResource<IShader>(mSimulateParticlesShaderHandle);
+				if (!pSimulateParticlesShader)
+				{
+					return;
+				}
+
+				IGraphicsContext* pGraphicsContext = mpGraphicsObjectManager->GetGraphicsContext();
+#if TDE2_DEBUG_MODE
+				pGraphicsContext->BeginSectionMarker("SimulateParticles");
+#endif
+
+				pSimulateParticlesShader->SetStructuredBufferResource("OutputParticles", mParticlesBufferHandle);
+				pSimulateParticlesShader->SetStructuredBufferResource("DeadParticlesIndexList", mDeadListBufferHandle);
+				pSimulateParticlesShader->SetTextureResource("RandTexture", mpResourceManager->GetResource<ITexture2D>(mpResourceManager->Load<ITexture2D>(CProjectSettings::Get()->mGraphicsSettings.mRandomTextureId)).Get());
+				pSimulateParticlesShader->Bind();
+
+				pGraphicsContext->DispatchCompute(Align(MAX_PARTICLES_COUNT, SIMULATE_DISPATCH_WORK_GROUP_SIZE) / SIMULATE_DISPATCH_WORK_GROUP_SIZE, 1, 1);
+
+				pGraphicsContext->SetStructuredBuffer(pSimulateParticlesShader->GetResourceBindingSlot("OutputParticles"), TBufferHandleId::Invalid, true);
+				pGraphicsContext->SetStructuredBuffer(pSimulateParticlesShader->GetResourceBindingSlot("DeadParticlesIndexList"), TBufferHandleId::Invalid, true);
+
+#if TDE2_DEBUG_MODE
+				pGraphicsContext->EndSectionMarker();
+#endif
+
+				/// OLD CPU impl 
+
 				U32 currInstancesBufferIndex = 0;
 
 				// \note Do main update logic here
@@ -1090,6 +1156,7 @@ namespace TDEngine2
 			TDE2_STATIC_CONSTEXPR U32    MAX_PARTICLES_COUNT = 512 * 1024;
 			
 			TDE2_STATIC_CONSTEXPR U32    EMIT_DISPATCH_WORK_GROUP_SIZE = 1024;
+			TDE2_STATIC_CONSTEXPR U32    SIMULATE_DISPATCH_WORK_GROUP_SIZE = 256;
 			TDE2_STATIC_CONSTEXPR U32    INIT_DEAD_PARTICLES_DISPATCH_WORK_GROUP_SIZE = 256;
 
 			IRenderer* mpRenderer = nullptr;
@@ -1123,6 +1190,7 @@ namespace TDEngine2
 			TResourceId                  mInitDeadParticlesListShaderHandle = TResourceId::Invalid;
 
 			TBufferHandleId              mDeadListBufferHandle = TBufferHandleId::Invalid;
+			TBufferHandleId              mParticlesBufferHandle = TBufferHandleId::Invalid;
 	};
 
 

@@ -24,6 +24,8 @@ struct TParticle
 	float mLifetime;
 	float mRotation;
 	float mSize;
+	uint  mEmitterIndex;
+	uint3 mPadding0;
 };
 
 

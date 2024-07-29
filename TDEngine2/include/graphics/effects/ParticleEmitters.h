@@ -36,7 +36,7 @@ namespace TDEngine2
 		// sphere/cone emitter's data
 		F32      mSphereConeRadius;
 		F32      mConeHeight;
-		F32      mPad0;
+		F32      mRandValue;
 
 		// common 
 		F32       mDuration;
@@ -52,6 +52,7 @@ namespace TDEngine2
 		U32      mMaxParticles;
 		U32      mEmitRate;
 		U32      mEmitterType; // contains TypeId of used emitter
+		U32      mEmitterIndex;
 	};
 
 

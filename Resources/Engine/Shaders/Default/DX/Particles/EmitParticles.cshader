@@ -22,7 +22,7 @@ CBUFFER_SECTION_EX(EmitterParameters, 4)
 	// sphere/cone emitter's data
 	float  mSphereConeRadius;
 	float  mConeHeight;
-	float  mPad0;
+	float  mRngSalt;
 
 	// common 
 	float  mDuration;
@@ -38,6 +38,7 @@ CBUFFER_SECTION_EX(EmitterParameters, 4)
 	uint   mMaxParticles;
 	uint   mEmitRate;
 	uint   mEmitterType;
+	uint   mEmitterIndex;
 CBUFFER_ENDSECTION
 
 
@@ -51,8 +52,10 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 
 	TParticle newParticle = (TParticle)0;
 
-	float4 randValue = TEX2D_LOD(RandTexture, float2(id.x / 1024.0, Time.x), 0);
-	float4 randValue1 = TEX2D_LOD(RandTexture, float2((id.x + 1.0) / 1024.0, Time.x), 0);
+	float4 randValue = TEX2D_LOD(RandTexture, float2(id.x / 1024.0, mRngSalt), 0);
+	float4 randValue1 = TEX2D_LOD(RandTexture, float2((id.x + 1.0) / 1024.0, mRngSalt), 0);
+
+	newParticle.mEmitterIndex = mEmitterIndex;
 
 	newParticle.mPosition = float4(0.0, 0.0, 0.0, 0.0); // TODO
 	newParticle.mVelocity = mVelocity; // TODO

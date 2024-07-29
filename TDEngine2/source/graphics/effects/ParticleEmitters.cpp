@@ -140,6 +140,7 @@ namespace TDEngine2
 		uniformData.mEmitRate        = mpOwnerEffect->GetEmissionRate();
 		uniformData.mMaxParticles    = mpOwnerEffect->GetMaxParticlesCount();
 		uniformData.mInitialColor    = _getInitColor();
+		uniformData.mRandValue       = CRandomUtils::GetRandF32Value({ 0.0f, 1.0f });
 
 		return uniformData;
 	}
