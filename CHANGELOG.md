@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A new global uniform variable **CameraProjectionParams** was introduced.
 
+- Now shader compiler supports Buffer/RWBuffer HLSL types for use in shaders.
+
 ### Changed
 
 - The internal implementation of **CProgramOptions** was replaced with own solution instead of argparse library.

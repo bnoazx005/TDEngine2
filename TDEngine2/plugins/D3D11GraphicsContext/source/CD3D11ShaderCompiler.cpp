@@ -399,6 +399,7 @@ namespace TDEngine2
 
 			/// skip template parameters
 			if (E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER == currType || E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER == currType ||
+				E_SHADER_RESOURCE_TYPE::SRT_RAW_BUFFER == currType || E_SHADER_RESOURCE_TYPE::SRT_RW_RAW_BUFFER == currType ||
 				E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D == currType || E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE3D == currType)
 			{
 				while (currToken != ">")
@@ -412,6 +413,7 @@ namespace TDEngine2
 
 			const bool isWriteableResource = 
 				E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER == currType ||
+				E_SHADER_RESOURCE_TYPE::SRT_RW_RAW_BUFFER == currType ||
 				E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D == currType ||
 				E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE3D == currType;
 			
@@ -470,6 +472,8 @@ namespace TDEngine2
 			{ "AppendStructuredBuffer", E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER },
 			{ "ConsumeStructuredBuffer", E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER },
 			{ "RWStructuredBuffer", E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER },
+			{ "RWBuffer", E_SHADER_RESOURCE_TYPE::SRT_RW_RAW_BUFFER },
+			{ "Buffer", E_SHADER_RESOURCE_TYPE::SRT_RAW_BUFFER },
 			{ "TextureCube", E_SHADER_RESOURCE_TYPE::SRT_TEXTURECUBE },
 		};
 

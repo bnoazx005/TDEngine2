@@ -261,6 +261,8 @@ namespace TDEngine2
 	static bool IsTextureShaderResource(E_SHADER_RESOURCE_TYPE type)
 	{
 		return E_SHADER_RESOURCE_TYPE::SRT_SAMPLER_STATE != type
+			&& E_SHADER_RESOURCE_TYPE::SRT_RW_RAW_BUFFER != type
+			&& E_SHADER_RESOURCE_TYPE::SRT_RAW_BUFFER != type
 			&& E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER != type
 			&& E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER != type;
 	}
@@ -532,6 +534,7 @@ namespace TDEngine2
 			desc.mType = static_cast<E_SHADER_RESOURCE_TYPE>(pFileReader->ReadUInt32());
 			desc.mIsWriteable = 
 				E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER == desc.mType || 
+				E_SHADER_RESOURCE_TYPE::SRT_RW_RAW_BUFFER == desc.mType || 
 				E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D == desc.mType || 
 				E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE3D == desc.mType;
 
