@@ -12,7 +12,7 @@
 
 #define BOX_EMITTER_TYPE_ID    0xfd9c40b2
 #define SPHERE_EMITTER_TYPE_ID 0x264d34f0
-#define CONE_EMITTER_TYPE_ID   0x802361934
+#define CONE_EMITTER_TYPE_ID   0x2fd3124e
 
 
 struct TParticle

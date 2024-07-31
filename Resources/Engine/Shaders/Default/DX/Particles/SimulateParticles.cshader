@@ -1,0 +1,62 @@
+#define COMPUTE_ENTRY MainCS
+
+#program compute
+
+#include <TDEngine2Globals.inc>
+#include <TDEngine2MathUtils.inc>
+#include <TDEngine2ParticlesUtils.inc>
+
+
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(TParticle, OutputParticles, 0);
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, DeadParticlesIndexList, 1); // first index is used for counter
+
+DECLARE_TEX2D_EX(RandTexture, 1)
+
+
+CBUFFER_SECTION_EX(SimulationParameters, 4)
+	float mDeltaTime; // global CBs(UBOs) are not available at this execution time yet so use separate members for time
+	uint  mMaxParticlesCount;
+CBUFFER_ENDSECTION
+
+
+[numthreads(256, 1, 1)]
+void MainCS(uint3 id : SV_DispatchThreadID)
+{
+	if (id.x >= mMaxParticlesCount)
+		return;
+
+	TParticle currParticle = OutputParticles[id.x];
+	if (currParticle.mAge > 0.0)
+	{
+		currParticle.mAge -= mDeltaTime;
+		currParticle.mPosition += currParticle.mVelocity * mDeltaTime;
+
+		/*
+
+struct TParticle
+{
+	float4 mPosition;
+	float4 mVelocity;
+	float4 mColor;
+	float mAge;
+	float mLifetime;
+	float mRotation;
+	float mSize;
+	uint  mEmitterIndex;
+	uint3 mPadding0;
+};
+
+*/
+		if (currParticle.mAge < 0.0f)
+		{
+			// write index to dead list
+			int deadListIndex = 0;
+			InterlockedAdd(DeadParticlesIndexList[0], 1, deadListIndex);
+			DeadParticlesIndexList[deadListIndex] = id.x;
+		}
+
+		OutputParticles[id.x] = currParticle;
+	}	
+}
+
+#endprogram

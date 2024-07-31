@@ -925,9 +925,19 @@ namespace TDEngine2
 				pGraphicsContext->BeginSectionMarker("SimulateParticles");
 #endif
 
+				struct
+				{
+					F32 mDeltaTime;
+					U32 mMaxParticlesCount;
+				} simulationParams;
+
+				simulationParams.mDeltaTime = dt;
+				simulationParams.mMaxParticlesCount = MAX_PARTICLES_COUNT;
+
 				pSimulateParticlesShader->SetStructuredBufferResource("OutputParticles", mParticlesBufferHandle);
 				pSimulateParticlesShader->SetStructuredBufferResource("DeadParticlesIndexList", mDeadListBufferHandle);
 				pSimulateParticlesShader->SetTextureResource("RandTexture", mpResourceManager->GetResource<ITexture2D>(mpResourceManager->Load<ITexture2D>(CProjectSettings::Get()->mGraphicsSettings.mRandomTextureId)).Get());
+				pSimulateParticlesShader->SetUserUniformsBuffer(0, reinterpret_cast<U8*>(&simulationParams), sizeof(simulationParams));
 				pSimulateParticlesShader->Bind();
 
 				pGraphicsContext->DispatchCompute(Align(MAX_PARTICLES_COUNT, SIMULATE_DISPATCH_WORK_GROUP_SIZE) / SIMULATE_DISPATCH_WORK_GROUP_SIZE, 1, 1);

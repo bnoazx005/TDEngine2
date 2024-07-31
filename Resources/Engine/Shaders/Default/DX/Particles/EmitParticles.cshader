@@ -57,7 +57,19 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 
 	newParticle.mEmitterIndex = mEmitterIndex;
 
-	newParticle.mPosition = float4(0.0, 0.0, 0.0, 0.0); // TODO
+	if (mEmitterType == BOX_EMITTER_TYPE_ID)
+	{
+		newParticle.mPosition = GeneratePositionForBoxEmitter(mPosition, mShapeOrigin, mBoxSizes, randValue1);
+	}
+	else if (mEmitterType == SPHERE_EMITTER_TYPE_ID)
+	{
+		newParticle.mPosition = GeneratePositionForSphereEmitter(mPosition, mShapeOrigin, mSphereConeRadius, randValue1);
+	}
+	else if (mEmitterType == CONE_EMITTER_TYPE_ID)
+	{
+		newParticle.mPosition = GeneratePositionForConeEmitter(mPosition, mShapeOrigin, mSphereConeRadius, mConeHeight, randValue1);	
+	}
+
 	newParticle.mVelocity = mVelocity; // TODO
 
 	newParticle.mRotation = lerp(mInitialRotation.x, mInitialRotation.y, randValue.x);
