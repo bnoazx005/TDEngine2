@@ -77,6 +77,7 @@ namespace TDEngine2
 		DEFAULT,			///< [RW]StructuredBuffer for D3D, SSBO for GL
 		RAW,				///< [RW]ByteAddressBuffer for D3D
 		APPENDABLE,
+		INDIRECT_DRAW_BUFFER,
 	};
 
 

@@ -49,6 +49,9 @@ namespace TDEngine2
 				case E_STRUCTURED_BUFFER_TYPE::RAW:
 					bufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
 					break;
+				case E_STRUCTURED_BUFFER_TYPE::INDIRECT_DRAW_BUFFER:
+					bufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS;
+					break;
 				default:
 					TDE2_UNIMPLEMENTED();
 					break;
@@ -113,7 +116,7 @@ namespace TDEngine2
 		ID3D11UnorderedAccessView* pView = nullptr;
 
 		D3D11_UNORDERED_ACCESS_VIEW_DESC viewDesc;
-		viewDesc.Format = DXGI_FORMAT_UNKNOWN;
+		viewDesc.Format = E_STRUCTURED_BUFFER_TYPE::INDIRECT_DRAW_BUFFER != params.mStructuredBufferType ? DXGI_FORMAT_UNKNOWN : DXGI_FORMAT_R32_UINT;
 		viewDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
 		viewDesc.Buffer.FirstElement = 0;
 		viewDesc.Buffer.Flags = E_STRUCTURED_BUFFER_TYPE::APPENDABLE == params.mStructuredBufferType ? D3D11_BUFFER_UAV_FLAG_APPEND : 0x0;
@@ -183,7 +186,7 @@ namespace TDEngine2
 
 		mpBufferInstance = createBufferResourceResult.Get();
 
-		if (E_BUFFER_TYPE::STRUCTURED == params.mBufferType)
+		if (E_BUFFER_TYPE::STRUCTURED == params.mBufferType && E_STRUCTURED_BUFFER_TYPE::INDIRECT_DRAW_BUFFER != params.mStructuredBufferType)
 		{
 			auto createViewResourceResult = CreateTypedBufferViewInternal(mp3dDevice, mpBufferInstance, params);
 			if (createBufferResourceResult.HasError())

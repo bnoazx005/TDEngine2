@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.29] 2024-07-31
+## [0.6.29] 2024-08-02
 
 ### Added
 
@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new global uniform variable **CameraProjectionParams** was introduced.
 
 - Now shader compiler supports Buffer/RWBuffer HLSL types for use in shaders.
+
+- A new type of structured buffer which is INDIRECT_DRAW_BUFFER was added.
 
 ### Changed
 
