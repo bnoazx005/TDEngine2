@@ -8,7 +8,8 @@
 
 
 DECLARE_WRITEABLE_TYPED_BUFFER_EX(TParticle, OutputParticles, 0);
-DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, DeadParticlesIndexList, 1); // first index is used for counter
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, DeadParticlesIndexList, 1); 
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, Counters, 2); 
 
 DECLARE_TEX2D_EX(RandTexture, 1)
 
@@ -45,7 +46,7 @@ CBUFFER_ENDSECTION
 [numthreads(1024, 1, 1)]
 void MainCS(uint3 id : SV_DispatchThreadID)
 {
-	uint counter = DeadParticlesIndexList[0];
+	uint counter = Counters[0];
 
 	if (id.x >= counter || id.x >= mEmitRate) 
 		return;
@@ -82,10 +83,11 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 	newParticle.mSize = lerp(mInitialSize.x, mInitialSize.y, randValue.z); // TODO
 
 	// decrement counter for dead particles list
-	InterlockedAdd(DeadParticlesIndexList[0], -1, counter);
+	InterlockedAdd(Counters[0], -1, counter);
+	counter = counter - 1;
 	if (counter < 0)
 	{
-		InterlockedAdd(DeadParticlesIndexList[0], 1);
+		InterlockedAdd(Counters[0], 1);
 		return;
 	}
 

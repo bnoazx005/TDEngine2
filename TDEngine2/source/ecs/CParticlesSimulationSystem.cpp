@@ -601,6 +601,12 @@ namespace TDEngine2
 				U32      mEmitterIndex;
 				U32      mPadding0[3];
 			};
+
+			struct TActiveParticleIndexElement
+			{
+				F32 mDistance;
+				F32 mIndex;
+			};
 		public:
 			TDE2_SYSTEM(CParticlesGPUSimulationSystem);
 
@@ -758,6 +764,9 @@ namespace TDEngine2
 
 					_emitParticles(pWorld, deltaTime);
 					_simulateParticles(pWorld, deltaTime);
+
+					//_sortParticles();
+
 				}
 #if TDE2_DEBUG_MODE
 				pGraphicsContext->EndSectionMarker();
@@ -772,7 +781,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CParticlesGPUSimulationSystem)
 
-				E_RESULT_CODE _initInternalVertexData()
+			E_RESULT_CODE _initInternalVertexData()
 			{
 				auto createVertDeclResult = mpGraphicsObjectManager->CreateVertexDeclaration();
 				if (createVertDeclResult.HasError())
@@ -803,13 +812,34 @@ namespace TDEngine2
 
 				mParticleQuadIndexBufferHandle = createIndexBufferResult.Get();
 
+				auto countersBufferCreateResult = mpGraphicsObjectManager->CreateBuffer(
+					{
+						E_BUFFER_USAGE_TYPE::DEFAULT,
+						E_BUFFER_TYPE::STRUCTURED,
+						sizeof(U32) * COUNTERS_COUNT,
+						nullptr,
+						sizeof(U32) * COUNTERS_COUNT,
+						true,
+						sizeof(U32),
+						E_STRUCTURED_BUFFER_TYPE::DEFAULT,
+						E_INDEX_FORMAT_TYPE::INDEX16, // unused
+						"CountersBuffer"
+					});
+
+				if (countersBufferCreateResult.HasError())
+				{
+					return countersBufferCreateResult.GetError();
+				}
+
+				mCountersBufferHandle = countersBufferCreateResult.Get();
+
 				auto deadParticlesListBufferCreateResult = mpGraphicsObjectManager->CreateBuffer(
 					{
 						E_BUFFER_USAGE_TYPE::DEFAULT,
 						E_BUFFER_TYPE::STRUCTURED,
-						sizeof(U32) * (MAX_PARTICLES_COUNT + 1), // +1 for counter
+						sizeof(U32) * MAX_PARTICLES_COUNT,
 						nullptr,
-						sizeof(U32) * (MAX_PARTICLES_COUNT + 1),
+						sizeof(U32) * MAX_PARTICLES_COUNT,
 						true,
 						sizeof(U32),
 						E_STRUCTURED_BUFFER_TYPE::DEFAULT,
@@ -845,6 +875,48 @@ namespace TDEngine2
 				}
 
 				mParticlesBufferHandle = particlesBufferCreateResult.Get();
+
+				auto aliveIndexBufferCreateResult = mpGraphicsObjectManager->CreateBuffer(
+					{
+						E_BUFFER_USAGE_TYPE::DEFAULT,
+						E_BUFFER_TYPE::STRUCTURED,
+						sizeof(TActiveParticleIndexElement) * MAX_PARTICLES_COUNT,
+						nullptr,
+						sizeof(TActiveParticleIndexElement) * MAX_PARTICLES_COUNT,
+						true,
+						sizeof(TActiveParticleIndexElement),
+						E_STRUCTURED_BUFFER_TYPE::DEFAULT,
+						E_INDEX_FORMAT_TYPE::INDEX16, // unused
+						"AliveIndexParticlesBuffer"
+					});
+
+				if (aliveIndexBufferCreateResult.HasError())
+				{
+					return aliveIndexBufferCreateResult.GetError();
+				}
+
+				mAliveIndexBufferHandle = aliveIndexBufferCreateResult.Get();
+				
+				auto indirectDrawArgsBufferCreateResult = mpGraphicsObjectManager->CreateBuffer(
+					{
+						E_BUFFER_USAGE_TYPE::DEFAULT,
+						E_BUFFER_TYPE::STRUCTURED,
+						sizeof(U32) * 5,
+						nullptr,
+						sizeof(U32) * 5,
+						true,
+						sizeof(U32),
+						E_STRUCTURED_BUFFER_TYPE::INDIRECT_DRAW_BUFFER,
+						E_INDEX_FORMAT_TYPE::INDEX16, // unused
+						"IndirectDrawArgsBuffer"
+					});
+
+				if (indirectDrawArgsBufferCreateResult.HasError())
+				{
+					return indirectDrawArgsBufferCreateResult.GetError();
+				}
+
+				mIndirectDrawArgsBufferHandle = indirectDrawArgsBufferCreateResult.Get();
 
 				return RC_OK;
 			}
@@ -897,6 +969,7 @@ namespace TDEngine2
 					// \note Bind the buffer
 					pEmitParticlesShader->SetStructuredBufferResource("OutputParticles", mParticlesBufferHandle);
 					pEmitParticlesShader->SetStructuredBufferResource("DeadParticlesIndexList", mDeadListBufferHandle);
+					pEmitParticlesShader->SetStructuredBufferResource("Counters", mCountersBufferHandle);
 					pEmitParticlesShader->SetTextureResource("RandTexture", mpResourceManager->GetResource<ITexture2D>(mpResourceManager->Load<ITexture2D>(CProjectSettings::Get()->mGraphicsSettings.mRandomTextureId)).Get());
 					pEmitParticlesShader->SetUserUniformsBuffer(0, reinterpret_cast<U8*>(&currEmitterShaderData), sizeof(currEmitterShaderData));
 					pEmitParticlesShader->Bind();
@@ -905,6 +978,7 @@ namespace TDEngine2
 
 					pGraphicsContext->SetStructuredBuffer(pEmitParticlesShader->GetResourceBindingSlot("OutputParticles"), TBufferHandleId::Invalid, true);
 					pGraphicsContext->SetStructuredBuffer(pEmitParticlesShader->GetResourceBindingSlot("DeadParticlesIndexList"), TBufferHandleId::Invalid, true);
+					pGraphicsContext->SetStructuredBuffer(pEmitParticlesShader->GetResourceBindingSlot("Counters"), TBufferHandleId::Invalid, true);
 				}
 
 #if TDE2_DEBUG_MODE
@@ -936,6 +1010,9 @@ namespace TDEngine2
 
 				pSimulateParticlesShader->SetStructuredBufferResource("OutputParticles", mParticlesBufferHandle);
 				pSimulateParticlesShader->SetStructuredBufferResource("DeadParticlesIndexList", mDeadListBufferHandle);
+				pSimulateParticlesShader->SetStructuredBufferResource("ParticlesIndexBuffer", mAliveIndexBufferHandle);
+				pSimulateParticlesShader->SetStructuredBufferResource("DrawArgsBuffer", mIndirectDrawArgsBufferHandle);
+				pSimulateParticlesShader->SetStructuredBufferResource("Counters", mCountersBufferHandle);
 				pSimulateParticlesShader->SetTextureResource("RandTexture", mpResourceManager->GetResource<ITexture2D>(mpResourceManager->Load<ITexture2D>(CProjectSettings::Get()->mGraphicsSettings.mRandomTextureId)).Get());
 				pSimulateParticlesShader->SetUserUniformsBuffer(0, reinterpret_cast<U8*>(&simulationParams), sizeof(simulationParams));
 				pSimulateParticlesShader->Bind();
@@ -944,13 +1021,16 @@ namespace TDEngine2
 
 				pGraphicsContext->SetStructuredBuffer(pSimulateParticlesShader->GetResourceBindingSlot("OutputParticles"), TBufferHandleId::Invalid, true);
 				pGraphicsContext->SetStructuredBuffer(pSimulateParticlesShader->GetResourceBindingSlot("DeadParticlesIndexList"), TBufferHandleId::Invalid, true);
+				pGraphicsContext->SetStructuredBuffer(pSimulateParticlesShader->GetResourceBindingSlot("ParticlesIndexBuffer"), TBufferHandleId::Invalid, true);
+				pGraphicsContext->SetStructuredBuffer(pSimulateParticlesShader->GetResourceBindingSlot("DrawArgsBuffer"), TBufferHandleId::Invalid, true);
+				pGraphicsContext->SetStructuredBuffer(pSimulateParticlesShader->GetResourceBindingSlot("Counters"), TBufferHandleId::Invalid, true);
 
 #if TDE2_DEBUG_MODE
 				pGraphicsContext->EndSectionMarker();
 #endif
 
 				/// OLD CPU impl 
-
+#if 0
 				U32 currInstancesBufferIndex = 0;
 
 				// \note Do main update logic here
@@ -1068,6 +1148,7 @@ namespace TDEngine2
 						}
 					}
 				}
+#endif
 			}
 
 			void _populateCommandsBuffer(TSystemContext& context, CRenderQueue*& pRenderGroup, const IMaterial* pCurrMaterial, const ICamera* pCamera)
@@ -1146,11 +1227,13 @@ namespace TDEngine2
 
 				pInitDeadParticlesListShader->SetUserUniformsBuffer(0, reinterpret_cast<const U8*>(&shaderParams), sizeof(shaderParams));
 				pInitDeadParticlesListShader->SetStructuredBufferResource("DeadParticlesIndexList", mDeadListBufferHandle);
+				pInitDeadParticlesListShader->SetStructuredBufferResource("Counters", mCountersBufferHandle);
 				pInitDeadParticlesListShader->Bind();
 
 				pGraphicsContext->DispatchCompute(Align(MAX_PARTICLES_COUNT + 1, INIT_DEAD_PARTICLES_DISPATCH_WORK_GROUP_SIZE) / INIT_DEAD_PARTICLES_DISPATCH_WORK_GROUP_SIZE, 1, 1);
 
 				pGraphicsContext->SetStructuredBuffer(pInitDeadParticlesListShader->GetResourceBindingSlot("DeadParticlesIndexList"), TBufferHandleId::Invalid, true);
+				pGraphicsContext->SetStructuredBuffer(pInitDeadParticlesListShader->GetResourceBindingSlot("Counters"), TBufferHandleId::Invalid, true);
 
 #if TDE2_DEBUG_MODE
 				pGraphicsContext->EndSectionMarker();
@@ -1164,6 +1247,7 @@ namespace TDEngine2
 
 		protected:
 			TDE2_STATIC_CONSTEXPR U32    MAX_PARTICLES_COUNT = 512 * 1024;
+			TDE2_STATIC_CONSTEXPR U32    COUNTERS_COUNT = 2;
 			
 			TDE2_STATIC_CONSTEXPR U32    EMIT_DISPATCH_WORK_GROUP_SIZE = 1024;
 			TDE2_STATIC_CONSTEXPR U32    SIMULATE_DISPATCH_WORK_GROUP_SIZE = 256;
@@ -1201,6 +1285,9 @@ namespace TDEngine2
 
 			TBufferHandleId              mDeadListBufferHandle = TBufferHandleId::Invalid;
 			TBufferHandleId              mParticlesBufferHandle = TBufferHandleId::Invalid;
+			TBufferHandleId              mAliveIndexBufferHandle = TBufferHandleId::Invalid;
+			TBufferHandleId              mIndirectDrawArgsBufferHandle = TBufferHandleId::Invalid;
+			TBufferHandleId              mCountersBufferHandle = TBufferHandleId::Invalid;
 	};
 
 

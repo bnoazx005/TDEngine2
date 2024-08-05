@@ -9,8 +9,9 @@
 
 DECLARE_WRITEABLE_TYPED_BUFFER_EX(TParticle, OutputParticles, 0);
 DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, DeadParticlesIndexList, 1); // first index is used for counter
-
-DECLARE_TEX2D_EX(RandTexture, 1)
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(float2, ParticlesIndexBuffer, 2); 
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, Counters, 3); 
+RWBuffer<uint> DrawArgsBuffer : register(u4);
 
 
 CBUFFER_SECTION_EX(SimulationParameters, 4)
@@ -22,6 +23,19 @@ CBUFFER_ENDSECTION
 [numthreads(256, 1, 1)]
 void MainCS(uint3 id : SV_DispatchThreadID)
 {
+	if (id.x == 0) // initialization of draw args buffer
+	{
+		DrawArgsBuffer[0] = 0;
+		DrawArgsBuffer[1] = 1;
+		DrawArgsBuffer[2] = 0;
+		DrawArgsBuffer[3] = 0;
+		DrawArgsBuffer[4] = 0;
+
+		Counters[1] = 0;
+	}
+
+	GroupMemoryBarrierWithGroupSync();
+
 	if (id.x >= mMaxParticlesCount)
 		return;
 
@@ -49,14 +63,27 @@ struct TParticle
 */
 		if (currParticle.mAge < 0.0f)
 		{
+			currParticle.mAge = -1.0;
+
 			// write index to dead list
 			int deadListIndex = 0;
-			InterlockedAdd(DeadParticlesIndexList[0], 1, deadListIndex);
+			InterlockedAdd(Counters[0], 1, deadListIndex);
 			DeadParticlesIndexList[deadListIndex] = id.x;
 		}
+		else
+		{
+			// add particle to index buffer for sorting
+			int aliveIndex = 0;
+			InterlockedAdd(Counters[1], 1, aliveIndex);
 
-		OutputParticles[id.x] = currParticle;
+			ParticlesIndexBuffer[aliveIndex] = float2(0.0 /* distance to camera's origin */, (float)id.x);
+
+			// update indirect args buffer
+			InterlockedAdd(DrawArgsBuffer[0], 6);
+		}
 	}	
+
+	OutputParticles[id.x] = currParticle;
 }
 
 #endprogram

@@ -5,7 +5,8 @@
 #include <TDEngine2Globals.inc>
 #include <TDEngine2ParticlesUtils.inc>
 
-DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, DeadParticlesIndexList, 0); // first index is used for counter
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, DeadParticlesIndexList, 0);
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, Counters, 1); 
 
 CBUFFER_SECTION_EX(DeadParticlesInfo, 4)
 	uint mMaxParticlesCount;
@@ -17,14 +18,13 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 {
 	if (id.x == 0)
 	{
-		DeadParticlesIndexList[0] = mMaxParticlesCount;
-		return;
+		Counters[0] = mMaxParticlesCount;
 	}
 
-	if (id.x > mMaxParticlesCount)
+	if (id.x >= mMaxParticlesCount)
 		return;
 
-	DeadParticlesIndexList[id.x] = id.x - 1;
+	DeadParticlesIndexList[id.x] = id.x;
 }
 
 #endprogram

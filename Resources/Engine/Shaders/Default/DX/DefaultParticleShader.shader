@@ -14,6 +14,14 @@ struct VertexOut
 };
 
 
+CBUFFER_SECTION_EX(Parameters, 4)
+	uint  mIsTexturingEnabled;
+	uint  mIsSoftParticlesEnabled;
+	float mSmoothScale;
+	float mContrastPower;
+CBUFFER_ENDSECTION
+
+
 #program vertex
 
 struct VertexIn
@@ -60,13 +68,6 @@ VertexOut mainVS(in VertexIn input)
 #endprogram
 
 #program pixel
-
-CBUFFER_SECTION_EX(Parameters, 4)
-	uint  mIsTexturingEnabled;
-	uint  mIsSoftParticlesEnabled;
-	float mSmoothScale;
-	float mContrastPower;
-CBUFFER_ENDSECTION
 
 DECLARE_TEX2D_EX(DepthTexture, 15);
 DECLARE_TEX2D(MainTexture);
