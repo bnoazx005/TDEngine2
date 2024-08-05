@@ -2330,7 +2330,8 @@ namespace TDEngine2
 		mpGlobalShaderProperties = TPtr<IGlobalShaderProperties>(CreateGlobalShaderProperties(pGraphicsObjectManager, result));
 
 		/// \todo fill in data into TConstantsShaderData buffer
-		mpGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_CONSTANTS, nullptr, 0);
+		TConstantShaderData constShaderData { static_cast<U32>(CProjectSettings::Get()->mGraphicsSettings.mIsGPUParticlesSimulationEnabled) };
+		mpGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_CONSTANTS, reinterpret_cast<const U8*>(&constShaderData), sizeof(constShaderData));
 		if (result != RC_OK)
 		{
 			return result;

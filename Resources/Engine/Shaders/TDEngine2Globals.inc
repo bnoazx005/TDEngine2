@@ -54,6 +54,8 @@ CBUFFER_ENDSECTION
 
 
 CBUFFER_SECTION_EX(TDEngine2Constants, 3)
+	uint IsGPUParticlesEnabled;
+	uint mUnused[3];
 	float4x4 mReserved;
 CBUFFER_ENDSECTION
 

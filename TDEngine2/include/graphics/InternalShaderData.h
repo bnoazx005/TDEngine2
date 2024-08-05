@@ -127,6 +127,8 @@ namespace TDEngine2
 
 	typedef struct TConstantShaderData
 	{
+		U32      mIsGPUParticlesEnabled = 0;
+		U32      mUnused0[3];
 		TMatrix4 mUnused;
 	} TConstantShaderData, *TConstantShaderDataPtr;
 
