@@ -2,6 +2,7 @@
 #define PIXEL_ENTRY mainPS
 
 #include <TDEngine2Globals.inc>
+#include <TDEngine2ParticlesUtils.inc>
 
 
 struct VertexOut
@@ -17,10 +18,14 @@ struct VertexOut
 CBUFFER_SECTION_EX(Parameters, 4)
 	uint  mIsTexturingEnabled;
 	uint  mIsSoftParticlesEnabled;
+	uint  mPadding;
 	float mSmoothScale;
 	float mContrastPower;
 CBUFFER_ENDSECTION
 
+DECLARE_TYPED_BUFFER_EX(TParticle, Particles, 0);
+DECLARE_TYPED_BUFFER_EX(float2, AliveParticlesIndexBuffer, 1);
+DECLARE_TYPED_BUFFER_EX(uint, Counters, 2);
 
 #program vertex
 
@@ -49,17 +54,37 @@ VertexOut mainVS(in VertexIn input)
 	float cosAngle = cos(input.mParticleRotation.x);
 	float sinAngle = sin(input.mParticleRotation.x);
 
-	float3x3 rotZAxisMat = float3x3(cosAngle, -sinAngle, 0.0f, sinAngle, cosAngle, 0.0f, 0.0f, 0.0f, 1.0f);
+	float3x3 rotZAxisMat = float3x3(
+		cosAngle, -sinAngle, 0.0f,
+		sinAngle, cosAngle,  0.0f,
+		0.0f,     0.0f,      1.0f);
 
-	float3 particleCenter = mul(ModelMat, float4(input.mParticlePosAndSize.xyz, 1.0));
-	float3 localPos       = mul(rotZAxisMat, float3(BILLBOARD_QUAD_VERTICES[input.vertIndex].xy, 0.0) * input.mParticlePosAndSize.w);
+	float3 particleCenter;
+	float3 localPos;
+
+	if (IsGPUParticlesEnabled)
+	{
+		uint index = (uint)AliveParticlesIndexBuffer[/*Counters[1] - */input.mInstanceId].y;
+		TParticle currParticleData = Particles[index];
+
+		particleCenter = float4(currParticleData.mPosition.xyz, 1.0);
+		localPos       = mul(rotZAxisMat, float3(BILLBOARD_QUAD_VERTICES[input.vertIndex].xy, 0.0) * currParticleData.mSize);
+		
+		output.mColor = currParticleData.mColor;
+	}
+	else
+	{
+		particleCenter = mul(ModelMat, float4(input.mParticlePosAndSize.xyz, 1.0));
+		localPos       = mul(rotZAxisMat, float3(BILLBOARD_QUAD_VERTICES[input.vertIndex].xy, 0.0) * input.mParticlePosAndSize.w);
+
+		output.mColor = input.mColor;
+	}
 
 	float4 pos = mul(ViewMat, float4(particleCenter.x, particleCenter.y, particleCenter.z, 1.0)) + float4(localPos.x, localPos.y, localPos.z, 0.0);
 
 	output.mViewPos    = pos;
 	output.mPos        = mul(ProjMat, pos);
 	output.mUV         = BILLBOARD_QUAD_VERTICES[input.vertIndex].zw;
-	output.mColor      = input.mColor;
 	output.mInstanceId = input.mInstanceId;
 
 	return output;

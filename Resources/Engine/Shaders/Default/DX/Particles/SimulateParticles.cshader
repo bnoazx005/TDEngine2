@@ -25,8 +25,8 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 {
 	if (id.x == 0) // initialization of draw args buffer
 	{
-		DrawArgsBuffer[0] = 0;
-		DrawArgsBuffer[1] = 1;
+		DrawArgsBuffer[0] = 6;
+		DrawArgsBuffer[1] = 0;
 		DrawArgsBuffer[2] = 0;
 		DrawArgsBuffer[3] = 0;
 		DrawArgsBuffer[4] = 0;
@@ -79,7 +79,7 @@ struct TParticle
 			ParticlesIndexBuffer[aliveIndex] = float2(0.0 /* distance to camera's origin */, (float)id.x);
 
 			// update indirect args buffer
-			InterlockedAdd(DrawArgsBuffer[0], 6);
+			InterlockedAdd(DrawArgsBuffer[1], 1);
 		}
 	}	
 

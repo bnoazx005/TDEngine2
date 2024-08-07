@@ -772,11 +772,15 @@ namespace TDEngine2
 				pGraphicsContext->EndSectionMarker();
 #endif
 
+				_prepareRenderCommand();
+
+#if 0
 				// \note Render particles 
 				for (auto&& pCurrMaterial : mUsedMaterials)
 				{
 					_populateCommandsBuffer(mParticleEmitters, mpRenderQueue, pCurrMaterial.Get(), pCameraComponent);
 				}
+#endif
 			}
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CParticlesGPUSimulationSystem)
@@ -1151,60 +1155,37 @@ namespace TDEngine2
 #endif
 			}
 
-			void _populateCommandsBuffer(TSystemContext& context, CRenderQueue*& pRenderGroup, const IMaterial* pCurrMaterial, const ICamera* pCamera)
+			void _prepareRenderCommand()
 			{
-				auto&& pCastedMaterial = dynamic_cast<const CBaseMaterial*>(pCurrMaterial);
-				const std::string& currMaterialName = pCastedMaterial->GetName();
-
-				TResourceId currMaterialId = pCastedMaterial->GetId();
-
-				auto&& viewMatrix = pCamera->GetViewMatrix();
-
-				U32 currBufferIndex = 0;
-
-				// \note iterate over all entities with pCurrMaterial attached as main material
-				for (USIZE i = 0; i < context.mpParticleEmitters.size(); ++i)
+				const TResourceId materialHandle = mpResourceManager->Load<IMaterial>(CProjectSettings::Get()->mGraphicsSettings.mParticleRenderMaterial);
+				if (TResourceId::Invalid == materialHandle)
 				{
-					CParticleEmitter* pParticlesEmitter = context.mpParticleEmitters[i];
-
-					auto pParticleEffect = mpResourceManager->GetResource<IParticleEffect>(pParticlesEmitter->GetParticleEffectHandle());
-					if (!pParticleEffect)
-					{
-						continue;
-					}
-
-					const TResourceId materialHandle = mpResourceManager->Load<IMaterial>(pParticleEffect->GetMaterialName());
-					if (TResourceId::Invalid == materialHandle || currMaterialName != pParticleEffect->GetMaterialName())
-					{
-						continue;
-					}
-
-					// \note We've found a particle system which uses pCurrMaterial as a main material, so push command to render it
-					CTransform* pTransform = context.mpTransform[i];
-
-					auto&& objectTransformMatrix = pTransform->GetLocalToWorldTransform();
-
-					const F32 distanceToCamera = ((viewMatrix * objectTransformMatrix) * TVector4(0.0f, 0.0f, 1.0f, 1.0f)).z;
-
-					// \note Create a command for the renderer
-					auto pCommand = pRenderGroup->SubmitDrawCommand<TDrawIndexedInstancedCommand>(static_cast<U32>(pCastedMaterial->GetGeometrySubGroupTag()) +
-						_computeRenderCommandHash(currMaterialId, distanceToCamera));
-
-					const bool isLocalSpaceParticles = E_PARTICLE_SIMULATION_SPACE::LOCAL == pParticleEffect->GetSimulationSpaceType();
-
-					pCommand->mVertexBufferHandle = TBufferHandleId::Invalid;
-					pCommand->mIndexBufferHandle = mParticleQuadIndexBufferHandle;
-					pCommand->mInstancingBufferHandle = mParticlesInstancesBufferHandles[currBufferIndex];
-					pCommand->mMaterialHandle = materialHandle;
-					pCommand->mpVertexDeclaration = mpParticleVertexDeclaration;
-					pCommand->mIndicesPerInstance = 6;
-					pCommand->mNumOfInstances = mActiveParticlesCount[currBufferIndex];
-					pCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-					pCommand->mObjectData.mModelMatrix = Transpose(isLocalSpaceParticles ? objectTransformMatrix : IdentityMatrix4);
-					pCommand->mObjectData.mInvModelMatrix = Transpose(isLocalSpaceParticles ? Inverse(objectTransformMatrix) : IdentityMatrix4);
-
-					++currBufferIndex;
+					return;
 				}
+
+				auto pMaterial = mpResourceManager->GetResource<IMaterial>(materialHandle);
+				if (!pMaterial)
+				{
+					return;
+				}
+
+				// \fixme Replace these calls with methods of IMaterial later
+				auto pShader = mpResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
+				pShader->SetStructuredBufferResource("Particles", mParticlesBufferHandle);
+				pShader->SetStructuredBufferResource("AliveParticlesIndexBuffer", mAliveIndexBufferHandle);
+
+				auto pCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndirectIndexedInstancedCommand>(static_cast<U32>(pMaterial->GetGeometrySubGroupTag()) + _computeRenderCommandHash(materialHandle, 0.0f));
+
+				pCommand->mUseIndexedCommand = true;
+				pCommand->mAlignedOffset = 0;
+				pCommand->mArgsBufferHandle = mIndirectDrawArgsBufferHandle;
+				pCommand->mVertexBufferHandle = TBufferHandleId::Invalid;
+				pCommand->mIndexBufferHandle = mParticleQuadIndexBufferHandle;
+				pCommand->mMaterialHandle = materialHandle;
+				pCommand->mpVertexDeclaration = mpParticleVertexDeclaration;
+				pCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+				pCommand->mObjectData.mModelMatrix = IdentityMatrix4;
+				pCommand->mObjectData.mInvModelMatrix = IdentityMatrix4;
 			}
 
 			void _initDeadParticlesList()

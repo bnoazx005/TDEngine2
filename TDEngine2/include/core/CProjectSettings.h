@@ -91,6 +91,7 @@ namespace TDEngine2
 				std::string mEmitParticlesComputeShader = "Shaders/Default/Particles/EmitParticles.cshader";
 				std::string mSimulateParticlesComputeShader = "Shaders/Default/Particles/SimulateParticles.cshader";
 				std::string mInitDeadParticlesListComputeShader = "Shaders/Default/Particles/InitDeadParticlesList.cshader";
+				std::string mParticleRenderMaterial = "DefaultResources/Materials/DefaultParticleMaterial.material";
 
 				std::string mRandomTextureId = "DefaultResources/Textures/MainRndTexture";
 			} mGraphicsSettings;

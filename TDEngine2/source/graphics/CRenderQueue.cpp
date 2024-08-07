@@ -154,6 +154,50 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE TDrawIndirectInstancedCommand::Submit(const TRenderCommandSubmitParams& params)
+	{
+		if (TResourceId::Invalid == mMaterialHandle)
+		{
+			LOG_ERROR(Wrench::StringUtils::Format(InvalidMaterialMessage, "[TDrawIndirectInstancedCommand]"));
+			return RC_INVALID_ARGS;
+		}
+
+		TDE2_STATS_COUNTER_INCREMENT(mDrawCallsCount);
+
+		IGraphicsContext* pGraphicsContext = params.mpGraphicsContext;
+		IResourceManager* pResourceManager = params.mpResourceManager;
+		IGlobalShaderProperties* pGlobalShaderProperties = params.mpGlobalShaderProperties;
+
+		auto pMaterial = pResourceManager->GetResource<IMaterial>(mMaterialHandle);
+
+		auto pAttachedShader = pResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
+
+		mpVertexDeclaration->Bind(pGraphicsContext, { mVertexBufferHandle }, pAttachedShader.Get());
+
+		pMaterial->Bind(mMaterialInstanceId);
+
+		if (pMaterial->IsScissorTestEnabled())
+		{
+			pGraphicsContext->SetScissorRect(mScissorRect);
+		}
+
+		pGraphicsContext->SetVertexBuffer(0, mVertexBufferHandle, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
+		pGraphicsContext->SetIndexBuffer(mIndexBufferHandle, 0);
+
+		pGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_OBJECT, reinterpret_cast<const U8*>(&mObjectData), sizeof(mObjectData));
+
+		if (mUseIndexedCommand)
+		{
+			pGraphicsContext->DrawIndirectIndexedInstanced(mPrimitiveType, E_INDEX_FORMAT_TYPE::INDEX16, mArgsBufferHandle, mAlignedOffset);
+		}
+		else
+		{
+			pGraphicsContext->DrawIndirectInstanced(mPrimitiveType, mArgsBufferHandle, mAlignedOffset);
+		}
+
+		return RC_OK;
+	}
+
 
 	CRenderQueue::CRenderQueueIterator::CRenderQueueIterator(TCommandsArray& commandsBuffer, U32 initialIndex) :
 		mpTargetCollection(&commandsBuffer), mCurrCommandIndex(initialIndex)

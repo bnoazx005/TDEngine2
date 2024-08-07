@@ -157,6 +157,27 @@ namespace TDEngine2
 	} TDrawIndexedInstancedCommand, *TDrawIndexedInstancedCommandPtr;
 
 
+	typedef struct TDrawIndirectInstancedCommand : TRenderCommand
+	{
+		/*!
+			\brief The method submits a command to a rendering pipeline
+
+			\param[in] pParams The object contains content for executing the command
+
+			\return RC_OK if everything went ok, or some other code, which describes an error
+		*/
+
+		TDE2_API E_RESULT_CODE Submit(const TRenderCommandSubmitParams& params) override;
+
+		TBufferHandleId mIndexBufferHandle;
+
+		U32             mAlignedOffset = 0;
+		bool            mUseIndexedCommand = false;
+
+		TBufferHandleId mArgsBufferHandle;
+	} TDrawIndirectIndexedInstancedCommand, *TDrawIndirectIndexedInstancedCommandPtr;
+
+
 	/*!
 		\brief A factory function for creation objects of CRenderQueue's type
 
