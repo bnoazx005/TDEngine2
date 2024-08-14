@@ -42,6 +42,21 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 	TParticle currParticle = OutputParticles[id.x];
 	if (currParticle.mAge > 0.0)
 	{
+		if (currParticle.mEmitterFlags & PARTICLE_FLAG_GRAVITY_FORCE_ENABLED)
+		{
+			currParticle.mVelocity = float4(0.0, -currParticle.mGravityModifier, 0.0, 0.0); // TODO add this vector to originally computed velocity
+		}
+
+		if (currParticle.mEmitterFlags & PARTICLE_FLAG_FORCE_OVER_LIFETIME_ENABLED)
+		{
+			currParticle.mVelocity += float4(currParticle.mForcePerFrame, 0.0);
+		}
+
+		if (currParticle.mEmitterFlags & PARTICLE_FLAG_ROTATION_OVER_LIFETIME_ENABLED)
+		{
+			currParticle.mRotation += mDeltaTime * currParticle.mRotationPerFrame;
+		}
+
 		currParticle.mAge -= mDeltaTime;
 		currParticle.mPosition += currParticle.mVelocity * mDeltaTime;
 

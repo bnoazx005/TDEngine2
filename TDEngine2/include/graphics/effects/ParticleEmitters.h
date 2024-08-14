@@ -53,6 +53,11 @@ namespace TDEngine2
 		U32      mEmitRate;
 		U32      mEmitterType; // contains TypeId of used emitter
 		U32      mEmitterIndex;
+		U32      mFlags;
+
+		F32      mGravityModifier;
+		F32      mRotationPerFrame;
+		TVector3 mForcePerFrame;
 	};
 
 

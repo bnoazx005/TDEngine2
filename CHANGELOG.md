@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.29] 2024-08-05
+## [0.6.29] 2024-08-14
 
 ### Added
 
@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new type of structured buffer which is INDIRECT_DRAW_BUFFER was added.
 
 - A new global uniform IsGPUParticlesEnabled was added into constants CB/UBO which equals to 1 when GPU particles simulation is enabled in the project.
+
+- GPU particle systems now support forces.
 
 ### Changed
 

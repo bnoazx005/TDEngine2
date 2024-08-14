@@ -142,6 +142,11 @@ namespace TDEngine2
 		uniformData.mInitialColor    = _getInitColor();
 		uniformData.mRandValue       = CRandomUtils::GetRandF32Value({ 0.0f, 1.0f });
 
+		uniformData.mFlags = static_cast<U32>(mpOwnerEffect->GetEnabledModifiersFlags());
+		uniformData.mGravityModifier  = mpOwnerEffect->GetGravityModifier();
+		uniformData.mRotationPerFrame = mpOwnerEffect->GetRotationOverTime();
+		uniformData.mForcePerFrame    = mpOwnerEffect->GetForceOverTime();
+
 		return uniformData;
 	}
 

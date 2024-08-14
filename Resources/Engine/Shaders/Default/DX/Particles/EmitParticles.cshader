@@ -40,6 +40,10 @@ CBUFFER_SECTION_EX(EmitterParameters, 4)
 	uint   mEmitRate;
 	uint   mEmitterType;
 	uint   mEmitterIndex;
+	uint   mFlags;
+	float  mGravityModifier;
+	float  mRotationPerFrame;
+	float3 mForcePerFrame;
 CBUFFER_ENDSECTION
 
 
@@ -78,7 +82,13 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 	newParticle.mColor = mInitialColor;
 
 	newParticle.mLifetime = lerp(mInitialLifetime.x, mInitialLifetime.y, randValue.y);
-	newParticle.mAge = newParticle.mLifetime;
+	newParticle.mAge      = newParticle.mLifetime;
+
+	// emmiter's data 
+	newParticle.mEmitterFlags     = mFlags;
+	newParticle.mGravityModifier  = mGravityModifier;
+	newParticle.mRotationPerFrame = mRotationPerFrame;
+	newParticle.mForcePerFrame    = mForcePerFrame;
 
 	newParticle.mSize = lerp(mInitialSize.x, mInitialSize.y, randValue.z); // TODO
 

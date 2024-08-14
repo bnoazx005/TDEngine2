@@ -564,22 +564,6 @@ namespace TDEngine2
 			friend TDE2_API ISystem* CreateParticlesGPUSimulationSystem(IRenderer*, IGraphicsObjectManager*, E_RESULT_CODE&);
 
 		private:
-			typedef struct TParticleVertex
-			{
-				TVector4 mPosition;
-				TVector2 mUVs;
-			} TParticleVertex, * TParticleVertexPtr;
-
-			typedef struct TParticleInstanceData
-			{
-				TColor32F mColor;
-				TVector4 mPositionAndSize;
-				TVector4 mRotation;
-			} TParticleInstanceData, * TParticleInstanceDataPtr;
-
-			typedef std::vector<std::vector<TParticleInstanceData>> TParticlesArray;
-			typedef std::vector<std::vector<TParticleInfo>> TParticlesInfoArray;
-
 			typedef std::vector<CParticleEmitter*> TParticleEmmitters;
 
 			struct TSystemContext
@@ -599,7 +583,10 @@ namespace TDEngine2
 				F32      mRotation;
 				F32      mSize;
 				U32      mEmitterIndex;
-				U32      mPadding0[3];
+				U32      mEmitterFlags;
+				F32      mGravityModifier;
+				F32      mRotationPerFrame;
+				TVector3 mForcePerFrame;
 			};
 
 			struct TActiveParticleIndexElement
@@ -685,46 +672,6 @@ namespace TDEngine2
 						transforms.push_back(pEntity->GetComponent<CTransform>());
 					}
 				}
-
-				mParticlesInstancesData.resize(particleEmitters.size());
-				mParticles.resize(particleEmitters.size());
-				mParticlesInstancesBufferHandles.resize(particleEmitters.size());
-				mActiveParticlesCount.resize(particleEmitters.size());
-
-				const auto& cameras = pWorld->FindEntitiesWithAny<CPerspectiveCamera, COrthoCamera>();
-				mpCameraEntity = !cameras.empty() ? pWorld->FindEntity(cameras.front()) : nullptr;
-
-				mUsedMaterials = GetUsedMaterials(entities, pWorld, mpResourceManager.Get());
-
-				for (TBufferHandleId& currVertexBufferHandle : mParticlesInstancesBufferHandles)
-				{
-					auto createBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::VERTEX, SpriteInstanceDataBufferSize, nullptr });
-					if (createBufferResult.HasError())
-					{
-						continue;
-					}
-
-					currVertexBufferHandle = createBufferResult.Get();
-				}
-
-				for (U32& currCount : mActiveParticlesCount)
-				{
-					currCount = 0;
-				}
-
-				/// \note Initialize arrays
-				for (USIZE i = 0; i < particleEmitters.size(); ++i)
-				{
-					if (CParticleEmitter* pEmitterComponent = particleEmitters[i])
-					{
-						auto pCurrEffectResource = mpResourceManager->GetResource<IParticleEffect>(pEmitterComponent->GetParticleEffectHandle());
-
-						const size_t particlesCount = pCurrEffectResource ? static_cast<size_t>(pCurrEffectResource->GetMaxParticlesCount()) : 0;
-
-						mParticlesInstancesData[i].resize(particlesCount);
-						mParticles[i].resize(particlesCount);
-					}
-				}
 			}
 
 			/*!
@@ -739,15 +686,6 @@ namespace TDEngine2
 			TDE2_API void Update(IWorld* pWorld, F32 dt) override
 			{
 				TDE2_PROFILER_SCOPE("CParticlesGPUSimulationSystem::Update");
-
-				if (!mpCameraEntity)
-				{
-					LOG_WARNING("[CParticlesGPUSimulationSystem] An entity with Camera component attached to that wasn't found");
-					return;
-				}
-
-				ICamera* pCameraComponent = GetValidPtrOrDefault<ICamera*>(mpCameraEntity->GetComponent<CPerspectiveCamera>(), mpCameraEntity->GetComponent<COrthoCamera>());
-				TDE2_ASSERT(pCameraComponent);
 
 #if TDE2_DEBUG_MODE
 				IGraphicsContext* pGraphicsContext = mpGraphicsObjectManager->GetGraphicsContext();
@@ -764,23 +702,13 @@ namespace TDEngine2
 
 					_emitParticles(pWorld, deltaTime);
 					_simulateParticles(pWorld, deltaTime);
-
-					//_sortParticles();
-
 				}
 #if TDE2_DEBUG_MODE
 				pGraphicsContext->EndSectionMarker();
 #endif
 
-				_prepareRenderCommand();
-
-#if 0
-				// \note Render particles 
-				for (auto&& pCurrMaterial : mUsedMaterials)
-				{
-					_populateCommandsBuffer(mParticleEmitters, mpRenderQueue, pCurrMaterial.Get(), pCameraComponent);
-				}
-#endif
+				//_sortParticles();
+				_prepareRenderCommand(); // \note All particles for all emitters are batched and drawn in the single command
 			}
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CParticlesGPUSimulationSystem)
@@ -922,7 +850,26 @@ namespace TDEngine2
 
 				mIndirectDrawArgsBufferHandle = indirectDrawArgsBufferCreateResult.Get();
 
+				return _initEmittersBakedDataAtlasTexture();
+			}
+
+			E_RESULT_CODE _initEmittersBakedDataAtlasTexture()
+			{
+				mEmittersBakedParamsAtlasHandle = mpResourceManager->Create<ITexture2D>("ParticlesEmittersBakedParamsAtlas", TTexture2DParameters(EMITTERS_BAKED_DATA_ATLAS_SIZES, EMITTERS_BAKED_DATA_ATLAS_SIZES, FT_FLOAT4));
+				if (TResourceId::Invalid == mEmittersBakedParamsAtlasHandle)
+				{
+					return RC_FAIL;
+				}
+
 				return RC_OK;
+			}
+
+			void _updateEmittersBakedData(U32 emitterIndex, TPtr<IParticleEffect> pParticleEffect)
+			{
+				const U32 xStartOffset = emitterIndex / EMITTERS_BAKED_DATA_ATLAS_SIZES;
+				const U32 yStartOffset = emitterIndex % EMITTERS_BAKED_DATA_ATLAS_SIZES;
+
+
 			}
 
 			void _emitParticles(IWorld* pWorld, F32 dt)
@@ -938,8 +885,6 @@ namespace TDEngine2
 				pGraphicsContext->BeginSectionMarker("EmitParticles");
 #endif
 
-				// \todo Bind texture with baked animation curves per emitter
-
 				for (USIZE i = 0; i < mParticleEmitters.mpParticleEmitters.size(); ++i)
 				{
 					CParticleEmitter* pEmitterComponent = mParticleEmitters.mpParticleEmitters[i];
@@ -948,7 +893,16 @@ namespace TDEngine2
 						continue;
 					}
 
-					auto pCurrEffectResource = mpResourceManager->GetResource<IParticleEffect>(pEmitterComponent->GetParticleEffectHandle());
+					TResourceId particleEffectResourceHandle = pEmitterComponent->GetParticleEffectHandle();
+					if (TResourceId::Invalid == particleEffectResourceHandle)
+					{
+						particleEffectResourceHandle = mpResourceManager->Load<IParticleEffect>(pEmitterComponent->GetParticleEffectId());
+						pEmitterComponent->SetParticleEffectHandle(particleEffectResourceHandle);
+
+						_updateEmittersBakedData(static_cast<U32>(i), mpResourceManager->GetResource<IParticleEffect>(particleEffectResourceHandle));
+					}
+
+					auto pCurrEffectResource = mpResourceManager->GetResource<IParticleEffect>(particleEffectResourceHandle);
 					if (!pCurrEffectResource)
 					{
 						continue;
@@ -965,6 +919,11 @@ namespace TDEngine2
 						continue;
 					}
 
+					// \note Bind texture with baked animation curves per emitter
+					// if (emitter.lutHandle == invalid || emitter.IsDirty)
+					//		emitter.lutHandle = emitter.BakeParams() 
+					//
+
 					// \note Fill in constant buffer with current emitter's data
 					TEmitterUniformsData currEmitterShaderData = pSharedEmitter->GetShaderUniformsData();
 					currEmitterShaderData.mPosition = TVector4(mParticleEmitters.mpTransform[i]->GetPosition(), 1.0f);
@@ -974,6 +933,7 @@ namespace TDEngine2
 					pEmitParticlesShader->SetStructuredBufferResource("OutputParticles", mParticlesBufferHandle);
 					pEmitParticlesShader->SetStructuredBufferResource("DeadParticlesIndexList", mDeadListBufferHandle);
 					pEmitParticlesShader->SetStructuredBufferResource("Counters", mCountersBufferHandle);
+					pEmitParticlesShader->SetTextureResource("EmittersParamsAtlas", mpResourceManager->GetResource<ITexture2D>(mEmittersBakedParamsAtlasHandle).Get());
 					pEmitParticlesShader->SetTextureResource("RandTexture", mpResourceManager->GetResource<ITexture2D>(mpResourceManager->Load<ITexture2D>(CProjectSettings::Get()->mGraphicsSettings.mRandomTextureId)).Get());
 					pEmitParticlesShader->SetUserUniformsBuffer(0, reinterpret_cast<U8*>(&currEmitterShaderData), sizeof(currEmitterShaderData));
 					pEmitParticlesShader->Bind();
@@ -1018,6 +978,7 @@ namespace TDEngine2
 				pSimulateParticlesShader->SetStructuredBufferResource("DrawArgsBuffer", mIndirectDrawArgsBufferHandle);
 				pSimulateParticlesShader->SetStructuredBufferResource("Counters", mCountersBufferHandle);
 				pSimulateParticlesShader->SetTextureResource("RandTexture", mpResourceManager->GetResource<ITexture2D>(mpResourceManager->Load<ITexture2D>(CProjectSettings::Get()->mGraphicsSettings.mRandomTextureId)).Get());
+				pSimulateParticlesShader->SetTextureResource("EmittersParamsAtlas", mpResourceManager->GetResource<ITexture2D>(mEmittersBakedParamsAtlasHandle).Get());
 				pSimulateParticlesShader->SetUserUniformsBuffer(0, reinterpret_cast<U8*>(&simulationParams), sizeof(simulationParams));
 				pSimulateParticlesShader->Bind();
 
@@ -1087,13 +1048,6 @@ namespace TDEngine2
 					// \note Update existing particles
 					for (TParticle& currParticle : particles)
 					{
-						if (CMathUtils::IsGreatOrEqual(currParticle.mAge, currParticle.mLifeTime, 1e-3f))
-						{
-							continue;
-						}
-
-						++mActiveParticlesCount[i];
-
 						const F32 t = CMathUtils::Clamp01(currParticle.mAge / std::max<F32>(1e-3f, currParticle.mLifeTime));
 
 						// \note Update size over lifetime
@@ -1111,44 +1065,6 @@ namespace TDEngine2
 						if (E_PARTICLE_EFFECT_INFO_FLAGS::E_VELOCITY_OVER_LIFETIME_ENABLED == (modifierFlags & E_PARTICLE_EFFECT_INFO_FLAGS::E_VELOCITY_OVER_LIFETIME_ENABLED))
 						{
 							currParticle.mVelocity = CBaseParticlesEmitter::GetVelocityData(pCurrEffectResource->GetVelocityOverTime(), t);
-						}
-
-						// \note Apply gravity
-						if (E_PARTICLE_EFFECT_INFO_FLAGS::E_GRAVITY_FORCE_ENABLED == (modifierFlags & E_PARTICLE_EFFECT_INFO_FLAGS::E_GRAVITY_FORCE_ENABLED))
-						{
-							currParticle.mVelocity = currParticle.mVelocity + UpVector3 * -pCurrEffectResource->GetGravityModifier();
-						}
-
-						// \note Apply force
-						if (E_PARTICLE_EFFECT_INFO_FLAGS::E_FORCE_OVER_LIFETIME_ENABLED == (modifierFlags & E_PARTICLE_EFFECT_INFO_FLAGS::E_FORCE_OVER_LIFETIME_ENABLED))
-						{
-							currParticle.mVelocity = currParticle.mVelocity + pCurrEffectResource->GetForceOverTime();
-						}
-
-						currParticle.mAge += dt;
-						currParticle.mPosition = currParticle.mPosition + dt * currParticle.mVelocity;
-
-						/// \note Update rotation over lifetime
-						if (E_PARTICLE_EFFECT_INFO_FLAGS::E_ROTATION_OVER_LIFETIME_ENABLED == (modifierFlags & E_PARTICLE_EFFECT_INFO_FLAGS::E_ROTATION_OVER_LIFETIME_ENABLED))
-						{
-							currParticle.mRotation += dt * pCurrEffectResource->GetRotationOverTime(); /// \note mRotation is computed in degrees
-						}
-
-						particlesInstancesBuffer[currInstancesBufferIndex].mColor = currParticle.mColor;
-						particlesInstancesBuffer[currInstancesBufferIndex].mPositionAndSize = TVector4(currParticle.mPosition, currParticle.mSize.x); // \todo For now use only uniform size
-						particlesInstancesBuffer[currInstancesBufferIndex].mRotation = TVector4(CMathConstants::Deg2Rad * currParticle.mRotation, 0.0f, 0.0f, 0.0f);
-
-						++currInstancesBufferIndex;
-					}
-
-					// \note Copy data into GPU buffers
-					if (!particlesInstancesBuffer.empty())
-					{
-						if (auto pInstancesBuffer = mpGraphicsObjectManager->GetBufferPtr(mParticlesInstancesBufferHandles[i]))
-						{
-							pInstancesBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
-							pInstancesBuffer->Write(&particlesInstancesBuffer[0], sizeof(TParticleInstanceData) * mActiveParticlesCount[i]);
-							pInstancesBuffer->Unmap();
 						}
 					}
 				}
@@ -1234,7 +1150,9 @@ namespace TDEngine2
 			TDE2_STATIC_CONSTEXPR U32    SIMULATE_DISPATCH_WORK_GROUP_SIZE = 256;
 			TDE2_STATIC_CONSTEXPR U32    INIT_DEAD_PARTICLES_DISPATCH_WORK_GROUP_SIZE = 256;
 
-			IRenderer* mpRenderer = nullptr;
+			TDE2_STATIC_CONSTEXPR U32    EMITTERS_BAKED_DATA_ATLAS_SIZES = 1024;
+
+			IRenderer*                   mpRenderer = nullptr;
 
 			TPtr<IResourceManager>       mpResourceManager = nullptr;
 
@@ -1246,23 +1164,13 @@ namespace TDEngine2
 
 			IVertexDeclaration*          mpParticleVertexDeclaration = nullptr;
 
-			CEntity*                     mpCameraEntity = nullptr;
-
-			TParticlesArray              mParticlesInstancesData;
-
-			TParticlesInfoArray          mParticles;
-
 			TSystemContext               mParticleEmitters;
-
-			std::vector<U32>             mActiveParticlesCount;
-
-			std::vector<TPtr<IMaterial>> mUsedMaterials;
-
-			std::vector<TBufferHandleId> mParticlesInstancesBufferHandles;
 
 			TResourceId                  mEmitParticlesShaderHandle = TResourceId::Invalid;
 			TResourceId                  mSimulateParticlesShaderHandle = TResourceId::Invalid;
 			TResourceId                  mInitDeadParticlesListShaderHandle = TResourceId::Invalid;
+
+			TResourceId                  mEmittersBakedParamsAtlasHandle = TResourceId::Invalid;
 
 			TBufferHandleId              mDeadListBufferHandle = TBufferHandleId::Invalid;
 			TBufferHandleId              mParticlesBufferHandle = TBufferHandleId::Invalid;

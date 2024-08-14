@@ -14,18 +14,28 @@
 #define SPHERE_EMITTER_TYPE_ID 0x264d34f0
 #define CONE_EMITTER_TYPE_ID   0x2fd3124e
 
+// Particle flags
+#define PARTICLE_FLAG_SIZE_OVER_LIFETIME_ENABLED     1
+#define PARTICLE_FLAG_COLOR_OVER_LIFETIME_ENABLED    1 << 1
+#define PARTICLE_FLAG_VELOCITY_OVER_LIFETIME_ENABLED 1 << 2
+#define PARTICLE_FLAG_ROTATION_OVER_LIFETIME_ENABLED 1 << 3
+#define PARTICLE_FLAG_GRAVITY_FORCE_ENABLED          1 << 4
+#define PARTICLE_FLAG_FORCE_OVER_LIFETIME_ENABLED    1 << 5
 
 struct TParticle
 {
 	float4 mPosition;
 	float4 mVelocity;
 	float4 mColor;
-	float mAge;
-	float mLifetime;
-	float mRotation;
-	float mSize;
-	uint  mEmitterIndex;
-	uint3 mPadding0;
+	float  mAge;
+	float  mLifetime;
+	float  mRotation;
+	float  mSize;
+	uint   mEmitterIndex;
+	uint   mEmitterFlags;
+	float  mGravityModifier;
+	float  mRotationPerFrame;
+	float3 mForcePerFrame;
 };
 
 
