@@ -13,6 +13,8 @@ DECLARE_WRITEABLE_TYPED_BUFFER_EX(float2, ParticlesIndexBuffer, 2);
 DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, Counters, 3); 
 RWBuffer<uint> DrawArgsBuffer : register(u4);
 
+DECLARE_TEX2D_EX(EmittersCurvesAtlasTexture, 1)
+
 
 CBUFFER_SECTION_EX(SimulationParameters, 4)
 	float mDeltaTime; // global CBs(UBOs) are not available at this execution time yet so use separate members for time
@@ -42,9 +44,26 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 	TParticle currParticle = OutputParticles[id.x];
 	if (currParticle.mAge > 0.0)
 	{
+		float t = 1.0 - saturate(currParticle.mAge / currParticle.mLifetime);
+
+		if (currParticle.mEmitterFlags & PARTICLE_FLAG_SIZE_OVER_LIFETIME_ENABLED)
+		{
+			currParticle.mSize = EmittersCurvesAtlasTexture.Load(int4(currParticle.mEmittersAtlasStartPos + float2(128.0 * t, 0.0), 0, 0)).a;
+		}
+
+		if (currParticle.mEmitterFlags & PARTICLE_FLAG_COLOR_OVER_LIFETIME_ENABLED)
+		{
+			currParticle.mColor = EmittersCurvesAtlasTexture.Load(int4(currParticle.mEmittersAtlasStartPos + float2(128.0 * t, 2.0), 0, 0));
+		}
+
+		if (currParticle.mEmitterFlags & PARTICLE_FLAG_VELOCITY_OVER_LIFETIME_ENABLED)
+		{
+			currParticle.mVelocity = float4(EmittersCurvesAtlasTexture.Load(int4(currParticle.mEmittersAtlasStartPos + float2(128.0 * t, 0.0), 0, 0)).xyz, 0.0);
+		}
+
 		if (currParticle.mEmitterFlags & PARTICLE_FLAG_GRAVITY_FORCE_ENABLED)
 		{
-			currParticle.mVelocity = float4(0.0, -currParticle.mGravityModifier, 0.0, 0.0); // TODO add this vector to originally computed velocity
+			currParticle.mVelocity += float4(0.0, -currParticle.mGravityModifier, 0.0, 0.0); // TODO add this vector to originally computed velocity
 		}
 
 		if (currParticle.mEmitterFlags & PARTICLE_FLAG_FORCE_OVER_LIFETIME_ENABLED)
@@ -60,22 +79,6 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 		currParticle.mAge -= mDeltaTime;
 		currParticle.mPosition += currParticle.mVelocity * mDeltaTime;
 
-		/*
-
-struct TParticle
-{
-	float4 mPosition;
-	float4 mVelocity;
-	float4 mColor;
-	float mAge;
-	float mLifetime;
-	float mRotation;
-	float mSize;
-	uint  mEmitterIndex;
-	uint3 mPadding0;
-};
-
-*/
 		if (currParticle.mAge < 0.0f)
 		{
 			currParticle.mAge = -1.0;

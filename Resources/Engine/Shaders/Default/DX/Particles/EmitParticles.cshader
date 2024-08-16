@@ -12,6 +12,7 @@ DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, DeadParticlesIndexList, 1);
 DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, Counters, 2); 
 
 DECLARE_TEX2D_EX(RandTexture, 1)
+DECLARE_TEX2D_EX(EmittersCurvesAtlasTexture, 2)
 
 // particles buffer
 
@@ -79,7 +80,7 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 
 	newParticle.mRotation = lerp(mInitialRotation.x, mInitialRotation.y, randValue.x);
 
-	newParticle.mColor = mInitialColor;
+	newParticle.mColor = mInitialColor; // TODO
 
 	newParticle.mLifetime = lerp(mInitialLifetime.x, mInitialLifetime.y, randValue.y);
 	newParticle.mAge      = newParticle.mLifetime;
@@ -89,8 +90,9 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 	newParticle.mGravityModifier  = mGravityModifier;
 	newParticle.mRotationPerFrame = mRotationPerFrame;
 	newParticle.mForcePerFrame    = mForcePerFrame;
+	newParticle.mEmittersAtlasStartPos = float2((mEmitterIndex / EMITTERS_CURVES_ATLAS_SIZE) * EMITTERS_CURVES_ATLAS_SIZE,  mEmitterIndex % EMITTERS_CURVES_ATLAS_SIZE);
 
-	newParticle.mSize = lerp(mInitialSize.x, mInitialSize.y, randValue.z); // TODO
+	newParticle.mSize = lerp(mInitialSize.x, mInitialSize.y, randValue.z);
 
 	// decrement counter for dead particles list
 	InterlockedAdd(Counters[0], -1, counter);

@@ -14,6 +14,9 @@
 #define SPHERE_EMITTER_TYPE_ID 0x264d34f0
 #define CONE_EMITTER_TYPE_ID   0x2fd3124e
 
+#define EMITTERS_CURVES_ATLAS_SIZE 1024
+#define EMITTERS_CURVES_ATLAS_CURVE_WIDTH 128
+
 // Particle flags
 #define PARTICLE_FLAG_SIZE_OVER_LIFETIME_ENABLED     1
 #define PARTICLE_FLAG_COLOR_OVER_LIFETIME_ENABLED    1 << 1
@@ -21,6 +24,7 @@
 #define PARTICLE_FLAG_ROTATION_OVER_LIFETIME_ENABLED 1 << 3
 #define PARTICLE_FLAG_GRAVITY_FORCE_ENABLED          1 << 4
 #define PARTICLE_FLAG_FORCE_OVER_LIFETIME_ENABLED    1 << 5
+
 
 struct TParticle
 {
@@ -36,6 +40,7 @@ struct TParticle
 	float  mGravityModifier;
 	float  mRotationPerFrame;
 	float3 mForcePerFrame;
+	float2 mEmittersAtlasStartPos;
 };
 
 

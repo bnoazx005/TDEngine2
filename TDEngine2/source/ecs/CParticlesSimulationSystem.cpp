@@ -587,6 +587,7 @@ namespace TDEngine2
 				F32      mGravityModifier;
 				F32      mRotationPerFrame;
 				TVector3 mForcePerFrame;
+				TVector2 mEmittersAtlasStartPos;
 			};
 
 			struct TActiveParticleIndexElement
@@ -864,12 +865,63 @@ namespace TDEngine2
 				return RC_OK;
 			}
 
+			static void _writeColorCurve(std::vector<TColor32F>& output, const TParticleColorParameter& curve)
+			{
+				for (U32 i = 0; i < EMITTERS_BAKED_CURVE_WIDTH; ++i)
+				{
+					const F32 t = i / static_cast<F32>(EMITTERS_BAKED_CURVE_WIDTH);
+
+					switch (curve.mType)
+					{
+						case E_PARTICLE_COLOR_PARAMETER_TYPE::SINGLE_COLOR:
+							output.emplace_back(curve.mFirstColor);
+							break;
+						case E_PARTICLE_COLOR_PARAMETER_TYPE::TWEEN_RANDOM:
+							output.emplace_back(LerpColors(curve.mFirstColor, curve.mSecondColor, t));
+							break;
+
+						case E_PARTICLE_COLOR_PARAMETER_TYPE::GRADIENT_LERP:
+						case E_PARTICLE_COLOR_PARAMETER_TYPE::GRADIENT_RANDOM:
+							output.emplace_back(curve.mGradientColor ? curve.mGradientColor->Sample(t) : TColorUtils::mWhite);
+							break;
+					}
+				}
+			}
+
 			void _updateEmittersBakedData(U32 emitterIndex, TPtr<IParticleEffect> pParticleEffect)
 			{
 				const U32 xStartOffset = emitterIndex / EMITTERS_BAKED_DATA_ATLAS_SIZES;
 				const U32 yStartOffset = emitterIndex % EMITTERS_BAKED_DATA_ATLAS_SIZES;
 
+				std::vector<TVector4> velocitySizeCurves;
 
+				auto&& pSizeCurve = pParticleEffect->GetSizeCurve();
+				auto&& velocityInfo = pParticleEffect->GetVelocityOverTime();
+
+				for (U32 i = 0; i < EMITTERS_BAKED_CURVE_WIDTH; ++i)
+				{
+					const F32 t = i / static_cast<F32>(EMITTERS_BAKED_CURVE_WIDTH);
+
+					if (E_PARTICLE_VELOCITY_PARAMETER_TYPE::CONSTANTS == velocityInfo.mType)
+					{
+						velocitySizeCurves.emplace_back(Normalize(velocityInfo.mVelocityConst) * velocityInfo.mSpeedFactorConst, pSizeCurve ? pSizeCurve->Sample(t) : 1.0f);
+						continue;
+					}
+
+					TVector3 velocity = Normalize({ velocityInfo.mXCurve->Sample(t), velocityInfo.mYCurve->Sample(t), velocityInfo.mZCurve->Sample(t) });
+					velocity = velocity * velocityInfo.mSpeedFactorCurve->Sample(t);
+
+					velocitySizeCurves.emplace_back(velocity, pSizeCurve ? pSizeCurve->Sample(t) : 1.0f);
+				}
+
+				std::vector<TColor32F> colorCurves;
+
+				_writeColorCurve(colorCurves, pParticleEffect->GetInitialColor());
+				_writeColorCurve(colorCurves, pParticleEffect->GetColorOverLifeTime());
+
+				TPtr<ITexture2D> pEmittersAtlasTexture = mpResourceManager->GetResource<ITexture2D>(mEmittersBakedParamsAtlasHandle);
+				pEmittersAtlasTexture->WriteData({ static_cast<I32>(xStartOffset * EMITTERS_BAKED_CURVE_WIDTH), static_cast<I32>(yStartOffset), static_cast<I32>(EMITTERS_BAKED_CURVE_WIDTH), 1 }, reinterpret_cast<const U8*>(velocitySizeCurves.data()));
+				pEmittersAtlasTexture->WriteData({ static_cast<I32>(xStartOffset * EMITTERS_BAKED_CURVE_WIDTH), static_cast<I32>(yStartOffset + 1), static_cast<I32>(EMITTERS_BAKED_CURVE_WIDTH), 2 }, reinterpret_cast<const U8*>(colorCurves.data()));
 			}
 
 			void _emitParticles(IWorld* pWorld, F32 dt)
@@ -919,11 +971,6 @@ namespace TDEngine2
 						continue;
 					}
 
-					// \note Bind texture with baked animation curves per emitter
-					// if (emitter.lutHandle == invalid || emitter.IsDirty)
-					//		emitter.lutHandle = emitter.BakeParams() 
-					//
-
 					// \note Fill in constant buffer with current emitter's data
 					TEmitterUniformsData currEmitterShaderData = pSharedEmitter->GetShaderUniformsData();
 					currEmitterShaderData.mPosition = TVector4(mParticleEmitters.mpTransform[i]->GetPosition(), 1.0f);
@@ -935,6 +982,7 @@ namespace TDEngine2
 					pEmitParticlesShader->SetStructuredBufferResource("Counters", mCountersBufferHandle);
 					pEmitParticlesShader->SetTextureResource("EmittersParamsAtlas", mpResourceManager->GetResource<ITexture2D>(mEmittersBakedParamsAtlasHandle).Get());
 					pEmitParticlesShader->SetTextureResource("RandTexture", mpResourceManager->GetResource<ITexture2D>(mpResourceManager->Load<ITexture2D>(CProjectSettings::Get()->mGraphicsSettings.mRandomTextureId)).Get());
+					pEmitParticlesShader->SetTextureResource("EmittersCurvesAtlasTexture", mpResourceManager->GetResource<ITexture2D>(mEmittersBakedParamsAtlasHandle).Get());
 					pEmitParticlesShader->SetUserUniformsBuffer(0, reinterpret_cast<U8*>(&currEmitterShaderData), sizeof(currEmitterShaderData));
 					pEmitParticlesShader->Bind();
 										
@@ -978,7 +1026,7 @@ namespace TDEngine2
 				pSimulateParticlesShader->SetStructuredBufferResource("DrawArgsBuffer", mIndirectDrawArgsBufferHandle);
 				pSimulateParticlesShader->SetStructuredBufferResource("Counters", mCountersBufferHandle);
 				pSimulateParticlesShader->SetTextureResource("RandTexture", mpResourceManager->GetResource<ITexture2D>(mpResourceManager->Load<ITexture2D>(CProjectSettings::Get()->mGraphicsSettings.mRandomTextureId)).Get());
-				pSimulateParticlesShader->SetTextureResource("EmittersParamsAtlas", mpResourceManager->GetResource<ITexture2D>(mEmittersBakedParamsAtlasHandle).Get());
+				pSimulateParticlesShader->SetTextureResource("EmittersCurvesAtlasTexture", mpResourceManager->GetResource<ITexture2D>(mEmittersBakedParamsAtlasHandle).Get());
 				pSimulateParticlesShader->SetUserUniformsBuffer(0, reinterpret_cast<U8*>(&simulationParams), sizeof(simulationParams));
 				pSimulateParticlesShader->Bind();
 
@@ -1001,60 +1049,10 @@ namespace TDEngine2
 				// \note Do main update logic here
 				for (USIZE i = 0; i < mParticleEmitters.mpParticleEmitters.size(); ++i)
 				{
-					CParticleEmitter* pEmitterComponent = mParticleEmitters.mpParticleEmitters[i];
-					if (!pEmitterComponent)
-					{
-						continue;
-					}
-
-					auto pCurrEffectResource = mpResourceManager->GetResource<IParticleEffect>(pEmitterComponent->GetParticleEffectHandle());
-					if (!pCurrEffectResource)
-					{
-						continue;
-					}
-
-					auto& particles = mParticles[i];
-
-					// \note Process emission
-					if ((mActiveParticlesCount[i] < pCurrEffectResource->GetMaxParticlesCount()))
-					{
-						const U32 emissionRate = pCurrEffectResource->GetEmissionRate();
-
-						if (auto pSharedEmitter = pCurrEffectResource->GetSharedEmitter())
-						{
-							CTransform* pTransform = mParticleEmitters.mpTransform[i];
-
-							for (U32 k = 0; k < emissionRate; ++k)
-							{
-								const U32 firstDeadParticleIndex = GetFirstDeadParticleIndex(particles, pCurrEffectResource->IsLoopModeActive());
-								if (firstDeadParticleIndex >= particles.size())
-								{
-									break; /// \note We're reach out of free particles 
-								}
-
-								pSharedEmitter->EmitParticle(pTransform, particles[firstDeadParticleIndex]);
-							}
-						}
-					}
-
-					auto& particlesInstancesBuffer = mParticlesInstancesData[i];
-
-					mActiveParticlesCount[i] = 0;
-
-					const auto modifierFlags = pCurrEffectResource->GetEnabledModifiersFlags();
-
-					auto pSizeCurve = pCurrEffectResource->GetSizeCurve();
-
 					// \note Update existing particles
 					for (TParticle& currParticle : particles)
 					{
 						const F32 t = CMathUtils::Clamp01(currParticle.mAge / std::max<F32>(1e-3f, currParticle.mLifeTime));
-
-						// \note Update size over lifetime
-						if (E_PARTICLE_EFFECT_INFO_FLAGS::E_SIZE_OVER_LIFETIME_ENABLED == (modifierFlags & E_PARTICLE_EFFECT_INFO_FLAGS::E_SIZE_OVER_LIFETIME_ENABLED))
-						{
-							currParticle.mSize = pSizeCurve->Sample(t);
-						}
 
 						if (E_PARTICLE_EFFECT_INFO_FLAGS::E_COLOR_OVER_LIFETIME_ENABLED == (modifierFlags & E_PARTICLE_EFFECT_INFO_FLAGS::E_COLOR_OVER_LIFETIME_ENABLED))
 						{
@@ -1151,6 +1149,7 @@ namespace TDEngine2
 			TDE2_STATIC_CONSTEXPR U32    INIT_DEAD_PARTICLES_DISPATCH_WORK_GROUP_SIZE = 256;
 
 			TDE2_STATIC_CONSTEXPR U32    EMITTERS_BAKED_DATA_ATLAS_SIZES = 1024;
+			TDE2_STATIC_CONSTEXPR U32    EMITTERS_BAKED_CURVE_WIDTH = 128;
 
 			IRenderer*                   mpRenderer = nullptr;
 
