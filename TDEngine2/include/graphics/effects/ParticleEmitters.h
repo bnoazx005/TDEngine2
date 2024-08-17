@@ -58,6 +58,9 @@ namespace TDEngine2
 		F32      mGravityModifier;
 		F32      mRotationPerFrame;
 		TVector3 mForcePerFrame;
+		F32      mPadding0;
+
+		U32      mEmittersAtlasStartPos[2];
 	};
 
 

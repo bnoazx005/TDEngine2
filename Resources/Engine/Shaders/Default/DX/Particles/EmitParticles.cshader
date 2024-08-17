@@ -45,6 +45,9 @@ CBUFFER_SECTION_EX(EmitterParameters, 4)
 	float  mGravityModifier;
 	float  mRotationPerFrame;
 	float3 mForcePerFrame;
+	float  mPadding0;
+
+	int2   mEmittersAtlasStartPos;
 CBUFFER_ENDSECTION
 
 
@@ -62,6 +65,7 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 	float4 randValue1 = TEX2D_LOD(RandTexture, float2((id.x + 1.0) / 1024.0, mRngSalt), 0);
 
 	newParticle.mEmitterIndex = mEmitterIndex;
+	newParticle.mEmittersAtlasStartPos = mEmittersAtlasStartPos;
 
 	if (mEmitterType == BOX_EMITTER_TYPE_ID)
 	{
@@ -76,11 +80,11 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 		newParticle.mPosition = GeneratePositionForConeEmitter(mPosition, mShapeOrigin, mSphereConeRadius, mConeHeight, randValue1);	
 	}
 
-	newParticle.mVelocity = mVelocity; // TODO
+	newParticle.mVelocity = mVelocity;
 
 	newParticle.mRotation = lerp(mInitialRotation.x, mInitialRotation.y, randValue.x);
 
-	newParticle.mColor = mInitialColor; // TODO
+	newParticle.mColor = mInitialColor;
 
 	newParticle.mLifetime = lerp(mInitialLifetime.x, mInitialLifetime.y, randValue.y);
 	newParticle.mAge      = newParticle.mLifetime;
@@ -90,7 +94,6 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 	newParticle.mGravityModifier  = mGravityModifier;
 	newParticle.mRotationPerFrame = mRotationPerFrame;
 	newParticle.mForcePerFrame    = mForcePerFrame;
-	newParticle.mEmittersAtlasStartPos = float2((mEmitterIndex / EMITTERS_CURVES_ATLAS_SIZE) * EMITTERS_CURVES_ATLAS_SIZE,  mEmitterIndex % EMITTERS_CURVES_ATLAS_SIZE);
 
 	newParticle.mSize = lerp(mInitialSize.x, mInitialSize.y, randValue.z);
 

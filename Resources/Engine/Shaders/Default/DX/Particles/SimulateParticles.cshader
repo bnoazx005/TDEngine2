@@ -14,6 +14,7 @@ DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, Counters, 3);
 RWBuffer<uint> DrawArgsBuffer : register(u4);
 
 DECLARE_TEX2D_EX(EmittersCurvesAtlasTexture, 1)
+DECLARE_TEX2D_EX(RandTexture, 2)
 
 
 CBUFFER_SECTION_EX(SimulationParameters, 4)
@@ -46,24 +47,31 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 	{
 		float t = 1.0 - saturate(currParticle.mAge / currParticle.mLifetime);
 
+		float4 velocitySizeCurve = EmittersCurvesAtlasTexture.Load(int4(currParticle.mEmittersAtlasStartPos + float2(128.0 * t, 0.0), 0, 0));
+
 		if (currParticle.mEmitterFlags & PARTICLE_FLAG_SIZE_OVER_LIFETIME_ENABLED)
 		{
-			currParticle.mSize = EmittersCurvesAtlasTexture.Load(int4(currParticle.mEmittersAtlasStartPos + float2(128.0 * t, 0.0), 0, 0)).a;
+			currParticle.mSize = velocitySizeCurve.a;
 		}
 
 		if (currParticle.mEmitterFlags & PARTICLE_FLAG_COLOR_OVER_LIFETIME_ENABLED)
 		{
-			currParticle.mColor = EmittersCurvesAtlasTexture.Load(int4(currParticle.mEmittersAtlasStartPos + float2(128.0 * t, 2.0), 0, 0));
+			float4 randValue = TEX2D_LOD(RandTexture, float2(id.x / 1024.0, 0.0), 0);
+
+			if (currParticle.mEmitterFlags & PARTICLE_FLAG_USE_COLOR_RANDOM_TWEEN)
+				t = randValue.x;
+
+			currParticle.mColor = EmittersCurvesAtlasTexture.Load(int4(currParticle.mEmittersAtlasStartPos + float2(128.0 * t, 1.0), 0, 0));
 		}
 
 		if (currParticle.mEmitterFlags & PARTICLE_FLAG_VELOCITY_OVER_LIFETIME_ENABLED)
 		{
-			currParticle.mVelocity = float4(EmittersCurvesAtlasTexture.Load(int4(currParticle.mEmittersAtlasStartPos + float2(128.0 * t, 0.0), 0, 0)).xyz, 0.0);
+			currParticle.mVelocity = float4(velocitySizeCurve.xyz, 0.0);
 		}
 
 		if (currParticle.mEmitterFlags & PARTICLE_FLAG_GRAVITY_FORCE_ENABLED)
 		{
-			currParticle.mVelocity += float4(0.0, -currParticle.mGravityModifier, 0.0, 0.0); // TODO add this vector to originally computed velocity
+			currParticle.mVelocity += float4(0.0, -currParticle.mGravityModifier, 0.0, 0.0);
 		}
 
 		if (currParticle.mEmitterFlags & PARTICLE_FLAG_FORCE_OVER_LIFETIME_ENABLED)

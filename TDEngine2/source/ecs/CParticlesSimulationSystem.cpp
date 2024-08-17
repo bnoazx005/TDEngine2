@@ -587,7 +587,7 @@ namespace TDEngine2
 				F32      mGravityModifier;
 				F32      mRotationPerFrame;
 				TVector3 mForcePerFrame;
-				TVector2 mEmittersAtlasStartPos;
+				U32      mEmittersAtlasStartPos[2];
 			};
 
 			struct TActiveParticleIndexElement
@@ -916,16 +916,17 @@ namespace TDEngine2
 
 				std::vector<TColor32F> colorCurves;
 
-				_writeColorCurve(colorCurves, pParticleEffect->GetInitialColor());
 				_writeColorCurve(colorCurves, pParticleEffect->GetColorOverLifeTime());
 
 				TPtr<ITexture2D> pEmittersAtlasTexture = mpResourceManager->GetResource<ITexture2D>(mEmittersBakedParamsAtlasHandle);
 				pEmittersAtlasTexture->WriteData({ static_cast<I32>(xStartOffset * EMITTERS_BAKED_CURVE_WIDTH), static_cast<I32>(yStartOffset), static_cast<I32>(EMITTERS_BAKED_CURVE_WIDTH), 1 }, reinterpret_cast<const U8*>(velocitySizeCurves.data()));
-				pEmittersAtlasTexture->WriteData({ static_cast<I32>(xStartOffset * EMITTERS_BAKED_CURVE_WIDTH), static_cast<I32>(yStartOffset + 1), static_cast<I32>(EMITTERS_BAKED_CURVE_WIDTH), 2 }, reinterpret_cast<const U8*>(colorCurves.data()));
+				pEmittersAtlasTexture->WriteData({ static_cast<I32>(xStartOffset * EMITTERS_BAKED_CURVE_WIDTH), static_cast<I32>(yStartOffset + 1), static_cast<I32>(EMITTERS_BAKED_CURVE_WIDTH), 1 }, reinterpret_cast<const U8*>(colorCurves.data()));
 			}
 
 			void _emitParticles(IWorld* pWorld, F32 dt)
 			{
+				TDE2_PROFILER_SCOPE("CParticlesGPUSimulationSystem::EmitParticle");
+
 				TPtr<IShader> pEmitParticlesShader = mpResourceManager->GetResource<IShader>(mEmitParticlesShaderHandle);
 				if (!pEmitParticlesShader)
 				{
@@ -975,6 +976,8 @@ namespace TDEngine2
 					TEmitterUniformsData currEmitterShaderData = pSharedEmitter->GetShaderUniformsData();
 					currEmitterShaderData.mPosition = TVector4(mParticleEmitters.mpTransform[i]->GetPosition(), 1.0f);
 					currEmitterShaderData.mEmitterIndex = static_cast<U32>(i);
+					currEmitterShaderData.mEmittersAtlasStartPos[0] = static_cast<U32>(i / EMITTERS_BAKED_DATA_ATLAS_SIZES) * EMITTERS_BAKED_CURVE_WIDTH;
+					currEmitterShaderData.mEmittersAtlasStartPos[1] = i % EMITTERS_BAKED_DATA_ATLAS_SIZES;
 					
 					// \note Bind the buffer
 					pEmitParticlesShader->SetStructuredBufferResource("OutputParticles", mParticlesBufferHandle);
@@ -1000,6 +1003,8 @@ namespace TDEngine2
 
 			void _simulateParticles(IWorld* pWorld, F32 dt)
 			{
+				TDE2_PROFILER_SCOPE("CParticlesGPUSimulationSystem::SimulateParticles");
+
 				TPtr<IShader> pSimulateParticlesShader = mpResourceManager->GetResource<IShader>(mSimulateParticlesShaderHandle);
 				if (!pSimulateParticlesShader)
 				{
@@ -1040,32 +1045,6 @@ namespace TDEngine2
 
 #if TDE2_DEBUG_MODE
 				pGraphicsContext->EndSectionMarker();
-#endif
-
-				/// OLD CPU impl 
-#if 0
-				U32 currInstancesBufferIndex = 0;
-
-				// \note Do main update logic here
-				for (USIZE i = 0; i < mParticleEmitters.mpParticleEmitters.size(); ++i)
-				{
-					// \note Update existing particles
-					for (TParticle& currParticle : particles)
-					{
-						const F32 t = CMathUtils::Clamp01(currParticle.mAge / std::max<F32>(1e-3f, currParticle.mLifeTime));
-
-						if (E_PARTICLE_EFFECT_INFO_FLAGS::E_COLOR_OVER_LIFETIME_ENABLED == (modifierFlags & E_PARTICLE_EFFECT_INFO_FLAGS::E_COLOR_OVER_LIFETIME_ENABLED))
-						{
-							currParticle.mColor = CBaseParticlesEmitter::GetColorData(pCurrEffectResource->GetColorOverLifeTime(), t);
-						}
-
-						// \note Update velocity over lifetime
-						if (E_PARTICLE_EFFECT_INFO_FLAGS::E_VELOCITY_OVER_LIFETIME_ENABLED == (modifierFlags & E_PARTICLE_EFFECT_INFO_FLAGS::E_VELOCITY_OVER_LIFETIME_ENABLED))
-						{
-							currParticle.mVelocity = CBaseParticlesEmitter::GetVelocityData(pCurrEffectResource->GetVelocityOverTime(), t);
-						}
-					}
-				}
 #endif
 			}
 

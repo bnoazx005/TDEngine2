@@ -478,6 +478,15 @@ namespace TDEngine2
 
 			auto colorData = mpCurrParticleEffect->GetColorOverLifeTime();
 
+			if (E_PARTICLE_COLOR_PARAMETER_TYPE::TWEEN_RANDOM == colorData.mType)
+			{
+				modifiersFlags |= static_cast<U32>(E_PARTICLE_EFFECT_INFO_FLAGS::USE_COLOR_RANDOM_TWEEN);
+			}
+			else
+			{
+				modifiersFlags &= ~static_cast<U32>(E_PARTICLE_EFFECT_INFO_FLAGS::USE_COLOR_RANDOM_TWEEN);
+			}
+
 			_drawColorDataModifiers("ColorOverTime", colorData, [this, &colorData]
 			{
 				mpCurrParticleEffect->SetColorOverLifeTime(colorData);
