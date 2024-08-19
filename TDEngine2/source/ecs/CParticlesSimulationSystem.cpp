@@ -1011,6 +1011,14 @@ namespace TDEngine2
 					return;
 				}
 
+				auto&& pCamerasContext = pWorld->FindEntity(pWorld->FindEntityWithUniqueComponent<CCamerasContextComponent>())->GetComponent<CCamerasContextComponent>();
+				auto&& pActiveCameraTransform = pWorld->FindEntity(pCamerasContext->GetActiveCameraEntityId())->GetComponent<CTransform>();
+				if (!pActiveCameraTransform)
+				{
+					LOG_WARNING("[CParticlesCPUSimulationSystem] An entity with Camera component attached to that wasn't found");
+					return;
+				}
+
 				IGraphicsContext* pGraphicsContext = mpGraphicsObjectManager->GetGraphicsContext();
 #if TDE2_DEBUG_MODE
 				pGraphicsContext->BeginSectionMarker("SimulateParticles");
@@ -1018,10 +1026,12 @@ namespace TDEngine2
 
 				struct
 				{
-					F32 mDeltaTime;
-					U32 mMaxParticlesCount;
+					TVector4 mCameraPosition;
+					F32      mDeltaTime;
+					U32      mMaxParticlesCount;
 				} simulationParams;
 
+				simulationParams.mCameraPosition = TVector4(pActiveCameraTransform->GetPosition(), 1.0f);
 				simulationParams.mDeltaTime = dt;
 				simulationParams.mMaxParticlesCount = MAX_PARTICLES_COUNT;
 

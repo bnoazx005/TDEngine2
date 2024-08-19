@@ -18,8 +18,10 @@ DECLARE_TEX2D_EX(RandTexture, 2)
 
 
 CBUFFER_SECTION_EX(SimulationParameters, 4)
-	float mDeltaTime; // global CBs(UBOs) are not available at this execution time yet so use separate members for time
-	uint  mMaxParticlesCount;
+	float4 mCameraPosition;
+	float  mDeltaTime; // global CBs(UBOs) are not available at this execution time yet so use separate members for time
+	uint   mMaxParticlesCount;
+	float2 mPadding0;
 CBUFFER_ENDSECTION
 
 
@@ -102,7 +104,7 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 			int aliveIndex = 0;
 			InterlockedAdd(Counters[1], 1, aliveIndex);
 
-			ParticlesIndexBuffer[aliveIndex] = float2(0.0 /* distance to camera's origin */, (float)id.x);
+			ParticlesIndexBuffer[aliveIndex] = float2(length(mCameraPosition - currParticle.mPosition), (float)id.x);
 
 			// update indirect args buffer
 			InterlockedAdd(DrawArgsBuffer[1], 1);
