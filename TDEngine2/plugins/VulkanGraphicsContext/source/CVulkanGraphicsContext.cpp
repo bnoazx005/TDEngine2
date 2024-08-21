@@ -1008,6 +1008,10 @@ namespace TDEngine2
 	{
 	}
 
+	void CVulkanGraphicsContext::DispatchIndirectCompute(TBufferHandleId argsBufferHandle, U32 alignedOffset)
+	{
+	}
+
 	void CVulkanGraphicsContext::BindBlendState(TBlendStateId blendStateId)
 	{
 	}

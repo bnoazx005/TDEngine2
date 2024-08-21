@@ -684,6 +684,12 @@ namespace TDEngine2
 		mp3dDeviceContext->Dispatch(groupsCountX, groupsCountY, groupsCountZ);
 	}
 
+	void CD3D11GraphicsContext::DispatchIndirectCompute(TBufferHandleId argsBufferHandle, U32 alignedOffset)
+	{
+		auto pArgsBuffer = mpGraphicsObjectManagerD3D11Impl->GetD3D11BufferPtr(argsBufferHandle);
+		mp3dDeviceContext->DispatchIndirect(pArgsBuffer ? pArgsBuffer->GetD3D11Buffer() : nullptr, alignedOffset);
+	}
+
 	void CD3D11GraphicsContext::BindBlendState(TBlendStateId blendStateId)
 	{
 		if (blendStateId == TBlendStateId::Invalid)

@@ -340,6 +340,15 @@ namespace TDEngine2
 			TDE2_API virtual void DispatchCompute(U32 groupsCountX, U32 groupsCountY, U32 groupsCountZ) = 0;
 
 			/*!
+				\brief The method invokes a computation kernel over a given threads grid. A compute shader should be bound to the device first
+				
+				\param[in] argsBufferHandle A GPU buffer that holds arguments for draw command
+				\param[in] alignedOffset Aligned offset to the beginning of GPU data
+			*/
+
+			TDE2_API virtual void DispatchIndirectCompute(TBufferHandleId argsBufferHandle, U32 alignedOffset) = 0;
+
+			/*!
 				\brief The method binds a given blend state to rendering pipeline
 
 				\param[in] blendStateId An identifier of a blend state

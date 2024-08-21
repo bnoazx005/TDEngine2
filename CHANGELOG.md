@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.29] 2024-08-14
+## [0.6.29] 2024-08-21
 
 ### Added
 
@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Two new project settings to store paths to GPU particles simulation shaders.
 
-- The API of **IGraphicsContext** was extended with new methods CopyCount, DrawIndirectInstanced and DrawIndirectIndexedInstanced.
+- The API of **IGraphicsContext** was extended with new methods CopyCount, DisptachIndirectCompute, DrawIndirectInstanced and DrawIndirectIndexedInstanced.
 
 - Now AppendStructuredBuffer/ConsumeStructuredBuffer types are supported in the HLSL parser.
 

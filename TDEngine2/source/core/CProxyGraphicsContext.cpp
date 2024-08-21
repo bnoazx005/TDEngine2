@@ -226,6 +226,11 @@ namespace TDEngine2
 		LOG_MESSAGE("[ProxyGraphicsContext] DispatchCompute(U32, U32, U32)");
 	}
 
+	void CProxyGraphicsContext::DispatchIndirectCompute(TBufferHandleId argsBufferHandle, U32 alignedOffset)
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] DispatchIndirectCompute(TBufferHandleId, U32)");
+	}
+
 	void CProxyGraphicsContext::BindBlendState(TBlendStateId blendStateId)
 	{
 		LOG_MESSAGE("[ProxyGraphicsContext] BindBlendState(TBlendStateId)");

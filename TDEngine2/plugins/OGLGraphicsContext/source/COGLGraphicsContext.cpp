@@ -656,6 +656,11 @@ namespace TDEngine2
 		GL_SAFE_VOID_CALL(glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT));
 	}
 
+	void COGLGraphicsContext::DispatchIndirectCompute(TBufferHandleId argsBufferHandle, U32 alignedOffset)
+	{
+		TDE2_UNIMPLEMENTED();
+	}
+
 	void COGLGraphicsContext::BindBlendState(TBlendStateId blendStateId)
 	{
 		if (blendStateId == TBlendStateId::Invalid)
