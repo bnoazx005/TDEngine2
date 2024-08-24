@@ -36,7 +36,7 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 		DrawArgsBuffer[3] = 0;
 		DrawArgsBuffer[4] = 0;
 
-		Counters[1] = 0;
+		Counters[0] = 0;
 	}
 
 	GroupMemoryBarrierWithGroupSync();
@@ -95,14 +95,14 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 
 			// write index to dead list
 			int deadListIndex = 0;
-			InterlockedAdd(Counters[0], 1, deadListIndex);
+			InterlockedAdd(Counters[1], 1, deadListIndex);
 			DeadParticlesIndexList[deadListIndex] = id.x;
 		}
 		else
 		{
 			// add particle to index buffer for sorting
 			int aliveIndex = 0;
-			InterlockedAdd(Counters[1], 1, aliveIndex);
+			InterlockedAdd(Counters[0], 1, aliveIndex);
 
 			ParticlesIndexBuffer[aliveIndex] = float2(length(mCameraPosition - currParticle.mPosition), (float)id.x);
 

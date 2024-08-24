@@ -54,7 +54,7 @@ CBUFFER_ENDSECTION
 [numthreads(1024, 1, 1)]
 void MainCS(uint3 id : SV_DispatchThreadID)
 {
-	uint counter = Counters[0];
+	uint counter = Counters[1];
 
 	if (id.x >= counter || id.x >= mEmitRate) 
 		return;
@@ -98,11 +98,11 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 	newParticle.mSize = lerp(mInitialSize.x, mInitialSize.y, randValue.z);
 
 	// decrement counter for dead particles list
-	InterlockedAdd(Counters[0], -1, counter);
+	InterlockedAdd(Counters[1], -1, counter);
 	counter = counter - 1;
 	if (counter < 0)
 	{
-		InterlockedAdd(Counters[0], 1);
+		InterlockedAdd(Counters[1], 1);
 		return;
 	}
 
