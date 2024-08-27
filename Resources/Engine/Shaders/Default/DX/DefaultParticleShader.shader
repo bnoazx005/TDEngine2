@@ -64,7 +64,7 @@ VertexOut mainVS(in VertexIn input)
 
 	if (IsGPUParticlesEnabled)
 	{
-		uint index = (uint)AliveParticlesIndexBuffer[/*Counters[1] - */input.mInstanceId].y;
+		uint index = (uint)AliveParticlesIndexBuffer[Counters[0] - 1 - input.mInstanceId].y;
 		TParticle currParticleData = Particles[index];
 
 		particleCenter = float4(currParticleData.mPosition.xyz, 1.0);

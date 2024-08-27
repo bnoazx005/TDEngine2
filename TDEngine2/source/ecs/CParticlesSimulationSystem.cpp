@@ -552,6 +552,202 @@ namespace TDEngine2
 	}
 
 
+	struct TGPUSortLibContext
+	{
+		TResourceId mInitSortShaderHandle  = TResourceId::Invalid;
+		TResourceId mSortInnerShaderHandle = TResourceId::Invalid;
+		TResourceId mSortStepShaderHandle  = TResourceId::Invalid;
+		TResourceId mSortShaderHandle      = TResourceId::Invalid;
+
+		TBufferHandleId mDispatchArgsBufferHandle = TBufferHandleId::Invalid;
+	} static GpuSortLibContext;
+
+
+	static E_RESULT_CODE InitGPUSort(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, U32 maxCount, TBufferHandleId elementsBuffer, TBufferHandleId countBuffer)
+	{
+		GpuSortLibContext.mInitSortShaderHandle = pResourceManager->Load<IShader>(CProjectSettings::Get()->mGraphicsSettings.mInitSortComputeShader);
+		TDE2_ASSERT(TResourceId::Invalid != GpuSortLibContext.mInitSortShaderHandle);
+
+		TPtr<IShader> pInitSortShader = pResourceManager->GetResource<IShader>(GpuSortLibContext.mInitSortShaderHandle);
+		if (!pInitSortShader)
+		{
+			return RC_FAIL;
+		}
+
+		if (TBufferHandleId::Invalid == GpuSortLibContext.mDispatchArgsBufferHandle)
+		{
+			auto indirectDispatchArgsBufferCreateResult = pGraphicsContext->GetGraphicsObjectManager()->CreateBuffer(
+				{
+					E_BUFFER_USAGE_TYPE::DEFAULT,
+					E_BUFFER_TYPE::STRUCTURED,
+					sizeof(U32) * 4,
+					nullptr,
+					sizeof(U32) * 4,
+					true,
+					sizeof(U32),
+					E_STRUCTURED_BUFFER_TYPE::INDIRECT_DRAW_BUFFER,
+					E_INDEX_FORMAT_TYPE::INDEX16, // unused
+					"IndirectDispatchArgsBuffer"
+				});
+
+			if (indirectDispatchArgsBufferCreateResult.HasError())
+			{
+				return indirectDispatchArgsBufferCreateResult.GetError();
+			}
+
+			GpuSortLibContext.mDispatchArgsBufferHandle = indirectDispatchArgsBufferCreateResult.Get();
+		}
+
+		pInitSortShader->SetStructuredBufferResource("DispatchArgsBuffer", GpuSortLibContext.mDispatchArgsBufferHandle);
+		pInitSortShader->SetStructuredBufferResource("ElementsCount", countBuffer);
+		pInitSortShader->Bind();
+
+		pGraphicsContext->DispatchCompute(1, 1, 1);
+
+		return RC_OK;
+	}
+
+	static bool GPUSortInitial(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, U32 maxCount, TBufferHandleId elementsBuffer, TBufferHandleId countBuffer, TBufferHandleId indirectDispatchBufferHandle)
+	{
+		const U32 threadGroupsCount = ((maxCount - 1) >> 9) + 1;
+		TDE2_ASSERT(threadGroupsCount <= 1024);
+
+		GpuSortLibContext.mSortShaderHandle = pResourceManager->Load<IShader>(CProjectSettings::Get()->mGraphicsSettings.mSortComputeShader);
+		TDE2_ASSERT(TResourceId::Invalid != GpuSortLibContext.mSortShaderHandle);
+
+		TPtr<IShader> pSortShader = pResourceManager->GetResource<IShader>(GpuSortLibContext.mSortShaderHandle);
+		if (!pSortShader)
+		{
+			return RC_FAIL;
+		}
+
+		// sort all buffers of size 512 (and presort bigger ones)
+
+		pSortShader->SetStructuredBufferResource("OutputData", elementsBuffer);
+		pSortShader->SetStructuredBufferResource("ElementsCount", countBuffer);
+		pSortShader->Bind();
+
+		pGraphicsContext->DispatchIndirectCompute(indirectDispatchBufferHandle, 0);
+
+		return threadGroupsCount <= 1;
+	}
+
+	static bool GPUSortIncremental(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, U32 presortedCount, U32 maxCount, TBufferHandleId elementsBuffer, TBufferHandleId countBuffer)
+	{
+		GpuSortLibContext.mSortStepShaderHandle = pResourceManager->Load<IShader>(CProjectSettings::Get()->mGraphicsSettings.mSortStepComputeShader);
+		TDE2_ASSERT(TResourceId::Invalid != GpuSortLibContext.mSortStepShaderHandle);
+
+		TPtr<IShader> pSortStepShader = pResourceManager->GetResource<IShader>(GpuSortLibContext.mSortStepShaderHandle);
+		if (!pSortStepShader)
+		{
+			return RC_FAIL;
+		}
+
+		bool isDone = true;
+		U32 threadGroupsCount = 0;
+
+		if (maxCount > presortedCount)
+		{
+			if (maxCount > presortedCount * 2)
+			{
+				isDone = false;
+			}
+
+			U32 pow2 = presortedCount;
+			while (pow2 < maxCount)
+			{
+				pow2 <<= 1;
+			}
+
+			threadGroupsCount = pow2 >> 9;
+		}
+
+		pSortStepShader->SetStructuredBufferResource("OutputData", elementsBuffer);
+		pSortStepShader->SetStructuredBufferResource("ElementsCount", countBuffer);
+
+		U32 mergeSize = presortedCount << 1;
+
+		for (U32 mergeSubSize = mergeSize >> 1; mergeSubSize > 256; mergeSubSize = mergeSubSize >> 1)
+		{
+			U32 jobParams[4] { 0 };
+			jobParams[0] = mergeSubSize;
+
+			if (mergeSubSize == mergeSize >> 1)
+			{
+				jobParams[1] = (2 * mergeSubSize - 1);
+				jobParams[2] = -1;
+			}
+			else
+			{
+				jobParams[1] = mergeSubSize;
+				jobParams[2] = 1;
+			}
+
+			pSortStepShader->SetUserUniformsBuffer(0, reinterpret_cast<const U8*>(jobParams), sizeof(jobParams));
+			pSortStepShader->Bind();
+
+			pGraphicsContext->DispatchCompute(threadGroupsCount, 1, 1);
+		}
+
+		GpuSortLibContext.mSortInnerShaderHandle = pResourceManager->Load<IShader>(CProjectSettings::Get()->mGraphicsSettings.mSortInnerComputeShader);
+		TDE2_ASSERT(TResourceId::Invalid != GpuSortLibContext.mSortInnerShaderHandle);
+
+		TPtr<IShader> pSortInnerShader = pResourceManager->GetResource<IShader>(GpuSortLibContext.mSortInnerShaderHandle);
+		if (!pSortInnerShader)
+		{
+			return RC_FAIL;
+		}
+
+		pSortInnerShader->SetStructuredBufferResource("OutputData", elementsBuffer);
+		pSortInnerShader->SetStructuredBufferResource("ElementsCount", countBuffer);
+		pSortInnerShader->Bind();
+
+		pGraphicsContext->DispatchCompute(threadGroupsCount, 1, 1);
+
+		return isDone;
+	}
+
+
+	// bitonic sort algorithm executed on GPU device
+	E_RESULT_CODE GPUSort(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, U32 maxCount, TBufferHandleId elementsBuffer, TBufferHandleId countBuffer)
+	{
+		TDE2_PROFILER_SCOPE("GPUSort");
+
+		TDE2_ASSERT(pGraphicsContext);
+		TDE2_ASSERT(pResourceManager);
+
+		if (!pGraphicsContext || !pResourceManager || TBufferHandleId::Invalid == elementsBuffer || TBufferHandleId::Invalid == countBuffer)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+#if TDE2_DEBUG_MODE
+		pGraphicsContext->BeginSectionMarker("GPUSort");
+#endif
+		
+		E_RESULT_CODE result = InitGPUSort(pGraphicsContext, pResourceManager, maxCount, elementsBuffer, countBuffer);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		bool isDone = GPUSortInitial(pGraphicsContext, pResourceManager, maxCount, elementsBuffer, countBuffer, GpuSortLibContext.mDispatchArgsBufferHandle);
+		I32 presorted = 512;
+
+		while (!isDone)
+		{
+			isDone = GPUSortIncremental(pGraphicsContext, pResourceManager, static_cast<U32>(presorted), maxCount, elementsBuffer, countBuffer);
+			presorted <<= 1;
+		}
+
+#if TDE2_DEBUG_MODE
+		pGraphicsContext->EndSectionMarker();
+#endif
+
+		return RC_OK;
+	}
+
+
 	/*!
 		class CParticlesGPUSimulationSystem
 
@@ -704,11 +900,13 @@ namespace TDEngine2
 					_emitParticles(pWorld, deltaTime);
 					_simulateParticles(pWorld, deltaTime);
 				}
+
+				GPUSort(pGraphicsContext, mpResourceManager.Get(), MAX_PARTICLES_COUNT, mAliveIndexBufferHandle, mCountersBufferHandle);
+
 #if TDE2_DEBUG_MODE
 				pGraphicsContext->EndSectionMarker();
 #endif
 
-				//_sortParticles();
 				_prepareRenderCommand(); // \note All particles for all emitters are batched and drawn in the single command
 			}
 		protected:
@@ -1076,6 +1274,7 @@ namespace TDEngine2
 				auto pShader = mpResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
 				pShader->SetStructuredBufferResource("Particles", mParticlesBufferHandle);
 				pShader->SetStructuredBufferResource("AliveParticlesIndexBuffer", mAliveIndexBufferHandle);
+				pShader->SetStructuredBufferResource("Counters", mCountersBufferHandle);
 
 				auto pCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndirectIndexedInstancedCommand>(static_cast<U32>(pMaterial->GetGeometrySubGroupTag()) + _computeRenderCommandHash(materialHandle, 0.0f));
 

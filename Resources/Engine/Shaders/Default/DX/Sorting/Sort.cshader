@@ -1,0 +1,82 @@
+#define COMPUTE_ENTRY MainCS
+
+#program compute
+
+#include <TDEngine2Globals.inc>
+
+#define SORT_SIZE   512
+#define HALF_SIZE   (SORT_SIZE/2)
+#define ITERATIONS  (HALF_SIZE > 1024 ? HALF_SIZE/1024 : 1)
+#define NUM_THREADS (HALF_SIZE/ITERATIONS)
+#define INVERSION   (16*2 + 8*3)
+
+
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(float2, OutputData, 0);
+DECLARE_TYPED_BUFFER_EX(uint, ElementsCount, 0);
+
+
+groupshared float2 LDS[SORT_SIZE];
+
+
+[numthreads(NUM_THREADS, 1, 1)]
+void MainCS(uint3 groupId : SV_GroupID, uint3 dispatchId : SV_DispatchThreadID, uint3 groupThreadId : SV_GroupThreadID, uint groupIndex : SV_GroupIndex)
+{
+    uint elementsCount = ElementsCount[0];
+
+    int GlobalBaseIndex = (groupId.x * SORT_SIZE) + groupThreadId.x;
+    int LocalBaseIndex  = groupIndex;
+
+    int numElementsInThreadGroup = min(SORT_SIZE, elementsCount - (groupId.x * SORT_SIZE));
+    
+    // Load shared OutputData
+    int i;
+
+    [unroll]
+    for (i = 0; i < 2 * ITERATIONS; ++i)
+    {
+        if (groupIndex + i * NUM_THREADS < numElementsInThreadGroup)
+            LDS[LocalBaseIndex + i * NUM_THREADS] = OutputData[GlobalBaseIndex + i * NUM_THREADS];
+    }
+
+    GroupMemoryBarrierWithGroupSync();
+    
+    // Bitonic sort
+    for (uint nMergeSize = 2; nMergeSize <= SORT_SIZE; nMergeSize = nMergeSize * 2) 
+    {
+        for (int nMergeSubSize = nMergeSize >> 1; nMergeSubSize > 0; nMergeSubSize = nMergeSubSize >> 1) 
+        {           
+            [unroll]
+            for (i = 0; i<ITERATIONS; ++i)     
+            {
+                int tmp_index = groupIndex + NUM_THREADS * i;
+                int index_low = tmp_index & (nMergeSubSize - 1);
+                int index_high = 2 * (tmp_index-index_low);
+                int index = index_high + index_low;
+
+                unsigned int nSwapElem = nMergeSubSize == nMergeSize >> 1 ? index_high + (2 * nMergeSubSize - 1) - index_low : index_high + nMergeSubSize + index_low;
+                if (nSwapElem<numElementsInThreadGroup)
+                {
+                    float2 a = LDS[index];
+                    float2 b = LDS[nSwapElem];
+
+                    if (a.x > b.x)
+                    { 
+                        LDS[index] = b;
+                        LDS[nSwapElem] = a;
+                    }
+                }
+                GroupMemoryBarrierWithGroupSync();
+            }
+        }
+    }
+    
+    // Store shared OutputData
+    [unroll]
+    for (i = 0; i < 2 * ITERATIONS; ++i)
+    {
+        if (groupIndex + i * NUM_THREADS < numElementsInThreadGroup)
+            OutputData[GlobalBaseIndex + i*NUM_THREADS] = LDS[LocalBaseIndex + i * NUM_THREADS];
+    }
+}
+
+#endprogram

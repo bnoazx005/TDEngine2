@@ -1,0 +1,24 @@
+#define COMPUTE_ENTRY MainCS
+
+#program compute
+
+#include <TDEngine2Globals.inc>
+
+RWBuffer<uint> DispatchArgsBuffer : register(u0);
+DECLARE_TYPED_BUFFER_EX(uint, ElementsCount, 1); 
+
+// CBUFFER_SECTION_EX(Parameters, 4)
+// 	uint mElementsCount;
+// CBUFFER_ENDSECTION
+
+
+[numthreads(1, 1, 1)]
+void MainCS(uint3 id : SV_DispatchThreadID)
+{
+	DispatchArgsBuffer[0] = ((ElementsCount[0] - 1) >> 9) + 1;
+	DispatchArgsBuffer[1] = 1;
+	DispatchArgsBuffer[2] = 1;
+	DispatchArgsBuffer[3] = 0;
+}
+
+#endprogram

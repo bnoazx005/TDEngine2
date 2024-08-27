@@ -1,0 +1,49 @@
+#define COMPUTE_ENTRY MainCS
+
+#program compute
+
+#include <TDEngine2Globals.inc>
+
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(float2, OutputData, 0);
+DECLARE_TYPED_BUFFER_EX(uint, ElementsCount, 0);
+
+
+CBUFFER_SECTION_EX(Parameters, 4)
+    int4 mJobParams;
+CBUFFER_ENDSECTION
+
+
+[numthreads(256, 1, 1)]
+void MainCS(uint3 groupId : SV_GroupID, uint3 groupThreadId : SV_GroupThreadID)
+{
+    int4 tgp;
+
+    uint elementsCount = ElementsCount[0];
+
+    tgp.x = groupId.x * 256;
+    tgp.y = 0;
+    tgp.z = elementsCount;
+    tgp.w = min(512, max(0, elementsCount - groupId.x * 512));
+
+    uint localID = tgp.x + groupThreadId.x; // calculate threadID within this sortable-array
+
+    uint index_low = localID & (mJobParams.x - 1);
+    uint index_high = 2 * (localID - index_low);
+
+    uint index      = tgp.y + index_high + index_low;
+    uint nSwapElem  = tgp.y + index_high + mJobParams.y + mJobParams.z * index_low;
+
+    if(nSwapElem<tgp.y + tgp.z)
+    {
+        float2 a = OutputData[index];
+        float2 b = OutputData[nSwapElem];
+
+        if (a.x > b.x)
+        { 
+            OutputData[index] = b;
+            OutputData[nSwapElem] = a;
+        }
+    }
+}
+
+#endprogram
