@@ -55,6 +55,10 @@ namespace TDEngine2
 			static const std::string mEmitParticlesComputeShaderKey;
 			static const std::string mSimulateParticlesComputeShaderKey;
 			static const std::string mInitDeadParticlesListComputeShaderKey;
+			static const std::string mInitSortComputeShaderKey;
+			static const std::string mSortInnerComputeShaderKey;
+			static const std::string mSortStepComputeShaderKey;
+			static const std::string mSortComputeShaderKey;
 			static const std::string mParticleRenderMaterialKey;
 			static const std::string mRandTextureIdKey;
 		};
@@ -140,6 +144,10 @@ namespace TDEngine2
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mSimulateParticlesComputeShaderKey = "simulate_particles_compute_shader_id";
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mInitDeadParticlesListComputeShaderKey = "init_dead_particles_list_compute_shader_id";
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mParticleRenderMaterialKey = "particle_render_material_id";
+	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mInitSortComputeShaderKey = "init_sort_compute_shader_id";
+	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mSortInnerComputeShaderKey = "sort_inner_compute_shader_id";
+	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mSortStepComputeShaderKey = "sort_step_compute_shader_id";
+	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mSortComputeShaderKey = "sort_compute_shader_id";
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mRandTextureIdKey = "rand_tex_id";
 
 	const std::string TProjectSettingsArchiveKeys::TAudioSettingsKeys::mAudioTypeKey = "audio_plugin";
@@ -262,6 +270,11 @@ namespace TDEngine2
 			graphicsSettings.mSimulateParticlesComputeShader = pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mSimulateParticlesComputeShaderKey, graphicsSettings.mSimulateParticlesComputeShader);
 			graphicsSettings.mInitDeadParticlesListComputeShader = pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mInitDeadParticlesListComputeShaderKey, graphicsSettings.mInitDeadParticlesListComputeShader);
 			graphicsSettings.mParticleRenderMaterial = pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mParticleRenderMaterialKey, graphicsSettings.mParticleRenderMaterial);
+
+			graphicsSettings.mInitSortComputeShader  = pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mInitSortComputeShaderKey, graphicsSettings.mInitSortComputeShader);
+			graphicsSettings.mSortInnerComputeShader = pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mSortInnerComputeShaderKey, graphicsSettings.mSortInnerComputeShader);
+			graphicsSettings.mSortStepComputeShader  = pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mSortStepComputeShaderKey, graphicsSettings.mSortStepComputeShader);
+			graphicsSettings.mSortComputeShader      = pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mSortComputeShaderKey, graphicsSettings.mSortComputeShader);
 
 			graphicsSettings.mRandomTextureId = pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mRandTextureIdKey, graphicsSettings.mRandomTextureId);
 		}

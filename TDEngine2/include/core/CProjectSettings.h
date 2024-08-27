@@ -93,6 +93,12 @@ namespace TDEngine2
 				std::string mInitDeadParticlesListComputeShader = "Shaders/Default/Particles/InitDeadParticlesList.cshader";
 				std::string mParticleRenderMaterial = "DefaultResources/Materials/DefaultParticleMaterial.material";
 
+				// gpu sorting shaders
+				std::string mInitSortComputeShader = "Shaders/Default/Sorting/InitSort.cshader";
+				std::string mSortInnerComputeShader = "Shaders/Default/Sorting/SortInner.cshader";
+				std::string mSortStepComputeShader = "Shaders/Default/Sorting/SortStep.cshader";
+				std::string mSortComputeShader = "Shaders/Default/Sorting/Sort.cshader";
+
 				std::string mRandomTextureId = "DefaultResources/Textures/MainRndTexture";
 			} mGraphicsSettings;
 
