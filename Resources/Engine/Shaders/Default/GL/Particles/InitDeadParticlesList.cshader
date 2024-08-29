@@ -1,0 +1,33 @@
+#version 430 core
+
+#define COMPUTE_ENTRY main
+
+#program compute
+
+#include <TDEngine2Globals.inc>
+#include <TDEngine2ParticlesUtils.inc>
+
+layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, DeadParticlesIndexList, 0);
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, Counters, 1); 
+
+CBUFFER_SECTION_EX(DeadParticlesInfo, 4)
+	uint mMaxParticlesCount;
+CBUFFER_ENDSECTION
+
+
+void main(void) 
+{
+	if (gl_GlobalInvocationID.x == 0)
+	{
+		TYPED_BUFFER_ACCESS(Counters)[1] = mMaxParticlesCount;
+	}
+
+	if (gl_GlobalInvocationID.x >= mMaxParticlesCount)
+		return;
+
+	TYPED_BUFFER_ACCESS(DeadParticlesIndexList)[gl_GlobalInvocationID.x] = gl_GlobalInvocationID.x;
+}
+
+#endprogram

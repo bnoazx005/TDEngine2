@@ -1,0 +1,122 @@
+#version 430 core
+
+#define COMPUTE_ENTRY main
+
+#program compute
+
+#include <TDEngine2Globals.inc>
+#include <TDEngine2MathUtils.inc>
+#include <TDEngine2ParticlesUtils.inc>
+
+
+layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(TParticle, OutputParticles, 0);
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, DeadParticlesIndexList, 1); // first index is used for counter
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(vec2, ParticlesIndexBuffer, 2); 
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, Counters, 3); 
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(TDrawElementsIndirectCommand, DrawArgsBuffer, 4);
+
+DECLARE_TEX2D_EX(EmittersCurvesAtlasTexture, 1);
+DECLARE_TEX2D_EX(RandTexture, 2);
+
+
+CBUFFER_SECTION_EX(SimulationParameters, 4)
+	vec4  mCameraPosition;
+	float mDeltaTime; // global CBs(UBOs) are not available at this execution time yet so use separate members for time
+	uint  mMaxParticlesCount;
+	vec2  mPadding0;
+CBUFFER_ENDSECTION
+
+
+void main(void)
+{
+	if (gl_GlobalInvocationID.x == 0) // initialization of draw args buffer
+	{
+		TDrawElementsIndirectCommand drawCommand;
+		drawCommand.count         = 6;
+		drawCommand.instanceCount = 0;
+		drawCommand.firstIndex    = 0;
+		drawCommand.baseVertex    = 0;
+		drawCommand.baseInstance  = 0;
+
+		TYPED_BUFFER_ACCESS(DrawArgsBuffer)[0] = drawCommand;
+
+		TYPED_BUFFER_ACCESS(Counters)[0] = 0;
+	}
+
+	barrier();
+
+	if (gl_GlobalInvocationID.x >= mMaxParticlesCount)
+		return;
+
+	TParticle currParticle = TYPED_BUFFER_ACCESS(OutputParticles)[gl_GlobalInvocationID.x];
+	if (currParticle.mAge > 0.0)
+	{
+		float t = 1.0 - clamp(currParticle.mAge / currParticle.mLifetime, 0.0, 1.0);
+
+		vec4 velocitySizeCurve = texelFetch(EmittersCurvesAtlasTexture, ivec2(currParticle.mEmittersAtlasStartPos + vec2(128.0 * t, 0.0)), 0);
+
+		if ((currParticle.mEmitterFlags & PARTICLE_FLAG_SIZE_OVER_LIFETIME_ENABLED) == PARTICLE_FLAG_SIZE_OVER_LIFETIME_ENABLED)
+		{
+			currParticle.mSize = velocitySizeCurve.a;
+		}
+
+		if ((currParticle.mEmitterFlags & PARTICLE_FLAG_COLOR_OVER_LIFETIME_ENABLED) == PARTICLE_FLAG_COLOR_OVER_LIFETIME_ENABLED)
+		{
+			vec4 randValue = TEX2D_LOD(RandTexture, vec2(gl_GlobalInvocationID.x / 1024.0, 0.0), 0);
+
+			if ((currParticle.mEmitterFlags & PARTICLE_FLAG_USE_COLOR_RANDOM_TWEEN) == PARTICLE_FLAG_USE_COLOR_RANDOM_TWEEN)
+				t = randValue.x;
+
+			currParticle.mColor = texelFetch(EmittersCurvesAtlasTexture, ivec2(currParticle.mEmittersAtlasStartPos + vec2(128.0 * t, 1.0)), 0);
+		}
+
+		if ((currParticle.mEmitterFlags & PARTICLE_FLAG_VELOCITY_OVER_LIFETIME_ENABLED) == PARTICLE_FLAG_VELOCITY_OVER_LIFETIME_ENABLED)
+		{
+			currParticle.mVelocity = vec4(velocitySizeCurve.xyz, 0.0);
+		}
+
+		if ((currParticle.mEmitterFlags & PARTICLE_FLAG_GRAVITY_FORCE_ENABLED) == PARTICLE_FLAG_GRAVITY_FORCE_ENABLED)
+		{
+			currParticle.mVelocity += vec4(0.0, -currParticle.mGravityModifier, 0.0, 0.0);
+		}
+
+		if ((currParticle.mEmitterFlags & PARTICLE_FLAG_FORCE_OVER_LIFETIME_ENABLED) == PARTICLE_FLAG_FORCE_OVER_LIFETIME_ENABLED)
+		{
+			currParticle.mVelocity += vec4(currParticle.mForcePerFrame, 0.0);
+		}
+
+		if ((currParticle.mEmitterFlags & PARTICLE_FLAG_ROTATION_OVER_LIFETIME_ENABLED) == PARTICLE_FLAG_ROTATION_OVER_LIFETIME_ENABLED)
+		{
+			currParticle.mRotation += mDeltaTime * currParticle.mRotationPerFrame;
+		}
+
+		currParticle.mAge -= mDeltaTime;
+		currParticle.mPosition += currParticle.mVelocity * mDeltaTime;
+
+		if (currParticle.mAge < 0.0f)
+		{
+			currParticle.mAge = -1.0;
+
+			// write index to dead list
+			uint deadListIndex = atomicAdd(TYPED_BUFFER_ACCESS(Counters)[1], 1);
+			TYPED_BUFFER_ACCESS(DeadParticlesIndexList)[deadListIndex] = gl_GlobalInvocationID.x;
+		}
+		else
+		{
+			// add particle to index buffer for sorting
+			uint aliveIndex = atomicAdd(TYPED_BUFFER_ACCESS(Counters)[0], 1);
+
+			TYPED_BUFFER_ACCESS(ParticlesIndexBuffer)[aliveIndex] = vec2(length(mCameraPosition - currParticle.mPosition), float(gl_GlobalInvocationID.x));
+
+			// update indirect args buffer
+			atomicAdd(TYPED_BUFFER_ACCESS(DrawArgsBuffer)[0].instanceCount, 1);
+		}
+	}	
+
+	TYPED_BUFFER_ACCESS(OutputParticles)[gl_GlobalInvocationID.x] = currParticle;
+}
+
+#endprogram

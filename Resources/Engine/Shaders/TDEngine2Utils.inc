@@ -128,10 +128,21 @@
 	#define uint4 uvec4
 	#define uint2 uvec2
 	#define int3 ivec3
+	#define int2 ivec2
 
 	#define mul(a, b) (a * b)
 	#define frac fract
 	#define fmod mod
+	#define lerp mix
+
+	struct TDrawElementsIndirectCommand 
+	{
+		uint  count;
+		uint  instanceCount;
+		uint  firstIndex;
+		int   baseVertex;
+		uint  baseInstance;
+	};
 
 #endif
 

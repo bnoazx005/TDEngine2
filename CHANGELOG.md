@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.29] 2024-08-27
+## [0.6.29] 2024-08-29
 
 ### Added
 
@@ -32,6 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new global uniform IsGPUParticlesEnabled was added into constants CB/UBO which equals to 1 when GPU particles simulation is enabled in the project.
 
 - GPU particle systems now support forces and all particles are sorted on GPU using bitonic algorithm.
+
+- Add implementation of GPU particles compute shaders under GL graphics context.
 
 ### Changed
 

@@ -1,0 +1,116 @@
+#version 430 core
+
+#define COMPUTE_ENTRY main
+
+#program compute
+
+#include <TDEngine2Globals.inc>
+#include <TDEngine2ParticlesUtils.inc>
+
+
+layout (local_size_x = 1024, local_size_y = 1, local_size_z = 1) in;
+
+
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(TParticle, OutputParticles, 0);
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, DeadParticlesIndexList, 1); 
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, Counters, 2); 
+
+DECLARE_TEX2D_EX(RandTexture, 1);
+DECLARE_TEX2D_EX(EmittersCurvesAtlasTexture, 2);
+
+// particles buffer
+
+// emitter's configuration
+CBUFFER_SECTION_EX(EmitterParameters, 4)
+	// box emitter's data
+	vec4 mBoxSizes;
+
+	// sphere/cone emitter's data
+	float mSphereConeRadius;
+	float mConeHeight;
+	float mRngSalt;
+
+	// common 
+	float mDuration;
+	vec4  mPosition;
+	vec4  mShapeOrigin;
+	vec4  mVelocity;
+	vec4  mInitialLifetime; // x - left bound, y - right bound, value lies in range of [x; y] 
+	vec4  mInitialSize; // x - left bound, y - right bound, value lies in range of [x; y] 
+	vec4  mInitialRotation;
+	vec4  mInitialColor;
+
+	uint  mIs2DEmitter;
+	uint  mMaxParticles;
+	uint  mEmitRate;
+	uint  mEmitterType;
+	uint  mEmitterIndex;
+	uint  mFlags;
+	float mGravityModifier;
+	float mRotationPerFrame;
+	vec3  mForcePerFrame;
+	float mPadding0;
+
+	ivec2 mEmittersAtlasStartPos;
+CBUFFER_ENDSECTION
+
+
+void main(void) 
+{
+	uint counter = TYPED_BUFFER_ACCESS(Counters)[1];
+
+	if (gl_GlobalInvocationID.x >= counter || gl_GlobalInvocationID.x >= mEmitRate) 
+		return;
+
+	TParticle newParticle;
+
+	vec4 randValue = TEX2D_LOD(RandTexture, vec2(gl_GlobalInvocationID.x / 1024.0, mRngSalt), 0);
+	vec4 randValue1 = TEX2D_LOD(RandTexture, vec2((gl_GlobalInvocationID.x + 1.0) / 1024.0, mRngSalt), 0);
+
+	newParticle.mEmitterIndex = mEmitterIndex;
+	newParticle.mEmittersAtlasStartPos = mEmittersAtlasStartPos;
+
+	if (mEmitterType == BOX_EMITTER_TYPE_ID)
+	{
+		newParticle.mPosition = GeneratePositionForBoxEmitter(mPosition, mShapeOrigin, mBoxSizes, randValue1);
+	}
+	else if (mEmitterType == SPHERE_EMITTER_TYPE_ID)
+	{
+		newParticle.mPosition = GeneratePositionForSphereEmitter(mPosition, mShapeOrigin, mSphereConeRadius, randValue1);
+	}
+	else if (mEmitterType == CONE_EMITTER_TYPE_ID)
+	{
+		newParticle.mPosition = GeneratePositionForConeEmitter(mPosition, mShapeOrigin, mSphereConeRadius, mConeHeight, randValue1);	
+	}
+
+	newParticle.mVelocity = mVelocity;
+
+	newParticle.mRotation = mix(mInitialRotation.x, mInitialRotation.y, randValue.x);
+
+	newParticle.mColor = mInitialColor;
+
+	newParticle.mLifetime = mix(mInitialLifetime.x, mInitialLifetime.y, randValue.y);
+	newParticle.mAge      = newParticle.mLifetime;
+
+	// emmiter's data 
+	newParticle.mEmitterFlags     = mFlags;
+	newParticle.mGravityModifier  = mGravityModifier;
+	newParticle.mRotationPerFrame = mRotationPerFrame;
+	newParticle.mForcePerFrame    = mForcePerFrame;
+
+	newParticle.mSize = mix(mInitialSize.x, mInitialSize.y, randValue.z);
+
+	// decrement counter for dead particles list
+	counter = atomicAdd(TYPED_BUFFER_ACCESS(Counters)[1], -1) - 1;
+	if (counter < 0)
+	{
+		atomicAdd(TYPED_BUFFER_ACCESS(Counters)[1], 1);
+		return;
+	}
+
+	uint index = TYPED_BUFFER_ACCESS(DeadParticlesIndexList)[counter];
+
+	TYPED_BUFFER_ACCESS(OutputParticles)[index] = newParticle;
+}
+
+#endprogram
