@@ -144,6 +144,13 @@
 		uint  baseInstance;
 	};
 
+	struct TDispatchIndirectCommand
+	{
+		uint mNumGroupsX;
+		uint mNumGroupsY;
+		uint mNumGroupsZ;
+	};
+
 #endif
 
 
