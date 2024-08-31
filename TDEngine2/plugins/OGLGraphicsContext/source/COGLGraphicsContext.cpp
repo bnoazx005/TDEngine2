@@ -642,12 +642,28 @@ namespace TDEngine2
 
 	void COGLGraphicsContext::DrawIndirectInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, TBufferHandleId argsBufferHandle, U32 alignedOffset)
 	{
-		GL_SAFE_VOID_CALL(glDrawArraysIndirect(COGLMappings::GetPrimitiveTopology(topology), reinterpret_cast<void*>(alignedOffset))); 
+		auto pArgsBuffer = mpGraphicsObjectManagerImpl->GetOGLBufferPtr(argsBufferHandle);
+		if (!pArgsBuffer)
+		{
+			return;
+		}
+
+		GL_SAFE_VOID_CALL(glBindBuffer(GL_DRAW_INDIRECT_BUFFER, pArgsBuffer->GetOGLHandle()));
+		GL_SAFE_VOID_CALL(glDrawArraysIndirect(COGLMappings::GetPrimitiveTopology(topology), reinterpret_cast<void*>(alignedOffset)));
+		GL_SAFE_VOID_CALL(glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0));
 	}
 
 	void COGLGraphicsContext::DrawIndirectIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, TBufferHandleId argsBufferHandle, U32 alignedOffset)
 	{
+		auto pArgsBuffer = mpGraphicsObjectManagerImpl->GetOGLBufferPtr(argsBufferHandle);
+		if (!pArgsBuffer)
+		{
+			return;
+		}
+
+		GL_SAFE_VOID_CALL(glBindBuffer(GL_DRAW_INDIRECT_BUFFER, pArgsBuffer->GetOGLHandle()));
 		GL_SAFE_VOID_CALL(glDrawElementsIndirect(COGLMappings::GetPrimitiveTopology(topology), COGLMappings::GetIndexFormat(indexFormatType), reinterpret_cast<void*>(alignedOffset)));
+		GL_SAFE_VOID_CALL(glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0));
 	}
 
 	void COGLGraphicsContext::DispatchCompute(U32 groupsCountX, U32 groupsCountY, U32 groupsCountZ)
@@ -658,7 +674,16 @@ namespace TDEngine2
 
 	void COGLGraphicsContext::DispatchIndirectCompute(TBufferHandleId argsBufferHandle, U32 alignedOffset)
 	{
-		TDE2_UNIMPLEMENTED();
+		auto pArgsBuffer = mpGraphicsObjectManagerImpl->GetOGLBufferPtr(argsBufferHandle);
+		if (!pArgsBuffer)
+		{
+			return;
+		}
+
+		GL_SAFE_VOID_CALL(glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, pArgsBuffer->GetOGLHandle()));
+		GL_SAFE_VOID_CALL(glDispatchComputeIndirect(0)); // \todo Replace with alignedOffset
+		GL_SAFE_VOID_CALL(glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT));
+		GL_SAFE_VOID_CALL(glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, 0));
 	}
 
 	void COGLGraphicsContext::BindBlendState(TBlendStateId blendStateId)
