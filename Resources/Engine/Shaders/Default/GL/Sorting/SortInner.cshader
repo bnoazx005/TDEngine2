@@ -1,0 +1,83 @@
+#version 430 core
+
+#define COMPUTE_ENTRY main
+
+#program compute
+
+#include <TDEngine2Globals.inc>
+
+
+#define SORT_SIZE   512
+#define HALF_SIZE   (SORT_SIZE/2)
+#define ITERATIONS  (HALF_SIZE > 1024 ? HALF_SIZE/1024 : 1)
+#define NUM_THREADS (HALF_SIZE/ITERATIONS)
+#define INVERSION   (16*2 + 8*3)
+
+
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(vec2, OutputData, 0);
+DECLARE_TYPED_BUFFER_EX(uint, ElementsCount, 0);
+
+shared vec2 LDS[SORT_SIZE];
+
+
+void main(void) 
+{
+	uint elementsCount = TYPED_BUFFER_ACCESS(ElementsCount)[0];
+
+    uvec4 tgp;
+
+    tgp.x = gl_WorkGroupID.x * 256;
+    tgp.y = 0;
+    tgp.z = elementsCount;
+    tgp.w = min(512, max(0, elementsCount - gl_WorkGroupID.x * 512));
+
+    uint GlobalBaseIndex = tgp.y + tgp.x * 2 + gl_LocalInvocationID.x;
+    uint LocalBaseIndex  = gl_LocalInvocationIndex;
+    int i;
+
+    // Load shared data
+    for (i = 0; i < 2; ++i)
+    {
+        if (gl_LocalInvocationIndex + i * NUM_THREADS < tgp.w)
+            LDS[LocalBaseIndex + i * NUM_THREADS] = TYPED_BUFFER_ACCESS(OutputData)[GlobalBaseIndex + i * NUM_THREADS];
+    }
+
+    barrier();
+
+    // sort threadgroup shared memory
+    for (int nMergeSubSize = SORT_SIZE >> 1; nMergeSubSize > 0; nMergeSubSize = nMergeSubSize >> 1) 
+    {           
+        uint tmp_index = gl_LocalInvocationIndex;
+        uint index_low = tmp_index & (nMergeSubSize - 1);
+        uint index_high = 2 * (tmp_index - index_low);
+        uint index = index_high + index_low;
+
+        uint nSwapElem = uint(index_high + nMergeSubSize + index_low);
+
+        if(nSwapElem < tgp.w)
+        {
+            vec2 a = LDS[index];
+            vec2 b = LDS[nSwapElem];
+
+            if (a.x > b.x)
+            { 
+                LDS[index] = b;
+                LDS[nSwapElem] = a;
+            }
+        }
+
+        barrier();
+    }
+    
+    // Store shared data
+    for (i = 0; i < 2; ++i)
+    {
+        if (gl_LocalInvocationIndex + i * NUM_THREADS < tgp.w)
+            TYPED_BUFFER_ACCESS(OutputData)[GlobalBaseIndex + i * NUM_THREADS] = LDS[LocalBaseIndex + i * NUM_THREADS];
+    }
+}
+
+#endprogram

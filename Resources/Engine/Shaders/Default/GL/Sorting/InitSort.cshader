@@ -1,0 +1,26 @@
+#version 430 core
+
+#define COMPUTE_ENTRY main
+
+#program compute
+
+#include <TDEngine2Globals.inc>
+
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(TDispatchIndirectCommand, DispatchArgsBuffer, 0);
+DECLARE_TYPED_BUFFER_EX(uint, ElementsCount, 1); 
+
+
+void main(void) 
+{
+	TDispatchIndirectCommand dispatchArgs;
+	dispatchArgs.mNumGroupsX = ((TYPED_BUFFER_ACCESS(ElementsCount)[0] - 1) >> 9) + 1;
+	dispatchArgs.mNumGroupsY = 1;
+	dispatchArgs.mNumGroupsZ = 1;
+
+	TYPED_BUFFER_ACCESS(DispatchArgsBuffer)[0] = dispatchArgs;
+}
+
+#endprogram

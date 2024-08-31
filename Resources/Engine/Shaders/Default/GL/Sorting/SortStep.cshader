@@ -1,0 +1,53 @@
+#version 430 core
+
+#define COMPUTE_ENTRY main
+
+#program compute
+
+#include <TDEngine2Globals.inc>
+
+layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+
+DECLARE_WRITEABLE_TYPED_BUFFER_EX(float2, OutputData, 0);
+DECLARE_TYPED_BUFFER_EX(uint, ElementsCount, 0);
+
+
+CBUFFER_SECTION_EX(Parameters, 4)
+    uvec4 mJobParams;
+CBUFFER_ENDSECTION
+
+
+void main(void) 
+{
+    uvec4 tgp;
+
+    uint elementsCount = TYPED_BUFFER_ACCESS(ElementsCount)[0];
+
+    tgp.x = gl_WorkGroupID.x * 256;
+    tgp.y = 0;
+    tgp.z = elementsCount;
+    tgp.w = min(512, max(0, elementsCount - gl_WorkGroupID.x * 512));
+
+    uint localID = tgp.x + gl_LocalInvocationID.x; // calculate threadID within this sortable-array
+
+    uint index_low = localID & (mJobParams.x - 1);
+    uint index_high = 2 * (localID - index_low);
+
+    uint index      = tgp.y + index_high + index_low;
+    uint nSwapElem  = tgp.y + index_high + mJobParams.y + mJobParams.z * index_low;
+
+    if(nSwapElem < tgp.y + tgp.z)
+    {
+        float2 a = TYPED_BUFFER_ACCESS(OutputData)[index];
+        float2 b = TYPED_BUFFER_ACCESS(OutputData)[nSwapElem];
+
+        if (a.x > b.x)
+        { 
+            TYPED_BUFFER_ACCESS(OutputData)[index] = b;
+            TYPED_BUFFER_ACCESS(OutputData)[nSwapElem] = a;
+        }
+    }
+}
+
+#endprogram
