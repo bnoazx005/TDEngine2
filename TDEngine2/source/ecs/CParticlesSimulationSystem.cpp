@@ -884,6 +884,11 @@ namespace TDEngine2
 			{
 				TDE2_PROFILER_SCOPE("CParticlesGPUSimulationSystem::Update");
 
+				if (mParticleEmitters.mpParticleEmitters.empty())
+				{
+					return;
+				}
+
 				IGraphicsContext* pGraphicsContext = mpGraphicsObjectManager->GetGraphicsContext();
 #if TDE2_DEBUG_MODE
 				pGraphicsContext->BeginSectionMarker("GPUParticlesSimulationPass");
