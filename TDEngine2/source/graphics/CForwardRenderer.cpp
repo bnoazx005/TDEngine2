@@ -1343,7 +1343,7 @@ namespace TDEngine2
 						TDE2_PROFILER_SCOPE("UIRenderPass");
 
 #if TDE2_DEBUG_MODE
-						pGraphicsContext->EndSectionMarker(); // pop PostProcessing section
+						//pGraphicsContext->EndSectionMarker(); // pop PostProcessing section
 #endif
 						TDE_RENDER_SECTION(pGraphicsContext, "UIRenderPass");
 

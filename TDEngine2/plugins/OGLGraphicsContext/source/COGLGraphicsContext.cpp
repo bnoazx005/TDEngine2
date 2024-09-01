@@ -1026,7 +1026,7 @@ namespace TDEngine2
 			return;
 		}
 
-		glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, -1, id.c_str());
+		GL_SAFE_VOID_CALL(glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, -1, id.c_str()));
 	}
 
 	void COGLGraphicsContext::EndSectionMarker()
@@ -1036,7 +1036,7 @@ namespace TDEngine2
 			return;
 		}
 
-		glPopDebugGroup();
+		GL_SAFE_VOID_CALL(glPopDebugGroup());
 	}
 
 #endif
