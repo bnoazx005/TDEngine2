@@ -14,11 +14,12 @@ CBUFFER_SECTION_EX(Parameters, 4)
 	float mContrastPower;
 CBUFFER_ENDSECTION
 
+
+#program vertex
+
 DECLARE_TYPED_BUFFER_EX(TParticle, Particles, 0);
 DECLARE_TYPED_BUFFER_EX(vec2, AliveParticlesIndexBuffer, 1);
 DECLARE_TYPED_BUFFER_EX(uint, Counters, 2);
-
-#program vertex
 
 const vec4 BILLBOARD_QUAD_VERTICES[4] = vec4[4]
 (
@@ -28,20 +29,17 @@ const vec4 BILLBOARD_QUAD_VERTICES[4] = vec4[4]
   vec4(0.5f, -0.5f, 1.0f, 1.0f)
 );
 
-layout (location = 0) in vec4 inColor;
-layout (location = 1) in vec4 inParticlePosAndSize;
-layout (location = 2) in vec4 inParticleRotation;
+layout (location = 0) in vec4 inPosition;
+layout (location = 1) in vec2 inUV;
+layout (location = 2) in vec4 inColor;
+layout (location = 3) in vec4 inParticlePosAndSize;
+layout (location = 4) in vec4 inParticleRotation;
 
 out vec4 VertViewPos;
-out vec2 VertOutUV;
 out vec4 VertColor;
-out int VertInstanceID;
+out vec2 VertOutUV;
+//out int VertInstanceID;
 
-	// uint vertIndex             : SV_VertexID;         						gl_VertexID & glVertexIndex
-	// vec4 mColor              : COLOR0;
-	// vec4 mParticlePosAndSize : TEXCOORD1;
-	// vec4 mParticleRotation   : TEXCOORD2;
-	// uint mInstanceId           : SV_InstanceID;                               gl_InstanceID & gl_InstanceIndex 
 
 void main(void)
 {
@@ -79,15 +77,15 @@ void main(void)
 	VertViewPos    = pos;
 	gl_Position    = ProjMat * pos;
 	VertOutUV      = BILLBOARD_QUAD_VERTICES[gl_VertexID].zw;
-	VertInstanceID = gl_InstanceID;
+	//VertInstanceID = gl_InstanceID;
 }
 
 #endprogram
 
 #program pixel
 
+DECLARE_TEX2D_EX(MainTexture, 0);
 DECLARE_TEX2D_EX(DepthTexture, 15);
-DECLARE_TEX2D(MainTexture);
 
 
 float ApplyContrast(float input, float contrastPower)
@@ -98,9 +96,8 @@ float ApplyContrast(float input, float contrastPower)
 }
 
 in vec4 VertViewPos;
-in vec2 VertUV;
 in vec4 VertColor;
-in int  VertInstanceID;
+in vec2 VertOutUV;
 
 out vec4 FragColor;
 
@@ -110,7 +107,7 @@ void main(void)
 
 	if (int(mIsTexturingEnabled) == 1)
 	{
-		baseColor *= GammaToLinear(TEX2D(MainTexture, VertUV));
+		baseColor *= GammaToLinear(TEX2D(MainTexture, VertOutUV));
 	}
 
 	if (int(mIsSoftParticlesEnabled) == 1)
@@ -127,4 +124,5 @@ void main(void)
 
 	FragColor = baseColor;
 }
+
 #endprogram

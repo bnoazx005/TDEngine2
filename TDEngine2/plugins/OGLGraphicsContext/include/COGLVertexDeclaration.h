@@ -69,6 +69,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLVertexDeclaration)
 
+			TDE2_API E_RESULT_CODE _onFreeInternal() override;
+
 			TDE2_API TVAORegistryNode* _insertNewNode(TVAORegistryNode* pCurrNode, U32 handle);
 		protected:
 			TVAORegistryNode mRootNode;

@@ -519,7 +519,7 @@ namespace TDEngine2
 
 			IGraphicsObjectManager*      mpGraphicsObjectManager = nullptr;
 
-			TBufferHandleId              mParticleQuadIndexBufferHandle;
+			TBufferHandleId              mParticleQuadIndexBufferHandle = TBufferHandleId::Invalid;
 
 			IVertexDeclaration*          mpParticleVertexDeclaration = nullptr;
 
@@ -540,8 +540,7 @@ namespace TDEngine2
 
 
 	CParticlesCPUSimulationSystem::CParticlesCPUSimulationSystem() :
-		CBaseSystem(),
-		mParticleQuadIndexBufferHandle(TBufferHandleId::Invalid)
+		CBaseSystem()
 	{
 	}
 

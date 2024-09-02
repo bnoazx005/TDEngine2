@@ -7,6 +7,10 @@
 
 namespace TDEngine2
 {
+	static GLuint DefaultVAOHandler = 0;
+	static GLuint DefaultVBOHandler = 0;
+
+
 	COGLVertexDeclaration::COGLVertexDeclaration() :
 		CVertexDeclaration()
 	{
@@ -23,7 +27,7 @@ namespace TDEngine2
 
 		for (U32 i = 0; i < pVertexBuffersArray.GetSize(); ++i)
 		{
-			internalBufferHandle = *reinterpret_cast<GLuint*>(pGraphicsObjectManager->GetBufferPtr(pVertexBuffersArray[i])->GetInternalData());
+			internalBufferHandle = TBufferHandleId::Invalid == pVertexBuffersArray[i] ? DefaultVBOHandler : *reinterpret_cast<GLuint*>(pGraphicsObjectManager->GetBufferPtr(pVertexBuffersArray[i])->GetInternalData());
 
 			if (pCurrNode->mChildren.find(internalBufferHandle) == pCurrNode->mChildren.cend())
 			{
@@ -36,7 +40,6 @@ namespace TDEngine2
 		return Wrench::TOkValue<GLuint>(pCurrNode->mVAOHandle);
 	}
 
-
 	TResult<GLuint> COGLVertexDeclaration::GetVertexArrayObject(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray)
 	{
 		if (pVertexBuffersArray.IsEmpty())
@@ -44,14 +47,26 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 
+		if (DefaultVBOHandler == 0)
+		{
+			GL_SAFE_VOID_CALL(glGenBuffers(1, &DefaultVBOHandler));
+			GL_SAFE_VOID_CALL(glBindBuffer(GL_ARRAY_BUFFER, DefaultVBOHandler));
+			GL_SAFE_VOID_CALL(glBufferData(GL_ARRAY_BUFFER, 1024, nullptr, GL_STATIC_DRAW));
+			GL_SAFE_VOID_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+		}
+
 		GLuint vaoHandler = 0x0;
 
 		if (pVertexBuffersArray.GetSize() == 1 && TBufferHandleId::Invalid == pVertexBuffersArray[0])
 		{
-			GL_SAFE_VOID_CALL(glGenVertexArrays(1, &vaoHandler));
-			GL_SAFE_VOID_CALL(glBindVertexArray(vaoHandler));
+			if (DefaultVAOHandler == 0)
+			{
+				GL_SAFE_VOID_CALL(glGenVertexArrays(1, &DefaultVAOHandler));
+			}
 
-			return Wrench::TOkValue<GLuint>(vaoHandler);
+			GL_SAFE_VOID_CALL(glBindVertexArray(DefaultVAOHandler));
+
+			return Wrench::TOkValue<GLuint>(DefaultVAOHandler);
 		}
 
 		auto doesExistResult = DoesHandleExist(pGraphicsContext, mRootNode, pVertexBuffersArray);
@@ -90,7 +105,7 @@ namespace TDEngine2
 
 		auto pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
 
-		GLuint currBufferHandle = *reinterpret_cast<GLuint*>(pGraphicsObjectManager->GetBufferPtr(pVertexBuffersArray[0])->GetInternalData());
+		GLuint currBufferHandle = TBufferHandleId::Invalid == pVertexBuffersArray[0] ? DefaultVBOHandler : *reinterpret_cast<GLuint*>(pGraphicsObjectManager->GetBufferPtr(pVertexBuffersArray[0])->GetInternalData());
 
 		GL_SAFE_VOID_CALL(glBindBuffer(GL_ARRAY_BUFFER, currBufferHandle)); /// bind the first VBO by default as a main vertex buffer
 
@@ -155,6 +170,21 @@ namespace TDEngine2
 		GL_SAFE_VOID_CALL(glBindVertexArray(GetVertexArrayObject(pGraphicsContext, pVertexBuffersArray).Get()));
 	}
 
+	E_RESULT_CODE COGLVertexDeclaration::_onFreeInternal()
+	{
+		if (DefaultVBOHandler != 0)
+		{
+			glDeleteBuffers(1, &DefaultVBOHandler);
+		}
+
+		if (DefaultVAOHandler != 0)
+		{
+			glDeleteBuffers(1, &DefaultVAOHandler);
+		}
+
+		return RC_OK;
+	}
+
 	COGLVertexDeclaration::TVAORegistryNode* COGLVertexDeclaration::_insertNewNode(TVAORegistryNode* pCurrNode, U32 handle)
 	{
 		if (pCurrNode->mChildren.find(handle) != pCurrNode->mChildren.cend())
@@ -170,24 +200,6 @@ namespace TDEngine2
 
 	IVertexDeclaration* CreateOGLVertexDeclaration(E_RESULT_CODE& result)
 	{
-		COGLVertexDeclaration* pVertexDeclInstance = new (std::nothrow) COGLVertexDeclaration();
-
-		if (!pVertexDeclInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pVertexDeclInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pVertexDeclInstance;
-
-			pVertexDeclInstance = nullptr;
-		}
-
-		return pVertexDeclInstance;
+		return CREATE_IMPL(IVertexDeclaration, COGLVertexDeclaration, result);
 	}
 }
