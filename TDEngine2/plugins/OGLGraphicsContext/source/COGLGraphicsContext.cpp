@@ -557,6 +557,29 @@ namespace TDEngine2
 
 	E_RESULT_CODE COGLGraphicsContext::CopyResource(TTextureHandleId sourceHandle, TTextureHandleId destHandle)
 	{
+		auto pSourceTexture = mpGraphicsObjectManagerImpl->GetOGLTexturePtr(sourceHandle);
+		auto pDestTexture   = mpGraphicsObjectManagerImpl->GetOGLTexturePtr(destHandle);
+
+		if (!pSourceTexture || !pDestTexture)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		GLuint sourceTextureHandle = pSourceTexture->GetTextureHandle();
+		GLuint destTextureHandle   = pDestTexture->GetTextureHandle();
+
+		const TInitTextureImplParams& sourceTextureParams = pSourceTexture->GetParams();
+
+		if (GLEW_ARB_copy_image)
+		{
+			GL_SAFE_CALL(glCopyImageSubData(
+				sourceTextureHandle, GL_TEXTURE_2D, 0, 0, 0, 0,
+				destTextureHandle, GL_TEXTURE_2D, 0, 0, 0, 0, 
+				static_cast<GLsizei>(sourceTextureParams.mWidth), static_cast<GLsizei>(sourceTextureParams.mHeight), static_cast<GLsizei>(sourceTextureParams.mDepth)));
+
+			return RC_OK;
+		}
+		
 		return RC_OK;
 	}
 
