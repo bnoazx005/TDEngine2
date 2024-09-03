@@ -13,11 +13,11 @@
 #define INVERSION   (16*2 + 8*3)
 
 
-layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 
 
 DECLARE_WRITEABLE_TYPED_BUFFER_EX(vec2, OutputData, 0);
-DECLARE_TYPED_BUFFER_EX(uint, ElementsCount, 0);
+DECLARE_TYPED_BUFFER_EX(uint, ElementsCount, 1);
 
 shared vec2 LDS[SORT_SIZE];
 
@@ -40,6 +40,7 @@ void main(void)
             LDS[LocalBaseIndex + i * NUM_THREADS] = TYPED_BUFFER_ACCESS(OutputData)[GlobalBaseIndex + i * NUM_THREADS];
     }
 
+    memoryBarrierShared();
     barrier();
     
     // Bitonic sort
@@ -47,7 +48,7 @@ void main(void)
     {
         for (int nMergeSubSize = int(nMergeSize) >> 1; nMergeSubSize > 0; nMergeSubSize = nMergeSubSize >> 1) 
         {
-            for (i = 0; i<ITERATIONS; ++i)     
+            for (i = 0; i < ITERATIONS; ++i)     
             {
                 int tmp_index = int(gl_LocalInvocationIndex + NUM_THREADS * i);
                 int index_low = tmp_index & (nMergeSubSize - 1);
@@ -55,7 +56,7 @@ void main(void)
                 int index = index_high + index_low;
 
                 uint nSwapElem = nMergeSubSize == nMergeSize >> 1 ? index_high + (2 * nMergeSubSize - 1) - index_low : index_high + nMergeSubSize + index_low;
-                if (nSwapElem<numElementsInThreadGroup)
+                if (nSwapElem < numElementsInThreadGroup)
                 {
                     vec2 a = LDS[index];
                     vec2 b = LDS[nSwapElem];
@@ -67,6 +68,7 @@ void main(void)
                     }
                 }
 
+                memoryBarrierShared();
                 barrier();
             }
         }
@@ -76,7 +78,7 @@ void main(void)
     for (i = 0; i < 2 * ITERATIONS; ++i)
     {
         if (gl_LocalInvocationIndex + i * NUM_THREADS < numElementsInThreadGroup)
-            TYPED_BUFFER_ACCESS(OutputData)[GlobalBaseIndex + i*NUM_THREADS] = LDS[LocalBaseIndex + i * NUM_THREADS];
+            TYPED_BUFFER_ACCESS(OutputData)[GlobalBaseIndex + i * NUM_THREADS] = LDS[LocalBaseIndex + i * NUM_THREADS];
     }
 }
 

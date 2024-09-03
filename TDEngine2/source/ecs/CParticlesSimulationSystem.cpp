@@ -898,7 +898,7 @@ namespace TDEngine2
 					_simulateParticles(pWorld, deltaTime);
 				}
 
-				//GPUSort(pGraphicsContext, mpResourceManager.Get(), MAX_PARTICLES_COUNT, mAliveIndexBufferHandle, mCountersBufferHandle);
+				GPUSort(pGraphicsContext, mpResourceManager.Get(), MAX_PARTICLES_COUNT, mAliveIndexBufferHandle, mCountersBufferHandle);
 
 #if TDE2_DEBUG_MODE
 				pGraphicsContext->EndSectionMarker();
