@@ -67,8 +67,8 @@ VertexOut mainVS(in VertexIn input)
 		uint index = (uint)AliveParticlesIndexBuffer[Counters[0] - 1 - input.mInstanceId].y;
 		TParticle currParticleData = Particles[index];
 
-		particleCenter = float4(currParticleData.mPosition.xyz, 1.0);
-		localPos       = mul(rotZAxisMat, float3(BILLBOARD_QUAD_VERTICES[input.vertIndex].xy, 0.0) * currParticleData.mSize);
+		particleCenter = float4(currParticleData.mPositionAndSize.xyz, 1.0);
+		localPos       = mul(rotZAxisMat, float3(BILLBOARD_QUAD_VERTICES[input.vertIndex].xy, 0.0) * currParticleData.mPositionAndSize.w);
 		
 		output.mColor = currParticleData.mColor;
 	}

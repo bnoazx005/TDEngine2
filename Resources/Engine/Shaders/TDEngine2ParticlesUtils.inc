@@ -29,19 +29,12 @@
 
 struct TParticle
 {
-	float4 mPosition;
-	float4 mVelocity;
+	float4 mPositionAndSize;
+	float4 mVelocityAndRotation;
 	float4 mColor;
-	float  mAge;
-	float  mLifetime;
-	float  mRotation;
-	float  mSize;
-	uint   mEmitterIndex;
-	uint   mEmitterFlags;
-	float  mGravityModifier;
-	float  mRotationPerFrame;
-	float3 mForcePerFrame;
-	int2   mEmittersAtlasStartPos;
+	float4 mLifeParamsAndRotationPerFrame; // x - age, y - lifetime, z - rotation per frame
+	uint4  mEmitterParams;
+	float4 mForcePerFrameAndGravityModifier;
 };
 
 

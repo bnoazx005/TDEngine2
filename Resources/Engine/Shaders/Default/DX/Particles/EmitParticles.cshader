@@ -64,38 +64,29 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 	float4 randValue = TEX2D_LOD(RandTexture, float2(id.x / 1024.0, mRngSalt), 0);
 	float4 randValue1 = TEX2D_LOD(RandTexture, float2((id.x + 1.0) / 1024.0, mRngSalt), 0);
 
-	newParticle.mEmitterIndex = mEmitterIndex;
-	newParticle.mEmittersAtlasStartPos = mEmittersAtlasStartPos;
+	newParticle.mEmitterParams = uint4(mEmittersAtlasStartPos.xy, mFlags, mEmitterIndex);
 
 	if (mEmitterType == BOX_EMITTER_TYPE_ID)
 	{
-		newParticle.mPosition = GeneratePositionForBoxEmitter(mPosition, mShapeOrigin, mBoxSizes, randValue1);
+		newParticle.mPositionAndSize = GeneratePositionForBoxEmitter(mPosition, mShapeOrigin, mBoxSizes, randValue1);
 	}
 	else if (mEmitterType == SPHERE_EMITTER_TYPE_ID)
 	{
-		newParticle.mPosition = GeneratePositionForSphereEmitter(mPosition, mShapeOrigin, mSphereConeRadius, randValue1);
+		newParticle.mPositionAndSize = GeneratePositionForSphereEmitter(mPosition, mShapeOrigin, mSphereConeRadius, randValue1);
 	}
 	else if (mEmitterType == CONE_EMITTER_TYPE_ID)
 	{
-		newParticle.mPosition = GeneratePositionForConeEmitter(mPosition, mShapeOrigin, mSphereConeRadius, mConeHeight, randValue1);	
+		newParticle.mPositionAndSize = GeneratePositionForConeEmitter(mPosition, mShapeOrigin, mSphereConeRadius, mConeHeight, randValue1);	
 	}
 
-	newParticle.mVelocity = mVelocity;
+	newParticle.mVelocityAndRotation = float4(mVelocity.xyz, lerp(mInitialRotation.x, mInitialRotation.y, randValue.x));
+	newParticle.mColor               = mInitialColor;
 
-	newParticle.mRotation = lerp(mInitialRotation.x, mInitialRotation.y, randValue.x);
+	float lifetime = lerp(mInitialLifetime.x, mInitialLifetime.y, randValue.y);
 
-	newParticle.mColor = mInitialColor;
-
-	newParticle.mLifetime = lerp(mInitialLifetime.x, mInitialLifetime.y, randValue.y);
-	newParticle.mAge      = newParticle.mLifetime;
-
-	// emmiter's data 
-	newParticle.mEmitterFlags     = mFlags;
-	newParticle.mGravityModifier  = mGravityModifier;
-	newParticle.mRotationPerFrame = mRotationPerFrame;
-	newParticle.mForcePerFrame    = mForcePerFrame;
-
-	newParticle.mSize = lerp(mInitialSize.x, mInitialSize.y, randValue.z);
+	newParticle.mLifeParamsAndRotationPerFrame   = float4(lifetime, lifetime, mRotationPerFrame, 0.0);
+	newParticle.mForcePerFrameAndGravityModifier = float4(mForcePerFrame.xyz, mGravityModifier);
+	newParticle.mPositionAndSize.w               = lerp(mInitialSize.x, mInitialSize.y, randValue.z);
 
 	// decrement counter for dead particles list
 	InterlockedAdd(Counters[1], -1, counter);

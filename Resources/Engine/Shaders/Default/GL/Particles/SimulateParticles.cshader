@@ -52,53 +52,53 @@ void main(void)
 		return;
 
 	TParticle currParticle = TYPED_BUFFER_ACCESS(OutputParticles)[gl_GlobalInvocationID.x];
-	if (currParticle.mAge > 0.0)
+	if (currParticle.mLifeParamsAndRotationPerFrame.x > 0.0)
 	{
-		float t = 1.0 - clamp(currParticle.mAge / currParticle.mLifetime, 0.0, 1.0);
+		float t = 1.0 - clamp(currParticle.mLifeParamsAndRotationPerFrame.x / currParticle.mLifeParamsAndRotationPerFrame.y, 0.0, 1.0);
 
-		vec4 velocitySizeCurve = texelFetch(EmittersCurvesAtlasTexture, ivec2(currParticle.mEmittersAtlasStartPos + vec2(128.0 * t, 0.0)), 0);
+		vec4 velocitySizeCurve = texelFetch(EmittersCurvesAtlasTexture, ivec2(currParticle.mEmitterParams.xy + vec2(128.0 * t, 0.0)), 0);
 
-		if ((currParticle.mEmitterFlags & PARTICLE_FLAG_SIZE_OVER_LIFETIME_ENABLED) == PARTICLE_FLAG_SIZE_OVER_LIFETIME_ENABLED)
+		if ((currParticle.mEmitterParams.z & PARTICLE_FLAG_SIZE_OVER_LIFETIME_ENABLED) == PARTICLE_FLAG_SIZE_OVER_LIFETIME_ENABLED)
 		{
-			currParticle.mSize = velocitySizeCurve.a;
+			currParticle.mPositionAndSize.w = velocitySizeCurve.a;
 		}
 
-		if ((currParticle.mEmitterFlags & PARTICLE_FLAG_COLOR_OVER_LIFETIME_ENABLED) == PARTICLE_FLAG_COLOR_OVER_LIFETIME_ENABLED)
+		if ((currParticle.mEmitterParams.z & PARTICLE_FLAG_COLOR_OVER_LIFETIME_ENABLED) == PARTICLE_FLAG_COLOR_OVER_LIFETIME_ENABLED)
 		{
 			vec4 randValue = TEX2D_LOD(RandTexture, vec2(gl_GlobalInvocationID.x / 1024.0, 0.0), 0);
 
-			if ((currParticle.mEmitterFlags & PARTICLE_FLAG_USE_COLOR_RANDOM_TWEEN) == PARTICLE_FLAG_USE_COLOR_RANDOM_TWEEN)
+			if ((currParticle.mEmitterParams.z & PARTICLE_FLAG_USE_COLOR_RANDOM_TWEEN) == PARTICLE_FLAG_USE_COLOR_RANDOM_TWEEN)
 				t = randValue.x;
 
-			currParticle.mColor = texelFetch(EmittersCurvesAtlasTexture, ivec2(currParticle.mEmittersAtlasStartPos + vec2(128.0 * t, 1.0)), 0);
+			currParticle.mColor = texelFetch(EmittersCurvesAtlasTexture, ivec2(currParticle.mEmitterParams.xy + vec2(128.0 * t, 1.0)), 0);
 		}
 
-		if ((currParticle.mEmitterFlags & PARTICLE_FLAG_VELOCITY_OVER_LIFETIME_ENABLED) == PARTICLE_FLAG_VELOCITY_OVER_LIFETIME_ENABLED)
+		if ((currParticle.mEmitterParams.z & PARTICLE_FLAG_ROTATION_OVER_LIFETIME_ENABLED) == PARTICLE_FLAG_ROTATION_OVER_LIFETIME_ENABLED)
 		{
-			currParticle.mVelocity = vec4(velocitySizeCurve.xyz, 0.0);
+			currParticle.mVelocityAndRotation.w += mDeltaTime * currParticle.mLifeParamsAndRotationPerFrame.z;
 		}
 
-		if ((currParticle.mEmitterFlags & PARTICLE_FLAG_GRAVITY_FORCE_ENABLED) == PARTICLE_FLAG_GRAVITY_FORCE_ENABLED)
+		if ((currParticle.mEmitterParams.z & PARTICLE_FLAG_VELOCITY_OVER_LIFETIME_ENABLED) == PARTICLE_FLAG_VELOCITY_OVER_LIFETIME_ENABLED)
 		{
-			currParticle.mVelocity += vec4(0.0, -currParticle.mGravityModifier, 0.0, 0.0);
+			currParticle.mVelocityAndRotation.xyz = velocitySizeCurve.xyz;
 		}
 
-		if ((currParticle.mEmitterFlags & PARTICLE_FLAG_FORCE_OVER_LIFETIME_ENABLED) == PARTICLE_FLAG_FORCE_OVER_LIFETIME_ENABLED)
+		if ((currParticle.mEmitterParams.z & PARTICLE_FLAG_GRAVITY_FORCE_ENABLED) == PARTICLE_FLAG_GRAVITY_FORCE_ENABLED)
 		{
-			currParticle.mVelocity += vec4(currParticle.mForcePerFrame, 0.0);
+			currParticle.mVelocityAndRotation.xyz += vec3(0.0, -currParticle.mForcePerFrameAndGravityModifier.w, 0.0);
 		}
 
-		if ((currParticle.mEmitterFlags & PARTICLE_FLAG_ROTATION_OVER_LIFETIME_ENABLED) == PARTICLE_FLAG_ROTATION_OVER_LIFETIME_ENABLED)
+		if ((currParticle.mEmitterParams.z & PARTICLE_FLAG_FORCE_OVER_LIFETIME_ENABLED) == PARTICLE_FLAG_FORCE_OVER_LIFETIME_ENABLED)
 		{
-			currParticle.mRotation += mDeltaTime * currParticle.mRotationPerFrame;
+			currParticle.mVelocityAndRotation.xyz += currParticle.mForcePerFrameAndGravityModifier.xyz;
 		}
 
-		currParticle.mAge -= mDeltaTime;
-		currParticle.mPosition += currParticle.mVelocity * mDeltaTime;
+		currParticle.mLifeParamsAndRotationPerFrame.x -= mDeltaTime;
+		currParticle.mPositionAndSize.xyz += currParticle.mVelocityAndRotation.xyz * mDeltaTime;
 
-		if (currParticle.mAge < 0.0f)
+		if (currParticle.mLifeParamsAndRotationPerFrame.x < 0.0f)
 		{
-			currParticle.mAge = -1.0;
+			currParticle.mLifeParamsAndRotationPerFrame.x = -1.0;
 
 			// write index to dead list
 			uint deadListIndex = atomicAdd(TYPED_BUFFER_ACCESS(Counters)[1], 1);
@@ -109,7 +109,7 @@ void main(void)
 			// add particle to index buffer for sorting
 			uint aliveIndex = atomicAdd(TYPED_BUFFER_ACCESS(Counters)[0], 1);
 
-			TYPED_BUFFER_ACCESS(ParticlesIndexBuffer)[aliveIndex] = vec2(length(mCameraPosition - currParticle.mPosition), float(gl_GlobalInvocationID.x));
+			TYPED_BUFFER_ACCESS(ParticlesIndexBuffer)[aliveIndex] = vec2(length(mCameraPosition - vec4(currParticle.mPositionAndSize.xyz, 1.0)), float(gl_GlobalInvocationID.x));
 
 			// update indirect args buffer
 			atomicAdd(TYPED_BUFFER_ACCESS(DrawArgsBuffer)[0].instanceCount, 1);

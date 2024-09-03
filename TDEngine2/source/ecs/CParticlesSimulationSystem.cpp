@@ -773,16 +773,9 @@ namespace TDEngine2
 				TVector4 mPosition;
 				TVector4 mVelocity;
 				TVector4 mColor;
-				F32      mAge;
-				F32      mLifetime;
-				F32      mRotation;
-				F32      mSize;
-				U32      mEmitterIndex;
-				U32      mEmitterFlags;
-				F32      mGravityModifier;
-				F32      mRotationPerFrame;
-				TVector3 mForcePerFrame;
-				U32      mEmittersAtlasStartPos[2];
+				TVector4 mLifeParams;
+				U32      mEmitterParams[4];
+				TVector4 mForceParams;
 			};
 
 			struct TActiveParticleIndexElement
@@ -905,7 +898,7 @@ namespace TDEngine2
 					_simulateParticles(pWorld, deltaTime);
 				}
 
-				GPUSort(pGraphicsContext, mpResourceManager.Get(), MAX_PARTICLES_COUNT, mAliveIndexBufferHandle, mCountersBufferHandle);
+				//GPUSort(pGraphicsContext, mpResourceManager.Get(), MAX_PARTICLES_COUNT, mAliveIndexBufferHandle, mCountersBufferHandle);
 
 #if TDE2_DEBUG_MODE
 				pGraphicsContext->EndSectionMarker();

@@ -45,53 +45,53 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 		return;
 
 	TParticle currParticle = OutputParticles[id.x];
-	if (currParticle.mAge > 0.0)
+	if (currParticle.mLifeParamsAndRotationPerFrame.x > 0.0)
 	{
-		float t = 1.0 - saturate(currParticle.mAge / currParticle.mLifetime);
+		float t = 1.0 - saturate(currParticle.mLifeParamsAndRotationPerFrame.x / currParticle.mLifeParamsAndRotationPerFrame.y);
 
-		float4 velocitySizeCurve = EmittersCurvesAtlasTexture.Load(int4(currParticle.mEmittersAtlasStartPos + float2(128.0 * t, 0.0), 0, 0));
+		float4 velocitySizeCurve = EmittersCurvesAtlasTexture.Load(int4((float2)currParticle.mEmitterParams.xy + float2(128.0 * t, 0.0), 0, 0));
 
-		if (currParticle.mEmitterFlags & PARTICLE_FLAG_SIZE_OVER_LIFETIME_ENABLED)
+		if (currParticle.mEmitterParams.z & PARTICLE_FLAG_SIZE_OVER_LIFETIME_ENABLED)
 		{
-			currParticle.mSize = velocitySizeCurve.a;
+			currParticle.mPositionAndSize.w = velocitySizeCurve.a;
 		}
 
-		if (currParticle.mEmitterFlags & PARTICLE_FLAG_COLOR_OVER_LIFETIME_ENABLED)
+		if (currParticle.mEmitterParams.z & PARTICLE_FLAG_COLOR_OVER_LIFETIME_ENABLED)
 		{
 			float4 randValue = TEX2D_LOD(RandTexture, float2(id.x / 1024.0, 0.0), 0);
 
-			if (currParticle.mEmitterFlags & PARTICLE_FLAG_USE_COLOR_RANDOM_TWEEN)
+			if (currParticle.mEmitterParams.z & PARTICLE_FLAG_USE_COLOR_RANDOM_TWEEN)
 				t = randValue.x;
 
-			currParticle.mColor = EmittersCurvesAtlasTexture.Load(int4(currParticle.mEmittersAtlasStartPos + float2(128.0 * t, 1.0), 0, 0));
+			currParticle.mColor = EmittersCurvesAtlasTexture.Load(int4((float2)currParticle.mEmitterParams.xy + float2(128.0 * t, 1.0), 0, 0));
 		}
 
-		if (currParticle.mEmitterFlags & PARTICLE_FLAG_VELOCITY_OVER_LIFETIME_ENABLED)
+		if (currParticle.mEmitterParams.z & PARTICLE_FLAG_ROTATION_OVER_LIFETIME_ENABLED)
 		{
-			currParticle.mVelocity = float4(velocitySizeCurve.xyz, 0.0);
+			currParticle.mVelocityAndRotation.w += mDeltaTime * currParticle.mLifeParamsAndRotationPerFrame.z;
 		}
 
-		if (currParticle.mEmitterFlags & PARTICLE_FLAG_GRAVITY_FORCE_ENABLED)
+		if (currParticle.mEmitterParams.z & PARTICLE_FLAG_VELOCITY_OVER_LIFETIME_ENABLED)
 		{
-			currParticle.mVelocity += float4(0.0, -currParticle.mGravityModifier, 0.0, 0.0);
+			currParticle.mVelocityAndRotation.xyz = velocitySizeCurve.xyz;
 		}
 
-		if (currParticle.mEmitterFlags & PARTICLE_FLAG_FORCE_OVER_LIFETIME_ENABLED)
+		if (currParticle.mEmitterParams.z & PARTICLE_FLAG_GRAVITY_FORCE_ENABLED)
 		{
-			currParticle.mVelocity += float4(currParticle.mForcePerFrame, 0.0);
+			currParticle.mVelocityAndRotation.xyz += float3(0.0, -currParticle.mForcePerFrameAndGravityModifier.w, 0.0);
 		}
 
-		if (currParticle.mEmitterFlags & PARTICLE_FLAG_ROTATION_OVER_LIFETIME_ENABLED)
+		if (currParticle.mEmitterParams.z & PARTICLE_FLAG_FORCE_OVER_LIFETIME_ENABLED)
 		{
-			currParticle.mRotation += mDeltaTime * currParticle.mRotationPerFrame;
+			currParticle.mVelocityAndRotation.xyz += currParticle.mForcePerFrameAndGravityModifier.xyz;
 		}
 
-		currParticle.mAge -= mDeltaTime;
-		currParticle.mPosition += currParticle.mVelocity * mDeltaTime;
+		currParticle.mLifeParamsAndRotationPerFrame.x -= mDeltaTime;
+		currParticle.mPositionAndSize.xyz += currParticle.mVelocityAndRotation.xyz * mDeltaTime;
 
-		if (currParticle.mAge < 0.0f)
+		if (currParticle.mLifeParamsAndRotationPerFrame.x < 0.0f)
 		{
-			currParticle.mAge = -1.0;
+			currParticle.mLifeParamsAndRotationPerFrame.x = -1.0;
 
 			// write index to dead list
 			int deadListIndex = 0;
@@ -104,7 +104,7 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 			int aliveIndex = 0;
 			InterlockedAdd(Counters[0], 1, aliveIndex);
 
-			ParticlesIndexBuffer[aliveIndex] = float2(length(mCameraPosition - currParticle.mPosition), (float)id.x);
+			ParticlesIndexBuffer[aliveIndex] = float2(length(mCameraPosition - float4(currParticle.mPositionAndSize.xyz, 1.0)), (float)id.x);
 
 			// update indirect args buffer
 			InterlockedAdd(DrawArgsBuffer[1], 1);

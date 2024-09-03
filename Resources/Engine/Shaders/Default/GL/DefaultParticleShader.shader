@@ -59,8 +59,8 @@ void main(void)
 		int index = int(TYPED_BUFFER_ACCESS(AliveParticlesIndexBuffer)[TYPED_BUFFER_ACCESS(Counters)[0] - uint(gl_InstanceID + 1)].y);
 		TParticle currParticleData = TYPED_BUFFER_ACCESS(Particles)[index];
 
-		particleCenter = currParticleData.mPosition.xyz;
-		localPos       = rotZAxisMat * (vec3(BILLBOARD_QUAD_VERTICES[gl_VertexID].xy, 0.0) * currParticleData.mSize);
+		particleCenter = currParticleData.mPositionAndSize.xyz;
+		localPos       = rotZAxisMat * (vec3(BILLBOARD_QUAD_VERTICES[gl_VertexID].xy, 0.0) * currParticleData.mPositionAndSize.w);
 		
 		VertColor      = currParticleData.mColor;
 	}
