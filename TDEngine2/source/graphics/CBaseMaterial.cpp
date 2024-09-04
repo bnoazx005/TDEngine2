@@ -335,6 +335,12 @@ namespace TDEngine2
 
 		pWriter->SetString(TMaterialArchiveKeys::mGeometryTagKey, Meta::EnumTrait<E_GEOMETRY_SUBGROUP_TAGS>::ToString(mTag));
 
+		auto pipelineCreationResult = mpGraphicsObjectManager->CreateGraphicsPipelineState(mGraphicsPipelineConfigDesc);
+		if (pipelineCreationResult.IsOk())
+		{
+			mGraphicsPipelineHandle = pipelineCreationResult.Get();
+		}
+
 		if (TGraphicsPipelineStateId::Invalid != mGraphicsPipelineHandle)
 		{
 			auto pGraphicsPipeline = mpGraphicsObjectManager->GetGraphicsPipeline(mGraphicsPipelineHandle);
