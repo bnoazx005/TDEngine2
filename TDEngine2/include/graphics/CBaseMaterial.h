@@ -16,6 +16,7 @@
 #include <vector>
 #include <tuple>
 #include <array>
+#include <mutex>
 
 
 namespace TDEngine2
@@ -438,6 +439,8 @@ namespace TDEngine2
 			TGraphicsPipelineStateId    mGraphicsPipelineHandle;
 
 			E_GEOMETRY_SUBGROUP_TAGS mTag = E_GEOMETRY_SUBGROUP_TAGS::BASE;
+
+			mutable std::mutex          mMutex;
 	};
 
 

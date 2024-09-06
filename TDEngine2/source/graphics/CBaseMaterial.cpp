@@ -7,6 +7,7 @@
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IFileSystem.h"
+#include "../../include/core/IJobManager.h"
 #include "../../include/platform/CYAMLFile.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/utils/Utils.h"
@@ -158,6 +159,8 @@ namespace TDEngine2
 		{
 			return TPtr<IMaterialInstance>(nullptr);
 		}
+		
+		std::lock_guard<std::mutex> lock(mMutex);
 
 		if (auto newInstanceResult = _allocateNewInstance())
 		{
@@ -251,19 +254,23 @@ namespace TDEngine2
 
 				pReader->BeginGroup("texture_bindings");
 
+				TPtr<IJobManager> pJobManager = mpResourceManager->GetJobManager();
+
 				while (pReader->HasNextItem())
 				{
 					pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
 
 					std::string slotId = pReader->GetString(TMaterialArchiveKeys::TTextureKeys::mSlotKey);
 					std::string textureId = pReader->GetString(TMaterialArchiveKeys::TTextureKeys::mTextureKey);
-
 					TypeId textureTypeId = TypeId(pReader->GetUInt32(TMaterialArchiveKeys::TTextureKeys::mTextureTypeKey));
-					if (SetTextureResource(slotId, mpResourceManager->GetResource<ITexture>(mpResourceManager->Load(textureId, textureTypeId)).Get(), instanceId) != RC_OK)
-					{
-						LOG_WARNING(Wrench::StringUtils::Format("[BaseMaterial] Couldn't load texture \"{0}\"", textureId));
-						result = result | RC_FAIL;
-					}
+
+					pJobManager->SubmitJob(nullptr, [this, slotId, textureId, textureTypeId, instanceId](auto)
+						{
+							if (SetTextureResource(slotId, mpResourceManager->GetResource<ITexture>(mpResourceManager->Load(textureId, textureTypeId)).Get(), instanceId) != RC_OK)
+							{
+								LOG_WARNING(Wrench::StringUtils::Format("[BaseMaterial] Couldn't load texture \"{0}\"", textureId));
+							}
+						});
 
 					pReader->EndGroup();
 				}
@@ -325,6 +332,8 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+
+		std::lock_guard<std::mutex> lock(mMutex);
 
 		pWriter->BeginGroup("meta");
 		{
@@ -501,6 +510,8 @@ namespace TDEngine2
 
 	void CBaseMaterial::Bind(TMaterialInstanceId instanceId)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		auto pShaderInstance = mpResourceManager->GetResource<IShader>(mShaderHandle);
 
 		if (!pShaderInstance || (instanceId == TMaterialInstanceId::Invalid))
@@ -551,6 +562,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseMaterial::SetTextureResource(const std::string& resourceName, ITexture* pTexture, TMaterialInstanceId instanceId)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (resourceName.empty() || !pTexture || instanceId == TMaterialInstanceId::Invalid)
 		{
 			return RC_INVALID_ARGS;
@@ -699,6 +712,8 @@ namespace TDEngine2
 
 	ITexture* CBaseMaterial::GetTextureResource(const std::string& id, TMaterialInstanceId instanceId) const
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		auto it = mInstancesAssignedTextures.find(instanceId);
 		if (it == mInstancesAssignedTextures.cend())
 		{
@@ -742,6 +757,8 @@ namespace TDEngine2
 		{
 			return;
 		}
+
+		std::lock_guard<std::mutex> lock(mMutex);
 
 		auto& textures = mInstancesAssignedTextures[DefaultMaterialInstanceId];
 
