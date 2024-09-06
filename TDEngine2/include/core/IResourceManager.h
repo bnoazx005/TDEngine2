@@ -108,6 +108,13 @@ namespace TDEngine2
 				return _loadResource(T::GetTypeId(), name, loadingPolicy);
 			}
 
+			template <typename T>
+			TResourceId LoadAsync(const std::string& name)
+			{
+				const TypeId resourceType = T::GetTypeId();
+				return _loadResourceWithResourceProviderInfoAsync(resourceType, resourceType, resourceType, name);
+			}
+
 			/*!
 				\brief The method loads specified type with particular factory and loader
 
@@ -127,6 +134,18 @@ namespace TDEngine2
 			Load(const std::string& name, E_RESOURCE_LOADING_POLICY loadingPolicy = E_RESOURCE_LOADING_POLICY::DEFAULT)
 			{
 				return _loadResourceWithResourceProviderInfo(T::GetTypeId(), TResourceProviderInfo::GetFactoryResourceId(), TResourceProviderInfo::GetLoaderResourceId(), name, loadingPolicy);
+			}
+
+			template <typename T, typename TResourceProviderInfo>
+			TDE2_API
+#if _HAS_CXX17
+				std::enable_if_t<std::is_base_of_v<IResource, T>, TResourceId>
+#else
+				typename std::enable_if<std::is_base_of<IResource, T>::value, TResourceId>::type
+#endif
+			LoadAsync(const std::string& name)
+			{
+				return _loadResourceWithResourceProviderInfoAsync(T::GetTypeId(), TResourceProviderInfo::GetFactoryResourceId(), TResourceProviderInfo::GetLoaderResourceId(), name);
 			}
 
 			/*!
@@ -307,6 +326,7 @@ namespace TDEngine2
 
 			TDE2_API virtual TResourceId _loadResource(TypeId resourceTypeId, const std::string& name, E_RESOURCE_LOADING_POLICY loadingPolicy) = 0;
 			TDE2_API virtual TResourceId _loadResourceWithResourceProviderInfo(TypeId resourceTypeId, TypeId factoryTypeId, TypeId loaderTypeId, const std::string& name, E_RESOURCE_LOADING_POLICY loadingPolicy) = 0;
+			TDE2_API virtual TResourceId _loadResourceWithResourceProviderInfoAsync(TypeId resourceTypeId, TypeId factoryTypeId, TypeId loaderTypeId, const std::string& name) = 0;
 
 			TDE2_API virtual TResourceId _createResource(TypeId resourceTypeId, const std::string& name, const TBaseResourceParameters& params) = 0;
 

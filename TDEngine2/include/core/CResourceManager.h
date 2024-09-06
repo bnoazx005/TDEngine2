@@ -213,6 +213,7 @@ namespace TDEngine2
 
 			TDE2_API TResourceId _loadResource(TypeId resourceTypeId, const std::string& name, E_RESOURCE_LOADING_POLICY loadingPolicy) override;
 			TDE2_API TResourceId _loadResourceWithResourceProviderInfo(TypeId resourceTypeId, TypeId factoryTypeId, TypeId loaderTypeId, const std::string& name, E_RESOURCE_LOADING_POLICY loadingPolicy) override;
+			TDE2_API TResourceId _loadResourceWithResourceProviderInfoAsync(TypeId resourceTypeId, TypeId factoryTypeId, TypeId loaderTypeId, const std::string& name) override;
 
 			TDE2_API TResourceId _createResource(TypeId resourceTypeId, const std::string& name, const TBaseResourceParameters& params) override;
 			
