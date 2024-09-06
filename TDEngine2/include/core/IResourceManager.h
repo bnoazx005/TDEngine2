@@ -299,6 +299,8 @@ namespace TDEngine2
 
 			TDE2_API virtual TPtr<IResourcesRuntimeManifest> GetResourcesRuntimeManifest() const = 0;
 
+			TDE2_API virtual TPtr<IJobManager> GetJobManager() const = 0;
+
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_RESOURCE_MANAGER; }
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IResourceManager)

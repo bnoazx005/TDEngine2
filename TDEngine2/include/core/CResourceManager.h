@@ -206,6 +206,8 @@ namespace TDEngine2
 			TDE2_API const TBaseResourceParameters* GetResourceMeta(const std::string& name) const override;
 
 			TDE2_API TPtr<IResourcesRuntimeManifest> GetResourcesRuntimeManifest() const override;
+
+			TDE2_API TPtr<IJobManager> GetJobManager() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CResourceManager)
 

@@ -275,6 +275,11 @@ namespace TDEngine2
 		return mpResourcesRuntimeManifest;
 	}
 
+	TPtr<IJobManager> CResourceManager::GetJobManager() const
+	{
+		return mpJobManager;
+	}
+
 	TResourceId CResourceManager::_loadResource(TypeId resourceTypeId, const std::string& name, E_RESOURCE_LOADING_POLICY loadingPolicy)
 	{
 		if (name.empty())

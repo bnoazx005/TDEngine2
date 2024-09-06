@@ -97,18 +97,13 @@ float4 mainPS(VertexOut input): SV_TARGET0
 	LightingData lightingData = CreateLightingData(input.mWorldPos, float4(normal, 0.0), 
 												   normalize(CameraPosition - input.mWorldPos), 
 												   GammaToLinear(TEX2D(AlbedoMap, input.mUV)),
-												   TEX2D(PropertiesMap, input.mUV));
+												   TEX2D(PropertiesMap, input.mUV), 
+												   input.mPos);
 
 	float4 sunLight = CalcSunLightContribution(CreateSunLight(SunLightPosition, SunLightDirection, float4(1.0, 1.0, 1.0, 1.0)), lightingData);
 
-	float4 pointLightsContribution = float4(0.0, 0.0, 0.0, 0.0);
-
-	for (int i = 0; i < ActivePointLightsCount; ++i)
-	{
-		pointLightsContribution += CalcPointLightContribution(PointLights[i], lightingData);
-	}
-
-	return (sunLight * (1.0 - ComputeSunShadowFactorPCF(8, GetSunShadowCascadeIndex(input.mViewWorldPos), input.mWorldPos, 0.0001, 1000.0)) + pointLightsContribution) * input.mColor;
+	return (sunLight * (1.0 - ComputeSunShadowFactorPCF(8, GetSunShadowCascadeIndex(input.mViewWorldPos), input.mWorldPos, 0.0001, 1000.0)) 
+		+ CalcLightsContribution(lightingData, ActiveLightsCount)) * input.mColor;
 }
 
 #endprogram
