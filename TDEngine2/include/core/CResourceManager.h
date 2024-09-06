@@ -243,6 +243,6 @@ namespace TDEngine2
 
 			TPtr<IResourcesRuntimeManifest> mpResourcesRuntimeManifest;
 
-			mutable std::mutex              mMutex;
+			mutable std::recursive_mutex    mMutex;
 	};
 }

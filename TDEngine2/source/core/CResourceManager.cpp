@@ -20,7 +20,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CResourceManager::Init(TPtr<IJobManager> pJobManager, TPtr<IResourcesRuntimeManifest> pResourcesRuntimeManifest)
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
 
 		if (mIsInitialized)
 		{
@@ -47,7 +47,7 @@ namespace TDEngine2
 
 	TResult<TResourceLoaderId> CResourceManager::RegisterLoader(IResourceLoader* pResourceLoader)
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
 
 		if (!mIsInitialized || !pResourceLoader)
 		{
@@ -72,7 +72,7 @@ namespace TDEngine2
 	
 	E_RESULT_CODE CResourceManager::UnregisterLoader(const TResourceLoaderId& resourceLoaderId)
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
 
 		if (!mIsInitialized)
 		{
@@ -102,7 +102,7 @@ namespace TDEngine2
 
 	TResult<TResourceFactoryId> CResourceManager::RegisterFactory(IResourceFactory* pResourceFactory)
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
 		
 		if (!mIsInitialized || !pResourceFactory)
 		{
@@ -127,7 +127,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CResourceManager::UnregisterFactory(const TResourceFactoryId& resourceFactoryId)
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
 
 		if (!mIsInitialized)
 		{
@@ -159,7 +159,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CResourceManager::RegisterResourceTypeAlias(TypeId inputResourceType, TypeId aliasType)
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
 
 		if (TypeId::Invalid == inputResourceType || TypeId::Invalid == aliasType)
 		{
@@ -224,7 +224,7 @@ namespace TDEngine2
 
 	TPtr<IResource> CResourceManager::GetResource(const TResourceId& handle) const
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
 
 		return _getResourceInternal(handle);
 	}
@@ -248,7 +248,7 @@ namespace TDEngine2
 
 	TResourceId CResourceManager::Load(const std::string& name, TypeId typeId, E_RESOURCE_LOADING_POLICY loadingPolicy)
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
 		return _loadResource(typeId, name, loadingPolicy);
 	}
 
@@ -259,19 +259,19 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
 		return mpResourcesRuntimeManifest->AddResourceMeta(name, std::move(pMeta));
 	}
 
 	const TBaseResourceParameters* CResourceManager::GetResourceMeta(const std::string& name) const
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
 		return mpResourcesRuntimeManifest ? mpResourcesRuntimeManifest->GetResourceMeta(name) : nullptr;
 	}
 
 	TPtr<IResourcesRuntimeManifest> CResourceManager::GetResourcesRuntimeManifest() const
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
 		return mpResourcesRuntimeManifest;
 	}
 
@@ -289,55 +289,60 @@ namespace TDEngine2
 	TResourceId CResourceManager::_loadResourceWithResourceProviderInfo(TypeId resourceTypeId, TypeId factoryTypeId, TypeId loaderTypeId, const std::string& name, E_RESOURCE_LOADING_POLICY loadingPolicy)
 	{
 		TDE2_PROFILER_SCOPE("CResourceManager::_loadResourceWithResourceProviderInfo");
-		//std::lock_guard<std::mutex> lock(mMutex);
+		
+		IResource* pResource = nullptr;
+		TResourceId resourceId = TResourceId::Invalid;
 
-		auto&& iter = mResourcesMap.find(name);
-		if ((iter != mResourcesMap.cend()) && (iter->second != TResourceId::Invalid)) /// needed resource already exists
 		{
-			auto getResourceResult = mResources[static_cast<U32>(iter->second)];
-			if (getResourceResult.HasError())
+			std::lock_guard<std::recursive_mutex> lock(mMutex);
+
+			auto&& iter = mResourcesMap.find(name);
+			if ((iter != mResourcesMap.cend()) && (iter->second != TResourceId::Invalid)) /// needed resource already exists
+			{
+				auto getResourceResult = mResources[static_cast<U32>(iter->second)];
+				if (getResourceResult.HasError())
+				{
+					return TResourceId::Invalid;
+				}
+
+				auto&& pResource = getResourceResult.Get();
+				TDE2_ASSERT(pResource);
+
+				if (pResource)
+				{
+					if (E_RESOURCE_STATE_TYPE::RST_PENDING == pResource->GetState())
+					{
+						E_RESULT_CODE result = pResource->Load(); /// \note Load is executed in sequential manner, but internally it can create background tasks
+						if (RC_OK != result)
+						{
+							return TResourceId::Invalid;
+						}
+					}
+
+					return iter->second;
+				}
+
+				TDE2_UNREACHABLE();
+				return TResourceId::Invalid;
+			}
+
+			/// \note Create a new resource and load it	
+			auto&& pResourceFactory = _getResourceFactory(factoryTypeId);
+			if (!pResourceFactory)
 			{
 				return TResourceId::Invalid;
 			}
 
-			auto&& pResource = getResourceResult.Get();
-			TDE2_ASSERT(pResource);
+			auto it = mResourceTypesPoliciesRegistry.find(resourceTypeId);
 
-			if (pResource)
-			{
-				if (E_RESOURCE_STATE_TYPE::RST_PENDING == pResource->GetState())
-				{
-					E_RESULT_CODE result = pResource->Load(); /// \note Load is executed in sequential manner, but internally it can create background tasks
-					if (RC_OK != result)
-					{
-						return TResourceId::Invalid;
-					}
-				}
+			TBaseResourceParameters loadingParameters;
+			loadingParameters.mLoadingPolicy = (E_RESOURCE_LOADING_POLICY::DEFAULT != loadingPolicy) || (it == mResourceTypesPoliciesRegistry.cend()) ? loadingPolicy : it->second;
 
-				return iter->second;
-			}
+			pResource = pResourceFactory->CreateDefault(name, loadingParameters);
+			resourceId = TResourceId(mResources.Add(TPtr<IResource>(pResource)));
 
-			TDE2_UNREACHABLE();
-			return TResourceId::Invalid;
+			mResourcesMap[name] = resourceId;
 		}
-
-		/// \note Create a new resource and load it	
-		auto&& pResourceFactory = _getResourceFactory(factoryTypeId);
-		if (!pResourceFactory)
-		{
-			return TResourceId::Invalid;
-		}
-
-		auto it = mResourceTypesPoliciesRegistry.find(resourceTypeId);
-
-		TBaseResourceParameters loadingParameters;
-		loadingParameters.mLoadingPolicy = (E_RESOURCE_LOADING_POLICY::DEFAULT != loadingPolicy) || (it == mResourceTypesPoliciesRegistry.cend()) ? loadingPolicy : it->second;
-
-		IResource* pResource = pResourceFactory->CreateDefault(name, loadingParameters);
-
-		const TResourceId resourceId = TResourceId(mResources.Add(TPtr<IResource>(pResource)));
-
-		mResourcesMap[name] = resourceId;
 
 		pResource->Load(); /// \note Load is executed in sequential manner, but internally it can create background tasks
 
@@ -349,6 +354,7 @@ namespace TDEngine2
 	TResourceId CResourceManager::_createResource(TypeId resourceTypeId, const std::string& name, const TBaseResourceParameters& params)
 	{
 		TDE2_PROFILER_SCOPE("CResourceManager::_createResource");
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
 
 		TResourceId resourceId = GetResourceId(name);
 
@@ -400,7 +406,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CResourceManager::ReleaseResource(const TResourceId& id)
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
+		std::lock_guard<std::recursive_mutex> lock(mMutex);
 	
 		if (TResourceId::Invalid == id)
 		{
