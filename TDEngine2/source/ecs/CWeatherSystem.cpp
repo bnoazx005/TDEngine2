@@ -202,16 +202,28 @@ namespace TDEngine2
 		uniformsData.mCrispiness = pWeatherComponent->mCrispiness;
 		uniformsData.mDensityFactor = pWeatherComponent->mDensityFactor;
 
-		const TResourceId volumetricCloudsShaderHandle = mpResourceManager->Load<IMaterial>(CProjectSettings::Get()->mGraphicsSettings.mVolumetricCloudsMainShader);
-		TDE2_ASSERT(TResourceId::Invalid != volumetricCloudsShaderHandle);
+		mpJobManager->SubmitJob(nullptr, [this, uniformsData, weatherMapTextureId = pWeatherComponent->mWeatherMapTextureId](auto)
+			{
+				const TResourceId volumetricCloudsShaderHandle = mpResourceManager->Load<IMaterial>(CProjectSettings::Get()->mGraphicsSettings.mVolumetricCloudsMainShader);
+				TDE2_ASSERT(TResourceId::Invalid != volumetricCloudsShaderHandle);
 
-		if (auto pVolumetricCloudsMainShader = mpResourceManager->GetResource<IShader>(volumetricCloudsShaderHandle))
-		{
-			pVolumetricCloudsMainShader->SetUserUniformsBuffer(1, reinterpret_cast<const U8*>(&uniformsData), sizeof(uniformsData));
+				if (auto pVolumetricCloudsMainShader = mpResourceManager->GetResource<IShader>(volumetricCloudsShaderHandle))
+				{
+					mpJobManager->ExecuteInMainThread([pVolumetricCloudsMainShader, uniformsData]()
+						{
+							pVolumetricCloudsMainShader->SetUserUniformsBuffer(1, reinterpret_cast<const U8*>(&uniformsData), sizeof(uniformsData));
+						});
 
-			auto pWeatherMapTexture = mpResourceManager->GetResource<ITexture2D>(mpResourceManager->Load<ITexture2D>(pWeatherComponent->mWeatherMapTextureId));
-			pVolumetricCloudsMainShader->SetTextureResource("WeatherMap", pWeatherMapTexture.Get());
-		}
+					const TResourceId weatherMapTextureHandle = mpResourceManager->LoadAsync<ITexture2D>(weatherMapTextureId);
+					TDE2_ASSERT(TResourceId::Invalid != weatherMapTextureHandle);
+
+					mpJobManager->ExecuteInMainThread([this, pVolumetricCloudsMainShader, weatherMapTextureHandle]()
+						{
+							auto pWeatherMapTexture = mpResourceManager->GetResource<ITexture2D>(weatherMapTextureHandle);
+							pVolumetricCloudsMainShader->SetTextureResource("WeatherMap", pWeatherMapTexture.Get());
+						});
+				}
+			});		
 	}
 
 

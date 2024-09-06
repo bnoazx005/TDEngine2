@@ -31,7 +31,7 @@ namespace TDEngine2
 		}
 
 		mpGraphicsContext = pGraphicsContext;
-
+		
 		mIsInitialized = true;
 
 		return RC_OK;

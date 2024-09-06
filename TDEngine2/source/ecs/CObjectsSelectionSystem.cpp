@@ -16,6 +16,7 @@
 #include "../../include/graphics/UI/CLayoutElementComponent.h"
 #include "../../include/graphics/UI/CCanvasComponent.h"
 #include "../../include/core/IResourceManager.h"
+#include "../../include/core/IJobManager.h"
 #include "../../include/ecs/CTransform.h"
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CEntity.h"
@@ -62,6 +63,7 @@ namespace TDEngine2
 		mpGraphicsObjectManager = pGraphicsObjectManager;
 
 		mpResourceManager = pRenderer->GetResourceManager();
+		mpJobManager = mpResourceManager->GetJobManager();
 
 		mpSelectionVertDecl = nullptr;
 		mpSelectionSkinnedVertDecl = nullptr;
@@ -322,6 +324,11 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("CObjectsSelectionSystem::Update");
 
+		if (!mIsReadyForUpdate)
+		{
+			return;
+		}
+
 		// \note Test all objects for visibility
 		ICamera* pEditorCameraComponent = _getEditorCamera(pWorld, mCameraEntityId);
 
@@ -517,13 +524,30 @@ namespace TDEngine2
 		const static TMaterialParameters selectionOutlineMaterialParams        = CreateSelectionOutlineMaterialParams("Shaders/Default/SelectionOutline.shader");
 		const static TMaterialParameters selectionSkinnedOutlineMaterialParams = CreateSelectionOutlineMaterialParams("Shaders/Default/SelectionSkinnedOutline.shader");
 
-		mSelectionMaterialHandle               = mpResourceManager->Create<IMaterial>("SelectionMaterial.material", selectionMaterialParams);
-		mSelectionSkinnedMaterialHandle        = mpResourceManager->Create<IMaterial>("SelectionSkinnedMaterial.material", selectionSkinnedMaterialParams);
-		mSelectionUIMaterialHandle             = mpResourceManager->Create<IMaterial>("SelectionUIMaterial.material", selectionUIMaterialParams);
-		mSelectionOutlineMaterialHandle        = mpResourceManager->Create<IMaterial>("SelectionOutlineMaterial.material", selectionOutlineMaterialParams);
-		mSelectionSkinnedOutlineMaterialHandle = mpResourceManager->Create<IMaterial>("SelectionSkinnedOutlineMaterial.material", selectionSkinnedOutlineMaterialParams);
+		static const std::array<std::tuple<std::string, TMaterialParameters, std::function<void(TResourceId)>>, 5> MATERIALS_CONFIGS
+		{
+			std::make_tuple("SelectionMaterial.material", CreateSelectionMaterialParams("Shaders/Default/Selection.shader"), [this](TResourceId resourceId) { mSelectionMaterialHandle = resourceId; }),
+			std::make_tuple("SelectionSkinnedMaterial.material", CreateSelectionMaterialParams("Shaders/Default/SelectionSkinned.shader"), [this](TResourceId resourceId) { mSelectionSkinnedMaterialHandle = resourceId; }),
+			std::make_tuple("SelectionUIMaterial.material", CreateSelectionMaterialParams("Shaders/Default/SelectionUI.shader"), [this](TResourceId resourceId) { mSelectionUIMaterialHandle = resourceId; }),
+			std::make_tuple("SelectionOutlineMaterial.material", CreateSelectionOutlineMaterialParams("Shaders/Default/SelectionOutline.shader"), [this](TResourceId resourceId) { mSelectionOutlineMaterialHandle = resourceId; }),
+			std::make_tuple("SelectionSkinnedOutlineMaterial.material", CreateSelectionOutlineMaterialParams("Shaders/Default/SelectionSkinnedOutline.shader"), [this](TResourceId resourceId) { mSelectionSkinnedOutlineMaterialHandle = resourceId; })
+		};
 
-		return (mSelectionMaterialHandle != TResourceId::Invalid && mSelectionOutlineMaterialHandle != TResourceId::Invalid) ? RC_OK : RC_FAIL;
+		mpJobManager->SubmitJob(nullptr, [this](auto)
+			{
+				TJobCounter counter{};
+
+				mpJobManager->SubmitMultipleJobs(&counter, static_cast<U32>(MATERIALS_CONFIGS.size()), 1, [this](const TJobArgs& arg)
+					{
+						std::get<2>(MATERIALS_CONFIGS[arg.mJobIndex])(mpResourceManager->Create<IMaterial>(std::get<std::string>(MATERIALS_CONFIGS[arg.mJobIndex]), std::get<TMaterialParameters>(MATERIALS_CONFIGS[arg.mJobIndex])));
+					});
+
+				mpJobManager->WaitForJobCounter(counter);
+
+				mIsReadyForUpdate = true;
+			});
+
+		return RC_OK;
 	}
 
 	ICamera* CObjectsSelectionSystem::_getEditorCamera(IWorld* pWorld, TEntityId cameraEntityId)

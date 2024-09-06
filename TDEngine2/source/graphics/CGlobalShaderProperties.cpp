@@ -1,5 +1,6 @@
 #include "../../include/graphics/CGlobalShaderProperties.h"
 #include "../../include/core/IGraphicsContext.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/graphics/InternalShaderData.h"
 
@@ -13,6 +14,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CGlobalShaderProperties::Init(IGraphicsObjectManager* pGraphicsObjectManager)
 	{
+		TDE2_PROFILER_SCOPE("CGlobalShaderProperties::Init");
+
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
@@ -151,6 +154,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CGlobalShaderProperties::_initializeUniformsBuffers(IGraphicsObjectManager* pGraphicsObjectManager, U8 numOfBuffers)
 	{
+		TDE2_PROFILER_SCOPE("CGlobalShaderProperties::_initializeUniformsBuffers");
+
 		E_INTERNAL_UNIFORM_BUFFER_REGISTERS currSlot;
 
 		auto pGraphicsContext = pGraphicsObjectManager->GetGraphicsContext();
@@ -187,6 +192,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CGlobalShaderProperties::_initializeShaderBuffers(IGraphicsObjectManager* pGraphicsObjectManager)
 	{
+		TDE2_PROFILER_SCOPE("CGlobalShaderProperties::_initializeShaderBuffers");
+
 		auto pGraphicsContext = pGraphicsObjectManager->GetGraphicsContext();
 		if (!pGraphicsContext)
 		{

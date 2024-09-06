@@ -21,6 +21,7 @@
 #include "../../include/core/IWindowSystem.h"
 #include "../../include/core/IEventManager.h"
 #include "../../include/core/CGameUserSettings.h"
+#include "../../include/core/IJobManager.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include "../../include/editor/CStatsCounters.h"
@@ -2099,6 +2100,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE InitStaticRenderPasses(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties)
 	{
+		TDE2_PROFILER_SCOPE("InitStaticRenderPasses");
+
 		E_RESULT_CODE result = RC_OK;
 
 		TPassInvokeContext passConfig
@@ -2204,6 +2207,8 @@ namespace TDEngine2
 
 	static TResult<TLightCullingData> InitLightGrid(const TRendererInitParams& params)
 	{
+		TDE2_PROFILER_SCOPE("InitLightGrid");
+
 		TLightCullingData data;
 
 		auto&& graphicsObjectManager = params.mpGraphicsContext->GetGraphicsObjectManager();
@@ -2252,7 +2257,10 @@ namespace TDEngine2
 
 	static E_RESULT_CODE CreateRandomTexture(TPtr<IResourceManager> pResourceManager)
 	{
-		const TTexture2DParameters randTextureParams(1024, 1024, FT_FLOAT4);
+		TDE2_PROFILER_SCOPE("CreateRandomTexture");
+
+		constexpr U32 RND_TEXTURE_SIZES = 1024;
+		const TTexture2DParameters randTextureParams(RND_TEXTURE_SIZES, RND_TEXTURE_SIZES, FT_FLOAT4);
 		
 		TPtr<ITexture2D> pTexture = pResourceManager->GetResource<ITexture2D>(pResourceManager->Create<ITexture2D>(CProjectSettings::Get()->mGraphicsSettings.mRandomTextureId, randTextureParams));
 		if (!pTexture)
@@ -2260,18 +2268,33 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		std::vector<F32> values(randTextureParams.mWidth * randTextureParams.mHeight * sizeof(F32) * 4);
-		for (F32& value : values)
-		{
-			value = CRandomUtils::GetRandF32Value({ 0.0f, 1.0f });
-		}
+		TPtr<IJobManager> pJobManager = pResourceManager->GetJobManager();
 
-		return pTexture->WriteData({ 0, 0, static_cast<I32>(randTextureParams.mWidth), static_cast<I32>(randTextureParams.mHeight) }, reinterpret_cast<const U8*>(values.data()));
+		pJobManager->SubmitJob(nullptr, [pJobManager, pTexture](auto)
+			{
+				std::vector<F32> values(RND_TEXTURE_SIZES * RND_TEXTURE_SIZES * sizeof(F32) * 4);
+				
+				TJobCounter counter;
+
+				pJobManager->SubmitMultipleJobs(&counter, static_cast<U32>(values.size()), 1024, [&values](const TJobArgs& arg)
+					{
+						values[arg.mJobIndex] = CRandomUtils::GetRandF32Value({0.0f, 1.0f});
+					});
+
+				pJobManager->WaitForJobCounter(counter);
+
+				E_RESULT_CODE result = pTexture->WriteData({ 0, 0, static_cast<I32>(RND_TEXTURE_SIZES), static_cast<I32>(RND_TEXTURE_SIZES) }, reinterpret_cast<const U8*>(values.data()));
+				TDE2_ASSERT(RC_OK == result);
+			});
+
+		return RC_OK;
 	}
 
 
 	E_RESULT_CODE CForwardRenderer::Init(const TRendererInitParams& params)
 	{
+		TDE2_PROFILER_SCOPE("CForwardRenderer::Init");
+
 		if (mIsInitialized)
 		{
 			return RC_FAIL;

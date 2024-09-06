@@ -34,6 +34,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CDebugUtility::Init(IResourceManager* pResourceManager, IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager)
 	{
+		TDE2_PROFILER_SCOPE("CDebugUtility::Init");
+
 		if (mIsInitialized)
 		{
 			return RC_FAIL;

@@ -8,6 +8,7 @@
 
 
 #include "CBaseSystem.h"
+#include <atomic>
 
 
 #if TDE2_EDITORS_ENABLED
@@ -156,6 +157,8 @@ namespace TDEngine2
 			TResourceId             mSelectionSkinnedOutlineMaterialHandle;
 
 			USIZE                   mUIElementsVertexBufferCurrOffset = 0;
+
+			std::atomic_bool        mIsReadyForUpdate { false };
 	};
 }
 

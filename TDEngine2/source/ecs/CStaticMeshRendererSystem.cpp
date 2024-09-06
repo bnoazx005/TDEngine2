@@ -126,6 +126,8 @@ namespace TDEngine2
 
 	void CStaticMeshRendererSystem::_collectUsedMaterials(const TEntitiesArray& entities, IResourceManager* pResourceManager, TMaterialsArray& usedMaterials)
 	{
+		TDE2_PROFILER_SCOPE("CStaticMeshRendererSystem::CollectUsedMaterials");
+
 		usedMaterials.clear();
 
 		IStaticMeshContainer* pCurrStaticMeshContainer = nullptr;
@@ -164,6 +166,8 @@ namespace TDEngine2
 	void CStaticMeshRendererSystem::_populateCommandsBuffer(const TEntitiesArray& entities, CRenderQueue*& pRenderGroup, CRenderQueue* pDepthOnlyRenderGroup,
 															TPtr<IMaterial> pCurrMaterial, const ICamera* pCamera)
 	{
+		TDE2_PROFILER_SCOPE("CStaticMeshRendererSystem::PopulateCommandsBuffer");
+
 		auto iter = entities.begin();
 
 		auto&& pCastedMaterial = DynamicPtrCast<CBaseMaterial>(pCurrMaterial);

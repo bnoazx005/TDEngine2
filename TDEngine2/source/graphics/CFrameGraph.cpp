@@ -1,6 +1,7 @@
 #include "../../include/graphics/CFrameGraph.h"
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IFile.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include <stack>
 #include "stringUtils.hpp"
 
@@ -152,6 +153,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CFrameGraph::Init(IGraphicsContext* pGraphicsContext)
 	{
+		TDE2_PROFILER_SCOPE("CFrameGraph::Init");
+
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
@@ -176,6 +179,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CFrameGraph::Compile()
 	{
+		TDE2_PROFILER_SCOPE("CFrameGraph::Compile");
+
 		for (auto&& pCurrPass : mpActivePasses)
 		{
 			pCurrPass->SetRefCount(static_cast<U32>(pCurrPass->GetWrites().size()));
@@ -267,6 +272,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CFrameGraph::Execute()
 	{
+		TDE2_PROFILER_SCOPE("CFrameGraph::Execute");
+
 		for (auto&& pCurrPass : mpActivePasses)
 		{
 			if (!pCurrPass->IsActive())
