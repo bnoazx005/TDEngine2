@@ -356,6 +356,81 @@ namespace TDEngine2
 		return resourceId;
 	}
 
+	TResourceId CResourceManager::_loadResourceWithResourceProviderInfoAsync(TypeId resourceTypeId, TypeId factoryTypeId, TypeId loaderTypeId, const std::string& name)
+	{
+		TDE2_PROFILER_SCOPE("CResourceManager::_loadResourceWithResourceProviderInfoAsync");
+
+		if (name.empty())
+		{
+			LOG_ERROR("[Resource Manager] Empty name is not allowed as a resource's identifier");
+			return TResourceId::Invalid;
+		}
+
+		IResource* pResource = nullptr;
+		TResourceId resourceId = TResourceId::Invalid;
+
+		{
+			std::lock_guard<std::recursive_mutex> lock(mMutex);
+
+			auto&& iter = mResourcesMap.find(name);
+			if ((iter != mResourcesMap.cend()) && (iter->second != TResourceId::Invalid)) /// needed resource already exists
+			{
+				auto getResourceResult = mResources[static_cast<U32>(iter->second)];
+				if (getResourceResult.HasError())
+				{
+					return TResourceId::Invalid;
+				}
+
+				auto&& pResource = getResourceResult.Get();
+				TDE2_ASSERT(pResource);
+
+				if (pResource)
+				{
+					if (E_RESOURCE_STATE_TYPE::RST_PENDING == pResource->GetState())
+					{
+						mpJobManager->SubmitJob(nullptr, [pResource](auto)
+							{ 
+								E_RESULT_CODE result = pResource->Load();
+								TDE2_ASSERT(RC_OK == result);
+							});
+
+						return iter->second;
+					}
+
+					return iter->second;
+				}
+
+				TDE2_UNREACHABLE();
+				return TResourceId::Invalid;
+			}
+
+			/// \note Create a new resource and load it	
+			auto&& pResourceFactory = _getResourceFactory(factoryTypeId);
+			if (!pResourceFactory)
+			{
+				return TResourceId::Invalid;
+			}
+
+			auto it = mResourceTypesPoliciesRegistry.find(resourceTypeId);
+
+			TBaseResourceParameters loadingParameters;
+			loadingParameters.mLoadingPolicy = E_RESOURCE_LOADING_POLICY::STREAMING;
+
+			pResource = pResourceFactory->CreateDefault(name, loadingParameters);
+			resourceId = TResourceId(mResources.Add(TPtr<IResource>(pResource)));
+
+			mResourcesMap[name] = resourceId;
+		}
+
+		mpJobManager->SubmitJob(nullptr, [pResource](auto)
+			{
+				pResource->Load();
+				TDE2_STATS_COUNTER_INCREMENT(mLoadedResourcesCount);
+			});
+
+		return resourceId;
+	}
+
 	TResourceId CResourceManager::_createResource(TypeId resourceTypeId, const std::string& name, const TBaseResourceParameters& params)
 	{
 		TDE2_PROFILER_SCOPE("CResourceManager::_createResource");

@@ -9,6 +9,7 @@
 
 #include "../utils/Types.h"
 #include "../utils/Utils.h"
+#include <atomic>
 
 
 #if TDE2_EDITORS_ENABLED
@@ -23,14 +24,14 @@ namespace TDEngine2
 	{
 		public:
 			// Renderer
-			TDE2_API static U32 mDrawCallsCount;
+			TDE2_API static std::atomic<U32> mDrawCallsCount;
 
 			// Resources
-			TDE2_API static U32 mLoadedResourcesCount;
+			TDE2_API static std::atomic<U32> mLoadedResourcesCount;
 
 			// ECS
-			TDE2_API static U32 mTotalEntitiesCount;
-			TDE2_API static U32 mTotalComponentsCount;
+			TDE2_API static std::atomic<U32> mTotalEntitiesCount;
+			TDE2_API static std::atomic<U32> mTotalComponentsCount;
 	};
 }
 
