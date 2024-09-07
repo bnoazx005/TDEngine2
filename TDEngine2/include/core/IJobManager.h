@@ -44,6 +44,7 @@ namespace TDEngine2
 		U32                      mMaxNumOfThreads;								///< A maximum number of threads that will be created and processed by the manager
 		USIZE                    mFiberStackSize = 64 * 1024;					///< A stack's size for a single allocated fiber
 		U32                      mCountersPoolSize = 128;						///< Amount of precreated counters that will be used by the manager
+		std::function<void()>    mInitWorkerThreadCallback = nullptr;
 	} TJobManagerInitParams, *TJobManagerInitParamsPtr;
 
 
@@ -85,6 +86,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Init(const TJobManagerInitParams& desc) = 0;
+
+			TDE2_API virtual E_RESULT_CODE StartWorkerThreads() = 0;
 
 			/*!
 				\brief The method pushes specified job into a queue for an execution

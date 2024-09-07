@@ -73,7 +73,9 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Init(const TJobManagerInitParams& desc) override;
-			
+
+			TDE2_API E_RESULT_CODE StartWorkerThreads() override;
+
 			/*!
 				\brief The method pushes specified job into a queue for an execution
 
@@ -141,6 +143,8 @@ namespace TDEngine2
 			static constexpr U8     mUpdateTickRate = 60; // \note Single update every 60 frames
 
 			std::atomic_uint8_t     mUpdateCounter;
+
+			TJobManagerInitParams   mConfig;
 
 			TCallbacksQueue         mMainThreadCallbacksQueue;
 			mutable std::mutex      mMainThreadCallbacksQueueMutex;

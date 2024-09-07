@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.30] 2024-09-06
+## [0.6.30] 2024-09-07
 
 ### Changed
 
 - The syncronization mechanism within **CResourceManager**'s implementation was changed to reentrant one using std::recursive_mutex. 
 
 - The API of **IResourceManager** was refactored now loading policies are considered as deprecated. And loading is splitted into Load which is blocking call and LoadAsync which is non-blocking one.
+
+- The API of **IJobManager** was extended. Now its start up is made explicit via StartWorkerThreads method
 
 ### Fixed
 

@@ -39,19 +39,38 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		mConfig = desc;
 		mUpdateCounter = 0;
 
+		mNextFreeCounterIndex.store(0);
+
+		mIsInitialized = true;
+
+		LOG_MESSAGE("[Job Manager] The job manager was successfully initialized...");
+		LOG_MESSAGE("[Job Manager] " + std::to_string(desc.mMaxNumOfThreads) + " worker threads were created");
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CBaseJobManager::StartWorkerThreads()
+	{
 		marl::Scheduler::Config cfg;
-		cfg.setWorkerThreadCount(desc.mMaxNumOfThreads);
-		cfg.setFiberStackSize(desc.mFiberStackSize);
-		cfg.setWorkerThreadInitializer([](int workerId)
-		{
-			auto&& threadName = Wrench::StringUtils::Format("WorkerThread_{0}", workerId);
+
+		cfg.setWorkerThreadCount(mConfig.mMaxNumOfThreads);
+		cfg.setFiberStackSize(mConfig.mFiberStackSize);
+		cfg.setWorkerThreadInitializer([this](int workerId)
+			{
+				auto&& threadName = Wrench::StringUtils::Format("WorkerThread_{0}", workerId);
 #ifdef TDE2_USE_WINPLATFORM
-			OPTICK_START_THREAD(threadName.c_str());
+				OPTICK_START_THREAD(threadName.c_str());
 #endif
-			tracy::SetThreadName(threadName.c_str());
-		});
+				tracy::SetThreadName(threadName.c_str());
+
+				if (mConfig.mInitWorkerThreadCallback)
+				{
+					mConfig.mInitWorkerThreadCallback();
+				}
+			});
 
 		mpScheduler = std::make_unique<marl::Scheduler>(cfg);
 		if (!mpScheduler)
@@ -61,17 +80,10 @@ namespace TDEngine2
 
 		mpScheduler->bind();
 
-		for (U32 i = 0; i < desc.mCountersPoolSize; i++)
+		for (U32 i = 0; i < mConfig.mCountersPoolSize; i++)
 		{
 			mpWaitCountersPool.emplace_back(std::make_unique<marl::WaitGroup>());
 		}
-
-		mNextFreeCounterIndex.store(0);
-
-		mIsInitialized = true;
-
-		LOG_MESSAGE("[Job Manager] The job manager was successfully initialized...");
-		LOG_MESSAGE("[Job Manager] " + std::to_string(desc.mMaxNumOfThreads) + " worker threads were created");
 
 		return RC_OK;
 	}

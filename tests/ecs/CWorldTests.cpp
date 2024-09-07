@@ -75,6 +75,11 @@ namespace
 			return RC_OK;
 		}
 
+		E_RESULT_CODE StartWorkerThreads() override
+		{
+			return RC_OK;
+		}
+
 		E_RESULT_CODE SubmitJob(TJobCounter* pCounter, const TJobCallback& job, const TSubmitJobParams&) override { return RC_OK; }
 
 		E_RESULT_CODE SubmitMultipleJobs(TJobCounter* pCounter, U32 jobsCount, U32 groupSize, const TJobCallback& job, E_JOB_PRIORITY_TYPE priority = E_JOB_PRIORITY_TYPE::NORMAL) override { return RC_OK; }
