@@ -45,6 +45,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem) override;
 
+			TDE2_API E_RESULT_CODE AcquireWorkerThreads() override;
+
 			/*!
 				\brief The method clears up back buffer with specified color
 

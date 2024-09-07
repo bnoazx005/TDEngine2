@@ -55,6 +55,10 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Free() override;
 
+			TDE2_API E_RESULT_CODE CreateContextForWorkerThread() override;
+
+			TDE2_API E_RESULT_CODE SetContextForWorkerThread() override;
+
 			/*!
 				\brief The method sets up internal context's value as current using one
 

@@ -307,7 +307,14 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 #if defined (TDE2_USE_WINPLATFORM) || defined (TDE2_USE_UNIXPLATFORM)
-		mpJobManagerInstance = TPtr<IJobManager>(CreateBaseJobManager({ maxNumOfThreads }, result));
+		
+		TJobManagerInitParams jobInitParamsDesc{ maxNumOfThreads };
+		jobInitParamsDesc.mInitWorkerThreadCallback = [this]
+		{
+			mpGraphicsContextInstance->AcquireWorkerThreads();
+		};
+
+		mpJobManagerInstance = TPtr<IJobManager>(CreateBaseJobManager(jobInitParamsDesc, result));
 #else
 #endif
 
@@ -798,6 +805,8 @@ namespace TDEngine2
 
 		PANIC_ON_FAILURE(_configurePluginManager());
 		PANIC_ON_FAILURE(_configureGraphicsContext(isWindowModeEnabled ? CProjectSettings::Get()->mGraphicsSettings.mGraphicsPluginFilePath : Wrench::StringUtils::GetEmptyStr()));
+
+		mpJobManagerInstance->StartWorkerThreads();
 
 		PANIC_ON_FAILURE(MountGraphicsDirectories(mpFileSystemInstance, mpGraphicsContextInstance->GetContextInfo().mGapiType));
 

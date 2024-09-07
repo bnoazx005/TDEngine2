@@ -82,6 +82,11 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CVulkanGraphicsContext::AcquireWorkerThreads()
+	{
+		return RC_OK;
+	}
+
 
 	static std::vector<VkExtensionProperties> GetAvailableExtensions()
 	{
@@ -477,30 +482,30 @@ namespace TDEngine2
 	{
 		VmaAllocatorCreateInfo allocatorInfo = {};
 		allocatorInfo.physicalDevice = physicalDevice;
-		allocatorInfo.device = device;
-		allocatorInfo.instance = instance;
+		allocatorInfo.device         = device;
+		allocatorInfo.instance       = instance;
 
 		// \note volk 2 vma function pointers
 		VmaVulkanFunctions vma_vulkan_func{};
-		vma_vulkan_func.vkGetInstanceProcAddr = vkGetInstanceProcAddr;
-		vma_vulkan_func.vkGetDeviceProcAddr = vkGetDeviceProcAddr;
-		vma_vulkan_func.vkGetPhysicalDeviceProperties = vkGetPhysicalDeviceProperties;
+		vma_vulkan_func.vkGetInstanceProcAddr               = vkGetInstanceProcAddr;
+		vma_vulkan_func.vkGetDeviceProcAddr                 = vkGetDeviceProcAddr;
+		vma_vulkan_func.vkGetPhysicalDeviceProperties       = vkGetPhysicalDeviceProperties;
 		vma_vulkan_func.vkGetPhysicalDeviceMemoryProperties = vkGetPhysicalDeviceMemoryProperties;
-		vma_vulkan_func.vkAllocateMemory = vkAllocateMemory;
-		vma_vulkan_func.vkFreeMemory = vkFreeMemory;
-		vma_vulkan_func.vkMapMemory = vkMapMemory;
-		vma_vulkan_func.vkUnmapMemory = vkUnmapMemory;
-		vma_vulkan_func.vkFlushMappedMemoryRanges = vkFlushMappedMemoryRanges;
-		vma_vulkan_func.vkInvalidateMappedMemoryRanges = vkInvalidateMappedMemoryRanges;
-		vma_vulkan_func.vkBindBufferMemory = vkBindBufferMemory;
-		vma_vulkan_func.vkBindImageMemory = vkBindImageMemory;
-		vma_vulkan_func.vkGetBufferMemoryRequirements = vkGetBufferMemoryRequirements;
-		vma_vulkan_func.vkGetImageMemoryRequirements = vkGetImageMemoryRequirements;
-		vma_vulkan_func.vkCreateBuffer = vkCreateBuffer;
-		vma_vulkan_func.vkDestroyBuffer = vkDestroyBuffer;
-		vma_vulkan_func.vkCreateImage = vkCreateImage;
-		vma_vulkan_func.vkDestroyImage = vkDestroyImage;
-		vma_vulkan_func.vkCmdCopyBuffer = vkCmdCopyBuffer;
+		vma_vulkan_func.vkAllocateMemory                    = vkAllocateMemory;
+		vma_vulkan_func.vkFreeMemory                        = vkFreeMemory;
+		vma_vulkan_func.vkMapMemory                         = vkMapMemory;
+		vma_vulkan_func.vkUnmapMemory                       = vkUnmapMemory;
+		vma_vulkan_func.vkFlushMappedMemoryRanges           = vkFlushMappedMemoryRanges;
+		vma_vulkan_func.vkInvalidateMappedMemoryRanges      = vkInvalidateMappedMemoryRanges;
+		vma_vulkan_func.vkBindBufferMemory                  = vkBindBufferMemory;
+		vma_vulkan_func.vkBindImageMemory                   = vkBindImageMemory;
+		vma_vulkan_func.vkGetBufferMemoryRequirements       = vkGetBufferMemoryRequirements;
+		vma_vulkan_func.vkGetImageMemoryRequirements        = vkGetImageMemoryRequirements;
+		vma_vulkan_func.vkCreateBuffer                      = vkCreateBuffer;
+		vma_vulkan_func.vkDestroyBuffer                     = vkDestroyBuffer;
+		vma_vulkan_func.vkCreateImage                       = vkCreateImage;
+		vma_vulkan_func.vkDestroyImage                      = vkDestroyImage;
+		vma_vulkan_func.vkCmdCopyBuffer                     = vkCmdCopyBuffer;
 
 		allocatorInfo.pVulkanFunctions = &vma_vulkan_func;
 
@@ -628,14 +633,17 @@ namespace TDEngine2
 
 	void CVulkanGraphicsContext::ClearBackBuffer(const TColor32F& color)
 	{
+		TDE2_UNIMPLEMENTED();
 	}
 
 	void CVulkanGraphicsContext::ClearRenderTarget(IRenderTarget* pRenderTarget, const TColor32F& color)
 	{
+		TDE2_UNIMPLEMENTED();
 	}
 
 	void CVulkanGraphicsContext::ClearRenderTarget(U8 slot, const TColor32F& color)
 	{
+		TDE2_UNIMPLEMENTED();
 	}
 
 	void CVulkanGraphicsContext::ClearDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, F32 value, U8 stencilValue)
@@ -645,10 +653,12 @@ namespace TDEngine2
 
 	void CVulkanGraphicsContext::ClearDepthBuffer(F32 value)
 	{
+		TDE2_UNIMPLEMENTED();
 	}
 
 	void CVulkanGraphicsContext::ClearStencilBuffer(U8 value)
 	{
+		TDE2_UNIMPLEMENTED();
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeffered(const std::function<void()>& destroyCommand)
@@ -754,10 +764,12 @@ namespace TDEngine2
 
 	void CVulkanGraphicsContext::SetViewport(F32 x, F32 y, F32 width, F32 height, F32 minDepth, F32 maxDepth)
 	{
+		TDE2_UNIMPLEMENTED();
 	}
 
 	void CVulkanGraphicsContext::SetScissorRect(const TRectU32& scissorRect)
 	{
+		TDE2_UNIMPLEMENTED();
 	}
 
 	TMatrix4 CVulkanGraphicsContext::CalcPerspectiveMatrix(F32 fov, F32 aspect, F32 zn, F32 zf)
@@ -826,11 +838,13 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanGraphicsContext::SetTexture(U32 slot, TTextureHandleId textureHandle, bool isWriteEnabled)
 	{
+		TDE2_UNIMPLEMENTED();
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::SetSampler(U32 slot, TTextureSamplerId samplerHandle)
 	{
+		TDE2_UNIMPLEMENTED();
 		return RC_OK;
 	}
 
@@ -936,112 +950,137 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanGraphicsContext::UpdateTexture2DArray(TTextureHandleId textureHandle, U32 index, const TRectI32& regionRect, const void* pData, USIZE dataSize)
 	{
+		TDE2_UNIMPLEMENTED();
 		return RC_NOT_IMPLEMENTED_YET;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::UpdateCubemapTexture(TTextureHandleId textureHandle, E_CUBEMAP_FACE face, const TRectI32& regionRect, const void* pData, USIZE dataSize)
 	{
+		TDE2_UNIMPLEMENTED();
 		return RC_NOT_IMPLEMENTED_YET;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::UpdateTexture3D(TTextureHandleId textureHandle, U32 depthFrom, U32 depthTo, const TRectI32& regionRect, const void* pData, USIZE dataSize)
 	{
+		TDE2_UNIMPLEMENTED();
 		return RC_NOT_IMPLEMENTED_YET;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::CopyResource(TTextureHandleId sourceHandle, TTextureHandleId destHandle)
 	{
+		TDE2_UNIMPLEMENTED();
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::CopyResource(TBufferHandleId sourceHandle, TTextureHandleId destHandle)
 	{
+		TDE2_UNIMPLEMENTED();
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::CopyResource(TTextureHandleId sourceHandle, TBufferHandleId destHandle)
 	{
+		TDE2_UNIMPLEMENTED();
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::CopyResource(TBufferHandleId sourceHandle, TBufferHandleId destHandle)
 	{
+		TDE2_UNIMPLEMENTED();
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::CopyCount(TBufferHandleId sourceHandle, TBufferHandleId destHandle, U32 offset)
 	{
+		TDE2_UNIMPLEMENTED();
 		return RC_NOT_IMPLEMENTED_YET;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::GenerateMipMaps(TTextureHandleId textureHandle)
 	{
+		TDE2_UNIMPLEMENTED();
 		return RC_NOT_IMPLEMENTED_YET;
 	}
 
 	void CVulkanGraphicsContext::Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices)
 	{
+		TDE2_UNIMPLEMENTED();
 	}
 
 	void CVulkanGraphicsContext::DrawIndexed(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, U32 baseVertex, U32 startIndex, U32 numOfIndices)
 	{
+		TDE2_UNIMPLEMENTED();
 	}
 
 	void CVulkanGraphicsContext::DrawInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 verticesPerInstance, U32 startInstance, U32 numOfInstances)
 	{
+		TDE2_UNIMPLEMENTED();
 	}
 
 	void CVulkanGraphicsContext::DrawIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, U32 baseVertex, U32 startIndex,
 		U32 startInstance, U32 indicesPerInstance, U32 numOfInstances)
 	{
+		TDE2_UNIMPLEMENTED();
 	}
 
 	void CVulkanGraphicsContext::DrawIndirectInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, TBufferHandleId argsBufferHandle, U32 alignedOffset)
 	{
+		TDE2_UNIMPLEMENTED();
 	}
 
 	void CVulkanGraphicsContext::DrawIndirectIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, TBufferHandleId argsBufferHandle, U32 alignedOffset)
 	{
+		TDE2_UNIMPLEMENTED();
 	}
 
 	void CVulkanGraphicsContext::DispatchCompute(U32 groupsCountX, U32 groupsCountY, U32 groupsCountZ)
 	{
+		TDE2_UNIMPLEMENTED();
 	}
 
 	void CVulkanGraphicsContext::DispatchIndirectCompute(TBufferHandleId argsBufferHandle, U32 alignedOffset)
 	{
+		TDE2_UNIMPLEMENTED();
 	}
 
 	void CVulkanGraphicsContext::BindBlendState(TBlendStateId blendStateId)
 	{
+		TDE2_UNIMPLEMENTED();
 	}
 
 	void CVulkanGraphicsContext::BindDepthStencilState(TDepthStencilStateId depthStencilStateId, U8 stencilRef)
 	{
+		TDE2_UNIMPLEMENTED();
 	}
 
 	void CVulkanGraphicsContext::BindRasterizerState(TRasterizerStateId rasterizerStateId)
 	{
+		TDE2_UNIMPLEMENTED();
 	}
 
 	void CVulkanGraphicsContext::BindRenderTarget(U8 slot, IRenderTarget* pRenderTarget)
 	{
+		TDE2_UNIMPLEMENTED();
 	}
 
 	void CVulkanGraphicsContext::BindRenderTarget(U8 slot, TTextureHandleId targetHandle)
 	{
+		TDE2_UNIMPLEMENTED();
 	}
 
 	void CVulkanGraphicsContext::BindDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, bool disableRTWrite)
 	{
+		TDE2_UNIMPLEMENTED();
 	}
 
 	void CVulkanGraphicsContext::BindDepthBufferTarget(TTextureHandleId targetHandle, bool disableRTWrite)
 	{
+		TDE2_UNIMPLEMENTED();
 	}
 
 	void CVulkanGraphicsContext::SetDepthBufferEnabled(bool value)
 	{
+		TDE2_UNIMPLEMENTED();
 	}
 
 	const TGraphicsCtxInternalData& CVulkanGraphicsContext::GetInternalData() const

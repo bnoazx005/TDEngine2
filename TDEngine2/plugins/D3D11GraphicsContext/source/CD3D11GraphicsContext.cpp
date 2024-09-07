@@ -149,7 +149,12 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
-	
+
+	E_RESULT_CODE CD3D11GraphicsContext::AcquireWorkerThreads()
+	{
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CD3D11GraphicsContext::_onFreeInternal()
 	{
 		TDE2_PROFILER_SCOPE("CD3D11GraphicsContext::_onFreeInternal");

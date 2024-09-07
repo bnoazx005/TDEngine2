@@ -29,6 +29,12 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CProxyGraphicsContext::AcquireWorkerThreads()
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] AcquireWorkerThreads");
+		return RC_OK;
+	}
+
 	void CProxyGraphicsContext::ClearBackBuffer(const TColor32F& color)
 	{
 		LOG_MESSAGE("[ProxyGraphicsContext] ClearBackBuffer");

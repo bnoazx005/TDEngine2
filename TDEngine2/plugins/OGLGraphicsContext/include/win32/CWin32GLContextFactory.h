@@ -8,6 +8,9 @@
 
 #include "./../IOGLContextFactory.h"
 #include <utils/Utils.h>
+#include <mutex>
+#include <vector>
+#include <atomic>
 
 
 #if defined(TDE2_USE_WINPLATFORM)
@@ -46,6 +49,10 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Free() override;
 
+			TDE2_API E_RESULT_CODE CreateContextsForWorkerThreads(U32 maxThreadsCount) override;
+
+			TDE2_API E_RESULT_CODE SetContextForWorkerThread() override;
+
 			/*!
 				\brief The method sets up internal context's value as current using one
 
@@ -75,9 +82,14 @@ namespace TDEngine2
 
 			TDE2_API TOGLCtxHandler _getTempContext(const HDC& hdc, E_RESULT_CODE& result);
 		protected:
-			TOGLCtxHandler mCurrGLHandler;
-			HDC            mDeviceContextHandler;
-			bool           mIsInitialized;
+			TOGLCtxHandler              mCurrGLHandler;
+			HDC                         mDeviceContextHandler;
+			bool                        mIsInitialized;
+
+			std::vector<TOGLCtxHandler> mWorkerThreadsContexts;
+			std::atomic_uint            mLastUsedWorkerThreadContextCounter {0};
+
+			mutable std::mutex          mMutex;
 	};
 
 

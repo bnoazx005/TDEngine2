@@ -51,6 +51,10 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Free() = 0;
 
+			TDE2_API virtual E_RESULT_CODE CreateContextsForWorkerThreads(U32 maxThreadsCount) = 0;
+
+			TDE2_API virtual E_RESULT_CODE SetContextForWorkerThread() = 0;
+
 			/*!
 				\brief The method sets up internal context's value as current using one
 

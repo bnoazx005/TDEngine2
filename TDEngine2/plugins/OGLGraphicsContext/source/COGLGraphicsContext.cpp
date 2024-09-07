@@ -10,6 +10,7 @@
 #include <utils/CFileLogger.h>
 #include <core/IEventManager.h>
 #include <core/IWindowSystem.h>
+#include <core/CProjectSettings.h>
 #include <string>
 #define DEFER_IMPLEMENTATION
 #include "deferOperation.hpp"
@@ -147,9 +148,12 @@ namespace TDEngine2
 			return result;
 		}
 
-		result = mpGLContextFactory->SetContext();
+		if ((result = mpGLContextFactory->SetContext()) != RC_OK)
+		{
+			return result;
+		}
 
-		if (result != RC_OK)
+		if ((result = mpGLContextFactory->CreateContextsForWorkerThreads(CProjectSettings::Get()->mCommonSettings.mMaxNumOfWorkerThreads)) != RC_OK)
 		{
 			return result;
 		}
@@ -205,6 +209,11 @@ namespace TDEngine2
 		mIsInitialized = true;
 		
 		return RC_OK;
+	}
+
+	E_RESULT_CODE COGLGraphicsContext::AcquireWorkerThreads()
+	{
+		return mpGLContextFactory->SetContextForWorkerThread();
 	}
 
 	E_RESULT_CODE COGLGraphicsContext::_onFreeInternal()

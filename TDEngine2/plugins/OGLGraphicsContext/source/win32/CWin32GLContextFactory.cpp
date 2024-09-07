@@ -12,6 +12,16 @@
 
 namespace TDEngine2
 {
+	/// \todo replace this array with more clear code
+	static const I32 CONTEXT_ATTRIBUTES[] =
+	{
+		WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+		WGL_CONTEXT_MINOR_VERSION_ARB, 3,
+		WGL_CONTEXT_PROFILE_MASK_ARB,  WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+		WGL_CONTEXT_FLAGS_ARB,         WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+		0
+	};
+
 	CWin32GLContextFactory::CWin32GLContextFactory():
 		mIsInitialized(false)
 	{
@@ -59,17 +69,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		/// \todo replace this array with more clear code
-		int attributes[] =
-		{
-			WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-			WGL_CONTEXT_MINOR_VERSION_ARB, 3,
-			WGL_CONTEXT_PROFILE_MASK_ARB,  WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-			WGL_CONTEXT_FLAGS_ARB,         WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
-			0
-		};
-
-		mCurrGLHandler = pCreateCtxWithAttribsCallback(mDeviceContextHandler, tempContext, attributes);
+		mCurrGLHandler = pCreateCtxWithAttribsCallback(mDeviceContextHandler, tempContext, CONTEXT_ATTRIBUTES);
 
 		if (!mCurrGLHandler)
 		{
@@ -126,8 +126,46 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CWin32GLContextFactory::CreateContextsForWorkerThreads(U32 maxThreadsCount)
+	{		
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		TWGLCreateContextWithAttribsCallback pCreateCtxWithAttribsCallback = (TWGLCreateContextWithAttribsCallback)wglGetProcAddress("wglCreateContextAttribsARB");
+		if (!pCreateCtxWithAttribsCallback)
+		{
+			return RC_FAIL;
+		}
+
+		for (U32 i = 0; i < maxThreadsCount; ++i)
+		{
+			mWorkerThreadsContexts.emplace_back(pCreateCtxWithAttribsCallback(mDeviceContextHandler, mCurrGLHandler, CONTEXT_ATTRIBUTES));
+			TDE2_ASSERT(mWorkerThreadsContexts.back());
+		}
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CWin32GLContextFactory::SetContextForWorkerThread()
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		if (mWorkerThreadsContexts[mLastUsedWorkerThreadContextCounter])
+		{
+			if (!wglMakeCurrent(mDeviceContextHandler, mWorkerThreadsContexts[mLastUsedWorkerThreadContextCounter++]))
+			{
+				return RC_FAIL;
+			}
+
+			return RC_OK;
+		}
+
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CWin32GLContextFactory::SetContext()
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (!wglMakeCurrent(mDeviceContextHandler, mCurrGLHandler))
 		{
 			return RC_FAIL;

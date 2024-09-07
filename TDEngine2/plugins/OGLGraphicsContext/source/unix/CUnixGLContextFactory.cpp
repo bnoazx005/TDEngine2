@@ -158,6 +158,18 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CUnixGLContextFactory::CreateContextForWorkerThread()
+	{
+		TDE2_UNIMPLEMENTED();
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	E_RESULT_CODE CUnixGLContextFactory::SetContextForWorkerThread()
+	{
+		TDE2_UNIMPLEMENTED();
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
 	E_RESULT_CODE CUnixGLContextFactory::SetContext()
 	{
 		if (!glXMakeCurrent(mpDisplayHandler, mWindowHandler, mCurrGLHandler))
