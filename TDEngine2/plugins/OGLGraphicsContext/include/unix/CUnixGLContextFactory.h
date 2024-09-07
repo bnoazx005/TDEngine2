@@ -55,7 +55,7 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Free() override;
 
-			TDE2_API E_RESULT_CODE CreateContextForWorkerThread() override;
+			TDE2_API E_RESULT_CODE CreateContextsForWorkerThreads(U32 maxThreadsCount) override;
 
 			TDE2_API E_RESULT_CODE SetContextForWorkerThread() override;
 

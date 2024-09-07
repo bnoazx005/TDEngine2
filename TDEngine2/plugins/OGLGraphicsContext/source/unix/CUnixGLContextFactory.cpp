@@ -158,7 +158,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CUnixGLContextFactory::CreateContextForWorkerThread()
+	E_RESULT_CODE CUnixGLContextFactory::CreateContextsForWorkerThreads(U32 maxThreadsCount)
 	{
 		TDE2_UNIMPLEMENTED();
 		return RC_NOT_IMPLEMENTED_YET;
