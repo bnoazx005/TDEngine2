@@ -1,10 +1,14 @@
 #include "../../include/editor/CStatsViewerWindow.h"
 #include "../../include/core/IImGUIContext.h"
+#include "../../include/core/IGraphicsContext.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include "../../include/editor/CStatsCounters.h"
 
 
 #if TDE2_EDITORS_ENABLED
+
+#define META_EXPORT_GRAPHICS_SECTION
+#include "../../include/metadata.h"
 
 namespace TDEngine2
 {
@@ -13,12 +17,14 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CStatsViewerWindow::Init()
+	E_RESULT_CODE CStatsViewerWindow::Init(TPtr<IGraphicsContext> pGraphicsContext)
 	{
 		if (mIsInitialized)
 		{
 			return RC_OK;
 		}
+
+		mpGraphicsContext = pGraphicsContext;
 
 		mIsInitialized = true;
 
@@ -111,6 +117,19 @@ namespace TDEngine2
 						currPos = DrawTextLine(mpImGUIContext, currPos, 0.0f, vOffset.y, "Loaded Resources: ", std::to_string(CStatsCounters::mLoadedResourcesCount));
 						currPos = currPos + TVector2(0.0f, vOffset.y);
 					}
+
+					// System info
+					{
+						currPos = DrawTextLine(mpImGUIContext, currPos, 0.0f, vOffset.y, "Graphics Info:", " ");
+
+						const TGraphicsContextInfo& graphicsInfo  = mpGraphicsContext->GetContextInfo();
+						const TVideoAdapterInfo& videoAdapterInfo = mpGraphicsContext->GetInfo();
+
+						currPos = DrawTextLine(mpImGUIContext, currPos, 20.0f, vOffset.y, "GAPI:", Meta::EnumTrait<E_GRAPHICS_CONTEXT_GAPI_TYPE>::ToString(graphicsInfo.mGapiType));
+						currPos = DrawTextLine(mpImGUIContext, currPos, 20.0f, vOffset.y, "Video Memory:", Wrench::StringUtils::Format("{0} MiB", videoAdapterInfo.mAvailableVideoMemory / (1 << 20)));
+
+						currPos = currPos + TVector2(0.0f, vOffset.y);
+					}
 				}
 
 				mpImGUIContext->EndChildWindow();
@@ -123,9 +142,9 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IEditorWindow* CreateStatsViewerWindow(E_RESULT_CODE& result)
+	TDE2_API IEditorWindow* CreateStatsViewerWindow(TPtr<IGraphicsContext> pGraphicsContext, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IEditorWindow, CStatsViewerWindow, result);
+		return CREATE_IMPL(IEditorWindow, CStatsViewerWindow, result, pGraphicsContext);
 	}
 }
 
