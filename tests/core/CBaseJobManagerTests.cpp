@@ -18,6 +18,8 @@ TEST_CASE("CBaseJobManager Tests")
 	TPtr<IJobManager> pJobManager = TPtr<IJobManager>(CreateBaseJobManager({ NumOfWorkerThreads }, result));
 	REQUIRE((pJobManager && RC_OK == result));
 
+	REQUIRE(RC_OK == pJobManager->StartWorkerThreads());
+
 	SECTION("TestSubmitJob_PassEmptyJob_ReturnsError")
 	{
 		REQUIRE(RC_INVALID_ARGS == pJobManager->SubmitJob(nullptr, nullptr));

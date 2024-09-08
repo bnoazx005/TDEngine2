@@ -2270,7 +2270,7 @@ namespace TDEngine2
 
 		TPtr<IJobManager> pJobManager = pResourceManager->GetJobManager();
 
-		pJobManager->SubmitJob(nullptr, [pJobManager, pTexture](auto)
+		pJobManager->SubmitJob(nullptr, [RND_TEXTURE_SIZES, pJobManager, pTexture](auto)
 			{
 				std::vector<F32> values(RND_TEXTURE_SIZES * RND_TEXTURE_SIZES * sizeof(F32) * 4);
 				
