@@ -1,5 +1,6 @@
 #include "./../../include/core/CBaseJobManager.h"
 #include "./../../include/utils/CFileLogger.h"
+#include "./../../include/editor/CPerfProfiler.h"
 #include "stringUtils.hpp"
 #include <cmath>
 #include "marl/scheduler.h"
@@ -204,6 +205,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseJobManager::ExecuteInMainThread(const std::function<void()>& action)
 	{
+		TDE2_PROFILER_SCOPE("CBaseJobManager::ExecuteInMainThread");
+
 		if (!action)
 		{
 			return RC_INVALID_ARGS;
@@ -224,6 +227,8 @@ namespace TDEngine2
 
 	void CBaseJobManager::ProcessMainThreadQueue()
 	{
+		TDE2_PROFILER_SCOPE("CBaseJobManager::ProcessMainThreadQueue");
+
 		if (mUpdateCounter < mUpdateTickRate)
 		{
 			++mUpdateCounter;

@@ -358,8 +358,8 @@ namespace TDEngine2
 			mDefaultUIMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::MASK_USER)] = mpResourceManager->Create<IMaterial>("DefaultInGameUI_Maskable.material", editorUIMaterialParams);
 		}
 
-		mDefaultFontMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::DEFAULT)] = mpResourceManager->Load<IMaterial>("DefaultResources/Materials/UI/DefaultTextMaterial.material");
-		mDefaultFontMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::MASK_USER)] = mpResourceManager->Load<IMaterial>("DefaultResources/Materials/UI/DefaultTextMaterial_Maskable.material");
+		mDefaultFontMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::DEFAULT)] = mpResourceManager->LoadAsync<IMaterial>("DefaultResources/Materials/UI/DefaultTextMaterial.material");
+		mDefaultFontMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::MASK_USER)] = mpResourceManager->LoadAsync<IMaterial>("DefaultResources/Materials/UI/DefaultTextMaterial_Maskable.material");
 
 		/// \note Text can't be a mask but can be a maskable item
 		mDefaultFontMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::MASK_EMITTER)] = mDefaultFontMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::DEFAULT)];

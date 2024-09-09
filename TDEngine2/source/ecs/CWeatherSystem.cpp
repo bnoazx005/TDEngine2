@@ -204,7 +204,7 @@ namespace TDEngine2
 
 		mpJobManager->SubmitJob(nullptr, [this, uniformsData, weatherMapTextureId = pWeatherComponent->mWeatherMapTextureId](auto)
 			{
-				const TResourceId volumetricCloudsShaderHandle = mpResourceManager->Load<IMaterial>(CProjectSettings::Get()->mGraphicsSettings.mVolumetricCloudsMainShader);
+				const TResourceId volumetricCloudsShaderHandle = mpResourceManager->LoadAsync<IShader>(CProjectSettings::Get()->mGraphicsSettings.mVolumetricCloudsMainShader);
 				TDE2_ASSERT(TResourceId::Invalid != volumetricCloudsShaderHandle);
 
 				if (auto pVolumetricCloudsMainShader = mpResourceManager->GetResource<IShader>(volumetricCloudsShaderHandle))
