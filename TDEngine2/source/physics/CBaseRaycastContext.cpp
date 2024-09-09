@@ -2,6 +2,7 @@
 #include "../../include/physics/IPhysics3DSystem.h"
 #include "../../include/ecs/CPhysics2DSystem.h"
 #include "../../include/core/memory/CPoolAllocator.h"
+#include "../../include/editor/CPerfProfiler.h"
 
 
 namespace TDEngine2
@@ -13,6 +14,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseRaycastContext::Init(CPhysics2DSystem* p2DPhysicsSystem, IPhysics3DSystem* p3DPhysicsSystem)
 	{
+		TDE2_PROFILER_SCOPE("CBaseRaycastContext::Init");
+
 		if (mIsInitialized)
 		{
 			return RC_FAIL;

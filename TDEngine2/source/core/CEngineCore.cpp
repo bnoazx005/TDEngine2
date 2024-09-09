@@ -485,10 +485,6 @@ namespace TDEngine2
 			mpDebugUtility = debugUtilityResult.Get();
 		}
 
-		ISystem* p2dPhysics = nullptr;
-		ISystem* p3dPhysics = nullptr;
-		ISystem* pCameraSystem = nullptr;
-
 		std::vector<ISystem*> builtinSystems
 		{
 			CreateTransformSystem(pGraphicsContext, result),
@@ -496,7 +492,7 @@ namespace TDEngine2
 			CreateBoundsUpdatingSystem(pResourceManager, mpDebugUtility, _getSubsystemAs<ISceneManager>(EST_SCENE_MANAGER), result),
 			CreateSpriteRendererSystem(TPtr<IAllocator>(CreateLinearAllocator(5 * SpriteInstanceDataBufferSize, result)),
 									   pRenderer, pGraphicsObjectManager, result),
-			(pCameraSystem = CreateCameraSystem(pWindowSystem, pGraphicsContext, pRenderer, result)),
+			CreateCameraSystem(pWindowSystem, pGraphicsContext, pRenderer, result),
 			CreateLODMeshSwitchSystem(result),
 			CreateWeatherSystem({ pResourceManager, pGraphicsContext, _getSubsystemAs<IJobManager>(EST_JOB_MANAGER) }, result),
 			CreateStaticMeshRendererSystem(pRenderer, pGraphicsObjectManager, result),
@@ -512,7 +508,7 @@ namespace TDEngine2
 #if TDE2_EDITORS_ENABLED
 			CreateObjectsSelectionSystem(pRenderer, pGraphicsObjectManager, result),
 #endif
-			(p2dPhysics = CreatePhysics2DSystem(pEventManager, result)),
+			CreatePhysics2DSystem(pEventManager, result),
 		};
 
 		for (ISystem* pCurrSystem : builtinSystems)
@@ -530,12 +526,12 @@ namespace TDEngine2
 			}
 		}
 
-		if (auto pBaseCameraSystem = dynamic_cast<ICameraSystem*>(pCameraSystem))
+		if (auto pBaseCameraSystem = pWorldInstance->GetSystemByType<CCameraSystem>())
 		{
 			pBaseCameraSystem->SetDebugUtility(mpDebugUtility);
 		}
 
-		auto pRaycastContextInstance = CreateBaseRaycastContext(dynamic_cast<CPhysics2DSystem*>(p2dPhysics), 
+		auto pRaycastContextInstance = CreateBaseRaycastContext(pWorldInstance->GetSystemByType<CPhysics2DSystem>().Get(),
 																nullptr, 
 																result);
 

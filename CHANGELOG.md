@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.30] 2024-09-07
+## [0.6.30] 2024-09-09
 
 ### Changed
 
@@ -17,7 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The API of **IJobManager** was extended. Now its start up is made explicit via StartWorkerThreads method
 
-- The APU of **IGraphicsContext** was extended with a new public method AcquireWorkerThreads(). 
+- The API of **IGraphicsContext** was extended with a new public method AcquireWorkerThreads(). 
+
+- The API of **IWorld** was extended with a new method GetSystemByType.
 
 ### Fixed
 

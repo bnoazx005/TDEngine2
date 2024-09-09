@@ -1,5 +1,6 @@
 #include "../../include/core/CEventManager.h"
 #include "../../include/core/Event.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include <algorithm>
 
 
@@ -83,6 +84,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEventManager::Notify(const TBaseEvent* pEvent)
 	{
+		TDE2_PROFILER_SCOPE("CEventManager::Notify");
+
 		if (!pEvent)
 		{
 			return RC_INVALID_ARGS;

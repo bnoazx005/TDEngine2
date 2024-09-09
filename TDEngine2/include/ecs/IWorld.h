@@ -455,6 +455,18 @@ namespace TDEngine2
 
 			TDE2_API virtual TPtr<ISystem> GetSystem(TSystemId handle) = 0;
 
+			template <typename T>
+			TDE2_API
+#if _HAS_CXX17
+				std::enable_if_t<std::is_base_of_v<ISystem, T>, TPtr<T>>
+#else
+				typename std::enable_if<std::is_base_of<ISystem, T>::value, TPtr<T>>::type
+#endif
+			GetSystemByType()
+			{
+				return DynamicPtrCast<T>(GetSystem(_findSystem(T::GetTypeId())));
+			}
+
 #if TDE2_EDITORS_ENABLED
 			TDE2_API virtual const std::vector<TComponentTypeInfo>& GetRegisteredComponentsIdentifiers() const = 0;
 #endif
