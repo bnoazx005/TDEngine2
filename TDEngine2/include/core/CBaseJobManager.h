@@ -140,7 +140,7 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			static constexpr U8     mUpdateTickRate = 60; // \note Single update every 60 frames
+			static constexpr U8     mUpdateTickRate = 1; 
 
 			std::atomic_uint8_t     mUpdateCounter;
 
