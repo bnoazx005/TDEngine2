@@ -353,7 +353,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IBuffer* CreateD3D11Buffer(IGraphicsContext* pGraphicsContext, const TInitBufferParams& params, E_RESULT_CODE& result)
+	IBuffer* CreateD3D11Buffer(IGraphicsContext* pGraphicsContext, const TInitBufferParams& params, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IBuffer, CD3D11Buffer, result, pGraphicsContext, params);
 	}

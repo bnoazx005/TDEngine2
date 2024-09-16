@@ -26,7 +26,7 @@ namespace TDEngine2
 	class CD3D11Buffer : public CBaseObject, public IBuffer
 	{
 		public:
-			friend TDE2_API IBuffer* CreateD3D11Buffer(IGraphicsContext*, const TInitBufferParams&, E_RESULT_CODE&);
+			friend IBuffer* CreateD3D11Buffer(IGraphicsContext*, const TInitBufferParams&, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes an initial state of a buffer
@@ -34,7 +34,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, const TInitBufferParams& params) override;
+			E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, const TInitBufferParams& params) override;
 
 			/*!
 				\brief The method locks a buffer to provide safe data reading/writing
@@ -44,13 +44,13 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Map(E_BUFFER_MAP_TYPE mapType, USIZE offset = 0) override;
+			E_RESULT_CODE Map(E_BUFFER_MAP_TYPE mapType, USIZE offset = 0) override;
 
 			/*!
 				\brief The method unlocks a buffer, so GPU can access to it after that operation
 			*/
 
-			TDE2_API void Unmap() override;
+			void Unmap() override;
 
 			/*!
 				\brief The method writes data into a buffer
@@ -61,7 +61,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Write(const void* pData, USIZE size) override;
+			E_RESULT_CODE Write(const void* pData, USIZE size) override;
 
 			/*!
 				\brief The method returns a pointer to buffer's data
@@ -69,13 +69,13 @@ namespace TDEngine2
 				\return The method returns a pointer to buffer's data
 			*/
 
-			TDE2_API void* Read() override;
+			void* Read() override;
 
 			/*!
 				\brief The method recreates a buffer with a new specified size all previous data will be discarded
 			*/
 
-			TDE2_API E_RESULT_CODE Resize(USIZE newSize) override;
+			E_RESULT_CODE Resize(USIZE newSize) override;
 
 			/*!
 				\brief The method returns an internal data of a buffer, which
@@ -85,7 +85,7 @@ namespace TDEngine2
 				contains low-level platform specific buffer's handlers
 			*/
 
-			TDE2_API void* GetInternalData() override;
+			void* GetInternalData() override;
 
 			/*!
 				\brief The method returns buffer's size in bytes
@@ -93,7 +93,7 @@ namespace TDEngine2
 				\return The method returns buffer's size in bytes
 			*/
 
-			TDE2_API USIZE GetSize() const override;
+			USIZE GetSize() const override;
 
 			/*!
 				\brief The method returns a pointer to ID3D11DeviceContext implementation
@@ -101,19 +101,19 @@ namespace TDEngine2
 				\return The method returns a pointer to ID3D11DeviceContext implementation
 			*/
 
-			TDE2_API ID3D11DeviceContext* GetDeviceContext() const;
+			ID3D11DeviceContext* GetDeviceContext() const;
 
-			TDE2_API const TInitBufferParams& GetParams() const override;
+			const TInitBufferParams& GetParams() const override;
 
-			TDE2_API ID3D11Buffer* GetD3D11Buffer();
+			ID3D11Buffer* GetD3D11Buffer();
 
-			TDE2_API ID3D11ShaderResourceView* GetShaderView();
-			TDE2_API ID3D11UnorderedAccessView* GetWriteableShaderView();
+			ID3D11ShaderResourceView* GetShaderView();
+			ID3D11UnorderedAccessView* GetWriteableShaderView();
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11Buffer)
 			
-			TDE2_API E_RESULT_CODE _onInitInternal(const TInitBufferParams& params);
-			TDE2_API E_RESULT_CODE _onFreeInternal() override;
+			E_RESULT_CODE _onInitInternal(const TInitBufferParams& params);
+			E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			ID3D11DeviceContext*     mp3dDeviceContext;
 			ID3D11Device*            mp3dDevice;
@@ -145,7 +145,7 @@ namespace TDEngine2
 		\return A pointer to CD3D11GraphicsContext's implementation
 	*/
 
-	TDE2_API IBuffer* CreateD3D11Buffer(IGraphicsContext* pGraphicsContext, const TInitBufferParams& params, E_RESULT_CODE& result);
+	IBuffer* CreateD3D11Buffer(IGraphicsContext* pGraphicsContext, const TInitBufferParams& params, E_RESULT_CODE& result);
 }
 
 #endif

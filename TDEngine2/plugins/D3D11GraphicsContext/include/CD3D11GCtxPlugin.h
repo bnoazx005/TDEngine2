@@ -54,9 +54,9 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11GCtxPlugin)
 
-			TDE2_API E_RESULT_CODE _registerFactories(IEngineCore* pEngineCore);
+			E_RESULT_CODE _registerFactories(IEngineCore* pEngineCore);
 
-			TDE2_API E_RESULT_CODE _registerResourceLoaders(IEngineCore* pEngineCore);
+			E_RESULT_CODE _registerResourceLoaders(IEngineCore* pEngineCore);
 		protected:
 			IEngineCore*      mpEngineCoreInstance;
 

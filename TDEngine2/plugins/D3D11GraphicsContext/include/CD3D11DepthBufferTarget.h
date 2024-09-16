@@ -34,7 +34,7 @@ namespace TDEngine2
 		\return A pointer to CD3D11DepthBufferTarget's implementation
 	*/
 
-	TDE2_API IDepthBufferTarget* CreateD3D11DepthBufferTarget(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
+	IDepthBufferTarget* CreateD3D11DepthBufferTarget(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 															  const TRenderTargetParameters& params, E_RESULT_CODE& result);
 
 
@@ -47,7 +47,7 @@ namespace TDEngine2
 	class CD3D11DepthBufferTarget : public CBaseDepthBufferTarget
 	{
 		public:
-			friend TDE2_API IDepthBufferTarget* CreateD3D11DepthBufferTarget(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
+			friend IDepthBufferTarget* CreateD3D11DepthBufferTarget(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 																			 const TRenderTargetParameters& params, E_RESULT_CODE& result);
 		public:
 			TDE2_REGISTER_TYPE(CD3D11DepthBufferTarget)
@@ -58,9 +58,9 @@ namespace TDEngine2
 				\param[in] slot Slot's index
 			*/
 
-			TDE2_API void Bind(U32 slot) override;
+			void Bind(U32 slot) override;
 
-			TDE2_API void UnbindFromShader() override;
+			void UnbindFromShader() override;
 
 			/*!
 				\brief The method loads resource data into memory
@@ -68,7 +68,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Load() override;
+			E_RESULT_CODE Load() override;
 
 			/*!
 				\brief The method unloads resource data from memory
@@ -76,7 +76,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Unload() override;
+			E_RESULT_CODE Unload() override;
 
 			/*!
 				\brief The method resets current internal data of a resource
@@ -84,7 +84,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Reset() override;
+			E_RESULT_CODE Reset() override;
 
 			/*!
 				\brief The method copies existing data of the render target into given texture object
@@ -94,24 +94,24 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Blit(ITexture2D*& pDestTexture) override;
+			E_RESULT_CODE Blit(ITexture2D*& pDestTexture) override;
 
-			TDE2_API E_RESULT_CODE GenerateMipMaps() override;
+			E_RESULT_CODE GenerateMipMaps() override;
 
 			/*!
 				\brief The method returns an internal view of the render target
 				\return The method returns an internal view of the render target
 			*/
 
-			TDE2_API ID3D11DepthStencilView* GetDepthBufferTargetView() const;
+			ID3D11DepthStencilView* GetDepthBufferTargetView() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11DepthBufferTarget)
 
-			TDE2_API E_RESULT_CODE _createInternalTextureHandler(IGraphicsContext* pGraphicsContext, const TRenderTargetParameters& params) override;
+			E_RESULT_CODE _createInternalTextureHandler(IGraphicsContext* pGraphicsContext, const TRenderTargetParameters& params) override;
 
-			TDE2_API E_RESULT_CODE _createShaderTextureView(ID3D11Device* p3dDevice, E_FORMAT_TYPE format, U32 mipLevelsCount);
+			E_RESULT_CODE _createShaderTextureView(ID3D11Device* p3dDevice, E_FORMAT_TYPE format, U32 mipLevelsCount);
 
-			TDE2_API E_RESULT_CODE _createDepthBufferTargetView(ID3D11Device* p3dDevice, E_FORMAT_TYPE format);
+			E_RESULT_CODE _createDepthBufferTargetView(ID3D11Device* p3dDevice, E_FORMAT_TYPE format);
 		protected:
 			ID3D11Device*              mp3dDevice = nullptr;
 
@@ -139,7 +139,7 @@ namespace TDEngine2
 		\return A pointer to CD3D11DepthBufferTargetFactory's implementation
 	*/
 
-	TDE2_API IResourceFactory* CreateD3D11DepthBufferTargetFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
+	IResourceFactory* CreateD3D11DepthBufferTargetFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
 
 
 	/*!
@@ -152,7 +152,7 @@ namespace TDEngine2
 	class CD3D11DepthBufferTargetFactory : public CBaseObject, public IDepthBufferTargetFactory
 	{
 		public:
-			friend TDE2_API IResourceFactory* CreateD3D11DepthBufferTargetFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
+			friend IResourceFactory* CreateD3D11DepthBufferTargetFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method initializes an internal state of a shader factory
@@ -164,7 +164,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext) override;
+			E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext) override;
 
 			/*!
 				\brief The method creates a new instance of a resource based on passed parameters
@@ -176,7 +176,7 @@ namespace TDEngine2
 				\return A pointer to a new instance of IResource type
 			*/
 
-			TDE2_API IResource* Create(const std::string& name, const TBaseResourceParameters& params) const override;
+			IResource* Create(const std::string& name, const TBaseResourceParameters& params) const override;
 
 			/*!
 				\brief The method creates a new instance of a resource based on passed parameters
@@ -188,7 +188,7 @@ namespace TDEngine2
 				\return A pointer to a new instance of IResource type
 			*/
 
-			TDE2_API IResource* CreateDefault(const std::string& name, const TBaseResourceParameters& params) const override;
+			IResource* CreateDefault(const std::string& name, const TBaseResourceParameters& params) const override;
 
 			/*!
 				\brief The method returns an identifier of a resource's type, which
@@ -198,7 +198,7 @@ namespace TDEngine2
 				the factory serves
 			*/
 
-			TDE2_API TypeId GetResourceTypeId() const override;
+			TypeId GetResourceTypeId() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11DepthBufferTargetFactory)
 		protected:

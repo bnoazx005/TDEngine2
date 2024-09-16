@@ -28,7 +28,7 @@ namespace TDEngine2
 	};
 
 
-	TDE2_API ITextureImpl* CreateD3D11TextureImpl(IGraphicsContext* pGraphicsContext, const TInitTextureImplParams& params, E_RESULT_CODE& result);
+	ITextureImpl* CreateD3D11TextureImpl(IGraphicsContext* pGraphicsContext, const TInitTextureImplParams& params, E_RESULT_CODE& result);
 
 
 	/*!
@@ -38,7 +38,7 @@ namespace TDEngine2
 	class CD3D11TextureImpl : public virtual ITextureImpl, public CBaseObject
 	{
 		public:
-			friend TDE2_API ITextureImpl* CreateD3D11TextureImpl(IGraphicsContext*, const TInitTextureImplParams&, E_RESULT_CODE&);
+			friend ITextureImpl* CreateD3D11TextureImpl(IGraphicsContext*, const TInitTextureImplParams&, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes an initial state of a texture
@@ -46,25 +46,25 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, const TInitTextureImplParams& params) override;
+			E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, const TInitTextureImplParams& params) override;
 
-			TDE2_API E_RESULT_CODE Resize(U32 width, U32 height, U32 depth = 1) override;
+			E_RESULT_CODE Resize(U32 width, U32 height, U32 depth = 1) override;
 
-			TDE2_API ID3D11Resource* GetTextureResource();
-			TDE2_API ID3D11ShaderResourceView* GetShaderResourceView();
+			ID3D11Resource* GetTextureResource();
+			ID3D11ShaderResourceView* GetShaderResourceView();
 
-			TDE2_API ID3D11RenderTargetView* GetRenderTargetView();
-			TDE2_API ID3D11DepthStencilView* GetDepthStencilView();
-			TDE2_API ID3D11UnorderedAccessView* GetUnorderedAccessView();
+			ID3D11RenderTargetView* GetRenderTargetView();
+			ID3D11DepthStencilView* GetDepthStencilView();
+			ID3D11UnorderedAccessView* GetUnorderedAccessView();
 
-			TDE2_API std::vector<U8> ReadBytes(U32 index) override;
+			std::vector<U8> ReadBytes(U32 index) override;
 
-			TDE2_API const TInitTextureParams& GetParams() const override;
+			const TInitTextureParams& GetParams() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11TextureImpl)
 
-			TDE2_API E_RESULT_CODE _onInitInternal();
-			TDE2_API E_RESULT_CODE _onFreeInternal() override;
+			E_RESULT_CODE _onInitInternal();
+			E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			TInitTextureImplParams     mInitParams;
 

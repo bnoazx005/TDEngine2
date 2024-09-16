@@ -494,7 +494,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API ITextureImpl* CreateD3D11TextureImpl(IGraphicsContext* pGraphicsContext, const TInitTextureImplParams& params, E_RESULT_CODE& result)
+	ITextureImpl* CreateD3D11TextureImpl(IGraphicsContext* pGraphicsContext, const TInitTextureImplParams& params, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(ITextureImpl, CD3D11TextureImpl, result, pGraphicsContext, params);
 	}

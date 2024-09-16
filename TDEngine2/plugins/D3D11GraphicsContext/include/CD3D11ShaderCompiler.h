@@ -38,49 +38,7 @@ namespace TDEngine2
 		\return A pointer to CD3D11ShaderCompiler's implementation
 	*/
 
-	TDE2_API IShaderCompiler* CreateD3D11ShaderCompiler(IFileSystem* pFileSystem, E_RESULT_CODE& result);
-
-
-	/*!
-		class CD3D11ShaderCompiler
-
-		\brief The class represents main compiler of shaders for D3D11 GAPI
-	*/
-
-	class CD3D11ShaderCompiler: public CBaseShaderCompiler
-	{
-		public:
-			friend TDE2_API IShaderCompiler* CreateD3D11ShaderCompiler(IFileSystem* pFileSystem, E_RESULT_CODE& result);
-
-			/*!
-				\brief The method compiles specified source code into the bytecode representation.
-				Note that the method allocates memory for TShaderCompilerOutput object on heap so it should be
-				released manually
-
-				\param[in] source A string that contains a source code of a shader
-
-				\return An object that contains either bytecode or some error code. Note that the
-				method allocates memory for TShaderCompilerOutput object on heap so it should be
-				released manually
-			*/
-
-			TDE2_API TResult<TShaderCompilerOutput*> Compile(const std::string& shaderId, const std::string& source) const override;
-		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11ShaderCompiler)
-
-			TDE2_API TResult<std::vector<U8>> _compileShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source, TShaderMetadata& shaderMetadata, 
-																  E_SHADER_FEATURE_LEVEL targetVersion) const;
-
-			TDE2_API TUniformBuffersMap _processUniformBuffersDecls(const TStructDeclsMap& structsMap, CTokenizer& tokenizer) const override;
-
-			TDE2_API E_SHADER_FEATURE_LEVEL _getTargetVersionFromStr(const std::string& ver) const override;
-
-			TDE2_API USIZE _getBuiltinTypeSize(const std::string& type, const std::function<void(const std::string&)> typeProcessor = nullptr) const override;
-
-			TDE2_API TShaderResourcesMap _processShaderResourcesDecls(CTokenizer& tokenizer) const override;
-
-			TDE2_API E_SHADER_RESOURCE_TYPE _isShaderResourceType(const std::string& token) const;
-	};
+	IShaderCompiler* CreateD3D11ShaderCompiler(IFileSystem* pFileSystem, E_RESULT_CODE& result);
 }
 
 #endif

@@ -148,7 +148,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IRenderTarget* CreateD3D11RenderTarget(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
+	IRenderTarget* CreateD3D11RenderTarget(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 													const TRenderTargetParameters& params, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IRenderTarget, CD3D11RenderTarget, result, pResourceManager, pGraphicsContext, name, params);
@@ -205,7 +205,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IResourceFactory* CreateD3D11RenderTargetFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
+	IResourceFactory* CreateD3D11RenderTargetFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IResourceFactory, CD3D11RenderTargetFactory, result, pResourceManager, pGraphicsContext);
 	}

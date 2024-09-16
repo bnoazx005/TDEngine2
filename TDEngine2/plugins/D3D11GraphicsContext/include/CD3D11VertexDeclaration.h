@@ -29,7 +29,7 @@ namespace TDEngine2
 		\return A pointer to CD3D11VertexDeclaration's implementation
 	*/
 
-	TDE2_API IVertexDeclaration* CreateD3D11VertexDeclaration(E_RESULT_CODE& result);
+	IVertexDeclaration* CreateD3D11VertexDeclaration(E_RESULT_CODE& result);
 
 
 	/*!
@@ -41,7 +41,7 @@ namespace TDEngine2
 	class CD3D11VertexDeclaration : public CVertexDeclaration
 	{
 		public:
-			friend TDE2_API IVertexDeclaration* CreateD3D11VertexDeclaration(E_RESULT_CODE& result);
+			friend IVertexDeclaration* CreateD3D11VertexDeclaration(E_RESULT_CODE& result);
 		public:
 			/*!
 				\brief The method creates a new input layout object  based on a given shader's description and returns it
@@ -53,7 +53,7 @@ namespace TDEngine2
 				\return The method creates a new input layout object  based on a given shader's description and returns it
 			*/
 
-			TDE2_API TResult<ID3D11InputLayout*> GetInputLayoutByShader(IGraphicsContext* pGraphicsContext, const IShader* pShader);
+			TResult<ID3D11InputLayout*> GetInputLayoutByShader(IGraphicsContext* pGraphicsContext, const IShader* pShader);
 
 			/*!
 				\brief The method creates an internal handlers for a vertex declaration and binds it
@@ -66,11 +66,11 @@ namespace TDEngine2
 				\param[in, out] pShader A pointer to IShader implementation
 			*/
 
-			TDE2_API void Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray, IShader* pShader) override;
+			void Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray, IShader* pShader) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11VertexDeclaration)
 
-			TDE2_API E_RESULT_CODE _onFreeInternal() override;
+			E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			ID3D11InputLayout* mpInputLayout;
 	};

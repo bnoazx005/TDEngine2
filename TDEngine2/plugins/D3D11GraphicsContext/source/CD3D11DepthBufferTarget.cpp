@@ -275,7 +275,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IDepthBufferTarget* CreateD3D11DepthBufferTarget(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
+	IDepthBufferTarget* CreateD3D11DepthBufferTarget(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 															  const TRenderTargetParameters& params, E_RESULT_CODE& result)
 	{
 		CD3D11DepthBufferTarget* pDepthBufferTargetInstance = new (std::nothrow) CD3D11DepthBufferTarget();
@@ -350,7 +350,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IResourceFactory* CreateD3D11DepthBufferTargetFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
+	IResourceFactory* CreateD3D11DepthBufferTargetFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
 	{
 		CD3D11DepthBufferTargetFactory* pDepthBufferTargetFactoryInstance = new (std::nothrow) CD3D11DepthBufferTargetFactory();
 

@@ -212,10 +212,75 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IShader* CreateD3D11Shader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
+	IShader* CreateD3D11Shader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IShader, CD3D11Shader, result, pResourceManager, pGraphicsContext, name);
 	}
+
+
+	/*!
+		class CD3D11ShaderFactory
+
+		\brief The class is an abstract factory of CD3D11Shader objects that is used by a resource manager
+	*/
+
+	class CD3D11ShaderFactory : public CBaseObject, public IShaderFactory
+	{
+		public:
+			friend IResourceFactory* CreateD3D11ShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
+		public:
+			/*!
+				\brief The method initializes an internal state of a shader factory
+
+				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
+
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext) override;
+
+			/*!
+				\brief The method creates a new instance of a resource based on passed parameters
+
+				\param[in] name A name of a resource
+
+				\param[in] params An object that contains parameters that are needed for the resource's creation
+
+				\return A pointer to a new instance of IResource type
+			*/
+
+			IResource* Create(const std::string& name, const TBaseResourceParameters& params) const override;
+
+			/*!
+				\brief The method creates a new instance of a resource based on passed parameters
+
+				\param[in] name A name of a resource
+
+				\param[in] params An object that contains parameters that are needed for the resource's creation
+
+				\return A pointer to a new instance of IResource type
+			*/
+
+			IResource* CreateDefault(const std::string& name, const TBaseResourceParameters& params) const override;
+
+			/*!
+				\brief The method returns an identifier of a resource's type, which
+				the factory serves
+
+				\return The method returns an identifier of a resource's type, which
+				the factory serves
+			*/
+
+			TypeId GetResourceTypeId() const override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11ShaderFactory)
+		protected:
+			IResourceManager* mpResourceManager;
+
+			IGraphicsContext* mpGraphicsContext;
+	};
 
 
 	CD3D11ShaderFactory::CD3D11ShaderFactory() :
@@ -262,7 +327,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IResourceFactory* CreateD3D11ShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
+	IResourceFactory* CreateD3D11ShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IResourceFactory, CD3D11ShaderFactory, result, pResourceManager, pGraphicsContext);
 	}

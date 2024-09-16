@@ -127,25 +127,7 @@ namespace TDEngine2
 
 	IVertexDeclaration* CreateD3D11VertexDeclaration(E_RESULT_CODE& result)
 	{
-		CD3D11VertexDeclaration* pVertexDeclInstance = new (std::nothrow) CD3D11VertexDeclaration();
-
-		if (!pVertexDeclInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pVertexDeclInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pVertexDeclInstance;
-
-			pVertexDeclInstance = nullptr;
-		}
-
-		return pVertexDeclInstance;
+		return CREATE_IMPL(IVertexDeclaration, CD3D11VertexDeclaration, result);
 	}
 }
 

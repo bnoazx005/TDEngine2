@@ -38,7 +38,8 @@ namespace TDEngine2
 		\return A pointer to CD3D11Shader's implementation
 	*/
 
-	TDE2_API IShader* CreateD3D11Shader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result);
+	IShader* CreateD3D11Shader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result);
+
 
 	/*!
 		class CD3D11Shader
@@ -49,7 +50,7 @@ namespace TDEngine2
 	class CD3D11Shader : public CBaseShader
 	{
 		public:
-			friend TDE2_API IShader* CreateD3D11Shader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result);
+			friend IShader* CreateD3D11Shader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result);
 		public:
 			TDE2_REGISTER_TYPE(CD3D11Shader)
 
@@ -59,19 +60,19 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Reset() override;
+			E_RESULT_CODE Reset() override;
 
 			/*!
 				\brief The method binds a shader to a rendering pipeline
 			*/
 
-			TDE2_API void Bind() override;
+			void Bind() override;
 
 			/*!
 				\brief The method rejects a shader from a rendering pipeline
 			*/
 
-			TDE2_API void Unbind() override;
+			void Unbind() override;
 
 			/*!
 				\brief The method returns a bytecode of a vertex shader, or nullptr if a shader hasn't compiled yet
@@ -79,13 +80,13 @@ namespace TDEngine2
 				\return The method returns a bytecode of a vertex shader, or nullptr if a shader hasn't compiled yet
 			*/
 
-			TDE2_API const std::vector<U8>& GetVertexShaderBytecode() const;
+			const std::vector<U8>& GetVertexShaderBytecode() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11Shader)
 
-			TDE2_API E_RESULT_CODE _createInternalHandlers(const TShaderCompilerOutput* pCompilerData) override;
+			E_RESULT_CODE _createInternalHandlers(const TShaderCompilerOutput* pCompilerData) override;
 
-			TDE2_API E_RESULT_CODE _createUniformBuffers(const TShaderCompilerOutput* pCompilerData);
+			E_RESULT_CODE _createUniformBuffers(const TShaderCompilerOutput* pCompilerData);
 		protected:
 			ID3D11DeviceContext*  mp3dDeviceContext;
 
@@ -113,73 +114,7 @@ namespace TDEngine2
 		\return A pointer to CD3D11ShaderFactory's implementation
 	*/
 
-	TDE2_API IResourceFactory* CreateD3D11ShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
-
-
-	/*!
-		class CD3D11ShaderFactory
-
-		\brief The class is an abstract factory of CD3D11Shader objects that
-		is used by a resource manager
-	*/
-
-	class CD3D11ShaderFactory : public CBaseObject, public IShaderFactory
-	{
-		public:
-			friend TDE2_API IResourceFactory* CreateD3D11ShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
-		public:
-			/*!
-				\brief The method initializes an internal state of a shader factory
-
-				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
-
-				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext) override;
-
-			/*!
-				\brief The method creates a new instance of a resource based on passed parameters
-
-				\param[in] name A name of a resource
-
-				\param[in] params An object that contains parameters that are needed for the resource's creation
-
-				\return A pointer to a new instance of IResource type
-			*/
-
-			TDE2_API IResource* Create(const std::string& name, const TBaseResourceParameters& params) const override;
-
-			/*!
-				\brief The method creates a new instance of a resource based on passed parameters
-
-				\param[in] name A name of a resource
-
-				\param[in] params An object that contains parameters that are needed for the resource's creation
-
-				\return A pointer to a new instance of IResource type
-			*/
-
-			TDE2_API IResource* CreateDefault(const std::string& name, const TBaseResourceParameters& params) const override;
-
-			/*!
-				\brief The method returns an identifier of a resource's type, which
-				the factory serves
-
-				\return The method returns an identifier of a resource's type, which
-				the factory serves
-			*/
-
-			TDE2_API TypeId GetResourceTypeId() const override;
-		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11ShaderFactory)
-		protected:
-			IResourceManager* mpResourceManager;
-
-			IGraphicsContext* mpGraphicsContext;
-	};
+	IResourceFactory* CreateD3D11ShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
 }
 
 #endif
