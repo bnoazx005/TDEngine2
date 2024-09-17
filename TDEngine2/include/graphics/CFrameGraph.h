@@ -354,6 +354,12 @@ namespace TDEngine2
 			template <typename TResourceType>
 			TResourceType& GetResource(TFrameGraphResourceHandle handle)
 			{
+				if (TFrameGraphResourceHandle::Invalid == handle)
+				{
+					static TResourceType invalidResource {};
+					return invalidResource;
+				}
+
 				return _getResource(handle).Get<TResourceType>();
 			}
 

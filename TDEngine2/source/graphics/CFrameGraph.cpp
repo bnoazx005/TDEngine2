@@ -1,6 +1,7 @@
 #include "../../include/graphics/CFrameGraph.h"
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IFile.h"
+#include "../../include/utils/CFileLogger.h"
 #include <stack>
 #include "stringUtils.hpp"
 
@@ -182,12 +183,24 @@ namespace TDEngine2
 
 			for (const TFrameGraphResourceHandle currResourceNodeHandle : pCurrPass->GetReads())
 			{
+				if (TFrameGraphResourceHandle::Invalid == currResourceNodeHandle)
+				{
+					LOG_WARNING(Wrench::StringUtils::Format("[CFrameGraph] Try read Invalid resource in {0} pass", pCurrPass->GetName()));
+					continue;
+				}
+
 				auto& resourceNode = mResourcesGraph[static_cast<USIZE>(currResourceNodeHandle)];
 				++resourceNode.mRefCount;
 			}
 
 			for (const TFrameGraphResourceHandle currResourceNodeHandle : pCurrPass->GetWrites())
 			{
+				if (TFrameGraphResourceHandle::Invalid == currResourceNodeHandle)
+				{
+					LOG_WARNING(Wrench::StringUtils::Format("[CFrameGraph] Try write into Invalid resource in {0} pass", pCurrPass->GetName()));
+					continue;
+				}
+
 				auto& resourceNode = mResourcesGraph[static_cast<USIZE>(currResourceNodeHandle)];
 				++resourceNode.mRefCount;
 				resourceNode.mpProducerPass = pCurrPass.get();
@@ -251,12 +264,22 @@ namespace TDEngine2
 
 			for (const TFrameGraphResourceHandle currResourceHandle : pCurrPass->GetReads())
 			{
+				if (TFrameGraphResourceHandle::Invalid == currResourceHandle)
+				{
+					continue;
+				}
+
 				auto& resource = _getResource(currResourceHandle);
 				resource.SetLastUserPass(pCurrPass.get());
 			}
 
 			for (const TFrameGraphResourceHandle currResourceHandle : pCurrPass->GetWrites())
 			{
+				if (TFrameGraphResourceHandle::Invalid == currResourceHandle)
+				{
+					continue;
+				}
+
 				auto& resource = _getResource(currResourceHandle);
 				resource.SetLastUserPass(pCurrPass.get());
 			}
@@ -280,11 +303,21 @@ namespace TDEngine2
 
 			for (const TFrameGraphResourceHandle currResourceHandle : pCurrPass->GetReads())
 			{
+				if (TFrameGraphResourceHandle::Invalid == currResourceHandle)
+				{
+					continue;
+				}
+
 				_getResource(currResourceHandle).BeforeReadOp();
 			}
 
 			for (const TFrameGraphResourceHandle currResourceHandle : pCurrPass->GetWrites())
 			{
+				if (TFrameGraphResourceHandle::Invalid == currResourceHandle)
+				{
+					continue;
+				}
+
 				_getResource(currResourceHandle).BeforeWriteOp();
 			}
 			
