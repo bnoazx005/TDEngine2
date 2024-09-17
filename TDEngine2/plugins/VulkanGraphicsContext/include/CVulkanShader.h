@@ -34,7 +34,7 @@ namespace TDEngine2
 		\return A pointer to CVulkanShader's implementation
 	*/
 
-	TDE2_API IShader* CreateVulkanShader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result);
+	IShader* CreateVulkanShader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result);
 
 	/*!
 		class CVulkanShader
@@ -45,7 +45,7 @@ namespace TDEngine2
 	class CVulkanShader : public CBaseShader
 	{
 		public:
-			friend TDE2_API IShader* CreateVulkanShader(IResourceManager*, IGraphicsContext*, const std::string&, E_RESULT_CODE&);
+			friend IShader* CreateVulkanShader(IResourceManager*, IGraphicsContext*, const std::string&, E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_TYPE(CVulkanShader)
 
@@ -55,27 +55,27 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Reset() override;
+			E_RESULT_CODE Reset() override;
 
 			/*!
 				\brief The method binds a shader to a rendering pipeline
 			*/
 
-			TDE2_API void Bind() override;
+			void Bind() override;
 
 			/*!
 				\brief The method rejects a shader from a rendering pipeline
 			*/
 
-			TDE2_API void Unbind() override;
+			void Unbind() override;
 
-			TDE2_API VkPipelineShaderStageCreateInfo GetPipelineShaderStage(E_SHADER_STAGE_TYPE stageType) const;
+			VkPipelineShaderStageCreateInfo GetPipelineShaderStage(E_SHADER_STAGE_TYPE stageType) const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanShader)
 
-			TDE2_API E_RESULT_CODE _createInternalHandlers(const TShaderCompilerOutput* pCompilerData) override;
+			E_RESULT_CODE _createInternalHandlers(const TShaderCompilerOutput* pCompilerData) override;
 
-			TDE2_API E_RESULT_CODE _createUniformBuffers(const TShaderCompilerOutput* pCompilerData);
+			E_RESULT_CODE _createUniformBuffers(const TShaderCompilerOutput* pCompilerData);
 
 		protected:
 			std::array<VkShaderModule, SST_NONE>                  mShaderStageModules;
@@ -96,7 +96,7 @@ namespace TDEngine2
 		\return A pointer to CVulkanShaderFactory's implementation
 	*/
 
-	TDE2_API IResourceFactory* CreateVulkanShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
+	IResourceFactory* CreateVulkanShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
 
 
 	/*!
@@ -109,7 +109,7 @@ namespace TDEngine2
 	class CVulkanShaderFactory : public CBaseObject, public IShaderFactory
 	{
 		public:
-			friend TDE2_API IResourceFactory* CreateVulkanShaderFactory(IResourceManager*, IGraphicsContext*, E_RESULT_CODE&);
+			friend IResourceFactory* CreateVulkanShaderFactory(IResourceManager*, IGraphicsContext*, E_RESULT_CODE&);
 		public:
 			/*!
 				\brief The method initializes an internal state of a shader factory
@@ -121,7 +121,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext) override;
+			E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext) override;
 
 			/*!
 				\brief The method creates a new instance of a resource based on passed parameters
@@ -133,7 +133,7 @@ namespace TDEngine2
 				\return A pointer to a new instance of IResource type
 			*/
 
-			TDE2_API IResource* Create(const std::string& name, const TBaseResourceParameters& params) const override;
+			IResource* Create(const std::string& name, const TBaseResourceParameters& params) const override;
 
 			/*!
 				\brief The method creates a new instance of a resource based on passed parameters
@@ -145,7 +145,7 @@ namespace TDEngine2
 				\return A pointer to a new instance of IResource type
 			*/
 
-			TDE2_API IResource* CreateDefault(const std::string& name, const TBaseResourceParameters& params) const override;
+			IResource* CreateDefault(const std::string& name, const TBaseResourceParameters& params) const override;
 
 			/*!
 				\brief The method returns an identifier of a resource's type, which
@@ -155,7 +155,7 @@ namespace TDEngine2
 				the factory serves
 			*/
 
-			TDE2_API TypeId GetResourceTypeId() const override;
+			TypeId GetResourceTypeId() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanShaderFactory)
 		protected:

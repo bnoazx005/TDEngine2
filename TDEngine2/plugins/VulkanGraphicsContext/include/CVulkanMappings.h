@@ -21,6 +21,7 @@ enum VkResult;
 namespace TDEngine2
 {
 	enum class E_TEXTURE_IMPL_TYPE : U32;
+	enum class E_PRIMITIVE_TOPOLOGY_TYPE;
 
 
 	/*!
@@ -40,9 +41,9 @@ namespace TDEngine2
 				\return A value of Glenum type
 			*/
 
-			TDE2_API static VmaMemoryUsage GetUsageType(E_BUFFER_USAGE_TYPE type);
+			static VmaMemoryUsage GetUsageType(E_BUFFER_USAGE_TYPE type);
 
-			TDE2_API static VkSampleCountFlagBits GetSamplesCount(U32 samplesCount);
+			static VkSampleCountFlagBits GetSamplesCount(U32 samplesCount);
 
 			///*!
 			//	\brief The function converts the internal E_BUFFER_MAP_TYPE into
@@ -53,7 +54,7 @@ namespace TDEngine2
 			//	\return A value of Glenum type
 			//*/
 
-			//TDE2_API static GLenum GetBufferMapAccessType(E_BUFFER_MAP_TYPE type);
+			//static GLenum GetBufferMapAccessType(E_BUFFER_MAP_TYPE type);
 
 			///*!
 			//	\brief The function maps an internal format type into Vulkan internal format
@@ -63,7 +64,7 @@ namespace TDEngine2
 			//	\return A value of internal GL format
 			//*/
 
-			//TDE2_API static GLint GetInternalFormat(E_FORMAT_TYPE format);
+			//static GLint GetInternalFormat(E_FORMAT_TYPE format);
 
 			///*!
 			//	\brief The function maps an internal format type into pixel data's format
@@ -73,7 +74,7 @@ namespace TDEngine2
 			//	\return A value of pixel data's format
 			//*/
 
-			//TDE2_API static GLenum GetPixelDataFormat(E_FORMAT_TYPE format);
+			//static GLenum GetPixelDataFormat(E_FORMAT_TYPE format);
 
 			/*!
 				\param[in] shaderStageType An internal type which represents a shader stage type
@@ -81,10 +82,10 @@ namespace TDEngine2
 				\return The function maps an internal shader stage's type into Vulkan's defined one
 			*/
 
-			TDE2_API static VkShaderStageFlagBits GetShaderStageType(E_SHADER_STAGE_TYPE shaderStageType);
+			static VkShaderStageFlagBits GetShaderStageType(E_SHADER_STAGE_TYPE shaderStageType);
 
-			TDE2_API static VkImageType GetTextureType(E_TEXTURE_IMPL_TYPE implType);
-			TDE2_API static VkImageViewType GetTextureViewType(E_TEXTURE_IMPL_TYPE implType);
+			static VkImageType GetTextureType(E_TEXTURE_IMPL_TYPE implType);
+			static VkImageViewType GetTextureViewType(E_TEXTURE_IMPL_TYPE implType);
 
 			//
 			///*!
@@ -95,7 +96,7 @@ namespace TDEngine2
 			//	\return The functiona returns a number of channels for a given format type
 			//*/
 
-			//TDE2_API static U32 GetNumOfChannelsOfFormat(E_FORMAT_TYPE format);
+			//static U32 GetNumOfChannelsOfFormat(E_FORMAT_TYPE format);
 
 			///*!
 			//	\brief The function returns a base type, which lies in format's specification
@@ -105,13 +106,13 @@ namespace TDEngine2
 			//	\return The function returns a base type, which lies in format's specification
 			//*/
 
-			//TDE2_API static GLenum GetBaseTypeOfFormat(E_FORMAT_TYPE format);
+			//static GLenum GetBaseTypeOfFormat(E_FORMAT_TYPE format);
 
 			///*!
 			//	\brief The method returns a size of a type that can be retrieved from glGetActiveUniform
 			//*/
 
-			//TDE2_API static GLint GetTypeSize(GLenum type);
+			//static GLint GetTypeSize(GLenum type);
 
 			///*!
 			//	\brief The function is a predicate that returns true if a given format is normalized,
@@ -123,17 +124,17 @@ namespace TDEngine2
 			//	false in other cases
 			//*/
 
-			//TDE2_API static bool IsFormatNormalized(E_FORMAT_TYPE format);
+			//static bool IsFormatNormalized(E_FORMAT_TYPE format);
 
-			///*!
-			//	\brief The function maps internal engine topology's type into Vulkanspecific value
+			/*!
+				\brief The function maps internal engine topology's type into Vulkan specific value
 
-			//	\param[in] topologyType An internal engine representation of a primitive topology
-			//	
-			//	\return A primitive topology's value which is Vulkanspecific
-			//*/
+				\param[in] topologyType An internal engine representation of a primitive topology
+				
+				\return A primitive topology's value which is Vulkan specific
+			*/
 
-			//TDE2_API static GLenum GetPrimitiveTopology(E_PRIMITIVE_TOPOLOGY_TYPE topologyType);
+			static VkPrimitiveTopology GetPrimitiveTopology(E_PRIMITIVE_TOPOLOGY_TYPE topologyType);
 
 			/*!
 				\brief The function maps internal index format into Vulkan specific type
@@ -143,7 +144,7 @@ namespace TDEngine2
 				\return An Vulkan format of an index
 			*/
 
-			TDE2_API static VkIndexType GetIndexFormat(E_INDEX_FORMAT_TYPE indexFormatType);
+			static VkIndexType GetIndexFormat(E_INDEX_FORMAT_TYPE indexFormatType);
 
 			///*!
 			//	\brief The function maps an internal minification filter's value into Vulkanspecific one
@@ -154,7 +155,7 @@ namespace TDEngine2
 			//	\return A Vulkanspecific filter's type
 			//*/
 
-			//TDE2_API static VkFilter GetMinFilterType(E_TEXTURE_FILTER_TYPE filterValue, bool useMipMaps = true);
+			//static VkFilter GetMinFilterType(E_TEXTURE_FILTER_TYPE filterValue, bool useMipMaps = true);
 
 			/*!
 				\param[in] filterValue An internal value which represents a filter's type
@@ -162,7 +163,7 @@ namespace TDEngine2
 				\return A Vulkanspecific filter's type
 			*/
 
-			TDE2_API static VkFilter GetFilterType(E_TEXTURE_FILTER_TYPE filterValue);
+			static VkFilter GetFilterType(E_TEXTURE_FILTER_TYPE filterValue);
 
 			/*!
 				\brief The function maps an internal address mode's type into Vulkanspecific one
@@ -172,7 +173,7 @@ namespace TDEngine2
 				\return A value of Vulkantype which is equivalent of a given one
 			*/
 
-			TDE2_API static VkSamplerAddressMode GetTextureAddressMode(E_ADDRESS_MODE_TYPE addressMode);
+			static VkSamplerAddressMode GetTextureAddressMode(E_ADDRESS_MODE_TYPE addressMode);
 
 			/*!
 				\brief The function maps an internal format type into Vulkaninternal format
@@ -182,7 +183,7 @@ namespace TDEngine2
 				\return A value of internal GL format
 			*/
 
-			TDE2_API static VkFormat GetInternalFormat(E_FORMAT_TYPE format);
+			static VkFormat GetInternalFormat(E_FORMAT_TYPE format);
 
 			/*!
 				\brief The function maps GLenum error code into internal E_RESULT_CODE type
@@ -192,7 +193,7 @@ namespace TDEngine2
 				\return An error code of E_RESULT_CODE type which corresponds to a given one
 			*/
 
-			TDE2_API static E_RESULT_CODE GetErrorCode(VkResult resultCode);
+			static E_RESULT_CODE GetErrorCode(VkResult resultCode);
 
 			///*!
 			//	\brief The function converts internal Vulkanerror's value into string representation
@@ -202,7 +203,7 @@ namespace TDEngine2
 			//	\return A string representation of Vulkan error
 			//*/
 
-			//TDE2_API static std::string ErrorCodeToString(GLenum error);
+			//static std::string ErrorCodeToString(GLenum error);
 
 			///*!
 			//	\brief The function maps engine's value into internal OpenGL's value which defines a value
@@ -213,7 +214,7 @@ namespace TDEngine2
 			//	\return An internal OpenGL's value which is equivalent for a given one
 			//*/
 
-			//TDE2_API static GLenum GetBlendFactorValue(E_BLEND_FACTOR_VALUE factor);
+			//static GLenum GetBlendFactorValue(E_BLEND_FACTOR_VALUE factor);
 
 			///*!
 			//	\brief The function maps engine's value into internal OpenGL's value which defines 
@@ -224,7 +225,7 @@ namespace TDEngine2
 			//	\return An internal OpenGL's value which is equivalent for a given one
 			//*/
 
-			//TDE2_API static GLenum GetBlendOpType(E_BLEND_OP_TYPE opType);
+			//static GLenum GetBlendOpType(E_BLEND_OP_TYPE opType);
 			//
 			///*!
 			//	\brief The function maps internal cubemap's face index into Vulkanspecific one
@@ -234,7 +235,7 @@ namespace TDEngine2
 			//	\return An internal OpenGL's value which is equivalent for a given one
 			//*/
 
-			//TDE2_API static GLenum GetCubemapFace(E_CUBEMAP_FACE faceType);
+			//static GLenum GetCubemapFace(E_CUBEMAP_FACE faceType);
 
 			///*!
 			//	\brief The function maps internal comparison function's type into Vulkan specific one
@@ -244,7 +245,7 @@ namespace TDEngine2
 			//	\return Vulkan comparison function's type based on the given argument
 			//*/
 
-			//TDE2_API static GLenum GetComparisonFunc(const E_COMPARISON_FUNC& func);
+			//static GLenum GetComparisonFunc(const E_COMPARISON_FUNC& func);
 
 			///*!
 			//	\brief The function maps internal stencil operation's type into Vulkan specific one
@@ -254,7 +255,7 @@ namespace TDEngine2
 			//	\return Vulkan stencil operation's type based on the given argument
 			//*/
 
-			//TDE2_API static GLenum GetStencilOpType(const E_STENCIL_OP& stencilOp);
+			//static GLenum GetStencilOpType(const E_STENCIL_OP& stencilOp);
 
 			///*!
 			//	\brief The method maps E_CULL_MODE into Glenum's value
@@ -264,6 +265,6 @@ namespace TDEngine2
 			//	\return Vulkan3.x specific value which represents a culling mode
 			//*/
 
-			//TDE2_API static GLenum GetCullMode(const E_CULL_MODE& cullMode);
+			//static GLenum GetCullMode(const E_CULL_MODE& cullMode);
 	};
 }

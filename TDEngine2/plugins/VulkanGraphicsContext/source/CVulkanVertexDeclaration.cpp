@@ -1,10 +1,47 @@
 #include "../include/CVulkanVertexDeclaration.h"
 #include "../include/CVulkanMappings.h"
 #include <utils/Utils.h>
+#define VK_NO_PROTOTYPES
+#include <vulkan/vulkan_core.h>
+#include <vector>
 
 
 namespace TDEngine2
 {
+	/*!
+		class CVulkanVertexDeclaration
+
+		\brief The class implements a vertex declaration for Vulkan
+	*/
+
+	class CVulkanVertexDeclaration : public CVertexDeclaration
+	{
+		public:
+			friend IVertexDeclaration* CreateVulkanVertexDeclaration(E_RESULT_CODE& result);
+		public:
+			/*!
+				\brief The method creates an internal handlers for a vertex declaration and binds it
+				to a rendering pipeline
+
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext implementation
+
+				\param[in, out] pVertexBuffersArray An array of  IVertexBuffer implementations
+
+				\param[in, out] pShader A pointer to IShader implementation
+			*/
+
+			void Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray, IShader* pShader) override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanVertexDeclaration)
+
+			E_RESULT_CODE _compile();
+		private:
+			std::vector<VkVertexInputBindingDescription> mInputBindings;
+			std::vector<VkVertexInputAttributeDescription> mAttributeDescs;
+			VkPipelineVertexInputStateCreateInfo mVertexFormatInfo;
+	};
+
+
 	CVulkanVertexDeclaration::CVulkanVertexDeclaration() :
 		CVertexDeclaration()
 	{

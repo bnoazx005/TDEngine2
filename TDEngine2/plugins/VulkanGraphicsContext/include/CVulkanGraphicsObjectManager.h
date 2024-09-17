@@ -34,7 +34,7 @@ namespace TDEngine2
 		\return A pointer to CVulkanGraphicsObjectManager's implementation
 	*/
 
-	TDE2_API IGraphicsObjectManager* CreateVulkanGraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
+	IGraphicsObjectManager* CreateVulkanGraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
 
 
 	/*!
@@ -46,17 +46,17 @@ namespace TDEngine2
 	class CVulkanGraphicsObjectManager : public CBaseGraphicsObjectManager
 	{
 		public:
-			friend TDE2_API IGraphicsObjectManager* CreateVulkanGraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
+			friend IGraphicsObjectManager* CreateVulkanGraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
 		public:
 			typedef std::vector<TPtr<CVulkanTextureImpl>> TNativeTexturesArray;
 			typedef std::vector<TPtr<CVulkanBuffer>>      TNativeBuffersArray;
 			typedef std::vector<VkSampler>                TTextureSamplersArray;
 		public:
-			TDE2_API TResult<TBufferHandleId> CreateBuffer(const TInitBufferParams& params) override;
-			TDE2_API TResult<TTextureHandleId> CreateTexture(const TInitTextureImplParams& params) override;
+			TResult<TBufferHandleId> CreateBuffer(const TInitBufferParams& params) override;
+			TResult<TTextureHandleId> CreateTexture(const TInitTextureImplParams& params) override;
 
-			TDE2_API E_RESULT_CODE DestroyBuffer(TBufferHandleId bufferHandle) override;
-			TDE2_API E_RESULT_CODE DestroyTexture(TTextureHandleId textureHandle) override;
+			E_RESULT_CODE DestroyBuffer(TBufferHandleId bufferHandle) override;
+			E_RESULT_CODE DestroyTexture(TTextureHandleId textureHandle) override;
 
 			/*!
 				\brief The method is a factory for creation objects of IVertexDeclaration's type
@@ -64,7 +64,7 @@ namespace TDEngine2
 				\return The result object contains either a pointer to IVertexDeclaration or an error code
 			*/
 
-			TDE2_API TResult<IVertexDeclaration*> CreateVertexDeclaration() override;
+			TResult<IVertexDeclaration*> CreateVertexDeclaration() override;
 
 			/*!
 				\brief The method is a factory for creation of texture samplers objects
@@ -74,7 +74,7 @@ namespace TDEngine2
 				\return The result object contains either an identifier of created sampler or an error code
 			*/
 
-			TDE2_API TResult<TTextureSamplerId> CreateTextureSampler(const TTextureSamplerDesc& samplerDesc) override;
+			TResult<TTextureSamplerId> CreateTextureSampler(const TTextureSamplerDesc& samplerDesc) override;
 
 			/*!
 				\brief The method creates a new blend state which is configured via given paramters
@@ -84,7 +84,7 @@ namespace TDEngine2
 				\return The result object contains either an identifier of created blend state or an error code
 			*/
 
-			TDE2_API  TResult<TBlendStateId> CreateBlendState(const TBlendStateDesc& blendStateDesc) override;
+			 TResult<TBlendStateId> CreateBlendState(const TBlendStateDesc& blendStateDesc) override;
 
 			/*!
 				\brief The method creates a new state which sets up depth and stencil buffers operations and values
@@ -94,7 +94,7 @@ namespace TDEngine2
 				\return The result object contains either an identifier of a created state or an error code
 			*/
 
-			TDE2_API TResult<TDepthStencilStateId> CreateDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc) override;
+			TResult<TDepthStencilStateId> CreateDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc) override;
 
 			/*!
 				\brief The method create a new state which specifies how a geometry should be actually drawn
@@ -104,13 +104,13 @@ namespace TDEngine2
 				\return The result object contains either an identifier of a created state or an error code
 			*/
 
-			TDE2_API TResult<TRasterizerStateId> CreateRasterizerState(const TRasterizerStateDesc& rasterizerStateDesc) override;
+			TResult<TRasterizerStateId> CreateRasterizerState(const TRasterizerStateDesc& rasterizerStateDesc) override;
 
-			TDE2_API TPtr<IBuffer> GetBufferPtr(TBufferHandleId handle) override;
-			TDE2_API TPtr<CVulkanBuffer> GetVulkanBufferPtr(TBufferHandleId bufferHandle);
+			TPtr<IBuffer> GetBufferPtr(TBufferHandleId handle) override;
+			TPtr<CVulkanBuffer> GetVulkanBufferPtr(TBufferHandleId bufferHandle);
 
-			TDE2_API TPtr<ITextureImpl> GetTexturePtr(TTextureHandleId handle) override;
-			TDE2_API TPtr<CVulkanTextureImpl> GetVulkanTexturePtr(TTextureHandleId textureHandle);
+			TPtr<ITextureImpl> GetTexturePtr(TTextureHandleId handle) override;
+			TPtr<CVulkanTextureImpl> GetVulkanTexturePtr(TTextureHandleId textureHandle);
 
 			/*!
 				\brief The method returns a string which contains full source code of default shader that is specific
@@ -122,7 +122,7 @@ namespace TDEngine2
 				for the graphics context
 			*/
 
-			TDE2_API std::string GetDefaultShaderCode(const E_DEFAULT_SHADER_TYPE& type) const override;
+			std::string GetDefaultShaderCode(const E_DEFAULT_SHADER_TYPE& type) const override;
 
 			/*!
 				\brief The method returns vertices of a screen-quad triangle specific for the current GAPI.
@@ -132,20 +132,20 @@ namespace TDEngine2
 				XY of each element mean the position and ZW are texture coordinates
 			*/
 
-			TDE2_API std::array<TVector4, 3> GetScreenTriangleVertices() const override;
+			std::array<TVector4, 3> GetScreenTriangleVertices() const override;
 
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanGraphicsObjectManager)
 
-			TDE2_API E_RESULT_CODE _freeTextureSamplers() override;
+			E_RESULT_CODE _freeTextureSamplers() override;
 
-			TDE2_API E_RESULT_CODE _freeBlendStates() override;
+			E_RESULT_CODE _freeBlendStates() override;
 
-			TDE2_API E_RESULT_CODE _freeDepthStencilStates() override;
+			E_RESULT_CODE _freeDepthStencilStates() override;
 
-			TDE2_API E_RESULT_CODE _freeRasterizerStates() override;
+			E_RESULT_CODE _freeRasterizerStates() override;
 
-			TDE2_API const std::string _getShaderCacheFilePath() const override;
+			const std::string _getShaderCacheFilePath() const override;
 		protected:
 			TNativeTexturesArray  mpTexturesArray;
 			TNativeBuffersArray   mpBuffersArray;

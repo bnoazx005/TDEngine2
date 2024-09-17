@@ -177,7 +177,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API ITextureImpl* CreateVulkanTextureImpl(IGraphicsContext* pGraphicsContext, const TInitTextureImplParams& params, E_RESULT_CODE& result)
+	ITextureImpl* CreateVulkanTextureImpl(IGraphicsContext* pGraphicsContext, const TInitTextureImplParams& params, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(ITextureImpl, CVulkanTextureImpl, result, pGraphicsContext, params);
 	}

@@ -1,4 +1,5 @@
 #include "../include/CVulkanMappings.h"
+#include <core/IGraphicsContext.h>
 #include <graphics/ITexture.h>
 #include <utils/Utils.h>
 
@@ -339,26 +340,26 @@ namespace TDEngine2
 		}
 
 		return false;
-	}
+	}*/
 
-	GLenum CVulkanMappings::GetPrimitiveTopology(E_PRIMITIVE_TOPOLOGY_TYPE topologyType)
+	VkPrimitiveTopology CVulkanMappings::GetPrimitiveTopology(E_PRIMITIVE_TOPOLOGY_TYPE topologyType)
 	{
 		switch (topologyType)
 		{
 			case E_PRIMITIVE_TOPOLOGY_TYPE::PTT_POINT_LIST:
-				return GL_POINTS;
+				return VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
 			case E_PRIMITIVE_TOPOLOGY_TYPE::PTT_LINE_LIST:
-				return GL_LINES;
+				return VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
 			case E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST:
-				return GL_TRIANGLES;
+				return VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 			case E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_STRIP:
-				return GL_TRIANGLE_STRIP;
+				return VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
 			case E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_FAN:
-				return GL_TRIANGLE_FAN;
+				return VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
 		}
 
-		return GL_TRIANGLES;
-	}*/
+		return VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+	}
 
 	VkIndexType CVulkanMappings::GetIndexFormat(E_INDEX_FORMAT_TYPE indexFormatType)
 	{

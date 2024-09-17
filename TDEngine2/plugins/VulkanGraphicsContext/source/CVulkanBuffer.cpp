@@ -216,7 +216,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IBuffer* CreateVulkanBuffer(IGraphicsContext* pGraphicsContext, const TInitBufferParams& params, E_RESULT_CODE& result)
+	IBuffer* CreateVulkanBuffer(IGraphicsContext* pGraphicsContext, const TInitBufferParams& params, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IBuffer, CVulkanBuffer, result, pGraphicsContext, params);
 	}

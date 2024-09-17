@@ -89,7 +89,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	TDE2_API E_RESULT_CODE CVulkanGraphicsObjectManager::DestroyTexture(TTextureHandleId textureHandle)
+	E_RESULT_CODE CVulkanGraphicsObjectManager::DestroyTexture(TTextureHandleId textureHandle)
 	{
 		if (TTextureHandleId::Invalid == textureHandle)
 		{

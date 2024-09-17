@@ -241,20 +241,20 @@ namespace TDEngine2
 
 		VkInstance instance;
 
-		VkApplicationInfo appInfo;
-		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-		appInfo.pApplicationName = appName.c_str();
-		appInfo.applicationVersion = VK_MAKE_VERSION(TDE2_MAJOR_VERSION, TDE2_MINOR_VERSION, TDE2_PATCH_VERSION);
-		appInfo.pEngineName = "TDEngine2";
-		appInfo.engineVersion = VK_MAKE_VERSION(TDE2_MAJOR_VERSION, TDE2_MINOR_VERSION, TDE2_PATCH_VERSION);
-		appInfo.apiVersion = VK_API_VERSION_1_0;
+		VkApplicationInfo appInfo{};
+		appInfo.sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+		appInfo.pApplicationName   = appName.c_str();
+		appInfo.applicationVersion = VK_MAKE_API_VERSION(0, TDE2_MAJOR_VERSION, TDE2_MINOR_VERSION, TDE2_PATCH_VERSION);
+		appInfo.pEngineName        = "TDEngine2";
+		appInfo.engineVersion      = VK_MAKE_API_VERSION(0, TDE2_MAJOR_VERSION, TDE2_MINOR_VERSION, TDE2_PATCH_VERSION);
+		appInfo.apiVersion         = VK_API_VERSION_1_3;
 
-		VkInstanceCreateInfo createInfo;
-		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-		createInfo.pApplicationInfo = &appInfo;
-		createInfo.enabledExtensionCount = static_cast<U32>(RequiredExtensions.size());
+		VkInstanceCreateInfo createInfo{};
+		createInfo.sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+		createInfo.pApplicationInfo        = &appInfo;
+		createInfo.enabledExtensionCount   = static_cast<U32>(RequiredExtensions.size());
 		createInfo.ppEnabledExtensionNames = RequiredExtensions.data();
-		createInfo.enabledLayerCount = 0;
+		createInfo.enabledLayerCount       = 0;
 
 #if TDE2_DEBUG_MODE
 		createInfo.ppEnabledLayerNames = ValidationLayers.data();
@@ -408,17 +408,17 @@ namespace TDEngine2
 		VkPhysicalDeviceFeatures deviceFeatures{};
 
 		VkDeviceCreateInfo createInfo{};
-		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-		createInfo.pQueueCreateInfos = queuesInfos.data();
+		createInfo.sType                = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+		createInfo.pQueueCreateInfos    = queuesInfos.data();
 		createInfo.queueCreateInfoCount = static_cast<U32>(queuesInfos.size());
-		createInfo.pEnabledFeatures = &deviceFeatures;
+		createInfo.pEnabledFeatures     = &deviceFeatures;
 
-		createInfo.enabledExtensionCount = static_cast<U32>(RequiredDeviceExtensions.size());
+		createInfo.enabledExtensionCount   = static_cast<U32>(RequiredDeviceExtensions.size());
 		createInfo.ppEnabledExtensionNames = RequiredDeviceExtensions.data();
 
 #if TDE2_DEBUG_MODE
 		createInfo.ppEnabledLayerNames = ValidationLayers.data();
-		createInfo.enabledLayerCount = static_cast<U32>(ValidationLayers.size());
+		createInfo.enabledLayerCount   = static_cast<U32>(ValidationLayers.size());
 #else
 		createInfo.enabledLayerCount = 0;
 #endif
@@ -611,7 +611,7 @@ namespace TDEngine2
 
 		vkDestroyFence(mDevice, mTransferCommandFence, nullptr);
 
-		for (USIZE i = 0; i < mNumOfCommandsBuffers; i++)
+		for (USIZE i = 0; i < FRAMES_COUNT; i++)
 		{
 			vkDestroyFence(mDevice, mCommandBuffersFences[i], nullptr);
 			vkDestroySemaphore(mDevice, mImageReadySemaphores[i], nullptr);
@@ -749,15 +749,19 @@ namespace TDEngine2
 
 		vkQueuePresentKHR(mPresentQueue, &presentInfo);
 
-		mCurrFrameIndex = (mCurrFrameIndex + 1) % mNumOfCommandsBuffers;
+		mCurrFrameIndex = (mCurrFrameIndex + 1) % FRAMES_COUNT;
 	}
 
 	void CVulkanGraphicsContext::SetViewport(F32 x, F32 y, F32 width, F32 height, F32 minDepth, F32 maxDepth)
 	{
+		//vkCmdSetViewport()
+		TDE2_UNIMPLEMENTED();
 	}
 
 	void CVulkanGraphicsContext::SetScissorRect(const TRectU32& scissorRect)
 	{
+		//vkCmdSetScissor()
+		TDE2_UNIMPLEMENTED();
 	}
 
 	TMatrix4 CVulkanGraphicsContext::CalcPerspectiveMatrix(F32 fov, F32 aspect, F32 zn, F32 zf)
@@ -981,27 +985,40 @@ namespace TDEngine2
 
 	void CVulkanGraphicsContext::Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices)
 	{
+		vkCmdSetPrimitiveTopology(mCommandBuffers[mCurrFrameIndex], CVulkanMappings::GetPrimitiveTopology(topology));
+		vkCmdDraw(mCommandBuffers[mCurrFrameIndex], numOfVertices, 1, startVertex, 0);
 	}
 
 	void CVulkanGraphicsContext::DrawIndexed(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, U32 baseVertex, U32 startIndex, U32 numOfIndices)
 	{
+		vkCmdSetPrimitiveTopology(mCommandBuffers[mCurrFrameIndex], CVulkanMappings::GetPrimitiveTopology(topology));
+		vkCmdDrawIndexed(mCommandBuffers[mCurrFrameIndex], numOfIndices, 1, startIndex, baseVertex, 0);
 	}
 
 	void CVulkanGraphicsContext::DrawInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 verticesPerInstance, U32 startInstance, U32 numOfInstances)
 	{
+		vkCmdSetPrimitiveTopology(mCommandBuffers[mCurrFrameIndex], CVulkanMappings::GetPrimitiveTopology(topology));
+		vkCmdDraw(mCommandBuffers[mCurrFrameIndex], verticesPerInstance, numOfInstances, startVertex, startInstance);
 	}
 
 	void CVulkanGraphicsContext::DrawIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, U32 baseVertex, U32 startIndex,
 		U32 startInstance, U32 indicesPerInstance, U32 numOfInstances)
 	{
+		vkCmdSetPrimitiveTopology(mCommandBuffers[mCurrFrameIndex], CVulkanMappings::GetPrimitiveTopology(topology));
+		vkCmdDrawIndexed(mCommandBuffers[mCurrFrameIndex], indicesPerInstance, numOfInstances, startIndex, baseVertex, startInstance);
 	}
 
 	void CVulkanGraphicsContext::DrawIndirectInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, TBufferHandleId argsBufferHandle, U32 alignedOffset)
 	{
+		vkCmdSetPrimitiveTopology(mCommandBuffers[mCurrFrameIndex], CVulkanMappings::GetPrimitiveTopology(topology));
+		//vkCmdDrawIndirect(mCommandBuffers[mCurrFrameIndex], VK_NULL_HANDLE, )
+		TDE2_UNIMPLEMENTED();
 	}
 
 	void CVulkanGraphicsContext::DrawIndirectIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, TBufferHandleId argsBufferHandle, U32 alignedOffset)
 	{
+		vkCmdSetPrimitiveTopology(mCommandBuffers[mCurrFrameIndex], CVulkanMappings::GetPrimitiveTopology(topology));
+		TDE2_UNIMPLEMENTED();
 	}
 
 	void CVulkanGraphicsContext::DispatchCompute(U32 groupsCountX, U32 groupsCountY, U32 groupsCountZ)
@@ -1094,7 +1111,7 @@ namespace TDEngine2
 	void CVulkanGraphicsContext::BeginSectionMarker(const std::string& id)
 	{
 		VkDebugUtilsLabelEXT markerInfo = {};
-		markerInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
+		markerInfo.sType      = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
 		markerInfo.pLabelName = id.c_str();
 
 		vkCmdBeginDebugUtilsLabelEXT(mCommandBuffers[mCurrFrameIndex], &markerInfo);
@@ -1114,14 +1131,21 @@ namespace TDEngine2
 
 	TVideoAdapterInfo CVulkanGraphicsContext::GetInfo() const
 	{
-		return {};
+		/*VkPhysicalDeviceProperties properties{};
+		vkGetPhysicalDeviceProperties(mPhysicalDevice, &properties);*/
+
+		TVideoAdapterInfo outputInfo{};
+		outputInfo.mAvailableVideoMemory = 0;
+
+
+		return outputInfo;
 	}
 
 	const TGraphicsContextInfo& CVulkanGraphicsContext::GetContextInfo() const
 	{
 		const static TGraphicsContextInfo infoData
 		{
-			{ { -1.0f, -1.0f, -1.0f }, { 1.0f, 1.0f, 1.0f } },
+			{ { -1.0f, -1.0f, 0.0f }, { 1.0f, 1.0f, 1.0f } },
 			true,
 			E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_VULKAN
 		};
@@ -1190,7 +1214,7 @@ namespace TDEngine2
 		if (mSwapChainExtents.width == std::numeric_limits<U32>::max())
 		{
 			auto&& windowRect = mpWindowSystem->GetClientRect();
-			mSwapChainExtents.width = windowRect.width;
+			mSwapChainExtents.width  = windowRect.width;
 			mSwapChainExtents.height = windowRect.height;
 		}
 
@@ -1198,14 +1222,14 @@ namespace TDEngine2
 		imagesCount = std::min(imagesCount, swapChainSupportInfo.mCapabilities.maxImageCount);
 
 		VkSwapchainCreateInfoKHR createInfo{};
-		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		createInfo.surface = mSurface;
-		createInfo.minImageCount = imagesCount;
-		createInfo.imageFormat = mSwapChainFormat.format;
-		createInfo.imageColorSpace = mSwapChainFormat.colorSpace;
-		createInfo.imageExtent = mSwapChainExtents;
+		createInfo.sType            = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+		createInfo.surface          = mSurface;
+		createInfo.minImageCount    = imagesCount;
+		createInfo.imageFormat      = mSwapChainFormat.format;
+		createInfo.imageColorSpace  = mSwapChainFormat.colorSpace;
+		createInfo.imageExtent      = mSwapChainExtents;
 		createInfo.imageArrayLayers = 1;
-		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+		createInfo.imageUsage       = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
 		auto queuesInfo = GetQueuesCreateInfo(mPhysicalDevice, mSurface);
 
@@ -1226,11 +1250,11 @@ namespace TDEngine2
 			createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
 		}
 
-		createInfo.preTransform = swapChainSupportInfo.mCapabilities.currentTransform; 
+		createInfo.preTransform   = swapChainSupportInfo.mCapabilities.currentTransform; 
 		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-		createInfo.presentMode = presentMode;
-		createInfo.clipped = VK_TRUE;
-		createInfo.oldSwapchain = VK_NULL_HANDLE;
+		createInfo.presentMode    = presentMode;
+		createInfo.clipped        = VK_TRUE;
+		createInfo.oldSwapchain   = VK_NULL_HANDLE;
 
 		VK_SAFE_CALL(vkCreateSwapchainKHR(mDevice, &createInfo, nullptr, &mSwapChain));
 
@@ -1244,19 +1268,19 @@ namespace TDEngine2
 		for (USIZE i = 0; i < mSwapChainImageViews.size(); i++)
 		{
 			VkImageViewCreateInfo createInfo{};
-			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			createInfo.image = mSwapChainImages[i];
-			createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-			createInfo.format = mSwapChainFormat.format;
-			createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			createInfo.subresourceRange.baseMipLevel = 0;
-			createInfo.subresourceRange.levelCount = 1;
+			createInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+			createInfo.image                           = mSwapChainImages[i];
+			createInfo.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
+			createInfo.format                          = mSwapChainFormat.format;
+			createInfo.components.r                    = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.g                    = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.b                    = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.a                    = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+			createInfo.subresourceRange.baseMipLevel   = 0;
+			createInfo.subresourceRange.levelCount     = 1;
 			createInfo.subresourceRange.baseArrayLayer = 0;
-			createInfo.subresourceRange.layerCount = 1;
+			createInfo.subresourceRange.layerCount     = 1;
 
 			VK_SAFE_CALL(vkCreateImageView(mDevice, &createInfo, nullptr, &mSwapChainImageViews[i]));
 		}
@@ -1267,18 +1291,18 @@ namespace TDEngine2
 	E_RESULT_CODE CVulkanGraphicsContext::_prepareCommandBuffers()
 	{
 		VkCommandPoolCreateInfo poolInfo {};
-		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-		poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+		poolInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		poolInfo.flags            = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 		poolInfo.queueFamilyIndex = mQueuesInfo.mGraphicsQueueIndex;
 
 		VK_SAFE_CALL(vkCreateCommandPool(mDevice, &poolInfo, nullptr, &mMainCommandPool));
 
 		// \note Create a few command buffers within main command pool
 		VkCommandBufferAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandPool = mMainCommandPool;
-		allocInfo.commandBufferCount = mNumOfCommandsBuffers;
+		allocInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfo.commandPool        = mMainCommandPool;
+		allocInfo.commandBufferCount = FRAMES_COUNT;
 
 		VK_SAFE_CALL(vkAllocateCommandBuffers(mDevice, &allocInfo, mCommandBuffers.data()));
 
@@ -1290,7 +1314,7 @@ namespace TDEngine2
 		VkSemaphoreCreateInfo semaphoreCreateInfo = {};
 		semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-		for (USIZE i = 0; i < mNumOfCommandsBuffers; i++)
+		for (USIZE i = 0; i < FRAMES_COUNT; i++)
 		{
 			VK_SAFE_CALL(vkCreateFence(mDevice, &fenceCreateInfo, nullptr, &mCommandBuffersFences[i]));
 
@@ -1327,7 +1351,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IGraphicsContext* CreateVulkanGraphicsContext(TPtr<IWindowSystem> pWindowSystem, TPtr<IWindowSurfaceFactory> pWindowSurfaceFactory, E_RESULT_CODE& result)
+	IGraphicsContext* CreateVulkanGraphicsContext(TPtr<IWindowSystem> pWindowSystem, TPtr<IWindowSurfaceFactory> pWindowSurfaceFactory, E_RESULT_CODE& result)
 	{
 		CVulkanGraphicsContext* pGraphicsContext = new (std::nothrow) CVulkanGraphicsContext(pWindowSurfaceFactory);
 

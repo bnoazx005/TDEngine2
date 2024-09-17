@@ -51,9 +51,9 @@ namespace TDEngine2
 		}
 
 		VkShaderModuleCreateInfo createInfo{};
-		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+		createInfo.sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 		createInfo.codeSize = it->second.mBytecode.size();
-		createInfo.pCode = reinterpret_cast<const uint32_t*>(it->second.mBytecode.data());
+		createInfo.pCode    = reinterpret_cast<const uint32_t*>(it->second.mBytecode.data());
 
 		VkResult result = vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule);
 		if (VK_SUCCESS != result)
@@ -68,10 +68,10 @@ namespace TDEngine2
 	static VkPipelineShaderStageCreateInfo CreatePipelineShaderStageInfo(VkDevice device, E_SHADER_STAGE_TYPE stageType, VkShaderModule shaderModule, const TShaderCompilerOutput* pCompilerData)
 	{
 		VkPipelineShaderStageCreateInfo shaderStageInfo{};
-		shaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		shaderStageInfo.stage = CVulkanMappings::GetShaderStageType(stageType);
+		shaderStageInfo.sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		shaderStageInfo.stage  = CVulkanMappings::GetShaderStageType(stageType);
 		shaderStageInfo.module = shaderModule;
-		shaderStageInfo.pName = pCompilerData->mStagesInfo.at(stageType).mEntrypointName.c_str();
+		shaderStageInfo.pName  = pCompilerData->mStagesInfo.at(stageType).mEntrypointName.c_str();
 
 		return shaderStageInfo;
 	}
@@ -148,7 +148,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IShader* CreateVulkanShader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
+	IShader* CreateVulkanShader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IShader, CVulkanShader, result, pResourceManager, pGraphicsContext, name);
 	}
@@ -198,7 +198,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IResourceFactory* CreateVulkanShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
+	IResourceFactory* CreateVulkanShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IResourceFactory, CVulkanShaderFactory, result, pResourceManager, pGraphicsContext);
 	}

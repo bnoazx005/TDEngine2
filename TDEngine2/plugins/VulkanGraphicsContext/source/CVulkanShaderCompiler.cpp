@@ -16,6 +16,51 @@ namespace TDEngine2
 	static const std::string DXCLibraryName = "dxcompiler";
 
 
+	/*!
+		class CVulkanShaderCompiler
+
+		\brief The class represents main compiler of shaders for Vulkan GAPI
+	*/
+
+	class CVulkanShaderCompiler : public CBaseShaderCompiler
+	{
+		public:
+			friend IShaderCompiler* CreateVulkanShaderCompiler(IFileSystem*, IDLLManager*, E_RESULT_CODE&);
+
+			/*!
+				\brief The method compiles specified source code into the bytecode representation.
+				Note that the method allocates memory for TShaderCompilerOutput object on heap so it should be
+				released manually
+
+				\param[in] source A string that contains a source code of a shader
+
+				\return An object that contains either bytecode or some error code. Note that the
+				method allocates memory for TShaderCompilerOutput object on heap so it should be
+				released manually
+			*/
+
+			TResult<TShaderCompilerOutput*> Compile(const std::string& shaderId, const std::string& source) const override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanShaderCompiler)
+
+				TResult<std::vector<U8>> _compileShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source, TShaderMetadata& shaderMetadata) const;
+
+			TUniformBuffersMap _processUniformBuffersDecls(const TStructDeclsMap& structsMap, CTokenizer& tokenizer) const override;
+
+			E_SHADER_FEATURE_LEVEL _getTargetVersionFromStr(const std::string& ver) const override;
+
+			USIZE _getBuiltinTypeSize(const std::string& type, const std::function<void(const std::string&)> typeProcessor = nullptr) const override;
+
+			TShaderResourcesMap _processShaderResourcesDecls(CTokenizer& tokenizer) const override;
+
+			E_SHADER_RESOURCE_TYPE _isShaderResourceType(const std::string& token) const;
+
+			E_RESULT_CODE _onFreeInternal() override;
+		private:
+			IDLLManager* mpDLLManager = nullptr;
+	};
+
+
 	CVulkanShaderCompiler::CVulkanShaderCompiler():
 		CBaseShaderCompiler()
 	{
@@ -94,17 +139,7 @@ namespace TDEngine2
 				break;
 		}
 
-		switch (version)
-		{
-			case SFL_3_0:
-				return result + L"3_0";
-			case SFL_4_0:
-				return result + L"4_0";
-			case SFL_5_0:
-				return result + L"5_0";
-		}
-
-		return L"";
+		return result + L"6_0";
 	}
 
 
@@ -428,7 +463,7 @@ namespace TDEngine2
 	}
 	
 
-	TDE2_API IShaderCompiler* CreateVulkanShaderCompiler(IFileSystem* pFileSystem, IDLLManager* pDLLManager, E_RESULT_CODE& result)
+	IShaderCompiler* CreateVulkanShaderCompiler(IFileSystem* pFileSystem, IDLLManager* pDLLManager, E_RESULT_CODE& result)
 	{
 		CVulkanShaderCompiler* pShaderCompiler = CREATE_IMPL(CVulkanShaderCompiler, CVulkanShaderCompiler, result, pFileSystem);
 		if (pShaderCompiler)
