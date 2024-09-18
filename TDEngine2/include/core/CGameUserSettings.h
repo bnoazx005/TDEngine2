@@ -143,6 +143,7 @@ namespace TDEngine2
 
 			// \note Render debug switchers
 			CInt32ConsoleVarDeclPtr mpIsUiRenderEnabledCVar;
+			CInt32ConsoleVarDeclPtr mpIsGlobalRenderEnabledCVar;
 #endif
 
 		private:

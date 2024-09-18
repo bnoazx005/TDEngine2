@@ -330,6 +330,8 @@ namespace TDEngine2
 		/// \note Render's debug switchers
 		mpIsUiRenderEnabledCVar = std::make_unique<CInt32ConsoleVarDecl>(TUserSettingsKeys::mDebugGroupKeyId + ".ui_render",
 			"Determines whether or not UI is rendered (0 - disabled, 1 - enabled)", 1);
+		mpIsGlobalRenderEnabledCVar = std::make_unique<CInt32ConsoleVarDecl>(TUserSettingsKeys::mDebugGroupKeyId + ".global_render",
+			"Determines whether or main renderer enabled (0 - disabled, 1 - enabled)", 1);
 #endif
 
 		return mpCVarsStorage->Load(pConfigFileReader);

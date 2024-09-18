@@ -2459,6 +2459,23 @@ namespace TDEngine2
 			mpGraphicsContext->ClearBackBuffer(TColor32F(0.0f, 0.0f, 0.5f, 1.0f));
 			mpGraphicsContext->ClearDepthBuffer(1.0f);
 			mpGraphicsContext->ClearStencilBuffer(0x0);
+
+			if (!CGameUserSettings::Get()->mpIsGlobalRenderEnabledCVar->Get())
+			{
+				{
+					TDE2_BUILTIN_SPEC_PROFILER_EVENT(E_SPECIAL_PROFILE_EVENT::PRESENT);
+					mpGraphicsContext->Present();
+				}
+
+				for (U32 i = 0; i < NumOfRenderQueuesGroup; ++i)
+				{
+					mpRenderQueues[i]->Clear();
+				}
+
+				mpDebugUtility->PostRender();
+
+				return RC_OK;
+			}
 			
 			_prepareFrame(currTime, deltaTime);
 
