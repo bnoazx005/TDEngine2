@@ -2456,6 +2456,10 @@ namespace TDEngine2
 			TDE2_BUILTIN_SPEC_PROFILER_EVENT(E_SPECIAL_PROFILE_EVENT::RENDER);
 			TDE2_STATS_COUNTER_SET(mDrawCallsCount, 0);
 
+			mpGraphicsContext->ClearBackBuffer(TColor32F(0.0f, 0.0f, 0.5f, 1.0f));
+			mpGraphicsContext->ClearDepthBuffer(1.0f);
+			mpGraphicsContext->ClearStencilBuffer(0x0);
+			
 			_prepareFrame(currTime, deltaTime);
 
 			mpFrameGraph->Reset();
@@ -2590,7 +2594,10 @@ namespace TDEngine2
 			}
 			
 			// \note ui pass
-			CUIRenderPass{ passInvokeContext, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OVERLAY)] }.AddPass(mpFrameGraph, frameGraphBlackboard);
+			if (CGameUserSettings::Get()->mpIsUiRenderEnabledCVar->Get())
+			{
+				CUIRenderPass{ passInvokeContext, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OVERLAY)] }.AddPass(mpFrameGraph, frameGraphBlackboard);
+			}
 
 			// \note compose pass + tone mapping
 			pToneMappingComposePostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true, mpCurrPostProcessingProfile); // \todo replace with configuration of hdr support
@@ -2742,10 +2749,6 @@ namespace TDEngine2
 
 		mpGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_FRAME, reinterpret_cast<const U8*>(&perFrameShaderData), sizeof(perFrameShaderData));		
 		mpGlobalShaderProperties->Bind();
-
-		mpGraphicsContext->ClearBackBuffer(TColor32F(0.0f, 0.0f, 0.5f, 1.0f));
-		mpGraphicsContext->ClearDepthBuffer(1.0f);
-		mpGraphicsContext->ClearStencilBuffer(0x0);
 
 		mpDebugUtility->PreRender();
 

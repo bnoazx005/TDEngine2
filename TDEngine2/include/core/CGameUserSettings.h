@@ -140,6 +140,9 @@ namespace TDEngine2
 
 #if TDE2_EDITORS_ENABLED
 			CInt32ConsoleVarDeclPtr mpIsVersionWatermarkEnabledCVar;
+
+			// \note Render debug switchers
+			CInt32ConsoleVarDeclPtr mpIsUiRenderEnabledCVar;
 #endif
 
 		private:
