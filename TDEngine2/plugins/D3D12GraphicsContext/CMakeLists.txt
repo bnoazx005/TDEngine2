@@ -74,6 +74,8 @@ target_include_directories(${D3D12_GCTX_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SO
 
 # D3D12MemAlloc
 target_include_directories(${D3D12_GCTX_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/D3D12MemAlloc/")
+# DirectX helper headers
+target_include_directories(${D3D12_GCTX_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/dx12/")
 
 # disable the <libname>_EXPORTS
 set_target_properties(${D3D12_GCTX_LIBRARY_NAME} PROPERTIES DEFINE_SYMBOL "")

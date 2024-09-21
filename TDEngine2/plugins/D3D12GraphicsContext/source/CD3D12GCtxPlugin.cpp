@@ -1,4 +1,5 @@
 #include "../include/CD3D12GCtxPlugin.h"
+#include "../include/CD3D12GraphicsContext.h"
 #include <core/IEngineCore.h>
 #include <core/IGraphicsContext.h>
 #include <core/IWindowSystem.h>
@@ -109,7 +110,7 @@ namespace TDEngine2
 
 
 	CD3D12GCtxPlugin::CD3D12GCtxPlugin() :
-		CBaseObject()
+		CBaseObject(), mpEngineCoreInstance(nullptr), mpGraphicsContext(nullptr)
 	{
 	}
 
@@ -129,11 +130,11 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		/*mpGraphicsContext = TPtr<IGraphicsContext>(CreateD3D12GraphicsContext(pEngineCore->GetSubsystem<IWindowSystem>(), result));
+		mpGraphicsContext = TPtr<IGraphicsContext>(CreateD3D12GraphicsContext(pEngineCore->GetSubsystem<IWindowSystem>(), result));
 		if (result != RC_OK)
 		{
 			return result;
-		}*/
+		}
 		
 		if ((result = pEngineCore->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(mpGraphicsContext))) != RC_OK)
 		{
