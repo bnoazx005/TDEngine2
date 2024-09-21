@@ -127,7 +127,8 @@ namespace TDEngine2
 
 	ENUM_META(SECTION=graphics) enum E_GRAPHICS_CONTEXT_GAPI_TYPE: U8
 	{
-		GCGT_DIRECT3D11,	/// Direct3D 11.0 and above
+		GCGT_DIRECT3D11,	/// Direct3D 11.0 
+		GCGT_DIRECT3D12,	/// Direct3D 12.0
 		GCGT_OPENGL3X,		/// OpenGL of version 3.0 and above
 		GCGT_VULKAN,		/// Vulkan GAPI
 		GCGT_UNKNOWN

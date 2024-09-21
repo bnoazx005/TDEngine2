@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.30] 2024-09-17
+## [0.6.30] 2024-09-21
+
+### Added
+
+- A new plugin with support of D3D12 graphics was introduced into the project.
 
 ### Changed
 
