@@ -4,8 +4,7 @@
 #include "../include/CD3D11Mappings.h"
 #include "../include/CD3D11RenderTarget.h"
 #include "../include/CD3D11DepthBufferTarget.h"
-#include "../include/CD3D11Buffer.h"
-#include "../include/CD3D11Texture.h"
+#include "../include/CD3D11Resources.h"
 #include "stringUtils.hpp"
 #define DEFER_IMPLEMENTATION
 #include "deferOperation.hpp"

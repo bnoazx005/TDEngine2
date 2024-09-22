@@ -1,4 +1,4 @@
-#include "./../include/CD3D11ShaderCompiler.h"
+#include "./../include/CD3D11Resources.h"
 #include "./../include/CD3D11Mappings.h"
 #include <stringUtils.hpp>
 #include <utils/CFileLogger.h>

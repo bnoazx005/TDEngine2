@@ -17,13 +17,9 @@ set(D3D11_GCTX_LIBRARY_NAME "D3D11GraphicsContext")
 
 set(D3D11_GCTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11GraphicsContext.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11Buffer.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11Resources.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11Mappings.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11GCtxPlugin.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11VertexDeclaration.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11Shader.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11ShaderCompiler.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11Texture.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11Utils.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11GraphicsObjectManager.h"	
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D11RenderTarget.h"
@@ -32,13 +28,10 @@ set(D3D11_GCTX_HEADERS
 
 set(D3D11_GCTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11GraphicsContext.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11Buffer.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11Resources.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11Mappings.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11GCtxPlugin.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11VertexDeclaration.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11Shader.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11ShaderCompiler.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11Texture.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11GraphicsObjectManager.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11RenderTarget.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D11DepthBufferTarget.cpp"

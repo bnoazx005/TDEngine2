@@ -7,11 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.30] 2024-09-21
+## [0.6.30] 2024-09-22
 
 ### Added
 
-- A new plugin with support of D3D12 graphics was introduced into the project.
+- A new plugin which is supposed to provide a support of D3D12 graphics was introduced into the project.
 
 ### Changed
 
@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The API of **IResourceManager** was refactored now loading policies are considered as deprecated. And loading is splitted into Load which is blocking call and LoadAsync which is non-blocking one.
 
 - The source code of D3D11GraphicsContext plugin was cleaned up and refactored. All redundant TDE2_API attributes were removed from the types that are not actually used outside of the library.
+
+- The structure of D3D11GraphicsPlugin's directory was changed. CD3D11Buffer.h/cpp, CD3D11Texture.h/cpp, CD3D11Shader.h/cpp files were replaced with CD3D11Resources.h/cpp.
 
 ### Fixed
 
