@@ -1,5 +1,5 @@
-#include "./../include/COGLShaderCompiler.h"
-#include "./../include/COGLMappings.h"
+#include "../include/COGLResources.h"
+#include "../include/COGLMappings.h"
 #include <glslang/Include/ShHandle.h>
 #include <glslang/Public/ShaderLang.h>
 #include <SPIRV/SpvTools.h>
@@ -25,6 +25,51 @@
 
 namespace TDEngine2
 {
+	/*!
+		class COGLShaderCompiler
+
+		\brief The class represents main compiler of shaders for OGL GAPI
+	*/
+
+	class COGLShaderCompiler : public CBaseShaderCompiler
+	{
+		public:
+			friend IShaderCompiler* CreateOGLShaderCompiler(IFileSystem* pFileSystem, E_RESULT_CODE& result);
+
+			/*!
+				\brief The method compiles specified source code into the bytecode representation.
+				Note that the method allocates memory for TShaderCompilerOutput object on heap so it should be
+				released manually
+
+				\param[in] source A string that contains a source code of a shader
+
+				\return An object that contains either bytecode or some error code. Note that the
+				method allocates memory for TShaderCompilerOutput object on heap so it should be
+				released manually
+			*/
+
+			TResult<TShaderCompilerOutput*> Compile(const std::string& shaderId, const std::string& source) const override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLShaderCompiler)
+
+			TResult<GLuint> _compileShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source, const TShaderMetadata& shaderMetadata) const;
+			TResult<std::vector<U8>> _compileSPIRVShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source, const TShaderMetadata& shaderMetadata) const;
+
+			TResult<TOGLShaderCompilerOutput*> _compileAllStagesInRuntime(const std::string& source, const TShaderMetadata& shaderMetadata) const;
+			TResult<TOGLShaderCompilerOutput*> _compileAllStagesToSPIRV(const std::string& source, const TShaderMetadata& shaderMetadata) const;
+
+			TUniformBuffersMap _processUniformBuffersDecls(const TStructDeclsMap& structsMap, CTokenizer& tokenizer) const override;
+
+			E_SHADER_FEATURE_LEVEL _getTargetVersionFromStr(const std::string& ver) const override;
+
+			USIZE _getBuiltinTypeSize(const std::string& type, const std::function<void(const std::string&)> typeProcessor = nullptr) const override;
+
+			TShaderResourcesMap _processShaderResourcesDecls(CTokenizer& tokenizer) const override;
+
+			E_SHADER_RESOURCE_TYPE _isShaderResourceType(const std::string& token) const;
+	};
+
+
 	COGLShaderCompiler::COGLShaderCompiler() :
 		CBaseShaderCompiler()
 	{
@@ -637,7 +682,7 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IShaderCompiler* CreateOGLShaderCompiler(IFileSystem* pFileSystem, E_RESULT_CODE& result)
+	IShaderCompiler* CreateOGLShaderCompiler(IFileSystem* pFileSystem, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IShaderCompiler, COGLShaderCompiler, result, pFileSystem);
 	}

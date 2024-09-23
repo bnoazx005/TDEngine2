@@ -2,9 +2,7 @@
 #include "../include/COGLGraphicsContext.h"
 #include "../include/win32/CWin32GLContextFactory.h"
 #include "../include/unix/CUnixGLContextFactory.h"
-#include "../include/COGLShader.h"
-#include "../include/COGLShaderCompiler.h"
-#include "../include/COGLTexture.h"
+#include "../include/COGLResources.h"
 #include "../include/COGLDepthBufferTarget.h"
 #include "../include/COGLRenderTarget.h"
 #include <core/IEngineCore.h>

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.30] 2024-09-22
+## [0.6.30] 2024-09-23
 
 ### Added
 
@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The source code of D3D11GraphicsContext plugin was cleaned up and refactored. All redundant TDE2_API attributes were removed from the types that are not actually used outside of the library.
 
 - The structure of D3D11GraphicsPlugin's directory was changed. CD3D11Buffer.h/cpp, CD3D11Texture.h/cpp, CD3D11Shader.h/cpp files were replaced with CD3D11Resources.h/cpp.
+- The structure of GLGraphicsContext's directory was changed. COGLBuffer.h/cpp, COGLTexture.h/cpp, COGLShader.h/cpp files were replaced with COGLResources.h/cpp.
 
 ### Fixed
 
