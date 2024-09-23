@@ -24,6 +24,7 @@ namespace TDEngine2
 {
 	class IResourceManager;
 	class IGraphicsContext;
+	class IGraphicsPipeline;
 
 
 	/*!
@@ -392,6 +393,9 @@ namespace TDEngine2
 		protected:
 			ID3D11InputLayout* mpInputLayout;
 	};
+
+
+	TDE2_API IGraphicsPipeline* CreateD3D11GraphicsPipeline(IGraphicsContext* pGraphicsContext, const TGraphicsPipelineConfigDesc& pipelineConfig, E_RESULT_CODE& result);
 }
 
 #endif

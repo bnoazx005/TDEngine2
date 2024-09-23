@@ -135,32 +135,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseGraphicsPipeline::Bind()
 	{
-		if (!mpGraphicsObjectManager)
-		{
-			return RC_FAIL;
-		}
-
-		if (mBlendStateHandle == TBlendStateId::Invalid)
-		{
-			mBlendStateHandle = mpGraphicsObjectManager->CreateBlendState(mConfig.mBlendStateParams).Get();
-		}
-
-		mpGraphicsContext->BindBlendState(mBlendStateHandle);
-
-		if (mDepthStencilStateHandle == TDepthStencilStateId::Invalid)
-		{
-			mDepthStencilStateHandle = mpGraphicsObjectManager->CreateDepthStencilState(mConfig.mDepthStencilStateParams).Get();
-		}
-
-		mpGraphicsContext->BindDepthStencilState(mDepthStencilStateHandle, mConfig.mDepthStencilStateParams.mStencilRefValue);
-
-		if (mRasterizerStateHandle == TRasterizerStateId::Invalid)
-		{
-			mRasterizerStateHandle = mpGraphicsObjectManager->CreateRasterizerState(mConfig.mRasterizerStateParams).Get();
-		}
-
-		mpGraphicsContext->BindRasterizerState(mRasterizerStateHandle);
-
+		TDE2_UNREACHABLE();
 		return RC_OK;
 	}
 

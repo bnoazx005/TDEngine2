@@ -480,6 +480,12 @@ namespace TDEngine2
 		return CBaseGraphicsObjectManager::_onFreeInternal();
 	}
 
+	TPtr<IGraphicsPipeline> CD3D11GraphicsObjectManager::_createGraphicsPipelineInternal(const TGraphicsPipelineConfigDesc& pipelineConfigDesc)
+	{
+		E_RESULT_CODE result = RC_OK;
+		return TPtr<IGraphicsPipeline>(CreateD3D11GraphicsPipeline(mpGraphicsContext, pipelineConfigDesc, result));
+	}
+
 	E_RESULT_CODE CD3D11GraphicsObjectManager::_freeTextureSamplers()
 	{
 		ID3D11SamplerState* pCurrSamplerState = nullptr;

@@ -20,6 +20,7 @@ namespace TDEngine2
 {
 	class IResourceManager;
 	class IGraphicsContext;
+	class IGraphicsPipeline;
 
 
 	/*!
@@ -350,4 +351,7 @@ namespace TDEngine2
 		protected:
 			TVAORegistryNode mRootNode;
 	};
+
+
+	TDE2_API IGraphicsPipeline* CreateGLGraphicsPipeline(IGraphicsContext* pGraphicsContext, const TGraphicsPipelineConfigDesc& pipelineConfig, E_RESULT_CODE& result);
 }

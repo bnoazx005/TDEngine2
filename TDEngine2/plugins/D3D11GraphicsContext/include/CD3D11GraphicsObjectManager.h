@@ -90,7 +90,7 @@ namespace TDEngine2
 				\return The result object contains either an identifier of created blend state or an error code
 			*/
 
-			 TResult<TBlendStateId> CreateBlendState(const TBlendStateDesc& blendStateDesc) override;
+			 TResult<TBlendStateId> CreateBlendState(const TBlendStateDesc& blendStateDesc);
 
 			/*!
 				\brief The method creates a new state which sets up depth and stencil buffers operations and values
@@ -100,7 +100,7 @@ namespace TDEngine2
 				\return The result object contains either an identifier of a created state or an error code
 			*/
 
-			 TResult<TDepthStencilStateId> CreateDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc) override;
+			 TResult<TDepthStencilStateId> CreateDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc);
 
 			/*!
 				\brief The method create a new state which specifies how a geometry should be actually drawn
@@ -110,7 +110,7 @@ namespace TDEngine2
 				\return The result object contains either an identifier of a created state or an error code
 			*/
 
-			 TResult<TRasterizerStateId> CreateRasterizerState(const TRasterizerStateDesc& rasterizerStateDesc) override;
+			 TResult<TRasterizerStateId> CreateRasterizerState(const TRasterizerStateDesc& rasterizerStateDesc);
 
 			/*!
 				\brief The method returns a pointer to ID3D11SamplerState which is related with a given identifier
@@ -182,17 +182,19 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11GraphicsObjectManager)
 
-			 E_RESULT_CODE _onFreeInternal() override;
+			E_RESULT_CODE _onFreeInternal() override;
 
-			 E_RESULT_CODE _freeTextureSamplers() override;
+			TPtr<IGraphicsPipeline> _createGraphicsPipelineInternal(const TGraphicsPipelineConfigDesc& pipelineConfigDesc) override;
 
-			 E_RESULT_CODE _freeBlendStates() override;
+			E_RESULT_CODE _freeTextureSamplers() override;
 
-			 E_RESULT_CODE _freeDepthStencilStates() override;
+			E_RESULT_CODE _freeBlendStates() override;
 
-			 E_RESULT_CODE _freeRasterizerStates() override;
+			E_RESULT_CODE _freeDepthStencilStates() override;
 
-			 const std::string _getShaderCacheFilePath() const override;
+			E_RESULT_CODE _freeRasterizerStates() override;
+
+			const std::string _getShaderCacheFilePath() const override;
 		protected:			
 			TTextureSamplersArray    mpTextureSamplersArray;
 			TBlendStatesArray        mpBlendStates;

@@ -1,7 +1,8 @@
 #include "../include/CD3D11Resources.h"
 #include "../include/CD3D11Mappings.h"
 #include "../include/CD3D11Utils.h"
-#include <graphics/IGraphicsObjectManager.h>
+#include "../include/CD3D11GraphicsObjectManager.h"
+#include <graphics/CBaseGraphicsPipeline.h>
 #include <core/IGraphicsContext.h>
 #include <memory>
 #include "deferOperation.hpp"
@@ -1293,6 +1294,78 @@ namespace TDEngine2
 	IVertexDeclaration* CreateD3D11VertexDeclaration(E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IVertexDeclaration, CD3D11VertexDeclaration, result);
+	}
+
+
+	/*!
+		\brief CD3D11GraphicsPipeline's edfinition
+	*/
+
+	/*!
+		class CD3D11GraphicsPipeline
+	*/
+
+	class CD3D11GraphicsPipeline : public CBaseGraphicsPipeline
+	{
+		public:
+			friend IGraphicsPipeline* CreateD3D11GraphicsPipeline(IGraphicsContext*, const TGraphicsPipelineConfigDesc&, E_RESULT_CODE&);
+		public:
+			E_RESULT_CODE Bind() override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11GraphicsPipeline)
+		private:
+			CD3D11GraphicsObjectManager* mpD3D11GraphicsObjectManagerImpl = nullptr;
+
+			TBlendStateId                mBlendStateHandle = TBlendStateId::Invalid;
+			TDepthStencilStateId         mDepthStencilStateHandle = TDepthStencilStateId::Invalid;
+			TRasterizerStateId           mRasterizerStateHandle = TRasterizerStateId::Invalid;
+	};
+
+	CD3D11GraphicsPipeline::CD3D11GraphicsPipeline():
+		CBaseGraphicsPipeline()
+	{
+	}
+
+	E_RESULT_CODE CD3D11GraphicsPipeline::Bind()
+	{
+		if (!mpGraphicsObjectManager)
+		{
+			return RC_FAIL;
+		}
+
+		if (!mpD3D11GraphicsObjectManagerImpl)
+		{
+			mpD3D11GraphicsObjectManagerImpl = dynamic_cast<CD3D11GraphicsObjectManager*>(mpGraphicsObjectManager);
+		}
+
+		if (mBlendStateHandle == TBlendStateId::Invalid)
+		{
+			mBlendStateHandle = mpD3D11GraphicsObjectManagerImpl->CreateBlendState(mConfig.mBlendStateParams).Get();
+		}
+
+		mpGraphicsContext->BindBlendState(mBlendStateHandle);
+
+		if (mDepthStencilStateHandle == TDepthStencilStateId::Invalid)
+		{
+			mDepthStencilStateHandle = mpD3D11GraphicsObjectManagerImpl->CreateDepthStencilState(mConfig.mDepthStencilStateParams).Get();
+		}
+
+		mpGraphicsContext->BindDepthStencilState(mDepthStencilStateHandle, mConfig.mDepthStencilStateParams.mStencilRefValue);
+
+		if (mRasterizerStateHandle == TRasterizerStateId::Invalid)
+		{
+			mRasterizerStateHandle = mpD3D11GraphicsObjectManagerImpl->CreateRasterizerState(mConfig.mRasterizerStateParams).Get();
+		}
+
+		mpGraphicsContext->BindRasterizerState(mRasterizerStateHandle);
+
+		return RC_OK;
+	}
+
+
+	IGraphicsPipeline* CreateD3D11GraphicsPipeline(IGraphicsContext* pGraphicsContext, const TGraphicsPipelineConfigDesc& config, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IGraphicsPipeline, CD3D11GraphicsPipeline, result, pGraphicsContext, config);
 	}
 }
 

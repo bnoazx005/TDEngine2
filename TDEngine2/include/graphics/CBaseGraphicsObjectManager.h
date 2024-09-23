@@ -92,6 +92,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseGraphicsObjectManager)
 
+			TDE2_API virtual TPtr<IGraphicsPipeline> _createGraphicsPipelineInternal(const TGraphicsPipelineConfigDesc& pipelineConfigDesc);
+
 			TDE2_API void _insertVertexDeclaration(IVertexDeclaration* pVertDecl);
 
 			TDE2_API E_RESULT_CODE _freeVertexDeclarations();

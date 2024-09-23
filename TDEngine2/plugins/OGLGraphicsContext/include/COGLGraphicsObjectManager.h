@@ -85,7 +85,7 @@ namespace TDEngine2
 				\return The result object contains either an identifier of created blend state or an error code
 			*/
 
-			TDE2_API  TResult<TBlendStateId> CreateBlendState(const TBlendStateDesc& blendStateDesc) override;
+			TDE2_API  TResult<TBlendStateId> CreateBlendState(const TBlendStateDesc& blendStateDesc);
 
 			/*!
 				\brief The method creates a new state which sets up depth and stencil buffers operations and values
@@ -95,7 +95,7 @@ namespace TDEngine2
 				\return The result object contains either an identifier of a created state or an error code
 			*/
 
-			TDE2_API TResult<TDepthStencilStateId> CreateDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc) override;
+			TDE2_API TResult<TDepthStencilStateId> CreateDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc);
 
 			/*!
 				\brief The method create a new state which specifies how a geometry should be actually drawn
@@ -105,7 +105,7 @@ namespace TDEngine2
 				\return The result object contains either an identifier of a created state or an error code
 			*/
 
-			TDE2_API TResult<TRasterizerStateId> CreateRasterizerState(const TRasterizerStateDesc& rasterizerStateDesc) override;
+			TDE2_API TResult<TRasterizerStateId> CreateRasterizerState(const TRasterizerStateDesc& rasterizerStateDesc);
 
 			/*!
 				\brief The method returns a handler of a texture sampler which is related with a given identifier
@@ -176,6 +176,8 @@ namespace TDEngine2
 			TDE2_API std::array<TVector4, 3> GetScreenTriangleVertices() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLGraphicsObjectManager)
+
+			TPtr<IGraphicsPipeline> _createGraphicsPipelineInternal(const TGraphicsPipelineConfigDesc& pipelineConfigDesc) override;
 
 			TDE2_API E_RESULT_CODE _freeTextureSamplers() override;
 

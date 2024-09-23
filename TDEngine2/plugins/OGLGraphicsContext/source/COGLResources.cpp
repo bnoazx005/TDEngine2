@@ -1,8 +1,9 @@
 #include "../include/COGLResources.h"
 #include "../include/COGLMappings.h"
 #include "../include/COGLUtils.h"
+#include "../include/COGLGraphicsObjectManager.h"
 #include <core/IGraphicsContext.h>
-#include <graphics/IGraphicsObjectManager.h>
+#include <graphics/CBaseGraphicsPipeline.h>
 #include <memory>
 #include <cstring>
 
@@ -1000,5 +1001,73 @@ namespace TDEngine2
 	IVertexDeclaration* CreateOGLVertexDeclaration(E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IVertexDeclaration, COGLVertexDeclaration, result);
+	}
+
+
+	/*!
+		\brief COGLGraphicsPipeline's definition
+	*/
+
+	class CGLGraphicsPipeline : public CBaseGraphicsPipeline
+	{
+		public:
+			friend IGraphicsPipeline* CreateGLGraphicsPipeline(IGraphicsContext*, const TGraphicsPipelineConfigDesc&, E_RESULT_CODE&);
+		public:
+			E_RESULT_CODE Bind() override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CGLGraphicsPipeline)
+		private:
+			COGLGraphicsObjectManager* mpGLGraphicsObjectManagerImpl = nullptr;
+
+			TBlendStateId              mBlendStateHandle        = TBlendStateId::Invalid;
+			TDepthStencilStateId       mDepthStencilStateHandle = TDepthStencilStateId::Invalid;
+			TRasterizerStateId         mRasterizerStateHandle   = TRasterizerStateId::Invalid;
+	};
+
+	CGLGraphicsPipeline::CGLGraphicsPipeline() :
+		CBaseGraphicsPipeline()
+	{
+	}
+
+	E_RESULT_CODE CGLGraphicsPipeline::Bind()
+	{
+		if (!mpGraphicsObjectManager)
+		{
+			return RC_FAIL;
+		}
+
+		if (!mpGLGraphicsObjectManagerImpl)
+		{
+			mpGLGraphicsObjectManagerImpl = dynamic_cast<COGLGraphicsObjectManager*>(mpGraphicsObjectManager);
+		}
+
+		if (mBlendStateHandle == TBlendStateId::Invalid)
+		{
+			mBlendStateHandle = mpGLGraphicsObjectManagerImpl->CreateBlendState(mConfig.mBlendStateParams).Get();
+		}
+
+		mpGraphicsContext->BindBlendState(mBlendStateHandle);
+
+		if (mDepthStencilStateHandle == TDepthStencilStateId::Invalid)
+		{
+			mDepthStencilStateHandle = mpGLGraphicsObjectManagerImpl->CreateDepthStencilState(mConfig.mDepthStencilStateParams).Get();
+		}
+
+		mpGraphicsContext->BindDepthStencilState(mDepthStencilStateHandle, mConfig.mDepthStencilStateParams.mStencilRefValue);
+
+		if (mRasterizerStateHandle == TRasterizerStateId::Invalid)
+		{
+			mRasterizerStateHandle = mpGLGraphicsObjectManagerImpl->CreateRasterizerState(mConfig.mRasterizerStateParams).Get();
+		}
+
+		mpGraphicsContext->BindRasterizerState(mRasterizerStateHandle);
+
+		return RC_OK;
+	}
+
+
+	IGraphicsPipeline* CreateGLGraphicsPipeline(IGraphicsContext* pGraphicsContext, const TGraphicsPipelineConfigDesc& config, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IGraphicsPipeline, CGLGraphicsPipeline, result, pGraphicsContext, config);
 	}
 }

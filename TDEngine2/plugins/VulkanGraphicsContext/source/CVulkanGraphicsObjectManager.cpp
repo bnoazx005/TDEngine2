@@ -161,36 +161,6 @@ namespace TDEngine2
 		return Wrench::TOkValue<TTextureSamplerId>(TTextureSamplerId(samplerId));
 	}
 
-	TResult<TBlendStateId> CVulkanGraphicsObjectManager::CreateBlendState(const TBlendStateDesc& blendStateDesc)
-	{
-		TDE2_UNIMPLEMENTED();
-		return Wrench::TErrValue<E_RESULT_CODE>(RC_NOT_IMPLEMENTED_YET);
-		/*U32 hashValue = ComputeStateDescHash(blendStateDesc);
-		if (mBlendStatesHashTable.find(hashValue) != mBlendStatesHashTable.cend())
-		{
-			return Wrench::TOkValue<TBlendStateId>(TBlendStateId(mBlendStatesHashTable[hashValue]));
-		}
-
-		const U32 stateId = static_cast<U32>(mBlendStates.Add(blendStateDesc));
-		mBlendStatesHashTable.insert({ hashValue, stateId });
-
-		return Wrench::TOkValue<TBlendStateId>(TBlendStateId(stateId));*/
-	}
-
-	TResult<TDepthStencilStateId> CVulkanGraphicsObjectManager::CreateDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc)
-	{
-		TDE2_UNIMPLEMENTED();
-		return Wrench::TErrValue<E_RESULT_CODE>(RC_NOT_IMPLEMENTED_YET);
-		//return Wrench::TOkValue<TDepthStencilStateId>(TDepthStencilStateId(mDepthStencilStates.Add(depthStencilDesc)));
-	}
-
-	TResult<TRasterizerStateId> CVulkanGraphicsObjectManager::CreateRasterizerState(const TRasterizerStateDesc& rasterizerStateDesc)
-	{
-		TDE2_UNIMPLEMENTED();
-		return Wrench::TErrValue<E_RESULT_CODE>(RC_NOT_IMPLEMENTED_YET);
-		//return Wrench::TOkValue<TRasterizerStateId>(TRasterizerStateId(mRasterizerStates.Add(rasterizerStateDesc)));
-	}
-
 	TPtr<IBuffer> CVulkanGraphicsObjectManager::GetBufferPtr(TBufferHandleId handle)
 	{
 		return DynamicPtrCast<IBuffer>(GetVulkanBufferPtr(handle));

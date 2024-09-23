@@ -76,36 +76,6 @@ namespace TDEngine2
 
 			TResult<TTextureSamplerId> CreateTextureSampler(const TTextureSamplerDesc& samplerDesc) override;
 
-			/*!
-				\brief The method creates a new blend state which is configured via given paramters
-
-				\param[in] blendStateDesc A structure that contains parameters which will be assigned to a new created state
-
-				\return The result object contains either an identifier of created blend state or an error code
-			*/
-
-			 TResult<TBlendStateId> CreateBlendState(const TBlendStateDesc& blendStateDesc) override;
-
-			/*!
-				\brief The method creates a new state which sets up depth and stencil buffers operations and values
-
-				\param[in] depthStencilDesc A structure that contains settings, which the state should set up, each time it's used
-
-				\return The result object contains either an identifier of a created state or an error code
-			*/
-
-			TResult<TDepthStencilStateId> CreateDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc) override;
-
-			/*!
-				\brief The method create a new state which specifies how a geometry should be actually drawn
-
-				\param[in] rasterizerStateDesc A type that contains settings for a rasterizer
-
-				\return The result object contains either an identifier of a created state or an error code
-			*/
-
-			TResult<TRasterizerStateId> CreateRasterizerState(const TRasterizerStateDesc& rasterizerStateDesc) override;
-
 			TPtr<IBuffer> GetBufferPtr(TBufferHandleId handle) override;
 			TPtr<CVulkanBuffer> GetVulkanBufferPtr(TBufferHandleId bufferHandle);
 

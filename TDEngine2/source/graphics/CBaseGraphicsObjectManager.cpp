@@ -84,7 +84,7 @@ namespace TDEngine2
 			return Wrench::TOkValue<TGraphicsPipelineStateId>(existingItemIt->second);
 		}
 
-		TPtr<IGraphicsPipeline> pGraphicsPipeline = TPtr<IGraphicsPipeline>(CreateBaseGraphicsPipeline(mpGraphicsContext, pipelineConfigDesc, result));
+		TPtr<IGraphicsPipeline> pGraphicsPipeline = _createGraphicsPipelineInternal(pipelineConfigDesc);
 		if (!pGraphicsPipeline || RC_OK != result)
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
@@ -170,6 +170,12 @@ namespace TDEngine2
 		}
 
 		return mpDefaultPositionOnlyVertDeclaration;
+	}
+
+	TPtr<IGraphicsPipeline> CBaseGraphicsObjectManager::_createGraphicsPipelineInternal(const TGraphicsPipelineConfigDesc& pipelineConfigDesc)
+	{
+		E_RESULT_CODE result = RC_OK;
+		return TPtr<IGraphicsPipeline>(CreateBaseGraphicsPipeline(mpGraphicsContext, pipelineConfigDesc, result));
 	}
 
 	void CBaseGraphicsObjectManager::_insertVertexDeclaration(IVertexDeclaration* pVertDecl)
