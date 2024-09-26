@@ -948,4 +948,40 @@ namespace TDEngine2
 			CPassKey() {}
 			CPassKey(const CPassKey<T>&) {}
 	};
+
+
+	class CMultiThreadAccessCheck
+	{
+		public:
+			TDE2_API void Acquire() 
+			{
+				TDE2_ASSERT(!mIsAquired);
+				mIsAquired = true;
+			}
+
+			TDE2_API void Release()
+			{
+				TDE2_ASSERT(mIsAquired);
+				mIsAquired = false;
+			}
+		private:
+			volatile bool mIsAquired = false;
+	};
+
+
+	class CMultiThreadAccessScopedLock
+	{
+		public:
+			TDE2_API CMultiThreadAccessScopedLock(CMultiThreadAccessCheck& lock) : mpLock(&lock) { mpLock->Acquire(); }
+			TDE2_API ~CMultiThreadAccessScopedLock() { if (mpLock) mpLock->Release(); }
+		private:
+			CMultiThreadAccessCheck* mpLock = nullptr;
+	};
+
+
+#if !TDE2_PRODUCTION_MODE
+	#define TDE2_MULTI_THREAD_ACCESS_CHECK(Lock) 
+#else
+	#define TDE2_MULTI_THREAD_ACCESS_CHECK(CheckVarId, Lock) CMultiThreadAccessScopedLock CheckVarId(Lock)
+#endif
 }
