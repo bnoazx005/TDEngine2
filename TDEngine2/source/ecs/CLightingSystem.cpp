@@ -13,7 +13,6 @@
 #include "../../include/graphics/IVertexDeclaration.h"
 #include "../../include/graphics/CRenderQueue.h"
 #include "../../include/graphics/CBaseMaterial.h"
-#include "../../include/graphics/CBaseRenderTarget.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/CGameUserSettings.h"

@@ -17,7 +17,7 @@ set(D3D12_GCTX_LIBRARY_NAME "D3D12GraphicsContext")
 
 set(D3D12_GCTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D12GraphicsContext.h"
-	#"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D12Buffer.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D12Resources.h"
 	#"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D12Mappings.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D12GCtxPlugin.h"
 	#"${CMAKE_CURRENT_SOURCE_DIR}/include/CD3D12VertexDeclaration.h"
@@ -32,7 +32,7 @@ set(D3D12_GCTX_HEADERS
 
 set(D3D12_GCTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D12GraphicsContext.cpp"
-	#"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D12Buffer.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D12Resources.cpp"
 	#"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D12Mappings.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D12GCtxPlugin.cpp"
 	#"${CMAKE_CURRENT_SOURCE_DIR}/source/CD3D12VertexDeclaration.cpp"

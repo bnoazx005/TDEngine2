@@ -34,24 +34,9 @@ namespace TDEngine2
 		LOG_MESSAGE("[ProxyGraphicsContext] ClearBackBuffer");
 	}
 
-	void CProxyGraphicsContext::ClearRenderTarget(IRenderTarget* pRenderTarget, const TColor32F& color)
-	{
-		if (!pRenderTarget)
-		{
-			return;
-		}
-
-		LOG_MESSAGE("[ProxyGraphicsContext] ClearRenderTarget(IRenderTarget*, const TColor32F&)");
-	}
-
 	void CProxyGraphicsContext::ClearRenderTarget(U8 slot, const TColor32F& color)
 	{
 		LOG_MESSAGE("[ProxyGraphicsContext] ClearRenderTarget(U8, const TColor32F&)");
-	}
-
-	void CProxyGraphicsContext::ClearDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, F32 value, U8 stencilValue)
-	{
-		LOG_MESSAGE("[ProxyGraphicsContext] ClearDepthBufferTarget(IDepthBufferTarget, F32, U8)");
 	}
 
 	void CProxyGraphicsContext::ClearDepthBuffer(F32 value)
@@ -246,19 +231,9 @@ namespace TDEngine2
 		LOG_MESSAGE("[ProxyGraphicsContext] BindRasterizerState(TRasterizerStateId)");
 	}
 
-	void CProxyGraphicsContext::BindRenderTarget(U8 slot, IRenderTarget* pRenderTarget)
-	{
-		LOG_MESSAGE("[ProxyGraphicsContext] BindRenderTarget(U8, IRenderTarget*)");
-	}
-
 	void CProxyGraphicsContext::BindRenderTarget(U8 slot, TTextureHandleId targetHandle)
 	{
 		LOG_MESSAGE("[ProxyGraphicsContext] BindRenderTarget(U8, TTextureHandleId)");
-	}
-
-	void CProxyGraphicsContext::BindDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, bool disableRTWrite)
-	{
-		LOG_MESSAGE("[ProxyGraphicsContext] BindDepthBufferTarget(IDepthBufferTarget*, bool)");
 	}
 
 	void CProxyGraphicsContext::BindDepthBufferTarget(TTextureHandleId targetHandle, bool disableRTWrite)

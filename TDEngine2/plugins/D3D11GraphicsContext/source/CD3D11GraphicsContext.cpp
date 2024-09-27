@@ -2,8 +2,6 @@
 #include "../include/CD3D11Utils.h"
 #include "../include/CD3D11GraphicsObjectManager.h"
 #include "../include/CD3D11Mappings.h"
-#include "../include/CD3D11RenderTarget.h"
-#include "../include/CD3D11DepthBufferTarget.h"
 #include "../include/CD3D11Resources.h"
 #include "stringUtils.hpp"
 #define DEFER_IMPLEMENTATION
@@ -60,29 +58,11 @@ namespace TDEngine2
 			/*!
 				\brief The method clears up render target with specified color
 
-				\param[in, out] pRenderTarget A pointer to IRenderTarget implementation
-				\param[in] color The new color of a render target
-			*/
-
-			TDE2_API void ClearRenderTarget(IRenderTarget* pRenderTarget, const TColor32F& color) override;
-
-			/*!
-				\brief The method clears up render target with specified color
-
 				\param[in] slot A slot into which the render target that should be cleared up is bound
 				\param[in] color The new color of a render target
 			*/
 
 			TDE2_API void ClearRenderTarget(U8 slot, const TColor32F& color) override;
-
-			/*!
-				\brief The method clears up given depth buffer with specified values
-
-				\param[in] value The depth buffer will be cleared with this value
-				\param[in] stencilValue The stencil buffer will be cleared with this value
-			*/
-
-			TDE2_API void ClearDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, F32 value, U8 stencilValue) override;
 
 			/*!
 				\brief The method clears up depth buffer with specified values
@@ -343,29 +323,10 @@ namespace TDEngine2
 
 				\param[in] slot An index of the slot into which the render target will be bound
 
-				\param[in, out] pRenderTarget A pointer to IRenderTarget implementation
-			*/
-
-			TDE2_API void BindRenderTarget(U8 slot, IRenderTarget* pRenderTarget) override;
-
-			/*!
-				\brief The method binds a given render target object to rendering pipeline
-
-				\param[in] slot An index of the slot into which the render target will be bound
-
 				\param[in] targetHandle Handle to texture object that's created as a render target
 			*/
 
 			TDE2_API void BindRenderTarget(U8 slot, TTextureHandleId targetHandle) override;
-
-			/*!
-				\brief The method binds a given depth buffer to rendering pipeline
-
-				\param[in, out] pDepthBufferTarget A pointer to IDepthBufferTarget implementation
-				\param[in] disableRTWrite A flag determines whether the write to RT should be enabled or not
-			*/
-
-			TDE2_API void BindDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, bool disableRTWrite = false) override;
 
 			/*!
 				\brief The method binds a given depth buffer to rendering pipeline
@@ -675,24 +636,6 @@ namespace TDEngine2
 		mp3dDeviceContext->ClearRenderTargetView(mpBackBufferView, clearColorArray);
 	}
 
-	void CD3D11GraphicsContext::ClearRenderTarget(IRenderTarget* pRenderTarget, const TColor32F& color)
-	{
-		if (!pRenderTarget)
-		{
-			return;
-		}
-
-		const F32 clearColorArray[4]{ color.r, color.g, color.b, color.a };
-	
-		auto pD3D11RenderTarget = dynamic_cast<CD3D11RenderTarget*>(pRenderTarget);
-		if (!pD3D11RenderTarget)
-		{
-			return;
-		}
-
-		mp3dDeviceContext->ClearRenderTargetView(pD3D11RenderTarget->GetRenderTargetView(), clearColorArray);
-	}
-
 	void CD3D11GraphicsContext::ClearRenderTarget(U8 slot, const TColor32F& color)
 	{
 		TDE2_ASSERT(slot < mMaxNumOfRenderTargets);
@@ -710,18 +653,6 @@ namespace TDEngine2
 		const F32 clearColorArray[4]{ color.r, color.g, color.b, color.a };
 
 		mp3dDeviceContext->ClearRenderTargetView(mpRenderTargets[slot], clearColorArray);
-	}
-
-	void CD3D11GraphicsContext::ClearDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, F32 value, U8 stencilValue)
-	{
-		if (!pDepthBufferTarget)
-		{
-			return;
-		}
-
-		ID3D11DepthStencilView* pD3D11DepthBuffer = dynamic_cast<CD3D11DepthBufferTarget*>(pDepthBufferTarget)->GetDepthBufferTargetView();
-
-		mp3dDeviceContext->ClearDepthStencilView(pD3D11DepthBuffer, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, value, stencilValue);
 	}
 
 	void CD3D11GraphicsContext::ClearDepthBuffer(F32 value)
@@ -1211,30 +1142,6 @@ namespace TDEngine2
 		mp3dDeviceContext->RSSetState(pRasterizerState);
 	}
 
-	void CD3D11GraphicsContext::BindRenderTarget(U8 slot, IRenderTarget* pRenderTarget)
-	{
-		TDE2_ASSERT(slot < mMaxNumOfRenderTargets);
-		if (slot >= mMaxNumOfRenderTargets)
-		{
-			LOG_WARNING("[CD3D11GraphicsContext] Render target's slot goes out of limits");
-			return;
-		}
-
-		if (!slot && !pRenderTarget)
-		{
-			mp3dDeviceContext->OMSetRenderTargets(1, &mpBackBufferView, mpCurrDepthStencilView);
-
-			return;
-		}
-
-		mpRenderTargets[slot] = dynamic_cast<CD3D11RenderTarget*>(pRenderTarget)->GetRenderTargetView();
-		pRenderTarget->UnbindFromShader();
-		
-		mCurrNumOfActiveRenderTargets = std::max<U8>(mCurrNumOfActiveRenderTargets, slot + 1);
-
-		mp3dDeviceContext->OMSetRenderTargets(mCurrNumOfActiveRenderTargets, mpRenderTargets, mpCurrDepthStencilView);
-	}
-
 	void CD3D11GraphicsContext::BindRenderTarget(U8 slot, TTextureHandleId targetHandle)
 	{
 		TDE2_ASSERT(slot < mMaxNumOfRenderTargets);
@@ -1267,23 +1174,6 @@ namespace TDEngine2
 
 		mCurrNumOfActiveRenderTargets = std::max<U8>(mCurrNumOfActiveRenderTargets, slot + 1);
 		mp3dDeviceContext->OMSetRenderTargets(mCurrNumOfActiveRenderTargets, mpRenderTargets, mpCurrDepthStencilView);
-	}
-
-	void CD3D11GraphicsContext::BindDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, bool disableRTWrite)
-	{
-		if (!pDepthBufferTarget)
-		{
-			mpCurrDepthStencilView = mpDefaultDepthStencilView;
-			mp3dDeviceContext->OMSetRenderTargets(1, &mpBackBufferView, mpCurrDepthStencilView);
-
-			return;
-		}
-
-		mpCurrDepthStencilView = dynamic_cast<CD3D11DepthBufferTarget*>(pDepthBufferTarget)->GetDepthBufferTargetView();
-
-		static ID3D11RenderTargetView* pNullRT[] { nullptr };
-
-		mp3dDeviceContext->OMSetRenderTargets(disableRTWrite ? 1 : mCurrNumOfActiveRenderTargets, disableRTWrite ? pNullRT : mpRenderTargets, mpCurrDepthStencilView);
 	}
 
 	void CD3D11GraphicsContext::BindDepthBufferTarget(TTextureHandleId targetHandle, bool disableRTWrite)

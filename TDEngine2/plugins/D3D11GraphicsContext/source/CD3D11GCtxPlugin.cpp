@@ -1,8 +1,6 @@
 #include "../include/CD3D11GCtxPlugin.h"
 #include "../include/CD3D11GraphicsContext.h"
 #include "../include/CD3D11Resources.h"
-#include "../include/CD3D11RenderTarget.h"
-#include "../include/CD3D11DepthBufferTarget.h"
 #include <core/IEngineCore.h>
 #include <core/IGraphicsContext.h>
 #include <core/IWindowSystem.h>
@@ -90,8 +88,6 @@ namespace TDEngine2
 		auto factoryFunctions =
 		{
 			CreateD3D11ShaderFactory,
-			CreateD3D11RenderTargetFactory,
-			CreateD3D11DepthBufferTargetFactory,
 		};
 
 		IResourceFactory* pFactoryInstance = nullptr;

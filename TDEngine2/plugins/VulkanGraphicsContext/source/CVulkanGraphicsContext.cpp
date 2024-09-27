@@ -630,17 +630,8 @@ namespace TDEngine2
 	{
 	}
 
-	void CVulkanGraphicsContext::ClearRenderTarget(IRenderTarget* pRenderTarget, const TColor32F& color)
-	{
-	}
-
 	void CVulkanGraphicsContext::ClearRenderTarget(U8 slot, const TColor32F& color)
 	{
-	}
-
-	void CVulkanGraphicsContext::ClearDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, F32 value, U8 stencilValue)
-	{
-		TDE2_UNIMPLEMENTED();
 	}
 
 	void CVulkanGraphicsContext::ClearDepthBuffer(F32 value)
@@ -1041,15 +1032,7 @@ namespace TDEngine2
 	{
 	}
 
-	void CVulkanGraphicsContext::BindRenderTarget(U8 slot, IRenderTarget* pRenderTarget)
-	{
-	}
-
 	void CVulkanGraphicsContext::BindRenderTarget(U8 slot, TTextureHandleId targetHandle)
-	{
-	}
-
-	void CVulkanGraphicsContext::BindDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, bool disableRTWrite)
 	{
 	}
 

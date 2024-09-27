@@ -9,7 +9,6 @@
 #include "../../include/graphics/IVertexDeclaration.h"
 #include "../../include/graphics/IPostProcessingProfile.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
-#include "../../include/graphics/CBaseRenderTarget.h"
 #include "../../include/graphics/CBaseCubemapTexture.h"
 #include "../../include/graphics/CFrameGraph.h"
 #include "../../include/graphics/CFrameGraphResources.h"
@@ -195,7 +194,7 @@ namespace TDEngine2
 		pGraphicsContext->Draw(E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST, 0, 3);
 
 		pGraphicsContext->SetDepthBufferEnabled(true);
-		pGraphicsContext->BindRenderTarget(0, nullptr);
+		pGraphicsContext->BindRenderTarget(0, TTextureHandleId::Invalid);
 	}
 
 

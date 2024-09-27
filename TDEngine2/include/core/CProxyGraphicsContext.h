@@ -56,29 +56,11 @@ namespace TDEngine2
 			/*!
 				\brief The method clears up render target with specified color
 
-				\param[in, out] pRenderTarget A pointer to IRenderTarget implementation
-				\param[in] color The new color of a render target
-			*/
-
-			TDE2_API void ClearRenderTarget(IRenderTarget* pRenderTarget, const TColor32F& color) override;
-
-			/*!
-				\brief The method clears up render target with specified color
-
 				\param[in] slot A slot into which the render target that should be cleared up is bound
 				\param[in] color The new color of a render target
 			*/
 
 			TDE2_API void ClearRenderTarget(U8 slot, const TColor32F& color) override;
-
-			/*!
-				\brief The method clears up given depth buffer with specified values
-
-				\param[in] value The depth buffer will be cleared with this value
-				\param[in] stencilValue The stencil buffer will be cleared with this value
-			*/
-
-			TDE2_API void ClearDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, F32 value, U8 stencilValue) override;
 
 			/*!
 				\brief The method clears up depth buffer with specified values
@@ -339,29 +321,10 @@ namespace TDEngine2
 
 				\param[in] slot An index of the slot into which the render target will be bound
 
-				\param[in, out] pRenderTarget A pointer to IRenderTarget implementation
-			*/
-
-			TDE2_API void BindRenderTarget(U8 slot, IRenderTarget* pRenderTarget) override;
-
-			/*!
-				\brief The method binds a given render target object to rendering pipeline
-
-				\param[in] slot An index of the slot into which the render target will be bound
-
 				\param[in] targetHandle Handle to texture object that's created as a render target
 			*/
 
 			TDE2_API void BindRenderTarget(U8 slot, TTextureHandleId targetHandle) override;
-
-			/*!
-				\brief The method binds a given depth buffer to rendering pipeline
-
-				\param[in, out] pDepthBufferTarget A pointer to IDepthBufferTarget implementation
-				\param[in] disableRTWrite A flag determines whether the write to RT should be enabled or not
-			*/
-
-			TDE2_API void BindDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, bool disableRTWrite = false) override;
 
 			/*!
 				\brief The method binds a given depth buffer to rendering pipeline

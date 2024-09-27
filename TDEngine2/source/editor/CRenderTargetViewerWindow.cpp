@@ -1,7 +1,6 @@
 #include "../../include/editor/CRenderTargetViewerWindow.h"
 #include "../../include/core/IImGUIContext.h"
 #include "../../include/core/IResourceManager.h"
-#include "../../include/graphics/CBaseRenderTarget.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -45,7 +44,9 @@ namespace TDEngine2
 
 		if (mpImGUIContext->BeginWindow("Render Target Viewer", isEnabled, params))
 		{
-			auto&& renderTargetsList = mpResourceManager->GetResourcesListByType<CBaseRenderTarget>();
+			TDE2_UNIMPLEMENTED();
+
+			/*auto&& renderTargetsList = mpResourceManager->GetResourcesListByType<CBaseRenderTarget>();
 
 			mCurrSelectedItem = mpImGUIContext->Popup("Render Target", mCurrSelectedItem, renderTargetsList);
 			
@@ -53,7 +54,7 @@ namespace TDEngine2
 			if (textureId != TResourceId::Invalid)
 			{
 				mpImGUIContext->Image(textureId, TVector2(mpImGUIContext->GetWindowWidth() - 25.0f, mpImGUIContext->GetWindowHeight() - 60.0f));
-			}
+			}*/
 
 			mpImGUIContext->EndWindow();
 		}

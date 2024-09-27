@@ -2,8 +2,6 @@
 #include "../include/IOGLContextFactory.h"
 #include "../include/COGLGraphicsObjectManager.h"
 #include "../include/COGLMappings.h"
-#include "../include/COGLRenderTarget.h"
-#include "../include/COGLDepthBufferTarget.h"
 #include "../include/COGLResources.h"
 #include "../include/COGLUtils.h"
 #include <utils/CFileLogger.h>
@@ -69,16 +67,6 @@ namespace TDEngine2
 			void Present() override;
 
 			/*!
-				\brief The method clears up render target with specified color. This method has high overhead
-				for OGL implementation, try to use another overloading
-
-				\param[in, out] pRenderTarget A pointer to IRenderTarget implementation
-				\param[in] color The new color of a render target
-			*/
-
-			void ClearRenderTarget(IRenderTarget* pRenderTarget, const TColor32F& color) override;
-
-			/*!
 				\brief The method clears up render target with specified color
 
 				\param[in] slot A slot into which the render target that should be cleared up is bound
@@ -86,15 +74,6 @@ namespace TDEngine2
 			*/
 
 			void ClearRenderTarget(U8 slot, const TColor32F& color) override;
-
-			/*!
-				\brief The method clears up given depth buffer with specified values
-
-				\param[in] value The depth buffer will be cleared with this value
-				\param[in] stencilValue The stencil buffer will be cleared with this value
-			*/
-
-			void ClearDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, F32 value, U8 stencilValue) override;
 
 			/*!
 				\brief The method clears up depth buffer with specified values
@@ -347,29 +326,10 @@ namespace TDEngine2
 
 				\param[in] slot An index of the slot into which the render target will be bound
 
-				\param[in, out] pRenderTarget A pointer to IRenderTarget implementation
-			*/
-
-			void BindRenderTarget(U8 slot, IRenderTarget* pRenderTarget) override;
-
-			/*!
-				\brief The method binds a given render target object to rendering pipeline
-
-				\param[in] slot An index of the slot into which the render target will be bound
-
 				\param[in] targetHandle Handle to texture object that's created as a render target
 			*/
 
 			void BindRenderTarget(U8 slot, TTextureHandleId targetHandle) override;
-
-			/*!
-				\brief The method binds a given depth buffer to rendering pipeline
-
-				\param[in, out] pDepthBufferTarget A pointer to IDepthBufferTarget implementation
-				\param[in] disableRTWrite A flag determines whether the write to RT should be enabled or not
-			*/
-
-			void BindDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, bool disableRTWrite = false) override;
 
 			/*!
 				\brief The method binds a given depth buffer to rendering pipeline
@@ -698,36 +658,6 @@ namespace TDEngine2
 		GL_SAFE_VOID_CALL(glClear(GL_COLOR_BUFFER_BIT));
 	}
 
-	void COGLGraphicsContext::ClearRenderTarget(IRenderTarget* pRenderTarget, const TColor32F& color)
-	{
-		if (!pRenderTarget)
-		{
-			LOG_WARNING("[COGLGraphicsContext] Try to clear the invalid render target");
-			return;
-		}
-
-		U8 renderTargetBoundSlot = (std::numeric_limits<U8>::max)();
-
-		COGLRenderTarget* pOGLRenderTarget = dynamic_cast<COGLRenderTarget*>(pRenderTarget);
-
-		for (U8 currSlotIndex = 0; currSlotIndex < mMaxNumOfRenderTargets; ++currSlotIndex)
-		{
-			if (mRenderTargets[currSlotIndex] == pOGLRenderTarget->GetInternalHandler())
-			{
-				renderTargetBoundSlot = currSlotIndex;
-				break;
-			}
-		}
-
-		// \note The render target isn't bound to the main FBO
-		if (renderTargetBoundSlot >= mMaxNumOfRenderTargets)
-		{
-			return;
-		}
-
-		ClearRenderTarget(renderTargetBoundSlot, color);
-	}
-	
 	void COGLGraphicsContext::ClearRenderTarget(U8 slot, const TColor32F& color)
 	{
 		TDE2_ASSERT(slot < mMaxNumOfRenderTargets);
@@ -744,11 +674,6 @@ namespace TDEngine2
 
 		const F32 clearColorArray[4]{ color.r, color.g, color.b, color.a };
 		GL_SAFE_VOID_CALL(glClearBufferfv(GL_COLOR, 0, clearColorArray));
-	}
-
-	void COGLGraphicsContext::ClearDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, F32 value, U8 stencilValue)
-	{
-		TDE2_UNIMPLEMENTED();
 	}
 
 	void COGLGraphicsContext::ClearDepthBuffer(F32 value)
@@ -1272,40 +1197,6 @@ namespace TDEngine2
 		// \todo Implement support of depth bias and clipping
 	}
 
-	void COGLGraphicsContext::BindRenderTarget(U8 slot, IRenderTarget* pRenderTarget)
-	{
-		TDE2_ASSERT(slot < mMaxNumOfRenderTargets);
-		if (slot >= mMaxNumOfRenderTargets)
-		{
-			LOG_WARNING("[COGLGraphicsContext] Render target's slot goes out of limits");
-			return;
-		}
-
-		if (!slot && !pRenderTarget)
-		{
-			GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mMainFBOHandler));
-
-			for (U8 i = 0; i < mMaxNumOfRenderTargets; ++i)
-			{
-				GL_SAFE_VOID_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, 0, 0));
-			}
-
-			GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-
-			return;
-		}
-				
-		COGLRenderTarget* pOGLRenderTarget = dynamic_cast<COGLRenderTarget*>(pRenderTarget);
-		mRenderTargets[slot] = pOGLRenderTarget->GetInternalHandler();
-
-		GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mMainFBOHandler));
-		GL_SAFE_VOID_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + slot, GL_TEXTURE_2D, mRenderTargets[slot], 0));
-		GL_SAFE_VOID_CALL(glDrawBuffer(GL_COLOR_ATTACHMENT0 + slot));
-		GL_SAFE_VOID_CALL(glReadBuffer(GL_COLOR_ATTACHMENT0 + slot));
-
-		TDE2_ASSERT(GL_FRAMEBUFFER_COMPLETE == glCheckFramebufferStatus(GL_FRAMEBUFFER));
-	}
-
 	void COGLGraphicsContext::BindRenderTarget(U8 slot, TTextureHandleId targetHandle)
 	{
 		TDE2_ASSERT(slot < mMaxNumOfRenderTargets);
@@ -1349,36 +1240,6 @@ namespace TDEngine2
 		GL_SAFE_VOID_CALL(glReadBuffer(GL_COLOR_ATTACHMENT0 + slot));
 
 		TDE2_ASSERT(GL_FRAMEBUFFER_COMPLETE == glCheckFramebufferStatus(GL_FRAMEBUFFER));
-	}
-
-	void COGLGraphicsContext::BindDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, bool disableRTWrite)
-	{
-		GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mMainFBOHandler));
-
-		if (!pDepthBufferTarget)
-		{
-			mCurrDepthBufferHandle = mMainDepthStencilRenderbuffer;
-
-			GL_SAFE_VOID_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, 0, 0));
-			GL_SAFE_VOID_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mCurrDepthBufferHandle));
-
-			TDE2_ASSERT(GL_FRAMEBUFFER_COMPLETE == glCheckFramebufferStatus(GL_FRAMEBUFFER));
-			return;
-		}
-
-		COGLDepthBufferTarget* pGLDepthBuffer = dynamic_cast<COGLDepthBufferTarget*>(pDepthBufferTarget);
-
-		GL_SAFE_VOID_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, 0));
-		GL_SAFE_VOID_CALL(glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, mCurrDepthBufferHandle = pGLDepthBuffer->GetInternalHandler(), 0));
-
-		if (disableRTWrite)
-		{
-			GL_SAFE_VOID_CALL(glDrawBuffer(GL_NONE));
-			GL_SAFE_VOID_CALL(glReadBuffer(GL_NONE));
-		}
-
-		const auto checkStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-		TDE2_ASSERT(GL_FRAMEBUFFER_COMPLETE == checkStatus);
 	}
 
 	void COGLGraphicsContext::BindDepthBufferTarget(TTextureHandleId targetHandle, bool disableRTWrite)

@@ -26,9 +26,7 @@ set(OGL_GCTX_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLResources.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLMappings.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLGraphicsObjectManager.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLRenderTarget.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLUtils.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/COGLDepthBufferTarget.h"
 	)
 
 set(OGL_GCTX_SOURCES
@@ -40,8 +38,6 @@ set(OGL_GCTX_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLMappings.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLShaderCompiler.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLGraphicsObjectManager.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLRenderTarget.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/COGLDepthBufferTarget.cpp"
 	)
 
 source_group("includes" FILES ${OGL_GCTX_HEADERS})

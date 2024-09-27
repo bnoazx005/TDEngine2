@@ -4,8 +4,6 @@
 #include "../include/CVulkanShader.h"
 #include "../include/CVulkanShaderCompiler.h"
 #include "../include/CVulkanTexture.h"
-#include "../include/CVulkanRenderTarget.h"
-#include "../include/CVulkanDepthBufferTarget.h"
 #include <core/IEngineCore.h>
 #include <core/IGraphicsContext.h>
 #include <core/IWindowSystem.h>
@@ -32,9 +30,6 @@ namespace TDEngine2
 		auto factoryFunctions =
 		{
 			CreateVulkanShaderFactory,
-			//CreateVulkanCubemapTextureFactory,
-			CreateVulkanRenderTargetFactory,
-			CreateVulkanDepthBufferTargetFactory,
 		};
 
 		IResourceFactory* pFactoryInstance = nullptr;

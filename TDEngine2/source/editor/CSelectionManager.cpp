@@ -7,7 +7,6 @@
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IEventManager.h"
-#include "../../include/graphics/CBaseRenderTarget.h"
 #include "../../include/graphics/CBaseTexture2D.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/core/IWindowSystem.h"
@@ -208,28 +207,9 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		if (TResourceId::Invalid != mSelectionGeometryBufferHandle)
-		{
-			auto pRenderTarget = mpResourceManager->GetResource<CBaseRenderTarget>(mSelectionGeometryBufferHandle);
-			if (pRenderTarget)
-			{
-				// \note Should recreate the render target
-				if (pRenderTarget->GetWidth() != width || pRenderTarget->GetHeight() != height)
-				{
-					result = result | mpResourceManager->ReleaseResource(mSelectionGeometryBufferHandle);
-					result = result | mpResourceManager->ReleaseResource(mReadableSelectionBufferHandle);
-
-					mSelectionGeometryBufferHandle = TResourceId::Invalid;
-					mReadableSelectionBufferHandle = TResourceId::Invalid;
-				}			
-			}
-		}
-
 		if (TResourceId::Invalid == mSelectionGeometryBufferHandle)
 		{
 			TTexture2DParameters renderTargetParams { width, height, FT_UINT1, 1, 1, 0 };
-
-			mSelectionGeometryBufferHandle = mpResourceManager->Create<IRenderTarget>("SelectionBuffer", renderTargetParams);
 			mReadableSelectionBufferHandle = mpResourceManager->Create<ITexture2D>("SelectionBufferCPUCopy", renderTargetParams);
 		}
 

@@ -131,8 +131,6 @@
 #include "graphics/InternalShaderData.h"
 #include "graphics/IGraphicsObjectManager.h"
 #include "graphics/CBaseGraphicsObjectManager.h"
-#include "graphics/IRenderTarget.h"
-#include "graphics/CBaseRenderTarget.h"
 #include "graphics/IRenderable.h"
 #include "graphics/IRenderer.h"
 #include "graphics/CForwardRenderer.h"

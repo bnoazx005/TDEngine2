@@ -56,29 +56,11 @@ namespace TDEngine2
 			/*!
 				\brief The method clears up render target with specified color
 
-				\param[in, out] pRenderTarget A pointer to IRenderTarget implementation
-				\param[in] color The new color of a render target
-			*/
-
-			void ClearRenderTarget(IRenderTarget* pRenderTarget, const TColor32F& color) override;
-
-			/*!
-				\brief The method clears up render target with specified color
-
 				\param[in] slot A slot into which the render target that should be cleared up is bound
 				\param[in] color The new color of a render target
 			*/
 
 			void ClearRenderTarget(U8 slot, const TColor32F& color) override;
-
-			/*!
-				\brief The method clears up given depth buffer with specified values
-
-				\param[in] value The depth buffer will be cleared with this value
-				\param[in] stencilValue The stencil buffer will be cleared with this value
-			*/
-
-			void ClearDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, F32 value, U8 stencilValue) override;
 
 			/*!
 				\brief The method clears up depth buffer with specified values
@@ -339,29 +321,10 @@ namespace TDEngine2
 
 				\param[in] slot An index of the slot into which the render target will be bound
 
-				\param[in, out] pRenderTarget A pointer to IRenderTarget implementation
-			*/
-
-			void BindRenderTarget(U8 slot, IRenderTarget* pRenderTarget) override;
-
-			/*!
-				\brief The method binds a given render target object to rendering pipeline
-
-				\param[in] slot An index of the slot into which the render target will be bound
-
 				\param[in] targetHandle Handle to texture object that's created as a render target
 			*/
 
 			void BindRenderTarget(U8 slot, TTextureHandleId targetHandle) override;
-
-			/*!
-				\brief The method binds a given depth buffer to rendering pipeline
-
-				\param[in, out] pDepthBufferTarget A pointer to IDepthBufferTarget implementation
-				\param[in] disableRTWrite A flag determines whether the write to RT should be enabled or not
-			*/
-
-			void BindDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, bool disableRTWrite = false) override;
 
 			/*!
 				\brief The method binds a given depth buffer to rendering pipeline
@@ -932,11 +895,6 @@ namespace TDEngine2
 		mpCommandList->ClearRenderTargetView(rtvHandle, clearColorArray, 0, nullptr);
 	}
 
-	void CD3D12GraphicsContext::ClearRenderTarget(IRenderTarget* pRenderTarget, const TColor32F& color)
-	{
-		TDE2_UNREACHABLE();
-	}
-
 	void CD3D12GraphicsContext::ClearRenderTarget(U8 slot, const TColor32F& color)
 	{
 		//m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
@@ -946,11 +904,6 @@ namespace TDEngine2
 		//// Record commands.
 		//const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
 		//m_commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
-	}
-
-	void CD3D12GraphicsContext::ClearDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, F32 value, U8 stencilValue)
-	{
-		TDE2_UNREACHABLE();
 	}
 
 	void CD3D12GraphicsContext::ClearDepthBuffer(F32 value)
@@ -1127,15 +1080,7 @@ namespace TDEngine2
 	{
 	}
 
-	void CD3D12GraphicsContext::BindRenderTarget(U8 slot, IRenderTarget* pRenderTarget)
-	{
-	}
-
 	void CD3D12GraphicsContext::BindRenderTarget(U8 slot, TTextureHandleId targetHandle)
-	{
-	}
-
-	void CD3D12GraphicsContext::BindDepthBufferTarget(IDepthBufferTarget* pDepthBufferTarget, bool disableRTWrite)
 	{
 	}
 

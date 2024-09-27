@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.30] 2024-09-23
+## [0.6.30] 2024-09-27
 
 ### Added
 
@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The structure of GLGraphicsContext's directory was changed. COGLBuffer.h/cpp, COGLTexture.h/cpp, COGLShader.h/cpp files were replaced with COGLResources.h/cpp.
 
 - The API of **IGraphicsObjectManager** was refactored and CreateBlendState/CreateRasterizerState/CreateDepthStencilState methods were removed from that.
+
+- **CBaseRenderTarget** and **CDepthBufferTarget** types were removed from the engine.
 
 ### Fixed
 

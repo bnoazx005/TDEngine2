@@ -3,8 +3,6 @@
 #include "../include/win32/CWin32GLContextFactory.h"
 #include "../include/unix/CUnixGLContextFactory.h"
 #include "../include/COGLResources.h"
-#include "../include/COGLDepthBufferTarget.h"
-#include "../include/COGLRenderTarget.h"
 #include <core/IEngineCore.h>
 #include <core/IResourceManager.h>
 #include <core/IGraphicsContext.h>
@@ -100,8 +98,6 @@ namespace TDEngine2
 		auto factoryFunctions = 
 		{
 			CreateOGLShaderFactory,
-			CreateOGLRenderTargetFactory,
-			CreateOGLDepthBufferTargetFactory,
 		};
 
 		IResourceFactory* pFactoryInstance = nullptr;
