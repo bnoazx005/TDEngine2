@@ -92,8 +92,6 @@ namespace TDEngine2
 			TDE2_API U32 GetStrideSize(U32 sourceIndex = 0) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVertexDeclaration)
-
-			TDE2_API U32 _getFormatSize(E_FORMAT_TYPE format) const;
 		protected:
 			TAttributesArray     mElements;
 
