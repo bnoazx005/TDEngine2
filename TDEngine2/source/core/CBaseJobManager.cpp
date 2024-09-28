@@ -1,5 +1,6 @@
 #include "./../../include/core/CBaseJobManager.h"
 #include "./../../include/utils/CFileLogger.h"
+#include "./../../include/editor/CPerfProfiler.h"
 #include "stringUtils.hpp"
 #include <cmath>
 #include "marl/scheduler.h"
@@ -96,6 +97,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseJobManager::SubmitJob(TJobCounter* pCounter, const TJobCallback& job, const TSubmitJobParams& params)
 	{
+		TDE2_PROFILER_SCOPE("CBaseJobManager::SubmitJob");
+
 		if (!job)
 		{
 			return RC_INVALID_ARGS;
@@ -184,6 +187,8 @@ namespace TDEngine2
 
 	void CBaseJobManager::WaitForJobCounter(TJobCounter& counter)
 	{
+		TDE2_PROFILER_SCOPE("CBaseJobManager::WaitForJobCounter");
+
 		if (auto pWaitGroup = mpWaitCountersPool[static_cast<USIZE>(counter.load())].get())
 		{
 			pWaitGroup->wait();

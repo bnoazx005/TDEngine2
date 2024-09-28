@@ -41,6 +41,8 @@ namespace TDEngine2
 
 	void CTransformSystem::InjectBindings(IWorld* pWorld)
 	{
+		TDE2_PROFILER_SCOPE("CTransformSystem::InjectBindings");
+
 		auto&& entities = pWorld->FindEntitiesWithComponents<CTransform>();
 
 		auto& transforms = mComponentsContext.mpTransforms;

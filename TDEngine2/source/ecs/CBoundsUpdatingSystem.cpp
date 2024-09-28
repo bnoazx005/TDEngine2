@@ -4,6 +4,7 @@
 #include "../../include/ecs/CTransform.h"
 #include "../../include/ecs/components/CBoundsComponent.h"
 #include "../../include/core/IResourceManager.h"
+#include "../../include/core/IJobManager.h"
 #include "../../include/core/CProjectSettings.h"
 #include "../../include/graphics/CStaticMesh.h"
 #include "../../include/graphics/CStaticMeshContainer.h"
@@ -289,9 +290,14 @@ namespace TDEngine2
 
 		TDE2_PROFILER_SCOPE("CBoundsUpdatingSystem::Update");
 
-		ProcessMeshesBounds(mpResourceManager, mpDebugUtility, mStaticMeshesContext, isUpdateNeeded, ComputeStaticMeshBounds);
-		ProcessMeshesBounds(mpResourceManager, mpDebugUtility, mSkinnedMeshesContext, isUpdateNeeded, ComputeSkinnedMeshBounds);
-		ProcessSpritesBounds(mpDebugUtility, mSpritesContext, isUpdateNeeded);
+		auto pJobManager = mpResourceManager->GetJobManager();
+
+		TJobCounter counter;
+		pJobManager->SubmitJob(&counter, [this, isUpdateNeeded](auto){ ProcessMeshesBounds(mpResourceManager, mpDebugUtility, mStaticMeshesContext, isUpdateNeeded, ComputeStaticMeshBounds); });
+		pJobManager->SubmitJob(&counter, [this, isUpdateNeeded](auto){ ProcessMeshesBounds(mpResourceManager, mpDebugUtility, mSkinnedMeshesContext, isUpdateNeeded, ComputeSkinnedMeshBounds); });
+		pJobManager->SubmitJob(&counter, [this, isUpdateNeeded](auto){ ProcessSpritesBounds(mpDebugUtility, mSpritesContext, isUpdateNeeded); });
+
+		pJobManager->WaitForJobCounter(counter);
 
 		mCurrTimer += dt;
 	}

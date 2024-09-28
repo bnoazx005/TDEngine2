@@ -1,5 +1,6 @@
 #include "../../../include/core/memory/CLinearAllocator.h"
 #include "../../../include/editor/CMemoryProfiler.h"
+#include "../../../include/editor/CPerfProfiler.h"
 #include "../../../include/utils/CFileLogger.h"
 #include "stringUtils.hpp"
 #include <cstring>
@@ -43,6 +44,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CLinearAllocator::Clear()
 	{
+		TDE2_PROFILER_SCOPE("CLinearAllocator::Clear");
 		mAllocationsCount = 0;
 
 		TMemoryBlockEntity* pCurrBlock = mpRootBlock.get();

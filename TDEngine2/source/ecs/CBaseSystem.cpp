@@ -1,4 +1,5 @@
 #include "../../include/ecs/CBaseSystem.h"
+#include "../../include/editor/CPerfProfiler.h"
 
 
 namespace TDEngine2
@@ -22,6 +23,8 @@ namespace TDEngine2
 
 	void CBaseSystem::ExecuteDefferedCommands()
 	{
+		TDE2_PROFILER_SCOPE("CBaseSystem::ExecuteDefferedCommands");
+
 		for (auto&& currCommand : mDefferedCommandsBuffer)
 		{
 			currCommand();

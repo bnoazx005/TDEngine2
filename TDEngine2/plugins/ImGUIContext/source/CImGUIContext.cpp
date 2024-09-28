@@ -19,6 +19,7 @@
 #include <platform/unix/CUnixWindowSystem.h>
 #include <utils/CFileLogger.h>
 #include <utils/CGradientColor.h>
+#include <editor/CPerfProfiler.h>
 #include <math/MathUtils.h>
 #include <math/TQuaternion.h>
 #include <vector>
@@ -123,6 +124,8 @@ namespace TDEngine2
 
 	void CImGUIContext::BeginFrame(F32 dt)
 	{
+		TDE2_PROFILER_SCOPE("CImGUIContext::BeginFrame");
+
 		if (!mpIOContext)
 		{
 			return;
@@ -146,6 +149,8 @@ namespace TDEngine2
 
 	void CImGUIContext::EndFrame()
 	{
+		TDE2_PROFILER_SCOPE("CImGUIContext::EndFrame");
+
 		if (!mpIOContext)
 		{
 			return;

@@ -7,6 +7,7 @@
 #include "../../include/core/IEventManager.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/CBaseComponent.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include <algorithm>
 
 
@@ -193,6 +194,7 @@ namespace TDEngine2
 
 	void CSystemManager::Update(IWorld* pWorld, float dt)
 	{
+		TDE2_PROFILER_SCOPE("CSystemManager::Update");
 		std::lock_guard<std::mutex> lock(mMutex);
 
 		ISystem* pCurrSystem = nullptr;

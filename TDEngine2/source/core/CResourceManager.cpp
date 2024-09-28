@@ -248,7 +248,6 @@ namespace TDEngine2
 
 	TResourceId CResourceManager::Load(const std::string& name, TypeId typeId, E_RESOURCE_LOADING_POLICY loadingPolicy)
 	{
-		std::lock_guard<std::recursive_mutex> lock(mMutex);
 		return _loadResource(typeId, name, loadingPolicy);
 	}
 

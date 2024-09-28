@@ -120,6 +120,8 @@ namespace TDEngine2
 
 	void CSpriteRendererSystem::InjectBindings(IWorld* pWorld)
 	{
+		TDE2_PROFILER_SCOPE("CSpriteRendererSystem::InjectBindings");
+
 		std::vector<TEntityId> entities = pWorld->FindEntitiesWithComponents<CTransform, CQuadSprite>();
 
 		mTransforms.clear();		
@@ -149,6 +151,8 @@ namespace TDEngine2
 
 	void CSpriteRendererSystem::Update(IWorld* pWorld, F32 dt)
 	{
+		TDE2_PROFILER_SCOPE("CSpriteRendererSystem::Update");
+
 		TDrawIndexedInstancedCommand* pCurrCommand = nullptr;
 
 		CTransform* pCurrTransform = nullptr;

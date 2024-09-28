@@ -2,6 +2,7 @@
 #include "../../include/physics/IPhysics3DSystem.h"
 #include "../../include/ecs/CPhysics2DSystem.h"
 #include "../../include/core/memory/CPoolAllocator.h"
+#include "../../include/editor/CPerfProfiler.h"
 
 
 namespace TDEngine2
@@ -85,6 +86,8 @@ namespace TDEngine2
 
 	void CBaseRaycastContext::Reset()
 	{
+		TDE2_PROFILER_SCOPE("CBaseRaycastContext::Reset");
+
 		E_RESULT_CODE result = mpAllocator->Clear();
 		TDE2_ASSERT(result == RC_OK);
 	}

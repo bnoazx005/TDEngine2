@@ -1,5 +1,6 @@
 #include "../../../include/core/memory/CPoolAllocator.h"
 #include "../../../include/editor/CMemoryProfiler.h"
+#include "../../../include/editor/CPerfProfiler.h"
 
 
 namespace TDEngine2
@@ -83,6 +84,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CPoolAllocator::Clear()
 	{
+		TDE2_PROFILER_SCOPE("CPoolAllocator::Clear");
+
 		TMemoryBlockEntity* pCurrBlockEntity = mpRootBlock.get();
 
 		while (pCurrBlockEntity)
