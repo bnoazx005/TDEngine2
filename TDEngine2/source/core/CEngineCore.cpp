@@ -400,6 +400,8 @@ namespace TDEngine2
 		CPerfProfiler::Get()->EndFrame();
 		CMemoryProfiler::Get()->EndFrame();
 #endif
+
+		++TFrameCounter::mGlobalFrameNumber;
 	}
 
 	E_RESULT_CODE CEngineCore::_onNotifyEngineListeners(E_ENGINE_EVENT_TYPE eventType)

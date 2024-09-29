@@ -895,4 +895,11 @@ namespace TDEngine2
 		NONE = 0,
 		TRANSIENT = 1 << 0, ///< The graphics resources created with the flag are reusable and not actually destroyed on DestroyTexture/DestroyBuffer calls
 	};
+
+
+	typedef struct TFrameCounter
+	{
+		static U32 mGlobalFrameNumber;
+	} TFrameCounter, *TFrameCounterPtr;
+
 }

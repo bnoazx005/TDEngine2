@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.30] 2024-09-27
+## [0.6.30] 2024-09-29
 
 ### Added
 
 - A new plugin which is supposed to provide a support of D3D12 graphics was introduced into the project.
+
+- A new global variable **TFrameCounter::mGlobalFrameNumber** was added to specify current processed frame's index.
 
 ### Changed
 

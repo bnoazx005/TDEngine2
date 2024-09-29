@@ -75,6 +75,7 @@ namespace TDEngine2
 				mpImGUIContext->DrawText(currPos, TColorUtils::mWhite, "Stats: ");
 
 				currPos = DrawTextLine(mpImGUIContext, currPos + vOffset, 0.0f, vOffset.y, "FPS: ", std::to_string(static_cast<I32>(1.0f / CMathUtils::Max(1e-3f, mCurrDeltaTime))));
+				currPos = DrawTextLine(mpImGUIContext, currPos + vOffset, 0.0f, vOffset.y, "Frame: ", std::to_string(TFrameCounter::mGlobalFrameNumber));
 				
 				{
 					// Frame

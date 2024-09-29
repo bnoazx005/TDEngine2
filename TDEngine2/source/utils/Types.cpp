@@ -5,4 +5,5 @@
 
 namespace TDEngine2
 {
+	U32 TFrameCounter::mGlobalFrameNumber { 0 };
 }
