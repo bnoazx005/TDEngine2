@@ -15,6 +15,7 @@
 #include <graphics/CRenderQueue.h>
 #include <graphics/IVertexDeclaration.h>
 #include <graphics/IDebugUtility.h>
+#include <graphics/CFramePacketsStorage.h>
 #include <platform/win32/CWin32WindowSystem.h>
 #include <platform/unix/CUnixWindowSystem.h>
 #include <utils/CFileLogger.h>
@@ -60,7 +61,7 @@ namespace TDEngine2
 		mpGraphicsObjectManager = params.mpGraphicsObjectManager;
 		mpResourceManager       = params.mpResourceManager;
 		mpInputContext          = params.mpInputContext;
-		mpEditorUIRenderQueue	= params.mpRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_DEBUG_UI);
+		mpFramePacketsStorage   = params.mpRenderer->GetFramePacketsStorage().Get();
 
 		if (!mpGraphicsContext) // \note the really strange case, but if it's happened we should check for it
 		{
@@ -163,7 +164,7 @@ namespace TDEngine2
 			ImGui::ResetMouseDragDelta(i);
 		}
 
-		_engineInternalRender(ImGui::GetDrawData(), mpEditorUIRenderQueue);
+		_engineInternalRender(ImGui::GetDrawData(), mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_DEBUG_UI)].Get());
 	}
 
 	E_ENGINE_SUBSYSTEM_TYPE CImGUIContext::GetType() const

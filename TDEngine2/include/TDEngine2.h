@@ -191,6 +191,7 @@
 #include "graphics/CFrameGraphResources.h"
 #include "graphics/IGraphicsPipeline.h"
 #include "graphics/CBaseGraphicsPipeline.h"
+#include "graphics/CFramePacketsStorage.h"
 
 /// audio
 #include "audio/IAudioSource.h"

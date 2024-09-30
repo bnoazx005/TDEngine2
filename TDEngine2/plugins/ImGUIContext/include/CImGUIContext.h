@@ -25,6 +25,8 @@ namespace TDEngine2
 {
 	class IGraphicsContext;
 	class CRenderQueue;
+	class CFramePacketsStorage;
+
 	class IVertexDeclaration;
 
 	enum class TMaterialInstanceId : U32;
@@ -659,7 +661,7 @@ namespace TDEngine2
 			TBufferHandleId         mVertexBufferHandle;
 			TBufferHandleId         mIndexBufferHandle;
 
-			CRenderQueue*           mpEditorUIRenderQueue;
+			CFramePacketsStorage*   mpFramePacketsStorage = nullptr;
 
 			IVertexDeclaration*     mpEditorUIVertexDeclaration;
 

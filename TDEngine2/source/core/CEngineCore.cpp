@@ -36,6 +36,7 @@
 #include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/graphics/IDebugUtility.h"
 #include "../../include/graphics/CBaseCamera.h"
+#include "../../include/graphics/CFramePacketsStorage.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/utils/ITimer.h"
 #define META_IMPLEMENTATION
@@ -383,6 +384,11 @@ namespace TDEngine2
 			if (IAudioContext* pAudioContext = _getSubsystemAs<IAudioContext>(EST_AUDIO_CONTEXT))
 			{
 				pAudioContext->Update();
+			}
+
+			if (IRenderer* pRenderer = _getSubsystemAs<IRenderer>(EST_RENDERER))
+			{
+				pRenderer->GetFramePacketsStorage()->IncrementGameLogicFrameCounter();
 			}
 		}
 

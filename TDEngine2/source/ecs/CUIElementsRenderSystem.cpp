@@ -14,6 +14,7 @@
 #include "../../include/graphics/CRenderQueue.h"
 #include "../../include/graphics/IMaterial.h"
 #include "../../include/graphics/ITexture.h"
+#include "../../include/graphics/CFramePacketsStorage.h"
 #include "../../include/core/IResource.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/editor/CPerfProfiler.h"
@@ -43,8 +44,8 @@ namespace TDEngine2
 		}
 
 		mpGraphicsObjectManager = pGraphicsObjectManager;
-		mpUIElementsRenderGroup = pRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_OVERLAY);
-		mpResourceManager = pRenderer->GetResourceManager();
+		mpFramePacketsStorage   = pRenderer->GetFramePacketsStorage().Get();
+		mpResourceManager       = pRenderer->GetResourceManager();
 
 		E_RESULT_CODE result = _initDefaultResources();
 		if (RC_OK != result)
@@ -204,6 +205,8 @@ namespace TDEngine2
 			return false;
 		};
 
+		TPtr<CRenderQueue> pUIElementsRenderGroup = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_OVERLAY)];
+
 		for (USIZE i = 0; i < layoutElements.size(); ++i)
 		{
 			CUIElementMeshData* pMeshData = uiMeshData[i];
@@ -268,7 +271,7 @@ namespace TDEngine2
 			/// \note Flush current buffers when the batch is splitted
 			if (shouldBatchBeFlushed(currMaterialId, currMaterialInstance, i) || (pCurrCanvas && pPrevCanvas != pCurrCanvas))
 			{
-				auto pCurrCommand = mpUIElementsRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(
+				auto pCurrCommand = pUIElementsRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(
 					((0xFFFF - (pCurrCanvas->GetPriority() + (0xFFFF >> 1))) << 16) | (static_cast<U32>(layoutElements.size()) - index + (static_cast<U32>(priorities.size()) - priorities[i])));
 
 				pCurrCommand->mVertexBufferHandle = mVertexBufferHandle;

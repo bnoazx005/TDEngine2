@@ -54,6 +54,7 @@
 #include "../../include/graphics/CAtlasSubTexture.h"
 #include "../../include/graphics/CStaticMesh.h"
 #include "../../include/graphics/CSkinnedMesh.h"
+#include "../../include/graphics/CFramePacketsStorage.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/editor/CEditorsManager.h"
 #include "../../include/editor/CProfilerEditorWindow.h"
@@ -375,7 +376,13 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		IRenderer* pRenderer = CreateForwardRenderer({ mpGraphicsContextInstance, mpResourceManagerInstance, mpWindowSystemInstance, CreateLinearAllocator }, result);
+		TPtr<CFramePacketsStorage> pFramePacketsStorage = TPtr<CFramePacketsStorage>(CreateFramePacketsStorage(CreateLinearAllocator, result));
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		IRenderer* pRenderer = CreateForwardRenderer({ mpGraphicsContextInstance, mpResourceManagerInstance, mpWindowSystemInstance, pFramePacketsStorage }, result);
 		if (result != RC_OK)
 		{
 			return result;

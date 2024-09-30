@@ -26,6 +26,7 @@ namespace TDEngine2
 	class IGlobalShaderProperties;
 	class IPostProcessingProfile;
 	class IWindowSystem;
+	class CFramePacketsStorage;
 
 
 	typedef std::vector<TLightData> TLightsDataArray;
@@ -36,6 +37,7 @@ namespace TDEngine2
 	TDE2_DECLARE_SCOPED_PTR(IAllocator)
 	TDE2_DECLARE_SCOPED_PTR(IGlobalShaderProperties)
 	TDE2_DECLARE_SCOPED_PTR(IWindowSystem)
+	TDE2_DECLARE_SCOPED_PTR(CFramePacketsStorage)
 
 
 	enum class E_RENDER_QUEUE_GROUP: U8
@@ -75,10 +77,10 @@ namespace TDEngine2
 
 	struct TRendererInitParams
 	{
-		TPtr<IGraphicsContext>   mpGraphicsContext;
-		TPtr<IResourceManager>   mpResourceManager;
-		TPtr<IWindowSystem>      mpWindowSystem;
-		TAllocatorFactoryFunctor mAllocatorFactoryFunctor;
+		TPtr<IGraphicsContext>     mpGraphicsContext;
+		TPtr<IResourceManager>     mpResourceManager;
+		TPtr<IWindowSystem>        mpWindowSystem;
+		TPtr<CFramePacketsStorage> mpFramePacketsStorage;
 	};
 
 
@@ -171,6 +173,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual TPtr<IGlobalShaderProperties> GetGlobalShaderProperties() const = 0;
+
+			TDE2_API virtual TPtr<CFramePacketsStorage> GetFramePacketsStorage() const = 0;
 
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_RENDERER; }
 		protected:

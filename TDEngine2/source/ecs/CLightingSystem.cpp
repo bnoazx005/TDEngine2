@@ -12,6 +12,7 @@
 #include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/graphics/IVertexDeclaration.h"
 #include "../../include/graphics/CRenderQueue.h"
+#include "../../include/graphics/CFramePacketsStorage.h"
 #include "../../include/graphics/CBaseMaterial.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IGraphicsContext.h"
@@ -50,6 +51,7 @@ namespace TDEngine2
 		mpRenderer              = pRenderer;
 		mpGraphicsObjectManager = pGraphicsObjectManager;
 		mpResourceManager       = mpRenderer->GetResourceManager();
+		mpFramePacketsStorage   = mpRenderer->GetFramePacketsStorage().Get();
 		mpGraphicsContext       = pGraphicsObjectManager->GetGraphicsContext();
 
 		E_RESULT_CODE result = _prepareResources();
@@ -493,18 +495,20 @@ namespace TDEngine2
 
 		U32 drawIndex = 0;
 
+		CRenderQueue* pShadowPassRenderQueue = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)].Get();
+
 		// \note Prepare commands for the renderer
 		{
 			TDE2_PROFILER_SCOPE("CLightingSystem::ProcessShadowCasters");
 
 			for (USIZE i = 0; i < mStaticShadowCastersContext.mComponentsCount; ++i)
 			{
-				drawIndex = ProcessStaticMeshCasterEntity({ mpResourceManager.Get(), mpShadowVertDecl, mShadowPassMaterialHandle, drawIndex, mpShadowPassRenderQueue }, mStaticShadowCastersContext, i);
+				drawIndex = ProcessStaticMeshCasterEntity({ mpResourceManager.Get(), mpShadowVertDecl, mShadowPassMaterialHandle, drawIndex, pShadowPassRenderQueue }, mStaticShadowCastersContext, i);
 			}
 
 			for (USIZE i = 0; i < mSkinnedShadowCastersContext.mComponentsCount; ++i)
 			{
-				drawIndex = ProcessSkinnedMeshCasterEntity({ mpResourceManager.Get(), mpSkinnedShadowVertDecl, mShadowPassSkinnedMaterialHandle, drawIndex, mpShadowPassRenderQueue }, mSkinnedShadowCastersContext, i);
+				drawIndex = ProcessSkinnedMeshCasterEntity({ mpResourceManager.Get(), mpSkinnedShadowVertDecl, mShadowPassSkinnedMaterialHandle, drawIndex, pShadowPassRenderQueue }, mSkinnedShadowCastersContext, i);
 			}
 		}
 	}
@@ -541,15 +545,13 @@ namespace TDEngine2
 			mpSkinnedShadowVertDecl->AddElement({ FT_UINT4, 0, VEST_JOINT_INDICES });
 		}
 
-		mpShadowPassRenderQueue = mpRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS);
-
 		const static TMaterialParameters shadowPassMaterialParams = CreateShadowPassMaterialParams("Shaders/Default/ShadowPass.shader");
 		const static TMaterialParameters shadowPassSkinnedMaterialParams = CreateShadowPassMaterialParams("Shaders/Default/SkinnedShadowPass.shader");
 
 		mShadowPassMaterialHandle        = mpResourceManager->Create<IMaterial>("ShadowPassMaterial.material", shadowPassMaterialParams);
 		mShadowPassSkinnedMaterialHandle = mpResourceManager->Create<IMaterial>("ShadowPassSkinnedMaterial.material", shadowPassSkinnedMaterialParams);
 
-		return (mShadowPassMaterialHandle != TResourceId::Invalid && mpShadowPassRenderQueue && mpShadowVertDecl) ? RC_OK : RC_FAIL;
+		return (mShadowPassMaterialHandle != TResourceId::Invalid && mpShadowVertDecl) ? RC_OK : RC_FAIL;
 	}
 
 

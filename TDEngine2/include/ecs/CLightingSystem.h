@@ -31,8 +31,10 @@ namespace TDEngine2
 	class CShadowReceiverComponent;
 	class CStaticMeshContainer;
 	class CSkinnedMeshContainer;
+	class CFramePacketsStorage;
 
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
+	TDE2_DECLARE_SCOPED_PTR(CRenderQueue)
 
 
 	/*!
@@ -127,7 +129,7 @@ namespace TDEngine2
 			TResourceId                  mShadowPassMaterialHandle;
 			TResourceId                  mShadowPassSkinnedMaterialHandle;
 
-			CRenderQueue*                mpShadowPassRenderQueue = nullptr;
+			CFramePacketsStorage*        mpFramePacketsStorage = nullptr;
 
 			std::vector<TLightData>      mActiveLightsData;
 	};

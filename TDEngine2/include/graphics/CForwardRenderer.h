@@ -178,6 +178,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API TPtr<IGlobalShaderProperties> GetGlobalShaderProperties() const override;
+
+			TDE2_API TPtr<CFramePacketsStorage> GetFramePacketsStorage() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CForwardRenderer)
 
@@ -189,8 +191,6 @@ namespace TDEngine2
 			TPtr<IWindowSystem>           mpWindowSystem;
 							         
 			const ICamera*                mpMainCamera;
-							         
-			TPtr<CRenderQueue>            mpRenderQueues[NumOfRenderQueuesGroup];
 							         
 			TPtr<IAllocator>              mpTempAllocator;
 
@@ -208,5 +208,7 @@ namespace TDEngine2
 			TPtr<CFrameGraph>             mpFrameGraph;
 			
 			TLightCullingData             mLightGridData;
+
+			TPtr<CFramePacketsStorage>    mpFramePacketsStorage = nullptr;
 	};
 }

@@ -25,6 +25,7 @@ namespace TDEngine2
 	class CTransform;
 	class CUIElementMeshData;
 	class CLayoutElement;
+	class CFramePacketsStorage;
 
 	enum class TResourceId : U32;
 	enum class TMaterialInstanceId : U32;
@@ -127,7 +128,7 @@ namespace TDEngine2
 
 			IGraphicsObjectManager*         mpGraphicsObjectManager;
 
-			CRenderQueue*                   mpUIElementsRenderGroup;
+			CFramePacketsStorage*           mpFramePacketsStorage = nullptr;
 
 			TPtr<IResourceManager>          mpResourceManager;
 

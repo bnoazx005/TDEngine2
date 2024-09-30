@@ -13,6 +13,7 @@
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/graphics/IRenderer.h"
 #include "../../include/graphics/ICamera.h"
+#include "../../include/graphics/CFramePacketsStorage.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/graphics/CBaseMaterial.h"
 #include "../../include/core/memory/IAllocator.h"
@@ -23,7 +24,6 @@ namespace TDEngine2
 {
 	CSpriteRendererSystem::CSpriteRendererSystem() :
 		CBaseSystem(), 
-		mpRenderQueue(nullptr), 
 		mSpriteVertexBufferHandle(TBufferHandleId::Invalid), 
 		mSpriteIndexBufferHandle(TBufferHandleId::Invalid),
 		mpSpriteVertexDeclaration(nullptr), 
@@ -51,8 +51,7 @@ namespace TDEngine2
 		mpTempAllocator = allocator;
 
 		mpRenderer = pRenderer;
-
-		mpRenderQueue = mpRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_SPRITES);
+		mpFramePacketsStorage = mpRenderer->GetFramePacketsStorage().Get();
 
 		mpResourceManager = mpRenderer->GetResourceManager();
 
@@ -211,6 +210,8 @@ namespace TDEngine2
 
 		U32 instancesCount = 0;
 
+		TPtr<CRenderQueue> pRenderQueue = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_SPRITES)];
+
 		for (auto iter = mBatches.begin(); iter != mBatches.end(); ++iter)
 		{
 			const TBufferHandleId currInstancingBufferHandle = mSpritesPerInstanceDataHandles[currInstancesBufferIndex++];
@@ -236,7 +237,7 @@ namespace TDEngine2
 			TPtr<IMaterial> pMaterial = mpResourceManager->GetResource<IMaterial>(currBatchEntry.mMaterialHandle);
 			ITexture* pMainTexture = pMaterial->GetTextureResource(Wrench::StringUtils::GetEmptyStr());
 
-			pCurrCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndexedInstancedCommand>((*iter).first); /// \note (*iter).first is a group key that was computed before
+			pCurrCommand = pRenderQueue->SubmitDrawCommand<TDrawIndexedInstancedCommand>((*iter).first); /// \note (*iter).first is a group key that was computed before
 
 			pCurrCommand->mVertexBufferHandle      = mSpriteVertexBufferHandle;
 			pCurrCommand->mIndexBufferHandle       = mSpriteIndexBufferHandle;

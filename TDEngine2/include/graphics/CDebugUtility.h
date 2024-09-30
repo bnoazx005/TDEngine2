@@ -18,7 +18,7 @@
 
 namespace TDEngine2
 {
-	class CRenderQueue;
+	class CFramePacketsStorage;
 	class IVertexDeclaration;
 	class IGeometryBuilder;
 
@@ -191,7 +191,7 @@ namespace TDEngine2
 
 			IResourceManager*        mpResourceManager;
 
-			CRenderQueue*            mpRenderQueue;
+			CFramePacketsStorage*    mpFramePacketsStorage = nullptr;
 
 			IVertexDeclaration*      mpLinesVertDeclaration;
 

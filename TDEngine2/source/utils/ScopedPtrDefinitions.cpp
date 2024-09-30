@@ -30,6 +30,7 @@
 #include "../../include/graphics/IShaderCompiler.h"
 #include "../../include/graphics/IShader.h"
 #include "../../include/graphics/ITexture.h"
+#include "../../include/graphics/CFramePacketsStorage.h"
 #include "../../include/scene/IPrefabsRegistry.h"
 #include "../../include/scene/ISceneManager.h"
 #include "../../include/scene/CPrefabChangesList.h"
@@ -80,4 +81,5 @@ namespace TDEngine2
 	TDE2_DEFINE_SCOPED_PTR(IGraphicsObjectManager)
 	TDE2_DEFINE_SCOPED_PTR(IBuffer)
 	TDE2_DEFINE_SCOPED_PTR(ITextureImpl)
+	TDE2_DEFINE_SCOPED_PTR(CFramePacketsStorage)
 }

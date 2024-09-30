@@ -30,6 +30,7 @@ namespace TDEngine2
 	class CUIElementMeshData;
 	class CLayoutElement;
 	class CBoundsComponent;
+	class CFramePacketsStorage;
 
 
 	enum class TBufferHandleId : U32;
@@ -135,8 +136,7 @@ namespace TDEngine2
 
 			TPtr<IResourceManager>  mpResourceManager = nullptr;
 
-			CRenderQueue*           mpEditorOnlyRenderQueue = nullptr;
-			CRenderQueue*           mpDebugRenderQueue = nullptr;
+			CFramePacketsStorage*   mpFramePacketsStorage = nullptr;
 
 			TEntityId               mCameraEntityId = TEntityId::Invalid;
 

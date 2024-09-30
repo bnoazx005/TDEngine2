@@ -13,6 +13,7 @@
 #include "../../include/graphics/CFrameGraph.h"
 #include "../../include/graphics/CFrameGraphResources.h"
 #include "../../include/graphics/IGraphicsPipeline.h"
+#include "../../include/graphics/CFramePacketsStorage.h"
 #include "../../include/core/memory/IAllocator.h"
 #include "../../include/core/memory/CLinearAllocator.h"
 #include "../../include/core/IGraphicsContext.h"
@@ -2276,14 +2277,15 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		if (!params.mAllocatorFactoryFunctor || !params.mpGraphicsContext || !params.mpResourceManager || !params.mpWindowSystem)
+		if (!params.mpFramePacketsStorage || !params.mpGraphicsContext || !params.mpResourceManager || !params.mpWindowSystem)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		mpGraphicsContext = params.mpGraphicsContext;
-		mpResourceManager = params.mpResourceManager;
-		mpWindowSystem    = params.mpWindowSystem;
+		mpGraphicsContext     = params.mpGraphicsContext;
+		mpResourceManager     = params.mpResourceManager;
+		mpWindowSystem        = params.mpWindowSystem;
+		mpFramePacketsStorage = params.mpFramePacketsStorage;
 
 		auto pEventManager = mpWindowSystem->GetEventManager();
 		if (pEventManager)
@@ -2294,35 +2296,6 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 		mpFrameGraph = CreateFrameGraph(mpGraphicsContext.Get(), result);
-
-		auto allocatorFactory = params.mAllocatorFactoryFunctor;
-				
-		IAllocator* pCurrAllocator = nullptr;
-
-		void* pCurrMemoryBlock = nullptr;
-
-		for (U8 i = 0; i < NumOfRenderQueuesGroup; ++i)
-		{
-			pCurrAllocator = allocatorFactory(PerRenderQueueMemoryBlockSize, result);
-
-			if (result != RC_OK)
-			{
-				return result;
-			}
-
-			/// \note this CRenderQueue's instance now owns this allocator
-			mpRenderQueues[i] = TPtr<CRenderQueue>(CreateRenderQueue(pCurrAllocator, result));
-
-			if (result != RC_OK)
-			{
-				return result;
-			}
-			
-			LOG_MESSAGE(std::string("[Forward Renderer] A new render queue buffer was created ( mem-size : ").append(std::to_string(PerRenderQueueMemoryBlockSize / 1024)).
-																											  append(" KiB; group-type : ").
-																											  append(std::to_string(i)).
-																											  append(")"));
-		}
 
 		auto pGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
 
@@ -2450,7 +2423,9 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
-				
+		
+		TFramePacket::TRenderQueuesArray& pRenderQueues = mpFramePacketsStorage->GetCurrentFrameForRender().mpRenderQueues;
+
 		{
 			TDE2_BUILTIN_SPEC_PROFILER_EVENT(E_SPECIAL_PROFILE_EVENT::RENDER);
 			TDE2_STATS_COUNTER_SET(mDrawCallsCount, 0);
@@ -2468,7 +2443,7 @@ namespace TDEngine2
 
 				for (U32 i = 0; i < NumOfRenderQueuesGroup; ++i)
 				{
-					mpRenderQueues[i]->Clear();
+					pRenderQueues[i]->Clear();
 				}
 
 				mpDebugUtility->PostRender();
@@ -2502,13 +2477,13 @@ namespace TDEngine2
 
 			// \note editor mode (draw into selection buffer)
 #if TDE2_EDITORS_ENABLED
-			CRenderSelectionBufferPass{ passInvokeContext, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)] }.AddPass(mpFrameGraph, frameGraphBlackboard, mpSelectionManager);
+			CRenderSelectionBufferPass{ passInvokeContext, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)] }.AddPass(mpFrameGraph, frameGraphBlackboard, mpSelectionManager);
 #endif
 
 			// \note directional shadow pass
 			if (CGameUserSettings::Get()->mpIsShadowMappingEnabledCVar->Get())
 			{
-				CSunLightShadowPass{ passInvokeContext, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)] }.AddPass(mpFrameGraph, frameGraphBlackboard);
+				CSunLightShadowPass{ passInvokeContext, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)] }.AddPass(mpFrameGraph, frameGraphBlackboard);
 
 				U32 currPointLightIndex = 0;
 
@@ -2529,16 +2504,16 @@ namespace TDEngine2
 						break;
 					}
 
-					COmniLightShadowPass{ passInvokeContext, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)], pointLightsCount }.AddPass(mpFrameGraph, frameGraphBlackboard, currPointLightIndex);
+					COmniLightShadowPass{ passInvokeContext, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)], pointLightsCount }.AddPass(mpFrameGraph, frameGraphBlackboard, currPointLightIndex);
 
 					++currPointLightIndex;
 				}
 			}
 
 			// \note depth pre-pass
-			CDepthPrePass{ passInvokeContext, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEPTH_PREPASS)] }.AddPass(mpFrameGraph, frameGraphBlackboard);
+			CDepthPrePass{ passInvokeContext, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEPTH_PREPASS)] }.AddPass(mpFrameGraph, frameGraphBlackboard);
 
-			CSkyGeometryRenderPass{ passInvokeContext, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OPAQUE_GEOMETRY)] }.AddPass(mpFrameGraph, frameGraphBlackboard, true); // \todo replace with configuration of hdr
+			CSkyGeometryRenderPass{ passInvokeContext, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OPAQUE_GEOMETRY)] }.AddPass(mpFrameGraph, frameGraphBlackboard, true); // \todo replace with configuration of hdr
 
 			if (CGameUserSettings::Get()->mpIsVolumetricCloudsEnabledCVar->Get())
 			{
@@ -2552,10 +2527,10 @@ namespace TDEngine2
 			CLightCullingPass{ passInvokeContext }.AddPass(mpFrameGraph, frameGraphBlackboard);
 
 			// \note main pass
-			COpaqueRenderPass{ passInvokeContext, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OPAQUE_GEOMETRY)] }.AddPass(mpFrameGraph, frameGraphBlackboard, true); // \todo replace with configuration of hdr
-			CTransparentRenderPass{ passInvokeContext, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_TRANSPARENT_GEOMETRY)] }.AddPass(mpFrameGraph, frameGraphBlackboard); 
-			CSpritesRenderPass{ passInvokeContext, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SPRITES)] }.AddPass(mpFrameGraph, frameGraphBlackboard);
-			CDebugRenderPass{ passInvokeContext, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEBUG)] }.AddPass(mpFrameGraph, frameGraphBlackboard);
+			COpaqueRenderPass{ passInvokeContext, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OPAQUE_GEOMETRY)] }.AddPass(mpFrameGraph, frameGraphBlackboard, true); // \todo replace with configuration of hdr
+			CTransparentRenderPass{ passInvokeContext, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_TRANSPARENT_GEOMETRY)] }.AddPass(mpFrameGraph, frameGraphBlackboard); 
+			CSpritesRenderPass{ passInvokeContext, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_SPRITES)] }.AddPass(mpFrameGraph, frameGraphBlackboard);
+			CDebugRenderPass{ passInvokeContext, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEBUG)] }.AddPass(mpFrameGraph, frameGraphBlackboard);
 
 			// \note lights heatmap debug pass
 			if (EnableLightsHeatMapCfgVar.Get())
@@ -2612,20 +2587,20 @@ namespace TDEngine2
 			// \note ui pass
 			if (CGameUserSettings::Get()->mpIsUiRenderEnabledCVar->Get())
 			{
-				CUIRenderPass{ passInvokeContext, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OVERLAY)] }.AddPass(mpFrameGraph, frameGraphBlackboard);
+				CUIRenderPass{ passInvokeContext, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OVERLAY)] }.AddPass(mpFrameGraph, frameGraphBlackboard);
 			}
 
 			// \note compose pass + tone mapping
 			pToneMappingComposePostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true, mpCurrPostProcessingProfile); // \todo replace with configuration of hdr support
 
 			// \note imgui pass
-			CDebugUIRenderPass{ passInvokeContext, mpRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEBUG_UI)] }.AddPass(mpFrameGraph, frameGraphBlackboard);
+			CDebugUIRenderPass{ passInvokeContext, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEBUG_UI)] }.AddPass(mpFrameGraph, frameGraphBlackboard);
 
 			mpFrameGraph->Compile();
 			mpFrameGraph->Execute();
 		}
 
-		mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)]->Clear();
+		pRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)]->Clear();
 
 		{
 			TDE2_BUILTIN_SPEC_PROFILER_EVENT(E_SPECIAL_PROFILE_EVENT::PRESENT);
@@ -2640,6 +2615,8 @@ namespace TDEngine2
 			DumpFrameGraph(mpFrameGraph);
 		}
 #endif
+
+		mpFramePacketsStorage->IncrementRenderFrameCounter();
 
 		return RC_OK;
 	}
@@ -2727,7 +2704,8 @@ namespace TDEngine2
 
 	CRenderQueue* CForwardRenderer::GetRenderQueue(E_RENDER_QUEUE_GROUP queueType)
 	{
-		return mpRenderQueues[static_cast<U8>(queueType)].Get();
+		// \todo Add assertion to ensure that this method is invoked from the game logic thread
+		return mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U8>(queueType)].Get();
 	}
 
 	TPtr<IResourceManager> CForwardRenderer::GetResourceManager() const
@@ -2738,6 +2716,11 @@ namespace TDEngine2
 	TPtr<IGlobalShaderProperties> CForwardRenderer::GetGlobalShaderProperties() const
 	{
 		return mpGlobalShaderProperties;
+	}
+
+	TPtr<CFramePacketsStorage> CForwardRenderer::GetFramePacketsStorage() const
+	{
+		return mpFramePacketsStorage;
 	}
 
 	void CForwardRenderer::_prepareFrame(F32 currTime, F32 deltaTime)

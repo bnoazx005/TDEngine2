@@ -8,6 +8,7 @@
 #include "../../include/graphics/effects/CParticleEffect.h"
 #include "../../include/graphics/effects/TParticle.h"
 #include "../../include/graphics/effects/ParticleEmitters.h"
+#include "../../include/graphics/CFramePacketsStorage.h"
 #include "../../include/ecs/CTransform.h"
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CEntity.h"
@@ -166,9 +167,8 @@ namespace TDEngine2
 					return RC_INVALID_ARGS;
 				}
 
-				mpRenderQueue = pRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_TRANSPARENT_GEOMETRY);
-
 				mpGraphicsObjectManager = pGraphicsObjectManager;
+				mpFramePacketsStorage   = pRenderer->GetFramePacketsStorage().Get();
 
 				mpResourceManager = pRenderer->GetResourceManager();
 
@@ -279,10 +279,12 @@ namespace TDEngine2
 					dt
 				);
 
+				CRenderQueue* pRenderQueue = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_TRANSPARENT_GEOMETRY)].Get();
+
 				// \note Render particles 
 				for (auto&& pCurrMaterial : mUsedMaterials)
 				{
-					_populateCommandsBuffer(mParticleEmitters, mpRenderQueue, pCurrMaterial.Get(), pCameraComponent);
+					_populateCommandsBuffer(mParticleEmitters, pRenderQueue, pCurrMaterial.Get(), pCameraComponent);
 				}
 			}
 		protected:
@@ -515,7 +517,7 @@ namespace TDEngine2
 
 			TPtr<IResourceManager>       mpResourceManager = nullptr;
 
-			CRenderQueue*                mpRenderQueue = nullptr;
+			CFramePacketsStorage*        mpFramePacketsStorage = nullptr;
 
 			IGraphicsObjectManager*      mpGraphicsObjectManager = nullptr;
 
@@ -810,9 +812,8 @@ namespace TDEngine2
 					return RC_INVALID_ARGS;
 				}
 
-				mpRenderQueue = pRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_TRANSPARENT_GEOMETRY);
-
 				mpGraphicsObjectManager = pGraphicsObjectManager;
+				mpFramePacketsStorage   = pRenderer->GetFramePacketsStorage().Get();
 
 				mpResourceManager = pRenderer->GetResourceManager();
 
@@ -1273,7 +1274,13 @@ namespace TDEngine2
 				pShader->SetStructuredBufferResource("AliveParticlesIndexBuffer", mAliveIndexBufferHandle);
 				pShader->SetStructuredBufferResource("Counters", mCountersBufferHandle);
 
-				auto pCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndirectIndexedInstancedCommand>(static_cast<U32>(pMaterial->GetGeometrySubGroupTag()) + _computeRenderCommandHash(materialHandle, 0.0f));
+				TPtr<CRenderQueue> pRenderQueue = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_TRANSPARENT_GEOMETRY)];
+				if (!pRenderQueue)
+				{
+					return;
+				}
+
+				auto pCommand = pRenderQueue->SubmitDrawCommand<TDrawIndirectIndexedInstancedCommand>(static_cast<U32>(pMaterial->GetGeometrySubGroupTag()) + _computeRenderCommandHash(materialHandle, 0.0f));
 
 				pCommand->mUseIndexedCommand = true;
 				pCommand->mAlignedOffset = 0;
@@ -1340,7 +1347,7 @@ namespace TDEngine2
 
 			TPtr<IResourceManager>       mpResourceManager = nullptr;
 
-			CRenderQueue*                mpRenderQueue = nullptr;
+			CFramePacketsStorage*        mpFramePacketsStorage = nullptr;
 
 			IGraphicsObjectManager*      mpGraphicsObjectManager = nullptr;
 

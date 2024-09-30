@@ -13,6 +13,7 @@
 #include "../../include/core/IResourceManager.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/graphics/COrthoCamera.h"
+#include "../../include/graphics/CFramePacketsStorage.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include <algorithm>
@@ -43,13 +44,9 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mpOpaqueRenderGroup      = pRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_OPAQUE_GEOMETRY);
-		mpTransparentRenderGroup = pRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_TRANSPARENT_GEOMETRY);
-		mpDepthOnlyRenderGroup   = pRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_DEPTH_PREPASS);
-		
+		mpFramePacketsStorage   = pRenderer->GetFramePacketsStorage().Get();
 		mpGraphicsObjectManager = pGraphicsObjectManager;
-
-		mpResourceManager = pRenderer->GetResourceManager();
+		mpResourceManager       = pRenderer->GetResourceManager();
 
 		DepthOnlyMaterialHandle = mpResourceManager->Create<IMaterial>("DepthOnly.material", TMaterialParameters
 			{
@@ -110,17 +107,21 @@ namespace TDEngine2
 		{
 			return pCurrMaterial->IsTransparent();
 		});
-		
+
+		CRenderQueue* pOpaqueRenderGroup      = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_OPAQUE_GEOMETRY)].Get();
+		CRenderQueue* pTransparentRenderGroup = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_TRANSPARENT_GEOMETRY)].Get();
+		CRenderQueue* pDepthOnlyRenderGroup   = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_DEPTH_PREPASS)].Get();
+
 		// \note construct commands for opaque geometry
-		std::for_each(mCurrMaterialsArray.cbegin(), firstTransparentMatIter, [this, &pCameraComponent](auto&& pCurrMaterial)
+		std::for_each(mCurrMaterialsArray.cbegin(), firstTransparentMatIter, [this, &pOpaqueRenderGroup, pDepthOnlyRenderGroup, &pCameraComponent](auto&& pCurrMaterial)
 		{
-			_populateCommandsBuffer(mProcessingEntities, mpOpaqueRenderGroup, mpDepthOnlyRenderGroup, pCurrMaterial, pCameraComponent);
+			_populateCommandsBuffer(mProcessingEntities, pOpaqueRenderGroup, pDepthOnlyRenderGroup, pCurrMaterial, pCameraComponent);
 		});
 
 		// \note construct commands for transparent geometry
-		std::for_each(firstTransparentMatIter, mCurrMaterialsArray.cend(), [this, &pCameraComponent](auto&& pCurrMaterial)
+		std::for_each(firstTransparentMatIter, mCurrMaterialsArray.cend(), [this, &pTransparentRenderGroup, &pCameraComponent](auto&& pCurrMaterial)
 		{
-			_populateCommandsBuffer(mProcessingEntities, mpTransparentRenderGroup, nullptr, pCurrMaterial, pCameraComponent);
+			_populateCommandsBuffer(mProcessingEntities, pTransparentRenderGroup, nullptr, pCurrMaterial, pCameraComponent);
 		});
 	}
 

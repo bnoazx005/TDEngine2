@@ -29,6 +29,7 @@ namespace TDEngine2
 	class IResourceManager;
 	class IAllocator;
 	class CBoundsComponent;
+	class CFramePacketsStorage;
 
 
 	enum class TBufferHandleId : U32;
@@ -144,7 +145,7 @@ namespace TDEngine2
 
 			TPtr<IResourceManager>         mpResourceManager;
 
-			CRenderQueue*                  mpRenderQueue;
+			CFramePacketsStorage*          mpFramePacketsStorage = nullptr;
 
 			IGraphicsObjectManager*        mpGraphicsObjectManager;
 

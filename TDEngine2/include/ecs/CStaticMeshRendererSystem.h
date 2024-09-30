@@ -28,6 +28,7 @@ namespace TDEngine2
 	class CEntity;
 	class ICamera;
 	class CBoundsComponent;
+	class CFramePacketsStorage;
 
 
 	enum class TBufferHandleId : U32;
@@ -122,9 +123,7 @@ namespace TDEngine2
 
 			TPtr<IResourceManager>  mpResourceManager = nullptr;
 
-			CRenderQueue*           mpOpaqueRenderGroup = nullptr;
-			CRenderQueue*           mpTransparentRenderGroup = nullptr;
-			CRenderQueue*           mpDepthOnlyRenderGroup = nullptr;
+			CFramePacketsStorage*   mpFramePacketsStorage = nullptr;
 
 			TMaterialsArray         mCurrMaterialsArray;
 

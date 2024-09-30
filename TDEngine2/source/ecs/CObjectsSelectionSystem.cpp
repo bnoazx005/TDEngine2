@@ -15,6 +15,7 @@
 #include "../../include/graphics/UI/CUIElementMeshDataComponent.h"
 #include "../../include/graphics/UI/CLayoutElementComponent.h"
 #include "../../include/graphics/UI/CCanvasComponent.h"
+#include "../../include/graphics/CFramePacketsStorage.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/ecs/CTransform.h"
 #include "../../include/ecs/IWorld.h"
@@ -56,12 +57,9 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mpEditorOnlyRenderQueue = pRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY);
-		mpDebugRenderQueue      = pRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_DEBUG);
-
 		mpGraphicsObjectManager = pGraphicsObjectManager;
-
-		mpResourceManager = pRenderer->GetResourceManager();
+		mpFramePacketsStorage   = pRenderer->GetFramePacketsStorage().Get();
+		mpResourceManager       = pRenderer->GetResourceManager();
 
 		mpSelectionVertDecl = nullptr;
 		mpSelectionSkinnedVertDecl = nullptr;
@@ -335,6 +333,10 @@ namespace TDEngine2
 
 		U32 commandIndex = 0;
 
+		CRenderQueue* pEditorOnlyRenderQueue = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)].Get();
+		CRenderQueue* pDebugRenderQueue = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_DEBUG)].Get();
+
+
 		/// \note Static meshes
 		for (USIZE i = 0; i < static_cast<U32>(mStaticMeshesContext.mpRenderables.size()); ++i)
 		{
@@ -343,12 +345,12 @@ namespace TDEngine2
 				continue;
 			}
 
-			ProcessStaticMeshEntity(mStaticMeshesContext, mpResourceManager, mpSelectionVertDecl, commandIndex++, mpEditorOnlyRenderQueue, i, mSelectionMaterialHandle);
+			ProcessStaticMeshEntity(mStaticMeshesContext, mpResourceManager, mpSelectionVertDecl, commandIndex++, pEditorOnlyRenderQueue, i, mSelectionMaterialHandle);
 
 			if (mStaticMeshesContext.mHasSelectedEntityComponent[i])
 			{
 				ProcessStaticMeshEntity(mStaticMeshesContext, mpResourceManager, mpSelectionVertDecl, static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::SELECTION_OUTLINE),
-										mpDebugRenderQueue, i, mSelectionOutlineMaterialHandle);
+										pDebugRenderQueue, i, mSelectionOutlineMaterialHandle);
 			}
 		}
 
@@ -360,12 +362,12 @@ namespace TDEngine2
 				continue;
 			}
 
-			ProcessSkinnedMeshEntity(mSkinnedMeshesContext, mpResourceManager, mpSelectionSkinnedVertDecl, commandIndex++, mpEditorOnlyRenderQueue, i, mSelectionSkinnedMaterialHandle);
+			ProcessSkinnedMeshEntity(mSkinnedMeshesContext, mpResourceManager, mpSelectionSkinnedVertDecl, commandIndex++, pEditorOnlyRenderQueue, i, mSelectionSkinnedMaterialHandle);
 
 			if (mSkinnedMeshesContext.mHasSelectedEntityComponent[i])
 			{
 				ProcessSkinnedMeshEntity(mSkinnedMeshesContext, mpResourceManager, mpSelectionSkinnedVertDecl, static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::SELECTION_OUTLINE),
-					mpDebugRenderQueue, i, mSelectionSkinnedOutlineMaterialHandle);
+					pDebugRenderQueue, i, mSelectionSkinnedOutlineMaterialHandle);
 			}
 		}
 
@@ -378,12 +380,12 @@ namespace TDEngine2
 			}
 
 			ProcessSpriteEntity(mSpritesContext, mpResourceManager, mpSelectionVertDecl, mSpritesVertexBufferHandle, mSpritesIndexBufferHandle,
-				commandIndex++, mpEditorOnlyRenderQueue, i, mSelectionMaterialHandle);
+				commandIndex++, pEditorOnlyRenderQueue, i, mSelectionMaterialHandle);
 
 			if (mSpritesContext.mHasSelectedEntityComponent[i])
 			{
 				ProcessSpriteEntity(mSpritesContext, mpResourceManager, mpSelectionVertDecl, mSpritesVertexBufferHandle, mSpritesIndexBufferHandle,
-					static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::SELECTION_OUTLINE), mpDebugRenderQueue, i, mSelectionOutlineMaterialHandle);
+					static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::SELECTION_OUTLINE), pDebugRenderQueue, i, mSelectionOutlineMaterialHandle);
 			}
 		}
 
@@ -423,7 +425,7 @@ namespace TDEngine2
 			{
 				/// \note Use sprites' index buffer because ui elements are just quads too
 				ProcessUIElementEntity(pWorld, uiElementsVerts, mUIElementsContext, mpResourceManager, mpSelectionVertDecl, mUIElementsVertexBufferHandle, mSpritesIndexBufferHandle,
-									commandIndex++, mpEditorOnlyRenderQueue, i, mSelectionUIMaterialHandle, mUIElementsVertexBufferCurrOffset);
+									commandIndex++, pEditorOnlyRenderQueue, i, mSelectionUIMaterialHandle, mUIElementsVertexBufferCurrOffset);
 			}
 
 			if (pUIElementsVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(mUIElementsVertexBufferHandle))

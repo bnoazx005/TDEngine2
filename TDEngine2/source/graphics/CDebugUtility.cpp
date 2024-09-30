@@ -4,6 +4,7 @@
 #include "../../include/graphics/CRenderQueue.h"
 #include "../../include/graphics/IVertexDeclaration.h"
 #include "../../include/graphics/IBuffer.h"
+#include "../../include/graphics/CFramePacketsStorage.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/CFont.h"
 #include "../../include/graphics/CBaseMaterial.h"
@@ -49,7 +50,7 @@ namespace TDEngine2
 		mpResourceManager       = pResourceManager;
 		mpGraphicsObjectManager = pGraphicsObjectManager;
 
-		mpRenderQueue = pRenderer->GetRenderQueue(E_RENDER_QUEUE_GROUP::RQG_DEBUG);
+		mpFramePacketsStorage = pRenderer->GetFramePacketsStorage().Get();
 
 		mpLinesVertDeclaration = mpGraphicsObjectManager->CreateVertexDeclaration().Get();
 		mpLinesVertDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
@@ -89,6 +90,8 @@ namespace TDEngine2
 
 	void CDebugUtility::PreRender()
 	{
+		TPtr<CRenderQueue> pRenderQueue = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_DEBUG)];
+
 		auto pLinesVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(mLinesVertexBufferHandle);
 		if (pLinesVertexBuffer && !mLinesDataBuffer.empty())
 		{
@@ -96,7 +99,7 @@ namespace TDEngine2
 			pLinesVertexBuffer->Write(&mLinesDataBuffer[0], sizeof(TLineVertex) * mLinesDataBuffer.size());
 			pLinesVertexBuffer->Unmap();
 
-			auto pDrawLinesCommand = mpRenderQueue->SubmitDrawCommand<TDrawCommand>(-2);
+			auto pDrawLinesCommand = pRenderQueue->SubmitDrawCommand<TDrawCommand>(-2);
 
 			pDrawLinesCommand->mVertexBufferHandle      = mLinesVertexBufferHandle;
 			pDrawLinesCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_LINE_LIST;
@@ -114,7 +117,7 @@ namespace TDEngine2
 			pCrossesVertexBuffer->Write(&mCrossesDataBuffer[0], sizeof(TLineVertex) * mCrossesDataBuffer.size());
 			pCrossesVertexBuffer->Unmap();
 
-			auto pDrawCrossesCommand = mpRenderQueue->SubmitDrawCommand<TDrawCommand>(-1);
+			auto pDrawCrossesCommand = pRenderQueue->SubmitDrawCommand<TDrawCommand>(-1);
 
 			pDrawCrossesCommand->mVertexBufferHandle      = mCrossesVertexBufferHandle;
 			pDrawCrossesCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_LINE_LIST;
@@ -132,7 +135,7 @@ namespace TDEngine2
 			pTextVertexBuffer->Write(&mTextDataBuffer[0], sizeof(TTextVertex) * mTextDataBuffer.size());
 			pTextVertexBuffer->Unmap();
 
-			auto pDrawTextCommand = mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(2);
+			auto pDrawTextCommand = pRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(2);
 
 			pDrawTextCommand->mVertexBufferHandle      = mTextVertexBufferHandle;
 			pDrawTextCommand->mIndexBufferHandle       = mTextIndexBufferHandle;
