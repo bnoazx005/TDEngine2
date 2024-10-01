@@ -89,14 +89,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Draw(F32 currTime, F32 deltaTime) override;
 
 			/*!
-				\brief The method attaches a camera to the renderer
-
-				\param[in] pCaemra A pointer to ICamera implementation
-			*/
-
-			TDE2_API void SetCamera(const ICamera* pCamera) override;
-
-			/*!
 				\brief The method assigns a processing profile that defines post processing parameters
 
 				\param[in] pProfileResource A pointer to IPostProcessingProfile implementation
@@ -105,17 +97,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE SetPostProcessProfile(const IPostProcessingProfile* pProfileResource) override;
-
-			/*!
-				\brief The method stores given data that will be passed into the shaders to compute lighting and shadows
-
-				\param[in] commonLightData An object contains common lighting data plus sun light's information
-				\param[in] activeLightSources The vector contains all active light sources including point/spot lights
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE SetLightingData(const TLightingShaderData& commonLightData, const TLightsDataArray& activeLightSources) override;
 
 			/*!
 				\brief The method sets up a pointer to selection manager
@@ -154,16 +135,6 @@ namespace TDEngine2
 			TDE2_API E_ENGINE_SUBSYSTEM_TYPE GetType() const override;
 
 			/*!
-				\brief The method returns a pointer to CRenderQueue which contains objects of specific group
-
-				\param[in] queueType A type of objects that the given queue stores
-
-				\return The method returns a pointer to CRenderQueue which contains objects of specific group
-			*/
-
-			TDE2_API CRenderQueue* GetRenderQueue(E_RENDER_QUEUE_GROUP queueType) override;
-
-			/*!
 				\brief The method returns a pointer to an instance of IResourceManager which is attached to
 				the renderer
 
@@ -189,9 +160,7 @@ namespace TDEngine2
 			TPtr<IGraphicsContext>        mpGraphicsContext;
 			TPtr<IResourceManager>        mpResourceManager;
 			TPtr<IWindowSystem>           mpWindowSystem;
-							         
-			const ICamera*                mpMainCamera;
-							         
+
 			TPtr<IAllocator>              mpTempAllocator;
 
 			TPtr<IGlobalShaderProperties> mpGlobalShaderProperties;
@@ -201,9 +170,6 @@ namespace TDEngine2
 			const IPostProcessingProfile* mpCurrPostProcessingProfile;
 
 			ISelectionManager*            mpSelectionManager;
-
-			TLightingShaderData           mCommonLightingData;
-			TLightsDataArray              mActiveLightSources;
 
 			TPtr<CFrameGraph>             mpFrameGraph;
 			

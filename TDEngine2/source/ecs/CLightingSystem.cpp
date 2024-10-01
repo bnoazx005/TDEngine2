@@ -17,6 +17,7 @@
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/CGameUserSettings.h"
+#include "../../include/utils/ITimer.h"
 #include "../../include/scene/components/CDirectionalLight.h"
 #include "../../include/scene/components/CPointLight.h"
 #include "../../include/scene/components/CSpotLight.h"
@@ -34,7 +35,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CLightingSystem::Init(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager)
+	E_RESULT_CODE CLightingSystem::Init(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, TPtr<ITimer> pTimer)
 	{
 		TDE2_PROFILER_SCOPE("CLightingSystem::Init");
 
@@ -43,7 +44,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		if (!pRenderer || !pGraphicsObjectManager)
+		if (!pRenderer || !pGraphicsObjectManager || !pTimer)
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -53,6 +54,7 @@ namespace TDEngine2
 		mpResourceManager       = mpRenderer->GetResourceManager();
 		mpFramePacketsStorage   = mpRenderer->GetFramePacketsStorage().Get();
 		mpGraphicsContext       = pGraphicsObjectManager->GetGraphicsContext();
+		mpTimer                 = pTimer;
 
 		E_RESULT_CODE result = _prepareResources();
 		if (result != RC_OK)
@@ -488,9 +490,33 @@ namespace TDEngine2
 		ProcessPointLights(mpGraphicsContext, lightingData, mActiveLightsData, mPointLightsContext);
 		ProcessSpotLights(mpGraphicsContext, lightingData, mActiveLightsData, mSpotLightsContext);
 
-		if (mpRenderer)
+		if (mpFramePacketsStorage)
 		{
-			PANIC_ON_FAILURE(mpRenderer->SetLightingData(lightingData, mActiveLightsData));
+			///set up global shader properties for TPerFrameShaderData buffer
+			TPerFrameShaderData perFrameShaderData{};
+			perFrameShaderData.mLightingData = lightingData;
+
+			ICamera* pMainCamera = GetCurrentActiveCamera(pWorld);
+			if (pMainCamera)
+			{
+				perFrameShaderData.mProjMatrix = Transpose(pMainCamera->GetProjMatrix());
+				perFrameShaderData.mViewMatrix = Transpose(pMainCamera->GetViewMatrix());
+				perFrameShaderData.mInvProjMatrix = Transpose(Inverse(pMainCamera->GetProjMatrix()));
+				perFrameShaderData.mInvViewMatrix = Transpose(Inverse(pMainCamera->GetViewMatrix()));
+				perFrameShaderData.mInvViewProjMatrix = Transpose(pMainCamera->GetInverseViewProjMatrix());
+				perFrameShaderData.mCameraPosition = TVector4(pMainCamera->GetPosition(), 1.0f);
+				perFrameShaderData.mCameraProjectionParams = TVector4(pMainCamera->GetNearPlane(), pMainCamera->GetFarPlane(), 0.0f, 0.0f);
+			}
+
+			perFrameShaderData.mTime = TVector4(mpTimer->GetCurrTime(), dt, 0.0f, 0.0f);
+
+			TFramePacket& currFramePacket = mpFramePacketsStorage->GetCurrentFrameForGameLogic();
+
+			currFramePacket.mFrameIndex         = TFrameCounter::mGlobalFrameNumber;
+			currFramePacket.mDeltaTime          = dt;
+			currFramePacket.mPerFrameData       = perFrameShaderData;
+			//currFramePacket.mRareUpdatedData    = perFrameShaderData;
+			currFramePacket.mActiveLightSources = mActiveLightsData;
 		}
 
 		U32 drawIndex = 0;
@@ -555,8 +581,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API ISystem* CreateLightingSystem(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result)
+	TDE2_API ISystem* CreateLightingSystem(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, TPtr<ITimer> pTimer, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(ISystem, CLightingSystem, result, pRenderer, pGraphicsObjectManager);
+		return CREATE_IMPL(ISystem, CLightingSystem, result, pRenderer, pGraphicsObjectManager, pTimer);
 	}
 }

@@ -213,6 +213,8 @@ namespace TDEngine2
 		InitEditorCamera(pWindowSystem, _getSubsystemAs<ISceneManager>(EST_SCENE_MANAGER), mpWorldInstance);
 #endif
 
+		mpInternalTimer = pWindowSystem->GetTimer();
+
 		/// \todo This is not critical error, but for now I leave it as is
 		if ((result = _registerBuiltinSystems(mpWorldInstance, pWindowSystem,
 			_getSubsystemAs<IGraphicsContext>(EST_GRAPHICS_CONTEXT),
@@ -227,7 +229,6 @@ namespace TDEngine2
 			pPluginManager->RegisterECSSystems(mpWorldInstance);
 		}
 
-		mpInternalTimer = pWindowSystem->GetTimer();
 		mpInternalTimer->Start();
 
 		mpInputContext = _getSubsystemAs<IInputContext>(EST_INPUT_CONTEXT);
@@ -511,7 +512,7 @@ namespace TDEngine2
 			CreateAnimationSystem(pResourceManager, pEventManager, result),
 			CreateMeshAnimatorUpdatingSystem(pResourceManager, result),
 			CreateSkinnedMeshRendererSystem(pRenderer, pGraphicsObjectManager, result),
-			CreateLightingSystem(pRenderer, pGraphicsObjectManager, result),
+			CreateLightingSystem(pRenderer, pGraphicsObjectManager, mpInternalTimer, result),
 			CProjectSettings::Get()->mGraphicsSettings.mIsGPUParticlesSimulationEnabled ? 
 				CreateParticlesGPUSimulationSystem(pRenderer, pGraphicsObjectManager, result) :
 				CreateParticlesSimulationSystem(pRenderer, pGraphicsObjectManager, result),

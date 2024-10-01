@@ -56,9 +56,9 @@ namespace TDEngine2
 		TVector4  mShadowCascadesSplits;
 		TMatrix4  mSunLightMatrix[MaxShadowCascadesCount];
 
-		U32       mActiveLightSourcesCount;
-		U32       mShadowCascadesCount;
-		U32       mIsShadowMappingEnabled;
+		U32       mActiveLightSourcesCount = 0;
+		U32       mShadowCascadesCount = 0;
+		U32       mIsShadowMappingEnabled = 1;
 		U32       mUnused;
 	};
 
@@ -70,16 +70,16 @@ namespace TDEngine2
 
 	typedef struct TPerFrameShaderData
 	{
-		TMatrix4            mProjMatrix;
-		TMatrix4            mViewMatrix;
-		TMatrix4            mInvProjMatrix;
-		TMatrix4            mInvViewMatrix;
-		TMatrix4            mInvViewProjMatrix;
+		TMatrix4            mProjMatrix = IdentityMatrix4;
+		TMatrix4            mViewMatrix = IdentityMatrix4;
+		TMatrix4            mInvProjMatrix = IdentityMatrix4;
+		TMatrix4            mInvViewMatrix = IdentityMatrix4;
+		TMatrix4            mInvViewProjMatrix = IdentityMatrix4;
 
-		TVector4            mCameraPosition;
-		TVector4            mCameraProjectionParams;  /// Contains parameters of current active camera: x - near plane, y - far plane
+		TVector4            mCameraPosition = TVector4(ZeroVector3, 1.0f);
+		TVector4            mCameraProjectionParams = TVector4(0.01f, 1000.0f, 0.0f, 0.0f);  /// Contains parameters of current active camera: x - near plane, y - far plane
 
-		TVector4            mTime; ///< The vector contains time related values, where x is current game time, y is delta time 
+		TVector4            mTime = TVector4(0.0f); ///< The vector contains time related values, where x is current game time, y is delta time 
 
 		TLightingShaderData mLightingData;
 	} TPerFrameShaderData, *TPerFrameShaderDataPtr;

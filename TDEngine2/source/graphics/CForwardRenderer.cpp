@@ -2139,7 +2139,7 @@ namespace TDEngine2
 	*/
 
 	CForwardRenderer::CForwardRenderer():
-		CBaseObject(), mpMainCamera(nullptr), mpResourceManager(nullptr), mpGlobalShaderProperties(nullptr)
+		CBaseObject(), mpResourceManager(nullptr), mpGlobalShaderProperties(nullptr)
 	{
 	}
 
@@ -2480,6 +2480,8 @@ namespace TDEngine2
 			CRenderSelectionBufferPass{ passInvokeContext, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)] }.AddPass(mpFrameGraph, frameGraphBlackboard, mpSelectionManager);
 #endif
 
+			const auto& activeLightSources = mpFramePacketsStorage->GetCurrentFrameForRender().mActiveLightSources;
+
 			// \note directional shadow pass
 			if (CGameUserSettings::Get()->mpIsShadowMappingEnabledCVar->Get())
 			{
@@ -2489,10 +2491,10 @@ namespace TDEngine2
 
 				// \note omni shadow passes
 				const USIZE pointLightsCount = std::min<USIZE>(
-					std::count_if(mActiveLightSources.cbegin(), mActiveLightSources.cend(), [](auto&& currLightSource) { return static_cast<I32>(E_LIGHT_SOURCE_TYPE::POINT) == currLightSource.mLightType; }),
+					std::count_if(activeLightSources.cbegin(), activeLightSources.cend(), [](auto&& currLightSource) { return static_cast<I32>(E_LIGHT_SOURCE_TYPE::POINT) == currLightSource.mLightType; }),
 					static_cast<USIZE>(CGameUserSettings::Get()->mpMaxOmniLightShadowMapsCVar->Get()));
 
-				for (auto&& currLightSource : mActiveLightSources)
+				for (auto&& currLightSource : activeLightSources)
 				{
 					if (static_cast<I32>(E_LIGHT_SOURCE_TYPE::POINT) != currLightSource.mLightType)
 					{
@@ -2523,7 +2525,7 @@ namespace TDEngine2
 				pVolumetricCloudsComposePass->AddPass(mpFrameGraph, frameGraphBlackboard);
 			}
 
-			CUploadLightsPass{ passInvokeContext }.AddPass(mpFrameGraph, frameGraphBlackboard, mActiveLightSources);
+			CUploadLightsPass{ passInvokeContext }.AddPass(mpFrameGraph, frameGraphBlackboard, activeLightSources);
 			CLightCullingPass{ passInvokeContext }.AddPass(mpFrameGraph, frameGraphBlackboard);
 
 			// \note main pass
@@ -2621,11 +2623,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void CForwardRenderer::SetCamera(const ICamera* pCamera)
-	{
-		mpMainCamera = pCamera;
-	}
-
 	E_RESULT_CODE CForwardRenderer::SetPostProcessProfile(const IPostProcessingProfile* pProfileResource)
 	{
 		if (!pProfileResource)
@@ -2646,22 +2643,6 @@ namespace TDEngine2
 		}
 
 		mpSelectionManager = pSelectionManager;
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CForwardRenderer::SetLightingData(const TLightingShaderData& commonLightData, const TLightsDataArray& activeLightSources)
-	{
-		if (Length(commonLightData.mSunLightDirection) < 1e-3f)
-		{
-			LOG_ERROR("[ForwardRenderer] Sun light's direction could not be a zero vector");
-			TDE2_ASSERT(false);
-
-			return RC_INVALID_ARGS;
-		}
-
-		mCommonLightingData = commonLightData;
-		mActiveLightSources = activeLightSources;
 
 		return RC_OK;
 	}
@@ -2702,12 +2683,6 @@ namespace TDEngine2
 		return EST_RENDERER;
 	}
 
-	CRenderQueue* CForwardRenderer::GetRenderQueue(E_RENDER_QUEUE_GROUP queueType)
-	{
-		// \todo Add assertion to ensure that this method is invoked from the game logic thread
-		return mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U8>(queueType)].Get();
-	}
-
 	TPtr<IResourceManager> CForwardRenderer::GetResourceManager() const
 	{
 		return mpResourceManager;
@@ -2727,24 +2702,8 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("Renderer::PreRender");
 		TDE_RENDER_SECTION(mpGraphicsContext, "PreRender");
-
-		///set up global shader properties for TPerFrameShaderData buffer
-		TPerFrameShaderData perFrameShaderData;
-
-		perFrameShaderData.mLightingData = mCommonLightingData;
 		
-		if (mpMainCamera)
-		{
-			perFrameShaderData.mProjMatrix             = Transpose(mpMainCamera->GetProjMatrix());
-			perFrameShaderData.mViewMatrix             = Transpose(mpMainCamera->GetViewMatrix());
-			perFrameShaderData.mInvProjMatrix          = Transpose(Inverse(mpMainCamera->GetProjMatrix()));
-			perFrameShaderData.mInvViewMatrix          = Transpose(Inverse(mpMainCamera->GetViewMatrix()));
-			perFrameShaderData.mInvViewProjMatrix      = Transpose(mpMainCamera->GetInverseViewProjMatrix());
-			perFrameShaderData.mCameraPosition         = TVector4(mpMainCamera->GetPosition(), 1.0f);
-			perFrameShaderData.mCameraProjectionParams = TVector4(mpMainCamera->GetNearPlane(), mpMainCamera->GetFarPlane(), 0.0f, 0.0f);
-		}
-
-		perFrameShaderData.mTime = TVector4(currTime, deltaTime, 0.0f, 0.0f);
+		const TPerFrameShaderData& perFrameShaderData = mpFramePacketsStorage->GetCurrentFrameForRender().mPerFrameData;
 
 		mpGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_FRAME, reinterpret_cast<const U8*>(&perFrameShaderData), sizeof(perFrameShaderData));		
 		mpGlobalShaderProperties->Bind();

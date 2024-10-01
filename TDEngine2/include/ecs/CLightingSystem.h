@@ -32,9 +32,11 @@ namespace TDEngine2
 	class CStaticMeshContainer;
 	class CSkinnedMeshContainer;
 	class CFramePacketsStorage;
+	class ITimer;
 
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
 	TDE2_DECLARE_SCOPED_PTR(CRenderQueue)
+	TDE2_DECLARE_SCOPED_PTR(ITimer)
 
 
 	/*!
@@ -47,7 +49,7 @@ namespace TDEngine2
 		\return A pointer to CLightingSystem's implementation
 	*/
 
-	TDE2_API ISystem* CreateLightingSystem(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result);
+	TDE2_API ISystem* CreateLightingSystem(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, TPtr<ITimer> pTimer, E_RESULT_CODE& result);
 
 
 	/*!
@@ -59,7 +61,7 @@ namespace TDEngine2
 	class CLightingSystem : public CBaseSystem
 	{
 		public:
-			friend TDE2_API ISystem* CreateLightingSystem(IRenderer*, IGraphicsObjectManager*, E_RESULT_CODE& result);
+			friend TDE2_API ISystem* CreateLightingSystem(IRenderer*, IGraphicsObjectManager*, TPtr<ITimer>, E_RESULT_CODE& result);
 		public:
 			typedef TComponentsQueryLocalSlice<CDirectionalLight, CTransform>                             TDirLightsContext;
 			typedef TComponentsQueryLocalSlice<CPointLight, CTransform>                                   TPointLightsContext;
@@ -80,7 +82,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager);
+			TDE2_API E_RESULT_CODE Init(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, TPtr<ITimer> pTimer);
 
 			/*!
 				\brief The method inject components array into a system
@@ -132,5 +134,7 @@ namespace TDEngine2
 			CFramePacketsStorage*        mpFramePacketsStorage = nullptr;
 
 			std::vector<TLightData>      mActiveLightsData;
+			
+			TPtr<ITimer>                 mpTimer = nullptr;
 	};
 }

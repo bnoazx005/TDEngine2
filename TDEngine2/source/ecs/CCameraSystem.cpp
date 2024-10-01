@@ -209,13 +209,6 @@ namespace TDEngine2
 
 		mpMainCamera = pCamera;
 
-		if (!mpRenderer)
-		{
-			return RC_FAIL;
-		}
-
-		mpRenderer->SetCamera(mpMainCamera);
-
 		return RC_OK;
 	}
 
