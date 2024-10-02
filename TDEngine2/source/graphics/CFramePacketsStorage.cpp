@@ -30,14 +30,14 @@ namespace TDEngine2
 		{
 			for (U8 i = 0; i < NumOfRenderQueuesGroup; ++i)
 			{
-				currFramePacket.mpRenderQueuesAllocators[i] = TPtr<IAllocator>(allocatorFactoryFunctor(PerRenderQueueMemoryBlockSize, result));
+				IAllocator* pRenderGroupAllocator = allocatorFactoryFunctor(PerRenderQueueMemoryBlockSize, result);
 				if (result != RC_OK)
 				{
 					return result;
 				}
 
 				/// \note this CRenderQueue's instance now owns this allocator
-				currFramePacket.mpRenderQueues[i] = TPtr<CRenderQueue>(CreateRenderQueue(currFramePacket.mpRenderQueuesAllocators[i].Get(), result));
+				currFramePacket.mpRenderQueues[i] = TPtr<CRenderQueue>(CreateRenderQueue(pRenderGroupAllocator, result));
 				if (result != RC_OK)
 				{
 					return result;

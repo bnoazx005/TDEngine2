@@ -41,7 +41,6 @@ namespace TDEngine2
 		
 		/// \note Per object data
 		TRenderQueuesArray    mpRenderQueues { nullptr }; /// PerRenderQueueMemoryBlockSize per render queue
-		TAllocatorsArray      mpRenderQueuesAllocators { nullptr};
 
 		TLightsDataArray      mActiveLightSources;
 	} TFramePacket, *TFramePacketPtr;
