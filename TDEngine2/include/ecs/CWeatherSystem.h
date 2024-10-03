@@ -16,6 +16,7 @@ namespace TDEngine2
 	class IResourceManager;
 	class IGraphicsContext;
 	class IJobManager;
+	class CWeatherComponent;
 
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
 	TDE2_DECLARE_SCOPED_PTR(IJobManager)
@@ -81,8 +82,10 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWeatherSystem)
 		protected:
-			IGraphicsContext* mpGraphicsContext = nullptr;
-			IResourceManager* mpResourceManager = nullptr;
-			IJobManager*      mpJobManager = nullptr;
+			IGraphicsContext*  mpGraphicsContext = nullptr;
+			IResourceManager*  mpResourceManager = nullptr;
+			IJobManager*       mpJobManager = nullptr;
+
+			CWeatherComponent* mpWeatherComponent = nullptr;
 	};
 }

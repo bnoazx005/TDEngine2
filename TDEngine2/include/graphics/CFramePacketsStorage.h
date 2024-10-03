@@ -37,7 +37,6 @@ namespace TDEngine2
 		F32                   mDeltaTime = 0.0f; ///< Also it could be retrieved from mPerFrameData.mTime.y
 		
 		TPerFrameShaderData   mPerFrameData;
-		TRareUpdateShaderData mRareUpdatedData;
 		
 		/// \note Per object data
 		TRenderQueuesArray    mpRenderQueues { nullptr }; /// PerRenderQueueMemoryBlockSize per render queue

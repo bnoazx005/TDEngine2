@@ -1,6 +1,7 @@
 #include "../../include/core/CGameUserSettings.h"
 #include "../../include/platform/CConfigFileReader.h"
 #include "../../include/platform/CConfigFileWriter.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include "stringUtils.hpp"
 #include "variant.hpp"
 #include <mutex>
@@ -148,6 +149,7 @@ namespace TDEngine2
 			template <typename T>
 			const T* GetNumericVariable(const std::string& name) const
 			{
+				TDE2_PROFILER_SCOPE("CConsoleVariablesStorage::GetNumericVariable");
 				std::lock_guard<std::mutex> lock(mMutex);
 
 				auto pVariableInfo = _getVariableInfoIfAllowed<T>(name);
@@ -515,6 +517,8 @@ namespace TDEngine2
 
 	F32 CFloatConsoleVarDecl::Get() const
 	{
+		TDE2_PROFILER_SCOPE("CFloatConsoleVarDecl::Get");
+
 		const F32* pValue = CGameUserSettings::Get()->GetFloatVariable(mId);
 		TDE2_ASSERT(pValue);
 

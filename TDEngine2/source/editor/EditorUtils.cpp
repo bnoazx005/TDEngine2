@@ -24,6 +24,7 @@
 #include "../../include/core/IFont.h"
 #include "../../include/core/IImGUIContext.h"
 #include "../../include/editor/ecs/EditorComponents.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include <clip.h>
 
 
@@ -743,6 +744,8 @@ namespace TDEngine2
 
 	void CSnapGuidesContainer::UpdateGuidelines(TPtr<IWorld> pWorld)
 	{
+		TDE2_PROFILER_SCOPE("CSnapGuidesContainer::UpdateGuidelines");
+
 		if (!pWorld)
 		{
 			return;

@@ -1,5 +1,6 @@
 #include "../../include/editor/IEditorWindow.h"
 #include "../../include/core/IImGUIContext.h"
+#include "../../include/editor/CPerfProfiler.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -13,6 +14,7 @@ namespace TDEngine2
 
 	void CBaseEditorWindow::Draw(IImGUIContext* pImGUIContext, F32 dt)
 	{
+		TDE2_PROFILER_SCOPE("CBaseEditorWindow::Draw");
 		_onUpdate(dt);
 
 		if (!mIsVisible || !pImGUIContext)
@@ -42,6 +44,8 @@ namespace TDEngine2
 
 	void CBaseEditorWindow::_onUpdate(F32 dt)
 	{
+		TDE2_PROFILER_SCOPE("CBaseEditorWindow::_onUpdate");
+
 		mDeltaTimeAccumulator += dt;
 		++mFramesCounter;
 

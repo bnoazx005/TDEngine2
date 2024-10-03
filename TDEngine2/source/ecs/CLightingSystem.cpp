@@ -17,6 +17,7 @@
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/CGameUserSettings.h"
+#include "../../include/core/IJobManager.h"
 #include "../../include/utils/ITimer.h"
 #include "../../include/scene/components/CDirectionalLight.h"
 #include "../../include/scene/components/CPointLight.h"
@@ -28,6 +29,11 @@
 
 namespace TDEngine2
 {
+	typedef std::array<F32, MaxShadowCascadesCount + 1>  TShadowMapCascadesSplitsArray;
+	typedef std::array<TMatrix4, MaxShadowCascadesCount> TShadowMapCascadesMatrixArray;
+
+
+
 	CLightingSystem::CLightingSystem() :
 		CBaseSystem(),
 		mShadowPassMaterialHandle(TResourceId::Invalid),
@@ -93,6 +99,8 @@ namespace TDEngine2
 
 	static U32 ProcessStaticMeshCasterEntity(const TProcessParams& params, CLightingSystem::TStaticShadowCastersContext& staticShadowCasters, USIZE id)
 	{
+		TDE2_PROFILER_SCOPE("ProcessStaticMeshCasterEntity");
+
 		IResourceManager* pResourceManager = params.mpResourceManager;
 
 		auto&& staticMeshContainers = std::get<std::vector<CStaticMeshContainer*>>(staticShadowCasters.mComponentsSlice);
@@ -142,6 +150,8 @@ namespace TDEngine2
 
 	static U32 ProcessSkinnedMeshCasterEntity(const TProcessParams& params, CLightingSystem::TSkinnedShadowCastersContext& skinnedShadowCasters, USIZE id)
 	{
+		TDE2_PROFILER_SCOPE("ProcessSkinnedMeshCasterEntity");
+
 		IResourceManager* pResourceManager = params.mpResourceManager;
 
 		auto&& skinnedMeshContainers = std::get<std::vector<CSkinnedMeshContainer*>>(skinnedShadowCasters.mComponentsSlice);
@@ -204,24 +214,25 @@ namespace TDEngine2
 	}
 
 
-	static std::vector<F32> CalcShadowSplitsPlane(IGraphicsContext* pGraphicsContext, ICamera* pActiveCamera)
+	static TShadowMapCascadesSplitsArray CalcShadowSplitsPlane(IGraphicsContext* pGraphicsContext, ICamera* pActiveCamera, U32 cascadesCount)
 	{
+		TDE2_PROFILER_SCOPE("CLightingSystem::CalcShadowSplitsPlane");
+
 		const auto& gameSettings = CGameUserSettings::Get();
 
-		std::vector<F32> output;
-		output.resize(static_cast<USIZE>(CGameUserSettings::Get()->mpShadowCascadesCountCVar->Get()) + 1);
+		TShadowMapCascadesSplitsArray output;
 
 		const F32 zn = pActiveCamera->GetNearPlane();
 		const F32 zf = pActiveCamera->GetFarPlane();
 
 		output.front() = zn;
 		
-		for (USIZE i = 1; i < output.size() - 1; i++)
+		for (USIZE i = 1; i < cascadesCount; i++)
 		{
 			output[i] = CMathUtils::Lerp(zn, zf, CGameUserSettings::Get()->mpShadowCascadesSplitsCVar[i - 1]->Get());
 		}
 
-		output.back() = zf;
+		output[cascadesCount] = zf;
 
 		return output;
 	}
@@ -229,6 +240,8 @@ namespace TDEngine2
 
 	static std::array<TVector4, 8> GetCascadeFrustumVertices(IGraphicsContext* pGraphicsContext, IPerspectiveCamera* pActiveCamera, F32 zn, F32 zf) /// zMin - least value for Z axis in NDC space (depends on GAPI)
 	{
+		TDE2_PROFILER_SCOPE("CLightingSystem::GetCascadeFrustumVertices");
+
 		if (!pActiveCamera)
 		{
 			TDE2_ASSERT(pActiveCamera);
@@ -263,6 +276,8 @@ namespace TDEngine2
 
 	static TMatrix4 ConstructSunLightMatrix(IGraphicsContext* pGraphicsContext, ICamera* pActiveCamera, CTransform* pLightTransform, F32 zn, F32 zf)
 	{
+		TDE2_PROFILER_SCOPE("CLightingSystem::ConstructSunLightMatrix");
+
 		if (!pLightTransform || !pActiveCamera)
 		{
 			TDE2_ASSERT(false);
@@ -315,13 +330,15 @@ namespace TDEngine2
 	}
 
 
-	static std::vector<TMatrix4> CalcSunLightCascadesMatrices(IGraphicsContext* pGraphicsContext, ICamera* pActiveCamera, CTransform* pLightTransform, const std::vector<F32>& cascadesSplits)
+	static const TShadowMapCascadesMatrixArray& CalcSunLightCascadesMatrices(IGraphicsContext* pGraphicsContext, ICamera* pActiveCamera, CTransform* pLightTransform, const TShadowMapCascadesSplitsArray& cascadesSplits, U32 cascadesCount)
 	{
-		std::vector<TMatrix4> cascadesMats;
+		TDE2_PROFILER_SCOPE("CLightingSystem::CalcSunLightCascadesMatrices");
 
-		for (U32 cascadeIndex = 0; cascadeIndex < static_cast<U32>(CGameUserSettings::Get()->mpShadowCascadesCountCVar->Get()); cascadeIndex++)
+		static TShadowMapCascadesMatrixArray cascadesMats;
+
+		for (U32 cascadeIndex = 0; cascadeIndex < cascadesCount; cascadeIndex++)
 		{
-			cascadesMats.emplace_back(ConstructSunLightMatrix(pGraphicsContext, pActiveCamera, pLightTransform, cascadesSplits[cascadeIndex], cascadesSplits[cascadeIndex + 1]));
+			cascadesMats[cascadeIndex] = ConstructSunLightMatrix(pGraphicsContext, pActiveCamera, pLightTransform, cascadesSplits[cascadeIndex], cascadesSplits[cascadeIndex + 1]);
 		}
 
 		return cascadesMats;
@@ -337,6 +354,8 @@ namespace TDEngine2
 
 		TDE2_ASSERT(transforms.size() <= 1); // \note For now only single sun light source is supported
 
+		const U32 shadowMapCascadesCount = static_cast<U32>(CGameUserSettings::Get()->mpShadowCascadesCountCVar->Get());
+
 		if (transforms.empty())
 		{
 			LOG_WARNING("[LightingSystem] There is no a directional light source. Use default sun light's direction");
@@ -345,7 +364,7 @@ namespace TDEngine2
 			lightingData.mSunLightDirection      = Normalize(TVector4(-0.5f, -0.5f, 0.0f, 0.0f));
 			lightingData.mSunLightPosition       = Normalize(TVector4(0.0f, 10.0f, 0.0f, 1.0f));
 			lightingData.mSunLightColor          = TColorUtils::mWhite;
-			lightingData.mShadowCascadesCount    = CGameUserSettings::Get()->mpShadowCascadesCountCVar->Get();
+			lightingData.mShadowCascadesCount    = shadowMapCascadesCount;
 			lightingData.mShadowCascadesSplits =
 				TVector4
 				{
@@ -358,32 +377,28 @@ namespace TDEngine2
 			return;
 		}
 
-		CDirectionalLight* pCurrLight = nullptr;
-		CTransform* pLightTransform = nullptr;
+		auto&& cascadesSplitsPlanes = CalcShadowSplitsPlane(pGraphicsContext, pCamera, shadowMapCascadesCount);
 
-		auto&& cascadesSplitsPlanes = CalcShadowSplitsPlane(pGraphicsContext, pCamera);
+		bool isShadowMappingEnabled = static_cast<U32>(CGameUserSettings::Get()->mpIsShadowMappingEnabledCVar->Get());
 
 		// \note Prepare lighting data
-		for (USIZE i = 0; i < transforms.size(); ++i)
+		CTransform* pLightTransform   = transforms.front();
+		CDirectionalLight* pCurrLight = dirLights.front();
+
+		lightingData.mSunLightDirection = Normalize(TVector4(pLightTransform->GetForwardVector(), 0.0f)); //TVector4(Normalize(pSunLight->GetDirection()), 0.0f);
+		lightingData.mSunLightPosition  = TVector4(pLightTransform->GetPosition(), 1.0f);
+		lightingData.mSunLightColor     = pCurrLight->GetColor();
+
+		auto&& sunLightMatrices = CalcSunLightCascadesMatrices(pGraphicsContext, pCamera, pLightTransform, cascadesSplitsPlanes, shadowMapCascadesCount);
+
+		for (USIZE cascadeIndex = 0; cascadeIndex < sunLightMatrices.size(); cascadeIndex++)
 		{
-			pLightTransform = transforms[i];
-			pCurrLight = dirLights[i];
-
-			lightingData.mSunLightDirection = Normalize(TVector4(pLightTransform->GetForwardVector(), 0.0f)); //TVector4(Normalize(pSunLight->GetDirection()), 0.0f);
-			lightingData.mSunLightPosition  = TVector4(pLightTransform->GetPosition(), 1.0f);
-			lightingData.mSunLightColor     = pCurrLight->GetColor();
-
-			auto&& sunLightMatrices = CalcSunLightCascadesMatrices(pGraphicsContext, pCamera, pLightTransform, cascadesSplitsPlanes);
-
-			for (USIZE cascadeIndex = 0; cascadeIndex < sunLightMatrices.size(); cascadeIndex++)
-			{
-				lightingData.mSunLightMatrix[cascadeIndex] = sunLightMatrices[cascadeIndex];
-			}
-
-			lightingData.mIsShadowMappingEnabled = static_cast<U32>(CGameUserSettings::Get()->mpIsShadowMappingEnabledCVar->Get());
-			lightingData.mShadowCascadesCount    = CGameUserSettings::Get()->mpShadowCascadesCountCVar->Get();
-			lightingData.mShadowCascadesSplits   = TVector4(&cascadesSplitsPlanes[1]);
+			lightingData.mSunLightMatrix[cascadeIndex] = sunLightMatrices[cascadeIndex];
 		}
+
+		lightingData.mIsShadowMappingEnabled = isShadowMappingEnabled;
+		lightingData.mShadowCascadesCount    = shadowMapCascadesCount;
+		lightingData.mShadowCascadesSplits   = TVector4(&cascadesSplitsPlanes[1]);
 	}
 
 
