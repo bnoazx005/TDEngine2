@@ -89,6 +89,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseShader::SetUserUniformsBuffer(U8 slot, const U8* pData, USIZE dataSize)
 	{
+		TDE2_PROFILER_SCOPE("CBaseShader::SetUserUniformsBuffer");
+
 		if (slot >= MaxNumberOfUserConstantBuffers)
 		{
 			return RC_INVALID_ARGS;
@@ -124,6 +126,8 @@ namespace TDEngine2
 
 	void CBaseShader::Bind()
 	{
+		TDE2_PROFILER_SCOPE("CBaseShader::Bind");
+
 		ITexture* pCurrTexture = nullptr;
 		U8 currSlot = 0;
 		bool isWritable = false;
@@ -183,6 +187,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseShader::SetTextureResource(const std::string& resourceName, ITexture* pTexture)
 	{
+		TDE2_PROFILER_SCOPE("CBaseShader::SetTextureResource");
+
 		if (resourceName.empty() || !pTexture)
 		{
 			return RC_INVALID_ARGS;
@@ -201,6 +207,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseShader::SetStructuredBufferResource(const std::string& resourceName, TBufferHandleId bufferHandle)
 	{
+		TDE2_PROFILER_SCOPE("CBaseShader::SetStructuredBufferResource");
+
 		if (resourceName.empty() || TBufferHandleId::Invalid == bufferHandle)
 		{
 			return RC_INVALID_ARGS;

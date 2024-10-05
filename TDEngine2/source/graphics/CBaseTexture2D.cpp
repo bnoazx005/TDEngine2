@@ -141,6 +141,8 @@ namespace TDEngine2
 
 	void CBaseTexture2D::Bind(U32 slot)
 	{
+		TDE2_PROFILER_SCOPE("CBaseTexture2D::Bind");
+
 		if (mCurrTextureSamplerHandle == TTextureSamplerId::Invalid)
 		{
 			mCurrTextureSamplerHandle = GetTextureSampleHandle(mpGraphicsContext, mTextureSamplerParams);

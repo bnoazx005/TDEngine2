@@ -758,6 +758,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D11GraphicsContext::SetConstantBuffer(U32 slot, TBufferHandleId constantsBufferHandle)
 	{
+		TDE2_PROFILER_SCOPE("CD3D11GraphicsContext::SetConstantBuffer");
+
 		auto pBuffer = mpGraphicsObjectManagerD3D11Impl->GetD3D11BufferPtr(constantsBufferHandle);
 		if (!pBuffer)
 		{
@@ -778,6 +780,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D11GraphicsContext::SetStructuredBuffer(U32 slot, TBufferHandleId bufferHandle, bool isWriteEnabled)
 	{
+		TDE2_PROFILER_SCOPE("CD3D11GraphicsContext::SetStructuredBuffer");
+
 		if (TBufferHandleId::Invalid == bufferHandle)
 		{
 			if (isWriteEnabled)
@@ -829,6 +833,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D11GraphicsContext::SetTexture(U32 slot, TTextureHandleId textureHandle, bool isWriteEnabled)
 	{
+		TDE2_PROFILER_SCOPE("CD3D11GraphicsContext::SetTexture");
+
 		auto pTexture = mpGraphicsObjectManagerD3D11Impl->GetD3D11TexturePtr(textureHandle);
 		if (!pTexture)
 		{
@@ -1093,11 +1099,14 @@ namespace TDEngine2
 
 	void CD3D11GraphicsContext::DispatchCompute(U32 groupsCountX, U32 groupsCountY, U32 groupsCountZ)
 	{
+		TDE2_PROFILER_SCOPE("CD3D11GraphicsContext::DispatchCompute");
 		mp3dDeviceContext->Dispatch(groupsCountX, groupsCountY, groupsCountZ);
 	}
 
 	void CD3D11GraphicsContext::DispatchIndirectCompute(TBufferHandleId argsBufferHandle, U32 alignedOffset)
 	{
+		TDE2_PROFILER_SCOPE("CD3D11GraphicsContext::DispatchIndirectCompute");
+
 		auto pArgsBuffer = mpGraphicsObjectManagerD3D11Impl->GetD3D11BufferPtr(argsBufferHandle);
 		mp3dDeviceContext->DispatchIndirect(pArgsBuffer ? pArgsBuffer->GetD3D11Buffer() : nullptr, alignedOffset);
 	}

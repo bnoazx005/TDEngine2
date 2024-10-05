@@ -566,6 +566,8 @@ namespace TDEngine2
 
 	static E_RESULT_CODE InitGPUSort(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, U32 maxCount, TBufferHandleId elementsBuffer, TBufferHandleId countBuffer)
 	{
+		TDE2_PROFILER_SCOPE("InitGPUSort");
+
 		GpuSortLibContext.mInitSortShaderHandle = pResourceManager->Load<IShader>(CProjectSettings::Get()->mGraphicsSettings.mInitSortComputeShader);
 		TDE2_ASSERT(TResourceId::Invalid != GpuSortLibContext.mInitSortShaderHandle);
 
@@ -610,6 +612,8 @@ namespace TDEngine2
 
 	static bool GPUSortInitial(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, U32 maxCount, TBufferHandleId elementsBuffer, TBufferHandleId countBuffer, TBufferHandleId indirectDispatchBufferHandle)
 	{
+		TDE2_PROFILER_SCOPE("GPUSortInitial");
+
 		const U32 threadGroupsCount = ((maxCount - 1) >> 9) + 1;
 		TDE2_ASSERT(threadGroupsCount <= 1024);
 
@@ -635,6 +639,8 @@ namespace TDEngine2
 
 	static bool GPUSortIncremental(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, U32 presortedCount, U32 maxCount, TBufferHandleId elementsBuffer, TBufferHandleId countBuffer)
 	{
+		TDE2_PROFILER_SCOPE("GPUSortIncremental");
+
 		GpuSortLibContext.mSortStepShaderHandle = pResourceManager->Load<IShader>(CProjectSettings::Get()->mGraphicsSettings.mSortStepComputeShader);
 		TDE2_ASSERT(TResourceId::Invalid != GpuSortLibContext.mSortStepShaderHandle);
 

@@ -6,6 +6,7 @@
 #include <core/IGraphicsContext.h>
 #include <memory>
 #include "deferOperation.hpp"
+#include <editor/CPerfProfiler.h>
 
 
 #if defined (TDE2_USE_WINPLATFORM)
@@ -235,6 +236,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D11Buffer::Map(E_BUFFER_MAP_TYPE mapType, USIZE offset)
 	{
+		TDE2_PROFILER_SCOPE("CD3D11Buffer::Map");
+
 		D3D11_MAP innerMapType = D3D11_MAP_WRITE_DISCARD;
 
 		switch (mapType)
@@ -267,11 +270,14 @@ namespace TDEngine2
 
 	void CD3D11Buffer::Unmap()
 	{
+		TDE2_PROFILER_SCOPE("CD3D11Buffer::Unmap");
 		mp3dDeviceContext->Unmap(mpBufferInstance, 0);
 	}
 
 	E_RESULT_CODE CD3D11Buffer::Write(const void* pData, USIZE size)
 	{
+		TDE2_PROFILER_SCOPE("CD3D11Buffer::Write");
+
 		if (size > mBufferSize)
 		{
 			return RC_INVALID_ARGS;
@@ -394,6 +400,7 @@ namespace TDEngine2
 
 	void CD3D11Shader::Bind()
 	{
+		TDE2_PROFILER_SCOPE("CD3D11Shader::Bind");
 		CBaseShader::Bind();
 
 		if (!mp3dDeviceContext || !mIsInitialized)

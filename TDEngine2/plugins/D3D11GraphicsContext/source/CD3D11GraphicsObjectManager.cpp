@@ -6,6 +6,7 @@
 #include <core/IFileSystem.h>
 #include <core/IFile.h>
 #include <core/CProjectSettings.h>
+#include <editor/CPerfProfiler.h>
 
 
 #if defined (TDE2_USE_WINPLATFORM)
@@ -389,6 +390,7 @@ namespace TDEngine2
 
 	TPtr<IBuffer> CD3D11GraphicsObjectManager::GetBufferPtr(TBufferHandleId handle)
 	{
+		TDE2_PROFILER_SCOPE("CD3D11GraphicsObjectManager::GetBufferPtr");
 		return DynamicPtrCast<IBuffer>(GetD3D11BufferPtr(handle));
 	}
 
