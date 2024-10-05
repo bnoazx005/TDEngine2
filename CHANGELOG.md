@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A new type **CFramePacketsStorage** was added to support multithreading processing of different frames.
 
+- A new proxy system type was added CAsyncSystemsGroup that allows to run a bunch of systems on some worker thread.
+
 ### Changed
 
 - The syncronization mechanism within **CResourceManager**'s implementation was changed to reentrant one using std::recursive_mutex. 

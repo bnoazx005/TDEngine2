@@ -80,4 +80,7 @@ namespace TDEngine2
 			std::vector<TCommandFunctor> mDefferedCommandsBuffer {};
 			bool                         mIsActive = true;
 	};
+
+
+	TDE2_API ISystem* CreateAsyncSystemsGroup(const std::vector<ISystem*>& systems, E_RESULT_CODE& result);
 }

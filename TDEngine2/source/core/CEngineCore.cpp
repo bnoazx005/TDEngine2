@@ -501,7 +501,6 @@ namespace TDEngine2
 		std::vector<ISystem*> builtinSystems
 		{
 			CreateTransformSystem(pGraphicsContext, result),
-			CreateUIEventsSystem(_getSubsystemAs<IInputContext>(EST_INPUT_CONTEXT), mpImGUIContext, result),
 			CreateBoundsUpdatingSystem(pResourceManager, mpDebugUtility, _getSubsystemAs<ISceneManager>(EST_SCENE_MANAGER), result),
 			CreateSpriteRendererSystem(TPtr<IAllocator>(CreateLinearAllocator(5 * SpriteInstanceDataBufferSize, result)),
 									   pRenderer, pGraphicsObjectManager, result),
@@ -516,8 +515,14 @@ namespace TDEngine2
 			CProjectSettings::Get()->mGraphicsSettings.mIsGPUParticlesSimulationEnabled ? 
 				CreateParticlesGPUSimulationSystem(pRenderer, pGraphicsObjectManager, result) :
 				CreateParticlesSimulationSystem(pRenderer, pGraphicsObjectManager, result),
-			CreateUIElementsProcessSystem(pGraphicsContext, pResourceManager,_getSubsystemAs<ISceneManager>(EST_SCENE_MANAGER), result),
-			CreateUIElementsRenderSystem(pRenderer, pGraphicsObjectManager, result),
+			
+			//CreateAsyncSystemsGroup( /// \note Systems within the group is executed sequentially, but the group itself runs at worker thread
+			//	{
+					CreateUIEventsSystem(_getSubsystemAs<IInputContext>(EST_INPUT_CONTEXT), mpImGUIContext, result),
+					CreateUIElementsProcessSystem(pGraphicsContext, pResourceManager,_getSubsystemAs<ISceneManager>(EST_SCENE_MANAGER), result),
+					CreateUIElementsRenderSystem(pRenderer, pGraphicsObjectManager, result),
+			//	}, result),
+
 #if TDE2_EDITORS_ENABLED
 			CreateObjectsSelectionSystem(pRenderer, pGraphicsObjectManager, result),
 #endif

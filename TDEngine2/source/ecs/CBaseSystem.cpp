@@ -1,5 +1,7 @@
 #include "../../include/ecs/CBaseSystem.h"
 #include "../../include/editor/CPerfProfiler.h"
+#include "../../include/core/IJobManager.h"
+#include "../../include/editor/CPerfProfiler.h"
 
 
 namespace TDEngine2
@@ -58,5 +60,72 @@ namespace TDEngine2
 	bool CBaseSystem::IsActive() const
 	{
 		return mIsActive;
+	}
+
+
+	/*!
+		\brief CAsyncSystemsGroup's definition
+	*/
+
+	class CAsyncSystemsGroup : public CBaseSystem
+	{
+		public:
+			friend TDE2_API ISystem* CreateAsyncSystemsGroup(const std::vector<ISystem*>&, E_RESULT_CODE&);
+		public:
+			TDE2_SYSTEM(CAsyncSystemsGroup);
+
+			E_RESULT_CODE Init(const std::vector<ISystem*>& systems);
+			void InjectBindings(IWorld* pWorld) override;
+
+			void Update(IWorld* pWorld, F32 dt) override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CAsyncSystemsGroup)
+		protected:
+			std::vector<ISystem*> mpGroupedSystems;
+	};
+
+	CAsyncSystemsGroup::CAsyncSystemsGroup() :
+		CBaseSystem()
+	{
+	}
+
+	E_RESULT_CODE CAsyncSystemsGroup::Init(const std::vector<ISystem*>& systems)
+	{
+		std::copy(systems.cbegin(), systems.cend(), std::back_inserter(mpGroupedSystems));
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	void CAsyncSystemsGroup::InjectBindings(IWorld* pWorld)
+	{
+		TDE2_PROFILER_SCOPE("CAsyncSystemsGroup::InjectBindings");
+
+		for (ISystem* pCurrSystem : mpGroupedSystems)
+		{
+			pCurrSystem->InjectBindings(pWorld);
+		}
+	}
+
+	void CAsyncSystemsGroup::Update(IWorld* pWorld, F32 dt)
+	{
+		TDE2_PROFILER_SCOPE("CAsyncSystemsGroup::Update");
+
+		mpJobManager->SubmitJob(nullptr, [this, pWorld, dt](auto)
+			{
+				TDE2_PROFILER_SCOPE("CBaseSystem::ExecuteDefferedCommands");
+
+				for (ISystem* pCurrSystem : mpGroupedSystems)
+				{
+					pCurrSystem->Update(pWorld, dt);
+				}
+			});
+	}
+
+
+	TDE2_API ISystem* CreateAsyncSystemsGroup(const std::vector<ISystem*>& systems, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(ISystem ,CAsyncSystemsGroup, result, systems);
 	}
 }
