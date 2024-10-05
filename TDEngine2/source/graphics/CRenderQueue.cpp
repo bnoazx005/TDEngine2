@@ -19,6 +19,34 @@ namespace TDEngine2
 	static const std::string InvalidMaterialMessage = "{0} Invalid material was passed into the render command";
 
 
+	E_RESULT_CODE TUpdateBufferCommand::Submit(const TRenderCommandSubmitParams& params)
+	{
+		IGraphicsObjectManager* pGraphicsObjectManager = params.mpGraphicsContext->GetGraphicsObjectManager();
+		
+		TPtr<IBuffer> pBuffer = pGraphicsObjectManager->GetBufferPtr(mBufferHandle);
+		if (!pBuffer)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = pBuffer->Map(mMapType, mMapOffset);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		result = pBuffer->Write(mpData, mDataSize);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		pBuffer->Unmap();
+
+		return result;
+	}
+
+
 	E_RESULT_CODE TDrawCommand::Submit(const TRenderCommandSubmitParams& params)
 	{
 		if (TResourceId::Invalid == mMaterialHandle)

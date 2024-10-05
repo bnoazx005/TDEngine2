@@ -401,46 +401,19 @@ namespace TDEngine2
 
 	E_RESULT_CODE CUIElementsRenderSystem::_updateGPUBuffers()
 	{
-		auto pVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(mVertexBufferHandle);
-		if (!pVertexBuffer)
-		{
-			return RC_FAIL;
-		}
+		TPtr<CRenderQueue> pUIElementsRenderGroup = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_OVERLAY)];
 
-		E_RESULT_CODE result = pVertexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
-		if (RC_OK != result)
-		{
-			return result;
-		}
+		TUpdateBufferCommand* pUpdateVertexBufferCmd = pUIElementsRenderGroup->SubmitDrawCommand<TUpdateBufferCommand>(0);
+		pUpdateVertexBufferCmd->mBufferHandle = mVertexBufferHandle;
+		pUpdateVertexBufferCmd->mpData        = mVertices.data();
+		pUpdateVertexBufferCmd->mDataSize     = sizeof(TUIElementsVertex) * mVertices.size();
+		pUpdateVertexBufferCmd->mMapType      = E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD;
 
-		result = pVertexBuffer->Write(&mVertices.front(), static_cast<U32>(sizeof(TUIElementsVertex) * mVertices.size()));
-		if (RC_OK != result)
-		{
-			return result;
-		}
-
-		pVertexBuffer->Unmap();
-
-		auto pIndexBuffer = mpGraphicsObjectManager->GetBufferPtr(mIndexBufferHandle);
-		if (!pIndexBuffer)
-		{
-			return RC_FAIL;
-		}
-
-		/// \note Index buffer
-		result = pIndexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
-		if (RC_OK != result)
-		{
-			return result;
-		}
-
-		result = pIndexBuffer->Write(&mIndices.front(), static_cast<U32>(sizeof(U16) * mIndices.size()));
-		if (RC_OK != result)
-		{
-			return result;
-		}
-
-		pIndexBuffer->Unmap();
+		TUpdateBufferCommand* pUpdateIndexBufferCmd = pUIElementsRenderGroup->SubmitDrawCommand<TUpdateBufferCommand>(0);
+		pUpdateIndexBufferCmd->mBufferHandle = mIndexBufferHandle;
+		pUpdateIndexBufferCmd->mpData = mIndices.data();
+		pUpdateIndexBufferCmd->mDataSize = sizeof(U16) * mIndices.size();
+		pUpdateIndexBufferCmd->mMapType = E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD;
 
 		return RC_OK;
 	}

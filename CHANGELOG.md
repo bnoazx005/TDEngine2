@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A new proxy system type was added CAsyncSystemsGroup that allows to run a bunch of systems on some worker thread.
 
+- A new subtype for **TRenderCommand** was integrated which is **TUpdateBufferCommand**.
+
 ### Changed
 
 - The syncronization mechanism within **CResourceManager**'s implementation was changed to reentrant one using std::recursive_mutex. 

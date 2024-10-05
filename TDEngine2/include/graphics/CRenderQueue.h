@@ -33,6 +33,7 @@ namespace TDEngine2
 
 
 	enum class TBufferHandleId : U32;
+	enum E_BUFFER_MAP_TYPE;
 
 
 	typedef struct TRenderCommandSubmitParams
@@ -56,12 +57,50 @@ namespace TDEngine2
 		*/
 
 		TDE2_API virtual E_RESULT_CODE Submit(const TRenderCommandSubmitParams& params) = 0;
+	} TRenderCommand, *TRenderCommandPtr;
+
+
+	typedef struct TUpdateBufferCommand : TRenderCommand
+	{
+		TDE2_API virtual ~TUpdateBufferCommand() = default;
+
+		/*!
+			\brief The method submits a command to a rendering pipeline
+
+			\param[in] pParams The object contains content for executing the command
+
+			\return RC_OK if everything went ok, or some other code, which describes an error
+		*/
+
+		TDE2_API E_RESULT_CODE Submit(const TRenderCommandSubmitParams& params) override;
+
+		TBufferHandleId   mBufferHandle;
+		E_BUFFER_MAP_TYPE mMapType;
+		USIZE             mMapOffset = 0;
+		const void*       mpData = nullptr;
+		USIZE             mDataSize = 0;
+	} TUpdateBufferCommand, *TUpdateBufferCommandPtr;
+
+
+	typedef struct TDrawBaseRenderCommand : TRenderCommand
+	{
+		TDE2_API virtual ~TDrawBaseRenderCommand() = default;
+
+		/*!
+			\brief The method submits a command to a rendering pipeline
+
+			\param[in] pParams The object contains content for executing the command
+
+			\return RC_OK if everything went ok, or some other code, which describes an error
+		*/
+
+		TDE2_API virtual E_RESULT_CODE Submit(const TRenderCommandSubmitParams& params) = 0;
 
 		E_PRIMITIVE_TOPOLOGY_TYPE mPrimitiveType;
 
 		TBufferHandleId           mVertexBufferHandle;
 
-		IVertexDeclaration*       mpVertexDeclaration;
+		IVertexDeclaration* mpVertexDeclaration;
 
 		TResourceId               mMaterialHandle;
 
@@ -70,10 +109,10 @@ namespace TDEngine2
 		TPerObjectShaderData      mObjectData;
 
 		TRectU32                  mScissorRect; ///< \note The assignment is executed only if the corresponding test is enabled for used material
-	} TRenderCommand, *TRenderCommandPtr;
+	} TDrawBaseRenderCommand, *TDrawBaseRenderCommandPtr;
 
 
-	typedef struct TDrawCommand: TRenderCommand
+	typedef struct TDrawCommand: TDrawBaseRenderCommand
 	{
 		/*!
 			\brief The method submits a command to a rendering pipeline
@@ -90,7 +129,7 @@ namespace TDEngine2
 	} TDrawCommand, *TDrawCommandPtr;
 
 
-	typedef struct TDrawIndexedCommand: TRenderCommand
+	typedef struct TDrawIndexedCommand: TDrawBaseRenderCommand
 	{
 		/*!
 			\brief The method submits a command to a rendering pipeline
@@ -110,7 +149,7 @@ namespace TDEngine2
 	} TDrawIndexedCommand, *TDrawIndexedCommandPtr;
 
 
-	typedef struct TDrawInstancedCommand: TRenderCommand
+	typedef struct TDrawInstancedCommand: TDrawBaseRenderCommand
 	{
 		/*!
 			\brief The method submits a command to a rendering pipeline
@@ -134,7 +173,7 @@ namespace TDEngine2
 	} TDrawInstancedCommand, *TDrawInstancedCommandPtr;
 
 
-	typedef struct TDrawIndexedInstancedCommand: TRenderCommand
+	typedef struct TDrawIndexedInstancedCommand: TDrawBaseRenderCommand
 	{
 		/*!
 			\brief The method submits a command to a rendering pipeline
@@ -157,7 +196,7 @@ namespace TDEngine2
 	} TDrawIndexedInstancedCommand, *TDrawIndexedInstancedCommandPtr;
 
 
-	typedef struct TDrawIndirectInstancedCommand : TRenderCommand
+	typedef struct TDrawIndirectInstancedCommand : TDrawBaseRenderCommand
 	{
 		/*!
 			\brief The method submits a command to a rendering pipeline
