@@ -29,7 +29,11 @@ namespace TDEngine2
 	*/
 
 	TDE2_DECLARE_HANDLE_TYPE(TJobCounterId);
-	typedef std::atomic<TJobCounterId> TJobCounter;
+	
+	typedef struct TJobCounter
+	{
+		TJobCounterId mValue = TJobCounterId::Invalid;
+	} TJobCounter;
 
 
 	struct TJobArgs
@@ -42,8 +46,8 @@ namespace TDEngine2
 	typedef struct TJobManagerInitParams
 	{
 		U32                      mMaxNumOfThreads;								///< A maximum number of threads that will be created and processed by the manager
-		USIZE                    mFiberStackSize = 64 * 1024;					///< A stack's size for a single allocated fiber
-		U32                      mCountersPoolSize = 128;						///< Amount of precreated counters that will be used by the manager
+		USIZE                    mFiberStackSize = 1024 * 1024;					///< A stack's size for a single allocated fiber
+		U32                      mCountersPoolSize = 1024;						///< Amount of precreated counters that will be used by the manager
 	} TJobManagerInitParams, *TJobManagerInitParamsPtr;
 
 

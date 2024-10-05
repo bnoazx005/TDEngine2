@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.30] 2024-10-02
+## [0.6.30] 2024-10-05
 
 ### Added
 
@@ -31,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The API of **IGraphicsObjectManager** was refactored and CreateBlendState/CreateRasterizerState/CreateDepthStencilState methods were removed from that.
 
 - **CBaseRenderTarget** and **CDepthBufferTarget** types were removed from the engine.
+
+- Some minor changes were introduced into **CBaseJobManager** to improve its performance.
 
 ### Fixed
 

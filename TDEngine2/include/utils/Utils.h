@@ -980,8 +980,10 @@ namespace TDEngine2
 
 
 #if !TDE2_PRODUCTION_MODE
+	#define TDE2_MULTI_THREAD_CHECK_LOCK
 	#define TDE2_MULTI_THREAD_ACCESS_CHECK(Lock) 
 #else
+	#define TDE2_MULTI_THREAD_CHECK_LOCK mutable CMultiThreadAccessCheck mMTCheckLock
 	#define TDE2_MULTI_THREAD_ACCESS_CHECK(CheckVarId, Lock) CMultiThreadAccessScopedLock CheckVarId(Lock)
 #endif
 }

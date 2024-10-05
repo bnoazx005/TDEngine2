@@ -16,7 +16,7 @@
 
 #define TDE2_JOB_MANAGER_VERBOSE_LOG_ENABLED 0
 
-
+#include <chrono>
 namespace TDEngine2
 {
 	CBaseJobManager::CBaseJobManager():
@@ -95,8 +95,40 @@ namespace TDEngine2
 		return MainThreadId == std::this_thread::get_id();
 	}
 
+
+	static E_RESULT_CODE SubmitFireAndForgetJob(const IJobManager::TJobCallback& job, const TSubmitJobParams& params)
+	{
+		TDE2_PROFILER_SCOPE("CBaseJobManager::SubmitJob");
+
+		marl::WaitGroup waitGroup(1);
+
+		auto task = [job, waitGroup]
+		{
+			job({ 0, 0 });
+			waitGroup.done();
+		};
+
+		if (params.mBlockingCallsAwaited)
+		{
+			marl::blocking_call(task);
+		}
+		else
+		{
+			marl::schedule(task);
+		}
+
+#if TDE2_JOB_MANAGER_VERBOSE_LOG_ENABLED
+		LOG_MESSAGE(Wrench::StringUtils::Format("[Job Manager] Submit a new job, id: {0}", jobName));
+#endif
+
+		return RC_OK;
+	}
+
+
 	E_RESULT_CODE CBaseJobManager::SubmitJob(TJobCounter* pCounter, const TJobCallback& job, const TSubmitJobParams& params)
 	{
+		static thread_local const USIZE MAX_COUNTERS_POOL_SIZE = mpWaitCountersPool.size() - 1;
+
 		TDE2_PROFILER_SCOPE("CBaseJobManager::SubmitJob");
 
 		if (!job)
@@ -104,22 +136,27 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		const USIZE waitGroupIndex = mNextFreeCounterIndex.load() % (mpWaitCountersPool.size() - 1);
-		if (pCounter)
+		if (!pCounter)
 		{
-			pCounter->store(static_cast<TJobCounterId>(waitGroupIndex));
+			return SubmitFireAndForgetJob(job, params);
+		}
+
+		const bool isCounterInvalid = TJobCounterId::Invalid == pCounter->mValue;
+		const USIZE waitGroupIndex = isCounterInvalid ? mNextFreeCounterIndex.fetch_add(1) & MAX_COUNTERS_POOL_SIZE : static_cast<USIZE>(pCounter->mValue);
+
+		if (isCounterInvalid)
+		{
+			pCounter->mValue = static_cast<TJobCounterId>(waitGroupIndex);
 		}
 
 		auto pWaitGroup = mpWaitCountersPool[waitGroupIndex].get();
 		pWaitGroup->add(1);
 
-		mNextFreeCounterIndex.fetch_add(1);
-
 		TJobArgs args;
 		args.mJobIndex = 0;
 		args.mGroupIndex = 0;
 
-		auto task = [=]
+		auto task = [job, args, pWaitGroup]
 		{
 			job(args);
 			pWaitGroup->done();
@@ -143,6 +180,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseJobManager::SubmitMultipleJobs(TJobCounter* pCounter, U32 jobsCount, U32 groupSize, const TJobCallback& job, E_JOB_PRIORITY_TYPE priority)
 	{
+		static thread_local const USIZE MAX_COUNTERS_POOL_SIZE = mpWaitCountersPool.size() - 1;
+
 		if (!job || !groupSize || groupSize > jobsCount)
 		{
 			return RC_INVALID_ARGS;
@@ -150,16 +189,16 @@ namespace TDEngine2
 
 		const U32 groupsCount = static_cast<U32>(::ceilf(jobsCount / static_cast<F32>(groupSize)));
 
-		const USIZE waitGroupIndex = mNextFreeCounterIndex.load() % (mpWaitCountersPool.size() - 1);
-		if (pCounter)
+		const bool isCounterInvalid = TJobCounterId::Invalid == pCounter->mValue;
+		const USIZE waitGroupIndex = isCounterInvalid ? mNextFreeCounterIndex.fetch_add(1) & MAX_COUNTERS_POOL_SIZE : static_cast<USIZE>(pCounter->mValue);
+
+		if (isCounterInvalid)
 		{
-			pCounter->store(static_cast<TJobCounterId>(waitGroupIndex));
+			pCounter->mValue = static_cast<TJobCounterId>(waitGroupIndex);
 		}
 
 		auto pWaitGroup = mpWaitCountersPool[waitGroupIndex].get();
 		pWaitGroup->add(jobsCount);
-
-		mNextFreeCounterIndex.fetch_add(1);
 
 		for (U32 groupId = 0; groupId < groupsCount; groupId++)
 		{
@@ -189,7 +228,7 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("CBaseJobManager::WaitForJobCounter");
 
-		if (auto pWaitGroup = mpWaitCountersPool[static_cast<USIZE>(counter.load())].get())
+		if (auto pWaitGroup = mpWaitCountersPool[static_cast<USIZE>(counter.mValue)].get())
 		{
 			pWaitGroup->wait();
 		}		

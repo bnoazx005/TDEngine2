@@ -130,4 +130,34 @@ TEST_CASE("CBaseJobManager Tests")
 			REQUIRE(actualCounterValue == expectedCounterValue);
 		}
 	}
+
+	SECTION("TestSubmitJob_SumbitFewTasksUnderSameCounter_WaitForCounterBlocksExecutionUntilAllTasksCompleted")
+	{
+		for (U32 i = 0; i < SamplesCount; i++)
+		{
+			std::atomic_bool isJobAExecuted = false;
+			std::atomic_bool isJobBExecuted = false;
+			std::atomic_bool isJobCExecuted = false;
+
+			TJobCounter counter;
+			REQUIRE(counter.mValue == TJobCounterId::Invalid);
+
+			pJobManager->SubmitJob(&counter, [&isJobAExecuted](auto) { isJobAExecuted = true; });
+
+			REQUIRE(counter.mValue != TJobCounterId::Invalid);
+			TJobCounterId prevCounterValue = counter.mValue;
+
+			pJobManager->SubmitJob(&counter, [&isJobBExecuted](auto) { isJobBExecuted = true; });
+
+			REQUIRE(counter.mValue == prevCounterValue);
+
+			pJobManager->SubmitJob(&counter, [&isJobCExecuted](auto) { isJobCExecuted = true; });
+
+			REQUIRE(counter.mValue == prevCounterValue);
+
+			pJobManager->WaitForJobCounter(counter);
+
+			REQUIRE((isJobAExecuted && isJobBExecuted && isJobCExecuted));
+		}
+	}
 }
