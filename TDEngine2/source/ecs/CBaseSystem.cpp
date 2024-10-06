@@ -124,6 +124,12 @@ namespace TDEngine2
 				{
 					pCurrSystem->Update(pWorld, dt);
 				}
+
+				/// \note Execute all deferred commands after all updates
+				for (ISystem* pCurrSystem : mpGroupedSystems)
+				{
+					pCurrSystem->ExecuteDeferredCommands();
+				}
 			});
 	}
 
