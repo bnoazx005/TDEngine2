@@ -33,20 +33,20 @@ namespace TDEngine2
 			TDE2_API void OnInit(TPtr<IJobManager> pJobManager) override;
 
 			/*!
-				\brief The method adds a command into the deffered executed buffer
+				\brief The method adds a command into the deferred executed buffer
 
 				\param[in] action The callback that will be executed later after all systems'll invoke their Update
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE AddDefferedCommand(const TCommandFunctor& action = nullptr) override;
+			TDE2_API E_RESULT_CODE AddDeferredCommand(const TCommandFunctor& action = nullptr) override;
 
 			/*1
-				\brief The method executes all deffered commands that were accumulated in current frame
+				\brief The method executes all deferred commands that were accumulated in current frame
 			*/
 
-			TDE2_API void ExecuteDefferedCommands() override;
+			TDE2_API void ExecuteDeferredCommands() override;
 
 #if TDE2_EDITORS_ENABLED
 
@@ -77,7 +77,7 @@ namespace TDEngine2
 		protected:
 			TPtr<IJobManager>            mpJobManager = nullptr;
 		private:
-			std::vector<TCommandFunctor> mDefferedCommandsBuffer {};
+			std::vector<TCommandFunctor> mDeferredCommandsBuffer {};
 			bool                         mIsActive = true;
 	};
 

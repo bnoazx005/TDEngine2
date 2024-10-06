@@ -893,7 +893,7 @@ namespace TDEngine2
 			{
 				pCurrToggle->SetState(!pCurrToggle->GetState());
 
-				pSystem->AddDefferedCommand([pWorld, pCurrToggle]
+				pSystem->AddDeferredCommand([pWorld, pCurrToggle]
 				{
 					SetEntityActive(pWorld, pCurrToggle->GetMarkerEntityId(), pCurrToggle->GetState());
 				});
@@ -1397,7 +1397,7 @@ namespace TDEngine2
 
 			if (itemEntities.empty())
 			{
-				pSystem->AddDefferedCommand([&itemEntities, pWorld, pCurrDropDown, contentEntityId = pCurrDropDown->GetContentEntityId(), prefabId = pCurrDropDown->GetItemPrefabEntityId(), pSceneManager]
+				pSystem->AddDeferredCommand([&itemEntities, pWorld, pCurrDropDown, contentEntityId = pCurrDropDown->GetContentEntityId(), prefabId = pCurrDropDown->GetItemPrefabEntityId(), pSceneManager]
 				{
 					auto pScene = pSceneManager->GetSceneByEntityId(contentEntityId);
 					if (!pScene)

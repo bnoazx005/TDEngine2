@@ -216,11 +216,11 @@ namespace TDEngine2
 
 		mIsDirty = false;
 
-		/// \note Execute all deffered commands after all updates
+		/// \note Execute all deferred commands after all updates
 		for (auto currSystemDesc : mpActiveSystems)
 		{
 			pCurrSystem = currSystemDesc.mpSystem;
-			pCurrSystem->ExecuteDefferedCommands();
+			pCurrSystem->ExecuteDeferredCommands();
 		}
 	}
 

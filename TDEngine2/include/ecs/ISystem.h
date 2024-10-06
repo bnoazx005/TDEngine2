@@ -71,20 +71,20 @@ namespace TDEngine2
 			TDE2_API virtual void InjectBindings(IWorld* pWorld) = 0;
 
 			/*!
-				\brief The method adds a command into the deffered executed buffer 
+				\brief The method adds a command into the deferred executed buffer 
 
 				\param[in] action The callback that will be executed later after all systems'll invoke their Update
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE AddDefferedCommand(const TCommandFunctor& action = nullptr) = 0;
+			TDE2_API virtual E_RESULT_CODE AddDeferredCommand(const TCommandFunctor& action = nullptr) = 0;
 
 			/*1
-				\brief The method executes all deffered commands that were accumulated in current frame
+				\brief The method executes all deferred commands that were accumulated in current frame
 			*/
 
-			TDE2_API virtual void ExecuteDefferedCommands() = 0;
+			TDE2_API virtual void ExecuteDeferredCommands() = 0;
 
 			/*!
 				\brief The main method that should be implemented in all derived classes.

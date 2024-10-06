@@ -56,7 +56,7 @@ namespace TDEngine2
 		CTransform* pContainerRootTransform = pContainerRootEntity->GetComponent<CTransform>();
 		auto&& childrenEntities = pContainerRootTransform->GetChildren();
 
-		AddDefferedCommand([pWorld, &childrenEntities]
+		AddDeferredCommand([pWorld, &childrenEntities]
 		{
 			for (USIZE i = 0; i < childrenEntities.size(); i++)
 			{
@@ -89,7 +89,7 @@ namespace TDEngine2
 
 		if (mCurrActiveScreenIndex >= childrenEntities.size())
 		{
-			AddDefferedCommand([this]
+			AddDeferredCommand([this]
 			{
 				TOnSplashScreensFinishedEvent spashScreenFinishedEvent;
 				mpEventManager->Notify(&spashScreenFinishedEvent);
@@ -115,7 +115,7 @@ namespace TDEngine2
 
 		if (shouldSkipCurrScreen || pSplashScreenItem->mElapsedTime > pSplashScreenItem->mDuration)
 		{
-			AddDefferedCommand([this, pWorld, entityId = pCurrSplashScreenEntity->GetId(), &childrenEntities]
+			AddDeferredCommand([this, pWorld, entityId = pCurrSplashScreenEntity->GetId(), &childrenEntities]
 			{
 				SetEntityActive(pWorld, entityId, false); // \todo Replace with animation events
 			

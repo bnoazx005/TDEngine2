@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.30] 2024-10-05
+## [0.6.30] 2024-10-06
 
 ### Added
 
@@ -41,6 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - CBaseMaterial::Save's behaviour was fixed.
+
+- Fix naming typos in ISystem's interface (AddDefferedCommand replaced with AddDeferredCommand and ExecuteDefferedCommand with ExecuteDeferredCommand).
 
 ## [0.6.29] 2024-09-03
 

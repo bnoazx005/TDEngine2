@@ -11,28 +11,28 @@ namespace TDEngine2
 		mpJobManager = pJobManager;
 	}
 
-	E_RESULT_CODE CBaseSystem::AddDefferedCommand(const TCommandFunctor& action)
+	E_RESULT_CODE CBaseSystem::AddDeferredCommand(const TCommandFunctor& action)
 	{
 		if (!action)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		mDefferedCommandsBuffer.push_back(action);
+		mDeferredCommandsBuffer.push_back(action);
 
 		return RC_OK;
 	}
 
-	void CBaseSystem::ExecuteDefferedCommands()
+	void CBaseSystem::ExecuteDeferredCommands()
 	{
-		TDE2_PROFILER_SCOPE("CBaseSystem::ExecuteDefferedCommands");
+		TDE2_PROFILER_SCOPE("CBaseSystem::ExecuteDeferredCommands");
 
-		for (auto&& currCommand : mDefferedCommandsBuffer)
+		for (auto&& currCommand : mDeferredCommandsBuffer)
 		{
 			currCommand();
 		}
 
-		mDefferedCommandsBuffer.clear();
+		mDeferredCommandsBuffer.clear();
 	}
 
 #if TDE2_EDITORS_ENABLED
@@ -117,7 +117,7 @@ namespace TDEngine2
 
 		mpJobManager->SubmitJob(nullptr, [this, pWorld, dt](auto)
 			{
-				TDE2_PROFILER_SCOPE("CBaseSystem::ExecuteDefferedCommands");
+				TDE2_PROFILER_SCOPE("CBaseSystem::ExecuteDeferredCommands");
 				std::lock_guard<std::mutex> lock(mMutex);
 
 				for (ISystem* pCurrSystem : mpGroupedSystems)
