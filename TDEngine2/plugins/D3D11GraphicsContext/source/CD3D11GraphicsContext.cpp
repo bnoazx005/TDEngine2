@@ -12,7 +12,7 @@
 #include <core/IWindowSystem.h>
 #include <editor/CPerfProfiler.h>
 #include <unordered_map>
-#include <d3d11_1.h>
+#include <d3d11_4.h>
 
 
 #if defined(TDE2_USE_WINPLATFORM)
@@ -444,6 +444,7 @@ namespace TDEngine2
 			ID3D11Device*            mp3dDevice;
 			ID3D11DeviceContext*     mp3dDeviceContext;
 			TGraphicsCtxInternalData mInternalDataObject;
+			ID3D11Multithread*       mpMultithreadLock = nullptr;
 
 			IDXGISwapChain* mpSwapChain;
 
@@ -534,6 +535,9 @@ namespace TDEngine2
 		mp3dDeviceContext->QueryInterface(__uuidof(ID3DUserDefinedAnnotation), reinterpret_cast<void**>(&pAnnotation));
 #endif
 
+		mp3dDeviceContext->QueryInterface(__uuidof(ID3D11Multithread), reinterpret_cast<void**>(&mpMultithreadLock));
+		mpMultithreadLock->SetMultithreadProtected(true);
+
 		/// create a swap chain
 		E_RESULT_CODE result = _createSwapChain(pWindowSystem.Get(), mp3dDevice);
 
@@ -607,6 +611,8 @@ namespace TDEngine2
 #if TDE2_DEBUG_MODE
 		pAnnotation->Release();
 #endif
+
+		mpMultithreadLock->Release();
 
 		mpGraphicsObjectManager = nullptr;
 		
