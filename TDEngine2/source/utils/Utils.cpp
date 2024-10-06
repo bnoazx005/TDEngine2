@@ -495,4 +495,21 @@ namespace TDEngine2
 	}
 
 #endif
+
+
+	void CMultiThreadAccessCheck::Acquire()
+	{
+		std::thread::id currThreadId = std::this_thread::get_id();
+
+		TDE2_ASSERT_MSG(!mIsAquired, Wrench::StringUtils::Format("[CMultiThreadAccessCheck] Data race/condition found, two threads {0} and {1} try to access same memory region", currThreadId, mLastVisitor).c_str());
+		
+		mIsAquired = true;
+		mLastVisitor = currThreadId;
+	}
+
+	void CMultiThreadAccessCheck::Release()
+	{
+		TDE2_ASSERT(mIsAquired);
+		mIsAquired = false;
+	}
 }

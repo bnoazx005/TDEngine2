@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <array>
 #include <sstream>
+#include <thread>
 
 
 namespace TDEngine2
@@ -953,19 +954,11 @@ namespace TDEngine2
 	class CMultiThreadAccessCheck
 	{
 		public:
-			TDE2_API void Acquire() 
-			{
-				TDE2_ASSERT(!mIsAquired);
-				mIsAquired = true;
-			}
-
-			TDE2_API void Release()
-			{
-				TDE2_ASSERT(mIsAquired);
-				mIsAquired = false;
-			}
+			TDE2_API void Acquire();
+			TDE2_API void Release();
 		private:
-			volatile bool mIsAquired = false;
+			volatile bool   mIsAquired = false;
+			std::thread::id mLastVisitor;
 	};
 
 
