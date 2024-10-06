@@ -80,7 +80,10 @@ namespace TDEngine2
 			void Update(IWorld* pWorld, F32 dt) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CAsyncSystemsGroup)
+
+			E_RESULT_CODE _onFreeInternal() override;
 		protected:
+			mutable std::mutex    mMutex;
 			std::vector<ISystem*> mpGroupedSystems;
 	};
 
@@ -115,12 +118,27 @@ namespace TDEngine2
 		mpJobManager->SubmitJob(nullptr, [this, pWorld, dt](auto)
 			{
 				TDE2_PROFILER_SCOPE("CBaseSystem::ExecuteDefferedCommands");
+				std::lock_guard<std::mutex> lock(mMutex);
 
 				for (ISystem* pCurrSystem : mpGroupedSystems)
 				{
 					pCurrSystem->Update(pWorld, dt);
 				}
 			});
+	}
+
+	E_RESULT_CODE CAsyncSystemsGroup::_onFreeInternal()
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		for (ISystem* pCurrSystem : mpGroupedSystems)
+		{
+			pCurrSystem->Free();
+		}
+
+		mpGroupedSystems.clear();
+
+		return RC_OK;
 	}
 
 
