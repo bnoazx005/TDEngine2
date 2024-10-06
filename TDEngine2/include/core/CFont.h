@@ -12,6 +12,7 @@
 #include "CBaseObject.h"
 #include <string>
 #include <unordered_map>
+#include <mutex>
 
 
 namespace TDEngine2
@@ -156,6 +157,8 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFont)
 
 			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
+
+			E_RESULT_CODE _addGlyphInfoInternal(TUtf8CodePoint codePoint, const TFontGlyphInfo& info);
 		protected:
 			TResourceId mFontTextureAtlasHandle = TResourceId::Invalid;
 
@@ -164,6 +167,9 @@ namespace TDEngine2
 			TGlyphsMap mGlyphsMap;
 
 			F32        mFontHeight = 0.0f;
+
+			TDE2_MULTI_THREAD_CHECK_LOCK;
+			mutable std::mutex mMutex;
 	};
 
 

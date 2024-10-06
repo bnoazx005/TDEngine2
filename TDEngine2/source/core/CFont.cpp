@@ -45,6 +45,9 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		std::lock_guard<std::mutex> lock(mMutex);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+
 		PANIC_ON_FAILURE(pWriter->SetString("name", mName));
 
 		pWriter->SetFloat("size", mFontHeight);
@@ -103,6 +106,9 @@ namespace TDEngine2
 
 	E_RESULT_CODE CFont::Load(IArchiveReader* pReader)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+
 		if (!pReader)
 		{
 			return RC_INVALID_ARGS;
@@ -174,18 +180,17 @@ namespace TDEngine2
 
 	E_RESULT_CODE CFont::AddGlyphInfo(TUtf8CodePoint codePoint, const TFontGlyphInfo& info)
 	{
-		if (mGlyphsMap.find(codePoint) != mGlyphsMap.cend())
-		{
-			return RC_FAIL;
-		}
+		std::lock_guard<std::mutex> lock(mMutex);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
 
-		mGlyphsMap.emplace(codePoint, info);
-
-		return RC_OK;
+		return _addGlyphInfoInternal(codePoint, info);
 	}
 
 	E_RESULT_CODE CFont::SetTextureAtlasHandle(TResourceId atlasHandle)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+
 		if (TResourceId::Invalid == atlasHandle)
 		{
 			return RC_INVALID_ARGS;
@@ -198,6 +203,9 @@ namespace TDEngine2
 
 	E_RESULT_CODE CFont::SetFontHeight(F32 height)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+
 		if (height < 0.0f)
 		{
 			return RC_INVALID_ARGS;
@@ -238,6 +246,9 @@ namespace TDEngine2
 	CFont::TTextMeshData CFont::GenerateMesh(const TTextMeshBuildParams& params, const std::string& text)
 	{
 		TDE2_PROFILER_SCOPE("CFont::GenerateMesh");
+
+		std::lock_guard<std::mutex> lock(mMutex);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
 
 		TPtr<ITextureAtlas> pTextureAtlas = mpResourceManager->GetResource<ITextureAtlas>(mFontTextureAtlasHandle);
 		if (!pTextureAtlas)
@@ -369,6 +380,18 @@ namespace TDEngine2
 		return mpResourceManager->GetResourceLoader<IFont>();
 	}
 
+	E_RESULT_CODE CFont::_addGlyphInfoInternal(TUtf8CodePoint codePoint, const TFontGlyphInfo& info)
+	{
+		if (mGlyphsMap.find(codePoint) != mGlyphsMap.cend())
+		{
+			return RC_FAIL;
+		}
+
+		mGlyphsMap.emplace(codePoint, info);
+
+		return RC_OK;
+	}
+
 	U32 CFont::GetDataVersionNumber() const
 	{
 		return 0x1;
@@ -376,11 +399,17 @@ namespace TDEngine2
 
 	F32 CFont::GetFontHeight() const
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+
 		return mFontHeight;
 	}
 
 	F32 CFont::GetTextLength(const TTextMeshBuildParams& params, const std::string& text, USIZE pos, USIZE count) const
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+
 		const F32 scale = params.mScale;
 		F32 textLength = 0.0f;
 

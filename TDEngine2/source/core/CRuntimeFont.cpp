@@ -35,6 +35,9 @@ namespace TDEngine2
 
 	E_RESULT_CODE CRuntimeFont::Reset()
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+
 		E_RESULT_CODE result = CFont::Reset();
 
 		mFontInfoBytes.clear();
@@ -52,37 +55,42 @@ namespace TDEngine2
 	CFont::TTextMeshData CRuntimeFont::GenerateMesh(const TTextMeshBuildParams& params, const std::string& text)
 	{
 		TDE2_PROFILER_SCOPE("CRuntimeFont::GenerateMesh");
-
-		TUtf8CodePoint codePoint;
-
-		auto&& it = text.cbegin();
-
-		while (CU8String::MoveNext(it, text.cend(), codePoint))
+		
 		{
-			if (mCachedGlyphs.find(codePoint) != mCachedGlyphs.cend() || IsControlCharacter(codePoint))
+			std::lock_guard<std::mutex> lock(mMutex);
+			TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+
+			TUtf8CodePoint codePoint;
+
+			auto&& it = text.cbegin();
+
+			while (CU8String::MoveNext(it, text.cend(), codePoint))
 			{
-				continue;
+				if (mCachedGlyphs.find(codePoint) != mCachedGlyphs.cend() || IsControlCharacter(codePoint))
+				{
+					continue;
+				}
+
+				mCachedGlyphs.emplace(codePoint);
+				mIsDirty = true;
 			}
 
-			mCachedGlyphs.emplace(codePoint);
-			mIsDirty = true;
-		}
-
-		if (mIsDirty)
-		{
-			/// update font texture's cache
-			if (TPtr<IResource> pFontCacheTexture = mpResourceManager->GetResource(mFontTextureAtlasHandle))
+			if (mIsDirty)
 			{
-				pFontCacheTexture->Reset();
-			}
-			
-			if (TPtr<ITextureAtlas> pTextureAtlas = mpResourceManager->GetResource<ITextureAtlas>(mFontTextureAtlasHandle))
-			{
-				E_RESULT_CODE result = _updateFontTextureCache(pTextureAtlas.Get());
-				TDE2_ASSERT(RC_OK == result);
-			}
+				/// update font texture's cache
+				if (TPtr<IResource> pFontCacheTexture = mpResourceManager->GetResource(mFontTextureAtlasHandle))
+				{
+					pFontCacheTexture->Reset();
+				}
 
-			mIsDirty = false;
+				if (TPtr<ITextureAtlas> pTextureAtlas = mpResourceManager->GetResource<ITextureAtlas>(mFontTextureAtlasHandle))
+				{
+					E_RESULT_CODE result = _updateFontTextureCache(pTextureAtlas.Get());
+					TDE2_ASSERT(RC_OK == result);
+				}
+
+				mIsDirty = false;
+			}
 		}
 
 		return std::move(CFont::GenerateMesh(params, text));
@@ -94,6 +102,9 @@ namespace TDEngine2
 		{
 			return RC_INVALID_ARGS;
 		}
+
+		std::lock_guard<std::mutex> lock(mMutex);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
 
 		const U64 fileSize = pFontFile->GetFileLength();
 
@@ -122,6 +133,9 @@ namespace TDEngine2
 
 	E_RESULT_CODE CRuntimeFont::SetFontHeight(F32 value)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+
 		if (value < 0.0f)
 		{
 			return RC_INVALID_ARGS;
@@ -140,6 +154,9 @@ namespace TDEngine2
 
 	F32 CRuntimeFont::GetFontHeight() const
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+
 		return mFontHeight;
 	}
 
@@ -196,7 +213,7 @@ namespace TDEngine2
 
 			stbtt_GetCodepointHMetrics(pFontInfo, cp, &advance, &leftBearing);
 
-			if (RC_OK != (result = AddGlyphInfo(currCodepoint, { static_cast<U16>(width), static_cast<U16>(height), static_cast<I16>(xoff), static_cast<I16>(yoff), scale * advance })))
+			if (RC_OK != (result = _addGlyphInfoInternal(currCodepoint, { static_cast<U16>(width), static_cast<U16>(height), static_cast<I16>(xoff), static_cast<I16>(yoff), scale * advance })))
 			{
 				TDE2_ASSERT(false);
 			}
