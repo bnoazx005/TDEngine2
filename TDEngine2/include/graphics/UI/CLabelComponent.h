@@ -114,6 +114,8 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CLabel)
 
 		protected:
+			TDE2_MULTI_THREAD_CHECK_LOCK;
+
 			std::string mText;
 			std::string mPrevText;
 			std::string mFontResourceId;

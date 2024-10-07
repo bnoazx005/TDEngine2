@@ -41,6 +41,8 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+
 		mLabelEntityRef = static_cast<TEntityId>(pReader->GetUInt32(TDropDownArchiveKeys::mLabelEntityRefKeyId));
 		mPopupRootEntityRef = static_cast<TEntityId>(pReader->GetUInt32(TDropDownArchiveKeys::mPopupRootEntityRefKeyId));
 		mContentEntityRef = static_cast<TEntityId>(pReader->GetUInt32(TDropDownArchiveKeys::mContentEntityRefKeyId));
@@ -71,6 +73,8 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+
 		pWriter->BeginGroup("component");
 		{
 			pWriter->SetUInt32("type_id", static_cast<U32>(CDropDown::GetTypeId()));
@@ -100,6 +104,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CDropDown::PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper)
 	{
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+
 		mLabelEntityRef = entitiesIdentifiersRemapper.Resolve(mLabelEntityRef);
 		mPopupRootEntityRef = entitiesIdentifiersRemapper.Resolve(mPopupRootEntityRef);
 		mContentEntityRef = entitiesIdentifiersRemapper.Resolve(mContentEntityRef);
@@ -110,6 +116,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CDropDown::Clone(IComponent*& pDestObject) const
 	{
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+
 		if (auto pComponent = dynamic_cast<CDropDown*>(pDestObject))
 		{
 			pComponent->mLabelEntityRef = mLabelEntityRef;
@@ -129,26 +137,32 @@ namespace TDEngine2
 
 	void CDropDown::SetLabelEntityId(TEntityId labelId)
 	{
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
 		mLabelEntityRef = labelId;
 	}
 
 	void CDropDown::SetPopupRootEntityId(TEntityId entityId)
 	{
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
 		mPopupRootEntityRef = entityId;
 	}
 
 	void CDropDown::SetContentEntityId(TEntityId contentEntityId)
 	{
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
 		mContentEntityRef = contentEntityId;
 	}
 
 	void CDropDown::SetItemPrefabEntityId(TEntityId entityId)
 	{
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
 		mItemPrefabEntityRef = entityId;
 	}
 
 	E_RESULT_CODE CDropDown::SetSelectedItem(U32 index)
 	{
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+
 		if (index >= mItems.size())
 		{
 			return RC_INVALID_ARGS;
@@ -161,51 +175,61 @@ namespace TDEngine2
 
 	void CDropDown::SetItems(const TOptionsArray& items)
 	{
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
 		mItems = std::move(items);
 	}
 
 	void CDropDown::SetExpanded(bool state)
 	{
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
 		mIsExpanded = state;
 	}
 
 	TEntityId CDropDown::GetLabelEntityId() const
 	{
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
 		return mLabelEntityRef;
 	}
 
 	TEntityId CDropDown::GetPopupRootEntityId() const
 	{
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
 		return mPopupRootEntityRef;
 	}
 
 	TEntityId CDropDown::GetContentEntityId() const
 	{
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
 		return mContentEntityRef;
 	}
 
 	TEntityId CDropDown::GetItemPrefabEntityId() const
 	{
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
 		return mItemPrefabEntityRef;
 	}
 
 	const CDropDown::TOptionsArray& CDropDown::GetItems() const
 	{
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
 		return mItems;
 	}
 
 	U32 CDropDown::GetSelectedItem() const
 	{
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
 		return mSelectedItemIndex;
 	}
 
 	std::vector<TEntityId>& CDropDown::GetItemsEntities()
 	{
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
 		return mItemsEntities;
 	}
 
 	bool CDropDown::IsExpanded() const
 	{
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
 		return mIsExpanded;
 	}
 

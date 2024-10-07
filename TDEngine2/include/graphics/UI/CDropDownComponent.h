@@ -104,6 +104,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CDropDown)
 		protected:
+			TDE2_MULTI_THREAD_CHECK_LOCK;
+
 			TOptionsArray mItems;
 
 			TEntityId     mLabelEntityRef;
