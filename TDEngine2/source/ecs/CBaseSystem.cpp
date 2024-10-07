@@ -93,7 +93,7 @@ namespace TDEngine2
 			IEventManager*        mpEventManager = nullptr;
 			std::vector<ISystem*> mpGroupedSystems;
 
-			std::atomic_bool      mIsDirty = true;
+			std::atomic_bool      mIsDirty { true };
 	};
 
 	CAsyncSystemsGroup::CAsyncSystemsGroup() :

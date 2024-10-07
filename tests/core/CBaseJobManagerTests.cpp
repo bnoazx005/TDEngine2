@@ -135,9 +135,9 @@ TEST_CASE("CBaseJobManager Tests")
 	{
 		for (U32 i = 0; i < SamplesCount; i++)
 		{
-			std::atomic_bool isJobAExecuted = false;
-			std::atomic_bool isJobBExecuted = false;
-			std::atomic_bool isJobCExecuted = false;
+			std::atomic_bool isJobAExecuted { false };
+			std::atomic_bool isJobBExecuted { false };
+			std::atomic_bool isJobCExecuted { false };
 
 			TJobCounter counter;
 			REQUIRE(counter.mValue == TJobCounterId::Invalid);
