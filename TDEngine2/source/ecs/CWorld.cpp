@@ -226,6 +226,7 @@ namespace TDEngine2
 
 	CEntity* CWorld::FindEntity(TEntityId entityId) const
 	{
+		TDE2_PROFILER_SCOPE("CWorld::FindEntity");
 		std::lock_guard<std::mutex> lock(mMutex);
 
 		return mpEntityManager->GetEntity(entityId).Get();

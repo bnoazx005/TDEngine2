@@ -54,6 +54,8 @@ namespace TDEngine2
 
 	TDE2_API std::vector<TEntityId> FindMainCanvases(IWorld* pWorld)
 	{
+		TDE2_PROFILER_SCOPE("CUIEventsSystem::FindMainCanvases");
+
 		std::vector<TEntityId> output;
 		std::vector<CCanvas*> canvases;
 
@@ -93,6 +95,8 @@ namespace TDEngine2
 
 	void CUIEventsSystem::InjectBindings(IWorld* pWorld)
 	{
+		TDE2_PROFILER_SCOPE("CUIEventsSystem::InjectBindings");
+
 		auto& transforms     = mContext.mpTransforms;
 		auto& layoutElements = mContext.mpLayoutElements;
 		auto& inputReceivers = mContext.mpInputReceivers;
@@ -157,6 +161,8 @@ namespace TDEngine2
 
 	static E_INPUT_ACTIONS GetActionType(IDesktopInputContext* pInputContext)
 	{
+		TDE2_PROFILER_SCOPE("GetActionType");
+
 		if (pInputContext->IsKeyPressed(E_KEYCODES::KC_LEFT)) { return E_INPUT_ACTIONS::MOVE_LEFT; }
 		if (pInputContext->IsKeyPressed(E_KEYCODES::KC_RIGHT)) { return E_INPUT_ACTIONS::MOVE_RIGHT; }
 		if (pInputContext->IsKeyPressed(E_KEYCODES::KC_DOWN)) { return E_INPUT_ACTIONS::MOVE_DOWN; }
@@ -193,6 +199,8 @@ namespace TDEngine2
 	static bool ProcessCanvasInput(IWorld* pWorld, CUIEventsSystem::TSystemContext& context, IDesktopInputContext* pInputContext, 
 		const TRange<USIZE>& canvasRange, bool isImGUIActive, std::string& inputBuffer, TEntityId& currFocusedInputEntity)
 	{
+		TDE2_PROFILER_SCOPE("CUIEventsSystem::ProcessCanvasInput");
+
 		auto& transforms = context.mpTransforms;
 		auto& layoutElements = context.mpLayoutElements;
 		auto& inputReceivers = context.mpInputReceivers;
@@ -269,6 +277,8 @@ namespace TDEngine2
 
 	static void ResetInputReceivers(std::vector<CInputReceiver*>& inputReceivers)
 	{
+		TDE2_PROFILER_SCOPE("CUIEventsSystem::ResetInputReceivers");
+
 		for (USIZE i = 0; i < inputReceivers.size(); i++)
 		{
 			CInputReceiver* pInputReceiver = inputReceivers[i];

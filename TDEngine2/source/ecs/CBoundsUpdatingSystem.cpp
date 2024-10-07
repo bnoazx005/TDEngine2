@@ -293,7 +293,7 @@ namespace TDEngine2
 		auto pJobManager = mpResourceManager->GetJobManager();
 
 		TJobCounter counter;
-		pJobManager->SubmitJob(&counter, [this, isUpdateNeeded](auto){ ProcessMeshesBounds(mpResourceManager, mpDebugUtility, mStaticMeshesContext, isUpdateNeeded, ComputeStaticMeshBounds); });
+		pJobManager->SubmitJob(&counter, [this, isUpdateNeeded](auto) { ProcessMeshesBounds(mpResourceManager, mpDebugUtility, mStaticMeshesContext, isUpdateNeeded, ComputeStaticMeshBounds); });
 		pJobManager->SubmitJob(&counter, [this, isUpdateNeeded](auto){ ProcessMeshesBounds(mpResourceManager, mpDebugUtility, mSkinnedMeshesContext, isUpdateNeeded, ComputeSkinnedMeshBounds); });
 		pJobManager->SubmitJob(&counter, [this, isUpdateNeeded](auto){ ProcessSpritesBounds(mpDebugUtility, mSpritesContext, isUpdateNeeded); });
 
