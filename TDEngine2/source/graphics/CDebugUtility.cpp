@@ -95,7 +95,7 @@ namespace TDEngine2
 		auto pLinesVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(mLinesVertexBufferHandle);
 		if (pLinesVertexBuffer && !mLinesDataBuffer.empty())
 		{
-			pLinesVertexBuffer->Map(BMT_WRITE_DISCARD);
+			pLinesVertexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
 			pLinesVertexBuffer->Write(&mLinesDataBuffer[0], sizeof(TLineVertex) * mLinesDataBuffer.size());
 			pLinesVertexBuffer->Unmap();
 
@@ -113,7 +113,7 @@ namespace TDEngine2
 		auto pCrossesVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(mCrossesVertexBufferHandle);
 		if (pCrossesVertexBuffer && !mCrossesDataBuffer.empty())
 		{
-			pCrossesVertexBuffer->Map(BMT_WRITE_DISCARD);
+			pCrossesVertexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
 			pCrossesVertexBuffer->Write(&mCrossesDataBuffer[0], sizeof(TLineVertex) * mCrossesDataBuffer.size());
 			pCrossesVertexBuffer->Unmap();
 
@@ -131,7 +131,7 @@ namespace TDEngine2
 		auto pTextVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(mTextVertexBufferHandle);
 		if (pTextVertexBuffer && !mTextDataBuffer.empty())
 		{
-			pTextVertexBuffer->Map(BMT_WRITE_DISCARD);
+			pTextVertexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
 			pTextVertexBuffer->Write(&mTextDataBuffer[0], sizeof(TTextVertex) * mTextDataBuffer.size());
 			pTextVertexBuffer->Unmap();
 

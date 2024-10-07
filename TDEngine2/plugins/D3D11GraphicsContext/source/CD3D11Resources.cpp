@@ -242,16 +242,16 @@ namespace TDEngine2
 
 		switch (mapType)
 		{
-			case BMT_NOOVERWRITE:
+			case E_BUFFER_MAP_TYPE::BMT_NOOVERWRITE:
 				innerMapType = D3D11_MAP_WRITE_NO_OVERWRITE;
 				break;
-			case BMT_WRITE:
+			case E_BUFFER_MAP_TYPE::BMT_WRITE:
 				innerMapType = D3D11_MAP_WRITE;
 				break;
-			case BMT_READ_WRITE:
+			case E_BUFFER_MAP_TYPE::BMT_READ_WRITE:
 				innerMapType = D3D11_MAP_READ_WRITE;
 				break;
-			case BMT_READ:
+			case E_BUFFER_MAP_TYPE::BMT_READ:
 				innerMapType = D3D11_MAP_READ;
 				break;
 			default:

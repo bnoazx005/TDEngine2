@@ -33,7 +33,7 @@ namespace TDEngine2
 
 
 	enum class TBufferHandleId : U32;
-	enum E_BUFFER_MAP_TYPE;
+	enum class E_BUFFER_MAP_TYPE : U8;
 
 
 	typedef struct TRenderCommandSubmitParams

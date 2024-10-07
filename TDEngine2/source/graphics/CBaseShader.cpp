@@ -103,7 +103,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		E_RESULT_CODE result = pCurrUniformBuffer->Map(BMT_WRITE_DISCARD);
+		E_RESULT_CODE result = pCurrUniformBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
 		{
 			defer([pCurrUniformBuffer] { pCurrUniformBuffer->Unmap(); });
 

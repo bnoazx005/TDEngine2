@@ -174,6 +174,8 @@ namespace TDEngine2
 
 		for (U32 i = 0; i < static_cast<U32>(mSprites.size()); ++i)
 		{
+			TDE2_PROFILER_SCOPE("CSpriteRendererSystem::processSprite");
+
 			pCurrTransform = mTransforms[i];
 			pCurrSprite = mSprites[i];
 			pCurrBounds = mSpritesBounds[i];
@@ -214,6 +216,8 @@ namespace TDEngine2
 
 		for (auto iter = mBatches.begin(); iter != mBatches.end(); ++iter)
 		{
+			TDE2_PROFILER_SCOPE("CSpriteRendererSystem::processBatch");
+
 			const TBufferHandleId currInstancingBufferHandle = mSpritesPerInstanceDataHandles[currInstancesBufferIndex++];
 			pCurrBatchInstancesBuffer = mpGraphicsObjectManager->GetBufferPtr(currInstancingBufferHandle);
 
@@ -229,7 +233,7 @@ namespace TDEngine2
 
 			if (currBatchSize <= SpriteInstanceDataBufferSize)
 			{
-				pCurrBatchInstancesBuffer->Map(BMT_WRITE_DISCARD);
+				pCurrBatchInstancesBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
 				pCurrBatchInstancesBuffer->Write(&(*currBatchEntry.mpInstancesData)[0], currBatchSize);
 				pCurrBatchInstancesBuffer->Unmap();
 			}
@@ -267,6 +271,8 @@ namespace TDEngine2
 
 	void CSpriteRendererSystem::_initializeBatchVertexBuffers(IGraphicsObjectManager* pGraphicsObjectManager, U32 numOfBuffers)
 	{
+		TDE2_PROFILER_SCOPE("CSpriteRendererSystem::_initializeBatchVertexBuffers");
+
 		for (U32 i = 0; i < numOfBuffers; ++i)
 		{
 			mSpritesPerInstanceDataHandles.push_back(

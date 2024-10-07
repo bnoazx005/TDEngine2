@@ -430,7 +430,7 @@ namespace TDEngine2
 
 			if (pUIElementsVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(mUIElementsVertexBufferHandle))
 			{
-				E_RESULT_CODE result = pUIElementsVertexBuffer->Map(BMT_WRITE_DISCARD);
+				E_RESULT_CODE result = pUIElementsVertexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
 				TDE2_ASSERT(RC_OK == result);
 
 				pUIElementsVertexBuffer->Write(uiElementsVerts.data(), sizeof(TVector4) * uiElementsVerts.size());

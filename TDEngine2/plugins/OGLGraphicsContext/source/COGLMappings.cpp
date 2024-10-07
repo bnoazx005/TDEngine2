@@ -17,11 +17,11 @@ namespace TDEngine2
 	{
 		switch (type)
 		{
-			case BMT_READ:
+			case E_BUFFER_MAP_TYPE::BMT_READ:
 				return GL_READ_ONLY;
-			case BMT_READ_WRITE:
+			case E_BUFFER_MAP_TYPE::BMT_READ_WRITE:
 				return GL_READ_WRITE;
-			case BMT_WRITE:
+			case E_BUFFER_MAP_TYPE::BMT_WRITE:
 				return GL_WRITE_ONLY;
 		}
 

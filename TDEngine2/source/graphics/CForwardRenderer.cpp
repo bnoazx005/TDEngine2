@@ -557,7 +557,7 @@ namespace TDEngine2
 						
 						if (auto pCurrTypedBuffer = mContext.mpGraphicsContext->GetGraphicsObjectManager()->GetBufferPtr(lightsBuffer.mBufferHandle))
 						{
-							E_RESULT_CODE result = pCurrTypedBuffer->Map(BMT_WRITE_DISCARD);
+							E_RESULT_CODE result = pCurrTypedBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
 							if (result != RC_OK)
 							{
 								return;

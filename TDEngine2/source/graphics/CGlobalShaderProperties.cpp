@@ -55,7 +55,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		E_RESULT_CODE result = pCurrUniformsBuffer->Map(BMT_WRITE_DISCARD);
+		E_RESULT_CODE result = pCurrUniformsBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
 
 		if (result != RC_OK)
 		{
@@ -91,7 +91,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		E_RESULT_CODE result = pCurrTypedBuffer->Map(BMT_WRITE_DISCARD);
+		E_RESULT_CODE result = pCurrTypedBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
 
 		if (result != RC_OK)
 		{

@@ -1311,8 +1311,8 @@ namespace TDEngine2
 		auto pVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(mVertexBufferHandle);
 		auto pIndexBuffer = mpGraphicsObjectManager->GetBufferPtr(mIndexBufferHandle);
 
-		pVertexBuffer->Map(BMT_WRITE_DISCARD);
-		pIndexBuffer->Map(BMT_WRITE_DISCARD);
+		pVertexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
+		pIndexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
 		{
 			std::vector<ImDrawVert> vertices(pImGUIData->TotalVtxCount);
 			std::vector<ImDrawIdx> indices(pImGUIData->TotalIdxCount);
@@ -1334,13 +1334,13 @@ namespace TDEngine2
 			if (vertices.size() > pVertexBuffer->GetSize() / sizeof(ImDrawVert))
 			{
 				pVertexBuffer->Resize(pVertexBuffer->GetSize() + VertexBufferChunkSize);
-				pVertexBuffer->Map(BMT_WRITE_DISCARD);
+				pVertexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
 			}
 
 			if (indices.size() > pIndexBuffer->GetSize() / sizeof(ImDrawIdx))
 			{
 				pIndexBuffer->Resize(pIndexBuffer->GetSize() + IndexBufferChunkSize);
-				pIndexBuffer->Map(BMT_WRITE_DISCARD);
+				pIndexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
 			}
 
 			if (!vertices.empty())

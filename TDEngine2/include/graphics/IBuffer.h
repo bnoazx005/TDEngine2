@@ -33,7 +33,7 @@ namespace TDEngine2
 		\brief An enumeration of all possible ways of locking a buffer
 	*/
 
-	enum E_BUFFER_MAP_TYPE
+	enum class E_BUFFER_MAP_TYPE : U8
 	{
 		BMT_WRITE_DISCARD,				///< Access to write data into the buffer, but all previous data will be discarded
 		BMT_NOOVERWRITE,				///< 
