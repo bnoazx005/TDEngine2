@@ -14,6 +14,9 @@
 
 namespace TDEngine2
 {
+	class IEventManager;
+
+
 	/*!
 		abstract class CBaseSystem
 
@@ -82,5 +85,5 @@ namespace TDEngine2
 	};
 
 
-	TDE2_API ISystem* CreateAsyncSystemsGroup(const std::vector<ISystem*>& systems, E_RESULT_CODE& result);
+	TDE2_API ISystem* CreateAsyncSystemsGroup(IEventManager* pEventManager, const std::vector<ISystem*>& systems, E_RESULT_CODE& result);
 }

@@ -516,12 +516,12 @@ namespace TDEngine2
 				CreateParticlesGPUSimulationSystem(pRenderer, pGraphicsObjectManager, result) :
 				CreateParticlesSimulationSystem(pRenderer, pGraphicsObjectManager, result),
 			
-			//CreateAsyncSystemsGroup( /// \note Systems within the group is executed sequentially, but the group itself runs at worker thread
-			//	{
+			CreateAsyncSystemsGroup(pEventManager, /// \note Systems within the group is executed sequentially, but the group itself runs at worker thread
+				{
 					CreateUIEventsSystem(_getSubsystemAs<IInputContext>(EST_INPUT_CONTEXT), mpImGUIContext, result),
 					CreateUIElementsProcessSystem(pGraphicsContext, pResourceManager,_getSubsystemAs<ISceneManager>(EST_SCENE_MANAGER), result),
 					CreateUIElementsRenderSystem(pRenderer, pGraphicsObjectManager, result),
-			//	}, result),
+				}, result),
 
 #if TDE2_EDITORS_ENABLED
 			CreateObjectsSelectionSystem(pRenderer, pGraphicsObjectManager, result),
