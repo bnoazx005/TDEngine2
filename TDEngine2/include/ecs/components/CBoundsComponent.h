@@ -47,6 +47,13 @@ namespace TDEngine2
 			TDE2_API void SetBounds(const TAABB& aabbBounds);
 
 			/*!
+				\brief The method is invoked at the end of frame to swap current and previous state of the component.
+				Used to prevent using locks
+			*/
+
+			TDE2_API void SwapState();
+
+			/*!
 				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
 				The original state of the object stays the same
 
@@ -99,6 +106,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBoundsComponent)
 		protected:
+			TAABB mUpdatedBounds;
 			TAABB mBounds;
 
 			bool  mIsDirty;

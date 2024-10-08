@@ -292,12 +292,36 @@ namespace TDEngine2
 
 		auto pJobManager = mpResourceManager->GetJobManager();
 
-		TJobCounter counter;
-		pJobManager->SubmitJob(&counter, [this, isUpdateNeeded](auto) { ProcessMeshesBounds(mpResourceManager, mpDebugUtility, mStaticMeshesContext, isUpdateNeeded, ComputeStaticMeshBounds); });
-		pJobManager->SubmitJob(&counter, [this, isUpdateNeeded](auto){ ProcessMeshesBounds(mpResourceManager, mpDebugUtility, mSkinnedMeshesContext, isUpdateNeeded, ComputeSkinnedMeshBounds); });
-		pJobManager->SubmitJob(&counter, [this, isUpdateNeeded](auto){ ProcessSpritesBounds(mpDebugUtility, mSpritesContext, isUpdateNeeded); });
+		pJobManager->SubmitJob(nullptr, [this, isUpdateNeeded, pJobManager](auto)
+			{
+				TJobCounter counter;
+				pJobManager->SubmitJob(&counter, [this, isUpdateNeeded](auto) { ProcessMeshesBounds(mpResourceManager, mpDebugUtility, mStaticMeshesContext, isUpdateNeeded, ComputeStaticMeshBounds); });
+				pJobManager->SubmitJob(&counter, [this, isUpdateNeeded](auto) { ProcessMeshesBounds(mpResourceManager, mpDebugUtility, mSkinnedMeshesContext, isUpdateNeeded, ComputeSkinnedMeshBounds); });
+				pJobManager->SubmitJob(&counter, [this, isUpdateNeeded](auto) { ProcessSpritesBounds(mpDebugUtility, mSpritesContext, isUpdateNeeded); });
 
-		pJobManager->WaitForJobCounter(counter);
+				pJobManager->WaitForJobCounter(counter);
+
+				pJobManager->ExecuteInMainThread([this]() 
+					{
+						TDE2_PROFILER_SCOPE("CBoundsUpdatingSystem::Update");
+
+						for (CBoundsComponent* pCurrComponent : mStaticMeshesContext.mpBounds)
+						{
+							pCurrComponent->SwapState();
+						}
+
+						for (CBoundsComponent* pCurrComponent : mSkinnedMeshesContext.mpBounds)
+						{
+							pCurrComponent->SwapState();
+						}
+
+						for (CBoundsComponent* pCurrComponent : mSpritesContext.mpBounds)
+						{
+							pCurrComponent->SwapState();
+						}
+					});
+			});
+		
 
 		mCurrTimer += dt;
 	}

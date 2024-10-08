@@ -13,7 +13,7 @@ namespace TDEngine2
 
 	void CBoundsComponent::SetBounds(const TAABB& aabbBounds)
 	{
-		mBounds = aabbBounds;
+		mUpdatedBounds = aabbBounds;
 	}
 
 	E_RESULT_CODE CBoundsComponent::Clone(IComponent*& pDestObject) const
@@ -25,6 +25,11 @@ namespace TDEngine2
 		}
 
 		return RC_FAIL;
+	}
+
+	void CBoundsComponent::SwapState()
+	{
+		mBounds = mUpdatedBounds;
 	}
 
 	void CBoundsComponent::SetDirty(bool value)
