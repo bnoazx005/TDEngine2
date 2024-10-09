@@ -346,9 +346,9 @@ namespace TDEngine2
 			resourceId = TResourceId(mResources.Add(TPtr<IResource>(pResource)));
 
 			mResourcesMap[name] = resourceId;
-		}
 
-		pResource->Load(); /// \note Load is executed in sequential manner, but internally it can create background tasks
+			pResource->Load(); /// \note Load is executed in sequential manner, but internally it can create background tasks
+		}
 
 		TDE2_STATS_COUNTER_INCREMENT(mLoadedResourcesCount);
 
