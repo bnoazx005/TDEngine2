@@ -159,6 +159,8 @@ namespace TDEngine2
 			return TPtr<IMaterialInstance>(nullptr);
 		}
 
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+
 		if (auto newInstanceResult = _allocateNewInstance())
 		{
 			TMaterialInstanceId instanceId = newInstanceResult.Get();
@@ -195,6 +197,7 @@ namespace TDEngine2
 	E_RESULT_CODE CBaseMaterial::Load(IArchiveReader* pReader)
 	{
 		TDE2_PROFILER_SCOPE("CBaseMaterial::Load");
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
 
 		if (!pReader)
 		{
@@ -321,6 +324,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseMaterial::Save(IArchiveWriter* pWriter)
 	{
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+
 		if (!pWriter)
 		{
 			return RC_FAIL;
@@ -501,6 +506,8 @@ namespace TDEngine2
 
 	void CBaseMaterial::Bind(TMaterialInstanceId instanceId)
 	{
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+
 		auto pShaderInstance = mpResourceManager->GetResource<IShader>(mShaderHandle);
 
 		if (!pShaderInstance || (instanceId == TMaterialInstanceId::Invalid))
@@ -1002,6 +1009,8 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+
+		pResource->SetState(E_RESOURCE_STATE_TYPE::RST_LOADING);
 
 		if (TResult<TFileEntryId> materialFileId = mpFileSystem->Open<IYAMLFileReader>(pResource->GetName()))
 		{

@@ -418,6 +418,8 @@ namespace TDEngine2
 
 			static const std::string mResourceExtension;
 
+			TDE2_MULTI_THREAD_CHECK_LOCK;
+
 			IGraphicsContext*        mpGraphicsContext;
 
 			IGraphicsObjectManager*  mpGraphicsObjectManager;
