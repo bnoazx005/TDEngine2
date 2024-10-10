@@ -11,6 +11,7 @@
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/components/CBoundsComponent.h"
 #include "../../include/core/IResourceManager.h"
+#include "../../include/core/IJobManager.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/graphics/COrthoCamera.h"
 #include "../../include/graphics/CFramePacketsStorage.h"
@@ -85,15 +86,15 @@ namespace TDEngine2
 
 			mProcessingEntities.push_back({ pCurrEntity->GetComponent<CTransform>(), pCurrEntity->GetComponent<CStaticMeshContainer>(), pCurrEntity->GetComponent<CBoundsComponent>() });
 		}
+
+		mpCurrActiveCamera = GetCurrentActiveCamera(pWorld);
 	}
 
 	void CStaticMeshRendererSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		TDE2_PROFILER_SCOPE("CStaticMeshRendererSystem::Update");
 
-		ICamera* pCameraComponent = GetCurrentActiveCamera(pWorld);
-		TDE2_ASSERT(pCameraComponent);
-		if (!pCameraComponent)
+		if (!mpCurrActiveCamera)
 		{
 			LOG_WARNING("[CStaticMeshRendererSystem] An entity with Camera component attached to that wasn't found");
 			return;
@@ -113,53 +114,60 @@ namespace TDEngine2
 		CRenderQueue* pDepthOnlyRenderGroup   = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_DEPTH_PREPASS)].Get();
 
 		// \note construct commands for opaque geometry
-		std::for_each(mCurrMaterialsArray.cbegin(), firstTransparentMatIter, [this, &pOpaqueRenderGroup, pDepthOnlyRenderGroup, &pCameraComponent](auto&& pCurrMaterial)
+		std::for_each(mCurrMaterialsArray.cbegin(), firstTransparentMatIter, [this, &pOpaqueRenderGroup, pDepthOnlyRenderGroup](auto&& pCurrMaterial)
 		{
-			_populateCommandsBuffer(mProcessingEntities, pOpaqueRenderGroup, pDepthOnlyRenderGroup, pCurrMaterial, pCameraComponent);
+			_populateCommandsBuffer(mProcessingEntities, pOpaqueRenderGroup, pDepthOnlyRenderGroup, pCurrMaterial, mpCurrActiveCamera);
 		});
 
 		// \note construct commands for transparent geometry
-		std::for_each(firstTransparentMatIter, mCurrMaterialsArray.cend(), [this, &pTransparentRenderGroup, &pCameraComponent](auto&& pCurrMaterial)
+		std::for_each(firstTransparentMatIter, mCurrMaterialsArray.cend(), [this, &pTransparentRenderGroup](auto&& pCurrMaterial)
 		{
-			_populateCommandsBuffer(mProcessingEntities, pTransparentRenderGroup, nullptr, pCurrMaterial, pCameraComponent);
+			_populateCommandsBuffer(mProcessingEntities, pTransparentRenderGroup, nullptr, pCurrMaterial, mpCurrActiveCamera);
 		});
 	}
 
 	void CStaticMeshRendererSystem::_collectUsedMaterials(const TEntitiesArray& entities, IResourceManager* pResourceManager, TMaterialsArray& usedMaterials)
 	{
+		TDE2_PROFILER_SCOPE("CStaticMeshRendererSystem::CollectUsedMaterials");
+
 		usedMaterials.clear();
 
-		IStaticMeshContainer* pCurrStaticMeshContainer = nullptr;
+		TJobCounter counter{};
 
-		TPtr<IMaterial> pCurrMaterial;
+		std::mutex mutex;
 
-		for (auto& iter : entities)
-		{
-			pCurrStaticMeshContainer = std::get<CStaticMeshContainer*>(iter);
-
-			auto&& currMaterialId = pCurrStaticMeshContainer->GetMaterialName();
-			if (currMaterialId.empty())
+		mpJobManager->SubmitMultipleJobs(&counter, static_cast<U32>(entities.size()), 1, [&](const TJobArgs& args)
 			{
-				continue;
-			}
+				TDE2_PROFILER_SCOPE("CStaticMeshRendererSystem::CollectUsedMaterials");
 
-			pCurrMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>(currMaterialId));
-			if (!pCurrMaterial)
-			{
-				continue;
-			}
+				IStaticMeshContainer* pCurrStaticMeshContainer = std::get<CStaticMeshContainer*>(entities[args.mJobIndex]);
 
-			// \note skip duplicates
-			if (std::find(usedMaterials.cbegin(), usedMaterials.cend(), pCurrMaterial) != usedMaterials.cend())
-			{
-				continue;
-			}
+				auto&& currMaterialId = pCurrStaticMeshContainer->GetMaterialName();
+				if (currMaterialId.empty())
+				{
+					return;
+				}
 
-			usedMaterials.push_back(pCurrMaterial);
-		}
+				TPtr<IMaterial> pCurrMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>(currMaterialId));
+				if (!pCurrMaterial)
+				{
+					return;
+				}
 
-		// sort all materials
-		std::sort(usedMaterials.begin(), usedMaterials.end(), CBaseMaterial::AlphaBasedMaterialComparator);
+				{
+					std::lock_guard<std::mutex> lock(mutex);
+					// \note skip duplicates
+					if (std::find(usedMaterials.cbegin(), usedMaterials.cend(), pCurrMaterial) != usedMaterials.cend())
+					{
+						return;
+					}
+
+					usedMaterials.insert(pCurrMaterial->IsTransparent() ? usedMaterials.end() : usedMaterials.begin(), pCurrMaterial);
+				}
+			});
+
+		mpJobManager->WaitForJobCounter(counter);
+
 	}
 
 	void CStaticMeshRendererSystem::_populateCommandsBuffer(const TEntitiesArray& entities, CRenderQueue*& pRenderGroup, CRenderQueue* pDepthOnlyRenderGroup,

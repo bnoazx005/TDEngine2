@@ -128,5 +128,7 @@ namespace TDEngine2
 			TMaterialsArray         mCurrMaterialsArray;
 
 			TMeshBuffersMap         mMeshBuffersMap;
+
+			ICamera*                mpCurrActiveCamera = nullptr;
 	};
 }
