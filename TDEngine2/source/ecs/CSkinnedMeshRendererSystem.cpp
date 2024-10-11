@@ -13,6 +13,7 @@
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/components/CBoundsComponent.h"
 #include "../../include/core/IResourceManager.h"
+#include "../../include/core/IJobManager.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/graphics/COrthoCamera.h"
 #include "../../include/graphics/CFramePacketsStorage.h"
@@ -89,71 +90,92 @@ namespace TDEngine2
 
 			mProcessingEntities.push_back({ pCurrEntity->GetComponent<CTransform>(), pCurrEntity->GetComponent<CSkinnedMeshContainer>(), pCurrEntity->GetComponent<CBoundsComponent>() });
 		}
+
+		mpCameraComponent = GetCurrentActiveCamera(pWorld);;
 	}
 
 	void CSkinnedMeshRendererSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		TDE2_PROFILER_SCOPE("CSkinnedMeshRendererSystem::Update");
 
-		ICamera* pCameraComponent = GetCurrentActiveCamera(pWorld);
-		TDE2_ASSERT(pCameraComponent);
-		if (!pCameraComponent)
+		if (!mpCameraComponent)
 		{
 			LOG_WARNING("[CSkinnedMeshRendererSystem] An entity with Camera component attached to that wasn't found");
 			return;
 		}
 
-		// \note first pass (construct an array of materials)
-		// \note Materials: | {opaque_material_group1}, ..., {opaque_material_groupN} | {transp_material_group1}, ..., {transp_material_groupM} |
-		_collectUsedMaterials(mProcessingEntities, mpResourceManager.Get(), mCurrMaterialsArray);
-
-		auto firstTransparentMatIter = std::find_if(mCurrMaterialsArray.begin(), mCurrMaterialsArray.end(), [](auto&& pCurrMaterial)
+		if (mProcessingEntities.empty())
 		{
-			return pCurrMaterial->IsTransparent();
-		});
+			return;
+		}
 
-		CRenderQueue* pOpaqueRenderGroup      = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_OPAQUE_GEOMETRY)].Get();
-		CRenderQueue* pTransparentRenderGroup = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_TRANSPARENT_GEOMETRY)].Get();
-		CRenderQueue* pDepthOnlyRenderGroup   = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_DEPTH_PREPASS)].Get();
+		mpJobManager->SubmitJob(nullptr, [this](auto)
+			{
+				// \note first pass (construct an array of materials)
+				// \note Materials: | {opaque_material_group1}, ..., {opaque_material_groupN} | {transp_material_group1}, ..., {transp_material_groupM} |
+				_collectUsedMaterials(mProcessingEntities, mpResourceManager.Get(), mCurrMaterialsArray);
 
-		// \note construct commands for opaque geometry
-		std::for_each(mCurrMaterialsArray.begin(), firstTransparentMatIter, [this, &pOpaqueRenderGroup, pDepthOnlyRenderGroup, pCameraComponent](auto&& pCurrMaterial)
-		{
-			_populateCommandsBuffer(mProcessingEntities, pOpaqueRenderGroup, pDepthOnlyRenderGroup, pCurrMaterial, pCameraComponent);
-		});
+				const U32 opaqueMaterialsCount = static_cast<U32>(std::min<USIZE>(mCurrMaterialsArray.size(), std::distance(mCurrMaterialsArray.cbegin(), std::find_if(mCurrMaterialsArray.cbegin(), mCurrMaterialsArray.cend(),
+					[](auto&& pCurrMaterial) { return pCurrMaterial->IsTransparent(); }))));
 
-		// \note construct commands for transparent geometry
-		std::for_each(firstTransparentMatIter, mCurrMaterialsArray.end(), [this, &pTransparentRenderGroup, pCameraComponent](auto&& pCurrMaterial)
-		{
-			_populateCommandsBuffer(mProcessingEntities, pTransparentRenderGroup, nullptr, pCurrMaterial, pCameraComponent);
-		});
+				CRenderQueue* pOpaqueRenderGroup = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_OPAQUE_GEOMETRY)].Get();
+				CRenderQueue* pTransparentRenderGroup = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_TRANSPARENT_GEOMETRY)].Get();
+				CRenderQueue* pDepthOnlyRenderGroup = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_DEPTH_PREPASS)].Get();
+
+				// \note construct commands for opaque geometry
+				for (U32 i = 0; i < opaqueMaterialsCount; ++i)
+				{
+					_populateCommandsBuffer(mProcessingEntities, pOpaqueRenderGroup, pDepthOnlyRenderGroup, mCurrMaterialsArray[i], mpCameraComponent);
+				}
+
+				// \note construct commands for transparent geometry
+				for (U32 i = opaqueMaterialsCount; i < mCurrMaterialsArray.size(); ++i)
+				{
+					_populateCommandsBuffer(mProcessingEntities, pTransparentRenderGroup, nullptr, mCurrMaterialsArray[i], mpCameraComponent);
+				}
+			});
 	}
 
 	void CSkinnedMeshRendererSystem::_collectUsedMaterials(const TEntitiesArray& entities, IResourceManager* pResourceManager, TMaterialsArray& usedMaterials)
 	{
 		usedMaterials.clear();
 
-		ISkinnedMeshContainer* pCurrSkinnedMeshContainer = nullptr;
+		TJobCounter counter{};
 
-		TPtr<IMaterial> pCurrMaterial;
+		std::mutex mutex;
 
-		for (auto& iter : entities)
-		{
-			pCurrSkinnedMeshContainer = std::get<CSkinnedMeshContainer*>(iter);
-
-			pCurrMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>(pCurrSkinnedMeshContainer->GetMaterialName()));
-
-			// \note skip duplicates
-			if (!pCurrMaterial || std::find(usedMaterials.cbegin(), usedMaterials.cend(), pCurrMaterial) != usedMaterials.cend())
+		mpJobManager->SubmitMultipleJobs(&counter, static_cast<U32>(entities.size()), 1, [&](const TJobArgs& args)
 			{
-				continue;
-			}
+				ISkinnedMeshContainer* pCurrSkinnedMeshContainer = nullptr;
 
-			usedMaterials.push_back(pCurrMaterial);
-		}
+				TPtr<IMaterial> pCurrMaterial;
 
-		// sort all materials
-		std::sort(usedMaterials.begin(), usedMaterials.end(), CBaseMaterial::AlphaBasedMaterialComparator);
+				for (auto& iter : entities)
+				{
+					pCurrSkinnedMeshContainer = std::get<CSkinnedMeshContainer*>(iter);
+
+					pCurrMaterial = mpResourceManager->GetResource<IMaterial>(mpResourceManager->Load<IMaterial>(pCurrSkinnedMeshContainer->GetMaterialName()));
+
+					// \note skip duplicates
+					if (!pCurrMaterial)
+					{
+						return;
+					}
+
+					{
+						std::lock_guard<std::mutex> lock(mutex);
+						// \note skip duplicates
+						if (std::find(usedMaterials.cbegin(), usedMaterials.cend(), pCurrMaterial) != usedMaterials.cend())
+						{
+							return;
+						}
+
+						usedMaterials.insert(pCurrMaterial->IsTransparent() ? usedMaterials.end() : usedMaterials.begin(), pCurrMaterial);
+					}
+				}
+			});
+
+		mpJobManager->WaitForJobCounter(counter);
 	}
 
 
