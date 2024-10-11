@@ -100,30 +100,31 @@ namespace TDEngine2
 			return;
 		}
 
-		// \note first pass (construct an array of materials)
-		// \note Materials: | {opaque_material_group1}, ..., {opaque_material_groupN} | {transp_material_group1}, ..., {transp_material_groupM} |
-		_collectUsedMaterials(mProcessingEntities, mpResourceManager.Get(), mCurrMaterialsArray);
+		mpJobManager->SubmitJob(nullptr, [this](auto)
+			{
+				// \note first pass (construct an array of materials)
+				// \note Materials: | {opaque_material_group1}, ..., {opaque_material_groupN} | {transp_material_group1}, ..., {transp_material_groupM} |
+				_collectUsedMaterials(mProcessingEntities, mpResourceManager.Get(), mCurrMaterialsArray);
 
-		auto firstTransparentMatIter = std::find_if(mCurrMaterialsArray.cbegin(), mCurrMaterialsArray.cend(), [](auto&& pCurrMaterial)
-		{
-			return pCurrMaterial->IsTransparent();
-		});
+				const U32 opaqueMaterialsCount = static_cast<U32>(std::min<USIZE>(mCurrMaterialsArray.size(), std::distance(mCurrMaterialsArray.cbegin(), std::find_if(mCurrMaterialsArray.cbegin(), mCurrMaterialsArray.cend(),
+					[](auto&& pCurrMaterial) { return pCurrMaterial->IsTransparent(); }))));
 
-		CRenderQueue* pOpaqueRenderGroup      = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_OPAQUE_GEOMETRY)].Get();
-		CRenderQueue* pTransparentRenderGroup = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_TRANSPARENT_GEOMETRY)].Get();
-		CRenderQueue* pDepthOnlyRenderGroup   = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_DEPTH_PREPASS)].Get();
+				CRenderQueue* pOpaqueRenderGroup = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_OPAQUE_GEOMETRY)].Get();
+				CRenderQueue* pTransparentRenderGroup = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_TRANSPARENT_GEOMETRY)].Get();
+				CRenderQueue* pDepthOnlyRenderGroup = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_DEPTH_PREPASS)].Get();
 
-		// \note construct commands for opaque geometry
-		std::for_each(mCurrMaterialsArray.cbegin(), firstTransparentMatIter, [this, &pOpaqueRenderGroup, pDepthOnlyRenderGroup](auto&& pCurrMaterial)
-		{
-			_populateCommandsBuffer(mProcessingEntities, pOpaqueRenderGroup, pDepthOnlyRenderGroup, pCurrMaterial, mpCurrActiveCamera);
-		});
+				// \note construct commands for opaque geometry
+				for (U32 i = 0; i < opaqueMaterialsCount; ++i)
+				{
+					_populateCommandsBuffer(mProcessingEntities, pOpaqueRenderGroup, pDepthOnlyRenderGroup, mCurrMaterialsArray[i], mpCurrActiveCamera);
+				}
 
-		// \note construct commands for transparent geometry
-		std::for_each(firstTransparentMatIter, mCurrMaterialsArray.cend(), [this, &pTransparentRenderGroup](auto&& pCurrMaterial)
-		{
-			_populateCommandsBuffer(mProcessingEntities, pTransparentRenderGroup, nullptr, pCurrMaterial, mpCurrActiveCamera);
-		});
+				// \note construct commands for transparent geometry
+				for (U32 i = opaqueMaterialsCount; i < mCurrMaterialsArray.size(); ++i)
+				{
+					_populateCommandsBuffer(mProcessingEntities, pTransparentRenderGroup, nullptr, mCurrMaterialsArray[i], mpCurrActiveCamera);
+				}
+			});
 	}
 
 	void CStaticMeshRendererSystem::_collectUsedMaterials(const TEntitiesArray& entities, IResourceManager* pResourceManager, TMaterialsArray& usedMaterials)
