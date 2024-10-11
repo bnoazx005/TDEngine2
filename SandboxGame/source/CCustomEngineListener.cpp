@@ -135,6 +135,20 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 				pWeatherComponent->mWeatherMapTextureId = "ProjectResources/Textures/weather.png";
 			}
 
+#if 1
+			if (auto pParticlesEntity = pMainScene->CreateEntity("ParticlesEffect"))
+			{
+				if (CTransform* pTransform = pParticlesEntity->GetComponent<CTransform>())
+				{
+					pTransform->SetPosition(ForwardVector3 * 2.0f);
+				}
+
+				if (auto pParticles = pParticlesEntity->AddComponent<CParticleEmitter>())
+				{
+					pParticles->SetParticleEffect("ProjectResources/Misc/testParticles.particles");
+				}
+			}
+#endif
 		}
 
 #if 0
