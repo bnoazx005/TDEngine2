@@ -365,7 +365,6 @@ namespace TDEngine2
 	#ifdef TDE2_USE_WINPLATFORM
 		OPTICK_FRAME("MainThread");
 	#endif
-		FrameMarkNamed("MainThread");
 #endif
 		{
 			TDE2_BUILTIN_SPEC_PROFILER_EVENT(E_SPECIAL_PROFILE_EVENT::UPDATE);
@@ -409,6 +408,8 @@ namespace TDEngine2
 #endif
 
 		++TFrameCounter::mGlobalFrameNumber;
+
+		FrameMark;
 	}
 
 	E_RESULT_CODE CEngineCore::_onNotifyEngineListeners(E_ENGINE_EVENT_TYPE eventType)
