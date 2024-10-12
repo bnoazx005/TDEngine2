@@ -479,15 +479,15 @@ namespace TDEngine2
 
 	std::vector<TEntityId> CComponentManager::FindEntitiesWithAll(const std::vector<TypeId>& types)
 	{
-		std::vector<TEntityId> filter;
+		TDE2_PROFILER_SCOPE("CComponentManager::FindEntitiesWithAll");
 
-		std::unordered_map<TypeId, U32> entityComponentsTable;
+		std::vector<TEntityId> filter;
 
 		bool containsAll = false;
 
-		for (auto entityComponentsTablePair : mEntityComponentMap)
+		for (const auto& entityComponentsTablePair : mEntityComponentMap)
 		{
-			entityComponentsTable = entityComponentsTablePair.second;
+			const auto& entityComponentsTable = entityComponentsTablePair.second;
 
 			containsAll = true;
 
