@@ -88,6 +88,9 @@ namespace TDEngine2
 						currPos = DrawTextLine(mpImGUIContext, currPos, 25.0f, vOffset.y, "World Update (ms): ",
 							std::to_string(CPerfProfiler::Get()->GetAverageTimeByEventName(E_SPECIAL_PROFILE_EVENT::WORLD_UPDATE) * 1000.0f));
 
+						currPos = DrawTextLine(mpImGUIContext, currPos, 25.0f, vOffset.y, "World Sync (ms): ",
+							std::to_string(CPerfProfiler::Get()->GetAverageTimeByEventName(E_SPECIAL_PROFILE_EVENT::WORLD_SYSTEMS_SYNC) * 1000.0f));
+
 						currPos = DrawTextLine(mpImGUIContext, currPos, 25.0f, vOffset.y, "Audio Update (ms): ",
 							std::to_string(CPerfProfiler::Get()->GetAverageTimeByEventName(E_SPECIAL_PROFILE_EVENT::AUDIO_UPDATE) * 1000.0f));
 

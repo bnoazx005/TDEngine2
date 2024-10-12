@@ -277,6 +277,7 @@ namespace TDEngine2
 
 	void CWorld::SyncSystemsExecution()
 	{
+		TDE2_BUILTIN_SPEC_PROFILER_EVENT(E_SPECIAL_PROFILE_EVENT::WORLD_SYSTEMS_SYNC);
 		mpSystemManager->SyncSystemsExecution();
 	}
 

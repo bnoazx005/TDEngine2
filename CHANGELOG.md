@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The API of **ISystem** was extended with a new method OnSyncRequested.
 
+- A new special profiler event was declared which is **E_SPECIAL_PROFILE_EVENT::WORLD_SYSTEMS_SYNC**.
+
 ### Changed
 
 - The syncronization mechanism within **CResourceManager**'s implementation was changed to reentrant one using std::recursive_mutex. 

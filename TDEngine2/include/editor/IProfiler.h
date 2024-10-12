@@ -24,6 +24,7 @@ namespace TDEngine2
 		AUDIO_UPDATE,
 		WORLD_UPDATE,
 		PRESENT,
+		WORLD_SYSTEMS_SYNC,
 		UNUSED,
 	};
 
