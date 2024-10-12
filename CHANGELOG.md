@@ -46,6 +46,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The enumeration **E_BUFFER_MAP_TYPE** is strongly typed now.
 
+- marl task scheduling library was updated to newest version which corresponds to https://github.com/google/marl/commit/690889fbb816a409b4fcd4bdf60e32a4deebeb08
+
 ### Fixed
 
 - CBaseMaterial::Save's behaviour was fixed.

@@ -24,6 +24,7 @@
 #include "sanitizers.h"
 #include "task.h"
 #include "thread.h"
+#include "thread_local.h"
 
 #include <array>
 #include <atomic>
@@ -416,10 +417,11 @@ class Scheduler {
     // spinForWork().
     void waitForWork() REQUIRES(work.mutex);
 
-    // spinForWork() attempts to steal work from another Worker, and keeps
+    // spinForWorkAndLock() attempts to steal work from another Worker, and keeps
     // the thread awake for a short duration. This reduces overheads of
-    // frequently putting the thread to sleep and re-waking.
-    void spinForWork();
+    // frequently putting the thread to sleep and re-waking. It locks the mutex
+    // before returning so that a stolen task cannot be re-stolen by other workers.
+    void spinForWorkAndLock() ACQUIRE(work.mutex);
 
     // enqueueFiberTimeouts() enqueues all the fibers that have finished
     // waiting.
@@ -464,7 +466,7 @@ class Scheduler {
     };
 
     // The current worker bound to the current thread.
-    static thread_local Worker* current;
+    MARL_DECLARE_THREAD_LOCAL(Worker*, current);
 
     Mode const mode;
     Scheduler* const scheduler;
@@ -492,12 +494,12 @@ class Scheduler {
   static void setBound(Scheduler* scheduler);
 
   // The scheduler currently bound to the current thread.
-  static thread_local Scheduler* bound;
+  MARL_DECLARE_THREAD_LOCAL(Scheduler*, bound);
 
   // The immutable configuration used to build the scheduler.
   const Config cfg;
 
-  std::array<std::atomic<int>, 8> spinningWorkers;
+  std::array<std::atomic<int>, MaxWorkerThreads> spinningWorkers;
   std::atomic<unsigned int> nextSpinningWorkerIdx = {0x8000000};
 
   std::atomic<unsigned int> nextEnqueueIndex = {0};
@@ -574,7 +576,6 @@ bool Scheduler::Fiber::wait(
 }
 
 Scheduler::Worker* Scheduler::Worker::getCurrent() {
-  MSAN_UNPOISON(&current, sizeof(Worker*));
   return Worker::current;
 }
 

@@ -12,24 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "marl/sanitizers.h"
+#ifndef MARL_BUILD_WASM
 
-#ifndef MARL_USE_FIBER_STACK_GUARDS
-#if !defined(NDEBUG) && !MARL_ADDRESS_SANITIZER_ENABLED
-#define MARL_USE_FIBER_STACK_GUARDS 1
-#else
-#define MARL_USE_FIBER_STACK_GUARDS 0
-#endif
-#endif  // MARL_USE_FIBER_STACK_GUARDS
+#include <cstdint>
+#include <cstddef>
+#include <array>
+#include <emscripten.h>
+#include <emscripten/fiber.h>
 
-#if MARL_USE_FIBER_STACK_GUARDS && MARL_ADDRESS_SANITIZER_ENABLED
-#warning "ASAN can raise spurious failures when using mmap() allocated stacks"
-#endif
+struct marl_fiber_context {
+  // callee-saved data
+  static constexpr size_t asyncify_stack_size = 1024 * 1024;
+  emscripten_fiber_t context;
+  std::array</*std::byte*/ char, asyncify_stack_size> asyncify_stack;
+};
 
-#if defined(_WIN32)
-#include "osfiber_windows.h"
-#elif defined(MARL_FIBERS_USE_UCONTEXT)
-#include "osfiber_ucontext.h"
-#else
-#include "osfiber_asm.h"
-#endif
+#endif  // MARL_BUILD_ASM

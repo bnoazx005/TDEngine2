@@ -84,15 +84,13 @@ namespace marl {
 ////////////////////////////////////////////////////////////////////////////////
 // Scheduler
 ////////////////////////////////////////////////////////////////////////////////
-thread_local Scheduler* Scheduler::bound = nullptr;
+MARL_INSTANTIATE_THREAD_LOCAL(Scheduler*, Scheduler::bound, nullptr);
 
 Scheduler* Scheduler::get() {
-  MSAN_UNPOISON(&bound, sizeof(Scheduler*));
   return bound;
 }
 
 void Scheduler::setBound(Scheduler* scheduler) {
-  MSAN_UNPOISON(&bound, sizeof(Scheduler*));
   bound = scheduler;
 }
 
@@ -116,12 +114,12 @@ void Scheduler::unbind() {
   {
     marl::lock lock(get()->singleThreadedWorkers.mutex);
     auto tid = std::this_thread::get_id();
-    auto it = get()->singleThreadedWorkers.byTid.find(tid);
-    MARL_ASSERT(it != get()->singleThreadedWorkers.byTid.end(),
-                "singleThreadedWorker not found");
+    auto& workers = get()->singleThreadedWorkers.byTid;
+    auto it = workers.find(tid);
+    MARL_ASSERT(it != workers.end(), "singleThreadedWorker not found");
     MARL_ASSERT(it->second.get() == worker, "worker is not bound?");
-    get()->singleThreadedWorkers.byTid.erase(it);
-    if (get()->singleThreadedWorkers.byTid.empty()) {
+    workers.erase(it);
+    if (workers.empty()) {
       get()->singleThreadedWorkers.unbind.notify_one();
     }
   }
@@ -132,10 +130,8 @@ Scheduler::Scheduler(const Config& config)
     : cfg(setConfigDefaults(config)),
       workerThreads{},
       singleThreadedWorkers(config.allocator) {
-  for (size_t i = 0; i < spinningWorkers.size(); i++) {
-    spinningWorkers[i] = -1;
-  }
   for (int i = 0; i < cfg.workerThread.count; i++) {
+    spinningWorkers[i] = -1;
     workerThreads[i] =
         cfg.allocator->create<Worker>(this, Worker::Mode::MultiThreaded, i);
   }
@@ -172,7 +168,7 @@ void Scheduler::enqueue(Task&& task) {
   if (cfg.workerThread.count > 0) {
     while (true) {
       // Prioritize workers that have recently started spinning.
-      auto i = --nextSpinningWorkerIdx % spinningWorkers.size();
+      auto i = --nextSpinningWorkerIdx % cfg.workerThread.count;
       auto idx = spinningWorkers[i].exchange(-1);
       if (idx < 0) {
         // If a spinning worker couldn't be found, round-robin the
@@ -214,7 +210,7 @@ bool Scheduler::stealWork(Worker* thief, uint64_t from, Task& out) {
 }
 
 void Scheduler::onBeginSpinning(int workerId) {
-  auto idx = nextSpinningWorkerIdx++ % spinningWorkers.size();
+  auto idx = nextSpinningWorkerIdx++ % cfg.workerThread.count;
   spinningWorkers[idx] = workerId;
 }
 
@@ -354,7 +350,9 @@ bool Scheduler::WaitingFibers::Timeout::operator<(const Timeout& o) const {
 ////////////////////////////////////////////////////////////////////////////////
 // Scheduler::Worker
 ////////////////////////////////////////////////////////////////////////////////
-thread_local Scheduler::Worker* Scheduler::Worker::current = nullptr;
+MARL_INSTANTIATE_THREAD_LOCAL(Scheduler::Worker*,
+                              Scheduler::Worker::current,
+                              nullptr);
 
 Scheduler::Worker::Worker(Scheduler* scheduler, Mode mode, uint32_t id)
     : id(id),
@@ -369,7 +367,7 @@ void Scheduler::Worker::start() {
       auto allocator = scheduler->cfg.allocator;
       auto& affinityPolicy = scheduler->cfg.workerThread.affinityPolicy;
       auto affinity = affinityPolicy->get(id, allocator);
-      thread = Thread(std::move(affinity), [=] {
+      thread = Thread(std::move(affinity), [=, this] {
         Thread::setName("Thread<%.2d>", int(id));
 
         if (auto const& initFunc = scheduler->cfg.workerThread.initializer) {
@@ -572,7 +570,7 @@ void Scheduler::Worker::run() {
     MARL_NAME_THREAD("Thread<%.2d> Fiber<%.2d>", int(id), Fiber::current()->id);
     // This is the entry point for a multi-threaded worker.
     // Start with a regular condition-variable wait for work. This avoids
-    // starting the thread with a spinForWork().
+    // starting the thread with a spinForWorkAndLock().
     work.wait([this]() REQUIRES(work.mutex) {
       return work.num > 0 || work.waiting || shutdown;
     });
@@ -599,8 +597,7 @@ void Scheduler::Worker::waitForWork() {
   if (mode == Mode::MultiThreaded) {
     scheduler->onBeginSpinning(id);
     work.mutex.unlock();
-    spinForWork();
-    work.mutex.lock();
+    spinForWorkAndLock();
   }
 
   work.wait([this]() REQUIRES(work.mutex) {
@@ -637,7 +634,7 @@ void Scheduler::Worker::setFiberState(Fiber* fiber, Fiber::State to) const {
   fiber->state = to;
 }
 
-void Scheduler::Worker::spinForWork() {
+void Scheduler::Worker::spinForWorkAndLock() {
   TRACE("SPIN");
   Task stolen;
 
@@ -652,13 +649,21 @@ void Scheduler::Worker::spinForWork() {
       nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop();
       nop(); nop(); nop(); nop(); nop(); nop(); nop(); nop();
       // clang-format on
+
       if (work.num > 0) {
-        return;
+        work.mutex.lock();
+        if (work.num > 0) {
+          return;
+        }
+        else {
+          // Our new task was stolen by another worker. Keep spinning.
+          work.mutex.unlock();
+        }
       }
     }
 
     if (scheduler->stealWork(this, rng(), stolen)) {
-      marl::lock lock(work.mutex);
+      work.mutex.lock();
       work.tasks.emplace_back(std::move(stolen));
       work.num++;
       return;
@@ -666,6 +671,7 @@ void Scheduler::Worker::spinForWork() {
 
     std::this_thread::yield();
   }
+  work.mutex.lock();
 }
 
 void Scheduler::Worker::runUntilIdle() {
