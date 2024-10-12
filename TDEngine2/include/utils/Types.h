@@ -868,7 +868,8 @@ namespace TDEngine2
 
 		E_VENDOR_TYPE mVendorType = E_VENDOR_TYPE::UNKNOWN;
 
-		U64           mAvailableVideoMemory = 0;			///< Available video memory size in bytes
+		U64           mAvailableVideoMemory = 0;			///< Total video memory size in bytes
+		U64           mUsedVideoMemory = 0;
 	} TVideoAdapterInfo, *TVideoAdapterInfoPtr;
 
 

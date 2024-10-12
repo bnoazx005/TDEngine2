@@ -130,7 +130,7 @@ namespace TDEngine2
 						const TVideoAdapterInfo& videoAdapterInfo = mpGraphicsContext->GetInfo();
 
 						currPos = DrawTextLine(mpImGUIContext, currPos, 20.0f, vOffset.y, "GAPI:", Meta::EnumTrait<E_GRAPHICS_CONTEXT_GAPI_TYPE>::ToString(graphicsInfo.mGapiType));
-						currPos = DrawTextLine(mpImGUIContext, currPos, 20.0f, vOffset.y, "Video Memory:", Wrench::StringUtils::Format("{0} MiB", videoAdapterInfo.mAvailableVideoMemory / (1 << 20)));
+						currPos = DrawTextLine(mpImGUIContext, currPos, 20.0f, vOffset.y, "Video Memory:", Wrench::StringUtils::Format("{0} / {1} MiB used", videoAdapterInfo.mUsedVideoMemory / (1 << 20), videoAdapterInfo.mAvailableVideoMemory / (1 << 20)));
 
 						currPos = currPos + TVector2(0.0f, vOffset.y);
 					}

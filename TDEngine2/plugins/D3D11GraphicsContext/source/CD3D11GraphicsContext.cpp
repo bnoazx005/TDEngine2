@@ -17,6 +17,11 @@
 
 #if defined(TDE2_USE_WINPLATFORM)
 
+#include <wrl.h>
+
+template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
+
+
 #pragma comment(lib, "d3d11.lib")
 #if TDE2_DEBUG_MODE
 	#pragma comment(lib, "dxguid.lib") 
@@ -1345,7 +1350,18 @@ namespace TDEngine2
 			{ 0x8087, TVideoAdapterInfo::E_VENDOR_TYPE::INTEL },
 		};
 
+		ComPtr<IDXGIAdapter3> pDXGIAdapter3 = nullptr;
+
 		TVideoAdapterInfo outputInfo;
+
+		if (SUCCEEDED(pDXGIAdapter->QueryInterface(IID_PPV_ARGS(&pDXGIAdapter3))))
+		{
+			DXGI_QUERY_VIDEO_MEMORY_INFO info = {};
+			pDXGIAdapter3->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info);
+
+			outputInfo.mUsedVideoMemory = static_cast<U64>(info.CurrentUsage);
+		}
+
 		outputInfo.mAvailableVideoMemory = adapterInfo.DedicatedVideoMemory;
 		outputInfo.mVendorType           = vendorsMap.find(adapterInfo.VendorId) == vendorsMap.cend() ? TVideoAdapterInfo::E_VENDOR_TYPE::UNKNOWN : vendorsMap.at(adapterInfo.VendorId);
 
