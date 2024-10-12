@@ -441,6 +441,8 @@ namespace TDEngine2
 			TDE2_API virtual void DebugOutput(IDebugUtility* pDebugUtility, F32 dt) = 0;
 #endif
 
+			TDE2_API virtual void SyncSystemsExecution() = 0;
+
 			/*!
 				\brief The method returns a pointer to IRaycastContext, use
 

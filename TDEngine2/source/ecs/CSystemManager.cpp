@@ -224,6 +224,18 @@ namespace TDEngine2
 		}
 	}
 
+	void CSystemManager::SyncSystemsExecution()
+	{
+		TDE2_PROFILER_SCOPE("CSystemManager::SyncSystemsExecution");
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		for (auto currSystemDesc : mpActiveSystems)
+		{
+			ISystem* pCurrSystem = currSystemDesc.mpSystem;
+			pCurrSystem->OnSyncRequested();
+		}
+	}
+
 	E_RESULT_CODE CSystemManager::DestroySystems()
 	{
 		std::lock_guard<std::mutex> lock(mMutex);

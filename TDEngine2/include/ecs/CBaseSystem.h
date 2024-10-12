@@ -8,6 +8,7 @@
 
 
 #include "../core/CBaseObject.h"
+#include "../core/IJobManager.h"
 #include "ISystem.h"
 #include <vector>
 
@@ -70,6 +71,8 @@ namespace TDEngine2
 			TDE2_API void OnActivated() override;			
 			TDE2_API void OnDeactivated() override;
 
+			TDE2_API void OnSyncRequested() override;
+
 			/*!
 				\brief The method returns true if the system is registered and active
 			*/
@@ -79,6 +82,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(CBaseSystem)
 		protected:
 			TPtr<IJobManager>            mpJobManager = nullptr;
+			TJobCounter                  mMainSystemJobCounter{};
 		private:
 			std::vector<TCommandFunctor> mDeferredCommandsBuffer {};
 			bool                         mIsActive = true;

@@ -167,7 +167,7 @@ namespace TDEngine2
 			_initializeBatchVertexBuffers(mpGraphicsObjectManager, PreCreatedNumOfVertexBuffers);
 		}
 
-		mpJobManager->SubmitJob(nullptr, [this, pWorld](auto)
+		mpJobManager->SubmitJob(&mMainSystemJobCounter, [this, pWorld](auto)
 			{
 				TJobCounter counter{};
 				mpJobManager->SubmitMultipleJobs(&counter, static_cast<U32>(mSprites.size()), 2, [this, pWorld](const TJobArgs& args)

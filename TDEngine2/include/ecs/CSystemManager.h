@@ -157,6 +157,8 @@ namespace TDEngine2
 
 			TDE2_API void Update(IWorld* pWorld, F32 dt) override;
 
+			TDE2_API void SyncSystemsExecution() override;
+
 			/*!
 				\brief The method calls ISystem::OnDestroy method on each system
 

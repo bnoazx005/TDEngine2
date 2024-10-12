@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A new subtype for **TRenderCommand** was integrated which is **TUpdateBufferCommand**.
 
+- The APIs of **IWorld**, **ISystemManager** were extended with a new public method SyncSystemsExecution.
+
+- The API of **ISystem** was extended with a new method OnSyncRequested.
+
 ### Changed
 
 - The syncronization mechanism within **CResourceManager**'s implementation was changed to reentrant one using std::recursive_mutex. 

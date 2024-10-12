@@ -227,6 +227,8 @@ namespace TDEngine2
 			TDE2_API void DebugOutput(IDebugUtility* pDebugUtility, F32 dt) override;
 #endif
 
+			TDE2_API void SyncSystemsExecution() override;
+
 			/*!
 				\brief The method returns a pointer to IRaycastContext, use
 
@@ -275,6 +277,7 @@ namespace TDEngine2
 
 			F32                   mTimeScaleFactor = 1.0f;
 
+			TDE2_MULTI_THREAD_CHECK_LOCK;
 			mutable std::mutex    mMutex;
 	};
 

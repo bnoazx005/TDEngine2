@@ -114,6 +114,8 @@ namespace TDEngine2
 
 			TDE2_API virtual void Update(IWorld* pWorld, F32 dt) = 0;
 
+			TDE2_API virtual void SyncSystemsExecution() = 0;
+
 			/*!
 				\brief The method unregisters and frees all existing systems
 				

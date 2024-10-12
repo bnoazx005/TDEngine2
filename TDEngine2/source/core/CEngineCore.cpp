@@ -457,6 +457,8 @@ namespace TDEngine2
 						mpWorldInstance->DebugOutput(mpDebugUtility, dt);
 #endif
 
+						mpWorldInstance->SyncSystemsExecution();
+
 						/// \note The internal callback will be invoked when the execution process will go out of the scope
 						defer([this]()
 						{

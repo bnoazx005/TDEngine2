@@ -275,6 +275,11 @@ namespace TDEngine2
 
 #endif
 
+	void CWorld::SyncSystemsExecution()
+	{
+		mpSystemManager->SyncSystemsExecution();
+	}
+
 	TPtr<IRaycastContext> CWorld::GetRaycastContext() const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
@@ -325,16 +330,25 @@ namespace TDEngine2
 
 	std::vector<TEntityId> CWorld::_findEntitiesWithComponents(const std::vector<TypeId>& types)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+
 		return mpComponentManager->FindEntitiesWithAll(types);
 	}
 
 	std::vector<TEntityId> CWorld::_findEntitiesWithAnyComponents(const std::vector<TypeId>& types)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+
 		return mpComponentManager->FindEntitiesWithAny(types);
 	}
 
 	TEntityId CWorld::_findEntityWithUniqueComponent(TypeId typeId)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+
 		TEntityId entityId = mpComponentManager->FindEntityWithUniqueComponent(typeId);
 		if (TEntityId::Invalid == entityId) /// \note Create a new instance because it doesn't exist yet
 		{

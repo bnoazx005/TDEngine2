@@ -100,7 +100,7 @@ namespace TDEngine2
 			return;
 		}
 
-		mpJobManager->SubmitJob(nullptr, [this](auto)
+		mpJobManager->SubmitJob(&mMainSystemJobCounter, [this](auto)
 			{
 				// \note first pass (construct an array of materials)
 				// \note Materials: | {opaque_material_group1}, ..., {opaque_material_groupN} | {transp_material_group1}, ..., {transp_material_groupM} |

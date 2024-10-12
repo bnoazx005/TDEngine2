@@ -498,65 +498,68 @@ namespace TDEngine2
 		TDE2_PROFILER_SCOPE("CLightingSystem::Update");
 		TDE2_ASSERT(mpRenderer);
 
-		mpJobManager->SubmitJob(nullptr, [this, pWorld, dt](auto)
+		mpJobManager->SubmitJob(&mMainSystemJobCounter, [dt, pWorld, this](auto)
 			{
-				TLightingShaderData lightingData;
-				mActiveLightsData.clear();
-
-				ProcessDirectionalLights(mpGraphicsContext, GetCurrentActiveCamera(pWorld), lightingData, mDirectionalLightsContext);
-				ProcessPointLights(mpGraphicsContext, lightingData, mActiveLightsData, mPointLightsContext);
-				ProcessSpotLights(mpGraphicsContext, lightingData, mActiveLightsData, mSpotLightsContext);
-
-				if (mpFramePacketsStorage)
-				{
-					///set up global shader properties for TPerFrameShaderData buffer
-					TPerFrameShaderData perFrameShaderData{};
-					perFrameShaderData.mLightingData = lightingData;
-
-					ICamera* pMainCamera = GetCurrentActiveCamera(pWorld);
-					if (pMainCamera)
+				mpJobManager->SubmitJob(nullptr, [this, pWorld, dt](auto)
 					{
-						perFrameShaderData.mProjMatrix = Transpose(pMainCamera->GetProjMatrix());
-						perFrameShaderData.mViewMatrix = Transpose(pMainCamera->GetViewMatrix());
-						perFrameShaderData.mInvProjMatrix = Transpose(Inverse(pMainCamera->GetProjMatrix()));
-						perFrameShaderData.mInvViewMatrix = Transpose(Inverse(pMainCamera->GetViewMatrix()));
-						perFrameShaderData.mInvViewProjMatrix = Transpose(pMainCamera->GetInverseViewProjMatrix());
-						perFrameShaderData.mCameraPosition = TVector4(pMainCamera->GetPosition(), 1.0f);
-						perFrameShaderData.mCameraProjectionParams = TVector4(pMainCamera->GetNearPlane(), pMainCamera->GetFarPlane(), 0.0f, 0.0f);
-					}
+						TLightingShaderData lightingData;
+						mActiveLightsData.clear();
 
-					perFrameShaderData.mTime = TVector4(mpTimer->GetCurrTime(), dt, 0.0f, 0.0f);
+						ProcessDirectionalLights(mpGraphicsContext, GetCurrentActiveCamera(pWorld), lightingData, mDirectionalLightsContext);
+						ProcessPointLights(mpGraphicsContext, lightingData, mActiveLightsData, mPointLightsContext);
+						ProcessSpotLights(mpGraphicsContext, lightingData, mActiveLightsData, mSpotLightsContext);
 
-					TFramePacket& currFramePacket = mpFramePacketsStorage->GetCurrentFrameForGameLogic();
+						if (mpFramePacketsStorage)
+						{
+							///set up global shader properties for TPerFrameShaderData buffer
+							TPerFrameShaderData perFrameShaderData{};
+							perFrameShaderData.mLightingData = lightingData;
 
-					currFramePacket.mFrameIndex = TFrameCounter::mGlobalFrameNumber;
-					currFramePacket.mDeltaTime = dt;
-					currFramePacket.mPerFrameData = perFrameShaderData;
-					//currFramePacket.mRareUpdatedData    = perFrameShaderData;
-					currFramePacket.mActiveLightSources = mActiveLightsData;
-				}
-			});
+							ICamera* pMainCamera = GetCurrentActiveCamera(pWorld);
+							if (pMainCamera)
+							{
+								perFrameShaderData.mProjMatrix = Transpose(pMainCamera->GetProjMatrix());
+								perFrameShaderData.mViewMatrix = Transpose(pMainCamera->GetViewMatrix());
+								perFrameShaderData.mInvProjMatrix = Transpose(Inverse(pMainCamera->GetProjMatrix()));
+								perFrameShaderData.mInvViewMatrix = Transpose(Inverse(pMainCamera->GetViewMatrix()));
+								perFrameShaderData.mInvViewProjMatrix = Transpose(pMainCamera->GetInverseViewProjMatrix());
+								perFrameShaderData.mCameraPosition = TVector4(pMainCamera->GetPosition(), 1.0f);
+								perFrameShaderData.mCameraProjectionParams = TVector4(pMainCamera->GetNearPlane(), pMainCamera->GetFarPlane(), 0.0f, 0.0f);
+							}
 
-		mpJobManager->SubmitJob(nullptr, [this](auto)
-			{
-				U32 drawIndex = 0;
+							perFrameShaderData.mTime = TVector4(mpTimer->GetCurrTime(), dt, 0.0f, 0.0f);
 
-				CRenderQueue* pShadowPassRenderQueue = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)].Get();
+							TFramePacket& currFramePacket = mpFramePacketsStorage->GetCurrentFrameForGameLogic();
 
-				// \note Prepare commands for the renderer
-				{
-					TDE2_PROFILER_SCOPE("CLightingSystem::ProcessShadowCasters");
+							currFramePacket.mFrameIndex = TFrameCounter::mGlobalFrameNumber;
+							currFramePacket.mDeltaTime = dt;
+							currFramePacket.mPerFrameData = perFrameShaderData;
+							//currFramePacket.mRareUpdatedData    = perFrameShaderData;
+							currFramePacket.mActiveLightSources = mActiveLightsData;
+						}
+					});
 
-					for (USIZE i = 0; i < mStaticShadowCastersContext.mComponentsCount; ++i)
+				mpJobManager->SubmitJob(nullptr, [this](auto)
 					{
-						drawIndex = ProcessStaticMeshCasterEntity({ mpResourceManager.Get(), mpShadowVertDecl, mShadowPassMaterialHandle, drawIndex, pShadowPassRenderQueue }, mStaticShadowCastersContext, i);
-					}
+						U32 drawIndex = 0;
 
-					for (USIZE i = 0; i < mSkinnedShadowCastersContext.mComponentsCount; ++i)
-					{
-						drawIndex = ProcessSkinnedMeshCasterEntity({ mpResourceManager.Get(), mpSkinnedShadowVertDecl, mShadowPassSkinnedMaterialHandle, drawIndex, pShadowPassRenderQueue }, mSkinnedShadowCastersContext, i);
-					}
-				}
+						CRenderQueue* pShadowPassRenderQueue = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)].Get();
+
+						// \note Prepare commands for the renderer
+						{
+							TDE2_PROFILER_SCOPE("CLightingSystem::ProcessShadowCasters");
+
+							for (USIZE i = 0; i < mStaticShadowCastersContext.mComponentsCount; ++i)
+							{
+								drawIndex = ProcessStaticMeshCasterEntity({ mpResourceManager.Get(), mpShadowVertDecl, mShadowPassMaterialHandle, drawIndex, pShadowPassRenderQueue }, mStaticShadowCastersContext, i);
+							}
+
+							for (USIZE i = 0; i < mSkinnedShadowCastersContext.mComponentsCount; ++i)
+							{
+								drawIndex = ProcessSkinnedMeshCasterEntity({ mpResourceManager.Get(), mpSkinnedShadowVertDecl, mShadowPassSkinnedMaterialHandle, drawIndex, pShadowPassRenderQueue }, mSkinnedShadowCastersContext, i);
+							}
+						}
+					});
 			});
 	}
 

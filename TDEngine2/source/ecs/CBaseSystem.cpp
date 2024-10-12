@@ -60,6 +60,12 @@ namespace TDEngine2
 		mIsActive = false;
 	}
 
+	void CBaseSystem::OnSyncRequested()
+	{
+		mpJobManager->WaitForJobCounter(mMainSystemJobCounter);
+		mMainSystemJobCounter.mValue = TJobCounterId::Invalid;
+	}
+
 	bool CBaseSystem::IsActive() const
 	{
 		return mIsActive;
@@ -132,7 +138,7 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("CAsyncSystemsGroup::Update");
 
-		mpJobManager->SubmitJob(nullptr, [this, pWorld, dt](auto)
+		mpJobManager->SubmitJob(&mMainSystemJobCounter, [this, pWorld, dt](auto)
 			{
 				TDE2_PROFILER_SCOPE("CBaseSystem::ExecuteDeferredCommands");
 				std::lock_guard<std::mutex> lock(mMutex);
