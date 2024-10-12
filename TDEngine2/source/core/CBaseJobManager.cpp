@@ -228,10 +228,15 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("CBaseJobManager::WaitForJobCounter");
 
+		if (TJobCounterId::Invalid == counter.mValue)
+		{
+			return;
+		}
+
 		if (auto pWaitGroup = mpWaitCountersPool[static_cast<USIZE>(counter.mValue)].get())
 		{
 			pWaitGroup->wait();
-		}		
+		}
 	}
 
 	E_RESULT_CODE CBaseJobManager::ExecuteInMainThread(const std::function<void()>& action)
@@ -256,6 +261,8 @@ namespace TDEngine2
 
 	void CBaseJobManager::ProcessMainThreadQueue()
 	{
+		TDE2_PROFILER_SCOPE("CBaseJobManager::ProcessMainThreadQueue");
+
 		if (mUpdateCounter < mUpdateTickRate)
 		{
 			++mUpdateCounter;
