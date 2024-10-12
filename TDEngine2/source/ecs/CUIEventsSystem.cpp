@@ -52,7 +52,17 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API std::vector<TEntityId> FindMainCanvases(IWorld* pWorld)
+	std::mutex MainCanvasesMutex;
+	std::vector<TEntityId> MainCanvases;
+
+
+	TDE2_API const std::vector<TEntityId>& FindMainCanvases(IWorld* pWorld)
+	{
+		std::lock_guard<std::mutex> lock(MainCanvasesMutex);
+		return MainCanvases;
+	}
+
+	static std::vector<TEntityId> FindMainCanvasesInternal(IWorld* pWorld)
 	{
 		TDE2_PROFILER_SCOPE("CUIEventsSystem::FindMainCanvases");
 
@@ -108,6 +118,11 @@ namespace TDEngine2
 		inputReceivers.clear();
 		priorities.clear();
 		canvases.clear();
+
+		{
+			std::lock_guard<std::mutex> lock(MainCanvasesMutex);
+			MainCanvases = FindMainCanvasesInternal(pWorld);
+		}
 
 		/// \note Find main canvas which has no parent or its parent has no CLayoutElement component attached
 		for (TEntityId currCanvasEntity : FindMainCanvases(pWorld))
