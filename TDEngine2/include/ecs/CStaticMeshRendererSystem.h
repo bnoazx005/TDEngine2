@@ -10,6 +10,7 @@
 #include "CBaseSystem.h"
 #include <vector>
 #include <tuple>
+#include <mutex>
 
 
 namespace TDEngine2
@@ -130,5 +131,7 @@ namespace TDEngine2
 			TMeshBuffersMap         mMeshBuffersMap;
 
 			ICamera*                mpCurrActiveCamera = nullptr;
+
+			std::mutex              mMaterialsMutex;
 	};
 }

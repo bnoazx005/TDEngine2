@@ -135,8 +135,6 @@ namespace TDEngine2
 
 		TJobCounter counter{};
 
-		std::mutex mutex;
-
 		mpJobManager->SubmitMultipleJobs(&counter, static_cast<U32>(entities.size()), 1, [&](const TJobArgs& args)
 			{
 				TDE2_PROFILER_SCOPE("CStaticMeshRendererSystem::CollectUsedMaterials");
@@ -156,7 +154,7 @@ namespace TDEngine2
 				}
 
 				{
-					std::lock_guard<std::mutex> lock(mutex);
+					std::lock_guard<std::mutex> lock(mMaterialsMutex);
 					// \note skip duplicates
 					if (std::find(usedMaterials.cbegin(), usedMaterials.cend(), pCurrMaterial) != usedMaterials.cend())
 					{
