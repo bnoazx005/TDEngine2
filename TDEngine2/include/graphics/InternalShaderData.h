@@ -99,7 +99,10 @@ namespace TDEngine2
 		
 		U32      mObjectID;	///< The field is used by selection manager
 
-		U32      mUnused[3];
+		U32      mStartVertexOffset = 0;
+		U32      mStartIndexOffset = 0;
+
+		U32      mUnused[1];
 
 		TVector4 mTextureTransformDesc; ///< The field contains information about main texture's rect to correctly compute uv space transformations
 	} TPerObjectShaderData, *TPerObjectShaderDataPtr;

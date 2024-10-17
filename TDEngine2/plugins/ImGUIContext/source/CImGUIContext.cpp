@@ -1226,7 +1226,11 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		auto vertexBufferResult = pGraphicsManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::VERTEX, VertexBufferChunkSize, nullptr });
+		auto vertexBufferResult = pGraphicsManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::STRUCTURED, VertexBufferChunkSize, nullptr,
+					VertexBufferChunkSize,
+					false,
+					sizeof(ImDrawVert),
+					E_STRUCTURED_BUFFER_TYPE::DEFAULT });
 		if (vertexBufferResult.HasError())
 		{
 			return vertexBufferResult.GetError();
@@ -1234,17 +1238,17 @@ namespace TDEngine2
 
 		mVertexBufferHandle = vertexBufferResult.Get();
 
-		auto indexBufferResult = pGraphicsManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::INDEX, IndexBufferChunkSize, nullptr });
+		auto indexBufferResult = pGraphicsManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::STRUCTURED, IndexBufferChunkSize, nullptr,
+					IndexBufferChunkSize,
+					false,
+					sizeof(U32),
+					E_STRUCTURED_BUFFER_TYPE::DEFAULT });
 		if (indexBufferResult.HasError())
 		{
 			return indexBufferResult.GetError();
 		}
 
 		mIndexBufferHandle = indexBufferResult.Get();
-
-		mpEditorUIVertexDeclaration = pGraphicsManager->CreateVertexDeclaration().Get();
-		mpEditorUIVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION, false });
-		mpEditorUIVertexDeclaration->AddElement({ TDEngine2::FT_NORM_UBYTE4, 0, TDEngine2::VEST_COLOR, false });
 
 		// \note load default editor's material (depth test and writing to the depth buffer are disabled)
 		TMaterialParameters editorUIMaterialParams { "Shaders/Default/UI/EditorUI.shader", true, { false, false } };
@@ -1398,15 +1402,15 @@ namespace TDEngine2
 				pCurrDrawCommand->mObjectData.mModelMatrix = Transpose(projectionMatrix); // \note assign it as ModelMat and don't use global ProjMat
 				pCurrDrawCommand->mObjectData.mTextureTransformDesc = TVector4(uvRect.x, uvRect.y, uvRect.width, uvRect.height);
 
-				pCurrDrawCommand->mpVertexDeclaration      = mpEditorUIVertexDeclaration;
-				pCurrDrawCommand->mVertexBufferHandle      = mVertexBufferHandle;
-				pCurrDrawCommand->mIndexBufferHandle       = mIndexBufferHandle;
-				pCurrDrawCommand->mMaterialHandle          = mDefaultEditorMaterialHandle;
-				pCurrDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-				pCurrDrawCommand->mNumOfIndices            = pCurrCommand->ElemCount;
-				pCurrDrawCommand->mStartIndex              = pCurrCommand->IdxOffset + currIndexOffset;
-				pCurrDrawCommand->mStartVertex             = pCurrCommand->VtxOffset + currVertexOffset;
-				pCurrDrawCommand->mMaterialInstanceId      = mUsingMaterials[textureHandleHash];
+				pCurrDrawCommand->mVertexBufferHandle = mVertexBufferHandle;
+				pCurrDrawCommand->mIndexBufferHandle  = mIndexBufferHandle;
+				pCurrDrawCommand->mMaterialHandle     = mDefaultEditorMaterialHandle;
+				pCurrDrawCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+				pCurrDrawCommand->mNumOfIndices       = pCurrCommand->ElemCount;
+				pCurrDrawCommand->mMaterialInstanceId = mUsingMaterials[textureHandleHash];
+
+				pCurrDrawCommand->mObjectData.mStartVertexOffset = pCurrCommand->VtxOffset + currVertexOffset;
+				pCurrDrawCommand->mObjectData.mStartIndexOffset  = pCurrCommand->IdxOffset + currIndexOffset;
 
 				const TVector2 clipMin(pCurrCommand->ClipRect.x - clipRect.x, pCurrCommand->ClipRect.y - clipRect.y);
 				const TVector2 clipMax(pCurrCommand->ClipRect.z - clipRect.x, pCurrCommand->ClipRect.w - clipRect.y);

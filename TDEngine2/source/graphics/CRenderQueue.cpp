@@ -19,6 +19,10 @@ namespace TDEngine2
 	static const std::string InvalidMaterialMessage = "{0} Invalid material was passed into the render command";
 
 
+	constexpr U32 DEFAULT_PVP_VERTEX_BUFFER_SLOT = 20;
+	constexpr U32 DEFAULT_PVP_INDEX_BUFFER_SLOT  = 21;
+
+
 	E_RESULT_CODE TUpdateBufferCommand::Submit(const TRenderCommandSubmitParams& params)
 	{
 		IGraphicsObjectManager* pGraphicsObjectManager = params.mpGraphicsContext->GetGraphicsObjectManager();
@@ -114,7 +118,13 @@ namespace TDEngine2
 
 		TDE2_STATS_COUNTER_INCREMENT(mDrawCallsCount);
 
-		mpVertexDeclaration->Bind(pGraphicsContext, { mVertexBufferHandle }, pAttachedShader.Get());
+		if (mpVertexDeclaration)
+		{
+			mpVertexDeclaration->Bind(pGraphicsContext, { mVertexBufferHandle }, pAttachedShader.Get());
+
+			pGraphicsContext->SetVertexBuffer(0, mVertexBufferHandle, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
+			pGraphicsContext->SetIndexBuffer(mIndexBufferHandle, 0);
+		}
 
 		pMaterial->Bind(mMaterialInstanceId);
 
@@ -123,11 +133,18 @@ namespace TDEngine2
 			pGraphicsContext->SetScissorRect(mScissorRect);
 		}
 
-		pGraphicsContext->SetVertexBuffer(0, mVertexBufferHandle, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
-		pGraphicsContext->SetIndexBuffer(mIndexBufferHandle, 0);
-
 		pGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_OBJECT, reinterpret_cast<const U8*>(&mObjectData), sizeof(mObjectData));
 		
+		if (!mpVertexDeclaration) // \note If there is no defined vertex declaration use programmable vertex pulling technique
+		{
+			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT, mVertexBufferHandle);
+			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_INDEX_BUFFER_SLOT, mIndexBufferHandle);
+
+			pGraphicsContext->Draw(mPrimitiveType, 0, mNumOfIndices);
+
+			return RC_OK;
+		}
+
 		auto pIndexBuffer = pGraphicsContext->GetGraphicsObjectManager()->GetBufferPtr(mIndexBufferHandle);
 
 		pGraphicsContext->DrawIndexed(mPrimitiveType, pIndexBuffer->GetParams().mIndexFormat, mStartVertex, mStartIndex, mNumOfIndices);

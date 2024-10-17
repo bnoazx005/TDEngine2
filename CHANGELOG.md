@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.30] 2024-10-16
+## [0.6.30] 2024-10-17
 
 ### Added
 
@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The API of **ISystem** was extended with a new method OnSyncRequested.
 
 - A new special profiler event was declared which is **E_SPECIAL_PROFILE_EVENT::WORLD_SYSTEMS_SYNC**.
+
+- The rendering of CImGUIContext's elements is now based on programmable vertex pulling technique.
 
 ### Changed
 

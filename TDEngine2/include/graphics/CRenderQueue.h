@@ -100,7 +100,7 @@ namespace TDEngine2
 
 		TBufferHandleId           mVertexBufferHandle;
 
-		IVertexDeclaration* mpVertexDeclaration;
+		IVertexDeclaration*       mpVertexDeclaration = nullptr;
 
 		TResourceId               mMaterialHandle;
 

@@ -663,8 +663,6 @@ namespace TDEngine2
 
 			CFramePacketsStorage*   mpFramePacketsStorage = nullptr;
 
-			IVertexDeclaration*     mpEditorUIVertexDeclaration;
-
 			bool                    mIsHorizontalGroupEnabled = false;
 
 			TDrawListsStack         mpDrawListsContext;

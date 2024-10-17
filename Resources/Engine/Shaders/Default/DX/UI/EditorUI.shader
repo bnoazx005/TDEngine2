@@ -12,19 +12,18 @@ struct VertexOut
 
 #program vertex
 
-struct VertexIn
-{
-	float4 mPosUV : POSITION0;
-	float4 mColor : COLOR;
-};
+#define TDE2_USE_UI_VERTEX_FORMAT
+#include <TDEngine2VertexFormats.inc>
 
-VertexOut mainVS(VertexIn input)
+VertexOut mainVS(uint vertexId : SV_VertexID)
 {
 	VertexOut output;
 	
-	output.mPos = mul(ModelMat, float4(input.mPosUV.xy, 0.0, 1.0));
-	output.mUV = input.mPosUV.zw;
-	output.mColor = input.mColor;
+	float4 posUv = GetUiVertPosUv(vertexId, StartVertexOffset, StartIndexOffset);
+
+	output.mPos = mul(ModelMat, float4(posUv.xy, 0.0, 1.0));
+	output.mUV = posUv.zw;
+	output.mColor = GetUiVertColor(vertexId, StartVertexOffset, StartIndexOffset);
 
 	return output;
 }
