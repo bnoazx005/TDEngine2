@@ -263,7 +263,7 @@ namespace TDEngine2
 
 			for (U16 index : indices)
 			{
-				mIntermediateIndexBuffer.push_back(static_cast<U16>(mIntermediateVertsBuffer.empty() ? 0 : mIntermediateVertsBuffer.size()) + index);
+				mIntermediateIndexBuffer.push_back(static_cast<U32>(mIntermediateVertsBuffer.empty() ? 0 : mIntermediateVertsBuffer.size()) + static_cast<U32>(index));
 			}
 
 			std::copy(vertices.cbegin(), vertices.cend(), std::back_inserter(mIntermediateVertsBuffer));
@@ -279,10 +279,12 @@ namespace TDEngine2
 				pCurrCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 				pCurrCommand->mMaterialHandle = currMaterialId;
 				pCurrCommand->mMaterialInstanceId = currMaterialInstance;
-				pCurrCommand->mpVertexDeclaration = isTextMesh ? mpDefaultFontVertexDecl : mpDefaultUIVertexDecl;
 				pCurrCommand->mStartIndex = static_cast<U32>(mIndices.size());
 				pCurrCommand->mStartVertex = static_cast<U32>(mVertices.size());
 				pCurrCommand->mNumOfIndices = static_cast<U32>(mIntermediateIndexBuffer.size());
+
+				pCurrCommand->mObjectData.mStartIndexOffset  = static_cast<U32>(mIndices.size());
+				pCurrCommand->mObjectData.mStartVertexOffset = static_cast<U32>(mVertices.size());
 
 				std::copy(mIntermediateVertsBuffer.cbegin(), mIntermediateVertsBuffer.cend(), std::back_inserter(mVertices));
 				std::copy(mIntermediateIndexBuffer.cbegin(), mIntermediateIndexBuffer.cend(), std::back_inserter(mIndices));
@@ -314,17 +316,6 @@ namespace TDEngine2
 
 	E_RESULT_CODE CUIElementsRenderSystem::_initDefaultResources()
 	{
-		auto createUIVertDeclResult = mpGraphicsObjectManager->CreateVertexDeclaration();
-		if (createUIVertDeclResult.HasError())
-		{
-			return createUIVertDeclResult.GetError();
-		}
-
-		mpDefaultUIVertexDecl = createUIVertDeclResult.Get();
-
-		mpDefaultUIVertexDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
-		mpDefaultUIVertexDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_COLOR });
-
 		// \note load default editor's material (depth test and writing to the depth buffer are disabled)
 		{
 			TMaterialParameters editorUIMaterialParams{ "Shaders/Default/UI/DefaultUI.shader", true, { false, false }, { E_CULL_MODE::BACK } };
@@ -367,20 +358,17 @@ namespace TDEngine2
 		/// \note Text can't be a mask but can be a maskable item
 		mDefaultFontMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::MASK_EMITTER)] = mDefaultFontMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::DEFAULT)];
 
-		/// \note Create a default vertex declaration for fonts
-		auto createFontVertDeclResult = mpGraphicsObjectManager->CreateVertexDeclaration();
-		if (createFontVertDeclResult.HasError())
-		{
-			return createFontVertDeclResult.GetError();
-		}
-		
-		mpDefaultFontVertexDecl = createFontVertDeclResult.Get();
-
-		mpDefaultFontVertexDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
-		mpDefaultFontVertexDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_COLOR });
-
 		/// \note Create vertex buffer and index one
-		auto createVertBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::VERTEX, sizeof(TUIElementsVertex) * mMaxVerticesCount, nullptr });
+		auto createVertBufferResult = mpGraphicsObjectManager->CreateBuffer({ 
+				E_BUFFER_USAGE_TYPE::DYNAMIC, 
+				E_BUFFER_TYPE::STRUCTURED, 
+				sizeof(TUIElementsVertex) * mMaxVerticesCount, 
+				nullptr,
+				sizeof(TUIElementsVertex)* mMaxVerticesCount,
+				false,
+				sizeof(TUIElementsVertex),
+				E_STRUCTURED_BUFFER_TYPE::DEFAULT 
+			});
 		if (createVertBufferResult.HasError())
 		{
 			return createVertBufferResult.GetError();
@@ -388,7 +376,16 @@ namespace TDEngine2
 
 		mVertexBufferHandle = createVertBufferResult.Get();
 
-		auto createIndexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::INDEX, sizeof(U16) * mMaxVerticesCount * 3, nullptr });
+		auto createIndexBufferResult = mpGraphicsObjectManager->CreateBuffer({ 
+				E_BUFFER_USAGE_TYPE::DYNAMIC, 
+				E_BUFFER_TYPE::STRUCTURED, 
+				sizeof(U32) * mMaxVerticesCount * 3,
+				nullptr,
+				sizeof(U32) * mMaxVerticesCount * 3,
+				false,
+				sizeof(U32),
+				E_STRUCTURED_BUFFER_TYPE::DEFAULT 
+			});
 		if (createIndexBufferResult.HasError())
 		{
 			return createIndexBufferResult.GetError();
@@ -412,7 +409,7 @@ namespace TDEngine2
 		TUpdateBufferCommand* pUpdateIndexBufferCmd = pUIElementsRenderGroup->SubmitDrawCommand<TUpdateBufferCommand>(0);
 		pUpdateIndexBufferCmd->mBufferHandle = mIndexBufferHandle;
 		pUpdateIndexBufferCmd->mpData = mIndices.data();
-		pUpdateIndexBufferCmd->mDataSize = sizeof(U16) * mIndices.size();
+		pUpdateIndexBufferCmd->mDataSize = sizeof(U32) * mIndices.size();
 		pUpdateIndexBufferCmd->mMapType = E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD;
 
 		return RC_OK;

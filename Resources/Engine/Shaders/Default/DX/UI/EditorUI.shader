@@ -13,6 +13,7 @@ struct VertexOut
 #program vertex
 
 #define TDE2_USE_UI_VERTEX_FORMAT
+#define TDE2_USE_PACKED_COLOR
 #include <TDEngine2VertexFormats.inc>
 
 VertexOut mainVS(uint vertexId : SV_VertexID)

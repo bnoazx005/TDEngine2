@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The rendering of CImGUIContext's elements is now based on programmable vertex pulling technique.
 
+- In-game UI is renderer via programmable vertex pulling technique. 
+
 ### Changed
 
 - The syncronization mechanism within **CResourceManager**'s implementation was changed to reentrant one using std::recursive_mutex. 

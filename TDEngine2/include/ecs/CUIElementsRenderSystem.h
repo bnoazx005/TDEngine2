@@ -19,7 +19,6 @@ namespace TDEngine2
 	class IRenderer;
 	class IGraphicsObjectManager;
 	class CRenderQueue;
-	class IVertexDeclaration;
 	class IResourceManager;
 	class IGraphicsLayersInfo;
 	class CTransform;
@@ -132,9 +131,6 @@ namespace TDEngine2
 
 			TPtr<IResourceManager>          mpResourceManager;
 
-			IVertexDeclaration*             mpDefaultUIVertexDecl;
-			IVertexDeclaration*             mpDefaultFontVertexDecl;
-
 			TMaterialsArray                 mDefaultUIMaterialId;
 			TMaterialsArray                 mDefaultFontMaterialId;
 			
@@ -143,7 +139,7 @@ namespace TDEngine2
 			TSystemContext                  mUIElementsContext;
 
 			std::vector<TUIElementsVertex>  mVertices, mIntermediateVertsBuffer;
-			std::vector<U16>                mIndices, mIntermediateIndexBuffer;
+			std::vector<U32>                mIndices, mIntermediateIndexBuffer;
 
 			TBufferHandleId                 mVertexBufferHandle;
 			TBufferHandleId                 mIndexBufferHandle;

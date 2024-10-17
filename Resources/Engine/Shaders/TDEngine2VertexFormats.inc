@@ -52,7 +52,11 @@ DECLARE_TYPED_BUFFER_EX(uint, IndexBuffer, 21);
 struct TUiVertexFormat
 {
 	float4 mPosUV;
+	#ifdef TDE2_USE_PACKED_COLOR
 	uint   mColor;
+	#else
+	float4 mColor;
+	#endif
 };
 
 DECLARE_TYPED_BUFFER_EX(TUiVertexFormat, VertexBuffer, 20);
@@ -62,16 +66,20 @@ DECLARE_TYPED_BUFFER_EX(uint, IndexBuffer, 21);
 float4 GetUiVertPosUv(uint index, uint vertexOffset = 0, uint indexOffset = 0) { return TYPED_BUFFER_ACCESS(VertexBuffer)[TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset].mPosUV; }
 float4 GetUiVertColor(uint index, uint vertexOffset = 0, uint indexOffset = 0) 
 {	
+	#ifdef TDE2_USE_PACKED_COLOR
 	uint color = TYPED_BUFFER_ACCESS(VertexBuffer)[TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset].mColor; 
 
 	float4 output;
-	
+
 	output.r = float(color & 0xff);
 	output.g = float((color >> 8) & 0xff);
 	output.b = float((color >> 16) & 0xff);
 	output.a = float((color >> 24) & 0xff);
 
 	return output / 255.0;
+	#else
+	return TYPED_BUFFER_ACCESS(VertexBuffer)[TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset].mColor; 
+	#endif
 }
 
 #endif
