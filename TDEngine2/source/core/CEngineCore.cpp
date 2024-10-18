@@ -505,7 +505,7 @@ namespace TDEngine2
 		{
 			CreateTransformSystem(pGraphicsContext, result),
 			CreateBoundsUpdatingSystem(pResourceManager, mpDebugUtility, _getSubsystemAs<ISceneManager>(EST_SCENE_MANAGER), result),
-			CreateSpriteRendererSystem(TPtr<IAllocator>(CreateLinearAllocator(5 * SpriteInstanceDataBufferSize, result)),
+			CreateSpriteRendererSystem(TPtr<IAllocator>(CreateLinearAllocator(5 * CSpriteRendererSystem::SPRITE_INSTANCE_DATA_BUFFER_SIZE, result)),
 									   pRenderer, pGraphicsObjectManager, result),
 			(pCameraSystem = CreateCameraSystem(pWindowSystem, pGraphicsContext, pRenderer, result)),
 			CreateLODMeshSwitchSystem(result),

@@ -19,8 +19,9 @@ namespace TDEngine2
 	static const std::string InvalidMaterialMessage = "{0} Invalid material was passed into the render command";
 
 
-	constexpr U32 DEFAULT_PVP_VERTEX_BUFFER_SLOT = 20;
-	constexpr U32 DEFAULT_PVP_INDEX_BUFFER_SLOT  = 21;
+	constexpr U32 DEFAULT_PVP_VERTEX_BUFFER_SLOT    = 20;
+	constexpr U32 DEFAULT_PVP_INDEX_BUFFER_SLOT     = 21;
+	constexpr U32 DEFAULT_PVP_INSTANCE_BUFFER_SLOT  = 22;
 
 
 	E_RESULT_CODE TUpdateBufferCommand::Submit(const TRenderCommandSubmitParams& params)
@@ -186,7 +187,14 @@ namespace TDEngine2
 
 		auto pAttachedShader = pResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
 
-		mpVertexDeclaration->Bind(pGraphicsContext, { mVertexBufferHandle, mInstancingBufferHandle }, pAttachedShader.Get());
+		if (mpVertexDeclaration)
+		{
+			mpVertexDeclaration->Bind(pGraphicsContext, { mVertexBufferHandle, mInstancingBufferHandle }, pAttachedShader.Get());
+
+			pGraphicsContext->SetVertexBuffer(0, mVertexBufferHandle, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
+			pGraphicsContext->SetVertexBuffer(1, mInstancingBufferHandle, 0, mpVertexDeclaration->GetStrideSize(1)); /// \todo replace magic constants
+			pGraphicsContext->SetIndexBuffer(mIndexBufferHandle, 0);
+		}
 
 		pMaterial->Bind(mMaterialInstanceId);
 
@@ -195,11 +203,18 @@ namespace TDEngine2
 			pGraphicsContext->SetScissorRect(mScissorRect);
 		}
 
-		pGraphicsContext->SetVertexBuffer(0, mVertexBufferHandle, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
-		pGraphicsContext->SetVertexBuffer(1, mInstancingBufferHandle, 0, mpVertexDeclaration->GetStrideSize(1)); /// \todo replace magic constants
-		pGraphicsContext->SetIndexBuffer(mIndexBufferHandle, 0);
-
 		pGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_OBJECT, reinterpret_cast<const U8*>(&mObjectData), sizeof(mObjectData));
+
+		if (!mpVertexDeclaration)
+		{
+			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT, mVertexBufferHandle);
+			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_INDEX_BUFFER_SLOT, mIndexBufferHandle);
+			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_INSTANCE_BUFFER_SLOT, mInstancingBufferHandle);
+
+			pGraphicsContext->DrawInstanced(mPrimitiveType, 0, mIndicesPerInstance, 0, mNumOfInstances);
+
+			return RC_OK;
+		}
 
 		auto pIndexBuffer = pGraphicsContext->GetGraphicsObjectManager()->GetBufferPtr(mIndexBufferHandle);
 

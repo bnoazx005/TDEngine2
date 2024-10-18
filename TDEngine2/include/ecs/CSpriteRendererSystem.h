@@ -66,7 +66,7 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API ISystem* CreateSpriteRendererSystem(TPtr<IAllocator>, IRenderer*, IGraphicsObjectManager*, E_RESULT_CODE&);
-		protected:
+		public:
 			typedef struct TSpriteVertex
 			{
 				TVector4 mPosition;
@@ -90,6 +90,8 @@ namespace TDEngine2
 			} TBatchEntry, *TBatchEntryPtr;
 
 			typedef std::unordered_map<U32, TBatchEntry> TBatchesBuffer;
+
+			TDE2_STATIC_CONSTEXPR U32 SPRITE_INSTANCE_DATA_BUFFER_SIZE = sizeof(TSpriteInstanceData) * (1 << 12);
 		public:
 			TDE2_SYSTEM(CSpriteRendererSystem);
 
@@ -154,9 +156,7 @@ namespace TDEngine2
 			TBufferHandleId                mSpriteVertexBufferHandle;
 			TBufferHandleId                mSpriteIndexBufferHandle;
 
-			IVertexDeclaration*            mpSpriteVertexDeclaration;
-
-			U16                            mSpriteFaces[6];
+			U32                            mSpriteFaces[6];
 
 			IGraphicsLayersInfo*           mpGraphicsLayers;
 

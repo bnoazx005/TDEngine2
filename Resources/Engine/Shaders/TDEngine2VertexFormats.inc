@@ -105,4 +105,62 @@ float4 GetUiVertColor(uint index, uint vertexOffset = 0, uint indexOffset = 0)
 #endif
 
 
+#ifdef TDE2_USE_SPRITE_VERTEX_FORMAT
+
+
+struct TSpriteVertexFormat
+{
+	float4 mPosition;
+	float2 mUV;
+};
+
+
+struct TSpriteInstanceData
+{
+	float4x4 mTransformMat;
+	float4   mColor;
+};
+
+DECLARE_TYPED_BUFFER_EX(TSpriteVertexFormat, VertexBuffer, 20);
+#ifdef TDE2_ENABLE_INDEX_BUFFER
+DECLARE_TYPED_BUFFER_EX(uint, IndexBuffer, 21);
+#endif
+DECLARE_TYPED_BUFFER_EX(TSpriteInstanceData, InstancesBuffer, 22);
+
+
+float4 GetSpriteVertPos(uint index, uint vertexOffset = 0, uint indexOffset = 0) 
+{ 
+	return TYPED_BUFFER_ACCESS(VertexBuffer)[
+#ifdef TDE2_ENABLE_INDEX_BUFFER
+	TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset
+#else
+	index
+#endif
+	].mPosition;
+}
+
+float2 GetSpriteVertUv(uint index, uint vertexOffset = 0, uint indexOffset = 0) 
+{ 
+	return TYPED_BUFFER_ACCESS(VertexBuffer)[
+#ifdef TDE2_ENABLE_INDEX_BUFFER
+	TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset
+#else
+	index
+#endif
+	].mUV;
+}
+
+float4 GetSpriteVertColor(uint index) 
+{	
+	return TYPED_BUFFER_ACCESS(InstancesBuffer)[index].mColor; 
+}
+
+float4x4 GetSpriteTransform(uint index) 
+{	
+	return TYPED_BUFFER_ACCESS(InstancesBuffer)[index].mTransformMat; 
+}
+
+#endif
+
+
 #endif

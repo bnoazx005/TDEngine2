@@ -20,6 +20,7 @@
 #include "../../include/graphics/ITexture2D.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/core/CGameUserSettings.h"
+#include "../../include/core/IJobManager.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include <algorithm>
 #include <cmath>
@@ -220,7 +221,7 @@ namespace TDEngine2
 
 				for (TBufferHandleId& currVertexBufferHandle : mParticlesInstancesBufferHandles)
 				{
-					auto createBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::VERTEX, SpriteInstanceDataBufferSize, nullptr });
+					auto createBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::VERTEX, 4 * (1 << 20), nullptr });
 					if (createBufferResult.HasError())
 					{
 						continue;
@@ -905,7 +906,10 @@ namespace TDEngine2
 					_simulateParticles(pWorld, deltaTime);
 				}
 
-				GPUSort(pGraphicsContext, mpResourceManager.Get(), MAX_PARTICLES_COUNT, mAliveIndexBufferHandle, mCountersBufferHandle);
+				mpJobManager->SubmitJob(&mMainSystemJobCounter, [pGraphicsContext, this](auto)
+					{
+						GPUSort(pGraphicsContext, mpResourceManager.Get(), MAX_PARTICLES_COUNT, mAliveIndexBufferHandle, mCountersBufferHandle);
+					});
 
 #if TDE2_DEBUG_MODE
 				pGraphicsContext->EndSectionMarker();

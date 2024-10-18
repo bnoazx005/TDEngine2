@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - In-game UI is renderer via programmable vertex pulling technique. 
 
-- **CDebugUtility** is now rendered via programmable vertex pulling technique.
+- **CDebugUtility** and **CSpriteRendererSystem** work now using programmable vertex pulling technique.
 
 ### Changed
 

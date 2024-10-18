@@ -15,24 +15,19 @@ struct VertexOut
 
 #program vertex
 
-struct VertexIn
-{
-	float4 mPos        : POSITION0;
-	float2 mUV         : TEXCOORD0;
-	float4x4 mModelMat : TEXCOORD1;
-	float4 mColor      : COLOR0;
-    uint mInstanceId   : SV_InstanceID;
-};
+#define TDE2_USE_SPRITE_VERTEX_FORMAT
+#define TDE2_ENABLE_INDEX_BUFFER
+#include <TDEngine2VertexFormats.inc>
 
 
-VertexOut mainVS(in VertexIn input)
+VertexOut mainVS(uint vertexId : SV_VertexID, uint instanceId : SV_InstanceID)
 {
 	VertexOut output;
 
-	output.mPos        = mul(ProjMat, mul(ViewMat, mul(input.mModelMat, input.mPos)));
-	output.mUV         = input.mUV;
-	output.mColor      = input.mColor;
-	output.mInstanceId = input.mInstanceId;
+	output.mPos        = mul(ProjMat, mul(ViewMat, mul(GetSpriteTransform(instanceId), GetSpriteVertPos(vertexId))));
+	output.mUV         = GetSpriteVertUv(vertexId);
+	output.mColor      = GetSpriteVertColor(instanceId);
+	output.mInstanceId = instanceId;
 
 	return output;
 }

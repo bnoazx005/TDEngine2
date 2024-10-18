@@ -27,7 +27,6 @@ namespace TDEngine2
 		CBaseSystem(), 
 		mSpriteVertexBufferHandle(TBufferHandleId::Invalid), 
 		mSpriteIndexBufferHandle(TBufferHandleId::Invalid),
-		mpSpriteVertexDeclaration(nullptr), 
 		mSpriteFaces {0, 1, 2, 2, 1, 3}, 
 		mpGraphicsLayers(nullptr),
 		mpRenderer(nullptr),
@@ -58,20 +57,8 @@ namespace TDEngine2
 
 		mpGraphicsObjectManager = pGraphicsObjectManager;
 
-		mpSpriteVertexDeclaration = pGraphicsObjectManager->CreateVertexDeclaration().Get();
-
 		/// pre allocated temporary buffer for batching sprites instancing data
 		_initializeBatchVertexBuffers(mpGraphicsObjectManager, PreCreatedNumOfVertexBuffers);
-
-		/// \todo Replace this hardcoded part with proper vertex data's creationg
-		mpSpriteVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
-		mpSpriteVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT2, 0, TDEngine2::VEST_TEXCOORDS });
-		mpSpriteVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 1, TDEngine2::VEST_TEXCOORDS, true });
-		mpSpriteVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 1, TDEngine2::VEST_TEXCOORDS, true });
-		mpSpriteVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 1, TDEngine2::VEST_TEXCOORDS, true });
-		mpSpriteVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 1, TDEngine2::VEST_TEXCOORDS, true });
-		mpSpriteVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 1, TDEngine2::VEST_COLOR, true });
-		mpSpriteVertexDeclaration->AddInstancingDivisor(2, 1);
 
 		TSpriteVertex vertices[] =
 		{
@@ -81,8 +68,27 @@ namespace TDEngine2
 			{ TVector4(0.5f, -0.5f, 0.0f, 1.0f), TVector2(1.0f, 1.0f) }
 		};
 
-		mSpriteVertexBufferHandle = pGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::VERTEX, sizeof(TSpriteVertex) * 4, &vertices[0] }).Get();
-		mSpriteIndexBufferHandle = pGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::INDEX, sizeof(U16) * 6, mSpriteFaces }).Get();
+		mSpriteVertexBufferHandle = pGraphicsObjectManager->CreateBuffer({ 
+				E_BUFFER_USAGE_TYPE::STATIC, 
+				E_BUFFER_TYPE::STRUCTURED,
+				sizeof(TSpriteVertex) * 4, 
+				&vertices[0], 
+				sizeof(TSpriteVertex) * 4, 
+				false,
+				sizeof(TSpriteVertex),
+				E_STRUCTURED_BUFFER_TYPE::DEFAULT
+			}).Get();
+
+		mSpriteIndexBufferHandle = pGraphicsObjectManager->CreateBuffer({ 
+				E_BUFFER_USAGE_TYPE::STATIC,
+				E_BUFFER_TYPE::STRUCTURED,
+				sizeof(U32) * 6,
+				mSpriteFaces,
+				sizeof(U32) * 6,
+				false,
+				sizeof(U32),
+				E_STRUCTURED_BUFFER_TYPE::DEFAULT
+			}).Get();
 
 		E_RESULT_CODE result = RC_OK;
 		
@@ -237,7 +243,7 @@ namespace TDEngine2
 								continue;
 							}
 
-							if (currBatchSize <= SpriteInstanceDataBufferSize)
+							if (currBatchSize <= SPRITE_INSTANCE_DATA_BUFFER_SIZE)
 							{
 								pCurrBatchInstancesBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
 								pCurrBatchInstancesBuffer->Write(&(*currBatchEntry.mpInstancesData)[0], currBatchSize);
@@ -259,7 +265,6 @@ namespace TDEngine2
 							pCurrCommand->mNumOfInstances = instancesCount;/// assign number of sprites in a batch
 							pCurrCommand->mInstancingBufferHandle = currInstancingBufferHandle; /// assign accumulated data of a batch
 							pCurrCommand->mMaterialHandle = currBatchEntry.mMaterialHandle;
-							pCurrCommand->mpVertexDeclaration = mpSpriteVertexDeclaration;
 
 							auto&& uvRect = pMainTexture ? pMainTexture->GetNormalizedTextureRect() : TRectF32{ 0.0f, 0.0f, 1.0f, 1.0f };
 
@@ -284,7 +289,16 @@ namespace TDEngine2
 		for (U32 i = 0; i < numOfBuffers; ++i)
 		{
 			mSpritesPerInstanceDataHandles.push_back(
-				pGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::VERTEX, SpriteInstanceDataBufferSize, nullptr }).Get());
+				pGraphicsObjectManager->CreateBuffer({
+						E_BUFFER_USAGE_TYPE::DYNAMIC,
+						E_BUFFER_TYPE::STRUCTURED, 
+						SPRITE_INSTANCE_DATA_BUFFER_SIZE,
+						nullptr,
+						SPRITE_INSTANCE_DATA_BUFFER_SIZE,
+						false,
+						sizeof(TSpriteInstanceData),
+						E_STRUCTURED_BUFFER_TYPE::DEFAULT 
+					}).Get());
 		}
 	}
 
