@@ -19,7 +19,6 @@
 namespace TDEngine2
 {
 	class CFramePacketsStorage;
-	class IVertexDeclaration;
 	class IGeometryBuilder;
 
 
@@ -183,7 +182,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CDebugUtility)
 
-			TDE2_API std::vector<U16> _buildTextIndexBuffer(U32 textLength) const;
+			TDE2_API std::vector<U32> _buildTextIndexBuffer(U32 textLength) const;
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
@@ -193,15 +192,11 @@ namespace TDEngine2
 
 			CFramePacketsStorage*    mpFramePacketsStorage = nullptr;
 
-			IVertexDeclaration*      mpLinesVertDeclaration;
-
 			TBufferHandleId          mLinesVertexBufferHandle;
 
 			std::vector<TLineVertex> mLinesDataBuffer;
 
 			TResourceId              mSystemFontHandle;
-
-			IVertexDeclaration*      mpTextVertDeclaration;
 
 			TBufferHandleId          mTextVertexBufferHandle;
 			TBufferHandleId          mTextIndexBufferHandle;

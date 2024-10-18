@@ -52,24 +52,53 @@ namespace TDEngine2
 
 		mpFramePacketsStorage = pRenderer->GetFramePacketsStorage().Get();
 
-		mpLinesVertDeclaration = mpGraphicsObjectManager->CreateVertexDeclaration().Get();
-		mpLinesVertDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
-		mpLinesVertDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_COLOR });
-
-		mLinesVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::VERTEX, sizeof(TLineVertex) * mMaxLinesVerticesCount, nullptr }).Get();
+		mLinesVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer({ 
+				E_BUFFER_USAGE_TYPE::DYNAMIC, 
+				E_BUFFER_TYPE::STRUCTURED, 
+				sizeof(TLineVertex) * mMaxLinesVerticesCount, 
+				nullptr,
+				sizeof(TLineVertex)* mMaxLinesVerticesCount,
+				false,
+				sizeof(TLineVertex),
+				E_STRUCTURED_BUFFER_TYPE::DEFAULT 
+			}).Get();
 
 		mSystemFontHandle = mpResourceManager->Load<IFont>("OpenSans.font"); /// \note load system font, which is "OpenSans" font
 
-		mpTextVertDeclaration = mpGraphicsObjectManager->CreateVertexDeclaration().Get();
-		mpTextVertDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
+		TInitBufferParams indexBuferParams ;
 
-		TInitBufferParams indexBuferParams { E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::INDEX, sizeof(U16) * 9072, &_buildTextIndexBuffer(2048)[0] };
-		indexBuferParams.mIndexFormat = E_INDEX_FORMAT_TYPE::INDEX16;
+		mTextVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer({
+				E_BUFFER_USAGE_TYPE::DYNAMIC, 
+				E_BUFFER_TYPE::STRUCTURED, 
+				sizeof(TTextVertex) * 4096, 
+				nullptr,
+				sizeof(TTextVertex) * 4096,
+				false,
+				sizeof(TTextVertex),
+				E_STRUCTURED_BUFFER_TYPE::DEFAULT
+			}).Get();
 
-		mTextVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::VERTEX, sizeof(TTextVertex) * 4096, nullptr }).Get();
-		mTextIndexBufferHandle = mpGraphicsObjectManager->CreateBuffer(indexBuferParams).Get();
+		mTextIndexBufferHandle = mpGraphicsObjectManager->CreateBuffer({
+				E_BUFFER_USAGE_TYPE::DEFAULT,
+				E_BUFFER_TYPE::STRUCTURED, 
+				sizeof(U32) * 9072, 
+				&_buildTextIndexBuffer(2048)[0], 
+				sizeof(U32) * 9072, 
+				false,
+				sizeof(U32),
+				E_STRUCTURED_BUFFER_TYPE::DEFAULT 
+			}).Get();
 
-		mCrossesVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::VERTEX, sizeof(TLineVertex) * mMaxLinesVerticesCount, nullptr }).Get();
+		mCrossesVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer({ 
+				E_BUFFER_USAGE_TYPE::DYNAMIC, 
+				E_BUFFER_TYPE::STRUCTURED, 
+				sizeof(TLineVertex) * mMaxLinesVerticesCount, 
+				nullptr,
+				sizeof(TLineVertex) * mMaxLinesVerticesCount,
+				false,
+				sizeof(TLineVertex),
+				E_STRUCTURED_BUFFER_TYPE::DEFAULT
+			}).Get();
 
 		mpGeometryBuilder = CreateGeometryBuilder(result);
 
@@ -104,7 +133,6 @@ namespace TDEngine2
 			pDrawLinesCommand->mVertexBufferHandle      = mLinesVertexBufferHandle;
 			pDrawLinesCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_LINE_LIST;
 			pDrawLinesCommand->mMaterialHandle          = mpResourceManager->Load<IMaterial>(mDefaultDebugMaterialName);
-			pDrawLinesCommand->mpVertexDeclaration      = mpLinesVertDeclaration;
 			pDrawLinesCommand->mNumOfVertices           = static_cast<U32>(mLinesDataBuffer.size());
 			pDrawLinesCommand->mObjectData.mModelMatrix = IdentityMatrix4;
 		}
@@ -122,7 +150,6 @@ namespace TDEngine2
 			pDrawCrossesCommand->mVertexBufferHandle      = mCrossesVertexBufferHandle;
 			pDrawCrossesCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_LINE_LIST;
 			pDrawCrossesCommand->mMaterialHandle          = mpResourceManager->Load<IMaterial>(mDefaultDebugMaterialName);
-			pDrawCrossesCommand->mpVertexDeclaration      = mpLinesVertDeclaration;
 			pDrawCrossesCommand->mNumOfVertices           = static_cast<U32>(mCrossesDataBuffer.size());
 			pDrawCrossesCommand->mObjectData.mModelMatrix = IdentityMatrix4;
 		}
@@ -141,7 +168,6 @@ namespace TDEngine2
 			pDrawTextCommand->mIndexBufferHandle       = mTextIndexBufferHandle;
 			pDrawTextCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 			pDrawTextCommand->mMaterialHandle          = mpResourceManager->Load<IMaterial>(mTextMaterialName);
-			pDrawTextCommand->mpVertexDeclaration      = mpTextVertDeclaration;
 			pDrawTextCommand->mStartIndex              = 0;
 			pDrawTextCommand->mStartVertex             = 0;
 			pDrawTextCommand->mNumOfIndices            = static_cast<U32>(mTextDataBuffer.size() * 1.5f); // \note 1.5 is hand-coded optimisation of 3 / 2 fracture
@@ -373,9 +399,9 @@ namespace TDEngine2
 		}
 	}
 
-	std::vector<U16> CDebugUtility::_buildTextIndexBuffer(U32 textLength) const
+	std::vector<U32> CDebugUtility::_buildTextIndexBuffer(U32 textLength) const
 	{
-		std::vector<U16> indices;
+		std::vector<U32> indices;
 
 		for (U32 i = 0, index = 0; i < textLength; ++i, index += 4)
 		{

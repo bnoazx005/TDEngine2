@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.30] 2024-10-17
+## [0.6.30] 2024-10-18
 
 ### Added
 
@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The rendering of CImGUIContext's elements is now based on programmable vertex pulling technique.
 
 - In-game UI is renderer via programmable vertex pulling technique. 
+
+- **CDebugUtility** is now rendered via programmable vertex pulling technique.
 
 ### Changed
 

@@ -33,16 +33,12 @@ struct TVertexFormat
 #ifdef TDE2_DECLARE_DEFAULT_VERTEX_BUFFER
 	
 DECLARE_TYPED_BUFFER_EX(TVertexFormat, VertexBuffer, 20);
-
 #ifdef TDE2_ENABLE_INDEX_BUFFER
-
-#ifdef TDE2_USE_32_BIT_INDEX
-DECLARE_TYPED_BUFFER_EX(uint, IndexBuffer, 21);
-#else
 DECLARE_TYPED_BUFFER_EX(uint, IndexBuffer, 21);
 #endif
 
-#endif
+/// \todo Add support of using this function when there is no declared index buffer's resource
+float4 GetVertPos(uint index, uint vertexOffset = 0, uint indexOffset = 0) { return TYPED_BUFFER_ACCESS(VertexBuffer)[TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset].mPosition; }
 
 #endif
 
@@ -60,14 +56,32 @@ struct TUiVertexFormat
 };
 
 DECLARE_TYPED_BUFFER_EX(TUiVertexFormat, VertexBuffer, 20);
+#ifdef TDE2_ENABLE_INDEX_BUFFER
 DECLARE_TYPED_BUFFER_EX(uint, IndexBuffer, 21);
+#endif
 
 
-float4 GetUiVertPosUv(uint index, uint vertexOffset = 0, uint indexOffset = 0) { return TYPED_BUFFER_ACCESS(VertexBuffer)[TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset].mPosUV; }
+float4 GetUiVertPosUv(uint index, uint vertexOffset = 0, uint indexOffset = 0) 
+{ 
+	return TYPED_BUFFER_ACCESS(VertexBuffer)[
+#ifdef TDE2_ENABLE_INDEX_BUFFER
+	TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset
+#else
+	index
+#endif
+	].mPosUV;
+}
+
 float4 GetUiVertColor(uint index, uint vertexOffset = 0, uint indexOffset = 0) 
 {	
 	#ifdef TDE2_USE_PACKED_COLOR
-	uint color = TYPED_BUFFER_ACCESS(VertexBuffer)[TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset].mColor; 
+	uint color = TYPED_BUFFER_ACCESS(VertexBuffer)[
+#ifdef TDE2_ENABLE_INDEX_BUFFER
+	TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset
+#else
+	index
+#endif
+	].mColor; 
 
 	float4 output;
 
@@ -78,7 +92,13 @@ float4 GetUiVertColor(uint index, uint vertexOffset = 0, uint indexOffset = 0)
 
 	return output / 255.0;
 	#else
-	return TYPED_BUFFER_ACCESS(VertexBuffer)[TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset].mColor; 
+	return TYPED_BUFFER_ACCESS(VertexBuffer)[
+#ifdef TDE2_ENABLE_INDEX_BUFFER
+	TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset
+#else 
+	index
+#endif
+	].mColor; 
 	#endif
 }
 

@@ -15,6 +15,7 @@ struct VertexOut
 #program vertex
 
 #define TDE2_USE_UI_VERTEX_FORMAT
+#define TDE2_ENABLE_INDEX_BUFFER
 #include <TDEngine2VertexFormats.inc>
 
 VertexOut mainVS(uint id : SV_VertexID)

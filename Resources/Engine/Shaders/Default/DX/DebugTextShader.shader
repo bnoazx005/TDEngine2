@@ -13,18 +13,21 @@ struct VertexOut
 
 #program vertex
 
-struct VertexIn
-{
-	float4 mPos : POSITION0;
-};
+#define TDE2_USE_POSITION_ONLY_VERTEX_FORMAT
+#define TDE2_FVF_POSITION_ONLY
+#define TDE2_DECLARE_DEFAULT_VERTEX_BUFFER
+#define TDE2_ENABLE_INDEX_BUFFER
 
+#include <TDEngine2VertexFormats.inc>
 
-VertexOut mainVS(in VertexIn input)
+VertexOut mainVS(uint id : SV_VertexID)
 {
 	VertexOut output;
 
-	output.mPos = mul(ProjMat, float4(input.mPos.xy, 1.0, 1.0));
-	output.mUV = input.mPos.zw;
+	float4 posUV = GetVertPos(id, StartVertexOffset, StartIndexOffset);
+
+	output.mPos = mul(ProjMat, float4(posUV.xy, 1.0, 1.0));
+	output.mUV = posUV.zw;
 
 	return output;
 }

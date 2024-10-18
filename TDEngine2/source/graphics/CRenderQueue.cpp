@@ -71,7 +71,11 @@ namespace TDEngine2
 
 		auto pAttachedShader = pResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
 
-		mpVertexDeclaration->Bind(pGraphicsContext, { mVertexBufferHandle }, pAttachedShader.Get());
+		if (mpVertexDeclaration)
+		{
+			mpVertexDeclaration->Bind(pGraphicsContext, { mVertexBufferHandle }, pAttachedShader.Get());
+			pGraphicsContext->SetVertexBuffer(0, mVertexBufferHandle, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
+		}
 
 		pMaterial->Bind(mMaterialInstanceId);
 
@@ -80,9 +84,15 @@ namespace TDEngine2
 			pGraphicsContext->SetScissorRect(mScissorRect);
 		}
 
-		pGraphicsContext->SetVertexBuffer(0, mVertexBufferHandle, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
-
 		pGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_OBJECT, reinterpret_cast<const U8*>(&mObjectData), sizeof(mObjectData));
+
+		if (!mpVertexDeclaration) // \note If there is no defined vertex declaration use programmable vertex pulling technique
+		{
+			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT, mVertexBufferHandle);
+			pGraphicsContext->Draw(mPrimitiveType, 0, mNumOfVertices);
+
+			return RC_OK;
+		}
 
 		pGraphicsContext->Draw(mPrimitiveType, mStartVertex, mNumOfVertices);
 
