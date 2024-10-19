@@ -242,7 +242,13 @@ namespace TDEngine2
 
 		auto pAttachedShader = pResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
 
-		mpVertexDeclaration->Bind(pGraphicsContext, { mVertexBufferHandle }, pAttachedShader.Get());
+		if (mpVertexDeclaration)
+		{
+			mpVertexDeclaration->Bind(pGraphicsContext, { mVertexBufferHandle }, pAttachedShader.Get());
+
+			pGraphicsContext->SetVertexBuffer(0, mVertexBufferHandle, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
+			pGraphicsContext->SetIndexBuffer(mIndexBufferHandle, 0);
+		}
 
 		pMaterial->Bind(mMaterialInstanceId);
 
@@ -251,10 +257,17 @@ namespace TDEngine2
 			pGraphicsContext->SetScissorRect(mScissorRect);
 		}
 
-		pGraphicsContext->SetVertexBuffer(0, mVertexBufferHandle, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
-		pGraphicsContext->SetIndexBuffer(mIndexBufferHandle, 0);
-
 		pGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_OBJECT, reinterpret_cast<const U8*>(&mObjectData), sizeof(mObjectData));
+
+		if (!mpVertexDeclaration)
+		{
+			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT, mVertexBufferHandle);
+			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_INDEX_BUFFER_SLOT, mIndexBufferHandle);
+
+			pGraphicsContext->DrawIndirectInstanced(mPrimitiveType, mArgsBufferHandle, mAlignedOffset);
+
+			return RC_OK;
+		}
 
 		if (mUseIndexedCommand)
 		{

@@ -163,4 +163,57 @@ float4x4 GetSpriteTransform(uint index)
 #endif
 
 
+#ifdef TDE2_USE_PARTICLE_VERTEX_FORMAT
+
+
+struct TParticleVertexFormat
+{
+	float4 mPosition;
+	float2 mUV;
+};
+
+
+struct TParticleInstanceData
+{
+	float4 mColor;
+	float4 mPositionAndSize;
+	float4 mRotation;
+};
+
+DECLARE_TYPED_BUFFER_EX(TParticleVertexFormat, VertexBuffer, 20);
+#ifdef TDE2_ENABLE_INDEX_BUFFER
+DECLARE_TYPED_BUFFER_EX(uint, IndexBuffer, 21);
+#endif
+DECLARE_TYPED_BUFFER_EX(TParticleInstanceData, InstancesBuffer, 22);
+
+
+float4 GetParticleVertPos(uint index, uint vertexOffset = 0, uint indexOffset = 0) 
+{ 
+	return TYPED_BUFFER_ACCESS(VertexBuffer)[
+#ifdef TDE2_ENABLE_INDEX_BUFFER
+	TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset
+#else
+	index
+#endif
+	].mPosition;
+}
+
+float2 GetParticleVertUv(uint index, uint vertexOffset = 0, uint indexOffset = 0) 
+{ 
+	return TYPED_BUFFER_ACCESS(VertexBuffer)[
+#ifdef TDE2_ENABLE_INDEX_BUFFER
+	TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset
+#else
+	index
+#endif
+	].mUV;
+}
+
+float4 GetParticleVertColor(uint index) { return TYPED_BUFFER_ACCESS(InstancesBuffer)[index].mColor; }
+float4 GetParticlePositionAndSize(uint index) { return TYPED_BUFFER_ACCESS(InstancesBuffer)[index].mPositionAndSize; }
+float4 GetParticleRotation(uint index) { return TYPED_BUFFER_ACCESS(InstancesBuffer)[index].mRotation; }
+
+#endif
+
+
 #endif

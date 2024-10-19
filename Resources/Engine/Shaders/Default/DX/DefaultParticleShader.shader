@@ -29,14 +29,10 @@ DECLARE_TYPED_BUFFER_EX(uint, Counters, 2);
 
 #program vertex
 
-struct VertexIn
-{
-	uint vertIndex             : SV_VertexID;
-	float4 mColor              : COLOR0;
-	float4 mParticlePosAndSize : TEXCOORD1;
-	float4 mParticleRotation   : TEXCOORD2;
-	uint mInstanceId           : SV_InstanceID;
-};
+#define TDE2_USE_PARTICLE_VERTEX_FORMAT
+#define TDE2_ENABLE_INDEX_BUFFER
+#include <TDEngine2VertexFormats.inc>
+
 
 static const float4 BILLBOARD_QUAD_VERTICES[] = 
 {
@@ -47,45 +43,60 @@ static const float4 BILLBOARD_QUAD_VERTICES[] =
 };
 
 
-VertexOut mainVS(in VertexIn input)
+VertexOut mainVS(uint vertexId : SV_VertexID, uint instanceId : SV_InstanceID)
 {
 	VertexOut output;
-
-	float cosAngle = cos(input.mParticleRotation.x);
-	float sinAngle = sin(input.mParticleRotation.x);
-
-	float3x3 rotZAxisMat = float3x3(
-		cosAngle, -sinAngle, 0.0f,
-		sinAngle, cosAngle,  0.0f,
-		0.0f,     0.0f,      1.0f);
 
 	float3 particleCenter;
 	float3 localPos;
 
+	float sinAngle, cosAngle;
+	float3x3 rotZAxisMat;
+
 	if (IsGPUParticlesEnabled)
 	{
-		uint index = (uint)AliveParticlesIndexBuffer[Counters[0] - 1 - input.mInstanceId].y;
+		uint index = (uint)AliveParticlesIndexBuffer[Counters[0] - 1 - instanceId].y;
 		TParticle currParticleData = Particles[index];
 
+		cosAngle = cos(currParticleData.mLifeParamsAndRotationPerFrame.z);
+		sinAngle = sin(currParticleData.mLifeParamsAndRotationPerFrame.z);
+
+		rotZAxisMat = float3x3(
+				cosAngle, -sinAngle, 0.0f,
+				sinAngle, cosAngle,  0.0f,
+				0.0f,     0.0f,      1.0f);
+
 		particleCenter = float4(currParticleData.mPositionAndSize.xyz, 1.0);
-		localPos       = mul(rotZAxisMat, float3(BILLBOARD_QUAD_VERTICES[input.vertIndex].xy, 0.0) * currParticleData.mPositionAndSize.w);
+		localPos       = mul(rotZAxisMat, float3(BILLBOARD_QUAD_VERTICES[TYPED_BUFFER_ACCESS(IndexBuffer)[vertexId]].xy, 0.0) * currParticleData.mPositionAndSize.w);
 		
 		output.mColor = currParticleData.mColor;
 	}
 	else
 	{
-		particleCenter = mul(ModelMat, float4(input.mParticlePosAndSize.xyz, 1.0));
-		localPos       = mul(rotZAxisMat, float3(BILLBOARD_QUAD_VERTICES[input.vertIndex].xy, 0.0) * input.mParticlePosAndSize.w);
+		float4 particleRotation = GetParticleRotation(instanceId);
 
-		output.mColor = input.mColor;
+		cosAngle = cos(particleRotation.x);
+		sinAngle = sin(particleRotation.x);
+
+		rotZAxisMat = float3x3(
+				cosAngle, -sinAngle, 0.0f,
+				sinAngle, cosAngle,  0.0f,
+				0.0f,     0.0f,      1.0f);
+
+		float4 particlePosAndSize = GetParticlePositionAndSize(instanceId);
+
+		particleCenter = mul(ModelMat, float4(particlePosAndSize.xyz, 1.0));
+		localPos       = mul(rotZAxisMat, float3(BILLBOARD_QUAD_VERTICES[TYPED_BUFFER_ACCESS(IndexBuffer)[vertexId]].xy, 0.0) * particlePosAndSize.w);
+
+		output.mColor = GetParticleVertColor(instanceId);
 	}
 
 	float4 pos = mul(ViewMat, float4(particleCenter.x, particleCenter.y, particleCenter.z, 1.0)) + float4(localPos.x, localPos.y, localPos.z, 0.0);
 
 	output.mViewPos    = pos;
 	output.mPos        = mul(ProjMat, pos);
-	output.mUV         = BILLBOARD_QUAD_VERTICES[input.vertIndex].zw;
-	output.mInstanceId = input.mInstanceId;
+	output.mUV         = BILLBOARD_QUAD_VERTICES[TYPED_BUFFER_ACCESS(IndexBuffer)[vertexId]].zw;
+	output.mInstanceId = instanceId;
 
 	return output;
 }

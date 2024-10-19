@@ -221,7 +221,17 @@ namespace TDEngine2
 
 				for (TBufferHandleId& currVertexBufferHandle : mParticlesInstancesBufferHandles)
 				{
-					auto createBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::VERTEX, 4 * (1 << 20), nullptr });
+					auto createBufferResult = mpGraphicsObjectManager->CreateBuffer({ 
+							E_BUFFER_USAGE_TYPE::DYNAMIC, 
+							E_BUFFER_TYPE::STRUCTURED, 
+							INSTANCES_BUFFER_SIZE,
+							nullptr, 
+							INSTANCES_BUFFER_SIZE,
+							false,
+							sizeof(TParticleInstanceData),
+							E_STRUCTURED_BUFFER_TYPE::DEFAULT
+						});
+
 					if (createBufferResult.HasError())
 					{
 						continue;
@@ -293,28 +303,23 @@ namespace TDEngine2
 
 			E_RESULT_CODE _initInternalVertexData()
 			{
-				auto createVertDeclResult = mpGraphicsObjectManager->CreateVertexDeclaration();
-				if (createVertDeclResult.HasError())
-				{
-					return createVertDeclResult.GetError();
-				}
-
-				mpParticleVertexDeclaration = createVertDeclResult.Get();
-
-				mpParticleVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
-				mpParticleVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT2, 0, TDEngine2::VEST_TEXCOORDS });
-				mpParticleVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 1, TDEngine2::VEST_COLOR, true });
-				mpParticleVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 1, TDEngine2::VEST_TEXCOORDS, true }); // xyz - position, w - size of a particle
-				mpParticleVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 1, TDEngine2::VEST_TEXCOORDS, true }); // xyz - rotation
-				mpParticleVertexDeclaration->AddInstancingDivisor(2, 1);
-
-				static const U16 faces[] =
+				static const U32 faces[] =
 				{
 					0, 1, 2,
 					2, 1, 3
 				};
 
-				auto createIndexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::INDEX, sizeof(U16) * 6, faces });
+				auto createIndexBufferResult = mpGraphicsObjectManager->CreateBuffer({
+						E_BUFFER_USAGE_TYPE::STATIC,
+						E_BUFFER_TYPE::STRUCTURED,
+						sizeof(U32) * 6,
+						faces,
+						sizeof(U32) * 6,
+						false,
+						sizeof(U32),
+						E_STRUCTURED_BUFFER_TYPE::DEFAULT
+					});
+
 				if (createIndexBufferResult.HasError())
 				{
 					return createIndexBufferResult.GetError();
@@ -497,7 +502,6 @@ namespace TDEngine2
 					pCommand->mIndexBufferHandle = mParticleQuadIndexBufferHandle;
 					pCommand->mInstancingBufferHandle = mParticlesInstancesBufferHandles[currBufferIndex];
 					pCommand->mMaterialHandle = materialHandle;
-					pCommand->mpVertexDeclaration = mpParticleVertexDeclaration;
 					pCommand->mIndicesPerInstance = 6;
 					pCommand->mNumOfInstances = mActiveParticlesCount[currBufferIndex];
 					pCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
@@ -514,6 +518,8 @@ namespace TDEngine2
 			}
 
 		protected:
+			TDE2_STATIC_CONSTEXPR U32    INSTANCES_BUFFER_SIZE = sizeof(TParticleInstanceData) * (1 << 20);
+
 			IRenderer*                   mpRenderer = nullptr;
 
 			TPtr<IResourceManager>       mpResourceManager = nullptr;
@@ -523,8 +529,6 @@ namespace TDEngine2
 			IGraphicsObjectManager*      mpGraphicsObjectManager = nullptr;
 
 			TBufferHandleId              mParticleQuadIndexBufferHandle = TBufferHandleId::Invalid;
-
-			IVertexDeclaration*          mpParticleVertexDeclaration = nullptr;
 
 			CEntity*                     mpCameraEntity = nullptr;
 
@@ -922,28 +926,23 @@ namespace TDEngine2
 
 			E_RESULT_CODE _initInternalVertexData()
 			{
-				auto createVertDeclResult = mpGraphicsObjectManager->CreateVertexDeclaration();
-				if (createVertDeclResult.HasError())
-				{
-					return createVertDeclResult.GetError();
-				}
-
-				mpParticleVertexDeclaration = createVertDeclResult.Get();
-
-				mpParticleVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
-				mpParticleVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT2, 0, TDEngine2::VEST_TEXCOORDS });
-				mpParticleVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 1, TDEngine2::VEST_COLOR, true });
-				mpParticleVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 1, TDEngine2::VEST_TEXCOORDS, true }); // xyz - position, w - size of a particle
-				mpParticleVertexDeclaration->AddElement({ TDEngine2::FT_FLOAT4, 1, TDEngine2::VEST_TEXCOORDS, true }); // xyz - rotation
-				mpParticleVertexDeclaration->AddInstancingDivisor(2, 1);
-
-				static const U16 faces[] =
+				static const U32 faces[] =
 				{
 					0, 1, 2,
 					2, 1, 3
 				};
 
-				auto createIndexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::INDEX, sizeof(U16) * 6, faces });
+				auto createIndexBufferResult = mpGraphicsObjectManager->CreateBuffer({ 
+						E_BUFFER_USAGE_TYPE::STATIC, 
+						E_BUFFER_TYPE::STRUCTURED, 
+						sizeof(U32) * 6, 
+						faces,
+						sizeof(U32) * 6,
+						false,
+						sizeof(U32),
+						E_STRUCTURED_BUFFER_TYPE::DEFAULT
+					});
+
 				if (createIndexBufferResult.HasError())
 				{
 					return createIndexBufferResult.GetError();
@@ -1298,7 +1297,6 @@ namespace TDEngine2
 				pCommand->mVertexBufferHandle = TBufferHandleId::Invalid;
 				pCommand->mIndexBufferHandle = mParticleQuadIndexBufferHandle;
 				pCommand->mMaterialHandle = materialHandle;
-				pCommand->mpVertexDeclaration = mpParticleVertexDeclaration;
 				pCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 				pCommand->mObjectData.mModelMatrix = IdentityMatrix4;
 				pCommand->mObjectData.mInvModelMatrix = IdentityMatrix4;
@@ -1362,8 +1360,6 @@ namespace TDEngine2
 			IGraphicsObjectManager*      mpGraphicsObjectManager = nullptr;
 
 			TBufferHandleId              mParticleQuadIndexBufferHandle;
-
-			IVertexDeclaration*          mpParticleVertexDeclaration = nullptr;
 
 			TSystemContext               mParticleEmitters;
 
