@@ -6,39 +6,56 @@
 	\brief The file describes all the formats that are used in the shaders that based on programming vertex pulling technique.
 */
 
-#ifndef TDENGINE2_SHADOW_MAPPING_UTILS_INC
-#define TDENGINE2_SHADOW_MAPPING_UTILS_INC
+#ifndef TDENGINE2_VERTEX_FORMATS_INC
+#define TDENGINE2_VERTEX_FORMATS_INC
 
-struct TVertexFormat
+
+// \note All elements are stored in same order as E_VERTEX_STREAM_TYPE enumeration in IMesh.h file
+#define HAS_POSITIONS (VertexFormatFlags & (1 << 0))   
+#define HAS_COLORS    (VertexFormatFlags & (1 << 1))
+#define HAS_TEXCOORDS (VertexFormatFlags & (1 << 2))   
+#define HAS_NORMALS   (VertexFormatFlags & (1 << 3)) 
+#define HAS_TANGENTS  (VertexFormatFlags & (1 << 4))  
+#define HAS_SKINNING  (VertexFormatFlags & (1 << 5))  
+
+
+#ifdef TDE2_FVF_SKINNED_VERTEX
+
+struct TSkinningVertexData
 {
-	float4 mPosition;
-
-	#ifndef TDE2_FVF_POSITION_ONLY
-
-	float4 mColor;
-	float2 mUV;
-
-	#ifdef TDE2_FVF_USE_NORMALS
-	float4 mNormal;
-	#endif
-
-	#ifdef TDE2_FVF_USE_TANGENT
-	float4 mTangent;
-	#endif
-
-	#endif
+	float4 mJointWeights; 
+	uint4  mJointIndices;
 };
+
+#endif
 
 
 #ifdef TDE2_DECLARE_DEFAULT_VERTEX_BUFFER
 	
-DECLARE_TYPED_BUFFER_EX(TVertexFormat, VertexBuffer, 20);
+DECLARE_TYPED_BUFFER_EX(float4, PositionsVertexBuffer, 22);
+DECLARE_TYPED_BUFFER_EX(float4, ColorsVertexBuffer, 23);
+DECLARE_TYPED_BUFFER_EX(float4, TexCoordsVertexBuffer, 24);
+DECLARE_TYPED_BUFFER_EX(float4, NormalsVertexBuffer, 25);
+DECLARE_TYPED_BUFFER_EX(float4, TangentsVertexBuffer, 26);
+#ifdef TDE2_FVF_SKINNED_VERTEX
+DECLARE_TYPED_BUFFER_EX(TSkinningVertexData, SkinningVertexBuffer, 27);
+#endif
+
 #ifdef TDE2_ENABLE_INDEX_BUFFER
-DECLARE_TYPED_BUFFER_EX(uint, IndexBuffer, 21);
+DECLARE_TYPED_BUFFER_EX(uint, IndexBuffer, 20);
 #endif
 
 /// \todo Add support of using this function when there is no declared index buffer's resource
-float4 GetVertPos(uint index, uint vertexOffset = 0, uint indexOffset = 0) { return TYPED_BUFFER_ACCESS(VertexBuffer)[TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset].mPosition; }
+float4 GetVertPos(uint index, uint vertexOffset = 0, uint indexOffset = 0) { return TYPED_BUFFER_ACCESS(PositionsVertexBuffer)[TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset]; }
+float4 GetVertColor(uint index, uint vertexOffset = 0, uint indexOffset = 0) { return TYPED_BUFFER_ACCESS(ColorsVertexBuffer)[TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset]; }
+float4 GetVertTexCoords(uint index, uint vertexOffset = 0, uint indexOffset = 0) { return TYPED_BUFFER_ACCESS(TexCoordsVertexBuffer)[TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset]; }
+float4 GetVertNormal(uint index, uint vertexOffset = 0, uint indexOffset = 0) { return TYPED_BUFFER_ACCESS(NormalsVertexBuffer)[TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset]; }
+float4 GetVertTangent(uint index, uint vertexOffset = 0, uint indexOffset = 0) { return TYPED_BUFFER_ACCESS(TangentsVertexBuffer)[TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset]; }
+
+#ifdef TDE2_FVF_SKINNED_VERTEX
+float4 GetVertJointWeights(uint index, uint vertexOffset = 0, uint indexOffset = 0) { return TYPED_BUFFER_ACCESS(SkinningVertexBuffer)[TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset].mJointWeights; }
+uint4 GetVertJointIndices(uint index, uint vertexOffset = 0, uint indexOffset = 0) { return TYPED_BUFFER_ACCESS(SkinningVertexBuffer)[TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset].mJointIndices; }
+#endif
 
 #endif
 
@@ -55,9 +72,9 @@ struct TUiVertexFormat
 	#endif
 };
 
-DECLARE_TYPED_BUFFER_EX(TUiVertexFormat, VertexBuffer, 20);
+DECLARE_TYPED_BUFFER_EX(TUiVertexFormat, VertexBuffer, 22);
 #ifdef TDE2_ENABLE_INDEX_BUFFER
-DECLARE_TYPED_BUFFER_EX(uint, IndexBuffer, 21);
+DECLARE_TYPED_BUFFER_EX(uint, IndexBuffer, 20);
 #endif
 
 
@@ -121,11 +138,11 @@ struct TSpriteInstanceData
 	float4   mColor;
 };
 
-DECLARE_TYPED_BUFFER_EX(TSpriteVertexFormat, VertexBuffer, 20);
+DECLARE_TYPED_BUFFER_EX(TSpriteVertexFormat, VertexBuffer, 22);
 #ifdef TDE2_ENABLE_INDEX_BUFFER
-DECLARE_TYPED_BUFFER_EX(uint, IndexBuffer, 21);
+DECLARE_TYPED_BUFFER_EX(uint, IndexBuffer, 20);
 #endif
-DECLARE_TYPED_BUFFER_EX(TSpriteInstanceData, InstancesBuffer, 22);
+DECLARE_TYPED_BUFFER_EX(TSpriteInstanceData, InstancesBuffer, 21);
 
 
 float4 GetSpriteVertPos(uint index, uint vertexOffset = 0, uint indexOffset = 0) 
@@ -180,11 +197,11 @@ struct TParticleInstanceData
 	float4 mRotation;
 };
 
-DECLARE_TYPED_BUFFER_EX(TParticleVertexFormat, VertexBuffer, 20);
+DECLARE_TYPED_BUFFER_EX(TParticleVertexFormat, VertexBuffer, 22);
 #ifdef TDE2_ENABLE_INDEX_BUFFER
-DECLARE_TYPED_BUFFER_EX(uint, IndexBuffer, 21);
+DECLARE_TYPED_BUFFER_EX(uint, IndexBuffer, 20);
 #endif
-DECLARE_TYPED_BUFFER_EX(TParticleInstanceData, InstancesBuffer, 22);
+DECLARE_TYPED_BUFFER_EX(TParticleInstanceData, InstancesBuffer, 21);
 
 
 float4 GetParticleVertPos(uint index, uint vertexOffset = 0, uint indexOffset = 0) 

@@ -46,6 +46,7 @@ CBUFFER_SECTION_EX(TDEngine2PerObject, 1)
 	uint     ObjectID; // used for object picking
 	uint     StartVertexOffset;
 	uint     StartIndexOffset;
+	uint     VertexFormatFlags;
 	float4   MainTexture_TransformDesc; /// x, y - origin of uv space; z, w - scale of u and v axes
 CBUFFER_ENDSECTION
 

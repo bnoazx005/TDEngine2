@@ -21,28 +21,25 @@ struct VertexOut
 
 #program vertex
 
-struct VertexIn
-{
-	float4 mPos     : POSITION0;
-	float4 mColor   : COLOR0;
-	float2 mUV      : TEXCOORD;
-	float4 mNormal  : NORMAL;
-	float4 mTangent : TANGENT;
-};
+#define TDE2_DECLARE_DEFAULT_VERTEX_BUFFER
+#define TDE2_ENABLE_INDEX_BUFFER
+#include <TDEngine2VertexFormats.inc>
 
 
-VertexOut mainVS(in VertexIn input)
+VertexOut mainVS(uint vertexId : SV_VertexID)
 {
 	VertexOut output;
 
-	output.mPos      = mul(mul(ProjMat, mul(ViewMat, ModelMat)), input.mPos);
-	output.mWorldPos = mul(ModelMat, input.mPos);
-	output.mViewWorldPos = mul(ViewMat, output.mWorldPos);
-	output.mNormal   = normalize(mul(transpose(InvModelMat), input.mNormal));
-	output.mUV       = input.mUV;
-	output.mColor    = input.mColor;
+	float4 lPos = GetVertPos(vertexId, StartVertexOffset, StartIndexOffset);
 
-	float3 tangent  = normalize(mul(transpose(InvModelMat), input.mTangent));
+	output.mPos      = mul(mul(ProjMat, mul(ViewMat, ModelMat)), lPos);
+	output.mWorldPos = mul(ModelMat, lPos);
+	output.mViewWorldPos = mul(ViewMat, output.mWorldPos);
+	output.mNormal   = normalize(mul(transpose(InvModelMat), GetVertNormal(vertexId, StartVertexOffset, StartIndexOffset)));
+	output.mUV       = GetVertTexCoords(vertexId, StartVertexOffset, StartIndexOffset).xy;
+	output.mColor    = HAS_COLORS ? GetVertColor(vertexId, StartVertexOffset, StartIndexOffset) : float4(1.0, 1.0, 1.0, 1.0);
+
+	float3 tangent  = normalize(mul(transpose(InvModelMat), GetVertTangent(vertexId, StartVertexOffset, StartIndexOffset)));
 	float3 binormal = normalize(cross(output.mNormal, tangent));
 
 	output.mTangentToWorld = transpose(float3x3(tangent, binormal, output.mNormal.xyz));
@@ -56,6 +53,8 @@ VertexOut mainVS(in VertexIn input)
 #endprogram
 
 #program pixel
+
+
 
 #include <TDEngine2ShadowMappingUtils.inc>
 
