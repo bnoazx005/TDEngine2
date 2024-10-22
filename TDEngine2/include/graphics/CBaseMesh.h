@@ -9,6 +9,7 @@
 
 #include "IMesh.h"
 #include "../core/CBaseResource.h"
+#include <array>
 
 
 namespace TDEngine2
@@ -25,8 +26,9 @@ namespace TDEngine2
 	class CBaseMesh: public virtual IMesh, public CBaseResource
 	{
 		public:
-			typedef std::vector<std::string> TIdentifiersArray;
-			typedef std::vector<TSubMeshRenderInfo> TSubmeshesInfoArray;
+			typedef std::vector<std::string>                                                     TIdentifiersArray;
+			typedef std::vector<TSubMeshRenderInfo>                                              TSubmeshesInfoArray;
+			typedef std::array<TBufferHandleId, static_cast<USIZE>(E_VERTEX_STREAM_TYPE::COUNT)> TVertexBuffersArray;
 		public:
 			TDE2_API E_RESULT_CODE PostLoad() override;
 
@@ -95,35 +97,9 @@ namespace TDEngine2
 			TDE2_API const TTexcoordsArray& GetTexCoords0Array() const override;
 			TDE2_API const TIndicesArray& GetIndices() const override;
 
-			TDE2_API bool HasColors() const override;
-			TDE2_API bool HasNormals() const override;
-			TDE2_API bool HasTangents() const override;
-			TDE2_API bool HasTexCoords0() const override;
+			TDE2_API bool HasVertexStream(E_VERTEX_STREAM_TYPE streamType) const override;
 
-			/*!
-				\brief The method converts current data of the mesh's resource into
-				array of vertex entries like the following vertex | vertex | ... | vertex
-
-				\return An array that contains contiguous region of data
-			*/
-
-			TDE2_API std::vector<U8> ToArrayOfStructsDataLayout() const override;
-
-			/*!
-				\brief The method returns a pointer to IVertexBuffer which stores all vertex data of the mesh
-
-				\return The method returns a pointer to IVertexBuffer which stores all vertex data of the mesh
-			*/
-
-			TDE2_API TBufferHandleId GetSharedVertexBuffer() const override;
-
-			/*!
-				\brief The method returns a pointer to a vertex buffer that contains only positions of vertices
-
-				\return The method returns a pointer to a vertex buffer that contains only positions of vertices
-			*/
-
-			TDE2_API TBufferHandleId GetPositionOnlyVertexBuffer() const override;
+			TDE2_API TBufferHandleId GetVertexBufferForStream(E_VERTEX_STREAM_TYPE streamType) const override;
 
 			/*!
 				\brief The method returns a pointer to IIndexBuffer which stores all index data of the mesh
@@ -151,15 +127,9 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseMesh)
 
-			TDE2_API virtual E_RESULT_CODE _initPositionOnlyVertexBuffer();
-
-			TDE2_API virtual std::vector<U8> _toArrayOfStructsDataLayoutInternal() const;
 			TDE2_API std::vector<U8> _getIndicesArray(const E_INDEX_FORMAT_TYPE& indexFormat) const;
 
-			TDE2_API bool _hasColorsInternal() const;
-			TDE2_API bool _hasNormalsInternal() const;
-			TDE2_API bool _hasTangentsInternal() const;
-			TDE2_API bool _hasTexCoords0Internal() const;
+			virtual bool _hasVertexStreamInternal(E_VERTEX_STREAM_TYPE streamType) const;
 
 		protected:
 			IGraphicsObjectManager*  mpGraphicsObjectManager;
@@ -176,9 +146,7 @@ namespace TDEngine2
 
 			TIndicesArray            mIndices;
 
-			TBufferHandleId          mSharedVertexBufferHandle;
-			TBufferHandleId          mPositionOnlyVertexBufferHandle;
-
+			TVertexBuffersArray      mVertexStreams;
 			TBufferHandleId          mSharedIndexBufferHandle;
 
 			TIdentifiersArray        mSubMeshesIdentifiers;

@@ -53,6 +53,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name) override;
 
+			TDE2_API E_RESULT_CODE PostLoad() override;
+
 			TDE2_API E_RESULT_CODE Accept(IBinaryMeshFileReader* pReader) override;
 
 			TDE2_API void AddVertexJointWeights(const TJointsWeightsArray& weights) override;
@@ -60,21 +62,12 @@ namespace TDEngine2
 
 			TDE2_API const std::vector<TJointsWeightsArray>& GetJointWeightsArray() const override;
 			TDE2_API const std::vector<TJointsIndicesArray>& GetJointIndicesArray() const override;
-
-			TDE2_API bool HasJointWeights() const override;
-			TDE2_API bool HasJointIndices() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSkinnedMesh)
 
-			TDE2_API E_RESULT_CODE _initPositionOnlyVertexBuffer() override;
-
 			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
 
-			TDE2_API bool _hasJointWeightsInternal() const;
-			TDE2_API bool _hasJointIndicesInternal() const;
-
-			TDE2_API std::vector<U8> _toArrayOfStructsDataLayoutInternal() const override;
-			TDE2_API std::vector<U8> _toPositionOnlyArray() const;
+			bool _hasVertexStreamInternal(E_VERTEX_STREAM_TYPE streamType) const override;
 		protected:
 			std::vector<TJointsWeightsArray> mJointsWeights;
 			std::vector<TJointsIndicesArray> mJointsIndices;

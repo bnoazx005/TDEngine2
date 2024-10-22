@@ -33,6 +33,18 @@ namespace TDEngine2
 	enum class TBufferHandleId : U32;
 
 
+	enum class E_VERTEX_STREAM_TYPE : U32
+	{
+		POSITIONS,
+		COLORS,
+		TEXCOORDS,
+		NORMALS,
+		TANGENTS,
+		SKINNING,
+		COUNT
+	};
+
+
 	/*!
 		struct TMesh2DParameters
 
@@ -65,7 +77,7 @@ namespace TDEngine2
 			typedef std::vector<TColor32F> TVertexColorArray;
 			typedef std::vector<TVector4>  TNormalsArray;
 			typedef std::vector<TVector4>  TTangentsArray;
-			typedef std::vector<TVector2>  TTexcoordsArray;
+			typedef std::vector<TVector4>  TTexcoordsArray;
 			typedef std::vector<U32>       TIndicesArray;
 		public:
 			TDE2_API virtual E_RESULT_CODE Accept(IBinaryMeshFileReader* pReader) = 0;
@@ -127,19 +139,7 @@ namespace TDEngine2
 			TDE2_API virtual const TTexcoordsArray& GetTexCoords0Array() const = 0;
 			TDE2_API virtual const TIndicesArray& GetIndices() const = 0;
 
-			TDE2_API virtual bool HasColors() const = 0;
-			TDE2_API virtual bool HasNormals() const = 0;
-			TDE2_API virtual bool HasTangents() const = 0;
-			TDE2_API virtual bool HasTexCoords0() const = 0;
-
-			/*!
-				\brief The method converts current data of the mesh's resource into
-				array of vertex entries like the following vertex | vertex | ... | vertex
-
-				\return An array that contains contiguous region of data
-			*/
-
-			TDE2_API virtual std::vector<U8> ToArrayOfStructsDataLayout() const = 0;
+			TDE2_API virtual bool HasVertexStream(E_VERTEX_STREAM_TYPE streamType) const = 0;
 
 			/*!
 				\brief The method returns a number of faces in the mesh
@@ -149,13 +149,7 @@ namespace TDEngine2
 
 			TDE2_API virtual U32 GetFacesCount() const = 0;
 
-			/*!
-				\brief The method returns a pointer to a vertex buffer that contains only positions of vertices
-
-				\return The method returns a pointer to a vertex buffer that contains only positions of vertices
-			*/
-
-			TDE2_API virtual TBufferHandleId GetPositionOnlyVertexBuffer() const = 0;
+			TDE2_API virtual TBufferHandleId GetVertexBufferForStream(E_VERTEX_STREAM_TYPE streamType) const = 0;
 
 			/*!
 				\brief The method process internal state of the mesh after it was actually loaded
@@ -164,15 +158,7 @@ namespace TDEngine2
 			*/
 			
 			TDE2_API virtual E_RESULT_CODE PostLoad() = 0;
-
-			/*!
-				\brief The method returns a pointer to IVertexBuffer which stores all vertex data of the mesh
-				
-				\return The method returns a pointer to IVertexBuffer which stores all vertex data of the mesh
-			*/
-
-			TDE2_API virtual TBufferHandleId GetSharedVertexBuffer() const = 0;
-			
+						
 			/*!
 				\brief The method returns a pointer to IIndexBuffer which stores all index data of the mesh
 
@@ -266,9 +252,6 @@ namespace TDEngine2
 
 			TDE2_API virtual const std::vector<TJointsWeightsArray>& GetJointWeightsArray() const = 0;
 			TDE2_API virtual const std::vector<TJointsIndicesArray>& GetJointIndicesArray() const = 0;
-
-			TDE2_API virtual bool HasJointWeights() const = 0;
-			TDE2_API virtual bool HasJointIndices() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISkinnedMesh)
 	};

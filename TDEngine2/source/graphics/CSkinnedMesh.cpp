@@ -41,6 +41,64 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CSkinnedMesh::PostLoad()
+	{
+		E_RESULT_CODE result = CBaseMesh::PostLoad();
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		if (!_hasVertexStreamInternal(E_VERTEX_STREAM_TYPE::SKINNING))
+		{
+			return RC_OK;
+		}
+
+		const USIZE totalBufferSize  = sizeof(TJointsWeightsArray) * mJointsWeights.size() + sizeof(TJointsIndicesArray) * mJointsIndices.size();
+		const USIZE bufferStrideSize = sizeof(TJointsWeightsArray) + sizeof(TJointsIndicesArray);
+
+		struct TSkinningVertexData
+		{
+			TJointsWeightsArray mWeights;
+			TJointsIndicesArray mIndices;
+		};
+
+		std::vector<TSkinningVertexData> skinningDataBuffer(mJointsWeights.size());
+
+		USIZE index = 0;
+
+		for (USIZE i = 0; i < mJointsWeights.size(); ++i)
+		{
+			std::copy(mJointsWeights[i].begin(), mJointsWeights[i].end(), skinningDataBuffer[index].mWeights.begin());
+			std::copy(mJointsIndices[i].begin(), mJointsIndices[i].end(), skinningDataBuffer[index].mIndices.begin());
+
+			++index;
+		}
+
+		auto createBufferResult = mpGraphicsObjectManager->CreateBuffer(
+			{
+				E_BUFFER_USAGE_TYPE::STATIC,
+				E_BUFFER_TYPE::STRUCTURED,
+				totalBufferSize,
+				skinningDataBuffer.data(),
+				totalBufferSize,
+				false,
+				bufferStrideSize,
+				E_STRUCTURED_BUFFER_TYPE::DEFAULT
+			});
+
+		if (createBufferResult.HasError())
+		{
+			return createBufferResult.GetError();
+		}
+
+		mVertexStreams[static_cast<U32>(E_VERTEX_STREAM_TYPE::SKINNING)] = createBufferResult.Get();
+
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CSkinnedMesh::Accept(IBinaryMeshFileReader* pReader)
 	{
 		if (!pReader)
@@ -75,103 +133,20 @@ namespace TDEngine2
 		return mJointsIndices;
 	}
 
-	bool CSkinnedMesh::HasJointWeights() const
-	{
-		std::lock_guard<std::mutex> lock(mMutex);
-		return _hasJointWeightsInternal();
-	}
-
-	bool CSkinnedMesh::HasJointIndices() const
-	{
-		std::lock_guard<std::mutex> lock(mMutex);
-		return _hasJointIndicesInternal();
-	}
-
-	E_RESULT_CODE CSkinnedMesh::_initPositionOnlyVertexBuffer()
-	{
-		auto&& positions = _toPositionOnlyArray();
-
-		auto positionOnlyVertexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::VERTEX, positions.size(), &positions.front() });
-		if (positionOnlyVertexBufferResult.HasError())
-		{
-			return positionOnlyVertexBufferResult.GetError();
-		}
-
-		mPositionOnlyVertexBufferHandle = positionOnlyVertexBufferResult.Get();
-
-		return RC_OK;
-	}
-
-	// \todo Maybe some refactoring is needed
-	std::vector<U8> CSkinnedMesh::_toPositionOnlyArray() const
-	{
-		U32 strideSize = sizeof(TVector4);
-		strideSize += (_hasJointWeightsInternal() ? sizeof(TVector4) : 0);
-		strideSize += (_hasJointIndicesInternal() ? sizeof(U32) * 4 : 0);
-
-		std::vector<U8> bytes(mPositions.size() * strideSize);
-
-		U32 elementsCount = 0;
-
-		for (U32 i = 0, ptrPos = 0; i < mPositions.size(); ++i, ptrPos += strideSize)
-		{
-			// mandatory element
-			memcpy(&bytes[ptrPos], &mPositions[i], sizeof(TVector4));
-
-			elementsCount = 1;
-
-			if (_hasJointWeightsInternal()) { memcpy(&bytes[ptrPos + elementsCount++ * sizeof(TVector4)], &mJointsWeights[i], sizeof(TVector4)); }
-			if (_hasJointIndicesInternal()) { memcpy(&bytes[ptrPos + elementsCount++ * 4 * sizeof(U32)], &mJointsIndices[i], 4 * sizeof(U32)); }
-		}
-
-		return bytes;
-	}
-
-	std::vector<U8> CSkinnedMesh::_toArrayOfStructsDataLayoutInternal() const
-	{
-		U32 strideSize = sizeof(TVector4) + sizeof(TColor32F);
-		strideSize += (_hasTexCoords0Internal() ? sizeof(TVector4) : 0); // \note texcoords use float2, but we align them manually to float4
-		strideSize += (_hasNormalsInternal() ? sizeof(TVector4) : 0);
-		strideSize += (_hasTangentsInternal() ? sizeof(TVector4) : 0);
-		strideSize += (_hasJointWeightsInternal() ? sizeof(TVector4) : 0);
-		strideSize += (_hasJointIndicesInternal() ? sizeof(U32) * 4 : 0);
-
-		std::vector<U8> bytes(mPositions.size() * strideSize);
-
-		U32 elementsCount = 0;
-
-		for (U32 i = 0, ptrPos = 0; i < mPositions.size(); ++i, ptrPos += strideSize)
-		{
-			// mandatory element
-			memcpy(&bytes[ptrPos], &mPositions[i], sizeof(TVector4));
-			memcpy(&bytes[ptrPos + sizeof(TVector4)], _hasColorsInternal() ? &mVertexColors[i] : &TColorUtils::mWhite, sizeof(TColor32F));
-
-			elementsCount = 2; // \note equals to 2 because of position and color are mandatory elements of a vertex declaration
-
-			if (_hasTexCoords0Internal()) { memcpy(&bytes[ptrPos + elementsCount++ * sizeof(TVector4)], &mTexcoords0[i], sizeof(TVector2)); }
-			if (_hasNormalsInternal()) { memcpy(&bytes[ptrPos + elementsCount++ * sizeof(TVector4)], &mNormals[i], sizeof(TVector4)); }
-			if (_hasTangentsInternal()) { memcpy(&bytes[ptrPos + elementsCount++ * sizeof(TVector4)], &mTangents[i], sizeof(TVector4)); }
-			if (_hasJointWeightsInternal()) { memcpy(&bytes[ptrPos + elementsCount++ * sizeof(TVector4)], &mJointsWeights[i], sizeof(TVector4)); }
-			if (_hasJointIndicesInternal()) { memcpy(&bytes[ptrPos + elementsCount++ * 4 * sizeof(U32)], &mJointsIndices[i], 4 * sizeof(U32)); }
-		}
-
-		return bytes;
-	}
-
-
 	const TPtr<IResourceLoader> CSkinnedMesh::_getResourceLoader()
 	{
 		return mpResourceManager->GetResourceLoader<ISkinnedMesh>();
 	}
 
-	bool CSkinnedMesh::_hasJointWeightsInternal() const
+	bool CSkinnedMesh::_hasVertexStreamInternal(E_VERTEX_STREAM_TYPE streamType) const
 	{
-		return !mJointsWeights.empty();
-	}
+		switch (streamType)
+		{
+			case E_VERTEX_STREAM_TYPE::SKINNING:
+				return mJointsIndices.size() > 0 && mJointsWeights.size() > 0;
+		}
 
-	bool CSkinnedMesh::_hasJointIndicesInternal() const
-	{
-		return !mJointsIndices.empty();
+		return CBaseMesh::_hasVertexStreamInternal(streamType);
 	}
 
 

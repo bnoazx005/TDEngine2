@@ -9,6 +9,7 @@
 #include "../../include/utils/CFileLogger.h"
 #include <cstring>
 #include <climits>
+#include <tuple>
 
 
 namespace TDEngine2
@@ -22,39 +23,64 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		// create shared buffers for the mesh
-		auto&& vertices = _toArrayOfStructsDataLayoutInternal();
-		if (vertices.empty())
+		const std::array<std::tuple<const U8*, USIZE, USIZE>, static_cast<USIZE>(E_VERTEX_STREAM_TYPE::SKINNING)> buffersCreateInfo
 		{
-			TDE2_ASSERT(false);
-			return RC_FAIL;
+			std::make_tuple(reinterpret_cast<const U8*>(mPositions.data()), sizeof(TVector4) * mPositions.size(), sizeof(TVector4)),
+			std::make_tuple(reinterpret_cast<const U8*>(mVertexColors.data()), sizeof(TColor32F) * mVertexColors.size(), sizeof(TColor32F)),
+			std::make_tuple(reinterpret_cast<const U8*>(mTexcoords0.data()), sizeof(TVector4) * mTexcoords0.size(), sizeof(TVector2)),
+			std::make_tuple(reinterpret_cast<const U8*>(mNormals.data()), sizeof(TVector4) * mNormals.size(), sizeof(TVector4)),
+			std::make_tuple(reinterpret_cast<const U8*>(mTangents.data()), sizeof(TVector4) * mTangents.size(), sizeof(TVector4))
+		};
+
+		for (I32 currVertexStreamIndex = 0; currVertexStreamIndex < static_cast<U32>(E_VERTEX_STREAM_TYPE::SKINNING); ++currVertexStreamIndex)
+		{
+			USIZE totalBufferSize = 0;
+			USIZE bufferStrideSize = 0;
+			const U8* pDataPtr = nullptr;
+
+			std::tie(pDataPtr, totalBufferSize, bufferStrideSize) = buffersCreateInfo[currVertexStreamIndex];
+
+			if (!totalBufferSize) /// \note Skip empty streams
+			{
+				mVertexStreams[currVertexStreamIndex] = TBufferHandleId::Invalid;
+				continue;
+			}
+
+			auto createBufferResult = mpGraphicsObjectManager->CreateBuffer(
+				{
+					E_BUFFER_USAGE_TYPE::STATIC,
+					E_BUFFER_TYPE::STRUCTURED,
+					totalBufferSize,
+					pDataPtr,
+					totalBufferSize,
+					false,
+					bufferStrideSize,
+					E_STRUCTURED_BUFFER_TYPE::DEFAULT
+				});
+
+			if (createBufferResult.HasError())
+			{
+				return createBufferResult.GetError();
+			}
+
+			mVertexStreams[currVertexStreamIndex] = createBufferResult.Get();
 		}
 
-		auto pGraphicsContext = mpGraphicsObjectManager->GetGraphicsContext();
-
-		auto vertexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::VERTEX, vertices.size(), &vertices.front() });
-		if (vertexBufferResult.HasError())
-		{
-			return vertexBufferResult.GetError();
-		}
-
-		mSharedVertexBufferHandle = vertexBufferResult.Get();
-
-		// \note create a position-only vertex buffer
 		// \todo In future may be it's better to split shared VB into separate channels
 
-		E_RESULT_CODE result = _initPositionOnlyVertexBuffer();
-		if (RC_OK != result)
-		{
-			return result;
-		}
+		std::vector<U8> indices = _getIndicesArray(E_INDEX_FORMAT_TYPE::INDEX32);
 
-		E_INDEX_FORMAT_TYPE indexFormatType = (mIndices.size() < (std::numeric_limits<U16>::max)()) ? E_INDEX_FORMAT_TYPE::INDEX16 : E_INDEX_FORMAT_TYPE::INDEX32;
-
-		std::vector<U8> indices = _getIndicesArray(indexFormatType);
-
-		TInitBufferParams indexBufferCreateParams{ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::INDEX, static_cast<U32>(indices.size()), &indices[0] };
-		indexBufferCreateParams.mIndexFormat = indexFormatType;
+		TInitBufferParams indexBufferCreateParams
+		{ 
+			E_BUFFER_USAGE_TYPE::STATIC, 
+			E_BUFFER_TYPE::STRUCTURED, 
+			static_cast<U32>(indices.size()), 
+			&indices[0],
+			static_cast<U32>(indices.size()),
+			false,
+			sizeof(U32),
+			E_STRUCTURED_BUFFER_TYPE::DEFAULT
+		};
 
 		auto indexBufferResult = mpGraphicsObjectManager->CreateBuffer(indexBufferCreateParams);
 		if (indexBufferResult.HasError())
@@ -106,7 +132,7 @@ namespace TDEngine2
 	void CBaseMesh::AddTexCoord0(const TVector2& uv0)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		mTexcoords0.emplace_back(uv0);
+		mTexcoords0.emplace_back(TVector4(uv0.x, uv0.y, 0.0f, 0.0f));
 	}
 
 	void CBaseMesh::AddFace(const U32 face[3])
@@ -164,34 +190,10 @@ namespace TDEngine2
 		return mIndices;
 	}
 
-	bool CBaseMesh::HasColors() const
+	bool CBaseMesh::HasVertexStream(E_VERTEX_STREAM_TYPE streamType) const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		return _hasColorsInternal();
-	}
-
-	bool CBaseMesh::HasNormals() const
-	{
-		std::lock_guard<std::mutex> lock(mMutex);
-		return _hasNormalsInternal();
-	}
-
-	bool CBaseMesh::HasTangents() const
-	{
-		std::lock_guard<std::mutex> lock(mMutex);
-		return _hasTangentsInternal();
-	}
-
-	bool CBaseMesh::HasTexCoords0() const
-	{
-		std::lock_guard<std::mutex> lock(mMutex);
-		return _hasTexCoords0Internal();
-	}
-
-	std::vector<U8> CBaseMesh::ToArrayOfStructsDataLayout() const
-	{
-		std::lock_guard<std::mutex> lock(mMutex);
-		return std::move(_toArrayOfStructsDataLayoutInternal());
+		return _hasVertexStreamInternal(streamType);
 	}
 
 	U32 CBaseMesh::GetFacesCount() const
@@ -210,14 +212,10 @@ namespace TDEngine2
 		return it == mSubMeshesIdentifiers.cend() ? invalid : mSubMeshesInfo[std::distance(mSubMeshesIdentifiers.cbegin(), it)];
 	}
 
-	TBufferHandleId CBaseMesh::GetSharedVertexBuffer() const
+	TBufferHandleId CBaseMesh::GetVertexBufferForStream(E_VERTEX_STREAM_TYPE streamType) const
 	{
-		return mSharedVertexBufferHandle;
-	}
-
-	TBufferHandleId CBaseMesh::GetPositionOnlyVertexBuffer() const
-	{
-		return mPositionOnlyVertexBufferHandle;
+		const USIZE index = static_cast<USIZE>(streamType);
+		return (index >= mVertexStreams.size()) ? TBufferHandleId::Invalid : mVertexStreams[index];
 	}
 
 	TBufferHandleId CBaseMesh::GetSharedIndexBuffer() const
@@ -254,63 +252,24 @@ namespace TDEngine2
 		return indicesBytesArray;
 	}
 
-	E_RESULT_CODE CBaseMesh::_initPositionOnlyVertexBuffer()
+	bool CBaseMesh::_hasVertexStreamInternal(E_VERTEX_STREAM_TYPE streamType) const
 	{
-		auto positionOnlyVertexBufferResult = mpGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::STATIC, E_BUFFER_TYPE::VERTEX, mPositions.size() * sizeof(TVector4), &mPositions.front() });
-		if (positionOnlyVertexBufferResult.HasError())
+		switch (streamType)
 		{
-			return positionOnlyVertexBufferResult.GetError();
+			case E_VERTEX_STREAM_TYPE::POSITIONS:
+				return mPositions.size() > 0;
+			case E_VERTEX_STREAM_TYPE::COLORS:
+				return mVertexColors.size() > 0;
+			case E_VERTEX_STREAM_TYPE::TEXCOORDS:
+				return mTexcoords0.size() > 0;
+			case E_VERTEX_STREAM_TYPE::NORMALS:
+				return mNormals.size() > 0;
+			case E_VERTEX_STREAM_TYPE::TANGENTS:
+				return mTangents.size() > 0;
+			case E_VERTEX_STREAM_TYPE::SKINNING:
+				return false;
 		}
 
-		mPositionOnlyVertexBufferHandle = positionOnlyVertexBufferResult.Get();
-
-		return RC_OK;
-	}
-
-	std::vector<U8> CBaseMesh::_toArrayOfStructsDataLayoutInternal() const
-	{
-		U32 strideSize = sizeof(TVector4) + sizeof(TColor32F);
-		strideSize += (_hasTexCoords0Internal() ? sizeof(TVector4) : 0); // \note texcoords use float2, but we align them manually to float4
-		strideSize += (_hasNormalsInternal() ? sizeof(TVector4) : 0);
-		strideSize += (_hasTangentsInternal() ? sizeof(TVector4) : 0);
-
-		std::vector<U8> bytes(mPositions.size() * strideSize);
-
-		U32 elementsCount = 0;
-
-		for (U32 i = 0, ptrPos = 0; i < mPositions.size(); ++i, ptrPos += strideSize)
-		{
-			// mandatory element
-			memcpy(&bytes[ptrPos], &mPositions[i], sizeof(TVector4));
-			memcpy(&bytes[ptrPos + sizeof(TVector4)], _hasColorsInternal() ? &mVertexColors[i] : &TColorUtils::mWhite, sizeof(TColor32F));
-
-			elementsCount = 2; // \note equals to 2 because of position and color are mandatory elements of a vertex declaration
-
-			if (_hasTexCoords0Internal()) { memcpy(&bytes[ptrPos + elementsCount++ * sizeof(TVector4)], &mTexcoords0[i], sizeof(TVector2)); }
-			if (_hasNormalsInternal()) { memcpy(&bytes[ptrPos + elementsCount++ * sizeof(TVector4)], &mNormals[i], sizeof(TVector4)); }
-			if (_hasTangentsInternal()) { memcpy(&bytes[ptrPos + elementsCount++ * sizeof(TVector4)], &mTangents[i], sizeof(TVector4)); }
-		}
-
-		return bytes;
-	}
-
-	bool CBaseMesh::_hasColorsInternal() const
-	{
-		return mVertexColors.size();
-	}
-
-	bool CBaseMesh::_hasNormalsInternal() const
-	{
-		return mNormals.size();
-	}
-
-	bool CBaseMesh::_hasTangentsInternal() const
-	{
-		return mTangents.size();
-	}
-
-	bool CBaseMesh::_hasTexCoords0Internal() const
-	{
-		return mTexcoords0.size();
+		return false;
 	}
 }

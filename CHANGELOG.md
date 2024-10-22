@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.30] 2024-10-19
+## [0.6.30] 2024-10-22
 
 ### Added
 
@@ -32,6 +32,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - In-game UI is renderer via programmable vertex pulling technique. 
 
 - All rendering systems' work is based on programmable vertex pulling technique now.
+
+- The API of **IMesh** was refactored. A new method GetVertexBufferForStream was added instead of GetPositionOnlyVertexBuffer. Separate HasXX group of methods was replaced with HasVertexStream one.
+GetSharedVertexBuffer method was removed from the interface. 
 
 ### Changed
 
