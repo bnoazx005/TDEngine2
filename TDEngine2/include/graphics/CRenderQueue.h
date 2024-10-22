@@ -13,6 +13,7 @@
 #include "../core/IGraphicsContext.h"
 #include "../core/memory/IAllocator.h"
 #include "../graphics/IMaterial.h"
+#include "IGraphicsObjectManager.h"
 #include "InternalShaderData.h"
 #include <vector>
 #include <tuple>
@@ -32,8 +33,10 @@ namespace TDEngine2
 	class IResourceHandler;
 
 
-	enum class TBufferHandleId : U32;
 	enum class E_BUFFER_MAP_TYPE : U8;
+
+
+	constexpr U32 ADDITIONAL_VERTEX_BUFFERS_MAX_COUNT = 7;
 
 
 	typedef struct TRenderCommandSubmitParams
@@ -99,6 +102,16 @@ namespace TDEngine2
 		E_PRIMITIVE_TOPOLOGY_TYPE mPrimitiveType;
 
 		TBufferHandleId           mVertexBufferHandle;
+		TBufferHandleId           mAdditionalVertexBuffers[ADDITIONAL_VERTEX_BUFFERS_MAX_COUNT]
+		{
+			TBufferHandleId::Invalid,
+			TBufferHandleId::Invalid,
+			TBufferHandleId::Invalid,
+			TBufferHandleId::Invalid,
+			TBufferHandleId::Invalid,
+			TBufferHandleId::Invalid,
+			TBufferHandleId::Invalid,
+		};
 
 		IVertexDeclaration*       mpVertexDeclaration = nullptr;
 

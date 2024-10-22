@@ -19,9 +19,9 @@ namespace TDEngine2
 	static const std::string InvalidMaterialMessage = "{0} Invalid material was passed into the render command";
 
 
-	constexpr U32 DEFAULT_PVP_VERTEX_BUFFER_SLOT    = 20;
-	constexpr U32 DEFAULT_PVP_INDEX_BUFFER_SLOT     = 21;
-	constexpr U32 DEFAULT_PVP_INSTANCE_BUFFER_SLOT  = 22;
+	constexpr U32 DEFAULT_PVP_INDEX_BUFFER_SLOT     = 20;
+	constexpr U32 DEFAULT_PVP_INSTANCE_BUFFER_SLOT  = 21;
+	constexpr U32 DEFAULT_PVP_VERTEX_BUFFER_SLOT    = 22;
 
 
 	E_RESULT_CODE TUpdateBufferCommand::Submit(const TRenderCommandSubmitParams& params)
@@ -90,6 +90,12 @@ namespace TDEngine2
 		if (!mpVertexDeclaration) // \note If there is no defined vertex declaration use programmable vertex pulling technique
 		{
 			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT, mVertexBufferHandle);
+
+			for (U32 i = 0; i < ADDITIONAL_VERTEX_BUFFERS_MAX_COUNT; ++i)
+			{
+				pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT + i + 1, mAdditionalVertexBuffers[i]);
+			}
+
 			pGraphicsContext->Draw(mPrimitiveType, 0, mNumOfVertices);
 
 			return RC_OK;
@@ -151,6 +157,11 @@ namespace TDEngine2
 			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT, mVertexBufferHandle);
 			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_INDEX_BUFFER_SLOT, mIndexBufferHandle);
 
+			for (U32 i = 0; i < ADDITIONAL_VERTEX_BUFFERS_MAX_COUNT; ++i)
+			{
+				pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT + i + 1, mAdditionalVertexBuffers[i]);
+			}
+
 			pGraphicsContext->Draw(mPrimitiveType, 0, mNumOfIndices);
 
 			return RC_OK;
@@ -211,6 +222,11 @@ namespace TDEngine2
 			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_INDEX_BUFFER_SLOT, mIndexBufferHandle);
 			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_INSTANCE_BUFFER_SLOT, mInstancingBufferHandle);
 
+			for (U32 i = 0; i < ADDITIONAL_VERTEX_BUFFERS_MAX_COUNT; ++i)
+			{
+				pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT + i + 1, mAdditionalVertexBuffers[i]);
+			}
+
 			pGraphicsContext->DrawInstanced(mPrimitiveType, 0, mIndicesPerInstance, 0, mNumOfInstances);
 
 			return RC_OK;
@@ -263,6 +279,11 @@ namespace TDEngine2
 		{
 			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT, mVertexBufferHandle);
 			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_INDEX_BUFFER_SLOT, mIndexBufferHandle);
+
+			for (U32 i = 0; i < ADDITIONAL_VERTEX_BUFFERS_MAX_COUNT; ++i)
+			{
+				pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT + i + 1, mAdditionalVertexBuffers[i]);
+			}
 
 			pGraphicsContext->DrawIndirectInstanced(mPrimitiveType, mArgsBufferHandle, mAlignedOffset);
 

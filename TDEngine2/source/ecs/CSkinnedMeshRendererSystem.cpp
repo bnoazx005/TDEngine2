@@ -263,39 +263,6 @@ namespace TDEngine2
 			{
 				pSkinnedMeshContainer->SetSystemBuffersHandle(static_cast<U32>(mMeshBuffersMap.size()));
 
-				auto pVertexDecl = mpGraphicsObjectManager->CreateVertexDeclaration().Get();
-
-				mMeshBuffersMap.push_back({ pSharedMeshResource->GetSharedVertexBuffer(), pSharedMeshResource->GetSharedIndexBuffer(), pVertexDecl });
-
-				// \note form the vertex declaration for the mesh
-				pVertexDecl->AddElement({ FT_FLOAT4, 0, VEST_POSITION });
-				pVertexDecl->AddElement({ FT_FLOAT4, 0, VEST_COLOR });
-
-				if (pSharedMeshResource->HasTexCoords0())
-				{
-					pVertexDecl->AddElement({ FT_FLOAT4, 0, VEST_TEXCOORDS });
-				}
-
-				if (pSharedMeshResource->HasNormals())
-				{
-					pVertexDecl->AddElement({ FT_FLOAT4, 0, VEST_NORMAL });
-				}
-
-				if (pSharedMeshResource->HasTangents())
-				{
-					pVertexDecl->AddElement({ FT_FLOAT4, 0, VEST_TANGENT });
-				}
-
-				if (pSharedMeshResource->HasJointWeights())
-				{
-					pVertexDecl->AddElement({ FT_FLOAT4, 0, VEST_JOINT_WEIGHTS });
-				}
-
-				if (pSharedMeshResource->HasJointIndices())
-				{
-					pVertexDecl->AddElement({ FT_UINT4, 0, VEST_JOINT_INDICES });
-				}
-
 #if TDE2_EDITORS_ENABLED
 				for (auto&& currSubmeshId : pSharedMeshResource->GetSubmeshesIdentifiers())
 				{
@@ -347,8 +314,6 @@ namespace TDEngine2
 			pCastedMaterial->SetVariableForInstance(materialInstance, CSkinnedMeshContainer::mJointsArrayUniformVariableId, &currAnimationPose.front(), static_cast<U32>(sizeof(TMatrix4) * currAnimationPose.size()));
 			pCastedMaterial->SetVariableForInstance(materialInstance, CSkinnedMeshContainer::mJointsCountUniformVariableId, &jointsCount, sizeof(U32));
 
-			auto& meshBuffersEntry = mMeshBuffersMap[pSkinnedMeshContainer->GetSystemBuffersHandle()];
-
 			auto&& objectTransformMatrix = pTransform->GetLocalToWorldTransform();
 
 			F32 distanceToCamera = ((viewMatrix * objectTransformMatrix) * TVector4(0.0f, 0.0f, 1.0f, 1.0f)).z;
@@ -359,22 +324,28 @@ namespace TDEngine2
 			
 			TDE2_ASSERT(pCommand);
 
-			pCommand->mVertexBufferHandle         = pSharedMeshResource->GetSharedVertexBuffer();
-			pCommand->mIndexBufferHandle          = pSharedMeshResource->GetSharedIndexBuffer();
-			pCommand->mMaterialHandle             = currMaterialId;
-			pCommand->mMaterialInstanceId         = materialInstance;
-			pCommand->mpVertexDeclaration         = meshBuffersEntry.mpVertexDecl; // \todo replace with access to a vertex declarations pool
-			pCommand->mNumOfIndices               = subMeshInfo.mIndicesCount;
-			pCommand->mStartIndex                 = subMeshInfo.mStartIndex;
-			pCommand->mPrimitiveType              = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-			pCommand->mObjectData.mModelMatrix    = Transpose(objectTransformMatrix);
-			pCommand->mObjectData.mInvModelMatrix = Transpose(Inverse(objectTransformMatrix));
+			pCommand->mVertexBufferHandle = pSharedMeshResource->GetVertexBufferForStream(E_VERTEX_STREAM_TYPE::POSITIONS);
+
+			for (U32 i = 1; i < static_cast<U32>(E_VERTEX_STREAM_TYPE::COUNT); ++i)
+			{
+				pCommand->mAdditionalVertexBuffers[i - 1] = pSharedMeshResource->GetVertexBufferForStream(static_cast<E_VERTEX_STREAM_TYPE>(i));
+			}
+
+			pCommand->mIndexBufferHandle            = pSharedMeshResource->GetSharedIndexBuffer();
+			pCommand->mMaterialHandle               = currMaterialId;
+			pCommand->mMaterialInstanceId           = materialInstance;
+			pCommand->mNumOfIndices                 = subMeshInfo.mIndicesCount;
+			pCommand->mStartIndex                   = subMeshInfo.mStartIndex;
+			pCommand->mPrimitiveType                = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+			pCommand->mObjectData.mModelMatrix      = Transpose(objectTransformMatrix);
+			pCommand->mObjectData.mInvModelMatrix   = Transpose(Inverse(objectTransformMatrix));
+			pCommand->mObjectData.mStartIndexOffset = subMeshInfo.mStartIndex;
 
 			if (pDepthOnlyRenderGroup && E_GEOMETRY_SUBGROUP_TAGS::SKYBOX != pCastedMaterial->GetGeometrySubGroupTag())
 			{
 				auto pDepthOnlyCommand = pDepthOnlyRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(static_cast<U32>(fabs(distanceToCamera)));
 
-				pDepthOnlyCommand->mVertexBufferHandle = pSharedMeshResource->GetPositionOnlyVertexBuffer();
+				pDepthOnlyCommand->mVertexBufferHandle = pSharedMeshResource->GetVertexBufferForStream(E_VERTEX_STREAM_TYPE::POSITIONS);
 				pDepthOnlyCommand->mIndexBufferHandle = pCommand->mIndexBufferHandle;
 				pDepthOnlyCommand->mMaterialHandle = DepthOnlyMaterialHandle;
 				pDepthOnlyCommand->mpVertexDeclaration = pDepthOnlyVertDecl;
@@ -383,6 +354,7 @@ namespace TDEngine2
 				pDepthOnlyCommand->mPrimitiveType = pCommand->mPrimitiveType;
 				pDepthOnlyCommand->mObjectData.mModelMatrix = pCommand->mObjectData.mModelMatrix;
 				pDepthOnlyCommand->mObjectData.mInvModelMatrix = pCommand->mObjectData.mInvModelMatrix;
+				pDepthOnlyCommand->mObjectData.mStartIndexOffset = pCommand->mStartIndex;
 			}
 
 			++iter;

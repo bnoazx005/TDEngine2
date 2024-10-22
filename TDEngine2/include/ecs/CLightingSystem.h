@@ -16,7 +16,6 @@
 namespace TDEngine2
 {
 	class IRenderer;
-	class IVertexDeclaration;
 	class IGraphicsObjectManager;
 	class IResourceManager;
 	class CRenderQueue;
@@ -124,9 +123,6 @@ namespace TDEngine2
 
 			TStaticShadowReceiverContext mStaticShadowReceiversContext;
 			TSkinnedShadowReceiverContext mSkinnedShadowReceiversContext;
-
-			IVertexDeclaration*          mpShadowVertDecl = nullptr;
-			IVertexDeclaration*          mpSkinnedShadowVertDecl = nullptr;
 
 			TResourceId                  mShadowPassMaterialHandle;
 			TResourceId                  mShadowPassSkinnedMaterialHandle;

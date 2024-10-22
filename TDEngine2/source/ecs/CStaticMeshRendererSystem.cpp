@@ -30,7 +30,6 @@ namespace TDEngine2
 
 
 	static TResourceId DepthOnlyMaterialHandle = TResourceId::Invalid;
-	static IVertexDeclaration* pDepthOnlyVertDecl = nullptr;
 
 
 	E_RESULT_CODE CStaticMeshRendererSystem::Init(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager)
@@ -56,12 +55,6 @@ namespace TDEngine2
 				TRasterizerStateDesc { E_CULL_MODE::NONE, false, false, 0.1f, 1.0f, false } 
 			});
 		
-		if (auto newVertDeclResult = mpGraphicsObjectManager->CreateVertexDeclaration())
-		{
-			pDepthOnlyVertDecl = newVertDeclResult.Get();
-			pDepthOnlyVertDecl->AddElement({ FT_FLOAT4, 0, VEST_POSITION });
-		}
-
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -211,29 +204,6 @@ namespace TDEngine2
 			{
 				pStaticMeshContainer->SetSystemBuffersHandle(static_cast<U32>(mMeshBuffersMap.size()));
 
-				auto pVertexDecl = mpGraphicsObjectManager->CreateVertexDeclaration().Get();
-
-				mMeshBuffersMap.push_back({ pSharedMeshResource->GetSharedVertexBuffer(), pSharedMeshResource->GetSharedIndexBuffer(), pVertexDecl });
-
-				// \note form the vertex declaration for the mesh
-				pVertexDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_POSITION });
-				pVertexDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_COLOR });
-
-				if (pSharedMeshResource->HasTexCoords0())
-				{
-					pVertexDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_TEXCOORDS });
-				}
-
-				if (pSharedMeshResource->HasNormals())
-				{
-					pVertexDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_NORMAL });
-				}
-
-				if (pSharedMeshResource->HasTangents())
-				{
-					pVertexDecl->AddElement({ TDEngine2::FT_FLOAT4, 0, TDEngine2::VEST_TANGENT });
-				}
-
 #if TDE2_EDITORS_ENABLED
 				for (auto&& currSubmeshId : pSharedMeshResource->GetSubmeshesIdentifiers())
 				{
@@ -250,8 +220,6 @@ namespace TDEngine2
 
 			const TSubMeshRenderInfo& subMeshInfo = pStaticMeshContainer->GetSubMeshInfo();
 
-			auto meshBuffersEntry = mMeshBuffersMap[pStaticMeshContainer->GetSystemBuffersHandle()];
-
 			auto&& objectTransformMatrix = pTransform->GetLocalToWorldTransform();
 
 			F32 distanceToCamera = ((viewMatrix * objectTransformMatrix) * TVector4(0.0f, 0.0f, 1.0f, 1.0f)).z;
@@ -260,29 +228,35 @@ namespace TDEngine2
 			auto pCommand = pRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(static_cast<U32>(pCastedMaterial->GetGeometrySubGroupTag()) + 
 																				 _computeMeshCommandHash(currMaterialId, distanceToCamera));
 
-			pCommand->mVertexBufferHandle         = pSharedMeshResource->GetSharedVertexBuffer();
-			pCommand->mIndexBufferHandle          = pSharedMeshResource->GetSharedIndexBuffer();
-			pCommand->mMaterialHandle             = mpResourceManager->Load<IMaterial>(pStaticMeshContainer->GetMaterialName());
-			pCommand->mpVertexDeclaration         = meshBuffersEntry.mpVertexDecl; // \todo replace with access to a vertex declarations pool
-			pCommand->mStartIndex                 = subMeshInfo.mStartIndex;
-			pCommand->mNumOfIndices               = subMeshInfo.mIndicesCount;
-			pCommand->mPrimitiveType              = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-			pCommand->mObjectData.mModelMatrix    = Transpose(objectTransformMatrix);
-			pCommand->mObjectData.mInvModelMatrix = Transpose(Inverse(objectTransformMatrix));
+			pCommand->mVertexBufferHandle = pSharedMeshResource->GetVertexBufferForStream(E_VERTEX_STREAM_TYPE::POSITIONS);
+
+			for (U32 i = 1; i < static_cast<U32>(E_VERTEX_STREAM_TYPE::SKINNING); ++i)
+			{
+				pCommand->mAdditionalVertexBuffers[i - 1] = pSharedMeshResource->GetVertexBufferForStream(static_cast<E_VERTEX_STREAM_TYPE>(i));
+			}
+
+			pCommand->mIndexBufferHandle            = pSharedMeshResource->GetSharedIndexBuffer();
+			pCommand->mMaterialHandle               = mpResourceManager->Load<IMaterial>(pStaticMeshContainer->GetMaterialName());
+			pCommand->mStartIndex                   = subMeshInfo.mStartIndex;
+			pCommand->mNumOfIndices                 = subMeshInfo.mIndicesCount;
+			pCommand->mPrimitiveType                = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+			pCommand->mObjectData.mModelMatrix      = Transpose(objectTransformMatrix);
+			pCommand->mObjectData.mInvModelMatrix   = Transpose(Inverse(objectTransformMatrix));
+			pCommand->mObjectData.mStartIndexOffset = subMeshInfo.mStartIndex;
 
 			if (pDepthOnlyRenderGroup && E_GEOMETRY_SUBGROUP_TAGS::SKYBOX != pCastedMaterial->GetGeometrySubGroupTag())
 			{
 				auto pDepthOnlyCommand = pDepthOnlyRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(static_cast<U32>(fabs(distanceToCamera)));
 
-				pDepthOnlyCommand->mVertexBufferHandle = pSharedMeshResource->GetPositionOnlyVertexBuffer();
-				pDepthOnlyCommand->mIndexBufferHandle = pCommand->mIndexBufferHandle;
-				pDepthOnlyCommand->mMaterialHandle = DepthOnlyMaterialHandle;
-				pDepthOnlyCommand->mpVertexDeclaration = pDepthOnlyVertDecl;
-				pDepthOnlyCommand->mStartIndex = pCommand->mStartIndex;
-				pDepthOnlyCommand->mNumOfIndices = pCommand->mNumOfIndices;
-				pDepthOnlyCommand->mPrimitiveType = pCommand->mPrimitiveType;
-				pDepthOnlyCommand->mObjectData.mModelMatrix = pCommand->mObjectData.mModelMatrix;
-				pDepthOnlyCommand->mObjectData.mInvModelMatrix = pCommand->mObjectData.mInvModelMatrix;
+				pDepthOnlyCommand->mVertexBufferHandle           = pSharedMeshResource->GetVertexBufferForStream(E_VERTEX_STREAM_TYPE::POSITIONS);
+				pDepthOnlyCommand->mIndexBufferHandle            = pCommand->mIndexBufferHandle;
+				pDepthOnlyCommand->mMaterialHandle               = DepthOnlyMaterialHandle;
+				pDepthOnlyCommand->mStartIndex                   = pCommand->mStartIndex;
+				pDepthOnlyCommand->mNumOfIndices                 = pCommand->mNumOfIndices;
+				pDepthOnlyCommand->mPrimitiveType                = pCommand->mPrimitiveType;
+				pDepthOnlyCommand->mObjectData.mModelMatrix      = pCommand->mObjectData.mModelMatrix;
+				pDepthOnlyCommand->mObjectData.mInvModelMatrix   = pCommand->mObjectData.mInvModelMatrix;
+				pDepthOnlyCommand->mObjectData.mStartIndexOffset = pCommand->mStartIndex;
 			}
 
 			++iter;

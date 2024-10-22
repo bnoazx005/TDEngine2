@@ -90,7 +90,6 @@ namespace TDEngine2
 	struct TProcessParams
 	{
 		IResourceManager*   mpResourceManager;
-		IVertexDeclaration* mpVertexDeclaration;
 		TResourceId         mMaterialId;
 		U32                 mDrawIndex;
 		CRenderQueue*       mpRenderQueue;
@@ -132,11 +131,10 @@ namespace TDEngine2
 
 			if (TDrawIndexedCommand* pDrawCommand = params.mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(params.mDrawIndex))
 			{
-				pDrawCommand->mVertexBufferHandle = pStaticMeshResource->GetPositionOnlyVertexBuffer();
+				pDrawCommand->mVertexBufferHandle = pStaticMeshResource->GetVertexBufferForStream(E_VERTEX_STREAM_TYPE::POSITIONS);
 				pDrawCommand->mIndexBufferHandle = pStaticMeshResource->GetSharedIndexBuffer();
 				pDrawCommand->mMaterialHandle = params.mMaterialId;
 				pDrawCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-				pDrawCommand->mpVertexDeclaration = params.mpVertexDeclaration;
 				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
 				pDrawCommand->mObjectData.mObjectID = static_cast<U32>(id);
 				pDrawCommand->mStartIndex = subMeshInfo.mStartIndex;
@@ -197,11 +195,10 @@ namespace TDEngine2
 
 			if (TDrawIndexedCommand* pDrawCommand = params.mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(params.mDrawIndex))
 			{
-				pDrawCommand->mVertexBufferHandle = pSkinnedMeshResource->GetPositionOnlyVertexBuffer();
+				pDrawCommand->mVertexBufferHandle = pSkinnedMeshResource->GetVertexBufferForStream(E_VERTEX_STREAM_TYPE::POSITIONS);
 				pDrawCommand->mIndexBufferHandle = pSkinnedMeshResource->GetSharedIndexBuffer();
 				pDrawCommand->mMaterialHandle = params.mMaterialId;
 				pDrawCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-				pDrawCommand->mpVertexDeclaration = params.mpVertexDeclaration;
 				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
 				pDrawCommand->mObjectData.mObjectID = static_cast<U32>(id);
 				pDrawCommand->mStartIndex = subMeshInfo.mStartIndex;
@@ -551,12 +548,12 @@ namespace TDEngine2
 
 							for (USIZE i = 0; i < mStaticShadowCastersContext.mComponentsCount; ++i)
 							{
-								drawIndex = ProcessStaticMeshCasterEntity({ mpResourceManager.Get(), mpShadowVertDecl, mShadowPassMaterialHandle, drawIndex, pShadowPassRenderQueue }, mStaticShadowCastersContext, i);
+								drawIndex = ProcessStaticMeshCasterEntity({ mpResourceManager.Get(), mShadowPassMaterialHandle, drawIndex, pShadowPassRenderQueue }, mStaticShadowCastersContext, i);
 							}
 
 							for (USIZE i = 0; i < mSkinnedShadowCastersContext.mComponentsCount; ++i)
 							{
-								drawIndex = ProcessSkinnedMeshCasterEntity({ mpResourceManager.Get(), mpSkinnedShadowVertDecl, mShadowPassSkinnedMaterialHandle, drawIndex, pShadowPassRenderQueue }, mSkinnedShadowCastersContext, i);
+								drawIndex = ProcessSkinnedMeshCasterEntity({ mpResourceManager.Get(), mShadowPassSkinnedMaterialHandle, drawIndex, pShadowPassRenderQueue }, mSkinnedShadowCastersContext, i);
 							}
 						}
 					});
@@ -579,29 +576,13 @@ namespace TDEngine2
 
 	E_RESULT_CODE CLightingSystem::_prepareResources()
 	{
-		if (auto newVertDeclResult = mpGraphicsObjectManager->CreateVertexDeclaration())
-		{
-			mpShadowVertDecl = newVertDeclResult.Get();
-
-			mpShadowVertDecl->AddElement({ FT_FLOAT4, 0, VEST_POSITION });
-		}
-
-		if (auto newVertDeclResult = mpGraphicsObjectManager->CreateVertexDeclaration())
-		{
-			mpSkinnedShadowVertDecl = newVertDeclResult.Get();
-
-			mpSkinnedShadowVertDecl->AddElement({ FT_FLOAT4, 0, VEST_POSITION });
-			mpSkinnedShadowVertDecl->AddElement({ FT_FLOAT4, 0, VEST_JOINT_WEIGHTS });
-			mpSkinnedShadowVertDecl->AddElement({ FT_UINT4, 0, VEST_JOINT_INDICES });
-		}
-
 		const static TMaterialParameters shadowPassMaterialParams = CreateShadowPassMaterialParams("Shaders/Default/ShadowPass.shader");
 		const static TMaterialParameters shadowPassSkinnedMaterialParams = CreateShadowPassMaterialParams("Shaders/Default/SkinnedShadowPass.shader");
 
 		mShadowPassMaterialHandle        = mpResourceManager->Create<IMaterial>("ShadowPassMaterial.material", shadowPassMaterialParams);
 		mShadowPassSkinnedMaterialHandle = mpResourceManager->Create<IMaterial>("ShadowPassSkinnedMaterial.material", shadowPassSkinnedMaterialParams);
 
-		return (mShadowPassMaterialHandle != TResourceId::Invalid && mpShadowVertDecl) ? RC_OK : RC_FAIL;
+		return (mShadowPassMaterialHandle != TResourceId::Invalid) ? RC_OK : RC_FAIL;
 	}
 
 
