@@ -19,9 +19,9 @@ namespace TDEngine2
 	static const std::string InvalidMaterialMessage = "{0} Invalid material was passed into the render command";
 
 
-	constexpr U32 DEFAULT_PVP_INDEX_BUFFER_SLOT     = 20;
-	constexpr U32 DEFAULT_PVP_INSTANCE_BUFFER_SLOT  = 21;
-	constexpr U32 DEFAULT_PVP_VERTEX_BUFFER_SLOT    = 22;
+	constexpr U32 DEFAULT_PVP_INDEX_BUFFER_SLOT     = 30;
+	constexpr U32 DEFAULT_PVP_INSTANCE_BUFFER_SLOT  = 31;
+	constexpr U32 DEFAULT_PVP_VERTEX_BUFFER_SLOT    = 32;
 
 
 	E_RESULT_CODE TUpdateBufferCommand::Submit(const TRenderCommandSubmitParams& params)

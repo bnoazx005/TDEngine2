@@ -32,17 +32,17 @@ struct TSkinningVertexData
 
 #ifdef TDE2_DECLARE_DEFAULT_VERTEX_BUFFER
 	
-DECLARE_TYPED_BUFFER_EX(float4, PositionsVertexBuffer, 22);
-DECLARE_TYPED_BUFFER_EX(float4, ColorsVertexBuffer, 23);
-DECLARE_TYPED_BUFFER_EX(float4, TexCoordsVertexBuffer, 24);
-DECLARE_TYPED_BUFFER_EX(float4, NormalsVertexBuffer, 25);
-DECLARE_TYPED_BUFFER_EX(float4, TangentsVertexBuffer, 26);
+DECLARE_TYPED_BUFFER_EX(float4, PositionsVertexBuffer, 32);
+DECLARE_TYPED_BUFFER_EX(float4, ColorsVertexBuffer, 33);
+DECLARE_TYPED_BUFFER_EX(float4, TexCoordsVertexBuffer, 34);
+DECLARE_TYPED_BUFFER_EX(float4, NormalsVertexBuffer, 35);
+DECLARE_TYPED_BUFFER_EX(float4, TangentsVertexBuffer, 36);
 #ifdef TDE2_FVF_SKINNED_VERTEX
-DECLARE_TYPED_BUFFER_EX(TSkinningVertexData, SkinningVertexBuffer, 27);
+DECLARE_TYPED_BUFFER_EX(TSkinningVertexData, SkinningVertexBuffer, 37);
 #endif
 
 #ifdef TDE2_ENABLE_INDEX_BUFFER
-DECLARE_TYPED_BUFFER_EX(uint, IndexBuffer, 20);
+DECLARE_TYPED_BUFFER_EX(uint, IndexBuffer, 30);
 #endif
 
 /// \todo Add support of using this function when there is no declared index buffer's resource
@@ -72,9 +72,9 @@ struct TUiVertexFormat
 	#endif
 };
 
-DECLARE_TYPED_BUFFER_EX(TUiVertexFormat, VertexBuffer, 22);
+DECLARE_TYPED_BUFFER_EX(TUiVertexFormat, VertexBuffer, 32);
 #ifdef TDE2_ENABLE_INDEX_BUFFER
-DECLARE_TYPED_BUFFER_EX(uint, IndexBuffer, 20);
+DECLARE_TYPED_BUFFER_EX(uint, IndexBuffer, 30);
 #endif
 
 
@@ -138,11 +138,11 @@ struct TSpriteInstanceData
 	float4   mColor;
 };
 
-DECLARE_TYPED_BUFFER_EX(TSpriteVertexFormat, VertexBuffer, 22);
+DECLARE_TYPED_BUFFER_EX(TSpriteVertexFormat, VertexBuffer, 32);
 #ifdef TDE2_ENABLE_INDEX_BUFFER
-DECLARE_TYPED_BUFFER_EX(uint, IndexBuffer, 20);
+DECLARE_TYPED_BUFFER_EX(uint, IndexBuffer, 30);
 #endif
-DECLARE_TYPED_BUFFER_EX(TSpriteInstanceData, InstancesBuffer, 21);
+DECLARE_TYPED_BUFFER_EX(TSpriteInstanceData, InstancesBuffer, 31);
 
 
 float4 GetSpriteVertPos(uint index, uint vertexOffset = 0, uint indexOffset = 0) 
@@ -197,11 +197,11 @@ struct TParticleInstanceData
 	float4 mRotation;
 };
 
-DECLARE_TYPED_BUFFER_EX(TParticleVertexFormat, VertexBuffer, 22);
+DECLARE_TYPED_BUFFER_EX(TParticleVertexFormat, VertexBuffer, 32);
 #ifdef TDE2_ENABLE_INDEX_BUFFER
-DECLARE_TYPED_BUFFER_EX(uint, IndexBuffer, 20);
+DECLARE_TYPED_BUFFER_EX(uint, IndexBuffer, 30);
 #endif
-DECLARE_TYPED_BUFFER_EX(TParticleInstanceData, InstancesBuffer, 21);
+DECLARE_TYPED_BUFFER_EX(TParticleInstanceData, InstancesBuffer, 31);
 
 
 float4 GetParticleVertPos(uint index, uint vertexOffset = 0, uint indexOffset = 0) 

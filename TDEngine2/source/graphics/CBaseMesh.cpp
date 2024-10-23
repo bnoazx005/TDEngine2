@@ -27,7 +27,7 @@ namespace TDEngine2
 		{
 			std::make_tuple(reinterpret_cast<const U8*>(mPositions.data()), sizeof(TVector4) * mPositions.size(), sizeof(TVector4)),
 			std::make_tuple(reinterpret_cast<const U8*>(mVertexColors.data()), sizeof(TColor32F) * mVertexColors.size(), sizeof(TColor32F)),
-			std::make_tuple(reinterpret_cast<const U8*>(mTexcoords0.data()), sizeof(TVector4) * mTexcoords0.size(), sizeof(TVector2)),
+			std::make_tuple(reinterpret_cast<const U8*>(mTexcoords0.data()), sizeof(TVector4) * mTexcoords0.size(), sizeof(TVector4)),
 			std::make_tuple(reinterpret_cast<const U8*>(mNormals.data()), sizeof(TVector4) * mNormals.size(), sizeof(TVector4)),
 			std::make_tuple(reinterpret_cast<const U8*>(mTangents.data()), sizeof(TVector4) * mTangents.size(), sizeof(TVector4))
 		};
