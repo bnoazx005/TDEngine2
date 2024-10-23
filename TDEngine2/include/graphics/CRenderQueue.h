@@ -27,7 +27,6 @@ namespace TDEngine2
 	class IAllocator;
 	class CRenderQueue;
 	class IRenderer;
-	class IVertexDeclaration;
 	class IResourceManager;
 	class IGlobalShaderProperties;
 	class IResourceHandler;
@@ -112,8 +111,6 @@ namespace TDEngine2
 			TBufferHandleId::Invalid,
 			TBufferHandleId::Invalid,
 		};
-
-		IVertexDeclaration*       mpVertexDeclaration = nullptr;
 
 		TResourceId               mMaterialHandle;
 

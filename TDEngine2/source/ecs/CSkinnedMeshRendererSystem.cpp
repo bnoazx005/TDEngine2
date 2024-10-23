@@ -349,7 +349,6 @@ namespace TDEngine2
 				pDepthOnlyCommand->mVertexBufferHandle            = pSharedMeshResource->GetVertexBufferForStream(E_VERTEX_STREAM_TYPE::POSITIONS);
 				pDepthOnlyCommand->mIndexBufferHandle             = pCommand->mIndexBufferHandle;
 				pDepthOnlyCommand->mMaterialHandle                = DepthOnlyMaterialHandle;
-				pDepthOnlyCommand->mpVertexDeclaration            = pDepthOnlyVertDecl;
 				pDepthOnlyCommand->mStartIndex                    = pCommand->mStartIndex;
 				pDepthOnlyCommand->mNumOfIndices                  = pCommand->mNumOfIndices;
 				pDepthOnlyCommand->mPrimitiveType                 = pCommand->mPrimitiveType;

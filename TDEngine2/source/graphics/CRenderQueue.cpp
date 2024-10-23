@@ -1,6 +1,5 @@
 #include "../../include/graphics/CRenderQueue.h"
 #include "../../include/graphics/IRenderer.h"
-#include "../../include/graphics/IVertexDeclaration.h"
 #include "../../include/graphics/IBuffer.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/core/IResourceManager.h"
@@ -72,12 +71,6 @@ namespace TDEngine2
 
 		auto pAttachedShader = pResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
 
-		if (mpVertexDeclaration)
-		{
-			mpVertexDeclaration->Bind(pGraphicsContext, { mVertexBufferHandle }, pAttachedShader.Get());
-			pGraphicsContext->SetVertexBuffer(0, mVertexBufferHandle, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
-		}
-
 		pMaterial->Bind(mMaterialInstanceId);
 
 		if (pMaterial->IsScissorTestEnabled())
@@ -87,21 +80,14 @@ namespace TDEngine2
 
 		pGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_OBJECT, reinterpret_cast<const U8*>(&mObjectData), sizeof(mObjectData));
 
-		if (!mpVertexDeclaration) // \note If there is no defined vertex declaration use programmable vertex pulling technique
+		pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT, mVertexBufferHandle);
+
+		for (U32 i = 0; i < ADDITIONAL_VERTEX_BUFFERS_MAX_COUNT; ++i)
 		{
-			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT, mVertexBufferHandle);
-
-			for (U32 i = 0; i < ADDITIONAL_VERTEX_BUFFERS_MAX_COUNT; ++i)
-			{
-				pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT + i + 1, mAdditionalVertexBuffers[i]);
-			}
-
-			pGraphicsContext->Draw(mPrimitiveType, 0, mNumOfVertices);
-
-			return RC_OK;
+			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT + i + 1, mAdditionalVertexBuffers[i]);
 		}
 
-		pGraphicsContext->Draw(mPrimitiveType, mStartVertex, mNumOfVertices);
+		pGraphicsContext->Draw(mPrimitiveType, 0, mNumOfVertices);
 
 		return RC_OK;
 	}
@@ -135,14 +121,6 @@ namespace TDEngine2
 
 		TDE2_STATS_COUNTER_INCREMENT(mDrawCallsCount);
 
-		if (mpVertexDeclaration)
-		{
-			mpVertexDeclaration->Bind(pGraphicsContext, { mVertexBufferHandle }, pAttachedShader.Get());
-
-			pGraphicsContext->SetVertexBuffer(0, mVertexBufferHandle, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
-			pGraphicsContext->SetIndexBuffer(mIndexBufferHandle, 0);
-		}
-
 		pMaterial->Bind(mMaterialInstanceId);
 
 		if (pMaterial->IsScissorTestEnabled())
@@ -152,24 +130,15 @@ namespace TDEngine2
 
 		pGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_OBJECT, reinterpret_cast<const U8*>(&mObjectData), sizeof(mObjectData));
 		
-		if (!mpVertexDeclaration) // \note If there is no defined vertex declaration use programmable vertex pulling technique
+		pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT, mVertexBufferHandle);
+		pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_INDEX_BUFFER_SLOT, mIndexBufferHandle);
+
+		for (U32 i = 0; i < ADDITIONAL_VERTEX_BUFFERS_MAX_COUNT; ++i)
 		{
-			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT, mVertexBufferHandle);
-			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_INDEX_BUFFER_SLOT, mIndexBufferHandle);
-
-			for (U32 i = 0; i < ADDITIONAL_VERTEX_BUFFERS_MAX_COUNT; ++i)
-			{
-				pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT + i + 1, mAdditionalVertexBuffers[i]);
-			}
-
-			pGraphicsContext->Draw(mPrimitiveType, 0, mNumOfIndices);
-
-			return RC_OK;
+			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT + i + 1, mAdditionalVertexBuffers[i]);
 		}
 
-		auto pIndexBuffer = pGraphicsContext->GetGraphicsObjectManager()->GetBufferPtr(mIndexBufferHandle);
-
-		pGraphicsContext->DrawIndexed(mPrimitiveType, pIndexBuffer->GetParams().mIndexFormat, mStartVertex, mStartIndex, mNumOfIndices);
+		pGraphicsContext->Draw(mPrimitiveType, 0, mNumOfIndices);
 
 		return RC_OK;
 	}
@@ -198,15 +167,6 @@ namespace TDEngine2
 
 		auto pAttachedShader = pResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
 
-		if (mpVertexDeclaration)
-		{
-			mpVertexDeclaration->Bind(pGraphicsContext, { mVertexBufferHandle, mInstancingBufferHandle }, pAttachedShader.Get());
-
-			pGraphicsContext->SetVertexBuffer(0, mVertexBufferHandle, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
-			pGraphicsContext->SetVertexBuffer(1, mInstancingBufferHandle, 0, mpVertexDeclaration->GetStrideSize(1)); /// \todo replace magic constants
-			pGraphicsContext->SetIndexBuffer(mIndexBufferHandle, 0);
-		}
-
 		pMaterial->Bind(mMaterialInstanceId);
 
 		if (pMaterial->IsScissorTestEnabled())
@@ -216,26 +176,16 @@ namespace TDEngine2
 
 		pGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_OBJECT, reinterpret_cast<const U8*>(&mObjectData), sizeof(mObjectData));
 
-		if (!mpVertexDeclaration)
+		pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT, mVertexBufferHandle);
+		pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_INDEX_BUFFER_SLOT, mIndexBufferHandle);
+		pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_INSTANCE_BUFFER_SLOT, mInstancingBufferHandle);
+
+		for (U32 i = 0; i < ADDITIONAL_VERTEX_BUFFERS_MAX_COUNT; ++i)
 		{
-			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT, mVertexBufferHandle);
-			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_INDEX_BUFFER_SLOT, mIndexBufferHandle);
-			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_INSTANCE_BUFFER_SLOT, mInstancingBufferHandle);
-
-			for (U32 i = 0; i < ADDITIONAL_VERTEX_BUFFERS_MAX_COUNT; ++i)
-			{
-				pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT + i + 1, mAdditionalVertexBuffers[i]);
-			}
-
-			pGraphicsContext->DrawInstanced(mPrimitiveType, 0, mIndicesPerInstance, 0, mNumOfInstances);
-
-			return RC_OK;
+			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT + i + 1, mAdditionalVertexBuffers[i]);
 		}
 
-		auto pIndexBuffer = pGraphicsContext->GetGraphicsObjectManager()->GetBufferPtr(mIndexBufferHandle);
-
-		pGraphicsContext->DrawIndexedInstanced(mPrimitiveType, pIndexBuffer->GetParams().mIndexFormat, mBaseVertexIndex, mStartIndex,
-											   mStartInstance, mIndicesPerInstance, mNumOfInstances);
+		pGraphicsContext->DrawInstanced(mPrimitiveType, 0, mIndicesPerInstance, 0, mNumOfInstances);
 
 		return RC_OK;
 	}
@@ -258,14 +208,6 @@ namespace TDEngine2
 
 		auto pAttachedShader = pResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
 
-		if (mpVertexDeclaration)
-		{
-			mpVertexDeclaration->Bind(pGraphicsContext, { mVertexBufferHandle }, pAttachedShader.Get());
-
-			pGraphicsContext->SetVertexBuffer(0, mVertexBufferHandle, 0, mpVertexDeclaration->GetStrideSize(0)); /// \todo replace magic constants
-			pGraphicsContext->SetIndexBuffer(mIndexBufferHandle, 0);
-		}
-
 		pMaterial->Bind(mMaterialInstanceId);
 
 		if (pMaterial->IsScissorTestEnabled())
@@ -275,29 +217,15 @@ namespace TDEngine2
 
 		pGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_OBJECT, reinterpret_cast<const U8*>(&mObjectData), sizeof(mObjectData));
 
-		if (!mpVertexDeclaration)
+		pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT, mVertexBufferHandle);
+		pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_INDEX_BUFFER_SLOT, mIndexBufferHandle);
+
+		for (U32 i = 0; i < ADDITIONAL_VERTEX_BUFFERS_MAX_COUNT; ++i)
 		{
-			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT, mVertexBufferHandle);
-			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_INDEX_BUFFER_SLOT, mIndexBufferHandle);
-
-			for (U32 i = 0; i < ADDITIONAL_VERTEX_BUFFERS_MAX_COUNT; ++i)
-			{
-				pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT + i + 1, mAdditionalVertexBuffers[i]);
-			}
-
-			pGraphicsContext->DrawIndirectInstanced(mPrimitiveType, mArgsBufferHandle, mAlignedOffset);
-
-			return RC_OK;
+			pGraphicsContext->SetStructuredBuffer(DEFAULT_PVP_VERTEX_BUFFER_SLOT + i + 1, mAdditionalVertexBuffers[i]);
 		}
 
-		if (mUseIndexedCommand)
-		{
-			pGraphicsContext->DrawIndirectIndexedInstanced(mPrimitiveType, E_INDEX_FORMAT_TYPE::INDEX16, mArgsBufferHandle, mAlignedOffset);
-		}
-		else
-		{
-			pGraphicsContext->DrawIndirectInstanced(mPrimitiveType, mArgsBufferHandle, mAlignedOffset);
-		}
+		pGraphicsContext->DrawIndirectInstanced(mPrimitiveType, mArgsBufferHandle, mAlignedOffset);
 
 		return RC_OK;
 	}

@@ -61,6 +61,8 @@ GetSharedVertexBuffer method was removed from the interface.
 
 - Now ImGUIContext uses 32 bits indices.
 
+- The support of **IVertexDeclaration** was removed from all implementations of **TDrawBaseRenderCommand**. Now a programmable vertex pulling technique is used to provide vertex format.
+
 ### Fixed
 
 - CBaseMaterial::Save's behaviour was fixed.
