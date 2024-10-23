@@ -5,9 +5,15 @@
 
 #program vertex
 
-float4 mainVS(float4 lPos : POSITION0): SV_POSITION
+#define TDE2_FVF_POSITION_ONLY
+#define TDE2_DECLARE_DEFAULT_VERTEX_BUFFER
+#define TDE2_ENABLE_INDEX_BUFFER
+#include <TDEngine2VertexFormats.inc>
+
+
+float4 mainVS(uint vertexId : SV_VertexID): SV_POSITION
 {
-	return mul(ProjMat, mul(ViewMat, mul(ModelMat, lPos)));
+	return mul(ProjMat, mul(ViewMat, mul(ModelMat, GetVertPos(vertexId, StartVertexOffset, StartIndexOffset))));
 }
 
 #endprogram

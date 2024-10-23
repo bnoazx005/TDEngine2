@@ -12,17 +12,19 @@ struct VertexOut
 
 #program vertex
 
-struct VertexIn
-{
-	float4 mPosUV : POSITION0;
-};
+#define TDE2_FVF_POSITION_ONLY
+#define TDE2_DECLARE_DEFAULT_VERTEX_BUFFER
+#define TDE2_ENABLE_INDEX_BUFFER
+#include <TDEngine2VertexFormats.inc>
 
-VertexOut mainVS(VertexIn input)
+VertexOut mainVS(uint vertexId : SV_VertexID)
 {
 	VertexOut output;
 	
-	output.mPos   = mul(ModelMat, float4(input.mPosUV.xy, 0.0, 1.0));
-	output.mUV    = input.mPosUV.zw;
+	float4 posUV = GetVertPos(vertexId, StartVertexOffset, StartIndexOffset);
+
+	output.mPos   = mul(ModelMat, float4(posUV.xy, 0.0, 1.0));
+	output.mUV    = posUV.zw;
 	output.mID    = ObjectID + 1;	
 
 	return output;

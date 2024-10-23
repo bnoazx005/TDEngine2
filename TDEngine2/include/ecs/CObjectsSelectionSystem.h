@@ -22,7 +22,6 @@ namespace TDEngine2
 	class CRenderQueue;
 	class IWorld;
 	class ICamera;
-	class IVertexDeclaration;
 	class IMaterial;
 	class CStaticMeshContainer;
 	class CSkinnedMeshContainer;
@@ -139,9 +138,6 @@ namespace TDEngine2
 			CFramePacketsStorage*   mpFramePacketsStorage = nullptr;
 
 			TEntityId               mCameraEntityId = TEntityId::Invalid;
-
-			IVertexDeclaration*     mpSelectionVertDecl = nullptr;
-			IVertexDeclaration*     mpSelectionSkinnedVertDecl = nullptr;
 
 			TBufferHandleId         mSpritesVertexBufferHandle;
 			TBufferHandleId         mSpritesIndexBufferHandle;

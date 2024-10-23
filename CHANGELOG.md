@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.30] 2024-10-22
+## [0.6.30] 2024-10-23
 
 ### Added
 
@@ -35,6 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The API of **IMesh** was refactored. A new method GetVertexBufferForStream was added instead of GetPositionOnlyVertexBuffer. Separate HasXX group of methods was replaced with HasVertexStream one.
 GetSharedVertexBuffer method was removed from the interface. 
+
+- **CStaticMeshRendererSystem**, **CSkinnedMeshRendererSystem** and **CObjectSelectionSystem** now render objects via programmable vertex pulling.
 
 ### Changed
 
