@@ -235,14 +235,15 @@ namespace TDEngine2
 				pCommand->mAdditionalVertexBuffers[i - 1] = pSharedMeshResource->GetVertexBufferForStream(static_cast<E_VERTEX_STREAM_TYPE>(i));
 			}
 
-			pCommand->mIndexBufferHandle            = pSharedMeshResource->GetSharedIndexBuffer();
-			pCommand->mMaterialHandle               = mpResourceManager->Load<IMaterial>(pStaticMeshContainer->GetMaterialName());
-			pCommand->mStartIndex                   = subMeshInfo.mStartIndex;
-			pCommand->mNumOfIndices                 = subMeshInfo.mIndicesCount;
-			pCommand->mPrimitiveType                = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-			pCommand->mObjectData.mModelMatrix      = Transpose(objectTransformMatrix);
-			pCommand->mObjectData.mInvModelMatrix   = Transpose(Inverse(objectTransformMatrix));
-			pCommand->mObjectData.mStartIndexOffset = subMeshInfo.mStartIndex;
+			pCommand->mIndexBufferHandle             = pSharedMeshResource->GetSharedIndexBuffer();
+			pCommand->mMaterialHandle                = mpResourceManager->Load<IMaterial>(pStaticMeshContainer->GetMaterialName());
+			pCommand->mStartIndex                    = subMeshInfo.mStartIndex;
+			pCommand->mNumOfIndices                  = subMeshInfo.mIndicesCount;
+			pCommand->mPrimitiveType                 = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+			pCommand->mObjectData.mModelMatrix       = Transpose(objectTransformMatrix);
+			pCommand->mObjectData.mInvModelMatrix    = Transpose(Inverse(objectTransformMatrix));
+			pCommand->mObjectData.mStartIndexOffset  = subMeshInfo.mStartIndex;
+			pCommand->mObjectData.mVertexFormatFlags = pSharedMeshResource->GetVertexFormatFlags();
 
 			if (pDepthOnlyRenderGroup && E_GEOMETRY_SUBGROUP_TAGS::SKYBOX != pCastedMaterial->GetGeometrySubGroupTag())
 			{
@@ -257,6 +258,7 @@ namespace TDEngine2
 				pDepthOnlyCommand->mObjectData.mModelMatrix      = pCommand->mObjectData.mModelMatrix;
 				pDepthOnlyCommand->mObjectData.mInvModelMatrix   = pCommand->mObjectData.mInvModelMatrix;
 				pDepthOnlyCommand->mObjectData.mStartIndexOffset = pCommand->mStartIndex;
+				pCommand->mObjectData.mVertexFormatFlags         = pCommand->mObjectData.mVertexFormatFlags;
 			}
 
 			++iter;

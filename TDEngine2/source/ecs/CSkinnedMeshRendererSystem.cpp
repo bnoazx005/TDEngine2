@@ -331,30 +331,32 @@ namespace TDEngine2
 				pCommand->mAdditionalVertexBuffers[i - 1] = pSharedMeshResource->GetVertexBufferForStream(static_cast<E_VERTEX_STREAM_TYPE>(i));
 			}
 
-			pCommand->mIndexBufferHandle            = pSharedMeshResource->GetSharedIndexBuffer();
-			pCommand->mMaterialHandle               = currMaterialId;
-			pCommand->mMaterialInstanceId           = materialInstance;
-			pCommand->mNumOfIndices                 = subMeshInfo.mIndicesCount;
-			pCommand->mStartIndex                   = subMeshInfo.mStartIndex;
-			pCommand->mPrimitiveType                = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-			pCommand->mObjectData.mModelMatrix      = Transpose(objectTransformMatrix);
-			pCommand->mObjectData.mInvModelMatrix   = Transpose(Inverse(objectTransformMatrix));
-			pCommand->mObjectData.mStartIndexOffset = subMeshInfo.mStartIndex;
+			pCommand->mIndexBufferHandle             = pSharedMeshResource->GetSharedIndexBuffer();
+			pCommand->mMaterialHandle                = currMaterialId;
+			pCommand->mMaterialInstanceId            = materialInstance;
+			pCommand->mNumOfIndices                  = subMeshInfo.mIndicesCount;
+			pCommand->mStartIndex                    = subMeshInfo.mStartIndex;
+			pCommand->mPrimitiveType                 = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+			pCommand->mObjectData.mModelMatrix       = Transpose(objectTransformMatrix);
+			pCommand->mObjectData.mInvModelMatrix    = Transpose(Inverse(objectTransformMatrix));
+			pCommand->mObjectData.mStartIndexOffset  = subMeshInfo.mStartIndex;
+			pCommand->mObjectData.mVertexFormatFlags = pSharedMeshResource->GetVertexFormatFlags();
 
 			if (pDepthOnlyRenderGroup && E_GEOMETRY_SUBGROUP_TAGS::SKYBOX != pCastedMaterial->GetGeometrySubGroupTag())
 			{
 				auto pDepthOnlyCommand = pDepthOnlyRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(static_cast<U32>(fabs(distanceToCamera)));
 
-				pDepthOnlyCommand->mVertexBufferHandle = pSharedMeshResource->GetVertexBufferForStream(E_VERTEX_STREAM_TYPE::POSITIONS);
-				pDepthOnlyCommand->mIndexBufferHandle = pCommand->mIndexBufferHandle;
-				pDepthOnlyCommand->mMaterialHandle = DepthOnlyMaterialHandle;
-				pDepthOnlyCommand->mpVertexDeclaration = pDepthOnlyVertDecl;
-				pDepthOnlyCommand->mStartIndex = pCommand->mStartIndex;
-				pDepthOnlyCommand->mNumOfIndices = pCommand->mNumOfIndices;
-				pDepthOnlyCommand->mPrimitiveType = pCommand->mPrimitiveType;
-				pDepthOnlyCommand->mObjectData.mModelMatrix = pCommand->mObjectData.mModelMatrix;
-				pDepthOnlyCommand->mObjectData.mInvModelMatrix = pCommand->mObjectData.mInvModelMatrix;
-				pDepthOnlyCommand->mObjectData.mStartIndexOffset = pCommand->mStartIndex;
+				pDepthOnlyCommand->mVertexBufferHandle            = pSharedMeshResource->GetVertexBufferForStream(E_VERTEX_STREAM_TYPE::POSITIONS);
+				pDepthOnlyCommand->mIndexBufferHandle             = pCommand->mIndexBufferHandle;
+				pDepthOnlyCommand->mMaterialHandle                = DepthOnlyMaterialHandle;
+				pDepthOnlyCommand->mpVertexDeclaration            = pDepthOnlyVertDecl;
+				pDepthOnlyCommand->mStartIndex                    = pCommand->mStartIndex;
+				pDepthOnlyCommand->mNumOfIndices                  = pCommand->mNumOfIndices;
+				pDepthOnlyCommand->mPrimitiveType                 = pCommand->mPrimitiveType;
+				pDepthOnlyCommand->mObjectData.mModelMatrix       = pCommand->mObjectData.mModelMatrix;
+				pDepthOnlyCommand->mObjectData.mInvModelMatrix    = pCommand->mObjectData.mInvModelMatrix;
+				pDepthOnlyCommand->mObjectData.mStartIndexOffset  = pCommand->mStartIndex;
+				pDepthOnlyCommand->mObjectData.mVertexFormatFlags = pCommand->mObjectData.mVertexFormatFlags;
 			}
 
 			++iter;

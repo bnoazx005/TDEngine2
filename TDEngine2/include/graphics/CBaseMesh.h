@@ -99,6 +99,13 @@ namespace TDEngine2
 
 			TDE2_API bool HasVertexStream(E_VERTEX_STREAM_TYPE streamType) const override;
 
+			/*!
+				\return The method returns U32 value which is a bitset ith bit corresponds to ith value of E_VERTEX_STREAM_TYPE
+				For instance, 3 means 11 where least significant bit refers to E_VERTEX_STREAM_TYPE::POSITIONS and second one to E_VERTEX_STREAM_TYPE::COLORS
+			*/
+
+			TDE2_API U32 GetVertexFormatFlags() const override;
+
 			TDE2_API TBufferHandleId GetVertexBufferForStream(E_VERTEX_STREAM_TYPE streamType) const override;
 
 			/*!

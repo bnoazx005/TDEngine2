@@ -140,6 +140,13 @@ namespace TDEngine2
 			TDE2_API virtual const TIndicesArray& GetIndices() const = 0;
 
 			TDE2_API virtual bool HasVertexStream(E_VERTEX_STREAM_TYPE streamType) const = 0;
+			
+			/*! 
+				\return The method returns U32 value which is a bitset ith bit corresponds to ith value of E_VERTEX_STREAM_TYPE
+				For instance, 3 means 11 where least significant bit refers to E_VERTEX_STREAM_TYPE::POSITIONS and second one to E_VERTEX_STREAM_TYPE::COLORS
+			*/
+			
+			TDE2_API virtual U32 GetVertexFormatFlags() const = 0;
 
 			/*!
 				\brief The method returns a number of faces in the mesh

@@ -218,6 +218,25 @@ namespace TDEngine2
 		return (index >= mVertexStreams.size()) ? TBufferHandleId::Invalid : mVertexStreams[index];
 	}
 
+	U32 CBaseMesh::GetVertexFormatFlags() const
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		U32 vertexFormatFlags = 0x0;
+
+		for (U32 i = 0; i < static_cast<U32>(E_VERTEX_STREAM_TYPE::COUNT); ++i)
+		{
+			if (!_hasVertexStreamInternal(static_cast<E_VERTEX_STREAM_TYPE>(i)))
+			{
+				continue;
+			}
+
+			vertexFormatFlags |= (1 << i);
+		}
+
+		return vertexFormatFlags;
+	}
+
 	TBufferHandleId CBaseMesh::GetSharedIndexBuffer() const
 	{
 		return mSharedIndexBufferHandle;
