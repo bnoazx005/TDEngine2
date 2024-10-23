@@ -11,12 +11,12 @@
 
 
 // \note All elements are stored in same order as E_VERTEX_STREAM_TYPE enumeration in IMesh.h file
-#define HAS_POSITIONS (VertexFormatFlags & (1 << 0))   
-#define HAS_COLORS    (VertexFormatFlags & (1 << 1))
-#define HAS_TEXCOORDS (VertexFormatFlags & (1 << 2))   
-#define HAS_NORMALS   (VertexFormatFlags & (1 << 3)) 
-#define HAS_TANGENTS  (VertexFormatFlags & (1 << 4))  
-#define HAS_SKINNING  (VertexFormatFlags & (1 << 5))  
+#define HAS_POSITIONS  (VertexFormatFlags & (1 << 0))   
+#define HAS_COLORS     (VertexFormatFlags & (1 << 1))
+#define HAS_TEXCOORDS0 (VertexFormatFlags & (1 << 2))   
+#define HAS_NORMALS    (VertexFormatFlags & (1 << 3)) 
+#define HAS_TANGENTS   (VertexFormatFlags & (1 << 4))  
+#define HAS_SKINNING   (VertexFormatFlags & (1 << 5))  
 
 
 #ifdef TDE2_FVF_SKINNED_VERTEX

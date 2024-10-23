@@ -17,24 +17,23 @@ struct VertexOut
 
 #program vertex
 
-struct VertexIn
-{
-	float4 mPos : POSITION0;
-	float4 mUV : TEXCOORD0;
-
-};
+#define TDE2_DECLARE_DEFAULT_VERTEX_BUFFER
+#define TDE2_ENABLE_INDEX_BUFFER
+#include <TDEngine2VertexFormats.inc>
 
 
-VertexOut mainVS(in VertexIn input)
+VertexOut mainVS(uint vertexId : SV_VertexID)
 {
 	VertexOut output;
 
 	float4x4 transformedView = ViewMat;
 	transformedView._14_24_34 = 0.0f;
 
-	output.mWorldPos = input.mPos;
-	output.mPos = mul(mul(ProjMat, transformedView), input.mPos).xyww;
-	output.mUV  = input.mUV;
+    float4 pos = GetVertPos(vertexId, StartVertexOffset, StartIndexOffset);
+
+	output.mWorldPos = pos;
+	output.mPos = mul(mul(ProjMat, transformedView), pos).xyww;
+	output.mUV  = HAS_TEXCOORDS0 ? GetVertTexCoords(vertexId, StartVertexOffset, StartIndexOffset).xyz : float3(0.0, 0.0, 0.0);
 
 	return output;
 }
