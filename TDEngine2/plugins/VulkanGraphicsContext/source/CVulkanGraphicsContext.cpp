@@ -2,8 +2,7 @@
 #include "../include/CVulkanUtils.h"
 #include "../include/IWindowSurfaceFactory.h"
 #include "../include/CVulkanGraphicsObjectManager.h"
-#include "../include/CVulkanBuffer.h"
-#include "../include/CVulkanTexture.h"
+#include "../include/CVulkanResources.h"
 #include <core/IEventManager.h>
 #include <core/IWindowSystem.h>
 #include <utils/CFileLogger.h>
@@ -131,6 +130,7 @@ namespace TDEngine2
 	static const std::vector<const C8*> RequiredDeviceExtensions
 	{
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+		VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
 	};
 
 

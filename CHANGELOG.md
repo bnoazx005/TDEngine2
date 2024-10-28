@@ -7,7 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.30] 2024-10-23
+## [0.6.31] 2024-10-28
+
+### Added
+
+### Changed
+
+- All Vulkan's graphics types implementations were moved into CVulkanResources.h and CVulkanResources.cpp.
+
+### Fixed
+
+## [0.6.30] 2024-10-24
 
 ### Added
 

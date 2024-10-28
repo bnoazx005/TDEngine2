@@ -1,9 +1,8 @@
 #include "../include/CVulkanGCtxPlugin.h"
 #include "../include/CVulkanGraphicsContext.h"
 #include "../include/win32/CWin32WindowSurfaceFactory.h"
-#include "../include/CVulkanShader.h"
+#include "../include/CVulkanResources.h"
 #include "../include/CVulkanShaderCompiler.h"
-#include "../include/CVulkanTexture.h"
 #include <core/IEngineCore.h>
 #include <core/IGraphicsContext.h>
 #include <core/IWindowSystem.h>

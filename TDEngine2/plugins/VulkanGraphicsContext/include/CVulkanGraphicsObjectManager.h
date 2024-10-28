@@ -18,10 +18,12 @@ namespace TDEngine2
 {
 	class CVulkanTextureImpl;
 	class CVulkanBuffer;
+	class IGraphicsPipeline;
 
 
 	TDE2_DECLARE_SCOPED_PTR(CVulkanTextureImpl)
 	TDE2_DECLARE_SCOPED_PTR(CVulkanBuffer)
+	TDE2_DECLARE_SCOPED_PTR(IGraphicsPipeline)
 
 
 	/*!
@@ -107,6 +109,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanGraphicsObjectManager)
 
+			TPtr<IGraphicsPipeline> _createGraphicsPipelineInternal(const TGraphicsPipelineConfigDesc& pipelineConfigDesc) override;
+			
 			E_RESULT_CODE _freeTextureSamplers() override;
 
 			E_RESULT_CODE _freeBlendStates() override;

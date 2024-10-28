@@ -2,9 +2,7 @@
 #include "../include/CVulkanGraphicsContext.h"
 #include "../include/CVulkanMappings.h"
 #include "../include/CVulkanUtils.h"
-#include "../include/CVulkanTexture.h"
-#include "../include/CVulkanBuffer.h"
-#include "../include/CVulkanVertexDeclaration.h"
+#include "../include/CVulkanResources.h"
 #include <core/IFileSystem.h>
 #include <core/IFile.h>
 #include <core/CProjectSettings.h>
@@ -245,6 +243,12 @@ namespace TDEngine2
 	{
 		// \note first two components are xy position, latter two are uv coordinates of the triangle
 		return { TVector4(-1.0f, -1.0f, 0.0f, 0.0f), TVector4(-1.0f, 3.0f, 0.0f, 2.0f), TVector4(3.0f, -1.0f, 2.0f, 0.0f) };
+	}
+
+	TPtr<IGraphicsPipeline> CVulkanGraphicsObjectManager::_createGraphicsPipelineInternal(const TGraphicsPipelineConfigDesc& pipelineConfigDesc)
+	{
+		E_RESULT_CODE result = RC_OK;
+		return TPtr<IGraphicsPipeline>(CreateVulkanGraphicsPipeline(mpGraphicsContext, pipelineConfigDesc, result));
 	}
 
 	E_RESULT_CODE CVulkanGraphicsObjectManager::_freeTextureSamplers()
