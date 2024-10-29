@@ -111,19 +111,20 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CBaseGraphicsPipeline::Init(IGraphicsContext* pGraphicsContext, const TGraphicsPipelineConfigDesc& pipelineConfig)
+	E_RESULT_CODE CBaseGraphicsPipeline::Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pGraphicsContext)
+		if (!pGraphicsContext || !pResourceManager)
 		{
 			return RC_INVALID_ARGS;
 		}
 
 		mpGraphicsContext = pGraphicsContext;
+		mpResourceManager = pResourceManager;
 		mpGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
 
 		mConfig = pipelineConfig;
@@ -145,9 +146,9 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IGraphicsPipeline* CreateBaseGraphicsPipeline(IGraphicsContext* pGraphicsContext, const TGraphicsPipelineConfigDesc& pipelineConfig, E_RESULT_CODE& result)
+	TDE2_API IGraphicsPipeline* CreateBaseGraphicsPipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IGraphicsPipeline, CBaseGraphicsPipeline, result, pGraphicsContext, pipelineConfig);
+		return CREATE_IMPL(IGraphicsPipeline, CBaseGraphicsPipeline, result, pGraphicsContext, pResourceManager, pipelineConfig);
 	}
 
 

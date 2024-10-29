@@ -15,6 +15,7 @@
 namespace TDEngine2
 {
 	class IGraphicsContext;
+	class IResourceManager;
 
 
 	/*!
@@ -28,12 +29,13 @@ namespace TDEngine2
 				\brief The method initializes an internal state of a pipeline
 
 				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
 				\param[in, out] pipelineConfig A desc with parameters of a graphics pipeline
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, const TGraphicsPipelineConfigDesc& pipelineConfig) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig) = 0;
 
 			TDE2_API virtual E_RESULT_CODE Bind() = 0;
 

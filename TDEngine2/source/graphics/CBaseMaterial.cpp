@@ -229,7 +229,7 @@ namespace TDEngine2
 		mGraphicsPipelineConfigDesc = pipelineConfigLoadResult.Get();
 		SetShader(mGraphicsPipelineConfigDesc.mShaderIdStr);
 		
-		auto pipelineCreationResult = mpGraphicsObjectManager->CreateGraphicsPipelineState(mGraphicsPipelineConfigDesc);
+		auto pipelineCreationResult = mpGraphicsObjectManager->CreateGraphicsPipelineState(MakeScopedFromRawPtr<IResourceManager>(mpResourceManager), mGraphicsPipelineConfigDesc);
 		if (pipelineCreationResult.HasError())
 		{
 			return pipelineCreationResult.GetError();
@@ -340,7 +340,7 @@ namespace TDEngine2
 
 		pWriter->SetString(TMaterialArchiveKeys::mGeometryTagKey, Meta::EnumTrait<E_GEOMETRY_SUBGROUP_TAGS>::ToString(mTag));
 
-		auto pipelineCreationResult = mpGraphicsObjectManager->CreateGraphicsPipelineState(mGraphicsPipelineConfigDesc);
+		auto pipelineCreationResult = mpGraphicsObjectManager->CreateGraphicsPipelineState(MakeScopedFromRawPtr<IResourceManager>(mpResourceManager), mGraphicsPipelineConfigDesc);
 		if (pipelineCreationResult.IsOk())
 		{
 			mGraphicsPipelineHandle = pipelineCreationResult.Get();
@@ -517,7 +517,7 @@ namespace TDEngine2
 
 		if (TGraphicsPipelineStateId::Invalid == mGraphicsPipelineHandle)
 		{
-			auto pipelineCreationResult = mpGraphicsObjectManager->CreateGraphicsPipelineState(mGraphicsPipelineConfigDesc);
+			auto pipelineCreationResult = mpGraphicsObjectManager->CreateGraphicsPipelineState(MakeScopedFromRawPtr<IResourceManager>(mpResourceManager), mGraphicsPipelineConfigDesc);
 			if (pipelineCreationResult.IsOk())
 			{
 				mGraphicsPipelineHandle = pipelineCreationResult.Get();

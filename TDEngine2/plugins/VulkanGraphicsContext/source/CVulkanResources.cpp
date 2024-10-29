@@ -694,7 +694,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanVertexDeclaration)
 
-				E_RESULT_CODE _compile();
+			E_RESULT_CODE _compile();
 		private:
 			std::vector<VkVertexInputBindingDescription> mInputBindings;
 			std::vector<VkVertexInputAttributeDescription> mAttributeDescs;
@@ -798,14 +798,15 @@ namespace TDEngine2
 	class CVulkanGraphicsPipeline : public CBaseGraphicsPipeline
 	{
 		public:
-			friend IGraphicsPipeline* CreateVulkanGraphicsPipeline(IGraphicsContext*, const TGraphicsPipelineConfigDesc&, E_RESULT_CODE&);
+			friend IGraphicsPipeline* CreateVulkanGraphicsPipeline(IGraphicsContext*, IResourceManager*, const TGraphicsPipelineConfigDesc&, E_RESULT_CODE&);
 		public:
-			E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, const TGraphicsPipelineConfigDesc& pipelineConfig) override;
+			E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig) override;
 			E_RESULT_CODE Bind() override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanGraphicsPipeline)
 		private:
 			CVulkanGraphicsObjectManager* mpVulkanGraphicsObjectManagerImpl = nullptr;
+			VkPipeline                    mBasePipelineHandle = VK_NULL_HANDLE;
 	};
 
 
@@ -814,15 +815,39 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CVulkanGraphicsPipeline::Init(IGraphicsContext* pGraphicsContext, const TGraphicsPipelineConfigDesc& pipelineConfig)
+	E_RESULT_CODE CVulkanGraphicsPipeline::Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig)
 	{
-		E_RESULT_CODE result = CBaseGraphicsPipeline::Init(pGraphicsContext, pipelineConfig);
+		E_RESULT_CODE result = CBaseGraphicsPipeline::Init(pGraphicsContext, pResourceManager, pipelineConfig);
 		if (RC_OK != result)
 		{
 			return result;
 		}
+		
+		CVulkanGraphicsContext* pVulkanGraphicsContext = dynamic_cast<CVulkanGraphicsContext*>(pGraphicsContext);
+		mpVulkanGraphicsObjectManagerImpl = dynamic_cast<CVulkanGraphicsObjectManager*>(pVulkanGraphicsContext->GetGraphicsObjectManager());
 
-		// \note Prepare basic pipeline that will be derived in runtime to override attachments 
+		// \note Prepare basic pipeline that will be derived in runtime to override attachments
+
+		const VkFormat defaultColorAttachmentFormat = CVulkanMappings::GetInternalFormat(E_FORMAT_TYPE::FT_NORM_BYTE4);
+
+		VkPipelineRenderingCreateInfo renderingInfo{};
+		renderingInfo.sType                   = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
+		renderingInfo.colorAttachmentCount    = 1;
+		renderingInfo.pColorAttachmentFormats = &defaultColorAttachmentFormat;
+		renderingInfo.depthAttachmentFormat   = pipelineConfig.mDepthStencilStateParams.mIsDepthWritingEnabled ? CVulkanMappings::GetInternalFormat(E_FORMAT_TYPE::FT_D32) : VK_FORMAT_UNDEFINED;
+		renderingInfo.stencilAttachmentFormat = pipelineConfig.mDepthStencilStateParams.mIsStencilTestEnabled ? CVulkanMappings::GetInternalFormat(E_FORMAT_TYPE::FT_BYTE1) : VK_FORMAT_UNDEFINED;
+		
+		VkPipelineVertexInputStateCreateInfo vertexInputStateInfo{};
+		vertexInputStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+
+		VkGraphicsPipelineCreateInfo graphicsPipelineInfo{};
+		graphicsPipelineInfo.sType              = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		graphicsPipelineInfo.pNext              = &renderingInfo;
+		graphicsPipelineInfo.renderPass         = VK_NULL_HANDLE;
+		graphicsPipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+		
+		// \todo Add pipeline cache's support
+		VK_SAFE_CALL(vkCreateGraphicsPipelines(pVulkanGraphicsContext->GetDevice(), VK_NULL_HANDLE, 1, &graphicsPipelineInfo, nullptr, &mBasePipelineHandle));
 
 		return RC_OK;
 	}
@@ -840,8 +865,8 @@ namespace TDEngine2
 	}
 
 
-	IGraphicsPipeline* CreateVulkanGraphicsPipeline(IGraphicsContext* pGraphicsContext, const TGraphicsPipelineConfigDesc& config, E_RESULT_CODE& result)
+	IGraphicsPipeline* CreateVulkanGraphicsPipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& config, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IGraphicsPipeline, CVulkanGraphicsPipeline, result, pGraphicsContext, config);
+		return CREATE_IMPL(IGraphicsPipeline, CVulkanGraphicsPipeline, result, pGraphicsContext, pResourceManager, config);
 	}
 }

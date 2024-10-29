@@ -37,6 +37,7 @@ namespace TDEngine2
 	TDE2_DECLARE_SCOPED_PTR(IBuffer);
 	TDE2_DECLARE_SCOPED_PTR(ITextureImpl);
 	TDE2_DECLARE_SCOPED_PTR(IGraphicsPipeline);
+	TDE2_DECLARE_SCOPED_PTR(IResourceManager);
 
 
 	/*!
@@ -100,7 +101,7 @@ namespace TDEngine2
 
 			TDE2_API virtual TResult<TTextureSamplerId> CreateTextureSampler(const TTextureSamplerDesc& samplerDesc) = 0;
 
-			TDE2_API virtual TResult<TGraphicsPipelineStateId> CreateGraphicsPipelineState(const TGraphicsPipelineConfigDesc& pipelineConfigDesc) = 0;
+			TDE2_API virtual TResult<TGraphicsPipelineStateId> CreateGraphicsPipelineState(TPtr<IResourceManager> pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfigDesc) = 0;
 
 			/*!
 				\brief The method is a factory for creation of a debug helper object

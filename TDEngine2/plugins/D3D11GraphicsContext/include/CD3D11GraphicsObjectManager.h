@@ -184,7 +184,7 @@ namespace TDEngine2
 
 			E_RESULT_CODE _onFreeInternal() override;
 
-			TPtr<IGraphicsPipeline> _createGraphicsPipelineInternal(const TGraphicsPipelineConfigDesc& pipelineConfigDesc) override;
+			TPtr<IGraphicsPipeline> _createGraphicsPipelineInternal(IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfigDesc) override;
 
 			E_RESULT_CODE _freeTextureSamplers() override;
 

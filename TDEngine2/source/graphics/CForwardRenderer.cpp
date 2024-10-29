@@ -1239,6 +1239,7 @@ namespace TDEngine2
 				CBaseRenderPass(context)
 			{
 				mGraphicsPipelineHandle = mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateGraphicsPipelineState(
+					context.mpResourceManager,
 					{
 						mShaderId,
 						{},
@@ -1409,6 +1410,7 @@ namespace TDEngine2
 				CBaseRenderPass(context)
 			{
 				mGraphicsPipelineHandle = mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateGraphicsPipelineState(
+					context.mpResourceManager,
 					{
 						mShaderId,
 						{},
@@ -1488,6 +1490,7 @@ namespace TDEngine2
 				CBaseRenderPass(context)
 			{
 				mGraphicsPipelineHandle = mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateGraphicsPipelineState(
+					context.mpResourceManager,
 					{
 						mShaderId,
 						{},
@@ -1583,6 +1586,7 @@ namespace TDEngine2
 				CBaseRenderPass(context)
 			{
 				mGraphicsPipelineHandle = mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateGraphicsPipelineState(
+					context.mpResourceManager,
 					{
 						mShaderId,
 						{},
@@ -1709,6 +1713,7 @@ namespace TDEngine2
 				CBaseRenderPass(context)
 			{
 				mGraphicsPipelineHandle = mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateGraphicsPipelineState(
+					context.mpResourceManager,
 					{
 						mShaderId,
 						{},
@@ -1807,6 +1812,7 @@ namespace TDEngine2
 				CBaseRenderPass(context)
 			{
 				mGraphicsPipelineHandle = mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateGraphicsPipelineState(
+					context.mpResourceManager,
 					{
 						mShaderId,
 						{},
@@ -1888,6 +1894,7 @@ namespace TDEngine2
 				CBaseRenderPass(context)
 			{
 				mGraphicsPipelineHandle = mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateGraphicsPipelineState(
+					context.mpResourceManager,
 					{
 						mShaderId,
 						{},
@@ -1982,6 +1989,7 @@ namespace TDEngine2
 				CBaseRenderPass(context)
 			{
 				mGraphicsPipelineHandle = mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateGraphicsPipelineState(
+					context.mpResourceManager,
 					{
 						mShaderId,
 						{},

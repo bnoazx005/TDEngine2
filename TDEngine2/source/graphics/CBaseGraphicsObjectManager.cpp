@@ -14,7 +14,7 @@
 namespace TDEngine2
 {
 	CBaseGraphicsObjectManager::CBaseGraphicsObjectManager() :
-		CBaseObject(), mpDebugUtility(nullptr), mpGraphicsContext(nullptr)
+		CBaseObject(), mpDebugUtility(nullptr)
 	{
 	}
 
@@ -72,7 +72,7 @@ namespace TDEngine2
 		return Wrench::TOkValue<IDebugUtility*>(mpDebugUtility);
 	}
 
-	TResult<TGraphicsPipelineStateId> CBaseGraphicsObjectManager::CreateGraphicsPipelineState(const TGraphicsPipelineConfigDesc& pipelineConfigDesc)
+	TResult<TGraphicsPipelineStateId> CBaseGraphicsObjectManager::CreateGraphicsPipelineState(TPtr<IResourceManager> pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfigDesc)
 	{
 		E_RESULT_CODE result = RC_OK;
 
@@ -84,7 +84,7 @@ namespace TDEngine2
 			return Wrench::TOkValue<TGraphicsPipelineStateId>(existingItemIt->second);
 		}
 
-		TPtr<IGraphicsPipeline> pGraphicsPipeline = _createGraphicsPipelineInternal(pipelineConfigDesc);
+		TPtr<IGraphicsPipeline> pGraphicsPipeline = _createGraphicsPipelineInternal(pResourceManager.Get(), pipelineConfigDesc);
 		if (!pGraphicsPipeline || RC_OK != result)
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
@@ -172,10 +172,10 @@ namespace TDEngine2
 		return mpDefaultPositionOnlyVertDeclaration;
 	}
 
-	TPtr<IGraphicsPipeline> CBaseGraphicsObjectManager::_createGraphicsPipelineInternal(const TGraphicsPipelineConfigDesc& pipelineConfigDesc)
+	TPtr<IGraphicsPipeline> CBaseGraphicsObjectManager::_createGraphicsPipelineInternal(IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfigDesc)
 	{
 		E_RESULT_CODE result = RC_OK;
-		return TPtr<IGraphicsPipeline>(CreateBaseGraphicsPipeline(mpGraphicsContext, pipelineConfigDesc, result));
+		return TPtr<IGraphicsPipeline>(CreateBaseGraphicsPipeline(mpGraphicsContext, pResourceManager, pipelineConfigDesc, result));
 	}
 
 	void CBaseGraphicsObjectManager::_insertVertexDeclaration(IVertexDeclaration* pVertDecl)

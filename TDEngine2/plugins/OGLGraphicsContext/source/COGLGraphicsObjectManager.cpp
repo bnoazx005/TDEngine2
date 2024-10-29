@@ -347,10 +347,10 @@ namespace TDEngine2
 		return { TVector4(-1.0f, -1.0f, 0.0f, 0.0f), TVector4(-1.0f, 3.0f, 0.0f, 2.0f), TVector4(3.0f, -1.0f, 2.0f, 0.0f) };
 	}
 
-	TPtr<IGraphicsPipeline> COGLGraphicsObjectManager::_createGraphicsPipelineInternal(const TGraphicsPipelineConfigDesc& pipelineConfigDesc)
+	TPtr<IGraphicsPipeline> COGLGraphicsObjectManager::_createGraphicsPipelineInternal(IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfigDesc)
 	{
 		E_RESULT_CODE result = RC_OK;
-		return TPtr<IGraphicsPipeline>(CreateGLGraphicsPipeline(mpGraphicsContext, pipelineConfigDesc, result));
+		return TPtr<IGraphicsPipeline>(CreateGLGraphicsPipeline(mpGraphicsContext, pResourceManager, pipelineConfigDesc, result));
 	}
 
 	E_RESULT_CODE COGLGraphicsObjectManager::_freeTextureSamplers()

@@ -1315,7 +1315,7 @@ namespace TDEngine2
 	class CD3D11GraphicsPipeline : public CBaseGraphicsPipeline
 	{
 		public:
-			friend IGraphicsPipeline* CreateD3D11GraphicsPipeline(IGraphicsContext*, const TGraphicsPipelineConfigDesc&, E_RESULT_CODE&);
+			friend IGraphicsPipeline* CreateD3D11GraphicsPipeline(IGraphicsContext*, IResourceManager*, const TGraphicsPipelineConfigDesc&, E_RESULT_CODE&);
 		public:
 			E_RESULT_CODE Bind() override;
 		protected:
@@ -1370,9 +1370,9 @@ namespace TDEngine2
 	}
 
 
-	IGraphicsPipeline* CreateD3D11GraphicsPipeline(IGraphicsContext* pGraphicsContext, const TGraphicsPipelineConfigDesc& config, E_RESULT_CODE& result)
+	IGraphicsPipeline* CreateD3D11GraphicsPipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& config, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IGraphicsPipeline, CD3D11GraphicsPipeline, result, pGraphicsContext, config);
+		return CREATE_IMPL(IGraphicsPipeline, CD3D11GraphicsPipeline, result, pGraphicsContext, pResourceManager, config);
 	}
 }
 

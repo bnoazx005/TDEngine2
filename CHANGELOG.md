@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.31] 2024-10-28
+## [0.6.31] 2024-10-29
 
 ### Added
 
 ### Changed
 
 - All Vulkan's graphics types implementations were moved into CVulkanResources.h and CVulkanResources.cpp.
+
+- The signature of IGraphicsObjectManager::CreateGraphicsPipelineState was changed.
 
 ### Fixed
 
