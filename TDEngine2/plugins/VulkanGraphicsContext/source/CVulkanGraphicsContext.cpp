@@ -22,7 +22,7 @@ namespace TDEngine2
 		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 		void* pUserData)
 	{
-		LOG_ERROR(Wrench::StringUtils::Format("[CVulkanGraphicsContext] Validation layer: {0}", pCallbackData->pMessage));
+		LOG_ERROR(Wrench::StringUtils::Format("[CVulkanGraphicsContext] {0}\n", pCallbackData->pMessage));
 		return VK_FALSE;
 	}
 
