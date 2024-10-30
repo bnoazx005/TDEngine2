@@ -198,6 +198,8 @@ namespace TDEngine2
 			void Unbind() override;
 
 			VkPipelineShaderStageCreateInfo GetPipelineShaderStage(E_SHADER_STAGE_TYPE stageType) const;
+			VkPipelineShaderStageCreateInfo* GetStages();
+			U32 GetStagesCount() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanShader)
 

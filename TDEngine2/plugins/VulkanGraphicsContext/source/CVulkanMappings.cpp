@@ -592,56 +592,56 @@ namespace TDEngine2
 		}
 
 		return "";
-	}
+	}*/
 
-	GLenum CVulkanMappings::GetBlendFactorValue(E_BLEND_FACTOR_VALUE factor)
+	VkBlendFactor CVulkanMappings::GetBlendFactorValue(E_BLEND_FACTOR_VALUE factor)
 	{
 		switch (factor)
 		{
 			case E_BLEND_FACTOR_VALUE::ZERO:
-				return GL_ZERO;
+				return VkBlendFactor::VK_BLEND_FACTOR_ZERO;
 			case E_BLEND_FACTOR_VALUE::ONE:
-				return GL_ONE;
+				return VkBlendFactor::VK_BLEND_FACTOR_ONE;
 			case E_BLEND_FACTOR_VALUE::SOURCE_ALPHA:
-				return GL_SRC_ALPHA;
+				return VkBlendFactor::VK_BLEND_FACTOR_SRC_ALPHA;
 			case E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_ALPHA:
-				return GL_ONE_MINUS_SRC_ALPHA;
+				return VkBlendFactor::VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
 			case E_BLEND_FACTOR_VALUE::DEST_ALPHA:
-				return GL_DST_ALPHA;
+				return VkBlendFactor::VK_BLEND_FACTOR_DST_ALPHA;
 			case E_BLEND_FACTOR_VALUE::ONE_MINUS_DEST_ALPHA:
-				return GL_ONE_MINUS_DST_ALPHA;
+				return VkBlendFactor::VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
 			case E_BLEND_FACTOR_VALUE::CONSTANT_ALPHA:
-				return GL_CONSTANT_ALPHA;
+				return VkBlendFactor::VK_BLEND_FACTOR_CONSTANT_ALPHA;
 			case E_BLEND_FACTOR_VALUE::ONE_MINUS_CONSTANT_ALPHA:
-				return GL_ONE_MINUS_CONSTANT_ALPHA;
+				return VkBlendFactor::VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA;
 			case E_BLEND_FACTOR_VALUE::SOURCE_COLOR:
-				return GL_SRC_COLOR;
+				return VkBlendFactor::VK_BLEND_FACTOR_SRC_COLOR;
 			case E_BLEND_FACTOR_VALUE::ONE_MINUS_SOURCE_COLOR:
-				return GL_ONE_MINUS_SRC_COLOR;
+				return VkBlendFactor::VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
 			case E_BLEND_FACTOR_VALUE::DEST_COLOR:
-				return GL_DST_COLOR;
+				return VkBlendFactor::VK_BLEND_FACTOR_DST_COLOR;
 			case E_BLEND_FACTOR_VALUE::ONE_MINUS_DEST_COLOR:
-				return GL_ONE_MINUS_DST_COLOR;
+				return VkBlendFactor::VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
 		}
 
-		return GL_ZERO;
+		return VkBlendFactor::VK_BLEND_FACTOR_ZERO;
 	}
 
-	GLenum CVulkanMappings::GetBlendOpType(E_BLEND_OP_TYPE opType)
+	VkBlendOp CVulkanMappings::GetBlendOpType(E_BLEND_OP_TYPE opType)
 	{
 		switch (opType)
 		{
 			case E_BLEND_OP_TYPE::ADD:
-				return GL_FUNC_ADD;
+				return VkBlendOp::VK_BLEND_OP_ADD;
 			case E_BLEND_OP_TYPE::SUBT:
-				return GL_FUNC_SUBTRACT;
+				return VkBlendOp::VK_BLEND_OP_SUBTRACT;
 			case E_BLEND_OP_TYPE::REVERSED_SUBT:
-				return GL_FUNC_REVERSE_SUBTRACT;
+				return VkBlendOp::VK_BLEND_OP_REVERSE_SUBTRACT;
 		}
 
-		return GL_FUNC_ADD;
+		return VkBlendOp::VK_BLEND_OP_ADD;
 	}
-
+	/*
 	GLenum CVulkanMappings::GetCubemapFace(E_CUBEMAP_FACE faceType)
 	{
 		switch (faceType)
@@ -661,69 +661,135 @@ namespace TDEngine2
 		}
 
 		return 0x0;
-	}
+	}*/
 
-	GLenum CVulkanMappings::GetComparisonFunc(const E_COMPARISON_FUNC& func)
+	VkCompareOp CVulkanMappings::GetComparisonFunc(const E_COMPARISON_FUNC& func)
 	{
 		switch (func)
 		{
 			case E_COMPARISON_FUNC::NEVER:
-				return GL_NEVER;
+				return VkCompareOp::VK_COMPARE_OP_NEVER;
 			case E_COMPARISON_FUNC::LESS:
-				return GL_LESS;
+				return VkCompareOp::VK_COMPARE_OP_LESS;
 			case E_COMPARISON_FUNC::EQUAL:
-				return GL_EQUAL;
+				return VkCompareOp::VK_COMPARE_OP_EQUAL;
 			case E_COMPARISON_FUNC::LESS_EQUAL:
-				return GL_LEQUAL;
+				return VkCompareOp::VK_COMPARE_OP_LESS_OR_EQUAL;
 			case E_COMPARISON_FUNC::GREATER:
-				return GL_GREATER;
+				return VkCompareOp::VK_COMPARE_OP_GREATER;
 			case E_COMPARISON_FUNC::NOT_EQUAL:
-				return GL_NOTEQUAL;
+				return VkCompareOp::VK_COMPARE_OP_NOT_EQUAL;
 			case E_COMPARISON_FUNC::GREATER_EQUAL:
-				return GL_GEQUAL;
+				return VkCompareOp::VK_COMPARE_OP_GREATER_OR_EQUAL;
 			case E_COMPARISON_FUNC::ALWAYS:
-				return GL_ALWAYS;
+				return VkCompareOp::VK_COMPARE_OP_ALWAYS;
 		}
 
-		return 0;
+		return VkCompareOp::VK_COMPARE_OP_NEVER;
 	}
 
-	GLenum CVulkanMappings::GetStencilOpType(const E_STENCIL_OP& stencilOp)
+	VkStencilOp CVulkanMappings::GetStencilOpType(const E_STENCIL_OP& stencilOp)
 	{
 		switch (stencilOp)
 		{
 			case E_STENCIL_OP::ZERO:
-				return GL_ZERO;
+				return VkStencilOp::VK_STENCIL_OP_ZERO;
 			case E_STENCIL_OP::REPLACE:
-				return GL_REPLACE;
+				return VkStencilOp::VK_STENCIL_OP_REPLACE;
 			case E_STENCIL_OP::INVERT:
-				return GL_INVERT;
+				return VkStencilOp::VK_STENCIL_OP_INVERT;
 			case E_STENCIL_OP::INCR:
 			case E_STENCIL_OP::INCR_SAT:
-				return GL_INCR;
+				return VkStencilOp::VK_STENCIL_OP_INCREMENT_AND_CLAMP;
 			case E_STENCIL_OP::DECR:
 			case E_STENCIL_OP::DECR_SAT:
-				return GL_DECR;
+				return VkStencilOp::VK_STENCIL_OP_DECREMENT_AND_CLAMP;
 			case E_STENCIL_OP::KEEP:
-				return GL_KEEP;
+				return VkStencilOp::VK_STENCIL_OP_KEEP;
 		}
 
-		return 0;
+		return VkStencilOp::VK_STENCIL_OP_ZERO;
 	}
 
-	GLenum CVulkanMappings::GetCullMode(const E_CULL_MODE& cullMode)
+	VkCullModeFlags CVulkanMappings::GetCullMode(const E_CULL_MODE& cullMode)
 	{
 		switch (cullMode)
 		{
 			case E_CULL_MODE::FRONT:
-				return GL_FRONT;
+				return VK_CULL_MODE_FRONT_BIT;
 			case E_CULL_MODE::BACK:
-				return GL_BACK;
+				return VK_CULL_MODE_BACK_BIT;
 			case E_CULL_MODE::NONE:
-				TDE2_ASSERT(false);
-				return 0;
+				return VK_CULL_MODE_NONE;
 		}
 
-		return 0;
-	}*/
+		return VK_CULL_MODE_NONE;
+	}
+
+	VkPipelineRasterizationStateCreateInfo CVulkanMappings::GetRasterizerState(const TRasterizerStateDesc& rasterizerDesc)
+	{
+		VkPipelineRasterizationStateCreateInfo outputStateInfo{};
+		outputStateInfo.sType                   = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+		outputStateInfo.lineWidth               = 1.0f;
+		outputStateInfo.cullMode                = GetCullMode(rasterizerDesc.mCullMode);
+		outputStateInfo.polygonMode             = rasterizerDesc.mIsWireframeModeEnabled ? VkPolygonMode::VK_POLYGON_MODE_LINE : VkPolygonMode::VK_POLYGON_MODE_FILL;
+		outputStateInfo.frontFace               = rasterizerDesc.mIsFrontCCWEnabled ? VK_FRONT_FACE_COUNTER_CLOCKWISE : VK_FRONT_FACE_CLOCKWISE;
+		outputStateInfo.depthClampEnable        = rasterizerDesc.mIsDepthClippingEnabled ? VK_TRUE : VK_FALSE;
+		outputStateInfo.depthBiasEnable         = rasterizerDesc.mDepthBias > 0.0f ? VK_TRUE : VK_FALSE;
+		outputStateInfo.depthBiasConstantFactor = rasterizerDesc.mDepthBias;
+		outputStateInfo.depthBiasClamp          = rasterizerDesc.mDepthBias > 0.0f ? rasterizerDesc.mMaxDepthBias : 0.0f;
+
+		return outputStateInfo;
+	}
+
+	VkPipelineColorBlendStateCreateInfo CVulkanMappings::GetBlendState(const TBlendStateDesc& blendStateDesc)
+	{
+		VkPipelineColorBlendAttachmentState colorBlendAttachment{};
+		colorBlendAttachment.blendEnable         = blendStateDesc.mIsEnabled ? VK_TRUE : VK_FALSE;
+		colorBlendAttachment.alphaBlendOp        = GetBlendOpType(blendStateDesc.mAlphaOpType);
+		colorBlendAttachment.colorBlendOp        = GetBlendOpType(blendStateDesc.mOpType);
+		colorBlendAttachment.colorWriteMask      = blendStateDesc.mWriteMask;
+		colorBlendAttachment.srcColorBlendFactor = GetBlendFactorValue(blendStateDesc.mScrValue);
+		colorBlendAttachment.dstColorBlendFactor = GetBlendFactorValue(blendStateDesc.mDestValue);
+		colorBlendAttachment.srcAlphaBlendFactor = GetBlendFactorValue(blendStateDesc.mScrAlphaValue);
+		colorBlendAttachment.dstAlphaBlendFactor = GetBlendFactorValue(blendStateDesc.mDestAlphaValue);
+
+		VkPipelineColorBlendStateCreateInfo resultStateInfo{};
+		resultStateInfo.sType           = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+		resultStateInfo.logicOpEnable   = VK_FALSE;
+		resultStateInfo.logicOp         = VK_LOGIC_OP_CLEAR;
+		resultStateInfo.attachmentCount = 1; // \todo For now only single target rendering is supported
+		resultStateInfo.pAttachments    = &colorBlendAttachment;
+		resultStateInfo.blendConstants[0] = 0.0f;
+
+		return resultStateInfo;
+	}
+
+	VkPipelineDepthStencilStateCreateInfo CVulkanMappings::GetDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc)
+	{
+		VkPipelineDepthStencilStateCreateInfo resultStateInfo{};
+		resultStateInfo.sType             = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+		resultStateInfo.minDepthBounds    = 0.0f;
+		resultStateInfo.maxDepthBounds    = 1.0f;
+		resultStateInfo.depthTestEnable   = depthStencilDesc.mIsDepthTestEnabled ? VK_TRUE : VK_FALSE;
+		resultStateInfo.stencilTestEnable = depthStencilDesc.mIsStencilTestEnabled ? VK_TRUE : VK_FALSE;
+		resultStateInfo.depthWriteEnable  = depthStencilDesc.mIsDepthWritingEnabled ? VK_TRUE : VK_FALSE;
+		resultStateInfo.depthCompareOp    = GetComparisonFunc(depthStencilDesc.mDepthCmpFunc);
+
+		resultStateInfo.front.reference   = depthStencilDesc.mStencilRefValue;
+		resultStateInfo.front.writeMask   = depthStencilDesc.mStencilWriteMaskValue;
+		resultStateInfo.front.compareOp   = GetComparisonFunc(depthStencilDesc.mStencilFrontFaceOp.mFunc);
+		resultStateInfo.front.depthFailOp = GetStencilOpType(depthStencilDesc.mStencilFrontFaceOp.mDepthFailOp);
+		resultStateInfo.front.failOp      = GetStencilOpType(depthStencilDesc.mStencilFrontFaceOp.mFailOp);
+		resultStateInfo.front.passOp      = GetStencilOpType(depthStencilDesc.mStencilFrontFaceOp.mPassOp);
+
+		resultStateInfo.back.reference    = depthStencilDesc.mStencilRefValue;
+		resultStateInfo.back.writeMask    = depthStencilDesc.mStencilWriteMaskValue;
+		resultStateInfo.back.compareOp    = GetComparisonFunc(depthStencilDesc.mStencilBackFaceOp.mFunc);
+		resultStateInfo.back.depthFailOp  = GetStencilOpType(depthStencilDesc.mStencilBackFaceOp.mDepthFailOp);
+		resultStateInfo.back.failOp       = GetStencilOpType(depthStencilDesc.mStencilBackFaceOp.mFailOp);
+		resultStateInfo.back.passOp       = GetStencilOpType(depthStencilDesc.mStencilBackFaceOp.mPassOp);
+
+		return resultStateInfo;
+	}
 }

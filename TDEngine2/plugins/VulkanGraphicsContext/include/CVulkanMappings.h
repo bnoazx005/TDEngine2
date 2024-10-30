@@ -205,27 +205,27 @@ namespace TDEngine2
 
 			//static std::string ErrorCodeToString(GLenum error);
 
-			///*!
-			//	\brief The function maps engine's value into internal OpenGL's value which defines a value
-			//	of a factor within the blending equation
+			/*!
+				\brief The function maps engine's value into internal OpenGL's value which defines a value
+				of a factor within the blending equation
 
-			//	\param[in] factor A factor's value which is the engine's specific one
+				\param[in] factor A factor's value which is the engine's specific one
 
-			//	\return An internal OpenGL's value which is equivalent for a given one
-			//*/
+				\return An internal OpenGL's value which is equivalent for a given one
+			*/
 
-			//static GLenum GetBlendFactorValue(E_BLEND_FACTOR_VALUE factor);
+			static VkBlendFactor GetBlendFactorValue(E_BLEND_FACTOR_VALUE factor);
 
-			///*!
-			//	\brief The function maps engine's value into internal OpenGL's value which defines 
-			//	a type of blending operation
+			/*!
+				\brief The function maps engine's value into internal OpenGL's value which defines 
+				a type of blending operation
 
-			//	\param[in] factor A type's value which is the engine's specific one
+				\param[in] factor A type's value which is the engine's specific one
 
-			//	\return An internal OpenGL's value which is equivalent for a given one
-			//*/
+				\return An internal OpenGL's value which is equivalent for a given one
+			*/
 
-			//static GLenum GetBlendOpType(E_BLEND_OP_TYPE opType);
+			static VkBlendOp GetBlendOpType(E_BLEND_OP_TYPE opType);
 			//
 			///*!
 			//	\brief The function maps internal cubemap's face index into Vulkanspecific one
@@ -237,34 +237,38 @@ namespace TDEngine2
 
 			//static GLenum GetCubemapFace(E_CUBEMAP_FACE faceType);
 
-			///*!
-			//	\brief The function maps internal comparison function's type into Vulkan specific one
+			/*!
+				\brief The function maps internal comparison function's type into Vulkan specific one
 
-			//	\param[in] func An internal type of a comparison function
+				\param[in] func An internal type of a comparison function
 
-			//	\return Vulkan comparison function's type based on the given argument
-			//*/
+				\return Vulkan comparison function's type based on the given argument
+			*/
 
-			//static GLenum GetComparisonFunc(const E_COMPARISON_FUNC& func);
+			static VkCompareOp GetComparisonFunc(const E_COMPARISON_FUNC& func);
 
-			///*!
-			//	\brief The function maps internal stencil operation's type into Vulkan specific one
+			/*!
+				\brief The function maps internal stencil operation's type into Vulkan specific one
 
-			//	\param[in] stencilOp An internal type of a stencil operation
+				\param[in] stencilOp An internal type of a stencil operation
 
-			//	\return Vulkan stencil operation's type based on the given argument
-			//*/
+				\return Vulkan stencil operation's type based on the given argument
+			*/
 
-			//static GLenum GetStencilOpType(const E_STENCIL_OP& stencilOp);
+			static VkStencilOp GetStencilOpType(const E_STENCIL_OP& stencilOp);
 
-			///*!
-			//	\brief The method maps E_CULL_MODE into Glenum's value
+			/*!
+				\brief The method maps E_CULL_MODE into Glenum's value
 
-			//	\param[in] cullMode An internal enumeration's value
+				\param[in] cullMode An internal enumeration's value
 
-			//	\return Vulkan3.x specific value which represents a culling mode
-			//*/
+				\return Vulkan3.x specific value which represents a culling mode
+			*/
 
-			//static GLenum GetCullMode(const E_CULL_MODE& cullMode);
+			static VkCullModeFlags GetCullMode(const E_CULL_MODE& cullMode);
+
+			static VkPipelineRasterizationStateCreateInfo GetRasterizerState(const TRasterizerStateDesc& rasterizerDesc);
+			static VkPipelineColorBlendStateCreateInfo GetBlendState(const TBlendStateDesc& blendStateDesc);
+			static VkPipelineDepthStencilStateCreateInfo GetDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc);
 	};
 }
