@@ -442,4 +442,38 @@ namespace TDEngine2
 
 
 	TDE2_DECLARE_SCOPED_PTR(IGraphicsContext);
+
+
+	struct TDescriptorsBindingsTable
+	{
+		TDE2_STATIC_CONSTEXPR U32 MAX_CBV_COUNT = 32;
+		TDE2_STATIC_CONSTEXPR U32 MAX_SRV_COUNT = 32;
+		TDE2_STATIC_CONSTEXPR U32 MAX_UAV_COUNT = 32;
+		TDE2_STATIC_CONSTEXPR U32 MAX_SAMPLERS_COUNT = 16;
+
+		enum class E_DESCRIPTOR_TYPE : U8
+		{
+			BUFFER,
+			TEXTURE,
+			UNKNOWN = 0
+		};
+
+		struct TDescriptorHandle
+		{
+			union
+			{
+				TBufferHandleId  mBuffer;
+				TTextureHandleId mTexture;
+			} mValue;
+
+			E_DESCRIPTOR_TYPE mType = E_DESCRIPTOR_TYPE::UNKNOWN;
+		};
+
+		void Reset();
+
+		std::array<TBufferHandleId, MAX_CBV_COUNT>        mConstantBuffers;
+		std::array<TDescriptorHandle, MAX_SRV_COUNT>      mSRVBuffers;
+		std::array<TDescriptorHandle, MAX_UAV_COUNT>      mUAVBuffers;
+		std::array<TTextureSamplerId, MAX_SAMPLERS_COUNT> mSamplers;
+	};
 }

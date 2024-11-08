@@ -22,11 +22,17 @@ namespace TDEngine2
 	class IEventManager;
 	class IWindowSurfaceFactory;
 	class CVulkanGraphicsObjectManager;
+	class CVulkanSwapchain;
+	class CVulkanDeviceContext;
+	class CVulkanCommandBuffer;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IEventManager)
 	TDE2_DECLARE_SCOPED_PTR(IWindowSurfaceFactory)
 	TDE2_DECLARE_SCOPED_PTR(IGraphicsObjectManager)
+	TDE2_DECLARE_SCOPED_PTR(CVulkanSwapchain)
+	TDE2_DECLARE_SCOPED_PTR(CVulkanDeviceContext)
+	TDE2_DECLARE_SCOPED_PTR(CVulkanCommandBuffer)
 
 
 	struct TQueuesCreateInfo
@@ -465,60 +471,44 @@ namespace TDEngine2
 			E_RESULT_CODE _onInitInternal();
 			E_RESULT_CODE _onFreeInternal() override;
 
-			E_RESULT_CODE _createSwapChain();
-			E_RESULT_CODE _prepareCommandBuffers();
+			E_RESULT_CODE _prepareFrameData();
 
 			E_RESULT_CODE _initTransferContext();
+
+			VkCommandBuffer _getCurrCommandBufferHandle() const;
 		protected:
-			static const USIZE          FRAMES_COUNT = 4;
+			static const USIZE                                   FRAMES_COUNT = 2;
 
-			TPtr<IWindowSystem>         mpWindowSystem = nullptr;
-			TPtr<IEventManager>         mpEventManager = nullptr;
-			TPtr<IWindowSurfaceFactory> mpWindowSurfaceFactory = nullptr;
+			TPtr<IWindowSystem>                                  mpWindowSystem = nullptr;
+			TPtr<IEventManager>                                  mpEventManager = nullptr;
+			TPtr<IWindowSurfaceFactory>                          mpWindowSurfaceFactory = nullptr;
 			
-			mutable TPtr<IGraphicsObjectManager> mpGraphicsObjectManager = nullptr;
-			CVulkanGraphicsObjectManager*        mpGraphicsObjectManagerImpl = nullptr;
+			mutable TPtr<IGraphicsObjectManager>                 mpGraphicsObjectManager = nullptr;
+			CVulkanGraphicsObjectManager*                        mpGraphicsObjectManagerImpl = nullptr;
 
-			TGraphicsCtxInternalData mInternalDataObject;
+			TGraphicsCtxInternalData                             mInternalDataObject;
 
-			VkInstance               mInstance = VK_NULL_HANDLE;
-			VkPhysicalDevice         mPhysicalDevice = VK_NULL_HANDLE;
-			VkDevice                 mDevice = VK_NULL_HANDLE;
-
-			// queues
-			VkQueue                  mGraphicsQueue = VK_NULL_HANDLE;
-			VkQueue                  mPresentQueue = VK_NULL_HANDLE;
-
-			VkSurfaceKHR             mSurface = VK_NULL_HANDLE; 
-			VkSwapchainKHR           mSwapChain = VK_NULL_HANDLE;
-			VkSurfaceFormatKHR       mSwapChainFormat {};
-			VkExtent2D               mSwapChainExtents {};
-			std::vector<VkImage>     mSwapChainImages {};
-			std::vector<VkImageView> mSwapChainImageViews {};
+			TPtr<CVulkanSwapchain>                               mpSwapchain = nullptr;
+			TPtr<CVulkanDeviceContext>                           mpVulkanDeviceContext = nullptr;
 
 			// commands
-			VkCommandPool                                 mMainCommandPool = VK_NULL_HANDLE;
-			std::array<VkCommandBuffer, FRAMES_COUNT>    mCommandBuffers {};
-			std::array<VkFence, FRAMES_COUNT>            mCommandBuffersFences {};
-			std::array<VkSemaphore, FRAMES_COUNT>        mImageReadySemaphores {};
-			std::array<VkSemaphore, FRAMES_COUNT>        mRenderFinishedSemaphores {};
-			std::array<TGarbageCollection, FRAMES_COUNT> mAwaitingDeletionObjects {};
+			std::array<TPtr<CVulkanCommandBuffer>, FRAMES_COUNT> mpCommandBuffers {};
+			std::array<VkSemaphore, FRAMES_COUNT>                mImageReadySemaphores {};
+			std::array<VkSemaphore, FRAMES_COUNT>                mRenderFinishedSemaphores {};
+			std::array<TGarbageCollection, FRAMES_COUNT>         mAwaitingDeletionObjects {};
 
-			USIZE mCurrFrameIndex = 0;
-			U32   mCurrUsedImageIndex = 0;
-
-			TQueuesCreateInfo        mQueuesInfo;
-
-			VmaAllocator mMainAllocator;
+			USIZE                                                mCurrFrameIndex = 0;
 
 			// transfer context
-			VkCommandPool   mTransferCommandPool = VK_NULL_HANDLE;
-			VkCommandBuffer mTransferCommandBuffer = VK_NULL_HANDLE;
-			VkFence         mTransferCommandFence = VK_NULL_HANDLE;
+			VkCommandPool                                        mTransferCommandPool = VK_NULL_HANDLE;
+			VkCommandBuffer                                      mTransferCommandBuffer = VK_NULL_HANDLE;
+			VkFence                                              mTransferCommandFence = VK_NULL_HANDLE;
 
 #if TDE2_DEBUG_MODE
-			VkDebugUtilsMessengerEXT mDebugMessenger = VK_NULL_HANDLE;
+			VkDebugUtilsMessengerEXT                             mDebugMessenger = VK_NULL_HANDLE;
 #endif
+
+			TDescriptorsBindingsTable                            mDescriptorsBindingsTable;
 	};
 
 

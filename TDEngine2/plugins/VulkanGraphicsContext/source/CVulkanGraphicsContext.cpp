@@ -17,68 +17,14 @@
 
 namespace TDEngine2
 {
+
 	static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugMessage(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-		VkDebugUtilsMessageTypeFlagsEXT messageType,
-		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-		void* pUserData)
+															VkDebugUtilsMessageTypeFlagsEXT messageType,
+															const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+															void* pUserData)
 	{
 		LOG_ERROR(Wrench::StringUtils::Format("[CVulkanGraphicsContext] {0}\n", pCallbackData->pMessage));
 		return VK_FALSE;
-	}
-
-
-
-	CVulkanGraphicsContext::CVulkanGraphicsContext(TPtr<IWindowSurfaceFactory> pWindowSurfaceFactory) :
-		CBaseObject(), mpWindowSurfaceFactory(pWindowSurfaceFactory)
-	{
-	}
-
-	CVulkanGraphicsContext::CVulkanGraphicsContext() :
-		CBaseObject()
-	{
-	}
-
-	E_RESULT_CODE CVulkanGraphicsContext::Init(TPtr<IWindowSystem> pWindowSystem)
-	{
-		TDE2_PROFILER_SCOPE("CVulkanGraphicsContext::Init");
-
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		if (!pWindowSystem || !mpWindowSurfaceFactory)
-		{
-			return RC_INVALID_ARGS;
-		}
-
-		mpWindowSystem = pWindowSystem;
-		mpEventManager = pWindowSystem->GetEventManager();
-
-		if (!mpEventManager)
-		{
-			return RC_FAIL;
-		}
-
-		mpEventManager->Subscribe(TOnWindowResized::GetTypeId(), this);
-
-		E_RESULT_CODE result = _onInitInternal();
-		if (RC_OK != result)
-		{
-			return result;
-		}
-
-		mpGraphicsObjectManager = TPtr<IGraphicsObjectManager>(CreateVulkanGraphicsObjectManager(this, result));
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		mpGraphicsObjectManagerImpl = dynamic_cast<CVulkanGraphicsObjectManager*>(mpGraphicsObjectManager.Get());
-
-		mIsInitialized = true;
-
-		return RC_OK;
 	}
 
 
@@ -118,11 +64,11 @@ namespace TDEngine2
 	{
 		VK_KHR_SURFACE_EXTENSION_NAME,
 #if defined(TDE2_USE_WINPLATFORM)
-		VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
+			VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
 #elif defined(TDE2_USE_UNIXPLATFORM)
 #endif
 #if TDE2_DEBUG_MODE
-		VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
+			VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
 #endif
 	};
 
@@ -130,7 +76,7 @@ namespace TDEngine2
 	static const std::vector<const C8*> RequiredDeviceExtensions
 	{
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-		VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
+			VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
 	};
 
 
@@ -183,7 +129,7 @@ namespace TDEngine2
 	}
 
 
-	static void PrepareDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) 
+	static void PrepareDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
 	{
 		createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
@@ -223,9 +169,9 @@ namespace TDEngine2
 		for (auto&& currRequiredExtensionName : RequiredExtensions)
 		{
 			auto it = std::find_if(availableExtensions.cbegin(), availableExtensions.cend(), [&currRequiredExtensionName](const VkExtensionProperties& ext)
-			{
-				return strcmp(ext.extensionName, currRequiredExtensionName) == 0;
-			});
+				{
+					return strcmp(ext.extensionName, currRequiredExtensionName) == 0;
+				});
 
 			if (it != availableExtensions.cend())
 			{
@@ -385,9 +331,9 @@ namespace TDEngine2
 		std::vector<VkDeviceQueueCreateInfo> queues;
 
 		VkDeviceQueueCreateInfo queueCreateInfo{};
-		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		queueCreateInfo.sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 		queueCreateInfo.queueFamilyIndex = info.mGraphicsQueueIndex;
-		queueCreateInfo.queueCount = 1;
+		queueCreateInfo.queueCount       = 1;
 
 		queues.emplace_back(queueCreateInfo);
 
@@ -405,10 +351,17 @@ namespace TDEngine2
 			queuesInfos[i].pQueuePriorities = &queuesPriorities[i];
 		}
 
+		VkPhysicalDeviceVulkan13Features device13Features{};
+		device13Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
+		device13Features.dynamicRendering = VK_TRUE;
+
 		VkPhysicalDeviceFeatures deviceFeatures{};
+		deviceFeatures.depthBiasClamp = VK_TRUE;
+		deviceFeatures.depthClamp     = VK_TRUE;
 
 		VkDeviceCreateInfo createInfo{};
 		createInfo.sType                = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+		createInfo.pNext                = &device13Features;
 		createInfo.pQueueCreateInfos    = queuesInfos.data();
 		createInfo.queueCreateInfoCount = static_cast<U32>(queuesInfos.size());
 		createInfo.pEnabledFeatures     = &deviceFeatures;
@@ -418,7 +371,7 @@ namespace TDEngine2
 
 #if TDE2_DEBUG_MODE
 		createInfo.ppEnabledLayerNames = ValidationLayers.data();
-		createInfo.enabledLayerCount   = static_cast<U32>(ValidationLayers.size());
+		createInfo.enabledLayerCount = static_cast<U32>(ValidationLayers.size());
 #else
 		createInfo.enabledLayerCount = 0;
 #endif
@@ -505,7 +458,7 @@ namespace TDEngine2
 		allocatorInfo.pVulkanFunctions = &vma_vulkan_func;
 
 		VmaAllocator allocator = VK_NULL_HANDLE;
-		
+
 		VkResult result = vmaCreateAllocator(&allocatorInfo, &allocator);
 		if (VK_SUCCESS != result)
 		{
@@ -516,9 +469,108 @@ namespace TDEngine2
 	}
 
 
-	E_RESULT_CODE CVulkanGraphicsContext::_onInitInternal()
+	CVulkanDeviceContext* CreateVulkanDeviceContext(TPtr<IWindowSystem>, TPtr<IWindowSurfaceFactory>, E_RESULT_CODE&);
+	CVulkanSwapchain* CreateSwapchain(CVulkanDeviceContext*, TPtr<IWindowSystem>, E_RESULT_CODE&); 
+	CVulkanCommandBuffer* CreateCommandBuffer(CVulkanDeviceContext*, E_RESULT_CODE&);
+
+
+	/*!
+		\brief CVulkanCommandBuffer's declaration
+	*/
+
+	class CVulkanCommandBuffer : public CBaseObject
 	{
-		VK_SAFE_CALL(volkInitialize());
+		public:
+			friend CVulkanCommandBuffer* CreateCommandBuffer(CVulkanDeviceContext*, E_RESULT_CODE&);
+		public:
+			E_RESULT_CODE Init(CVulkanDeviceContext* pDeviceContext);
+
+			E_RESULT_CODE Begin(VkCommandBufferUsageFlags flags = 0);
+			E_RESULT_CODE End();
+
+			E_RESULT_CODE Reset(VkCommandBufferResetFlags flags = 0);
+
+			const VkCommandBuffer GetHandle() const { return mCommandBuffer; }
+			const VkFence GetFence() const { return mFence; }
+		private:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanCommandBuffer)
+
+				E_RESULT_CODE _onFreeInternal() override;
+		private:
+			CVulkanDeviceContext* mpDeviceContext = nullptr;
+
+			VkCommandPool         mCommandPool = VK_NULL_HANDLE;
+			VkCommandBuffer       mCommandBuffer = VK_NULL_HANDLE;
+
+			VkFence               mFence = VK_NULL_HANDLE;
+	};
+
+
+	/*!
+		\brief CVulkanDeviceContext's definition
+	*/
+
+	class CVulkanDeviceContext : public CBaseObject
+	{
+		public:
+			friend CVulkanDeviceContext* CreateVulkanDeviceContext(TPtr<IWindowSystem>, TPtr<IWindowSurfaceFactory>, E_RESULT_CODE&);
+		public:
+			E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem, TPtr<IWindowSurfaceFactory> pWindowSurfaceFactory);
+
+			TPtr<CVulkanSwapchain> CreateSwapchain();
+
+			VkFence CreateFence(bool signaled = true);
+			VkSemaphore CreateSemaphore(VkSemaphoreCreateFlags flags = 0x0);
+
+			E_RESULT_CODE SubmitCommands(TPtr<CVulkanCommandBuffer> pCommandBuffer, VkSemaphore waitSemaphore = VK_NULL_HANDLE, VkSemaphore signalSemaphore = VK_NULL_HANDLE, VkFence fence = VK_NULL_HANDLE);
+			void WaitForIdle();
+
+			const VkPhysicalDevice GetPhysicalDevice() const { return mPhysicalDevice; }
+			const VkDevice GetDevice() const { return mDevice; }
+			const VkSurfaceKHR GetSwapchainSurface() const { return mSwapChainSurface; }
+			const VkInstance GetInstance() const { return mInstance; }
+
+			const VkQueue GetGraphicsQueue() const { return mGraphicsQueue; }
+			const TQueuesCreateInfo& GetQueuesInfo() const { return mQueuesInfo; }
+
+			const VmaAllocator GetMemoryAllocator() const { return mMainAllocator; }
+		private:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanDeviceContext)
+
+			E_RESULT_CODE _onFreeInternal() override;
+		private:
+			TPtr<IWindowSystem>         mpWindowSystem = nullptr;
+			TPtr<IWindowSurfaceFactory> mpWindowSurfaceFactory = nullptr;
+
+			VkInstance                  mInstance = VK_NULL_HANDLE;
+			VkPhysicalDevice            mPhysicalDevice = VK_NULL_HANDLE;
+			VkDevice                    mDevice = VK_NULL_HANDLE;
+
+			VkSurfaceKHR                mSwapChainSurface = VK_NULL_HANDLE;
+
+			// queues
+			VkQueue                     mGraphicsQueue = VK_NULL_HANDLE;
+			VkQueue                     mPresentQueue = VK_NULL_HANDLE;
+
+			TQueuesCreateInfo           mQueuesInfo{};
+
+#if TDE2_DEBUG_MODE
+			VkDebugUtilsMessengerEXT    mDebugMessenger = VK_NULL_HANDLE;
+#endif
+
+			VmaAllocator                mMainAllocator = VK_NULL_HANDLE;
+	};
+
+
+	CVulkanDeviceContext::CVulkanDeviceContext() :
+		CBaseObject()
+	{
+	}
+
+	E_RESULT_CODE CVulkanDeviceContext::Init(TPtr<IWindowSystem> pWindowSystem, TPtr<IWindowSurfaceFactory> pWindowSurfaceFactory)
+	{
+		mpWindowSystem = pWindowSystem;
+		mpWindowSurfaceFactory = pWindowSurfaceFactory;
 
 		auto createInstanceResult = CreateInstance(mpWindowSystem->GetTitle());
 		if (createInstanceResult.HasError())
@@ -532,8 +584,8 @@ namespace TDEngine2
 		InitDebugMessageOutput(mInstance, mDebugMessenger);
 #endif
 
-		mSurface = mpWindowSurfaceFactory->GetSurface(mInstance);
-		if (VK_NULL_HANDLE == mSurface)
+		mSwapChainSurface = mpWindowSurfaceFactory->GetSurface(mInstance);
+		if (VK_NULL_HANDLE == mSwapChainSurface)
 		{
 			LOG_ERROR("[VulkanGraphicsContext] Failed on creating window surface");
 			return RC_FAIL;
@@ -547,7 +599,7 @@ namespace TDEngine2
 
 		mPhysicalDevice = pickPhysicalDeviceResult.Get();
 
-		mQueuesInfo = GetQueuesCreateInfo(mPhysicalDevice, mSurface);
+		mQueuesInfo = GetQueuesCreateInfo(mPhysicalDevice, mSwapChainSurface);
 		if (!mQueuesInfo.IsValid())
 		{
 			return RC_FAIL;
@@ -564,18 +616,6 @@ namespace TDEngine2
 		vkGetDeviceQueue(mDevice, mQueuesInfo.mGraphicsQueueIndex, 0, &mGraphicsQueue);
 		vkGetDeviceQueue(mDevice, mQueuesInfo.mPresentQueueIndex, 0, &mPresentQueue);
 
-		E_RESULT_CODE result = _createSwapChain();
-		if (RC_OK != result)
-		{
-			return result;
-		}
-
-		result = _prepareCommandBuffers();
-		if (RC_OK != result)
-		{
-			return result;
-		}
-
 		auto allocatorCreateResult = InitMainAllocator(mPhysicalDevice, mDevice, mInstance);
 		if (allocatorCreateResult.HasError())
 		{
@@ -584,7 +624,478 @@ namespace TDEngine2
 
 		mMainAllocator = allocatorCreateResult.Get();
 
-		result = _initTransferContext();
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	TPtr<CVulkanSwapchain> CVulkanDeviceContext::CreateSwapchain()
+	{
+		E_RESULT_CODE result = RC_OK;
+		return TPtr<CVulkanSwapchain>(::TDEngine2::CreateSwapchain(this, mpWindowSystem, result));
+	}
+
+	VkFence CVulkanDeviceContext::CreateFence(bool signaled)
+	{
+		VkFenceCreateInfo fenceCreateInfo{};
+		fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+		fenceCreateInfo.flags = signaled ? VK_FENCE_CREATE_SIGNALED_BIT : static_cast<VkFenceCreateFlags>(0);
+		
+		VkFence fence = VK_NULL_HANDLE;
+
+		VkResult result = vkCreateFence(mDevice, &fenceCreateInfo, nullptr, &fence);
+		if (VkResult::VK_SUCCESS != result)
+		{
+			TDE2_ASSERT(false);
+			return VK_NULL_HANDLE;
+		}
+
+		return fence;
+	}
+
+	VkSemaphore CVulkanDeviceContext::CreateSemaphore(VkSemaphoreCreateFlags flags)
+	{
+		VkSemaphoreCreateInfo semaphoreCreateInfo{};
+		semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+		semaphoreCreateInfo.flags = flags;
+
+		VkSemaphore semaphore = VK_NULL_HANDLE;
+
+		VkResult result = vkCreateSemaphore(mDevice, &semaphoreCreateInfo, nullptr, &semaphore);
+		if (VkResult::VK_SUCCESS != result)
+		{
+			TDE2_ASSERT(false);
+			return VK_NULL_HANDLE;
+		}
+
+		return semaphore;
+	}
+
+
+	E_RESULT_CODE CVulkanDeviceContext::SubmitCommands(TPtr<CVulkanCommandBuffer> pCommandBuffer, VkSemaphore waitSemaphore, VkSemaphore signalSemaphore, VkFence fence)
+	{
+		VkCommandBufferSubmitInfo cmdBufferSubmitInfo{};
+		cmdBufferSubmitInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO;
+		cmdBufferSubmitInfo.commandBuffer = pCommandBuffer->GetHandle();
+		cmdBufferSubmitInfo.deviceMask = 0;
+
+		// semaphores
+		VkSemaphoreSubmitInfo waitSemaphoreSubmitInfo{};
+		waitSemaphoreSubmitInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
+		waitSemaphoreSubmitInfo.semaphore = waitSemaphore;
+		waitSemaphoreSubmitInfo.value = 1;
+		waitSemaphoreSubmitInfo.stageMask = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR;
+		waitSemaphoreSubmitInfo.deviceIndex = 0;
+
+		VkSemaphoreSubmitInfo signalSemaphoreSubmitInfo{};
+		signalSemaphoreSubmitInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
+		signalSemaphoreSubmitInfo.semaphore = waitSemaphore;
+		signalSemaphoreSubmitInfo.value = 1;
+		signalSemaphoreSubmitInfo.stageMask = VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT;
+		signalSemaphoreSubmitInfo.deviceIndex = 0;
+
+		VkSubmitInfo2 submitInfo{};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
+		submitInfo.waitSemaphoreInfoCount = static_cast<uint32_t>(waitSemaphore == VK_NULL_HANDLE ? 0 : 1);
+		submitInfo.pWaitSemaphoreInfos = &waitSemaphoreSubmitInfo;
+		submitInfo.commandBufferInfoCount = 1;
+		submitInfo.pCommandBufferInfos = &cmdBufferSubmitInfo;
+		submitInfo.signalSemaphoreInfoCount = static_cast<uint32_t>(signalSemaphore == VK_NULL_HANDLE ? 0 : 1);
+		submitInfo.pSignalSemaphoreInfos = &signalSemaphoreSubmitInfo;
+
+		VK_SAFE_CALL(vkQueueSubmit2(mGraphicsQueue, 1, &submitInfo, fence));
+
+		return RC_OK;
+	}
+
+	void CVulkanDeviceContext::WaitForIdle()
+	{
+		VK_SAFE_VOID_CALL(vkDeviceWaitIdle(mDevice));
+	}
+
+	E_RESULT_CODE CVulkanDeviceContext::_onFreeInternal()
+	{
+#if TDE2_DEBUG_MODE
+		DestroyDebugUtilsMessengerEXT(mInstance, mDebugMessenger, nullptr);
+#endif
+
+		vmaDestroyAllocator(mMainAllocator);
+
+		//vkDestroyFence(mDevice, mTransferCommandFence, nullptr);
+
+		vkDestroyDevice(mDevice, nullptr);
+		vkDestroySurfaceKHR(mInstance, mSwapChainSurface, nullptr);
+		vkDestroyInstance(mInstance, nullptr);
+
+		return RC_OK;
+	}
+
+
+	CVulkanDeviceContext* CreateVulkanDeviceContext(TPtr<IWindowSystem> pWindowSystem, TPtr<IWindowSurfaceFactory> pWindowSurfaceFactory, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(CVulkanDeviceContext, CVulkanDeviceContext, result, pWindowSystem, pWindowSurfaceFactory);
+	}
+
+
+	TDE2_DEFINE_SCOPED_PTR(CVulkanDeviceContext)
+
+
+	/*!
+		\brief CVulkanSwapchain's definition
+	*/
+
+	class CVulkanSwapchain: public CBaseObject
+	{
+		public:
+			friend CVulkanSwapchain* CreateSwapchain(CVulkanDeviceContext*, TPtr<IWindowSystem> pWindowSystem, E_RESULT_CODE&);
+		public:
+			E_RESULT_CODE Init(CVulkanDeviceContext* pDeviceContext, TPtr<IWindowSystem> pWindowSystem);
+
+			E_RESULT_CODE AcquireNextImage(VkSemaphore semaphore);
+			E_RESULT_CODE Present(VkSemaphore waitSemaphore = VK_NULL_HANDLE);
+
+			uint32_t GetImageIndex() const { return mCurrImageIndex; }
+			VkImage GetCurrImage() const { return mSwapChainImages[mCurrImageIndex]; }
+
+			const VkSwapchainKHR GetHandle() const { return mSwapChain; }
+		private:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanSwapchain)
+
+			E_RESULT_CODE _onFreeInternal() override;
+		private:
+			CVulkanDeviceContext*    mpDeviceContext = nullptr;
+
+			VkSwapchainKHR           mSwapChain = VK_NULL_HANDLE;
+			VkSurfaceFormatKHR       mSwapChainFormat{};
+			VkExtent2D               mSwapChainExtents{};
+			std::vector<VkImage>     mSwapChainImages {};
+			std::vector<VkImageView> mSwapChainImageViews {};
+
+			U32                      mCurrImageIndex = 0;
+
+	};
+
+
+	CVulkanSwapchain::CVulkanSwapchain() :
+		CBaseObject()
+	{
+	}
+
+	E_RESULT_CODE CVulkanSwapchain::Init(CVulkanDeviceContext* pDeviceContext, TPtr<IWindowSystem> pWindowSystem)
+	{
+		mpDeviceContext = pDeviceContext;
+
+		E_RESULT_CODE result = RC_OK;
+
+		const U32 flags = pWindowSystem->GetFlags();
+
+		auto swapChainSupportInfo = GetSwapChainSupportInfo(pDeviceContext->GetPhysicalDevice(), pDeviceContext->GetSwapchainSurface());
+		if (swapChainSupportInfo.mFormats.empty() || swapChainSupportInfo.mPresentModes.empty())
+		{
+			return RC_FAIL;
+		}
+
+		const bool needsHardwareGammaCorrection = flags & P_HARDWARE_GAMMA_CORRECTION;
+
+		mSwapChainFormat = swapChainSupportInfo.mFormats.front();
+		for (auto&& currFormatInfo : swapChainSupportInfo.mFormats)
+		{
+			if (currFormatInfo.format == (needsHardwareGammaCorrection ? VK_FORMAT_B8G8R8A8_SRGB : VK_FORMAT_B8G8R8A8_UNORM)
+				&& currFormatInfo.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+			{
+				mSwapChainFormat = currFormatInfo;
+				break;
+			}
+		}
+
+		const bool needsVSyncEnabled = flags & P_VSYNC;
+
+		VkPresentModeKHR presentMode = swapChainSupportInfo.mPresentModes.front();
+		for (auto&& currPresentModeInfo : swapChainSupportInfo.mPresentModes)
+		{
+			if (currPresentModeInfo == (needsVSyncEnabled ? VK_PRESENT_MODE_FIFO_KHR : VK_PRESENT_MODE_IMMEDIATE_KHR))
+			{
+				presentMode = currPresentModeInfo;
+				break;
+			}
+		}
+
+		mSwapChainExtents = swapChainSupportInfo.mCapabilities.currentExtent;
+		if (mSwapChainExtents.width == std::numeric_limits<U32>::max())
+		{
+			auto&& windowRect = pWindowSystem->GetClientRect();
+
+			mSwapChainExtents.width = windowRect.width;
+			mSwapChainExtents.height = windowRect.height;
+		}
+
+		U32 imagesCount = swapChainSupportInfo.mCapabilities.minImageCount + 1;
+		imagesCount = std::min(imagesCount, swapChainSupportInfo.mCapabilities.maxImageCount);
+
+		VkSwapchainCreateInfoKHR createInfo{};
+		createInfo.sType            = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+		createInfo.surface          = pDeviceContext->GetSwapchainSurface();
+		createInfo.minImageCount    = imagesCount;
+		createInfo.imageFormat      = mSwapChainFormat.format;
+		createInfo.imageColorSpace  = mSwapChainFormat.colorSpace;
+		createInfo.imageExtent      = mSwapChainExtents;
+		createInfo.imageArrayLayers = 1;
+		createInfo.imageUsage       = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+		auto queuesInfo = GetQueuesCreateInfo(pDeviceContext->GetPhysicalDevice(), pDeviceContext->GetSwapchainSurface());
+
+		std::array<U32, 2> queuesIndices
+		{
+			queuesInfo.mGraphicsQueueIndex,
+			queuesInfo.mPresentQueueIndex,
+		};
+
+		if (queuesInfo.mGraphicsQueueIndex != queuesInfo.mPresentQueueIndex)
+		{
+			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+			createInfo.queueFamilyIndexCount = 2;
+			createInfo.pQueueFamilyIndices = queuesIndices.data();
+		}
+		else
+		{
+			createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		}
+
+		createInfo.preTransform = swapChainSupportInfo.mCapabilities.currentTransform;
+		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+		createInfo.presentMode = presentMode;
+		createInfo.clipped = VK_TRUE;
+		createInfo.oldSwapchain = VK_NULL_HANDLE;
+
+		VK_SAFE_CALL(vkCreateSwapchainKHR(pDeviceContext->GetDevice(), &createInfo, nullptr, &mSwapChain));
+		VK_SAFE_CALL(vkGetSwapchainImagesKHR(pDeviceContext->GetDevice(), mSwapChain, &imagesCount, nullptr));
+
+		mSwapChainImages.resize(static_cast<USIZE>(imagesCount));
+		VK_SAFE_CALL(vkGetSwapchainImagesKHR(pDeviceContext->GetDevice(), mSwapChain, &imagesCount, mSwapChainImages.data()));
+
+		mSwapChainImageViews.resize(mSwapChainImages.size());
+
+		for (USIZE i = 0; i < mSwapChainImageViews.size(); i++)
+		{
+			VkImageViewCreateInfo createInfo{};
+			createInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+			createInfo.image                           = mSwapChainImages[i];
+			createInfo.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
+			createInfo.format                          = mSwapChainFormat.format;
+			createInfo.components.r                    = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.g                    = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.b                    = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.a                    = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+			createInfo.subresourceRange.baseMipLevel   = 0;
+			createInfo.subresourceRange.levelCount     = 1;
+			createInfo.subresourceRange.baseArrayLayer = 0;
+			createInfo.subresourceRange.layerCount     = 1;
+
+			VK_SAFE_CALL(vkCreateImageView(pDeviceContext->GetDevice(), &createInfo, nullptr, &mSwapChainImageViews[i]));
+		}
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CVulkanSwapchain::AcquireNextImage(VkSemaphore semaphore)
+	{
+		VK_SAFE_CALL(vkAcquireNextImageKHR(mpDeviceContext->GetDevice(), mSwapChain, UINT64_MAX, semaphore, nullptr, &mCurrImageIndex));
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CVulkanSwapchain::Present(VkSemaphore waitSemaphore)
+	{
+		VkPresentInfoKHR presentInfo{};
+		
+		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+		presentInfo.waitSemaphoreCount = 1;
+		presentInfo.pWaitSemaphores = &waitSemaphore;
+		presentInfo.swapchainCount = 1;
+		presentInfo.pSwapchains = &mSwapChain;
+		presentInfo.pImageIndices = &mCurrImageIndex;
+
+		VK_SAFE_CALL(vkQueuePresentKHR(mpDeviceContext->GetGraphicsQueue(), &presentInfo));
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CVulkanSwapchain::_onFreeInternal()
+	{
+		for (VkImageView& currImageView : mSwapChainImageViews)
+		{
+			vkDestroyImageView(mpDeviceContext->GetDevice(), currImageView, nullptr);
+		}
+
+		vkDestroySwapchainKHR(mpDeviceContext->GetDevice(), mSwapChain, nullptr);
+
+		return RC_OK;
+	}
+
+
+	CVulkanSwapchain* CreateSwapchain(CVulkanDeviceContext* pDeviceContext, TPtr<IWindowSystem> pWindowSystem, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(CVulkanSwapchain, CVulkanSwapchain, result, pDeviceContext, pWindowSystem);
+	}
+
+
+	TDE2_DEFINE_SCOPED_PTR(CVulkanSwapchain)
+
+
+	/*!
+		\brief CVulkanCommandBuffer's definition
+	*/
+
+	CVulkanCommandBuffer::CVulkanCommandBuffer() :
+		CBaseObject()
+	{
+	}
+
+	E_RESULT_CODE CVulkanCommandBuffer::Init(CVulkanDeviceContext* pDeviceContext)
+	{
+		mpDeviceContext = pDeviceContext;
+		
+		VkCommandPoolCreateInfo commandPoolCreateInfo{};
+		commandPoolCreateInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+		commandPoolCreateInfo.flags            = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+		commandPoolCreateInfo.queueFamilyIndex = pDeviceContext->GetQueuesInfo().mGraphicsQueueIndex;
+
+		VK_SAFE_CALL(vkCreateCommandPool(pDeviceContext->GetDevice(), &commandPoolCreateInfo, nullptr, &mCommandPool));
+
+		VkCommandBufferAllocateInfo commandBufferCreateInfo{};
+		commandBufferCreateInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		commandBufferCreateInfo.commandPool        = mCommandPool;
+		commandBufferCreateInfo.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		commandBufferCreateInfo.commandBufferCount = 1;
+
+		VK_SAFE_CALL(vkAllocateCommandBuffers(pDeviceContext->GetDevice(), &commandBufferCreateInfo, &mCommandBuffer));
+		
+		mFence = pDeviceContext->CreateFence();
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CVulkanCommandBuffer::Begin(VkCommandBufferUsageFlags flags)
+	{
+		VkCommandBufferBeginInfo commandBufferBeginInfo{};		
+		commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		commandBufferBeginInfo.flags = flags;
+
+		VK_SAFE_CALL(vkBeginCommandBuffer(mCommandBuffer, &commandBufferBeginInfo));
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CVulkanCommandBuffer::End()
+	{
+		VK_SAFE_CALL(vkEndCommandBuffer(mCommandBuffer));
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CVulkanCommandBuffer::Reset(VkCommandBufferResetFlags flags)
+	{
+		VK_SAFE_CALL(vkResetCommandBuffer(mCommandBuffer, flags));
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CVulkanCommandBuffer::_onFreeInternal()
+	{
+		vkDestroyCommandPool(mpDeviceContext->GetDevice(), mCommandPool, nullptr);
+		vkDestroyFence(mpDeviceContext->GetDevice(), mFence, nullptr);
+
+		return RC_OK;
+	}
+
+
+	CVulkanCommandBuffer* CreateCommandBuffer(CVulkanDeviceContext* pDeviceContext, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(CVulkanCommandBuffer, CVulkanCommandBuffer, result, pDeviceContext);
+	}
+
+
+	TDE2_DEFINE_SCOPED_PTR(CVulkanCommandBuffer);
+
+
+	/*!
+		\brief CVulkanGraphicsContext's definition
+	*/
+
+
+	CVulkanGraphicsContext::CVulkanGraphicsContext(TPtr<IWindowSurfaceFactory> pWindowSurfaceFactory) :
+		CBaseObject(), mpWindowSurfaceFactory(pWindowSurfaceFactory)
+	{
+	}
+
+	CVulkanGraphicsContext::CVulkanGraphicsContext() :
+		CBaseObject()
+	{
+	}
+
+	E_RESULT_CODE CVulkanGraphicsContext::Init(TPtr<IWindowSystem> pWindowSystem)
+	{
+		TDE2_PROFILER_SCOPE("CVulkanGraphicsContext::Init");
+
+		if (mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		if (!pWindowSystem || !mpWindowSurfaceFactory)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpWindowSystem = pWindowSystem;
+		mpEventManager = pWindowSystem->GetEventManager();
+
+		if (!mpEventManager)
+		{
+			return RC_FAIL;
+		}
+
+		mpEventManager->Subscribe(TOnWindowResized::GetTypeId(), this);
+
+		E_RESULT_CODE result = _onInitInternal();
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		mpGraphicsObjectManager = TPtr<IGraphicsObjectManager>(CreateVulkanGraphicsObjectManager(this, result));
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		mpGraphicsObjectManagerImpl = dynamic_cast<CVulkanGraphicsObjectManager*>(mpGraphicsObjectManager.Get());
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+
+
+	E_RESULT_CODE CVulkanGraphicsContext::_onInitInternal()
+	{
+		VK_SAFE_CALL(volkInitialize());
+
+		E_RESULT_CODE result = RC_OK;
+		
+		mpVulkanDeviceContext = TPtr<CVulkanDeviceContext>(CreateVulkanDeviceContext(mpWindowSystem, mpWindowSurfaceFactory, result));
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		mpSwapchain = mpVulkanDeviceContext->CreateSwapchain();
+		TDE2_ASSERT(mpSwapchain);
+
+		result = _prepareFrameData();
 		if (RC_OK != result)
 		{
 			return result;
@@ -595,33 +1106,14 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanGraphicsContext::_onFreeInternal()
 	{
-#if TDE2_DEBUG_MODE
-		DestroyDebugUtilsMessengerEXT(mInstance, mDebugMessenger, nullptr);
-#endif
-
-		vkDestroyCommandPool(mDevice, mMainCommandPool, nullptr);
-		vkDestroyCommandPool(mDevice, mTransferCommandPool, nullptr);
-
-		vmaDestroyAllocator(mMainAllocator);
-
-		for (auto& currImageView : mSwapChainImageViews)
-		{
-			vkDestroyImageView(mDevice, currImageView, nullptr);
-		}
-
-		vkDestroyFence(mDevice, mTransferCommandFence, nullptr);
-
 		for (USIZE i = 0; i < FRAMES_COUNT; i++)
 		{
-			vkDestroyFence(mDevice, mCommandBuffersFences[i], nullptr);
-			vkDestroySemaphore(mDevice, mImageReadySemaphores[i], nullptr);
-			vkDestroySemaphore(mDevice, mRenderFinishedSemaphores[i], nullptr);
+			vkDestroySemaphore(mpVulkanDeviceContext->GetDevice(), mImageReadySemaphores[i], nullptr);
+			vkDestroySemaphore(mpVulkanDeviceContext->GetDevice(), mRenderFinishedSemaphores[i], nullptr);
 		}
 
-		vkDestroySwapchainKHR(mDevice, mSwapChain, nullptr);
-		vkDestroyDevice(mDevice, nullptr);
-		vkDestroySurfaceKHR(mInstance, mSurface, nullptr);
-		vkDestroyInstance(mInstance, nullptr);
+		mpSwapchain = nullptr;
+		mpVulkanDeviceContext = nullptr;
 
 		return RC_OK;
 	}
@@ -677,24 +1169,26 @@ namespace TDEngine2
 		submitInfo.pCommandBuffers = &mTransferCommandBuffer;
 		submitInfo.signalSemaphoreCount = 0;
 
-		VK_SAFE_CALL(vkQueueSubmit(mGraphicsQueue, 1, &submitInfo, mTransferCommandFence));
+		//VK_SAFE_CALL(vkQueueSubmit(mGraphicsQueue, 1, &submitInfo, mTransferCommandFence));
 
-		VK_SAFE_CALL(vkWaitForFences(mDevice, 1, &mTransferCommandFence, true, std::numeric_limits<U64>::max()));
-		VK_SAFE_CALL(vkResetFences(mDevice, 1, &mTransferCommandFence));
+		//VK_SAFE_CALL(vkWaitForFences(mDevice, 1, &mTransferCommandFence, true, std::numeric_limits<U64>::max()));
+		//VK_SAFE_CALL(vkResetFences(mDevice, 1, &mTransferCommandFence));
 
-		VK_SAFE_CALL(vkResetCommandPool(mDevice, mTransferCommandPool, 0));
+		//VK_SAFE_CALL(vkResetCommandPool(mDevice, mTransferCommandPool, 0));
 
 		return RC_OK;
 	}
 
 	void CVulkanGraphicsContext::BeginFrame()
 	{
-		VK_SAFE_VOID_CALL(vkWaitForFences(mDevice, 1, &mCommandBuffersFences[mCurrFrameIndex], VK_TRUE, UINT64_MAX));
-		VK_SAFE_VOID_CALL(vkResetFences(mDevice, 1, &mCommandBuffersFences[mCurrFrameIndex]));
+		const TPtr<CVulkanCommandBuffer>& pCurrCommandBuffer = mpCommandBuffers[mCurrFrameIndex];
+		VkFence commandBufferFence = pCurrCommandBuffer->GetFence();
 
-		VK_SAFE_VOID_CALL(vkAcquireNextImageKHR(mDevice, mSwapChain, UINT64_MAX, mImageReadySemaphores[mCurrFrameIndex], VK_NULL_HANDLE, &mCurrUsedImageIndex));
+		VK_SAFE_VOID_CALL(vkWaitForFences(mpVulkanDeviceContext->GetDevice(), 1, &commandBufferFence, VK_TRUE, UINT64_MAX));
+		VK_SAFE_VOID_CALL(vkResetFences(mpVulkanDeviceContext->GetDevice(), 1, &commandBufferFence));
 
-		VK_SAFE_VOID_CALL(vkResetCommandBuffer(mCommandBuffers[mCurrFrameIndex], 0));
+		E_RESULT_CODE result = mpSwapchain->AcquireNextImage(mImageReadySemaphores[mCurrFrameIndex]);
+		TDE2_ASSERT(RC_OK == result);
 
 		// destroy objects that were marked for deletion
 		for (auto&& currCommand : mAwaitingDeletionObjects[mCurrFrameIndex])
@@ -703,44 +1197,23 @@ namespace TDEngine2
 		}
 
 		mAwaitingDeletionObjects[mCurrFrameIndex].clear();
+
+		pCurrCommandBuffer->Reset();
+		pCurrCommandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 	}
 
 	void CVulkanGraphicsContext::Present()
 	{
-		VkSubmitInfo submitInfo{};
-		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		const TPtr<CVulkanCommandBuffer>& pCurrCommandBuffer = mpCommandBuffers[mCurrFrameIndex];
+		pCurrCommandBuffer->End();
 
-		VkSemaphore waitSemaphores[] = { mImageReadySemaphores[mCurrFrameIndex] };
-		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-		submitInfo.waitSemaphoreCount = 1;
-		submitInfo.pWaitSemaphores = waitSemaphores;
-		submitInfo.pWaitDstStageMask = waitStages;
+		E_RESULT_CODE result = mpVulkanDeviceContext->SubmitCommands(pCurrCommandBuffer, mImageReadySemaphores[mCurrFrameIndex], mRenderFinishedSemaphores[mCurrFrameIndex], pCurrCommandBuffer->GetFence());
+		TDE2_ASSERT(RC_OK == result);
 
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &mCommandBuffers[mCurrFrameIndex];
+		result = mpSwapchain->Present(mRenderFinishedSemaphores[mCurrFrameIndex]);
+		TDE2_ASSERT(RC_OK == result);
 
-		VkSemaphore signalSemaphores[] = { mRenderFinishedSemaphores[mCurrFrameIndex] };
-		submitInfo.signalSemaphoreCount = 1;
-		submitInfo.pSignalSemaphores = signalSemaphores;
-
-		VK_SAFE_VOID_CALL(vkQueueSubmit(mGraphicsQueue, 1, &submitInfo, mCommandBuffersFences[mCurrFrameIndex]));
-
-		// actual present
-		VkPresentInfoKHR presentInfo{};
-		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
-		presentInfo.waitSemaphoreCount = 1;
-		presentInfo.pWaitSemaphores = signalSemaphores;
-
-		VkSwapchainKHR swapChains[] = { mSwapChain };
-		presentInfo.swapchainCount = 1;
-		presentInfo.pSwapchains = swapChains;
-
-		presentInfo.pImageIndices = &mCurrUsedImageIndex;
-
-		vkQueuePresentKHR(mPresentQueue, &presentInfo);
-
-		mCurrFrameIndex = (mCurrFrameIndex + 1) % FRAMES_COUNT;
+		mCurrFrameIndex = (mCurrFrameIndex + 1) & (FRAMES_COUNT - 1);
 	}
 
 	void CVulkanGraphicsContext::SetViewport(F32 x, F32 y, F32 width, F32 height, F32 minDepth, F32 maxDepth)
@@ -778,7 +1251,7 @@ namespace TDEngine2
 		const VkBuffer vertexBuffers[] = { pBuffer->GetVulkanHandle() };
 		const VkDeviceSize offsets[] = { static_cast<USIZE>(offset) };
 
-		vkCmdBindVertexBuffers(mCommandBuffers[mCurrFrameIndex], slot, 1, vertexBuffers, offsets);
+		vkCmdBindVertexBuffers(mpCommandBuffers[mCurrFrameIndex]->GetHandle(), slot, 1, vertexBuffers, offsets);
 
 		return RC_OK;
 	}
@@ -793,7 +1266,7 @@ namespace TDEngine2
 
 		TDE2_ASSERT(E_BUFFER_TYPE::INDEX == pBuffer->GetParams().mBufferType);
 
-		vkCmdBindIndexBuffer(mCommandBuffers[mCurrFrameIndex], pBuffer->GetVulkanHandle(), 
+		vkCmdBindIndexBuffer(mpCommandBuffers[mCurrFrameIndex]->GetHandle(), pBuffer->GetVulkanHandle(),
 			static_cast<VkDeviceSize>(offset), CVulkanMappings::GetIndexFormat(pBuffer->GetParams().mIndexFormat));
 
 		return RC_OK;
@@ -976,39 +1449,39 @@ namespace TDEngine2
 
 	void CVulkanGraphicsContext::Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices)
 	{
-		vkCmdSetPrimitiveTopology(mCommandBuffers[mCurrFrameIndex], CVulkanMappings::GetPrimitiveTopology(topology));
-		vkCmdDraw(mCommandBuffers[mCurrFrameIndex], numOfVertices, 1, startVertex, 0);
+		vkCmdSetPrimitiveTopology(_getCurrCommandBufferHandle(), CVulkanMappings::GetPrimitiveTopology(topology));
+		vkCmdDraw(_getCurrCommandBufferHandle(), numOfVertices, 1, startVertex, 0);
 	}
 
 	void CVulkanGraphicsContext::DrawIndexed(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, U32 baseVertex, U32 startIndex, U32 numOfIndices)
 	{
-		vkCmdSetPrimitiveTopology(mCommandBuffers[mCurrFrameIndex], CVulkanMappings::GetPrimitiveTopology(topology));
-		vkCmdDrawIndexed(mCommandBuffers[mCurrFrameIndex], numOfIndices, 1, startIndex, baseVertex, 0);
+		vkCmdSetPrimitiveTopology(_getCurrCommandBufferHandle(), CVulkanMappings::GetPrimitiveTopology(topology));
+		vkCmdDrawIndexed(_getCurrCommandBufferHandle(), numOfIndices, 1, startIndex, baseVertex, 0);
 	}
 
 	void CVulkanGraphicsContext::DrawInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 verticesPerInstance, U32 startInstance, U32 numOfInstances)
 	{
-		vkCmdSetPrimitiveTopology(mCommandBuffers[mCurrFrameIndex], CVulkanMappings::GetPrimitiveTopology(topology));
-		vkCmdDraw(mCommandBuffers[mCurrFrameIndex], verticesPerInstance, numOfInstances, startVertex, startInstance);
+		vkCmdSetPrimitiveTopology(_getCurrCommandBufferHandle(), CVulkanMappings::GetPrimitiveTopology(topology));
+		vkCmdDraw(_getCurrCommandBufferHandle(), verticesPerInstance, numOfInstances, startVertex, startInstance);
 	}
 
 	void CVulkanGraphicsContext::DrawIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, U32 baseVertex, U32 startIndex,
 		U32 startInstance, U32 indicesPerInstance, U32 numOfInstances)
 	{
-		vkCmdSetPrimitiveTopology(mCommandBuffers[mCurrFrameIndex], CVulkanMappings::GetPrimitiveTopology(topology));
-		vkCmdDrawIndexed(mCommandBuffers[mCurrFrameIndex], indicesPerInstance, numOfInstances, startIndex, baseVertex, startInstance);
+		vkCmdSetPrimitiveTopology(_getCurrCommandBufferHandle(), CVulkanMappings::GetPrimitiveTopology(topology));
+		vkCmdDrawIndexed(_getCurrCommandBufferHandle(), indicesPerInstance, numOfInstances, startIndex, baseVertex, startInstance);
 	}
 
 	void CVulkanGraphicsContext::DrawIndirectInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, TBufferHandleId argsBufferHandle, U32 alignedOffset)
 	{
-		vkCmdSetPrimitiveTopology(mCommandBuffers[mCurrFrameIndex], CVulkanMappings::GetPrimitiveTopology(topology));
+		vkCmdSetPrimitiveTopology(_getCurrCommandBufferHandle(), CVulkanMappings::GetPrimitiveTopology(topology));
 		//vkCmdDrawIndirect(mCommandBuffers[mCurrFrameIndex], VK_NULL_HANDLE, )
 		TDE2_UNIMPLEMENTED();
 	}
 
 	void CVulkanGraphicsContext::DrawIndirectIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, TBufferHandleId argsBufferHandle, U32 alignedOffset)
 	{
-		vkCmdSetPrimitiveTopology(mCommandBuffers[mCurrFrameIndex], CVulkanMappings::GetPrimitiveTopology(topology));
+		vkCmdSetPrimitiveTopology(_getCurrCommandBufferHandle(), CVulkanMappings::GetPrimitiveTopology(topology));
 		TDE2_UNIMPLEMENTED();
 	}
 
@@ -1097,12 +1570,12 @@ namespace TDEngine2
 		markerInfo.sType      = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
 		markerInfo.pLabelName = id.c_str();
 
-		vkCmdBeginDebugUtilsLabelEXT(mCommandBuffers[mCurrFrameIndex], &markerInfo);
+		vkCmdBeginDebugUtilsLabelEXT(_getCurrCommandBufferHandle(), &markerInfo);
 	}
 
 	void CVulkanGraphicsContext::EndSectionMarker()
 	{
-		vkCmdEndDebugUtilsLabelEXT(mCommandBuffers[mCurrFrameIndex]);
+		vkCmdEndDebugUtilsLabelEXT(_getCurrCommandBufferHandle());
 	}
 
 #endif
@@ -1138,171 +1611,45 @@ namespace TDEngine2
 
 	VkDevice CVulkanGraphicsContext::GetDevice()
 	{
-		return mDevice;
+		return mpVulkanDeviceContext->GetDevice();
 	}
 
 	VkPhysicalDevice CVulkanGraphicsContext::GetPhysicalDevice()
 	{
-		return mPhysicalDevice;
+		return mpVulkanDeviceContext->GetPhysicalDevice();
 	}
 
 	VkInstance CVulkanGraphicsContext::GetInstance()
 	{
-		return mInstance;
+		return mpVulkanDeviceContext->GetInstance();
 	}
 
 	VmaAllocator CVulkanGraphicsContext::GetAllocator()
 	{
-		return mMainAllocator;
+		return mpVulkanDeviceContext->GetMemoryAllocator();
 	}
 
-	E_RESULT_CODE CVulkanGraphicsContext::_createSwapChain()
+	E_RESULT_CODE CVulkanGraphicsContext::_prepareFrameData()
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		const U32 flags = mpWindowSystem->GetFlags();
-
-		auto swapChainSupportInfo = GetSwapChainSupportInfo(mPhysicalDevice, mSurface);
-		if (swapChainSupportInfo.mFormats.empty() || swapChainSupportInfo.mPresentModes.empty())
+		for (USIZE i = 0; i < FRAMES_COUNT; ++i)
 		{
-			return RC_FAIL;
+			E_RESULT_CODE localResult = RC_OK;
+			
+			mpCommandBuffers[i] = TPtr<CVulkanCommandBuffer>(CreateCommandBuffer(mpVulkanDeviceContext.Get(), localResult));
+			result = result | localResult;
 		}
 
-		const bool needsHardwareGammaCorrection = flags & P_HARDWARE_GAMMA_CORRECTION;
-
-		mSwapChainFormat = swapChainSupportInfo.mFormats.front();
-		for (auto&& currFormatInfo : swapChainSupportInfo.mFormats)
+		if (RC_OK != result)
 		{
-			if (currFormatInfo.format == (needsHardwareGammaCorrection ? VK_FORMAT_B8G8R8A8_SRGB : VK_FORMAT_B8G8R8A8_UNORM) 
-				&& currFormatInfo.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
-			{
-				mSwapChainFormat = currFormatInfo;
-				break;
-			}
+			return result;
 		}
-
-		const bool needsVSyncEnabled = flags & P_VSYNC;
-
-		VkPresentModeKHR presentMode = swapChainSupportInfo.mPresentModes.front();
-		for (auto&& currPresentModeInfo : swapChainSupportInfo.mPresentModes)
-		{
-			if (currPresentModeInfo == (needsVSyncEnabled ? VK_PRESENT_MODE_FIFO_KHR : VK_PRESENT_MODE_IMMEDIATE_KHR))
-			{
-				presentMode = currPresentModeInfo;
-				break;
-			}
-		}
-
-		mSwapChainExtents = swapChainSupportInfo.mCapabilities.currentExtent;
-		if (mSwapChainExtents.width == std::numeric_limits<U32>::max())
-		{
-			auto&& windowRect = mpWindowSystem->GetClientRect();
-			mSwapChainExtents.width  = windowRect.width;
-			mSwapChainExtents.height = windowRect.height;
-		}
-
-		U32 imagesCount = swapChainSupportInfo.mCapabilities.minImageCount + 1;
-		imagesCount = std::min(imagesCount, swapChainSupportInfo.mCapabilities.maxImageCount);
-
-		VkSwapchainCreateInfoKHR createInfo{};
-		createInfo.sType            = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		createInfo.surface          = mSurface;
-		createInfo.minImageCount    = imagesCount;
-		createInfo.imageFormat      = mSwapChainFormat.format;
-		createInfo.imageColorSpace  = mSwapChainFormat.colorSpace;
-		createInfo.imageExtent      = mSwapChainExtents;
-		createInfo.imageArrayLayers = 1;
-		createInfo.imageUsage       = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-
-		auto queuesInfo = GetQueuesCreateInfo(mPhysicalDevice, mSurface);
-
-		std::array<U32, 2> queuesIndices
-		{
-			queuesInfo.mGraphicsQueueIndex,
-			queuesInfo.mPresentQueueIndex,
-		};
-
-		if (queuesInfo.mGraphicsQueueIndex != queuesInfo.mPresentQueueIndex)
-		{
-			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-			createInfo.queueFamilyIndexCount = 2;
-			createInfo.pQueueFamilyIndices = queuesIndices.data();
-		}
-		else
-		{
-			createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		}
-
-		createInfo.preTransform   = swapChainSupportInfo.mCapabilities.currentTransform; 
-		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-		createInfo.presentMode    = presentMode;
-		createInfo.clipped        = VK_TRUE;
-		createInfo.oldSwapchain   = VK_NULL_HANDLE;
-
-		VK_SAFE_CALL(vkCreateSwapchainKHR(mDevice, &createInfo, nullptr, &mSwapChain));
-
-		VK_SAFE_CALL(vkGetSwapchainImagesKHR(mDevice, mSwapChain, &imagesCount, nullptr));
-		
-		mSwapChainImages.resize(static_cast<USIZE>(imagesCount));
-		VK_SAFE_CALL(vkGetSwapchainImagesKHR(mDevice, mSwapChain, &imagesCount, mSwapChainImages.data()));
-
-		mSwapChainImageViews.resize(mSwapChainImages.size());
-
-		for (USIZE i = 0; i < mSwapChainImageViews.size(); i++)
-		{
-			VkImageViewCreateInfo createInfo{};
-			createInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			createInfo.image                           = mSwapChainImages[i];
-			createInfo.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
-			createInfo.format                          = mSwapChainFormat.format;
-			createInfo.components.r                    = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.g                    = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.b                    = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.a                    = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-			createInfo.subresourceRange.baseMipLevel   = 0;
-			createInfo.subresourceRange.levelCount     = 1;
-			createInfo.subresourceRange.baseArrayLayer = 0;
-			createInfo.subresourceRange.layerCount     = 1;
-
-			VK_SAFE_CALL(vkCreateImageView(mDevice, &createInfo, nullptr, &mSwapChainImageViews[i]));
-		}
-
-		return result;
-	}
-
-	E_RESULT_CODE CVulkanGraphicsContext::_prepareCommandBuffers()
-	{
-		VkCommandPoolCreateInfo poolInfo {};
-		poolInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-		poolInfo.flags            = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-		poolInfo.queueFamilyIndex = mQueuesInfo.mGraphicsQueueIndex;
-
-		VK_SAFE_CALL(vkCreateCommandPool(mDevice, &poolInfo, nullptr, &mMainCommandPool));
-
-		// \note Create a few command buffers within main command pool
-		VkCommandBufferAllocateInfo allocInfo{};
-		allocInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandPool        = mMainCommandPool;
-		allocInfo.commandBufferCount = FRAMES_COUNT;
-
-		VK_SAFE_CALL(vkAllocateCommandBuffers(mDevice, &allocInfo, mCommandBuffers.data()));
-
-		// \note Create fences one for each command buffer
-		VkFenceCreateInfo fenceCreateInfo = {};
-		fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-		fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-		VkSemaphoreCreateInfo semaphoreCreateInfo = {};
-		semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
 		for (USIZE i = 0; i < FRAMES_COUNT; i++)
 		{
-			VK_SAFE_CALL(vkCreateFence(mDevice, &fenceCreateInfo, nullptr, &mCommandBuffersFences[i]));
-
-			VK_SAFE_CALL(vkCreateSemaphore(mDevice, &semaphoreCreateInfo, nullptr, &mImageReadySemaphores[i]));
-			VK_SAFE_CALL(vkCreateSemaphore(mDevice, &semaphoreCreateInfo, nullptr, &mRenderFinishedSemaphores[i]));
+			mImageReadySemaphores[i] = mpVulkanDeviceContext->CreateSemaphore();
+			mRenderFinishedSemaphores[i] = mpVulkanDeviceContext->CreateSemaphore();
 		}
 
 		return RC_OK;
@@ -1313,9 +1660,9 @@ namespace TDEngine2
 		VkCommandPoolCreateInfo poolInfo{};
 		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 		poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-		poolInfo.queueFamilyIndex = mQueuesInfo.mGraphicsQueueIndex;
+		poolInfo.queueFamilyIndex = mpVulkanDeviceContext->GetQueuesInfo().mGraphicsQueueIndex;
 
-		VK_SAFE_CALL(vkCreateCommandPool(mDevice, &poolInfo, nullptr, &mTransferCommandPool));
+		VK_SAFE_CALL(vkCreateCommandPool(mpVulkanDeviceContext->GetDevice(), &poolInfo, nullptr, &mTransferCommandPool));
 
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -1323,14 +1670,19 @@ namespace TDEngine2
 		allocInfo.commandPool = mTransferCommandPool;
 		allocInfo.commandBufferCount = 1;
 
-		VK_SAFE_CALL(vkAllocateCommandBuffers(mDevice, &allocInfo, &mTransferCommandBuffer));
+		VK_SAFE_CALL(vkAllocateCommandBuffers(mpVulkanDeviceContext->GetDevice(), &allocInfo, &mTransferCommandBuffer));
 
 		VkFenceCreateInfo fenceCreateInfo = {};
 		fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 
-		VK_SAFE_CALL(vkCreateFence(mDevice, &fenceCreateInfo, nullptr, &mTransferCommandFence));
+		VK_SAFE_CALL(vkCreateFence(mpVulkanDeviceContext->GetDevice(), &fenceCreateInfo, nullptr, &mTransferCommandFence));
 
 		return RC_OK;
+	}
+
+	VkCommandBuffer CVulkanGraphicsContext::_getCurrCommandBufferHandle() const
+	{
+		return mpCommandBuffers[mCurrFrameIndex]->GetHandle();
 	}
 
 

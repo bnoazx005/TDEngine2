@@ -200,6 +200,9 @@ namespace TDEngine2
 			VkPipelineShaderStageCreateInfo GetPipelineShaderStage(E_SHADER_STAGE_TYPE stageType) const;
 			VkPipelineShaderStageCreateInfo* GetStages();
 			U32 GetStagesCount() const;
+
+			const VkPipelineLayout GetPipelineLayout() const;
+			const VkDescriptorSetLayout GetDescriptorSetLayout() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanShader)
 
@@ -210,7 +213,9 @@ namespace TDEngine2
 		protected:
 			std::array<VkShaderModule, SST_NONE>                  mShaderStageModules;
 			std::array<VkPipelineShaderStageCreateInfo, SST_NONE> mPipelineShaderStagesInfo;
-			VkDevice                                              mDevice;
+			VkDevice                                              mDevice = VK_NULL_HANDLE;
+			VkPipelineLayout                                      mPipelineLayout = VK_NULL_HANDLE;
+			VkDescriptorSetLayout                                 mDescriptorsSetLayout = VK_NULL_HANDLE;
 	};
 
 

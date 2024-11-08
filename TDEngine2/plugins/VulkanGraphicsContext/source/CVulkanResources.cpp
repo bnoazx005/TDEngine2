@@ -3,6 +3,8 @@
 #include "../include/CVulkanUtils.h"
 #include "../include/CVulkanGraphicsObjectManager.h"
 #include "../include/CVulkanGraphicsContext.h"
+#include <core/IResourceManager.h>
+#include <graphics/CBaseShader.h>
 #include <graphics/CBaseGraphicsPipeline.h>
 
 
@@ -326,6 +328,26 @@ namespace TDEngine2
 		return mPipelineShaderStagesInfo[stageType];
 	}
 
+	VkPipelineShaderStageCreateInfo* CVulkanShader::GetStages()
+	{
+		return mPipelineShaderStagesInfo.data();
+	}
+
+	U32 CVulkanShader::GetStagesCount() const
+	{
+		return static_cast<U32>(std::count_if(mPipelineShaderStagesInfo.cbegin(), mPipelineShaderStagesInfo.cend(), [](const VkPipelineShaderStageCreateInfo& info) { return info.sType == VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO; }));
+	}
+
+	const VkPipelineLayout CVulkanShader::GetPipelineLayout() const
+	{
+		return mPipelineLayout;
+	}
+
+	const VkDescriptorSetLayout CVulkanShader::GetDescriptorSetLayout() const
+	{
+		return mDescriptorsSetLayout;
+	}
+
 
 	static TResult<VkShaderModule> CreateShaderModule(VkDevice device, E_SHADER_STAGE_TYPE stageType, const TShaderCompilerOutput* pCompilerData)
 	{
@@ -355,10 +377,10 @@ namespace TDEngine2
 	static VkPipelineShaderStageCreateInfo CreatePipelineShaderStageInfo(VkDevice device, E_SHADER_STAGE_TYPE stageType, VkShaderModule shaderModule, const TShaderCompilerOutput* pCompilerData)
 	{
 		VkPipelineShaderStageCreateInfo shaderStageInfo{};
-		shaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		shaderStageInfo.stage = CVulkanMappings::GetShaderStageType(stageType);
+		shaderStageInfo.sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		shaderStageInfo.stage  = CVulkanMappings::GetShaderStageType(stageType);
 		shaderStageInfo.module = shaderModule;
-		shaderStageInfo.pName = pCompilerData->mStagesInfo.at(stageType).mEntrypointName.c_str();
+		shaderStageInfo.pName  = pCompilerData->mStagesInfo.at(stageType).mEntrypointName.c_str();
 
 		return shaderStageInfo;
 	}
@@ -399,6 +421,34 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanShader::_createUniformBuffers(const TShaderCompilerOutput* pCompilerData)
 	{
+		std::vector<VkDescriptorSetLayoutBinding> bindings;
+
+		for (const auto& currUniformBufferInfo : pCompilerData->mUniformBuffersInfo)
+		{
+
+		}
+
+		for (const auto& currShaderResourceInfo : pCompilerData->mShaderResourcesInfo)
+		{
+
+		}
+
+		VkDescriptorSetLayoutCreateInfo shaderDescriptorSetLayoutCreateInfo{};
+		shaderDescriptorSetLayoutCreateInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		shaderDescriptorSetLayoutCreateInfo.bindingCount = static_cast<U32>(bindings.size());
+		shaderDescriptorSetLayoutCreateInfo.pBindings    = bindings.data();
+
+		VK_SAFE_CALL(vkCreateDescriptorSetLayout(mDevice, &shaderDescriptorSetLayoutCreateInfo, nullptr, &mDescriptorsSetLayout));
+
+		VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
+		pipelineLayoutCreateInfo.sType                  = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		pipelineLayoutCreateInfo.setLayoutCount         = 1;
+		pipelineLayoutCreateInfo.pSetLayouts            = &mDescriptorsSetLayout;
+		pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
+		pipelineLayoutCreateInfo.pPushConstantRanges    = 0;
+
+		VK_SAFE_CALL(vkCreatePipelineLayout(mDevice, &pipelineLayoutCreateInfo, nullptr, &mPipelineLayout));
+
 		//auto uniformBuffersInfo = pCompilerData->mUniformBuffersInfo;
 
 		//TUniformBufferDesc currDesc;
@@ -810,6 +860,33 @@ namespace TDEngine2
 	};
 
 
+	static const VkPipelineViewportStateCreateInfo* GetDefaultViewport()
+	{
+		static const VkViewport DEFAULT_VIEWPORT { 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f };
+		static const VkRect2D DEFAULT_SCISSOR_RECT { { 0, 0 }, { 1, 1 }	};
+
+		static VkPipelineViewportStateCreateInfo viewportStateInfo{};
+		viewportStateInfo.sType         = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+		viewportStateInfo.scissorCount = 1;
+		viewportStateInfo.pScissors     = &DEFAULT_SCISSOR_RECT;
+		viewportStateInfo.viewportCount = 1;
+		viewportStateInfo.pViewports    = &DEFAULT_VIEWPORT;
+
+		return &viewportStateInfo;
+	}
+
+
+	static const VkPipelineMultisampleStateCreateInfo* GetDefaultMsaaState()
+	{
+		static VkPipelineMultisampleStateCreateInfo msaaStateInfo{};
+		msaaStateInfo.sType                = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+		msaaStateInfo.sampleShadingEnable  = VK_FALSE;
+		msaaStateInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+
+		return &msaaStateInfo;
+	}
+
+
 	CVulkanGraphicsPipeline::CVulkanGraphicsPipeline() :
 		CBaseGraphicsPipeline()
 	{
@@ -822,7 +899,15 @@ namespace TDEngine2
 		{
 			return result;
 		}
+
+		const TResourceId shaderHandle = pResourceManager->Load<IShader>(pipelineConfig.mShaderIdStr);
+		if (TResourceId::Invalid == shaderHandle)
+		{
+			return RC_FAIL;
+		}
 		
+		TPtr<CVulkanShader> pShader = pResourceManager->GetResource<CVulkanShader>(shaderHandle);
+
 		CVulkanGraphicsContext* pVulkanGraphicsContext = dynamic_cast<CVulkanGraphicsContext*>(pGraphicsContext);
 		mpVulkanGraphicsObjectManagerImpl = dynamic_cast<CVulkanGraphicsObjectManager*>(pVulkanGraphicsContext->GetGraphicsObjectManager());
 
@@ -840,11 +925,46 @@ namespace TDEngine2
 		VkPipelineVertexInputStateCreateInfo vertexInputStateInfo{};
 		vertexInputStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 
+		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
+		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+
+		VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo{};
+		inputAssemblyInfo.sType                  = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+		inputAssemblyInfo.primitiveRestartEnable = false;
+
+		VkPipelineMultisampleStateCreateInfo multisamplingInfo{};
+		multisamplingInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+
+		const VkPipelineColorBlendStateCreateInfo& colorBlendingInfo       = CVulkanMappings::GetBlendState(pipelineConfig.mBlendStateParams);
+		const VkPipelineRasterizationStateCreateInfo& rasterizationInfo    = CVulkanMappings::GetRasterizerState(pipelineConfig.mRasterizerStateParams);
+		const VkPipelineDepthStencilStateCreateInfo& depthStencilStateInfo = CVulkanMappings::GetDepthStencilState(pipelineConfig.mDepthStencilStateParams);
+
+		const std::array<VkDynamicState, 3> dynamicStates
+		{ 
+			VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY
+		};
+
+		VkPipelineDynamicStateCreateInfo dynamicInfo{};
+		dynamicInfo.sType             = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+		dynamicInfo.pDynamicStates    = dynamicStates.data();
+		dynamicInfo.dynamicStateCount = static_cast<U32>(dynamicStates.size());
+
 		VkGraphicsPipelineCreateInfo graphicsPipelineInfo{};
-		graphicsPipelineInfo.sType              = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		graphicsPipelineInfo.pNext              = &renderingInfo;
-		graphicsPipelineInfo.renderPass         = VK_NULL_HANDLE;
-		graphicsPipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+		graphicsPipelineInfo.sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		graphicsPipelineInfo.pNext               = &renderingInfo;
+		graphicsPipelineInfo.renderPass          = VK_NULL_HANDLE;
+		graphicsPipelineInfo.basePipelineHandle  = VK_NULL_HANDLE;
+		graphicsPipelineInfo.stageCount          = pShader->GetStagesCount();
+		graphicsPipelineInfo.pStages             = pShader->GetStages();
+		graphicsPipelineInfo.pViewportState      = GetDefaultViewport();
+		graphicsPipelineInfo.pVertexInputState   = &vertexInputInfo;
+		graphicsPipelineInfo.pInputAssemblyState = &inputAssemblyInfo;
+		graphicsPipelineInfo.pMultisampleState   = GetDefaultMsaaState();
+		graphicsPipelineInfo.pColorBlendState    = &colorBlendingInfo;
+		graphicsPipelineInfo.pRasterizationState = &rasterizationInfo;
+		graphicsPipelineInfo.pDepthStencilState  = &depthStencilStateInfo;
+		graphicsPipelineInfo.layout              = pShader->GetPipelineLayout();
+		graphicsPipelineInfo.pDynamicState       = &dynamicInfo;
 		
 		// \todo Add pipeline cache's support
 		VK_SAFE_CALL(vkCreateGraphicsPipelines(pVulkanGraphicsContext->GetDevice(), VK_NULL_HANDLE, 1, &graphicsPipelineInfo, nullptr, &mBasePipelineHandle));
