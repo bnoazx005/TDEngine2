@@ -7,7 +7,7 @@
 #define GEOMETRY_ENTRY main
 
 
-CBUFFER_SECTION_EX(Parameters, 4)
+CBUFFER_SECTION_EX(Parameters, 3)
 	int mIsSunLight;
 	int mPointLightIndex;
 CBUFFER_ENDSECTION

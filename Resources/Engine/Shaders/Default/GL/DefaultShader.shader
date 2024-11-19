@@ -71,7 +71,7 @@ out vec4 FragColor;
 TDE2_ENABLE_PARALLAX_MAPPING
 
 
-CBUFFER_SECTION_EX(ShaderParameters, 4)
+CBUFFER_SECTION_EX(ShaderParameters, 3)
 	float parallaxMappingEnabled;
 CBUFFER_ENDSECTION
 

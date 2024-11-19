@@ -8,7 +8,7 @@
 DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, DeadParticlesIndexList, 0);
 DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, Counters, 1); 
 
-CBUFFER_SECTION_EX(DeadParticlesInfo, 4)
+CBUFFER_SECTION_EX(DeadParticlesInfo, 3)
 	uint mMaxParticlesCount;
 CBUFFER_ENDSECTION
 

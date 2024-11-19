@@ -27,7 +27,7 @@ out vec4 FragColor;
 
 DECLARE_TEX2D(FrameTexture);
 
-CBUFFER_SECTION_EX(BloomParameters, 4)
+CBUFFER_SECTION_EX(BloomParameters, 3)
 	float threshold;
 CBUFFER_ENDSECTION
 

@@ -30,7 +30,7 @@ VertexOut mainVS(uint id : SV_VertexID)
 DECLARE_TEX2D(FrameTexture);
 DECLARE_TEX2D(FrameTexture1);
 
-CBUFFER_SECTION_EX(BloomParameters, 4)
+CBUFFER_SECTION_EX(BloomParameters, 3)
 	float threshold;
 	float keyValue;
 CBUFFER_ENDSECTION

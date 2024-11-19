@@ -461,7 +461,7 @@ namespace TDEngine2
 
 		std::string bufferName;
 
-		std::unordered_set<U8> usedBufferSlots{ IUBR_PER_FRAME, IUBR_PER_OBJECT, IUBR_RARE_UDATED, IUBR_CONSTANTS };
+		std::unordered_set<U8> usedBufferSlots{ IUBR_PER_FRAME, IUBR_PER_OBJECT, IUBR_CONSTANTS };
 
 		/*!
 			\brief The function returns current passed index if its slot is still unused,

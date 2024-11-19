@@ -53,9 +53,6 @@ namespace TDEngine2
 	constexpr U32 READ_ONLY_DEPTH_TEXTURE_SLOT = 15;
 	constexpr U32 VISIBLE_LIGHTS_BUFFER_SLOT = 11;
 
-	constexpr U32 SUN_SHADOWS_MAP_SLOT = 0;
-	constexpr U32 POINT_LIGHT_0_SHADOWS_MAP_SLOT = 1;
-
 
 	static inline void ExecuteDrawCommands(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, 
 		TPtr<IGlobalShaderProperties> pGlobalShaderProperties, TPtr<CRenderQueue> pCommandsBuffer, bool shouldClearBuffers, 
@@ -2310,16 +2307,19 @@ namespace TDEngine2
 		mpGlobalShaderProperties = TPtr<IGlobalShaderProperties>(CreateGlobalShaderProperties(pGraphicsObjectManager, result));
 
 		/// \todo fill in data into TConstantsShaderData buffer
-		TConstantShaderData constShaderData { static_cast<U32>(CProjectSettings::Get()->mGraphicsSettings.mIsGPUParticlesSimulationEnabled) };
+		const TConstantShaderData constShaderData 
+		{ 
+			mpWindowSystem->GetWidth(), 
+			mpWindowSystem->GetHeight(), 
+			static_cast<U32>(CProjectSettings::Get()->mGraphicsSettings.mIsGPUParticlesSimulationEnabled) 
+		};
+
 		mpGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_CONSTANTS, reinterpret_cast<const U8*>(&constShaderData), sizeof(constShaderData));
 		if (result != RC_OK)
 		{
 			return result;
 		}
 		
-		TRareUpdateShaderData rareUpdatedData{ mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight() };
-		mpGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_RARE_UDATED, reinterpret_cast<const U8*>(&rareUpdatedData), sizeof(rareUpdatedData));
-
 		auto debugUtilityResult = pGraphicsObjectManager->CreateDebugUtility(mpResourceManager.Get(), this);
 		if (debugUtilityResult.HasError())
 		{
@@ -2667,8 +2667,14 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 		
 		// \todo Later move into Draw method and set only the flag here to invoke the update
-		TRareUpdateShaderData rareUpdatedData{ mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight() };
-		mpGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_RARE_UDATED, reinterpret_cast<const U8*>(&rareUpdatedData), sizeof(rareUpdatedData));
+		const TConstantShaderData constShaderData
+		{
+			mpWindowSystem->GetWidth(),
+			mpWindowSystem->GetHeight(),
+			static_cast<U32>(CProjectSettings::Get()->mGraphicsSettings.mIsGPUParticlesSimulationEnabled)
+		};
+
+		mpGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_CONSTANTS, reinterpret_cast<const U8*>(&constShaderData), sizeof(constShaderData));
 
 		auto lightGridInitResult = InitLightGrid({ mpGraphicsContext, mpResourceManager, mpWindowSystem, nullptr });
 		if (lightGridInitResult.IsOk())

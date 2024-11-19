@@ -46,7 +46,7 @@ static const float2 KernelSamples[MAX_SAMPLES_COUNT / 2 + 1] =
 };
 
 
-CBUFFER_SECTION_EX(BlurParameters, 4)
+CBUFFER_SECTION_EX(BlurParameters, 3)
 	//float4 samples[MAX_SAMPLES_COUNT];
 	float4 blurParams; // x - scale, y - angle, z is 1.0 / FrameTexture_width, w - 1.0 / FrameTexture_height
 	uint samplesCount;

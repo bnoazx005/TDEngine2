@@ -51,14 +51,10 @@ CBUFFER_SECTION_EX(TDEngine2PerObject, 1)
 CBUFFER_ENDSECTION
 
 
-CBUFFER_SECTION_EX(TDEngine2RareUpdate, 2)
-	uint2 ScreenResolution;
-CBUFFER_ENDSECTION
-
-
-CBUFFER_SECTION_EX(TDEngine2Constants, 3)
-	uint IsGPUParticlesEnabled;
-	uint mUnused[3];
+CBUFFER_SECTION_EX(TDEngine2Constants, 2)
+	uint2    ScreenResolution;
+	uint     IsGPUParticlesEnabled;
+	uint     mUnused;
 	float4x4 mReserved;
 CBUFFER_ENDSECTION
 

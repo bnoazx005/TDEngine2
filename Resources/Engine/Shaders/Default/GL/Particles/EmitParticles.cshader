@@ -21,7 +21,7 @@ DECLARE_TEX2D_EX(EmittersCurvesAtlasTexture, 2);
 // particles buffer
 
 // emitter's configuration
-CBUFFER_SECTION_EX(EmitterParameters, 4)
+CBUFFER_SECTION_EX(EmitterParameters, 3)
 	// box emitter's data
 	vec4 mBoxSizes;
 

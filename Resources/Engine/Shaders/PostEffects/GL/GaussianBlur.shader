@@ -44,7 +44,7 @@ const vec2 KernelSamples[MAX_SAMPLES_COUNT / 2 + 1] = vec2[MAX_SAMPLES_COUNT / 2
 
 DECLARE_TEX2D(FrameTexture);
 
-CBUFFER_SECTION_EX(BlurParameters, 4)
+CBUFFER_SECTION_EX(BlurParameters, 3)
 	//float4 samples[MAX_SAMPLES_COUNT];
 	vec4 blurParams; // x - scale, y - angle, z is 1.0 / FrameTexture_width, w - 1.0 / FrameTexture_height
 	int samplesCount;

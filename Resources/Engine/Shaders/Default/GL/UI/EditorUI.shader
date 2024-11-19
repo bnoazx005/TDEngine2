@@ -24,7 +24,7 @@ void main(void)
 
 #program pixel
 
-CBUFFER_SECTION_EX(Parameters, 4)
+CBUFFER_SECTION_EX(Parameters, 3)
 	int mIsAlphaClipEnabled;
 CBUFFER_ENDSECTION
 

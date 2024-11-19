@@ -30,7 +30,7 @@ DECLARE_TEX2D_EX(LuminanceBuffer, 1);
 DECLARE_TEX2D_EX(UIBuffer, 2);
 DECLARE_TEX2D(ColorGradingLUT);
 
-CBUFFER_SECTION_EX(ToneMappingParameters, 4)
+CBUFFER_SECTION_EX(ToneMappingParameters, 3)
 	vec4 toneMappingParams; // x  weight (0 is disabled, 1 is enabled), y - exposure
 	vec4 colorGradingParams; // x - weight (enabled or not)
 CBUFFER_ENDSECTION

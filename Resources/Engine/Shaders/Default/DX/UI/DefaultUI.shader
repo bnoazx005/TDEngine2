@@ -33,7 +33,7 @@ VertexOut mainVS(uint id : SV_VertexID)
 
 #program pixel
 
-CBUFFER_SECTION_EX(Parameters, 4)
+CBUFFER_SECTION_EX(Parameters, 3)
 	int mIsAlphaClipEnabled;
 CBUFFER_ENDSECTION
 

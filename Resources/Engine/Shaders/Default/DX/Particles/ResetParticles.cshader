@@ -20,7 +20,7 @@ DECLARE_TEX2D_EX(RandTexture, 1)
 // deat particles buffer
 
 // emitter's configuration
-CBUFFER_SECTION_EX(EmitterParameters, 4)
+CBUFFER_SECTION_EX(EmitterParameters, 3)
 	// box emitter's data
 	float4 mBoxSizes;
 

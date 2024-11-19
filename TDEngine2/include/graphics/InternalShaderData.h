@@ -109,20 +109,6 @@ namespace TDEngine2
 
 
 	/*!
-		struct TRareUpdateShaderData
-
-		\brief The structure contains shader uniform data that are rare updated
-	*/
-
-	typedef struct TRareUpdateShaderData
-	{
-		U32 mScreenWidth = 0;
-		U32 mScreenHeight = 0;
-		U32 mPadding[2];
-	} TRareUpdateShaderData, *TRareUpdateShaderDataPtr;
-
-
-	/*!
 		struct TConstantShaderData
 
 		\brief The structure contains shader uniform data that stays constant during the application's execution
@@ -130,8 +116,10 @@ namespace TDEngine2
 
 	typedef struct TConstantShaderData
 	{
+		U32      mScreenWidth = 0;
+		U32      mScreenHeight = 0;
 		U32      mIsGPUParticlesEnabled = 0;
-		U32      mUnused0[3];
+		U32      mUnused0[1];
 		TMatrix4 mUnused;
 	} TConstantShaderData, *TConstantShaderDataPtr;
 

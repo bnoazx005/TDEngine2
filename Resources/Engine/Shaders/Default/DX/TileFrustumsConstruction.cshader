@@ -13,7 +13,7 @@
 DECLARE_WRITEABLE_TYPED_BUFFER_EX(TileFrustum, OutputTileFrustums, 0);
 
 
-CBUFFER_SECTION_EX(Parameters, 4)
+CBUFFER_SECTION_EX(Parameters, 3)
 	int2 mWorkGroups;
 CBUFFER_ENDSECTION
 

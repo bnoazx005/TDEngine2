@@ -7,7 +7,7 @@
 RWBuffer<uint> DispatchArgsBuffer : register(u0);
 DECLARE_TYPED_BUFFER_EX(uint, ElementsCount, 1); 
 
-// CBUFFER_SECTION_EX(Parameters, 4)
+// CBUFFER_SECTION_EX(Parameters, 3)
 // 	uint mElementsCount;
 // CBUFFER_ENDSECTION
 

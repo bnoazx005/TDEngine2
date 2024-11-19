@@ -29,7 +29,7 @@ DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, TransparentVisibleLightsBuffer, 12);
 DECLARE_WRITEABLE_TYPED_BUFFER_EX(uint, LightIndexCounters, 13); // first index is used for opaque counter, the second is for transparent one
 
 
-CBUFFER_SECTION_EX(Parameters, 4)
+CBUFFER_SECTION_EX(Parameters, 3)
 	uvec2 mWorkGroups;
 CBUFFER_ENDSECTION
 

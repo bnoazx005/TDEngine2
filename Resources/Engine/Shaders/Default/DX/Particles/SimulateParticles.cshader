@@ -17,7 +17,7 @@ DECLARE_TEX2D_EX(EmittersCurvesAtlasTexture, 1)
 DECLARE_TEX2D_EX(RandTexture, 2)
 
 
-CBUFFER_SECTION_EX(SimulationParameters, 4)
+CBUFFER_SECTION_EX(SimulationParameters, 3)
 	float4 mCameraPosition;
 	float  mDeltaTime; // global CBs(UBOs) are not available at this execution time yet so use separate members for time
 	uint   mMaxParticlesCount;

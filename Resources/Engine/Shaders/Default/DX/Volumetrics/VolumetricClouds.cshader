@@ -16,13 +16,13 @@ DECLARE_TEX2D_EX(WeatherMap, 4);
 DECLARE_TEX2D_EX(MainTexture, 5);
 
 
-CBUFFER_SECTION_EX(RenderParameters, 4)
+CBUFFER_SECTION_EX(RenderParameters, 3)
 	float2 mInvTextureSize;
 	int    mStepsCount;
 CBUFFER_ENDSECTION
 
 
-CBUFFER_SECTION_EX(CloudsParameters, 5)
+CBUFFER_SECTION_EX(CloudsParameters, 4)
 	float4 mAtmosphereParameters; // x - Earth radius, y - atmosphere inner radius, z - atmosphere thickness
 	float4 mWindParameters; // xy - direction, w - scale factor
 	float4 mAmbientCloudColor;

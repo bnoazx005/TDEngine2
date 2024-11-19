@@ -67,7 +67,7 @@ DECLARE_TEX2D_EX(PropertiesMap, 4);
 TDE2_ENABLE_PARALLAX_MAPPING
 
 
-CBUFFER_SECTION_EX(ShaderParameters, 4)
+CBUFFER_SECTION_EX(ShaderParameters, 3)
 	float parallaxMappingEnabled;
 CBUFFER_ENDSECTION
 

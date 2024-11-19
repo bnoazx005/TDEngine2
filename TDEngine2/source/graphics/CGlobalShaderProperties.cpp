@@ -121,8 +121,6 @@ namespace TDEngine2
 		auto pGraphicsContext = mpGraphicsObjectManager->GetGraphicsContext();
 
 		// \note Bind only those buffers that are not updated every frame
-		result = result | pGraphicsContext->SetConstantBuffer(static_cast<U32>(E_INTERNAL_UNIFORM_BUFFER_REGISTERS::IUBR_RARE_UDATED), 
-			mInternalEngineUniforms[static_cast<U32>(E_INTERNAL_UNIFORM_BUFFER_REGISTERS::IUBR_RARE_UDATED)]);
 		result = result | pGraphicsContext->SetConstantBuffer(static_cast<U32>(E_INTERNAL_UNIFORM_BUFFER_REGISTERS::IUBR_CONSTANTS), 
 			mInternalEngineUniforms[static_cast<U32>(E_INTERNAL_UNIFORM_BUFFER_REGISTERS::IUBR_CONSTANTS)]);
 
@@ -138,8 +136,6 @@ namespace TDEngine2
 				return sizeof(TPerFrameShaderData);
 			case IUBR_PER_OBJECT:
 				return sizeof(TPerObjectShaderData);
-			case IUBR_RARE_UDATED:
-				return sizeof(TRareUpdateShaderData);
 			case IUBR_CONSTANTS:
 				return sizeof(TConstantShaderData);
 		}

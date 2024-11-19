@@ -537,8 +537,7 @@ namespace TDEngine2
 	{
 		IUBR_PER_FRAME,			///< This uniforms buffer is updated each frame
 		IUBR_PER_OBJECT,		///< This uniforms buffer is unique for each model
-		IUBR_RARE_UDATED,		///< This uniforms buffer contains rare updating values 
-		IUBR_CONSTANTS,			///< This uniforms buffer contains in-engine constants (like Pi, Epsilon, etc)
+		IUBR_CONSTANTS,			///< This uniforms buffer contains in-engine constants (like screen resolution, some feature flags, math constants, etc)
 		IUBR_LAST_USED_SLOT = IUBR_CONSTANTS
 	};
 

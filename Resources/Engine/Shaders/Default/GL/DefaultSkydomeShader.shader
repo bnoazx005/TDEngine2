@@ -75,7 +75,7 @@ float MiePhaseFunction(float cosTheta, float g)
 }
 
 
-CBUFFER_SECTION_EX(Parameters, 4)
+CBUFFER_SECTION_EX(Parameters, 3)
     float mExposure;
     float mMieG;
 CBUFFER_ENDSECTION
