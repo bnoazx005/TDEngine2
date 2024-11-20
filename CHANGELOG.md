@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.31] 2024-11-19
+## [0.6.31] 2024-11-20
 
 ### Added
 
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The signature of IGraphicsObjectManager::CreateGraphicsPipelineState was changed.
 
 - RareUpdatedData and Constants uniform buffers were merged both in shaders and engine code.
+
+- Method **CGlobalShaderProperties::SetInternalShaderBuffer** was removed.
 
 ### Fixed
 
