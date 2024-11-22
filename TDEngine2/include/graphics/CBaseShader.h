@@ -160,8 +160,8 @@ namespace TDEngine2
 			TResourcesHashTable             mTexturesHashTable {};
 			TResourcesHashTable             mStructuredBuffersHashTable {};
 
-			std::vector<std::tuple<ITexture*, U8, bool>>       mpTextures {};
-			std::vector<std::tuple<TBufferHandleId, U8, bool>> mBufferHandles {};
+			std::vector<std::tuple<ITexture*, U16, bool>>       mpTextures {};
+			std::vector<std::tuple<TBufferHandleId, U16, bool>> mBufferHandles {};
 
 			TShaderCompilerOutput*          mpShaderMeta = nullptr;
 	};

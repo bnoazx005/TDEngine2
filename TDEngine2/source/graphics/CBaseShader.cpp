@@ -129,7 +129,7 @@ namespace TDEngine2
 		TDE2_PROFILER_SCOPE("CBaseShader::Bind");
 
 		ITexture* pCurrTexture = nullptr;
-		U8 currSlot = 0;
+		U16 currSlot = 0;
 		bool isWritable = false;
 
 		/// \note Bind textures
@@ -159,7 +159,7 @@ namespace TDEngine2
 			mpGraphicsContext->SetStructuredBuffer(currSlot, currBufferHandle, isWritable);
 		}
 
-		U8 currUserBufferId = 0;
+		U16 currUserBufferId = 0;
 		for (auto& currUniformBufferHandle : mUniformBuffers)
 		{
 			_bindUniformBuffer(TotalNumberOfInternalConstantBuffers + currUserBufferId++, currUniformBufferHandle);
@@ -169,7 +169,7 @@ namespace TDEngine2
 	void CBaseShader::Unbind()
 	{
 		ITexture* pCurrTexture = nullptr;
-		U8 currSlot = 0;
+		U16 currSlot = 0;
 		bool isWritable = false;
 
 		/// \note Unbind textures
@@ -648,7 +648,7 @@ namespace TDEngine2
 		{
 			pFileWriter->WriteString(currResourceBindingInfo.first);
 			
-			pFileWriter->WriteUInt8(currResourceBindingInfo.second.mSlot);
+			pFileWriter->WriteUInt16(currResourceBindingInfo.second.mSlot);
 			pFileWriter->WriteUInt32(static_cast<U32>(currResourceBindingInfo.second.mType));
 		}
 

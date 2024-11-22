@@ -28,6 +28,7 @@ namespace TDEngine2
 	enum class E_UNIFORM_BUFFER_DESC_FLAGS: U32
 	{
 		UBDF_INTERNAL = 0x1,		///< The flag shows whether the uniform buffer is internal or it's available for user 
+		UBDF_GLOBAL   = 0x2,
 		UBDF_EMPTY    = 0x0
 	};
 
@@ -67,7 +68,7 @@ namespace TDEngine2
 	typedef struct TShaderResourceDesc
 	{
 		E_SHADER_RESOURCE_TYPE mType;
-		U8                     mSlot;
+		U16                    mSlot;
 		bool                   mIsWriteable = false;
 	} TShaderResourceDesc, *TShaderResourceDescPtr;
 
