@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The issues with parsing Texture2D<type> resources in HLSL were fixed for CVulkanShaderCompiler and CD3D11ShaderCompiler.
+
 ## [0.6.30] 2024-10-24
 
 ### Added

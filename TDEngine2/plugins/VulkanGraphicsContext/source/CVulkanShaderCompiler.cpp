@@ -483,7 +483,9 @@ namespace TDEngine2
 			/// skip template parameters
 			if (E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER == currType || E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER == currType ||
 				E_SHADER_RESOURCE_TYPE::SRT_RAW_BUFFER == currType || E_SHADER_RESOURCE_TYPE::SRT_RW_RAW_BUFFER == currType ||
-				E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D == currType || E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE3D == currType)
+				E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D == currType || E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE3D == currType ||
+				(E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D == currType && tokenizer.Peek(1) == "<") || 
+				(E_SHADER_RESOURCE_TYPE::SRT_TEXTURE3D == currType && tokenizer.Peek(1) == "<"))
 			{
 				while (currToken != ">")
 				{
@@ -560,6 +562,7 @@ namespace TDEngine2
 			{ "RWBuffer", E_SHADER_RESOURCE_TYPE::SRT_RW_RAW_BUFFER },
 			{ "Buffer", E_SHADER_RESOURCE_TYPE::SRT_RAW_BUFFER },
 			{ "TextureCube", E_SHADER_RESOURCE_TYPE::SRT_TEXTURECUBE },
+			{ "SamplerState", E_SHADER_RESOURCE_TYPE::SRT_SAMPLER_STATE },
 		};
 
 		auto result = shaderResourcesMap.find(token);

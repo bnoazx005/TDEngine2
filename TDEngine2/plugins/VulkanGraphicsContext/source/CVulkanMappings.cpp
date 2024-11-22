@@ -1,5 +1,6 @@
 #include "../include/CVulkanMappings.h"
 #include <core/IGraphicsContext.h>
+#include <graphics/IShaderCompiler.h>
 #include <graphics/ITexture.h>
 #include <utils/Utils.h>
 
@@ -791,5 +792,33 @@ namespace TDEngine2
 		resultStateInfo.back.passOp       = GetStencilOpType(depthStencilDesc.mStencilBackFaceOp.mPassOp);
 
 		return resultStateInfo;
+	}
+
+	VkDescriptorType CVulkanMappings::GetDescriptorType(E_SHADER_RESOURCE_TYPE shaderResourceType)
+	{
+		switch (shaderResourceType)
+		{
+			case E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D:
+			case E_SHADER_RESOURCE_TYPE::SRT_TEXTURE3D:
+			case E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D_ARRAY:
+			case E_SHADER_RESOURCE_TYPE::SRT_TEXTURECUBE:
+				return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+
+			case E_SHADER_RESOURCE_TYPE::SRT_SAMPLER_STATE:
+				return VK_DESCRIPTOR_TYPE_SAMPLER;
+
+			case E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D:
+			case E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE3D:
+				return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+
+			case E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER:
+			case E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER:
+			case E_SHADER_RESOURCE_TYPE::SRT_RW_RAW_BUFFER:
+			case E_SHADER_RESOURCE_TYPE::SRT_RAW_BUFFER:
+				return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		}
+		
+		TDE2_UNREACHABLE();
+		return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	}
 }

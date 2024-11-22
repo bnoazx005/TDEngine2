@@ -22,6 +22,7 @@ namespace TDEngine2
 {
 	enum class E_TEXTURE_IMPL_TYPE : U32;
 	enum class E_PRIMITIVE_TOPOLOGY_TYPE;
+	enum class E_SHADER_RESOURCE_TYPE : U8;
 
 
 	/*!
@@ -270,5 +271,7 @@ namespace TDEngine2
 			static VkPipelineRasterizationStateCreateInfo GetRasterizerState(const TRasterizerStateDesc& rasterizerDesc);
 			static VkPipelineColorBlendStateCreateInfo GetBlendState(const TBlendStateDesc& blendStateDesc);
 			static VkPipelineDepthStencilStateCreateInfo GetDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc);
+
+			static VkDescriptorType GetDescriptorType(E_SHADER_RESOURCE_TYPE shaderResourceType);
 	};
 }
