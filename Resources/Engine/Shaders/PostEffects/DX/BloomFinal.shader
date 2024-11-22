@@ -27,8 +27,8 @@ VertexOut mainVS(uint id : SV_VertexID)
 
 #program pixel
 
-DECLARE_TEX2D(FrameTexture);
-DECLARE_TEX2D(FrameTexture1);
+DECLARE_TEX2D_EX(FrameTexture, 0);
+DECLARE_TEX2D_EX(FrameTexture1, 1);
 
 float4 mainPS(VertexOut input): SV_TARGET0
 {

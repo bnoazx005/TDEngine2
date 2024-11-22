@@ -36,7 +36,7 @@ VertexOut mainVS(uint id : SV_VertexID)
 
 #program pixel
 
-DECLARE_TEX2D(FontTextureAtlas)
+DECLARE_TEX2D_EX(FontTextureAtlas, 0)
 
 
 float4 mainPS(VertexOut input): SV_TARGET0

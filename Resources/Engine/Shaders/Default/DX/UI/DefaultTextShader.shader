@@ -35,7 +35,7 @@ VertexOut mainVS(uint id : SV_VertexID)
 
 #program pixel
 
-DECLARE_TEX2D(Texture)
+DECLARE_TEX2D_EX(Texture, 0)
 
 
 float4 mainPS(VertexOut input): SV_TARGET0

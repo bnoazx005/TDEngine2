@@ -27,10 +27,10 @@ VertexOut mainVS(uint id : SV_VertexID)
 
 #program pixel
 
-DECLARE_TEX2D(FrameTexture);
+DECLARE_TEX2D_EX(FrameTexture, 0);
 DECLARE_TEX2D_EX(LuminanceBuffer, 1);
 DECLARE_TEX2D_EX(UIBuffer, 2);
-DECLARE_TEX2D(ColorGradingLUT);
+DECLARE_TEX2D_EX(ColorGradingLUT, 3);
 
 CBUFFER_SECTION_EX(ToneMappingParameters, 3)
 	float4 toneMappingParams; // x  weight (0 is disabled, 1 is enabled), y - exposure, z - keyValue

@@ -27,7 +27,7 @@ VertexOut mainVS(uint id : SV_VertexID)
 
 #program pixel
 
-DECLARE_TEX2D(FrameTexture);
+DECLARE_TEX2D_EX(FrameTexture, 0);
 
 
 static const uint MAX_SAMPLES_COUNT = 16;

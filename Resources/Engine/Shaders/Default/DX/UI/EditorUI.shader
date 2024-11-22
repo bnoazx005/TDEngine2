@@ -38,7 +38,7 @@ CBUFFER_SECTION_EX(Parameters, 3)
 	int mIsAlphaClipEnabled;
 CBUFFER_ENDSECTION
 
-DECLARE_TEX2D(Texture);
+DECLARE_TEX2D_EX(Texture, 0);
 
 float4 mainPS(VertexOut input): SV_TARGET0
 {
