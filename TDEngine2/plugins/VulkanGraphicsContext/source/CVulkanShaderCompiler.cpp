@@ -7,6 +7,7 @@
 #include "stringUtils.hpp"
 #include <vector>
 #include <string>
+#include "deferOperation.hpp"
 
 namespace TDEngine2
 {
@@ -14,6 +15,16 @@ namespace TDEngine2
 	IDxcUtils* pDxUtils = nullptr;
 
 	static const std::string DXCLibraryName = "dxcompiler";
+
+	// \note The offsets for descriptors bindings that's needed in Vulkan because of unified sets
+	// UBO bindings 0 - 999
+	// SRV bindings 1000 - 1999
+	// samplers		2000 - 2999
+	// UAV bindings 3000 - 3999
+
+	constexpr U32 SRV_BINDING_BASE_OFFSET      = 1000;
+	constexpr U32 SAMPLERS_BINDING_BASE_OFFSET = 2000;
+	constexpr U32 UAV_BINDING_BASE_OFFSET      = 3000;
 
 
 	/*!
@@ -43,7 +54,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanShaderCompiler)
 
-				TResult<std::vector<U8>> _compileShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source, TShaderMetadata& shaderMetadata) const;
+			TResult<std::vector<U8>> _compileShaderStage(E_SHADER_STAGE_TYPE shaderStage, const std::string& source, TShaderMetadata& shaderMetadata) const;
 
 			TUniformBuffersMap _processUniformBuffersDecls(const TStructDeclsMap& structsMap, CTokenizer& tokenizer) const override;
 
@@ -76,7 +87,7 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_INVALID_ARGS);
 		}
 		
-		auto preprocessorResult = CShaderPreprocessor::PreprocessSource(mpFileSystem, "#define TDE2_HLSL_SHADER\n" + source).Get();
+		auto preprocessorResult = CShaderPreprocessor::PreprocessSource(mpFileSystem, "#define TDE2_HLSL_SHADER\n#define __spirv__\n" + source).Get();
 
 		std::string preprocessedSource = preprocessorResult.mPreprocessedSource;
 
@@ -165,6 +176,23 @@ namespace TDEngine2
 			L"-fspv-target-env=vulkan1.0",
 			L"-fvk-use-dx-layout",
 		};
+
+		LPCWSTR DEFAULT_DESCRIPTOR_SET_INDEX = L"0";
+
+		std::array<std::tuple<LPCWSTR, std::wstring>, 3> shiftArgsInfo
+		{
+			std::make_tuple(L"-fvk-t-shift", std::to_wstring(SRV_BINDING_BASE_OFFSET)),
+			std::make_tuple(L"-fvk-s-shift", std::to_wstring(SAMPLERS_BINDING_BASE_OFFSET)),
+			std::make_tuple(L"-fvk-u-shift", std::to_wstring(UAV_BINDING_BASE_OFFSET)),
+		};
+
+		// bindings shifting parameters		
+		for (const auto& currShiftArg : shiftArgsInfo)
+		{
+			args.emplace_back(std::get<LPCWSTR>(currShiftArg));
+			args.emplace_back(std::get<std::wstring>(currShiftArg).c_str());
+			args.emplace_back(DEFAULT_DESCRIPTOR_SET_INDEX);
+		}
 
 		// target
 		args.emplace_back(L"-T");
@@ -379,16 +407,64 @@ namespace TDEngine2
 		return size * 4; // other types sizes equal to 4 bytes
 	}
 
+
+	static U8 ExtractRegisterSlot(const std::string& registerInfo)
+	{
+		U8 slot = 0;
+
+		const USIZE delimiterPos = registerInfo.find(',');
+		if (std::string::npos != delimiterPos) // case of register of the following view ( [shader_profile], Type#[subcomponent] )
+		{
+			TDE2_UNIMPLEMENTED(); // unsupported for now
+			return slot;
+		}
+
+		TDE2_ASSERT(registerInfo[0] == 'b' || registerInfo[0] == 't' || registerInfo[0] == 'c' || registerInfo[0] == 's' || registerInfo[0] == 'u');
+
+		return static_cast<I8>(std::stoi(registerInfo.substr(1)));
+	}
+
+
+	static U16 GetBindingOffsetByResourceType(E_SHADER_RESOURCE_TYPE type)
+	{
+		switch (type)
+		{
+			case E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D:
+			case E_SHADER_RESOURCE_TYPE::SRT_TEXTURE3D:
+			case E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D_ARRAY:
+			case E_SHADER_RESOURCE_TYPE::SRT_TEXTURECUBE:
+			case E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER:
+			case E_SHADER_RESOURCE_TYPE::SRT_RAW_BUFFER:
+				return SRV_BINDING_BASE_OFFSET;
+
+			case E_SHADER_RESOURCE_TYPE::SRT_SAMPLER_STATE:
+				return SAMPLERS_BINDING_BASE_OFFSET;
+
+			case E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D:
+			case E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE3D:
+			case E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER:
+			case E_SHADER_RESOURCE_TYPE::SRT_RW_RAW_BUFFER:
+				return UAV_BINDING_BASE_OFFSET;
+		}
+
+		TDE2_UNREACHABLE();
+		return 0;
+	}
+
+
 	CVulkanShaderCompiler::TShaderResourcesMap CVulkanShaderCompiler::_processShaderResourcesDecls(CTokenizer& tokenizer) const
 	{
-		TShaderResourcesMap shaderResources {};
+		TShaderResourcesMap shaderResources{};
 
 		std::string currToken;
+		std::string registerInfo;
 
 		E_SHADER_RESOURCE_TYPE currType = E_SHADER_RESOURCE_TYPE::SRT_UNKNOWN;
 
 		U8 currSlotIndex = 0;
 		U8 currScopeIndex = 0; // \note 0th is a global scope
+
+		std::unordered_set<U16> usedSlots;
 
 		while (tokenizer.HasNext())
 		{
@@ -396,8 +472,8 @@ namespace TDEngine2
 
 			if ((E_SHADER_RESOURCE_TYPE::SRT_UNKNOWN == (currType = _isShaderResourceType(currToken))) || (currScopeIndex > 0))
 			{
-				if (currToken == "{" || currToken == "(") {	++currScopeIndex; }
-				if (currToken == ")" || currToken == "}") {	--currScopeIndex; }
+				if (currToken == "{" || currToken == "(") { ++currScopeIndex; }
+				if (currToken == ")" || currToken == "}") { --currScopeIndex; }
 
 				tokenizer.GetNextToken();
 
@@ -405,7 +481,9 @@ namespace TDEngine2
 			}
 
 			/// skip template parameters
-			if (E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER == currType || E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER == currType)
+			if (E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER == currType || E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER == currType ||
+				E_SHADER_RESOURCE_TYPE::SRT_RAW_BUFFER == currType || E_SHADER_RESOURCE_TYPE::SRT_RW_RAW_BUFFER == currType ||
+				E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D == currType || E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE3D == currType)
 			{
 				while (currToken != ">")
 				{
@@ -414,10 +492,50 @@ namespace TDEngine2
 			}
 
 			/// found a shader resource
+			const std::string& resourceId = tokenizer.GetNextToken();
+
+			const bool isWriteableResource =
+				E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER == currType ||
+				E_SHADER_RESOURCE_TYPE::SRT_RW_RAW_BUFFER == currType ||
+				E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D == currType ||
+				E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE3D == currType;
+
+			registerInfo.clear();
+
 			currToken = tokenizer.GetNextToken();
+			if (currToken == ":" && tokenizer.Peek(1) == "register")
+			{
+				tokenizer.GetNextToken(); // take register
+				tokenizer.GetNextToken(); // take (
+
+				while ((currToken = tokenizer.GetNextToken()) != ")")
+				{
+					registerInfo.append(currToken);
+				}
+
+				tokenizer.GetNextToken(); // take )
+				tokenizer.GetNextToken(); // take ;
+			}
+
+			U16 currSlot = 0;
+
+			if (registerInfo.empty())
+			{
+				do
+				{
+					currSlot = currSlotIndex++;
+				} while (usedSlots.find(currSlot) != usedSlots.cend());
+			}
+			else
+			{
+				currSlot = ExtractRegisterSlot(registerInfo);
+			}
+
+			currSlot += GetBindingOffsetByResourceType(currType);
 
 			/// \note At this point only global scope's declarations should be passed
-			shaderResources[currToken] = { currType, currSlotIndex++ };
+			shaderResources[resourceId] = { currType, currSlot, isWriteableResource };
+			usedSlots.emplace(currSlot);
 		}
 
 		tokenizer.Reset();
@@ -436,7 +554,11 @@ namespace TDEngine2
 			{ "RWTexture2D", E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D },
 			{ "RWTexture3D", E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE3D },
 			{ "StructuredBuffer", E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER },
+			{ "AppendStructuredBuffer", E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER },
+			{ "ConsumeStructuredBuffer", E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER },
 			{ "RWStructuredBuffer", E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER },
+			{ "RWBuffer", E_SHADER_RESOURCE_TYPE::SRT_RW_RAW_BUFFER },
+			{ "Buffer", E_SHADER_RESOURCE_TYPE::SRT_RAW_BUFFER },
 			{ "TextureCube", E_SHADER_RESOURCE_TYPE::SRT_TEXTURECUBE },
 		};
 
