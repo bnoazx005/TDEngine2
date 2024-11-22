@@ -153,7 +153,7 @@ float ComputeSunShadowFactor(float4 worldSpaceFragPos, float bias, int cascadeIn
 	projectedPos.x = 0.5 * projectedPos.x + 0.5;
 	projectedPos.y = -0.5 * projectedPos.y + 0.5;
 
-	return lerp(1.0, (projectedPos.z - bias) > TEX2D(DirectionalShadowMapTexture, float3(projectedPos.xy, cascadeIndex)) ? 0.9 : 0.0, ShadowMapsEnabled);
+	return lerp(1.0, (projectedPos.z - bias) > TEX2D(DirectionalShadowMapTexture, float3(projectedPos.xy, cascadeIndex)).r ? 0.9 : 0.0, ShadowMapsEnabled);
 }
 
 
@@ -182,7 +182,7 @@ float ComputeSunShadowFactorPCF(uint samplesCount, int cascadeIndex, float4 worl
 		randomIndex = getRandomIndex(float4(lightSpaceFragPos.xyz, i), 0, PoissonDiskSamplesCount);
 		float2 uv = projectedPos.xy + PoissonDisk[randomIndex] / spread;
 
-		shadowFactor += ((projectedPos.z - bias) > TEX2D(DirectionalShadowMapTexture, float3(uv.x, uv.y, (float)cascadeIndex)) ? 0.9 : 0.0);
+		shadowFactor += ((projectedPos.z - bias) > TEX2D(DirectionalShadowMapTexture, float3(uv.x, uv.y, (float)cascadeIndex)).r ? 0.9 : 0.0);
 	}
 
 	shadowFactor /= samplesCount;

@@ -36,7 +36,7 @@ CBUFFER_SECTION_EX(BloomParameters, 3)
 CBUFFER_ENDSECTION
 
 
-float GetLuminance() { return TEX2D(FrameTexture1, float2(0.0, 0.0)); }
+float GetLuminance() { return TEX2D(FrameTexture1, float2(0.0, 0.0)).r; }
 
 
 float4 mainPS(VertexOut input): SV_TARGET0

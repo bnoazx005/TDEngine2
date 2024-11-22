@@ -39,8 +39,8 @@ VertexOut mainVS(uint vertexId : SV_VertexID)
 	output.mUV       = GetVertTexCoords(vertexId, StartVertexOffset, StartIndexOffset).xy;
 	output.mColor    = HAS_COLORS ? GetVertColor(vertexId, StartVertexOffset, StartIndexOffset) : float4(1.0, 1.0, 1.0, 1.0);
 
-	float3 tangent  = normalize(mul(transpose(InvModelMat), GetVertTangent(vertexId, StartVertexOffset, StartIndexOffset)));
-	float3 binormal = normalize(cross(output.mNormal, tangent));
+	float3 tangent  = normalize(mul(transpose(InvModelMat), GetVertTangent(vertexId, StartVertexOffset, StartIndexOffset))).xyz;
+	float3 binormal = normalize(cross(output.mNormal.xyz, tangent));
 
 	output.mTangentToWorld = transpose(float3x3(tangent, binormal, output.mNormal.xyz));
 

@@ -91,11 +91,11 @@
 
 	#define DECLARE_CUBETEX_EX(SamplerName, slot)			\
 				TextureCube SamplerName : register(t ## slot); \
-				SamplerState SamplerName ## _SamplerState;
+				SamplerState SamplerName ## _SamplerState : register(s ## slot);
 
 	#define DECLARE_TEX2DARRAY_EX(SamplerName, slot)			\
 				Texture2DArray SamplerName : register(t ## slot); 	\
-				SamplerState SamplerName ## _SamplerState;
+				SamplerState SamplerName ## _SamplerState : register(s ## slot);
 
 	#define DECLARE_TEX3D_EX(SamplerName, slot)				\
 				Texture3D SamplerName : register(t ## slot); 	\

@@ -39,7 +39,7 @@ CBUFFER_ENDSECTION
 float mainPS(VertexOut input): SV_TARGET0
 {
 	float currFrameAvgLuminance = exp(TEX2D_LOD(FrameTexture, float2(0.5, 0.5), 10.0).r);
-	float prevLuminance = TEX2D(FrameTexture1, float2(0.0, 0.0));
+	float prevLuminance = TEX2D(FrameTexture1, float2(0.0, 0.0)).r;
 
     // Adaptation based on Pattanaik's technique
    	return prevLuminance + (currFrameAvgLuminance - prevLuminance) * (1.0 - exp(-Time.y * mAdaptationRate)); // Time.y is deltaTime

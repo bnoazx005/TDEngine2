@@ -62,7 +62,7 @@ static const float MIDDLE_GRAY = 0.72f;
 static const float LUM_WHITE = 1.5f;
 
 
-float GetLuminance() { return TEX2D(LuminanceBuffer, float2(0.0, 0.0)); }
+float GetLuminance() { return TEX2D(LuminanceBuffer, float2(0.0, 0.0)).r; }
 
 
 float3 ReinhardToneMapping(float3 color, float exposure)
@@ -85,8 +85,8 @@ float3 TestToneMapping(float3 color)
 
 float3 Reinhard2ToneMapping(float3 color, float whiteBalance = 4.0)
 {
-	float3 inLuminance = CalcLuminance(color);
-	float3 avgLuminance = GetLuminance();
+	float inLuminance = CalcLuminance(color);
+	float avgLuminance = GetLuminance();
 
 	float lp = inLuminance / (9.6 * avgLuminance + 1e-4);
 
