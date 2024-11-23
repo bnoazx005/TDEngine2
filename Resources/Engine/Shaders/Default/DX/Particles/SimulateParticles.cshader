@@ -49,7 +49,7 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 	{
 		float t = 1.0 - saturate(currParticle.mLifeParamsAndRotationPerFrame.x / currParticle.mLifeParamsAndRotationPerFrame.y);
 
-		float4 velocitySizeCurve = EmittersCurvesAtlasTexture.Load(int4((float2)currParticle.mEmitterParams.xy + float2(128.0 * t, 0.0), 0, 0));
+		float4 velocitySizeCurve = EmittersCurvesAtlasTexture.Load(int3((float2)currParticle.mEmitterParams.xy + float2(128.0 * t, 0.0), 0));
 
 		if (currParticle.mEmitterParams.z & PARTICLE_FLAG_SIZE_OVER_LIFETIME_ENABLED)
 		{
@@ -63,7 +63,7 @@ void MainCS(uint3 id : SV_DispatchThreadID)
 			if (currParticle.mEmitterParams.z & PARTICLE_FLAG_USE_COLOR_RANDOM_TWEEN)
 				t = randValue.x;
 
-			currParticle.mColor = EmittersCurvesAtlasTexture.Load(int4((float2)currParticle.mEmitterParams.xy + float2(128.0 * t, 1.0), 0, 0));
+			currParticle.mColor = EmittersCurvesAtlasTexture.Load(int3((float2)currParticle.mEmitterParams.xy + float2(128.0 * t, 1.0), 0));
 		}
 
 		if (currParticle.mEmitterParams.z & PARTICLE_FLAG_ROTATION_OVER_LIFETIME_ENABLED)

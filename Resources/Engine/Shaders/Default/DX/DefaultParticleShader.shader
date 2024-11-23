@@ -66,7 +66,7 @@ VertexOut mainVS(uint vertexId : SV_VertexID, uint instanceId : SV_InstanceID)
 				sinAngle, cosAngle,  0.0f,
 				0.0f,     0.0f,      1.0f);
 
-		particleCenter = float4(currParticleData.mPositionAndSize.xyz, 1.0);
+		particleCenter = float4(currParticleData.mPositionAndSize.xyz, 1.0).xyz;
 		localPos       = mul(rotZAxisMat, float3(BILLBOARD_QUAD_VERTICES[TYPED_BUFFER_ACCESS(IndexBuffer)[vertexId]].xy, 0.0) * currParticleData.mPositionAndSize.w);
 		
 		output.mColor = currParticleData.mColor;
@@ -85,7 +85,7 @@ VertexOut mainVS(uint vertexId : SV_VertexID, uint instanceId : SV_InstanceID)
 
 		float4 particlePosAndSize = GetParticlePositionAndSize(instanceId);
 
-		particleCenter = mul(ModelMat, float4(particlePosAndSize.xyz, 1.0));
+		particleCenter = mul(ModelMat, float4(particlePosAndSize.xyz, 1.0)).xyz;
 		localPos       = mul(rotZAxisMat, float3(BILLBOARD_QUAD_VERTICES[TYPED_BUFFER_ACCESS(IndexBuffer)[vertexId]].xy, 0.0) * particlePosAndSize.w);
 
 		output.mColor = GetParticleVertColor(instanceId);
@@ -128,7 +128,7 @@ float4 mainPS(VertexOut input): SV_TARGET0
 
 	if (mIsSoftParticlesEnabled)
 	{
-		float z = CameraProjectionParams.x * CameraProjectionParams.y / (CameraProjectionParams.y - DepthTexture.Load(int4(input.mPos.xy, 0, 0)).r * (CameraProjectionParams.y - CameraProjectionParams.x));
+		float z = CameraProjectionParams.x * CameraProjectionParams.y / (CameraProjectionParams.y - DepthTexture.Load(int3(input.mPos.xy, 0)).r * (CameraProjectionParams.y - CameraProjectionParams.x));
 		float zdiff = (z - input.mViewPos.z);
 
 		float output = ApplyContrast(zdiff * mSmoothScale, mContrastPower);
