@@ -469,7 +469,7 @@ namespace TDEngine2
 			E_DESCRIPTOR_TYPE mType = E_DESCRIPTOR_TYPE::UNKNOWN;
 		};
 
-		void Reset();
+		TDE2_API void Reset();
 
 		std::array<TBufferHandleId, MAX_CBV_COUNT>        mConstantBuffers;
 		std::array<TDescriptorHandle, MAX_SRV_COUNT>      mSRVBuffers;

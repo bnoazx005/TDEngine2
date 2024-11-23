@@ -117,7 +117,7 @@ namespace TDEngine2
 
 			E_BUFFER_TYPE            mBufferType;
 
-			void*                    mpMappedBufferData;
+			void*                    mpMappedBufferData = nullptr;
 
 			TBufferInternalData      mBufferInternalData;
 

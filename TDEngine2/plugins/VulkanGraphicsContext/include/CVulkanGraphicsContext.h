@@ -15,6 +15,7 @@
 #include "vk_mem_alloc.h"
 #include <array>
 #include <functional>
+#include <mutex>
 
 
 namespace TDEngine2
@@ -58,8 +59,23 @@ namespace TDEngine2
 		public:
 			friend IGraphicsContext* CreateVulkanGraphicsContext(TPtr<IWindowSystem>, TPtr<IWindowSurfaceFactory>, E_RESULT_CODE&);
 		public:
-			typedef std::function<void()>             TDestroyObjectAction;
-			typedef std::vector<TDestroyObjectAction> TGarbageCollection;
+			struct TGarbageEntity
+			{
+				union
+				{
+					VkBuffer    mBufferHandle;
+					VkImage     mImageHandle;
+					VkImageView mImageViewHandle;
+				} mData;
+
+				enum class E_TYPE : U8 
+				{
+					BUFFER, IMAGE, IMAGE_VIEW 
+				} mType;
+
+				VmaAllocation mAllocation = VK_NULL_HANDLE;
+			};
+			typedef std::vector<TGarbageEntity> TGarbageCollection;
 		public:
 			TDE2_REGISTER_TYPE(CVulkanGraphicsContext)
 
@@ -118,7 +134,9 @@ namespace TDEngine2
 				\brief The method executes given destroyCommand at the end of a frame when all resources of current frame can be destructed
 			*/
 
-			E_RESULT_CODE DestroyObjectDeffered(const std::function<void()>& destroyCommand);
+			E_RESULT_CODE DestroyObjectDeffered(VkBuffer bufferHandle, VmaAllocation allocation);
+			E_RESULT_CODE DestroyObjectDeffered(VkImage imageHandle, VmaAllocation allocation);
+			E_RESULT_CODE DestroyObjectDeffered(VkImageView imageViewHandle);
 
 			E_RESULT_CODE ExecuteCopyImmediate(const std::function<void(VkCommandBuffer)>& copyCommand);
 
@@ -473,9 +491,9 @@ namespace TDEngine2
 
 			E_RESULT_CODE _prepareFrameData();
 
-			E_RESULT_CODE _initTransferContext();
-
 			VkCommandBuffer _getCurrCommandBufferHandle() const;
+
+			void _prepareDrawCall();
 		protected:
 			static const USIZE                                   FRAMES_COUNT = 2;
 
@@ -491,24 +509,27 @@ namespace TDEngine2
 			TPtr<CVulkanSwapchain>                               mpSwapchain = nullptr;
 			TPtr<CVulkanDeviceContext>                           mpVulkanDeviceContext = nullptr;
 
+			TPtr<CVulkanCommandBuffer>                           mpImmediateCopyCommandBuffer = nullptr;
+
 			// commands
 			std::array<TPtr<CVulkanCommandBuffer>, FRAMES_COUNT> mpCommandBuffers {};
 			std::array<VkSemaphore, FRAMES_COUNT>                mImageReadySemaphores {};
 			std::array<VkSemaphore, FRAMES_COUNT>                mRenderFinishedSemaphores {};
 			std::array<TGarbageCollection, FRAMES_COUNT>         mAwaitingDeletionObjects {};
 
+			mutable std::mutex                                   mGarbageCollectorMutex {};
+
 			USIZE                                                mCurrFrameIndex = 0;
-
-			// transfer context
-			VkCommandPool                                        mTransferCommandPool = VK_NULL_HANDLE;
-			VkCommandBuffer                                      mTransferCommandBuffer = VK_NULL_HANDLE;
-			VkFence                                              mTransferCommandFence = VK_NULL_HANDLE;
-
+			
 #if TDE2_DEBUG_MODE
 			VkDebugUtilsMessengerEXT                             mDebugMessenger = VK_NULL_HANDLE;
 #endif
 
-			TDescriptorsBindingsTable                            mDescriptorsBindingsTable;
+			TDescriptorsBindingsTable                            mDescriptorsBindingsTable{};
+
+			std::vector<VkWriteDescriptorSet>                    mDescriptorWrites;
+			std::vector<VkDescriptorBufferInfo>                  mDescriptorBuffersInfo;
+			std::vector<VkDescriptorImageInfo>                   mDescriptorImageInfo;
 	};
 
 

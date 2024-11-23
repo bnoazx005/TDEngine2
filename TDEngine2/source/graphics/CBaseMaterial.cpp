@@ -847,7 +847,7 @@ namespace TDEngine2
 		{
 			const auto& currUniformBufferDesc = currEntryDesc.second;
 
-			if (currUniformBufferDesc.mFlags == E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL)
+			if ((currUniformBufferDesc.mFlags & E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL) == E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL)
 			{
 				continue;
 			}

@@ -425,7 +425,7 @@ namespace TDEngine2
 	}
 
 
-	static U16 GetBindingOffsetByResourceType(E_SHADER_RESOURCE_TYPE type)
+	U16 GetBindingOffsetByResourceType(E_SHADER_RESOURCE_TYPE type)
 	{
 		switch (type)
 		{
@@ -532,8 +532,6 @@ namespace TDEngine2
 			{
 				currSlot = ExtractRegisterSlot(registerInfo);
 			}
-
-			currSlot += GetBindingOffsetByResourceType(currType);
 
 			/// \note At this point only global scope's declarations should be passed
 			shaderResources[resourceId] = { currType, currSlot, isWriteableResource };

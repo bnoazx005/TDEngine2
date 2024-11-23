@@ -27,4 +27,7 @@ namespace TDEngine2
 	*/
 
 	IShaderCompiler* CreateVulkanShaderCompiler(IFileSystem* pFileSystem, IDLLManager* pDLLManager, E_RESULT_CODE& result);
+
+
+	U16 GetBindingOffsetByResourceType(E_SHADER_RESOURCE_TYPE type);
 }

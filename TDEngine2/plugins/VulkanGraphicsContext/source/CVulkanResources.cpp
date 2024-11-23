@@ -3,9 +3,11 @@
 #include "../include/CVulkanUtils.h"
 #include "../include/CVulkanGraphicsObjectManager.h"
 #include "../include/CVulkanGraphicsContext.h"
+#include "../include/CVulkanShaderCompiler.h"
 #include <core/IResourceManager.h>
 #include <graphics/CBaseShader.h>
 #include <graphics/CBaseGraphicsPipeline.h>
+#include <unordered_set>
 
 
 namespace TDEngine2
@@ -98,17 +100,14 @@ namespace TDEngine2
 				Unmap();
 			}
 
-			mpGraphicsContextImpl->DestroyObjectDeffered([=]
-			{
-				vmaDestroyBuffer(mAllocator, mInternalBufferHandle, mAllocation);
-			});
+			mpGraphicsContextImpl->DestroyObjectDeffered(mInternalBufferHandle, mAllocation);
 		}
 
 		VkBufferCreateInfo bufferCreateInfo{};
-		bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		bufferCreateInfo.size = newSize;
-		bufferCreateInfo.usage = GetBufferType(mBufferType) | ((mBufferUsageType == E_BUFFER_USAGE_TYPE::DYNAMIC) ? VK_BUFFER_USAGE_TRANSFER_SRC_BIT : 0x0);
-		bufferCreateInfo.sharingMode = mIsUnorderedAccessResource ? VK_SHARING_MODE_CONCURRENT : VK_SHARING_MODE_EXCLUSIVE;
+		bufferCreateInfo.sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		bufferCreateInfo.size        = newSize;
+		bufferCreateInfo.usage       = GetBufferType(mBufferType) | ((mBufferUsageType == E_BUFFER_USAGE_TYPE::DYNAMIC) ? VK_BUFFER_USAGE_TRANSFER_SRC_BIT : 0x0);
+		bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE; //mIsUnorderedAccessResource ? VK_SHARING_MODE_CONCURRENT : VK_SHARING_MODE_EXCLUSIVE;
 
 		VmaAllocationCreateInfo allocInfo = {};
 		allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
@@ -121,10 +120,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanBuffer::_onFreeInternal()
 	{
-		mpGraphicsContextImpl->DestroyObjectDeffered([=]
-		{
-			vmaDestroyBuffer(mAllocator, mInternalBufferHandle, mAllocation);
-		});
+		mpGraphicsContextImpl->DestroyObjectDeffered(mInternalBufferHandle, mAllocation);
 
 		return RC_OK;
 	}
@@ -135,6 +131,11 @@ namespace TDEngine2
 		{
 			TDE2_ASSERT(false);
 			return RC_FAIL;
+		}
+
+		if (E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD == mapType)
+		{
+			_discardCurrentBuffer(mBufferSize);
 		}
 
 		VK_SAFE_CALL(vmaMapMemory(mAllocator, mAllocation, &mpMappedBufferData));
@@ -187,10 +188,7 @@ namespace TDEngine2
 			Unmap();
 		}
 
-		mpGraphicsContextImpl->DestroyObjectDeffered([=]
-		{
-			vmaDestroyBuffer(mAllocator, mInternalBufferHandle, mAllocation);
-		});
+		mpGraphicsContextImpl->DestroyObjectDeffered(mInternalBufferHandle, mAllocation);
 
 		mInitParams.mTotalBufferSize = newSize;
 		mBufferSize = newSize;
@@ -422,15 +420,44 @@ namespace TDEngine2
 	E_RESULT_CODE CVulkanShader::_createUniformBuffers(const TShaderCompilerOutput* pCompilerData)
 	{
 		std::vector<VkDescriptorSetLayoutBinding> bindings;
+		std::unordered_set<U32> existingBindings;
 
 		for (const auto& currUniformBufferInfo : pCompilerData->mUniformBuffersInfo)
 		{
+			if (existingBindings.find(currUniformBufferInfo.second.mSlot) != existingBindings.cend())
+			{
+				continue;
+			}
 
+			VkDescriptorSetLayoutBinding currBinding{};
+
+			currBinding.binding         = currUniformBufferInfo.second.mSlot;
+			currBinding.descriptorCount = 1;
+			currBinding.stageFlags      = VK_SHADER_STAGE_ALL;
+			currBinding.descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+
+			bindings.emplace_back(currBinding);
+			existingBindings.emplace(currBinding.binding);
 		}
 
 		for (const auto& currShaderResourceInfo : pCompilerData->mShaderResourcesInfo)
 		{
+			const U16 bindingOffset = GetBindingOffsetByResourceType(currShaderResourceInfo.second.mType);
 
+			if (existingBindings.find(bindingOffset + currShaderResourceInfo.second.mSlot) != existingBindings.cend())
+			{
+				continue;
+			}
+
+			VkDescriptorSetLayoutBinding currBinding{};
+
+			currBinding.binding         = bindingOffset + currShaderResourceInfo.second.mSlot;
+			currBinding.descriptorCount = 1;
+			currBinding.stageFlags      = VK_SHADER_STAGE_ALL;
+			currBinding.descriptorType  = CVulkanMappings::GetDescriptorType(currShaderResourceInfo.second.mType);
+
+			bindings.emplace_back(currBinding);
+			existingBindings.emplace(currBinding.binding);
 		}
 
 		VkDescriptorSetLayoutCreateInfo shaderDescriptorSetLayoutCreateInfo{};
@@ -449,37 +476,40 @@ namespace TDEngine2
 
 		VK_SAFE_CALL(vkCreatePipelineLayout(mDevice, &pipelineLayoutCreateInfo, nullptr, &mPipelineLayout));
 
-		//auto uniformBuffersInfo = pCompilerData->mUniformBuffersInfo;
+		auto uniformBuffersInfo = pCompilerData->mUniformBuffersInfo;
 
-		//TUniformBufferDesc currDesc;
+		TUniformBufferDesc currDesc;
 
-		//E_RESULT_CODE result = RC_OK;
+		E_RESULT_CODE result = RC_OK;
 
-		//mUniformBuffers.resize(uniformBuffersInfo.size() - TotalNumberOfInternalConstantBuffers);
+		mUniformBuffers.resize(uniformBuffersInfo.size() - TotalNumberOfInternalConstantBuffers);
 
-		//IConstantBuffer* pConstantBuffer = nullptr;
+		auto pGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
 
-		///// here only user uniforms buffers are created
-		//for (auto iter = uniformBuffersInfo.cbegin(); iter != uniformBuffersInfo.cend(); ++iter)
-		//{
-		//	currDesc = (*iter).second;
+		/// here only user uniforms buffers are created
+		for (auto iter = uniformBuffersInfo.cbegin(); iter != uniformBuffersInfo.cend(); ++iter)
+		{
+			currDesc = (*iter).second;
 
-		//	/// skip internal buffers, because they are created separately by IGlobalShaderProperties implementation
-		//	if ((currDesc.mFlags & E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL) == E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL)
-		//	{
-		//		continue;
-		//	}
+			/// skip internal buffers, because they are created separately by IGlobalShaderProperties implementation
+			if ((currDesc.mFlags & E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL) == E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL)
+			{
+				continue;
+			}
 
-		//	pConstantBuffer = CreateVulkanConstantBuffer(mpGraphicsContext, BUT_DYNAMIC, currDesc.mSize, nullptr, result);
+			auto createBufferResult = pGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::CONSTANT, currDesc.mSize, nullptr });
+			if (createBufferResult.HasError())
+			{
+				return createBufferResult.GetError();
+			}
 
-		//	const U32 index = static_cast<U32>(iter->second.mSlot - TotalNumberOfInternalConstantBuffers);
-		//	TDE2_ASSERT(index >= 0 && index <= 1024);
+			const U32 index = static_cast<U32>(iter->second.mSlot - TotalNumberOfInternalConstantBuffers);
+			TDE2_ASSERT(index >= 0 && index <= 1024);
 
-		//	/// \note Ensure that we compute correct size of the constant buffer. We use IVulkanShaderReflection to retrieve accurate information
+			/// \note Ensure that we compute correct size of the constant buffer. We use ID3D11ShaderReflection to retrieve accurate information
 
-
-		//	mUniformBuffers[index] = pConstantBuffer; // the offset is used because the shaders doesn't store internal buffer by themselves
-		//}
+			mUniformBuffers[index] = createBufferResult.Get(); // the offset is used because the shaders doesn't store internal buffer by themselves
+		}
 
 		return RC_OK;
 	}
@@ -560,14 +590,15 @@ namespace TDEngine2
 		imageExtent.depth = params.mDepth;
 
 		VkImageCreateInfo imageInfo{};
-		imageInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-		imageInfo.extent = imageExtent;
-		imageInfo.mipLevels = params.mNumOfMipLevels;
-		imageInfo.format = CVulkanMappings::GetInternalFormat(params.mFormat);
-		imageInfo.imageType = CVulkanMappings::GetTextureType(params.mType);
+		imageInfo.sType       = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+		imageInfo.usage       = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+		imageInfo.extent      = imageExtent;
+		imageInfo.mipLevels   = params.mNumOfMipLevels;
+		imageInfo.format      = CVulkanMappings::GetInternalFormat(params.mFormat);
+		imageInfo.imageType   = CVulkanMappings::GetTextureType(params.mType);
 		imageInfo.arrayLayers = E_TEXTURE_IMPL_TYPE::CUBEMAP == params.mType ? 6 : params.mArraySize;
-		imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-		imageInfo.samples = CVulkanMappings::GetSamplesCount(params.mNumOfSamples);
+		imageInfo.tiling      = VK_IMAGE_TILING_OPTIMAL;
+		imageInfo.samples     = CVulkanMappings::GetSamplesCount(params.mNumOfSamples);
 
 		VmaAllocationCreateInfo allocInfo{};
 		allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
@@ -702,11 +733,8 @@ namespace TDEngine2
 	{
 		mIsInitialized = false;
 
-		mpGraphicsContextImpl->DestroyObjectDeffered([=]
-			{
-				vmaDestroyImage(mAllocator, mInternalImageHandle, mAllocation);
-				vkDestroyImageView(mDevice, mInternalImageViewHandle, nullptr);
-			});
+		mpGraphicsContextImpl->DestroyObjectDeffered(mInternalImageHandle, mAllocation);
+		mpGraphicsContextImpl->DestroyObjectDeffered(mInternalImageViewHandle);
 
 		return RC_OK;
 	}
@@ -931,6 +959,7 @@ namespace TDEngine2
 		VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo{};
 		inputAssemblyInfo.sType                  = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 		inputAssemblyInfo.primitiveRestartEnable = false;
+		inputAssemblyInfo.topology               = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 
 		VkPipelineMultisampleStateCreateInfo multisamplingInfo{};
 		multisamplingInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;

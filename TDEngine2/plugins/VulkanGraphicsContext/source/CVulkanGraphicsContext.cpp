@@ -3,6 +3,7 @@
 #include "../include/IWindowSurfaceFactory.h"
 #include "../include/CVulkanGraphicsObjectManager.h"
 #include "../include/CVulkanResources.h"
+#include "../include/CVulkanShaderCompiler.h"
 #include <core/IEventManager.h>
 #include <core/IWindowSystem.h>
 #include <utils/CFileLogger.h>
@@ -23,7 +24,19 @@ namespace TDEngine2
 															const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 															void* pUserData)
 	{
-		LOG_ERROR(Wrench::StringUtils::Format("[CVulkanGraphicsContext] {0}\n", pCallbackData->pMessage));
+		switch (messageSeverity)
+		{
+			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+				LOG_ERROR(Wrench::StringUtils::Format("[CVulkanGraphicsContext] {0}\n", pCallbackData->pMessage));
+				break;
+			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+				LOG_WARNING(Wrench::StringUtils::Format("[CVulkanGraphicsContext] {0}\n", pCallbackData->pMessage));
+				break;
+			default:
+				LOG_MESSAGE(Wrench::StringUtils::Format("[CVulkanGraphicsContext] {0}\n", pCallbackData->pMessage));
+				break;
+		}
+				
 		return VK_FALSE;
 	}
 
@@ -76,7 +89,8 @@ namespace TDEngine2
 	static const std::vector<const C8*> RequiredDeviceExtensions
 	{
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-			VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
+		VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
+		VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME,
 	};
 
 
@@ -354,6 +368,7 @@ namespace TDEngine2
 		VkPhysicalDeviceVulkan13Features device13Features{};
 		device13Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
 		device13Features.dynamicRendering = VK_TRUE;
+		device13Features.synchronization2 = VK_TRUE;
 
 		VkPhysicalDeviceFeatures deviceFeatures{};
 		deviceFeatures.depthBiasClamp = VK_TRUE;
@@ -495,7 +510,7 @@ namespace TDEngine2
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanCommandBuffer)
 
-				E_RESULT_CODE _onFreeInternal() override;
+			E_RESULT_CODE _onFreeInternal() override;
 		private:
 			CVulkanDeviceContext* mpDeviceContext = nullptr;
 
@@ -1101,6 +1116,14 @@ namespace TDEngine2
 			return result;
 		}
 
+		mpImmediateCopyCommandBuffer = TPtr<CVulkanCommandBuffer>(CreateCommandBuffer(mpVulkanDeviceContext.Get(), result));
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		mDescriptorsBindingsTable.Reset();
+
 		return RC_OK;
 	}
 
@@ -1112,6 +1135,7 @@ namespace TDEngine2
 			vkDestroySemaphore(mpVulkanDeviceContext->GetDevice(), mRenderFinishedSemaphores[i], nullptr);
 		}
 
+		mpImmediateCopyCommandBuffer = nullptr;
 		mpSwapchain = nullptr;
 		mpVulkanDeviceContext = nullptr;
 
@@ -1134,14 +1158,43 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeffered(const std::function<void()>& destroyCommand)
+	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeffered(VkBuffer bufferHandle, VmaAllocation allocation)
 	{
-		if (!destroyCommand)
-		{
-			return RC_INVALID_ARGS;
-		}
+		std::lock_guard<std::mutex> lock(mGarbageCollectorMutex);
 
-		mAwaitingDeletionObjects[mCurrFrameIndex].emplace_back(destroyCommand);
+		TGarbageEntity garbageEntity;
+		garbageEntity.mData.mBufferHandle = bufferHandle;
+		garbageEntity.mType               = TGarbageEntity::E_TYPE::BUFFER;
+		garbageEntity.mAllocation         = allocation;
+
+		mAwaitingDeletionObjects[mCurrFrameIndex].emplace_back(garbageEntity);
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeffered(VkImage imageHandle, VmaAllocation allocation)
+	{
+		std::lock_guard<std::mutex> lock(mGarbageCollectorMutex);
+
+		TGarbageEntity garbageEntity;
+		garbageEntity.mData.mImageHandle = imageHandle;
+		garbageEntity.mType              = TGarbageEntity::E_TYPE::IMAGE;
+		garbageEntity.mAllocation        = allocation;
+
+		mAwaitingDeletionObjects[mCurrFrameIndex].emplace_back(garbageEntity);
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeffered(VkImageView imageViewHandle)
+	{
+		std::lock_guard<std::mutex> lock(mGarbageCollectorMutex);
+
+		TGarbageEntity garbageEntity;
+		garbageEntity.mData.mImageViewHandle = imageViewHandle;
+		garbageEntity.mType                  = TGarbageEntity::E_TYPE::IMAGE_VIEW;
+
+		mAwaitingDeletionObjects[mCurrFrameIndex].emplace_back(garbageEntity);
 
 		return RC_OK;
 	}
@@ -1153,28 +1206,22 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		VkCommandBufferBeginInfo beginCommandInfo{};
-		beginCommandInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginCommandInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+		VkFence cmdBufferFence = mpImmediateCopyCommandBuffer->GetFence();
 
-		VK_SAFE_CALL(vkBeginCommandBuffer(mTransferCommandBuffer, &beginCommandInfo));
-		copyCommand(mTransferCommandBuffer);
-		VK_SAFE_CALL(vkEndCommandBuffer(mTransferCommandBuffer));
+		vkResetFences(mpVulkanDeviceContext->GetDevice(), 1, &cmdBufferFence);
+		mpImmediateCopyCommandBuffer->Reset();
 
-		VkSubmitInfo submitInfo{};
+		mpImmediateCopyCommandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
-		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.waitSemaphoreCount = 0;
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &mTransferCommandBuffer;
-		submitInfo.signalSemaphoreCount = 0;
+		if (copyCommand)
+		{
+			copyCommand(mpImmediateCopyCommandBuffer->GetHandle());
+		}
 
-		//VK_SAFE_CALL(vkQueueSubmit(mGraphicsQueue, 1, &submitInfo, mTransferCommandFence));
+		mpImmediateCopyCommandBuffer->End();
 
-		//VK_SAFE_CALL(vkWaitForFences(mDevice, 1, &mTransferCommandFence, true, std::numeric_limits<U64>::max()));
-		//VK_SAFE_CALL(vkResetFences(mDevice, 1, &mTransferCommandFence));
-
-		//VK_SAFE_CALL(vkResetCommandPool(mDevice, mTransferCommandPool, 0));
+		mpVulkanDeviceContext->SubmitCommands(mpImmediateCopyCommandBuffer, VK_NULL_HANDLE, VK_NULL_HANDLE, cmdBufferFence);
+		VK_SAFE_VOID_CALL(vkWaitForFences(mpVulkanDeviceContext->GetDevice(), 1, &cmdBufferFence, true, UINT64_MAX));
 
 		return RC_OK;
 	}
@@ -1190,16 +1237,33 @@ namespace TDEngine2
 		E_RESULT_CODE result = mpSwapchain->AcquireNextImage(mImageReadySemaphores[mCurrFrameIndex]);
 		TDE2_ASSERT(RC_OK == result);
 
-		// destroy objects that were marked for deletion
-		for (auto&& currCommand : mAwaitingDeletionObjects[mCurrFrameIndex])
 		{
-			currCommand();
-		}
+			std::lock_guard<std::mutex> lock(mGarbageCollectorMutex);
 
-		mAwaitingDeletionObjects[mCurrFrameIndex].clear();
+			// destroy objects that were marked for deletion
+			for (auto&& currGarbageEntity : mAwaitingDeletionObjects[mCurrFrameIndex])
+			{
+				switch (currGarbageEntity.mType)
+				{
+					case TGarbageEntity::E_TYPE::BUFFER:
+						vmaDestroyBuffer(mpVulkanDeviceContext->GetMemoryAllocator(), currGarbageEntity.mData.mBufferHandle, currGarbageEntity.mAllocation);
+						break;
+					case TGarbageEntity::E_TYPE::IMAGE:
+						vmaDestroyImage(mpVulkanDeviceContext->GetMemoryAllocator(), currGarbageEntity.mData.mImageHandle, currGarbageEntity.mAllocation);
+						break;
+					case TGarbageEntity::E_TYPE::IMAGE_VIEW:
+						vkDestroyImageView(mpVulkanDeviceContext->GetDevice(), currGarbageEntity.mData.mImageViewHandle, nullptr);
+						break;
+				}
+			}
+
+			mAwaitingDeletionObjects[mCurrFrameIndex].clear();
+		}
 
 		pCurrCommandBuffer->Reset();
 		pCurrCommandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+
+		mDescriptorsBindingsTable.Reset();
 	}
 
 	void CVulkanGraphicsContext::Present()
@@ -1218,8 +1282,16 @@ namespace TDEngine2
 
 	void CVulkanGraphicsContext::SetViewport(F32 x, F32 y, F32 width, F32 height, F32 minDepth, F32 maxDepth)
 	{
-		//vkCmdSetViewport()
-		TDE2_UNIMPLEMENTED();
+		VkViewport viewport{};
+		viewport.x        = x;
+		viewport.y        = y;
+		viewport.width    = width;
+		viewport.height   = height;
+		viewport.minDepth = minDepth;
+		viewport.maxDepth = maxDepth;
+
+		const TPtr<CVulkanCommandBuffer>& pCurrCommandBuffer = mpCommandBuffers[mCurrFrameIndex];
+		vkCmdSetViewport(pCurrCommandBuffer->GetHandle(), 0, 1, &viewport);
 	}
 
 	void CVulkanGraphicsContext::SetScissorRect(const TRectU32& scissorRect)
@@ -1281,19 +1353,48 @@ namespace TDEngine2
 		}
 
 		TDE2_ASSERT(E_BUFFER_TYPE::CONSTANT == pBuffer->GetParams().mBufferType);
+		TDE2_ASSERT(slot < TDescriptorsBindingsTable::MAX_CBV_COUNT);
 
-		TDE2_UNIMPLEMENTED();
+		mDescriptorsBindingsTable.mConstantBuffers[slot] = constantsBufferHandle;
+
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::SetStructuredBuffer(U32 slot, TBufferHandleId bufferHandle, bool isWriteEnabled)
 	{
-		TDE2_UNIMPLEMENTED();
-		return RC_NOT_IMPLEMENTED_YET;
+		auto pBuffer = mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(bufferHandle);
+		if (!pBuffer)
+		{
+			return RC_FAIL;
+		}
+
+		TDE2_ASSERT(E_BUFFER_TYPE::STRUCTURED == pBuffer->GetParams().mBufferType);
+
+		auto& currDescriptorsGroup = isWriteEnabled ? mDescriptorsBindingsTable.mUAVBuffers : mDescriptorsBindingsTable.mSRVBuffers;
+		
+		TDE2_ASSERT(slot < currDescriptorsGroup.size());
+
+		currDescriptorsGroup[slot].mType = TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::BUFFER;
+		currDescriptorsGroup[slot].mValue.mBuffer = bufferHandle;
+
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::SetTexture(U32 slot, TTextureHandleId textureHandle, bool isWriteEnabled)
 	{
+		auto pTexture = mpGraphicsObjectManagerImpl->GetVulkanTexturePtr(textureHandle);
+		if (!pTexture)
+		{
+			return RC_FAIL;
+		}
+
+		auto& currDescriptorsGroup = isWriteEnabled ? mDescriptorsBindingsTable.mUAVBuffers : mDescriptorsBindingsTable.mSRVBuffers;
+
+		TDE2_ASSERT(slot < currDescriptorsGroup.size());
+
+		currDescriptorsGroup[slot].mType = TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::TEXTURE;
+		currDescriptorsGroup[slot].mValue.mTexture = textureHandle;
+
 		return RC_OK;
 	}
 
@@ -1449,18 +1550,24 @@ namespace TDEngine2
 
 	void CVulkanGraphicsContext::Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices)
 	{
+		_prepareDrawCall();
+
 		vkCmdSetPrimitiveTopology(_getCurrCommandBufferHandle(), CVulkanMappings::GetPrimitiveTopology(topology));
 		vkCmdDraw(_getCurrCommandBufferHandle(), numOfVertices, 1, startVertex, 0);
 	}
 
 	void CVulkanGraphicsContext::DrawIndexed(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, U32 baseVertex, U32 startIndex, U32 numOfIndices)
 	{
+		_prepareDrawCall();
+
 		vkCmdSetPrimitiveTopology(_getCurrCommandBufferHandle(), CVulkanMappings::GetPrimitiveTopology(topology));
 		vkCmdDrawIndexed(_getCurrCommandBufferHandle(), numOfIndices, 1, startIndex, baseVertex, 0);
 	}
 
 	void CVulkanGraphicsContext::DrawInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 verticesPerInstance, U32 startInstance, U32 numOfInstances)
 	{
+		_prepareDrawCall();
+
 		vkCmdSetPrimitiveTopology(_getCurrCommandBufferHandle(), CVulkanMappings::GetPrimitiveTopology(topology));
 		vkCmdDraw(_getCurrCommandBufferHandle(), verticesPerInstance, numOfInstances, startVertex, startInstance);
 	}
@@ -1468,12 +1575,16 @@ namespace TDEngine2
 	void CVulkanGraphicsContext::DrawIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, U32 baseVertex, U32 startIndex,
 		U32 startInstance, U32 indicesPerInstance, U32 numOfInstances)
 	{
+		_prepareDrawCall();
+
 		vkCmdSetPrimitiveTopology(_getCurrCommandBufferHandle(), CVulkanMappings::GetPrimitiveTopology(topology));
 		vkCmdDrawIndexed(_getCurrCommandBufferHandle(), indicesPerInstance, numOfInstances, startIndex, baseVertex, startInstance);
 	}
 
 	void CVulkanGraphicsContext::DrawIndirectInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, TBufferHandleId argsBufferHandle, U32 alignedOffset)
 	{
+		_prepareDrawCall();
+
 		vkCmdSetPrimitiveTopology(_getCurrCommandBufferHandle(), CVulkanMappings::GetPrimitiveTopology(topology));
 		//vkCmdDrawIndirect(mCommandBuffers[mCurrFrameIndex], VK_NULL_HANDLE, )
 		TDE2_UNIMPLEMENTED();
@@ -1481,6 +1592,8 @@ namespace TDEngine2
 
 	void CVulkanGraphicsContext::DrawIndirectIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, TBufferHandleId argsBufferHandle, U32 alignedOffset)
 	{
+		_prepareDrawCall();
+
 		vkCmdSetPrimitiveTopology(_getCurrCommandBufferHandle(), CVulkanMappings::GetPrimitiveTopology(topology));
 		TDE2_UNIMPLEMENTED();
 	}
@@ -1655,34 +1768,179 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CVulkanGraphicsContext::_initTransferContext()
-	{
-		VkCommandPoolCreateInfo poolInfo{};
-		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-		poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-		poolInfo.queueFamilyIndex = mpVulkanDeviceContext->GetQueuesInfo().mGraphicsQueueIndex;
-
-		VK_SAFE_CALL(vkCreateCommandPool(mpVulkanDeviceContext->GetDevice(), &poolInfo, nullptr, &mTransferCommandPool));
-
-		VkCommandBufferAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandPool = mTransferCommandPool;
-		allocInfo.commandBufferCount = 1;
-
-		VK_SAFE_CALL(vkAllocateCommandBuffers(mpVulkanDeviceContext->GetDevice(), &allocInfo, &mTransferCommandBuffer));
-
-		VkFenceCreateInfo fenceCreateInfo = {};
-		fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-
-		VK_SAFE_CALL(vkCreateFence(mpVulkanDeviceContext->GetDevice(), &fenceCreateInfo, nullptr, &mTransferCommandFence));
-
-		return RC_OK;
-	}
-
 	VkCommandBuffer CVulkanGraphicsContext::_getCurrCommandBufferHandle() const
 	{
 		return mpCommandBuffers[mCurrFrameIndex]->GetHandle();
+	}
+
+	void CVulkanGraphicsContext::_prepareDrawCall()
+	{
+		mDescriptorWrites.clear();
+		mDescriptorBuffersInfo.clear();
+		mDescriptorImageInfo.clear();
+
+		for (U32 i = 0; i < mDescriptorsBindingsTable.mConstantBuffers.size(); ++i)
+		{
+			if (TBufferHandleId::Invalid == mDescriptorsBindingsTable.mConstantBuffers[i])
+			{
+				continue;
+			}
+
+			auto pBuffer = mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(mDescriptorsBindingsTable.mConstantBuffers[i]);
+			if (!pBuffer)
+			{
+				continue;
+			}
+
+			VkDescriptorBufferInfo& currBufferInfo = mDescriptorBuffersInfo.emplace_back();
+			currBufferInfo.buffer = pBuffer->GetVulkanHandle();
+			currBufferInfo.offset = 0;
+			currBufferInfo.range  = VK_WHOLE_SIZE;
+
+			VkWriteDescriptorSet& currWriteDescriptorSet = mDescriptorWrites.emplace_back();
+
+			currWriteDescriptorSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			currWriteDescriptorSet.dstSet          = 0;
+			currWriteDescriptorSet.descriptorCount = 1;
+			currWriteDescriptorSet.descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			currWriteDescriptorSet.dstBinding      = i;
+			currWriteDescriptorSet.pBufferInfo     = &currBufferInfo;
+		}
+
+		for (U32 i = 0; i < mDescriptorsBindingsTable.mSRVBuffers.size(); ++i)
+		{
+			if (TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::UNKNOWN == mDescriptorsBindingsTable.mSRVBuffers[i].mType)
+			{
+				continue;
+			}
+
+			VkWriteDescriptorSet& currWriteDescriptorSet = mDescriptorWrites.emplace_back();
+
+			switch (mDescriptorsBindingsTable.mSRVBuffers[i].mType)
+			{
+				case TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::BUFFER:
+					{
+						auto pBuffer = mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(mDescriptorsBindingsTable.mSRVBuffers[i].mValue.mBuffer);
+						if (!pBuffer)
+						{
+							continue;
+						}
+
+						VkDescriptorBufferInfo& currBufferInfo = mDescriptorBuffersInfo.emplace_back();
+						currBufferInfo.buffer = pBuffer->GetVulkanHandle();
+						currBufferInfo.offset = 0;
+						currBufferInfo.range  = VK_WHOLE_SIZE;
+
+						currWriteDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+						currWriteDescriptorSet.pBufferInfo    = &currBufferInfo;
+					}
+					break;
+
+				case TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::TEXTURE:
+					{
+						auto pTexture = mpGraphicsObjectManagerImpl->GetVulkanTexturePtr(mDescriptorsBindingsTable.mSRVBuffers[i].mValue.mTexture);
+						if (!pTexture)
+						{
+							continue;
+						}
+
+						VkDescriptorImageInfo& currImageInfo = mDescriptorImageInfo.emplace_back();
+						currImageInfo.imageView   = pTexture->GetTextureViewHandle();
+						currImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+						currImageInfo.sampler     = VK_NULL_HANDLE;
+
+						currWriteDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+						currWriteDescriptorSet.pImageInfo = &currImageInfo;
+					}
+					break;
+			}
+
+			currWriteDescriptorSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			currWriteDescriptorSet.dstSet          = 0;
+			currWriteDescriptorSet.descriptorCount = 1;
+			currWriteDescriptorSet.dstBinding      = GetBindingOffsetByResourceType(E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D) + i;			
+		}
+
+		for (U32 i = 0; i < mDescriptorsBindingsTable.mSamplers.size(); ++i)
+		{
+			if (TTextureSamplerId::Invalid == mDescriptorsBindingsTable.mSamplers[i])
+			{
+				continue;
+			}
+
+			VkWriteDescriptorSet& currWriteDescriptorSet = mDescriptorWrites.emplace_back();
+
+			VkDescriptorImageInfo& currImageInfo = mDescriptorImageInfo.emplace_back();
+			currImageInfo.sampler = VK_NULL_HANDLE; // \todo
+			TDE2_UNIMPLEMENTED();
+
+			currWriteDescriptorSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			currWriteDescriptorSet.dstSet          = 0;
+			currWriteDescriptorSet.descriptorCount = 1;
+			currWriteDescriptorSet.descriptorType  = VK_DESCRIPTOR_TYPE_SAMPLER;
+			currWriteDescriptorSet.dstBinding      = GetBindingOffsetByResourceType(E_SHADER_RESOURCE_TYPE::SRT_SAMPLER_STATE) + i;
+			currWriteDescriptorSet.pImageInfo      = &currImageInfo;
+		}
+
+		for (U32 i = 0; i < mDescriptorsBindingsTable.mUAVBuffers.size(); ++i)
+		{
+			if (TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::UNKNOWN == mDescriptorsBindingsTable.mUAVBuffers[i].mType)
+			{
+				continue;
+			}
+
+			VkWriteDescriptorSet& currWriteDescriptorSet = mDescriptorWrites.emplace_back();
+
+			switch (mDescriptorsBindingsTable.mUAVBuffers[i].mType)
+			{
+				case TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::BUFFER:
+				{
+					auto pBuffer = mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(mDescriptorsBindingsTable.mUAVBuffers[i].mValue.mBuffer);
+					if (!pBuffer)
+					{
+						continue;
+					}
+
+					VkDescriptorBufferInfo& currBufferInfo = mDescriptorBuffersInfo.emplace_back();
+					currBufferInfo.buffer = pBuffer->GetVulkanHandle();
+					currBufferInfo.offset = 0;
+					currBufferInfo.range = VK_WHOLE_SIZE;
+
+					currWriteDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+					currWriteDescriptorSet.pBufferInfo = &currBufferInfo;
+				}
+				break;
+
+				case TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::TEXTURE:
+				{
+					auto pTexture = mpGraphicsObjectManagerImpl->GetVulkanTexturePtr(mDescriptorsBindingsTable.mUAVBuffers[i].mValue.mTexture);
+					if (!pTexture)
+					{
+						continue;
+					}
+
+					VkDescriptorImageInfo& currImageInfo = mDescriptorImageInfo.emplace_back();
+					currImageInfo.imageView = pTexture->GetTextureViewHandle();
+					currImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+					currImageInfo.sampler = VK_NULL_HANDLE;
+
+					currWriteDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+					currWriteDescriptorSet.pImageInfo = &currImageInfo;
+				}
+				break;
+			}
+
+			currWriteDescriptorSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			currWriteDescriptorSet.dstSet          = 0;
+			currWriteDescriptorSet.descriptorCount = 1;
+			currWriteDescriptorSet.dstBinding      = GetBindingOffsetByResourceType(E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D) + i;
+		}
+
+		mDescriptorsBindingsTable.Reset();
+
+		VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
+
+		vkCmdPushDescriptorSetKHR(_getCurrCommandBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, static_cast<U32>(mDescriptorWrites.size()), mDescriptorWrites.data());
 	}
 
 
