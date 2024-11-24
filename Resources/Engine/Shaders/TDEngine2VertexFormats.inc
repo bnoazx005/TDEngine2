@@ -67,6 +67,7 @@ struct TUiVertexFormat
 	float4 mPosUV;
 	#ifdef TDE2_USE_PACKED_COLOR
 	uint   mColor;
+	uint   mPadding[3];
 	#else
 	float4 mColor;
 	#endif
@@ -128,7 +129,7 @@ float4 GetUiVertColor(uint index, uint vertexOffset = 0, uint indexOffset = 0)
 struct TSpriteVertexFormat
 {
 	float4 mPosition;
-	float2 mUV;
+	float4 mUV;
 };
 
 
@@ -164,7 +165,7 @@ float2 GetSpriteVertUv(uint index, uint vertexOffset = 0, uint indexOffset = 0)
 #else
 	index
 #endif
-	].mUV;
+	].mUV.xy;
 }
 
 float4 GetSpriteVertColor(uint index) 

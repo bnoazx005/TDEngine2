@@ -127,3 +127,12 @@ namespace ImGui
     void MyFunction(const char* name, const MyMatrix44& v);
 }
 */
+
+#define IMGUI_OVERRIDE_DRAWVERT_STRUCT_LAYOUT       \
+struct ImDrawVert                                   \
+{                                                   \
+    ImVec2  pos;                                    \
+    ImVec2  uv;                                     \
+    ImU32   col;                                    \
+    ImU32   padding[3];                             \
+};

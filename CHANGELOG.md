@@ -25,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Now verbose file system's logging can be disabled.
 
+- Default formats of Dear imgui's **ImDrawVert** and **CSpriteRendererSystem::TSpriteVertex** were changed to fix alignments for **TUiVertexFormat**, **TSpriteVertexFormat** in shaders.
+
+
 ### Fixed
 
 - The issues with parsing Texture2D<type> resources in HLSL were fixed for CVulkanShaderCompiler and CD3D11ShaderCompiler.

@@ -72,6 +72,7 @@ namespace TDEngine2
 				TVector4 mPosition;
 
 				TVector2 mUVs;
+				TVector2 mPadding;
 			} TSpriteVertex, *TSpriteVertexPtr;
 
 			typedef struct TSpriteInstanceData
