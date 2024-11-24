@@ -136,6 +136,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
+			TDE2_MULTI_THREAD_CHECK_LOCK;
+
 			std::string mPhysicalPath;
 
 			IFileSystem* mpFileSystem;

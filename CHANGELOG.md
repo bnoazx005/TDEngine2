@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.31] 2024-11-22
+## [0.6.31] 2024-11-24
 
 ### Added
 
@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Method **CGlobalShaderProperties::SetInternalShaderBuffer** was removed.
 
 - Now **TShaderResourceDesc::mSlot** uses U16 type instead of U8.
+
+- Now verbose file system's logging can be disabled.
 
 ### Fixed
 

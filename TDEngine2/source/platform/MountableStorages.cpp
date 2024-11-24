@@ -85,7 +85,9 @@ namespace TDEngine2
 		/// create a file's entry on a disk if doesn't exist but a user asks for it
 		if (!FileExists(path) && createIfDoesntExist)
 		{
+#if TDE2_FILE_SYSTEM_VERBOSE_LOGS_ENABLED
 			LOG_MESSAGE("[File System] A new file was created (TypeID : " + ToString<TypeId>(typeId) + "; path: " + path + ")");
+#endif
 			_createNewFile(path);
 		}
 
@@ -105,7 +107,9 @@ namespace TDEngine2
 
 		TFileEntryId newFileEntryId = _registerFileEntry(pNewFileInstance);
 
+#if TDE2_FILE_SYSTEM_VERBOSE_LOGS_ENABLED
 		LOG_MESSAGE("[File System] A new file descriptor was created by the manager (" + path + ")");
+#endif
 
 		return Wrench::TOkValue<TFileEntryId>(newFileEntryId);
 	}
@@ -125,7 +129,9 @@ namespace TDEngine2
 		{
 			if (currEntry.second == handle)
 			{
+#if TDE2_FILE_SYSTEM_VERBOSE_LOGS_ENABLED
 				LOG_MESSAGE("[File System] Existing file descriptor was closed (" + currEntry.first + ")");
+#endif
 
 				mFilesMap.erase(currEntry.first);
 				break;
@@ -170,6 +176,7 @@ namespace TDEngine2
 
 	TFileEntryId CBaseMountableStorage::_registerFileEntry(IFile* pFileEntry)
 	{
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
 		USIZE localHandle = mActiveFiles.Add(pFileEntry);
 
 		const std::string& path = pFileEntry->GetFilename();
@@ -242,6 +249,7 @@ namespace TDEngine2
 
 	TResult<TPtr<IStream>> CPhysicalFilesStorage::_createStream(const std::string& path, E_FILE_FACTORY_TYPE type) const
 	{
+		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
 		E_RESULT_CODE result = RC_OK;
 		
 		IStream* pStream = (type == E_FILE_FACTORY_TYPE::READER) ? CreateFileInputStream(path, result) : CreateFileOutputStream(path, result);
