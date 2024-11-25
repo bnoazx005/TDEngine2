@@ -464,6 +464,7 @@ namespace TDEngine2
 		shaderDescriptorSetLayoutCreateInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 		shaderDescriptorSetLayoutCreateInfo.bindingCount = static_cast<U32>(bindings.size());
 		shaderDescriptorSetLayoutCreateInfo.pBindings    = bindings.data();
+		shaderDescriptorSetLayoutCreateInfo.flags        = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR;
 
 		VK_SAFE_CALL(vkCreateDescriptorSetLayout(mDevice, &shaderDescriptorSetLayoutCreateInfo, nullptr, &mDescriptorsSetLayout));
 
@@ -623,7 +624,7 @@ namespace TDEngine2
 		viewInfo.image = image;
 		viewInfo.viewType = CVulkanMappings::GetTextureViewType(params.mType);
 		viewInfo.format = CVulkanMappings::GetInternalFormat(params.mFormat);
-		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		viewInfo.subresourceRange.aspectMask = E_FORMAT_TYPE::FT_D32 == params.mFormat ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
 		viewInfo.subresourceRange.baseMipLevel = 0;
 		viewInfo.subresourceRange.levelCount = 1;
 		viewInfo.subresourceRange.baseArrayLayer = 0;
@@ -869,25 +870,6 @@ namespace TDEngine2
 	}
 
 
-	/*!
-		\brief CVulkanGraphicsPipeline's edfinition
-	*/
-
-	class CVulkanGraphicsPipeline : public CBaseGraphicsPipeline
-	{
-		public:
-			friend IGraphicsPipeline* CreateVulkanGraphicsPipeline(IGraphicsContext*, IResourceManager*, const TGraphicsPipelineConfigDesc&, E_RESULT_CODE&);
-		public:
-			E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig) override;
-			E_RESULT_CODE Bind() override;
-		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanGraphicsPipeline)
-		private:
-			CVulkanGraphicsObjectManager* mpVulkanGraphicsObjectManagerImpl = nullptr;
-			VkPipeline                    mBasePipelineHandle = VK_NULL_HANDLE;
-	};
-
-
 	static const VkPipelineViewportStateCreateInfo* GetDefaultViewport()
 	{
 		static const VkViewport DEFAULT_VIEWPORT { 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f };
@@ -927,6 +909,8 @@ namespace TDEngine2
 		{
 			return result;
 		}
+
+		mpVulkanGraphicsContext = dynamic_cast<CVulkanGraphicsContext*>(pGraphicsContext);
 
 		const TResourceId shaderHandle = pResourceManager->Load<IShader>(pipelineConfig.mShaderIdStr);
 		if (TResourceId::Invalid == shaderHandle)
@@ -978,6 +962,8 @@ namespace TDEngine2
 		dynamicInfo.pDynamicStates    = dynamicStates.data();
 		dynamicInfo.dynamicStateCount = static_cast<U32>(dynamicStates.size());
 
+		mCachedPipelineLayoutHandle = pShader->GetPipelineLayout();
+
 		VkGraphicsPipelineCreateInfo graphicsPipelineInfo{};
 		graphicsPipelineInfo.sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		graphicsPipelineInfo.pNext               = &renderingInfo;
@@ -992,8 +978,9 @@ namespace TDEngine2
 		graphicsPipelineInfo.pColorBlendState    = &colorBlendingInfo;
 		graphicsPipelineInfo.pRasterizationState = &rasterizationInfo;
 		graphicsPipelineInfo.pDepthStencilState  = &depthStencilStateInfo;
-		graphicsPipelineInfo.layout              = pShader->GetPipelineLayout();
+		graphicsPipelineInfo.layout              = mCachedPipelineLayoutHandle;
 		graphicsPipelineInfo.pDynamicState       = &dynamicInfo;
+
 		
 		// \todo Add pipeline cache's support
 		VK_SAFE_CALL(vkCreateGraphicsPipelines(pVulkanGraphicsContext->GetDevice(), VK_NULL_HANDLE, 1, &graphicsPipelineInfo, nullptr, &mBasePipelineHandle));
@@ -1008,10 +995,15 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		TDE2_UNIMPLEMENTED();
-
-		return RC_OK;
+		return mpVulkanGraphicsContext->BindPipelineState(this);
 	}
+
+	VkPipelineLayout CVulkanGraphicsPipeline::GetPipelineLayout() const
+	{
+		return mCachedPipelineLayoutHandle;
+	}
+
+	TDE2_DEFINE_SCOPED_PTR(CVulkanGraphicsPipeline);
 
 
 	IGraphicsPipeline* CreateVulkanGraphicsPipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& config, E_RESULT_CODE& result)

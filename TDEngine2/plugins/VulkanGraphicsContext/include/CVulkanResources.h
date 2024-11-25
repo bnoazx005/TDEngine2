@@ -12,6 +12,7 @@
 #include <graphics/CBaseShader.h>
 #include <graphics/CBaseTexture2D.h>
 #include <graphics/CVertexDeclaration.h>
+#include <graphics/CBaseGraphicsPipeline.h>
 #define VK_NO_PROTOTYPES
 #include <vulkan/vulkan_core.h>
 #include "vk_mem_alloc.h"
@@ -21,6 +22,7 @@ namespace TDEngine2
 {
 	class CVulkanGraphicsContext;
 	class IGraphicsPipeline;
+	class CVulkanGraphicsObjectManager;
 
 
 	/*!
@@ -289,6 +291,31 @@ namespace TDEngine2
 	*/
 
 	IVertexDeclaration* CreateVulkanVertexDeclaration(E_RESULT_CODE& result);
+
+
+
+	/*!
+		\brief CVulkanGraphicsPipeline's definition
+	*/
+
+	class CVulkanGraphicsPipeline : public CBaseGraphicsPipeline
+	{
+		public:
+			TDE2_API friend IGraphicsPipeline* CreateVulkanGraphicsPipeline(IGraphicsContext*, IResourceManager*, const TGraphicsPipelineConfigDesc&, E_RESULT_CODE&);
+		public:
+			E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig) override;
+			E_RESULT_CODE Bind() override;
+
+			VkPipelineLayout GetPipelineLayout() const;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanGraphicsPipeline)
+		private:
+			CVulkanGraphicsObjectManager* mpVulkanGraphicsObjectManagerImpl = nullptr;
+			CVulkanGraphicsContext*       mpVulkanGraphicsContext = nullptr;
+
+			VkPipeline                    mBasePipelineHandle = VK_NULL_HANDLE;
+			VkPipelineLayout              mCachedPipelineLayoutHandle = VK_NULL_HANDLE;
+	};
 
 
 	TDE2_API IGraphicsPipeline* CreateVulkanGraphicsPipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig, E_RESULT_CODE& result);

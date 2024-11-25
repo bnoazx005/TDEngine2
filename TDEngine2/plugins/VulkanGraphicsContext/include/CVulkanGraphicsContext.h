@@ -26,6 +26,7 @@ namespace TDEngine2
 	class CVulkanSwapchain;
 	class CVulkanDeviceContext;
 	class CVulkanCommandBuffer;
+	class CVulkanGraphicsPipeline;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IEventManager)
@@ -34,6 +35,7 @@ namespace TDEngine2
 	TDE2_DECLARE_SCOPED_PTR(CVulkanSwapchain)
 	TDE2_DECLARE_SCOPED_PTR(CVulkanDeviceContext)
 	TDE2_DECLARE_SCOPED_PTR(CVulkanCommandBuffer)
+	TDE2_DECLARE_SCOPED_PTR(CVulkanGraphicsPipeline)
 
 
 	struct TQueuesCreateInfo
@@ -345,6 +347,8 @@ namespace TDEngine2
 
 			void DispatchIndirectCompute(TBufferHandleId argsBufferHandle, U32 alignedOffset) override;
 
+			E_RESULT_CODE BindPipelineState(CVulkanGraphicsPipeline* pGraphicsPipeline);
+
 			/*!
 				\brief The method binds a given blend state to rendering pipeline
 
@@ -517,6 +521,8 @@ namespace TDEngine2
 			std::array<VkSemaphore, FRAMES_COUNT>                mRenderFinishedSemaphores {};
 			std::array<TGarbageCollection, FRAMES_COUNT>         mAwaitingDeletionObjects {};
 
+			std::array<CVulkanGraphicsPipeline*, FRAMES_COUNT>   mpActiveGraphicsPipelineStates {};
+
 			mutable std::mutex                                   mGarbageCollectorMutex {};
 
 			USIZE                                                mCurrFrameIndex = 0;
@@ -527,9 +533,9 @@ namespace TDEngine2
 
 			TDescriptorsBindingsTable                            mDescriptorsBindingsTable{};
 
-			std::vector<VkWriteDescriptorSet>                    mDescriptorWrites;
-			std::vector<VkDescriptorBufferInfo>                  mDescriptorBuffersInfo;
-			std::vector<VkDescriptorImageInfo>                   mDescriptorImageInfo;
+			std::vector<VkWriteDescriptorSet>                    mDescriptorWrites{};
+			std::vector<VkDescriptorBufferInfo>                  mDescriptorBufferInfos{};
+			std::vector<VkDescriptorImageInfo>                   mDescriptorImageInfos{};
 	};
 
 

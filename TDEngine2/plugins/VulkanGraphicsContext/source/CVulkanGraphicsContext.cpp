@@ -1606,6 +1606,15 @@ namespace TDEngine2
 	{
 	}
 
+	E_RESULT_CODE CVulkanGraphicsContext::BindPipelineState(CVulkanGraphicsPipeline* pGraphicsPipeline)
+	{
+		mpActiveGraphicsPipelineStates[mCurrFrameIndex] = pGraphicsPipeline;
+
+		// \todo Implement construction of pipeline's derivative for current render pass
+
+		return RC_OK;
+	}
+
 	void CVulkanGraphicsContext::BindBlendState(TBlendStateId blendStateId)
 	{
 	}
@@ -1776,8 +1785,24 @@ namespace TDEngine2
 	void CVulkanGraphicsContext::_prepareDrawCall()
 	{
 		mDescriptorWrites.clear();
-		mDescriptorBuffersInfo.clear();
-		mDescriptorImageInfo.clear();
+		mDescriptorBufferInfos.clear();
+		mDescriptorImageInfos.clear();
+
+		mDescriptorWrites.reserve(
+			TDescriptorsBindingsTable::MAX_CBV_COUNT +
+			TDescriptorsBindingsTable::MAX_SRV_COUNT +
+			TDescriptorsBindingsTable::MAX_SAMPLERS_COUNT +
+			TDescriptorsBindingsTable::MAX_UAV_COUNT);
+
+		mDescriptorBufferInfos.reserve(
+			TDescriptorsBindingsTable::MAX_CBV_COUNT +
+			TDescriptorsBindingsTable::MAX_SRV_COUNT +
+			TDescriptorsBindingsTable::MAX_UAV_COUNT);
+
+		mDescriptorImageInfos.reserve(
+			TDescriptorsBindingsTable::MAX_SRV_COUNT +
+			TDescriptorsBindingsTable::MAX_SAMPLERS_COUNT +
+			TDescriptorsBindingsTable::MAX_UAV_COUNT);
 
 		for (U32 i = 0; i < mDescriptorsBindingsTable.mConstantBuffers.size(); ++i)
 		{
@@ -1792,12 +1817,9 @@ namespace TDEngine2
 				continue;
 			}
 
-			VkDescriptorBufferInfo& currBufferInfo = mDescriptorBuffersInfo.emplace_back();
-			currBufferInfo.buffer = pBuffer->GetVulkanHandle();
-			currBufferInfo.offset = 0;
-			currBufferInfo.range  = VK_WHOLE_SIZE;
+			VkDescriptorBufferInfo& currBufferInfo = mDescriptorBufferInfos.emplace_back(VkDescriptorBufferInfo { pBuffer->GetVulkanHandle(), 0, VK_WHOLE_SIZE });
 
-			VkWriteDescriptorSet& currWriteDescriptorSet = mDescriptorWrites.emplace_back();
+			VkWriteDescriptorSet currWriteDescriptorSet{};
 
 			currWriteDescriptorSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			currWriteDescriptorSet.dstSet          = 0;
@@ -1805,6 +1827,8 @@ namespace TDEngine2
 			currWriteDescriptorSet.descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 			currWriteDescriptorSet.dstBinding      = i;
 			currWriteDescriptorSet.pBufferInfo     = &currBufferInfo;
+			
+			mDescriptorWrites.emplace_back(currWriteDescriptorSet);
 		}
 
 		for (U32 i = 0; i < mDescriptorsBindingsTable.mSRVBuffers.size(); ++i)
@@ -1823,10 +1847,11 @@ namespace TDEngine2
 						auto pBuffer = mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(mDescriptorsBindingsTable.mSRVBuffers[i].mValue.mBuffer);
 						if (!pBuffer)
 						{
+							mDescriptorWrites.erase(mDescriptorWrites.cend() - 1);
 							continue;
 						}
 
-						VkDescriptorBufferInfo& currBufferInfo = mDescriptorBuffersInfo.emplace_back();
+						VkDescriptorBufferInfo& currBufferInfo = mDescriptorBufferInfos.emplace_back();
 						currBufferInfo.buffer = pBuffer->GetVulkanHandle();
 						currBufferInfo.offset = 0;
 						currBufferInfo.range  = VK_WHOLE_SIZE;
@@ -1841,10 +1866,11 @@ namespace TDEngine2
 						auto pTexture = mpGraphicsObjectManagerImpl->GetVulkanTexturePtr(mDescriptorsBindingsTable.mSRVBuffers[i].mValue.mTexture);
 						if (!pTexture)
 						{
+							mDescriptorWrites.erase(mDescriptorWrites.cend() - 1);
 							continue;
 						}
 
-						VkDescriptorImageInfo& currImageInfo = mDescriptorImageInfo.emplace_back();
+						VkDescriptorImageInfo& currImageInfo = mDescriptorImageInfos.emplace_back();
 						currImageInfo.imageView   = pTexture->GetTextureViewHandle();
 						currImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 						currImageInfo.sampler     = VK_NULL_HANDLE;
@@ -1870,7 +1896,7 @@ namespace TDEngine2
 
 			VkWriteDescriptorSet& currWriteDescriptorSet = mDescriptorWrites.emplace_back();
 
-			VkDescriptorImageInfo& currImageInfo = mDescriptorImageInfo.emplace_back();
+			VkDescriptorImageInfo& currImageInfo = mDescriptorImageInfos.emplace_back();
 			currImageInfo.sampler = VK_NULL_HANDLE; // \todo
 			TDE2_UNIMPLEMENTED();
 
@@ -1898,10 +1924,11 @@ namespace TDEngine2
 					auto pBuffer = mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(mDescriptorsBindingsTable.mUAVBuffers[i].mValue.mBuffer);
 					if (!pBuffer)
 					{
+						mDescriptorWrites.erase(mDescriptorWrites.cend() - 1);
 						continue;
 					}
 
-					VkDescriptorBufferInfo& currBufferInfo = mDescriptorBuffersInfo.emplace_back();
+					VkDescriptorBufferInfo& currBufferInfo = mDescriptorBufferInfos.emplace_back();
 					currBufferInfo.buffer = pBuffer->GetVulkanHandle();
 					currBufferInfo.offset = 0;
 					currBufferInfo.range = VK_WHOLE_SIZE;
@@ -1916,10 +1943,11 @@ namespace TDEngine2
 					auto pTexture = mpGraphicsObjectManagerImpl->GetVulkanTexturePtr(mDescriptorsBindingsTable.mUAVBuffers[i].mValue.mTexture);
 					if (!pTexture)
 					{
+						mDescriptorWrites.erase(mDescriptorWrites.cend() - 1);
 						continue;
 					}
 
-					VkDescriptorImageInfo& currImageInfo = mDescriptorImageInfo.emplace_back();
+					VkDescriptorImageInfo& currImageInfo = mDescriptorImageInfos.emplace_back();
 					currImageInfo.imageView = pTexture->GetTextureViewHandle();
 					currImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 					currImageInfo.sampler = VK_NULL_HANDLE;
@@ -1938,9 +1966,13 @@ namespace TDEngine2
 
 		mDescriptorsBindingsTable.Reset();
 
-		VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
-
-		vkCmdPushDescriptorSetKHR(_getCurrCommandBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, static_cast<U32>(mDescriptorWrites.size()), mDescriptorWrites.data());
+		TDE2_ASSERT(mpActiveGraphicsPipelineStates[mCurrFrameIndex]);
+		if (!mpActiveGraphicsPipelineStates[mCurrFrameIndex])
+		{
+			return;
+		}
+		
+		vkCmdPushDescriptorSetKHR(_getCurrCommandBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, mpActiveGraphicsPipelineStates[mCurrFrameIndex]->GetPipelineLayout(), 0, static_cast<U32>(mDescriptorWrites.size()), mDescriptorWrites.data());
 	}
 
 
