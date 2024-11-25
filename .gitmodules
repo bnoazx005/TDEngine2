@@ -28,3 +28,6 @@
 [submodule "TDEngine2/deps/tracy"]
 	path = TDEngine2/deps/tracy
 	url = https://github.com/wolfpld/tracy.git
+[submodule "TDEngine2/tools/MeshConverter/deps/xatlas"]
+	path = TDEngine2/tools/MeshConverter/deps/xatlas
+	url = https://github.com/cpp-pm/xatlas.git

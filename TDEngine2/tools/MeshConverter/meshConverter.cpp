@@ -10,6 +10,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include "../../deps/Wrench/source/result.hpp"
+#include <xatlas.h>
 
 
 #if _HAS_CXX17

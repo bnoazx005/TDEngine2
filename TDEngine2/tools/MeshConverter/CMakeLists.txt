@@ -21,6 +21,7 @@ set(UTILITY_HEADERS
 
 set(UTILITY_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/deps/argparse/argparse.c"
+	"${CMAKE_CURRENT_SOURCE_DIR}/deps/xatlas/xatlas.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/meshConverter.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/main.cpp"
 	)
@@ -85,6 +86,7 @@ target_link_libraries(${TDE2_MESH_CONVERTER_NAME} PUBLIC ${TDENGINE2_LIBRARY_NAM
 
 # set up assimp library and headers
 target_include_directories(${TDE2_MESH_CONVERTER_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/assimp/include")
+target_include_directories(${TDE2_MESH_CONVERTER_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/xatlas")
 
 target_link_libraries(${TDE2_MESH_CONVERTER_NAME} PUBLIC assimp)
 

@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.31] 2024-11-24
+## [0.6.31] 2024-11-25
 
 ### Added
+
+- A new library xatlas was added to support lightmaps generation for tde2_mesh_converter utility.
 
 ### Changed
 
@@ -26,7 +28,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Now verbose file system's logging can be disabled.
 
 - Default formats of Dear imgui's **ImDrawVert** and **CSpriteRendererSystem::TSpriteVertex** were changed to fix alignments for **TUiVertexFormat**, **TSpriteVertexFormat** in shaders.
-
 
 ### Fixed
 
