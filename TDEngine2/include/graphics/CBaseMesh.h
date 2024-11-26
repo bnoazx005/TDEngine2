@@ -81,6 +81,14 @@ namespace TDEngine2
 			TDE2_API void AddTexCoord0(const TVector2& uv0) override;
 
 			/*!
+				\brief The method adds a new texture coordinates for second texture channel
+
+				\param[in] uv0 A 2d point which represents a texture coordinates
+			*/
+
+			TDE2_API void AddTexCoord1(const TVector2& uv1) override;
+
+			/*!
 				\brief The method adds an information about a face into the internal array
 
 				\param[in] face An array with indices that form a face
@@ -95,6 +103,7 @@ namespace TDEngine2
 			TDE2_API const TNormalsArray& GetNormalsArray() const override;
 			TDE2_API const TTangentsArray& GetTangentsArray() const override;
 			TDE2_API const TTexcoordsArray& GetTexCoords0Array() const override;
+			TDE2_API const TTexcoordsArray& GetLightmapTexCoordsArray() const override;
 			TDE2_API const TIndicesArray& GetIndices() const override;
 
 			TDE2_API bool HasVertexStream(E_VERTEX_STREAM_TYPE streamType) const override;
@@ -150,6 +159,7 @@ namespace TDEngine2
 			TTangentsArray           mTangents;
 
 			TTexcoordsArray          mTexcoords0;
+			TTexcoordsArray          mLightmapsTexcoords;
 
 			TIndicesArray            mIndices;
 

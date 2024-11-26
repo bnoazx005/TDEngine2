@@ -809,14 +809,18 @@ namespace TDEngine2
 		/// \note Write first uv channel
 		result = result | pMeshFileWriter->Write(&MeshTexcoords0BlockTag, sizeof(MeshTexcoords0BlockTag));
 
-		for (const TVector2& uv : meshEntity.mTexcoords)
+		for (USIZE i = 0; i < meshEntity.mTexcoords.size(); ++i)
 		{
-			result = result | pMeshFileWriter->Write(&uv.x, sizeof(F32));
-			result = result | pMeshFileWriter->Write(&uv.y, sizeof(F32));
-			result = result | pMeshFileWriter->Write(&uv.x, sizeof(F32)); /// \note Unused
-			result = result | pMeshFileWriter->Write(&uv.x, sizeof(F32));
+			const TVector2& uv0 = meshEntity.mTexcoords[i];
+			const TVector2& uv1 = meshEntity.mLightmapTexcoords[i];
+
+			result = result | pMeshFileWriter->Write(&uv0.x, sizeof(F32));
+			result = result | pMeshFileWriter->Write(&uv0.y, sizeof(F32));
+			result = result | pMeshFileWriter->Write(&uv1.x, sizeof(F32)); /// \note Store uv1 as zw
+			result = result | pMeshFileWriter->Write(&uv1.y, sizeof(F32));
 		}
 
+#if 0
 		/// \note Write lightmaps uvs channel
 		result = result | pMeshFileWriter->Write(&MeshTexcoords1BlockTag, sizeof(MeshTexcoords1BlockTag));
 
@@ -827,6 +831,7 @@ namespace TDEngine2
 			result = result | pMeshFileWriter->Write(&uv.x, sizeof(F32)); /// \note Unused
 			result = result | pMeshFileWriter->Write(&uv.x, sizeof(F32));
 		}
+#endif
 
 		/// \note Write joints weights (optional)
 		if (!options.mShouldSkipJoints && !meshEntity.mJointWeights.empty())

@@ -28,6 +28,7 @@ namespace TDEngine2
 			std::make_tuple(reinterpret_cast<const U8*>(mPositions.data()), sizeof(TVector4) * mPositions.size(), sizeof(TVector4)),
 			std::make_tuple(reinterpret_cast<const U8*>(mVertexColors.data()), sizeof(TColor32F) * mVertexColors.size(), sizeof(TColor32F)),
 			std::make_tuple(reinterpret_cast<const U8*>(mTexcoords0.data()), sizeof(TVector4) * mTexcoords0.size(), sizeof(TVector4)),
+			std::make_tuple(reinterpret_cast<const U8*>(mLightmapsTexcoords.data()), sizeof(TVector4) * mLightmapsTexcoords.size(), sizeof(TVector4)),
 			std::make_tuple(reinterpret_cast<const U8*>(mNormals.data()), sizeof(TVector4) * mNormals.size(), sizeof(TVector4)),
 			std::make_tuple(reinterpret_cast<const U8*>(mTangents.data()), sizeof(TVector4) * mTangents.size(), sizeof(TVector4))
 		};
@@ -135,6 +136,12 @@ namespace TDEngine2
 		mTexcoords0.emplace_back(TVector4(uv0.x, uv0.y, 0.0f, 0.0f));
 	}
 
+	void CBaseMesh::AddTexCoord1(const TVector2& uv1)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		mLightmapsTexcoords.emplace_back(TVector4(uv1.x, uv1.y, 0.0f, 0.0f));
+	}
+
 	void CBaseMesh::AddFace(const U32 face[3])
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
@@ -182,6 +189,12 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 		return mTexcoords0;
+	}
+
+	const CBaseMesh::TTexcoordsArray& CBaseMesh::GetLightmapTexCoordsArray() const
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		return mLightmapsTexcoords;
 	}
 
 	const CBaseMesh::TIndicesArray& CBaseMesh::GetIndices() const
@@ -281,6 +294,8 @@ namespace TDEngine2
 				return mVertexColors.size() > 0;
 			case E_VERTEX_STREAM_TYPE::TEXCOORDS:
 				return mTexcoords0.size() > 0;
+			case E_VERTEX_STREAM_TYPE::TEXCOORDS1:
+				return mLightmapsTexcoords.size() > 0;
 			case E_VERTEX_STREAM_TYPE::NORMALS:
 				return mNormals.size() > 0;
 			case E_VERTEX_STREAM_TYPE::TANGENTS:

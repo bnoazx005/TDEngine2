@@ -337,6 +337,7 @@ namespace TDEngine2
 			result = result | Read(&vecData.w, sizeof(F32));
 
 			pMesh->AddTexCoord0(TVector2(vecData.x, vecData.y));
+			pMesh->AddTexCoord1(TVector2(vecData.z, vecData.w));
 		}
 
 		return result;

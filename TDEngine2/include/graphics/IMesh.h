@@ -38,6 +38,7 @@ namespace TDEngine2
 		POSITIONS,
 		COLORS,
 		TEXCOORDS,
+		TEXCOORDS1,
 		NORMALS,
 		TANGENTS,
 		SKINNING,
@@ -123,6 +124,14 @@ namespace TDEngine2
 			TDE2_API virtual void AddTexCoord0(const TVector2& uv0) = 0;
 
 			/*!
+				\brief The method adds a new texture coordinates for second texture channel
+
+				\param[in] uv0 A 2d point which represents a texture coordinates
+			*/
+
+			TDE2_API virtual void AddTexCoord1(const TVector2& uv1) = 0;
+
+			/*!
 				\brief The method adds an information about a face into the internal array
 
 				\param[in] face An array with indices that form a face
@@ -137,6 +146,7 @@ namespace TDEngine2
 			TDE2_API virtual const TNormalsArray& GetNormalsArray() const = 0;
 			TDE2_API virtual const TTangentsArray& GetTangentsArray() const = 0;
 			TDE2_API virtual const TTexcoordsArray& GetTexCoords0Array() const = 0;
+			TDE2_API virtual const TTexcoordsArray& GetLightmapTexCoordsArray() const = 0;
 			TDE2_API virtual const TIndicesArray& GetIndices() const = 0;
 
 			TDE2_API virtual bool HasVertexStream(E_VERTEX_STREAM_TYPE streamType) const = 0;

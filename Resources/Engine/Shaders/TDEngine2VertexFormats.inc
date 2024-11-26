@@ -14,9 +14,10 @@
 #define HAS_POSITIONS  (VertexFormatFlags & (1 << 0))   
 #define HAS_COLORS     (VertexFormatFlags & (1 << 1))
 #define HAS_TEXCOORDS0 (VertexFormatFlags & (1 << 2))   
-#define HAS_NORMALS    (VertexFormatFlags & (1 << 3)) 
-#define HAS_TANGENTS   (VertexFormatFlags & (1 << 4))  
-#define HAS_SKINNING   (VertexFormatFlags & (1 << 5))  
+#define HAS_TEXCOORDS1 (VertexFormatFlags & (1 << 3))   
+#define HAS_NORMALS    (VertexFormatFlags & (1 << 4)) 
+#define HAS_TANGENTS   (VertexFormatFlags & (1 << 5))  
+#define HAS_SKINNING   (VertexFormatFlags & (1 << 6))  
 
 
 #ifdef TDE2_FVF_SKINNED_VERTEX
@@ -34,11 +35,12 @@ struct TSkinningVertexData
 	
 DECLARE_TYPED_BUFFER_EX(float4, PositionsVertexBuffer, 32);
 DECLARE_TYPED_BUFFER_EX(float4, ColorsVertexBuffer, 33);
-DECLARE_TYPED_BUFFER_EX(float4, TexCoordsVertexBuffer, 34);
-DECLARE_TYPED_BUFFER_EX(float4, NormalsVertexBuffer, 35);
-DECLARE_TYPED_BUFFER_EX(float4, TangentsVertexBuffer, 36);
+DECLARE_TYPED_BUFFER_EX(float4, TexCoords0VertexBuffer, 34);
+DECLARE_TYPED_BUFFER_EX(float4, TexCoords1VertexBuffer, 35);
+DECLARE_TYPED_BUFFER_EX(float4, NormalsVertexBuffer, 36);
+DECLARE_TYPED_BUFFER_EX(float4, TangentsVertexBuffer, 37);
 #ifdef TDE2_FVF_SKINNED_VERTEX
-DECLARE_TYPED_BUFFER_EX(TSkinningVertexData, SkinningVertexBuffer, 37);
+DECLARE_TYPED_BUFFER_EX(TSkinningVertexData, SkinningVertexBuffer, 38);
 #endif
 
 #ifdef TDE2_ENABLE_INDEX_BUFFER
@@ -48,7 +50,8 @@ DECLARE_TYPED_BUFFER_EX(uint, IndexBuffer, 30);
 /// \todo Add support of using this function when there is no declared index buffer's resource
 float4 GetVertPos(uint index, uint vertexOffset = 0, uint indexOffset = 0) { return TYPED_BUFFER_ACCESS(PositionsVertexBuffer)[TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset]; }
 float4 GetVertColor(uint index, uint vertexOffset = 0, uint indexOffset = 0) { return TYPED_BUFFER_ACCESS(ColorsVertexBuffer)[TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset]; }
-float4 GetVertTexCoords(uint index, uint vertexOffset = 0, uint indexOffset = 0) { return TYPED_BUFFER_ACCESS(TexCoordsVertexBuffer)[TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset]; }
+float4 GetVertTexCoords(uint index, uint vertexOffset = 0, uint indexOffset = 0) { return TYPED_BUFFER_ACCESS(TexCoords0VertexBuffer)[TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset]; }
+float4 GetVertLightmapsTexCoords(uint index, uint vertexOffset = 0, uint indexOffset = 0) { return TYPED_BUFFER_ACCESS(TexCoords1VertexBuffer)[TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset]; }
 float4 GetVertNormal(uint index, uint vertexOffset = 0, uint indexOffset = 0) { return TYPED_BUFFER_ACCESS(NormalsVertexBuffer)[TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset]; }
 float4 GetVertTangent(uint index, uint vertexOffset = 0, uint indexOffset = 0) { return TYPED_BUFFER_ACCESS(TangentsVertexBuffer)[TYPED_BUFFER_ACCESS(IndexBuffer)[index + indexOffset] + vertexOffset]; }
 
