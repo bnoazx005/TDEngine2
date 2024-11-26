@@ -93,6 +93,7 @@ namespace TDEngine2
 
 		bool mIsSkinned = false;
 		bool mImportTangents = true;
+		bool mGenerateLightmapsUvs = false;
 
 		std::vector<TAnimationClipImportInfo> mAnimations;
 	} TMeshResourceBuildInfo, *TMeshResourceBuildInfoPtr;

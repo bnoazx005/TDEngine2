@@ -44,6 +44,7 @@ namespace TDEngine2
 	{
 		static const std::string mIsSkinnedMeshKeyId;
 		static const std::string mImportTangentsKeyId;
+		static const std::string mGenerateLightmapsUvsKeyId;
 		static const std::string mAnimationsImportKeyId;
 		static const std::string mSingleAnimationImportKeyId;
 
@@ -59,6 +60,7 @@ namespace TDEngine2
 
 	const std::string TMeshResourceBuildInfoArchiveKeys::mIsSkinnedMeshKeyId = "is_skinned_mesh";
 	const std::string TMeshResourceBuildInfoArchiveKeys::mImportTangentsKeyId = "import_tangents";
+	const std::string TMeshResourceBuildInfoArchiveKeys::mGenerateLightmapsUvsKeyId = "generate_lightmaps_uvs";
 	const std::string TMeshResourceBuildInfoArchiveKeys::mAnimationsImportKeyId = "animation_clips";
 	const std::string TMeshResourceBuildInfoArchiveKeys::mSingleAnimationImportKeyId = "animation_info";
 
@@ -153,6 +155,7 @@ namespace TDEngine2
 
 		mIsSkinned = pReader->GetBool(TMeshResourceBuildInfoArchiveKeys::mIsSkinnedMeshKeyId);
 		mImportTangents = pReader->GetBool(TMeshResourceBuildInfoArchiveKeys::mImportTangentsKeyId);
+		mGenerateLightmapsUvs = pReader->GetBool(TMeshResourceBuildInfoArchiveKeys::mGenerateLightmapsUvsKeyId);
 
 		result = result | pReader->BeginGroup(TMeshResourceBuildInfoArchiveKeys::mAnimationsImportKeyId);
 		{
@@ -189,6 +192,7 @@ namespace TDEngine2
 
 		result = result | pWriter->SetBool(TMeshResourceBuildInfoArchiveKeys::mIsSkinnedMeshKeyId, mIsSkinned);
 		result = result | pWriter->SetBool(TMeshResourceBuildInfoArchiveKeys::mImportTangentsKeyId, mImportTangents);
+		result = result | pWriter->SetBool(TMeshResourceBuildInfoArchiveKeys::mGenerateLightmapsUvsKeyId, mGenerateLightmapsUvs);
 
 		result = result | pWriter->BeginGroup(TMeshResourceBuildInfoArchiveKeys::mAnimationsImportKeyId, true);
 		{

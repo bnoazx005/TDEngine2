@@ -11,6 +11,8 @@
 #include <assimp/postprocess.h>
 #include "../../deps/Wrench/source/result.hpp"
 #include <xatlas.h>
+#define DEFER_IMPLEMENTATION
+#include "deferOperation.hpp"
 
 
 #if _HAS_CXX17
@@ -590,6 +592,7 @@ namespace TDEngine2
 		std::vector<TVector4>           mNormals;
 		std::vector<TVector4>           mTangents;
 		std::vector<TVector2>           mTexcoords;
+		std::vector<TVector2>           mLightmapTexcoords;
 		std::vector<TVector4>           mColors;
 		std::vector<U32>                mFaces;
 		std::vector<std::vector<F32>>   mJointWeights;
@@ -673,6 +676,12 @@ namespace TDEngine2
 				meshData.mTexcoords.emplace_back(uv.x, uv.y);
 			}
 
+			if (pMesh->mTextureCoords[1]) /// \note Try to read lightmap UVs
+			{
+				auto& uv1 = pMesh->mTextureCoords[1][i];
+				meshData.mLightmapTexcoords.emplace_back(uv1.x, uv1.y);
+			}
+
 			if (pMesh->mNormals && !options.mShouldSkipNormals)
 			{
 				auto& normal = pMesh->mNormals[i];
@@ -732,6 +741,7 @@ namespace TDEngine2
 		const U16 MeshNormalsBlockTag      = 0xA10E;
 		const U16 MeshTangentsBlockTag     = 0xA2DF;
 		const U16 MeshTexcoords0BlockTag   = 0x02F0;
+		const U16 MeshTexcoords1BlockTag   = 0x02F1;
 		const U16 MeshJointWeightsBlockTag = 0xA401;
 		const U16 MeshJointIndicesBlockTag = 0xA502;
 		const U16 MeshFacesBlockTag        = 0x03FF;
@@ -800,6 +810,17 @@ namespace TDEngine2
 		result = result | pMeshFileWriter->Write(&MeshTexcoords0BlockTag, sizeof(MeshTexcoords0BlockTag));
 
 		for (const TVector2& uv : meshEntity.mTexcoords)
+		{
+			result = result | pMeshFileWriter->Write(&uv.x, sizeof(F32));
+			result = result | pMeshFileWriter->Write(&uv.y, sizeof(F32));
+			result = result | pMeshFileWriter->Write(&uv.x, sizeof(F32)); /// \note Unused
+			result = result | pMeshFileWriter->Write(&uv.x, sizeof(F32));
+		}
+
+		/// \note Write lightmaps uvs channel
+		result = result | pMeshFileWriter->Write(&MeshTexcoords1BlockTag, sizeof(MeshTexcoords1BlockTag));
+
+		for (const TVector2& uv : meshEntity.mLightmapTexcoords)
 		{
 			result = result | pMeshFileWriter->Write(&uv.x, sizeof(F32));
 			result = result | pMeshFileWriter->Write(&uv.y, sizeof(F32));
@@ -943,6 +964,56 @@ namespace TDEngine2
 	}
 
 
+	static E_RESULT_CODE GenerateLightmapUvs(std::vector<TMeshDataEntity>& meshes, const TUtilityOptions& options)
+	{
+		if (!options.mGenerateLightmapsUvsEnabled)
+		{
+			return RC_OK;
+		}
+
+		xatlas::Atlas* pAtlas = xatlas::Create();
+		defer([&] { xatlas::Destroy(pAtlas); });
+
+		for (const TMeshDataEntity& currMeshEntity : meshes)
+		{
+			xatlas::MeshDecl currMeshDecl {};
+
+			currMeshDecl.vertexCount = static_cast<U32>(currMeshEntity.mVertices.size());
+			currMeshDecl.indexCount  = static_cast<U32>(currMeshEntity.mFaces.size());
+			currMeshDecl.vertexPositionStride = sizeof(TVector4);
+			currMeshDecl.vertexNormalStride = sizeof(TVector4);
+			currMeshDecl.vertexUvStride = sizeof(TVector2);
+			currMeshDecl.vertexPositionData = currMeshEntity.mVertices.data();
+			currMeshDecl.vertexNormalData = currMeshEntity.mNormals.data();
+			currMeshDecl.vertexUvData = currMeshEntity.mTexcoords.data();
+			currMeshDecl.indexFormat = xatlas::IndexFormat::UInt32;
+			currMeshDecl.indexData = currMeshEntity.mFaces.data();
+			
+			xatlas::AddMeshError::Enum result = xatlas::AddMesh(pAtlas, currMeshDecl);
+			if (xatlas::AddMeshError::Success != result)
+			{
+				return RC_FAIL;
+			}
+		}
+
+		xatlas::Generate(pAtlas);
+
+		for (U32 i = 0; i < pAtlas->meshCount; ++i)
+		{
+			const xatlas::Mesh& currMesh = pAtlas->meshes[i];
+			TMeshDataEntity& outputMesh = meshes[i];
+
+			for (U32 v = 0; v < currMesh.vertexCount; ++v)
+			{
+				const xatlas::Vertex& vertex = currMesh.vertexArray[v];
+				outputMesh.mLightmapTexcoords.emplace_back(vertex.uv[0] / pAtlas->width, vertex.uv[1] / pAtlas->height);
+			}
+		}
+
+		return RC_OK;
+	}
+
+
 	static E_RESULT_CODE ProcessSingleMeshFile(IEngineCore* pEngineCore, const std::string& filePath, const TUtilityOptions& options) TDE2_NOEXCEPT
 	{
 		Assimp::Importer importer;
@@ -998,6 +1069,11 @@ namespace TDEngine2
 
 		ProcessHierarchyTable(pScene, meshes);
 
+		if (RC_OK != (result = GenerateLightmapUvs(meshes, options)))
+		{
+			return result;
+		}
+
 		TUtilityOptions updatedOptions = options;
 		updatedOptions.mIndexFormat = (baseIndex < 0xFFFF) ? sizeof(U16) : sizeof(U32);
 
@@ -1032,10 +1108,11 @@ namespace TDEngine2
 
 			TUtilityOptions options;
 			options.mResourcesBuildManifestFilename = resourcesManifestFilepath;
-			options.mShouldSkipNormals   = !meshInfo.mImportTangents;
-			options.mShouldSkipTangents  = !meshInfo.mImportTangents;
-			options.mShouldSkipJoints    = !meshInfo.mIsSkinned;
-			options.mIsBucketModeEnabled = true;
+			options.mShouldSkipNormals           = !meshInfo.mImportTangents;
+			options.mShouldSkipTangents          = !meshInfo.mImportTangents;
+			options.mShouldSkipJoints            = !meshInfo.mIsSkinned;
+			options.mGenerateLightmapsUvsEnabled = meshInfo.mGenerateLightmapsUvs;
+			options.mIsBucketModeEnabled         = true;
 
 			result = result | ProcessSingleMeshFile(pEngineCore, pFileSystem->CombinePath(basePath, resourceInfo.mRelativePathToResource), options);
 			return true;

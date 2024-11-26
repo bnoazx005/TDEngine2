@@ -529,6 +529,11 @@ namespace TDEngine2
 		imgui.Checkbox("##skinned_mesh", pMeshInfo->mIsSkinned);
 		imgui.EndHorizontal();
 
+		imgui.BeginHorizontal();
+		imgui.Label("Generate Lightmaps UVs");
+		imgui.Checkbox("##lightmapUvs", pMeshInfo->mGenerateLightmapsUvs);
+		imgui.EndHorizontal();
+
 		if (pMeshInfo->mIsSkinned)
 		{
 			if (imgui.CollapsingHeader("Animation Clips", true))

@@ -44,6 +44,7 @@ namespace TDEngine2
 		bool mShouldSkipTangents = false;
 		bool mShouldSkipJoints   = false;
 		bool mIsBucketModeEnabled = false;
+		bool mGenerateLightmapsUvsEnabled = false;
 
 		U32 mIndexFormat = sizeof(U16);
 	};
