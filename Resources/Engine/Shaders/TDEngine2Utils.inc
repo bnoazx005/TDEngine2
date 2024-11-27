@@ -177,6 +177,13 @@ static float Pi = 3.141592;
 #endif
 
 
+float CheckerPattern(float2 uv, float size)
+{
+	float2 q = floor(uv * size);
+	return clamp(fmod(q.x + q.y, 2.0), 0.25, 1.0);
+}
+
+
 #include <TDEngine2EffectsUtils.inc>
 
 #endif
