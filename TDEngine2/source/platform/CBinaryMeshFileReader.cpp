@@ -36,6 +36,7 @@ namespace TDEngine2
 		I32 parentId = 0;
 		U32 vertexCount = 0;
 		U32 facesCount = 0;
+		U32 texCoordsChannelsCount = 0;
 
 		std::string subMeshId;
 
@@ -45,13 +46,13 @@ namespace TDEngine2
 			return readHeaderResult.GetError();
 		}
 
-		std::tie(parentId, vertexCount, facesCount, subMeshId) = readHeaderResult.Get();
+		std::tie(parentId, vertexCount, facesCount, texCoordsChannelsCount, subMeshId) = readHeaderResult.Get();
 
 		pMesh->AddSubMeshInfo(subMeshId, {pMesh->GetFacesCount() * 3, facesCount * 3});
 
 		IMesh* pBaseMesh = dynamic_cast<IMesh*>(pMesh);
 
-		if (RC_OK != (result = _readCommonMeshVertexData(pBaseMesh, vertexCount, facesCount)))
+		if (RC_OK != (result = _readCommonMeshVertexData(pBaseMesh, vertexCount, facesCount, texCoordsChannelsCount)))
 		{
 			return result;
 		}
@@ -68,6 +69,7 @@ namespace TDEngine2
 		I32 parentId = 0;
 		U32 vertexCount = 0;
 		U32 facesCount = 0;
+		U16 texCoordsChannelsCount = 0;
 
 		std::string subMeshId;
 
@@ -77,11 +79,11 @@ namespace TDEngine2
 			return readHeaderResult.GetError();
 		}
 
-		std::tie(parentId, vertexCount, facesCount, subMeshId) = readHeaderResult.Get();
+		std::tie(parentId, vertexCount, facesCount, texCoordsChannelsCount, subMeshId) = readHeaderResult.Get();
 
 		IMesh* pBaseMesh = dynamic_cast<IMesh*>(pMesh);
 
-		if (RC_OK != (result = _readCommonMeshVertexData(pBaseMesh, vertexCount, facesCount)))
+		if (RC_OK != (result = _readCommonMeshVertexData(pBaseMesh, vertexCount, facesCount, texCoordsChannelsCount)))
 		{
 			return result;
 		}
@@ -231,6 +233,7 @@ namespace TDEngine2
 
 		U32 vertexCount = 0;
 		U32 facesCount = 0;
+		U16 texCoordsChannelsCount = 0;
 
 		if ((result = Read(&vertexCount, sizeof(U32))) != RC_OK)
 		{
@@ -244,6 +247,12 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
+		if ((result = Read(&texCoordsChannelsCount, sizeof(texCoordsChannelsCount))) != RC_OK)
+		{
+			TDE2_ASSERT(false);
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
+		}
+
 		I32 parentId = 0x0;
 		if ((result = Read(&parentId, sizeof(parentId))) != RC_OK)
 		{
@@ -251,10 +260,10 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(result);
 		}
 
-		return Wrench::TOkValue<TMeshEntityHeader>({ parentId, vertexCount, facesCount, { meshId } });
+		return Wrench::TOkValue<TMeshEntityHeader>({ parentId, vertexCount, facesCount, texCoordsChannelsCount, { meshId } });
 	}
 	
-	E_RESULT_CODE CBinaryMeshFileReader::_readCommonMeshVertexData(IMesh*& pMesh, U32 vertexCount, U32 facesCount)
+	E_RESULT_CODE CBinaryMeshFileReader::_readCommonMeshVertexData(IMesh*& pMesh, U32 vertexCount, U32 facesCount, U16 texCoordsChannelsCount)
 	{
 		E_RESULT_CODE result = RC_OK;
 
@@ -333,11 +342,32 @@ namespace TDEngine2
 		{
 			result = result | Read(&vecData.x, sizeof(F32));
 			result = result | Read(&vecData.y, sizeof(F32));
-			result = result | Read(&vecData.z, sizeof(F32));
+			result = result | Read(&vecData.z, sizeof(F32)); /// Unused
 			result = result | Read(&vecData.w, sizeof(F32));
 
 			pMesh->AddTexCoord0(TVector2(vecData.x, vecData.y));
-			pMesh->AddTexCoord1(TVector2(vecData.z, vecData.w));
+		}
+
+		if (texCoordsChannelsCount > 1)
+		{
+			/// \note Read second uv channel
+			if ((result = Read(&tag, sizeof(U16))) != RC_OK)
+			{
+				TDE2_ASSERT(false);
+				return result;
+			}
+
+			TDE2_ASSERT(tag == 0x02F1);
+
+			for (U32 i = 0; i < vertexCount; ++i)
+			{
+				result = result | Read(&vecData.x, sizeof(F32));
+				result = result | Read(&vecData.y, sizeof(F32));
+				result = result | Read(&vecData.z, sizeof(F32)); /// Unused
+				result = result | Read(&vecData.w, sizeof(F32));
+
+				pMesh->AddTexCoord1(vecData);
+			}
 		}
 
 		return result;

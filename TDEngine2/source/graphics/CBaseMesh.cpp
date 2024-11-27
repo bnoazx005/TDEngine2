@@ -136,10 +136,10 @@ namespace TDEngine2
 		mTexcoords0.emplace_back(TVector4(uv0.x, uv0.y, 0.0f, 0.0f));
 	}
 
-	void CBaseMesh::AddTexCoord1(const TVector2& uv1)
+	void CBaseMesh::AddTexCoord1(const TVector4& uv1)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		mLightmapsTexcoords.emplace_back(TVector4(uv1.x, uv1.y, 0.0f, 0.0f));
+		mLightmapsTexcoords.emplace_back(uv1);
 	}
 
 	void CBaseMesh::AddFace(const U32 face[3])

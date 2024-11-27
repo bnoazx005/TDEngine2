@@ -592,7 +592,7 @@ namespace TDEngine2
 		std::vector<TVector4>           mNormals;
 		std::vector<TVector4>           mTangents;
 		std::vector<TVector2>           mTexcoords;
-		std::vector<TVector2>           mLightmapTexcoords;
+		std::vector<TVector4>           mLightmapTexcoords;
 		std::vector<TVector4>           mColors;
 		std::vector<U32>                mFaces;
 		std::vector<std::vector<F32>>   mJointWeights;
@@ -679,7 +679,7 @@ namespace TDEngine2
 			if (pMesh->mTextureCoords[1]) /// \note Try to read lightmap UVs
 			{
 				auto& uv1 = pMesh->mTextureCoords[1][i];
-				meshData.mLightmapTexcoords.emplace_back(uv1.x, uv1.y);
+				meshData.mLightmapTexcoords.emplace_back(uv1.x, uv1.y, 0.0f, 0.0f);
 			}
 
 			if (pMesh->mNormals && !options.mShouldSkipNormals)
@@ -762,8 +762,13 @@ namespace TDEngine2
 		const U32 vertexCount = static_cast<U32>(meshEntity.mVertices.size());
 		const U32 facesCount  = static_cast<U32>(meshEntity.mFaces.size()) / 3;
 
+		const U16 texCoordsChannelsCount =
+			(meshEntity.mTexcoords.size() > 0 ? 1 : 0) + 
+			(meshEntity.mLightmapTexcoords.size() > 0 ? 1 : 0);
+
 		result = result | pMeshFileWriter->Write(&vertexCount, sizeof(vertexCount));
 		result = result | pMeshFileWriter->Write(&facesCount, sizeof(facesCount));
+		result = result | pMeshFileWriter->Write(&texCoordsChannelsCount, sizeof(texCoordsChannelsCount));
 
 		result = result | pMeshFileWriter->Write(&meshEntity.mParentId, sizeof(meshEntity.mParentId)); /// \node child-parent relationship's index
 
@@ -809,29 +814,24 @@ namespace TDEngine2
 		/// \note Write first uv channel
 		result = result | pMeshFileWriter->Write(&MeshTexcoords0BlockTag, sizeof(MeshTexcoords0BlockTag));
 
-		for (USIZE i = 0; i < meshEntity.mTexcoords.size(); ++i)
+		for (const TVector2& uv0 : meshEntity.mTexcoords)
 		{
-			const TVector2& uv0 = meshEntity.mTexcoords[i];
-			const TVector2& uv1 = meshEntity.mLightmapTexcoords[i];
-
 			result = result | pMeshFileWriter->Write(&uv0.x, sizeof(F32));
 			result = result | pMeshFileWriter->Write(&uv0.y, sizeof(F32));
-			result = result | pMeshFileWriter->Write(&uv1.x, sizeof(F32)); /// \note Store uv1 as zw
-			result = result | pMeshFileWriter->Write(&uv1.y, sizeof(F32));
+			result = result | pMeshFileWriter->Write(&uv0.x, sizeof(F32)); /// \note Store uv1 as zw
+			result = result | pMeshFileWriter->Write(&uv0.y, sizeof(F32));
 		}
 
-#if 0
 		/// \note Write lightmaps uvs channel
 		result = result | pMeshFileWriter->Write(&MeshTexcoords1BlockTag, sizeof(MeshTexcoords1BlockTag));
 
-		for (const TVector2& uv : meshEntity.mLightmapTexcoords)
+		for (const TVector4& uv1 : meshEntity.mLightmapTexcoords)
 		{
-			result = result | pMeshFileWriter->Write(&uv.x, sizeof(F32));
-			result = result | pMeshFileWriter->Write(&uv.y, sizeof(F32));
-			result = result | pMeshFileWriter->Write(&uv.x, sizeof(F32)); /// \note Unused
-			result = result | pMeshFileWriter->Write(&uv.x, sizeof(F32));
+			result = result | pMeshFileWriter->Write(&uv1.x, sizeof(F32));
+			result = result | pMeshFileWriter->Write(&uv1.y, sizeof(F32));
+			result = result | pMeshFileWriter->Write(&uv1.z, sizeof(F32));
+			result = result | pMeshFileWriter->Write(&uv1.w, sizeof(F32));
 		}
-#endif
 
 		/// \note Write joints weights (optional)
 		if (!options.mShouldSkipJoints && !meshEntity.mJointWeights.empty())
@@ -1011,7 +1011,7 @@ namespace TDEngine2
 			for (U32 v = 0; v < currMesh.vertexCount; ++v)
 			{
 				const xatlas::Vertex& vertex = currMesh.vertexArray[v];
-				outputMesh.mLightmapTexcoords.emplace_back(vertex.uv[0] / pAtlas->width, vertex.uv[1] / pAtlas->height);
+				outputMesh.mLightmapTexcoords.emplace_back(vertex.uv[0] / pAtlas->width, vertex.uv[1] / pAtlas->height, static_cast<F32>(vertex.chartIndex), 0.0f);
 			}
 		}
 

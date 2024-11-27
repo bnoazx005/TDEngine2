@@ -126,10 +126,10 @@ namespace TDEngine2
 			/*!
 				\brief The method adds a new texture coordinates for second texture channel
 
-				\param[in] uv0 A 2d point which represents a texture coordinates
+				\param[in] uv1 A 4d point which represents a texture coordinates
 			*/
 
-			TDE2_API virtual void AddTexCoord1(const TVector2& uv1) = 0;
+			TDE2_API virtual void AddTexCoord1(const TVector4& uv1) = 0;
 
 			/*!
 				\brief The method adds an information about a face into the internal array
