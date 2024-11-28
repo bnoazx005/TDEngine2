@@ -106,7 +106,7 @@ VertexOut mainVS(uint vertexId : SV_VertexID, uint instanceId : SV_InstanceID)
 #program pixel
 
 DECLARE_TEX2D_EX(DepthTexture, 15);
-DECLARE_TEX2D_EX(MainTexture, 0);
+DECLARE_TEX2D_EX(MainTexture, 3);
 
 
 float ApplyContrast(float input, float contrastPower)
