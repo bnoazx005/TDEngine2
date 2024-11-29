@@ -10,7 +10,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include "../../deps/Wrench/source/result.hpp"
-#include <xatlas.h>
+#include "xatlas.h"
 #define DEFER_IMPLEMENTATION
 #include "deferOperation.hpp"
 
