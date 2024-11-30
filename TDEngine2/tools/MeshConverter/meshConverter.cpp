@@ -10,7 +10,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include "../../deps/Wrench/source/result.hpp"
-#include "xatlas.h"
+#include "xatlas/xatlas.h"
 #define DEFER_IMPLEMENTATION
 #include "deferOperation.hpp"
 
@@ -994,7 +994,7 @@ namespace TDEngine2
 			currMeshDecl.indexFormat = xatlas::IndexFormat::UInt32;
 			currMeshDecl.indexData = currMeshEntity.mFaces.data();
 			
-			xatlas::AddMeshError::Enum result = xatlas::AddMesh(pAtlas, currMeshDecl);
+			xatlas::AddMeshError result = xatlas::AddMesh(pAtlas, currMeshDecl);
 			if (xatlas::AddMeshError::Success != result)
 			{
 				return RC_FAIL;
