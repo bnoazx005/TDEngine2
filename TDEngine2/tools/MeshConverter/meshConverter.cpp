@@ -822,15 +822,18 @@ namespace TDEngine2
 			result = result | pMeshFileWriter->Write(&uv0.y, sizeof(F32));
 		}
 
-		/// \note Write lightmaps uvs channel
-		result = result | pMeshFileWriter->Write(&MeshTexcoords1BlockTag, sizeof(MeshTexcoords1BlockTag));
-
-		for (const TVector4& uv1 : meshEntity.mLightmapTexcoords)
+		if (!meshEntity.mLightmapTexcoords.empty())
 		{
-			result = result | pMeshFileWriter->Write(&uv1.x, sizeof(F32));
-			result = result | pMeshFileWriter->Write(&uv1.y, sizeof(F32));
-			result = result | pMeshFileWriter->Write(&uv1.z, sizeof(F32));
-			result = result | pMeshFileWriter->Write(&uv1.w, sizeof(F32));
+			/// \note Write lightmaps uvs channel
+			result = result | pMeshFileWriter->Write(&MeshTexcoords1BlockTag, sizeof(MeshTexcoords1BlockTag));
+
+			for (const TVector4& uv1 : meshEntity.mLightmapTexcoords)
+			{
+				result = result | pMeshFileWriter->Write(&uv1.x, sizeof(F32));
+				result = result | pMeshFileWriter->Write(&uv1.y, sizeof(F32));
+				result = result | pMeshFileWriter->Write(&uv1.z, sizeof(F32));
+				result = result | pMeshFileWriter->Write(&uv1.w, sizeof(F32));
+			}
 		}
 
 		/// \note Write joints weights (optional)
