@@ -13,6 +13,15 @@
 
 namespace TDEngine2
 {
+	void TDescriptorsBindingsTable::Reset()
+	{
+		std::fill(mConstantBuffers.begin(), mConstantBuffers.end(), TBufferHandleId::Invalid);
+		std::fill(mSRVBuffers.begin(), mSRVBuffers.end(), TDescriptorHandle{});
+		std::fill(mUAVBuffers.begin(), mUAVBuffers.end(), TDescriptorHandle{});
+		std::fill(mSamplers.begin(), mSamplers.end(), TTextureSamplerId::Invalid);
+	}
+
+
 	CBaseGraphicsObjectManager::CBaseGraphicsObjectManager() :
 		CBaseObject(), mpDebugUtility(nullptr)
 	{
