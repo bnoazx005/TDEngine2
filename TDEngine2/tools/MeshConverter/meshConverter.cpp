@@ -1,3 +1,4 @@
+#include "xatlas.h"
 #include "meshConverter.h"
 #include "deps/argparse/argparse.h"
 #include <unordered_set>
@@ -10,7 +11,6 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include "../../deps/Wrench/source/result.hpp"
-#include "xatlas/xatlas.h"
 #define DEFER_IMPLEMENTATION
 #include "deferOperation.hpp"
 

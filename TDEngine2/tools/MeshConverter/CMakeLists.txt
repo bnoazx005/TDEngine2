@@ -86,7 +86,7 @@ target_link_libraries(${TDE2_MESH_CONVERTER_NAME} PUBLIC ${TDENGINE2_LIBRARY_NAM
 
 # set up assimp library and headers
 target_include_directories(${TDE2_MESH_CONVERTER_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/assimp/include")
-target_include_directories(${TDE2_MESH_CONVERTER_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/xatlas/source")
+target_include_directories(${TDE2_MESH_CONVERTER_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/xatlas/source/xatlas")
 
 target_link_libraries(${TDE2_MESH_CONVERTER_NAME} PUBLIC assimp)
 
