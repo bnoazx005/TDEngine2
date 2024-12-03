@@ -143,6 +143,8 @@ So your video card should support at least OpenGL 3.0. The second is installed X
 
 * Assimp (used only by tde2_mesh_converter utility) (https://github.com/assimp/assimp)
 
+* optional-lite (https://github.com/martinmoene/optional-lite)
+
 ***
 
 ### Getting Started<a name="getting-started"></a>

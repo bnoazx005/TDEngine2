@@ -7,12 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.31] 2024-11-26
+## [0.6.31] 2024-12-03
 
 ### Added
 
 - A new library xatlas was added to support lightmaps generation for tde2_mesh_converter utility. tde2_mesh_converter now 
 supports lightmaps generation.
+
+- A new library optional-lite was added into the engine's dependencies list.
 
 ### Changed
 

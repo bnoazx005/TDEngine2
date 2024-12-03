@@ -30,6 +30,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <nonstd/optional.hpp>
 
 
 namespace TDEngine2
