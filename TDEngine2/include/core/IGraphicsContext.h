@@ -118,39 +118,6 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem) = 0;
 
-			/*!
-				\brief The method clears up back buffer with specified color
-
-				\param[in] color The new color of a back buffer
-			*/
-
-			TDE2_API virtual void ClearBackBuffer(const TColor32F& color) = 0;
-
-			/*!
-				\brief The method clears up render target with specified color
-
-				\param[in] slot A slot into which the render target that should be cleared up is bound
-				\param[in] color The new color of a render target
-			*/
-
-			TDE2_API virtual void ClearRenderTarget(U8 slot, const TColor32F& color) = 0;
-
-			/*!
-				\brief The method clears up depth buffer with specified values
-
-				\param[in] value The depth buffer will be cleared with this value
-			*/
-
-			TDE2_API virtual void ClearDepthBuffer(F32 value) = 0;
-
-			/*!
-				\brief The method clears up stencil buffer with specified values
-				
-				\param[in] value The stencil buffer will be cleared with this value
-			*/
-
-			TDE2_API virtual void ClearStencilBuffer(U8 value) = 0;
-
 			TDE2_API virtual void BeginFrame() = 0;
 
 			/*!

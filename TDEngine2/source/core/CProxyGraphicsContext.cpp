@@ -29,26 +29,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void CProxyGraphicsContext::ClearBackBuffer(const TColor32F& color)
-	{
-		LOG_MESSAGE("[ProxyGraphicsContext] ClearBackBuffer");
-	}
-
-	void CProxyGraphicsContext::ClearRenderTarget(U8 slot, const TColor32F& color)
-	{
-		LOG_MESSAGE("[ProxyGraphicsContext] ClearRenderTarget(U8, const TColor32F&)");
-	}
-
-	void CProxyGraphicsContext::ClearDepthBuffer(F32 value)
-	{
-		LOG_MESSAGE("[ProxyGraphicsContext] ClearDepthBuffer(F32)");
-	}
-
-	void CProxyGraphicsContext::ClearStencilBuffer(U8 value)
-	{
-		LOG_MESSAGE("[ProxyGraphicsContext] ClearStencilBuffer(U8)");
-	}
-
 	void CProxyGraphicsContext::BeginFrame()
 	{
 		LOG_MESSAGE("[ProxyGraphicsContext] BeginFrame");

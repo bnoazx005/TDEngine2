@@ -40,23 +40,15 @@ namespace TDEngine2
 		public:
 			TDE2_REGISTER_TYPE(COGLGraphicsContext)
 
-				/*!
-					\brief The method initializes an initial state of the object
-
-					\param[in] pWindowSystem A pointer to implementation of IWindowSystem interface
-
-					\return RC_OK if everything went ok, or some other code, which describes an error
-				*/
-
-				E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem) override;
-
 			/*!
-				\brief The method clears up back buffer with specified color
+				\brief The method initializes an initial state of the object
 
-				\param[in] color The new color of a back buffer
+				\param[in] pWindowSystem A pointer to implementation of IWindowSystem interface
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			void ClearBackBuffer(const TColor32F& color) override;
+			E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem) override;
 
 			void BeginFrame() override;
 
@@ -65,31 +57,6 @@ namespace TDEngine2
 			*/
 
 			void Present() override;
-
-			/*!
-				\brief The method clears up render target with specified color
-
-				\param[in] slot A slot into which the render target that should be cleared up is bound
-				\param[in] color The new color of a render target
-			*/
-
-			void ClearRenderTarget(U8 slot, const TColor32F& color) override;
-
-			/*!
-				\brief The method clears up depth buffer with specified values
-
-				\param[in] value The depth buffer will be cleared with this value
-			*/
-
-			void ClearDepthBuffer(F32 value) override;
-
-			/*!
-				\brief The method clears up stencil buffer with specified values
-
-				\param[in] value The stencil buffer will be cleared with this value
-			*/
-
-			void ClearStencilBuffer(U8 value) override;
 
 			/*!
 				\brief The method sets up a viewport's parameters
@@ -633,42 +600,6 @@ namespace TDEngine2
 		return result;
 	}
 	
-	void COGLGraphicsContext::ClearBackBuffer(const TColor32F& color)
-	{
-		GL_SAFE_VOID_CALL(glClearColor(color.r, color.g, color.b, color.a));
-		GL_SAFE_VOID_CALL(glClear(GL_COLOR_BUFFER_BIT));
-	}
-
-	void COGLGraphicsContext::ClearRenderTarget(U8 slot, const TColor32F& color)
-	{
-		TDE2_ASSERT(slot < mMaxNumOfRenderTargets);
-		if (slot >= mMaxNumOfRenderTargets)
-		{
-			return;
-		}
-
-		if (!mRenderTargets[slot])
-		{
-			LOG_WARNING(Wrench::StringUtils::Format("[COGLGraphicsContext] Try to clear the render target in slot {0}, but it's empty", slot));
-			return;
-		}
-
-		const F32 clearColorArray[4]{ color.r, color.g, color.b, color.a };
-		GL_SAFE_VOID_CALL(glClearBufferfv(GL_COLOR, 0, clearColorArray));
-	}
-
-	void COGLGraphicsContext::ClearDepthBuffer(F32 value)
-	{
-		GL_SAFE_VOID_CALL(glClearDepthf(value));
-		GL_SAFE_VOID_CALL(glClear(GL_DEPTH_BUFFER_BIT));
-	}
-	
-	void COGLGraphicsContext::ClearStencilBuffer(U8 value)
-	{
-		GL_SAFE_VOID_CALL(glClearStencil(value));
-		GL_SAFE_VOID_CALL(glClear(GL_STENCIL_BUFFER_BIT));
-	}
-
 	void COGLGraphicsContext::BeginFrame()
 	{
 	}

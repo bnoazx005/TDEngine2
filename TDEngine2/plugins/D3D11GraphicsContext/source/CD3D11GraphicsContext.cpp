@@ -52,39 +52,6 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem) override;
 
-			/*!
-				\brief The method clears up back buffer with specified color
-
-				\param[in] color The new color of a back buffer
-			*/
-
-			TDE2_API void ClearBackBuffer(const TColor32F& color) override;
-
-			/*!
-				\brief The method clears up render target with specified color
-
-				\param[in] slot A slot into which the render target that should be cleared up is bound
-				\param[in] color The new color of a render target
-			*/
-
-			TDE2_API void ClearRenderTarget(U8 slot, const TColor32F& color) override;
-
-			/*!
-				\brief The method clears up depth buffer with specified values
-
-				\param[in] value The depth buffer will be cleared with this value
-			*/
-
-			TDE2_API void ClearDepthBuffer(F32 value) override;
-
-			/*!
-				\brief The method clears up stencil buffer with specified values
-
-				\param[in] value The stencil buffer will be cleared with this value
-			*/
-
-			TDE2_API void ClearStencilBuffer(U8 value) override;
-
 			TDE2_API void BeginFrame() override;
 
 			/*!
@@ -621,42 +588,6 @@ namespace TDEngine2
 		return result;
 	}
 	
-	void CD3D11GraphicsContext::ClearBackBuffer(const TColor32F& color)
-	{
-		const F32 clearColorArray[4] { color.r, color.g, color.b, color.a };
-
-		mp3dDeviceContext->ClearRenderTargetView(mpBackBufferView, clearColorArray);
-	}
-
-	void CD3D11GraphicsContext::ClearRenderTarget(U8 slot, const TColor32F& color)
-	{
-		TDE2_ASSERT(slot < mMaxNumOfRenderTargets);
-		if (slot >= mMaxNumOfRenderTargets)
-		{
-			return;
-		}
-
-		if (!mpRenderTargets[slot])
-		{
-			LOG_WARNING(Wrench::StringUtils::Format("[CD3D11GraphicsContext] Try to clear the render target in slot {0}, but it's empty", slot));
-			return;
-		}
-
-		const F32 clearColorArray[4]{ color.r, color.g, color.b, color.a };
-
-		mp3dDeviceContext->ClearRenderTargetView(mpRenderTargets[slot], clearColorArray);
-	}
-
-	void CD3D11GraphicsContext::ClearDepthBuffer(F32 value)
-	{
-		mp3dDeviceContext->ClearDepthStencilView(mpCurrDepthStencilView, D3D11_CLEAR_DEPTH, value, 0);
-	}
-
-	void CD3D11GraphicsContext::ClearStencilBuffer(U8 value)
-	{
-		mp3dDeviceContext->ClearDepthStencilView(mpCurrDepthStencilView, D3D11_CLEAR_STENCIL, 0.0f, value);
-	}
-
 	void CD3D11GraphicsContext::BeginFrame()
 	{
 	}

@@ -91,14 +91,6 @@ namespace TDEngine2
 
 			E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem) override;
 
-			/*!
-				\brief The method clears up back buffer with specified color
-
-				\param[in] color The new color of a back buffer
-			*/
-
-			void ClearBackBuffer(const TColor32F& color) override;	
-
 			void BeginFrame() override;
 
 			/*!
@@ -106,31 +98,6 @@ namespace TDEngine2
 			*/
 
 			void Present() override;
-
-			/*!
-				\brief The method clears up render target with specified color
-
-				\param[in] slot A slot into which the render target that should be cleared up is bound
-				\param[in] color The new color of a render target
-			*/
-
-			void ClearRenderTarget(U8 slot, const TColor32F& color) override;
-
-			/*!
-				\brief The method clears up depth buffer with specified values
-
-				\param[in] value The depth buffer will be cleared with this value
-			*/
-
-			void ClearDepthBuffer(F32 value) override;
-
-			/*!
-				\brief The method clears up stencil buffer with specified values
-
-				\param[in] value The stencil buffer will be cleared with this value
-			*/
-
-			void ClearStencilBuffer(U8 value) override;
 
 			/*!
 				\brief The method executes given destroyCommand at the end of a frame when all resources of current frame can be destructed

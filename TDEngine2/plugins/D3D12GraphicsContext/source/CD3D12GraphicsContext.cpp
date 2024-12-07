@@ -45,39 +45,6 @@ namespace TDEngine2
 
 			E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem) override;
 
-			/*!
-				\brief The method clears up back buffer with specified color
-
-				\param[in] color The new color of a back buffer
-			*/
-
-			void ClearBackBuffer(const TColor32F& color) override;
-
-			/*!
-				\brief The method clears up render target with specified color
-
-				\param[in] slot A slot into which the render target that should be cleared up is bound
-				\param[in] color The new color of a render target
-			*/
-
-			void ClearRenderTarget(U8 slot, const TColor32F& color) override;
-
-			/*!
-				\brief The method clears up depth buffer with specified values
-
-				\param[in] value The depth buffer will be cleared with this value
-			*/
-
-			void ClearDepthBuffer(F32 value) override;
-
-			/*!
-				\brief The method clears up stencil buffer with specified values
-
-				\param[in] value The stencil buffer will be cleared with this value
-			*/
-
-			void ClearStencilBuffer(U8 value) override;
-
 			void BeginFrame() override;
 
 			/*!
@@ -862,37 +829,6 @@ namespace TDEngine2
 		}
 
 		mCurrBackBufferIndex = mpSwapChain->GetCurrentBackBufferIndex();
-	}
-
-	void CD3D12GraphicsContext::ClearBackBuffer(const TColor32F& color)
-	{
-		const F32 clearColorArray[4]{ color.r, color.g, color.b, color.a };
-
-		CD3DX12_RESOURCE_BARRIER rtTransitionBarrier = CD3DX12_RESOURCE_BARRIER::Transition(mpRenderTargetViews[mCurrBackBufferIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-		mpCommandList->ResourceBarrier(1, &rtTransitionBarrier);
-
-		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(mpRenderTargetViewsHeap->GetCPUDescriptorHandleForHeapStart(), mCurrBackBufferIndex, mRTVDescriptorSize);
-
-		mpCommandList->ClearRenderTargetView(rtvHandle, clearColorArray, 0, nullptr);
-	}
-
-	void CD3D12GraphicsContext::ClearRenderTarget(U8 slot, const TColor32F& color)
-	{
-		//m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
-
-		//CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize);
-
-		//// Record commands.
-		//const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
-		//m_commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
-	}
-
-	void CD3D12GraphicsContext::ClearDepthBuffer(F32 value)
-	{
-	}
-
-	void CD3D12GraphicsContext::ClearStencilBuffer(U8 value)
-	{
 	}
 
 	void CD3D12GraphicsContext::BeginFrame()

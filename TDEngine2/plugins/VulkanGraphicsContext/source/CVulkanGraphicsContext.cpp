@@ -1142,22 +1142,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void CVulkanGraphicsContext::ClearBackBuffer(const TColor32F& color)
-	{
-	}
-
-	void CVulkanGraphicsContext::ClearRenderTarget(U8 slot, const TColor32F& color)
-	{
-	}
-
-	void CVulkanGraphicsContext::ClearDepthBuffer(F32 value)
-	{
-	}
-
-	void CVulkanGraphicsContext::ClearStencilBuffer(U8 value)
-	{
-	}
-
 	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeffered(VkBuffer bufferHandle, VmaAllocation allocation)
 	{
 		std::lock_guard<std::mutex> lock(mGarbageCollectorMutex);
