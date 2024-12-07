@@ -1,4 +1,3 @@
-#include "xatlas.h"
 #include "meshConverter.h"
 #include "deps/argparse/argparse.h"
 #include <unordered_set>
@@ -13,7 +12,8 @@
 #include "../../deps/Wrench/source/result.hpp"
 #define DEFER_IMPLEMENTATION
 #include "deferOperation.hpp"
-
+#undef Success // comes somewhere over X11 library and breaks compilation 
+#include "xatlas.h"
 
 #if _HAS_CXX17
 	#include <filesystem>
