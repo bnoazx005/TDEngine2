@@ -322,31 +322,12 @@ namespace TDEngine2
 			void BindRasterizerState(TRasterizerStateId rasterizerStateId) override;
 
 			/*!
-				\brief The method binds a given render target object to rendering pipeline
-
-				\param[in] slot An index of the slot into which the render target will be bound
-
-				\param[in] targetHandle Handle to texture object that's created as a render target
+				\brief The pair of methods BeginRenderPass/EndRenderPass are intended to replace separate calls of BindRenderTarget/BindDepthBufferTarget/SetDepthBufferEnabled and others
+				to provide single point configuration of all targets that participate in rendering. The concept should be familiar for ones who worked with OpenGL/Vulkan GAPIs
 			*/
 
-			void BindRenderTarget(U8 slot, TTextureHandleId targetHandle) override;
-
-			/*!
-				\brief The method binds a given depth buffer to rendering pipeline
-
-				\param[in] targetHandle Handle to texture object that's created as a depth buffer
-				\param[in] disableRTWrite A flag determines whether the write to RT should be enabled or not
-			*/
-
-			void BindDepthBufferTarget(TTextureHandleId targetHandle, bool disableRTWrite = false) override;
-
-			/*!
-				\brief The method disables or enables a depth buffer usage
-
-				\param[in] value If true the depth buffer will be used, false turns off it
-			*/
-
-			void SetDepthBufferEnabled(bool value) override;
+			TDE2_API E_RESULT_CODE BeginRenderPass(const TFramebufferInfo& framebufferInfo) override;
+			TDE2_API E_RESULT_CODE EndRenderPass() override;
 
 			/*!
 				\brief The method returns an object that contains internal handlers that are used by the system.
@@ -1197,6 +1178,7 @@ namespace TDEngine2
 		// \todo Implement support of depth bias and clipping
 	}
 
+#if 0
 	void COGLGraphicsContext::BindRenderTarget(U8 slot, TTextureHandleId targetHandle)
 	{
 		TDE2_ASSERT(slot < mMaxNumOfRenderTargets);
@@ -1286,6 +1268,17 @@ namespace TDEngine2
 	{
 		GL_SAFE_VOID_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mMainFBOHandler));
 		GL_SAFE_VOID_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, value ? mMainDepthStencilRenderbuffer : 0));
+	}
+#endif
+
+	E_RESULT_CODE COGLGraphicsContext::BeginRenderPass(const TFramebufferInfo& framebufferInfo)
+	{
+		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	E_RESULT_CODE COGLGraphicsContext::EndRenderPass()
+	{
+		return RC_NOT_IMPLEMENTED_YET;
 	}
 
 	const TGraphicsCtxInternalData& COGLGraphicsContext::GetInternalData() const

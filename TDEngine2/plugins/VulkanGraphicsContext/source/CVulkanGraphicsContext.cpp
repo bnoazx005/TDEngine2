@@ -1627,16 +1627,14 @@ namespace TDEngine2
 	{
 	}
 
-	void CVulkanGraphicsContext::BindRenderTarget(U8 slot, TTextureHandleId targetHandle)
+	E_RESULT_CODE CVulkanGraphicsContext::BeginRenderPass(const TFramebufferInfo& framebufferInfo)
 	{
+		return RC_NOT_IMPLEMENTED_YET;
 	}
 
-	void CVulkanGraphicsContext::BindDepthBufferTarget(TTextureHandleId targetHandle, bool disableRTWrite)
+	E_RESULT_CODE CVulkanGraphicsContext::EndRenderPass()
 	{
-	}
-
-	void CVulkanGraphicsContext::SetDepthBufferEnabled(bool value)
-	{
+		return RC_NOT_IMPLEMENTED_YET;
 	}
 
 	const TGraphicsCtxInternalData& CVulkanGraphicsContext::GetInternalData() const

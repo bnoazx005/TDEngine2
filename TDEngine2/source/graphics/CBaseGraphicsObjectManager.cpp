@@ -5,6 +5,7 @@
 #include "../../include/core/IFile.h"
 #include "../../include/graphics/CDebugUtility.h"
 #include "../../include/graphics/IRenderer.h"
+#include "../../include/graphics/ITexture.h"
 #include "../../include/graphics/CBaseShader.h"
 #include "../../include/graphics/CBaseGraphicsPipeline.h"
 #include <unordered_map>
@@ -19,6 +20,37 @@ namespace TDEngine2
 		std::fill(mSRVBuffers.begin(), mSRVBuffers.end(), TDescriptorHandle{});
 		std::fill(mUAVBuffers.begin(), mUAVBuffers.end(), TDescriptorHandle{});
 		std::fill(mSamplers.begin(), mSamplers.end(), TTextureSamplerId::Invalid);
+	}
+
+
+	TRenderPassInfo::TRenderPassInfo(IGraphicsObjectManager* pGraphicsObjectManager, const TFramebufferInfo& framebufferInfo)
+	{
+		TDE2_ASSERT(pGraphicsObjectManager);
+		TDE2_ASSERT(framebufferInfo.mAttachments.size() < static_cast<USIZE>(RENDER_TARGETS_MAX_COUNT));
+
+		std::fill(mRenderTargetFormats.begin(), mRenderTargetFormats.end(), E_FORMAT_TYPE::FT_UNKNOWN);
+
+		for (USIZE i = 0; i < framebufferInfo.mAttachments.size(); ++i)
+		{
+			const TFramebufferInfo::TAttachment& currAttachment = framebufferInfo.mAttachments[i];
+
+			TPtr<ITextureImpl> pRenderTargetTexture = pGraphicsObjectManager->GetTexturePtr(currAttachment.mTargetHandle);
+			if (!pRenderTargetTexture)
+			{
+				continue;
+			}
+
+			mRenderTargetFormats[i] = pRenderTargetTexture->GetParams().mFormat;
+		}
+
+		if (framebufferInfo.mDepthStencilAttachment)
+		{
+			TPtr<ITextureImpl> pDepthBufferTexture = pGraphicsObjectManager->GetTexturePtr(framebufferInfo.mDepthStencilAttachment.value().mTargetHandle);
+			if (pDepthBufferTexture)
+			{
+				mDepthStencilFormat = pDepthBufferTexture->GetParams().mFormat;
+			}
+		}
 	}
 
 

@@ -13,6 +13,7 @@
 #include "../math/TMatrix4.h"
 #include "../math/TRect.h"
 #include "../math/TAABB.h"
+#include "variant.hpp"
 
 
 namespace TDEngine2
@@ -60,6 +61,42 @@ namespace TDEngine2
 		bool mIsTextureYCoordInverted; /// Under GL context it equals to true
 		E_GRAPHICS_CONTEXT_GAPI_TYPE mGapiType;
 	} TGraphicsContextInfo, *TGraphicsContextInfoPtr;
+
+
+	typedef struct TFramebufferInfo
+	{
+		typedef Wrench::Variant<TColor32F, F32, U8> TClearValue;
+
+		struct TAttachment
+		{
+			TTextureHandleId              mTargetHandle;
+			nonstd::optional<TClearValue> mClearValue = nonstd::nullopt;
+		};
+
+		struct TDepthStencilAttachment
+		{
+			TTextureHandleId              mTargetHandle;
+			nonstd::optional<TClearValue> mDepthClearValue = nonstd::nullopt;
+			nonstd::optional<TClearValue> mStencilClearValue = nonstd::nullopt;
+		};
+
+		std::vector<TAttachment>                  mAttachments;
+		nonstd::optional<TDepthStencilAttachment> mDepthStencilAttachment = nonstd::nullopt;
+	} TFramebufferInfo, *TFramebufferInfoPtr;
+
+
+	constexpr U8 RENDER_TARGETS_MAX_COUNT = 8;
+
+
+	typedef struct TRenderPassInfo
+	{
+		typedef std::array<E_FORMAT_TYPE, RENDER_TARGETS_MAX_COUNT> TFormatsArray;
+
+		TDE2_API TRenderPassInfo(IGraphicsObjectManager* pGraphicsObjectManager, const TFramebufferInfo& framebufferInfo);
+
+		TFormatsArray mRenderTargetFormats;
+		E_FORMAT_TYPE mDepthStencilFormat = E_FORMAT_TYPE::FT_UNKNOWN;
+	} TRenderPassInfo, *TRenderPassInfoPtr;
 
 
 	/*!
@@ -354,31 +391,12 @@ namespace TDEngine2
 			TDE2_API virtual void BindRasterizerState(TRasterizerStateId rasterizerStateId) = 0;
 
 			/*!
-				\brief The method binds a given render target object to rendering pipeline
-
-				\param[in] slot An index of the slot into which the render target will be bound
-
-				\param[in] targetHandle Handle to texture object that's created as a render target
+				\brief The pair of methods BeginRenderPass/EndRenderPass are intended to replace separate calls of BindRenderTarget/BindDepthBufferTarget/SetDepthBufferEnabled and others
+				to provide single point configuration of all targets that participate in rendering. The concept should be familiar for ones who worked with OpenGL/Vulkan GAPIs 
 			*/
 
-			TDE2_API virtual void BindRenderTarget(U8 slot, TTextureHandleId targetHandle) = 0;
-
-			/*!
-				\brief The method binds a given depth buffer to rendering pipeline
-
-				\param[in] targetHandle Handle to texture object that's created as a depth buffer
-				\param[in] disableRTWrite A flag determines whether the write to RT should be enabled or not
-			*/
-
-			TDE2_API virtual void BindDepthBufferTarget(TTextureHandleId targetHandle, bool disableRTWrite = false) = 0;
-
-			/*!
-				\brief The method disables or enables a depth buffer usage
-
-				\param[in] value If true the depth buffer will be used, false turns off it
-			*/
-
-			TDE2_API virtual void SetDepthBufferEnabled(bool value) = 0;
+			TDE2_API virtual E_RESULT_CODE BeginRenderPass(const TFramebufferInfo& framebufferInfo) = 0;
+			TDE2_API virtual E_RESULT_CODE EndRenderPass() = 0;
 
 #if TDE2_DEBUG_MODE
 			TDE2_API virtual void BeginSectionMarker(const std::string& id) = 0;

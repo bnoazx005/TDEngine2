@@ -317,31 +317,12 @@ namespace TDEngine2
 			TDE2_API void BindRasterizerState(TRasterizerStateId rasterizerStateId) override;
 
 			/*!
-				\brief The method binds a given render target object to rendering pipeline
-
-				\param[in] slot An index of the slot into which the render target will be bound
-
-				\param[in] targetHandle Handle to texture object that's created as a render target
+				\brief The pair of methods BeginRenderPass/EndRenderPass are intended to replace separate calls of BindRenderTarget/BindDepthBufferTarget/SetDepthBufferEnabled and others
+				to provide single point configuration of all targets that participate in rendering. The concept should be familiar for ones who worked with OpenGL/Vulkan GAPIs
 			*/
 
-			TDE2_API void BindRenderTarget(U8 slot, TTextureHandleId targetHandle) override;
-
-			/*!
-				\brief The method binds a given depth buffer to rendering pipeline
-
-				\param[in] targetHandle Handle to texture object that's created as a depth buffer
-				\param[in] disableRTWrite A flag determines whether the write to RT should be enabled or not
-			*/
-
-			TDE2_API void BindDepthBufferTarget(TTextureHandleId targetHandle, bool disableRTWrite = false) override;
-
-			/*!
-				\brief The method disables or enables a depth buffer usage
-
-				\param[in] value If true the depth buffer will be used, false turns off it
-			*/
-
-			TDE2_API void SetDepthBufferEnabled(bool value) override;
+			TDE2_API E_RESULT_CODE BeginRenderPass(const TFramebufferInfo& framebufferInfo) override;
+			TDE2_API E_RESULT_CODE EndRenderPass() override;
 
 #if TDE2_DEBUG_MODE
 			TDE2_API void BeginSectionMarker(const std::string& id) override;

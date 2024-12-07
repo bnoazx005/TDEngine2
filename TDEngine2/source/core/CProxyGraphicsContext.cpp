@@ -231,19 +231,16 @@ namespace TDEngine2
 		LOG_MESSAGE("[ProxyGraphicsContext] BindRasterizerState(TRasterizerStateId)");
 	}
 
-	void CProxyGraphicsContext::BindRenderTarget(U8 slot, TTextureHandleId targetHandle)
+	E_RESULT_CODE CProxyGraphicsContext::BeginRenderPass(const TFramebufferInfo& framebufferInfo)
 	{
-		LOG_MESSAGE("[ProxyGraphicsContext] BindRenderTarget(U8, TTextureHandleId)");
+		LOG_MESSAGE("[CProxyGraphicsContext] BeginRenderPass");
+		return RC_OK;
 	}
 
-	void CProxyGraphicsContext::BindDepthBufferTarget(TTextureHandleId targetHandle, bool disableRTWrite)
+	E_RESULT_CODE CProxyGraphicsContext::EndRenderPass()
 	{
-		LOG_MESSAGE("[ProxyGraphicsContext] BindDepthBufferTarget(TTextureHandleId*, bool)");
-	}
-
-	void CProxyGraphicsContext::SetDepthBufferEnabled(bool value)
-	{
-		LOG_MESSAGE("[ProxyGraphicsContext] SetDepthBufferEnabled(bool)");
+		LOG_MESSAGE("[CProxyGraphicsContext] EndRenderPass");
+		return RC_OK;
 	}
 
 #if TDE2_DEBUG_MODE

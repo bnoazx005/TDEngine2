@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.31] 2024-12-03
+## [0.6.31] 2024-12-07
 
 ### Added
 
@@ -31,6 +31,9 @@ supports lightmaps generation.
 - Now verbose file system's logging can be disabled.
 
 - Default formats of Dear imgui's **ImDrawVert** and **CSpriteRendererSystem::TSpriteVertex** were changed to fix alignments for **TUiVertexFormat**, **TSpriteVertexFormat** in shaders.
+
+- The API of **IGraphicsContext** was refactored two new methods BeginRenderPass/EndRenderPass were added, BindRenderTarget, BindDepthBufferTarget and SetDepthBufferEnabled were removed.
+The implementation of **CForwardRenderer** was rewritten due to the changes.
 
 ### Fixed
 

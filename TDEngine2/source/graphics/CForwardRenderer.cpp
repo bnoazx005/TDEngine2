@@ -155,8 +155,9 @@ namespace TDEngine2
 		auto pGraphicsContext = config.mpGraphicsContext;
 		auto pResourceManager = config.mpResourceManager;
 
-		pGraphicsContext->SetDepthBufferEnabled(false);
-		pGraphicsContext->BindRenderTarget(0, config.mDestTarget);
+		pGraphicsContext->BeginRenderPass({ { { config.mDestTarget } } });
+		//pGraphicsContext->SetDepthBufferEnabled(false);
+		//pGraphicsContext->BindRenderTarget(0, config.mDestTarget);
 		pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(config.mScreenWidth), static_cast<F32>(config.mScreenHeight), 0.0f, 1.0f);
 
 		const TTextureSamplerId linearSamplerHandle = pGraphicsContext->GetGraphicsObjectManager()->GetDefaultTextureSampler(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
@@ -191,8 +192,9 @@ namespace TDEngine2
 
 		pGraphicsContext->Draw(E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST, 0, 3);
 
-		pGraphicsContext->SetDepthBufferEnabled(true);
-		pGraphicsContext->BindRenderTarget(0, TTextureHandleId::Invalid);
+		//pGraphicsContext->SetDepthBufferEnabled(true);
+		//pGraphicsContext->BindRenderTarget(0, TTextureHandleId::Invalid);
+		pGraphicsContext->EndRenderPass();
 	}
 
 
@@ -256,16 +258,12 @@ namespace TDEngine2
 
 						TFrameGraphTexture& selectionMapTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mSelectionMapTargetHandle);
 
-						pGraphicsContext->SetDepthBufferEnabled(false);
-						pGraphicsContext->BindRenderTarget(0, selectionMapTarget.mTextureHandle);
+						pGraphicsContext->BeginRenderPass({ { { selectionMapTarget.mTextureHandle, TColor32F(0.0f) }}});
 						pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(mContext.mWindowWidth), static_cast<F32>(mContext.mWindowHeight), 0.0f, 1.0f);
-
-						pGraphicsContext->ClearRenderTarget(static_cast<U8>(0), TColor32F(0.0f));
 
 						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, true);
 
-						pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
-						pGraphicsContext->BindRenderTarget(0, TTextureHandleId::Invalid);
+						pGraphicsContext->EndRenderPass();
 
 						pSelectionManager->UpdateSelectionsBuffer(selectionMapTarget.mTextureHandle);
 					});
@@ -334,13 +332,12 @@ namespace TDEngine2
 					TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mDepthBufferHandle);
 					TFrameGraphTexture& readOnlyDepthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mReadonlyDepthBufferHandle);
 
+					pGraphicsContext->BeginRenderPass({ {}, { { depthBufferTarget.mTextureHandle, 1.0f } } });
 					pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(mContext.mWindowWidth), static_cast<F32>(mContext.mWindowHeight), 0.0f, 1.0f);
-					pGraphicsContext->BindDepthBufferTarget(depthBufferTarget.mTextureHandle, true);
-					pGraphicsContext->ClearDepthBuffer(1.0f);
 
 					ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, true);
 
-					pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
+					pGraphicsContext->EndRenderPass();
 
 					pGraphicsContext->CopyResource(depthBufferTarget.mTextureHandle, readOnlyDepthBufferTarget.mTextureHandle);
 				});
@@ -403,9 +400,8 @@ namespace TDEngine2
 
 					TFrameGraphTexture& shadowMapTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mShadowMapHandle);
 
+					pGraphicsContext->BeginRenderPass({ {}, { { shadowMapTarget.mTextureHandle, 1.0f } } });
 					pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(shadowMapSizes), static_cast<F32>(shadowMapSizes), 0.0f, 1.0f);
-					pGraphicsContext->BindDepthBufferTarget(shadowMapTarget.mTextureHandle, true);
-					pGraphicsContext->ClearDepthBuffer(1.0f);
 
 					TPtr<IResourceManager> pResourceManager = mContext.mpResourceManager;
 
@@ -420,7 +416,7 @@ namespace TDEngine2
 
 					ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, false);
 
-					pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
+					pGraphicsContext->EndRenderPass();
 				});
 
 				frameGraphBlackboard.mSunLightShadowMapHandle = output.mShadowMapHandle;
@@ -478,9 +474,8 @@ namespace TDEngine2
 
 						TFrameGraphTexture& shadowMapTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mShadowMapHandle);
 
+						pGraphicsContext->BeginRenderPass({ {}, { { shadowMapTarget.mTextureHandle, 1.0f } } });
 						pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(shadowMapSizes), static_cast<F32>(shadowMapSizes), 0.0f, 1.0f);
-						pGraphicsContext->BindDepthBufferTarget(shadowMapTarget.mTextureHandle, true);
-						pGraphicsContext->ClearDepthBuffer(1.0f);
 
 						TPtr<IResourceManager> pResourceManager = mContext.mpResourceManager;
 
@@ -496,7 +491,7 @@ namespace TDEngine2
 
 						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, false);
 
-						pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
+						pGraphicsContext->EndRenderPass();
 					});
 
 				frameGraphBlackboard.mOmniLightShadowMapHandles.emplace_back(output.mShadowMapHandle);
@@ -805,9 +800,8 @@ namespace TDEngine2
 						TFrameGraphTexture& mainRenderTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mMainRenderTargetHandle);
 						TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mDepthBufferHandle);
 
-						pGraphicsContext->BindRenderTarget(0, mainRenderTarget.mTextureHandle);
-						pGraphicsContext->BindDepthBufferTarget(depthBufferTarget.mTextureHandle);
-
+						pGraphicsContext->BeginRenderPass({ { { mainRenderTarget.mTextureHandle } }, { { depthBufferTarget.mTextureHandle } } });
+						
 						TFrameGraphBuffer& opaqueVisibleLightsBuffer = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(lightCullData.mOpaqueVisibleLightsBufferHandle);
 						TFrameGraphTexture& opaqueLightGridTexture = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(lightCullData.mOpaqueLightGridTextureHandle);
 
@@ -831,8 +825,7 @@ namespace TDEngine2
 
 						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, true, 1);
 
-						pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
-						pGraphicsContext->BindRenderTarget(0, TTextureHandleId::Invalid);
+						pGraphicsContext->EndRenderPass();
 					});
 
 				frameGraphBlackboard.mMainRenderTargetHandle = output.mMainRenderTargetHandle;
@@ -878,8 +871,7 @@ namespace TDEngine2
 						TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mDepthBufferHandle);
 						TFrameGraphTexture& readonlyDepthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mReadonlyDepthBufferHandle); // contains same data as depth buffer but used for effects that needs depth data
 
-						pGraphicsContext->BindRenderTarget(0, mainRenderTarget.mTextureHandle);
-						pGraphicsContext->BindDepthBufferTarget(depthBufferTarget.mTextureHandle);
+						pGraphicsContext->BeginRenderPass({ { { mainRenderTarget.mTextureHandle } }, { { depthBufferTarget.mTextureHandle } } });
 
 						TFrameGraphBuffer& transparentVisibleLightsBuffer = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(lightCullData.mTransparentVisibleLightsBufferHandle);
 						TFrameGraphTexture& transparentLightGridTexture = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(lightCullData.mTransparentLightGridTextureHandle);
@@ -890,8 +882,7 @@ namespace TDEngine2
 
 						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, true);
 
-						pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
-						pGraphicsContext->BindRenderTarget(0, TTextureHandleId::Invalid);
+						pGraphicsContext->EndRenderPass();
 					});
 
 				frameGraphBlackboard.mMainRenderTargetHandle = output.mMainRenderTargetHandle;
@@ -931,13 +922,11 @@ namespace TDEngine2
 						TFrameGraphTexture& mainRenderTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mMainRenderTargetHandle);
 						TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mDepthBufferHandle);
 
-						pGraphicsContext->BindRenderTarget(0, mainRenderTarget.mTextureHandle);
-						pGraphicsContext->BindDepthBufferTarget(depthBufferTarget.mTextureHandle);
+						pGraphicsContext->BeginRenderPass({ { { mainRenderTarget.mTextureHandle } }, { { depthBufferTarget.mTextureHandle } } });
 
 						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, true);
 
-						pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
-						pGraphicsContext->BindRenderTarget(0, TTextureHandleId::Invalid);
+						pGraphicsContext->EndRenderPass();
 					});
 
 				frameGraphBlackboard.mMainRenderTargetHandle = output.mMainRenderTargetHandle;
@@ -977,13 +966,11 @@ namespace TDEngine2
 						TFrameGraphTexture& mainRenderTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mMainRenderTargetHandle);
 						TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mDepthBufferHandle);
 
-						pGraphicsContext->BindRenderTarget(0, mainRenderTarget.mTextureHandle);
-						pGraphicsContext->BindDepthBufferTarget(depthBufferTarget.mTextureHandle);
+						pGraphicsContext->BeginRenderPass({ { { mainRenderTarget.mTextureHandle } }, { { depthBufferTarget.mTextureHandle } } });
 
 						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, true);
 
-						pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
-						pGraphicsContext->BindRenderTarget(0, TTextureHandleId::Invalid);
+						pGraphicsContext->EndRenderPass();
 
 #if TDE2_DEBUG_MODE
 						pGraphicsContext->EndSectionMarker();
@@ -1050,15 +1037,11 @@ namespace TDEngine2
 						TFrameGraphTexture& mainRenderTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mMainRenderTargetHandle);
 						TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mDepthBufferHandle);
 
-						pGraphicsContext->BindRenderTarget(0, mainRenderTarget.mTextureHandle);
-						pGraphicsContext->BindDepthBufferTarget(depthBufferTarget.mTextureHandle);
-
-						pGraphicsContext->ClearRenderTarget(static_cast<U8>(0), TColorUtils::mBlack);
+						pGraphicsContext->BeginRenderPass({ { { mainRenderTarget.mTextureHandle, TColorUtils::mBlack } }, { { depthBufferTarget.mTextureHandle } } });
 
 						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, false, 0, 1);
 
-						pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
-						pGraphicsContext->BindRenderTarget(0, TTextureHandleId::Invalid);
+						pGraphicsContext->EndRenderPass();
 					});
 
 				frameGraphBlackboard.mMainRenderTargetHandle = output.mMainRenderTargetHandle;
@@ -1347,16 +1330,12 @@ namespace TDEngine2
 
 						TFrameGraphTexture& uiRenderTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mUIRenderTargetHandle);
 
-						pGraphicsContext->SetDepthBufferEnabled(false);
-						pGraphicsContext->BindRenderTarget(0, uiRenderTarget.mTextureHandle);
+						pGraphicsContext->BeginRenderPass({ { { uiRenderTarget.mTextureHandle, TColor32F(0.0f) } } });
 						pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(mContext.mWindowWidth), static_cast<F32>(mContext.mWindowHeight), 0.0f, 1.0f);
-
-						pGraphicsContext->ClearRenderTarget(static_cast<U8>(0), TColor32F(0.0f));
 
 						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, true);
 
-						pGraphicsContext->BindDepthBufferTarget(TTextureHandleId::Invalid);
-						pGraphicsContext->BindRenderTarget(0, TTextureHandleId::Invalid);
+						pGraphicsContext->EndRenderPass();
 					});
 
 				frameGraphBlackboard.mUIRenderTargetHandle = output.mUIRenderTargetHandle;
@@ -2437,6 +2416,8 @@ namespace TDEngine2
 		{
 			TDE2_BUILTIN_SPEC_PROFILER_EVENT(E_SPECIAL_PROFILE_EVENT::RENDER);
 			TDE2_STATS_COUNTER_SET(mDrawCallsCount, 0);
+
+			mpGraphicsContext->BeginFrame();
 
 			mpGraphicsContext->ClearBackBuffer(TColor32F(0.0f, 0.0f, 0.5f, 1.0f));
 			mpGraphicsContext->ClearDepthBuffer(1.0f);

@@ -324,31 +324,12 @@ namespace TDEngine2
 			TDE2_API void BindRasterizerState(TRasterizerStateId rasterizerStateId) override;
 
 			/*!
-				\brief The method binds a given render target object to rendering pipeline
-
-				\param[in] slot An index of the slot into which the render target will be bound
-
-				\param[in] targetHandle Handle to texture object that's created as a render target
+				\brief The pair of methods BeginRenderPass/EndRenderPass are intended to replace separate calls of BindRenderTarget/BindDepthBufferTarget/SetDepthBufferEnabled and others
+				to provide single point configuration of all targets that participate in rendering. The concept should be familiar for ones who worked with OpenGL/Vulkan GAPIs
 			*/
 
-			TDE2_API void BindRenderTarget(U8 slot, TTextureHandleId targetHandle) override;
-
-			/*!
-				\brief The method binds a given depth buffer to rendering pipeline
-
-				\param[in] targetHandle Handle to texture object that's created as a depth buffer
-				\param[in] disableRTWrite A flag determines whether the write to RT should be enabled or not
-			*/
-
-			TDE2_API void BindDepthBufferTarget(TTextureHandleId targetHandle, bool disableRTWrite = false) override;
-
-			/*!
-				\brief The method disables or enables a depth buffer usage
-
-				\param[in] value If true the depth buffer will be used, false turns off it
-			*/
-
-			TDE2_API void SetDepthBufferEnabled(bool value) override;
+			TDE2_API E_RESULT_CODE BeginRenderPass(const TFramebufferInfo& framebufferInfo) override;
+			TDE2_API E_RESULT_CODE EndRenderPass() override;
 
 			/*!
 				\brief The method returns an object that contains internal handlers that are used by the system.
@@ -1162,75 +1143,101 @@ namespace TDEngine2
 		mp3dDeviceContext->RSSetState(pRasterizerState);
 	}
 
-	void CD3D11GraphicsContext::BindRenderTarget(U8 slot, TTextureHandleId targetHandle)
+	E_RESULT_CODE CD3D11GraphicsContext::BeginRenderPass(const TFramebufferInfo& framebufferInfo)
 	{
-		TDE2_ASSERT(slot < mMaxNumOfRenderTargets);
-		if (slot >= mMaxNumOfRenderTargets)
-		{
-			LOG_WARNING("[CD3D11GraphicsContext] Render target's slot goes out of limits");
-			return;
-		}
-
-		if (!slot && TTextureHandleId::Invalid == targetHandle)
-		{
-			mp3dDeviceContext->OMSetRenderTargets(1, &mpBackBufferView, mpCurrDepthStencilView);
-			return;
-		}
-
-		auto pRenderTargetTexture = mpGraphicsObjectManagerD3D11Impl->GetD3D11TexturePtr(targetHandle);
-		if (!pRenderTargetTexture)
-		{
-			TDE2_ASSERT(false);
-			return;
-		}
-
-		if (E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET != (pRenderTargetTexture->GetParams().mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET))
-		{
-			TDE2_ASSERT_MSG(false, "[CD3D11GraphicsContext] Try to bind texture that is not a render target to render target slot");
-			return;
-		}
-		
-		mpRenderTargets[slot] = pRenderTargetTexture->GetRenderTargetView();
-
-		mCurrNumOfActiveRenderTargets = std::max<U8>(mCurrNumOfActiveRenderTargets, slot + 1);
-		mp3dDeviceContext->OMSetRenderTargets(mCurrNumOfActiveRenderTargets, mpRenderTargets, mpCurrDepthStencilView);
-	}
-
-	void CD3D11GraphicsContext::BindDepthBufferTarget(TTextureHandleId targetHandle, bool disableRTWrite)
-	{
-		if (TTextureHandleId::Invalid == targetHandle)
-		{
-			mpCurrDepthStencilView = mpDefaultDepthStencilView;
-			mp3dDeviceContext->OMSetRenderTargets(1, &mpBackBufferView, mpCurrDepthStencilView);
-
-			return;
-		}
-
-		auto pDepthTargetTexture = mpGraphicsObjectManagerD3D11Impl->GetD3D11TexturePtr(targetHandle);
-		if (!pDepthTargetTexture)
-		{
-			TDE2_ASSERT(false);
-			return;
-		}
-
-		if (E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER != (pDepthTargetTexture->GetParams().mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER))
-		{
-			TDE2_ASSERT_MSG(false, "[CD3D11GraphicsContext] Try to bind texture that is not a depth buffer to depth buffer slot");
-			return;
-		}
-
-		mpCurrDepthStencilView = pDepthTargetTexture->GetDepthStencilView();
-
 		static ID3D11RenderTargetView* pNullRT[]{ nullptr };
 
-		mp3dDeviceContext->OMSetRenderTargets(disableRTWrite ? 1 : mCurrNumOfActiveRenderTargets, disableRTWrite ? pNullRT : mpRenderTargets, mpCurrDepthStencilView);
+		TDE2_ASSERT(framebufferInfo.mAttachments.size() < static_cast<USIZE>(RENDER_TARGETS_MAX_COUNT));
+
+		memset(mpRenderTargets, 0, sizeof(mpRenderTargets));
+
+		for (USIZE i = 0; i < framebufferInfo.mAttachments.size(); ++i)
+		{
+			const TFramebufferInfo::TAttachment& currAttachment = framebufferInfo.mAttachments[i];
+
+			TPtr<CD3D11TextureImpl> pRenderTargetTexture = mpGraphicsObjectManagerD3D11Impl->GetD3D11TexturePtr(currAttachment.mTargetHandle);
+			if (!pRenderTargetTexture)
+			{
+				if (!i) // \note Assume that a user tries to render into back buffer
+				{
+					mpRenderTargets[i] = mpBackBufferView;
+				}
+
+				continue;
+			}
+
+			if (E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET != (pRenderTargetTexture->GetParams().mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET))
+			{
+				TDE2_ASSERT_MSG(false, "[CD3D11GraphicsContext] Try to bind texture that is not a render target to render target slot");
+				return RC_FAIL;
+			}
+
+			mpRenderTargets[i] = pRenderTargetTexture->GetRenderTargetView();
+
+			if (currAttachment.mClearValue)
+			{
+				const auto& clearColorValue = currAttachment.mClearValue.value();
+				if (!clearColorValue.Is<TColor32F>())
+				{
+					TDE2_ASSERT(false);
+					continue;
+				}
+
+				const TColor32F& color = clearColorValue.As<TColor32F>();
+				const F32 clearColorArray[4]{ color.r, color.g, color.b, color.a };
+
+				mp3dDeviceContext->ClearRenderTargetView(mpRenderTargets[i], clearColorArray);
+			}
+		}
+
+		if (framebufferInfo.mDepthStencilAttachment)
+		{
+			const auto& depthStencilAttachment = framebufferInfo.mDepthStencilAttachment.value();
+
+			TPtr<CD3D11TextureImpl> pDepthBufferTexture = mpGraphicsObjectManagerD3D11Impl->GetD3D11TexturePtr(depthStencilAttachment.mTargetHandle);
+
+			if (E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER != (pDepthBufferTexture->GetParams().mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER))
+			{
+				TDE2_ASSERT_MSG(false, "[CD3D11GraphicsContext] Try to bind texture that is not a depth buffer to depth buffer slot");
+				return RC_FAIL;
+			}
+
+			if (pDepthBufferTexture)
+			{
+				mpCurrDepthStencilView = pDepthBufferTexture->GetDepthStencilView();
+
+				if (depthStencilAttachment.mDepthClearValue)
+				{
+					const auto& clearColorValue = depthStencilAttachment.mDepthClearValue.value();
+					mp3dDeviceContext->ClearDepthStencilView(mpCurrDepthStencilView, D3D11_CLEAR_DEPTH, clearColorValue.As<F32>(), 0);
+				}
+
+				if (depthStencilAttachment.mStencilClearValue)
+				{
+					const auto& clearColorValue = depthStencilAttachment.mStencilClearValue.value();
+					mp3dDeviceContext->ClearDepthStencilView(mpCurrDepthStencilView, D3D11_CLEAR_STENCIL, clearColorValue.As<U8>(), 0);
+				}
+			}
+		}
+		else
+		{
+			mpCurrDepthStencilView = nullptr;
+		}
+
+		mCurrNumOfActiveRenderTargets = static_cast<U8>(std::max(1ull, framebufferInfo.mAttachments.size()));
+		mp3dDeviceContext->OMSetRenderTargets(static_cast<U32>(mCurrNumOfActiveRenderTargets), framebufferInfo.mAttachments.empty() ? pNullRT : mpRenderTargets, mpCurrDepthStencilView);
+
+		return RC_OK;
 	}
 
-	void CD3D11GraphicsContext::SetDepthBufferEnabled(bool value)
+	E_RESULT_CODE CD3D11GraphicsContext::EndRenderPass()
 	{
-		auto pPrevDepthView = mpCurrDepthStencilView;
-		mpCurrDepthStencilView = value ? mpPrevDepthStencilView : nullptr;
-		mpPrevDepthStencilView = pPrevDepthView;
+		memset(mpRenderTargets, 0, sizeof(mpRenderTargets));
+		mpCurrDepthStencilView = mpDefaultDepthStencilView;
+
+		mp3dDeviceContext->OMSetRenderTargets(1, &mpBackBufferView, mpCurrDepthStencilView);
+
+		return RC_OK;
 	}
 
 	const TGraphicsCtxInternalData& CD3D11GraphicsContext::GetInternalData() const
