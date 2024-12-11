@@ -346,7 +346,7 @@ TDEngine2::TResult<TUtilityOptions> ParseOptions(int argc, const char** argv)
 	}
 
 	utilityOptions.mOutputFilename = pProgramOptions->GetValueOrDefault<std::string>(OutputFileArgId, "");
-	utilityOptions.mBasePath       = std::experimental::filesystem::path(pProgramOptions->GetValueOrDefault<std::string>(BasePathArgId, "")).string();
+	utilityOptions.mBasePath       = fs::path(pProgramOptions->GetValueOrDefault<std::string>(BasePathArgId, "")).string();
 	utilityOptions.mAtlasWidth     = pProgramOptions->GetValueOrDefault(WidthArgId, 1024);
 	utilityOptions.mAtlasHeight    = pProgramOptions->GetValueOrDefault(HeightArgId, 1024);
 	utilityOptions.mFormatStr      = pProgramOptions->GetValueOrDefault<std::string>(FormatArgId, Meta::EnumTrait<E_FORMAT_TYPE>::ToString(E_FORMAT_TYPE::FT_NORM_UBYTE4));

@@ -207,7 +207,7 @@ namespace TDEngine2
 	bool CPhysicalFilesStorage::FileExists(const std::string& path) const
 	{
 #if _HAS_CXX17
-		return std::experimental::filesystem::exists(path);
+		return fs::exists(path);
 #else
 		std::ifstream file(path);
 
@@ -228,7 +228,7 @@ namespace TDEngine2
 	{
 		std::vector<std::string> filesList;
 
-		for (const auto & entry : std::experimental::filesystem::directory_iterator(path))
+		for (const auto & entry : fs::directory_iterator(path))
 		{
 			filesList.emplace_back(entry.path().string());
 		}
@@ -238,7 +238,7 @@ namespace TDEngine2
 
 	bool CPhysicalFilesStorage::PathExists(const std::string& path) const
 	{
-		return std::experimental::filesystem::exists(path);
+		return fs::exists(path);
 	}
 
 	void CPhysicalFilesStorage::_createNewFile(const std::string& path)

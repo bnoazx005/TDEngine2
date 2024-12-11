@@ -1108,13 +1108,13 @@ namespace TDEngine2
 			if (currAttachment.mClearValue)
 			{
 				const auto& clearColorValue = currAttachment.mClearValue.value();
-				if (!clearColorValue.Is<TColor32F>())
+				if (!std::holds_alternative<TColor32F>(clearColorValue))
 				{
 					TDE2_ASSERT(false);
 					continue;
 				}
 
-				const TColor32F& color = clearColorValue.As<TColor32F>();
+				const TColor32F& color = std::get<TColor32F>(clearColorValue);
 				const F32 clearColorArray[4]{ color.r, color.g, color.b, color.a };
 
 				mp3dDeviceContext->ClearRenderTargetView(mpRenderTargets[i], clearColorArray);
@@ -1140,13 +1140,13 @@ namespace TDEngine2
 				if (depthStencilAttachment.mDepthClearValue)
 				{
 					const auto& clearColorValue = depthStencilAttachment.mDepthClearValue.value();
-					mp3dDeviceContext->ClearDepthStencilView(mpCurrDepthStencilView, D3D11_CLEAR_DEPTH, clearColorValue.As<F32>(), 0);
+					mp3dDeviceContext->ClearDepthStencilView(mpCurrDepthStencilView, D3D11_CLEAR_DEPTH, std::get<F32>(clearColorValue), 0);
 				}
 
 				if (depthStencilAttachment.mStencilClearValue)
 				{
 					const auto& clearColorValue = depthStencilAttachment.mStencilClearValue.value();
-					mp3dDeviceContext->ClearDepthStencilView(mpCurrDepthStencilView, D3D11_CLEAR_STENCIL, clearColorValue.As<U8>(), 0);
+					mp3dDeviceContext->ClearDepthStencilView(mpCurrDepthStencilView, D3D11_CLEAR_STENCIL, std::get<U8>(clearColorValue), 0);
 				}
 			}
 		}

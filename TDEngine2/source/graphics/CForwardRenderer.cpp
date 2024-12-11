@@ -400,7 +400,7 @@ namespace TDEngine2
 
 					TFrameGraphTexture& shadowMapTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mShadowMapHandle);
 
-					pGraphicsContext->BeginRenderPass({ {}, { { shadowMapTarget.mTextureHandle, 1.0f } } });
+					pGraphicsContext->BeginRenderPass({ {}, TFramebufferInfo::TDepthStencilAttachment { shadowMapTarget.mTextureHandle, 1.0f }});
 					pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(shadowMapSizes), static_cast<F32>(shadowMapSizes), 0.0f, 1.0f);
 
 					TPtr<IResourceManager> pResourceManager = mContext.mpResourceManager;
@@ -800,7 +800,7 @@ namespace TDEngine2
 						TFrameGraphTexture& mainRenderTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mMainRenderTargetHandle);
 						TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mDepthBufferHandle);
 
-						pGraphicsContext->BeginRenderPass({ { { mainRenderTarget.mTextureHandle } }, { { depthBufferTarget.mTextureHandle } } });
+						pGraphicsContext->BeginRenderPass({ { { mainRenderTarget.mTextureHandle } }, TFramebufferInfo::TDepthStencilAttachment { depthBufferTarget.mTextureHandle } });
 						
 						TFrameGraphBuffer& opaqueVisibleLightsBuffer = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(lightCullData.mOpaqueVisibleLightsBufferHandle);
 						TFrameGraphTexture& opaqueLightGridTexture = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(lightCullData.mOpaqueLightGridTextureHandle);
@@ -871,7 +871,7 @@ namespace TDEngine2
 						TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mDepthBufferHandle);
 						TFrameGraphTexture& readonlyDepthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mReadonlyDepthBufferHandle); // contains same data as depth buffer but used for effects that needs depth data
 
-						pGraphicsContext->BeginRenderPass({ { { mainRenderTarget.mTextureHandle } }, { { depthBufferTarget.mTextureHandle } } });
+						pGraphicsContext->BeginRenderPass({ { { mainRenderTarget.mTextureHandle } }, TFramebufferInfo::TDepthStencilAttachment { depthBufferTarget.mTextureHandle } });
 
 						TFrameGraphBuffer& transparentVisibleLightsBuffer = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(lightCullData.mTransparentVisibleLightsBufferHandle);
 						TFrameGraphTexture& transparentLightGridTexture = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(lightCullData.mTransparentLightGridTextureHandle);
@@ -922,7 +922,7 @@ namespace TDEngine2
 						TFrameGraphTexture& mainRenderTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mMainRenderTargetHandle);
 						TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mDepthBufferHandle);
 
-						pGraphicsContext->BeginRenderPass({ { { mainRenderTarget.mTextureHandle } }, { { depthBufferTarget.mTextureHandle } } });
+						pGraphicsContext->BeginRenderPass({ { { mainRenderTarget.mTextureHandle } }, TFramebufferInfo::TDepthStencilAttachment { depthBufferTarget.mTextureHandle } });
 
 						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, true);
 
@@ -966,7 +966,7 @@ namespace TDEngine2
 						TFrameGraphTexture& mainRenderTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mMainRenderTargetHandle);
 						TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mDepthBufferHandle);
 
-						pGraphicsContext->BeginRenderPass({ { { mainRenderTarget.mTextureHandle } }, { { depthBufferTarget.mTextureHandle } } });
+						pGraphicsContext->BeginRenderPass({ { { mainRenderTarget.mTextureHandle } }, TFramebufferInfo::TDepthStencilAttachment{ depthBufferTarget.mTextureHandle } });
 
 						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, true);
 
@@ -1037,7 +1037,7 @@ namespace TDEngine2
 						TFrameGraphTexture& mainRenderTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mMainRenderTargetHandle);
 						TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mDepthBufferHandle);
 
-						pGraphicsContext->BeginRenderPass({ { { mainRenderTarget.mTextureHandle, TColorUtils::mBlack } }, { { depthBufferTarget.mTextureHandle } } });
+						pGraphicsContext->BeginRenderPass({ { { mainRenderTarget.mTextureHandle, TColorUtils::mBlack } }, TFramebufferInfo::TDepthStencilAttachment{ depthBufferTarget.mTextureHandle } });
 
 						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, false, 0, 1);
 

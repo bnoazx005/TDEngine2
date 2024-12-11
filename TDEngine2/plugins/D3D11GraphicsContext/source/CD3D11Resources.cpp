@@ -981,8 +981,15 @@ namespace TDEngine2
 
 		auto&& internalData = pGraphicsContext->GetInternalData();
 
-		mp3dDeviceContext = internalData.mD3D11.mp3dDeviceContext;
-		mp3dDevice = internalData.mD3D11.mp3dDevice;
+		const TD3D11CtxInternalData& d3d11InternalData =
+#if _HAS_CXX17
+			std::get<TD3D11CtxInternalData>(internalData);
+#else
+			internalData.mD3D11;
+#endif
+
+		mp3dDeviceContext = d3d11InternalData.mp3dDeviceContext;
+		mp3dDevice = d3d11InternalData.mp3dDevice;
 
 		E_RESULT_CODE result = _onInitInternal();
 		if (RC_OK != result)

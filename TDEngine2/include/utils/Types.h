@@ -14,10 +14,6 @@
 #include <string>
 #include <GL/glew.h>
 
-#if _HAS_CXX17	/// use variant only if C++17's implementation is available, otherwise use stardard unions
-	#include <variant>
-#endif
-
 /// include platform specific headers
 #if defined (TDE2_USE_WINPLATFORM)
 	#include <Windows.h>
@@ -30,7 +26,8 @@
 
 #include <vector>
 #include <unordered_map>
-#include <nonstd/optional.hpp>
+#include <optional>
+#include <variant>
 
 
 namespace TDEngine2

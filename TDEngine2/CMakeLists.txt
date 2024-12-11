@@ -565,15 +565,15 @@ if (MSVC) 	#cl.exe compiler's options
 	
 	include(CheckCXXCompilerFlag)
 
-	CHECK_CXX_COMPILER_FLAG("/std:c++14" COMPILER_SUPPORTS_CXX14)
+	CHECK_CXX_COMPILER_FLAG("/std:c++17" COMPILER_SUPPORTS_CXX17)
 
-	if(COMPILER_SUPPORTS_CXX14)
-		message(STATUS "C++14 is enabled")
+	if(COMPILER_SUPPORTS_CXX17)
+		message(STATUS "C++17 is enabled")
 
-		set(CMAKE_CXX_STANDARD 14)
+		set(CMAKE_CXX_STANDARD 17)
 		set(CMAKE_CXX_STANDARD_REQUIRED ON)
 	else()
-		message(ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support. Please use a different C++ compiler.")
+		message(ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++17 support. Please use a different C++ compiler.")
 	endif()
 
 	#Debug compiler's options
@@ -591,15 +591,15 @@ if (UNIX)
 
 	include(CheckCXXCompilerFlag)
 
-	CHECK_CXX_COMPILER_FLAG("-std=c++1y" COMPILER_SUPPORTS_CXX14)
+	CHECK_CXX_COMPILER_FLAG("-std=c++1z" COMPILER_SUPPORTS_CXX17)
 
-	if(COMPILER_SUPPORTS_CXX14)
-		message(STATUS "C++14 is enabled")
+	if(COMPILER_SUPPORTS_CXX17)
+		message(STATUS "C++17 is enabled")
 
-		set(CMAKE_CXX_STANDARD 14)
+		set(CMAKE_CXX_STANDARD 17)
 		set(CMAKE_CXX_STANDARD_REQUIRED ON)
 	else()
-		message(ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support. Please use a different C++ compiler.")
+		message(ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++17 support. Please use a different C++ compiler.")
 	endif()
 
 	
@@ -652,8 +652,6 @@ endif ()
 
 #set up stb library headers
 target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/stb")
-
-target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/optional-lite")
 
 #set up tinyexr library headers
 target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/tinyexr")

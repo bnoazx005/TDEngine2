@@ -65,23 +65,27 @@ namespace TDEngine2
 
 	typedef struct TFramebufferInfo
 	{
-		typedef Wrench::Variant<TColor32F, F32, U8> TClearValue;
+		typedef std::variant<TColor32F, F32, U8> TClearValue;
 
 		struct TAttachment
 		{
 			TTextureHandleId              mTargetHandle;
-			nonstd::optional<TClearValue> mClearValue = nonstd::nullopt;
+			std::optional<TClearValue> mClearValue = std::nullopt;
 		};
 
 		struct TDepthStencilAttachment
 		{
+			TDE2_API explicit TDepthStencilAttachment(TTextureHandleId id);
+			TDE2_API TDepthStencilAttachment(TTextureHandleId id, F32 depthValue);
+			TDE2_API TDepthStencilAttachment(TTextureHandleId id, U8 stencilValue);
+
 			TTextureHandleId              mTargetHandle;
-			nonstd::optional<TClearValue> mDepthClearValue = nonstd::nullopt;
-			nonstd::optional<TClearValue> mStencilClearValue = nonstd::nullopt;
+			std::optional<TClearValue> mDepthClearValue = std::nullopt;
+			std::optional<TClearValue> mStencilClearValue = std::nullopt;
 		};
 
 		std::vector<TAttachment>                  mAttachments;
-		nonstd::optional<TDepthStencilAttachment> mDepthStencilAttachment = nonstd::nullopt;
+		std::optional<TDepthStencilAttachment> mDepthStencilAttachment = std::nullopt;
 	} TFramebufferInfo, *TFramebufferInfoPtr;
 
 
@@ -92,6 +96,7 @@ namespace TDEngine2
 	{
 		typedef std::array<E_FORMAT_TYPE, RENDER_TARGETS_MAX_COUNT> TFormatsArray;
 
+		TDE2_API TRenderPassInfo() = default;
 		TDE2_API TRenderPassInfo(IGraphicsObjectManager* pGraphicsObjectManager, const TFramebufferInfo& framebufferInfo);
 
 		TFormatsArray mRenderTargetFormats;
