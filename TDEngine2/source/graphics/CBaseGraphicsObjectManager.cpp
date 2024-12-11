@@ -54,6 +54,22 @@ namespace TDEngine2
 	}
 
 
+	TFramebufferInfo::TDepthStencilAttachment::TDepthStencilAttachment(TTextureHandleId id):
+		mTargetHandle(id)
+	{
+	}
+
+	TFramebufferInfo::TDepthStencilAttachment::TDepthStencilAttachment(TTextureHandleId id, F32 depthValue):
+		mTargetHandle(id), mDepthClearValue(depthValue)
+	{
+	}
+
+	TFramebufferInfo::TDepthStencilAttachment::TDepthStencilAttachment(TTextureHandleId id, U8 stencilValue):
+		mTargetHandle(id), mStencilClearValue(stencilValue)
+	{
+	}
+
+
 	CBaseGraphicsObjectManager::CBaseGraphicsObjectManager() :
 		CBaseObject(), mpDebugUtility(nullptr)
 	{
