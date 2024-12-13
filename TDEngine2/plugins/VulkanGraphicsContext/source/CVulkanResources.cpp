@@ -600,6 +600,16 @@ namespace TDEngine2
 		imageInfo.arrayLayers = E_TEXTURE_IMPL_TYPE::CUBEMAP == params.mType ? 6 : params.mArraySize;
 		imageInfo.tiling      = VK_IMAGE_TILING_OPTIMAL;
 		imageInfo.samples     = CVulkanMappings::GetSamplesCount(params.mNumOfSamples);
+		imageInfo.flags       = E_TEXTURE_IMPL_TYPE::CUBEMAP == params.mType ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0x0;
+
+		if (E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET))
+		{
+			imageInfo.usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+		}
+		else if (E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER))
+		{
+			imageInfo.usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+		}
 
 		VmaAllocationCreateInfo allocInfo{};
 		allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
@@ -932,7 +942,7 @@ namespace TDEngine2
 		renderingInfo.colorAttachmentCount    = 1;
 		renderingInfo.pColorAttachmentFormats = &defaultColorAttachmentFormat;
 		renderingInfo.depthAttachmentFormat   = pipelineConfig.mDepthStencilStateParams.mIsDepthWritingEnabled ? CVulkanMappings::GetInternalFormat(E_FORMAT_TYPE::FT_D32) : VK_FORMAT_UNDEFINED;
-		renderingInfo.stencilAttachmentFormat = pipelineConfig.mDepthStencilStateParams.mIsStencilTestEnabled ? CVulkanMappings::GetInternalFormat(E_FORMAT_TYPE::FT_BYTE1) : VK_FORMAT_UNDEFINED;
+		renderingInfo.stencilAttachmentFormat = pipelineConfig.mDepthStencilStateParams.mIsStencilTestEnabled ? VK_FORMAT_S8_UINT : VK_FORMAT_UNDEFINED;
 		
 		VkPipelineVertexInputStateCreateInfo vertexInputStateInfo{};
 		vertexInputStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;

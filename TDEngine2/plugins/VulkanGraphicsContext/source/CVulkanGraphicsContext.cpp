@@ -1458,16 +1458,12 @@ namespace TDEngine2
 
 			auto&& textureParams = pTexture->GetParams();
 
-			VkExtent3D imageExtent;
-			imageExtent.width = textureParams.mWidth;
-			imageExtent.height = textureParams.mHeight;
-			imageExtent.depth = textureParams.mDepth;
-
 			copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 			copyRegion.imageSubresource.mipLevel = 0;
 			copyRegion.imageSubresource.baseArrayLayer = 0;
 			copyRegion.imageSubresource.layerCount = 1;
-			copyRegion.imageExtent = imageExtent;
+			copyRegion.imageExtent = { static_cast<U32>(regionRect.width), static_cast<U32>(regionRect.height), 1 };
+			copyRegion.imageOffset = { regionRect.x, regionRect.y, 0 };
 
 			//copy the buffer into the image
 			vkCmdCopyBufferToImage(cmdBuffer, pVulkanStagingBuffer->GetVulkanHandle(), pTexture->GetTextureHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
@@ -1592,6 +1588,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanGraphicsContext::BindPipelineState(CVulkanGraphicsPipeline* pGraphicsPipeline)
 	{
+		TDE2_ASSERT(mIsRenderPassActive);
+
 		mpActiveGraphicsPipelineStates[mCurrFrameIndex] = pGraphicsPipeline;
 
 		// \todo Implement construction of pipeline's derivative for current render pass
@@ -1613,12 +1611,129 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanGraphicsContext::BeginRenderPass(const TFramebufferInfo& framebufferInfo)
 	{
-		return RC_NOT_IMPLEMENTED_YET;
+		mCurrRenderPassInfo = TRenderPassInfo(mpGraphicsObjectManager.Get(), framebufferInfo);
+
+		std::array<VkRenderingAttachmentInfo, RENDER_TARGETS_MAX_COUNT> colorAttachmentInfos;
+		VkRenderingAttachmentInfo depthStencilAttachmentInfo {};
+
+		VkExtent2D viewportSizes{};
+
+		for (USIZE i = 0; i < framebufferInfo.mAttachments.size(); ++i)
+		{
+			const TFramebufferInfo::TAttachment& currAttachment = framebufferInfo.mAttachments[i];
+
+			TPtr<CVulkanTextureImpl> pRenderTargetTexture = mpGraphicsObjectManagerImpl->GetVulkanTexturePtr(currAttachment.mTargetHandle);
+			if (!pRenderTargetTexture)
+			{
+				//if (!i) // \note Assume that a user tries to render into back buffer
+				//{
+				//	mpRenderTargets[i] = mpBackBufferView;
+				//}
+
+				continue;
+			}
+
+			if (E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET != (pRenderTargetTexture->GetParams().mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET))
+			{
+				TDE2_ASSERT_MSG(false, "[CVulkanGraphicsContext] Try to use the texture that is not a render target as a color attachment");
+				return RC_FAIL;
+			}
+
+			viewportSizes.width  = std::max<U32>(viewportSizes.width, pRenderTargetTexture->GetParams().mWidth);
+			viewportSizes.height = std::max<U32>(viewportSizes.height, pRenderTargetTexture->GetParams().mHeight);
+
+			const bool hasClearValue = currAttachment.mClearValue.has_value();
+			VkClearValue clearValue{};
+
+			if (hasClearValue)
+			{
+				const auto& targetClearValueVariant = currAttachment.mClearValue.value();
+				memcpy(clearValue.color.float32, &std::get<TColor32F>(targetClearValueVariant), sizeof(TColor32F));
+			}
+
+			VkRenderingAttachmentInfo currVkAttachmentInfo{};
+			currVkAttachmentInfo.sType       = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+			currVkAttachmentInfo.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			currVkAttachmentInfo.imageView   = pRenderTargetTexture->GetTextureViewHandle();
+			currVkAttachmentInfo.resolveMode = VK_RESOLVE_MODE_NONE; // \note For now don't use MSAA at all
+			currVkAttachmentInfo.loadOp      = hasClearValue ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
+			currVkAttachmentInfo.storeOp     = VK_ATTACHMENT_STORE_OP_STORE;
+			currVkAttachmentInfo.clearValue  = clearValue;
+
+			colorAttachmentInfos[i] = currVkAttachmentInfo;
+		}
+
+		if (framebufferInfo.mDepthStencilAttachment)
+		{
+			const auto& depthStencilAttachment = framebufferInfo.mDepthStencilAttachment.value();
+
+			TPtr<CVulkanTextureImpl> pDepthBufferTexture = mpGraphicsObjectManagerImpl->GetVulkanTexturePtr(depthStencilAttachment.mTargetHandle);
+
+			if (E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER != (pDepthBufferTexture->GetParams().mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER))
+			{
+				TDE2_ASSERT_MSG(false, "[CVulkanGraphicsContext] Try to bind the texture that is not a depth buffer as a depth-stencil attachment");
+				return RC_FAIL;
+			}
+
+			if (framebufferInfo.mAttachments.empty())
+			{
+				viewportSizes.width = std::max<U32>(viewportSizes.width, pDepthBufferTexture->GetParams().mWidth);
+				viewportSizes.height = std::max<U32>(viewportSizes.height, pDepthBufferTexture->GetParams().mHeight);
+			}
+
+			const bool hasDepthClearValue   = depthStencilAttachment.mDepthClearValue.has_value();
+			const bool hasStencilClearValue = depthStencilAttachment.mStencilClearValue.has_value();
+			
+			VkClearValue clearValue;
+			clearValue.depthStencil.depth   = 1.0f;
+			clearValue.depthStencil.stencil = 0xff;
+
+			if (hasDepthClearValue)
+			{
+				const auto& targetClearValueVariant = depthStencilAttachment.mDepthClearValue.value();
+				clearValue.depthStencil.depth = std::get<F32>(targetClearValueVariant);
+			}
+
+			if (hasStencilClearValue)
+			{
+				const auto& targetClearValueVariant = depthStencilAttachment.mStencilClearValue.value();
+				clearValue.depthStencil.stencil = std::get<U8>(targetClearValueVariant);
+			}
+
+			if (pDepthBufferTexture)
+			{
+				depthStencilAttachmentInfo.sType       = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+				depthStencilAttachmentInfo.imageLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL; // VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+				depthStencilAttachmentInfo.imageView   = pDepthBufferTexture->GetTextureViewHandle();
+				depthStencilAttachmentInfo.resolveMode = VK_RESOLVE_MODE_NONE; // \note For now don't use MSAA at all
+				depthStencilAttachmentInfo.loadOp      = (hasDepthClearValue || hasStencilClearValue) ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
+				depthStencilAttachmentInfo.storeOp     = VK_ATTACHMENT_STORE_OP_STORE;
+				depthStencilAttachmentInfo.clearValue  = clearValue;
+			}			
+		}
+
+		VkRenderingInfo renderPassInfo{};
+		renderPassInfo.sType                = VK_STRUCTURE_TYPE_RENDERING_INFO;
+		renderPassInfo.colorAttachmentCount = static_cast<U32>(framebufferInfo.mAttachments.size());
+		renderPassInfo.layerCount           = 1;
+		renderPassInfo.pColorAttachments    = colorAttachmentInfos.data();
+		renderPassInfo.renderArea           = { {}, viewportSizes };
+		renderPassInfo.pDepthAttachment     = framebufferInfo.mDepthStencilAttachment.has_value() ? &depthStencilAttachmentInfo : nullptr;
+		renderPassInfo.pStencilAttachment   = VK_NULL_HANDLE;
+		//renderPassInfo.pStencilAttachment   = framebufferInfo.mDepthStencilAttachment.has_value() ? &depthStencilAttachmentInfo : nullptr; // \todo Add support of stencil buffer
+
+		vkCmdBeginRendering(_getCurrCommandBufferHandle(), &renderPassInfo);
+		mIsRenderPassActive = true;
+
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::EndRenderPass()
 	{
-		return RC_NOT_IMPLEMENTED_YET;
+		vkCmdEndRendering(_getCurrCommandBufferHandle());
+		mIsRenderPassActive = false;
+
+		return RC_OK;
 	}
 
 	const TGraphicsCtxInternalData& CVulkanGraphicsContext::GetInternalData() const
@@ -1766,6 +1881,8 @@ namespace TDEngine2
 
 	void CVulkanGraphicsContext::_prepareDrawCall()
 	{
+		TDE2_ASSERT(mIsRenderPassActive);
+
 		mDescriptorWrites.clear();
 		mDescriptorBufferInfos.clear();
 		mDescriptorImageInfos.clear();

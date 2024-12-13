@@ -480,6 +480,8 @@ namespace TDEngine2
 #endif
 
 			TDescriptorsBindingsTable                            mDescriptorsBindingsTable{};
+			TRenderPassInfo                                      mCurrRenderPassInfo{};
+			bool                                                 mIsRenderPassActive = false;
 
 			std::vector<VkWriteDescriptorSet>                    mDescriptorWrites{};
 			std::vector<VkDescriptorBufferInfo>                  mDescriptorBufferInfos{};
