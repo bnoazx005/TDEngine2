@@ -470,6 +470,7 @@ namespace TDEngine2
 			std::array<TGarbageCollection, FRAMES_COUNT>         mAwaitingDeletionObjects {};
 
 			std::array<CVulkanGraphicsPipeline*, FRAMES_COUNT>   mpActiveGraphicsPipelineStates {};
+			std::unordered_map<U64, VkPipeline>                  mCachedPipelinesLibrary{};
 
 			mutable std::mutex                                   mGarbageCollectorMutex {};
 

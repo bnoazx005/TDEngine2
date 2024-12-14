@@ -444,6 +444,31 @@ namespace TDEngine2
 	}
 
 
+	template <> TDE2_API U32 ComputeStateDescHash<TRenderPassInfo>(const TRenderPassInfo& object)
+	{
+		/// \note For now support only 3 color + ds attachment
+		union
+		{
+			struct
+			{
+				U32 mRenderTarget0Format : 6;
+				U32 mRenderTarget1Format : 6;
+				U32 mRenderTarget2Format : 6;
+				U32 mDepthStencilFormat : 6;
+			} mBitset;
+
+			U32 mCompoundValue = 0x0;
+		} objectBytes;
+
+		objectBytes.mBitset.mRenderTarget0Format = object.mRenderTargetFormats[0];
+		objectBytes.mBitset.mRenderTarget1Format = object.mRenderTargetFormats[1];
+		objectBytes.mBitset.mRenderTarget2Format = object.mRenderTargetFormats[2];
+		objectBytes.mBitset.mDepthStencilFormat  = object.mDepthStencilFormat;
+
+		return objectBytes.mCompoundValue;
+	}
+
+
 	static std::string GetStackTrace() {
 		std::ostringstream ss;
 

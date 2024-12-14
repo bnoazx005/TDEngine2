@@ -83,6 +83,7 @@ namespace TDEngine2
 #if TDE2_DEBUG_MODE
 			VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
 #endif
+		VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
 	};
 
 
@@ -1592,7 +1593,12 @@ namespace TDEngine2
 
 		mpActiveGraphicsPipelineStates[mCurrFrameIndex] = pGraphicsPipeline;
 
-		// \todo Implement construction of pipeline's derivative for current render pass
+		const U64 pipelineHash = (static_cast<U64>(ComputeStateDescHash(mCurrRenderPassInfo)) << 32) | pGraphicsPipeline->GetHash();
+
+		auto&& it = mCachedPipelinesLibrary.find(pipelineHash);
+		VkPipeline currPipelineHandle = (it == mCachedPipelinesLibrary.cend()) ? pGraphicsPipeline->GetPipelineForRenderPass(mCurrRenderPassInfo) : it->second;
+
+		vkCmdBindPipeline(_getCurrCommandBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, currPipelineHandle);
 
 		return RC_OK;
 	}

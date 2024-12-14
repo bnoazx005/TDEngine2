@@ -974,26 +974,26 @@ namespace TDEngine2
 
 		mCachedPipelineLayoutHandle = pShader->GetPipelineLayout();
 
-		VkGraphicsPipelineCreateInfo graphicsPipelineInfo{};
-		graphicsPipelineInfo.sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		graphicsPipelineInfo.pNext               = &renderingInfo;
-		graphicsPipelineInfo.renderPass          = VK_NULL_HANDLE;
-		graphicsPipelineInfo.basePipelineHandle  = VK_NULL_HANDLE;
-		graphicsPipelineInfo.stageCount          = pShader->GetStagesCount();
-		graphicsPipelineInfo.pStages             = pShader->GetStages();
-		graphicsPipelineInfo.pViewportState      = GetDefaultViewport();
-		graphicsPipelineInfo.pVertexInputState   = &vertexInputInfo;
-		graphicsPipelineInfo.pInputAssemblyState = &inputAssemblyInfo;
-		graphicsPipelineInfo.pMultisampleState   = GetDefaultMsaaState();
-		graphicsPipelineInfo.pColorBlendState    = &colorBlendingInfo;
-		graphicsPipelineInfo.pRasterizationState = &rasterizationInfo;
-		graphicsPipelineInfo.pDepthStencilState  = &depthStencilStateInfo;
-		graphicsPipelineInfo.layout              = mCachedPipelineLayoutHandle;
-		graphicsPipelineInfo.pDynamicState       = &dynamicInfo;
+		mBasePipelineConfig.sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		mBasePipelineConfig.pNext               = &renderingInfo;
+		mBasePipelineConfig.renderPass          = VK_NULL_HANDLE;
+		mBasePipelineConfig.basePipelineHandle  = VK_NULL_HANDLE;
+		mBasePipelineConfig.stageCount          = pShader->GetStagesCount();
+		mBasePipelineConfig.pStages             = pShader->GetStages();
+		mBasePipelineConfig.pViewportState      = GetDefaultViewport();
+		mBasePipelineConfig.pVertexInputState   = &vertexInputInfo;
+		mBasePipelineConfig.pInputAssemblyState = &inputAssemblyInfo;
+		mBasePipelineConfig.pMultisampleState   = GetDefaultMsaaState();
+		mBasePipelineConfig.pColorBlendState    = &colorBlendingInfo;
+		mBasePipelineConfig.pRasterizationState = &rasterizationInfo;
+		mBasePipelineConfig.pDepthStencilState  = &depthStencilStateInfo;
+		mBasePipelineConfig.layout              = mCachedPipelineLayoutHandle;
+		mBasePipelineConfig.pDynamicState       = &dynamicInfo;
 
-		
 		// \todo Add pipeline cache's support
-		VK_SAFE_CALL(vkCreateGraphicsPipelines(pVulkanGraphicsContext->GetDevice(), VK_NULL_HANDLE, 1, &graphicsPipelineInfo, nullptr, &mBasePipelineHandle));
+		VK_SAFE_CALL(vkCreateGraphicsPipelines(pVulkanGraphicsContext->GetDevice(), VK_NULL_HANDLE, 1, &mBasePipelineConfig, nullptr, &mBasePipelineHandle));
+
+		mConfigHash = ComputeStateDescHash(mConfig);
 
 		return RC_OK;
 	}
@@ -1008,9 +1008,89 @@ namespace TDEngine2
 		return mpVulkanGraphicsContext->BindPipelineState(this);
 	}
 
+	VkPipeline CVulkanGraphicsPipeline::GetPipelineForRenderPass(const TRenderPassInfo& renderPassInfo)
+	{
+		VkPipeline derivedPipeline = VK_NULL_HANDLE;
+
+		std::array<VkFormat, RENDER_TARGETS_MAX_COUNT> colorAttachments;
+		U32 colorAttachmentsCount = 0;
+
+		for (USIZE i = 0; i < renderPassInfo.mRenderTargetFormats.size(); ++i)
+		{
+			if (E_FORMAT_TYPE::FT_UNKNOWN == renderPassInfo.mRenderTargetFormats[i])
+			{
+				break;
+			}
+
+			colorAttachments[i] = CVulkanMappings::GetInternalFormat(renderPassInfo.mRenderTargetFormats[i]);
+			++colorAttachmentsCount;
+		}
+
+		VkPipelineRenderingCreateInfo renderingInfo{};
+		renderingInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
+		renderingInfo.colorAttachmentCount    = colorAttachmentsCount;
+		renderingInfo.pColorAttachmentFormats = colorAttachments.data();
+		renderingInfo.depthAttachmentFormat   = mConfig.mDepthStencilStateParams.mIsDepthWritingEnabled ? CVulkanMappings::GetInternalFormat(E_FORMAT_TYPE::FT_D32) : VK_FORMAT_UNDEFINED;
+		renderingInfo.stencilAttachmentFormat = mConfig.mDepthStencilStateParams.mIsStencilTestEnabled ? VK_FORMAT_S8_UINT : VK_FORMAT_UNDEFINED;
+
+		VkPipelineVertexInputStateCreateInfo vertexInputStateInfo{};
+		vertexInputStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+
+		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
+		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+
+		VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo{};
+		inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+		inputAssemblyInfo.primitiveRestartEnable = false;
+		inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+
+		VkPipelineMultisampleStateCreateInfo multisamplingInfo{};
+		multisamplingInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+
+		const VkPipelineColorBlendStateCreateInfo& colorBlendingInfo       = CVulkanMappings::GetBlendState(mConfig.mBlendStateParams);
+		const VkPipelineRasterizationStateCreateInfo& rasterizationInfo    = CVulkanMappings::GetRasterizerState(mConfig.mRasterizerStateParams);
+		const VkPipelineDepthStencilStateCreateInfo& depthStencilStateInfo = CVulkanMappings::GetDepthStencilState(mConfig.mDepthStencilStateParams);
+
+		const std::array<VkDynamicState, 3> dynamicStates
+		{
+			VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY
+		};
+
+		VkPipelineDynamicStateCreateInfo dynamicInfo{};
+		dynamicInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+		dynamicInfo.pDynamicStates = dynamicStates.data();
+		dynamicInfo.dynamicStateCount = static_cast<U32>(dynamicStates.size());
+
+		VkGraphicsPipelineCreateInfo derivedPipelineCreateInfo = mBasePipelineConfig;
+		derivedPipelineCreateInfo.basePipelineHandle  = mBasePipelineHandle;
+		derivedPipelineCreateInfo.pNext               = &renderingInfo;
+		derivedPipelineCreateInfo.sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		derivedPipelineCreateInfo.stageCount          = mBasePipelineConfig.stageCount;
+		derivedPipelineCreateInfo.pStages             = mBasePipelineConfig.pStages;
+		derivedPipelineCreateInfo.pViewportState      = GetDefaultViewport();
+		derivedPipelineCreateInfo.pVertexInputState   = &vertexInputInfo;
+		derivedPipelineCreateInfo.pInputAssemblyState = &inputAssemblyInfo;
+		derivedPipelineCreateInfo.pMultisampleState   = GetDefaultMsaaState();
+		derivedPipelineCreateInfo.pColorBlendState    = &colorBlendingInfo;
+		derivedPipelineCreateInfo.pRasterizationState = &rasterizationInfo;
+		derivedPipelineCreateInfo.pDepthStencilState  = &depthStencilStateInfo;
+		derivedPipelineCreateInfo.layout              = mCachedPipelineLayoutHandle;
+		derivedPipelineCreateInfo.pDynamicState       = &dynamicInfo;
+
+		// \todo Add pipeline cache's support
+		VK_SAFE_VOID_CALL(vkCreateGraphicsPipelines(mpVulkanGraphicsContext->GetDevice(), VK_NULL_HANDLE, 1, &derivedPipelineCreateInfo, nullptr, &derivedPipeline));
+
+		return derivedPipeline;
+	}
+
 	VkPipelineLayout CVulkanGraphicsPipeline::GetPipelineLayout() const
 	{
 		return mCachedPipelineLayoutHandle;
+	}
+
+	U32 CVulkanGraphicsPipeline::GetHash() const
+	{
+		return mConfigHash;
 	}
 
 	TDE2_DEFINE_SCOPED_PTR(CVulkanGraphicsPipeline);

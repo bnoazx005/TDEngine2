@@ -23,6 +23,7 @@ namespace TDEngine2
 	class CVulkanGraphicsContext;
 	class IGraphicsPipeline;
 	class CVulkanGraphicsObjectManager;
+	struct TRenderPassInfo;
 
 
 	/*!
@@ -306,15 +307,22 @@ namespace TDEngine2
 			E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig) override;
 			E_RESULT_CODE Bind() override;
 
+			VkPipeline GetPipelineForRenderPass(const TRenderPassInfo& renderPassInfo);
 			VkPipelineLayout GetPipelineLayout() const;
+
+			U32 GetHash() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanGraphicsPipeline)
 		private:
 			CVulkanGraphicsObjectManager* mpVulkanGraphicsObjectManagerImpl = nullptr;
 			CVulkanGraphicsContext*       mpVulkanGraphicsContext = nullptr;
 
+			VkGraphicsPipelineCreateInfo  mBasePipelineConfig{};
+
 			VkPipeline                    mBasePipelineHandle = VK_NULL_HANDLE;
 			VkPipelineLayout              mCachedPipelineLayoutHandle = VK_NULL_HANDLE;
+
+			U32                           mConfigHash = 0;
 	};
 
 
