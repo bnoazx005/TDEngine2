@@ -36,23 +36,12 @@ VertexOut mainVS(uint vertexId : SV_VertexID, uint instanceId : SV_InstanceID)
 
 #program pixel
 
-Texture2D TextureAtlas;
-TextureCube SkyboxTexture;
-
-SamplerState TexSampler;
-
+DECLARE_TEX2D_EX(TextureAtlas, 0);
+DECLARE_CUBETEX_EX(SkyboxTexture, 1);
 
 float4 mainPS(VertexOut input): SV_TARGET0
 {
-	float4 c = TextureAtlas.Sample(TexSampler, input.mUV);
-	
-	float4 c2 = SkyboxTexture.Sample(TexSampler, float3(0, 0, 0));
-	if (c.a < 0.1)
-	{
-		discard;
-	}
-
-	return c * input.mColor;
+	return input.mColor;
 }
 
 #endprogram

@@ -13,9 +13,10 @@ struct VertexOut
 	float4 mWorldPos         : POSITION2;
 	float4 mColor            : COLOR;
 	float2 mUV               : TEXCOORD;
+	float2 mUV1              : TEXCOORD1;
 	float4 mNormal           : NORMAL;
-	float3x3 mTangentToWorld : TEXCOORD1;
-	float4 mTangentViewDir   : TEXCOORD4;
+	float3x3 mTangentToWorld : TEXCOORD2;
+	float4 mTangentViewDir   : TEXCOORD5;
 };
 
 
@@ -37,6 +38,7 @@ VertexOut mainVS(uint vertexId : SV_VertexID)
 	output.mViewWorldPos = mul(ViewMat, output.mWorldPos);
 	output.mNormal   = normalize(mul(transpose(InvModelMat), GetVertNormal(vertexId, StartVertexOffset, StartIndexOffset)));
 	output.mUV       = GetVertTexCoords(vertexId, StartVertexOffset, StartIndexOffset).xy;
+	output.mUV1      = HAS_TEXCOORDS1 ? GetVertLightmapsTexCoords(vertexId, StartVertexOffset, StartIndexOffset).xy : float2(0.0, 0.0);
 	output.mColor    = HAS_COLORS ? GetVertColor(vertexId, StartVertexOffset, StartIndexOffset) : float4(1.0, 1.0, 1.0, 1.0);
 
 	float3 tangent  = normalize(mul(transpose(InvModelMat), GetVertTangent(vertexId, StartVertexOffset, StartIndexOffset))).xyz;
