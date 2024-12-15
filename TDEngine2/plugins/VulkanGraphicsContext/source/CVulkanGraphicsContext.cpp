@@ -1089,6 +1089,22 @@ namespace TDEngine2
 
 		mpGraphicsObjectManagerImpl = dynamic_cast<CVulkanGraphicsObjectManager*>(mpGraphicsObjectManager.Get());
 
+		mDescriptorWrites.reserve(
+			TDescriptorsBindingsTable::MAX_CBV_COUNT +
+			TDescriptorsBindingsTable::MAX_SRV_COUNT +
+			TDescriptorsBindingsTable::MAX_SAMPLERS_COUNT +
+			TDescriptorsBindingsTable::MAX_UAV_COUNT);
+
+		mDescriptorBufferInfos.reserve(
+			TDescriptorsBindingsTable::MAX_CBV_COUNT +
+			TDescriptorsBindingsTable::MAX_SRV_COUNT +
+			TDescriptorsBindingsTable::MAX_UAV_COUNT);
+
+		mDescriptorImageInfos.reserve(
+			TDescriptorsBindingsTable::MAX_SRV_COUNT +
+			TDescriptorsBindingsTable::MAX_SAMPLERS_COUNT +
+			TDescriptorsBindingsTable::MAX_UAV_COUNT);
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -1275,14 +1291,18 @@ namespace TDEngine2
 		viewport.minDepth = minDepth;
 		viewport.maxDepth = maxDepth;
 
-		const TPtr<CVulkanCommandBuffer>& pCurrCommandBuffer = mpCommandBuffers[mCurrFrameIndex];
-		vkCmdSetViewport(pCurrCommandBuffer->GetHandle(), 0, 1, &viewport);
+		vkCmdSetViewport(_getCurrCommandBufferHandle(), 0, 1, &viewport);
 	}
 
 	void CVulkanGraphicsContext::SetScissorRect(const TRectU32& scissorRect)
 	{
-		//vkCmdSetScissor()
-		TDE2_UNIMPLEMENTED();
+		TDE2_ASSERT(mIsRenderPassActive); // \note To set up scissor rect outside of some render pass is meaningless
+		
+		VkRect2D internalScissorRect{};
+		internalScissorRect.offset = { static_cast<I32>(scissorRect.x), static_cast<I32>(scissorRect.y) };
+		internalScissorRect.extent = { scissorRect.width, scissorRect.height };
+
+		vkCmdSetScissor(_getCurrCommandBufferHandle(), 0, 1, &internalScissorRect);
 	}
 
 	TMatrix4 CVulkanGraphicsContext::CalcPerspectiveMatrix(F32 fov, F32 aspect, F32 zn, F32 zf)
@@ -1350,17 +1370,25 @@ namespace TDEngine2
 		auto pBuffer = mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(bufferHandle);
 		if (!pBuffer)
 		{
-			return RC_FAIL;
+			return RC_OK;
 		}
 
 		TDE2_ASSERT(E_BUFFER_TYPE::STRUCTURED == pBuffer->GetParams().mBufferType);
 
-		auto& currDescriptorsGroup = isWriteEnabled ? mDescriptorsBindingsTable.mUAVBuffers : mDescriptorsBindingsTable.mSRVBuffers;
-		
-		TDE2_ASSERT(slot < currDescriptorsGroup.size());
+		if (isWriteEnabled)
+		{
+			TDE2_ASSERT(slot < mDescriptorsBindingsTable.mUAVBuffers.size());
 
-		currDescriptorsGroup[slot].mType = TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::BUFFER;
-		currDescriptorsGroup[slot].mValue.mBuffer = bufferHandle;
+			mDescriptorsBindingsTable.mUAVBuffers[slot].mType = TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::BUFFER;
+			mDescriptorsBindingsTable.mUAVBuffers[slot].mValue.mBuffer = bufferHandle;
+		}
+		else
+		{
+			TDE2_ASSERT(slot < mDescriptorsBindingsTable.mSRVBuffers.size());
+
+			mDescriptorsBindingsTable.mSRVBuffers[slot].mType = TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::BUFFER;
+			mDescriptorsBindingsTable.mSRVBuffers[slot].mValue.mBuffer = bufferHandle;
+		}
 
 		return RC_OK;
 	}
@@ -1373,18 +1401,27 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		auto& currDescriptorsGroup = isWriteEnabled ? mDescriptorsBindingsTable.mUAVBuffers : mDescriptorsBindingsTable.mSRVBuffers;
+		if (isWriteEnabled)
+		{
+			TDE2_ASSERT(slot < mDescriptorsBindingsTable.mUAVBuffers.size());
 
-		TDE2_ASSERT(slot < currDescriptorsGroup.size());
+			mDescriptorsBindingsTable.mUAVBuffers[slot].mType = TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::TEXTURE;
+			mDescriptorsBindingsTable.mUAVBuffers[slot].mValue.mTexture = textureHandle;
+		}
+		else
+		{
+			TDE2_ASSERT(slot < mDescriptorsBindingsTable.mSRVBuffers.size());
 
-		currDescriptorsGroup[slot].mType = TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::TEXTURE;
-		currDescriptorsGroup[slot].mValue.mTexture = textureHandle;
+			mDescriptorsBindingsTable.mSRVBuffers[slot].mType = TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::TEXTURE;
+			mDescriptorsBindingsTable.mSRVBuffers[slot].mValue.mTexture = textureHandle;
+		}
 
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::SetSampler(U32 slot, TTextureSamplerId samplerHandle)
 	{
+		mDescriptorsBindingsTable.mSamplers[slot] = samplerHandle;
 		return RC_OK;
 	}
 
@@ -1581,10 +1618,12 @@ namespace TDEngine2
 
 	void CVulkanGraphicsContext::DispatchCompute(U32 groupsCountX, U32 groupsCountY, U32 groupsCountZ)
 	{
+		_prepareDispatchCall();
 	}
 
 	void CVulkanGraphicsContext::DispatchIndirectCompute(TBufferHandleId argsBufferHandle, U32 alignedOffset)
 	{
+		_prepareDispatchCall();
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::BindPipelineState(CVulkanGraphicsPipeline* pGraphicsPipeline)
@@ -1595,9 +1634,19 @@ namespace TDEngine2
 
 		const U64 pipelineHash = (static_cast<U64>(ComputeStateDescHash(mCurrRenderPassInfo)) << 32) | pGraphicsPipeline->GetHash();
 
-		auto&& it = mCachedPipelinesLibrary.find(pipelineHash);
-		VkPipeline currPipelineHandle = (it == mCachedPipelinesLibrary.cend()) ? pGraphicsPipeline->GetPipelineForRenderPass(mCurrRenderPassInfo) : it->second;
+		VkPipeline currPipelineHandle = VK_NULL_HANDLE;
 
+		auto&& it = mCachedPipelinesLibrary.find(pipelineHash);
+		if (it == mCachedPipelinesLibrary.cend())
+		{
+			currPipelineHandle = pGraphicsPipeline->GetPipelineForRenderPass(mCurrRenderPassInfo);
+			mCachedPipelinesLibrary[pipelineHash] = currPipelineHandle;
+		}
+		else
+		{
+			currPipelineHandle = it->second;
+		}
+		
 		vkCmdBindPipeline(_getCurrCommandBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, currPipelineHandle);
 
 		return RC_OK;
@@ -1730,6 +1779,8 @@ namespace TDEngine2
 
 		vkCmdBeginRendering(_getCurrCommandBufferHandle(), &renderPassInfo);
 		mIsRenderPassActive = true;
+
+		SetScissorRect({ 0, 0, viewportSizes.width, viewportSizes.height }); // \note Set up default scissor rect for the whole screen
 
 		return RC_OK;
 	}
@@ -1893,30 +1944,17 @@ namespace TDEngine2
 		mDescriptorBufferInfos.clear();
 		mDescriptorImageInfos.clear();
 
-		mDescriptorWrites.reserve(
-			TDescriptorsBindingsTable::MAX_CBV_COUNT +
-			TDescriptorsBindingsTable::MAX_SRV_COUNT +
-			TDescriptorsBindingsTable::MAX_SAMPLERS_COUNT +
-			TDescriptorsBindingsTable::MAX_UAV_COUNT);
+		const auto& currPipelineActiveSlots = mpActiveGraphicsPipelineStates[mCurrFrameIndex]->GetLayoutInfo();
 
-		mDescriptorBufferInfos.reserve(
-			TDescriptorsBindingsTable::MAX_CBV_COUNT +
-			TDescriptorsBindingsTable::MAX_SRV_COUNT +
-			TDescriptorsBindingsTable::MAX_UAV_COUNT);
-
-		mDescriptorImageInfos.reserve(
-			TDescriptorsBindingsTable::MAX_SRV_COUNT +
-			TDescriptorsBindingsTable::MAX_SAMPLERS_COUNT +
-			TDescriptorsBindingsTable::MAX_UAV_COUNT);
-
-		for (U32 i = 0; i < mDescriptorsBindingsTable.mConstantBuffers.size(); ++i)
+		for (U32 i = 0; i < currPipelineActiveSlots.mCBVActiveSlots.size(); ++i)
 		{
-			if (TBufferHandleId::Invalid == mDescriptorsBindingsTable.mConstantBuffers[i])
+			const TBufferHandleId currBufferHandle = mDescriptorsBindingsTable.mConstantBuffers[currPipelineActiveSlots.mCBVActiveSlots[i]];
+			if (TBufferHandleId::Invalid == currBufferHandle)
 			{
 				continue;
 			}
 
-			auto pBuffer = mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(mDescriptorsBindingsTable.mConstantBuffers[i]);
+			auto pBuffer = mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(currBufferHandle);
 			if (!pBuffer)
 			{
 				continue;
@@ -1930,26 +1968,29 @@ namespace TDEngine2
 			currWriteDescriptorSet.dstSet          = 0;
 			currWriteDescriptorSet.descriptorCount = 1;
 			currWriteDescriptorSet.descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			currWriteDescriptorSet.dstBinding      = i;
+			currWriteDescriptorSet.dstBinding      = currPipelineActiveSlots.mCBVActiveSlots[i];
 			currWriteDescriptorSet.pBufferInfo     = &currBufferInfo;
 			
 			mDescriptorWrites.emplace_back(currWriteDescriptorSet);
 		}
 
-		for (U32 i = 0; i < mDescriptorsBindingsTable.mSRVBuffers.size(); ++i)
+		for (U32 i = 0; i < currPipelineActiveSlots.mSRVActiveSlots.size(); ++i)
 		{
-			if (TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::UNKNOWN == mDescriptorsBindingsTable.mSRVBuffers[i].mType)
+			const U32 currBinding = currPipelineActiveSlots.mSRVActiveSlots[i];
+			const auto& currResourceEntity = mDescriptorsBindingsTable.mSRVBuffers[currBinding];
+
+			if (TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::UNKNOWN == currResourceEntity.mType)
 			{
 				continue;
 			}
 
 			VkWriteDescriptorSet& currWriteDescriptorSet = mDescriptorWrites.emplace_back();
 
-			switch (mDescriptorsBindingsTable.mSRVBuffers[i].mType)
+			switch (mDescriptorsBindingsTable.mSRVBuffers[currBinding].mType)
 			{
 				case TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::BUFFER:
 					{
-						auto pBuffer = mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(mDescriptorsBindingsTable.mSRVBuffers[i].mValue.mBuffer);
+						auto pBuffer = mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(currResourceEntity.mValue.mBuffer);
 						if (!pBuffer)
 						{
 							mDescriptorWrites.erase(mDescriptorWrites.cend() - 1);
@@ -1968,7 +2009,7 @@ namespace TDEngine2
 
 				case TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::TEXTURE:
 					{
-						auto pTexture = mpGraphicsObjectManagerImpl->GetVulkanTexturePtr(mDescriptorsBindingsTable.mSRVBuffers[i].mValue.mTexture);
+						auto pTexture = mpGraphicsObjectManagerImpl->GetVulkanTexturePtr(currResourceEntity.mValue.mTexture);
 						if (!pTexture)
 						{
 							mDescriptorWrites.erase(mDescriptorWrites.cend() - 1);
@@ -1989,12 +2030,13 @@ namespace TDEngine2
 			currWriteDescriptorSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			currWriteDescriptorSet.dstSet          = 0;
 			currWriteDescriptorSet.descriptorCount = 1;
-			currWriteDescriptorSet.dstBinding      = GetBindingOffsetByResourceType(E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D) + i;			
+			currWriteDescriptorSet.dstBinding      = GetBindingOffsetByResourceType(E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D) + currBinding;
 		}
 
-		for (U32 i = 0; i < mDescriptorsBindingsTable.mSamplers.size(); ++i)
+		for (U32 i = 0; i < currPipelineActiveSlots.mSamplersActiveSlots.size(); ++i)
 		{
-			if (TTextureSamplerId::Invalid == mDescriptorsBindingsTable.mSamplers[i])
+			const TTextureSamplerId currSamplerHandle = mDescriptorsBindingsTable.mSamplers[currPipelineActiveSlots.mSamplersActiveSlots[i]];
+			if (TTextureSamplerId::Invalid == currSamplerHandle)
 			{
 				continue;
 			}
@@ -2002,31 +2044,35 @@ namespace TDEngine2
 			VkWriteDescriptorSet& currWriteDescriptorSet = mDescriptorWrites.emplace_back();
 
 			VkDescriptorImageInfo& currImageInfo = mDescriptorImageInfos.emplace_back();
-			currImageInfo.sampler = VK_NULL_HANDLE; // \todo
-			TDE2_UNIMPLEMENTED();
+			currImageInfo.sampler     = mpGraphicsObjectManagerImpl->GetTextureSampler(currSamplerHandle).Get();
+			currImageInfo.imageView   = VK_NULL_HANDLE;
+			currImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
 			currWriteDescriptorSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			currWriteDescriptorSet.dstSet          = 0;
 			currWriteDescriptorSet.descriptorCount = 1;
 			currWriteDescriptorSet.descriptorType  = VK_DESCRIPTOR_TYPE_SAMPLER;
-			currWriteDescriptorSet.dstBinding      = GetBindingOffsetByResourceType(E_SHADER_RESOURCE_TYPE::SRT_SAMPLER_STATE) + i;
+			currWriteDescriptorSet.dstBinding      = GetBindingOffsetByResourceType(E_SHADER_RESOURCE_TYPE::SRT_SAMPLER_STATE) + currPipelineActiveSlots.mSamplersActiveSlots[i];
 			currWriteDescriptorSet.pImageInfo      = &currImageInfo;
 		}
 
-		for (U32 i = 0; i < mDescriptorsBindingsTable.mUAVBuffers.size(); ++i)
+		for (U32 i = 0; i < currPipelineActiveSlots.mUAVActiveSlots.size(); ++i)
 		{
-			if (TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::UNKNOWN == mDescriptorsBindingsTable.mUAVBuffers[i].mType)
+			const U32 currBinding = currPipelineActiveSlots.mUAVActiveSlots[i];
+			const auto& currResourceEntity = mDescriptorsBindingsTable.mSRVBuffers[currBinding];
+
+			if (TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::UNKNOWN == currResourceEntity.mType)
 			{
 				continue;
 			}
 
 			VkWriteDescriptorSet& currWriteDescriptorSet = mDescriptorWrites.emplace_back();
 
-			switch (mDescriptorsBindingsTable.mUAVBuffers[i].mType)
+			switch (mDescriptorsBindingsTable.mUAVBuffers[currBinding].mType)
 			{
 				case TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::BUFFER:
 				{
-					auto pBuffer = mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(mDescriptorsBindingsTable.mUAVBuffers[i].mValue.mBuffer);
+					auto pBuffer = mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(currResourceEntity.mValue.mBuffer);
 					if (!pBuffer)
 					{
 						mDescriptorWrites.erase(mDescriptorWrites.cend() - 1);
@@ -2045,7 +2091,7 @@ namespace TDEngine2
 
 				case TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::TEXTURE:
 				{
-					auto pTexture = mpGraphicsObjectManagerImpl->GetVulkanTexturePtr(mDescriptorsBindingsTable.mUAVBuffers[i].mValue.mTexture);
+					auto pTexture = mpGraphicsObjectManagerImpl->GetVulkanTexturePtr(currResourceEntity.mValue.mTexture);
 					if (!pTexture)
 					{
 						mDescriptorWrites.erase(mDescriptorWrites.cend() - 1);
@@ -2066,18 +2112,21 @@ namespace TDEngine2
 			currWriteDescriptorSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			currWriteDescriptorSet.dstSet          = 0;
 			currWriteDescriptorSet.descriptorCount = 1;
-			currWriteDescriptorSet.dstBinding      = GetBindingOffsetByResourceType(E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D) + i;
+			currWriteDescriptorSet.dstBinding      = GetBindingOffsetByResourceType(E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D) + currBinding;
 		}
-
-		mDescriptorsBindingsTable.Reset();
 
 		TDE2_ASSERT(mpActiveGraphicsPipelineStates[mCurrFrameIndex]);
 		if (!mpActiveGraphicsPipelineStates[mCurrFrameIndex])
 		{
 			return;
 		}
-		
+				
 		vkCmdPushDescriptorSetKHR(_getCurrCommandBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, mpActiveGraphicsPipelineStates[mCurrFrameIndex]->GetPipelineLayout(), 0, static_cast<U32>(mDescriptorWrites.size()), mDescriptorWrites.data());
+		mDescriptorsBindingsTable.Reset();
+	}
+
+	void CVulkanGraphicsContext::_prepareDispatchCall()
+	{
 	}
 
 

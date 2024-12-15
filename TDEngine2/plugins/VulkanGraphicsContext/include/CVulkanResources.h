@@ -167,6 +167,15 @@ namespace TDEngine2
 	IShader* CreateVulkanShader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result);
 
 
+	struct TVulkanPipelineLayoutInfo
+	{
+		std::vector<U32> mCBVActiveSlots {};
+		std::vector<U32> mSRVActiveSlots {};
+		std::vector<U32> mUAVActiveSlots {};
+		std::vector<U32> mSamplersActiveSlots {};
+	};
+
+
 	/*!
 		class CVulkanShader
 
@@ -206,6 +215,8 @@ namespace TDEngine2
 
 			const VkPipelineLayout GetPipelineLayout() const;
 			const VkDescriptorSetLayout GetDescriptorSetLayout() const;
+
+			const TVulkanPipelineLayoutInfo& GetLayoutInfo() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanShader)
 
@@ -219,6 +230,8 @@ namespace TDEngine2
 			VkDevice                                              mDevice = VK_NULL_HANDLE;
 			VkPipelineLayout                                      mPipelineLayout = VK_NULL_HANDLE;
 			VkDescriptorSetLayout                                 mDescriptorsSetLayout = VK_NULL_HANDLE;
+
+			TVulkanPipelineLayoutInfo                             mLayoutInfo{};
 	};
 
 
@@ -294,7 +307,6 @@ namespace TDEngine2
 	IVertexDeclaration* CreateVulkanVertexDeclaration(E_RESULT_CODE& result);
 
 
-
 	/*!
 		\brief CVulkanGraphicsPipeline's definition
 	*/
@@ -311,6 +323,8 @@ namespace TDEngine2
 			VkPipelineLayout GetPipelineLayout() const;
 
 			U32 GetHash() const;
+
+			const TVulkanPipelineLayoutInfo& GetLayoutInfo() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanGraphicsPipeline)
 		private:
@@ -323,6 +337,7 @@ namespace TDEngine2
 			VkPipelineLayout              mCachedPipelineLayoutHandle = VK_NULL_HANDLE;
 
 			U32                           mConfigHash = 0;
+			TVulkanPipelineLayoutInfo     mLayoutInfo{};
 	};
 
 

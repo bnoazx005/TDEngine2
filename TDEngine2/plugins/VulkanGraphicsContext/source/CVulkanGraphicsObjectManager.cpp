@@ -11,10 +11,10 @@
 namespace TDEngine2
 {
 	TDE2_DEFINE_SCOPED_PTR(CVulkanTextureImpl)
-	TDE2_DEFINE_SCOPED_PTR(CVulkanBuffer)
+		TDE2_DEFINE_SCOPED_PTR(CVulkanBuffer)
 
 
-	CVulkanGraphicsObjectManager::CVulkanGraphicsObjectManager() :
+		CVulkanGraphicsObjectManager::CVulkanGraphicsObjectManager() :
 		CBaseGraphicsObjectManager()
 	{
 	}
@@ -147,7 +147,7 @@ namespace TDEngine2
 		samplerInfo.maxLod = 0.0f;
 
 		auto pVulkanGraphicsContext = dynamic_cast<CVulkanGraphicsContext*>(mpGraphicsContext);
-		
+
 		VkSampler samplerHandle = VK_NULL_HANDLE;
 		VK_SAFE_TRESULT_CALL(vkCreateSampler(pVulkanGraphicsContext->GetDevice(), &samplerInfo, nullptr, &samplerHandle));
 
@@ -199,6 +199,17 @@ namespace TDEngine2
 		}
 
 		return mpTexturesArray[texturePlacementIndex];
+	}
+
+	TResult<VkSampler> CVulkanGraphicsObjectManager::GetTextureSampler(TTextureSamplerId texSamplerId) const
+	{
+		const USIZE textureSamplerIndex = static_cast<USIZE>(texSamplerId);
+		if (textureSamplerIndex >= mTextureSamplersArray.size())
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		return Wrench::TOkValue<VkSampler>(mTextureSamplersArray[textureSamplerIndex]);
 	}
 
 	std::string CVulkanGraphicsObjectManager::GetDefaultShaderCode(const E_DEFAULT_SHADER_TYPE& type) const

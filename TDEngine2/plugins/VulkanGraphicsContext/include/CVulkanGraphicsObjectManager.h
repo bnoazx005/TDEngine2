@@ -85,6 +85,12 @@ namespace TDEngine2
 			TPtr<CVulkanTextureImpl> GetVulkanTexturePtr(TTextureHandleId textureHandle);
 
 			/*!
+				\return The method returns VkSampler handle or an error code
+			*/
+
+			TResult<VkSampler> GetTextureSampler(TTextureSamplerId texSamplerId) const;
+
+			/*!
 				\brief The method returns a string which contains full source code of default shader that is specific
 				for the graphics context
 

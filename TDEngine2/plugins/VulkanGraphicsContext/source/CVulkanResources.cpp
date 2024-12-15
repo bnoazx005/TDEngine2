@@ -346,6 +346,10 @@ namespace TDEngine2
 		return mDescriptorsSetLayout;
 	}
 
+	const TVulkanPipelineLayoutInfo& CVulkanShader::GetLayoutInfo() const
+	{
+		return mLayoutInfo;
+	}
 
 	static TResult<VkShaderModule> CreateShaderModule(VkDevice device, E_SHADER_STAGE_TYPE stageType, const TShaderCompilerOutput* pCompilerData)
 	{
@@ -438,6 +442,8 @@ namespace TDEngine2
 
 			bindings.emplace_back(currBinding);
 			existingBindings.emplace(currBinding.binding);
+
+			mLayoutInfo.mCBVActiveSlots.push_back(currBinding.binding);
 		}
 
 		for (const auto& currShaderResourceInfo : pCompilerData->mShaderResourcesInfo)
@@ -458,6 +464,29 @@ namespace TDEngine2
 
 			bindings.emplace_back(currBinding);
 			existingBindings.emplace(currBinding.binding);
+
+			switch (currShaderResourceInfo.second.mType)
+			{
+				case E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D:
+				case E_SHADER_RESOURCE_TYPE::SRT_TEXTURE3D:
+				case E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D_ARRAY:
+				case E_SHADER_RESOURCE_TYPE::SRT_TEXTURECUBE:
+				case E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER:
+				case E_SHADER_RESOURCE_TYPE::SRT_RAW_BUFFER:
+					mLayoutInfo.mSRVActiveSlots.push_back(currShaderResourceInfo.second.mSlot);
+					break;
+
+				case E_SHADER_RESOURCE_TYPE::SRT_SAMPLER_STATE:
+					mLayoutInfo.mSamplersActiveSlots.push_back(currShaderResourceInfo.second.mSlot);
+					break;
+
+				case E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D:
+				case E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE3D:
+				case E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER:
+				case E_SHADER_RESOURCE_TYPE::SRT_RW_RAW_BUFFER:
+					mLayoutInfo.mUAVActiveSlots.push_back(currShaderResourceInfo.second.mSlot);
+					break;
+			}
 		}
 
 		VkDescriptorSetLayoutCreateInfo shaderDescriptorSetLayoutCreateInfo{};
@@ -994,6 +1023,7 @@ namespace TDEngine2
 		VK_SAFE_CALL(vkCreateGraphicsPipelines(pVulkanGraphicsContext->GetDevice(), VK_NULL_HANDLE, 1, &mBasePipelineConfig, nullptr, &mBasePipelineHandle));
 
 		mConfigHash = ComputeStateDescHash(mConfig);
+		mLayoutInfo = pShader->GetLayoutInfo();
 
 		return RC_OK;
 	}
@@ -1091,6 +1121,11 @@ namespace TDEngine2
 	U32 CVulkanGraphicsPipeline::GetHash() const
 	{
 		return mConfigHash;
+	}
+
+	const TVulkanPipelineLayoutInfo& CVulkanGraphicsPipeline::GetLayoutInfo() const
+	{
+		return mLayoutInfo;
 	}
 
 	TDE2_DEFINE_SCOPED_PTR(CVulkanGraphicsPipeline);
