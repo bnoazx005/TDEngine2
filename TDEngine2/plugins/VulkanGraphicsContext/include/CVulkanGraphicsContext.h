@@ -192,6 +192,8 @@ namespace TDEngine2
 			// Copy buffer to buffer
 			E_RESULT_CODE CopyResource(TBufferHandleId sourceHandle, TBufferHandleId destHandle) override;
 
+			E_RESULT_CODE AddBarriers();
+
 			/*!
 				\brief The method copies counter of sourceHandle buffer into destHandle's one
 

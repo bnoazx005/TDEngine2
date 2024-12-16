@@ -1146,6 +1146,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanGraphicsContext::_onFreeInternal()
 	{
+		mpVulkanDeviceContext->WaitForIdle();
+
 		for (USIZE i = 0; i < FRAMES_COUNT; i++)
 		{
 			vkDestroySemaphore(mpVulkanDeviceContext->GetDevice(), mImageReadySemaphores[i], nullptr);
@@ -1523,12 +1525,103 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanGraphicsContext::UpdateTexture2DArray(TTextureHandleId textureHandle, U32 index, const TRectI32& regionRect, const void* pData, USIZE dataSize)
 	{
-		return RC_NOT_IMPLEMENTED_YET;
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		auto pTexture = mpGraphicsObjectManagerImpl->GetVulkanTexturePtr(textureHandle);
+		if (!pTexture)
+		{
+			return RC_FAIL;
+		}
+
+		const USIZE textureSize = static_cast<USIZE>(regionRect.width * regionRect.height * CFormatUtils::GetFormatSize(pTexture->GetParams().mFormat));
+
+		TPtr<IBuffer> pStagingBuffer = TPtr<IBuffer>(CreateVulkanBuffer(this, { E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::GENERIC, textureSize, nullptr }, result));
+		if (RC_OK != result || !pStagingBuffer)
+		{
+			return result;
+		}
+
+		TPtr<CVulkanBuffer> pVulkanStagingBuffer = DynamicPtrCast<CVulkanBuffer>(pStagingBuffer);
+
+		result = pStagingBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		result = pStagingBuffer->Write(pData, textureSize);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		pStagingBuffer->Unmap();
+
+		auto pStagingBufferImpl = DynamicPtrCast<CVulkanBuffer>(pStagingBuffer);
+
+		result = ExecuteCopyImmediate([=](VkCommandBuffer cmdBuffer)
+			{
+				VkImageSubresourceRange range;
+				range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+				range.baseMipLevel = 0;
+				range.levelCount = 1;
+				range.baseArrayLayer = index;
+				range.layerCount = 1;
+
+				VkImageMemoryBarrier imageBarrierToTransfer = {};
+				imageBarrierToTransfer.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+
+				imageBarrierToTransfer.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+				imageBarrierToTransfer.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+				imageBarrierToTransfer.image = pTexture->GetTextureHandle();
+				imageBarrierToTransfer.subresourceRange = range;
+
+				imageBarrierToTransfer.srcAccessMask = 0;
+				imageBarrierToTransfer.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+				//barrier the image into the transferreceive layout
+				vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrierToTransfer);
+
+				VkBufferImageCopy copyRegion = {};
+				copyRegion.bufferOffset = 0;
+				copyRegion.bufferRowLength = 0;
+				copyRegion.bufferImageHeight = 0;
+
+				auto&& textureParams = pTexture->GetParams();
+
+				copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+				copyRegion.imageSubresource.mipLevel = 0;
+				copyRegion.imageSubresource.baseArrayLayer = index;
+				copyRegion.imageSubresource.layerCount = 1;
+				copyRegion.imageExtent = { static_cast<U32>(regionRect.width), static_cast<U32>(regionRect.height), 1 };
+				copyRegion.imageOffset = { regionRect.x, regionRect.y, 0 };
+
+				//copy the buffer into the image
+				vkCmdCopyBufferToImage(cmdBuffer, pVulkanStagingBuffer->GetVulkanHandle(), pTexture->GetTextureHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
+
+				VkImageMemoryBarrier imageBarrierToReadable = imageBarrierToTransfer;
+
+				imageBarrierToReadable.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+				imageBarrierToReadable.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+				imageBarrierToReadable.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+				imageBarrierToReadable.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+				//barrier the image into the shader readable layout
+				vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrierToReadable);
+			});
+
+		return result;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::UpdateCubemapTexture(TTextureHandleId textureHandle, E_CUBEMAP_FACE face, const TRectI32& regionRect, const void* pData, USIZE dataSize)
 	{
-		return RC_NOT_IMPLEMENTED_YET;
+		return UpdateTexture2DArray(textureHandle, static_cast<U32>(face), regionRect, pData, dataSize);
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::UpdateTexture3D(TTextureHandleId textureHandle, U32 depthFrom, U32 depthTo, const TRectI32& regionRect, const void* pData, USIZE dataSize)
@@ -1604,8 +1697,7 @@ namespace TDEngine2
 		_prepareDrawCall();
 
 		vkCmdSetPrimitiveTopology(_getCurrCommandBufferHandle(), CVulkanMappings::GetPrimitiveTopology(topology));
-		//vkCmdDrawIndirect(mCommandBuffers[mCurrFrameIndex], VK_NULL_HANDLE, )
-		TDE2_UNIMPLEMENTED();
+		vkCmdDrawIndexedIndirect(_getCurrCommandBufferHandle(), mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(argsBufferHandle)->GetVulkanHandle(), static_cast<VkDeviceSize>(alignedOffset), 1, 0);
 	}
 
 	void CVulkanGraphicsContext::DrawIndirectIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, TBufferHandleId argsBufferHandle, U32 alignedOffset)
