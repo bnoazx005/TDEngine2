@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.31] 2024-12-11
+## [0.6.31] 2024-12-21
 
 ### Added
 
@@ -34,6 +34,8 @@ supports lightmaps generation.
 The implementation of **CForwardRenderer** was rewritten due to the changes.
 
 - Now the engine uses C++17 as minimal required standard.
+
+- The API of **IGraphicsContext** was extended with new methods to describe resource barriers.
 
 ### Fixed
 

@@ -77,7 +77,11 @@ namespace TDEngine2
 
 				VmaAllocation mAllocation = VK_NULL_HANDLE;
 			};
-			typedef std::vector<TGarbageEntity> TGarbageCollection;
+
+			typedef std::vector<TGarbageEntity>         TGarbageCollection;
+			typedef std::vector<VkMemoryBarrier2>       TMemoryBarriers;
+			typedef std::vector<VkBufferMemoryBarrier2> TBufferBarriers;
+			typedef std::vector<VkImageMemoryBarrier2>  TTextureBarriers;
 		public:
 			TDE2_REGISTER_TYPE(CVulkanGraphicsContext)
 
@@ -192,7 +196,9 @@ namespace TDEngine2
 			// Copy buffer to buffer
 			E_RESULT_CODE CopyResource(TBufferHandleId sourceHandle, TBufferHandleId destHandle) override;
 
-			E_RESULT_CODE AddBarriers();
+			TDE2_API void MemoryAccessBarrier(const std::variant<TBufferHandleId, TTextureHandleId> resourceHandle) override;
+			TDE2_API void TransitionBarrier(const TBufferTransitionBarrierInfo& barrierInfo) override;
+			TDE2_API void TransitionBarrier(const TTextureTransitionBarrierInfo& barrierInfo) override;
 
 			/*!
 				\brief The method copies counter of sourceHandle buffer into destHandle's one
@@ -351,6 +357,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE BeginRenderPass(const TFramebufferInfo& framebufferInfo) override;
 			TDE2_API E_RESULT_CODE EndRenderPass() override;
 
+			void FlushBarriers();
+
 			/*!
 				\brief The method returns an object that contains internal handlers that are used by the system.
 
@@ -471,6 +479,10 @@ namespace TDEngine2
 			std::array<VkSemaphore, FRAMES_COUNT>                mImageReadySemaphores {};
 			std::array<VkSemaphore, FRAMES_COUNT>                mRenderFinishedSemaphores {};
 			std::array<TGarbageCollection, FRAMES_COUNT>         mAwaitingDeletionObjects {};
+
+			std::array<TMemoryBarriers, FRAMES_COUNT>            mMemoryBarriers{};
+			std::array<TBufferBarriers, FRAMES_COUNT>            mBufferBarriers{};
+			std::array<TTextureBarriers, FRAMES_COUNT>           mTextureBarriers{};
 
 			std::array<CVulkanGraphicsPipeline*, FRAMES_COUNT>   mpActiveGraphicsPipelineStates {};
 			std::unordered_map<U64, VkPipeline>                  mCachedPipelinesLibrary{};

@@ -143,6 +143,21 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	void CProxyGraphicsContext::MemoryAccessBarrier(const std::variant<TBufferHandleId, TTextureHandleId> resourceHandle)
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] MemoryAccessBarrier");
+	}
+
+	void CProxyGraphicsContext::TransitionBarrier(const TBufferTransitionBarrierInfo& barrierInfo)
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] TransitionBarrier");
+	}
+
+	void CProxyGraphicsContext::TransitionBarrier(const TTextureTransitionBarrierInfo& barrierInfo)
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] TransitionBarrier");
+	}
+
 	E_RESULT_CODE CProxyGraphicsContext::CopyCount(TBufferHandleId sourceHandle, TBufferHandleId destHandle, U32 offset)
 	{
 		LOG_MESSAGE("[ProxyGraphicsContext] CopyCount");

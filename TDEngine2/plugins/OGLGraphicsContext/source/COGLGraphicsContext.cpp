@@ -141,6 +141,10 @@ namespace TDEngine2
 			// Copy buffer to buffer
 			E_RESULT_CODE CopyResource(TBufferHandleId sourceHandle, TBufferHandleId destHandle) override;
 
+			TDE2_API void MemoryAccessBarrier(const std::variant<TBufferHandleId, TTextureHandleId> resourceHandle) override;
+			TDE2_API void TransitionBarrier(const TBufferTransitionBarrierInfo& barrierInfo) override;
+			TDE2_API void TransitionBarrier(const TTextureTransitionBarrierInfo& barrierInfo) override;
+
 			/*!
 				\brief The method copies counter of sourceHandle buffer into destHandle's one
 
@@ -917,6 +921,18 @@ namespace TDEngine2
 		GL_SAFE_CALL(glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, std::min(pSourceBuffer->GetSize(), pDestBuffer->GetSize())));
 
 		return RC_OK;
+	}
+
+	void COGLGraphicsContext::MemoryAccessBarrier(const std::variant<TBufferHandleId, TTextureHandleId> resourceHandle)
+	{
+	}
+
+	void COGLGraphicsContext::TransitionBarrier(const TBufferTransitionBarrierInfo& barrierInfo)
+	{
+	}
+
+	void COGLGraphicsContext::TransitionBarrier(const TTextureTransitionBarrierInfo& barrierInfo)
+	{
 	}
 
 	E_RESULT_CODE COGLGraphicsContext::CopyCount(TBufferHandleId sourceHandle, TBufferHandleId destHandle, U32 offset)

@@ -23,6 +23,7 @@ namespace TDEngine2
 	enum class E_TEXTURE_IMPL_TYPE : U32;
 	enum class E_PRIMITIVE_TOPOLOGY_TYPE;
 	enum class E_SHADER_RESOURCE_TYPE : U8;
+	enum class E_RESOURCE_LAYOUT : U32;
 
 
 	/*!
@@ -273,5 +274,7 @@ namespace TDEngine2
 			static VkPipelineDepthStencilStateCreateInfo GetDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc);
 
 			static VkDescriptorType GetDescriptorType(E_SHADER_RESOURCE_TYPE shaderResourceType);
+
+			static VkImageLayout GetResourceLayout(E_RESOURCE_LAYOUT layout);
 	};
 }

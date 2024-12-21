@@ -1649,6 +1649,143 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	void CVulkanGraphicsContext::MemoryAccessBarrier(const std::variant<TBufferHandleId, TTextureHandleId> resourceHandle)
+	{
+#if 0
+		struct TVisitor
+		{
+			CVulkanGraphicsContext* mpGraphicsContext = nullptr;
+
+			void operator()(TBufferHandleId bufferHandle)
+			{
+				VkMemoryBarrier2 memoryBarrier{};
+				memoryBarrier.sType         = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2;
+				memoryBarrier.srcStageMask  = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+				memoryBarrier.dstStageMask  = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+				memoryBarrier.srcAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT;
+				memoryBarrier.dstAccessMask = VK_ACCESS_2_MEMORY_READ_BIT;
+
+				mpGraphicsContext->mMemoryBarriers[mpGraphicsContext->mCurrFrameIndex].push_back(memoryBarrier);
+			}
+
+			void operator()(TTextureHandleId textureHandle)
+			{
+				VkMemoryBarrier2 memoryBarrier{};
+				memoryBarrier.sType         = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2;
+				memoryBarrier.srcStageMask  = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+				memoryBarrier.dstStageMask  = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+				memoryBarrier.srcAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT;
+				memoryBarrier.dstAccessMask = VK_ACCESS_2_MEMORY_READ_BIT;
+
+				mpGraphicsContext->mMemoryBarriers[mpGraphicsContext->mCurrFrameIndex].push_back(memoryBarrier);
+			}
+		};
+
+		std::visit(TVisitor{ this }, resourceHandle);
+#endif
+
+		VkMemoryBarrier2 memoryBarrier{};
+		memoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2;
+		memoryBarrier.srcStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+		memoryBarrier.dstStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+		memoryBarrier.srcAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT;
+		memoryBarrier.dstAccessMask = VK_ACCESS_2_MEMORY_READ_BIT;
+
+		mMemoryBarriers[mCurrFrameIndex].push_back(memoryBarrier);
+	}
+
+
+	static VkPipelineStageFlagBits2 GetStageMaskBitsFromLayout(E_RESOURCE_LAYOUT layout)
+	{
+		VkPipelineStageFlags2 result = ((E_RESOURCE_LAYOUT::SHADER_RESOURCE & layout) == E_RESOURCE_LAYOUT::SHADER_RESOURCE) ? VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT : 0x0;
+
+		result |= ((E_RESOURCE_LAYOUT::UAV_RESOURCE & layout) == E_RESOURCE_LAYOUT::UAV_RESOURCE) ? VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT : 0x0;
+		result |= ((E_RESOURCE_LAYOUT::CONSTANT_BUFFER & layout) == E_RESOURCE_LAYOUT::CONSTANT_BUFFER) ? VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT : 0x0;
+		result |= ((E_RESOURCE_LAYOUT::COPY_SRC & layout) == E_RESOURCE_LAYOUT::COPY_SRC) ? VK_PIPELINE_STAGE_2_TRANSFER_BIT : 0x0;
+		result |= ((E_RESOURCE_LAYOUT::COPY_DEST & layout) == E_RESOURCE_LAYOUT::COPY_DEST) ? VK_PIPELINE_STAGE_2_TRANSFER_BIT : 0x0;
+		result |= ((E_RESOURCE_LAYOUT::RENDER_TARGET & layout) == E_RESOURCE_LAYOUT::RENDER_TARGET) ? VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT : 0x0;
+		result |= ((E_RESOURCE_LAYOUT::DEPTH_STENCIL & layout) == E_RESOURCE_LAYOUT::DEPTH_STENCIL) ? (VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT) : 0x0;
+		result |= ((E_RESOURCE_LAYOUT::DEPTH_STENCIL_READONLY & layout) == E_RESOURCE_LAYOUT::DEPTH_STENCIL_READONLY) ? (VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT) : 0x0;
+		result |= ((E_RESOURCE_LAYOUT::INDIRECT_ARGS_BUFFER & layout) == E_RESOURCE_LAYOUT::INDIRECT_ARGS_BUFFER) ? VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT : 0x0;
+
+		return result;
+	}
+
+
+	static VkAccessFlags2 GetAccessMaskFromLayout(E_RESOURCE_LAYOUT layout)
+	{
+		VkAccessFlags2 flags = ((E_RESOURCE_LAYOUT::SHADER_RESOURCE & layout) == E_RESOURCE_LAYOUT::SHADER_RESOURCE) ? VK_ACCESS_2_SHADER_READ_BIT : 0x0;
+
+		flags |= ((E_RESOURCE_LAYOUT::UAV_RESOURCE & layout) == E_RESOURCE_LAYOUT::UAV_RESOURCE) ? (VK_ACCESS_2_SHADER_READ_BIT | VK_ACCESS_2_SHADER_WRITE_BIT) : 0x0;
+		flags |= ((E_RESOURCE_LAYOUT::CONSTANT_BUFFER & layout) == E_RESOURCE_LAYOUT::CONSTANT_BUFFER) ? VK_ACCESS_2_UNIFORM_READ_BIT : 0x0;
+		flags |= ((E_RESOURCE_LAYOUT::COPY_SRC & layout) == E_RESOURCE_LAYOUT::COPY_SRC) ? VK_ACCESS_2_TRANSFER_READ_BIT : 0x0;
+		flags |= ((E_RESOURCE_LAYOUT::COPY_DEST & layout) == E_RESOURCE_LAYOUT::COPY_DEST) ? VK_ACCESS_2_TRANSFER_WRITE_BIT : 0x0;
+		flags |= ((E_RESOURCE_LAYOUT::RENDER_TARGET & layout) == E_RESOURCE_LAYOUT::RENDER_TARGET) ? (VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT) : 0x0;
+		flags |= ((E_RESOURCE_LAYOUT::DEPTH_STENCIL & layout) == E_RESOURCE_LAYOUT::DEPTH_STENCIL) ? (VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT) : 0x0;
+		flags |= ((E_RESOURCE_LAYOUT::DEPTH_STENCIL_READONLY & layout) == E_RESOURCE_LAYOUT::DEPTH_STENCIL_READONLY) ? VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT : 0x0;
+		flags |= ((E_RESOURCE_LAYOUT::DEPTH_STENCIL_READONLY & layout) == E_RESOURCE_LAYOUT::DEPTH_STENCIL_READONLY) ? VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT : 0x0;
+		flags |= ((E_RESOURCE_LAYOUT::INDIRECT_ARGS_BUFFER & layout) == E_RESOURCE_LAYOUT::INDIRECT_ARGS_BUFFER) ? VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT : 0x0;
+
+		return flags;
+	}
+
+
+	void CVulkanGraphicsContext::TransitionBarrier(const TBufferTransitionBarrierInfo& barrierInfo)
+	{
+		TPtr<CVulkanBuffer> pBuffer = mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(barrierInfo.mHandle);
+		if (!pBuffer)
+		{
+			return;
+		}
+
+		VkBufferMemoryBarrier2 bufferMemoryBarrier{};
+		bufferMemoryBarrier.sType         = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2;
+		bufferMemoryBarrier.buffer        = pBuffer->GetVulkanHandle();
+		bufferMemoryBarrier.srcStageMask  = GetStageMaskBitsFromLayout(barrierInfo.mCurrLayout);
+		bufferMemoryBarrier.dstStageMask  = GetStageMaskBitsFromLayout(barrierInfo.mNewLayout);
+		bufferMemoryBarrier.srcAccessMask = GetAccessMaskFromLayout(barrierInfo.mCurrLayout);
+		bufferMemoryBarrier.dstAccessMask = GetAccessMaskFromLayout(barrierInfo.mNewLayout);
+		bufferMemoryBarrier.offset        = 0;
+		bufferMemoryBarrier.size          = 0;
+		bufferMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		bufferMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+		mBufferBarriers[mCurrFrameIndex].emplace_back(bufferMemoryBarrier);
+	}
+
+	void CVulkanGraphicsContext::TransitionBarrier(const TTextureTransitionBarrierInfo& barrierInfo)
+	{
+		TPtr<CVulkanTextureImpl> pTextureImpl = mpGraphicsObjectManagerImpl->GetVulkanTexturePtr(barrierInfo.mHandle);
+		if (!pTextureImpl)
+		{
+			return;
+		}
+
+		VkImageMemoryBarrier2 imageMemoryBarrier{};
+		imageMemoryBarrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
+		imageMemoryBarrier.image                           = pTextureImpl->GetTextureHandle();
+		imageMemoryBarrier.srcStageMask                    = GetStageMaskBitsFromLayout(barrierInfo.mCurrLayout);
+		imageMemoryBarrier.dstStageMask                    = GetStageMaskBitsFromLayout(barrierInfo.mNewLayout);
+		imageMemoryBarrier.srcAccessMask                   = GetAccessMaskFromLayout(barrierInfo.mCurrLayout);
+		imageMemoryBarrier.dstAccessMask                   = GetAccessMaskFromLayout(barrierInfo.mNewLayout);
+		imageMemoryBarrier.oldLayout                       = CVulkanMappings::GetResourceLayout(barrierInfo.mCurrLayout);
+		imageMemoryBarrier.newLayout                       = CVulkanMappings::GetResourceLayout(barrierInfo.mNewLayout);
+		imageMemoryBarrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+		imageMemoryBarrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+		imageMemoryBarrier.subresourceRange.baseMipLevel   = 0; // \todo
+		imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
+		imageMemoryBarrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+		imageMemoryBarrier.subresourceRange.layerCount     = 1;
+		imageMemoryBarrier.subresourceRange.levelCount     = 1;
+
+		if (E_FORMAT_TYPE::FT_D32 == pTextureImpl->GetParams().mFormat)
+		{
+			imageMemoryBarrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_DEPTH_BIT;
+		}
+
+		mTextureBarriers[mCurrFrameIndex].emplace_back(imageMemoryBarrier);
+	}
+
 	E_RESULT_CODE CVulkanGraphicsContext::CopyCount(TBufferHandleId sourceHandle, TBufferHandleId destHandle, U32 offset)
 	{
 		return RC_NOT_IMPLEMENTED_YET;
@@ -1883,6 +2020,31 @@ namespace TDEngine2
 		mIsRenderPassActive = false;
 
 		return RC_OK;
+	}
+
+	void CVulkanGraphicsContext::FlushBarriers()
+	{
+		auto& memoryBarriers  = mMemoryBarriers[mCurrFrameIndex];
+		auto& textureBarriers = mTextureBarriers[mCurrFrameIndex];
+		auto& bufferBarriers  = mBufferBarriers[mCurrFrameIndex];
+
+		if (!memoryBarriers.empty() || !textureBarriers.empty() || !bufferBarriers.empty())
+		{
+			VkDependencyInfo dependencyInfo{};
+			dependencyInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+			dependencyInfo.memoryBarrierCount       = static_cast<U32>(memoryBarriers.size());
+			dependencyInfo.pMemoryBarriers          = memoryBarriers.data();
+			dependencyInfo.imageMemoryBarrierCount  = static_cast<U32>(textureBarriers.size());
+			dependencyInfo.pImageMemoryBarriers     = textureBarriers.data();
+			dependencyInfo.bufferMemoryBarrierCount = static_cast<U32>(bufferBarriers.size());
+			dependencyInfo.pBufferMemoryBarriers    = bufferBarriers.data();
+
+			vkCmdPipelineBarrier2(_getCurrCommandBufferHandle(), &dependencyInfo);
+
+			memoryBarriers.clear();
+			textureBarriers.clear();
+			bufferBarriers.clear();
+		}
 	}
 
 	const TGraphicsCtxInternalData& CVulkanGraphicsContext::GetInternalData() const

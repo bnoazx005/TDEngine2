@@ -136,6 +136,10 @@ namespace TDEngine2
 			// Copy buffer to buffer
 			E_RESULT_CODE CopyResource(TBufferHandleId sourceHandle, TBufferHandleId destHandle) override;
 
+			TDE2_API void MemoryAccessBarrier(const std::variant<TBufferHandleId, TTextureHandleId> resourceHandle) override;
+			TDE2_API void TransitionBarrier(const TBufferTransitionBarrierInfo& barrierInfo) override;
+			TDE2_API void TransitionBarrier(const TTextureTransitionBarrierInfo& barrierInfo) override;
+
 			/*!
 				\brief The method copies counter of sourceHandle buffer into destHandle's one
 
@@ -940,6 +944,18 @@ namespace TDEngine2
 	E_RESULT_CODE CD3D12GraphicsContext::CopyResource(TBufferHandleId sourceHandle, TBufferHandleId destHandle)
 	{
 		return RC_OK;
+	}
+
+	void CD3D12GraphicsContext::MemoryAccessBarrier(const std::variant<TBufferHandleId, TTextureHandleId> resourceHandle)
+	{
+	}
+
+	void CD3D12GraphicsContext::TransitionBarrier(const TBufferTransitionBarrierInfo& barrierInfo)
+	{
+	}
+
+	void CD3D12GraphicsContext::TransitionBarrier(const TTextureTransitionBarrierInfo& barrierInfo)
+	{
 	}
 
 	E_RESULT_CODE CD3D12GraphicsContext::CopyCount(TBufferHandleId sourceHandle, TBufferHandleId destHandle, U32 offset)

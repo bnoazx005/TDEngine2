@@ -49,6 +49,40 @@ namespace TDEngine2
 	};
 
 
+	enum class E_RESOURCE_LAYOUT : U32
+	{
+		UNDEFINED              = 0,
+		RENDER_TARGET          = 1 << 0,
+		DEPTH_STENCIL          = 1 << 1,
+		DEPTH_STENCIL_READONLY = 1 << 2,
+		COPY_SRC               = 1 << 3,
+		COPY_DEST              = 1 << 4,
+		SHADER_RESOURCE        = 1 << 5,
+		INDIRECT_ARGS_BUFFER   = 1 << 6,
+		CONSTANT_BUFFER        = 1 << 7,
+		UAV_RESOURCE           = 1 << 8,
+	};
+
+
+	TDE2_DECLARE_BITMASK_OPERATORS_INTERNAL(E_RESOURCE_LAYOUT)
+
+
+	typedef struct TBufferTransitionBarrierInfo
+	{
+		TBufferHandleId mHandle;
+		E_RESOURCE_LAYOUT mCurrLayout = E_RESOURCE_LAYOUT::UNDEFINED;
+		E_RESOURCE_LAYOUT mNewLayout = E_RESOURCE_LAYOUT::UNDEFINED;
+	} TBufferTransitionBarrierInfo, *TBufferTransitionBarrierInfoPtr;
+
+
+	typedef struct TTextureTransitionBarrierInfo
+	{
+		TTextureHandleId mHandle;
+		E_RESOURCE_LAYOUT mCurrLayout = E_RESOURCE_LAYOUT::UNDEFINED;
+		E_RESOURCE_LAYOUT mNewLayout = E_RESOURCE_LAYOUT::UNDEFINED;
+	} TTextureTransitionBarrierInfo, *TTextureTransitionBarrierInfoPtr;
+
+
 	/*!
 		struct TGraphicsContextInfo
 
@@ -214,6 +248,10 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE CopyResource(TTextureHandleId sourceHandle, TBufferHandleId destHandle) = 0;
 			// Copy buffer to buffer
 			TDE2_API virtual E_RESULT_CODE CopyResource(TBufferHandleId sourceHandle, TBufferHandleId destHandle) = 0;
+
+			TDE2_API virtual void MemoryAccessBarrier(const std::variant<TBufferHandleId, TTextureHandleId> resourceHandle) = 0;
+			TDE2_API virtual void TransitionBarrier(const TBufferTransitionBarrierInfo& barrierInfo) = 0;
+			TDE2_API virtual void TransitionBarrier(const TTextureTransitionBarrierInfo& barrierInfo) = 0;
 
 			/*!
 				\brief The method copies counter of sourceHandle buffer into destHandle's one
