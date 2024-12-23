@@ -108,6 +108,8 @@ namespace TDEngine2
 
 			TDE2_API virtual const std::string _getShaderCacheFilePath() const = 0;
 
+			TDE2_API CPassKey<CBaseGraphicsObjectManager> _getPassKey() const;
+
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			IGraphicsContext*        mpGraphicsContext;

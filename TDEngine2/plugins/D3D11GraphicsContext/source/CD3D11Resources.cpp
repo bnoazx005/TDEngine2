@@ -1013,6 +1013,23 @@ namespace TDEngine2
 		return _onInitInternal();
 	}
 
+	E_RESULT_CODE CD3D11TextureImpl::Transition(E_RESOURCE_LAYOUT newLayout)
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D11TextureImpl::SetHandle(TTextureHandleId handle, const CPassKey<CBaseGraphicsObjectManager>& passkey)
+	{
+		if (TTextureHandleId::Invalid == handle)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mHandle = handle;
+
+		return RC_OK;
+	}
+
 	ID3D11Resource* CD3D11TextureImpl::GetTextureResource()
 	{
 		return mpTextureResource;

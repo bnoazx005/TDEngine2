@@ -16,7 +16,7 @@ supports lightmaps generation.
 
 - The API of **IGraphicsContext** was extended with new methods to describe resource barriers.
 
-- The API of **ITextureImpl** was extended with a new getter GetLayout.
+- The API of **ITextureImpl** was extended with new methods SetHandle, Transition and GetLayout.
 
 ### Changed
 

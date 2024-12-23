@@ -307,6 +307,9 @@ namespace TDEngine2
 			E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, const TInitTextureImplParams& params) override;
 
 			E_RESULT_CODE Resize(U32 width, U32 height, U32 depth = 1) override;
+			E_RESULT_CODE Transition(E_RESOURCE_LAYOUT newLayout) override;
+
+			E_RESULT_CODE SetHandle(TTextureHandleId handle, const CPassKey<CBaseGraphicsObjectManager>& passkey) override;
 
 			ID3D11Resource* GetTextureResource();
 			ID3D11ShaderResourceView* GetShaderResourceView();
@@ -327,6 +330,7 @@ namespace TDEngine2
 			E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			TInitTextureImplParams     mInitParams;
+			TTextureHandleId           mHandle;
 
 			ID3D11Device* mp3dDevice = nullptr;
 			ID3D11DeviceContext* mp3dDeviceContext = nullptr;

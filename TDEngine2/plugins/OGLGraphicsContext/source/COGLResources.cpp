@@ -744,6 +744,23 @@ namespace TDEngine2
 		return _onInitInternal();
 	}
 
+	E_RESULT_CODE COGLTextureImpl::Transition(E_RESOURCE_LAYOUT newLayout)
+	{
+		return RC_OK;
+	}
+
+	E_RESULT_CODE COGLTextureImpl::SetHandle(TTextureHandleId handle, const CPassKey<CBaseGraphicsObjectManager>& passkey)
+	{
+		if (TTextureHandleId::Invalid == handle)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mHandle = handle;
+
+		return RC_OK;
+	}
+
 	GLuint COGLTextureImpl::GetTextureHandle()
 	{
 		return mTextureHandle;

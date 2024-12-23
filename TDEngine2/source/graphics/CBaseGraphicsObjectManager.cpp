@@ -110,6 +110,11 @@ namespace TDEngine2
 		return result;
 	}
 
+	CPassKey<CBaseGraphicsObjectManager> CBaseGraphicsObjectManager::_getPassKey() const
+	{
+		return {};
+	}
+
 	TResult<IDebugUtility*> CBaseGraphicsObjectManager::CreateDebugUtility(IResourceManager* pResourceManager, IRenderer* pRenderer)
 	{
 		if (mpDebugUtility)

@@ -271,6 +271,9 @@ namespace TDEngine2
 			E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, const TInitTextureImplParams& params) override;
 
 			E_RESULT_CODE Resize(U32 width, U32 height, U32 depth = 1) override;
+			E_RESULT_CODE Transition(E_RESOURCE_LAYOUT newLayout) override;
+
+			E_RESULT_CODE SetHandle(TTextureHandleId handle, const CPassKey<CBaseGraphicsObjectManager>& passkey) override;
 
 			VkImage GetTextureHandle();
 			VkImageView GetTextureViewHandle();
@@ -289,6 +292,7 @@ namespace TDEngine2
 			CVulkanGraphicsContext* mpGraphicsContextImpl = nullptr;
 
 			TInitTextureImplParams  mInitParams;
+			TTextureHandleId        mHandle;
 
 			VkImage                 mInternalImageHandle = VK_NULL_HANDLE;
 			VkImageView             mInternalImageViewHandle = VK_NULL_HANDLE;

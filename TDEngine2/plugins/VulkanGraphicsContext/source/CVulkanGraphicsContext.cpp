@@ -1804,7 +1804,7 @@ namespace TDEngine2
 
 		if (E_FORMAT_TYPE::FT_D32 == pTextureImpl->GetParams().mFormat)
 		{
-			imageMemoryBarrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_DEPTH_BIT;
+			imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 		}
 
 		mTextureBarriers[mCurrFrameIndex].emplace_back(imageMemoryBarrier);
@@ -1970,12 +1970,7 @@ namespace TDEngine2
 
 			colorAttachmentInfos[i] = currVkAttachmentInfo;
 
-			TTextureTransitionBarrierInfo textureBarrier{};
-			textureBarrier.mHandle     = currAttachment.mTargetHandle;
-			textureBarrier.mCurrLayout = pRenderTargetTexture->GetLayout();
-			textureBarrier.mNewLayout  = E_RESOURCE_LAYOUT::RENDER_TARGET;
-
-			TransitionBarrier(textureBarrier);
+			pRenderTargetTexture->Transition(E_RESOURCE_LAYOUT::RENDER_TARGET);
 		}
 
 		if (framebufferInfo.mDepthStencilAttachment)
@@ -2025,12 +2020,7 @@ namespace TDEngine2
 				depthStencilAttachmentInfo.storeOp     = VK_ATTACHMENT_STORE_OP_STORE;
 				depthStencilAttachmentInfo.clearValue  = clearValue;
 
-				TTextureTransitionBarrierInfo textureBarrier{};
-				textureBarrier.mHandle     = depthStencilAttachment.mTargetHandle;
-				textureBarrier.mCurrLayout = pDepthBufferTexture->GetLayout();
-				textureBarrier.mNewLayout  = E_RESOURCE_LAYOUT::DEPTH_STENCIL;
-
-				TransitionBarrier(textureBarrier);
+				pDepthBufferTexture->Transition(E_RESOURCE_LAYOUT::DEPTH_STENCIL);
 			}			
 		}
 

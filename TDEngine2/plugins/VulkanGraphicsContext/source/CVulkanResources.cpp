@@ -724,6 +724,36 @@ namespace TDEngine2
 		return _onInitInternal();
 	}
 
+	E_RESULT_CODE CVulkanTextureImpl::Transition(E_RESOURCE_LAYOUT newLayout)
+	{
+		if (mCurrLayout == newLayout)
+		{
+			return RC_OK;
+		}
+
+		TTextureTransitionBarrierInfo barrierInfo{};
+		barrierInfo.mCurrLayout = mCurrLayout;
+		barrierInfo.mNewLayout  = newLayout;
+		barrierInfo.mHandle     = mHandle;
+
+		mpGraphicsContextImpl->TransitionBarrier(barrierInfo);
+		mCurrLayout = newLayout;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CVulkanTextureImpl::SetHandle(TTextureHandleId handle, const CPassKey<CBaseGraphicsObjectManager>& passkey)
+	{
+		if (TTextureHandleId::Invalid == handle)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mHandle = handle;
+
+		return RC_OK;
+	}
+
 	VkImage CVulkanTextureImpl::GetTextureHandle()
 	{
 		return mInternalImageHandle;

@@ -15,6 +15,13 @@
 
 namespace TDEngine2
 {
+	enum class E_RESOURCE_LAYOUT : U32;
+	enum class TTextureHandleId : U32;
+
+
+	class CBaseGraphicsObjectManager;
+
+
 	/*!
 		interface ITexture
 
@@ -172,8 +179,13 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Resize(U32 width, U32 height, U32 depth = 1) = 0;
+			TDE2_API virtual E_RESULT_CODE Transition(E_RESOURCE_LAYOUT newLayout) = 0;
+
+			TDE2_API virtual E_RESULT_CODE SetHandle(TTextureHandleId handle, const CPassKey<CBaseGraphicsObjectManager>& passkey) = 0;
 
 			TDE2_API virtual std::vector<U8> ReadBytes(U32 index) = 0;
+
+			TDE2_API virtual E_RESOURCE_LAYOUT GetLayout() const = 0;
 
 			TDE2_API virtual const TInitTextureParams& GetParams() const = 0;
 		protected:

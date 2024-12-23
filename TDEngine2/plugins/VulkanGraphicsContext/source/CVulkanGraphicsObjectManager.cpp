@@ -66,6 +66,8 @@ namespace TDEngine2
 			mpTexturesArray[placementIndex] = DynamicPtrCast<CVulkanTextureImpl>(pTexture);
 		}
 
+		pTexture->SetHandle(static_cast<TTextureHandleId>(placementIndex), _getPassKey());
+
 		return Wrench::TOkValue<TTextureHandleId>(static_cast<TTextureHandleId>(placementIndex));
 	}
 
