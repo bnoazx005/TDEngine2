@@ -317,6 +317,8 @@ namespace TDEngine2
 
 			std::vector<U8> ReadBytes(U32 index) override;
 
+			E_RESOURCE_LAYOUT GetLayout() const override;
+
 			const TInitTextureParams& GetParams() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11TextureImpl)

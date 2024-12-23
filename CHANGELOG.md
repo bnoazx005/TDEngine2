@@ -7,12 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.31] 2024-12-21
+## [0.6.31] 2024-12-23
 
 ### Added
 
 - A new library xatlas was added to support lightmaps generation for tde2_mesh_converter utility. tde2_mesh_converter now 
 supports lightmaps generation.
+
+- The API of **IGraphicsContext** was extended with new methods to describe resource barriers.
+
+- The API of **ITextureImpl** was extended with a new getter GetLayout.
 
 ### Changed
 
@@ -34,8 +38,6 @@ supports lightmaps generation.
 The implementation of **CForwardRenderer** was rewritten due to the changes.
 
 - Now the engine uses C++17 as minimal required standard.
-
-- The API of **IGraphicsContext** was extended with new methods to describe resource barriers.
 
 ### Fixed
 

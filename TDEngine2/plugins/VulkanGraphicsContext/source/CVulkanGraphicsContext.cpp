@@ -1271,6 +1271,30 @@ namespace TDEngine2
 
 	void CVulkanGraphicsContext::Present()
 	{
+		// \note Add final barrier for current swapchain's image
+		VkImageMemoryBarrier2 barrier = {};
+		barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
+		barrier.image                           = mpSwapchain->GetCurrImage();
+		barrier.oldLayout                       = VK_IMAGE_LAYOUT_UNDEFINED;
+		barrier.newLayout                       = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		barrier.srcStageMask                    = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+		barrier.srcAccessMask                   = VK_ACCESS_2_MEMORY_WRITE_BIT;
+		barrier.dstStageMask                    = VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT;
+		barrier.dstAccessMask                   = VK_ACCESS_2_MEMORY_WRITE_BIT | VK_ACCESS_2_MEMORY_READ_BIT;
+		barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+		barrier.subresourceRange.baseMipLevel   = 0;
+		barrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
+		barrier.subresourceRange.baseArrayLayer = 0;
+		barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
+		barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+		barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+
+		VkDependencyInfo dependencyInfo {};
+		dependencyInfo.sType                   = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+		dependencyInfo.imageMemoryBarrierCount = 1;
+		dependencyInfo.pImageMemoryBarriers    = &barrier;
+		vkCmdPipelineBarrier2(_getCurrCommandBufferHandle(), &dependencyInfo);
+
 		const TPtr<CVulkanCommandBuffer>& pCurrCommandBuffer = mpCommandBuffers[mCurrFrameIndex];
 		pCurrCommandBuffer->End();
 
@@ -1945,6 +1969,13 @@ namespace TDEngine2
 			currVkAttachmentInfo.clearValue  = clearValue;
 
 			colorAttachmentInfos[i] = currVkAttachmentInfo;
+
+			TTextureTransitionBarrierInfo textureBarrier{};
+			textureBarrier.mHandle     = currAttachment.mTargetHandle;
+			textureBarrier.mCurrLayout = pRenderTargetTexture->GetLayout();
+			textureBarrier.mNewLayout  = E_RESOURCE_LAYOUT::RENDER_TARGET;
+
+			TransitionBarrier(textureBarrier);
 		}
 
 		if (framebufferInfo.mDepthStencilAttachment)
@@ -1993,6 +2024,13 @@ namespace TDEngine2
 				depthStencilAttachmentInfo.loadOp      = (hasDepthClearValue || hasStencilClearValue) ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
 				depthStencilAttachmentInfo.storeOp     = VK_ATTACHMENT_STORE_OP_STORE;
 				depthStencilAttachmentInfo.clearValue  = clearValue;
+
+				TTextureTransitionBarrierInfo textureBarrier{};
+				textureBarrier.mHandle     = depthStencilAttachment.mTargetHandle;
+				textureBarrier.mCurrLayout = pDepthBufferTexture->GetLayout();
+				textureBarrier.mNewLayout  = E_RESOURCE_LAYOUT::DEPTH_STENCIL;
+
+				TransitionBarrier(textureBarrier);
 			}			
 		}
 
@@ -2005,6 +2043,8 @@ namespace TDEngine2
 		renderPassInfo.pDepthAttachment     = framebufferInfo.mDepthStencilAttachment.has_value() ? &depthStencilAttachmentInfo : nullptr;
 		renderPassInfo.pStencilAttachment   = VK_NULL_HANDLE;
 		//renderPassInfo.pStencilAttachment   = framebufferInfo.mDepthStencilAttachment.has_value() ? &depthStencilAttachmentInfo : nullptr; // \todo Add support of stencil buffer
+
+		FlushBarriers();
 
 		vkCmdBeginRendering(_getCurrCommandBufferHandle(), &renderPassInfo);
 		mIsRenderPassActive = true;

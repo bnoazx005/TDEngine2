@@ -1086,6 +1086,11 @@ namespace TDEngine2
 		return pixelsData;
 	}
 
+	E_RESOURCE_LAYOUT CD3D11TextureImpl::GetLayout() const
+	{
+		return E_RESOURCE_LAYOUT::UNDEFINED;
+	}
+
 	const TInitTextureParams& CD3D11TextureImpl::GetParams() const
 	{
 		return mInitParams;

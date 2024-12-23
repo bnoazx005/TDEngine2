@@ -680,7 +680,7 @@ namespace TDEngine2
 
 
 	CVulkanTextureImpl::CVulkanTextureImpl() :
-		CBaseObject()
+		CBaseObject(), mCurrLayout(E_RESOURCE_LAYOUT::UNDEFINED)
 	{
 	}
 
@@ -738,6 +738,11 @@ namespace TDEngine2
 	{
 		TDE2_UNIMPLEMENTED();
 		return {};
+	}
+
+	E_RESOURCE_LAYOUT CVulkanTextureImpl::GetLayout() const
+	{
+		return mCurrLayout;
 	}
 
 	const TInitTextureParams& CVulkanTextureImpl::GetParams() const

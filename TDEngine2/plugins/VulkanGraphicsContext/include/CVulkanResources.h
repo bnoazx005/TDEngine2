@@ -277,6 +277,8 @@ namespace TDEngine2
 
 			std::vector<U8> ReadBytes(U32 index) override;
 
+			E_RESOURCE_LAYOUT GetLayout() const override;
+
 			const TInitTextureParams& GetParams() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanTextureImpl)
@@ -291,10 +293,12 @@ namespace TDEngine2
 			VkImage                 mInternalImageHandle = VK_NULL_HANDLE;
 			VkImageView             mInternalImageViewHandle = VK_NULL_HANDLE;
 
-			VmaAllocator            mAllocator;
-			VmaAllocation           mAllocation;
+			VmaAllocator            mAllocator = VK_NULL_HANDLE;
+			VmaAllocation           mAllocation = VK_NULL_HANDLE;
 
-			VkDevice               mDevice;
+			VkDevice                mDevice = VK_NULL_HANDLE;
+
+			E_RESOURCE_LAYOUT       mCurrLayout;
 	};
 
 

@@ -771,6 +771,11 @@ namespace TDEngine2
 		return std::move(pPixelData);
 	}
 
+	E_RESOURCE_LAYOUT COGLTextureImpl::GetLayout() const
+	{
+		return E_RESOURCE_LAYOUT::UNDEFINED;
+	}
+
 	const TInitTextureParams& COGLTextureImpl::GetParams() const
 	{
 		return mInitParams;
