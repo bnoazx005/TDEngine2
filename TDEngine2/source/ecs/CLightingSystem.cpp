@@ -424,7 +424,7 @@ namespace TDEngine2
 			TVector3(0.0f, 0.0f, -1.0f)
 		};
 
-		return Transpose(Mul(PerspectiveProj(90.0f * CMathConstants::Deg2Rad, 1.0f, 1.0f, pPointLight->GetRange(), ndcInfo.min.z, ndcInfo.max.z, handedness),
+		return Transpose(Mul(PerspectiveProj(90.0f * CMathConstants::Deg2Rad, 1.0f, 0.001f, pPointLight->GetRange(), ndcInfo.min.z, ndcInfo.max.z, handedness),
 			LookAt(lightPos, lightUpVectors[i], lightPos + lightPosOffsets[i], handedness)));
 	}
 

@@ -45,6 +45,8 @@ The implementation of **CForwardRenderer** was rewritten due to the changes.
 
 - The issues with parsing Texture2D<type> resources in HLSL were fixed for CVulkanShaderCompiler and CD3D11ShaderCompiler.
 
+- The incorrect omni-lights matrices calculation was fixed.
+
 ## [0.6.30] 2024-10-24
 
 ### Added
