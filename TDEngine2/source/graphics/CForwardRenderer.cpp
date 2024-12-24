@@ -53,6 +53,8 @@ namespace TDEngine2
 	constexpr U32 READ_ONLY_DEPTH_TEXTURE_SLOT = 15;
 	constexpr U32 VISIBLE_LIGHTS_BUFFER_SLOT = 11;
 
+	constexpr U32 ACTIVE_LIGHTS_SLOT = static_cast<U32>(E_INTERNAL_SHADER_BUFFERS_REGISTERS::LIGHTS_SLOT);
+
 
 	static inline void ExecuteDrawCommands(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, 
 		TPtr<IGlobalShaderProperties> pGlobalShaderProperties, TPtr<CRenderQueue> pCommandsBuffer, bool shouldClearBuffers, 
@@ -386,6 +388,8 @@ namespace TDEngine2
 					data.mShadowMapHandle = builder.Create<TFrameGraphTexture>(shadowMapParams.mName, shadowMapParams);
 					data.mShadowMapHandle = builder.Write(data.mShadowMapHandle);
 
+					builder.Read(frameGraphBlackboard.mLightsBufferHandle);
+
 					TDE2_ASSERT(data.mShadowMapHandle != TFrameGraphResourceHandle::Invalid);
 				}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 				{
@@ -399,6 +403,7 @@ namespace TDEngine2
 					TDE_RENDER_SECTION(pGraphicsContext, "RenderSunLightShadows");
 
 					TFrameGraphTexture& shadowMapTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mShadowMapHandle);
+					TFrameGraphBuffer& activeLightsBuffer = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(frameGraphBlackboard.mLightsBufferHandle);
 
 					pGraphicsContext->BeginRenderPass({ {}, TFramebufferInfo::TDepthStencilAttachment { shadowMapTarget.mTextureHandle, 1.0f }});
 					pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(shadowMapSizes), static_cast<F32>(shadowMapSizes), 0.0f, 1.0f);
@@ -413,6 +418,8 @@ namespace TDEngine2
 					{
 						pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, "mIsSunLight", 1);
 					}
+
+					pGraphicsContext->SetStructuredBuffer(ACTIVE_LIGHTS_SLOT, activeLightsBuffer.mBufferHandle);
 
 					ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, false);
 
@@ -464,6 +471,8 @@ namespace TDEngine2
 						data.mShadowMapHandle = builder.Create<TFrameGraphTexture>(shadowMapParams.mName, shadowMapParams);
 						data.mShadowMapHandle = builder.Write(data.mShadowMapHandle);
 
+						builder.Read(frameGraphBlackboard.mLightsBufferHandle);
+
 						TDE2_ASSERT(data.mShadowMapHandle != TFrameGraphResourceHandle::Invalid);
 					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
@@ -473,6 +482,7 @@ namespace TDEngine2
 						TDE_RENDER_SECTION(pGraphicsContext, renderPassName);
 
 						TFrameGraphTexture& shadowMapTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mShadowMapHandle);
+						TFrameGraphBuffer& activeLightsBuffer = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(frameGraphBlackboard.mLightsBufferHandle);
 
 						pGraphicsContext->BeginRenderPass({ {}, { { shadowMapTarget.mTextureHandle, 1.0f } } });
 						pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(shadowMapSizes), static_cast<F32>(shadowMapSizes), 0.0f, 1.0f);
@@ -488,6 +498,8 @@ namespace TDEngine2
 							pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, "mIsSunLight", 0);
 							pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, "mPointLightIndex", lightIndex);
 						}
+
+						pGraphicsContext->SetStructuredBuffer(ACTIVE_LIGHTS_SLOT, activeLightsBuffer.mBufferHandle);
 
 						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, false);
 
@@ -543,8 +555,6 @@ namespace TDEngine2
 
 						TDE2_PROFILER_SCOPE("UploadLightsPass");
 
-						constexpr U32 LIGHT_SLOT_INDEX = static_cast<U32>(E_INTERNAL_SHADER_BUFFERS_REGISTERS::LIGHTS_SLOT);
-
 						TFrameGraphBuffer& lightsBuffer = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(data.mLightsBufferHandle);
 						
 						if (auto pCurrTypedBuffer = mContext.mpGraphicsContext->GetGraphicsObjectManager()->GetBufferPtr(lightsBuffer.mBufferHandle))
@@ -562,7 +572,7 @@ namespace TDEngine2
 
 							pCurrTypedBuffer->Unmap();
 
-							pGraphicsContext->SetStructuredBuffer(LIGHT_SLOT_INDEX, lightsBuffer.mBufferHandle);
+							pGraphicsContext->SetStructuredBuffer(ACTIVE_LIGHTS_SLOT, lightsBuffer.mBufferHandle);
 						}						
 					});
 
@@ -776,6 +786,7 @@ namespace TDEngine2
 						builder.Read(lightCullData.mOpaqueLightGridTextureHandle);
 						builder.Read(frameGraphBlackboard.mDepthBufferHandle);
 						builder.Read(frameGraphBlackboard.mSunLightShadowMapHandle);
+						builder.Read(frameGraphBlackboard.mLightsBufferHandle);
 
 						for (auto&& currOmniLightTargetHandle : frameGraphBlackboard.mOmniLightShadowMapHandles)
 						{
@@ -823,6 +834,9 @@ namespace TDEngine2
 							pGraphicsContext->SetSampler(OMNI_LIGHT_SHADOW_MAP_START_SLOT + static_cast<U32>(i), linearSamplerHandle);
 						}
 
+						TFrameGraphBuffer& activeLightsBuffer = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(frameGraphBlackboard.mLightsBufferHandle);
+						pGraphicsContext->SetStructuredBuffer(ACTIVE_LIGHTS_SLOT, activeLightsBuffer.mBufferHandle);
+
 						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, true, 1);
 
 						pGraphicsContext->EndRenderPass();
@@ -857,6 +871,7 @@ namespace TDEngine2
 						builder.Read(frameGraphBlackboard.mDepthBufferHandle);
 						builder.Read(frameGraphBlackboard.mReadonlyDepthBufferHandle);
 						builder.Read(frameGraphBlackboard.mMainRenderTargetHandle);
+						builder.Read(frameGraphBlackboard.mLightsBufferHandle);
 
 						data.mMainRenderTargetHandle = builder.Write(frameGraphBlackboard.mMainRenderTargetHandle);
 					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
@@ -879,6 +894,9 @@ namespace TDEngine2
 						pGraphicsContext->SetStructuredBuffer(VISIBLE_LIGHTS_BUFFER_SLOT, transparentVisibleLightsBuffer.mBufferHandle, false);
 						pGraphicsContext->SetTexture(LIGHT_GRID_TEXTURE_SLOT, transparentLightGridTexture.mTextureHandle, false);
 						pGraphicsContext->SetTexture(READ_ONLY_DEPTH_TEXTURE_SLOT, readonlyDepthBufferTarget.mTextureHandle, false);
+
+						TFrameGraphBuffer& activeLightsBuffer = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(frameGraphBlackboard.mLightsBufferHandle);
+						pGraphicsContext->SetStructuredBuffer(ACTIVE_LIGHTS_SLOT, activeLightsBuffer.mBufferHandle);
 
 						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, true);
 
@@ -2467,6 +2485,8 @@ namespace TDEngine2
 
 			const auto& activeLightSources = mpFramePacketsStorage->GetCurrentFrameForRender().mActiveLightSources;
 
+			CUploadLightsPass{ passInvokeContext }.AddPass(mpFrameGraph, frameGraphBlackboard, activeLightSources);
+
 			// \note directional shadow pass
 			if (CGameUserSettings::Get()->mpIsShadowMappingEnabledCVar->Get())
 			{
@@ -2510,7 +2530,6 @@ namespace TDEngine2
 				pVolumetricCloudsComposePass->AddPass(mpFrameGraph, frameGraphBlackboard);
 			}
 
-			CUploadLightsPass{ passInvokeContext }.AddPass(mpFrameGraph, frameGraphBlackboard, activeLightSources);
 			CLightCullingPass{ passInvokeContext }.AddPass(mpFrameGraph, frameGraphBlackboard);
 
 			// \note main pass
