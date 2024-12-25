@@ -1391,7 +1391,13 @@ namespace TDEngine2
 						TDE2_PROFILER_SCOPE("DebugUIRenderPass");
 						TDE_RENDER_SECTION(pGraphicsContext, "DebugUIRenderPass");
 
+						TFrameGraphTexture& backBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mTargetHandle);
+
+						pGraphicsContext->BeginRenderPass({ { { backBufferTarget.mTextureHandle } } });
+
 						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, true);
+
+						pGraphicsContext->EndRenderPass();
 					});
 			}
 	};
@@ -2516,7 +2522,7 @@ namespace TDEngine2
 					++currPointLightIndex;
 				}
 			}
-
+#if 1
 			// \note depth pre-pass
 			CDepthPrePass{ passInvokeContext, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEPTH_PREPASS)] }.AddPass(mpFrameGraph, frameGraphBlackboard);
 
@@ -2598,7 +2604,7 @@ namespace TDEngine2
 
 			// \note compose pass + tone mapping
 			pToneMappingComposePostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true, mpCurrPostProcessingProfile); // \todo replace with configuration of hdr support
-
+#endif
 			// \note imgui pass
 			CDebugUIRenderPass{ passInvokeContext, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEBUG_UI)] }.AddPass(mpFrameGraph, frameGraphBlackboard);
 
