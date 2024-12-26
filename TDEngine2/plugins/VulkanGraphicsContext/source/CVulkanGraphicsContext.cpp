@@ -374,6 +374,7 @@ namespace TDEngine2
 		VkPhysicalDeviceFeatures deviceFeatures{};
 		deviceFeatures.depthBiasClamp = VK_TRUE;
 		deviceFeatures.depthClamp     = VK_TRUE;
+		deviceFeatures.geometryShader = VK_TRUE;
 
 		VkDeviceCreateInfo createInfo{};
 		createInfo.sType                = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -705,7 +706,7 @@ namespace TDEngine2
 
 		VkSemaphoreSubmitInfo signalSemaphoreSubmitInfo{};
 		signalSemaphoreSubmitInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
-		signalSemaphoreSubmitInfo.semaphore = waitSemaphore;
+		signalSemaphoreSubmitInfo.semaphore = signalSemaphore;
 		signalSemaphoreSubmitInfo.value = 1;
 		signalSemaphoreSubmitInfo.stageMask = VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT;
 		signalSemaphoreSubmitInfo.deviceIndex = 0;
@@ -772,6 +773,7 @@ namespace TDEngine2
 
 			uint32_t GetImageIndex() const { return mCurrImageIndex; }
 			VkImage GetCurrImage() const { return mSwapChainImages[mCurrImageIndex]; }
+			VkImageView GetCurrImageView() const { return mSwapChainImageViews[mCurrImageIndex]; }
 
 			const VkSwapchainKHR GetHandle() const { return mSwapChain; }
 		private:
@@ -1931,12 +1933,55 @@ namespace TDEngine2
 			const TFramebufferInfo::TAttachment& currAttachment = framebufferInfo.mAttachments[i];
 
 			TPtr<CVulkanTextureImpl> pRenderTargetTexture = mpGraphicsObjectManagerImpl->GetVulkanTexturePtr(currAttachment.mTargetHandle);
-			if (!pRenderTargetTexture)
+			if (!pRenderTargetTexture) // \note The special corner case when there is no render target attached except the back buffer
 			{
-				//if (!i) // \note Assume that a user tries to render into back buffer
-				//{
-				//	mpRenderTargets[i] = mpBackBufferView;
-				//}
+				const TRectU32& windowRect = mpWindowSystem->GetWindowRect();
+				viewportSizes.width  = windowRect.width;
+				viewportSizes.height = windowRect.height;
+
+				const bool hasClearValue = currAttachment.mClearValue.has_value();
+				VkClearValue clearValue{};
+
+				if (hasClearValue)
+				{
+					const auto& targetClearValueVariant = currAttachment.mClearValue.value();
+					memcpy(clearValue.color.float32, &std::get<TColor32F>(targetClearValueVariant), sizeof(TColor32F));
+				}
+
+				VkRenderingAttachmentInfo currVkAttachmentInfo{};
+				currVkAttachmentInfo.sType       = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+				currVkAttachmentInfo.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+				currVkAttachmentInfo.imageView   = mpSwapchain->GetCurrImageView();
+				currVkAttachmentInfo.resolveMode = VK_RESOLVE_MODE_NONE; // \note For now don't use MSAA at all
+				currVkAttachmentInfo.loadOp      = hasClearValue ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
+				currVkAttachmentInfo.storeOp     = VK_ATTACHMENT_STORE_OP_STORE;
+				currVkAttachmentInfo.clearValue  = clearValue;
+
+				colorAttachmentInfos[i] = currVkAttachmentInfo;
+
+				// \note Add barrier for current swapchain's image
+				VkImageMemoryBarrier2 barrier{};
+				barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
+				barrier.image                           = mpSwapchain->GetCurrImage();
+				barrier.oldLayout                       = VK_IMAGE_LAYOUT_UNDEFINED;
+				barrier.newLayout                       = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+				barrier.srcStageMask                    = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+				barrier.srcAccessMask                   = VK_ACCESS_2_MEMORY_WRITE_BIT;
+				barrier.dstStageMask                    = VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT;
+				barrier.dstAccessMask                   = VK_ACCESS_2_MEMORY_WRITE_BIT | VK_ACCESS_2_MEMORY_READ_BIT;
+				barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+				barrier.subresourceRange.baseMipLevel   = 0;
+				barrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
+				barrier.subresourceRange.baseArrayLayer = 0;
+				barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
+				barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+				barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+
+				VkDependencyInfo dependencyInfo{};
+				dependencyInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+				dependencyInfo.imageMemoryBarrierCount = 1;
+				dependencyInfo.pImageMemoryBarriers = &barrier;
+				vkCmdPipelineBarrier2(_getCurrCommandBufferHandle(), &dependencyInfo);
 
 				continue;
 			}
