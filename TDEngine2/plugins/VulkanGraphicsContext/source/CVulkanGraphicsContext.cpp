@@ -775,6 +775,8 @@ namespace TDEngine2
 			VkImage GetCurrImage() const { return mSwapChainImages[mCurrImageIndex]; }
 			VkImageView GetCurrImageView() const { return mSwapChainImageViews[mCurrImageIndex]; }
 
+			E_FORMAT_TYPE GetBackBuffersFormat() const { return mBackBufferFormat; }
+
 			const VkSwapchainKHR GetHandle() const { return mSwapChain; }
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanSwapchain)
@@ -791,6 +793,7 @@ namespace TDEngine2
 
 			U32                      mCurrImageIndex = 0;
 
+			E_FORMAT_TYPE            mBackBufferFormat = E_FORMAT_TYPE::FT_UNKNOWN;
 	};
 
 
@@ -825,6 +828,8 @@ namespace TDEngine2
 				break;
 			}
 		}
+
+		mBackBufferFormat = E_FORMAT_TYPE::FT_UBYTE4_BGRA_UNORM; // \todo
 
 		const bool needsVSyncEnabled = flags & P_VSYNC;
 
@@ -1935,7 +1940,9 @@ namespace TDEngine2
 			TPtr<CVulkanTextureImpl> pRenderTargetTexture = mpGraphicsObjectManagerImpl->GetVulkanTexturePtr(currAttachment.mTargetHandle);
 			if (!pRenderTargetTexture) // \note The special corner case when there is no render target attached except the back buffer
 			{
-				const TRectU32& windowRect = mpWindowSystem->GetWindowRect();
+				mCurrRenderPassInfo.mRenderTargetFormats[0] = mpSwapchain->GetBackBuffersFormat();
+
+				const TRectU32& windowRect = mpWindowSystem->GetClientRect();
 				viewportSizes.width  = windowRect.width;
 				viewportSizes.height = windowRect.height;
 
