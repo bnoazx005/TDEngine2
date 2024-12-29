@@ -111,7 +111,7 @@ namespace TDEngine2
 			E_RESULT_CODE DestroyObjectDeffered(VkImage imageHandle, VmaAllocation allocation);
 			E_RESULT_CODE DestroyObjectDeffered(VkImageView imageViewHandle);
 
-			E_RESULT_CODE ExecuteCopyImmediate(const std::function<void(VkCommandBuffer)>& copyCommand);
+			E_RESULT_CODE ExecuteImmediate(const std::function<void(VkCommandBuffer)>& command);
 
 			/*!
 				\brief The method sets up a viewport's parameters
@@ -472,7 +472,7 @@ namespace TDEngine2
 			TPtr<CVulkanSwapchain>                               mpSwapchain = nullptr;
 			TPtr<CVulkanDeviceContext>                           mpVulkanDeviceContext = nullptr;
 
-			TPtr<CVulkanCommandBuffer>                           mpImmediateCopyCommandBuffer = nullptr;
+			TPtr<CVulkanCommandBuffer>                           mpImmediateCommandBuffer = nullptr;
 
 			// commands
 			std::array<TPtr<CVulkanCommandBuffer>, FRAMES_COUNT> mpCommandBuffers {};

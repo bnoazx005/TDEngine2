@@ -8,6 +8,8 @@
 #include <graphics/CBaseShader.h>
 #include <graphics/CBaseGraphicsPipeline.h>
 #include <unordered_set>
+#include "deferOperation.hpp"
+#include "vk_mem_alloc.h"
 
 
 namespace TDEngine2
@@ -49,6 +51,68 @@ namespace TDEngine2
 	}
 
 
+	struct TCreatedBufferInfo
+	{
+		VkBuffer      mHandle = VK_NULL_HANDLE;
+		VmaAllocation mAllocation = VK_NULL_HANDLE;
+	};
+
+
+	static TResult<TCreatedBufferInfo> CreateBufferInternal(VmaAllocator allocator, U32 size, E_BUFFER_TYPE type, E_BUFFER_USAGE_TYPE usageType)
+	{
+		VkBufferCreateInfo bufferCreateInfo{};
+		bufferCreateInfo.sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		bufferCreateInfo.size        = size;
+		bufferCreateInfo.usage       = GetBufferType(type) | ((usageType == E_BUFFER_USAGE_TYPE::DYNAMIC) ? VK_BUFFER_USAGE_TRANSFER_SRC_BIT : VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+		bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE; //mIsUnorderedAccessResource ? VK_SHARING_MODE_CONCURRENT : VK_SHARING_MODE_EXCLUSIVE;
+
+		VmaAllocationCreateInfo allocInfo{};
+		allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
+		allocInfo.flags = GetFlagsFromType(usageType);
+
+		TCreatedBufferInfo createResult{};
+
+		VK_SAFE_TRESULT_CALL(vmaCreateBuffer(allocator, &bufferCreateInfo, &allocInfo, &createResult.mHandle, &createResult.mAllocation, 0));
+
+		return Wrench::TOkValue<TCreatedBufferInfo>(createResult);
+	}
+
+
+	static E_RESULT_CODE InitBufferContent(CVulkanGraphicsContext* pGraphicsContext, const TInitBufferParams& params, VkBuffer destBufferHandle)
+	{
+		VmaAllocator allocator = pGraphicsContext->GetAllocator();
+
+		auto createStagingBufferResult = CreateBufferInternal(allocator, params.mDataSize, E_BUFFER_TYPE::GENERIC, E_BUFFER_USAGE_TYPE::DYNAMIC);
+		if (createStagingBufferResult.HasError())
+		{
+			return createStagingBufferResult.GetError();
+		}
+
+		const TCreatedBufferInfo& stagingBufferInfo = createStagingBufferResult.Get();
+
+		defer([=] { pGraphicsContext->DestroyObjectDeffered(stagingBufferInfo.mHandle, stagingBufferInfo.mAllocation); });
+
+		void* pStagingBufferMappedData = nullptr;
+
+		VK_SAFE_CALL(vmaMapMemory(allocator, stagingBufferInfo.mAllocation, &pStagingBufferMappedData));
+		memcpy(pStagingBufferMappedData, params.mpDataPtr, params.mDataSize);
+		vmaUnmapMemory(allocator, stagingBufferInfo.mAllocation);
+
+		pGraphicsContext->ExecuteImmediate([&stagingBufferInfo, &params, destBufferHandle](VkCommandBuffer cmdBuffer)
+			{
+				VkBufferCopy bufferCopy{};
+				bufferCopy.dstOffset = 0;
+				bufferCopy.srcOffset = 0;
+				bufferCopy.size = params.mDataSize;
+
+				vkCmdCopyBuffer(cmdBuffer, stagingBufferInfo.mHandle, destBufferHandle, 1, &bufferCopy);
+			});
+
+		return RC_OK;
+	}
+
+
+
 	CVulkanBuffer::CVulkanBuffer() :
 		CBaseObject()
 	{
@@ -72,7 +136,7 @@ namespace TDEngine2
 		}
 
 		mDevice = mpGraphicsContextImpl->GetDevice();
-		mAllocator = mpGraphicsContextImpl->GetAllocator();
+ 		mAllocator = mpGraphicsContextImpl->GetAllocator();
 
 		mIsUnorderedAccessResource = params.mIsUnorderedAccessResource;
 		
@@ -84,7 +148,14 @@ namespace TDEngine2
 
 		mInitParams = params;
 		
-		// \todo Add buffer's memory initialization
+		if (params.mpDataPtr)
+		{
+			result = InitBufferContent(mpGraphicsContextImpl, mInitParams, mInternalBufferHandle);
+			if (RC_OK != result)
+			{
+				return result;
+			}
+		}
 
 		mIsInitialized = true;
 
@@ -103,17 +174,16 @@ namespace TDEngine2
 			mpGraphicsContextImpl->DestroyObjectDeffered(mInternalBufferHandle, mAllocation);
 		}
 
-		VkBufferCreateInfo bufferCreateInfo{};
-		bufferCreateInfo.sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		bufferCreateInfo.size        = newSize;
-		bufferCreateInfo.usage       = GetBufferType(mBufferType) | ((mBufferUsageType == E_BUFFER_USAGE_TYPE::DYNAMIC) ? VK_BUFFER_USAGE_TRANSFER_SRC_BIT : 0x0);
-		bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE; //mIsUnorderedAccessResource ? VK_SHARING_MODE_CONCURRENT : VK_SHARING_MODE_EXCLUSIVE;
+		auto createBufferResult = CreateBufferInternal(mAllocator, newSize, mBufferType, mBufferUsageType);
+		if (createBufferResult.HasError())
+		{
+			return createBufferResult.GetError();
+		}
 
-		VmaAllocationCreateInfo allocInfo = {};
-		allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
-		allocInfo.flags = GetFlagsFromType(mBufferUsageType);
+		const TCreatedBufferInfo& bufferInfo = createBufferResult.Get();
 
-		VK_SAFE_CALL(vmaCreateBuffer(mAllocator, &bufferCreateInfo, &allocInfo, &mInternalBufferHandle, &mAllocation, 0));
+		mInternalBufferHandle = bufferInfo.mHandle;
+		mAllocation = bufferInfo.mAllocation;
 
 		return RC_OK;
 	}

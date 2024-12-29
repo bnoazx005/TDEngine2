@@ -1140,7 +1140,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		mpImmediateCopyCommandBuffer = TPtr<CVulkanCommandBuffer>(CreateCommandBuffer(mpVulkanDeviceContext.Get(), result));
+		mpImmediateCommandBuffer = TPtr<CVulkanCommandBuffer>(CreateCommandBuffer(mpVulkanDeviceContext.Get(), result));
 		if (RC_OK != result)
 		{
 			return result;
@@ -1161,7 +1161,7 @@ namespace TDEngine2
 			vkDestroySemaphore(mpVulkanDeviceContext->GetDevice(), mRenderFinishedSemaphores[i], nullptr);
 		}
 
-		mpImmediateCopyCommandBuffer = nullptr;
+		mpImmediateCommandBuffer = nullptr;
 		mpSwapchain = nullptr;
 		mpVulkanDeviceContext = nullptr;
 
@@ -1209,28 +1209,28 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CVulkanGraphicsContext::ExecuteCopyImmediate(const std::function<void(VkCommandBuffer)>& copyCommand)
+	E_RESULT_CODE CVulkanGraphicsContext::ExecuteImmediate(const std::function<void(VkCommandBuffer)>& copyCommand)
 	{
 		if (!copyCommand)
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		VkFence cmdBufferFence = mpImmediateCopyCommandBuffer->GetFence();
+		VkFence cmdBufferFence = mpImmediateCommandBuffer->GetFence();
 
 		vkResetFences(mpVulkanDeviceContext->GetDevice(), 1, &cmdBufferFence);
-		mpImmediateCopyCommandBuffer->Reset();
+		mpImmediateCommandBuffer->Reset();
 
-		mpImmediateCopyCommandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+		mpImmediateCommandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
 		if (copyCommand)
 		{
-			copyCommand(mpImmediateCopyCommandBuffer->GetHandle());
+			copyCommand(mpImmediateCommandBuffer->GetHandle());
 		}
 
-		mpImmediateCopyCommandBuffer->End();
+		mpImmediateCommandBuffer->End();
 
-		mpVulkanDeviceContext->SubmitCommands(mpImmediateCopyCommandBuffer, VK_NULL_HANDLE, VK_NULL_HANDLE, cmdBufferFence);
+		mpVulkanDeviceContext->SubmitCommands(mpImmediateCommandBuffer, VK_NULL_HANDLE, VK_NULL_HANDLE, cmdBufferFence);
 		VK_SAFE_VOID_CALL(vkWaitForFences(mpVulkanDeviceContext->GetDevice(), 1, &cmdBufferFence, true, UINT64_MAX));
 
 		return RC_OK;
@@ -1499,7 +1499,7 @@ namespace TDEngine2
 
 		auto pStagingBufferImpl = DynamicPtrCast<CVulkanBuffer>(pStagingBuffer);
 
-		result = ExecuteCopyImmediate([=](VkCommandBuffer cmdBuffer)
+		result = ExecuteImmediate([=](VkCommandBuffer cmdBuffer)
 		{
 			VkImageSubresourceRange range;
 			range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -1595,7 +1595,7 @@ namespace TDEngine2
 
 		auto pStagingBufferImpl = DynamicPtrCast<CVulkanBuffer>(pStagingBuffer);
 
-		result = ExecuteCopyImmediate([=](VkCommandBuffer cmdBuffer)
+		result = ExecuteImmediate([=](VkCommandBuffer cmdBuffer)
 			{
 				VkImageSubresourceRange range;
 				range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
