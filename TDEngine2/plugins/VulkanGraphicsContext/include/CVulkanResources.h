@@ -114,11 +114,11 @@ namespace TDEngine2
 			E_RESULT_CODE _discardCurrentBuffer(USIZE newSize);
 			E_RESULT_CODE _onFreeInternal() override;			
 		protected:
-			USIZE                    mBufferSize;
+			USIZE                    mBufferSize = 0;
 
-			E_BUFFER_USAGE_TYPE      mBufferUsageType;
+			E_BUFFER_USAGE_TYPE      mBufferUsageType = E_BUFFER_USAGE_TYPE::DEFAULT;
 
-			E_BUFFER_TYPE            mBufferType;
+			E_BUFFER_TYPE            mBufferType = E_BUFFER_TYPE::GENERIC;
 
 			void*                    mpMappedBufferData = nullptr;
 
@@ -128,12 +128,12 @@ namespace TDEngine2
 			U8                       mLockChecker = 0;
 #endif
 
-			CVulkanGraphicsContext*  mpGraphicsContextImpl;
+			CVulkanGraphicsContext*  mpGraphicsContextImpl = nullptr;
 
 			VkBuffer                 mInternalBufferHandle = VK_NULL_HANDLE;
-			VmaAllocator             mAllocator;
-			VmaAllocation            mAllocation;
-			VkDevice                 mDevice;
+			VmaAllocator             mAllocator = VK_NULL_HANDLE;
+			VmaAllocation            mAllocation = VK_NULL_HANDLE;
+			VkDevice                 mDevice = VK_NULL_HANDLE;
 
 			bool                     mIsUnorderedAccessResource = false;
 

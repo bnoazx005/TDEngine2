@@ -1084,7 +1084,7 @@ namespace TDEngine2
 
 		mpGraphicsContext->BindRasterizerState(mRasterizerStateHandle);
 
-		return RC_OK;
+		return CBaseGraphicsPipeline::Bind();
 	}
 
 

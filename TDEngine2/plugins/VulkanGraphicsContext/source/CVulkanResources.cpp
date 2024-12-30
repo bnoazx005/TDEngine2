@@ -1140,7 +1140,10 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		return mpVulkanGraphicsContext->BindPipelineState(this);
+		E_RESULT_CODE result = CBaseGraphicsPipeline::Bind();
+		result = result | mpVulkanGraphicsContext->BindPipelineState(this);
+
+		return result;
 	}
 
 	VkPipeline CVulkanGraphicsPipeline::GetPipelineForRenderPass(const TRenderPassInfo& renderPassInfo)

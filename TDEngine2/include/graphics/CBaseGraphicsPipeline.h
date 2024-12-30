@@ -57,6 +57,7 @@ namespace TDEngine2
 			TBlendStateId               mBlendStateHandle = TBlendStateId::Invalid;
 			TDepthStencilStateId        mDepthStencilStateHandle = TDepthStencilStateId::Invalid;
 			TRasterizerStateId          mRasterizerStateHandle = TRasterizerStateId::Invalid;
+			TResourceId                 mCachedShaderHandle = TResourceId::Invalid;
 	};
 
 

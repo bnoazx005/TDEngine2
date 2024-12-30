@@ -524,11 +524,6 @@ namespace TDEngine2
 			}
 		}
 
-		if (auto pGraphicsPipeline = mpGraphicsObjectManager->GetGraphicsPipeline(mGraphicsPipelineHandle))
-		{
-			pGraphicsPipeline->Bind();
-		}
-
 		auto iter = mpInstancesUserUniformBuffers.find(instanceId);
 		if (iter != mpInstancesUserUniformBuffers.cend())
 		{
@@ -553,7 +548,10 @@ namespace TDEngine2
 			pShaderInstance->SetTextureResource(iter->first, iter->second);
 		}
 
-		pShaderInstance->Bind();
+		if (auto pGraphicsPipeline = mpGraphicsObjectManager->GetGraphicsPipeline(mGraphicsPipelineHandle))
+		{
+			pGraphicsPipeline->Bind();
+		}
 	}
 
 	E_RESULT_CODE CBaseMaterial::SetTextureResource(const std::string& resourceName, ITexture* pTexture, TMaterialInstanceId instanceId)
