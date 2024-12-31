@@ -1,5 +1,5 @@
 /*!
-	\file IGraphicsPipeline.h
+	\file IPipeline.h
 	\date 25.05.2024
 	\authors Kasimov Ildar
 */

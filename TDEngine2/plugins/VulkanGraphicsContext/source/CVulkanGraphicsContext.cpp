@@ -1829,7 +1829,7 @@ namespace TDEngine2
 
 	void CVulkanGraphicsContext::Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices)
 	{
-		_prepareDrawCall();
+		_flushPipelineDescriptorsSet();
 
 		vkCmdSetPrimitiveTopology(_getCurrCommandBufferHandle(), CVulkanMappings::GetPrimitiveTopology(topology));
 		vkCmdDraw(_getCurrCommandBufferHandle(), numOfVertices, 1, startVertex, 0);
@@ -1837,7 +1837,7 @@ namespace TDEngine2
 
 	void CVulkanGraphicsContext::DrawIndexed(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, U32 baseVertex, U32 startIndex, U32 numOfIndices)
 	{
-		_prepareDrawCall();
+		_flushPipelineDescriptorsSet();
 
 		vkCmdSetPrimitiveTopology(_getCurrCommandBufferHandle(), CVulkanMappings::GetPrimitiveTopology(topology));
 		vkCmdDrawIndexed(_getCurrCommandBufferHandle(), numOfIndices, 1, startIndex, baseVertex, 0);
@@ -1845,7 +1845,7 @@ namespace TDEngine2
 
 	void CVulkanGraphicsContext::DrawInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 verticesPerInstance, U32 startInstance, U32 numOfInstances)
 	{
-		_prepareDrawCall();
+		_flushPipelineDescriptorsSet();
 
 		vkCmdSetPrimitiveTopology(_getCurrCommandBufferHandle(), CVulkanMappings::GetPrimitiveTopology(topology));
 		vkCmdDraw(_getCurrCommandBufferHandle(), verticesPerInstance, numOfInstances, startVertex, startInstance);
@@ -1854,7 +1854,7 @@ namespace TDEngine2
 	void CVulkanGraphicsContext::DrawIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, U32 baseVertex, U32 startIndex,
 		U32 startInstance, U32 indicesPerInstance, U32 numOfInstances)
 	{
-		_prepareDrawCall();
+		_flushPipelineDescriptorsSet();
 
 		vkCmdSetPrimitiveTopology(_getCurrCommandBufferHandle(), CVulkanMappings::GetPrimitiveTopology(topology));
 		vkCmdDrawIndexed(_getCurrCommandBufferHandle(), indicesPerInstance, numOfInstances, startIndex, baseVertex, startInstance);
@@ -1862,7 +1862,7 @@ namespace TDEngine2
 
 	void CVulkanGraphicsContext::DrawIndirectInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, TBufferHandleId argsBufferHandle, U32 alignedOffset)
 	{
-		_prepareDrawCall();
+		_flushPipelineDescriptorsSet();
 
 		vkCmdSetPrimitiveTopology(_getCurrCommandBufferHandle(), CVulkanMappings::GetPrimitiveTopology(topology));
 		vkCmdDrawIndexedIndirect(_getCurrCommandBufferHandle(), mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(argsBufferHandle)->GetVulkanHandle(), static_cast<VkDeviceSize>(alignedOffset), 1, 0);
@@ -1870,7 +1870,7 @@ namespace TDEngine2
 
 	void CVulkanGraphicsContext::DrawIndirectIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, TBufferHandleId argsBufferHandle, U32 alignedOffset)
 	{
-		_prepareDrawCall();
+		_flushPipelineDescriptorsSet();
 
 		vkCmdSetPrimitiveTopology(_getCurrCommandBufferHandle(), CVulkanMappings::GetPrimitiveTopology(topology));
 		TDE2_UNIMPLEMENTED();
@@ -1878,12 +1878,12 @@ namespace TDEngine2
 
 	void CVulkanGraphicsContext::DispatchCompute(U32 groupsCountX, U32 groupsCountY, U32 groupsCountZ)
 	{
-		_prepareDispatchCall();
+		//_flushPipelineDescriptorsSet(false);
 	}
 
 	void CVulkanGraphicsContext::DispatchIndirectCompute(TBufferHandleId argsBufferHandle, U32 alignedOffset)
 	{
-		_prepareDispatchCall();
+		//_flushPipelineDescriptorsSet(false);
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::BindPipelineState(CVulkanGraphicsPipeline* pGraphicsPipeline)
@@ -2272,9 +2272,12 @@ namespace TDEngine2
 		return mpCommandBuffers[mCurrFrameIndex]->GetHandle();
 	}
 
-	void CVulkanGraphicsContext::_prepareDrawCall()
+	void CVulkanGraphicsContext::_flushPipelineDescriptorsSet(bool isGraphicsPipeline)
 	{
-		TDE2_ASSERT(mIsRenderPassActive);
+		if (isGraphicsPipeline)
+		{
+			TDE2_ASSERT(mIsRenderPassActive);
+		}
 
 		mDescriptorWrites.clear();
 		mDescriptorBufferInfos.clear();
@@ -2354,7 +2357,7 @@ namespace TDEngine2
 
 						VkDescriptorImageInfo& currImageInfo = mDescriptorImageInfos.emplace_back();
 						currImageInfo.imageView   = pTexture->GetTextureViewHandle();
-						currImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+						currImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 						currImageInfo.sampler     = VK_NULL_HANDLE;
 
 						currWriteDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
@@ -2457,12 +2460,14 @@ namespace TDEngine2
 			return;
 		}
 				
-		vkCmdPushDescriptorSetKHR(_getCurrCommandBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, mpActiveGraphicsPipelineStates[mCurrFrameIndex]->GetPipelineLayout(), 0, static_cast<U32>(mDescriptorWrites.size()), mDescriptorWrites.data());
-		mDescriptorsBindingsTable.Reset();
-	}
+		vkCmdPushDescriptorSetKHR(_getCurrCommandBufferHandle(), 
+			isGraphicsPipeline ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE, 
+			mpActiveGraphicsPipelineStates[mCurrFrameIndex]->GetPipelineLayout(), 
+			0, 
+			static_cast<U32>(mDescriptorWrites.size()), 
+			mDescriptorWrites.data());
 
-	void CVulkanGraphicsContext::_prepareDispatchCall()
-	{
+		//mDescriptorsBindingsTable.Reset();
 	}
 
 

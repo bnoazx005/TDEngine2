@@ -455,8 +455,7 @@ namespace TDEngine2
 
 			VkCommandBuffer _getCurrCommandBufferHandle() const;
 
-			void _prepareDrawCall();
-			void _prepareDispatchCall();
+			void _flushPipelineDescriptorsSet(bool isGraphicsPipeline = true);
 		protected:
 			static const USIZE                                   FRAMES_COUNT = 2;
 

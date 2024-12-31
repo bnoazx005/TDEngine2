@@ -12,7 +12,7 @@
 #include <graphics/CBaseShader.h>
 #include <graphics/CBaseTexture2D.h>
 #include <graphics/CVertexDeclaration.h>
-#include <graphics/CBaseGraphicsPipeline.h>
+#include <graphics/BasePipelines.h>
 #define VK_NO_PROTOTYPES
 #include <vulkan/vulkan_core.h>
 #include "vk_mem_alloc.h"

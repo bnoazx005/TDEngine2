@@ -3,7 +3,7 @@
 #include "../include/COGLUtils.h"
 #include "../include/COGLGraphicsObjectManager.h"
 #include <core/IGraphicsContext.h>
-#include <graphics/CBaseGraphicsPipeline.h>
+#include <graphics/BasePipelines.h>
 #include <memory>
 #include <cstring>
 

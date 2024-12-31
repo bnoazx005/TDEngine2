@@ -3,7 +3,7 @@
 #include "../../include/graphics/ITexture.h"
 #include "../../include/graphics/IShaderCompiler.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
-#include "../../include/graphics/CBaseGraphicsPipeline.h"
+#include "../../include/graphics/BasePipelines.h"
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IFileSystem.h"

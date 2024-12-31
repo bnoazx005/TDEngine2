@@ -7,7 +7,7 @@
 #include "../../include/graphics/IRenderer.h"
 #include "../../include/graphics/ITexture.h"
 #include "../../include/graphics/CBaseShader.h"
-#include "../../include/graphics/CBaseGraphicsPipeline.h"
+#include "../../include/graphics/BasePipelines.h"
 #include <unordered_map>
 #include <algorithm>
 

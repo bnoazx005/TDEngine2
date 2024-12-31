@@ -133,7 +133,7 @@ namespace TDEngine2
 		TDE2_API TRenderPassInfo() = default;
 		TDE2_API TRenderPassInfo(IGraphicsObjectManager* pGraphicsObjectManager, const TFramebufferInfo& framebufferInfo);
 
-		TFormatsArray mRenderTargetFormats;
+		TFormatsArray mRenderTargetFormats{};
 		E_FORMAT_TYPE mDepthStencilFormat = E_FORMAT_TYPE::FT_UNKNOWN;
 	} TRenderPassInfo, *TRenderPassInfoPtr;
 

@@ -1,5 +1,5 @@
 /*!
-	\file CBaseGraphicsPipeline.h
+	\file BasePipelines.h
 	\date 25.05.2024
 	\authors Kasimov Ildar
 */
@@ -11,7 +11,7 @@
 #include "../utils/Types.h"
 #include "../core/CBaseObject.h"
 #include "../core/Serialization.h"
-#include "IGraphicsPipeline.h"
+#include "IPipeline.h"
 
 
 namespace TDEngine2

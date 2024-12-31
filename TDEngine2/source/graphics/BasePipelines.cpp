@@ -1,6 +1,8 @@
-#include "../../include/graphics/CBaseGraphicsPipeline.h"
+#include "../../include/graphics/BasePipelines.h"
 #include "../../include/core/IGraphicsContext.h"
+#include "../../include/core/IResourceManager.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
+#include "../../include/graphics/IShader.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include "../../include/utils/CFileLogger.h"
 #define META_EXPORT_GRAPHICS_SECTION
@@ -136,7 +138,16 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseGraphicsPipeline::Bind()
 	{
-		TDE2_UNREACHABLE();
+		if (TResourceId::Invalid == mCachedShaderHandle)
+		{
+			mCachedShaderHandle = mpResourceManager->Load<IShader>(mConfig.mShaderIdStr);
+		}
+
+		if (TPtr<IShader> pShaderInstance = mpResourceManager->GetResource<IShader>(mCachedShaderHandle))
+		{
+			pShaderInstance->Bind();
+		}
+
 		return RC_OK;
 	}
 

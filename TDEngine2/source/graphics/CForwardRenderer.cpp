@@ -12,7 +12,7 @@
 #include "../../include/graphics/CBaseCubemapTexture.h"
 #include "../../include/graphics/CFrameGraph.h"
 #include "../../include/graphics/CFrameGraphResources.h"
-#include "../../include/graphics/IGraphicsPipeline.h"
+#include "../../include/graphics/IPipeline.h"
 #include "../../include/graphics/CFramePacketsStorage.h"
 #include "../../include/core/memory/IAllocator.h"
 #include "../../include/core/memory/CLinearAllocator.h"

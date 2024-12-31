@@ -2,7 +2,7 @@
 #include "../include/CD3D11Mappings.h"
 #include "../include/CD3D11Utils.h"
 #include "../include/CD3D11GraphicsObjectManager.h"
-#include <graphics/CBaseGraphicsPipeline.h>
+#include <graphics/BasePipelines.h>
 #include <core/IGraphicsContext.h>
 #include <memory>
 #include "deferOperation.hpp"

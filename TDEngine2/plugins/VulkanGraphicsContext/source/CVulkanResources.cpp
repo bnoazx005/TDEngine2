@@ -6,7 +6,7 @@
 #include "../include/CVulkanShaderCompiler.h"
 #include <core/IResourceManager.h>
 #include <graphics/CBaseShader.h>
-#include <graphics/CBaseGraphicsPipeline.h>
+#include <graphics/BasePipelines.h>
 #include <unordered_set>
 #include "deferOperation.hpp"
 #include "vk_mem_alloc.h"
