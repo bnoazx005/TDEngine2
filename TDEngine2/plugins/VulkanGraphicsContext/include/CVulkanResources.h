@@ -22,6 +22,7 @@ namespace TDEngine2
 {
 	class CVulkanGraphicsContext;
 	class IGraphicsPipeline;
+	class IComputePipeline;
 	class CVulkanGraphicsObjectManager;
 	struct TRenderPassInfo;
 
@@ -315,11 +316,38 @@ namespace TDEngine2
 	IVertexDeclaration* CreateVulkanVertexDeclaration(E_RESULT_CODE& result);
 
 
+	class CVulkanBasePipeline : public virtual IPipeline
+	{
+		public:
+			virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext);
+
+			virtual VkPipelineLayout GetPipelineLayout() const;
+			virtual const TVulkanPipelineLayoutInfo& GetLayoutInfo() const;
+
+			virtual VkPipeline GetBasePipelineHandle() const;
+			virtual U32 GetHash() const = 0;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanBasePipeline)
+		protected:
+			CVulkanGraphicsObjectManager* mpVulkanGraphicsObjectManagerImpl = nullptr;
+			CVulkanGraphicsContext*       mpVulkanGraphicsContext = nullptr;
+
+			VkPipeline                    mBasePipelineHandle = VK_NULL_HANDLE;
+			VkPipelineLayout              mCachedPipelineLayoutHandle = VK_NULL_HANDLE;
+
+			TVulkanPipelineLayoutInfo     mLayoutInfo{};
+	};
+
+
+	TDE2_API IGraphicsPipeline* CreateVulkanGraphicsPipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig, E_RESULT_CODE& result);
+	TDE2_API IComputePipeline* CreateVulkanComputePipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const std::string& shaderId, E_RESULT_CODE& result);
+
+
 	/*!
 		\brief CVulkanGraphicsPipeline's definition
 	*/
 
-	class CVulkanGraphicsPipeline : public CBaseGraphicsPipeline
+	class CVulkanGraphicsPipeline : public CBaseGraphicsPipeline, public CVulkanBasePipeline
 	{
 		public:
 			TDE2_API friend IGraphicsPipeline* CreateVulkanGraphicsPipeline(IGraphicsContext*, IResourceManager*, const TGraphicsPipelineConfigDesc&, E_RESULT_CODE&);
@@ -328,26 +356,33 @@ namespace TDEngine2
 			E_RESULT_CODE Bind() override;
 
 			VkPipeline GetPipelineForRenderPass(const TRenderPassInfo& renderPassInfo);
-			VkPipelineLayout GetPipelineLayout() const;
 
-			U32 GetHash() const;
-
-			const TVulkanPipelineLayoutInfo& GetLayoutInfo() const;
+			U32 GetHash() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanGraphicsPipeline)
 		private:
-			CVulkanGraphicsObjectManager* mpVulkanGraphicsObjectManagerImpl = nullptr;
-			CVulkanGraphicsContext*       mpVulkanGraphicsContext = nullptr;
-
 			VkGraphicsPipelineCreateInfo  mBasePipelineConfig{};
-
-			VkPipeline                    mBasePipelineHandle = VK_NULL_HANDLE;
-			VkPipelineLayout              mCachedPipelineLayoutHandle = VK_NULL_HANDLE;
-
 			U32                           mConfigHash = 0;
-			TVulkanPipelineLayoutInfo     mLayoutInfo{};
 	};
 
 
-	TDE2_API IGraphicsPipeline* CreateVulkanGraphicsPipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig, E_RESULT_CODE& result);
+	/*!
+		\brief CVulkanComputePipeline's definition
+	*/
+
+	class CVulkanComputePipeline : public CBaseComputePipeline, public CVulkanBasePipeline
+	{
+		public:
+			TDE2_API friend IComputePipeline* CreateVulkanComputePipeline(IGraphicsContext*, IResourceManager*, const std::string&, E_RESULT_CODE&);
+		public:
+			E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const std::string& shaderId) override;
+			E_RESULT_CODE Bind() override;
+
+			U32 GetHash() const override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanComputePipeline)
+		private:
+			VkComputePipelineCreateInfo  mBasePipelineConfig{};
+			U32                           mConfigHash = 0;
+	};
 }

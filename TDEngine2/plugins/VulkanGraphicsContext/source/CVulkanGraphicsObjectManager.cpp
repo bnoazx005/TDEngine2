@@ -264,6 +264,12 @@ namespace TDEngine2
 		return TPtr<IGraphicsPipeline>(CreateVulkanGraphicsPipeline(mpGraphicsContext, pResourceManager, pipelineConfigDesc, result));
 	}
 
+	TPtr<IComputePipeline> CVulkanGraphicsObjectManager::_createComputePipelineInternal(IResourceManager* pResourceManager, const std::string& shaderId)
+	{
+		E_RESULT_CODE result = RC_OK;
+		return TPtr<IComputePipeline>(CreateVulkanComputePipeline(mpGraphicsContext, pResourceManager, shaderId, result));
+	}
+
 	E_RESULT_CODE CVulkanGraphicsObjectManager::_freeTextureSamplers()
 	{
 		return RC_OK;

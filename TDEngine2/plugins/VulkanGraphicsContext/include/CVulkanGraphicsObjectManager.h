@@ -116,6 +116,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanGraphicsObjectManager)
 
 			TPtr<IGraphicsPipeline> _createGraphicsPipelineInternal(IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfigDesc) override;
+			TPtr<IComputePipeline> _createComputePipelineInternal(IResourceManager* pResourceManager, const std::string& shaderId) override;
 			
 			E_RESULT_CODE _freeTextureSamplers() override;
 

@@ -16,13 +16,32 @@ namespace TDEngine2
 {
 	class IGraphicsContext;
 	class IResourceManager;
+	class IShader;
+
+
+	enum class E_PIPELINE_TYPE : U32
+	{
+		GRAPHICS,
+		COMPUTE
+	};
+
+
+	class IPipeline: public virtual IBaseObject
+	{
+		public:
+			TDE2_API virtual E_RESULT_CODE Bind() = 0;
+
+			TDE2_API virtual E_PIPELINE_TYPE GetType() const = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPipeline)
+	};
 
 
 	/*!
 		interface IGraphicsPipeline
 	*/
 
-	class IGraphicsPipeline: public virtual IBaseObject
+	class IGraphicsPipeline: public virtual IPipeline
 	{
 		public:
 			/*!
@@ -37,13 +56,38 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig) = 0;
 
-			TDE2_API virtual E_RESULT_CODE Bind() = 0;
-
 			TDE2_API virtual const TGraphicsPipelineConfigDesc& GetConfig() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IGraphicsPipeline)
 	};
 
 
+	/*!
+		interface IComputePipeline
+	*/
+
+	class IComputePipeline : public virtual IPipeline
+	{
+		public:
+			/*!
+				\brief The method initializes an internal state of a pipeline
+
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
+				\param[in, out] shaderId 
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const std::string& shaderId) = 0;
+
+			TDE2_API virtual TPtr<IShader> GetShaderPtr() const = 0;
+			TDE2_API virtual const std::string& GetShaderId() const = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IComputePipeline)
+	};
+
+
 	TDE2_DECLARE_SCOPED_PTR_INLINED(IGraphicsPipeline)
+	TDE2_DECLARE_SCOPED_PTR_INLINED(IComputePipeline)
 }

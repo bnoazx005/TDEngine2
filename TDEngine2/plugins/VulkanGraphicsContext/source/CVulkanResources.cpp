@@ -1041,6 +1041,40 @@ namespace TDEngine2
 	}
 
 
+	/*!
+		\brief CVulkanBasePipeline's definition
+	*/
+
+	CVulkanBasePipeline::CVulkanBasePipeline()
+	{
+	}
+
+	E_RESULT_CODE CVulkanBasePipeline::Init(IGraphicsContext* pGraphicsContext)
+	{
+		mpVulkanGraphicsContext = dynamic_cast<CVulkanGraphicsContext*>(pGraphicsContext);
+
+		CVulkanGraphicsContext* pVulkanGraphicsContext = dynamic_cast<CVulkanGraphicsContext*>(pGraphicsContext);
+		mpVulkanGraphicsObjectManagerImpl = dynamic_cast<CVulkanGraphicsObjectManager*>(pVulkanGraphicsContext->GetGraphicsObjectManager());
+
+		return RC_OK;
+	}
+
+	VkPipelineLayout CVulkanBasePipeline::GetPipelineLayout() const
+	{
+		return mCachedPipelineLayoutHandle;
+	}
+
+	const TVulkanPipelineLayoutInfo& CVulkanBasePipeline::GetLayoutInfo() const
+	{
+		return mLayoutInfo;
+	}
+
+	VkPipeline CVulkanBasePipeline::GetBasePipelineHandle() const
+	{
+		return mBasePipelineHandle;
+	}
+
+
 	CVulkanGraphicsPipeline::CVulkanGraphicsPipeline() :
 		CBaseGraphicsPipeline()
 	{
@@ -1054,7 +1088,11 @@ namespace TDEngine2
 			return result;
 		}
 
-		mpVulkanGraphicsContext = dynamic_cast<CVulkanGraphicsContext*>(pGraphicsContext);
+		result = CVulkanBasePipeline::Init(pGraphicsContext);
+		if (RC_OK != result)
+		{
+			return result;
+		}
 
 		const TResourceId shaderHandle = pResourceManager->Load<IShader>(pipelineConfig.mShaderIdStr);
 		if (TResourceId::Invalid == shaderHandle)
@@ -1063,9 +1101,6 @@ namespace TDEngine2
 		}
 		
 		TPtr<CVulkanShader> pShader = pResourceManager->GetResource<CVulkanShader>(shaderHandle);
-
-		CVulkanGraphicsContext* pVulkanGraphicsContext = dynamic_cast<CVulkanGraphicsContext*>(pGraphicsContext);
-		mpVulkanGraphicsObjectManagerImpl = dynamic_cast<CVulkanGraphicsObjectManager*>(pVulkanGraphicsContext->GetGraphicsObjectManager());
 
 		// \note Prepare basic pipeline that will be derived in runtime to override attachments
 
@@ -1125,7 +1160,7 @@ namespace TDEngine2
 		mBasePipelineConfig.pDynamicState       = &dynamicInfo;
 
 		// \todo Add pipeline cache's support
-		VK_SAFE_CALL(vkCreateGraphicsPipelines(pVulkanGraphicsContext->GetDevice(), VK_NULL_HANDLE, 1, &mBasePipelineConfig, nullptr, &mBasePipelineHandle));
+		VK_SAFE_CALL(vkCreateGraphicsPipelines(mpVulkanGraphicsContext->GetDevice(), VK_NULL_HANDLE, 1, &mBasePipelineConfig, nullptr, &mBasePipelineHandle));
 
 		mConfigHash = ComputeStateDescHash(mConfig);
 		mLayoutInfo = pShader->GetLayoutInfo();
@@ -1221,19 +1256,9 @@ namespace TDEngine2
 		return derivedPipeline;
 	}
 
-	VkPipelineLayout CVulkanGraphicsPipeline::GetPipelineLayout() const
-	{
-		return mCachedPipelineLayoutHandle;
-	}
-
 	U32 CVulkanGraphicsPipeline::GetHash() const
 	{
 		return mConfigHash;
-	}
-
-	const TVulkanPipelineLayoutInfo& CVulkanGraphicsPipeline::GetLayoutInfo() const
-	{
-		return mLayoutInfo;
 	}
 
 	TDE2_DEFINE_SCOPED_PTR(CVulkanGraphicsPipeline);
@@ -1242,5 +1267,81 @@ namespace TDEngine2
 	IGraphicsPipeline* CreateVulkanGraphicsPipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& config, E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IGraphicsPipeline, CVulkanGraphicsPipeline, result, pGraphicsContext, pResourceManager, config);
+	}
+
+
+	/*!
+		\brief CVulkanComputePipeline's definition
+	*/
+
+	CVulkanComputePipeline::CVulkanComputePipeline() :
+		CBaseComputePipeline()
+	{
+	}
+
+	E_RESULT_CODE CVulkanComputePipeline::Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const std::string& shaderId)
+	{
+		E_RESULT_CODE result = CBaseComputePipeline::Init(pGraphicsContext, pResourceManager, shaderId);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		result = CVulkanBasePipeline::Init(pGraphicsContext);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		const TResourceId shaderHandle = pResourceManager->Load<IShader>(shaderId);
+		if (TResourceId::Invalid == shaderHandle)
+		{
+			return RC_FAIL;
+		}
+
+		TPtr<CVulkanShader> pShader = pResourceManager->GetResource<CVulkanShader>(shaderHandle);
+
+		mCachedPipelineLayoutHandle = pShader->GetPipelineLayout();
+
+		VkComputePipelineCreateInfo computePipelineCreateInfo{};
+		computePipelineCreateInfo.sType              = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+		computePipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
+		computePipelineCreateInfo.stage              = pShader->GetPipelineShaderStage(E_SHADER_STAGE_TYPE::SST_COMPUTE);
+		computePipelineCreateInfo.layout             = pShader->GetPipelineLayout();
+
+		VK_SAFE_CALL(vkCreateComputePipelines(mpVulkanGraphicsContext->GetDevice(), VK_NULL_HANDLE, 1, &computePipelineCreateInfo, nullptr, &mBasePipelineHandle));
+
+		mConfigHash = TDE2_STRING_ID(mShaderIdStr.c_str());
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CVulkanComputePipeline::Bind()
+	{
+		if (!mpGraphicsObjectManager)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = CBaseComputePipeline::Bind();
+		result = result | mpVulkanGraphicsContext->BindPipelineState(this);
+
+		return result;
+	}
+
+	U32 CVulkanComputePipeline::GetHash() const
+	{
+		return mConfigHash;
+	}
+
+
+	TDE2_DEFINE_SCOPED_PTR(CVulkanComputePipeline);
+
+
+	IComputePipeline* CreateVulkanComputePipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const std::string& shaderId, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IComputePipeline, CVulkanComputePipeline, result, pGraphicsContext, pResourceManager, shaderId);
 	}
 }

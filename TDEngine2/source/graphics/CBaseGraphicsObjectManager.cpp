@@ -169,6 +169,41 @@ namespace TDEngine2
 		return Wrench::TOkValue<TGraphicsPipelineStateId>(static_cast<TGraphicsPipelineStateId>(placementIndex));
 	}
 
+	TResult<TComputePipelineStateId> CBaseGraphicsObjectManager::CreateComputePipelineState(TPtr<IResourceManager> pResourceManager, const std::string& shaderId)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		const U32 hash = TDE2_STRING_ID(shaderId.c_str());
+
+		auto existingItemIt = mComputePipelinesHashTable.find(hash);
+		if (existingItemIt != mComputePipelinesHashTable.cend())
+		{
+			return Wrench::TOkValue<TComputePipelineStateId>(existingItemIt->second);
+		}
+
+		TPtr<IComputePipeline> pComputePipeline = _createComputePipelineInternal(pResourceManager.Get(), shaderId);
+		if (!pComputePipeline || RC_OK != result)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
+		}
+
+		auto it = std::find(mpComputePipelines.begin(), mpComputePipelines.end(), nullptr);
+		const USIZE placementIndex = static_cast<USIZE>(std::distance(mpComputePipelines.begin(), it));
+
+		if (placementIndex >= mpComputePipelines.size())
+		{
+			mpComputePipelines.emplace_back(pComputePipeline);
+		}
+		else
+		{
+			mpComputePipelines[placementIndex] = pComputePipeline;
+		}
+
+		mComputePipelinesHashTable.emplace(hash, static_cast<TComputePipelineStateId>(placementIndex));
+
+		return Wrench::TOkValue<TComputePipelineStateId>(static_cast<TComputePipelineStateId>(placementIndex));
+	}
+
 	TResult<TPtr<IShaderCache>> CBaseGraphicsObjectManager::CreateShaderCache(IFileSystem* pFileSystem, bool isReadOnly)
 	{
 		E_RESULT_CODE result = RC_OK;
@@ -207,6 +242,22 @@ namespace TDEngine2
 		return mpGraphicsPipelines[placementIndex];
 	}
 
+	TPtr<IComputePipeline> CBaseGraphicsObjectManager::GetComputePipeline(TComputePipelineStateId handle)
+	{
+		if (TComputePipelineStateId::Invalid == handle)
+		{
+			return nullptr;
+		}
+
+		const USIZE placementIndex = static_cast<USIZE>(handle);
+		if (placementIndex >= mpComputePipelines.size())
+		{
+			return nullptr;
+		}
+
+		return mpComputePipelines[placementIndex];
+	}
+
 	E_DEFAULT_SHADER_TYPE CBaseGraphicsObjectManager::GetDefaultShaderTypeByName(const std::string& name)
 	{
 		return E_DEFAULT_SHADER_TYPE::DST_BASIC;
@@ -238,6 +289,12 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 		return TPtr<IGraphicsPipeline>(CreateBaseGraphicsPipeline(mpGraphicsContext, pResourceManager, pipelineConfigDesc, result));
+	}
+
+	TPtr<IComputePipeline> CBaseGraphicsObjectManager::_createComputePipelineInternal(IResourceManager* pResourceManager, const std::string& shaderId)
+	{
+		E_RESULT_CODE result = RC_OK;
+		return TPtr<IComputePipeline>(CreateBaseComputePipeline(mpGraphicsContext, pResourceManager, shaderId, result));
 	}
 
 	void CBaseGraphicsObjectManager::_insertVertexDeclaration(IVertexDeclaration* pVertDecl)

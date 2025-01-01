@@ -156,6 +156,11 @@ namespace TDEngine2
 		return mConfig;
 	}
 
+	E_PIPELINE_TYPE CBaseGraphicsPipeline::GetType() const
+	{
+		return E_PIPELINE_TYPE::GRAPHICS;
+	}
+
 
 	TDE2_API IGraphicsPipeline* CreateBaseGraphicsPipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig, E_RESULT_CODE& result)
 	{
@@ -335,5 +340,74 @@ namespace TDEngine2
 		pWriter->EndGroup();
 
 		return RC_OK;
+	}
+
+
+	/*!
+		CBaseComputePipeline's definition
+	*/	
+	
+	CBaseComputePipeline::CBaseComputePipeline() :
+		CBaseObject()
+	{
+	}
+
+	E_RESULT_CODE CBaseComputePipeline::Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const std::string& shaderId)
+	{
+		if (mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		if (!pGraphicsContext || !pResourceManager)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpGraphicsContext = pGraphicsContext;
+		mpResourceManager = pResourceManager;
+		mpGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
+
+		mShaderIdStr = shaderId;
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CBaseComputePipeline::Bind()
+	{
+		if (TPtr<IShader> pShaderInstance = GetShaderPtr())
+		{
+			pShaderInstance->Bind();
+		}
+
+		return RC_OK;
+	}
+
+	TPtr<IShader> CBaseComputePipeline::GetShaderPtr() const
+	{
+		if (TResourceId::Invalid == mCachedShaderHandle)
+		{
+			mCachedShaderHandle = mpResourceManager->Load<IShader>(mShaderIdStr);
+		}
+
+		return mpResourceManager->GetResource<IShader>(mCachedShaderHandle);
+	}
+
+	const std::string& CBaseComputePipeline::GetShaderId() const
+	{
+		return mShaderIdStr;
+	}
+
+	E_PIPELINE_TYPE CBaseComputePipeline::GetType() const
+	{
+		return E_PIPELINE_TYPE::COMPUTE;
+	}
+	
+	
+	TDE2_API IComputePipeline* CreateBaseComputePipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const std::string& shaderId, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IComputePipeline, CBaseComputePipeline, result, pGraphicsContext, pResourceManager, shaderId);
 	}
 }

@@ -37,6 +37,7 @@ namespace TDEngine2
 			typedef std::unordered_map<U32, USIZE>              THashTable;
 			template <typename T> using                         TStateHashesTable = std::unordered_map<U32, T>;
 			typedef TStateHashesTable<TGraphicsPipelineStateId> TGraphicsPipelineStatesTable;
+			typedef TStateHashesTable<TComputePipelineStateId>  TComputePipelineStatesTable;
 		public:
 			/*!
 				\brief The method initializes an initial state of a buffer
@@ -60,6 +61,7 @@ namespace TDEngine2
 			TDE2_API TResult<IDebugUtility*> CreateDebugUtility(IResourceManager* pResourceManager, IRenderer* pRenderer) override;
 
 			TDE2_API TResult<TGraphicsPipelineStateId> CreateGraphicsPipelineState(TPtr<IResourceManager> pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfigDesc) override;
+			TDE2_API TResult<TComputePipelineStateId> CreateComputePipelineState(TPtr<IResourceManager> pResourceManager, const std::string& shaderId) override;
 
 			TDE2_API TResult<TPtr<IShaderCache>> CreateShaderCache(IFileSystem* pFileSystem, bool isReadOnly = true) override;
 			
@@ -71,6 +73,7 @@ namespace TDEngine2
 			TDE2_API IGraphicsContext* GetGraphicsContext() const override;
 
 			TDE2_API TPtr<IGraphicsPipeline> GetGraphicsPipeline(TGraphicsPipelineStateId handle) override;
+			TDE2_API TPtr<IComputePipeline> GetComputePipeline(TComputePipelineStateId handle) override;
 
 			/*!
 				\brief The method convert input shader's name into E_DEFAULT_SHADER_TYPE's value
@@ -93,6 +96,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseGraphicsObjectManager)
 
 			TDE2_API virtual TPtr<IGraphicsPipeline> _createGraphicsPipelineInternal(IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfigDesc);
+			TDE2_API virtual TPtr<IComputePipeline> _createComputePipelineInternal(IResourceManager* pResourceManager, const std::string& shaderId);
 
 			TDE2_API void _insertVertexDeclaration(IVertexDeclaration* pVertDecl);
 
@@ -112,22 +116,24 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			IGraphicsContext*        mpGraphicsContext;
+			IGraphicsContext*                    mpGraphicsContext;
 
-			TVertexDeclarationsArray mVertexDeclarationsArray;
+			TVertexDeclarationsArray             mVertexDeclarationsArray;
 
-			TFreeEntitiesRegistry    mFreeVertDeclsSlots;
+			TFreeEntitiesRegistry                mFreeVertDeclsSlots;
 
-			THashTable               mTextureSamplesHashTable;
-			THashTable               mBlendStatesHashTable;
+			THashTable                           mTextureSamplesHashTable;
+			THashTable                           mBlendStatesHashTable;
 
-			IDebugUtility*           mpDebugUtility;
+			IDebugUtility*                       mpDebugUtility;
 
-			IVertexDeclaration* mpDefaultPositionOnlyVertDeclaration = nullptr;
+			IVertexDeclaration*                  mpDefaultPositionOnlyVertDeclaration = nullptr;
 
 			std::vector<TPtr<IGraphicsPipeline>> mpGraphicsPipelines;
+			std::vector<TPtr<IComputePipeline>>  mpComputePipelines;
 			
-			TGraphicsPipelineStatesTable mGraphicsPipelinesHashTable;
+			TGraphicsPipelineStatesTable         mGraphicsPipelinesHashTable;
+			TComputePipelineStatesTable          mComputePipelinesHashTable;
 
 	};
 }

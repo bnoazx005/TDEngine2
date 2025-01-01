@@ -845,6 +845,7 @@ namespace TDEngine2
 
 
 	TDE2_DECLARE_HANDLE_TYPE(TGraphicsPipelineStateId);
+	TDE2_DECLARE_HANDLE_TYPE(TComputePipelineStateId);
 
 
 	/*!

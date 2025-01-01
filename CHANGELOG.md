@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.31] 2024-12-24
+## [0.6.31] 2025-01-01
 
 ### Added
 
@@ -17,6 +17,8 @@ supports lightmaps generation.
 - The API of **IGraphicsContext** was extended with new methods to describe resource barriers.
 
 - The API of **ITextureImpl** was extended with new methods SetHandle, Transition and GetLayout.
+
+- A new type of pipelines which is a compute pipeline based on type **IComputePipeline**.
 
 ### Changed
 

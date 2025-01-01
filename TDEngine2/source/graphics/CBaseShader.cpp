@@ -6,6 +6,7 @@
 #include "../../include/graphics/CBaseShaderCompiler.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include "../../include/core/IGraphicsContext.h"
+#include "../../include/utils/CFileLogger.h"
 #include "deferOperation.hpp"
 #include <algorithm>
 
@@ -68,6 +69,8 @@ namespace TDEngine2
 		}
 
 		mSourceCode = sourceCode;
+
+		LOG_MESSAGE(Wrench::StringUtils::Format("[BaseShader] Compiling shader, name: {0}", mName));
 
 		TResult<TShaderCompilerOutput*> compilerOutput = pShaderCompiler->Compile(mName, sourceCode);
 

@@ -46,6 +46,7 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Bind() override;
 
 			TDE2_API const TGraphicsPipelineConfigDesc& GetConfig() const override;
+			TDE2_API E_PIPELINE_TYPE GetType() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseGraphicsPipeline)
 		protected:
@@ -66,4 +67,45 @@ namespace TDEngine2
 
 	template <> TDE2_API E_RESULT_CODE Serialize<TGraphicsPipelineConfigDesc>(class IArchiveWriter* pWriter, TGraphicsPipelineConfigDesc value);
 	template <> TDE2_API TResult<TGraphicsPipelineConfigDesc> Deserialize<TGraphicsPipelineConfigDesc>(IArchiveReader* pReader);
+
+
+	TDE2_API IComputePipeline* CreateBaseComputePipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const std::string& shaderId, E_RESULT_CODE& result);
+
+
+	/*!
+		class CBaseComputePipeline
+	*/
+
+	class CBaseComputePipeline : public CBaseObject, public IComputePipeline
+	{
+		public:
+			friend TDE2_API IComputePipeline* CreateBaseComputePipeline(IGraphicsContext*, IResourceManager*, const std::string&, E_RESULT_CODE&);
+		public:
+			/*!
+				\brief The method initializes an internal state of a pipeline
+
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
+				\param[in, out] shaderId
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const std::string& shaderId) override;
+
+			TDE2_API E_RESULT_CODE Bind() override;
+
+			TDE2_API TPtr<IShader> GetShaderPtr() const override;
+			TDE2_API const std::string& GetShaderId() const override;
+			TDE2_API E_PIPELINE_TYPE GetType() const override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseComputePipeline)
+		protected:
+			IGraphicsContext*       mpGraphicsContext = nullptr;
+			IResourceManager*       mpResourceManager = nullptr;
+			IGraphicsObjectManager* mpGraphicsObjectManager = nullptr;
+			
+			mutable TResourceId     mCachedShaderHandle = TResourceId::Invalid;
+			std::string             mShaderIdStr;
+	};
 }

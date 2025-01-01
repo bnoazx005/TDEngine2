@@ -27,6 +27,8 @@ namespace TDEngine2
 	class CVulkanDeviceContext;
 	class CVulkanCommandBuffer;
 	class CVulkanGraphicsPipeline;
+	class CVulkanComputePipeline;
+	class CVulkanBasePipeline;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IEventManager)
@@ -36,6 +38,7 @@ namespace TDEngine2
 	TDE2_DECLARE_SCOPED_PTR(CVulkanDeviceContext)
 	TDE2_DECLARE_SCOPED_PTR(CVulkanCommandBuffer)
 	TDE2_DECLARE_SCOPED_PTR(CVulkanGraphicsPipeline)
+	TDE2_DECLARE_SCOPED_PTR(CVulkanComputePipeline)
 
 
 	struct TQueuesCreateInfo
@@ -322,7 +325,7 @@ namespace TDEngine2
 
 			void DispatchIndirectCompute(TBufferHandleId argsBufferHandle, U32 alignedOffset) override;
 
-			E_RESULT_CODE BindPipelineState(CVulkanGraphicsPipeline* pGraphicsPipeline);
+			E_RESULT_CODE BindPipelineState(CVulkanBasePipeline* pPipeline);
 
 			/*!
 				\brief The method binds a given blend state to rendering pipeline
@@ -455,7 +458,7 @@ namespace TDEngine2
 
 			VkCommandBuffer _getCurrCommandBufferHandle() const;
 
-			void _flushPipelineDescriptorsSet(bool isGraphicsPipeline = true);
+			void _flushPipelineDescriptorsSet();
 		protected:
 			static const USIZE                                   FRAMES_COUNT = 2;
 
@@ -483,7 +486,7 @@ namespace TDEngine2
 			std::array<TBufferBarriers, FRAMES_COUNT>            mBufferBarriers{};
 			std::array<TTextureBarriers, FRAMES_COUNT>           mTextureBarriers{};
 
-			std::array<CVulkanGraphicsPipeline*, FRAMES_COUNT>   mpActiveGraphicsPipelineStates {};
+			std::array<CVulkanBasePipeline*, FRAMES_COUNT>       mpActivePipelineStates {};
 			std::unordered_map<U64, VkPipeline>                  mCachedPipelinesLibrary{};
 
 			mutable std::mutex                                   mGarbageCollectorMutex {};

@@ -27,6 +27,7 @@ namespace TDEngine2
 	class IBuffer;
 	class ITextureImpl;
 	class IGraphicsPipeline;
+	class IComputePipeline;
 	struct TStructuredBuffersInitParams;
 	struct TInitBufferParams;
 	struct TInitTextureImplParams;
@@ -37,6 +38,7 @@ namespace TDEngine2
 	TDE2_DECLARE_SCOPED_PTR(IBuffer);
 	TDE2_DECLARE_SCOPED_PTR(ITextureImpl);
 	TDE2_DECLARE_SCOPED_PTR(IGraphicsPipeline);
+	TDE2_DECLARE_SCOPED_PTR(IComputePipeline);
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager);
 
 
@@ -102,6 +104,7 @@ namespace TDEngine2
 			TDE2_API virtual TResult<TTextureSamplerId> CreateTextureSampler(const TTextureSamplerDesc& samplerDesc) = 0;
 
 			TDE2_API virtual TResult<TGraphicsPipelineStateId> CreateGraphicsPipelineState(TPtr<IResourceManager> pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfigDesc) = 0;
+			TDE2_API virtual TResult<TComputePipelineStateId> CreateComputePipelineState(TPtr<IResourceManager> pResourceManager, const std::string& shaderId) = 0;
 
 			/*!
 				\brief The method is a factory for creation of a debug helper object
@@ -119,6 +122,7 @@ namespace TDEngine2
 			TDE2_API virtual TPtr<ITextureImpl> GetTexturePtr(TTextureHandleId handle) = 0;
 
 			TDE2_API virtual TPtr<IGraphicsPipeline> GetGraphicsPipeline(TGraphicsPipelineStateId handle) = 0;
+			TDE2_API virtual TPtr<IComputePipeline> GetComputePipeline(TComputePipelineStateId handle) = 0;
 
 			/*!
 				\brief The method returns a pointer to IGraphicsContext

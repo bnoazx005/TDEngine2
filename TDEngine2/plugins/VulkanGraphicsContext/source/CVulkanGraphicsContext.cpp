@@ -1878,36 +1878,48 @@ namespace TDEngine2
 
 	void CVulkanGraphicsContext::DispatchCompute(U32 groupsCountX, U32 groupsCountY, U32 groupsCountZ)
 	{
-		//_flushPipelineDescriptorsSet(false);
+		_flushPipelineDescriptorsSet();
 	}
 
 	void CVulkanGraphicsContext::DispatchIndirectCompute(TBufferHandleId argsBufferHandle, U32 alignedOffset)
 	{
-		//_flushPipelineDescriptorsSet(false);
+		_flushPipelineDescriptorsSet();
 	}
 
-	E_RESULT_CODE CVulkanGraphicsContext::BindPipelineState(CVulkanGraphicsPipeline* pGraphicsPipeline)
+	E_RESULT_CODE CVulkanGraphicsContext::BindPipelineState(CVulkanBasePipeline* pPipeline)
 	{
-		TDE2_ASSERT(mIsRenderPassActive);
+		const bool isGraphicsPipeline = E_PIPELINE_TYPE::GRAPHICS == pPipeline->GetType();
 
-		mpActiveGraphicsPipelineStates[mCurrFrameIndex] = pGraphicsPipeline;
+		if (isGraphicsPipeline)
+		{
+			TDE2_ASSERT(mIsRenderPassActive);
+		}
 
-		const U64 pipelineHash = (static_cast<U64>(ComputeStateDescHash(mCurrRenderPassInfo)) << 32) | pGraphicsPipeline->GetHash();
+		mpActivePipelineStates[mCurrFrameIndex] = pPipeline;
+
+		const U64 pipelineHash = isGraphicsPipeline ? (static_cast<U64>(ComputeStateDescHash(mCurrRenderPassInfo)) << 32) | pPipeline->GetHash() : pPipeline->GetHash();
 
 		VkPipeline currPipelineHandle = VK_NULL_HANDLE;
 
-		auto&& it = mCachedPipelinesLibrary.find(pipelineHash);
-		if (it == mCachedPipelinesLibrary.cend())
+		if (isGraphicsPipeline)
 		{
-			currPipelineHandle = pGraphicsPipeline->GetPipelineForRenderPass(mCurrRenderPassInfo);
-			mCachedPipelinesLibrary[pipelineHash] = currPipelineHandle;
+			auto&& it = mCachedPipelinesLibrary.find(pipelineHash);
+			if (it == mCachedPipelinesLibrary.cend())
+			{
+				currPipelineHandle = dynamic_cast<CVulkanGraphicsPipeline*>(pPipeline)->GetPipelineForRenderPass(mCurrRenderPassInfo);
+				mCachedPipelinesLibrary[pipelineHash] = currPipelineHandle;
+			}
+			else
+			{
+				currPipelineHandle = it->second;
+			}
 		}
 		else
 		{
-			currPipelineHandle = it->second;
+			currPipelineHandle = pPipeline->GetBasePipelineHandle();
 		}
 		
-		vkCmdBindPipeline(_getCurrCommandBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, currPipelineHandle);
+		vkCmdBindPipeline(_getCurrCommandBufferHandle(), isGraphicsPipeline ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE, currPipelineHandle);
 
 		return RC_OK;
 	}
@@ -2272,9 +2284,18 @@ namespace TDEngine2
 		return mpCommandBuffers[mCurrFrameIndex]->GetHandle();
 	}
 
-	void CVulkanGraphicsContext::_flushPipelineDescriptorsSet(bool isGraphicsPipeline)
+	void CVulkanGraphicsContext::_flushPipelineDescriptorsSet()
 	{
-		if (isGraphicsPipeline)
+		if (!mpActivePipelineStates[mCurrFrameIndex])
+		{
+			TDE2_ASSERT(false);
+			return;
+		}
+
+		const auto pipelineType = E_PIPELINE_TYPE::GRAPHICS == mpActivePipelineStates[mCurrFrameIndex]->GetType() ? 
+			VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
+
+		if (pipelineType == VK_PIPELINE_BIND_POINT_GRAPHICS)
 		{
 			TDE2_ASSERT(mIsRenderPassActive);
 		}
@@ -2283,7 +2304,7 @@ namespace TDEngine2
 		mDescriptorBufferInfos.clear();
 		mDescriptorImageInfos.clear();
 
-		const auto& currPipelineActiveSlots = mpActiveGraphicsPipelineStates[mCurrFrameIndex]->GetLayoutInfo();
+		const auto& currPipelineActiveSlots = mpActivePipelineStates[mCurrFrameIndex]->GetLayoutInfo();
 
 		for (U32 i = 0; i < currPipelineActiveSlots.mCBVActiveSlots.size(); ++i)
 		{
@@ -2454,15 +2475,15 @@ namespace TDEngine2
 			currWriteDescriptorSet.dstBinding      = GetBindingOffsetByResourceType(E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D) + currBinding;
 		}
 
-		TDE2_ASSERT(mpActiveGraphicsPipelineStates[mCurrFrameIndex]);
-		if (!mpActiveGraphicsPipelineStates[mCurrFrameIndex])
+		TDE2_ASSERT(mpActivePipelineStates[mCurrFrameIndex]);
+		if (!mpActivePipelineStates[mCurrFrameIndex])
 		{
 			return;
 		}
 				
 		vkCmdPushDescriptorSetKHR(_getCurrCommandBufferHandle(), 
-			isGraphicsPipeline ? VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE, 
-			mpActiveGraphicsPipelineStates[mCurrFrameIndex]->GetPipelineLayout(), 
+			pipelineType,
+			mpActivePipelineStates[mCurrFrameIndex]->GetPipelineLayout(),
 			0, 
 			static_cast<U32>(mDescriptorWrites.size()), 
 			mDescriptorWrites.data());
