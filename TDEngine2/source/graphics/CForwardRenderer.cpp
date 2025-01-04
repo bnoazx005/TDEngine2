@@ -100,6 +100,9 @@ namespace TDEngine2
 		TFrameGraphResourceHandle              mVolumetricCloudsMainTargetHandle = TFrameGraphResourceHandle::Invalid;
 		TFrameGraphResourceHandle              mVolumetricCloudsFullSizeTargetHandle = TFrameGraphResourceHandle::Invalid;
 
+		TFrameGraphResourceHandle              mLowFreqCloudsNoiseTextureTargetHandle = TFrameGraphResourceHandle::Invalid;
+		TFrameGraphResourceHandle              mHighFreqCloudsNoiseTextureTargetHandle = TFrameGraphResourceHandle::Invalid;
+
 		TFrameGraphResourceHandle              mLuminanceTargetHandle = TFrameGraphResourceHandle::Invalid;
 		TFrameGraphResourceHandle              mPrevAvgLuminanceTargetHandle = TFrameGraphResourceHandle::Invalid;
 		TFrameGraphResourceHandle              mCurrAvgLuminanceTargetHandle = TFrameGraphResourceHandle::Invalid;
@@ -1067,6 +1070,124 @@ namespace TDEngine2
 	};
 
 
+	static constexpr U32 LOW_FREQ_CLOUDS_NOISE_TEXTURE_SIZES  = 128;
+	static constexpr U32 HIGH_FREQ_CLOUDS_NOISE_TEXTURE_SIZES = 32;
+
+	static const std::string LOW_FREQ_CLOUDS_NOISE_TEXTURE_ID  = "CloudsLowFreqNoise";
+	static const std::string HIGH_FREQ_CLOUDS_NOISE_TEXTURE_ID = "CloudsHighFreqNoise";
+
+
+	class CGenerateCloudsNoiseTexturesPass : public CBaseRenderPass
+	{
+		public:
+			explicit CGenerateCloudsNoiseTexturesPass(const TPassInvokeContext& context) :
+				CBaseRenderPass(context)
+			{
+			}
+
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard)
+			{
+				struct TPassData
+				{
+					TFrameGraphResourceHandle mLowFreqCloudsNoiseTextureHandle = TFrameGraphResourceHandle::Invalid;
+					TFrameGraphResourceHandle mHighFreqCloudsNoiseTextureHandle = TFrameGraphResourceHandle::Invalid;
+				};
+
+				auto&& output = pFrameGraph->AddPass<TPassData>("GenerateCloudsNoiseTexturesPass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
+					{
+						TFrameGraphTexture::TDesc lowFreqCloudsNoiseTextureParams{};
+
+						lowFreqCloudsNoiseTextureParams.mWidth           = LOW_FREQ_CLOUDS_NOISE_TEXTURE_SIZES;
+						lowFreqCloudsNoiseTextureParams.mHeight          = LOW_FREQ_CLOUDS_NOISE_TEXTURE_SIZES;
+						lowFreqCloudsNoiseTextureParams.mDepth           = LOW_FREQ_CLOUDS_NOISE_TEXTURE_SIZES;
+						lowFreqCloudsNoiseTextureParams.mFormat          = FT_NORM_UBYTE4;
+						lowFreqCloudsNoiseTextureParams.mNumOfMipLevels  = 1;
+						lowFreqCloudsNoiseTextureParams.mNumOfSamples    = 1;
+						lowFreqCloudsNoiseTextureParams.mSamplingQuality = 0;
+						lowFreqCloudsNoiseTextureParams.mType            = E_TEXTURE_IMPL_TYPE::TEXTURE_3D;
+						lowFreqCloudsNoiseTextureParams.mUsageType       = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+						lowFreqCloudsNoiseTextureParams.mBindFlags       = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS;
+						lowFreqCloudsNoiseTextureParams.mName            = LOW_FREQ_CLOUDS_NOISE_TEXTURE_ID.c_str();
+						lowFreqCloudsNoiseTextureParams.mFlags           = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+						lowFreqCloudsNoiseTextureParams.mIsWriteable     = true;
+
+						data.mLowFreqCloudsNoiseTextureHandle = builder.Create<TFrameGraphTexture>(lowFreqCloudsNoiseTextureParams.mName, lowFreqCloudsNoiseTextureParams);
+						data.mLowFreqCloudsNoiseTextureHandle = builder.Write(data.mLowFreqCloudsNoiseTextureHandle);
+
+						TFrameGraphTexture::TDesc highFreqCloudsNoiseTextureParams{};
+
+						highFreqCloudsNoiseTextureParams.mWidth           = HIGH_FREQ_CLOUDS_NOISE_TEXTURE_SIZES;
+						highFreqCloudsNoiseTextureParams.mHeight          = HIGH_FREQ_CLOUDS_NOISE_TEXTURE_SIZES;
+						highFreqCloudsNoiseTextureParams.mDepth           = HIGH_FREQ_CLOUDS_NOISE_TEXTURE_SIZES;
+						highFreqCloudsNoiseTextureParams.mFormat          = FT_NORM_UBYTE4;
+						highFreqCloudsNoiseTextureParams.mNumOfMipLevels  = 1;
+						highFreqCloudsNoiseTextureParams.mNumOfSamples    = 1;
+						highFreqCloudsNoiseTextureParams.mSamplingQuality = 0;
+						highFreqCloudsNoiseTextureParams.mType            = E_TEXTURE_IMPL_TYPE::TEXTURE_3D;
+						highFreqCloudsNoiseTextureParams.mUsageType       = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+						highFreqCloudsNoiseTextureParams.mBindFlags       = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS;
+						highFreqCloudsNoiseTextureParams.mName            = HIGH_FREQ_CLOUDS_NOISE_TEXTURE_ID.c_str();
+						highFreqCloudsNoiseTextureParams.mFlags           = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+						highFreqCloudsNoiseTextureParams.mIsWriteable     = true;
+
+						data.mHighFreqCloudsNoiseTextureHandle = builder.Create<TFrameGraphTexture>(highFreqCloudsNoiseTextureParams.mName, highFreqCloudsNoiseTextureParams);
+						data.mHighFreqCloudsNoiseTextureHandle = builder.Write(data.mHighFreqCloudsNoiseTextureHandle);
+					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
+					{
+						if (mHasExecuted)
+						{
+							return;
+						}
+
+						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
+						auto&& pResourceManager = mContext.mpResourceManager;
+
+						TDE2_PROFILER_SCOPE("GenerateCloudsNoiseTexturesPass");
+
+						TFrameGraphTexture& lowFreqCloudsNoiseTexture  = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mLowFreqCloudsNoiseTextureHandle);
+						TFrameGraphTexture& highFreqCloudsNoiseTexture = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mHighFreqCloudsNoiseTextureHandle);
+
+						IGraphicsObjectManager* pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
+
+						// \note Generate low frequency clouds noise
+						LOG_MESSAGE("[GenerateCloudsNoiseTexture] Start generate low frequency clouds noise 3D texture...");
+
+						auto pLowFreqNoiseComputePipeline = pGraphicsObjectManager->GetComputePipeline(
+							pGraphicsObjectManager->CreateComputePipelineState(pResourceManager, "Shaders/Default/Volumetrics/GenerateLowFreqCloudsNoise.cshader").GetOrDefault(TComputePipelineStateId::Invalid));
+
+						auto pLowFreqCloudsNoiseGenerationShader = pLowFreqNoiseComputePipeline->GetShaderPtr();
+						pGraphicsContext->SetTexture(pLowFreqCloudsNoiseGenerationShader->GetResourceBindingSlot("noiseTexture"), lowFreqCloudsNoiseTexture.mTextureHandle, true);
+						pLowFreqNoiseComputePipeline->Bind();
+
+						pGraphicsContext->DispatchCompute(LOW_FREQ_CLOUDS_NOISE_TEXTURE_SIZES / 8, LOW_FREQ_CLOUDS_NOISE_TEXTURE_SIZES / 8, LOW_FREQ_CLOUDS_NOISE_TEXTURE_SIZES / 8);
+
+						LOG_MESSAGE("[GenerateCloudsNoiseTexture] Generation LowFreqNoise finished");
+
+						// \note Generate high frequency clouds noise
+						LOG_MESSAGE("[GenerateCloudsNoiseTexture] Start generate high frequency clouds noise 3D texture...");
+
+						auto pHighFreqNoiseComputePipeline = pGraphicsObjectManager->GetComputePipeline(
+							pGraphicsObjectManager->CreateComputePipelineState(pResourceManager, "Shaders/Default/Volumetrics/GenerateHiFreqCloudsNoise.cshader").GetOrDefault(TComputePipelineStateId::Invalid));
+
+						auto pHighFreqCloudsNoiseGenerationShader = pHighFreqNoiseComputePipeline->GetShaderPtr();
+						pGraphicsContext->SetTexture(pHighFreqCloudsNoiseGenerationShader->GetResourceBindingSlot("noiseTexture"), highFreqCloudsNoiseTexture.mTextureHandle, true);
+						pHighFreqNoiseComputePipeline->Bind();
+
+						pGraphicsContext->DispatchCompute(HIGH_FREQ_CLOUDS_NOISE_TEXTURE_SIZES, HIGH_FREQ_CLOUDS_NOISE_TEXTURE_SIZES, HIGH_FREQ_CLOUDS_NOISE_TEXTURE_SIZES);
+
+						LOG_MESSAGE("[GenerateCloudsNoiseTexture] Generation HiFreqNoise finished");
+						
+						mHasExecuted = true;
+					});
+
+				frameGraphBlackboard.mLowFreqCloudsNoiseTextureTargetHandle  = output.mLowFreqCloudsNoiseTextureHandle;
+				frameGraphBlackboard.mHighFreqCloudsNoiseTextureTargetHandle = output.mHighFreqCloudsNoiseTextureHandle;
+			}
+		private:
+			bool mHasExecuted = false;
+	};
+
+
 	class CVolumetricCloudsMainPass : public CBaseRenderPass
 	{
 		public:
@@ -1089,6 +1210,8 @@ namespace TDEngine2
 					{
 						builder.Read(frameGraphBlackboard.mMainRenderTargetHandle);
 						builder.Read(frameGraphBlackboard.mDepthBufferHandle);
+						builder.Read(frameGraphBlackboard.mLowFreqCloudsNoiseTextureTargetHandle);
+						builder.Read(frameGraphBlackboard.mHighFreqCloudsNoiseTextureTargetHandle);
 
 						TFrameGraphTexture::TDesc volumetricCloudsMainBufferParams{};
 
@@ -1127,11 +1250,16 @@ namespace TDEngine2
 						uniformsData.mInvTextureSizes = TVector2{ 1 / static_cast<F32>(textureWidth), 1 / static_cast<F32>(textureHeight) };
 						uniformsData.mStepsCount = 64;
 
-						TFrameGraphTexture& mainRenderTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mMainRenderTargetHandle);
-						TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mDepthBufferHandle);
-						TFrameGraphTexture& cloudsMainTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mVolumetricCloudsMainBufferHandle);
+						TFrameGraphTexture& mainRenderTarget           = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mMainRenderTargetHandle);
+						TFrameGraphTexture& depthBufferTarget          = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mDepthBufferHandle);
+						TFrameGraphTexture& cloudsMainTarget           = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mVolumetricCloudsMainBufferHandle);
+						TFrameGraphTexture& lowFreqCloudsNoiseTexture  = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mLowFreqCloudsNoiseTextureTargetHandle);
+						TFrameGraphTexture& highFreqCloudsNoiseTexture = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mHighFreqCloudsNoiseTextureTargetHandle);
 
-						const TTextureSamplerId linearSamplerHandle = pGraphicsContext->GetGraphicsObjectManager()->GetDefaultTextureSampler(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
+						IGraphicsObjectManager* pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
+
+						const TTextureSamplerId linearSamplerHandle        = pGraphicsObjectManager->GetDefaultTextureSampler(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
+						const TTextureSamplerId noiseTexturesSamplerHandle = pGraphicsObjectManager->CreateTextureSampler(TTextureSamplerDesc{ E_TEXTURE_FILTER_TYPE::FT_BILINEAR }).GetOrDefault(TTextureSamplerId::Invalid);
 
 						auto pVolumetricCloudsRenderPassShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>(CProjectSettings::Get()->mGraphicsSettings.mVolumetricCloudsMainShader)); // \todo add caching
 						
@@ -1143,6 +1271,12 @@ namespace TDEngine2
 							pGraphicsContext->SetSampler(pVolumetricCloudsRenderPassShader->GetResourceBindingSlot("DepthTexture"), linearSamplerHandle);
 							pGraphicsContext->SetTexture(pVolumetricCloudsRenderPassShader->GetResourceBindingSlot("MainTexture"), mainRenderTarget.mTextureHandle);
 							pGraphicsContext->SetSampler(pVolumetricCloudsRenderPassShader->GetResourceBindingSlot("MainTexture"), linearSamplerHandle);
+
+							// noise textures
+							pGraphicsContext->SetTexture(pVolumetricCloudsRenderPassShader->GetResourceBindingSlot("LowFreqCloudsNoiseTex"), lowFreqCloudsNoiseTexture.mTextureHandle);
+							pGraphicsContext->SetSampler(pVolumetricCloudsRenderPassShader->GetResourceBindingSlot("LowFreqCloudsNoiseTex"), noiseTexturesSamplerHandle);
+							pGraphicsContext->SetTexture(pVolumetricCloudsRenderPassShader->GetResourceBindingSlot("HiFreqCloudsNoiseTex"), highFreqCloudsNoiseTexture.mTextureHandle);
+							pGraphicsContext->SetSampler(pVolumetricCloudsRenderPassShader->GetResourceBindingSlot("HiFreqCloudsNoiseTex"), noiseTexturesSamplerHandle);
 
 							pVolumetricCloudsRenderPassShader->SetUserUniformsBuffer(0, reinterpret_cast<const U8*>(&uniformsData), sizeof(uniformsData));
 							pVolumetricCloudsRenderPassShader->Bind();
@@ -2096,6 +2230,7 @@ namespace TDEngine2
 
 
 	static std::unique_ptr<CVolumetricCloudsComposePass> pVolumetricCloudsComposePass = nullptr;
+	static std::unique_ptr<CGenerateCloudsNoiseTexturesPass> pGenerateCloudsTexturesPass = nullptr;
 	static std::unique_ptr<CLightsHeatmapDebugPostProcessPass> pLightsHeatmapDebugPostProcessPass = nullptr;
 	static std::unique_ptr<CExtractLuminancePostProcessPass> pExtractLuminancePostProcessPass = nullptr;
 	static std::unique_ptr<CCalcAverageLuminancePostProcessPass> pCalcAverageLuminancePostProcessPass = nullptr;
@@ -2118,6 +2253,7 @@ namespace TDEngine2
 		};
 
 		pVolumetricCloudsComposePass = std::make_unique<CVolumetricCloudsComposePass>(passConfig);
+		pGenerateCloudsTexturesPass = std::make_unique<CGenerateCloudsNoiseTexturesPass>(passConfig);
 		pLightsHeatmapDebugPostProcessPass = std::make_unique<CLightsHeatmapDebugPostProcessPass>(passConfig);
 		pExtractLuminancePostProcessPass = std::make_unique<CExtractLuminancePostProcessPass>(passConfig);
 		pCalcAverageLuminancePostProcessPass = std::make_unique<CCalcAverageLuminancePostProcessPass>(passConfig);
@@ -2132,6 +2268,7 @@ namespace TDEngine2
 	void DestroyStaticRenderPasses()
 	{
 		pVolumetricCloudsComposePass = nullptr;
+		pGenerateCloudsTexturesPass = nullptr;
 		pLightsHeatmapDebugPostProcessPass = nullptr;
 		pExtractLuminancePostProcessPass = nullptr;
 		pCalcAverageLuminancePostProcessPass = nullptr;
@@ -2530,6 +2667,8 @@ namespace TDEngine2
 
 			if (CGameUserSettings::Get()->mpIsVolumetricCloudsEnabledCVar->Get())
 			{
+				pGenerateCloudsTexturesPass->AddPass(mpFrameGraph, frameGraphBlackboard);
+
 				CVolumetricCloudsMainPass{ passInvokeContext }.AddPass(mpFrameGraph, frameGraphBlackboard);
 				CVolumetricCloudsUpscalePass{ passInvokeContext }.AddPass(mpFrameGraph, frameGraphBlackboard);
 
