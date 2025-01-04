@@ -118,16 +118,16 @@ namespace TDEngine2
 
 		if (auto pStaticMeshResource = pResourceManager->GetResource<IStaticMesh>(meshResourceHandle))
 		{
+			auto&& subMeshInfo = pStaticMeshContainer->GetSubMeshInfo();
+
 			/// \note Skip rest steps if the resource isn't loaded yet
 			if (auto pResource = pResourceManager->GetResource(meshResourceHandle))
 			{
-				if (E_RESOURCE_STATE_TYPE::RST_LOADED != pResource->GetState())
+				if (E_RESOURCE_STATE_TYPE::RST_LOADED != pResource->GetState() || !subMeshInfo.mIndicesCount)
 				{
 					return params.mDrawIndex;
 				}
 			}
-
-			auto&& subMeshInfo = pStaticMeshContainer->GetSubMeshInfo();
 
 			if (TDrawIndexedCommand* pDrawCommand = params.mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(params.mDrawIndex))
 			{
