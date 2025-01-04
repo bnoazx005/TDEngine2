@@ -82,7 +82,7 @@ void mainGS(triangle VertexOutput gin[3], inout TriangleStream<GeometryOutput> t
 		}
 
 		triStream.RestartStrip();
-	}						
+	}
 }
 
 #endprogram

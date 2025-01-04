@@ -5,7 +5,7 @@
 #include <TDEngine2MathUtils.inc>
 
 
-RWTexture3D<float4> noiseTexture;
+RWTexture3D<float4> noiseTexture : register(u0);
 
 
 static const float InvNoiseTexSize = 0.0078125; // 1 / 128

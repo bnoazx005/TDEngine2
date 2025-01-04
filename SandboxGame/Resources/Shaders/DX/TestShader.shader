@@ -9,7 +9,6 @@ struct VertexOut
 	float4 mPos      : SV_POSITION;
 	float2 mUV       : TEXCOORD0;
 	float4 mColor    : COLOR;
-    uint mInstanceId : SV_InstanceID;
 };
 
 
@@ -27,7 +26,6 @@ VertexOut mainVS(uint vertexId : SV_VertexID, uint instanceId : SV_InstanceID)
 	output.mPos        = mul(ProjMat, mul(ViewMat, mul(GetSpriteTransform(instanceId), GetSpriteVertPos(vertexId))));
 	output.mUV         = GetSpriteVertUv(vertexId);
 	output.mColor      = GetSpriteVertColor(instanceId);
-	output.mInstanceId = instanceId;
 
 	return output;
 }

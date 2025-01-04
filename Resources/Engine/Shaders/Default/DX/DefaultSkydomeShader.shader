@@ -116,7 +116,7 @@ float4 mainPS(VertexOut input): SV_TARGET0
 	// Calculate the view-sun angle for the phase function.
     // Note: we clamp it between [0, 1] or else we would get the sun
     // on both sides of the light direction.
-    float cosTheta = dot(viewDir, SunLightDirection);
+    float cosTheta = dot(viewDir, SunLightDirection.xyz);
     cosTheta = saturate(cosTheta);
 
     // Apply the phase function.
