@@ -709,6 +709,10 @@ namespace TDEngine2
 		{
 			imageInfo.usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 		}
+		else if (E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS))
+		{
+			imageInfo.usage |= VK_IMAGE_USAGE_STORAGE_BIT;
+		}
 
 		VmaAllocationCreateInfo allocInfo{};
 		allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
@@ -1312,6 +1316,7 @@ namespace TDEngine2
 		VK_SAFE_CALL(vkCreateComputePipelines(mpVulkanGraphicsContext->GetDevice(), VK_NULL_HANDLE, 1, &computePipelineCreateInfo, nullptr, &mBasePipelineHandle));
 
 		mConfigHash = TDE2_STRING_ID(mShaderIdStr.c_str());
+		mLayoutInfo = pShader->GetLayoutInfo();
 
 		mIsInitialized = true;
 

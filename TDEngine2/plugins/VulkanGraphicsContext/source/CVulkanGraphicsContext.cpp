@@ -1879,6 +1879,7 @@ namespace TDEngine2
 	void CVulkanGraphicsContext::DispatchCompute(U32 groupsCountX, U32 groupsCountY, U32 groupsCountZ)
 	{
 		_flushPipelineDescriptorsSet();
+		vkCmdDispatch(_getCurrCommandBufferHandle(), groupsCountX, groupsCountY, groupsCountZ);
 	}
 
 	void CVulkanGraphicsContext::DispatchIndirectCompute(TBufferHandleId argsBufferHandle, U32 alignedOffset)
@@ -2419,7 +2420,7 @@ namespace TDEngine2
 		for (U32 i = 0; i < currPipelineActiveSlots.mUAVActiveSlots.size(); ++i)
 		{
 			const U32 currBinding = currPipelineActiveSlots.mUAVActiveSlots[i];
-			const auto& currResourceEntity = mDescriptorsBindingsTable.mSRVBuffers[currBinding];
+			const auto& currResourceEntity = mDescriptorsBindingsTable.mUAVBuffers[currBinding];
 
 			if (TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::UNKNOWN == currResourceEntity.mType)
 			{
@@ -2487,6 +2488,8 @@ namespace TDEngine2
 			0, 
 			static_cast<U32>(mDescriptorWrites.size()), 
 			mDescriptorWrites.data());
+
+		FlushBarriers();
 
 		//mDescriptorsBindingsTable.Reset();
 	}
