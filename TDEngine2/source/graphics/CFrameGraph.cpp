@@ -76,14 +76,14 @@ namespace TDEngine2
 		return mpResourceHolder->Release(pGraphicsObjectManager);
 	}
 
-	void CFrameGraphResource::BeforeReadOp()
+	void CFrameGraphResource::BeforeReadOp(IGraphicsObjectManager* pGraphicsObjectManager)
 	{
-		mpResourceHolder->BeforeReadOp();
+		mpResourceHolder->BeforeReadOp(pGraphicsObjectManager);
 	}
 
-	void CFrameGraphResource::BeforeWriteOp()
+	void CFrameGraphResource::BeforeWriteOp(IGraphicsObjectManager* pGraphicsObjectManager)
 	{
-		mpResourceHolder->BeforeWriteOp();
+		mpResourceHolder->BeforeWriteOp(pGraphicsObjectManager);
 	}
 
 	void CFrameGraphResource::SetProducerPass(IFrameGraphPass* pPass)
@@ -313,7 +313,7 @@ namespace TDEngine2
 					continue;
 				}
 
-				_getResource(currResourceHandle).BeforeReadOp();
+				_getResource(currResourceHandle).BeforeReadOp(mpGraphicsObjectManager);
 			}
 
 			for (const TFrameGraphResourceHandle currResourceHandle : pCurrPass->GetWrites())
@@ -323,7 +323,7 @@ namespace TDEngine2
 					continue;
 				}
 
-				_getResource(currResourceHandle).BeforeWriteOp();
+				_getResource(currResourceHandle).BeforeWriteOp(mpGraphicsObjectManager);
 			}
 			
 			// \note invoke execute

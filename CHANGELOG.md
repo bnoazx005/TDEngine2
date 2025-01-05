@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.31] 2025-01-04
+## [0.6.31] 2025-01-05
 
 ### Added
 
@@ -42,6 +42,8 @@ The implementation of **CForwardRenderer** was rewritten due to the changes.
 - Now the engine uses C++17 as minimal required standard.
 
 - "UploadLights" render pass was moved before shadow mapping passes because the latter one depends on its output.
+
+- The signature of BeforeReadOp/BeforeWriteOp methods of **CFrameGraphResource** was changed.
 
 ### Fixed
 

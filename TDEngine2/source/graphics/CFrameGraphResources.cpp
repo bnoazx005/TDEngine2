@@ -35,12 +35,18 @@ namespace TDEngine2
 		return result;
 	}
 
-	void TFrameGraphTexture::BeforeReadOp()
+	void TFrameGraphTexture::BeforeReadOp(IGraphicsObjectManager* pGraphicsObjectManager, const TDesc& desc)
 	{
+		// for render/(depth/stencil) targets
+		// for shader resources
+		// for storage images
 	}
 
-	void TFrameGraphTexture::BeforeWriteOp()
-	{
+	void TFrameGraphTexture::BeforeWriteOp(IGraphicsObjectManager* pGraphicsObjectManager, const TDesc& desc)
+	{		
+		// for render/(depth/stencil) targets
+		// for shader resources
+		// for storage images
 	}
 
 
@@ -75,11 +81,11 @@ namespace TDEngine2
 		return result;
 	}
 
-	void TFrameGraphBuffer::BeforeReadOp()
+	void TFrameGraphBuffer::BeforeReadOp(IGraphicsObjectManager* pGraphicsObjectManager, const TDesc& desc)
 	{
 	}
 
-	void TFrameGraphBuffer::BeforeWriteOp()
+	void TFrameGraphBuffer::BeforeWriteOp(IGraphicsObjectManager* pGraphicsObjectManager, const TDesc& desc)
 	{
 	}
 }

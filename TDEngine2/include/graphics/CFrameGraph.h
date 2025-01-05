@@ -209,8 +209,8 @@ namespace TDEngine2
 				TDE2_API virtual E_RESULT_CODE Acquire(IGraphicsObjectManager* pGraphicsObjectManager) = 0;
 				TDE2_API virtual E_RESULT_CODE Release(IGraphicsObjectManager* pGraphicsObjectManager) = 0;
 
-				TDE2_API virtual void BeforeReadOp() = 0;
-				TDE2_API virtual void BeforeWriteOp() = 0;
+				TDE2_API virtual void BeforeReadOp(IGraphicsObjectManager* pGraphicsObjectManager) = 0;
+				TDE2_API virtual void BeforeWriteOp(IGraphicsObjectManager* pGraphicsObjectManager) = 0;
 			};
 
 			template <typename TResource>
@@ -228,14 +228,14 @@ namespace TDEngine2
 					return mResource.Release(pGraphicsObjectManager);
 				}
 
-				void BeforeReadOp() override
+				void BeforeReadOp(IGraphicsObjectManager* pGraphicsObjectManager) override
 				{
-					mResource.BeforeReadOp();
+					mResource.BeforeReadOp(pGraphicsObjectManager, mDesc);
 				}
 
-				void BeforeWriteOp() override
+				void BeforeWriteOp(IGraphicsObjectManager* pGraphicsObjectManager) override
 				{
-					mResource.BeforeWriteOp();
+					mResource.BeforeWriteOp(pGraphicsObjectManager, mDesc);
 				}
 
 				typename TResource::TDesc mDesc;
@@ -253,8 +253,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Acquire(IGraphicsObjectManager* pGraphicsObjectManager);
 			TDE2_API E_RESULT_CODE Release(IGraphicsObjectManager* pGraphicsObjectManager);
 
-			TDE2_API void BeforeReadOp();
-			TDE2_API void BeforeWriteOp();
+			TDE2_API void BeforeReadOp(IGraphicsObjectManager* pGraphicsObjectManager);
+			TDE2_API void BeforeWriteOp(IGraphicsObjectManager* pGraphicsObjectManager);
 
 			TDE2_API void SetProducerPass(IFrameGraphPass* pPass);
 			TDE2_API void SetLastUserPass(IFrameGraphPass* pPass);

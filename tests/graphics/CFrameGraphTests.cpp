@@ -25,8 +25,8 @@ TEST_CASE("CFrameGraph Tests")
 		TDE2_API E_RESULT_CODE Acquire(IGraphicsObjectManager* pGraphicsObjectManager, const TDesc& desc) { return RC_OK; }
 		TDE2_API E_RESULT_CODE Release(IGraphicsObjectManager* pGraphicsObjectManager) { return RC_OK; }
 
-		TDE2_API void BeforeReadOp() {}
-		TDE2_API void BeforeWriteOp() {}
+		TDE2_API void BeforeReadOp(IGraphicsObjectManager* pGraphicsObjectManager, const TDesc& desc) {}
+		TDE2_API void BeforeWriteOp(IGraphicsObjectManager* pGraphicsObjectManager, const TDesc& desc) {}
 
 		TTextureHandleId mTextureHandle = TTextureHandleId::Invalid;
 	};
