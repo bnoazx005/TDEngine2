@@ -1770,14 +1770,14 @@ namespace TDEngine2
 		}
 
 		VkBufferMemoryBarrier2 bufferMemoryBarrier{};
-		bufferMemoryBarrier.sType         = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2;
-		bufferMemoryBarrier.buffer        = pBuffer->GetVulkanHandle();
-		bufferMemoryBarrier.srcStageMask  = GetStageMaskBitsFromLayout(barrierInfo.mCurrLayout);
-		bufferMemoryBarrier.dstStageMask  = GetStageMaskBitsFromLayout(barrierInfo.mNewLayout);
-		bufferMemoryBarrier.srcAccessMask = GetAccessMaskFromLayout(barrierInfo.mCurrLayout);
-		bufferMemoryBarrier.dstAccessMask = GetAccessMaskFromLayout(barrierInfo.mNewLayout);
-		bufferMemoryBarrier.offset        = 0;
-		bufferMemoryBarrier.size          = 0;
+		bufferMemoryBarrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2;
+		bufferMemoryBarrier.buffer              = pBuffer->GetVulkanHandle();
+		bufferMemoryBarrier.srcStageMask        = GetStageMaskBitsFromLayout(barrierInfo.mCurrLayout);
+		bufferMemoryBarrier.dstStageMask        = GetStageMaskBitsFromLayout(barrierInfo.mNewLayout);
+		bufferMemoryBarrier.srcAccessMask       = GetAccessMaskFromLayout(barrierInfo.mCurrLayout);
+		bufferMemoryBarrier.dstAccessMask       = GetAccessMaskFromLayout(barrierInfo.mNewLayout);
+		bufferMemoryBarrier.offset              = 0;
+		bufferMemoryBarrier.size                = pBuffer->GetSize();
 		bufferMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		bufferMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 
