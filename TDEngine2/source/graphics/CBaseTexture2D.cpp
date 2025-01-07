@@ -87,6 +87,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseTexture2D::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, const TTexture2DParameters& params)
 	{
+		TDE2_PROFILER_SCOPE("CBaseTexture2D::Init");
+
 		E_RESULT_CODE result = _init(pResourceManager, name);
 
 		if (result != RC_OK)
@@ -134,6 +136,11 @@ namespace TDEngine2
 
 		mCurrTextureHandle = createTextureResult.Get();
 
+		if (TPtr<ITextureImpl> pTextureImpl = pGraphicsObjectManager->GetTexturePtr(mCurrTextureHandle))
+		{
+			pTextureImpl->Transition(E_RESOURCE_LAYOUT::SHADER_RESOURCE);
+		}		
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -166,6 +173,7 @@ namespace TDEngine2
 	
 	E_RESULT_CODE CBaseTexture2D::WriteData(const TRectI32& regionRect, const U8* pData)
 	{
+		TDE2_PROFILER_SCOPE("CBaseTexture2D::WriteData");
 		return mpGraphicsContext->UpdateTexture2D(mCurrTextureHandle, 0, regionRect, pData, 0);
 	}
 
@@ -427,6 +435,8 @@ namespace TDEngine2
 
 			pJobManager->ExecuteInMainThread([pResource, pTextureData, width, height, internalFormat, this]()
 			{
+				TDE2_PROFILER_SCOPE("CBaseTexture2DLoader::LoadResource");
+
 				/// reset old texture data
 				E_RESULT_CODE result = pResource->Reset();
 				if (RC_OK != result)

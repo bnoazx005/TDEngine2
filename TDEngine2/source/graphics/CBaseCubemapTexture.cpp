@@ -65,6 +65,11 @@ namespace TDEngine2
 		}
 
 		mCurrTextureHandle = createTextureResult.Get();
+		
+		if (TPtr<ITextureImpl> pTextureImpl = pGraphicsObjectManager->GetTexturePtr(mCurrTextureHandle))
+		{
+			pTextureImpl->Transition(E_RESOURCE_LAYOUT::SHADER_RESOURCE);
+		}		
 
 		mIsInitialized = true;
 
