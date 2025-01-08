@@ -828,6 +828,9 @@ namespace TDEngine2
 	TDE2_DECLARE_HANDLE_TYPE(TRasterizerStateId);
 
 
+	enum class E_PRIMITIVE_TOPOLOGY_TYPE;
+
+
 	/*!
 		struct TGraphicsPipelineConfigDesc
 	
@@ -836,11 +839,13 @@ namespace TDEngine2
 	
 	typedef struct TGraphicsPipelineConfigDesc
 	{
-		std::string            mShaderIdStr;
+		std::string               mShaderIdStr;
 
-		TBlendStateDesc        mBlendStateParams;
-		TDepthStencilStateDesc mDepthStencilStateParams;							   
-		TRasterizerStateDesc   mRasterizerStateParams;
+		TBlendStateDesc           mBlendStateParams;
+		TDepthStencilStateDesc    mDepthStencilStateParams;							   
+		TRasterizerStateDesc      mRasterizerStateParams;
+
+		E_PRIMITIVE_TOPOLOGY_TYPE mTopology;
 	} TGraphicsPipelineConfigDesc, *TGraphicsPipelineConfigDescPtr;
 
 

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.31] 2025-01-05
+## [0.6.31] 2025-01-08
 
 ### Added
 
@@ -19,6 +19,8 @@ supports lightmaps generation.
 - The API of **ITextureImpl** was extended with new methods SetHandle, Transition and GetLayout.
 
 - A new type of pipelines which is a compute pipeline based on type **IComputePipeline**.
+
+- Serialization/deserialization of primitive topology's type within pipeline's code was added.
 
 ### Changed
 

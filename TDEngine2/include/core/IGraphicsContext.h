@@ -39,6 +39,7 @@ namespace TDEngine2
 		to render data that is stored within vertex buffers
 	*/
 
+	ENUM_META(SECTION = graphics)
 	enum class E_PRIMITIVE_TOPOLOGY_TYPE
 	{
 		PTT_POINT_LIST,

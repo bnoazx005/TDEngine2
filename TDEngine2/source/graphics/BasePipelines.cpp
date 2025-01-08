@@ -15,6 +15,7 @@ namespace TDEngine2
 	{
 		static const std::string mShaderIdKey;
 		static const std::string mTransparencyKey;
+		static const std::string mPrimitiveTopologyKey;
 
 		static const std::string mBlendStateGroup;
 
@@ -70,6 +71,7 @@ namespace TDEngine2
 
 	const std::string TGraphicsPipelineArchiveKeys::mShaderIdKey = "shader_id";
 	const std::string TGraphicsPipelineArchiveKeys::mTransparencyKey = "transparency_enabled";
+	const std::string TGraphicsPipelineArchiveKeys::mPrimitiveTopologyKey = "topology";
 	const std::string TGraphicsPipelineArchiveKeys::mBlendStateGroup = "blend_state";
 
 	const std::string TGraphicsPipelineArchiveKeys::TBlendStateKeys::mSrcColorKey = "src_color";
@@ -193,6 +195,9 @@ namespace TDEngine2
 		TGraphicsPipelineConfigDesc config {};
 		config.mShaderIdStr = pReader->GetString(TGraphicsPipelineArchiveKeys::mShaderIdKey);
 
+		const std::string topologyValueStr = pReader->GetString(TGraphicsPipelineArchiveKeys::mPrimitiveTopologyKey);
+		config.mTopology = !topologyValueStr.empty() ? Meta::EnumTrait<E_PRIMITIVE_TOPOLOGY_TYPE>::FromString(topologyValueStr) : E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+		
 		const bool isBlendingEnabled = pReader->GetBool(TGraphicsPipelineArchiveKeys::mTransparencyKey);
 
 		processGroup(TGraphicsPipelineArchiveKeys::mBlendStateGroup, [pReader, isBlendingEnabled, &config]
@@ -278,6 +283,7 @@ namespace TDEngine2
 
 		pWriter->SetString(TGraphicsPipelineArchiveKeys::mShaderIdKey, value.mShaderIdStr);
 		pWriter->SetBool(TGraphicsPipelineArchiveKeys::mTransparencyKey, value.mBlendStateParams.mIsEnabled);
+		pWriter->SetString(TGraphicsPipelineArchiveKeys::mPrimitiveTopologyKey, Meta::EnumTrait<E_PRIMITIVE_TOPOLOGY_TYPE>::ToString(value.mTopology));
 
 		const TBlendStateDesc& blendStateDesc = value.mBlendStateParams;
 
