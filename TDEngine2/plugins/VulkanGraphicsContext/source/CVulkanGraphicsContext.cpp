@@ -1806,8 +1806,8 @@ namespace TDEngine2
 		imageMemoryBarrier.subresourceRange.baseMipLevel   = 0; // \todo
 		imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
 		imageMemoryBarrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-		imageMemoryBarrier.subresourceRange.layerCount     = 1;
-		imageMemoryBarrier.subresourceRange.levelCount     = 1;
+		imageMemoryBarrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
+		imageMemoryBarrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
 
 		if (E_FORMAT_TYPE::FT_D32 == pTextureImpl->GetParams().mFormat)
 		{
@@ -1824,7 +1824,86 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanGraphicsContext::GenerateMipMaps(TTextureHandleId textureHandle)
 	{
-		return RC_NOT_IMPLEMENTED_YET;
+		TPtr<CVulkanTextureImpl> pTextureImpl = mpGraphicsObjectManagerImpl->GetVulkanTexturePtr(textureHandle);
+		if (!pTextureImpl)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		const TInitTextureParams& textureParams = pTextureImpl->GetParams();
+		if (textureParams.mNumOfMipLevels <= 1)
+		{
+			return RC_OK;
+		}
+
+		const U32 maxMipsCount = std::min(textureParams.mNumOfMipLevels, static_cast<U32>(floor(log2(std::max(textureParams.mWidth, textureParams.mHeight))) + 1));
+
+		ExecuteImmediate([maxMipsCount, &textureParams, pTextureImpl](VkCommandBuffer cmdBuffer)
+			{
+				I32 mipWidth = textureParams.mWidth;
+				I32 mipHeight = textureParams.mHeight;
+
+				const VkImageAspectFlags imageAspectFlags = E_FORMAT_TYPE::FT_D32 == textureParams.mFormat ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT; // \todo Replace with CVulkanMappings::IsDepthFormat(format);
+
+				VkImageMemoryBarrier imageBarrier{};
+				imageBarrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+				imageBarrier.image                           = pTextureImpl->GetTextureHandle();
+				imageBarrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+				imageBarrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+				imageBarrier.subresourceRange.aspectMask = imageAspectFlags;
+				imageBarrier.subresourceRange.baseArrayLayer = 0;
+				imageBarrier.subresourceRange.layerCount     = 1;
+				imageBarrier.subresourceRange.levelCount     = 1;
+
+				VkImage currImageHandle = pTextureImpl->GetTextureHandle();
+
+				for (I32 i = 1; i < static_cast<I32>(maxMipsCount); ++i)
+				{
+					imageBarrier.subresourceRange.baseMipLevel = static_cast<U32>(i - 1);
+					imageBarrier.oldLayout                     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+					imageBarrier.newLayout                     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+					imageBarrier.srcAccessMask                 = VK_ACCESS_TRANSFER_WRITE_BIT;
+					imageBarrier.dstAccessMask                 = VK_ACCESS_TRANSFER_READ_BIT;
+
+					vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrier);
+
+					VkImageBlit blit{};
+					blit.srcOffsets[0]                 = { 0, 0, 0 };
+					blit.srcOffsets[1]                 = { mipWidth, mipHeight, 1 };
+					blit.srcSubresource.aspectMask     = imageAspectFlags;
+					blit.srcSubresource.mipLevel       = static_cast<U32>(i - 1);
+					blit.srcSubresource.baseArrayLayer = 0;
+					blit.srcSubresource.layerCount     = 1;
+					blit.dstOffsets[0]                 = { 0, 0, 0 };
+					blit.dstOffsets[1]                 = { mipWidth > 1 ? mipWidth >> 1 : 1, mipHeight > 1 ? mipHeight >> 1 : 1, 1 };
+					blit.dstSubresource.aspectMask     = imageAspectFlags;
+					blit.dstSubresource.mipLevel       = static_cast<U32>(i);
+					blit.dstSubresource.baseArrayLayer = 0;
+					blit.dstSubresource.layerCount     = 1;
+
+					vkCmdBlitImage(cmdBuffer, currImageHandle, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, currImageHandle, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_LINEAR);
+
+					imageBarrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+					imageBarrier.newLayout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+					imageBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+					imageBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+					vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrier);
+
+					mipWidth  = (mipWidth > 1) ? mipWidth >> 1 : 1;
+					mipHeight = (mipHeight > 1) ? mipHeight >> 1 : 1;
+				}
+
+				imageBarrier.subresourceRange.baseMipLevel = maxMipsCount - 1;
+				imageBarrier.oldLayout                     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+				imageBarrier.newLayout                     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+				imageBarrier.srcAccessMask                 = VK_ACCESS_TRANSFER_WRITE_BIT;
+				imageBarrier.dstAccessMask                 = VK_ACCESS_SHADER_READ_BIT;
+
+				vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrier);
+			});
+
+		return RC_OK;
 	}
 
 	void CVulkanGraphicsContext::Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices)
