@@ -981,4 +981,7 @@ namespace TDEngine2
 	#define TDE2_MULTI_THREAD_CHECK_LOCK mutable CMultiThreadAccessCheck mMTCheckLock
 	#define TDE2_MULTI_THREAD_ACCESS_CHECK(CheckVarId, Lock) CMultiThreadAccessScopedLock CheckVarId(Lock)
 #endif
+
+
+	TDE2_API void WaitForDebugger();
 }

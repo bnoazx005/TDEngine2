@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.31] 2025-01-08
+## [0.6.31] 2025-01-12
 
 ### Added
 
@@ -21,6 +21,8 @@ supports lightmaps generation.
 - A new type of pipelines which is a compute pipeline based on type **IComputePipeline**.
 
 - Serialization/deserialization of primitive topology's type within pipeline's code was added.
+
+- Add utility function **WaitForDebugger** to allow interrupt program's execution until a debugger is attached to its process.
 
 ### Changed
 

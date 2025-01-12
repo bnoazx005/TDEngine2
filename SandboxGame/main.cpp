@@ -9,5 +9,11 @@ extern std::unique_ptr<TDEngine2::IEngineListener> GetEngineListener() { return 
 
 extern TDEngine2::E_RESULT_CODE ParseOptions(int argc, const char** argv)
 {
-	return TDEngine2::RC_OK;
+	TDEngine2::CProgramOptions::TParseArgsParams optionsParams;
+	optionsParams.mArgsCount   = argc;
+	optionsParams.mpArgsValues = argv;
+
+	TDEngine2::CProgramOptions::Get()->AddArgument({ '\0', "wait_debugger", Wrench::StringUtils::GetEmptyStr(), TDEngine2::CProgramOptions::TArgumentParams::E_VALUE_TYPE::BOOLEAN });
+
+	return TDEngine2::CProgramOptions::Get()->ParseArgs(optionsParams);
 }

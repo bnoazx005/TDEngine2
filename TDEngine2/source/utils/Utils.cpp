@@ -12,6 +12,9 @@
 #include "../../include/graphics/IBuffer.h"
 #include <algorithm>
 #include <cctype>
+#ifdef TDE2_USE_WINPLATFORM
+#include <debugapi.h>
+#endif
 
 
 namespace TDEngine2
@@ -536,5 +539,18 @@ namespace TDEngine2
 	{
 		TDE2_ASSERT(mIsAquired);
 		mIsAquired = false;
+	}
+
+
+	void WaitForDebugger()
+	{
+#ifdef TDE2_USE_WINPLATFORM
+		while (!IsDebuggerPresent())
+		{
+			Sleep(100);
+		}
+#else
+		TDE2_UNIMPLEMENTED();
+#endif
 	}
 }

@@ -39,6 +39,13 @@
 			return -1;
 		}
 
+#if TDE2_DEBUG_MODE
+		if (TDEngine2::CProgramOptions::Get()->GetValueOrDefault("wait_debugger", false))
+		{
+			TDEngine2::WaitForDebugger();
+		}
+#endif
+
 		auto&& pEngineCoreBuilder = TDEngine2::TPtr<TDEngine2::IEngineCoreBuilder>(TDEngine2::CreateConfigFileEngineCoreBuilder({ TDEngine2::CreateEngineCore, GetProjectSettingsFilePath() }, result));
 
 		if (result != TDEngine2::RC_OK)
