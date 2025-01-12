@@ -70,7 +70,7 @@ namespace TDEngine2
 
 	typedef struct TBufferTransitionBarrierInfo
 	{
-		TBufferHandleId mHandle;
+		TBufferHandleId   mHandle;
 		E_RESOURCE_LAYOUT mCurrLayout = E_RESOURCE_LAYOUT::UNDEFINED;
 		E_RESOURCE_LAYOUT mNewLayout = E_RESOURCE_LAYOUT::UNDEFINED;
 	} TBufferTransitionBarrierInfo, *TBufferTransitionBarrierInfoPtr;
@@ -78,9 +78,10 @@ namespace TDEngine2
 
 	typedef struct TTextureTransitionBarrierInfo
 	{
-		TTextureHandleId mHandle;
-		E_RESOURCE_LAYOUT mCurrLayout = E_RESOURCE_LAYOUT::UNDEFINED;
-		E_RESOURCE_LAYOUT mNewLayout = E_RESOURCE_LAYOUT::UNDEFINED;
+		TTextureHandleId   mHandle;
+		E_RESOURCE_LAYOUT  mCurrLayout = E_RESOURCE_LAYOUT::UNDEFINED;
+		E_RESOURCE_LAYOUT  mNewLayout = E_RESOURCE_LAYOUT::UNDEFINED;
+		std::optional<U32> mMipLevel = std::nullopt;
 	} TTextureTransitionBarrierInfo, *TTextureTransitionBarrierInfoPtr;
 
 
@@ -92,8 +93,8 @@ namespace TDEngine2
 
 	typedef struct TGraphicsContextInfo
 	{
-		TAABB mNDCBox; ///< Determines sizes of NDC specific for the graphics API
-		bool mIsTextureYCoordInverted; /// Under GL context it equals to true
+		TAABB                        mNDCBox; ///< Determines sizes of NDC specific for the graphics API
+		bool                         mIsTextureYCoordInverted; /// Under GL context it equals to true
 		E_GRAPHICS_CONTEXT_GAPI_TYPE mGapiType;
 	} TGraphicsContextInfo, *TGraphicsContextInfoPtr;
 
@@ -104,7 +105,7 @@ namespace TDEngine2
 
 		struct TAttachment
 		{
-			TTextureHandleId              mTargetHandle;
+			TTextureHandleId           mTargetHandle;
 			std::optional<TClearValue> mClearValue = std::nullopt;
 		};
 
@@ -114,12 +115,12 @@ namespace TDEngine2
 			TDE2_API TDepthStencilAttachment(TTextureHandleId id, F32 depthValue);
 			TDE2_API TDepthStencilAttachment(TTextureHandleId id, U8 stencilValue);
 
-			TTextureHandleId              mTargetHandle;
+			TTextureHandleId           mTargetHandle;
 			std::optional<TClearValue> mDepthClearValue = std::nullopt;
 			std::optional<TClearValue> mStencilClearValue = std::nullopt;
 		};
 
-		std::vector<TAttachment>                  mAttachments;
+		std::vector<TAttachment>               mAttachments;
 		std::optional<TDepthStencilAttachment> mDepthStencilAttachment = std::nullopt;
 	} TFramebufferInfo, *TFramebufferInfoPtr;
 
