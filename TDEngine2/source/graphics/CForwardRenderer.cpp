@@ -636,6 +636,7 @@ namespace TDEngine2
 					}, [=](const TLightCullData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
+						IGraphicsObjectManager* pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
 
 #if TDE2_DEBUG_MODE
 						pGraphicsContext->EndSectionMarker();
@@ -677,10 +678,12 @@ namespace TDEngine2
 
 						TFrameGraphBuffer& tileFrustumsBufferHandle = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(lightCullingData.mTileFrustumsBufferHandle);
 
-						auto pLightCullShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>("Shaders/Default/ForwardLightCulling.cshader"));
+						auto pLightCullPipeline = pGraphicsObjectManager->GetComputePipeline(pGraphicsObjectManager->CreateComputePipelineState(pResourceManager, "Shaders/Default/ForwardLightCulling.cshader").GetOrDefault(TComputePipelineStateId::Invalid));
+						auto pLightCullShader = pLightCullPipeline->GetShaderPtr();
+
 						if (pLightCullShader)
 						{
-							const TTextureSamplerId linearSamplerHandle = pGraphicsContext->GetGraphicsObjectManager()->GetDefaultTextureSampler(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
+							const TTextureSamplerId linearSamplerHandle = pGraphicsObjectManager->GetDefaultTextureSampler(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
 
 							// \todo Refactor access to binding slots values
 							pGraphicsContext->SetTexture(pLightCullShader->GetResourceBindingSlot("OpaqueLightGridTexture"), opaqueLightGridTextureHandle.mTextureHandle, true);
@@ -693,7 +696,7 @@ namespace TDEngine2
 							pLightCullShader->SetStructuredBufferResource("TileFrustums", tileFrustumsBufferHandle.mBufferHandle);
 							pLightCullShader->SetUserUniformsBuffer(0, reinterpret_cast<U8*>(&shaderParameters), sizeof(shaderParameters));
 
-							pLightCullShader->Bind();
+							pLightCullPipeline->Bind();
 						}
 
 						pGraphicsContext->DispatchCompute(workGroupsX, workGroupsY, 1);
@@ -1215,25 +1218,26 @@ namespace TDEngine2
 
 						TFrameGraphTexture::TDesc volumetricCloudsMainBufferParams{};
 
-						volumetricCloudsMainBufferParams.mWidth = textureWidth;
-						volumetricCloudsMainBufferParams.mHeight = textureHeight;
-						volumetricCloudsMainBufferParams.mFormat = FT_FLOAT4;
-						volumetricCloudsMainBufferParams.mNumOfMipLevels = 1;
-						volumetricCloudsMainBufferParams.mNumOfSamples = 1;
+						volumetricCloudsMainBufferParams.mWidth           = textureWidth;
+						volumetricCloudsMainBufferParams.mHeight          = textureHeight;
+						volumetricCloudsMainBufferParams.mFormat          = FT_FLOAT4;
+						volumetricCloudsMainBufferParams.mNumOfMipLevels  = 1;
+						volumetricCloudsMainBufferParams.mNumOfSamples    = 1;
 						volumetricCloudsMainBufferParams.mSamplingQuality = 0;
-						volumetricCloudsMainBufferParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
-						volumetricCloudsMainBufferParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
-						volumetricCloudsMainBufferParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS;
-						volumetricCloudsMainBufferParams.mName = "VolumetricCloudsMainTarget";
-						volumetricCloudsMainBufferParams.mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
-						volumetricCloudsMainBufferParams.mIsWriteable = true;
+						volumetricCloudsMainBufferParams.mType            = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
+						volumetricCloudsMainBufferParams.mUsageType       = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+						volumetricCloudsMainBufferParams.mBindFlags       = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS;
+						volumetricCloudsMainBufferParams.mName            = "VolumetricCloudsMainTarget";
+						volumetricCloudsMainBufferParams.mFlags           = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+						volumetricCloudsMainBufferParams.mIsWriteable     = true;
 
 						data.mVolumetricCloudsMainBufferHandle = builder.Create<TFrameGraphTexture>(volumetricCloudsMainBufferParams.mName, volumetricCloudsMainBufferParams);
 						data.mVolumetricCloudsMainBufferHandle = builder.Write(data.mVolumetricCloudsMainBufferHandle);
 					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
-						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
-						auto&& pResourceManager = mContext.mpResourceManager;
+						auto&& pGraphicsContext       = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
+						auto&& pResourceManager       = mContext.mpResourceManager;
+						auto&& pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
 
 						TDE2_PROFILER_SCOPE("VolumetricCloudsMainPass");
 
@@ -1256,12 +1260,12 @@ namespace TDEngine2
 						TFrameGraphTexture& lowFreqCloudsNoiseTexture  = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mLowFreqCloudsNoiseTextureTargetHandle);
 						TFrameGraphTexture& highFreqCloudsNoiseTexture = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mHighFreqCloudsNoiseTextureTargetHandle);
 
-						IGraphicsObjectManager* pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
-
 						const TTextureSamplerId linearSamplerHandle        = pGraphicsObjectManager->GetDefaultTextureSampler(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
 						const TTextureSamplerId noiseTexturesSamplerHandle = pGraphicsObjectManager->CreateTextureSampler(TTextureSamplerDesc{ E_TEXTURE_FILTER_TYPE::FT_BILINEAR }).GetOrDefault(TTextureSamplerId::Invalid);
 
-						auto pVolumetricCloudsRenderPassShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>(CProjectSettings::Get()->mGraphicsSettings.mVolumetricCloudsMainShader)); // \todo add caching
+						auto pVolumetricCloudsMainPipeline = pGraphicsObjectManager->GetComputePipeline(
+							pGraphicsObjectManager->CreateComputePipelineState(pResourceManager, CProjectSettings::Get()->mGraphicsSettings.mVolumetricCloudsMainShader).GetOrDefault(TComputePipelineStateId::Invalid));
+						auto pVolumetricCloudsRenderPassShader = pVolumetricCloudsMainPipeline->GetShaderPtr();
 						
 						if (pVolumetricCloudsRenderPassShader)
 						{
@@ -1279,7 +1283,7 @@ namespace TDEngine2
 							pGraphicsContext->SetSampler(pVolumetricCloudsRenderPassShader->GetResourceBindingSlot("HiFreqCloudsNoiseTex"), noiseTexturesSamplerHandle);
 
 							pVolumetricCloudsRenderPassShader->SetUserUniformsBuffer(0, reinterpret_cast<const U8*>(&uniformsData), sizeof(uniformsData));
-							pVolumetricCloudsRenderPassShader->Bind();
+							pVolumetricCloudsMainPipeline->Bind();
 
 							pGraphicsContext->DispatchCompute(textureWidth / 16, textureHeight / 16, 1);
 
@@ -1325,8 +1329,9 @@ namespace TDEngine2
 						data.mVolumetricCloudsFullSizeBufferHandle = builder.Write(data.mVolumetricCloudsFullSizeBufferHandle);
 					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
-						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
-						auto&& pResourceManager = mContext.mpResourceManager;
+						auto&& pGraphicsContext       = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
+						auto&& pResourceManager       = mContext.mpResourceManager;
+						auto&& pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
 
 						TDE2_PROFILER_SCOPE("VolumetricCloudsBlurUpscalePass");
 
@@ -1336,7 +1341,10 @@ namespace TDEngine2
 
 						const TTextureSamplerId linearSamplerHandle = pGraphicsContext->GetGraphicsObjectManager()->GetDefaultTextureSampler(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
 
-						auto pVolumetricCloudsUpsampleBlurPassShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>("Shaders/Default/Volumetrics/VolumetricCloudsBlur.cshader")); // \todo Add caching
+						auto pVolumetricCloudsUpscalePipeline = pGraphicsObjectManager->GetComputePipeline(
+							pGraphicsObjectManager->CreateComputePipelineState(pResourceManager, "Shaders/Default/Volumetrics/VolumetricCloudsBlur.cshader").GetOrDefault(TComputePipelineStateId::Invalid));
+						auto pVolumetricCloudsUpsampleBlurPassShader = pVolumetricCloudsUpscalePipeline->GetShaderPtr();
+
 						if (pVolumetricCloudsUpsampleBlurPassShader)
 						{
 							pGraphicsContext->SetTexture(pVolumetricCloudsUpsampleBlurPassShader->GetResourceBindingSlot("OutputTexture"), cloudsFullSizeTarget.mTextureHandle, true);
@@ -1348,7 +1356,7 @@ namespace TDEngine2
 							pGraphicsContext->SetTexture(pVolumetricCloudsUpsampleBlurPassShader->GetResourceBindingSlot("MainTexture"), cloudsMainTarget.mTextureHandle);
 							pGraphicsContext->SetSampler(pVolumetricCloudsUpsampleBlurPassShader->GetResourceBindingSlot("MainTexture"), linearSamplerHandle);
 							
-							pVolumetricCloudsUpsampleBlurPassShader->Bind();
+							pVolumetricCloudsUpscalePipeline->Bind();
 
 							pGraphicsContext->DispatchCompute(mContext.mWindowWidth / 16, mContext.mWindowHeight / 16, 1);
 
@@ -1376,7 +1384,8 @@ namespace TDEngine2
 						mShaderId,
 						{},
 						TDepthStencilStateDesc { false, false },
-						{}
+						{},
+						E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST
 					}
 				).GetOrDefault(TGraphicsPipelineStateId::Invalid);
 			}
@@ -1514,10 +1523,10 @@ namespace TDEngine2
 
 				auto&& output = pFrameGraph->AddPass<TPassData>("DebugUIRenderPass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
 					{
-						data.mTargetHandle = builder.Write(builder.Read(frameGraphBlackboard.mLDRMainRenderTargetHandle));
+						//data.mTargetHandle = builder.Write(builder.Read(frameGraphBlackboard.mLDRMainRenderTargetHandle));
 
-						TDE2_ASSERT(data.mTargetHandle != TFrameGraphResourceHandle::Invalid);
-
+						//TDE2_ASSERT(data.mTargetHandle != TFrameGraphResourceHandle::Invalid);
+						builder.MarkAsPersistent();
 					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
@@ -1525,9 +1534,10 @@ namespace TDEngine2
 						TDE2_PROFILER_SCOPE("DebugUIRenderPass");
 						TDE_RENDER_SECTION(pGraphicsContext, "DebugUIRenderPass");
 
-						TFrameGraphTexture& backBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mTargetHandle);
+						TFrameGraphTexture& backBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mLDRMainRenderTargetHandle);
 
 						pGraphicsContext->BeginRenderPass({ { { backBufferTarget.mTextureHandle } } });
+						pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(mContext.mWindowWidth), static_cast<F32>(mContext.mWindowHeight), 0.0f, 1.0f);
 
 						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, true);
 
@@ -1549,7 +1559,8 @@ namespace TDEngine2
 						mShaderId,
 						{},
 						TDepthStencilStateDesc { false, false },
-						{}
+						{},
+						E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST
 					}
 				).GetOrDefault(TGraphicsPipelineStateId::Invalid);
 			}
@@ -1629,7 +1640,8 @@ namespace TDEngine2
 						mShaderId,
 						{},
 						TDepthStencilStateDesc { false, false },
-						{}
+						{},
+						E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST
 					}
 				).GetOrDefault(TGraphicsPipelineStateId::Invalid);
 
@@ -1725,15 +1737,16 @@ namespace TDEngine2
 						mShaderId,
 						{},
 						TDepthStencilStateDesc { false, false },
-						{}
+						{},
+						E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST
 					}
 				).GetOrDefault(TGraphicsPipelineStateId::Invalid);
 
 				mContext.mWindowWidth  = 1;
 				mContext.mWindowHeight = 1;
 
-				mAvgLuminanceTargets[0] = _createLuminanceTarget("PrevAvgLuminanceTarget");
-				mAvgLuminanceTargets[1] = _createLuminanceTarget("CurrAvgLuminanceTarget");
+				mAvgLuminanceTargets[0] = _createLuminanceTarget("PrevAvgLuminanceTarget", 0);
+				mAvgLuminanceTargets[1] = _createLuminanceTarget("CurrAvgLuminanceTarget", 1);
 
 				mTrilinearSamplerId = mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateTextureSampler(
 					{
@@ -1748,8 +1761,11 @@ namespace TDEngine2
 					TFrameGraphResourceHandle mOutAvgLuminanceTargetHandle = TFrameGraphResourceHandle::Invalid;
 				};
 
-				frameGraphBlackboard.mPrevAvgLuminanceTargetHandle = pFrameGraph->ImportResource("PrevAvgLuminanceTarget", TFrameGraphTexture::TDesc{}, TFrameGraphTexture{ mAvgLuminanceTargets[(mCurrActiveLuminanceTarget + 1) & 0x1] });
-				frameGraphBlackboard.mCurrAvgLuminanceTargetHandle = pFrameGraph->ImportResource("CurrAvgLuminanceTarget", TFrameGraphTexture::TDesc{}, TFrameGraphTexture{ mAvgLuminanceTargets[mCurrActiveLuminanceTarget] });
+				const USIZE prevLuminanceTargetIndex = (mCurrActiveLuminanceTarget + 1) & 0x1;
+				const USIZE currLuminanceTargetIndex = mCurrActiveLuminanceTarget;
+
+				frameGraphBlackboard.mPrevAvgLuminanceTargetHandle = pFrameGraph->ImportResource("PrevAvgLuminanceTarget", mAvgLuminanceTargetsDescs[prevLuminanceTargetIndex], TFrameGraphTexture{ mAvgLuminanceTargets[prevLuminanceTargetIndex] });
+				frameGraphBlackboard.mCurrAvgLuminanceTargetHandle = pFrameGraph->ImportResource("CurrAvgLuminanceTarget", mAvgLuminanceTargetsDescs[currLuminanceTargetIndex], TFrameGraphTexture{ mAvgLuminanceTargets[currLuminanceTargetIndex] });
 
 				auto&& output = pFrameGraph->AddPass<TPassData>("CalcAverageLuminancePostProcessPass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
 					{						
@@ -1806,9 +1822,9 @@ namespace TDEngine2
 					});
 			}
 		private:
-			TTextureHandleId _createLuminanceTarget(const std::string& name)
+			TTextureHandleId _createLuminanceTarget(const std::string& name, USIZE index)
 			{
-				TInitTextureImplParams luminanceTargetParams{};
+				TInitTextureImplParams& luminanceTargetParams = mAvgLuminanceTargetsDescs[index];
 
 				luminanceTargetParams.mWidth           = 1;
 				luminanceTargetParams.mHeight          = 1;
@@ -1825,15 +1841,16 @@ namespace TDEngine2
 			}
 
 		private:
-			static const std::string        mShaderId;
+			static const std::string                 mShaderId;
 
-			TGraphicsPipelineStateId        mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
+			TGraphicsPipelineStateId                 mGraphicsPipelineHandle = TGraphicsPipelineStateId::Invalid;
 
-			std::array<TTextureHandleId, 2> mAvgLuminanceTargets;
+			std::array<TTextureHandleId, 2>          mAvgLuminanceTargets;
+			std::array<TFrameGraphTexture::TDesc, 2> mAvgLuminanceTargetsDescs;
 
-			TTextureSamplerId               mTrilinearSamplerId = TTextureSamplerId::Invalid;
+			TTextureSamplerId                        mTrilinearSamplerId = TTextureSamplerId::Invalid;
 
-			U32                             mCurrActiveLuminanceTarget = 0;
+			U32                                      mCurrActiveLuminanceTarget = 0;
 	};
 
 
@@ -1852,7 +1869,8 @@ namespace TDEngine2
 						mShaderId,
 						{},
 						TDepthStencilStateDesc { false, false },
-						{}
+						{},
+						E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST
 					}
 				).GetOrDefault(TGraphicsPipelineStateId::Invalid);
 			}
@@ -1951,7 +1969,8 @@ namespace TDEngine2
 						mShaderId,
 						{},
 						TDepthStencilStateDesc { false, false },
-						{}
+						{},
+						E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST
 					}
 				).GetOrDefault(TGraphicsPipelineStateId::Invalid);
 			}
@@ -2033,7 +2052,8 @@ namespace TDEngine2
 						mShaderId,
 						{},
 						TDepthStencilStateDesc { false, false },
-						{}
+						{},
+						E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST
 					}
 				).GetOrDefault(TGraphicsPipelineStateId::Invalid);
 			}
@@ -2128,7 +2148,8 @@ namespace TDEngine2
 						mShaderId,
 						{},
 						TDepthStencilStateDesc { false, false },
-						{}
+						{},
+						E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST
 					}
 				).GetOrDefault(TGraphicsPipelineStateId::Invalid);
 			}
@@ -2304,10 +2325,15 @@ namespace TDEngine2
 
 		result = pGraphicsContext->SetStructuredBuffer(TILE_FRUSTUMS_BUFFER_SLOT, data.mTileFrustumsBufferHandle, true);
 
-		auto pTileFrustumInitializationShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>("Shaders/Default/TileFrustumsConstruction.cshader"));
+		IGraphicsObjectManager* pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
+
+		TPtr<IComputePipeline> pTileFrustumComputePipeline = pGraphicsObjectManager->GetComputePipeline(
+			pGraphicsObjectManager->CreateComputePipelineState(pResourceManager, "Shaders/Default/TileFrustumsConstruction.cshader").GetOrDefault(TComputePipelineStateId::Invalid));
+
+		auto pTileFrustumInitializationShader = pTileFrustumComputePipeline->GetShaderPtr();
 		
 		pTileFrustumInitializationShader->SetUserUniformsBuffer(0, reinterpret_cast<const U8*>(&shaderParameters), sizeof(shaderParameters));
-		pTileFrustumInitializationShader->Bind();
+		pTileFrustumComputePipeline->Bind();
 
 		pGraphicsContext->DispatchCompute(
 			(data.mWorkGroupsX + FRUSTUM_TILES_PER_GROUP - 1) / FRUSTUM_TILES_PER_GROUP, 
@@ -2659,7 +2685,7 @@ namespace TDEngine2
 					++currPointLightIndex;
 				}
 			}
-#if 1
+
 			// \note depth pre-pass
 			CDepthPrePass{ passInvokeContext, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEPTH_PREPASS)] }.AddPass(mpFrameGraph, frameGraphBlackboard);
 
@@ -2743,7 +2769,7 @@ namespace TDEngine2
 
 			// \note compose pass + tone mapping
 			pToneMappingComposePostProcessPass->AddPass(mpFrameGraph, frameGraphBlackboard, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), true, mpCurrPostProcessingProfile); // \todo replace with configuration of hdr support
-#endif
+
 			// \note imgui pass
 			CDebugUIRenderPass{ passInvokeContext, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEBUG_UI)] }.AddPass(mpFrameGraph, frameGraphBlackboard);
 

@@ -25,3 +25,4 @@ rasterizer_state:
   wireframe_mode: 0
 shader_id: Shaders/Default/DebugShader.shader
 transparency_enabled: 0
+topology: PTT_LINE_LIST

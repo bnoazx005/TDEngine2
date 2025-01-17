@@ -70,7 +70,7 @@ struct TUiVertexFormat
 	float4 mPosUV;
 	#ifdef TDE2_USE_PACKED_COLOR
 	uint   mColor;
-	uint   mPadding[3];
+	uint3  mPadding;
 	#else
 	float4 mColor;
 	#endif
