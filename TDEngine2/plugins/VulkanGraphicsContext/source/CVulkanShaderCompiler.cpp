@@ -194,6 +194,11 @@ namespace TDEngine2
 			args.emplace_back(DEFAULT_DESCRIPTOR_SET_INDEX);
 		}
 
+		if (E_SHADER_STAGE_TYPE::SST_VERTEX == shaderStage)
+		{
+			args.emplace_back(L"-fvk-invert-y");
+		}
+
 		// target
 		args.emplace_back(L"-T");
 		args.emplace_back(targetVersion.c_str());

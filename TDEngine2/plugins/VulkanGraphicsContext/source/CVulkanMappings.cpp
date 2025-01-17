@@ -743,7 +743,7 @@ namespace TDEngine2
 		return outputStateInfo;
 	}
 
-	VkPipelineColorBlendStateCreateInfo CVulkanMappings::GetBlendState(const TBlendStateDesc& blendStateDesc)
+	VkPipelineColorBlendAttachmentState CVulkanMappings::GetBlendState(const TBlendStateDesc& blendStateDesc)
 	{
 		VkPipelineColorBlendAttachmentState colorBlendAttachment{};
 		colorBlendAttachment.blendEnable         = blendStateDesc.mIsEnabled ? VK_TRUE : VK_FALSE;
@@ -755,15 +755,7 @@ namespace TDEngine2
 		colorBlendAttachment.srcAlphaBlendFactor = GetBlendFactorValue(blendStateDesc.mScrAlphaValue);
 		colorBlendAttachment.dstAlphaBlendFactor = GetBlendFactorValue(blendStateDesc.mDestAlphaValue);
 
-		VkPipelineColorBlendStateCreateInfo resultStateInfo{};
-		resultStateInfo.sType           = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-		resultStateInfo.logicOpEnable   = VK_FALSE;
-		resultStateInfo.logicOp         = VK_LOGIC_OP_CLEAR;
-		resultStateInfo.attachmentCount = 1; // \todo For now only single target rendering is supported
-		resultStateInfo.pAttachments    = &colorBlendAttachment;
-		resultStateInfo.blendConstants[0] = 0.0f;
-
-		return resultStateInfo;
+		return colorBlendAttachment;
 	}
 
 	VkPipelineDepthStencilStateCreateInfo CVulkanMappings::GetDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc)

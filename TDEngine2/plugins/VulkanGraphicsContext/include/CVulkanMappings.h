@@ -270,7 +270,7 @@ namespace TDEngine2
 			static VkCullModeFlags GetCullMode(const E_CULL_MODE& cullMode);
 
 			static VkPipelineRasterizationStateCreateInfo GetRasterizerState(const TRasterizerStateDesc& rasterizerDesc);
-			static VkPipelineColorBlendStateCreateInfo GetBlendState(const TBlendStateDesc& blendStateDesc);
+			static VkPipelineColorBlendAttachmentState GetBlendState(const TBlendStateDesc& blendStateDesc);
 			static VkPipelineDepthStencilStateCreateInfo GetDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc);
 
 			static VkDescriptorType GetDescriptorType(E_SHADER_RESOURCE_TYPE shaderResourceType);

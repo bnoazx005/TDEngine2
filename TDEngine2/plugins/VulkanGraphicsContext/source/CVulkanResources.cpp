@@ -491,6 +491,31 @@ namespace TDEngine2
 		return _createUniformBuffers(pCompilerData);
 	}
 
+
+	static TVulkanPipelineLayoutInfo::TBindingInfo::E_TYPE ConvertToBindingType(E_SHADER_RESOURCE_TYPE sourceType)
+	{
+		switch (sourceType)
+		{
+			case E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D:
+			case E_SHADER_RESOURCE_TYPE::SRT_TEXTURE3D:
+			case E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D_ARRAY:
+			case E_SHADER_RESOURCE_TYPE::SRT_TEXTURECUBE:
+			case E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D:
+			case E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE3D:
+				return TVulkanPipelineLayoutInfo::TBindingInfo::E_TYPE::TEXTURE;
+
+			case E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER:
+			case E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER:
+			case E_SHADER_RESOURCE_TYPE::SRT_RAW_BUFFER:
+			case E_SHADER_RESOURCE_TYPE::SRT_RW_RAW_BUFFER:
+				return TVulkanPipelineLayoutInfo::TBindingInfo::E_TYPE::BUFFER;
+		}
+
+		TDE2_UNREACHABLE();
+		return TVulkanPipelineLayoutInfo::TBindingInfo::E_TYPE::BUFFER;
+	}
+
+
 	E_RESULT_CODE CVulkanShader::_createUniformBuffers(const TShaderCompilerOutput* pCompilerData)
 	{
 		std::vector<VkDescriptorSetLayoutBinding> bindings;
@@ -543,7 +568,12 @@ namespace TDEngine2
 				case E_SHADER_RESOURCE_TYPE::SRT_TEXTURECUBE:
 				case E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER:
 				case E_SHADER_RESOURCE_TYPE::SRT_RAW_BUFFER:
-					mLayoutInfo.mSRVActiveSlots.push_back(currShaderResourceInfo.second.mSlot);
+					{
+						auto& srvBindingInfo = mLayoutInfo.mSRVActiveSlots.emplace_back();
+
+						srvBindingInfo.mSlot = static_cast<U32>(currShaderResourceInfo.second.mSlot);
+						srvBindingInfo.mType = ConvertToBindingType(currShaderResourceInfo.second.mType);
+					}
 					break;
 
 				case E_SHADER_RESOURCE_TYPE::SRT_SAMPLER_STATE:
@@ -554,7 +584,12 @@ namespace TDEngine2
 				case E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE3D:
 				case E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER:
 				case E_SHADER_RESOURCE_TYPE::SRT_RW_RAW_BUFFER:
-					mLayoutInfo.mUAVActiveSlots.push_back(currShaderResourceInfo.second.mSlot);
+					{
+						auto& srvBindingInfo = mLayoutInfo.mUAVActiveSlots.emplace_back();
+
+						srvBindingInfo.mSlot = static_cast<U32>(currShaderResourceInfo.second.mSlot);
+						srvBindingInfo.mType = ConvertToBindingType(currShaderResourceInfo.second.mType);
+					}
 					break;
 			}
 		}
@@ -691,7 +726,7 @@ namespace TDEngine2
 
 		VkImageCreateInfo imageInfo{};
 		imageInfo.sType       = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-		imageInfo.usage       = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+		imageInfo.usage       = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 		imageInfo.extent      = imageExtent;
 		imageInfo.mipLevels   = params.mNumOfMipLevels;
 		imageInfo.format      = CVulkanMappings::GetInternalFormat(params.mFormat);
@@ -733,16 +768,16 @@ namespace TDEngine2
 	static TResult<VkImageView> CreateResourceViewInternal(VkDevice device, VkImage image, const TInitTextureImplParams& params)
 	{
 		VkImageViewCreateInfo viewInfo{};
-		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		viewInfo.image = image;
-		viewInfo.viewType = CVulkanMappings::GetTextureViewType(params.mType);
-		viewInfo.format = CVulkanMappings::GetInternalFormat(params.mFormat);
-		viewInfo.subresourceRange.aspectMask = E_FORMAT_TYPE::FT_D32 == params.mFormat ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
-		viewInfo.subresourceRange.baseMipLevel = 0;
-		viewInfo.subresourceRange.levelCount = 1;
+		viewInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		viewInfo.image                           = image;
+		viewInfo.viewType                        = CVulkanMappings::GetTextureViewType(params.mType);
+		viewInfo.format                          = CVulkanMappings::GetInternalFormat(params.mFormat);
+		viewInfo.subresourceRange.aspectMask     = E_FORMAT_TYPE::FT_D32 == params.mFormat ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
+		viewInfo.subresourceRange.baseMipLevel   = 0;
+		viewInfo.subresourceRange.levelCount     = params.mNumOfMipLevels;
 		viewInfo.subresourceRange.baseArrayLayer = 0;
-		viewInfo.subresourceRange.layerCount = E_TEXTURE_IMPL_TYPE::CUBEMAP == params.mType ? 6 : params.mArraySize;
-		VkImageView textureImageView = VK_NULL_HANDLE;
+		viewInfo.subresourceRange.layerCount     = E_TEXTURE_IMPL_TYPE::CUBEMAP == params.mType ? 6 : params.mArraySize;
+		VkImageView textureImageView             = VK_NULL_HANDLE;
 
 		VkResult result = vkCreateImageView(device, &viewInfo, nullptr, &textureImageView);
 		if (VK_SUCCESS != result)
@@ -1126,12 +1161,21 @@ namespace TDEngine2
 		VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo{};
 		inputAssemblyInfo.sType                  = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 		inputAssemblyInfo.primitiveRestartEnable = false;
-		inputAssemblyInfo.topology               = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+		inputAssemblyInfo.topology               = CVulkanMappings::GetPrimitiveTopology(mConfig.mTopology);
 
 		VkPipelineMultisampleStateCreateInfo multisamplingInfo{};
 		multisamplingInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 
-		const VkPipelineColorBlendStateCreateInfo& colorBlendingInfo       = CVulkanMappings::GetBlendState(pipelineConfig.mBlendStateParams);
+		const VkPipelineColorBlendAttachmentState& colorBlendAttachment = CVulkanMappings::GetBlendState(pipelineConfig.mBlendStateParams);
+
+		VkPipelineColorBlendStateCreateInfo colorBlendingInfo {};
+		colorBlendingInfo.sType             = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+		colorBlendingInfo.logicOpEnable     = VK_FALSE;
+		colorBlendingInfo.logicOp           = VK_LOGIC_OP_COPY;
+		colorBlendingInfo.attachmentCount   = 1; // \todo For now only single target rendering is supported
+		colorBlendingInfo.pAttachments      = &colorBlendAttachment;
+		colorBlendingInfo.blendConstants[0] = 0.0f;
+
 		const VkPipelineRasterizationStateCreateInfo& rasterizationInfo    = CVulkanMappings::GetRasterizerState(pipelineConfig.mRasterizerStateParams);
 		const VkPipelineDepthStencilStateCreateInfo& depthStencilStateInfo = CVulkanMappings::GetDepthStencilState(pipelineConfig.mDepthStencilStateParams);
 
@@ -1203,12 +1247,14 @@ namespace TDEngine2
 			++colorAttachmentsCount;
 		}
 
+		const TDepthStencilStateDesc& depthStencilDesc = mConfig.mDepthStencilStateParams;
+
 		VkPipelineRenderingCreateInfo renderingInfo{};
 		renderingInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
 		renderingInfo.colorAttachmentCount    = colorAttachmentsCount;
 		renderingInfo.pColorAttachmentFormats = colorAttachments.data();
-		renderingInfo.depthAttachmentFormat   = mConfig.mDepthStencilStateParams.mIsDepthWritingEnabled ? CVulkanMappings::GetInternalFormat(E_FORMAT_TYPE::FT_D32) : VK_FORMAT_UNDEFINED;
-		renderingInfo.stencilAttachmentFormat = mConfig.mDepthStencilStateParams.mIsStencilTestEnabled ? VK_FORMAT_S8_UINT : VK_FORMAT_UNDEFINED;
+		renderingInfo.depthAttachmentFormat   = depthStencilDesc.mIsDepthWritingEnabled || depthStencilDesc.mIsDepthTestEnabled ? CVulkanMappings::GetInternalFormat(E_FORMAT_TYPE::FT_D32) : VK_FORMAT_UNDEFINED;
+		renderingInfo.stencilAttachmentFormat = depthStencilDesc.mIsStencilTestEnabled ? VK_FORMAT_S8_UINT : VK_FORMAT_UNDEFINED;
 
 		VkPipelineVertexInputStateCreateInfo vertexInputStateInfo{};
 		vertexInputStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -1217,14 +1263,23 @@ namespace TDEngine2
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 
 		VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo{};
-		inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+		inputAssemblyInfo.sType                  = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 		inputAssemblyInfo.primitiveRestartEnable = false;
-		inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+		inputAssemblyInfo.topology               = CVulkanMappings::GetPrimitiveTopology(mConfig.mTopology);
 
 		VkPipelineMultisampleStateCreateInfo multisamplingInfo{};
 		multisamplingInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 
-		const VkPipelineColorBlendStateCreateInfo& colorBlendingInfo       = CVulkanMappings::GetBlendState(mConfig.mBlendStateParams);
+		const VkPipelineColorBlendAttachmentState& colorBlendAttachment = CVulkanMappings::GetBlendState(mConfig.mBlendStateParams);
+
+		VkPipelineColorBlendStateCreateInfo colorBlendingInfo{};
+		colorBlendingInfo.sType             = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+		colorBlendingInfo.logicOpEnable     = VK_FALSE;
+		colorBlendingInfo.logicOp           = VK_LOGIC_OP_COPY;
+		colorBlendingInfo.attachmentCount   = 1; // \todo For now only single target rendering is supported
+		colorBlendingInfo.pAttachments      = &colorBlendAttachment;
+		colorBlendingInfo.blendConstants[0] = 0.0f;
+
 		const VkPipelineRasterizationStateCreateInfo& rasterizationInfo    = CVulkanMappings::GetRasterizerState(mConfig.mRasterizerStateParams);
 		const VkPipelineDepthStencilStateCreateInfo& depthStencilStateInfo = CVulkanMappings::GetDepthStencilState(mConfig.mDepthStencilStateParams);
 

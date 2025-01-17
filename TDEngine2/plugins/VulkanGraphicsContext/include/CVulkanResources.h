@@ -170,10 +170,18 @@ namespace TDEngine2
 
 	struct TVulkanPipelineLayoutInfo
 	{
-		std::vector<U32> mCBVActiveSlots {};
-		std::vector<U32> mSRVActiveSlots {};
-		std::vector<U32> mUAVActiveSlots {};
-		std::vector<U32> mSamplersActiveSlots {};
+		struct TBindingInfo
+		{
+			enum class E_TYPE { BUFFER, TEXTURE };
+
+			U32    mSlot = 0;
+			E_TYPE mType = E_TYPE::TEXTURE;
+		};
+
+		std::vector<U32>          mCBVActiveSlots {};
+		std::vector<TBindingInfo> mSRVActiveSlots {};
+		std::vector<TBindingInfo> mUAVActiveSlots {};
+		std::vector<U32>          mSamplersActiveSlots {};
 	};
 
 
