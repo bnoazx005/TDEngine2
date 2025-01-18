@@ -92,7 +92,12 @@ namespace TDEngine2
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 		VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
 		VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME,
+		VK_EXT_ROBUSTNESS_2_EXTENSION_NAME
 	};
+
+	static std::vector<const C8*> SupportedDeviceExtensions{}; // RequiredDeviceExtensions minus unsupported extensions
+
+	bool IS_ROBUSTNESS2_EXTENSION_SUPPORTED = false;
 
 
 	static bool CheckUpValidationLayers()
@@ -249,11 +254,14 @@ namespace TDEngine2
 
 		USIZE supportedExtensionsCount = 0;
 
+		SupportedDeviceExtensions.clear();
+
 		for (auto&& currExtension : RequiredDeviceExtensions)
 		{
-			auto it = std::find_if(availableExtensions.cbegin(), availableExtensions.cend(), [&currExtension](auto&& ext) { return strcmp(ext.extensionName, currExtension) == 0; });
+			auto&& it = std::find_if(availableExtensions.cbegin(), availableExtensions.cend(), [&currExtension](auto&& ext) { return strcmp(ext.extensionName, currExtension) == 0; });
 			if (it != availableExtensions.cend())
 			{
+				SupportedDeviceExtensions.emplace_back(currExtension);
 				++supportedExtensionsCount;
 			}
 		}
@@ -371,6 +379,16 @@ namespace TDEngine2
 		device13Features.dynamicRendering = VK_TRUE;
 		device13Features.synchronization2 = VK_TRUE;
 
+		VkPhysicalDeviceRobustness2FeaturesEXT robustnessFeatures{};
+		robustnessFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT;
+		robustnessFeatures.nullDescriptor = true;
+
+		IS_ROBUSTNESS2_EXTENSION_SUPPORTED = std::find_if(SupportedDeviceExtensions.cbegin(), SupportedDeviceExtensions.cend(), [](auto&& ext) { return strcmp(ext, VK_EXT_ROBUSTNESS_2_EXTENSION_NAME) == 0; }) != SupportedDeviceExtensions.cend();
+		if (IS_ROBUSTNESS2_EXTENSION_SUPPORTED)
+		{
+			device13Features.pNext = &robustnessFeatures;
+		}
+
 		VkPhysicalDeviceFeatures deviceFeatures{};
 		deviceFeatures.depthBiasClamp = VK_TRUE;
 		deviceFeatures.depthClamp     = VK_TRUE;
@@ -383,8 +401,8 @@ namespace TDEngine2
 		createInfo.queueCreateInfoCount = static_cast<U32>(queuesInfos.size());
 		createInfo.pEnabledFeatures     = &deviceFeatures;
 
-		createInfo.enabledExtensionCount   = static_cast<U32>(RequiredDeviceExtensions.size());
-		createInfo.ppEnabledExtensionNames = RequiredDeviceExtensions.data();
+		createInfo.enabledExtensionCount   = static_cast<U32>(SupportedDeviceExtensions.size());
+		createInfo.ppEnabledExtensionNames = SupportedDeviceExtensions.data();
 
 #if TDE2_DEBUG_MODE
 		createInfo.ppEnabledLayerNames = ValidationLayers.data();
@@ -933,12 +951,12 @@ namespace TDEngine2
 	{
 		VkPresentInfoKHR presentInfo{};
 		
-		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+		presentInfo.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 		presentInfo.waitSemaphoreCount = 1;
-		presentInfo.pWaitSemaphores = &waitSemaphore;
-		presentInfo.swapchainCount = 1;
-		presentInfo.pSwapchains = &mSwapChain;
-		presentInfo.pImageIndices = &mCurrImageIndex;
+		presentInfo.pWaitSemaphores    = &waitSemaphore;
+		presentInfo.swapchainCount     = 1;
+		presentInfo.pSwapchains        = &mSwapChain;
+		presentInfo.pImageIndices      = &mCurrImageIndex;
 
 		VK_SAFE_CALL(vkQueuePresentKHR(mpDeviceContext->GetGraphicsQueue(), &presentInfo));
 
@@ -1111,6 +1129,36 @@ namespace TDEngine2
 			TDescriptorsBindingsTable::MAX_SRV_COUNT +
 			TDescriptorsBindingsTable::MAX_SAMPLERS_COUNT +
 			TDescriptorsBindingsTable::MAX_UAV_COUNT);
+
+		if (!IS_ROBUSTNESS2_EXTENSION_SUPPORTED)
+		{
+			mEmptyStructuredBufferHandle = mpGraphicsObjectManager->CreateBuffer(
+				{
+					E_BUFFER_USAGE_TYPE::DYNAMIC,
+					E_BUFFER_TYPE::STRUCTURED,
+					32,
+					nullptr,
+					32,
+					false,
+					32,
+					E_STRUCTURED_BUFFER_TYPE::DEFAULT
+				}).GetOrDefault(TBufferHandleId::Invalid);
+
+			TInitTextureImplParams emptyTextureInitParams;
+
+			emptyTextureInitParams.mWidth = 1;
+			emptyTextureInitParams.mHeight = 1;
+			emptyTextureInitParams.mFormat = FT_FLOAT1;
+			emptyTextureInitParams.mNumOfMipLevels = 1;
+			emptyTextureInitParams.mNumOfSamples = 1;
+			emptyTextureInitParams.mSamplingQuality = 0;
+			emptyTextureInitParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
+			emptyTextureInitParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+			emptyTextureInitParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET;
+			emptyTextureInitParams.mName = "DEFAULT";
+
+			mEmptyTextureHandle = mpGraphicsObjectManager->CreateTexture(emptyTextureInitParams).GetOrDefault(TTextureHandleId::Invalid);
+		}
 
 		mIsInitialized = true;
 
@@ -2416,11 +2464,49 @@ namespace TDEngine2
 
 		for (U32 i = 0; i < currPipelineActiveSlots.mSRVActiveSlots.size(); ++i)
 		{
-			const U32 currBinding = currPipelineActiveSlots.mSRVActiveSlots[i];
+			const U32 currBinding = currPipelineActiveSlots.mSRVActiveSlots[i].mSlot;
 			const auto& currResourceEntity = mDescriptorsBindingsTable.mSRVBuffers[currBinding];
+
+			const bool isNullDescriptor = TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::UNKNOWN == currResourceEntity.mType;
 
 			if (TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::UNKNOWN == currResourceEntity.mType)
 			{
+				/*mDescriptorsBindingsTable.mSRVBuffers[currBinding].mType =
+					TVulkanPipelineLayoutInfo::TBindingInfo::E_TYPE::BUFFER == currPipelineActiveSlots.mSRVActiveSlots[i].mType ? TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::BUFFER : TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::TEXTURE;*/
+
+				VkWriteDescriptorSet& currWriteDescriptorSet = mDescriptorWrites.emplace_back();
+
+				switch (currPipelineActiveSlots.mSRVActiveSlots[i].mType)
+				{
+					case TVulkanPipelineLayoutInfo::TBindingInfo::E_TYPE::BUFFER:
+					{
+						VkDescriptorBufferInfo& currBufferInfo = mDescriptorBufferInfos.emplace_back();
+						currBufferInfo.buffer = IS_ROBUSTNESS2_EXTENSION_SUPPORTED ? VK_NULL_HANDLE : mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(mEmptyStructuredBufferHandle)->GetVulkanHandle();
+						currBufferInfo.offset = 0;
+						currBufferInfo.range  = VK_WHOLE_SIZE;
+
+						currWriteDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+						currWriteDescriptorSet.pBufferInfo = &currBufferInfo;
+					}
+						break;
+					case TVulkanPipelineLayoutInfo::TBindingInfo::E_TYPE::TEXTURE:
+					{
+						VkDescriptorImageInfo& currImageInfo = mDescriptorImageInfos.emplace_back();
+						currImageInfo.imageView   = IS_ROBUSTNESS2_EXTENSION_SUPPORTED ? VK_NULL_HANDLE : mpGraphicsObjectManagerImpl->GetVulkanTexturePtr(mEmptyTextureHandle)->GetTextureViewHandle();
+						currImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+						currImageInfo.sampler     = VK_NULL_HANDLE;
+
+						currWriteDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+						currWriteDescriptorSet.pImageInfo = &currImageInfo;
+					}
+						break;
+				}
+
+				currWriteDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+				currWriteDescriptorSet.dstSet = 0;
+				currWriteDescriptorSet.descriptorCount = 1;
+				currWriteDescriptorSet.dstBinding = GetBindingOffsetByResourceType(E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D) + currBinding;
+
 				continue;
 			}
 
@@ -2431,14 +2517,14 @@ namespace TDEngine2
 				case TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::BUFFER:
 					{
 						auto pBuffer = mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(currResourceEntity.mValue.mBuffer);
-						if (!pBuffer)
+						if (!isNullDescriptor && !pBuffer)
 						{
 							mDescriptorWrites.erase(mDescriptorWrites.cend() - 1);
 							continue;
 						}
 
 						VkDescriptorBufferInfo& currBufferInfo = mDescriptorBufferInfos.emplace_back();
-						currBufferInfo.buffer = pBuffer->GetVulkanHandle();
+						currBufferInfo.buffer = isNullDescriptor ? VK_NULL_HANDLE : pBuffer->GetVulkanHandle();
 						currBufferInfo.offset = 0;
 						currBufferInfo.range  = VK_WHOLE_SIZE;
 
@@ -2450,14 +2536,14 @@ namespace TDEngine2
 				case TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::TEXTURE:
 					{
 						auto pTexture = mpGraphicsObjectManagerImpl->GetVulkanTexturePtr(currResourceEntity.mValue.mTexture);
-						if (!pTexture)
+						if (!isNullDescriptor && !pTexture)
 						{
 							mDescriptorWrites.erase(mDescriptorWrites.cend() - 1);
 							continue;
 						}
 
 						VkDescriptorImageInfo& currImageInfo = mDescriptorImageInfos.emplace_back();
-						currImageInfo.imageView   = pTexture->GetTextureViewHandle();
+						currImageInfo.imageView   = isNullDescriptor ? VK_NULL_HANDLE : pTexture->GetTextureViewHandle();
 						currImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 						currImageInfo.sampler     = VK_NULL_HANDLE;
 
@@ -2498,7 +2584,7 @@ namespace TDEngine2
 
 		for (U32 i = 0; i < currPipelineActiveSlots.mUAVActiveSlots.size(); ++i)
 		{
-			const U32 currBinding = currPipelineActiveSlots.mUAVActiveSlots[i];
+			const U32 currBinding = currPipelineActiveSlots.mUAVActiveSlots[i].mSlot;
 			const auto& currResourceEntity = mDescriptorsBindingsTable.mUAVBuffers[currBinding];
 
 			if (TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::UNKNOWN == currResourceEntity.mType)

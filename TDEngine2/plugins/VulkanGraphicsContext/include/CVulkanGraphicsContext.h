@@ -504,6 +504,9 @@ namespace TDEngine2
 			std::vector<VkWriteDescriptorSet>                    mDescriptorWrites{};
 			std::vector<VkDescriptorBufferInfo>                  mDescriptorBufferInfos{};
 			std::vector<VkDescriptorImageInfo>                   mDescriptorImageInfos{};
+
+			TBufferHandleId                                      mEmptyStructuredBufferHandle;
+			TTextureHandleId                                     mEmptyTextureHandle;
 	};
 
 
