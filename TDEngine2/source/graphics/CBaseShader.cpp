@@ -541,7 +541,7 @@ namespace TDEngine2
 			std::string resourceName = pFileReader->ReadString();
 
 			TShaderResourceDesc desc;
-			desc.mSlot = pFileReader->ReadUInt8();
+			desc.mSlot = pFileReader->ReadUInt16();
 			desc.mType = static_cast<E_SHADER_RESOURCE_TYPE>(pFileReader->ReadUInt32());
 			desc.mIsWriteable = 
 				E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER == desc.mType || 

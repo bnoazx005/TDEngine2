@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.31] 2025-01-12
+## [0.6.31] 2025-01-20
 
 ### Added
 
@@ -54,6 +54,8 @@ The implementation of **CForwardRenderer** was rewritten due to the changes.
 - The issues with parsing Texture2D<type> resources in HLSL were fixed for CVulkanShaderCompiler and CD3D11ShaderCompiler.
 
 - The incorrect omni-lights matrices calculation was fixed.
+
+- The incorrect reading of shader cache's binaries was fixed.
 
 ## [0.6.30] 2024-10-24
 
