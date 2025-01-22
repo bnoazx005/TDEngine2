@@ -1705,26 +1705,83 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanGraphicsContext::UpdateTexture3D(TTextureHandleId textureHandle, U32 depthFrom, U32 depthTo, const TRectI32& regionRect, const void* pData, USIZE dataSize)
 	{
+		TDE2_UNIMPLEMENTED();
 		return RC_NOT_IMPLEMENTED_YET;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::CopyResource(TTextureHandleId sourceHandle, TTextureHandleId destHandle)
 	{
+		if (sourceHandle == destHandle)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		TPtr<CVulkanTextureImpl> pSourceTexture = mpGraphicsObjectManagerImpl->GetVulkanTexturePtr(sourceHandle);
+		if (!pSourceTexture)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		TPtr<CVulkanTextureImpl> pDestTexture = mpGraphicsObjectManagerImpl->GetVulkanTexturePtr(destHandle);
+		if (!pDestTexture)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		const E_RESOURCE_LAYOUT currSourceLayout = pSourceTexture->GetLayout();
+		const E_RESOURCE_LAYOUT currDestLayout   = pDestTexture->GetLayout();
+
+		E_RESULT_CODE result = RC_OK;
+		
+		result = result | pSourceTexture->Transition(E_RESOURCE_LAYOUT::COPY_SRC);
+		result = result | pDestTexture->Transition(E_RESOURCE_LAYOUT::COPY_DEST);
+
+		FlushBarriers();
+
+		const TInitTextureParams& sourceTexParams = pSourceTexture->GetParams();
+		const TInitTextureParams& destTexParams   = pDestTexture->GetParams();
+
+		VkImageCopy regionsInfo{};
+		regionsInfo.extent.width  = sourceTexParams.mWidth;
+		regionsInfo.extent.height = sourceTexParams.mHeight;
+		regionsInfo.extent.depth  = sourceTexParams.mDepth;
+
+		regionsInfo.srcSubresource.aspectMask = (E_FORMAT_TYPE::FT_D32 == sourceTexParams.mFormat) ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
+		regionsInfo.srcSubresource.layerCount = 1;
+		
+		regionsInfo.dstSubresource.aspectMask = (E_FORMAT_TYPE::FT_D32 == destTexParams.mFormat) ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
+		regionsInfo.dstSubresource.layerCount = 1;
+
+		vkCmdCopyImage(_getCurrCommandBufferHandle(), pSourceTexture->GetTextureHandle(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, pDestTexture->GetTextureHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &regionsInfo);
+
+		if (E_RESOURCE_LAYOUT::UNDEFINED != currSourceLayout)
+		{
+			result = result | pSourceTexture->Transition(currSourceLayout);
+		}
+
+		if (E_RESOURCE_LAYOUT::UNDEFINED != currDestLayout)
+		{
+			result = result | pDestTexture->Transition(currDestLayout);
+		}
+
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::CopyResource(TBufferHandleId sourceHandle, TTextureHandleId destHandle)
 	{
+		TDE2_UNIMPLEMENTED();
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::CopyResource(TTextureHandleId sourceHandle, TBufferHandleId destHandle)
 	{
+		TDE2_UNIMPLEMENTED();
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::CopyResource(TBufferHandleId sourceHandle, TBufferHandleId destHandle)
 	{
+		//TDE2_UNIMPLEMENTED();
 		return RC_OK;
 	}
 
