@@ -1781,7 +1781,30 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanGraphicsContext::CopyResource(TBufferHandleId sourceHandle, TBufferHandleId destHandle)
 	{
-		//TDE2_UNIMPLEMENTED();
+		if (sourceHandle == destHandle)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		TPtr<CVulkanBuffer> pSourceBuffer = mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(sourceHandle);
+		if (!pSourceBuffer)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		TPtr<CVulkanBuffer> pDestBuffer = mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(destHandle);
+		if (!pDestBuffer)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		VkBufferCopy copyRegion{};
+		copyRegion.srcOffset = 0;
+		copyRegion.dstOffset = 0;
+		copyRegion.size      = pSourceBuffer->GetSize();
+
+		vkCmdCopyBuffer(_getCurrCommandBufferHandle(), pSourceBuffer->GetVulkanHandle(), pDestBuffer->GetVulkanHandle(), 1, &copyRegion);
+		
 		return RC_OK;
 	}
 
