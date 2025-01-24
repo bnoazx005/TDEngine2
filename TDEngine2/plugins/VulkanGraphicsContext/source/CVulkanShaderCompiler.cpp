@@ -175,6 +175,7 @@ namespace TDEngine2
 			L"-spirv",
 			L"-fspv-target-env=vulkan1.0",
 			L"-fvk-use-dx-layout",
+			L"-fvk-use-dx-position-w",
 		};
 
 		LPCWSTR DEFAULT_DESCRIPTOR_SET_INDEX = L"0";
@@ -192,11 +193,6 @@ namespace TDEngine2
 			args.emplace_back(std::get<LPCWSTR>(currShiftArg));
 			args.emplace_back(std::get<std::wstring>(currShiftArg).c_str());
 			args.emplace_back(DEFAULT_DESCRIPTOR_SET_INDEX);
-		}
-
-		if (E_SHADER_STAGE_TYPE::SST_VERTEX == shaderStage)
-		{
-			args.emplace_back(L"-fvk-invert-y");
 		}
 
 		// target

@@ -462,6 +462,7 @@ namespace TDEngine2
 						shadowMapParams.mWidth           = shadowMapSizes;
 						shadowMapParams.mHeight          = shadowMapSizes;
 						shadowMapParams.mFormat          = FT_D32;
+						shadowMapParams.mArraySize       = 6;
 						shadowMapParams.mNumOfMipLevels  = 1;
 						shadowMapParams.mNumOfSamples    = 1;
 						shadowMapParams.mSamplingQuality = 0;

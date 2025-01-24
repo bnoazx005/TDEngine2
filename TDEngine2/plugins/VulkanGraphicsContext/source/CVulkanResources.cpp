@@ -63,7 +63,7 @@ namespace TDEngine2
 		VkBufferCreateInfo bufferCreateInfo{};
 		bufferCreateInfo.sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		bufferCreateInfo.size        = size;
-		bufferCreateInfo.usage       = GetBufferType(type) | ((usageType == E_BUFFER_USAGE_TYPE::DYNAMIC) ? VK_BUFFER_USAGE_TRANSFER_SRC_BIT : VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+		bufferCreateInfo.usage       = GetBufferType(type) | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 		bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE; //mIsUnorderedAccessResource ? VK_SHARING_MODE_CONCURRENT : VK_SHARING_MODE_EXCLUSIVE;
 
 		VmaAllocationCreateInfo allocInfo{};

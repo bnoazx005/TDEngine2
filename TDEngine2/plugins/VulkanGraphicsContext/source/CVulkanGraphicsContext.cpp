@@ -1366,9 +1366,9 @@ namespace TDEngine2
 	{
 		VkViewport viewport{};
 		viewport.x        = x;
-		viewport.y        = y;
+		viewport.y        = y + height;
 		viewport.width    = width;
-		viewport.height   = height;
+		viewport.height   = y - height;
 		viewport.minDepth = minDepth;
 		viewport.maxDepth = maxDepth;
 
@@ -2152,6 +2152,8 @@ namespace TDEngine2
 		VkRenderingAttachmentInfo depthStencilAttachmentInfo {};
 
 		VkExtent2D viewportSizes{};
+		
+		U32 layersCount = 1;
 
 		for (USIZE i = 0; i < framebufferInfo.mAttachments.size(); ++i)
 		{
@@ -2293,13 +2295,15 @@ namespace TDEngine2
 				depthStencilAttachmentInfo.clearValue  = clearValue;
 
 				pDepthBufferTexture->Transition(E_RESOURCE_LAYOUT::DEPTH_STENCIL);
-			}			
+
+				layersCount = pDepthBufferTexture->GetParams().mArraySize;
+			}
 		}
 
 		VkRenderingInfo renderPassInfo{};
 		renderPassInfo.sType                = VK_STRUCTURE_TYPE_RENDERING_INFO;
 		renderPassInfo.colorAttachmentCount = static_cast<U32>(framebufferInfo.mAttachments.size());
-		renderPassInfo.layerCount           = 1;
+		renderPassInfo.layerCount           = layersCount;
 		renderPassInfo.pColorAttachments    = colorAttachmentInfos.data();
 		renderPassInfo.renderArea           = { {}, viewportSizes };
 		renderPassInfo.pDepthAttachment     = framebufferInfo.mDepthStencilAttachment.has_value() ? &depthStencilAttachmentInfo : nullptr;
