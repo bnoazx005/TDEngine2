@@ -157,6 +157,16 @@ namespace TDEngine2
 			}
 		}
 
+#if TDE2_DEBUG_MODE
+		VkDebugUtilsObjectNameInfoEXT debugNameInfo{};
+		debugNameInfo.sType        = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+		debugNameInfo.objectType   = VK_OBJECT_TYPE_BUFFER;
+		debugNameInfo.objectHandle = reinterpret_cast<uint64_t>(mInternalBufferHandle);
+		debugNameInfo.pObjectName  = params.mName;
+
+		VK_SAFE_CALL(vkSetDebugUtilsObjectNameEXT(mDevice, &debugNameInfo));
+#endif
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -909,6 +919,16 @@ namespace TDEngine2
 		}
 
 		mInternalImageViewHandle = createResourceViewResult.Get();
+
+#if TDE2_DEBUG_MODE
+		VkDebugUtilsObjectNameInfoEXT debugNameInfo{};
+		debugNameInfo.sType        = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+		debugNameInfo.objectType   = VK_OBJECT_TYPE_IMAGE;
+		debugNameInfo.objectHandle = reinterpret_cast<uint64_t>(mInternalImageHandle);
+		debugNameInfo.pObjectName  = mInitParams.mName;
+
+		VK_SAFE_CALL(vkSetDebugUtilsObjectNameEXT(mDevice, &debugNameInfo));
+#endif
 
 		return RC_OK;
 	}
