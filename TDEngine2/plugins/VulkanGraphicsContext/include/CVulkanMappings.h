@@ -276,5 +276,7 @@ namespace TDEngine2
 			static VkDescriptorType GetDescriptorType(E_SHADER_RESOURCE_TYPE shaderResourceType);
 
 			static VkImageLayout GetResourceLayout(E_RESOURCE_LAYOUT layout);
+
+			static bool IsDepthTextureFormat(E_FORMAT_TYPE format);
 	};
 }

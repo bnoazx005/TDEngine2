@@ -11,7 +11,6 @@
 namespace TDEngine2
 {
 	TDE2_DEFINE_SCOPED_PTR(CVulkanTextureImpl)
-	TDE2_DEFINE_SCOPED_PTR(CVulkanBuffer)
 
 
 	CVulkanGraphicsObjectManager::CVulkanGraphicsObjectManager() :

@@ -885,8 +885,57 @@ namespace TDEngine2
 
 	std::vector<U8> CVulkanTextureImpl::ReadBytes(U32 index)
 	{
-		TDE2_UNIMPLEMENTED();
-		return {};
+		TDE2_ASSERT(E_TEXTURE_IMPL_USAGE_TYPE::DYNAMIC == mInitParams.mUsageType && mpReadbackBuffer);
+		
+		std::vector<U8> outputBytes(static_cast<size_t>(mInitParams.mWidth * mInitParams.mHeight * mInitParams.mDepth * CFormatUtils::GetFormatSize(mInitParams.mFormat)));
+
+		mpGraphicsContextImpl->ExecuteImmediate([this, &outputBytes](VkCommandBuffer commandBuffer)
+			{
+				VkBufferImageCopy regionsInfo{};
+				regionsInfo.imageSubresource.aspectMask = CVulkanMappings::IsDepthTextureFormat(mInitParams.mFormat) ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
+				regionsInfo.imageSubresource.layerCount = 1;
+				regionsInfo.imageExtent.width           = mInitParams.mWidth;
+				regionsInfo.imageExtent.height          = mInitParams.mHeight;
+				regionsInfo.imageExtent.depth           = mInitParams.mDepth;
+
+				const E_RESOURCE_LAYOUT currSourceLayout = GetLayout();
+
+				VkImageMemoryBarrier2 imageMemoryBarrier{};
+				imageMemoryBarrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
+				imageMemoryBarrier.image                           = mInternalImageHandle;
+				imageMemoryBarrier.srcStageMask                    = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+				imageMemoryBarrier.srcAccessMask                   = VK_ACCESS_2_MEMORY_WRITE_BIT | VK_ACCESS_2_MEMORY_READ_BIT;
+				imageMemoryBarrier.dstStageMask                    = VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT;
+				imageMemoryBarrier.dstAccessMask                   = VK_ACCESS_2_MEMORY_WRITE_BIT | VK_ACCESS_2_MEMORY_READ_BIT;
+				imageMemoryBarrier.oldLayout                       = CVulkanMappings::GetResourceLayout(currSourceLayout);
+				imageMemoryBarrier.newLayout                       = CVulkanMappings::GetResourceLayout(E_RESOURCE_LAYOUT::COPY_SRC);
+				imageMemoryBarrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+				imageMemoryBarrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+				imageMemoryBarrier.subresourceRange.baseMipLevel   = 0;
+				imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
+				imageMemoryBarrier.subresourceRange.aspectMask     = regionsInfo.imageSubresource.aspectMask;
+				imageMemoryBarrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
+				imageMemoryBarrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
+
+				VkDependencyInfo dependencyInfo{};
+				dependencyInfo.sType                   = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+				dependencyInfo.imageMemoryBarrierCount = 1;
+				dependencyInfo.pImageMemoryBarriers    = &imageMemoryBarrier;
+
+				vkCmdPipelineBarrier2(commandBuffer, &dependencyInfo);
+				vkCmdCopyImageToBuffer(commandBuffer, mInternalImageHandle, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, mpReadbackBuffer->GetVulkanHandle(), 1, &regionsInfo);
+
+				imageMemoryBarrier.oldLayout = CVulkanMappings::GetResourceLayout(E_RESOURCE_LAYOUT::COPY_SRC);
+				imageMemoryBarrier.newLayout = CVulkanMappings::GetResourceLayout(currSourceLayout);
+
+				vkCmdPipelineBarrier2(commandBuffer, &dependencyInfo);
+
+				mpReadbackBuffer->Map(E_BUFFER_MAP_TYPE::BMT_READ, 0);
+				memcpy(outputBytes.data(), mpReadbackBuffer->Read(), outputBytes.size());
+				mpReadbackBuffer->Unmap();
+			});
+
+		return outputBytes;
 	}
 
 	E_RESOURCE_LAYOUT CVulkanTextureImpl::GetLayout() const
@@ -920,6 +969,19 @@ namespace TDEngine2
 
 		mInternalImageViewHandle = createResourceViewResult.Get();
 
+		E_RESULT_CODE result = RC_OK;
+
+		if (E_TEXTURE_IMPL_USAGE_TYPE::DYNAMIC == mInitParams.mUsageType)
+		{
+			mpReadbackBuffer = DynamicPtrCast<CVulkanBuffer>(TPtr<IBuffer>(CreateVulkanBuffer(mpGraphicsContextImpl,
+				{
+					E_BUFFER_USAGE_TYPE::DYNAMIC,
+					E_BUFFER_TYPE::GENERIC,
+					static_cast<USIZE>(mInitParams.mWidth * mInitParams.mHeight * mInitParams.mDepth * CFormatUtils::GetFormatSize(mInitParams.mFormat)),
+					nullptr
+				}, result)));
+		}
+
 #if TDE2_DEBUG_MODE
 		VkDebugUtilsObjectNameInfoEXT debugNameInfo{};
 		debugNameInfo.sType        = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
@@ -930,7 +992,7 @@ namespace TDEngine2
 		VK_SAFE_CALL(vkSetDebugUtilsObjectNameEXT(mDevice, &debugNameInfo));
 #endif
 
-		return RC_OK;
+		return result;
 	}
 
 	E_RESULT_CODE CVulkanTextureImpl::_onFreeInternal()

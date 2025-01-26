@@ -2502,7 +2502,7 @@ namespace TDEngine2
 		const static TGraphicsContextInfo infoData
 		{
 			{ { -1.0f, -1.0f, 0.0f }, { 1.0f, 1.0f, 1.0f } },
-			true,
+			false,
 			E_GRAPHICS_CONTEXT_GAPI_TYPE::GCGT_VULKAN
 		};
 

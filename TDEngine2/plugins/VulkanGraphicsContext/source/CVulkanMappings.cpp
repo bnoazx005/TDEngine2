@@ -842,4 +842,15 @@ namespace TDEngine2
 
 		return VK_IMAGE_LAYOUT_UNDEFINED;
 	}
+
+	bool CVulkanMappings::IsDepthTextureFormat(E_FORMAT_TYPE format)
+	{
+		switch (format)
+		{
+			case E_FORMAT_TYPE::FT_D32:
+				return true;
+		}
+
+		return false;
+	}
 }

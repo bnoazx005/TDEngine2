@@ -14,6 +14,8 @@
 
 namespace TDEngine2
 {
+	TDE2_DEFINE_SCOPED_PTR(CVulkanBuffer)
+
 	static E_RESULT_CODE RegisterFactories(IEngineCore* pEngineCore)
 	{
 		IResourceManager* pResourceManager = pEngineCore->GetSubsystem<IResourceManager>().Get();

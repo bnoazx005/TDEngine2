@@ -312,6 +312,8 @@ namespace TDEngine2
 			VkDevice                mDevice = VK_NULL_HANDLE;
 
 			E_RESOURCE_LAYOUT       mCurrLayout;
+
+			TPtr<CVulkanBuffer>     mpReadbackBuffer = nullptr;
 	};
 
 
