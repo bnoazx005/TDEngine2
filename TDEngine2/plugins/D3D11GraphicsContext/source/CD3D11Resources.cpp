@@ -707,23 +707,26 @@ namespace TDEngine2
 
 		textureDesc.BindFlags = 0x0;
 
-		if (E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE))
+		if (!isCPUAccessible)
 		{
-			textureDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
-		}
+			if (E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE))
+			{
+				textureDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
+			}
 
-		if (isDepthBufferResource)
-		{
-			textureDesc.BindFlags |= D3D11_BIND_DEPTH_STENCIL;
-		}
-		else if (E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET))
-		{
-			textureDesc.BindFlags |= D3D11_BIND_RENDER_TARGET;
-		}
+			if (isDepthBufferResource)
+			{
+				textureDesc.BindFlags |= D3D11_BIND_DEPTH_STENCIL;
+			}
+			else if (E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET))
+			{
+				textureDesc.BindFlags |= D3D11_BIND_RENDER_TARGET;
+			}
 
-		if (E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS))
-		{
-			textureDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
+			if (E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS))
+			{
+				textureDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
+			}
 		}
 
 		textureDesc.CPUAccessFlags = isDepthBufferResource ? 0 : D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
@@ -1134,6 +1137,11 @@ namespace TDEngine2
 			}
 
 			mpTextureResource = createResourceResult.Get();
+		}
+
+		if (E_TEXTURE_IMPL_USAGE_TYPE::DYNAMIC == mInitParams.mUsageType || E_TEXTURE_IMPL_USAGE_TYPE::STAGING == mInitParams.mUsageType)
+		{
+			return RC_OK;
 		}
 
 		auto createDefaultSrvResult = CreateShaderResourceViewInternal(mp3dDevice, mpTextureResource, mInitParams);
