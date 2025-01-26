@@ -119,7 +119,7 @@ namespace TDEngine2
 		createTextureParams.mSamplingQuality = params.mSamplingQuality;
 		createTextureParams.mIsWriteable = params.mIsWriteable;
 		createTextureParams.mType = E_TEXTURE_IMPL_TYPE::TEXTURE_2D;
-		createTextureParams.mUsageType = E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
+		createTextureParams.mUsageType = params.mIsReadbackSupported ? E_TEXTURE_IMPL_USAGE_TYPE::DYNAMIC : E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
 		createTextureParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE;
 		createTextureParams.mName = mName.c_str();
 

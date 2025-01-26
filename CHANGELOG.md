@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.31] 2025-01-20
+## [0.6.31] 2025-01-26
 
 ### Added
 
@@ -23,6 +23,8 @@ supports lightmaps generation.
 - Serialization/deserialization of primitive topology's type within pipeline's code was added.
 
 - Add utility function **WaitForDebugger** to allow interrupt program's execution until a debugger is attached to its process.
+
+- A new field **mIsReadbackSupporteed** was declared in **TTexture2DParameters** type. Now all instances of **CBaseTexture2D** should use that flag to allow readback operations.
 
 ### Changed
 

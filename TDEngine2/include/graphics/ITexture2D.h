@@ -77,6 +77,7 @@ namespace TDEngine2
 		TTextureSamplerDesc mTexSamplerDesc{};
 
 		bool                mIsWriteable = false; ///< The field is used to make a texture writeable in a compute shader
+		bool                mIsReadbackSupported = false;
 	} TTexture2DParameters, *TTexture2DParametersPtr;
 
 

@@ -210,6 +210,8 @@ namespace TDEngine2
 		if (TResourceId::Invalid == mSelectionGeometryBufferHandle)
 		{
 			TTexture2DParameters renderTargetParams { width, height, FT_UINT1, 1, 1, 0 };
+			renderTargetParams.mIsReadbackSupported = true;
+
 			mReadableSelectionBufferHandle = mpResourceManager->Create<ITexture2D>("SelectionBufferCPUCopy", renderTargetParams);
 		}
 
