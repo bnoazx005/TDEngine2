@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.31] 2025-01-26
+## [0.6.31] 2025-01-27
 
 ### Added
 
@@ -58,6 +58,8 @@ The implementation of **CForwardRenderer** was rewritten due to the changes.
 - The incorrect omni-lights matrices calculation was fixed.
 
 - The incorrect reading of shader cache's binaries was fixed.
+
+- Computation of projection matrices for Vulkan graphics environment was fixed from GL's NDC to D3D's one.
 
 ## [0.6.30] 2024-10-24
 

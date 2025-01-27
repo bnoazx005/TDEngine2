@@ -1388,12 +1388,12 @@ namespace TDEngine2
 
 	TMatrix4 CVulkanGraphicsContext::CalcPerspectiveMatrix(F32 fov, F32 aspect, F32 zn, F32 zf)
 	{
-		return PerspectiveProj(fov, aspect, zn, zf, -1.0f, 1.0f, -1.0f);
+		return PerspectiveProj(fov, aspect, zn, zf, 0.0f, 1.0f, -1.0f);
 	}
 
 	TMatrix4 CVulkanGraphicsContext::CalcOrthographicMatrix(F32 left, F32 top, F32 right, F32 bottom, F32 zn, F32 zf, bool isDepthless)
 	{
-		return OrthographicProj(left, top, right, bottom, zn, zf, -1.0f, 1.0f, -1.0f, isDepthless);
+		return OrthographicProj(left, top, right, bottom, zn, zf, 0.0f, 1.0f, -1.0f, isDepthless);
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::SetVertexBuffer(U32 slot, TBufferHandleId vertexBufferHandle, U32 offset, U32 strideSize)
