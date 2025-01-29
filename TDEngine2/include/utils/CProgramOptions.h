@@ -131,6 +131,11 @@ namespace TDEngine2
 			*/
 
 			TDE2_API static TPtr<CProgramOptions> Get();
+
+#if TDE2_EDITORS_ENABLED
+			TDE2_API void RegisterObjectInProfiler(const std::string& id) override;
+			TDE2_API void OnBeforeMemoryRelease() override;
+#endif
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CProgramOptions)
 		private:

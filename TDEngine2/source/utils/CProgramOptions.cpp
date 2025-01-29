@@ -225,4 +225,17 @@ namespace TDEngine2
 		static TPtr<CProgramOptions> pInstance = TPtr<CProgramOptions>(new (std::nothrow) CProgramOptions());
 		return pInstance;
 	}
+
+
+#if TDE2_EDITORS_ENABLED
+
+	void CProgramOptions::RegisterObjectInProfiler(const std::string& id)
+	{
+	}
+
+	void CProgramOptions::OnBeforeMemoryRelease()
+	{
+	}
+
+#endif
 }
