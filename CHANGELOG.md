@@ -63,6 +63,8 @@ The implementation of **CForwardRenderer** was rewritten due to the changes.
 
 - Window's resize logic was changed, now resize events occur single time only after the action is finished.
 
+- Incorrect loading of dynamic libraries in **CWin32DLLManager** was fixed.
+
 ## [0.6.30] 2024-10-24
 
 ### Added

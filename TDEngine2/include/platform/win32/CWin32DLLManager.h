@@ -7,8 +7,8 @@
 #pragma once
 
 
-#include "./../../core/IDLLManager.h"
-#include "./../../core/CBaseObject.h"
+#include "../../core/IDLLManager.h"
+#include "../../core/CBaseObject.h"
 #include <unordered_map>
 #include <vector>
 #include <list>
@@ -95,11 +95,9 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 
-		protected:
-			TDynLibHandlersMap                mHandlersTable;
-			TDynLibArray                      mLoadedLibraries;
-			TDynamicLibraryHandler            mNextFreeHandler;
-			std::list<TDynamicLibraryHandler> mFreeHandlersList;
+		private:
+			TDynLibHandlersMap mHandlersTable{};
+			TDynLibArray       mLoadedLibraries{};
 	};
 
 	/*!

@@ -1,5 +1,5 @@
-#include "./../../../include/platform/win32/CWin32DLLManager.h"
-#include "./../../../include/utils/CFileLogger.h"
+#include "../../../include/platform/win32/CWin32DLLManager.h"
+#include "../../../include/utils/CFileLogger.h"
 
 
 #if defined (TDE2_USE_WINPLATFORM)
@@ -7,7 +7,7 @@
 namespace TDEngine2
 {
 	CWin32DLLManager::CWin32DLLManager() :
-		CBaseObject(), mNextFreeHandler(TDynamicLibraryHandler(0))
+		CBaseObject()
 	{
 	}
 
@@ -49,13 +49,12 @@ namespace TDEngine2
 		}
 		
 		TDynLibHandlersMap::const_iterator duplicateIter = mHandlersTable.find(filename);
-
 		if (duplicateIter != mHandlersTable.cend())
 		{
 			return (*duplicateIter).second;	// just return a handler to the already loaded library
 		}
 
-		std::string filenameWithExt(filename + ".dll");
+		const std::string filenameWithExt(filename + ".dll");
 
 		TDynamicLibrary dynamicLibrary = ::LoadLibrary(filenameWithExt.c_str());
 
@@ -66,29 +65,20 @@ namespace TDEngine2
 			return TDynamicLibraryHandler::Invalid;
 		}
 
-		TDynamicLibraryHandler loadedLibraryHandler = TDynamicLibraryHandler(mLoadedLibraries.size());
+		auto it = std::find(mLoadedLibraries.cbegin(), mLoadedLibraries.cend(), nullptr);
 
-		if (mFreeHandlersList.empty()) // there is no free slot, so extend the existing array
+		const TDynamicLibraryHandler loadedLibraryHandler = (it == mLoadedLibraries.cend()) ?
+			TDynamicLibraryHandler(mLoadedLibraries.size()) : TDynamicLibraryHandler(static_cast<U32>(std::distance(mLoadedLibraries.cbegin(), it)));
+
+		mHandlersTable[filename] = loadedLibraryHandler;
+
+		if (it == mLoadedLibraries.cend())
 		{
 			mLoadedLibraries.push_back(dynamicLibrary);
 		}
 		else
 		{
-			mLoadedLibraries[static_cast<U32>(mNextFreeHandler)] = dynamicLibrary;
-
-			loadedLibraryHandler = mNextFreeHandler;
-
-			// seek for next free space within the array
-			if (mFreeHandlersList.empty())
-			{
-				mNextFreeHandler = loadedLibraryHandler;
-			}
-			else
-			{
-				mNextFreeHandler = mFreeHandlersList.front();
-
-				mFreeHandlersList.pop_front();
-			}
+			mLoadedLibraries[static_cast<U32>(loadedLibraryHandler)] = dynamicLibrary;
 		}
 
 		LOG_MESSAGE("[Win32 DLL Manager] A new dll file was successfully loaded (" + filenameWithExt + ")");
@@ -105,7 +95,7 @@ namespace TDEngine2
 
 		TDynLibHandlersMap::const_iterator targetLibraryIter = mHandlersTable.find(filename);
 
-		if (targetLibraryIter != mHandlersTable.cend()) // library isn't loaded
+		if (targetLibraryIter == mHandlersTable.cend()) // library isn't loaded
 		{
 			return RC_FAIL;
 		}
@@ -118,11 +108,7 @@ namespace TDEngine2
 		}
 
 		mLoadedLibraries[static_cast<U32>(libraryHandler)] = nullptr;
-
 		mHandlersTable.erase(targetLibraryIter);
-
-		// add current handler into the list of free handlers
-		mFreeHandlersList.push_back(libraryHandler);
 
 		LOG_MESSAGE("[Win32 DLL Manager] The existing dll file was unloaded (" + filename + ")");
 
@@ -165,11 +151,7 @@ namespace TDEngine2
 		}
 
 		mHandlersTable.erase(libraryHandlerIter);
-
 		mLoadedLibraries[libHandlerValue] = nullptr;
-
-		// add current handler into the list of free handlers
-		mFreeHandlersList.push_back(libraryHandler);
 		
 		return RC_OK;
 	}
@@ -211,25 +193,7 @@ namespace TDEngine2
 
 	TDE2_API IDLLManager* CreateWin32DLLManager(E_RESULT_CODE& result)
 	{
-		CWin32DLLManager* pDLLManagerInstance = new (std::nothrow) CWin32DLLManager();
-
-		if (!pDLLManagerInstance)
-		{
-			result = RC_OUT_OF_MEMORY;
-
-			return nullptr;
-		}
-
-		result = pDLLManagerInstance->Init();
-
-		if (result != RC_OK)
-		{
-			delete pDLLManagerInstance;
-
-			pDLLManagerInstance = nullptr;
-		}
-
-		return dynamic_cast<IDLLManager*>(pDLLManagerInstance);
+		return CREATE_IMPL(IDLLManager, CWin32DLLManager, result);
 	}
 }
 
