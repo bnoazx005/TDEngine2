@@ -27,7 +27,8 @@ namespace TDEngine2
 
 		static bool hasWindowBeenMaximized = pWinSystem->GetFlags() & P_FULLSCREEN;
 
-		static U32 lastWindowWidth = 0, lastWindowHeight = 0;
+		static U32 lastWindowWidth = 0;
+		static U32 lastWindowHeight = 0;
 
 		TPtr<IEventManager> pEventManager = pWinSystem->GetEventManager();
 
@@ -68,27 +69,27 @@ namespace TDEngine2
 				lastWindowWidth  = lParam & (0x0000FFFF);
 				lastWindowHeight = (lParam & (0xFFFF0000)) >> 16;
 
-				if (wParam == SIZE_MAXIMIZED)
+				switch (wParam)
 				{
-					onSendResizeWindowEvent(lastWindowWidth, lastWindowHeight);
-					hasWindowBeenMaximized = true;
-				}
-				else if (wParam == SIZE_MINIMIZED)
-				{
-				}
-				else
-				{
-					if (hasWindowBeenMaximized || !isResizeInProgress)
-					{
+					case SIZE_MAXIMIZED:
 						onSendResizeWindowEvent(lastWindowWidth, lastWindowHeight);
-					}
-					hasWindowBeenMaximized = false;
+						hasWindowBeenMaximized = true;
+						break;
+					case SIZE_RESTORED:
+						if (hasWindowBeenMaximized)
+						{
+							onSendResizeWindowEvent(lastWindowWidth, lastWindowHeight);
+							hasWindowBeenMaximized = false;
+						}
+						break;
 				}
+
 				break;
 			case WM_ENTERSIZEMOVE:
 				isResizeInProgress = true;
 				break;
 			case WM_EXITSIZEMOVE:
+				onSendResizeWindowEvent(lastWindowWidth, lastWindowHeight);
 				isResizeInProgress = false;
 				break;
 			case WM_MOVE:
