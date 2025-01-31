@@ -1199,6 +1199,30 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+
+	static void CleanupGarbage(CVulkanGraphicsContext::TGarbageCollection& garbageArray, VkDevice device, VmaAllocator allocator)
+	{
+		// destroy objects that were marked for deletion
+		for (auto&& currGarbageEntity : garbageArray)
+		{
+			switch (currGarbageEntity.mType)
+			{
+			case CVulkanGraphicsContext::TGarbageEntity::E_TYPE::BUFFER:
+				vmaDestroyBuffer(allocator, currGarbageEntity.mData.mBufferHandle, currGarbageEntity.mAllocation);
+				break;
+			case CVulkanGraphicsContext::TGarbageEntity::E_TYPE::IMAGE:
+				vmaDestroyImage(allocator, currGarbageEntity.mData.mImageHandle, currGarbageEntity.mAllocation);
+				break;
+			case CVulkanGraphicsContext::TGarbageEntity::E_TYPE::IMAGE_VIEW:
+				vkDestroyImageView(device, currGarbageEntity.mData.mImageViewHandle, nullptr);
+				break;
+			}
+		}
+
+		garbageArray.clear();
+	}
+
+
 	E_RESULT_CODE CVulkanGraphicsContext::_onFreeInternal()
 	{
 		mpVulkanDeviceContext->WaitForIdle();
@@ -1209,9 +1233,34 @@ namespace TDEngine2
 			vkDestroySemaphore(mpVulkanDeviceContext->GetDevice(), mRenderFinishedSemaphores[i], nullptr);
 		}
 
-		mpImmediateCommandBuffer = nullptr;
-		mpSwapchain = nullptr;
-		mpVulkanDeviceContext = nullptr;
+		for (auto&& currCachedPipelineEntry : mCachedPipelinesLibrary)
+		{
+			vkDestroyPipeline(mpVulkanDeviceContext->GetDevice(), currCachedPipelineEntry.second, nullptr);
+		}
+
+		mCachedPipelinesLibrary.clear();
+
+		for (TPtr<CVulkanCommandBuffer>& pCommandBuffer : mpCommandBuffers)
+		{
+			pCommandBuffer = nullptr;
+		}
+
+		mpGraphicsObjectManager     = nullptr;
+		mpGraphicsObjectManagerImpl = nullptr;
+
+		// \note Clean up is invoked only after all resources are freed in mpGraphicsObjectManager
+		{
+			std::lock_guard<std::mutex> lock(mGarbageCollectorMutex);
+
+			for (auto&& currGarbageArray : mAwaitingDeletionObjects)
+			{
+				CleanupGarbage(currGarbageArray, mpVulkanDeviceContext->GetDevice(), mpVulkanDeviceContext->GetMemoryAllocator());
+			}
+		}
+
+		mpImmediateCommandBuffer    = nullptr;
+		mpSwapchain                 = nullptr;
+		mpVulkanDeviceContext       = nullptr;
 
 		return RC_OK;
 	}
@@ -1286,36 +1335,24 @@ namespace TDEngine2
 
 	void CVulkanGraphicsContext::BeginFrame()
 	{
+		if (!mpSwapchain->IsValid())
+		{
+			E_RESULT_CODE result = mpSwapchain->TryProcessInvalidateState();
+			TDE2_ASSERT(RC_OK == result);
+		}
+
 		const TPtr<CVulkanCommandBuffer>& pCurrCommandBuffer = mpCommandBuffers[mCurrFrameIndex];
 		VkFence commandBufferFence = pCurrCommandBuffer->GetFence();
 
 		VK_SAFE_VOID_CALL(vkWaitForFences(mpVulkanDeviceContext->GetDevice(), 1, &commandBufferFence, VK_TRUE, UINT64_MAX));
 		VK_SAFE_VOID_CALL(vkResetFences(mpVulkanDeviceContext->GetDevice(), 1, &commandBufferFence));
+		mpVulkanDeviceContext->WaitForIdle(); // \todo Remove this later when sync issue will be fixed
 
-		E_RESULT_CODE result = mpSwapchain->AcquireNextImage(mImageReadySemaphores[mCurrFrameIndex]);
-		TDE2_ASSERT(RC_OK == result);
+		mpSwapchain->AcquireNextImage(mImageReadySemaphores[mCurrFrameIndex]);
 
 		{
 			std::lock_guard<std::mutex> lock(mGarbageCollectorMutex);
-
-			// destroy objects that were marked for deletion
-			for (auto&& currGarbageEntity : mAwaitingDeletionObjects[mCurrFrameIndex])
-			{
-				switch (currGarbageEntity.mType)
-				{
-					case TGarbageEntity::E_TYPE::BUFFER:
-						vmaDestroyBuffer(mpVulkanDeviceContext->GetMemoryAllocator(), currGarbageEntity.mData.mBufferHandle, currGarbageEntity.mAllocation);
-						break;
-					case TGarbageEntity::E_TYPE::IMAGE:
-						vmaDestroyImage(mpVulkanDeviceContext->GetMemoryAllocator(), currGarbageEntity.mData.mImageHandle, currGarbageEntity.mAllocation);
-						break;
-					case TGarbageEntity::E_TYPE::IMAGE_VIEW:
-						vkDestroyImageView(mpVulkanDeviceContext->GetDevice(), currGarbageEntity.mData.mImageViewHandle, nullptr);
-						break;
-				}
-			}
-
-			mAwaitingDeletionObjects[mCurrFrameIndex].clear();
+			CleanupGarbage(mAwaitingDeletionObjects[mCurrFrameIndex], mpVulkanDeviceContext->GetDevice(), mpVulkanDeviceContext->GetMemoryAllocator());
 		}
 
 		pCurrCommandBuffer->Reset();

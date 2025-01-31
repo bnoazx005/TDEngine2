@@ -269,6 +269,11 @@ namespace TDEngine2
 				DispatchMessage(&currMessage);
 			}
 
+			if (!isRunning)
+			{
+				break;
+			}
+
 			mpTimer->Tick();
 
 			if (onFrameUpdate)

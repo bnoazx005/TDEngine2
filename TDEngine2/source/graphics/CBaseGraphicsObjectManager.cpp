@@ -99,6 +99,7 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 		mpGraphicsPipelines.clear();
+		mpComputePipelines.clear();
 
 		result = result | _freeVertexDeclarations();
 		result = result | _freeTextureSamplers();

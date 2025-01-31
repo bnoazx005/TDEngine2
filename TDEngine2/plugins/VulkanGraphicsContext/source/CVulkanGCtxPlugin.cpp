@@ -100,20 +100,6 @@ namespace TDEngine2
 			return result;
 		}
 
-		pLoaderInstance = CreateBaseTexture2DLoader(pResourceManager, pGraphicsContext, pFileSystem, result);
-
-		if (result != RC_OK || ((result = registerLoader(pResourceManager, pLoaderInstance)) != RC_OK))
-		{
-			return result;
-		}
-
-		/*pLoaderInstance = CreateBaseCubemapTextureLoader(pResourceManager, mpGraphicsContext.Get(), pFileSystem, result);
-
-		if (result != RC_OK || ((result = registerLoader(pResourceManager, pLoaderInstance)) != RC_OK))
-		{
-			return result;
-		}*/
-
 		return RC_OK;
 	}
 
