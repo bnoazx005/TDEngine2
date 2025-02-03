@@ -789,6 +789,9 @@ namespace TDEngine2
 			E_RESULT_CODE AcquireNextImage(VkSemaphore semaphore);
 			E_RESULT_CODE Present(VkSemaphore waitSemaphore = VK_NULL_HANDLE);
 
+			void InvalidateState() { mIsValid = false; }
+			E_RESULT_CODE TryProcessInvalidateState();
+
 			uint32_t GetImageIndex() const { return mCurrImageIndex; }
 			VkImage GetCurrImage() const { return mSwapChainImages[mCurrImageIndex]; }
 			VkImageView GetCurrImageView() const { return mSwapChainImageViews[mCurrImageIndex]; }
@@ -796,12 +799,16 @@ namespace TDEngine2
 			E_FORMAT_TYPE GetBackBuffersFormat() const { return mBackBufferFormat; }
 
 			const VkSwapchainKHR GetHandle() const { return mSwapChain; }
+
+			bool IsValid() const { return mIsValid; }
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanSwapchain)
 
+			E_RESULT_CODE _onInitInternal();
 			E_RESULT_CODE _onFreeInternal() override;
 		private:
 			CVulkanDeviceContext*    mpDeviceContext = nullptr;
+			TPtr<IWindowSystem>      mpWindowSystem = nullptr;
 
 			VkSwapchainKHR           mSwapChain = VK_NULL_HANDLE;
 			VkSurfaceFormatKHR       mSwapChainFormat{};
@@ -812,6 +819,8 @@ namespace TDEngine2
 			U32                      mCurrImageIndex = 0;
 
 			E_FORMAT_TYPE            mBackBufferFormat = E_FORMAT_TYPE::FT_UNKNOWN;
+
+			bool                     mIsValid = true;
 	};
 
 
@@ -823,12 +832,65 @@ namespace TDEngine2
 	E_RESULT_CODE CVulkanSwapchain::Init(CVulkanDeviceContext* pDeviceContext, TPtr<IWindowSystem> pWindowSystem)
 	{
 		mpDeviceContext = pDeviceContext;
+		mpWindowSystem  = pWindowSystem;
+
+		return _onInitInternal();
+	}
+
+	E_RESULT_CODE CVulkanSwapchain::AcquireNextImage(VkSemaphore semaphore)
+	{
+		const VkResult result = vkAcquireNextImageKHR(mpDeviceContext->GetDevice(), mSwapChain, UINT64_MAX, semaphore, nullptr, &mCurrImageIndex);
+		if (VK_ERROR_OUT_OF_DATE_KHR == result)
+		{
+			mIsValid = false;
+			return RC_FAIL;
+		}
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CVulkanSwapchain::Present(VkSemaphore waitSemaphore)
+	{
+		VkPresentInfoKHR presentInfo{};
+		
+		presentInfo.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+		presentInfo.waitSemaphoreCount = 1;
+		presentInfo.pWaitSemaphores    = &waitSemaphore;
+		presentInfo.swapchainCount     = 1;
+		presentInfo.pSwapchains        = &mSwapChain;
+		presentInfo.pImageIndices      = &mCurrImageIndex;
+
+		const VkResult result = vkQueuePresentKHR(mpDeviceContext->GetGraphicsQueue(), &presentInfo);
+		if (VK_ERROR_OUT_OF_DATE_KHR == result)
+		{
+			mIsValid = false;
+		}
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CVulkanSwapchain::TryProcessInvalidateState()
+	{
+		if (mIsValid)
+		{
+			return RC_OK;
+		}
+
+		mpDeviceContext->WaitForIdle();
 
 		E_RESULT_CODE result = RC_OK;
 
-		const U32 flags = pWindowSystem->GetFlags();
+		result = result | _onFreeInternal();
+		result = result | _onInitInternal();
 
-		auto swapChainSupportInfo = GetSwapChainSupportInfo(pDeviceContext->GetPhysicalDevice(), pDeviceContext->GetSwapchainSurface());
+		return result;
+	}
+
+	E_RESULT_CODE CVulkanSwapchain::_onInitInternal()
+	{
+		const U32 flags = mpWindowSystem->GetFlags();
+
+		auto swapChainSupportInfo = GetSwapChainSupportInfo(mpDeviceContext->GetPhysicalDevice(), mpDeviceContext->GetSwapchainSurface());
 		if (swapChainSupportInfo.mFormats.empty() || swapChainSupportInfo.mPresentModes.empty())
 		{
 			return RC_FAIL;
@@ -864,9 +926,9 @@ namespace TDEngine2
 		mSwapChainExtents = swapChainSupportInfo.mCapabilities.currentExtent;
 		if (mSwapChainExtents.width == std::numeric_limits<U32>::max())
 		{
-			auto&& windowRect = pWindowSystem->GetClientRect();
+			auto&& windowRect = mpWindowSystem->GetClientRect();
 
-			mSwapChainExtents.width = windowRect.width;
+			mSwapChainExtents.width  = windowRect.width;
 			mSwapChainExtents.height = windowRect.height;
 		}
 
@@ -875,7 +937,7 @@ namespace TDEngine2
 
 		VkSwapchainCreateInfoKHR createInfo{};
 		createInfo.sType            = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		createInfo.surface          = pDeviceContext->GetSwapchainSurface();
+		createInfo.surface          = mpDeviceContext->GetSwapchainSurface();
 		createInfo.minImageCount    = imagesCount;
 		createInfo.imageFormat      = mSwapChainFormat.format;
 		createInfo.imageColorSpace  = mSwapChainFormat.colorSpace;
@@ -883,12 +945,12 @@ namespace TDEngine2
 		createInfo.imageArrayLayers = 1;
 		createInfo.imageUsage       = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-		auto queuesInfo = GetQueuesCreateInfo(pDeviceContext->GetPhysicalDevice(), pDeviceContext->GetSwapchainSurface());
+		auto queuesInfo = GetQueuesCreateInfo(mpDeviceContext->GetPhysicalDevice(), mpDeviceContext->GetSwapchainSurface());
 
 		std::array<U32, 2> queuesIndices
 		{
 			queuesInfo.mGraphicsQueueIndex,
-			queuesInfo.mPresentQueueIndex,
+				queuesInfo.mPresentQueueIndex,
 		};
 
 		if (queuesInfo.mGraphicsQueueIndex != queuesInfo.mPresentQueueIndex)
@@ -908,11 +970,11 @@ namespace TDEngine2
 		createInfo.clipped = VK_TRUE;
 		createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-		VK_SAFE_CALL(vkCreateSwapchainKHR(pDeviceContext->GetDevice(), &createInfo, nullptr, &mSwapChain));
-		VK_SAFE_CALL(vkGetSwapchainImagesKHR(pDeviceContext->GetDevice(), mSwapChain, &imagesCount, nullptr));
+		VK_SAFE_CALL(vkCreateSwapchainKHR(mpDeviceContext->GetDevice(), &createInfo, nullptr, &mSwapChain));
+		VK_SAFE_CALL(vkGetSwapchainImagesKHR(mpDeviceContext->GetDevice(), mSwapChain, &imagesCount, nullptr));
 
 		mSwapChainImages.resize(static_cast<USIZE>(imagesCount));
-		VK_SAFE_CALL(vkGetSwapchainImagesKHR(pDeviceContext->GetDevice(), mSwapChain, &imagesCount, mSwapChainImages.data()));
+		VK_SAFE_CALL(vkGetSwapchainImagesKHR(mpDeviceContext->GetDevice(), mSwapChain, &imagesCount, mSwapChainImages.data()));
 
 		mSwapChainImageViews.resize(mSwapChainImages.size());
 
@@ -933,32 +995,11 @@ namespace TDEngine2
 			createInfo.subresourceRange.baseArrayLayer = 0;
 			createInfo.subresourceRange.layerCount     = 1;
 
-			VK_SAFE_CALL(vkCreateImageView(pDeviceContext->GetDevice(), &createInfo, nullptr, &mSwapChainImageViews[i]));
+			VK_SAFE_CALL(vkCreateImageView(mpDeviceContext->GetDevice(), &createInfo, nullptr, &mSwapChainImageViews[i]));
 		}
 
 		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CVulkanSwapchain::AcquireNextImage(VkSemaphore semaphore)
-	{
-		VK_SAFE_CALL(vkAcquireNextImageKHR(mpDeviceContext->GetDevice(), mSwapChain, UINT64_MAX, semaphore, nullptr, &mCurrImageIndex));
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CVulkanSwapchain::Present(VkSemaphore waitSemaphore)
-	{
-		VkPresentInfoKHR presentInfo{};
-		
-		presentInfo.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-		presentInfo.waitSemaphoreCount = 1;
-		presentInfo.pWaitSemaphores    = &waitSemaphore;
-		presentInfo.swapchainCount     = 1;
-		presentInfo.pSwapchains        = &mSwapChain;
-		presentInfo.pImageIndices      = &mCurrImageIndex;
-
-		VK_SAFE_CALL(vkQueuePresentKHR(mpDeviceContext->GetGraphicsQueue(), &presentInfo));
+		mIsValid = true;
 
 		return RC_OK;
 	}
@@ -1395,6 +1436,11 @@ namespace TDEngine2
 
 		result = mpSwapchain->Present(mRenderFinishedSemaphores[mCurrFrameIndex]);
 		TDE2_ASSERT(RC_OK == result);
+
+		if (!mpSwapchain->IsValid()) // \note Assume that window's sizes are changed 
+		{
+			return;
+		}
 
 		mCurrFrameIndex = (mCurrFrameIndex + 1) & (FRAMES_COUNT - 1);
 	}
@@ -2494,7 +2540,8 @@ namespace TDEngine2
 
 		const TOnWindowResized* pOnWindowResizedEvent = dynamic_cast<const TOnWindowResized*>(pEvent);
 
-		SetViewport(0.0f, 0.0f, static_cast<F32>(pOnWindowResizedEvent->mWidth), static_cast<F32>(pOnWindowResizedEvent->mHeight), 0.0f, 1.0f);
+		mpSwapchain->InvalidateState();
+		mpSwapchain->TryProcessInvalidateState();
 
 		return RC_OK;
 	}
