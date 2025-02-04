@@ -215,9 +215,14 @@ namespace TDEngine2
 			mReadableSelectionBufferHandle = mpResourceManager->Create<ITexture2D>("SelectionBufferCPUCopy", renderTargetParams);
 		}
 
+		if (auto pSelectionBufferTexture = mpResourceManager->GetResource<ITexture2D>(mReadableSelectionBufferHandle); pSelectionBufferTexture && (pSelectionBufferTexture->GetWidth() != width || pSelectionBufferTexture->GetHeight() != height))
+		{
+			result = result | pSelectionBufferTexture->Resize(width, height);
+		}
+
 		mWindowHeaderHeight = height - mpWindowSystem->GetClientRect().height;
 
-		return RC_OK;
+		return result;
 	}
 
 	E_RESULT_CODE CSelectionManager::_setSelection(TEntityId id, bool resetSelection)
