@@ -1,6 +1,7 @@
 #include "../include/CVulkanGCtxPlugin.h"
 #include "../include/CVulkanGraphicsContext.h"
 #include "../include/win32/CWin32WindowSurfaceFactory.h"
+#include "../include/unix/CUnixWindowSurfaceFactory.h"
 #include "../include/CVulkanResources.h"
 #include "../include/CVulkanShaderCompiler.h"
 #include <core/IEngineCore.h>
@@ -129,7 +130,7 @@ namespace TDEngine2
 #if defined(TDE2_USE_WINPLATFORM)
 			CreateWin32WindowSurfaceFactory(pEngineCore->GetSubsystem<IWindowSystem>().Get(), result)
 #elif defined(TDE2_USE_UNIXPLATFORM)
-			nullptr
+			CreateUnixWindowSurfaceFactory(pEngineCore->GetSubsystem<IWindowSystem>().Get(), result)
 #endif
 			);
 
