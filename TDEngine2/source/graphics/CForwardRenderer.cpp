@@ -1207,8 +1207,8 @@ namespace TDEngine2
 					TFrameGraphResourceHandle mVolumetricCloudsMainBufferHandle = TFrameGraphResourceHandle::Invalid;
 				};
 
-				const U32 textureWidth = mContext.mWindowWidth / 4;
-				const U32 textureHeight = mContext.mWindowHeight / 4;
+				const U32 textureWidth  = static_cast<U32>(Align(mContext.mWindowWidth, 4)) / 4;
+				const U32 textureHeight = static_cast<U32>(Align(mContext.mWindowHeight, 4)) / 4;
 
 				auto&& output = pFrameGraph->AddPass<TPassData>("VolumetricCloudsMainPass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
 					{
@@ -1286,7 +1286,7 @@ namespace TDEngine2
 							pVolumetricCloudsRenderPassShader->SetUserUniformsBuffer(0, reinterpret_cast<const U8*>(&uniformsData), sizeof(uniformsData));
 							pVolumetricCloudsMainPipeline->Bind();
 
-							pGraphicsContext->DispatchCompute(textureWidth / 16, textureHeight / 16, 1);
+							pGraphicsContext->DispatchCompute(Align(textureWidth, 16) / 16, Align(textureHeight, 16) / 16, 1);
 
 							// \note Unbind resources
 							pGraphicsContext->SetTexture(pVolumetricCloudsRenderPassShader->GetResourceBindingSlot("OutputTexture"), TTextureHandleId::Invalid, true);
@@ -1359,7 +1359,7 @@ namespace TDEngine2
 							
 							pVolumetricCloudsUpscalePipeline->Bind();
 
-							pGraphicsContext->DispatchCompute(mContext.mWindowWidth / 16, mContext.mWindowHeight / 16, 1);
+							pGraphicsContext->DispatchCompute(Align(mContext.mWindowWidth, 16) / 16, Align(mContext.mWindowHeight, 16) / 16, 1);
 
 							// \note unbind
 							pGraphicsContext->SetTexture(pVolumetricCloudsUpsampleBlurPassShader->GetResourceBindingSlot("OutputTexture"), TTextureHandleId::Invalid, true);

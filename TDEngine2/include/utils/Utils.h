@@ -984,4 +984,10 @@ namespace TDEngine2
 
 
 	TDE2_API void WaitForDebugger();
+
+	
+	constexpr I32 Align(I32 value, I32 alignment)
+	{
+		return (value + (alignment - 1)) & ~(alignment - 1);
+	}
 }
