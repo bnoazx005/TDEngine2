@@ -1213,7 +1213,7 @@ namespace TDEngine2
 				auto&& output = pFrameGraph->AddPass<TPassData>("VolumetricCloudsMainPass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
 					{
 						builder.Read(frameGraphBlackboard.mMainRenderTargetHandle);
-						builder.Read(frameGraphBlackboard.mDepthBufferHandle);
+						builder.Read(frameGraphBlackboard.mReadonlyDepthBufferHandle);
 						builder.Read(frameGraphBlackboard.mLowFreqCloudsNoiseTextureTargetHandle);
 						builder.Read(frameGraphBlackboard.mHighFreqCloudsNoiseTextureTargetHandle);
 
@@ -1256,7 +1256,7 @@ namespace TDEngine2
 						uniformsData.mStepsCount = 64;
 
 						TFrameGraphTexture& mainRenderTarget           = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mMainRenderTargetHandle);
-						TFrameGraphTexture& depthBufferTarget          = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mDepthBufferHandle);
+						TFrameGraphTexture& depthBufferTarget          = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mReadonlyDepthBufferHandle);
 						TFrameGraphTexture& cloudsMainTarget           = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mVolumetricCloudsMainBufferHandle);
 						TFrameGraphTexture& lowFreqCloudsNoiseTexture  = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mLowFreqCloudsNoiseTextureTargetHandle);
 						TFrameGraphTexture& highFreqCloudsNoiseTexture = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mHighFreqCloudsNoiseTextureTargetHandle);
@@ -1318,7 +1318,7 @@ namespace TDEngine2
 				auto&& output = pFrameGraph->AddPass<TPassData>("VolumetricCloudsBlurUpscalePass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
 					{
 						builder.Read(frameGraphBlackboard.mVolumetricCloudsMainTargetHandle);
-						builder.Read(frameGraphBlackboard.mDepthBufferHandle);
+						builder.Read(frameGraphBlackboard.mReadonlyDepthBufferHandle);
 
 						TFrameGraphTexture::TDesc volumetricCloudsFullSizeBufferParams = pFrameGraph->GetResourceDesc<TFrameGraphTexture>(frameGraphBlackboard.mVolumetricCloudsMainTargetHandle);
 
@@ -1336,7 +1336,7 @@ namespace TDEngine2
 
 						TDE2_PROFILER_SCOPE("VolumetricCloudsBlurUpscalePass");
 
-						TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mDepthBufferHandle);
+						TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mReadonlyDepthBufferHandle);
 						TFrameGraphTexture& cloudsMainTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mVolumetricCloudsMainTargetHandle);
 						TFrameGraphTexture& cloudsFullSizeTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mVolumetricCloudsFullSizeBufferHandle);
 
@@ -1401,7 +1401,7 @@ namespace TDEngine2
 				auto&& output = pFrameGraph->AddPass<TPassData>("VolumetricCloudsBlurComposePass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
 					{
 						builder.Read(frameGraphBlackboard.mVolumetricCloudsFullSizeTargetHandle);
-						builder.Read(frameGraphBlackboard.mDepthBufferHandle);
+						builder.Read(frameGraphBlackboard.mReadonlyDepthBufferHandle);
 
 						builder.Read(frameGraphBlackboard.mMainRenderTargetHandle);
 
@@ -1418,7 +1418,7 @@ namespace TDEngine2
 
 						TDE2_PROFILER_SCOPE("VolumetricCloudsBlurComposePass");
 
-						TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mDepthBufferHandle);
+						TFrameGraphTexture& depthBufferTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mReadonlyDepthBufferHandle);
 						TFrameGraphTexture& cloudsFullSizeTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(frameGraphBlackboard.mVolumetricCloudsFullSizeTargetHandle);
 						TFrameGraphTexture& mainRenderTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mMainRenderTargetHandle);
 
