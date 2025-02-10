@@ -18,6 +18,7 @@
 #include "../../include/graphics/COrthoCamera.h"
 #include "../../include/graphics/IShader.h"
 #include "../../include/graphics/ITexture2D.h"
+#include "../../include/graphics/IPipeline.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/core/CGameUserSettings.h"
 #include "../../include/core/IJobManager.h"
@@ -98,13 +99,6 @@ namespace TDEngine2
 
 		return usedMaterials;
 	}
-
-
-	constexpr int Align(I32 value, I32 alignment) 
-	{ 
-		return (value + (alignment - 1)) & ~(alignment - 1); 
-	}
-
 
 	/*!
 		class CParticlesCPUSimulationSystem
@@ -560,23 +554,29 @@ namespace TDEngine2
 
 	struct TGPUSortLibContext
 	{
-		TResourceId mInitSortShaderHandle  = TResourceId::Invalid;
-		TResourceId mSortInnerShaderHandle = TResourceId::Invalid;
-		TResourceId mSortStepShaderHandle  = TResourceId::Invalid;
-		TResourceId mSortShaderHandle      = TResourceId::Invalid;
+		TComputePipelineStateId mInitSortPipelineHandle  = TComputePipelineStateId::Invalid;
+		TComputePipelineStateId mSortInnerPipelineHandle = TComputePipelineStateId::Invalid;
+		TComputePipelineStateId mSortStepPipelineHandle  = TComputePipelineStateId::Invalid;
+		TComputePipelineStateId mSortPipelineHandle      = TComputePipelineStateId::Invalid;
 
 		TBufferHandleId mDispatchArgsBufferHandle = TBufferHandleId::Invalid;
 	} static GpuSortLibContext;
 
 
-	static E_RESULT_CODE InitGPUSort(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, U32 maxCount, TBufferHandleId elementsBuffer, TBufferHandleId countBuffer)
+	static E_RESULT_CODE InitGPUSort(IGraphicsContext* pGraphicsContext, TPtr<IResourceManager> pResourceManager, U32 maxCount, TBufferHandleId elementsBuffer, TBufferHandleId countBuffer)
 	{
 		TDE2_PROFILER_SCOPE("InitGPUSort");
 
-		GpuSortLibContext.mInitSortShaderHandle = pResourceManager->Load<IShader>(CProjectSettings::Get()->mGraphicsSettings.mInitSortComputeShader);
-		TDE2_ASSERT(TResourceId::Invalid != GpuSortLibContext.mInitSortShaderHandle);
+		GpuSortLibContext.mInitSortPipelineHandle = pGraphicsContext->GetGraphicsObjectManager()->CreateComputePipelineState(pResourceManager, CProjectSettings::Get()->mGraphicsSettings.mInitSortComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
+		TDE2_ASSERT(TComputePipelineStateId::Invalid != GpuSortLibContext.mInitSortPipelineHandle);
 
-		TPtr<IShader> pInitSortShader = pResourceManager->GetResource<IShader>(GpuSortLibContext.mInitSortShaderHandle);
+		TPtr<IComputePipeline> pInitSortPipeline = pGraphicsContext->GetGraphicsObjectManager()->GetComputePipeline(GpuSortLibContext.mInitSortPipelineHandle);
+		if (!pInitSortPipeline)
+		{
+			return RC_FAIL;
+		}
+
+		TPtr<IShader> pInitSortShader = pInitSortPipeline->GetShaderPtr();
 		if (!pInitSortShader)
 		{
 			return RC_FAIL;
@@ -608,24 +608,31 @@ namespace TDEngine2
 
 		pInitSortShader->SetStructuredBufferResource("DispatchArgsBuffer", GpuSortLibContext.mDispatchArgsBufferHandle);
 		pInitSortShader->SetStructuredBufferResource("ElementsCount", countBuffer);
-		pInitSortShader->Bind();
+		
+		pInitSortPipeline->Bind();
 
 		pGraphicsContext->DispatchCompute(1, 1, 1);
 
 		return RC_OK;
 	}
 
-	static bool GPUSortInitial(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, U32 maxCount, TBufferHandleId elementsBuffer, TBufferHandleId countBuffer, TBufferHandleId indirectDispatchBufferHandle)
+	static bool GPUSortInitial(IGraphicsContext* pGraphicsContext, TPtr<IResourceManager> pResourceManager, U32 maxCount, TBufferHandleId elementsBuffer, TBufferHandleId countBuffer, TBufferHandleId indirectDispatchBufferHandle)
 	{
 		TDE2_PROFILER_SCOPE("GPUSortInitial");
 
 		const U32 threadGroupsCount = ((maxCount - 1) >> 9) + 1;
 		TDE2_ASSERT(threadGroupsCount <= 1024);
 
-		GpuSortLibContext.mSortShaderHandle = pResourceManager->Load<IShader>(CProjectSettings::Get()->mGraphicsSettings.mSortComputeShader);
-		TDE2_ASSERT(TResourceId::Invalid != GpuSortLibContext.mSortShaderHandle);
+		GpuSortLibContext.mSortPipelineHandle = pGraphicsContext->GetGraphicsObjectManager()->CreateComputePipelineState(pResourceManager, CProjectSettings::Get()->mGraphicsSettings.mSortComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
+		TDE2_ASSERT(TComputePipelineStateId::Invalid != GpuSortLibContext.mSortPipelineHandle);
 
-		TPtr<IShader> pSortShader = pResourceManager->GetResource<IShader>(GpuSortLibContext.mSortShaderHandle);
+		TPtr<IComputePipeline> pSortPipeline = pGraphicsContext->GetGraphicsObjectManager()->GetComputePipeline(GpuSortLibContext.mSortPipelineHandle);
+		if (!pSortPipeline)
+		{
+			return RC_FAIL;
+		}
+
+		TPtr<IShader> pSortShader = pSortPipeline->GetShaderPtr();
 		if (!pSortShader)
 		{
 			return RC_FAIL;
@@ -635,21 +642,28 @@ namespace TDEngine2
 
 		pSortShader->SetStructuredBufferResource("OutputData", elementsBuffer);
 		pSortShader->SetStructuredBufferResource("ElementsCount", countBuffer);
-		pSortShader->Bind();
+		
+		pSortPipeline->Bind();
 
 		pGraphicsContext->DispatchIndirectCompute(indirectDispatchBufferHandle, 0);
 
 		return threadGroupsCount <= 1;
 	}
 
-	static bool GPUSortIncremental(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, U32 presortedCount, U32 maxCount, TBufferHandleId elementsBuffer, TBufferHandleId countBuffer)
+	static bool GPUSortIncremental(IGraphicsContext* pGraphicsContext, TPtr<IResourceManager> pResourceManager, U32 presortedCount, U32 maxCount, TBufferHandleId elementsBuffer, TBufferHandleId countBuffer)
 	{
 		TDE2_PROFILER_SCOPE("GPUSortIncremental");
 
-		GpuSortLibContext.mSortStepShaderHandle = pResourceManager->Load<IShader>(CProjectSettings::Get()->mGraphicsSettings.mSortStepComputeShader);
-		TDE2_ASSERT(TResourceId::Invalid != GpuSortLibContext.mSortStepShaderHandle);
+		GpuSortLibContext.mSortStepPipelineHandle = pGraphicsContext->GetGraphicsObjectManager()->CreateComputePipelineState(pResourceManager, CProjectSettings::Get()->mGraphicsSettings.mSortStepComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
+		TDE2_ASSERT(TComputePipelineStateId::Invalid != GpuSortLibContext.mSortStepPipelineHandle);
 
-		TPtr<IShader> pSortStepShader = pResourceManager->GetResource<IShader>(GpuSortLibContext.mSortStepShaderHandle);
+		TPtr<IComputePipeline> pSortStepPipeline = pGraphicsContext->GetGraphicsObjectManager()->GetComputePipeline(GpuSortLibContext.mSortStepPipelineHandle);
+		if (!pSortStepPipeline)
+		{
+			return RC_FAIL;
+		}
+
+		TPtr<IShader> pSortStepShader = pSortStepPipeline->GetShaderPtr();
 		if (!pSortStepShader)
 		{
 			return RC_FAIL;
@@ -696,15 +710,21 @@ namespace TDEngine2
 			}
 
 			pSortStepShader->SetUserUniformsBuffer(0, reinterpret_cast<const U8*>(jobParams), sizeof(jobParams));
-			pSortStepShader->Bind();
+			pSortStepPipeline->Bind();
 
 			pGraphicsContext->DispatchCompute(threadGroupsCount, 1, 1);
 		}
 
-		GpuSortLibContext.mSortInnerShaderHandle = pResourceManager->Load<IShader>(CProjectSettings::Get()->mGraphicsSettings.mSortInnerComputeShader);
-		TDE2_ASSERT(TResourceId::Invalid != GpuSortLibContext.mSortInnerShaderHandle);
+		GpuSortLibContext.mSortInnerPipelineHandle = pGraphicsContext->GetGraphicsObjectManager()->CreateComputePipelineState(pResourceManager, CProjectSettings::Get()->mGraphicsSettings.mSortInnerComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
+		TDE2_ASSERT(TComputePipelineStateId::Invalid != GpuSortLibContext.mSortInnerPipelineHandle);
 
-		TPtr<IShader> pSortInnerShader = pResourceManager->GetResource<IShader>(GpuSortLibContext.mSortInnerShaderHandle);
+		TPtr<IComputePipeline> pSortInnerPipeline = pGraphicsContext->GetGraphicsObjectManager()->GetComputePipeline(GpuSortLibContext.mSortInnerPipelineHandle);
+		if (!pSortInnerPipeline)
+		{
+			return RC_FAIL;
+		}
+
+		TPtr<IShader> pSortInnerShader = pSortInnerPipeline->GetShaderPtr();
 		if (!pSortInnerShader)
 		{
 			return RC_FAIL;
@@ -712,7 +732,7 @@ namespace TDEngine2
 
 		pSortInnerShader->SetStructuredBufferResource("OutputData", elementsBuffer);
 		pSortInnerShader->SetStructuredBufferResource("ElementsCount", countBuffer);
-		pSortInnerShader->Bind();
+		pSortInnerPipeline->Bind();
 
 		pGraphicsContext->DispatchCompute(threadGroupsCount, 1, 1);
 
@@ -721,7 +741,7 @@ namespace TDEngine2
 
 
 	// bitonic sort algorithm executed on GPU device
-	E_RESULT_CODE GPUSort(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, U32 maxCount, TBufferHandleId elementsBuffer, TBufferHandleId countBuffer)
+	E_RESULT_CODE GPUSort(IGraphicsContext* pGraphicsContext, TPtr<IResourceManager> pResourceManager, U32 maxCount, TBufferHandleId elementsBuffer, TBufferHandleId countBuffer)
 	{
 		TDE2_PROFILER_SCOPE("GPUSort");
 
@@ -834,13 +854,13 @@ namespace TDEngine2
 					return result;
 				}
 
-				mEmitParticlesShaderHandle = mpResourceManager->Load<IShader>(CProjectSettings::Get()->mGraphicsSettings.mEmitParticlesComputeShader);
-				mSimulateParticlesShaderHandle = mpResourceManager->Load<IShader>(CProjectSettings::Get()->mGraphicsSettings.mSimulateParticlesComputeShader);
-				mInitDeadParticlesListShaderHandle = mpResourceManager->Load<IShader>(CProjectSettings::Get()->mGraphicsSettings.mInitDeadParticlesListComputeShader);
+				mEmitParticlesComputeStateHandle = mpGraphicsObjectManager->CreateComputePipelineState(mpResourceManager, CProjectSettings::Get()->mGraphicsSettings.mEmitParticlesComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
+				mSimulateParticlesComputeStateHandle = mpGraphicsObjectManager->CreateComputePipelineState(mpResourceManager, CProjectSettings::Get()->mGraphicsSettings.mSimulateParticlesComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
+				mInitDeadParticlesListComputeStateHandle = mpGraphicsObjectManager->CreateComputePipelineState(mpResourceManager, CProjectSettings::Get()->mGraphicsSettings.mInitDeadParticlesListComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
 
-				TDE2_ASSERT(TResourceId::Invalid != mEmitParticlesShaderHandle);
-				TDE2_ASSERT(TResourceId::Invalid != mSimulateParticlesShaderHandle);
-				TDE2_ASSERT(TResourceId::Invalid != mInitDeadParticlesListShaderHandle);
+				TDE2_ASSERT(TComputePipelineStateId::Invalid != mEmitParticlesComputeStateHandle);
+				TDE2_ASSERT(TComputePipelineStateId::Invalid != mSimulateParticlesComputeStateHandle);
+				TDE2_ASSERT(TComputePipelineStateId::Invalid != mInitDeadParticlesListComputeStateHandle);
 
 				_initDeadParticlesList();
 
@@ -910,10 +930,10 @@ namespace TDEngine2
 					_simulateParticles(pWorld, deltaTime);
 				}
 
-				mpJobManager->SubmitJob(&mMainSystemJobCounter, [pGraphicsContext, this](auto)
-					{
-						GPUSort(pGraphicsContext, mpResourceManager.Get(), MAX_PARTICLES_COUNT, mAliveIndexBufferHandle, mCountersBufferHandle);
-					});
+				/*mpJobManager->SubmitJob(&mMainSystemJobCounter, [pGraphicsContext, this](auto)
+					{*/
+						GPUSort(pGraphicsContext, mpResourceManager, MAX_PARTICLES_COUNT, mAliveIndexBufferHandle, mCountersBufferHandle);
+				//	});
 
 #if TDE2_DEBUG_MODE
 				pGraphicsContext->EndSectionMarker();
@@ -1132,7 +1152,9 @@ namespace TDEngine2
 			{
 				TDE2_PROFILER_SCOPE("CParticlesGPUSimulationSystem::EmitParticle");
 
-				TPtr<IShader> pEmitParticlesShader = mpResourceManager->GetResource<IShader>(mEmitParticlesShaderHandle);
+				auto pEmitParticlesComputePipeline = mpGraphicsObjectManager->GetComputePipeline(mEmitParticlesComputeStateHandle);
+
+				TPtr<IShader> pEmitParticlesShader = pEmitParticlesComputePipeline->GetShaderPtr();
 				if (!pEmitParticlesShader)
 				{
 					return;
@@ -1192,7 +1214,8 @@ namespace TDEngine2
 					pEmitParticlesShader->SetTextureResource("RandTexture", mpResourceManager->GetResource<ITexture2D>(mpResourceManager->Load<ITexture2D>(CProjectSettings::Get()->mGraphicsSettings.mRandomTextureId)).Get());
 					pEmitParticlesShader->SetTextureResource("EmittersCurvesAtlasTexture", mpResourceManager->GetResource<ITexture2D>(mEmittersBakedParamsAtlasHandle).Get());
 					pEmitParticlesShader->SetUserUniformsBuffer(0, reinterpret_cast<U8*>(&currEmitterShaderData), sizeof(currEmitterShaderData));
-					pEmitParticlesShader->Bind();
+					
+					pEmitParticlesComputePipeline->Bind();
 										
 					pGraphicsContext->DispatchCompute(Align(currEmitterShaderData.mEmitRate, EMIT_DISPATCH_WORK_GROUP_SIZE) / EMIT_DISPATCH_WORK_GROUP_SIZE, 1, 1);
 
@@ -1210,7 +1233,8 @@ namespace TDEngine2
 			{
 				TDE2_PROFILER_SCOPE("CParticlesGPUSimulationSystem::SimulateParticles");
 
-				TPtr<IShader> pSimulateParticlesShader = mpResourceManager->GetResource<IShader>(mSimulateParticlesShaderHandle);
+				TPtr<IComputePipeline> pSimulateParticlesComputePipeline = mpGraphicsObjectManager->GetComputePipeline(mSimulateParticlesComputeStateHandle);
+				TPtr<IShader> pSimulateParticlesShader = pSimulateParticlesComputePipeline->GetShaderPtr();
 				if (!pSimulateParticlesShader)
 				{
 					return;
@@ -1248,7 +1272,8 @@ namespace TDEngine2
 				pSimulateParticlesShader->SetTextureResource("RandTexture", mpResourceManager->GetResource<ITexture2D>(mpResourceManager->Load<ITexture2D>(CProjectSettings::Get()->mGraphicsSettings.mRandomTextureId)).Get());
 				pSimulateParticlesShader->SetTextureResource("EmittersCurvesAtlasTexture", mpResourceManager->GetResource<ITexture2D>(mEmittersBakedParamsAtlasHandle).Get());
 				pSimulateParticlesShader->SetUserUniformsBuffer(0, reinterpret_cast<U8*>(&simulationParams), sizeof(simulationParams));
-				pSimulateParticlesShader->Bind();
+				
+				pSimulateParticlesComputePipeline->Bind();
 
 				pGraphicsContext->DispatchCompute(Align(MAX_PARTICLES_COUNT, SIMULATE_DISPATCH_WORK_GROUP_SIZE) / SIMULATE_DISPATCH_WORK_GROUP_SIZE, 1, 1);
 
@@ -1291,20 +1316,21 @@ namespace TDEngine2
 
 				auto pCommand = pRenderQueue->SubmitDrawCommand<TDrawIndirectIndexedInstancedCommand>(static_cast<U32>(pMaterial->GetGeometrySubGroupTag()) + _computeRenderCommandHash(materialHandle, 0.0f));
 
-				pCommand->mUseIndexedCommand = true;
-				pCommand->mAlignedOffset = 0;
-				pCommand->mArgsBufferHandle = mIndirectDrawArgsBufferHandle;
-				pCommand->mVertexBufferHandle = TBufferHandleId::Invalid;
-				pCommand->mIndexBufferHandle = mParticleQuadIndexBufferHandle;
-				pCommand->mMaterialHandle = materialHandle;
-				pCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-				pCommand->mObjectData.mModelMatrix = IdentityMatrix4;
+				pCommand->mUseIndexedCommand          = true;
+				pCommand->mAlignedOffset              = 0;
+				pCommand->mArgsBufferHandle           = mIndirectDrawArgsBufferHandle;
+				pCommand->mVertexBufferHandle         = TBufferHandleId::Invalid;
+				pCommand->mIndexBufferHandle          = mParticleQuadIndexBufferHandle;
+				pCommand->mMaterialHandle             = materialHandle;
+				pCommand->mPrimitiveType              = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+				pCommand->mObjectData.mModelMatrix    = IdentityMatrix4;
 				pCommand->mObjectData.mInvModelMatrix = IdentityMatrix4;
 			}
 
 			void _initDeadParticlesList()
 			{
-				TPtr<IShader> pInitDeadParticlesListShader = mpResourceManager->GetResource<IShader>(mInitDeadParticlesListShaderHandle);
+				TPtr<IComputePipeline> pInitDeadParticlesListComputePipeline = mpGraphicsObjectManager->GetComputePipeline(mInitDeadParticlesListComputeStateHandle);
+				TPtr<IShader> pInitDeadParticlesListShader = pInitDeadParticlesListComputePipeline->GetShaderPtr();
 				if (!pInitDeadParticlesListShader)
 				{
 					return;
@@ -1323,7 +1349,8 @@ namespace TDEngine2
 				pInitDeadParticlesListShader->SetUserUniformsBuffer(0, reinterpret_cast<const U8*>(&shaderParams), sizeof(shaderParams));
 				pInitDeadParticlesListShader->SetStructuredBufferResource("DeadParticlesIndexList", mDeadListBufferHandle);
 				pInitDeadParticlesListShader->SetStructuredBufferResource("Counters", mCountersBufferHandle);
-				pInitDeadParticlesListShader->Bind();
+				
+				pInitDeadParticlesListComputePipeline->Bind();
 
 				pGraphicsContext->DispatchCompute(Align(MAX_PARTICLES_COUNT + 1, INIT_DEAD_PARTICLES_DISPATCH_WORK_GROUP_SIZE) / INIT_DEAD_PARTICLES_DISPATCH_WORK_GROUP_SIZE, 1, 1);
 
@@ -1363,9 +1390,9 @@ namespace TDEngine2
 
 			TSystemContext               mParticleEmitters;
 
-			TResourceId                  mEmitParticlesShaderHandle = TResourceId::Invalid;
-			TResourceId                  mSimulateParticlesShaderHandle = TResourceId::Invalid;
-			TResourceId                  mInitDeadParticlesListShaderHandle = TResourceId::Invalid;
+			TComputePipelineStateId      mEmitParticlesComputeStateHandle = TComputePipelineStateId::Invalid;
+			TComputePipelineStateId      mSimulateParticlesComputeStateHandle = TComputePipelineStateId::Invalid;
+			TComputePipelineStateId      mInitDeadParticlesListComputeStateHandle = TComputePipelineStateId::Invalid;
 
 			TResourceId                  mEmittersBakedParamsAtlasHandle = TResourceId::Invalid;
 
