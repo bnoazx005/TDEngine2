@@ -61,6 +61,7 @@ namespace TDEngine2
 			static const std::string mSortComputeShaderKey;
 			static const std::string mParticleRenderMaterialKey;
 			static const std::string mRandTextureIdKey;
+			static const std::string mEmittersParamsAtlasIdKey;
 		};
 
 		struct TAudioSettingsKeys
@@ -149,6 +150,7 @@ namespace TDEngine2
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mSortStepComputeShaderKey = "sort_step_compute_shader_id";
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mSortComputeShaderKey = "sort_compute_shader_id";
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mRandTextureIdKey = "rand_tex_id";
+	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mEmittersParamsAtlasIdKey = "emitters_baked_data_atlas_id";
 
 	const std::string TProjectSettingsArchiveKeys::TAudioSettingsKeys::mAudioTypeKey = "audio_plugin";
 
@@ -277,6 +279,7 @@ namespace TDEngine2
 			graphicsSettings.mSortComputeShader      = pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mSortComputeShaderKey, graphicsSettings.mSortComputeShader);
 
 			graphicsSettings.mRandomTextureId = pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mRandTextureIdKey, graphicsSettings.mRandomTextureId);
+			graphicsSettings.mEmittersParamsAtlasId = pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mEmittersParamsAtlasIdKey, graphicsSettings.mEmittersParamsAtlasId);
 		}
 		result = result | pFileReader->EndGroup();
 

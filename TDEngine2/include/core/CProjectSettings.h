@@ -100,6 +100,7 @@ namespace TDEngine2
 				std::string mSortComputeShader = "Shaders/Default/Sorting/Sort.cshader";
 
 				std::string mRandomTextureId = "DefaultResources/Textures/MainRndTexture";
+				std::string mEmittersParamsAtlasId = "DefaultResources/Textures/ParticlesEmittersBakedParamsAtlas";
 			} mGraphicsSettings;
 
 			struct
