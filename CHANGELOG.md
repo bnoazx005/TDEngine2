@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.31] 2025-02-04
+## [0.6.31] 2025-02-15
 
 ### Added
 
@@ -51,6 +51,8 @@ The implementation of **CForwardRenderer** was rewritten due to the changes.
 
 - The signature of BeforeReadOp/BeforeWriteOp methods of **CFrameGraphResource** was changed.
 
+- GPU particles simulation/rendering was moved into CForwardRenderer.cpp unit. Now the system only updates emitters and all computations executed during rendering phase.
+
 ### Fixed
 
 - The issues with parsing Texture2D<type> resources in HLSL were fixed for CVulkanShaderCompiler and CD3D11ShaderCompiler.
@@ -64,6 +66,8 @@ The implementation of **CForwardRenderer** was rewritten due to the changes.
 - Window's resize logic was changed, now resize events occur single time only after the action is finished.
 
 - Incorrect loading of dynamic libraries in **CWin32DLLManager** was fixed.
+
+- The issue with black edge on right side of a screen when a skydome is visible and volumetric clouds rendering is enabled was fixed.
 
 ## [0.6.30] 2024-10-24
 

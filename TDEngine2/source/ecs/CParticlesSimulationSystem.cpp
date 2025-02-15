@@ -848,21 +848,11 @@ namespace TDEngine2
 
 				mpResourceManager = pRenderer->GetResourceManager();
 
-				E_RESULT_CODE result = _initInternalVertexData();
+				E_RESULT_CODE result = _initEmittersBakedDataAtlasTexture();
 				if (RC_OK != result)
 				{
 					return result;
 				}
-
-				mEmitParticlesComputeStateHandle = mpGraphicsObjectManager->CreateComputePipelineState(mpResourceManager, CProjectSettings::Get()->mGraphicsSettings.mEmitParticlesComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
-				mSimulateParticlesComputeStateHandle = mpGraphicsObjectManager->CreateComputePipelineState(mpResourceManager, CProjectSettings::Get()->mGraphicsSettings.mSimulateParticlesComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
-				mInitDeadParticlesListComputeStateHandle = mpGraphicsObjectManager->CreateComputePipelineState(mpResourceManager, CProjectSettings::Get()->mGraphicsSettings.mInitDeadParticlesListComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
-
-				TDE2_ASSERT(TComputePipelineStateId::Invalid != mEmitParticlesComputeStateHandle);
-				TDE2_ASSERT(TComputePipelineStateId::Invalid != mSimulateParticlesComputeStateHandle);
-				TDE2_ASSERT(TComputePipelineStateId::Invalid != mInitDeadParticlesListComputeStateHandle);
-
-				_initDeadParticlesList();
 
 				mIsInitialized = true;
 
@@ -907,181 +897,20 @@ namespace TDEngine2
 			TDE2_API void Update(IWorld* pWorld, F32 dt) override
 			{
 				TDE2_PROFILER_SCOPE("CParticlesGPUSimulationSystem::Update");
-
+				
 				if (mParticleEmitters.mpParticleEmitters.empty())
 				{
 					return;
 				}
 
-				IGraphicsContext* pGraphicsContext = mpGraphicsObjectManager->GetGraphicsContext();
-#if TDE2_DEBUG_MODE
-				pGraphicsContext->BeginSectionMarker("GPUParticlesSimulationPass");
-#endif
-				{
-					// \todo reset particles if the flag is true
-
-					const F32 deltaTime =
-#if TDE2_EDITORS_ENABLED
-						SimulationTimeCoeffCfgVar.Get() *
-#endif
-						dt;
-
-					_emitParticles(pWorld, deltaTime);
-					_simulateParticles(pWorld, deltaTime);
-				}
-
-				/*mpJobManager->SubmitJob(&mMainSystemJobCounter, [pGraphicsContext, this](auto)
-					{*/
-						GPUSort(pGraphicsContext, mpResourceManager, MAX_PARTICLES_COUNT, mAliveIndexBufferHandle, mCountersBufferHandle);
-				//	});
-
-#if TDE2_DEBUG_MODE
-				pGraphicsContext->EndSectionMarker();
-#endif
-
-				_prepareRenderCommand(); // \note All particles for all emitters are batched and drawn in the single command
+				_emitParticles(pWorld);
 			}
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CParticlesGPUSimulationSystem)
 
-			E_RESULT_CODE _initInternalVertexData()
-			{
-				static const U32 faces[] =
-				{
-					0, 1, 2,
-					2, 1, 3
-				};
-
-				auto createIndexBufferResult = mpGraphicsObjectManager->CreateBuffer({ 
-						E_BUFFER_USAGE_TYPE::STATIC, 
-						E_BUFFER_TYPE::STRUCTURED, 
-						sizeof(U32) * 6, 
-						faces,
-						sizeof(U32) * 6,
-						false,
-						sizeof(U32),
-						E_STRUCTURED_BUFFER_TYPE::DEFAULT
-					});
-
-				if (createIndexBufferResult.HasError())
-				{
-					return createIndexBufferResult.GetError();
-				}
-
-				mParticleQuadIndexBufferHandle = createIndexBufferResult.Get();
-
-				auto countersBufferCreateResult = mpGraphicsObjectManager->CreateBuffer(
-					{
-						E_BUFFER_USAGE_TYPE::DEFAULT,
-						E_BUFFER_TYPE::STRUCTURED,
-						sizeof(U32) * COUNTERS_COUNT,
-						nullptr,
-						sizeof(U32) * COUNTERS_COUNT,
-						true,
-						sizeof(U32),
-						E_STRUCTURED_BUFFER_TYPE::DEFAULT,
-						E_INDEX_FORMAT_TYPE::INDEX16, // unused
-						"CountersBuffer"
-					});
-
-				if (countersBufferCreateResult.HasError())
-				{
-					return countersBufferCreateResult.GetError();
-				}
-
-				mCountersBufferHandle = countersBufferCreateResult.Get();
-
-				auto deadParticlesListBufferCreateResult = mpGraphicsObjectManager->CreateBuffer(
-					{
-						E_BUFFER_USAGE_TYPE::DEFAULT,
-						E_BUFFER_TYPE::STRUCTURED,
-						sizeof(U32) * MAX_PARTICLES_COUNT,
-						nullptr,
-						sizeof(U32) * MAX_PARTICLES_COUNT,
-						true,
-						sizeof(U32),
-						E_STRUCTURED_BUFFER_TYPE::DEFAULT,
-						E_INDEX_FORMAT_TYPE::INDEX16, // unused
-						"DeadParticlesListBuffer"
-					});
-
-				if (deadParticlesListBufferCreateResult.HasError())
-				{
-					return deadParticlesListBufferCreateResult.GetError();
-				}
-
-				mDeadListBufferHandle = deadParticlesListBufferCreateResult.Get();
-
-				// particles buffer
-				auto particlesBufferCreateResult = mpGraphicsObjectManager->CreateBuffer(
-					{
-						E_BUFFER_USAGE_TYPE::DEFAULT,
-						E_BUFFER_TYPE::STRUCTURED,
-						sizeof(TGPUParticle) * MAX_PARTICLES_COUNT,
-						nullptr,
-						sizeof(TGPUParticle) * MAX_PARTICLES_COUNT,
-						true,
-						sizeof(TGPUParticle),
-						E_STRUCTURED_BUFFER_TYPE::DEFAULT,
-						E_INDEX_FORMAT_TYPE::INDEX16, // unused
-						"ParticlesBuffer"
-					});
-
-				if (particlesBufferCreateResult.HasError())
-				{
-					return particlesBufferCreateResult.GetError();
-				}
-
-				mParticlesBufferHandle = particlesBufferCreateResult.Get();
-
-				auto aliveIndexBufferCreateResult = mpGraphicsObjectManager->CreateBuffer(
-					{
-						E_BUFFER_USAGE_TYPE::DEFAULT,
-						E_BUFFER_TYPE::STRUCTURED,
-						sizeof(TActiveParticleIndexElement) * MAX_PARTICLES_COUNT,
-						nullptr,
-						sizeof(TActiveParticleIndexElement) * MAX_PARTICLES_COUNT,
-						true,
-						sizeof(TActiveParticleIndexElement),
-						E_STRUCTURED_BUFFER_TYPE::DEFAULT,
-						E_INDEX_FORMAT_TYPE::INDEX16, // unused
-						"AliveIndexParticlesBuffer"
-					});
-
-				if (aliveIndexBufferCreateResult.HasError())
-				{
-					return aliveIndexBufferCreateResult.GetError();
-				}
-
-				mAliveIndexBufferHandle = aliveIndexBufferCreateResult.Get();
-				
-				auto indirectDrawArgsBufferCreateResult = mpGraphicsObjectManager->CreateBuffer(
-					{
-						E_BUFFER_USAGE_TYPE::DEFAULT,
-						E_BUFFER_TYPE::STRUCTURED,
-						sizeof(U32) * 5,
-						nullptr,
-						sizeof(U32) * 5,
-						true,
-						sizeof(U32),
-						E_STRUCTURED_BUFFER_TYPE::INDIRECT_DRAW_BUFFER,
-						E_INDEX_FORMAT_TYPE::INDEX16, // unused
-						"IndirectDrawArgsBuffer"
-					});
-
-				if (indirectDrawArgsBufferCreateResult.HasError())
-				{
-					return indirectDrawArgsBufferCreateResult.GetError();
-				}
-
-				mIndirectDrawArgsBufferHandle = indirectDrawArgsBufferCreateResult.Get();
-
-				return _initEmittersBakedDataAtlasTexture();
-			}
-
 			E_RESULT_CODE _initEmittersBakedDataAtlasTexture()
 			{
-				mEmittersBakedParamsAtlasHandle = mpResourceManager->Create<ITexture2D>("ParticlesEmittersBakedParamsAtlas", TTexture2DParameters(EMITTERS_BAKED_DATA_ATLAS_SIZES, EMITTERS_BAKED_DATA_ATLAS_SIZES, FT_FLOAT4));
+				mEmittersBakedParamsAtlasHandle = mpResourceManager->Create<ITexture2D>(CProjectSettings::Get()->mGraphicsSettings.mEmittersParamsAtlasId, TTexture2DParameters(EMITTERS_BAKED_DATA_ATLAS_SIZES, EMITTERS_BAKED_DATA_ATLAS_SIZES, FT_FLOAT4));
 				if (TResourceId::Invalid == mEmittersBakedParamsAtlasHandle)
 				{
 					return RC_FAIL;
@@ -1148,22 +977,11 @@ namespace TDEngine2
 				pEmittersAtlasTexture->WriteData({ static_cast<I32>(xStartOffset * EMITTERS_BAKED_CURVE_WIDTH), static_cast<I32>(yStartOffset + 1), static_cast<I32>(EMITTERS_BAKED_CURVE_WIDTH), 1 }, reinterpret_cast<const U8*>(colorCurves.data()));
 			}
 
-			void _emitParticles(IWorld* pWorld, F32 dt)
+			void _emitParticles(IWorld* pWorld)
 			{
 				TDE2_PROFILER_SCOPE("CParticlesGPUSimulationSystem::EmitParticle");
 
-				auto pEmitParticlesComputePipeline = mpGraphicsObjectManager->GetComputePipeline(mEmitParticlesComputeStateHandle);
-
-				TPtr<IShader> pEmitParticlesShader = pEmitParticlesComputePipeline->GetShaderPtr();
-				if (!pEmitParticlesShader)
-				{
-					return;
-				}
-
-				IGraphicsContext* pGraphicsContext = mpGraphicsObjectManager->GetGraphicsContext();
-#if TDE2_DEBUG_MODE
-				pGraphicsContext->BeginSectionMarker("EmitParticles");
-#endif
+				auto& emitters = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mGpuParticleEmitters;
 
 				for (USIZE i = 0; i < mParticleEmitters.mpParticleEmitters.size(); ++i)
 				{
@@ -1206,165 +1024,8 @@ namespace TDEngine2
 					currEmitterShaderData.mEmittersAtlasStartPos[0] = static_cast<U32>(i / EMITTERS_BAKED_DATA_ATLAS_SIZES) * EMITTERS_BAKED_CURVE_WIDTH;
 					currEmitterShaderData.mEmittersAtlasStartPos[1] = i % EMITTERS_BAKED_DATA_ATLAS_SIZES;
 					
-					// \note Bind the buffer
-					pEmitParticlesShader->SetStructuredBufferResource("OutputParticles", mParticlesBufferHandle);
-					pEmitParticlesShader->SetStructuredBufferResource("DeadParticlesIndexList", mDeadListBufferHandle);
-					pEmitParticlesShader->SetStructuredBufferResource("Counters", mCountersBufferHandle);
-					pEmitParticlesShader->SetTextureResource("EmittersParamsAtlas", mpResourceManager->GetResource<ITexture2D>(mEmittersBakedParamsAtlasHandle).Get());
-					pEmitParticlesShader->SetTextureResource("RandTexture", mpResourceManager->GetResource<ITexture2D>(mpResourceManager->Load<ITexture2D>(CProjectSettings::Get()->mGraphicsSettings.mRandomTextureId)).Get());
-					pEmitParticlesShader->SetTextureResource("EmittersCurvesAtlasTexture", mpResourceManager->GetResource<ITexture2D>(mEmittersBakedParamsAtlasHandle).Get());
-					pEmitParticlesShader->SetUserUniformsBuffer(0, reinterpret_cast<U8*>(&currEmitterShaderData), sizeof(currEmitterShaderData));
-					
-					pEmitParticlesComputePipeline->Bind();
-										
-					pGraphicsContext->DispatchCompute(Align(currEmitterShaderData.mEmitRate, EMIT_DISPATCH_WORK_GROUP_SIZE) / EMIT_DISPATCH_WORK_GROUP_SIZE, 1, 1);
-
-					pGraphicsContext->SetStructuredBuffer(pEmitParticlesShader->GetResourceBindingSlot("OutputParticles"), TBufferHandleId::Invalid, true);
-					pGraphicsContext->SetStructuredBuffer(pEmitParticlesShader->GetResourceBindingSlot("DeadParticlesIndexList"), TBufferHandleId::Invalid, true);
-					pGraphicsContext->SetStructuredBuffer(pEmitParticlesShader->GetResourceBindingSlot("Counters"), TBufferHandleId::Invalid, true);
+					emitters.emplace_back(currEmitterShaderData);
 				}
-
-#if TDE2_DEBUG_MODE
-				pGraphicsContext->EndSectionMarker();
-#endif
-			}
-
-			void _simulateParticles(IWorld* pWorld, F32 dt)
-			{
-				TDE2_PROFILER_SCOPE("CParticlesGPUSimulationSystem::SimulateParticles");
-
-				TPtr<IComputePipeline> pSimulateParticlesComputePipeline = mpGraphicsObjectManager->GetComputePipeline(mSimulateParticlesComputeStateHandle);
-				TPtr<IShader> pSimulateParticlesShader = pSimulateParticlesComputePipeline->GetShaderPtr();
-				if (!pSimulateParticlesShader)
-				{
-					return;
-				}
-
-				auto&& pCamerasContext = pWorld->FindEntity(pWorld->FindEntityWithUniqueComponent<CCamerasContextComponent>())->GetComponent<CCamerasContextComponent>();
-				auto&& pActiveCameraTransform = pWorld->FindEntity(pCamerasContext->GetActiveCameraEntityId())->GetComponent<CTransform>();
-				if (!pActiveCameraTransform)
-				{
-					LOG_WARNING("[CParticlesCPUSimulationSystem] An entity with Camera component attached to that wasn't found");
-					return;
-				}
-
-				IGraphicsContext* pGraphicsContext = mpGraphicsObjectManager->GetGraphicsContext();
-#if TDE2_DEBUG_MODE
-				pGraphicsContext->BeginSectionMarker("SimulateParticles");
-#endif
-
-				struct
-				{
-					TVector4 mCameraPosition;
-					F32      mDeltaTime;
-					U32      mMaxParticlesCount;
-				} simulationParams;
-
-				simulationParams.mCameraPosition = TVector4(pActiveCameraTransform->GetPosition(), 1.0f);
-				simulationParams.mDeltaTime = dt;
-				simulationParams.mMaxParticlesCount = MAX_PARTICLES_COUNT;
-
-				pSimulateParticlesShader->SetStructuredBufferResource("OutputParticles", mParticlesBufferHandle);
-				pSimulateParticlesShader->SetStructuredBufferResource("DeadParticlesIndexList", mDeadListBufferHandle);
-				pSimulateParticlesShader->SetStructuredBufferResource("ParticlesIndexBuffer", mAliveIndexBufferHandle);
-				pSimulateParticlesShader->SetStructuredBufferResource("DrawArgsBuffer", mIndirectDrawArgsBufferHandle);
-				pSimulateParticlesShader->SetStructuredBufferResource("Counters", mCountersBufferHandle);
-				pSimulateParticlesShader->SetTextureResource("RandTexture", mpResourceManager->GetResource<ITexture2D>(mpResourceManager->Load<ITexture2D>(CProjectSettings::Get()->mGraphicsSettings.mRandomTextureId)).Get());
-				pSimulateParticlesShader->SetTextureResource("EmittersCurvesAtlasTexture", mpResourceManager->GetResource<ITexture2D>(mEmittersBakedParamsAtlasHandle).Get());
-				pSimulateParticlesShader->SetUserUniformsBuffer(0, reinterpret_cast<U8*>(&simulationParams), sizeof(simulationParams));
-				
-				pSimulateParticlesComputePipeline->Bind();
-
-				pGraphicsContext->DispatchCompute(Align(MAX_PARTICLES_COUNT, SIMULATE_DISPATCH_WORK_GROUP_SIZE) / SIMULATE_DISPATCH_WORK_GROUP_SIZE, 1, 1);
-
-				pGraphicsContext->SetStructuredBuffer(pSimulateParticlesShader->GetResourceBindingSlot("OutputParticles"), TBufferHandleId::Invalid, true);
-				pGraphicsContext->SetStructuredBuffer(pSimulateParticlesShader->GetResourceBindingSlot("DeadParticlesIndexList"), TBufferHandleId::Invalid, true);
-				pGraphicsContext->SetStructuredBuffer(pSimulateParticlesShader->GetResourceBindingSlot("ParticlesIndexBuffer"), TBufferHandleId::Invalid, true);
-				pGraphicsContext->SetStructuredBuffer(pSimulateParticlesShader->GetResourceBindingSlot("DrawArgsBuffer"), TBufferHandleId::Invalid, true);
-				pGraphicsContext->SetStructuredBuffer(pSimulateParticlesShader->GetResourceBindingSlot("Counters"), TBufferHandleId::Invalid, true);
-
-#if TDE2_DEBUG_MODE
-				pGraphicsContext->EndSectionMarker();
-#endif
-			}
-
-			void _prepareRenderCommand()
-			{
-				const TResourceId materialHandle = mpResourceManager->Load<IMaterial>(CProjectSettings::Get()->mGraphicsSettings.mParticleRenderMaterial);
-				if (TResourceId::Invalid == materialHandle)
-				{
-					return;
-				}
-
-				auto pMaterial = mpResourceManager->GetResource<IMaterial>(materialHandle);
-				if (!pMaterial)
-				{
-					return;
-				}
-
-				// \fixme Replace these calls with methods of IMaterial later
-				auto pShader = mpResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
-				pShader->SetStructuredBufferResource("Particles", mParticlesBufferHandle);
-				pShader->SetStructuredBufferResource("AliveParticlesIndexBuffer", mAliveIndexBufferHandle);
-				pShader->SetStructuredBufferResource("Counters", mCountersBufferHandle);
-
-				TPtr<CRenderQueue> pRenderQueue = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_TRANSPARENT_GEOMETRY)];
-				if (!pRenderQueue)
-				{
-					return;
-				}
-
-				auto pCommand = pRenderQueue->SubmitDrawCommand<TDrawIndirectIndexedInstancedCommand>(static_cast<U32>(pMaterial->GetGeometrySubGroupTag()) + _computeRenderCommandHash(materialHandle, 0.0f));
-
-				pCommand->mUseIndexedCommand          = true;
-				pCommand->mAlignedOffset              = 0;
-				pCommand->mArgsBufferHandle           = mIndirectDrawArgsBufferHandle;
-				pCommand->mVertexBufferHandle         = TBufferHandleId::Invalid;
-				pCommand->mIndexBufferHandle          = mParticleQuadIndexBufferHandle;
-				pCommand->mMaterialHandle             = materialHandle;
-				pCommand->mPrimitiveType              = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-				pCommand->mObjectData.mModelMatrix    = IdentityMatrix4;
-				pCommand->mObjectData.mInvModelMatrix = IdentityMatrix4;
-			}
-
-			void _initDeadParticlesList()
-			{
-				TPtr<IComputePipeline> pInitDeadParticlesListComputePipeline = mpGraphicsObjectManager->GetComputePipeline(mInitDeadParticlesListComputeStateHandle);
-				TPtr<IShader> pInitDeadParticlesListShader = pInitDeadParticlesListComputePipeline->GetShaderPtr();
-				if (!pInitDeadParticlesListShader)
-				{
-					return;
-				}
-
-				IGraphicsContext* pGraphicsContext = mpGraphicsObjectManager->GetGraphicsContext();
-#if TDE2_DEBUG_MODE
-				pGraphicsContext->BeginSectionMarker("InitDeadParticles");
-#endif
-
-				struct
-				{
-					U32 mMaxParticlesCount = MAX_PARTICLES_COUNT;
-				} shaderParams{};
-
-				pInitDeadParticlesListShader->SetUserUniformsBuffer(0, reinterpret_cast<const U8*>(&shaderParams), sizeof(shaderParams));
-				pInitDeadParticlesListShader->SetStructuredBufferResource("DeadParticlesIndexList", mDeadListBufferHandle);
-				pInitDeadParticlesListShader->SetStructuredBufferResource("Counters", mCountersBufferHandle);
-				
-				pInitDeadParticlesListComputePipeline->Bind();
-
-				pGraphicsContext->DispatchCompute(Align(MAX_PARTICLES_COUNT + 1, INIT_DEAD_PARTICLES_DISPATCH_WORK_GROUP_SIZE) / INIT_DEAD_PARTICLES_DISPATCH_WORK_GROUP_SIZE, 1, 1);
-
-				pGraphicsContext->SetStructuredBuffer(pInitDeadParticlesListShader->GetResourceBindingSlot("DeadParticlesIndexList"), TBufferHandleId::Invalid, true);
-				pGraphicsContext->SetStructuredBuffer(pInitDeadParticlesListShader->GetResourceBindingSlot("Counters"), TBufferHandleId::Invalid, true);
-
-#if TDE2_DEBUG_MODE
-				pGraphicsContext->EndSectionMarker();
-#endif
-			}
-
-			static U32 _computeRenderCommandHash(TResourceId materialId, F32 distanceToCamera)
-			{
-				return (static_cast<U32>(materialId) << 16) | static_cast<U16>(fabs(distanceToCamera));
 			}
 
 		protected:
@@ -1386,27 +1047,14 @@ namespace TDEngine2
 
 			IGraphicsObjectManager*      mpGraphicsObjectManager = nullptr;
 
-			TBufferHandleId              mParticleQuadIndexBufferHandle;
-
 			TSystemContext               mParticleEmitters;
 
-			TComputePipelineStateId      mEmitParticlesComputeStateHandle = TComputePipelineStateId::Invalid;
-			TComputePipelineStateId      mSimulateParticlesComputeStateHandle = TComputePipelineStateId::Invalid;
-			TComputePipelineStateId      mInitDeadParticlesListComputeStateHandle = TComputePipelineStateId::Invalid;
-
 			TResourceId                  mEmittersBakedParamsAtlasHandle = TResourceId::Invalid;
-
-			TBufferHandleId              mDeadListBufferHandle = TBufferHandleId::Invalid;
-			TBufferHandleId              mParticlesBufferHandle = TBufferHandleId::Invalid;
-			TBufferHandleId              mAliveIndexBufferHandle = TBufferHandleId::Invalid;
-			TBufferHandleId              mIndirectDrawArgsBufferHandle = TBufferHandleId::Invalid;
-			TBufferHandleId              mCountersBufferHandle = TBufferHandleId::Invalid;
 	};
 
 
 	CParticlesGPUSimulationSystem::CParticlesGPUSimulationSystem() :
-		CBaseSystem(),
-		mParticleQuadIndexBufferHandle(TBufferHandleId::Invalid)
+		CBaseSystem()
 	{
 	}
 
