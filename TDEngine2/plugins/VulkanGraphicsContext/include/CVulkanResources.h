@@ -112,7 +112,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanBuffer)
 
-			E_RESULT_CODE _discardCurrentBuffer(USIZE newSize);
+			E_RESULT_CODE _discardCurrentBuffer(USIZE newSize, E_STRUCTURED_BUFFER_TYPE structuredBufferType);
 			E_RESULT_CODE _onFreeInternal() override;			
 		protected:
 			USIZE                    mBufferSize = 0;

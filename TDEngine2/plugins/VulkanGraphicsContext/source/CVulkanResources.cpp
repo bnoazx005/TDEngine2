@@ -58,13 +58,25 @@ namespace TDEngine2
 	};
 
 
-	static TResult<TCreatedBufferInfo> CreateBufferInternal(VmaAllocator allocator, U32 size, E_BUFFER_TYPE type, E_BUFFER_USAGE_TYPE usageType)
+	static TResult<TCreatedBufferInfo> CreateBufferInternal(VmaAllocator allocator, U32 size, E_BUFFER_TYPE type, E_BUFFER_USAGE_TYPE usageType, std::optional<E_STRUCTURED_BUFFER_TYPE> structuredBufferType = std::nullopt)
 	{
 		VkBufferCreateInfo bufferCreateInfo{};
 		bufferCreateInfo.sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		bufferCreateInfo.size        = size;
 		bufferCreateInfo.usage       = GetBufferType(type) | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 		bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE; //mIsUnorderedAccessResource ? VK_SHARING_MODE_CONCURRENT : VK_SHARING_MODE_EXCLUSIVE;
+
+		if (structuredBufferType)
+		{
+			switch (*structuredBufferType)
+			{
+				case E_STRUCTURED_BUFFER_TYPE::INDIRECT_DRAW_BUFFER:
+					bufferCreateInfo.usage |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
+					break;
+				default:
+					break;
+			}
+		}
 
 		VmaAllocationCreateInfo allocInfo{};
 		allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
@@ -82,7 +94,7 @@ namespace TDEngine2
 	{
 		VmaAllocator allocator = pGraphicsContext->GetAllocator();
 
-		auto createStagingBufferResult = CreateBufferInternal(allocator, params.mDataSize, E_BUFFER_TYPE::GENERIC, E_BUFFER_USAGE_TYPE::DYNAMIC);
+		auto createStagingBufferResult = CreateBufferInternal(allocator, params.mDataSize, E_BUFFER_TYPE::GENERIC, E_BUFFER_USAGE_TYPE::DYNAMIC, params.mStructuredBufferType);
 		if (createStagingBufferResult.HasError())
 		{
 			return createStagingBufferResult.GetError();
@@ -140,7 +152,7 @@ namespace TDEngine2
 
 		mIsUnorderedAccessResource = params.mIsUnorderedAccessResource;
 		
-		E_RESULT_CODE result = _discardCurrentBuffer(mBufferSize);
+		E_RESULT_CODE result = _discardCurrentBuffer(mBufferSize, params.mStructuredBufferType);
 		if (RC_OK != result)
 		{
 			return result;
@@ -172,7 +184,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CVulkanBuffer::_discardCurrentBuffer(USIZE newSize)
+	E_RESULT_CODE CVulkanBuffer::_discardCurrentBuffer(USIZE newSize, E_STRUCTURED_BUFFER_TYPE structuredBufferType)
 	{
 		if (VK_NULL_HANDLE != mInternalBufferHandle)
 		{
@@ -184,7 +196,7 @@ namespace TDEngine2
 			mpGraphicsContextImpl->DestroyObjectDeffered(mInternalBufferHandle, mAllocation);
 		}
 
-		auto createBufferResult = CreateBufferInternal(mAllocator, newSize, mBufferType, mBufferUsageType);
+		auto createBufferResult = CreateBufferInternal(mAllocator, newSize, mBufferType, mBufferUsageType, structuredBufferType);
 		if (createBufferResult.HasError())
 		{
 			return createBufferResult.GetError();
@@ -215,7 +227,7 @@ namespace TDEngine2
 
 		if (E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD == mapType)
 		{
-			_discardCurrentBuffer(mBufferSize);
+			_discardCurrentBuffer(mBufferSize, mInitParams.mStructuredBufferType);
 		}
 
 		VK_SAFE_CALL(vmaMapMemory(mAllocator, mAllocation, &mpMappedBufferData));
@@ -257,7 +269,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanBuffer::Resize(USIZE newSize)
 	{
-		E_RESULT_CODE result = _discardCurrentBuffer(mBufferSize);
+		E_RESULT_CODE result = _discardCurrentBuffer(mBufferSize, mInitParams.mStructuredBufferType);
 		if (RC_OK != result)
 		{
 			return result;
