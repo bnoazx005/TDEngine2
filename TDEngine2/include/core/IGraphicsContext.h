@@ -484,6 +484,7 @@ namespace TDEngine2
 		enum class E_DESCRIPTOR_TYPE : U8
 		{
 			BUFFER = 1,
+			RAW_BUFFER,
 			TEXTURE,
 			UNKNOWN = 0
 		};

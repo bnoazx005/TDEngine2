@@ -79,6 +79,7 @@ namespace TDEngine2
 				} mType;
 
 				VmaAllocation mAllocation = VK_NULL_HANDLE;
+				VkBufferView  mBufferViewHandle = VK_NULL_HANDLE;
 			};
 
 			typedef std::vector<TGarbageEntity>         TGarbageCollection;
@@ -110,7 +111,7 @@ namespace TDEngine2
 				\brief The method executes given destroyCommand at the end of a frame when all resources of current frame can be destructed
 			*/
 
-			E_RESULT_CODE DestroyObjectDeffered(VkBuffer bufferHandle, VmaAllocation allocation);
+			E_RESULT_CODE DestroyObjectDeffered(VkBuffer bufferHandle, VmaAllocation allocation, VkBufferView bufferViewHandle);
 			E_RESULT_CODE DestroyObjectDeffered(VkImage imageHandle, VmaAllocation allocation);
 			E_RESULT_CODE DestroyObjectDeffered(VkImageView imageViewHandle);
 

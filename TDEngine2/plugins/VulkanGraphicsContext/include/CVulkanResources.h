@@ -107,6 +107,7 @@ namespace TDEngine2
 			USIZE GetSize() const override;
 
 			VkBuffer GetVulkanHandle();
+			const VkBufferView* GetViewHandle() const;
 
 			const TInitBufferParams& GetParams() const override;
 		protected:
@@ -132,6 +133,7 @@ namespace TDEngine2
 			CVulkanGraphicsContext*  mpGraphicsContextImpl = nullptr;
 
 			VkBuffer                 mInternalBufferHandle = VK_NULL_HANDLE;
+			VkBufferView             mInternalBufferViewHandle = VK_NULL_HANDLE;
 			VmaAllocator             mAllocator = VK_NULL_HANDLE;
 			VmaAllocation            mAllocation = VK_NULL_HANDLE;
 			VkDevice                 mDevice = VK_NULL_HANDLE;
@@ -172,7 +174,7 @@ namespace TDEngine2
 	{
 		struct TBindingInfo
 		{
-			enum class E_TYPE { BUFFER, TEXTURE };
+			enum class E_TYPE { BUFFER, RAW_BUFFER, TEXTURE };
 
 			U32    mSlot = 0;
 			E_TYPE mType = E_TYPE::TEXTURE;

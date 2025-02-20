@@ -1250,6 +1250,11 @@ namespace TDEngine2
 			{
 			case CVulkanGraphicsContext::TGarbageEntity::E_TYPE::BUFFER:
 				vmaDestroyBuffer(allocator, currGarbageEntity.mData.mBufferHandle, currGarbageEntity.mAllocation);
+
+				if (currGarbageEntity.mBufferViewHandle != VK_NULL_HANDLE)
+				{
+					vkDestroyBufferView(device, currGarbageEntity.mBufferViewHandle, nullptr);
+				}
 				break;
 			case CVulkanGraphicsContext::TGarbageEntity::E_TYPE::IMAGE:
 				vmaDestroyImage(allocator, currGarbageEntity.mData.mImageHandle, currGarbageEntity.mAllocation);
@@ -1306,7 +1311,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeffered(VkBuffer bufferHandle, VmaAllocation allocation)
+	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeffered(VkBuffer bufferHandle, VmaAllocation allocation, VkBufferView bufferViewHandle)
 	{
 		std::lock_guard<std::mutex> lock(mGarbageCollectorMutex);
 
@@ -2651,6 +2656,33 @@ namespace TDEngine2
 		return mpCommandBuffers[mCurrFrameIndex]->GetHandle();
 	}
 
+
+	static bool IsBindingTypeAllowed(const TVulkanPipelineLayoutInfo::TBindingInfo& bindingInfo, const TDescriptorsBindingsTable::TDescriptorHandle& descriptorHandle)
+	{
+		using E_BINDING_TYPE    = TVulkanPipelineLayoutInfo::TBindingInfo::E_TYPE;
+		using E_DESCRIPTOR_TYPE = TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE;
+
+		const TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE descriptorHandleType = descriptorHandle.mType;
+
+		if (bindingInfo.mType == E_BINDING_TYPE::BUFFER && descriptorHandleType == E_DESCRIPTOR_TYPE::BUFFER)
+		{
+			return true;
+		}
+
+		if (bindingInfo.mType == E_BINDING_TYPE::RAW_BUFFER && descriptorHandleType == E_DESCRIPTOR_TYPE::RAW_BUFFER)
+		{
+			return true;
+		}
+
+		if (bindingInfo.mType == E_BINDING_TYPE::TEXTURE && descriptorHandleType == E_DESCRIPTOR_TYPE::TEXTURE)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+
 	void CVulkanGraphicsContext::_flushPipelineDescriptorsSet()
 	{
 		if (!mpActivePipelineStates[mCurrFrameIndex])
@@ -2708,11 +2740,8 @@ namespace TDEngine2
 
 			const bool isNullDescriptor = TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::UNKNOWN == currResourceEntity.mType;
 
-			if (TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::UNKNOWN == currResourceEntity.mType)
+			if (TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::UNKNOWN == currResourceEntity.mType || !IsBindingTypeAllowed(currPipelineActiveSlots.mSRVActiveSlots[i], currResourceEntity))
 			{
-				/*mDescriptorsBindingsTable.mSRVBuffers[currBinding].mType =
-					TVulkanPipelineLayoutInfo::TBindingInfo::E_TYPE::BUFFER == currPipelineActiveSlots.mSRVActiveSlots[i].mType ? TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::BUFFER : TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::TEXTURE;*/
-
 				VkWriteDescriptorSet& currWriteDescriptorSet = mDescriptorWrites.emplace_back();
 
 				switch (currPipelineActiveSlots.mSRVActiveSlots[i].mType)
@@ -2790,6 +2819,18 @@ namespace TDEngine2
 						currWriteDescriptorSet.pImageInfo = &currImageInfo;
 					}
 					break;
+
+				case TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::RAW_BUFFER:
+					{
+						auto pBuffer = mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(currResourceEntity.mValue.mBuffer);
+						if (!isNullDescriptor && !pBuffer)
+						{
+							mDescriptorWrites.erase(mDescriptorWrites.cend() - 1);
+							continue;
+						}
+
+					}
+					break;
 			}
 
 			currWriteDescriptorSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -2837,6 +2878,8 @@ namespace TDEngine2
 			{
 				case TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::BUFFER:
 				{
+					const bool isRawBuffer = currPipelineActiveSlots.mUAVActiveSlots[i].mType == TVulkanPipelineLayoutInfo::TBindingInfo::E_TYPE::RAW_BUFFER;
+
 					auto pBuffer = mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(currResourceEntity.mValue.mBuffer);
 					if (!pBuffer)
 					{
@@ -2844,13 +2887,21 @@ namespace TDEngine2
 						continue;
 					}
 
-					VkDescriptorBufferInfo& currBufferInfo = mDescriptorBufferInfos.emplace_back();
-					currBufferInfo.buffer = pBuffer->GetVulkanHandle();
-					currBufferInfo.offset = 0;
-					currBufferInfo.range = VK_WHOLE_SIZE;
+					if (!isRawBuffer)
+					{
+						VkDescriptorBufferInfo& currBufferInfo = mDescriptorBufferInfos.emplace_back();
+						currBufferInfo.buffer = pBuffer->GetVulkanHandle();
+						currBufferInfo.offset = 0;
+						currBufferInfo.range = VK_WHOLE_SIZE;
 
-					currWriteDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-					currWriteDescriptorSet.pBufferInfo = &currBufferInfo;
+						currWriteDescriptorSet.pBufferInfo = &currBufferInfo;
+					}
+					else
+					{
+						currWriteDescriptorSet.pTexelBufferView = pBuffer->GetViewHandle();
+					}
+
+					currWriteDescriptorSet.descriptorType = isRawBuffer ? VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER : VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 				}
 				break;
 

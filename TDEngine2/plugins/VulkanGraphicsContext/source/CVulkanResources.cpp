@@ -14,7 +14,7 @@
 
 namespace TDEngine2
 {
-	static VkBufferUsageFlagBits GetBufferType(E_BUFFER_TYPE type)
+	static VkBufferUsageFlagBits GetBufferType(E_BUFFER_TYPE type, E_STRUCTURED_BUFFER_TYPE structuredBufferType)
 	{
 		switch (type)
 		{
@@ -25,7 +25,7 @@ namespace TDEngine2
 			case E_BUFFER_TYPE::CONSTANT:
 				return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 			case E_BUFFER_TYPE::STRUCTURED:
-				return VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+				return E_STRUCTURED_BUFFER_TYPE::INDIRECT_DRAW_BUFFER == structuredBufferType ? VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT : VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
 			case E_BUFFER_TYPE::GENERIC:
 				return VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 		}
@@ -63,7 +63,7 @@ namespace TDEngine2
 		VkBufferCreateInfo bufferCreateInfo{};
 		bufferCreateInfo.sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		bufferCreateInfo.size        = size;
-		bufferCreateInfo.usage       = GetBufferType(type) | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+		bufferCreateInfo.usage       = GetBufferType(type, structuredBufferType ? *structuredBufferType : E_STRUCTURED_BUFFER_TYPE::DEFAULT) | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 		bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE; //mIsUnorderedAccessResource ? VK_SHARING_MODE_CONCURRENT : VK_SHARING_MODE_EXCLUSIVE;
 
 		if (structuredBufferType)
@@ -90,6 +90,27 @@ namespace TDEngine2
 	}
 
 
+	static TResult<VkBufferView> CreateBufferViewInternal(CVulkanGraphicsContext* pGraphicsContext, VkBuffer buffer, E_STRUCTURED_BUFFER_TYPE structuredBufferType)
+	{
+		if (E_STRUCTURED_BUFFER_TYPE::DEFAULT == structuredBufferType)
+		{
+			return Wrench::TOkValue<VkBufferView>(VK_NULL_HANDLE);
+		}
+
+		VkBufferViewCreateInfo bufferViewCreateInfo{};
+		bufferViewCreateInfo.sType  = VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO;
+		bufferViewCreateInfo.format = E_STRUCTURED_BUFFER_TYPE::INDIRECT_DRAW_BUFFER != structuredBufferType ? VK_FORMAT_UNDEFINED : VK_FORMAT_R32_UINT;
+		bufferViewCreateInfo.range  = VK_WHOLE_SIZE;
+		bufferViewCreateInfo.buffer = buffer;
+		
+		VkBufferView bufferView = VK_NULL_HANDLE;
+
+		VK_SAFE_TRESULT_CALL(vkCreateBufferView(pGraphicsContext->GetDevice(), &bufferViewCreateInfo, nullptr, &bufferView));
+
+		return Wrench::TOkValue<VkBufferView>(bufferView);
+	}
+
+
 	static E_RESULT_CODE InitBufferContent(CVulkanGraphicsContext* pGraphicsContext, const TInitBufferParams& params, VkBuffer destBufferHandle)
 	{
 		VmaAllocator allocator = pGraphicsContext->GetAllocator();
@@ -102,7 +123,7 @@ namespace TDEngine2
 
 		const TCreatedBufferInfo& stagingBufferInfo = createStagingBufferResult.Get();
 
-		defer([=] { pGraphicsContext->DestroyObjectDeffered(stagingBufferInfo.mHandle, stagingBufferInfo.mAllocation); });
+		defer([=] { pGraphicsContext->DestroyObjectDeffered(stagingBufferInfo.mHandle, stagingBufferInfo.mAllocation, VK_NULL_HANDLE); });
 
 		void* pStagingBufferMappedData = nullptr;
 
@@ -193,7 +214,7 @@ namespace TDEngine2
 				Unmap();
 			}
 
-			mpGraphicsContextImpl->DestroyObjectDeffered(mInternalBufferHandle, mAllocation);
+			mpGraphicsContextImpl->DestroyObjectDeffered(mInternalBufferHandle, mAllocation, mInternalBufferViewHandle);
 		}
 
 		auto createBufferResult = CreateBufferInternal(mAllocator, newSize, mBufferType, mBufferUsageType, structuredBufferType);
@@ -204,6 +225,17 @@ namespace TDEngine2
 
 		const TCreatedBufferInfo& bufferInfo = createBufferResult.Get();
 
+		if (mIsUnorderedAccessResource)
+		{
+			auto createBufferViewResult = CreateBufferViewInternal(mpGraphicsContextImpl, bufferInfo.mHandle, structuredBufferType);
+			if (createBufferViewResult.HasError())
+			{
+				return createBufferViewResult.GetError();
+			}
+
+			mInternalBufferViewHandle = createBufferViewResult.Get();
+		}
+
 		mInternalBufferHandle = bufferInfo.mHandle;
 		mAllocation = bufferInfo.mAllocation;
 
@@ -212,7 +244,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanBuffer::_onFreeInternal()
 	{
-		mpGraphicsContextImpl->DestroyObjectDeffered(mInternalBufferHandle, mAllocation);
+		mpGraphicsContextImpl->DestroyObjectDeffered(mInternalBufferHandle, mAllocation, mInternalBufferViewHandle);
 
 		return RC_OK;
 	}
@@ -280,7 +312,7 @@ namespace TDEngine2
 			Unmap();
 		}
 
-		mpGraphicsContextImpl->DestroyObjectDeffered(mInternalBufferHandle, mAllocation);
+		mpGraphicsContextImpl->DestroyObjectDeffered(mInternalBufferHandle, mAllocation, mInternalBufferViewHandle);
 
 		mInitParams.mTotalBufferSize = newSize;
 		mBufferSize = newSize;
@@ -301,6 +333,11 @@ namespace TDEngine2
 	VkBuffer CVulkanBuffer::GetVulkanHandle()
 	{
 		return mInternalBufferHandle;
+	}
+
+	const VkBufferView* CVulkanBuffer::GetViewHandle() const
+	{
+		return &mInternalBufferViewHandle;
 	}
 
 	const TInitBufferParams& CVulkanBuffer::GetParams() const
@@ -528,9 +565,11 @@ namespace TDEngine2
 
 			case E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER:
 			case E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER:
+				return TVulkanPipelineLayoutInfo::TBindingInfo::E_TYPE::BUFFER;
+
 			case E_SHADER_RESOURCE_TYPE::SRT_RAW_BUFFER:
 			case E_SHADER_RESOURCE_TYPE::SRT_RW_RAW_BUFFER:
-				return TVulkanPipelineLayoutInfo::TBindingInfo::E_TYPE::BUFFER;
+				return TVulkanPipelineLayoutInfo::TBindingInfo::E_TYPE::RAW_BUFFER;
 		}
 
 		TDE2_UNREACHABLE();
