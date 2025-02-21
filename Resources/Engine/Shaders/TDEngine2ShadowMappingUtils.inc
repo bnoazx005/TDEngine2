@@ -190,6 +190,8 @@ float ComputeSunShadowFactorPCF(uint samplesCount, int cascadeIndex, float4 worl
 	return shadowFactor;
 }
 
+#define DRAW_SHADOW_CASCADES(position) (0.1 * ShadowCascadesDebugOutput[GetSunShadowCascadeIndex(position)])
+
 #endif
 
 
