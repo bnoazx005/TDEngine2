@@ -1319,8 +1319,15 @@ namespace TDEngine2
 		garbageEntity.mData.mBufferHandle = bufferHandle;
 		garbageEntity.mType               = TGarbageEntity::E_TYPE::BUFFER;
 		garbageEntity.mAllocation         = allocation;
+		garbageEntity.mBufferViewHandle   = bufferViewHandle;
 
 		mAwaitingDeletionObjects[mCurrFrameIndex].emplace_back(garbageEntity);
+
+		auto it = std::find_if(mBufferBarriers[mCurrFrameIndex].begin(), mBufferBarriers[mCurrFrameIndex].end(), [bufferHandle](const VkBufferMemoryBarrier2& barrier) { return barrier.buffer == bufferHandle; });
+		if (it != mBufferBarriers[mCurrFrameIndex].end())
+		{
+			mBufferBarriers[mCurrFrameIndex].erase(it);
+		}
 
 		return RC_OK;
 	}
@@ -1335,6 +1342,12 @@ namespace TDEngine2
 		garbageEntity.mAllocation        = allocation;
 
 		mAwaitingDeletionObjects[mCurrFrameIndex].emplace_back(garbageEntity);
+
+		auto it = std::find_if(mTextureBarriers[mCurrFrameIndex].begin(), mTextureBarriers[mCurrFrameIndex].end(), [imageHandle](const VkImageMemoryBarrier2& barrier) { return barrier.image == imageHandle; });
+		if (it != mTextureBarriers[mCurrFrameIndex].end())
+		{
+			mTextureBarriers[mCurrFrameIndex].erase(it);
+		}
 
 		return RC_OK;
 	}
