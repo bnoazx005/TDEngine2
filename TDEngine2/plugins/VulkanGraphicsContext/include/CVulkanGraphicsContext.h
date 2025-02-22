@@ -334,7 +334,7 @@ namespace TDEngine2
 				\param[in] blendStateId An identifier of a blend state
 			*/
 
-			void BindBlendState(TBlendStateId blendStateId) override;
+			void BindBlendState(TBlendStateId blendStateId);
 
 			/*!
 				\brief The method binds a given depth-stencil state to rendering pipeline
@@ -343,7 +343,7 @@ namespace TDEngine2
 				\param[in] stencilRef A reference value to perform against when doing a depth-stencil test
 			*/
 
-			void BindDepthStencilState(TDepthStencilStateId depthStencilStateId, U8 stencilRef = 0x0) override;
+			void BindDepthStencilState(TDepthStencilStateId depthStencilStateId, U8 stencilRef = 0x0);
 
 			/*!
 				\brief The method binds a given rasteriazer state to rendering pipeline
@@ -351,7 +351,7 @@ namespace TDEngine2
 				\param[in] rasterizerStateId An identifier of a rasterizer state
 			*/
 
-			void BindRasterizerState(TRasterizerStateId rasterizerStateId) override;
+			void BindRasterizerState(TRasterizerStateId rasterizerStateId);
 
 			/*!
 				\brief The pair of methods BeginRenderPass/EndRenderPass are intended to replace separate calls of BindRenderTarget/BindDepthBufferTarget/SetDepthBufferEnabled and others
