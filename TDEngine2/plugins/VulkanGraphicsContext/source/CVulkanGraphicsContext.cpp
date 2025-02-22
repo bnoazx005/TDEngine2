@@ -2231,7 +2231,7 @@ namespace TDEngine2
 		_flushPipelineDescriptorsSet();
 
 		vkCmdSetPrimitiveTopology(_getCurrCommandBufferHandle(), CVulkanMappings::GetPrimitiveTopology(topology));
-		vkCmdDrawIndexedIndirect(_getCurrCommandBufferHandle(), mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(argsBufferHandle)->GetVulkanHandle(), static_cast<VkDeviceSize>(alignedOffset), 1, 0);
+		vkCmdDrawIndirect(_getCurrCommandBufferHandle(), mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(argsBufferHandle)->GetVulkanHandle(), static_cast<VkDeviceSize>(alignedOffset), 1, 0);
 	}
 
 	void CVulkanGraphicsContext::DrawIndirectIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, TBufferHandleId argsBufferHandle, U32 alignedOffset)
@@ -2251,6 +2251,14 @@ namespace TDEngine2
 	void CVulkanGraphicsContext::DispatchIndirectCompute(TBufferHandleId argsBufferHandle, U32 alignedOffset)
 	{
 		_flushPipelineDescriptorsSet();
+
+		TPtr<CVulkanBuffer> pBuffer = mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(argsBufferHandle);
+		if (!pBuffer)
+		{
+			return;
+		}
+
+		vkCmdDispatchIndirect(_getCurrCommandBufferHandle(), pBuffer ->GetVulkanHandle(), static_cast<VkDeviceSize>(alignedOffset));
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::BindPipelineState(CVulkanBasePipeline* pPipeline)
