@@ -1,5 +1,6 @@
 #include "../../include/graphics/CFrameGraphResources.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
+#include "../../include/core/IGraphicsContext.h"
 
 
 namespace TDEngine2
@@ -37,16 +38,32 @@ namespace TDEngine2
 
 	void TFrameGraphTexture::BeforeReadOp(IGraphicsObjectManager* pGraphicsObjectManager, const TDesc& desc)
 	{
-		// for render/(depth/stencil) targets
-		// for shader resources
-		// for storage images
+		TPtr<ITextureImpl> pTexture = pGraphicsObjectManager->GetTexturePtr(mTextureHandle);
+		if (!pTexture)
+		{
+			return;
+		}
+
+		if ((E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE & desc.mBindFlags) == E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE)
+		{
+			pTexture->Transition(E_RESOURCE_LAYOUT::SHADER_RESOURCE);
+		}
 	}
 
 	void TFrameGraphTexture::BeforeWriteOp(IGraphicsObjectManager* pGraphicsObjectManager, const TDesc& desc)
-	{		
-		// for render/(depth/stencil) targets
-		// for shader resources
-		// for storage images
+	{
+		TPtr<ITextureImpl> pTexture = pGraphicsObjectManager->GetTexturePtr(mTextureHandle);
+		if (!pTexture)
+		{
+			return;
+		}
+
+		// \note for render/(depth/stencil) targets barriers specified within BeginRenderPass
+		
+		if ((E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS & desc.mBindFlags) == E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS)
+		{
+			pTexture->Transition(E_RESOURCE_LAYOUT::UAV_RESOURCE);
+		}
 	}
 
 
@@ -83,9 +100,25 @@ namespace TDEngine2
 
 	void TFrameGraphBuffer::BeforeReadOp(IGraphicsObjectManager* pGraphicsObjectManager, const TDesc& desc)
 	{
+		TPtr<IBuffer> pBuffer = pGraphicsObjectManager->GetBufferPtr(mBufferHandle);
+
+		TBufferTransitionBarrierInfo transitionInfo{};
+		transitionInfo.mHandle     = mBufferHandle;
+		transitionInfo.mCurrLayout = E_RESOURCE_LAYOUT::UNDEFINED;
+		transitionInfo.mNewLayout  = E_RESOURCE_LAYOUT::SHADER_RESOURCE;
+
+		pGraphicsObjectManager->GetGraphicsContext()->TransitionBarrier(transitionInfo);
 	}
 
 	void TFrameGraphBuffer::BeforeWriteOp(IGraphicsObjectManager* pGraphicsObjectManager, const TDesc& desc)
 	{
+		TPtr<IBuffer> pBuffer = pGraphicsObjectManager->GetBufferPtr(mBufferHandle);
+
+		TBufferTransitionBarrierInfo transitionInfo{};
+		transitionInfo.mHandle     = mBufferHandle;
+		transitionInfo.mCurrLayout = E_RESOURCE_LAYOUT::UNDEFINED;
+		transitionInfo.mNewLayout  = (E_STRUCTURED_BUFFER_TYPE::INDIRECT_DRAW_BUFFER == desc.mStructuredBufferType) ? E_RESOURCE_LAYOUT::INDIRECT_ARGS_BUFFER : E_RESOURCE_LAYOUT::UAV_RESOURCE;
+
+		pGraphicsObjectManager->GetGraphicsContext()->TransitionBarrier(transitionInfo);
 	}
 }
