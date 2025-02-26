@@ -18,7 +18,6 @@
 
 namespace TDEngine2
 {
-
 	static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugMessage(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 															VkDebugUtilsMessageTypeFlagsEXT messageType,
 															const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
@@ -2064,7 +2063,7 @@ namespace TDEngine2
 
 		VkBufferMemoryBarrier2 bufferMemoryBarrier{};
 		bufferMemoryBarrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2;
-		bufferMemoryBarrier.buffer              = pBuffer->GetVulkanHandle();
+		bufferMemoryBarrier.buffer              = pBuffer->GetVulkanHandle();			
 		bufferMemoryBarrier.srcStageMask        = GetStageMaskBitsFromLayout(barrierInfo.mCurrLayout);
 		bufferMemoryBarrier.dstStageMask        = GetStageMaskBitsFromLayout(barrierInfo.mNewLayout);
 		bufferMemoryBarrier.srcAccessMask       = GetAccessMaskFromLayout(barrierInfo.mCurrLayout);
@@ -2096,13 +2095,20 @@ namespace TDEngine2
 		imageMemoryBarrier.newLayout                       = CVulkanMappings::GetResourceLayout(barrierInfo.mNewLayout);
 		imageMemoryBarrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
 		imageMemoryBarrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-		imageMemoryBarrier.subresourceRange.baseMipLevel   = 0; // \todo
+		imageMemoryBarrier.subresourceRange.baseMipLevel   = 0;
 		imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
 		imageMemoryBarrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
 		imageMemoryBarrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
 		imageMemoryBarrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
 
-		if (E_FORMAT_TYPE::FT_D32 == pTextureImpl->GetParams().mFormat)
+		if (barrierInfo.mMipLevel)
+		{
+			imageMemoryBarrier.subresourceRange.baseMipLevel = *barrierInfo.mMipLevel;
+			imageMemoryBarrier.subresourceRange.levelCount   = 1;
+			imageMemoryBarrier.subresourceRange.layerCount   = 1;
+		}
+
+		if (CVulkanMappings::IsDepthTextureFormat(pTextureImpl->GetParams().mFormat))
 		{
 			imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 		}

@@ -2400,7 +2400,7 @@ namespace TDEngine2
 						TDE2_PROFILER_SCOPE("CGPUParticlesSimulationPass");
 
 #if TDE2_DEBUG_MODE
-						mContext.mpGraphicsContext->BeginSectionMarker("GPUParticlesSimulationPass");
+						mContext.mpGraphicsContext->BeginSectionMarker("GPUParticlesSimulationPass");						
 #endif
 
 						if (!mIsParticlesListInitialized)
@@ -2722,9 +2722,10 @@ namespace TDEngine2
 			{
 				struct TPassData
 				{
-					TFrameGraphResourceHandle mInputHandle  = TFrameGraphResourceHandle::Invalid;
-					TFrameGraphResourceHandle mCountHandle  = TFrameGraphResourceHandle::Invalid;
-					TFrameGraphResourceHandle mOutputHandle = TFrameGraphResourceHandle::Invalid;
+					TFrameGraphResourceHandle mInputHandle                  = TFrameGraphResourceHandle::Invalid;
+					TFrameGraphResourceHandle mCountHandle                  = TFrameGraphResourceHandle::Invalid;
+					TFrameGraphResourceHandle mOutputHandle                 = TFrameGraphResourceHandle::Invalid;
+					TFrameGraphResourceHandle mIndirectDrawArgsBufferHandle = TFrameGraphResourceHandle::Invalid;
 				};
 
 				auto&& output = pFrameGraph->AddPass<TPassData>("GPUSortingPass", [&, this](CFrameGraphBuilder& builder, TPassData& data)
@@ -2732,23 +2733,39 @@ namespace TDEngine2
 						data.mInputHandle  = builder.Read(sourceBuffer);
 						data.mCountHandle  = builder.Read(countBuffer);
 						data.mOutputHandle = builder.Write(data.mInputHandle);
+
+						TFrameGraphBuffer::TDesc drawArgsBufferParams{};
+						drawArgsBufferParams.mBufferType                = E_BUFFER_TYPE::STRUCTURED;
+						drawArgsBufferParams.mFlags                     = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+						drawArgsBufferParams.mIsUnorderedAccessResource = true;
+						drawArgsBufferParams.mName                      = "IndirectGPUSortingDispatchArgsBuffer";
+						drawArgsBufferParams.mpDataPtr                  = nullptr;
+						drawArgsBufferParams.mStructuredBufferType      = E_STRUCTURED_BUFFER_TYPE::INDIRECT_DRAW_BUFFER;
+						drawArgsBufferParams.mElementStrideSize         = sizeof(U32);
+						drawArgsBufferParams.mTotalBufferSize           = sizeof(U32) * 4;
+						drawArgsBufferParams.mUsageType                 = E_BUFFER_USAGE_TYPE::DEFAULT;
+
+						data.mIndirectDrawArgsBufferHandle = builder.Create<TFrameGraphBuffer>(drawArgsBufferParams.mName, drawArgsBufferParams);
+						data.mIndirectDrawArgsBufferHandle = builder.Write(data.mIndirectDrawArgsBufferHandle);
+
 					}, [=](const TPassData& data, const TFramePassExecutionContext& executionContext, const std::string& renderPassName)
 					{
 						TDE2_PROFILER_SCOPE("GPUSortingPass");
 
 						auto&& pGraphicsContext = MakeScopedFromRawPtr<IGraphicsContext>(executionContext.mpGraphicsContext);
 
-						TFrameGraphBuffer& sortingBufferHandle = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(data.mInputHandle);
-						TFrameGraphBuffer& counterBufferHandle = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(data.mCountHandle);
+						TFrameGraphBuffer& sortingBufferHandle      = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(data.mInputHandle);
+						TFrameGraphBuffer& counterBufferHandle      = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(data.mCountHandle);
+						TFrameGraphBuffer& indirectArgsBufferHandle = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(data.mIndirectDrawArgsBufferHandle);
 
-						_gpuSortInternal(executionContext.mpGraphicsContext, mContext.mpResourceManager, maxCount, sortingBufferHandle.mBufferHandle, counterBufferHandle.mBufferHandle);
+						_gpuSortInternal(executionContext.mpGraphicsContext, mContext.mpResourceManager, maxCount, sortingBufferHandle.mBufferHandle, counterBufferHandle.mBufferHandle, indirectArgsBufferHandle.mBufferHandle);
 					});
 
 				return output.mOutputHandle;
 			}
 
 		private:
-			E_RESULT_CODE _initGpuSort(IGraphicsContext* pGraphicsContext, TPtr<IResourceManager> pResourceManager, U32 maxCount, TBufferHandleId elementsBuffer, TBufferHandleId countBuffer)
+			E_RESULT_CODE _initGpuSort(IGraphicsContext* pGraphicsContext, TPtr<IResourceManager> pResourceManager, U32 maxCount, TBufferHandleId elementsBuffer, TBufferHandleId countBuffer, TBufferHandleId indirectArgsBuffer)
 			{
 				TDE2_PROFILER_SCOPE("InitGPUSort");
 
@@ -2767,31 +2784,7 @@ namespace TDEngine2
 					return RC_FAIL;
 				}
 
-				if (TBufferHandleId::Invalid == mDispatchArgsBufferHandle)
-				{
-					auto indirectDispatchArgsBufferCreateResult = pGraphicsContext->GetGraphicsObjectManager()->CreateBuffer(
-						{
-							E_BUFFER_USAGE_TYPE::DEFAULT,
-							E_BUFFER_TYPE::STRUCTURED,
-							sizeof(U32) * 4,
-							nullptr,
-							sizeof(U32) * 4,
-							true,
-							sizeof(U32),
-							E_STRUCTURED_BUFFER_TYPE::INDIRECT_DRAW_BUFFER,
-							E_INDEX_FORMAT_TYPE::INDEX16, // unused
-							"IndirectDispatchArgsBuffer"
-						});
-
-					if (indirectDispatchArgsBufferCreateResult.HasError())
-					{
-						return indirectDispatchArgsBufferCreateResult.GetError();
-					}
-
-					mDispatchArgsBufferHandle = indirectDispatchArgsBufferCreateResult.Get();
-				}
-
-				pInitSortShader->SetStructuredBufferResource("DispatchArgsBuffer", mDispatchArgsBufferHandle);
+				pInitSortShader->SetStructuredBufferResource("DispatchArgsBuffer", indirectArgsBuffer);
 				pInitSortShader->SetStructuredBufferResource("ElementsCount", countBuffer);
 
 				pInitSortPipeline->Bind();
@@ -2925,7 +2918,7 @@ namespace TDEngine2
 			}
 
 			// bitonic sort algorithm executed on GPU device
-			E_RESULT_CODE _gpuSortInternal(IGraphicsContext* pGraphicsContext, TPtr<IResourceManager> pResourceManager, U32 maxCount, TBufferHandleId elementsBuffer, TBufferHandleId countBuffer)
+			E_RESULT_CODE _gpuSortInternal(IGraphicsContext* pGraphicsContext, TPtr<IResourceManager> pResourceManager, U32 maxCount, TBufferHandleId elementsBuffer, TBufferHandleId countBuffer, TBufferHandleId indirectArgsBuffer)
 			{
 				TDE2_PROFILER_SCOPE("GPUSort");
 
@@ -2941,13 +2934,13 @@ namespace TDEngine2
 				pGraphicsContext->BeginSectionMarker("GPUSort");
 #endif
 
-				E_RESULT_CODE result = _initGpuSort(pGraphicsContext, pResourceManager, maxCount, elementsBuffer, countBuffer);
+				E_RESULT_CODE result = _initGpuSort(pGraphicsContext, pResourceManager, maxCount, elementsBuffer, countBuffer, indirectArgsBuffer);
 				if (RC_OK != result)
 				{
 					return result;
 				}
 
-				bool isDone = _gpuSortInitial(pGraphicsContext, pResourceManager, maxCount, elementsBuffer, countBuffer, mDispatchArgsBufferHandle);
+				bool isDone = _gpuSortInitial(pGraphicsContext, pResourceManager, maxCount, elementsBuffer, countBuffer, indirectArgsBuffer);
 				I32 presorted = 512;
 
 				while (!isDone)
@@ -2967,8 +2960,6 @@ namespace TDEngine2
 			TComputePipelineStateId mSortInnerPipelineHandle = TComputePipelineStateId::Invalid;
 			TComputePipelineStateId mSortStepPipelineHandle = TComputePipelineStateId::Invalid;
 			TComputePipelineStateId mSortPipelineHandle = TComputePipelineStateId::Invalid;
-
-			TBufferHandleId         mDispatchArgsBufferHandle = TBufferHandleId::Invalid;
 	};
 
 
