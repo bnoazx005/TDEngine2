@@ -2110,8 +2110,28 @@ namespace TDEngine2
 		mTextureBarriers[mCurrFrameIndex].emplace_back(imageMemoryBarrier);
 	}
 
+	void CVulkanGraphicsContext::DebugBarrier()
+	{
+#if TDE2_DEBUG_MODE
+		VkMemoryBarrier2 memoryBarrier{};
+		memoryBarrier.sType         = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2;
+		memoryBarrier.srcStageMask  = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+		memoryBarrier.dstStageMask  = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+		memoryBarrier.srcAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT | VK_ACCESS_2_MEMORY_READ_BIT;
+		memoryBarrier.dstAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT | VK_ACCESS_2_MEMORY_READ_BIT;
+
+		VkDependencyInfo dependencyInfo{};
+		dependencyInfo.sType              = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+		dependencyInfo.memoryBarrierCount = 1;
+		dependencyInfo.pMemoryBarriers    = &memoryBarrier;
+
+		vkCmdPipelineBarrier2(_getCurrCommandBufferHandle(), &dependencyInfo);
+#endif
+	}
+
 	E_RESULT_CODE CVulkanGraphicsContext::CopyCount(TBufferHandleId sourceHandle, TBufferHandleId destHandle, U32 offset)
 	{
+		TDE2_UNIMPLEMENTED();
 		return RC_NOT_IMPLEMENTED_YET;
 	}
 

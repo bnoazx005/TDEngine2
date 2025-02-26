@@ -254,6 +254,7 @@ namespace TDEngine2
 			TDE2_API virtual void MemoryAccessBarrier(const std::variant<TBufferHandleId, TTextureHandleId> resourceHandle) = 0;
 			TDE2_API virtual void TransitionBarrier(const TBufferTransitionBarrierInfo& barrierInfo) = 0;
 			TDE2_API virtual void TransitionBarrier(const TTextureTransitionBarrierInfo& barrierInfo) = 0;
+			TDE2_API virtual void DebugBarrier() = 0;
 
 			/*!
 				\brief The method copies counter of sourceHandle buffer into destHandle's one

@@ -158,6 +158,11 @@ namespace TDEngine2
 		LOG_MESSAGE("[ProxyGraphicsContext] TransitionBarrier");
 	}
 
+	void CProxyGraphicsContext::DebugBarrier()
+	{
+		LOG_MESSAGE("[ProxyGraphicsContext] DebugBarrier");
+	}
+
 	E_RESULT_CODE CProxyGraphicsContext::CopyCount(TBufferHandleId sourceHandle, TBufferHandleId destHandle, U32 offset)
 	{
 		LOG_MESSAGE("[ProxyGraphicsContext] CopyCount");
