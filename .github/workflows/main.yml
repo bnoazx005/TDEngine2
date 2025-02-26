@@ -50,7 +50,7 @@ jobs:
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup Vulkan SDK
         if: startsWith(matrix.config.os, 'windows') # under Linux Vulkan SDK is installed within CI/install.sh script
