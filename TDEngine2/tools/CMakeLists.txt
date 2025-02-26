@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.20)
 
 option(BUILD_FONT_GENERATION_TOOL "Build font generation tool" ON)
 option(BUILD_RESOURCES_PACKER_TOOL "Build resources packer tool" ON)

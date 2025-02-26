@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.20)
 
 option(BUILD_D3D11_GCTX_PLUGIN "Build D3D11 Graphics context plugin" ON)
 option(BUILD_GL3_0_GCTX_PLUGIN "Build GL3.0 Graphics context plugin" ON)
@@ -11,7 +11,6 @@ option(BUILD_FMOD_AUDIO_CTX_PLUGIN "Build FMOD audio context plugin" ON)
 option(BUILD_LEVEL_STREAMING_PLUGIN "Build level streaming implementation plugin" ON)
 option(BUILD_BULLET_PHYSICS_PLUGIN "Build Bullet physics plugin" ON)
 option(BUILD_VIDEO_PLAYERS_PLUGIN "Build support of video players" ON)
-option(BUILD_RENDERDOC_INTEGRATION_PLUGIN "Build support of RenderDoc intergration plugin" ON)
 
 if (BUILD_D3D11_GCTX_PLUGIN)
 	if (MSVC)
@@ -86,8 +85,3 @@ if (BUILD_VIDEO_PLAYERS_PLUGIN)
 	message(STATUS "TDE2VideoPlayers's compilation is enabled")
 	add_subdirectory(TDE2VideoPlayers)
 endif (BUILD_VIDEO_PLAYERS_PLUGIN)
-
-if (BUILD_RENDERDOC_INTEGRATION_PLUGIN)
-	message(STATUS "TDE2RenderDocIntegration's compilation is enabled")
-	add_subdirectory(TDE2RenderDocIntegration)
-endif (BUILD_RENDERDOC_INTEGRATION_PLUGIN)
