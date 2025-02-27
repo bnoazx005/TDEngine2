@@ -1393,6 +1393,8 @@ namespace TDEngine2
 
 	void CVulkanGraphicsContext::BeginFrame()
 	{
+		TDE2_PROFILER_SCOPE("CVulkanGraphicsContext::BeginFrame");
+
 		if (!mpSwapchain->IsValid())
 		{
 			E_RESULT_CODE result = mpSwapchain->TryProcessInvalidateState();
@@ -1421,6 +1423,8 @@ namespace TDEngine2
 
 	void CVulkanGraphicsContext::Present()
 	{
+		TDE2_PROFILER_SCOPE("CVulkanGraphicsContext::GenerateMipMaps");
+
 		// \note Add final barrier for current swapchain's image
 		VkImageMemoryBarrier2 barrier = {};
 		barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
@@ -2143,6 +2147,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanGraphicsContext::GenerateMipMaps(TTextureHandleId textureHandle)
 	{
+		TDE2_PROFILER_SCOPE("CVulkanGraphicsContext::GenerateMipMaps");
+
 		TPtr<CVulkanTextureImpl> pTextureImpl = mpGraphicsObjectManagerImpl->GetVulkanTexturePtr(textureHandle);
 		if (!pTextureImpl)
 		{
@@ -2155,8 +2161,10 @@ namespace TDEngine2
 			return RC_OK;
 		}
 
+#if TDE2_DEBUG_MODE
 		BeginSectionMarker("GenerateMipMaps");
 		defer([this] { EndSectionMarker(); });
+#endif
 
 		const U32 maxMipsCount = std::min(textureParams.mNumOfMipLevels, static_cast<U32>(floor(log2(std::max(textureParams.mWidth, textureParams.mHeight))) + 1));
 		const E_RESOURCE_LAYOUT originalLayout = pTextureImpl->GetLayout();
@@ -2732,6 +2740,8 @@ namespace TDEngine2
 
 	void CVulkanGraphicsContext::_flushPipelineDescriptorsSet()
 	{
+		TDE2_PROFILER_SCOPE("CVulkanGraphicsContext::FlushPipelineDescriptorsSet");
+
 		if (!mpActivePipelineStates[mCurrFrameIndex])
 		{
 			TDE2_ASSERT(false);
