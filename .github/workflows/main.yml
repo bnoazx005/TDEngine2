@@ -27,7 +27,7 @@ jobs:
           }
         - {
             name: "Ubuntu_GCC_9",
-            os: ubuntu-latest,
+            os: ubuntu-22.04,
             artifact: "TDEngine2_SDK.zip",
             build_type: "Release",
             cc: "gcc",
