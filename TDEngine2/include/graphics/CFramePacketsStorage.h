@@ -10,6 +10,7 @@
 #include "../core/CBaseObject.h"
 #include "../graphics/InternalShaderData.h"
 #include "../graphics/IRenderer.h"
+#include "../graphics/effects/ParticleEmitters.h"
 #include <array>
 
 
@@ -32,16 +33,19 @@ namespace TDEngine2
 	{
 		typedef std::array<TPtr<CRenderQueue>, NumOfRenderQueuesGroup> TRenderQueuesArray;
 		typedef std::array<TPtr<IAllocator>, NumOfRenderQueuesGroup>   TAllocatorsArray;
+		typedef std::vector<TEmitterUniformsData>                      TGPUParticleEmittersArray;
 
-		U32                   mFrameIndex = 0;
-		F32                   mDeltaTime = 0.0f; ///< Also it could be retrieved from mPerFrameData.mTime.y
+		U32                       mFrameIndex = 0;
+		F32                       mDeltaTime = 0.0f; ///< Also it could be retrieved from mPerFrameData.mTime.y
 		
-		TPerFrameShaderData   mPerFrameData;
+		TPerFrameShaderData       mPerFrameData;
 		
 		/// \note Per object data
-		TRenderQueuesArray    mpRenderQueues { nullptr }; /// PerRenderQueueMemoryBlockSize per render queue
+		TRenderQueuesArray        mpRenderQueues { nullptr }; /// PerRenderQueueMemoryBlockSize per render queue
 
-		TLightsDataArray      mActiveLightSources;
+		TGPUParticleEmittersArray mGpuParticleEmitters;
+
+		TLightsDataArray          mActiveLightSources;
 	} TFramePacket, *TFramePacketPtr;
 
 
