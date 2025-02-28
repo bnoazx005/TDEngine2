@@ -1,11 +1,17 @@
 #include "../../include/unix/CUnixWindowSurfaceFactory.h"
 #include <core/IWindowSystem.h>
+
+#if defined(TDE2_USE_UNIXPLATFORM)
+
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <vulkan/vulkan_xlib.h>
 #define VK_NO_PROTOTYPES
 #include <volk.h>
 #include <vulkan/vulkan.h>
 
-
-#if defined(TDE2_USE_UNIXPLATFORM)
 
 namespace TDEngine2
 {
@@ -38,7 +44,7 @@ namespace TDEngine2
 		VkSurfaceKHR surface = VK_NULL_HANDLE;
 
 		VkXlibSurfaceCreateInfoKHR createInfo{};
-		createInfo.sType  = VK_STRUCTURE_TYPE_Unix_SURFACE_CREATE_INFO_KHR;
+		createInfo.sType  = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR;
 		createInfo.window = mpWindowSystem->GetInternalData().mWindowHandler;
 		createInfo.dpy    = mpWindowSystem->GetInternalData().mpDisplayHandler;
 
