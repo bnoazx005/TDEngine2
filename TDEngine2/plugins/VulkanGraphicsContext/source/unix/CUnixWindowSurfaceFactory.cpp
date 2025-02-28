@@ -1,4 +1,4 @@
-#include "../../include/Unix/CUnixWindowSurfaceFactory.h"
+#include "../../include/unix/CUnixWindowSurfaceFactory.h"
 #include <core/IWindowSystem.h>
 #define VK_NO_PROTOTYPES
 #include <volk.h>
