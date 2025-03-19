@@ -1,10 +1,13 @@
 #include "../include/CD3D12GCtxPlugin.h"
 #include "../include/CD3D12GraphicsContext.h"
+#include "../include/CD3D12Resources.h"
+#include "../include/CD3D12ShaderCompiler.h"
 #include <core/IEngineCore.h>
 #include <core/IGraphicsContext.h>
 #include <core/IWindowSystem.h>
 #include <core/IResourceManager.h>
 #include <core/IFileSystem.h>
+#include <core/IPluginManager.h>
 #include <graphics/CBaseShaderLoader.h>
 #include <graphics/CBaseTexture2D.h>
 #include <graphics/IGraphicsObjectManager.h>
@@ -20,11 +23,12 @@ namespace TDEngine2
 	};
 
 
-	/*E_RESULT_CODE CD3D12GCtxPlugin::_registerFactories(IEngineCore* pEngineCore)
+	static E_RESULT_CODE RegisterFactories(IEngineCore* pEngineCore)
 	{
 		IResourceManager* pResourceManager = pEngineCore->GetSubsystem<IResourceManager>().Get();
+		IGraphicsContext* pGraphicsContext = pEngineCore->GetSubsystem<IGraphicsContext>().Get();
 
-		if (!pResourceManager)
+		if (!pResourceManager || !pGraphicsContext)
 		{
 			return RC_FAIL;
 		}
@@ -34,15 +38,13 @@ namespace TDEngine2
 		auto factoryFunctions =
 		{
 			CreateD3D12ShaderFactory,
-			CreateD3D12RenderTargetFactory,
-			CreateD3D12DepthBufferTargetFactory,
 		};
 
 		IResourceFactory* pFactoryInstance = nullptr;
 
 		for (auto currFactoryCallback : factoryFunctions)
 		{
-			pFactoryInstance = currFactoryCallback(pResourceManager, mpGraphicsContext.Get(), result);
+			pFactoryInstance = currFactoryCallback(pResourceManager, pGraphicsContext, result);
 
 			if (result != RC_OK)
 			{
@@ -60,13 +62,13 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CD3D12GCtxPlugin::_registerResourceLoaders(IEngineCore* pEngineCore)
+	static E_RESULT_CODE RegisterResourceLoaders(IEngineCore* pEngineCore)
 	{
 		IResourceManager* pResourceManager = pEngineCore->GetSubsystem<IResourceManager>().Get();
-
+		IGraphicsContext* pGraphicsContext = pEngineCore->GetSubsystem<IGraphicsContext>().Get();
 		IFileSystem* pFileSystem = pEngineCore->GetSubsystem<IFileSystem>().Get();
 
-		if (!pResourceManager || !pFileSystem)
+		if (!pResourceManager || !pGraphicsContext || !pFileSystem)
 		{
 			return RC_FAIL;
 		}
@@ -85,7 +87,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		auto pShaderCompilerInstance = TPtr<IShaderCompiler>(CreateD3D12ShaderCompiler(pFileSystem, result));
+		auto pShaderCompilerInstance = TPtr<IShaderCompiler>(CreateD3D12ShaderCompiler(pFileSystem, pEngineCore->GetSubsystem<IPluginManager>()->GetDLLManager().Get(), result));
 
 		if (result != RC_OK)
 		{
@@ -94,10 +96,10 @@ namespace TDEngine2
 
 		IResourceLoader* pLoaderInstance = CreateBaseShaderLoader(
 			pResourceManager,
-			mpGraphicsContext.Get(),
+			pGraphicsContext,
 			pFileSystem,
 			pShaderCompilerInstance,
-			mpGraphicsContext->GetGraphicsObjectManager()->CreateShaderCache(pFileSystem).Get(),
+			pGraphicsContext->GetGraphicsObjectManager()->CreateShaderCache(pFileSystem).Get(),
 			result);
 
 		if (result != RC_OK || ((result = registerLoader(pResourceManager, pLoaderInstance)) != RC_OK))
@@ -106,7 +108,7 @@ namespace TDEngine2
 		}
 
 		return RC_OK;
-	}*/
+	}
 
 
 	CD3D12GCtxPlugin::CD3D12GCtxPlugin() :
@@ -141,15 +143,15 @@ namespace TDEngine2
 			return result;
 		}
 
-		//if ((result = _registerFactories(pEngineCore)) != RC_OK)
-		//{
-		//	return result;
-		//}
+		if (RC_OK != (result = RegisterFactories(pEngineCore)))
+		{
+			return result;
+		}
 
-		//if ((result = _registerResourceLoaders(pEngineCore)) != RC_OK)
-		//{
-		//	return result;
-		//}
+		if (RC_OK != (result = RegisterResourceLoaders(pEngineCore)))
+		{
+			return result;
+		}
 
 		mIsInitialized = true;
 
