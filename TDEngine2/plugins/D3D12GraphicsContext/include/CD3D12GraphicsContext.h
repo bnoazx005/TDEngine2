@@ -50,7 +50,8 @@ namespace TDEngine2
 				D3D12MA::Allocation*                   mpAllocation = nullptr;
 			};
 
-			typedef std::vector<TGarbageEntity> TGarbageCollection;
+			typedef std::vector<TGarbageEntity>         TGarbageCollection;
+			typedef std::vector<D3D12_RESOURCE_BARRIER> TBarriersArray;
 		public:
 			TDE2_REGISTER_TYPE(CD3D12GraphicsContext)
 
@@ -161,6 +162,8 @@ namespace TDEngine2
 			TDE2_API void TransitionBarrier(const TBufferTransitionBarrierInfo& barrierInfo) override;
 			TDE2_API void TransitionBarrier(const TTextureTransitionBarrierInfo& barrierInfo) override;
 			TDE2_API void DebugBarrier() override;
+
+			TDE2_API void FlushBarriers();
 
 			/*!
 				\brief The method copies counter of sourceHandle buffer into destHandle's one
@@ -448,6 +451,8 @@ namespace TDEngine2
 
 			std::array<TPtr<CD3D12CommandBuffer>, BACK_BUFFERS_COUNT> mpCommandBuffers {};
 			std::array<TGarbageCollection, BACK_BUFFERS_COUNT>        mAwaitingDeletionObjects {};
+
+			std::array<TBarriersArray, BACK_BUFFERS_COUNT>            mResourceBarriers{};
 
 			bool                                                      mIsRenderPassActive = false;
 

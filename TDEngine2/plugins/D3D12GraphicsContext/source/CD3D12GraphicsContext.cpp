@@ -1040,26 +1040,115 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+
+	static D3D12_RESOURCE_STATES GetInternalResourceState(E_RESOURCE_LAYOUT layout)
+	{
+		switch (layout)
+		{
+			case E_RESOURCE_LAYOUT::RENDER_TARGET:
+				return D3D12_RESOURCE_STATE_RENDER_TARGET;
+			case E_RESOURCE_LAYOUT::DEPTH_STENCIL:
+				return D3D12_RESOURCE_STATE_DEPTH_WRITE;
+			case E_RESOURCE_LAYOUT::DEPTH_STENCIL_READONLY:
+				return D3D12_RESOURCE_STATE_DEPTH_READ;
+			case E_RESOURCE_LAYOUT::COPY_SRC:
+				return D3D12_RESOURCE_STATE_COPY_SOURCE;
+			case E_RESOURCE_LAYOUT::COPY_DEST:
+				return D3D12_RESOURCE_STATE_COPY_DEST;
+			case E_RESOURCE_LAYOUT::SHADER_RESOURCE:
+				return D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+			case E_RESOURCE_LAYOUT::INDIRECT_ARGS_BUFFER:
+				return D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT;
+			case E_RESOURCE_LAYOUT::CONSTANT_BUFFER:
+				return D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+			case E_RESOURCE_LAYOUT::UAV_RESOURCE:
+				return D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+		}
+
+		return D3D12_RESOURCE_STATE_COMMON;
+	}
+
+
 	void CD3D12GraphicsContext::MemoryAccessBarrier(const std::variant<TBufferHandleId, TTextureHandleId> resourceHandle)
 	{
-		TDE2_UNIMPLEMENTED();
+		struct TVisitor
+		{
+			CD3D12GraphicsContext* mpGraphicsContext = nullptr;
+
+			void operator()(TBufferHandleId bufferHandle)
+			{
+				TPtr<CD3D12Buffer> pBuffer = mpGraphicsContext->mpGraphicsObjectManagerD3D12Impl->GetD3D12BufferPtr(bufferHandle);
+				if (!pBuffer)
+				{
+					GetBarriers().emplace_back(CD3DX12_RESOURCE_BARRIER::UAV(nullptr));
+					return;
+				}
+
+				GetBarriers().emplace_back(CD3DX12_RESOURCE_BARRIER::UAV(pBuffer->GetHandle().Get()));
+			}
+
+			void operator()(TTextureHandleId textureHandle)
+			{
+				TPtr<CD3D12TextureImpl> pTextureImpl = mpGraphicsContext->mpGraphicsObjectManagerD3D12Impl->GetD3D12TexturePtr(textureHandle);
+				if (!pTextureImpl)
+				{
+					GetBarriers().emplace_back(CD3DX12_RESOURCE_BARRIER::UAV(nullptr));
+					return;
+				}
+
+				GetBarriers().emplace_back(CD3DX12_RESOURCE_BARRIER::UAV(pTextureImpl->GetHandle().Get()));
+			}
+
+			TBarriersArray& GetBarriers() { return mpGraphicsContext->mResourceBarriers[mpGraphicsContext->mpSwapchain->GetBackBufferTargetIndex()]; }
+		};
+
+		std::visit(TVisitor{ this }, resourceHandle);
 	}
 
 	void CD3D12GraphicsContext::TransitionBarrier(const TBufferTransitionBarrierInfo& barrierInfo)
 	{
-		TDE2_UNIMPLEMENTED();
+		TPtr<CD3D12Buffer> pBuffer = mpGraphicsObjectManagerD3D12Impl->GetD3D12BufferPtr(barrierInfo.mHandle);
+		if (!pBuffer)
+		{
+			return;
+		}
+
+		mResourceBarriers[mpSwapchain->GetBackBufferTargetIndex()].emplace_back(
+			CD3DX12_RESOURCE_BARRIER::Transition(pBuffer->GetHandle().Get(), GetInternalResourceState(barrierInfo.mCurrLayout), GetInternalResourceState(barrierInfo.mCurrLayout)));
 	}
 
 	void CD3D12GraphicsContext::TransitionBarrier(const TTextureTransitionBarrierInfo& barrierInfo)
 	{
-		TDE2_UNIMPLEMENTED();
+		TPtr<CD3D12TextureImpl> pTextureImpl = mpGraphicsObjectManagerD3D12Impl->GetD3D12TexturePtr(barrierInfo.mHandle);
+		if (!pTextureImpl)
+		{
+			return;
+		}
+
+		const U32 subresourceId = barrierInfo.mMipLevel ? *barrierInfo.mMipLevel : D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		
+		mResourceBarriers[mpSwapchain->GetBackBufferTargetIndex()].emplace_back(
+			CD3DX12_RESOURCE_BARRIER::Transition(pTextureImpl->GetHandle().Get(), GetInternalResourceState(barrierInfo.mCurrLayout), GetInternalResourceState(barrierInfo.mCurrLayout), subresourceId));
 	}
 
 	void CD3D12GraphicsContext::DebugBarrier()
 	{
 #if TDE2_DEBUG_MODE
-		TDE2_UNIMPLEMENTED();
+		mResourceBarriers[mpSwapchain->GetBackBufferTargetIndex()].emplace_back(CD3DX12_RESOURCE_BARRIER::UAV(nullptr));
 #endif
+	}
+
+	void CD3D12GraphicsContext::FlushBarriers()
+	{
+		auto& resourceBarriers = mResourceBarriers[mpSwapchain->GetBackBufferTargetIndex()];
+		if (resourceBarriers.empty())
+		{
+			return;
+		}
+
+		_getCurrCommandListPtr()->ResourceBarrier(static_cast<U32>(resourceBarriers.size()), resourceBarriers.data());
+
+		resourceBarriers.clear();
 	}
 
 	E_RESULT_CODE CD3D12GraphicsContext::CopyCount(TBufferHandleId sourceHandle, TBufferHandleId destHandle, U32 offset)
