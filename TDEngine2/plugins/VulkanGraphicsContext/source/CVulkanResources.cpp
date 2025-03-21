@@ -1224,9 +1224,7 @@ namespace TDEngine2
 	E_RESULT_CODE CVulkanBasePipeline::Init(IGraphicsContext* pGraphicsContext)
 	{
 		mpVulkanGraphicsContext = dynamic_cast<CVulkanGraphicsContext*>(pGraphicsContext);
-
-		CVulkanGraphicsContext* pVulkanGraphicsContext = dynamic_cast<CVulkanGraphicsContext*>(pGraphicsContext);
-		mpVulkanGraphicsObjectManagerImpl = dynamic_cast<CVulkanGraphicsObjectManager*>(pVulkanGraphicsContext->GetGraphicsObjectManager());
+		mpVulkanGraphicsObjectManagerImpl = dynamic_cast<CVulkanGraphicsObjectManager*>(mpVulkanGraphicsContext->GetGraphicsObjectManager());
 
 		return RC_OK;
 	}
