@@ -982,6 +982,7 @@ namespace TDEngine2
 				TDE2_PROFILER_SCOPE("CParticlesGPUSimulationSystem::EmitParticle");
 
 				auto& emitters = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mGpuParticleEmitters;
+				emitters.clear();
 
 				for (USIZE i = 0; i < mParticleEmitters.mpParticleEmitters.size(); ++i)
 				{
