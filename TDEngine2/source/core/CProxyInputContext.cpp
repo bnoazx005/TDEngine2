@@ -212,7 +212,7 @@ namespace TDEngine2
 					return pPtr;
 				}
 
-				TDE2_REGISTER_BASE_OBJECT(CProxyInputContext, pPtr); 
+				TDE2_REGISTER_BASE_OBJECT(CProxyInputContext, pPtr, sizeof(CProxyInputContext));
 
 				pPtr->mpContextDesc = pDesc;
 				

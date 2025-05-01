@@ -188,8 +188,11 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE UpdateMemoryBlockInfo(const std::string& name, USIZE usedSize) = 0;
 
-			TDE2_API virtual E_RESULT_CODE RegisterBaseObject(const std::string& typeId, U32Ptr address) = 0;
+			TDE2_API virtual E_RESULT_CODE RegisterBaseObject(const std::string& typeId, U32Ptr address, USIZE size) = 0;
 			TDE2_API virtual E_RESULT_CODE UnregisterBaseObject(U32Ptr address) = 0;
+
+			TDE2_API virtual E_RESULT_CODE RegisterCustomAllocation(const void* pPtr, USIZE size, const C8* name = nullptr) = 0;
+			TDE2_API virtual E_RESULT_CODE UnregisterCustomAllocation(const void* pPtr, const C8* name = nullptr) = 0;
 
 			TDE2_API virtual void DumpInfo() = 0;
 

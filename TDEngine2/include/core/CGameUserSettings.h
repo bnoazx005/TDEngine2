@@ -115,7 +115,7 @@ namespace TDEngine2
 			TDE2_API const TUserConfigVariableInfo* GetVariableInfo(const std::string& name) const;
 
 #if TDE2_EDITORS_ENABLED
-			TDE2_API void RegisterObjectInProfiler(const std::string& id) override;
+			TDE2_API void RegisterObjectInProfiler(const std::string& id, USIZE size) override;
 			TDE2_API void OnBeforeMemoryRelease() override;
 #endif
 		private:

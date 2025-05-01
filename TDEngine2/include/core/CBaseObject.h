@@ -46,7 +46,7 @@ namespace TDEngine2
 			TDE2_API U32 GetRefCount() const override;
 
 #if TDE2_EDITORS_ENABLED
-			TDE2_API virtual void RegisterObjectInProfiler(const std::string& id);
+			TDE2_API virtual void RegisterObjectInProfiler(const std::string& id, USIZE size);
 			TDE2_API virtual void OnBeforeMemoryRelease();
 #endif
 		protected:

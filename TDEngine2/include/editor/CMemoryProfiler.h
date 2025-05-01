@@ -86,8 +86,11 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE UpdateMemoryBlockInfo(const std::string& name, USIZE usedSize) override;
 
-			TDE2_API E_RESULT_CODE RegisterBaseObject(const std::string& typeId, U32Ptr address) override;
+			TDE2_API E_RESULT_CODE RegisterBaseObject(const std::string& typeId, U32Ptr address, USIZE size) override;
 			TDE2_API E_RESULT_CODE UnregisterBaseObject(U32Ptr address) override;
+
+			TDE2_API E_RESULT_CODE RegisterCustomAllocation(const void* pPtr, USIZE size, const C8* name = nullptr);
+			TDE2_API E_RESULT_CODE UnregisterCustomAllocation(const void* pPtr, const C8* name = nullptr);
 
 			TDE2_API void DumpInfo() override;
 

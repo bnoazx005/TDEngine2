@@ -278,7 +278,7 @@ namespace TDEngine2
 
 #if TDE2_EDITORS_ENABLED
 
-	void CGameUserSettings::RegisterObjectInProfiler(const std::string& id)
+	void CGameUserSettings::RegisterObjectInProfiler(const std::string& id, USIZE size)
 	{
 	}
 

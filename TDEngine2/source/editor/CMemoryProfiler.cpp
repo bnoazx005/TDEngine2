@@ -3,6 +3,8 @@
 #include "stringUtils.hpp"
 #include "backward.hpp"
 #include <sstream>
+#include "tracy/Tracy.hpp"
+
 
 
 #if TDE2_EDITORS_ENABLED
@@ -75,9 +77,11 @@ namespace TDEngine2
 	}
 
 
-	E_RESULT_CODE CMemoryProfiler::RegisterBaseObject(const std::string& typeId, U32Ptr address)
+	E_RESULT_CODE CMemoryProfiler::RegisterBaseObject(const std::string& typeId, U32Ptr address, USIZE size)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
+
+		TracyAlloc(reinterpret_cast<const void*>(address), size);
 
 		auto& entity = mLivingBaseObjectsTable[address];
 
@@ -95,6 +99,8 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
+		TracyFree(reinterpret_cast<const void*>(address));
+
 		auto it = mLivingBaseObjectsTable.find(address);
 
 		if (it == mLivingBaseObjectsTable.cend())
@@ -103,6 +109,39 @@ namespace TDEngine2
 		}
 
 		mLivingBaseObjectsTable.erase(it);
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CMemoryProfiler::RegisterCustomAllocation(const void* pPtr, USIZE size, const C8* name)
+	{
+		if (!pPtr || !size)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		if (name)
+		{
+			TracyAllocN(pPtr, size, name);
+		}
+		else
+		{
+			TracyAlloc(pPtr, size);
+		}
+
+		return RC_OK;
+	}
+		
+	E_RESULT_CODE CMemoryProfiler::UnregisterCustomAllocation(const void* pPtr, const C8* name)
+	{
+		if (name)
+		{
+			TracyFreeN(pPtr, name);
+		}
+		else
+		{
+			TracyFree(pPtr);
+		}
 
 		return RC_OK;
 	}

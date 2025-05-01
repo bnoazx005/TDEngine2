@@ -229,7 +229,7 @@ namespace TDEngine2
 
 #if TDE2_EDITORS_ENABLED
 
-	void CProgramOptions::RegisterObjectInProfiler(const std::string& id)
+	void CProgramOptions::RegisterObjectInProfiler(const std::string& id, USIZE size)
 	{
 	}
 

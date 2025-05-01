@@ -859,7 +859,7 @@ namespace TDEngine2
 
 #if TDE2_EDITORS_ENABLED
 
-	void CBaseEngineCoreBuilder::RegisterObjectInProfiler(const std::string& id)
+	void CBaseEngineCoreBuilder::RegisterObjectInProfiler(const std::string& id, USIZE size)
 	{
 	}
 		

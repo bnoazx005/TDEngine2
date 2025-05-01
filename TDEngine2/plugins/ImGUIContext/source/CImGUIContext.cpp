@@ -18,6 +18,7 @@
 #include <graphics/CFramePacketsStorage.h>
 #include <platform/win32/CWin32WindowSystem.h>
 #include <platform/unix/CUnixWindowSystem.h>
+#include <editor/CMemoryProfiler.h>
 #include <utils/CFileLogger.h>
 #include <utils/CGradientColor.h>
 #include <editor/CPerfProfiler.h>
@@ -67,6 +68,19 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
+
+		ImGui::SetAllocatorFunctions(
+			[](size_t size, void* pUserData) 
+			{
+				void* pPtr = malloc(size);
+				CMemoryProfiler::Get()->RegisterCustomAllocation(pPtr, size, "ImGUI");
+				return pPtr;
+			}, 
+			[](void* pPtr, void* pUserData)
+			{
+				CMemoryProfiler::Get()->UnregisterCustomAllocation(pPtr, "ImGUI");
+				free(pPtr);
+			});
 
 		// \note Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
