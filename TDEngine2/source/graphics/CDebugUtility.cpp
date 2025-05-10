@@ -172,7 +172,7 @@ namespace TDEngine2
 			pDrawTextCommand->mStartVertex             = 0;
 			pDrawTextCommand->mNumOfIndices            = static_cast<U32>(mTextDataBuffer.size() * 1.5f); // \note 1.5 is hand-coded optimisation of 3 / 2 fracture
 			pDrawTextCommand->mObjectData.mModelMatrix = IdentityMatrix4;
-		}	
+		}
 	}
 
 	void CDebugUtility::PostRender()
@@ -321,6 +321,18 @@ namespace TDEngine2
 		}
 	}
 
+
+	static void PushTriangleVertices(std::vector<CDebugUtility::TLineVertex>& vertices, const TVector3& p0, const TVector3& p1, const TVector3& p2, const TColor32F& color)
+	{
+		vertices.push_back({ { p0, 1.0f }, color });
+		vertices.push_back({ { p1, 1.0f }, color });
+		vertices.push_back({ { p0, 1.0f }, color });
+		vertices.push_back({ { p2, 1.0f }, color });
+		vertices.push_back({ { p1, 1.0f }, color });
+		vertices.push_back({ { p2, 1.0f }, color });
+	}
+
+
 	void CDebugUtility::DrawSphere(const TVector3& position, F32 radius, const TColor32F& color, U16 triangulationFactor)
 	{
 		if (!mIsInitialized)
@@ -328,24 +340,14 @@ namespace TDEngine2
 			return;
 		}
 
-		auto drawTriangle = [](std::vector<TLineVertex>& vertices, const TVector3& p0, const TVector3& p1, const TVector3& p2, const TColor32F& color)
+		static const std::array<TVector3, 6> basisVertices
 		{
-			vertices.push_back({ { p0, 1.0f }, color });
-			vertices.push_back({ { p1, 1.0f }, color });
-			vertices.push_back({ { p0, 1.0f }, color });
-			vertices.push_back({ { p2, 1.0f }, color });
-			vertices.push_back({ { p1, 1.0f }, color });
-			vertices.push_back({ { p2, 1.0f }, color });
-		};
-		
-		const TVector3 basisVertices[]
-		{
-			TVector3(0.0f, radius, 0.0f),
-			-TVector3(0.0f, radius, 0.0f),
-			TVector3(radius, 0.0f, 0.0f),
-			-TVector3(radius, 0.0f, 0.0f),
-			TVector3(0.0f, 0.0f, radius),
-			-TVector3(0.0f, 0.0f, radius),
+			UpVector3,
+			-UpVector3,
+			RightVector3,
+			-RightVector3,
+			ForwardVector3,
+			-ForwardVector3,
 		};
 
 		std::vector<TVector3> vertices;
@@ -368,21 +370,21 @@ namespace TDEngine2
 			triangulateSphereSegment(vertices, Lerp(v0, v1, 0.5f), Lerp(v0, v2, 0.5f), Lerp(v1, v2, 0.5f), depth - 1);
 		};
 
-		U8 indices[][3]
+		static const std::array<std::array<U8, 3>, 10> indices
 		{
-			{ 0, 2, 4 },
-			{ 0, 2, 5 },
-			{ 0, 3, 4 },
-			{ 0, 3, 5 },
-			{ 1, 2, 4 },
-			{ 1, 2, 5 },
-			{ 1, 3, 4 },
-			{ 1, 3, 5 },
+			std::array<U8, 3>{ 0, 2, 4 },
+			std::array<U8, 3>{ 0, 2, 5 },
+			std::array<U8, 3>{ 0, 3, 4 },
+			std::array<U8, 3>{ 0, 3, 5 },
+			std::array<U8, 3>{ 1, 2, 4 },
+			std::array<U8, 3>{ 1, 2, 5 },
+			std::array<U8, 3>{ 1, 3, 4 },
+			std::array<U8, 3>{ 1, 3, 5 },
 		};
 
 		for (const auto& currIndices: indices)
 		{
-			triangulateSphereSegment(vertices, basisVertices[currIndices[0]], basisVertices[currIndices[1]], basisVertices[currIndices[2]], triangulationFactor - 1);
+			triangulateSphereSegment(vertices, radius * basisVertices[currIndices[0]], radius * basisVertices[currIndices[1]], radius * basisVertices[currIndices[2]], triangulationFactor - 1);
 		}
 
 		for (U16 i = 0; i < vertices.size(); i += 3)
@@ -395,7 +397,7 @@ namespace TDEngine2
 			v1 = Normalize(v1) * radius + position;
 			v2 = Normalize(v2) * radius + position;
 
-			drawTriangle(mLinesDataBuffer, v0, v1, v2, color);
+			PushTriangleVertices(mLinesDataBuffer, v0, v1, v2, color);
 		}
 	}
 
