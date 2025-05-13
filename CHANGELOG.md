@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.32] 2025-05-01
+## [0.6.32] 2025-05-13
 
 ### Added
 
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 ### Fixed
+
+- The issue with low framerate caused with GPU particles simulation was fixed.
 
 ## [0.6.31] 2025-02-28
 

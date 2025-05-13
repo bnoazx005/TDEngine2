@@ -3021,7 +3021,8 @@ namespace TDEngine2
 	*/
 
 	CForwardRenderer::CForwardRenderer():
-		CBaseObject(), mpResourceManager(nullptr), mpGlobalShaderProperties(nullptr)
+		CBaseObject(), mpResourceManager(nullptr), mpGlobalShaderProperties(nullptr), mpCurrPostProcessingProfile(nullptr),
+		mpDebugUtility(nullptr), mpSelectionManager(nullptr)
 	{
 	}
 
@@ -3368,7 +3369,7 @@ namespace TDEngine2
 			CRenderSelectionBufferPass{ passInvokeContext, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)] }.AddPass(mpFrameGraph, frameGraphBlackboard, mpSelectionManager);
 #endif
 
-			if (CProjectSettings::Get()->mGraphicsSettings.mIsGPUParticlesSimulationEnabled)
+			if (CProjectSettings::Get()->mGraphicsSettings.mIsGPUParticlesSimulationEnabled && !mpFramePacketsStorage->GetCurrentFrameForRender().mGpuParticleEmitters.empty())
 			{
 				pGPUParticlesSimulationPass->AddPass(mpFrameGraph, frameGraphBlackboard, mpFramePacketsStorage);
 
