@@ -16,9 +16,6 @@
 
 namespace TDEngine2
 {
-	class IDLLManager;
-
-
 	/*!
 		\brief A factory function for creation objects of CD3D12ShaderCompiler's type
 		
@@ -29,7 +26,7 @@ namespace TDEngine2
 		\return A pointer to CD3D12ShaderCompiler's implementation
 	*/
 
-	IShaderCompiler* CreateD3D12ShaderCompiler(IFileSystem* pFileSystem, IDLLManager* pDLLManager, E_RESULT_CODE& result);
+	IShaderCompiler* CreateD3D12ShaderCompiler(IFileSystem* pFileSystem, E_RESULT_CODE& result);
 }
 
 

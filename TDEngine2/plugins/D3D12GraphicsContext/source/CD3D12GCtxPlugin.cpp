@@ -87,7 +87,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		auto pShaderCompilerInstance = TPtr<IShaderCompiler>(CreateD3D12ShaderCompiler(pFileSystem, pEngineCore->GetSubsystem<IPluginManager>()->GetDLLManager().Get(), result));
+		auto pShaderCompilerInstance = TPtr<IShaderCompiler>(CreateD3D12ShaderCompiler(pFileSystem, result));
 
 		if (result != RC_OK)
 		{

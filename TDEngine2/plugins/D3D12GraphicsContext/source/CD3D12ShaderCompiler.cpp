@@ -1,7 +1,6 @@
 #include "../include/CD3D12ShaderCompiler.h"
 #include "../include/CD3D12Mappings.h"
 #include <editor/CPerfProfiler.h>
-#include <core/IDLLManager.h>
 #include <utils/CFileLogger.h>
 #include <../deps/dxc/dxcapi.h>
 #include "stringUtils.hpp"
@@ -12,15 +11,14 @@
 
 #if defined(TDE2_USE_WINPLATFORM) /// Used only on Windows platform
 
+#include <wrl/client.h>
+
+#pragma comment(lib, "dxcompiler")
+
+template<typename T> using ComPtr =  Microsoft::WRL::ComPtr<T>;
 
 namespace TDEngine2
 {
-	IDxcCompiler3* pDxCompiler = nullptr;
-	IDxcUtils* pDxUtils = nullptr;
-
-	static const std::string DXCLibraryName = "dxcompiler";
-
-
 	/*!
 		class CD3D12ShaderCompiler
 
@@ -30,7 +28,17 @@ namespace TDEngine2
 	class CD3D12ShaderCompiler : public CBaseShaderCompiler
 	{
 		public:
-			friend IShaderCompiler* CreateD3D12ShaderCompiler(IFileSystem*, IDLLManager*, E_RESULT_CODE&);
+			friend IShaderCompiler* CreateD3D12ShaderCompiler(IFileSystem*, E_RESULT_CODE&);
+		public:
+			/*!
+				\brief The method initializes an initial state of a compiler
+
+				\param[in, out] pFileSystem A pointer to IFileSystem implementation
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE Init(IFileSystem* pFileSystem) override;
 
 			/*!
 				\brief The method compiles specified source code into the bytecode representation.
@@ -59,17 +67,42 @@ namespace TDEngine2
 			TShaderResourcesMap _processShaderResourcesDecls(CTokenizer& tokenizer) const override;
 
 			E_SHADER_RESOURCE_TYPE _isShaderResourceType(const std::string& token) const;
-
-			E_RESULT_CODE _onFreeInternal() override;
 		private:
-			IDLLManager* mpDLLManager = nullptr;
+			ComPtr<IDxcLibrary>  mpLibrary = nullptr;
+			ComPtr<IDxcCompiler> mpCompiler = nullptr;
+			ComPtr<IDxcUtils>    mpDxcUtils = nullptr;
 	};
 
 
 	CD3D12ShaderCompiler::CD3D12ShaderCompiler():
 		CBaseShaderCompiler()
 	{
+	}
 
+	E_RESULT_CODE CD3D12ShaderCompiler::Init(IFileSystem* pFileSystem)
+	{
+		E_RESULT_CODE result = CBaseShaderCompiler::Init(pFileSystem);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		if (FAILED(DxcCreateInstance(CLSID_DxcLibrary, IID_PPV_ARGS(&mpLibrary))))
+		{
+			return RC_FAIL;
+		}
+
+		if (FAILED(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&mpCompiler))))
+		{
+			return RC_FAIL;
+		}
+
+		if (FAILED(DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&mpDxcUtils))))
+		{
+			return RC_FAIL;
+		}
+
+		return RC_OK;
 	}
 
 	TResult<TShaderCompilerOutput*> CD3D12ShaderCompiler::Compile(const std::string& shaderId, const std::string& source) const
@@ -159,7 +192,7 @@ namespace TDEngine2
 		std::wstring targetVersion = GetShaderTargetVerStr(shaderStage, shaderMetadata.mFeatureLevel);
 
 		IDxcIncludeHandler* pIncludeHandler = nullptr;
-		if (FAILED(pDxUtils->CreateDefaultIncludeHandler(&pIncludeHandler)))
+		if (FAILED(mpDxcUtils->CreateDefaultIncludeHandler(&pIncludeHandler)))
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
@@ -188,8 +221,14 @@ namespace TDEngine2
 		sourceCode.Size = processedSource.size();
 		sourceCode.Encoding = DXC_CP_ACP;
 
+		ComPtr<IDxcCompiler3> pCompiler3 = nullptr;
+		if (FAILED(mpCompiler->QueryInterface(IID_PPV_ARGS(&pCompiler3))))
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
 		IDxcResult* pResult = nullptr;
-		if (FAILED(pDxCompiler->Compile(&sourceCode, args.data(), static_cast<U32>(args.size()), pIncludeHandler, IID_PPV_ARGS(&pResult))))
+		if (FAILED(pCompiler3->Compile(&sourceCode, args.data(), static_cast<U32>(args.size()), pIncludeHandler, IID_PPV_ARGS(&pResult))))
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
@@ -517,59 +556,12 @@ namespace TDEngine2
 		auto result = shaderResourcesMap.find(token);
 
 		return (result == shaderResourcesMap.cend()) ? E_SHADER_RESOURCE_TYPE::SRT_UNKNOWN : result->second;
-	}
+	}	
 
-	E_RESULT_CODE CD3D12ShaderCompiler::_onFreeInternal()
+
+	IShaderCompiler* CreateD3D12ShaderCompiler(IFileSystem* pFileSystem, E_RESULT_CODE& result)
 	{
-		if (pDxCompiler)
-		{
-			pDxCompiler->Release();
-		}
-
-		if (pDxUtils)
-		{
-			pDxUtils->Release();
-		}
-
-		mpDLLManager->Unload(DXCLibraryName);
-
-		return RC_OK;
-	}
-	
-
-	IShaderCompiler* CreateD3D12ShaderCompiler(IFileSystem* pFileSystem, IDLLManager* pDLLManager, E_RESULT_CODE& result)
-	{
-		CD3D12ShaderCompiler* pShaderCompiler = CREATE_IMPL(CD3D12ShaderCompiler, CD3D12ShaderCompiler, result, pFileSystem);
-		if (pShaderCompiler)
-		{
-			pShaderCompiler->mpDLLManager = pDLLManager;
-
-			auto libraryHandler = pDLLManager->Load(DXCLibraryName, result);
-			if (libraryHandler == TDynamicLibraryHandler::Invalid)
-			{
-				pShaderCompiler->Free();
-				return nullptr;
-			}
-
-			DxcCreateInstanceProc DxCreateInstance = reinterpret_cast<DxcCreateInstanceProc>(pDLLManager->GetSymbol(libraryHandler, "DxcCreateInstance"));
-			if (!DxCreateInstance)
-			{
-				pShaderCompiler->Free();
-				result = RC_FAIL;
-
-				return nullptr;
-			}
-
-			if (FAILED(DxCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&pDxCompiler))) || FAILED(DxCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&pDxUtils))))
-			{
-				pShaderCompiler->Free();
-				result = RC_FAIL;
-
-				return nullptr;
-			}
-		}
-
-		return dynamic_cast<IShaderCompiler*>(pShaderCompiler);
+		return CREATE_IMPL(IShaderCompiler, CD3D12ShaderCompiler, result, pFileSystem);
 	}
 }
 
