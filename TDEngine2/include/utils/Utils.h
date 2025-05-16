@@ -990,4 +990,56 @@ namespace TDEngine2
 	{
 		return (value + (alignment - 1)) & ~(alignment - 1);
 	}
+
+
+	/*!
+		\brief The class is an in-engine replacement of std::allocator to provide memory tracking. Internal implementation of allocate/deallocate is same as std::allocator
+	*/
+
+#if TDE2_EDITORS_ENABLED
+
+	// Helper global functions that are wrappers for CMemoryProfiler::RegisterCustomAllocation/UnregisterCustomAllocation methods
+	TDE2_API E_RESULT_CODE RegisterCustomAllocation(const void* pPtr, USIZE size, const C8* name = nullptr);
+	TDE2_API E_RESULT_CODE UnregisterCustomAllocation(const void* pPtr, const C8* name = nullptr);
+
+
+	template<typename T>
+	class CTrackingAllocator
+	{
+		public:
+			typedef T              value_type;
+			typedef value_type*    pointer;
+			typedef value_type&    reference;
+			typedef std::size_t    size_type;
+			typedef std::ptrdiff_t difference_type;
+
+		public:
+			CTrackingAllocator() noexcept = default;
+			template<typename U> explicit CTrackingAllocator(const CTrackingAllocator<U>&) noexcept {}
+			~CTrackingAllocator() = default;
+
+			pointer allocate(size_type cnt) noexcept
+			{
+				pointer pPtr = reinterpret_cast<pointer>(::operator new(cnt * sizeof(T)));
+				RegisterCustomAllocation(pPtr, cnt * sizeof(T), "TrackingAllocator");
+				return pPtr;
+			}
+
+			void deallocate(pointer p, size_type) noexcept
+			{
+				UnregisterCustomAllocation(p, "TrackingAllocator");
+				::operator delete(p);
+			}
+
+			bool operator==(const CTrackingAllocator&) const noexcept { return true; }
+			bool operator!=(const CTrackingAllocator&) const noexcept { return true; }
+	};
+
+
+	template <typename T> using Vector = std::vector<T, CTrackingAllocator<T>>;
+#else
+	template <typename T> using Vector = std::vector<T>;
+#endif
+
+
 }

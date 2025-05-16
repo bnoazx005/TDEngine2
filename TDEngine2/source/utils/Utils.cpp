@@ -1,5 +1,6 @@
 #include "../../include/utils/Utils.h"
 #include "../../include/utils/CFileLogger.h"
+#include "../../include/editor/CMemoryProfiler.h"
 #include "debugbreak.h"
 #include "backward.hpp"
 #define STR_UTILS_IMPLEMENTATION
@@ -553,4 +554,18 @@ namespace TDEngine2
 		TDE2_UNIMPLEMENTED();
 #endif
 	}
+
+#if TDE2_EDITORS_ENABLED
+
+	TDE2_API E_RESULT_CODE RegisterCustomAllocation(const void* pPtr, USIZE size, const C8* name)
+	{
+		return CMemoryProfiler::Get()->RegisterCustomAllocation(pPtr, size, name);
+	}
+	
+	TDE2_API E_RESULT_CODE UnregisterCustomAllocation(const void* pPtr, const C8 * name)
+	{
+		return CMemoryProfiler::Get()->UnregisterCustomAllocation(pPtr, name);
+	}
+
+#endif
 }

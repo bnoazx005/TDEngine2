@@ -11,7 +11,6 @@
 #include "../utils/Utils.h"
 #include "../core/CBaseObject.h"
 #include <string>
-#include <vector>
 #include <memory>
 
 
@@ -42,7 +41,7 @@ namespace TDEngine2
 	class IFrameGraphPass
 	{
 		public:
-			typedef std::vector<TFrameGraphResourceHandle> TResourcesArray;
+			typedef Vector<TFrameGraphResourceHandle> TResourcesArray;
 		public:
 			TDE2_API virtual ~IFrameGraphPass() = default;
 
@@ -149,13 +148,13 @@ namespace TDEngine2
 
 			TPassData        mData{};
 
-			std::vector<TFrameGraphResourceHandle> mCreates;
-			std::vector<TFrameGraphResourceHandle> mReads;
-			std::vector<TFrameGraphResourceHandle> mWrites;
+			TResourcesArray  mCreates;
+			TResourcesArray  mReads;
+			TResourcesArray  mWrites;
 
-			U32 mRefCount = 0;
+			U32              mRefCount = 0;
 
-			bool mIsPersistent = false;
+			bool             mIsPersistent = false;
 	};
 
 
@@ -310,7 +309,7 @@ namespace TDEngine2
 		public:
 			friend TDE2_API CFrameGraph* CreateFrameGraph(IGraphicsContext*, E_RESULT_CODE&);
 		public:
-			typedef std::vector<CFrameGraphResource> TResourcesRegistry;
+			typedef Vector<CFrameGraphResource> TResourcesRegistry;
 		public:
 			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext);
 
@@ -373,7 +372,7 @@ namespace TDEngine2
 			}
 
 			TDE2_API TResourcesRegistry& GetResources(const CPassKey<CFrameGraphBuilder>& passkey);
-			TDE2_API std::vector<TFrameGraphResourceNode>& GetResourcesGraph(const CPassKey<CFrameGraphBuilder>& passkey);
+			TDE2_API Vector<TFrameGraphResourceNode>& GetResourcesGraph(const CPassKey<CFrameGraphBuilder>& passkey);
 
 		private:
 			CFrameGraphResource& _getResource(TFrameGraphResourceHandle handle)
@@ -387,14 +386,14 @@ namespace TDEngine2
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFrameGraph)
 		private:
-			std::vector<std::unique_ptr<IFrameGraphPass>> mpActivePasses;
-			TResourcesRegistry                            mResources;
-			std::vector<TFrameGraphResourceNode>          mResourcesGraph;
+			Vector<std::unique_ptr<IFrameGraphPass>> mpActivePasses;
+			TResourcesRegistry                       mResources;
+			Vector<TFrameGraphResourceNode>          mResourcesGraph;
 			
-			IGraphicsContext*                             mpGraphicsContext = nullptr;
-			IGraphicsObjectManager*                       mpGraphicsObjectManager = nullptr;
+			IGraphicsContext*                        mpGraphicsContext = nullptr;
+			IGraphicsObjectManager*                  mpGraphicsObjectManager = nullptr;
 
-			TFramePassExecutionContext                    mExecutionContext;
+			TFramePassExecutionContext               mExecutionContext;
 	};
 
 

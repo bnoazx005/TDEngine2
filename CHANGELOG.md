@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.32] 2025-05-13
+## [0.6.32] 2025-05-16
 
 ### Added
 
 - The API of **IMemoryProfiler** was extended with new methods RegisterCustomAllocation/UnregisterCustomAllocation.
 
 - All allocations of DearImGUI are now tracked via **CMemoryProfiler**.
+
+- A new type **CTrackingAllocator<T>** was introduced to track memory when STL containers are used.
 
 ### Changed
 

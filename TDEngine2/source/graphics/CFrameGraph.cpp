@@ -419,7 +419,7 @@ namespace TDEngine2
 		return mResources;
 	}
 
-	std::vector<TFrameGraphResourceNode>& CFrameGraph::GetResourcesGraph(const CPassKey<CFrameGraphBuilder>& passkey)
+	Vector<TFrameGraphResourceNode>& CFrameGraph::GetResourcesGraph(const CPassKey<CFrameGraphBuilder>& passkey)
 	{
 		return mResourcesGraph;
 	}
