@@ -219,7 +219,7 @@ namespace TDEngine2
 			return;
 		}
 
-		auto createLine = [](std::vector<TLineVertex>& vertices, const TVector3& position, const TVector3& axis, F32 size, const TColor32F& color)
+		auto createLine = [](Vector<TLineVertex>& vertices, const TVector3& position, const TVector3& axis, F32 size, const TColor32F& color)
 		{
 			F32 halfSize = 0.5f * size;
 
@@ -270,7 +270,7 @@ namespace TDEngine2
 		TVector3 min = aabb.min;
 		TVector3 max = aabb.max;
 
-		auto draw3DRect = [min, max](std::vector<TLineVertex>& vertices, F32 height, const TColor32F& c)
+		auto draw3DRect = [min, max](Vector<TLineVertex>& vertices, F32 height, const TColor32F& c)
 		{
 			vertices.push_back({ { min.x, height, min.z, 1.0f }, c });
 			vertices.push_back({ { min.x, height, max.z, 1.0f }, c });
@@ -322,7 +322,7 @@ namespace TDEngine2
 	}
 
 
-	static void PushTriangleVertices(std::vector<CDebugUtility::TLineVertex>& vertices, const TVector3& p0, const TVector3& p1, const TVector3& p2, const TColor32F& color)
+	static void PushTriangleVertices(Vector<CDebugUtility::TLineVertex>& vertices, const TVector3& p0, const TVector3& p1, const TVector3& p2, const TColor32F& color)
 	{
 		vertices.push_back({ { p0, 1.0f }, color });
 		vertices.push_back({ { p1, 1.0f }, color });
@@ -350,9 +350,9 @@ namespace TDEngine2
 			-ForwardVector3,
 		};
 
-		std::vector<TVector3> vertices;
+		Vector<TVector3> vertices;
 
-		std::function<void(std::vector<TVector3>&, const TVector3&, const TVector3&, const TVector3&, U16)> triangulateSphereSegment = 
+		std::function<void(Vector<TVector3>&, const TVector3&, const TVector3&, const TVector3&, U16)> triangulateSphereSegment = 
 		[&triangulateSphereSegment](auto&& vertices, const TVector3& v0, const TVector3& v1, const TVector3& v2, U16 depth)
 		{
 			if (!depth)

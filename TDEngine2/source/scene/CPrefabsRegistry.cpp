@@ -263,7 +263,7 @@ namespace TDEngine2
 
 		IPrefabsRegistry::TPrefabInfoEntity hierarchyInfo;
 
-		std::vector<TEntityId> entities;
+		Vector<TEntityId> entities;
 		std::stack<TEntityId> entitiesToVisit;
 
 		entitiesToVisit.push(pObject->GetId());

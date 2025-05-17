@@ -128,7 +128,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE RemoveComponents(TEntityId id, const std::function<void(std::vector<TypeId>)>& onComponentsRemoved = nullptr) = 0;
+			TDE2_API virtual E_RESULT_CODE RemoveComponents(TEntityId id, const std::function<void(TTypesArray)>& onComponentsRemoved = nullptr) = 0;
 
 			/*!
 				\return The method returns an array of components that belong to given entity
@@ -186,7 +186,7 @@ namespace TDEngine2
 				specified components
 			*/
 
-			TDE2_API virtual std::vector<TEntityId> FindEntitiesWithAll(const std::vector<TypeId>& types) = 0;
+			TDE2_API virtual TEntitiesArray FindEntitiesWithAll(const TTypesArray& types) = 0;
 
 			/*!
 				\brief The method returns an array of entities identifiers, which have any of
@@ -198,7 +198,7 @@ namespace TDEngine2
 				specified components
 			*/
 
-			TDE2_API virtual std::vector<TEntityId> FindEntitiesWithAny(const std::vector<TypeId>& types) = 0;
+			TDE2_API virtual TEntitiesArray FindEntitiesWithAny(const TTypesArray& types) = 0;
 
 			/*!
 				\param[in] types An array that contains types identifiers that an entity should have. Note that the method

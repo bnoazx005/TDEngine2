@@ -117,7 +117,7 @@ namespace TDEngine2
 
 			TDE2_API virtual TEntityId GetSelectedEntityId() const = 0;
 
-			TDE2_API virtual const std::vector<TEntityId>& GetSelectedEntities() const = 0;
+			TDE2_API virtual const Vector<TEntityId>& GetSelectedEntities() const = 0;
 
 			/*!
 				\return The method returns true when the given entity identifier was marked as selected sooner and false in other cases

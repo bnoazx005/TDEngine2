@@ -45,6 +45,8 @@ namespace TDEngine2
 	class IScene: public virtual IBaseObject, public ISerializable
 	{
 		public:
+			typedef Vector<TEntityId> TEntitiesRegistry;
+		public:
 			/*!
 				\brief The method initializes the internal state of the object
 
@@ -192,7 +194,7 @@ namespace TDEngine2
 
 			TDE2_API virtual bool IsMainScene() const = 0;
 
-			TDE2_API virtual const std::vector<TEntityId>& GetEntities() const = 0;
+			TDE2_API virtual const TEntitiesRegistry& GetEntities() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IScene)
 	};

@@ -10,6 +10,7 @@
 #include "../utils/Types.h"
 #include "../utils/Utils.h"
 #include "../core/IBaseObject.h"
+#include "IComponent.h"
 #include "../math/TVector3.h"
 #include "../math/TQuaternion.h"
 
@@ -109,7 +110,7 @@ namespace TDEngine2
 
 			TDE2_API virtual TEntityId GetPrevParent() const = 0;
 
-			TDE2_API virtual const std::vector<TEntityId>& GetChildren() const = 0;
+			TDE2_API virtual const TEntitiesArray& GetChildren() const = 0;
 
 			TDE2_API virtual const TVector3& GetPivot() const = 0;
 

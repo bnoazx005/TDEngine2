@@ -520,7 +520,7 @@ namespace TDEngine2
 		return mIsMainScene;
 	}
 
-	const std::vector<TEntityId>& CScene::GetEntities() const
+	const CScene::TEntitiesRegistry& CScene::GetEntities() const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 		return mEntities;
@@ -540,10 +540,10 @@ namespace TDEngine2
 
 	struct TLoadEntitiesInfo
 	{
-		std::vector<TEntityId>                                            mCreatedEntities;
-		std::vector<TEntityId>                                            mRootEntities;
-		std::vector<IPrefabsRegistry::TPrefabInfoEntity::TPrefabLinkInfo> mPrefabsLinks;
-		TPtr<CPrefabChangesList>                                          mpChanges = nullptr;
+		Vector<TEntityId>                                            mCreatedEntities;
+		Vector<TEntityId>                                            mRootEntities;
+		Vector<IPrefabsRegistry::TPrefabInfoEntity::TPrefabLinkInfo> mPrefabsLinks;
+		TPtr<CPrefabChangesList>                                     mpChanges = nullptr;
 	};
 
 
@@ -674,7 +674,7 @@ namespace TDEngine2
 
 #if TDE2_EDITORS_ENABLED
 				/// \note Remove all child which are prefabs links. They'll be attached later after spawning
-				std::vector<TEntityId> childrenToExclude;
+				Vector<TEntityId> childrenToExclude;
 					
 				for (const TEntityId& currChildId : pTransform->GetChildren())
 				{
@@ -955,7 +955,7 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		std::vector<TEntityId> entities;
+		TEntitiesArray entities;
 
 		// \note Write entities
 		result = result | pWriter->BeginGroup("entities", true);

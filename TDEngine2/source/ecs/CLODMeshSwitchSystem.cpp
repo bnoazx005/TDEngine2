@@ -43,9 +43,9 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("UpdateLODSEntities");
 
-		auto& transforms  = std::get<std::vector<CTransform*>>(context.mComponentsSlice);
-		auto& meshes      = std::get<std::vector<TGraphicsComponentType*>>(context.mComponentsSlice);
-		auto& lodStrategy = std::get<std::vector<CLODStrategyComponent*>>(context.mComponentsSlice);
+		auto& transforms  = std::get<Vector<CTransform*>>(context.mComponentsSlice);
+		auto& meshes      = std::get<Vector<TGraphicsComponentType*>>(context.mComponentsSlice);
+		auto& lodStrategy = std::get<Vector<CLODStrategyComponent*>>(context.mComponentsSlice);
 
 		const TVector3 cameraWorldPosition = pCameraTransform->GetPosition();
 

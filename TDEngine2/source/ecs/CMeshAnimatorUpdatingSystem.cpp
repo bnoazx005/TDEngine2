@@ -47,10 +47,10 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("CMeshAnimatorUpdatingSystem::Update");
 
-		auto& skinnedMeshContainers = std::get<std::vector<CSkinnedMeshContainer*>>(mEntitiesContext.mComponentsSlice);
-		auto& animationContainers   = std::get<std::vector<CAnimationContainerComponent*>>(mEntitiesContext.mComponentsSlice);
-		auto& animators             = std::get<std::vector<CMeshAnimatorComponent*>>(mEntitiesContext.mComponentsSlice);
-		auto& bounds                = std::get<std::vector<CBoundsComponent*>>(mEntitiesContext.mComponentsSlice);
+		auto& skinnedMeshContainers = std::get<Vector<CSkinnedMeshContainer*>>(mEntitiesContext.mComponentsSlice);
+		auto& animationContainers   = std::get<Vector<CAnimationContainerComponent*>>(mEntitiesContext.mComponentsSlice);
+		auto& animators             = std::get<Vector<CMeshAnimatorComponent*>>(mEntitiesContext.mComponentsSlice);
+		auto& bounds                = std::get<Vector<CBoundsComponent*>>(mEntitiesContext.mComponentsSlice);
 		
 		for (USIZE i = 0; i < mEntitiesContext.mComponentsCount; ++i)
 		{

@@ -71,14 +71,14 @@ namespace TDEngine2
 					std::string mPrefabId;
 				};
 
-				CEntityManager*              mpEntityOwner = nullptr;
+				CEntityManager*          mpEntityOwner = nullptr;
 
-				TEntityId                    mRootEntityId = TEntityId::Invalid;
-				std::vector<TEntityId>       mRelatedEntities;
+				TEntityId                mRootEntityId = TEntityId::Invalid;
+				Vector<TEntityId>        mRelatedEntities;
 
-				std::vector<TPrefabLinkInfo> mNestedPrefabsLinks;
+				Vector<TPrefabLinkInfo>  mNestedPrefabsLinks;
 
-				TPtr<CPrefabChangesList>     mpChanges = nullptr;
+				TPtr<CPrefabChangesList> mpChanges = nullptr;
 			};
 		public:
 			/*!

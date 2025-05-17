@@ -53,20 +53,20 @@ namespace TDEngine2
 
 
 	std::mutex MainCanvasesMutex;
-	std::vector<TEntityId> MainCanvases;
+	TEntitiesArray MainCanvases{};
 
 
-	TDE2_API const std::vector<TEntityId>& FindMainCanvases(IWorld* pWorld)
+	TDE2_API const TEntitiesArray& FindMainCanvases(IWorld* pWorld)
 	{
 		std::lock_guard<std::mutex> lock(MainCanvasesMutex);
 		return MainCanvases;
 	}
 
-	static std::vector<TEntityId> FindMainCanvasesInternal(IWorld* pWorld)
+	static TEntitiesArray FindMainCanvasesInternal(IWorld* pWorld)
 	{
 		TDE2_PROFILER_SCOPE("CUIEventsSystem::FindMainCanvases");
 
-		std::vector<TEntityId> output;
+		TEntitiesArray output;
 		std::vector<CCanvas*> canvases;
 
 		auto insertNewCanvas = [&](CCanvas* pCanvas, TEntityId entityId)

@@ -934,11 +934,11 @@ namespace TDEngine2
 		return mInternalImageViewHandle;
 	}
 
-	std::vector<U8> CVulkanTextureImpl::ReadBytes(U32 index)
+	Vector<U8> CVulkanTextureImpl::ReadBytes(U32 index)
 	{
 		TDE2_ASSERT(E_TEXTURE_IMPL_USAGE_TYPE::DYNAMIC == mInitParams.mUsageType && mpReadbackBuffer);
 		
-		std::vector<U8> outputBytes(static_cast<size_t>(mInitParams.mWidth * mInitParams.mHeight * mInitParams.mDepth * CFormatUtils::GetFormatSize(mInitParams.mFormat)));
+		Vector<U8> outputBytes(static_cast<size_t>(mInitParams.mWidth * mInitParams.mHeight * mInitParams.mDepth * CFormatUtils::GetFormatSize(mInitParams.mFormat)));
 
 		mpGraphicsContextImpl->ExecuteImmediate([this, &outputBytes](VkCommandBuffer commandBuffer)
 			{

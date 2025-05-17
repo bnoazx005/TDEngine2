@@ -9,6 +9,7 @@
 
 #include "../core/CBaseObject.h"
 #include "../core/IJobManager.h"
+#include "IComponent.h"
 #include "ISystem.h"
 #include <vector>
 
@@ -26,8 +27,6 @@ namespace TDEngine2
 
 	class CBaseSystem : public virtual ISystem, public CBaseObject
 	{
-		public:
-			typedef std::vector<TEntityId> TEntitiesArray;
 		public:
 			/*!
 				\brief The main method that should be implemented in all derived classes.

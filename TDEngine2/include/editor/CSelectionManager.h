@@ -137,7 +137,7 @@ namespace TDEngine2
 
 			TDE2_API TEntityId GetSelectedEntityId() const override;
 
-			TDE2_API const std::vector<TEntityId>& GetSelectedEntities() const;
+			TDE2_API const Vector<TEntityId>& GetSelectedEntities() const;
 
 			/*!
 				\return The method returns true when the given entity identifier was marked as selected sooner and false in other cases
@@ -173,7 +173,7 @@ namespace TDEngine2
 
 			U32                    mWindowHeaderHeight;
 
-			std::vector<TEntityId> mSelectedEntities;
+			Vector<TEntityId>      mSelectedEntities;
 	};
 }
 

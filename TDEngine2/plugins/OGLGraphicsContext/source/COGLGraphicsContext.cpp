@@ -379,7 +379,7 @@ namespace TDEngine2
 
 			TPtr<IWindowSystem> GetWindowSystem() const override;
 
-			std::vector<U8> GetBackBufferData() const override;
+			Vector<U8> GetBackBufferData() const override;
 		protected:
 			COGLGraphicsContext(TCreateGLContextFactoryCallback glContextFactoryCallback);
 			COGLGraphicsContext(const COGLGraphicsContext& graphicsCtx) = delete;
@@ -1253,9 +1253,9 @@ namespace TDEngine2
 		return mpWindowSystem;
 	}
 
-	std::vector<U8> COGLGraphicsContext::GetBackBufferData() const
+	Vector<U8> COGLGraphicsContext::GetBackBufferData() const
 	{
-		std::vector<U8> imageData;
+		Vector<U8> imageData;
 
 		const size_t imageDataSize = mpWindowSystem->GetWidth() * mpWindowSystem->GetHeight() * sizeof(U32);
 		imageData.resize(imageDataSize);

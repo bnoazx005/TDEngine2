@@ -129,7 +129,7 @@ namespace TDEngine2
 
 			CFramePacketsStorage*        mpFramePacketsStorage = nullptr;
 
-			std::vector<TLightData>      mActiveLightsData;
+			Vector<TLightData>           mActiveLightsData;
 			
 			TPtr<ITimer>                 mpTimer = nullptr;
 	};

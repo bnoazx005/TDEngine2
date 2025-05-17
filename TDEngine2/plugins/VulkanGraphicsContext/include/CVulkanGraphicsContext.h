@@ -443,7 +443,7 @@ namespace TDEngine2
 
 			TPtr<IWindowSystem> GetWindowSystem() const override;
 
-			std::vector<U8> GetBackBufferData() const override;
+			Vector<U8> GetBackBufferData() const override;
 
 			VkDevice GetDevice();
 			VkPhysicalDevice GetPhysicalDevice();

@@ -118,11 +118,15 @@ namespace TDEngine2
 		private:
 			TProfilerStatisticsData mBlocksInfoRegistry;
 
-			USIZE mTotalMemorySize;
+			USIZE mTotalMemorySize = 0;
 
 			TBaseObjectsRegistry mLivingBaseObjectsTable;
 
 			mutable std::mutex mMutex;
+
+			std::unordered_map<U32Ptr, USIZE>      mAllocationsStats{};
+			std::unordered_map<std::string, USIZE> mAllocationsGroupStats{}; ///< std::string - group id, USIZE - size of a group
+
 	};
 
 

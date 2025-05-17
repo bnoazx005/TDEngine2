@@ -1042,4 +1042,6 @@ namespace TDEngine2
 #endif
 
 
+	typedef Vector<TEntityId> TEntitiesArray;
+	typedef Vector<TypeId>    TTypesArray;
 }

@@ -48,8 +48,8 @@ namespace TDEngine2
 		public:
 			struct TSystemContext
 			{
-				std::vector<CAnimationContainerComponent*> mpAnimationContainers;
-				std::vector<TEntityId>                     mEntities;
+				Vector<CAnimationContainerComponent*> mpAnimationContainers;
+				TEntitiesArray                        mEntities;
 			};
 		public:
 			TDE2_SYSTEM(CAnimationSystem);

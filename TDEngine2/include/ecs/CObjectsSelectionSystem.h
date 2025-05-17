@@ -71,7 +71,7 @@ namespace TDEngine2
 				std::vector<CBoundsComponent*> mpBounds;
 				std::vector<bool>              mHasSelectedEntityComponent;
 				std::vector<bool>              mVisibleFlags;
-				std::vector<TEntityId>         mEntityIds;
+				TEntitiesArray                 mEntityIds;
 			};
 
 			struct TUIElementsSystemContext : TSystemContext<CUIElementMeshData>

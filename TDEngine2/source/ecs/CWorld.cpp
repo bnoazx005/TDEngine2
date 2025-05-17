@@ -329,7 +329,7 @@ namespace TDEngine2
 		mpComponentManager->ForEach(componentTypeId, action);
 	}
 
-	std::vector<TEntityId> CWorld::_findEntitiesWithComponents(const std::vector<TypeId>& types)
+	TEntitiesArray CWorld::_findEntitiesWithComponents(const TTypesArray& types)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
@@ -337,7 +337,7 @@ namespace TDEngine2
 		return mpComponentManager->FindEntitiesWithAll(types);
 	}
 
-	std::vector<TEntityId> CWorld::_findEntitiesWithAnyComponents(const std::vector<TypeId>& types)
+	TEntitiesArray CWorld::_findEntitiesWithAnyComponents(const TTypesArray& types)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);

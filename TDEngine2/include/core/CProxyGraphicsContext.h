@@ -357,7 +357,7 @@ namespace TDEngine2
 
 			TDE2_API TPtr<IWindowSystem> GetWindowSystem() const override;
 
-			TDE2_API std::vector<U8> GetBackBufferData() const override;
+			TDE2_API Vector<U8> GetBackBufferData() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CProxyGraphicsContext)
 		protected:

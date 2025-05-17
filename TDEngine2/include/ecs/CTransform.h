@@ -165,7 +165,7 @@ namespace TDEngine2
 
 			TDE2_API TEntityId GetPrevParent() const override;
 
-			TDE2_API const std::vector<TEntityId>& GetChildren() const override;
+			TDE2_API const TEntitiesArray& GetChildren() const override;
 
 			TDE2_API const TVector3& GetPivot() const override;
 			
@@ -286,7 +286,7 @@ namespace TDEngine2
 			bool        mHasChanged;
 			bool        mIsFirstFrameAfterCreation = true;
 
-			std::vector<TEntityId> mChildrenEntities;
+			TEntitiesArray mChildrenEntities;
 	};
 
 

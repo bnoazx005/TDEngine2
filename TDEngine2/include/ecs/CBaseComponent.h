@@ -241,9 +241,9 @@ namespace TDEngine2
 		TDE2_REGISTER_TYPE(TOnComponentRemovedEvent)
 		REGISTER_EVENT_TYPE(TOnComponentRemovedEvent)
 
-		TEntityId           mEntityId = TEntityId::Invalid;
+		TEntityId   mEntityId = TEntityId::Invalid;
 
-		std::vector<TypeId> mRemovedComponentsTypeId {};
+		TTypesArray mRemovedComponentsTypeId {};
 	} TOnComponentRemovedEvent, * TOnComponentRemovedEventPtr;
 
 

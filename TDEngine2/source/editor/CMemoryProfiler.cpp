@@ -99,6 +99,11 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
+		if (!address)
+		{
+			return RC_OK;
+		}
+
 		TracyFree(reinterpret_cast<const void*>(address));
 
 		auto it = mLivingBaseObjectsTable.find(address);
@@ -120,6 +125,8 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if (name)
 		{
 			TracyAllocN(pPtr, size, name);
@@ -129,11 +136,21 @@ namespace TDEngine2
 			TracyAlloc(pPtr, size);
 		}
 
+		mAllocationsStats[reinterpret_cast<U32Ptr>(pPtr)] = size;
+		mAllocationsGroupStats[name] += size;
+
 		return RC_OK;
 	}
 		
 	E_RESULT_CODE CMemoryProfiler::UnregisterCustomAllocation(const void* pPtr, const C8* name)
 	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		if (!pPtr)
+		{
+			return RC_OK;
+		}
+
 		if (name)
 		{
 			TracyFreeN(pPtr, name);
@@ -142,6 +159,11 @@ namespace TDEngine2
 		{
 			TracyFree(pPtr);
 		}
+
+		TDE2_ASSERT(mAllocationsStats.find(reinterpret_cast<U32Ptr>(pPtr)) != mAllocationsStats.cend());
+
+		mAllocationsGroupStats[name] -= mAllocationsStats[reinterpret_cast<U32Ptr>(pPtr)];
+		mAllocationsStats.erase(reinterpret_cast<U32Ptr>(pPtr));
 
 		return RC_OK;
 	}

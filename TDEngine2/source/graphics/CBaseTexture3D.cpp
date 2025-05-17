@@ -217,7 +217,7 @@ namespace TDEngine2
 		return { 0.0f, 0.0f, 1.0f, 1.0f };
 	}
 
-	std::vector<U8> CBaseTexture3D::GetInternalData()
+	Vector<U8> CBaseTexture3D::GetInternalData()
 	{
 		auto pGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
 		

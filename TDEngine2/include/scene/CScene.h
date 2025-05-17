@@ -44,8 +44,6 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IScene* CreateScene(TPtr<IWorld>, TPtr<IPrefabsRegistry>, const std::string&, const std::string&, bool, E_RESULT_CODE&);
 		public:
-			typedef std::vector<TEntityId> TEntitiesRegistry;
-		public:
 			/*!
 				\brief The method initializes the internal state of the object
 
@@ -212,7 +210,7 @@ namespace TDEngine2
 
 			TDE2_API bool IsMainScene() const override;
 
-			TDE2_API const std::vector<TEntityId>& GetEntities() const override;
+			TDE2_API const TEntitiesRegistry& GetEntities() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CScene)
 			

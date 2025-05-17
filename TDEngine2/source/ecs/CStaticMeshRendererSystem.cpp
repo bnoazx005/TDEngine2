@@ -62,7 +62,7 @@ namespace TDEngine2
 
 	void CStaticMeshRendererSystem::InjectBindings(IWorld* pWorld)
 	{
-		std::vector<TEntityId> entities = pWorld->FindEntitiesWithComponents<CTransform, CStaticMeshContainer, CBoundsComponent>();
+		TEntitiesArray entities = pWorld->FindEntitiesWithComponents<CTransform, CStaticMeshContainer, CBoundsComponent>();
 
 		mProcessingEntities.clear();
 
@@ -120,7 +120,7 @@ namespace TDEngine2
 			});
 	}
 
-	void CStaticMeshRendererSystem::_collectUsedMaterials(const TEntitiesArray& entities, IResourceManager* pResourceManager, TMaterialsArray& usedMaterials)
+	void CStaticMeshRendererSystem::_collectUsedMaterials(const TSystemContext& entities, IResourceManager* pResourceManager, TMaterialsArray& usedMaterials)
 	{
 		TDE2_PROFILER_SCOPE("CStaticMeshRendererSystem::CollectUsedMaterials");
 
@@ -162,7 +162,7 @@ namespace TDEngine2
 
 	}
 
-	void CStaticMeshRendererSystem::_populateCommandsBuffer(const TEntitiesArray& entities, CRenderQueue*& pRenderGroup, CRenderQueue* pDepthOnlyRenderGroup,
+	void CStaticMeshRendererSystem::_populateCommandsBuffer(const TSystemContext& entities, CRenderQueue*& pRenderGroup, CRenderQueue* pDepthOnlyRenderGroup,
 															TPtr<IMaterial> pCurrMaterial, const ICamera* pCamera)
 	{
 		auto iter = entities.begin();

@@ -97,7 +97,7 @@ namespace
 				return RC_OK;
 			}
 
-			E_RESULT_CODE RemoveComponents(TEntityId id, const std::function<void(std::vector<TypeId>)>& onComponentsRemoved = nullptr) override { return RC_OK; }
+			E_RESULT_CODE RemoveComponents(TEntityId id, const std::function<void(TTypesArray)>& onComponentsRemoved = nullptr) override { return RC_OK; }
 
 			std::vector<IComponent*> GetComponents(TEntityId id) const override { return {}; }
 
@@ -109,9 +109,9 @@ namespace
 
 			void ForEachFactory(const std::function<void(TPtr<IComponentFactory>)>& action = nullptr) override { }
 
-			std::vector<TEntityId> FindEntitiesWithAll(const std::vector<TypeId>& types) override { return {}; }
+			TEntitiesArray FindEntitiesWithAll(const TTypesArray& types) override { return {}; }
 
-			std::vector<TEntityId> FindEntitiesWithAny(const std::vector<TypeId>& types) override { return {}; }
+			TEntitiesArray FindEntitiesWithAny(const TTypesArray& types) override { return {}; }
 
 			TEntityId FindEntityWithUniqueComponent(TypeId typeId) override { return TEntityId::Invalid; }
 

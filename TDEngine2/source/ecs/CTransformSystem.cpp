@@ -56,7 +56,7 @@ namespace TDEngine2
 		hasCameras.clear();
 
 		/// \note Fill up relationships table to sort entities based on their dependencies 
-		std::unordered_map<TEntityId, std::vector<TEntityId>> parentToChildRelations;
+		std::unordered_map<TEntityId, TEntitiesArray> parentToChildRelations;
 
 		for (TEntityId currEntityId : entities)
 		{
@@ -106,7 +106,7 @@ namespace TDEngine2
 	}
 
 
-	static CTransform* GetTransformFromContextByEntityId(const std::vector<CTransform*>& transforms, TEntityId id)
+	static CTransform* GetTransformFromContextByEntityId(const Vector<CTransform*>& transforms, TEntityId id)
 	{
 		auto it = std::find_if(transforms.cbegin(), transforms.cend(), [id](auto&& t) { return t->GetOwnerId() == id; });
 		return it == transforms.cend() ? nullptr : *it;

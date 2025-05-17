@@ -56,8 +56,8 @@ namespace TDEngine2
 
 		USIZE                                mComponentsCount = 0;
 
-		std::vector<USIZE>                   mParentsToChildMapping; ///< Contains indices of parents for each element of a components array
-		std::tuple<std::vector<TArgs*>...>   mComponentsSlice;
+		Vector<USIZE>                        mParentsToChildMapping; ///< Contains indices of parents for each element of a components array
+		std::tuple<Vector<TArgs*>...>        mComponentsSlice;
 	};
 
 
@@ -286,7 +286,7 @@ namespace TDEngine2
 			*/
 
 			template <typename... TArgs>
-			TDE2_API std::vector<TEntityId> FindEntitiesWithComponents()
+			TDE2_API TEntitiesArray FindEntitiesWithComponents()
 			{
 				/// \todo this implementation is not safe enough, another solution should be found instead
 				return _findEntitiesWithComponents({ { TArgs::GetTypeId()... } });
@@ -301,7 +301,7 @@ namespace TDEngine2
 			*/
 
 			template <typename... TArgs>
-			TDE2_API std::vector<TEntityId> FindEntitiesWithAny()
+			TDE2_API TEntitiesArray FindEntitiesWithAny()
 			{
 				return _findEntitiesWithAnyComponents({ { TArgs::GetTypeId()... } });
 			}
@@ -325,14 +325,14 @@ namespace TDEngine2
 			template <typename... TArgs>
 			TDE2_API TComponentsQueryLocalSlice<TArgs...> CreateLocalComponentsSlice()
 			{
-				std::vector<TEntityId> entities = FindEntitiesWithComponents<TArgs...>();
+				TEntitiesArray entities = FindEntitiesWithComponents<TArgs...>();
 				
 				TComponentsQueryLocalSlice<TArgs...> result;
 
 				if (TContainsType<CTransform, TArgs...>::mValue) /// \note For CTransform we should sort all entities that parents should preceede their children
 				{
 					/// \note Fill up relationships table to sort entities based on their dependencies 
-					std::unordered_map<TEntityId, std::vector<TEntityId>> parentToChildRelations;
+					std::unordered_map<TEntityId, TEntitiesArray> parentToChildRelations;
 
 					for (TEntityId currEntityId : entities)
 					{
@@ -349,7 +349,7 @@ namespace TDEngine2
 						entitiesToProcess.push({ currEntityId, TComponentsQueryLocalSlice<TArgs...>::mInvalidParentIndex });
 					}
 
-					std::vector<TEntityId> parentsWithoutSpecifiedComponents;
+					TEntitiesArray parentsWithoutSpecifiedComponents;
 
 					/// \note Process the case when an entity has parent but the one has no specified component
 					const USIZE originalEntitiesCount = entities.size();
@@ -467,18 +467,18 @@ namespace TDEngine2
 
 			TDE2_API virtual void _forEach(TypeId componentTypeId, const std::function<void(TEntityId entityId, IComponent* pComponent)>& action) = 0;
 
-			TDE2_API virtual std::vector<TEntityId> _findEntitiesWithComponents(const std::vector<TypeId>& types) = 0;
+			TDE2_API virtual TEntitiesArray _findEntitiesWithComponents(const TTypesArray& types) = 0;
 
-			TDE2_API virtual std::vector<TEntityId> _findEntitiesWithAnyComponents(const std::vector<TypeId>& types) = 0;
+			TDE2_API virtual TEntitiesArray _findEntitiesWithAnyComponents(const TTypesArray& types) = 0;
 
 			TDE2_API virtual TEntityId _findEntityWithUniqueComponent(TypeId typeId) = 0;
 
 			TDE2_API virtual TSystemId _findSystem(TypeId typeId) = 0;
 
 			template <typename TComponentType>
-			TDE2_API std::vector<TComponentType*> _getComponentsOfTypeFromEntities(const std::vector<TEntityId>& entities)
+			TDE2_API Vector<TComponentType*> _getComponentsOfTypeFromEntities(const TEntitiesArray& entities)
 			{
-				std::vector<TComponentType*> components;
+				Vector<TComponentType*> components;
 
 				for (TEntityId currEntityId : entities)
 				{

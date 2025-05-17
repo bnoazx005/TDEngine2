@@ -128,7 +128,7 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("CSpriteRendererSystem::InjectBindings");
 
-		std::vector<TEntityId> entities = pWorld->FindEntitiesWithComponents<CTransform, CQuadSprite>();
+		TEntitiesArray entities = pWorld->FindEntitiesWithComponents<CTransform, CQuadSprite>();
 
 		mTransforms.clear();		
 		mSprites.clear();

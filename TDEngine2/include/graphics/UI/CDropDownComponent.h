@@ -98,7 +98,7 @@ namespace TDEngine2
 			TDE2_API const TOptionsArray& GetItems() const;
 			TDE2_API U32 GetSelectedItem() const;
 
-			TDE2_API std::vector<TEntityId>& GetItemsEntities();
+			TDE2_API TEntitiesArray& GetItemsEntities();
 
 			TDE2_API bool IsExpanded() const;
 		protected:
@@ -113,7 +113,7 @@ namespace TDEngine2
 			TEntityId     mContentEntityRef;
 			TEntityId     mItemPrefabEntityRef;
 			
-			std::vector<TEntityId> mItemsEntities;
+			TEntitiesArray mItemsEntities;
 
 			U32           mSelectedItemIndex = 0;
 

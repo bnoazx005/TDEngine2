@@ -102,8 +102,8 @@ namespace TDEngine2
 
 		IResourceManager* pResourceManager = params.mpResourceManager;
 
-		auto&& staticMeshContainers = std::get<std::vector<CStaticMeshContainer*>>(staticShadowCasters.mComponentsSlice);
-		auto&& transforms = std::get<std::vector<CTransform*>>(staticShadowCasters.mComponentsSlice);
+		auto&& staticMeshContainers = std::get<Vector<CStaticMeshContainer*>>(staticShadowCasters.mComponentsSlice);
+		auto&& transforms = std::get<Vector<CTransform*>>(staticShadowCasters.mComponentsSlice);
 
 		CStaticMeshContainer* pStaticMeshContainer = staticMeshContainers[id];
 		if (!pStaticMeshContainer)
@@ -152,8 +152,8 @@ namespace TDEngine2
 
 		IResourceManager* pResourceManager = params.mpResourceManager;
 
-		auto&& skinnedMeshContainers = std::get<std::vector<CSkinnedMeshContainer*>>(skinnedShadowCasters.mComponentsSlice);
-		auto&& transforms = std::get<std::vector<CTransform*>>(skinnedShadowCasters.mComponentsSlice);
+		auto&& skinnedMeshContainers = std::get<Vector<CSkinnedMeshContainer*>>(skinnedShadowCasters.mComponentsSlice);
+		auto&& transforms = std::get<Vector<CTransform*>>(skinnedShadowCasters.mComponentsSlice);
 
 		CSkinnedMeshContainer* pSkinnedMeshContainer = skinnedMeshContainers[id];
 		if (!pSkinnedMeshContainer)
@@ -346,8 +346,8 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("CLightingSystem::ProcessDirectionalLights");
 
-		const auto& transforms = std::get<std::vector<CTransform*>>(directionalLightsContext.mComponentsSlice);
-		const auto& dirLights = std::get<std::vector<CDirectionalLight*>>(directionalLightsContext.mComponentsSlice);
+		const auto& transforms = std::get<Vector<CTransform*>>(directionalLightsContext.mComponentsSlice);
+		const auto& dirLights = std::get<Vector<CDirectionalLight*>>(directionalLightsContext.mComponentsSlice);
 
 		TDE2_ASSERT(transforms.size() <= 1); // \note For now only single sun light source is supported
 
@@ -429,13 +429,13 @@ namespace TDEngine2
 	}
 
 
-	static void ProcessPointLights(IGraphicsContext* pGraphicsContext, TLightingShaderData& lightingData, std::vector<TLightData>& lightsData, 
+	static void ProcessPointLights(IGraphicsContext* pGraphicsContext, TLightingShaderData& lightingData, Vector<TLightData>& lightsData,
 		CLightingSystem::TPointLightsContext& pointLightsContext)
 	{
 		TDE2_PROFILER_SCOPE("CLightingSystem::ProcessPointLights");
 
-		const auto& transforms = std::get<std::vector<CTransform*>>(pointLightsContext.mComponentsSlice);
-		const auto& lights = std::get<std::vector<CPointLight*>>(pointLightsContext.mComponentsSlice);
+		const auto& transforms = std::get<Vector<CTransform*>>(pointLightsContext.mComponentsSlice);
+		const auto& lights = std::get<Vector<CPointLight*>>(pointLightsContext.mComponentsSlice);
 
 		for (USIZE i = 0; i < transforms.size(); ++i)
 		{
@@ -461,13 +461,13 @@ namespace TDEngine2
 	}
 
 
-	static void ProcessSpotLights(IGraphicsContext* pGraphicsContext, TLightingShaderData& lightingData, std::vector<TLightData>& lightsData,
+	static void ProcessSpotLights(IGraphicsContext* pGraphicsContext, TLightingShaderData& lightingData, Vector<TLightData>& lightsData,
 		CLightingSystem::TSpotLightsContext& SpotLightsContext)
 	{
 		TDE2_PROFILER_SCOPE("CLightingSystem::ProcessSpotLights");
 
-		const auto& transforms = std::get<std::vector<CTransform*>>(SpotLightsContext.mComponentsSlice);
-		const auto& lights = std::get<std::vector<CSpotLight*>>(SpotLightsContext.mComponentsSlice);
+		const auto& transforms = std::get<Vector<CTransform*>>(SpotLightsContext.mComponentsSlice);
+		const auto& lights = std::get<Vector<CSpotLight*>>(SpotLightsContext.mComponentsSlice);
 
 		for (USIZE i = 0; i < transforms.size(); ++i)
 		{

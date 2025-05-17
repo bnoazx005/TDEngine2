@@ -766,9 +766,9 @@ namespace TDEngine2
 		return mTextureHandle;
 	}
 
-	std::vector<U8> COGLTextureImpl::ReadBytes(U32 index)
+	Vector<U8> COGLTextureImpl::ReadBytes(U32 index)
 	{
-		std::vector<U8> pPixelData(mInitParams.mWidth * mInitParams.mHeight * COGLMappings::GetFormatSize(mInitParams.mFormat));
+		Vector<U8> pPixelData(mInitParams.mWidth * mInitParams.mHeight * COGLMappings::GetFormatSize(mInitParams.mFormat));
 
 		const GLenum textureType = COGLMappings::GetTextureType(mInitParams.mType);
 

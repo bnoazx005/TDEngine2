@@ -73,7 +73,7 @@ namespace TDEngine2
 
 	void CSkinnedMeshRendererSystem::InjectBindings(IWorld* pWorld)
 	{
-		std::vector<TEntityId> entities = pWorld->FindEntitiesWithComponents<CTransform, CSkinnedMeshContainer, CBoundsComponent>();
+		TEntitiesArray entities = pWorld->FindEntitiesWithComponents<CTransform, CSkinnedMeshContainer, CBoundsComponent>();
 
 		mProcessingEntities.clear();
 
@@ -136,7 +136,7 @@ namespace TDEngine2
 			});
 	}
 
-	void CSkinnedMeshRendererSystem::_collectUsedMaterials(const TEntitiesArray& entities, IResourceManager* pResourceManager, TMaterialsArray& usedMaterials)
+	void CSkinnedMeshRendererSystem::_collectUsedMaterials(const TSystemContext& entities, IResourceManager* pResourceManager, TMaterialsArray& usedMaterials)
 	{
 		usedMaterials.clear();
 
@@ -220,7 +220,7 @@ namespace TDEngine2
 	}
 
 
-	void CSkinnedMeshRendererSystem::_populateCommandsBuffer(const TEntitiesArray& entities, CRenderQueue*& pRenderGroup, CRenderQueue* pDepthOnlyRenderGroup,
+	void CSkinnedMeshRendererSystem::_populateCommandsBuffer(const TSystemContext& entities, CRenderQueue*& pRenderGroup, CRenderQueue* pDepthOnlyRenderGroup,
 															TPtr<IMaterial> pCurrMaterial, const ICamera* pCamera)
 	{
 		auto iter = entities.begin();

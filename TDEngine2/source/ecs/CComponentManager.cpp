@@ -118,9 +118,9 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CComponentManager::RemoveComponents(TEntityId id, const std::function<void(std::vector<TypeId>)>& onComponentsRemoved)
+	E_RESULT_CODE CComponentManager::RemoveComponents(TEntityId id, const std::function<void(TTypesArray)>& onComponentsRemoved)
 	{
-		std::vector<TypeId> removedComponentsTypes;
+		TTypesArray removedComponentsTypes;
 
 		E_RESULT_CODE result = _removeComponentsWithAction(id, [&removedComponentsTypes](IComponent*& pComponent) -> E_RESULT_CODE
 		{
@@ -477,11 +477,11 @@ namespace TDEngine2
 		}
 	}
 
-	std::vector<TEntityId> CComponentManager::FindEntitiesWithAll(const std::vector<TypeId>& types)
+	TEntitiesArray CComponentManager::FindEntitiesWithAll(const TTypesArray& types)
 	{
 		TDE2_PROFILER_SCOPE("CComponentManager::FindEntitiesWithAll");
 
-		std::vector<TEntityId> filter;
+		TEntitiesArray filter;
 
 		bool containsAll = false;
 
@@ -518,9 +518,9 @@ namespace TDEngine2
 		return filter;
 	}
 
-	std::vector<TEntityId> CComponentManager::FindEntitiesWithAny(const std::vector<TypeId>& types)
+	TEntitiesArray CComponentManager::FindEntitiesWithAny(const TTypesArray& types)
 	{
-		std::vector<TEntityId> filter;
+		TEntitiesArray filter;
 
 		std::unordered_map<TypeId, U32> entityComponentsTable;
 

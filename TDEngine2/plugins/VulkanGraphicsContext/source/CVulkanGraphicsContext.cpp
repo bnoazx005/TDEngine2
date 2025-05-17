@@ -2587,7 +2587,7 @@ namespace TDEngine2
 		return mpWindowSystem;
 	}
 
-	std::vector<U8> CVulkanGraphicsContext::GetBackBufferData() const
+	Vector<U8> CVulkanGraphicsContext::GetBackBufferData() const
 	{
 		TDE2_UNIMPLEMENTED();
 		return {};

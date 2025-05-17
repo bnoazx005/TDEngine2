@@ -221,7 +221,7 @@ namespace TDEngine2
 		return mSelectedItemIndex;
 	}
 
-	std::vector<TEntityId>& CDropDown::GetItemsEntities()
+	TEntitiesArray& CDropDown::GetItemsEntities()
 	{
 		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
 		return mItemsEntities;

@@ -253,7 +253,7 @@ namespace TDEngine2
 		public:
 			friend TDE2_API CRenderQueue* CreateRenderQueue(IAllocator* pTempAllocator, E_RESULT_CODE& result);
 		protected:
-			typedef std::vector<std::tuple<U32, TRenderCommand*>> TCommandsArray;
+			typedef Vector<std::tuple<U32, TRenderCommand*>> TCommandsArray;
 		public:
 			/*!
 				class CRenderQueueIterator

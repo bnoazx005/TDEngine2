@@ -92,7 +92,7 @@ namespace TDEngine2
 		TFrameGraphResourceHandle              mUIRenderTargetHandle = TFrameGraphResourceHandle::Invalid;
 
 		TFrameGraphResourceHandle              mSunLightShadowMapHandle = TFrameGraphResourceHandle::Invalid;
-		std::vector<TFrameGraphResourceHandle> mOmniLightShadowMapHandles;
+		Vector<TFrameGraphResourceHandle>      mOmniLightShadowMapHandles;
 
 		TFrameGraphResourceHandle              mLightsBufferHandle = TFrameGraphResourceHandle::Invalid;
 		TLightCullData                         mLightCullingData;
@@ -526,10 +526,10 @@ namespace TDEngine2
 			}
 
 		private:
-			static std::vector<std::string> mShadowMapsIdentifiers;
+			static Vector<std::string> mShadowMapsIdentifiers;
 	};
 
-	std::vector<std::string> COmniLightShadowPass::mShadowMapsIdentifiers {};
+	Vector<std::string> COmniLightShadowPass::mShadowMapsIdentifiers {};
 
 
 	class CUploadLightsPass : public CBaseRenderPass
@@ -540,7 +540,7 @@ namespace TDEngine2
 			{
 			}
 
-			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, const std::vector<TLightData>& lights)
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, const TLightsDataArray& lights)
 			{
 				struct TPassData
 				{
@@ -3148,7 +3148,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		std::vector<F32> values(randTextureParams.mWidth * randTextureParams.mHeight * sizeof(F32) * 4);
+		Vector<F32> values(randTextureParams.mWidth * randTextureParams.mHeight * sizeof(F32) * 4);
 		for (F32& value : values)
 		{
 			value = CRandomUtils::GetRandF32Value({ 0.0f, 1.0f });

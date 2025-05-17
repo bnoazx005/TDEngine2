@@ -183,7 +183,7 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE SetHandle(TTextureHandleId handle, const CPassKey<CBaseGraphicsObjectManager>& passkey) = 0;
 
-			TDE2_API virtual std::vector<U8> ReadBytes(U32 index) = 0;
+			TDE2_API virtual Vector<U8> ReadBytes(U32 index) = 0;
 
 			TDE2_API virtual E_RESOURCE_LAYOUT GetLayout() const = 0;
 

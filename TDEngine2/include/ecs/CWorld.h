@@ -253,9 +253,9 @@ namespace TDEngine2
 
 			TDE2_API void _forEach(TypeId componentTypeId, const std::function<void(TEntityId entityId, IComponent* pComponent)>& action) override;
 
-			TDE2_API std::vector<TEntityId> _findEntitiesWithComponents(const std::vector<TypeId>& types) override;
+			TDE2_API TEntitiesArray _findEntitiesWithComponents(const TTypesArray& types) override;
 
-			TDE2_API std::vector<TEntityId> _findEntitiesWithAnyComponents(const std::vector<TypeId>& types) override;
+			TDE2_API TEntitiesArray _findEntitiesWithAnyComponents(const TTypesArray& types) override;
 
 			TDE2_API TSystemId _findSystem(TypeId typeId) override;
 

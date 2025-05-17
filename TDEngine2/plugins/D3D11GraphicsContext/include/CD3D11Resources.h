@@ -318,7 +318,7 @@ namespace TDEngine2
 			ID3D11DepthStencilView* GetDepthStencilView();
 			ID3D11UnorderedAccessView* GetUnorderedAccessView();
 
-			std::vector<U8> ReadBytes(U32 index) override;
+			Vector<U8> ReadBytes(U32 index) override;
 
 			E_RESOURCE_LAYOUT GetLayout() const override;
 

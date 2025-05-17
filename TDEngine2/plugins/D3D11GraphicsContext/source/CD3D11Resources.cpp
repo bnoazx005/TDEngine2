@@ -1058,7 +1058,7 @@ namespace TDEngine2
 		return mpUavTextureView;
 	}
 
-	std::vector<U8> CD3D11TextureImpl::ReadBytes(U32 index)
+	Vector<U8> CD3D11TextureImpl::ReadBytes(U32 index)
 	{
 		TInitTextureImplParams createTextureParams{};
 		createTextureParams.mWidth = mInitParams.mWidth;
@@ -1097,7 +1097,7 @@ namespace TDEngine2
 		}
 
 		const size_t size = static_cast<size_t>(createTextureParams.mWidth * createTextureParams.mHeight * CD3D11Mappings::GetFormatSize(createTextureParams.mFormat));
-		std::vector<U8> pixelsData(size);
+		Vector<U8> pixelsData(size);
 
 		memcpy(&pixelsData[0], mappedData.pData, size);
 

@@ -303,9 +303,9 @@ namespace TDEngine2
 		return mpWindowSystem;
 	}
 
-	std::vector<U8> CProxyGraphicsContext::GetBackBufferData() const
+	Vector<U8> CProxyGraphicsContext::GetBackBufferData() const
 	{
-		std::vector<U8> backBufferData;
+		Vector<U8> backBufferData;
 		return backBufferData;
 	}
 

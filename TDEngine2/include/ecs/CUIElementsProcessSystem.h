@@ -86,7 +86,7 @@ namespace TDEngine2
 				std::vector<CLayoutElement*> mpLayoutElements;
 				std::vector<CTransform*>     mpTransforms;
 				std::vector<USIZE>           mChildToParentTable;
-				std::vector<TEntityId>       mEntities;
+				TEntitiesArray               mEntities;
 			};
 
 			typedef TComponentsQueryLocalSlice<CToggle, CInputReceiver>                           TTogglesContext;

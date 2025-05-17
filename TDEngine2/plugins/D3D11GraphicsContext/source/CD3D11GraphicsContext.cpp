@@ -382,7 +382,7 @@ namespace TDEngine2
 
 			TDE2_API TPtr<IWindowSystem> GetWindowSystem() const override;
 
-			TDE2_API std::vector<U8> GetBackBufferData() const override;
+			TDE2_API Vector<U8> GetBackBufferData() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11GraphicsContext)
 
@@ -1345,9 +1345,9 @@ namespace TDEngine2
 		return mpWindowSystem;
 	}
 
-	std::vector<U8> CD3D11GraphicsContext::GetBackBufferData() const
+	Vector<U8> CD3D11GraphicsContext::GetBackBufferData() const
 	{
-		std::vector<U8> backBufferData;
+		Vector<U8> backBufferData;
 
 		ID3D11Texture2D* pBackBuffer;
 

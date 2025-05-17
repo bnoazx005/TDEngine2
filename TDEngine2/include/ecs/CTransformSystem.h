@@ -43,10 +43,10 @@ namespace TDEngine2
 		public:
 			struct TSystemContext
 			{
-				std::vector<CTransform*>       mpTransforms;
-				std::vector<CBoundsComponent*> mpBounds;
-				std::vector<U32>               mParentsHashTable;
-				std::vector<bool>              mHasCameras;
+				Vector<CTransform*>       mpTransforms;
+				Vector<CBoundsComponent*> mpBounds;
+				Vector<U32>               mParentsHashTable;
+				Vector<bool>              mHasCameras;
 			};
 		public:
 			TDE2_SYSTEM(CTransformSystem);

@@ -193,7 +193,7 @@ namespace TDEngine2
 		return mSelectedEntities.empty() ? TEntityId::Invalid : mSelectedEntities.back();
 	}
 
-	const std::vector<TEntityId>& CSelectionManager::GetSelectedEntities() const
+	const Vector<TEntityId>& CSelectionManager::GetSelectedEntities() const
 	{
 		return mSelectedEntities;
 	}

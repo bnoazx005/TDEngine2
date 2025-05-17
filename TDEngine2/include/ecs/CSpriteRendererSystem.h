@@ -137,30 +137,30 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			TPtr<IAllocator>               mpTempAllocator;
+			TPtr<IAllocator>          mpTempAllocator;
 
-			std::vector<CTransform*>       mTransforms;
+			Vector<CTransform*>       mTransforms;
 
-			std::vector<CQuadSprite*>      mSprites;
-			std::vector<CBoundsComponent*> mSpritesBounds;
+			Vector<CQuadSprite*>      mSprites;
+			Vector<CBoundsComponent*> mSpritesBounds;
 
-			IRenderer*                     mpRenderer;
+			IRenderer*                mpRenderer;
 
-			TPtr<IResourceManager>         mpResourceManager;
+			TPtr<IResourceManager>    mpResourceManager;
 
-			CFramePacketsStorage*          mpFramePacketsStorage = nullptr;
+			CFramePacketsStorage*     mpFramePacketsStorage = nullptr;
 
-			IGraphicsObjectManager*        mpGraphicsObjectManager;
+			IGraphicsObjectManager*   mpGraphicsObjectManager;
 
-			std::vector<TBufferHandleId>   mSpritesPerInstanceDataHandles;
+			Vector<TBufferHandleId>   mSpritesPerInstanceDataHandles;
 
-			TBufferHandleId                mSpriteVertexBufferHandle;
-			TBufferHandleId                mSpriteIndexBufferHandle;
+			TBufferHandleId           mSpriteVertexBufferHandle;
+			TBufferHandleId           mSpriteIndexBufferHandle;
 
-			U32                            mSpriteFaces[6];
+			U32                       mSpriteFaces[6];
 
-			IGraphicsLayersInfo*           mpGraphicsLayers;
+			IGraphicsLayersInfo*      mpGraphicsLayers;
 
-			TBatchesBuffer                 mBatches;
+			TBatchesBuffer            mBatches;
 	};
 }

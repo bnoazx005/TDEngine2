@@ -65,9 +65,9 @@ namespace TDEngine2
 	{	
 		TDE2_PROFILER_SCOPE("CSceneChunksLoadingSystem::Update");
 
-		auto& sceneLoadingTriggers = std::get<std::vector<CSceneLoadingTriggerComponent*>>(mContext.mComponentsSlice);
-		auto& bounds               = std::get<std::vector<CBoundsComponent*>>(mContext.mComponentsSlice);
-		auto& transforms           = std::get<std::vector<CTransform*>>(mContext.mComponentsSlice);
+		auto& sceneLoadingTriggers = std::get<Vector<CSceneLoadingTriggerComponent*>>(mContext.mComponentsSlice);
+		auto& bounds               = std::get<Vector<CBoundsComponent*>>(mContext.mComponentsSlice);
+		auto& transforms           = std::get<Vector<CTransform*>>(mContext.mComponentsSlice);
 
 		/// \note First step is updating of all bounds
 		for (USIZE i = 0; i < mContext.mComponentsCount; ++i)

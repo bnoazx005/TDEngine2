@@ -603,7 +603,7 @@ namespace TDEngine2
 		layoutElementsContext.mpTransforms.clear();
 		layoutElementsContext.mpLayoutElements.clear();
 
-		std::vector<TEntityId> entities = pWorld->FindEntitiesWithComponents<CTransform, CLayoutElement>();
+		TEntitiesArray entities = pWorld->FindEntitiesWithComponents<CTransform, CLayoutElement>();
 		if (entities.empty())
 		{
 			return;
@@ -622,9 +622,9 @@ namespace TDEngine2
 
 		/// \note For CTransform we should sort all entities that parents should preceede their children
 		/// \note Fill up relationships table to sort entities based on their dependencies 
-		std::unordered_map<TEntityId, std::vector<TEntityId>> parentToChildRelations;
+		std::unordered_map<TEntityId, TEntitiesArray> parentToChildRelations;
 
-		std::unordered_map<TEntityId, std::vector<TEntityId>> parentEntities;
+		std::unordered_map<TEntityId, TEntitiesArray> parentEntities;
 
 		for (TEntityId currEntityId : entities)
 		{
@@ -872,8 +872,8 @@ namespace TDEngine2
 
 	static inline void UpdateToggleElements(CUIElementsProcessSystem::TTogglesContext& togglesContext, IWorld* pWorld, ISystem* pSystem)
 	{
-		auto&& toggles = std::get<std::vector<CToggle*>>(togglesContext.mComponentsSlice);
-		auto&& inputReceivers = std::get<std::vector<CInputReceiver*>>(togglesContext.mComponentsSlice);
+		auto&& toggles = std::get<Vector<CToggle*>>(togglesContext.mComponentsSlice);
+		auto&& inputReceivers = std::get<Vector<CInputReceiver*>>(togglesContext.mComponentsSlice);
 
 		for (USIZE i = 0; i < togglesContext.mComponentsCount; i++)
 		{
@@ -904,9 +904,9 @@ namespace TDEngine2
 
 	static inline void UpdateSlidersElements(CUIElementsProcessSystem::TSlidersContext& slidersContext, IWorld* pWorld, ISystem* pSystem)
 	{
-		auto&& sliders = std::get<std::vector<CUISlider*>>(slidersContext.mComponentsSlice);
-		auto&& sliderLayoutElements = std::get<std::vector<CLayoutElement*>>(slidersContext.mComponentsSlice);
-		auto&& inputReceivers = std::get<std::vector<CInputReceiver*>>(slidersContext.mComponentsSlice);
+		auto&& sliders = std::get<Vector<CUISlider*>>(slidersContext.mComponentsSlice);
+		auto&& sliderLayoutElements = std::get<Vector<CLayoutElement*>>(slidersContext.mComponentsSlice);
+		auto&& inputReceivers = std::get<Vector<CInputReceiver*>>(slidersContext.mComponentsSlice);
 
 		for (USIZE i = 0; i < slidersContext.mComponentsCount; i++)
 		{
@@ -992,9 +992,9 @@ namespace TDEngine2
 
 	static inline void UpdateInputFieldsElements(CUIElementsProcessSystem::TInputFieldsContext& inputFieldsContext, IWorld* pWorld, ISystem* pSystem, IResourceManager* pResourceManager, F32 dt)
 	{
-		auto&& inputFields = std::get<std::vector<CInputField*>>(inputFieldsContext.mComponentsSlice);
-		auto&& inputReceivers = std::get<std::vector<CInputReceiver*>>(inputFieldsContext.mComponentsSlice);
-		auto&& inputFieldLayouts = std::get<std::vector<CLayoutElement*>>(inputFieldsContext.mComponentsSlice);
+		auto&& inputFields = std::get<Vector<CInputField*>>(inputFieldsContext.mComponentsSlice);
+		auto&& inputReceivers = std::get<Vector<CInputReceiver*>>(inputFieldsContext.mComponentsSlice);
+		auto&& inputFieldLayouts = std::get<Vector<CLayoutElement*>>(inputFieldsContext.mComponentsSlice);
 
 		for (USIZE i = 0; i < inputFieldsContext.mComponentsCount; i++)
 		{
@@ -1234,9 +1234,9 @@ namespace TDEngine2
 
 	static inline void UpdateScrollableAreasElements(CUIElementsProcessSystem::TScrollableAreasContext& context, IWorld* pWorld, ISystem* pSystem, F32 dt)
 	{
-		auto&& scrollers = std::get<std::vector<CScrollableUIArea*>>(context.mComponentsSlice);
-		auto&& scrollersLayoutElements = std::get<std::vector<CLayoutElement*>>(context.mComponentsSlice);
-		auto&& inputReceivers = std::get<std::vector<CInputReceiver*>>(context.mComponentsSlice);
+		auto&& scrollers = std::get<Vector<CScrollableUIArea*>>(context.mComponentsSlice);
+		auto&& scrollersLayoutElements = std::get<Vector<CLayoutElement*>>(context.mComponentsSlice);
+		auto&& inputReceivers = std::get<Vector<CInputReceiver*>>(context.mComponentsSlice);
 
 		for (USIZE i = 0; i < context.mComponentsCount; i++)
 		{
@@ -1323,9 +1323,9 @@ namespace TDEngine2
 
 	static inline void UpdateDropDownElements(CUIElementsProcessSystem::TDropDownElementsContext& context, IWorld* pWorld, ISceneManager* pSceneManager, ISystem* pSystem)
 	{
-		auto&& dropDownElements = std::get<std::vector<CDropDown*>>(context.mComponentsSlice);
-		auto&& dropDownLayoutElements = std::get<std::vector<CLayoutElement*>>(context.mComponentsSlice);
-		auto&& inputReceivers = std::get<std::vector<CInputReceiver*>>(context.mComponentsSlice);
+		auto&& dropDownElements = std::get<Vector<CDropDown*>>(context.mComponentsSlice);
+		auto&& dropDownLayoutElements = std::get<Vector<CLayoutElement*>>(context.mComponentsSlice);
+		auto&& inputReceivers = std::get<Vector<CInputReceiver*>>(context.mComponentsSlice);
 
 		for (USIZE i = 0; i < context.mComponentsCount; i++)
 		{

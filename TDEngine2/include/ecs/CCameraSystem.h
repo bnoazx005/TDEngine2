@@ -55,9 +55,9 @@ namespace TDEngine2
 		public:
 			struct TSystemContext
 			{
-				std::vector<CBaseCamera*> mpCameras;
-				std::vector<CTransform*>  mpTransforms;
-				std::vector<TEntityId>    mEntities;
+				Vector<CBaseCamera*> mpCameras;
+				Vector<CTransform*>  mpTransforms;
+				TEntitiesArray       mEntities;
 			};
 		public:
 			TDE2_SYSTEM(CCameraSystem);

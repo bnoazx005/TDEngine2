@@ -289,7 +289,7 @@ namespace TDEngine2
 			VkImage GetTextureHandle();
 			VkImageView GetTextureViewHandle();
 
-			std::vector<U8> ReadBytes(U32 index) override;
+			Vector<U8> ReadBytes(U32 index) override;
 
 			E_RESOURCE_LAYOUT GetLayout() const override;
 

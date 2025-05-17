@@ -194,16 +194,16 @@ namespace TDEngine2
 
 			TBufferHandleId          mLinesVertexBufferHandle;
 
-			std::vector<TLineVertex> mLinesDataBuffer;
+			Vector<TLineVertex>      mLinesDataBuffer;
 
 			TResourceId              mSystemFontHandle;
 
 			TBufferHandleId          mTextVertexBufferHandle;
 			TBufferHandleId          mTextIndexBufferHandle;
 
-			std::vector<TTextVertex> mTextDataBuffer;
+			Vector<TTextVertex>      mTextDataBuffer;
 
-			std::vector<TLineVertex> mCrossesDataBuffer;
+			Vector<TLineVertex>      mCrossesDataBuffer;
 
 			TBufferHandleId          mCrossesVertexBufferHandle;
 

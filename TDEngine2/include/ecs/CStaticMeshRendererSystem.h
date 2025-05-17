@@ -72,9 +72,9 @@ namespace TDEngine2
 				IVertexDeclaration* mpVertexDecl;
 			} TMeshBuffersEntry, *TMeshBuffersEntryPtr;
 
-			typedef std::vector<std::tuple<CTransform*, CStaticMeshContainer*, CBoundsComponent*>> TEntitiesArray;
-			typedef std::vector<TPtr<IMaterial>>                                                   TMaterialsArray;
-			typedef std::vector<TMeshBuffersEntry>                                                 TMeshBuffersMap;
+			typedef Vector<std::tuple<CTransform*, CStaticMeshContainer*, CBoundsComponent*>> TSystemContext;
+			typedef Vector<TPtr<IMaterial>>                                                   TMaterialsArray;
+			typedef Vector<TMeshBuffersEntry>                                                 TMeshBuffersMap;
 		public:
 			TDE2_SYSTEM(CStaticMeshRendererSystem);
 
@@ -111,14 +111,14 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CStaticMeshRendererSystem)
 
-			TDE2_API void _collectUsedMaterials(const TEntitiesArray& entities, IResourceManager* pResourceManager, TMaterialsArray& usedMaterials);
+			TDE2_API void _collectUsedMaterials(const TSystemContext& entities, IResourceManager* pResourceManager, TMaterialsArray& usedMaterials);
 
-			TDE2_API void _populateCommandsBuffer(const TEntitiesArray& entities, CRenderQueue*& pRenderGroup, CRenderQueue* pDepthOnlyRenderGroup, TPtr<IMaterial> pCurrMaterial,
+			TDE2_API void _populateCommandsBuffer(const TSystemContext& entities, CRenderQueue*& pRenderGroup, CRenderQueue* pDepthOnlyRenderGroup, TPtr<IMaterial> pCurrMaterial,
 												  const ICamera* pCamera);
 
 			TDE2_API U32 _computeMeshCommandHash(TResourceId materialId, F32 distanceToCamera);
 		protected:
-			TEntitiesArray          mProcessingEntities;
+			TSystemContext          mProcessingEntities;
 
 			IGraphicsObjectManager* mpGraphicsObjectManager = nullptr;
 

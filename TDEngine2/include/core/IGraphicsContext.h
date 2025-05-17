@@ -458,7 +458,7 @@ namespace TDEngine2
 
 			TDE2_API virtual const TGraphicsContextInfo& GetContextInfo() const = 0;
 
-			TDE2_API virtual std::vector<U8> GetBackBufferData() const = 0;
+			TDE2_API virtual Vector<U8> GetBackBufferData() const = 0;
 
 			/*!
 				\return The method returns a pointer to IWindowSystem

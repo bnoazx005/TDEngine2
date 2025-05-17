@@ -29,7 +29,7 @@ namespace TDEngine2
 	class CFramePacketsStorage;
 
 
-	typedef std::vector<TLightData> TLightsDataArray;
+	typedef Vector<TLightData> TLightsDataArray;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IGraphicsContext)

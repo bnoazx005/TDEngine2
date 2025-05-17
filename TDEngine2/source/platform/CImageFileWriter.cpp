@@ -38,7 +38,7 @@ namespace TDEngine2
 				pTexture->GetInternalData());
 	}
 	
-	E_RESULT_CODE CImageFileWriter::Write(I32 width, I32 height, I8 numOfChannels, const std::vector<U8>& imageData)
+	E_RESULT_CODE CImageFileWriter::Write(I32 width, I32 height, I8 numOfChannels, const Vector<U8>& imageData)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 		return _writeInternal(width, height, numOfChannels, _getImageFileType(mName), imageData);
@@ -49,7 +49,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CImageFileWriter::_writeInternal(I32 width, I32 height, I8 numOfChannels, E_IMAGE_FILE_TYPE imageType, const std::vector<U8>& imageData)
+	E_RESULT_CODE CImageFileWriter::_writeInternal(I32 width, I32 height, I8 numOfChannels, E_IMAGE_FILE_TYPE imageType, const Vector<U8>& imageData)
 	{
 		if (!mpStreamImpl->IsValid())
 		{

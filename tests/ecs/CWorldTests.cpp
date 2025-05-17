@@ -347,7 +347,7 @@ TEST_CASE("CWorld Tests")
 		auto slice = pWorld->CreateLocalComponentsSlice<CTestComponent, CTransform>();
 		REQUIRE(slice.mComponentsCount == 2);
 
-		auto& componentsSlice = std::get<std::vector<CTestComponent*>>(slice.mComponentsSlice);
+		auto& componentsSlice = std::get<Vector<CTestComponent*>>(slice.mComponentsSlice);
 		REQUIRE(componentsSlice.size() == slice.mComponentsCount);
 
 		auto& transformsMappings = slice.mParentsToChildMapping;
@@ -368,7 +368,7 @@ TEST_CASE("CWorld Tests")
 		auto slice = pWorld->CreateLocalComponentsSlice<CTestComponent, CTransform>();
 		REQUIRE(slice.mComponentsCount == 2);
 
-		auto& componentsSlice = std::get<std::vector<CTestComponent*>>(slice.mComponentsSlice);
+		auto& componentsSlice = std::get<Vector<CTestComponent*>>(slice.mComponentsSlice);
 		REQUIRE(componentsSlice.size() == slice.mComponentsCount);
 
 		auto& transformsMappings = slice.mParentsToChildMapping;

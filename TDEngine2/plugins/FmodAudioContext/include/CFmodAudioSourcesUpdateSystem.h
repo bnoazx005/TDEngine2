@@ -84,10 +84,10 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CAudioSourcesUpdateSystem)
 
 		protected:
-			IAudioContext* mpAudioContext;
-			IResourceManager* mpResourceManager;
+			IAudioContext*                                mpAudioContext;
+			IResourceManager*                             mpResourceManager;
 
-			std::vector<TEntityId> mAudioSources;
+			TEntitiesArray                                mAudioSources;
 			std::unordered_map<TEntityId, FMOD::Channel*> mpActiveChannels;
 	};
 }

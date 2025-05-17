@@ -135,7 +135,7 @@ namespace TDEngine2
 				\return A pointer to texture's memory, which size equals to width * height * bytes_per_channel
 			*/
 
-			TDE2_API virtual std::vector<U8> GetInternalData() = 0;
+			TDE2_API virtual Vector<U8> GetInternalData() = 0;
 
 			TDE2_API virtual TTextureHandleId GetHandle() const = 0;
 		protected:

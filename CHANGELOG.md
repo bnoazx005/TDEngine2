@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.32] 2025-05-16
+## [0.6.32] 2025-05-17
 
 ### Added
 
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new type **CTrackingAllocator<T>** was introduced to track memory when STL containers are used.
 
 ### Changed
+
+- std::vector<T> usages are replaced with TDEngine2::Vector<T> which is a wrapper for internal memory tracking. 
 
 ### Fixed
 

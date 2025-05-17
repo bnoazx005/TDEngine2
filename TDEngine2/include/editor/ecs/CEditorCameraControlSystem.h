@@ -7,9 +7,9 @@
 #pragma once
 
 
-#include "./../../utils/Types.h"
-#include "./../../ecs/CBaseSystem.h"
-#include "./../../math/TVector3.h"
+#include "../../utils/Types.h"
+#include "../../ecs/CBaseSystem.h"
+#include "../../math/TVector3.h"
 #include <vector>
 
 
@@ -47,8 +47,6 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API ISystem* CreateEditorCameraControlSystem(IInputContext* pInputContext, IEditorsManager* pEditorManager, E_RESULT_CODE& result);
-		public:
-			typedef std::vector<TEntityId> TCameraEntitiesArray;
 		public:
 			TDE2_SYSTEM(CEditorCameraControlSystem);
 
@@ -90,7 +88,7 @@ namespace TDEngine2
 			static constexpr F32  mDefaultEditorCameraSpeed = 5.0f;
 			static constexpr F32  mIncreasedEditorCameraSpeed = 15.0f;
 
-			TCameraEntitiesArray  mCameras;
+			TEntitiesArray        mCameras;
 
 			IDesktopInputContext* mpInputContext;
 

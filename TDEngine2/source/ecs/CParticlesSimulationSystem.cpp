@@ -53,7 +53,7 @@ namespace TDEngine2
 	}
 
 
-	static std::vector<TPtr<IMaterial>> GetUsedMaterials(const std::vector<TEntityId>& entities, IWorld* pWorld, IResourceManager* pResourceManager)
+	static std::vector<TPtr<IMaterial>> GetUsedMaterials(const TEntitiesArray& entities, IWorld* pWorld, IResourceManager* pResourceManager)
 	{
 		std::vector<TPtr<IMaterial>> usedMaterials;
 
@@ -792,12 +792,12 @@ namespace TDEngine2
 			friend TDE2_API ISystem* CreateParticlesGPUSimulationSystem(IRenderer*, IGraphicsObjectManager*, E_RESULT_CODE&);
 
 		private:
-			typedef std::vector<CParticleEmitter*> TParticleEmmitters;
+			typedef Vector<CParticleEmitter*> TParticleEmmitters;
 
 			struct TSystemContext
 			{
-				std::vector<CTransform*>       mpTransform;
-				std::vector<CParticleEmitter*> mpParticleEmitters;
+				Vector<CTransform*>       mpTransform;
+				Vector<CParticleEmitter*> mpParticleEmitters;
 			};
 
 			// duplicates the structure from TDEngine2ParticleUtils.inc, needed to compute size for storage buffer
@@ -919,7 +919,7 @@ namespace TDEngine2
 				return RC_OK;
 			}
 
-			static void _writeColorCurve(std::vector<TColor32F>& output, const TParticleColorParameter& curve)
+			static void _writeColorCurve(Vector<TColor32F>& output, const TParticleColorParameter& curve)
 			{
 				for (U32 i = 0; i < EMITTERS_BAKED_CURVE_WIDTH; ++i)
 				{
@@ -947,7 +947,7 @@ namespace TDEngine2
 				const U32 xStartOffset = emitterIndex / EMITTERS_BAKED_DATA_ATLAS_SIZES;
 				const U32 yStartOffset = emitterIndex % EMITTERS_BAKED_DATA_ATLAS_SIZES;
 
-				std::vector<TVector4> velocitySizeCurves;
+				Vector<TVector4> velocitySizeCurves;
 
 				auto&& pSizeCurve = pParticleEffect->GetSizeCurve();
 				auto&& velocityInfo = pParticleEffect->GetVelocityOverTime();
@@ -968,7 +968,7 @@ namespace TDEngine2
 					velocitySizeCurves.emplace_back(velocity, pSizeCurve ? pSizeCurve->Sample(t) : 1.0f);
 				}
 
-				std::vector<TColor32F> colorCurves;
+				Vector<TColor32F> colorCurves;
 
 				_writeColorCurve(colorCurves, pParticleEffect->GetColorOverLifeTime());
 

@@ -133,7 +133,7 @@ namespace TDEngine2
 				\return A pointer to texture's memory, which size equals to width * height * bytes_per_channel
 			*/
 
-			TDE2_API std::vector<U8> GetInternalData() override;
+			TDE2_API Vector<U8> GetInternalData() override;
 
 			TDE2_API TTextureHandleId GetHandle() const override;
 

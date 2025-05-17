@@ -307,7 +307,7 @@ namespace TDEngine2
 		return mPrevParentEntityId;
 	}
 
-	const std::vector<TEntityId>& CTransform::GetChildren() const
+	const TEntitiesArray& CTransform::GetChildren() const
 	{
 		return mChildrenEntities;
 	}
