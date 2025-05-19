@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.32] 2025-05-17
+## [0.6.32] 2025-05-19
 
 ### Added
 
@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - All allocations of DearImGUI are now tracked via **CMemoryProfiler**.
 
 - A new type **CTrackingAllocator<T>** was introduced to track memory when STL containers are used.
+
+- A new type **CFixedVector<T, USIZE>** was added to replace std::vector<T> when maximal size is known at build-time but push_back functionality is required.
 
 ### Changed
 

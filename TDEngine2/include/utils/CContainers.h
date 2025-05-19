@@ -306,4 +306,269 @@ namespace TDEngine2
 
 		mpBuffer = pNewBuffer;
 	}
+
+
+	/*!
+		class CFixedVector<T, USIZE>
+
+		\brief The type represents std::vector<T> functionality but with predefined maximal capacity. All the elements are stored on stack
+		and API is std::vector<T>'s compatible except resize and reserve methods
+	*/
+
+	template <typename T, USIZE maxCapacity = 16>
+	class CFixedVector
+	{
+		public:
+			typedef T                                     value_type;
+			typedef USIZE                                 size_type;
+			typedef std::ptrdiff_t                        difference_type;
+			typedef value_type&                           reference;
+			typedef const value_type&                     const_reference;
+			typedef value_type*                           pointer;
+			typedef const value_type*                     const_pointer;
+			typedef pointer                               iterator;
+			typedef const_pointer                         const_iterator;
+			typedef std::reverse_iterator<iterator>       reverse_iterator;
+			typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+		public:
+			CFixedVector() noexcept = default;
+
+			CFixedVector(size_type count) noexcept:
+				mSize(count)
+			{
+				TDE2_ASSERT(count <= maxCapacity);
+			}
+
+			CFixedVector(size_type count, const_reference value) noexcept:
+				mSize(count)
+			{
+				TDE2_ASSERT(count <= maxCapacity);
+				std::fill(mElementsStorage.begin(), mElementsStorage.end(), value);
+			}
+
+			CFixedVector(std::initializer_list<value_type> initializer) noexcept:
+				mSize(initializer.size())
+			{
+				TDE2_ASSERT(mSize <= maxCapacity);
+				std::uninitialized_copy(initializer.begin(), initializer.end(), mElementsStorage.begin());
+			}
+
+			CFixedVector(const CFixedVector& other) noexcept:
+				mSize(other.mSize)
+			{
+				std::uninitialized_copy(other.mElementsStorage.begin(), other.mElementsStorage.end(), mElementsStorage.begin());
+			}
+
+			CFixedVector(CFixedVector&& other) noexcept :
+				mSize(other.mSize),
+				mElementsStorage(std::move(other.mElementsStorage))
+			{
+			}
+
+			~CFixedVector()
+			{
+				clear();
+			}
+
+			reference at(size_type index)
+			{
+				if (index < mSize)
+				{
+					return mElementsStorage[index];
+				}
+
+				TDE2_ASSERT(index < mSize);
+				return back();
+			}
+
+			const_reference at(size_type index) const
+			{
+				if (index < mSize)
+				{
+					return mElementsStorage[index];
+				}
+
+				TDE2_ASSERT(index < mSize);
+				return back();
+			}
+
+			reference operator[](size_type index) { return at(index); }
+			const_reference operator[](size_type index) const { return at(index); }
+
+			reference front() noexcept { return mElementsStorage.front(); }
+			const_reference front() const noexcept { return mElementsStorage.front(); }
+
+			reference back() noexcept { return mElementsStorage[mSize - 1]; }
+			const_reference back() const noexcept { return mElementsStorage[mSize - 1]; }
+
+			pointer data() noexcept { return mElementsStorage.data(); }
+			const_pointer data() const noexcept { return mElementsStorage.data(); }
+
+			iterator begin() noexcept { return &mElementsStorage[0]; }
+			const_iterator cbegin() const noexcept { return &mElementsStorage[0]; }
+			reverse_iterator rbegin() noexcept { return mElementsStorage.begin() + mSize; }
+			const_reverse_iterator crbegin() const noexcept { return mElementsStorage.cbegin() + mSize; }
+
+			iterator end() noexcept { return &mElementsStorage[mSize]; }
+			const_iterator cend() const noexcept { return &mElementsStorage[mSize]; }
+			reverse_iterator rend() noexcept { return mElementsStorage.rbegin(); }
+			const_reverse_iterator crend() const noexcept { return mElementsStorage.crbegin(); }
+
+			CFixedVector& operator= (const CFixedVector& other) noexcept
+			{
+				if (&other == this)
+				{
+					return *this;
+				}
+
+				clear();
+
+				mSize = other.mSize;
+				std::uninitialized_copy(other.mElementsStorage.begin(), other.mElementsStorage.end(), mElementsStorage.begin());
+
+				return *this;
+			}
+
+			CFixedVector& operator= (CFixedVector&& other) noexcept
+			{
+				if (&other == this)
+				{
+					return *this;
+				}
+
+				clear();
+
+				mSize = other.mSize;
+				mElementsStorage = std::move(other.mElementsStorage);
+
+				return *this;
+			}
+
+			size_type size() const noexcept { return mSize; }
+
+			bool empty() const noexcept { return !mSize; }
+
+			size_type capacity() const noexcept { return maxCapacity; }
+
+			void clear()
+			{
+				if (!std::is_trivially_destructible<value_type>::value)
+				{
+					for (auto& currValue : mElementsStorage)
+					{
+						currValue.~value_type();
+					}
+				}
+
+				mSize = 0;
+			}
+
+			iterator insert(const_iterator pos, const value_type& value) noexcept
+			{
+				if (mSize >= maxCapacity)
+				{
+					TDE2_ASSERT(false);
+					return end();
+				}
+
+				const size_type index = static_cast<size_type>(std::distance(cbegin(), pos));
+				mElementsStorage[index] = value;
+
+				++mSize;
+
+				return begin() + index;
+			}
+
+			iterator insert(const_iterator pos, value_type&& value) noexcept
+			{
+				if (mSize >= maxCapacity)
+				{
+					TDE2_ASSERT(false);
+					return end();
+				}
+
+				const size_type index = static_cast<size_type>(std::distance(cbegin(), pos));
+				mElementsStorage[index] = std::move(value);
+
+				++mSize;
+
+				return begin() + index;
+			}
+
+			template <typename... TArgs>
+			iterator emplace(const_iterator pos, TArgs... args) noexcept
+			{
+				if (mSize >= maxCapacity)
+				{
+					TDE2_ASSERT(false);
+					return end();
+				}
+
+				const size_type index = static_cast<size_type>(std::distance(cbegin(), pos));
+				new (&mElementsStorage[index]) value_type(std::forward<TArgs>(args)...);
+
+				++mSize;
+
+				return begin() + index;
+			}
+
+			iterator erase(const_iterator pos) noexcept
+			{
+				const size_type index = static_cast<size_type>(std::distance(cbegin(), pos));
+				if (index >= mSize)
+				{
+					TDE2_ASSERT(false);
+					return end();
+				}
+
+				mElementsStorage[index].~value_type();
+				std::move(begin() + index + 1, end(), begin() + index);
+				--mSize;
+
+				return begin() + index;
+			}
+
+			iterator push_back(const value_type& value) noexcept
+			{
+				if (mSize >= maxCapacity)
+				{
+					TDE2_ASSERT(false);
+					return end();
+				}
+
+				mElementsStorage[mSize++] = value;
+
+				return &mElementsStorage[mSize - 1];
+			}
+
+			iterator push_back(value_type&& value) noexcept
+			{
+				if (mSize >= maxCapacity)
+				{
+					TDE2_ASSERT(false);
+					return end();
+				}
+
+				mElementsStorage[mSize++] = std::move(value);
+
+				return &mElementsStorage[mSize - 1];
+			}
+
+			template <typename... TArgs>
+			iterator emplace_back(TArgs... args) noexcept
+			{
+				if (mSize >= maxCapacity)
+				{
+					TDE2_ASSERT(false);
+					return end();
+				}
+
+				new (&mElementsStorage[mSize++]) value_type(std::forward<TArgs>(args)...);
+
+				return &mElementsStorage[mSize - 1];
+			}
+		private:
+			std::array<T, maxCapacity> mElementsStorage{};
+			size_type                  mSize = 0;
+	};
 }
