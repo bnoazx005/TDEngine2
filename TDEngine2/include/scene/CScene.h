@@ -210,7 +210,7 @@ namespace TDEngine2
 
 			TDE2_API bool IsMainScene() const override;
 
-			TDE2_API const TEntitiesRegistry& GetEntities() const override;
+			TDE2_API const TEntitiesArray& GetEntities() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CScene)
 			
@@ -230,7 +230,7 @@ namespace TDEngine2
 
 			TEntityId mSceneInfoEntityId = TEntityId::Invalid;
 
-			TEntitiesRegistry mEntities;
+			TEntitiesArray mEntities;
 			std::unordered_set<TEntityId> mRegisteredEntities;
 	};
 

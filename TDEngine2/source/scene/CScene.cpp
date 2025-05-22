@@ -520,7 +520,7 @@ namespace TDEngine2
 		return mIsMainScene;
 	}
 
-	const CScene::TEntitiesRegistry& CScene::GetEntities() const
+	const TEntitiesArray& CScene::GetEntities() const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 		return mEntities;
@@ -877,7 +877,7 @@ namespace TDEngine2
 	}
 
 
-	static E_RESULT_CODE SaveSceneChanges(IArchiveWriter* pWriter, TPtr<IWorld> pWorld, const CScene::TEntitiesRegistry& entities,
+	static E_RESULT_CODE SaveSceneChanges(IArchiveWriter* pWriter, TPtr<IWorld> pWorld, const TEntitiesArray& entities,
 		const std::function<bool(const CTransform*)>& predicate)
 	{
 		E_RESULT_CODE result = RC_OK;
