@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.32] 2025-05-19
+## [0.6.32] 2025-05-23
 
 ### Added
 
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new type **CTrackingAllocator<T>** was introduced to track memory when STL containers are used.
 
 - A new type **CFixedVector<T, USIZE>** was added to replace std::vector<T> when maximal size is known at build-time but push_back functionality is required.
+
+- A new subproject **benchmark** was declared in tests/ directory for benchmarking engine's functionality.
 
 ### Changed
 
