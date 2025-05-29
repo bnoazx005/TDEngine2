@@ -18,6 +18,7 @@
 #include "../deps/D3D12MemAlloc/D3D12MemAlloc.h"
 #include "../deps/dx12/d3dx12_barriers.h"
 #include "../deps/dx12/d3dx12_root_signature.h"
+#include <WinPixEventRuntime/pix3.h>
 
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
@@ -27,6 +28,8 @@ template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 #if TDE2_DEBUG_MODE
 	#pragma comment(lib, "dxguid.lib") 
 #endif
+
+#pragma comment(lib, "WinPixEventRuntime")
 
 
 namespace TDEngine2
@@ -1291,12 +1294,14 @@ namespace TDEngine2
 
 	void CD3D12GraphicsContext::BeginSectionMarker(const std::string& id)
 	{
-		_getCurrCommandListPtr()->BeginEvent(1, id.c_str(), static_cast<UINT>(id.length()));
+		//_getCurrCommandListPtr()->BeginEvent(1, id.c_str(), static_cast<UINT>(id.length())); Old manner to annotate D3D's sections
+		PIXBeginEvent(_getCurrCommandListPtr(), 0x000000ff, id.c_str());
 	}
 
 	void CD3D12GraphicsContext::EndSectionMarker()
 	{
-		_getCurrCommandListPtr()->EndEvent();
+		//_getCurrCommandListPtr()->EndEvent();  Old manner to annotate D3D's sections
+		PIXEndEvent(_getCurrCommandListPtr());
 	}
 
 #endif
