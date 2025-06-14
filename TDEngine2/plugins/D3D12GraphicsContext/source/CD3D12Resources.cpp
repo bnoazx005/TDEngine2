@@ -237,10 +237,10 @@ namespace TDEngine2
 		return mpResource;
 	}
 
-	/*const VkBufferView* CD3D12Buffer::GetViewHandle() const
+	D3D12_GPU_VIRTUAL_ADDRESS CD3D12Buffer::GetGPUAddress() const
 	{
-		return &mInternalBufferViewHandle;
-	}*/
+		return mpResource->GetGPUVirtualAddress();
+	}
 
 	const TInitBufferParams& CD3D12Buffer::GetParams() const
 	{

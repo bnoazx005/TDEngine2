@@ -113,8 +113,7 @@ namespace TDEngine2
 			USIZE GetSize() const override;
 
 			ComPtr<ID3D12Resource> GetHandle() const;
-			/*VkBuffer GetD3D12Handle();
-			const VkBufferView* GetViewHandle() const;*/
+			D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress() const;
 
 			const TInitBufferParams& GetParams() const override;
 		protected:
@@ -131,7 +130,7 @@ namespace TDEngine2
 
 			void*                    mpMappedBufferData = nullptr;
 
-			TBufferInternalData      mBufferInternalData;
+			TBufferInternalData      mBufferInternalData{};
 
 	#if TDE2_DEBUG_MODE
 			U8                       mLockChecker = 0;

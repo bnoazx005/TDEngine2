@@ -897,9 +897,12 @@ namespace TDEngine2
 
 		TDE2_ASSERT(E_BUFFER_TYPE::VERTEX == pBuffer->GetParams().mBufferType);
 
-		//const VkBuffer vertexBuffers[] = { pBuffer->GetVulkanHandle() };
-		//const VkDeviceSize offsets[] = { static_cast<USIZE>(offset) };
-		TDE2_UNIMPLEMENTED();
+		D3D12_VERTEX_BUFFER_VIEW vertexBufferViewDesc{};
+		vertexBufferViewDesc.BufferLocation = pBuffer->GetGPUAddress();
+		vertexBufferViewDesc.SizeInBytes    = static_cast<U32>(pBuffer->GetSize());
+		vertexBufferViewDesc.StrideInBytes  = strideSize;
+
+		_getCurrCommandListPtr()->IASetVertexBuffers(slot, 1, &vertexBufferViewDesc);
 
 		return RC_OK;
 	}
@@ -913,8 +916,13 @@ namespace TDEngine2
 		}
 
 		TDE2_ASSERT(E_BUFFER_TYPE::INDEX == pBuffer->GetParams().mBufferType);
-		//_getCurrCommandListPtr()->IASetIndexBuffer(pBuffer->GetView());
-		TDE2_UNIMPLEMENTED();
+
+		D3D12_INDEX_BUFFER_VIEW indexBufferViewDesc{};
+		indexBufferViewDesc.BufferLocation = pBuffer->GetGPUAddress();
+		indexBufferViewDesc.SizeInBytes    = static_cast<U32>(pBuffer->GetSize());
+		indexBufferViewDesc.Format         = CD3D12Mappings::GetIndexFormat(pBuffer->GetParams().mIndexFormat);
+
+		_getCurrCommandListPtr()->IASetIndexBuffer(&indexBufferViewDesc);
 
 		return RC_OK;
 	}
