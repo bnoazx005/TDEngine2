@@ -503,12 +503,26 @@ namespace TDEngine2
 #else
 		typename std::enable_if<TUsesBitmaskOperator<Enum>::mValue, Enum>::type
 #endif 
-		operator^ (Enum left, Enum right)
+	operator^ (Enum left, Enum right)
 	{
 		using baseType = typename std::underlying_type<Enum>::type;
 
 		return static_cast<Enum>(static_cast<baseType>(left) ^ static_cast<baseType>(right));
 	}
+
+	template <typename Enum>
+	inline
+#if _HAS_CXX17
+		std::enable_if_t<TUsesBitmaskOperator<Enum>::mValue, bool>
+#else
+		typename std::enable_if<TUsesBitmaskOperator<Enum>::mValue, bool>::type
+#endif 
+	HasEnumFlag(Enum value, Enum flag)
+	{
+		using baseType = typename std::underlying_type<Enum>::type;
+		return (value & flag) == flag;
+	}
+
 
 
 	/*!

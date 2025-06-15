@@ -606,14 +606,14 @@ namespace TDEngine2
 		const U32 systemBuffersCount = 
 			static_cast<U32>(std::count_if(pShaderMetadata->mUniformBuffersInfo.begin(), pShaderMetadata->mUniformBuffersInfo.end(), [](auto&& uniformBufferEntry)
 			{
-				return E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL == (uniformBufferEntry.second.mFlags & E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL);
+				return HasEnumFlag(uniformBufferEntry.second.mFlags, E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL);
 			}));
 
 		pFileWriter->WriteUInt32(static_cast<U32>(pShaderMetadata->mUniformBuffersInfo.size()) - systemBuffersCount);
 
 		for (auto&& currUniformBufferInfo : pShaderMetadata->mUniformBuffersInfo)
 		{
-			if (E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL == (currUniformBufferInfo.second.mFlags & E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL))
+			if (HasEnumFlag(currUniformBufferInfo.second.mFlags, E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL))
 			{
 				continue;
 			}

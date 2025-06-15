@@ -1872,7 +1872,7 @@ namespace TDEngine2
 
 					/// \note Mesh identifier
 					{
-						bool isMeshParamActive = (lodInfo.mActiveParams & E_LOD_INSTANCE_ACTIVE_PARAMS::MESH_ID) == E_LOD_INSTANCE_ACTIVE_PARAMS::MESH_ID;
+						bool isMeshParamActive = HasEnumFlag(lodInfo.mActiveParams, E_LOD_INSTANCE_ACTIVE_PARAMS::MESH_ID);
 
 						imguiContext.BeginHorizontal();
 						imguiContext.Checkbox("##IsMeshParamActive", isMeshParamActive);
@@ -1892,7 +1892,7 @@ namespace TDEngine2
 
 					/// \note Sub-mesh idenfitier
 					{
-						bool isSubmeshParamActive = (lodInfo.mActiveParams & E_LOD_INSTANCE_ACTIVE_PARAMS::SUBMESH_ID) == E_LOD_INSTANCE_ACTIVE_PARAMS::SUBMESH_ID;
+						bool isSubmeshParamActive = HasEnumFlag(lodInfo.mActiveParams, E_LOD_INSTANCE_ACTIVE_PARAMS::SUBMESH_ID);
 
 						imguiContext.BeginHorizontal();
 						imguiContext.Checkbox("##IsSubMeshParamActive", isSubmeshParamActive);
@@ -1912,7 +1912,7 @@ namespace TDEngine2
 
 					/// \note Material
 					{
-						bool isMaterialParamActive = (lodInfo.mActiveParams & E_LOD_INSTANCE_ACTIVE_PARAMS::MATERIAL_ID) == E_LOD_INSTANCE_ACTIVE_PARAMS::MATERIAL_ID;
+						bool isMaterialParamActive = HasEnumFlag(lodInfo.mActiveParams, E_LOD_INSTANCE_ACTIVE_PARAMS::MATERIAL_ID);
 
 						imguiContext.BeginHorizontal();
 						imguiContext.Checkbox("##IsMaterialParamActive", isMaterialParamActive);

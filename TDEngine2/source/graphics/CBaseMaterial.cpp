@@ -401,7 +401,7 @@ namespace TDEngine2
 			{				
 				auto&& uniformBufferData = uniformBufferInfo.second;
 
-				if (E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL == (uniformBufferData.mFlags & E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL)) /// \note Skip system uniform buffers
+				if (HasEnumFlag(uniformBufferData.mFlags, E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL)) /// \note Skip system uniform buffers
 				{
 					continue;
 				}
@@ -774,7 +774,7 @@ namespace TDEngine2
 		auto&& shaderMeta = pShaderResource->GetShaderMetaData();
 		for (auto&& currUniformBufferInfo : shaderMeta->mUniformBuffersInfo)
 		{
-			if (E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL == (E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL & currUniformBufferInfo.second.mFlags))
+			if (HasEnumFlag(currUniformBufferInfo.second.mFlags, E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL))
 			{
 				continue;
 			}
@@ -845,7 +845,7 @@ namespace TDEngine2
 		{
 			const auto& currUniformBufferDesc = currEntryDesc.second;
 
-			if ((currUniformBufferDesc.mFlags & E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL) == E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL)
+			if (HasEnumFlag(currUniformBufferDesc.mFlags, E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL))
 			{
 				continue;
 			}

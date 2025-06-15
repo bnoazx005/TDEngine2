@@ -541,7 +541,7 @@ namespace TDEngine2
 			currDesc = (*iter).second;
 
 			/// skip internal buffers, because they are created separately by IGlobalShaderProperties implementation
-			if ((currDesc.mFlags & E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL) == E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL)
+			if (HasEnumFlag(currDesc.mFlags, E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL))
 			{
 				continue;
 			}
@@ -698,7 +698,7 @@ namespace TDEngine2
 	void FillCommonTextureDesc(T& textureDesc, const TInitTextureImplParams& params)
 	{
 		const bool isCPUAccessible = params.mUsageType != E_TEXTURE_IMPL_USAGE_TYPE::STATIC;
-		const bool isDepthBufferResource = E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER);
+		const bool isDepthBufferResource = HasEnumFlag(params.mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER);
 
 		textureDesc.Width = params.mWidth;
 		textureDesc.Height = params.mHeight;
@@ -709,7 +709,7 @@ namespace TDEngine2
 
 		if (!isCPUAccessible)
 		{
-			if (E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE))
+			if (HasEnumFlag(params.mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE))
 			{
 				textureDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
 			}
@@ -718,12 +718,12 @@ namespace TDEngine2
 			{
 				textureDesc.BindFlags |= D3D11_BIND_DEPTH_STENCIL;
 			}
-			else if (E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET))
+			else if (HasEnumFlag(params.mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET))
 			{
 				textureDesc.BindFlags |= D3D11_BIND_RENDER_TARGET;
 			}
 
-			if (E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS))
+			if (HasEnumFlag(params.mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS))
 			{
 				textureDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 			}
@@ -799,7 +799,7 @@ namespace TDEngine2
 		memset(&viewDesc, 0, sizeof(viewDesc));
 
 		const bool isCubemap = (params.mType == E_TEXTURE_IMPL_TYPE::CUBEMAP);
-		const bool isDepthBufferResource = E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER);
+		const bool isDepthBufferResource = HasEnumFlag(params.mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER);
 
 		viewDesc.Format = CD3D11Mappings::GetDXGIFormat(isDepthBufferResource ? CD3D11Mappings::GetBestFitStrongTypeFormat(params.mFormat) : params.mFormat);
 		viewDesc.ViewDimension = isCubemap ? D3D11_SRV_DIMENSION_TEXTURECUBE : (params.mArraySize > 1 ? D3D11_SRV_DIMENSION_TEXTURE2DARRAY : D3D11_SRV_DIMENSION_TEXTURE2D);
@@ -1152,7 +1152,7 @@ namespace TDEngine2
 
 		mpShaderTextureView = createDefaultSrvResult.Get();
 
-		if (E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER == (mInitParams.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER))
+		if (HasEnumFlag(mInitParams.mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER))
 		{
 			auto createDsvResult = CreateDepthStencilViewInternal(mp3dDevice, mpTextureResource, mInitParams);
 			if (createDsvResult.HasError())
@@ -1162,7 +1162,7 @@ namespace TDEngine2
 
 			mpDepthStencilView = createDsvResult.Get();
 		}
-		else if (E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET == (mInitParams.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET))
+		else if (HasEnumFlag(mInitParams.mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET))
 		{
 			auto createRtvResult = CreateRenderTargetViewInternal(mp3dDevice, mpTextureResource, mInitParams);
 			if (createRtvResult.HasError())
@@ -1173,7 +1173,7 @@ namespace TDEngine2
 			mpRenderTargetView = createRtvResult.Get();
 		}
 
-		if (E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS == (mInitParams.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS))
+		if (HasEnumFlag(mInitParams.mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS))
 		{
 			auto createUavResult = CreateUnorderedAccessViewInternal(mp3dDevice, mpTextureResource, mInitParams);
 			if (createUavResult.HasError())

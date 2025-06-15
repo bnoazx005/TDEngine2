@@ -44,7 +44,7 @@ namespace TDEngine2
 			return;
 		}
 
-		if ((E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE & desc.mBindFlags) == E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE)
+		if (HasEnumFlag(desc.mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE))
 		{
 			pTexture->Transition(E_RESOURCE_LAYOUT::SHADER_RESOURCE);
 		}
@@ -60,7 +60,7 @@ namespace TDEngine2
 
 		// \note for render/(depth/stencil) targets barriers specified within BeginRenderPass
 		
-		if ((E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS & desc.mBindFlags) == E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS)
+		if (HasEnumFlag(desc.mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS))
 		{
 			pTexture->Transition(E_RESOURCE_LAYOUT::UAV_RESOURCE);
 		}

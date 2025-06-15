@@ -942,11 +942,11 @@ namespace TDEngine2
 	{
 	}
 
-	void CD3D11GraphicsContext::TransitionBarrier(const TBufferTransitionBarrierInfo & barrierInfo)
+	void CD3D11GraphicsContext::TransitionBarrier(const TBufferTransitionBarrierInfo& barrierInfo)
 	{
 	}
 
-	void CD3D11GraphicsContext::TransitionBarrier(const TTextureTransitionBarrierInfo & barrierInfo)
+	void CD3D11GraphicsContext::TransitionBarrier(const TTextureTransitionBarrierInfo& barrierInfo)
 	{
 	}
 
@@ -1119,7 +1119,7 @@ namespace TDEngine2
 				continue;
 			}
 
-			if (E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET != (pRenderTargetTexture->GetParams().mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET))
+			if (!HasEnumFlag(pRenderTargetTexture->GetParams().mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET))
 			{
 				TDE2_ASSERT_MSG(false, "[CD3D11GraphicsContext] Try to bind texture that is not a render target to render target slot");
 				return RC_FAIL;
@@ -1149,7 +1149,7 @@ namespace TDEngine2
 
 			TPtr<CD3D11TextureImpl> pDepthBufferTexture = mpGraphicsObjectManagerD3D11Impl->GetD3D11TexturePtr(depthStencilAttachment.mTargetHandle);
 
-			if (E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER != (pDepthBufferTexture->GetParams().mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER))
+			if (!HasEnumFlag(pDepthBufferTexture->GetParams().mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER))
 			{
 				TDE2_ASSERT_MSG(false, "[CD3D11GraphicsContext] Try to bind texture that is not a depth buffer to depth buffer slot");
 				return RC_FAIL;

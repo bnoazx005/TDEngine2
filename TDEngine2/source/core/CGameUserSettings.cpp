@@ -72,7 +72,7 @@ namespace TDEngine2
 					{
 						auto&& variableInfo = currVariableEntry.second;
 
-						if (E_CONSOLE_VARIABLE_FLAGS::SYSTEM == (variableInfo.mFlags & E_CONSOLE_VARIABLE_FLAGS::SYSTEM))
+						if (HasEnumFlag(variableInfo.mFlags, E_CONSOLE_VARIABLE_FLAGS::SYSTEM))
 						{
 							continue;
 						}
@@ -361,13 +361,13 @@ namespace TDEngine2
 		return result.IsOk() ? RC_OK : result.GetError();
 	}
 
-	E_RESULT_CODE CGameUserSettings::CreateFloatVariable(const std::string & name, const std::string & description, E_CONSOLE_VARIABLE_FLAGS flags, const F32 & initialValue)
+	E_RESULT_CODE CGameUserSettings::CreateFloatVariable(const std::string& name, const std::string& description, E_CONSOLE_VARIABLE_FLAGS flags, const F32& initialValue)
 	{
 		auto result = mpCVarsStorage->CreateVariable(name, description, flags, initialValue);
 		return result.IsOk() ? RC_OK : result.GetError();
 	}
 
-	E_RESULT_CODE CGameUserSettings::CreateStringVariable(const std::string & name, const std::string & description, E_CONSOLE_VARIABLE_FLAGS flags, const std::string & initialValue)
+	E_RESULT_CODE CGameUserSettings::CreateStringVariable(const std::string& name, const std::string& description, E_CONSOLE_VARIABLE_FLAGS flags, const std::string& initialValue)
 	{
 		auto result = mpCVarsStorage->CreateVariable(name, description, flags, initialValue);
 		return result.IsOk() ? RC_OK : result.GetError();

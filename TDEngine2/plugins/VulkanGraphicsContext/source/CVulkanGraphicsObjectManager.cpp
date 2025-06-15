@@ -22,7 +22,7 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		if (E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT == (params.mFlags & E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT))
+		if (HasEnumFlag(params.mFlags, E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT))
 		{
 			const U32 hash = ComputeStateDescHash(params);
 
@@ -65,7 +65,7 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		if (E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT == (params.mFlags & E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT))
+		if (HasEnumFlag(params.mFlags, E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT))
 		{
 			const U32 hash = ComputeStateDescHash(params);
 
@@ -121,7 +121,7 @@ namespace TDEngine2
 
 		const auto& bufferParams = mpBuffersArray[bufferPlacementIndex]->GetParams();
 
-		if (E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT == (bufferParams.mFlags & E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT))
+		if (HasEnumFlag(bufferParams.mFlags, E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT))
 		{
 			mTransientBuffersPool[ComputeStateDescHash(bufferParams)].push_back(bufferHandle);
 			return RC_OK;
@@ -147,7 +147,7 @@ namespace TDEngine2
 
 		const auto& textureParams = mpTexturesArray[texturePlacementIndex]->GetParams();
 
-		if (E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT == (textureParams.mFlags & E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT))
+		if (HasEnumFlag(textureParams.mFlags, E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT))
 		{
 			mTransientTexturesPool[ComputeStateDescHash(textureParams)].push_back(textureHandle);
 			return RC_OK;

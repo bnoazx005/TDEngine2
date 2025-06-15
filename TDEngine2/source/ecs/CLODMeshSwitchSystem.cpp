@@ -66,9 +66,9 @@ namespace TDEngine2
 	template <typename TGraphicsComponentType>
 	static void AssignMeshLODValues(TGraphicsComponentType* pMesh, TLODInstanceInfo& info)
 	{
-		if (E_LOD_INSTANCE_ACTIVE_PARAMS::MESH_ID == (info.mActiveParams & E_LOD_INSTANCE_ACTIVE_PARAMS::MESH_ID)) { pMesh->SetMeshName(info.mMeshId); }
-		if (E_LOD_INSTANCE_ACTIVE_PARAMS::SUBMESH_ID == (info.mActiveParams & E_LOD_INSTANCE_ACTIVE_PARAMS::SUBMESH_ID)) { pMesh->SetSubMeshId(info.mSubMeshId); }
-		if (E_LOD_INSTANCE_ACTIVE_PARAMS::MATERIAL_ID == (info.mActiveParams & E_LOD_INSTANCE_ACTIVE_PARAMS::MATERIAL_ID)) { pMesh->SetMaterialName(info.mMaterialId); }
+		if (HasEnumFlag(info.mActiveParams, E_LOD_INSTANCE_ACTIVE_PARAMS::MESH_ID)) { pMesh->SetMeshName(info.mMeshId); }
+		if (HasEnumFlag(info.mActiveParams, E_LOD_INSTANCE_ACTIVE_PARAMS::SUBMESH_ID)) { pMesh->SetSubMeshId(info.mSubMeshId); }
+		if (HasEnumFlag(info.mActiveParams, E_LOD_INSTANCE_ACTIVE_PARAMS::MATERIAL_ID)) { pMesh->SetMaterialName(info.mMaterialId); }
 	}
 
 

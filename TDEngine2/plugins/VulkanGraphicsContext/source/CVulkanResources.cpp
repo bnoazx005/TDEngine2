@@ -688,7 +688,7 @@ namespace TDEngine2
 			currDesc = (*iter).second;
 
 			/// skip internal buffers, because they are created separately by IGlobalShaderProperties implementation
-			if ((currDesc.mFlags & E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL) == E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL)
+			if (HasEnumFlag(currDesc.mFlags, E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL))
 			{
 				continue;
 			}
@@ -797,15 +797,15 @@ namespace TDEngine2
 		imageInfo.samples     = CVulkanMappings::GetSamplesCount(params.mNumOfSamples);
 		imageInfo.flags       = E_TEXTURE_IMPL_TYPE::CUBEMAP == params.mType ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0x0;
 
-		if (E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET))
+		if (HasEnumFlag(params.mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET))
 		{
 			imageInfo.usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 		}
-		else if (E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER))
+		else if (HasEnumFlag(params.mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER))
 		{
 			imageInfo.usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 		}
-		else if (E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS))
+		else if (HasEnumFlag(params.mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS))
 		{
 			imageInfo.usage |= VK_IMAGE_USAGE_STORAGE_BIT;
 		}
