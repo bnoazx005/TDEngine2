@@ -14,6 +14,7 @@
 #include <wrl/client.h>
 
 #pragma comment(lib, "dxcompiler")
+#pragma comment(lib, "dxil")
 
 template<typename T> using ComPtr =  Microsoft::WRL::ComPtr<T>;
 

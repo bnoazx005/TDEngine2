@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.32] 2025-06-15
+## [0.6.32] 2025-06-30
 
 ### Added
 
@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - std::vector<T> usages are replaced with TDEngine2::Vector<T> which is a wrapper for internal memory tracking. 
+
+- Update dxc libraries
 
 ### Fixed
 

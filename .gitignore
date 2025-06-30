@@ -1,7 +1,7 @@
 .vs/*
 
 [Oo]bj/
-[Bb]in/
+/[Bb]in/
 out/
 tmp/
 Release/

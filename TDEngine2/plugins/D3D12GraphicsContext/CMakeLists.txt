@@ -81,6 +81,9 @@ target_include_directories(${D3D12_GCTX_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SO
 target_include_directories(${D3D12_GCTX_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/pix/Include/")
 target_link_directories(${D3D12_GCTX_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/pix/bin/x64/")
 
+# Config dxc static libraries
+target_link_directories(${D3D12_GCTX_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../deps/dxc/lib/win/x64/")
+
 # disable the <libname>_EXPORTS
 set_target_properties(${D3D12_GCTX_LIBRARY_NAME} PROPERTIES DEFINE_SYMBOL "")
 
