@@ -965,6 +965,7 @@ namespace TDEngine2
 			graphicsPipelineConfig.mDepthStencilStateParams = params.mDepthStencilParams;
 			graphicsPipelineConfig.mRasterizerStateParams   = params.mRasterizerParams;
 			graphicsPipelineConfig.mShaderIdStr             = params.mShaderName;
+			graphicsPipelineConfig.mTopology                = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 		}
 
 		return pMaterialInstance;
