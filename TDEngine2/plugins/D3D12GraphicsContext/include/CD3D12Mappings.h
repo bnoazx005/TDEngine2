@@ -47,26 +47,6 @@ namespace TDEngine2
 			//static D3D12_USAGE GetUsageType(E_BUFFER_USAGE_TYPE type);
 
 			///*!
-			//	\brief The function maps an internal format type into DXGI_FORMAT
-
-			//	\param[in] format An internal format
-
-			//	\return A value of DXGI_FORMAT type
-			//*/
-
-			//static DXGI_FORMAT GetDXGIFormat(E_FORMAT_TYPE format);
-
-			///*!
-			//	\brief The function maps weak typed version of given format
-
-			//	\param[in] format Strongly typed version of format 
-
-			//	\return A value of DXGI_FORMAT type
-			//*/
-
-			//static DXGI_FORMAT GetTypelessVersionOfFormat(E_FORMAT_TYPE format);
-
-			///*!
 			//	\brief The function maps weak typed version to best fit strongly typed one
 
 			//	\param[in] format Weaked typed version of format
@@ -149,57 +129,57 @@ namespace TDEngine2
 
 			static DXGI_FORMAT GetTypelessVersionOfFormat(E_FORMAT_TYPE format);
 			
-			///*!
-			//	\brief The function maps internal index format into Direct3D12 specific type
+			/*!
+				\brief The function maps internal index format into Direct3D12 specific type
 
-			//	\param[in] indexFormatType An internal type that represents a format of an index
+				\param[in] indexFormatType An internal type that represents a format of an index
 
-			//	\return A Direct3D12 format of an index
-			//*/
+				\return A Direct3D12 format of an index
+			*/
 
-			//static DXGI_FORMAT GetIndexFormat(E_INDEX_FORMAT_TYPE indexFormatType);
+			static DXGI_FORMAT GetIndexFormat(E_INDEX_FORMAT_TYPE indexFormatType);
 
-			///*!
-			//	\brief The function maps an internal filter's value into Direct3D12 specific one
+			/*!
+				\brief The function maps an internal filter's value into Direct3D12 specific one
 
-			//	\param[in] filterValue An internal value which represents a filter's type
+				\param[in] filterValue An internal value which represents a filter's type
 
-			//	\return A D3D12 specific filter's type
-			//*/
+				\return A D3D12 specific filter's type
+			*/
 
-			//static D3D12_FILTER GetFilterType(E_TEXTURE_FILTER_TYPE filterValue);
+			static D3D12_FILTER GetFilterType(E_TEXTURE_FILTER_TYPE filterValue);
 
-			///*!
-			//	\brief The function maps an internal address mode's type into Direct3D12 specific one
+			/*!
+				\brief The function maps an internal address mode's type into Direct3D12 specific one
 
-			//	\param[in] addressMode An internal type which represents an addressing mode
+				\param[in] addressMode An internal type which represents an addressing mode
 
-			//	\return A value of D3D12_TEXTURE_ADDRESS_MODE type which is equivalent of a given one
-			//*/
+				\return A value of D3D12_TEXTURE_ADDRESS_MODE type which is equivalent of a given one
+			*/
 
-			//static D3D12_TEXTURE_ADDRESS_MODE GetTextureAddressMode(E_ADDRESS_MODE_TYPE addressMode);
+			static D3D12_TEXTURE_ADDRESS_MODE GetTextureAddressMode(E_ADDRESS_MODE_TYPE addressMode);
 
-			///*!
-			//	\brief The function maps engine's value into internal D3D12's value which defines a value
-			//	of a factor within the blending equation
+			/*!
+				\brief The function maps engine's value into internal D3D12's value which defines a value
+				of a factor within the blending equation
 
-			//	\param[in] factor A factor's value which is the engine's specific one
+				\param[in] factor A factor's value which is the engine's specific one
 
-			//	\return An internal D3D12's value which is equivalent for a given one
-			//*/
+				\return An internal D3D12's value which is equivalent for a given one
+			*/
 
-			//static D3D12_BLEND GetBlendFactorValue(E_BLEND_FACTOR_VALUE factor);
+			static D3D12_BLEND GetBlendFactorValue(E_BLEND_FACTOR_VALUE factor);
 
-			///*!
-			//	\brief The function maps engine's value into internal D3D12's value which defines
-			//	a type of blending operation
+			/*!
+				\brief The function maps engine's value into internal D3D12's value which defines
+				a type of blending operation
 
-			//	\param[in] factor A type's value which is the engine's specific one
+				\param[in] factor A type's value which is the engine's specific one
 
-			//	\return An internal D3D12's value which is equivalent for a given one
-			//*/
+				\return An internal D3D12's value which is equivalent for a given one
+			*/
 
-			//static D3D12_BLEND_OP GetBlendOpType(E_BLEND_OP_TYPE opType);
+			static D3D12_BLEND_OP GetBlendOpType(E_BLEND_OP_TYPE opType);
 
 			///*!
 			//	\brief The function maps internal cubemap's face index into D3D12 specific one
@@ -211,35 +191,39 @@ namespace TDEngine2
 
 			//static D3D12_TEXTURECUBE_FACE GetCubemapFace(E_CUBEMAP_FACE faceType);
 
-			///*!
-			//	\brief The function maps internal comparison function's type into D3D12 specific one
+			/*!
+				\brief The function maps internal comparison function's type into D3D12 specific one
 
-			//	\param[in] func An internal type of a comparison function
+				\param[in] func An internal type of a comparison function
 
-			//	\return D3D12 comparison function's type based on the given argument
-			//*/
+				\return D3D12 comparison function's type based on the given argument
+			*/
 
-			//static D3D12_COMPARISON_FUNC GetComparisonFunc(const E_COMPARISON_FUNC& func);
-			//
-			///*!
-			//	\brief The function maps internal stencil operation's type into D3D12 specific one
+			static D3D12_COMPARISON_FUNC GetComparisonFunc(const E_COMPARISON_FUNC& func);
+			
+			/*!
+				\brief The function maps internal stencil operation's type into D3D12 specific one
 
-			//	\param[in] stencilOp An internal type of a stencil operation
+				\param[in] stencilOp An internal type of a stencil operation
 
-			//	\return D3D12 stencil operation's type based on the given argument
-			//*/
+				\return D3D12 stencil operation's type based on the given argument
+			*/
 
-			//static D3D12_STENCIL_OP GetStencilOpType(const E_STENCIL_OP& stencilOp);
+			static D3D12_STENCIL_OP GetStencilOpType(const E_STENCIL_OP& stencilOp);
 
-			///*!
-			//	\brief The method maps E_CULL_MODE into D3D12_CULL_MODE's value
+			/*!
+				\brief The method maps E_CULL_MODE into D3D12_CULL_MODE's value
 
-			//	\param[in] cullMode An internal enumeration's value
+				\param[in] cullMode An internal enumeration's value
 
-			//	\return D3D12 specific value which represents a culling mode
-			//*/
+				\return D3D12 specific value which represents a culling mode
+			*/
 
-			//static D3D12_CULL_MODE GetCullMode(const E_CULL_MODE& cullMode);
+			static D3D12_CULL_MODE GetCullMode(const E_CULL_MODE& cullMode);
+
+			static D3D12_RASTERIZER_DESC GetRasterizerState(const TRasterizerStateDesc& rasterizerDesc);
+			static D3D12_BLEND_DESC GetBlendState(const TBlendStateDesc& blendStateDesc);
+			static D3D12_DEPTH_STENCIL_DESC GetDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc);
 	};
 }
 

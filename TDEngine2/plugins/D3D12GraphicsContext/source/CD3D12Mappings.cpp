@@ -32,163 +32,6 @@ namespace TDEngine2
 		return D3D12_USAGE_DEFAULT;
 	}
 
-	DXGI_FORMAT CD3D12Mappings::GetDXGIFormat(E_FORMAT_TYPE format)
-	{
-		switch (format)
-		{
-			case FT_FLOAT1:
-				return DXGI_FORMAT_R32_FLOAT;
-			case FT_FLOAT2:
-				return DXGI_FORMAT_R32G32_FLOAT;
-			case FT_FLOAT3:
-				return DXGI_FORMAT_R32G32B32_FLOAT;
-			case FT_FLOAT4:
-				return DXGI_FORMAT_R32G32B32A32_FLOAT;
-			case FT_BYTE1:
-				return DXGI_FORMAT_R8_SINT;
-			case FT_BYTE2:
-				return DXGI_FORMAT_R8G8_SINT;
-			case FT_BYTE4:
-				return DXGI_FORMAT_R8G8B8A8_SINT;
-			case FT_UBYTE1:
-				return DXGI_FORMAT_R8_UINT;
-			case FT_UBYTE2:
-				return DXGI_FORMAT_R8G8_UINT;
-			case FT_UBYTE4:
-				return DXGI_FORMAT_R8G8B8A8_UINT;
-			case FT_SHORT1:
-				return DXGI_FORMAT_R16_SINT;
-			case FT_SHORT2:
-				return DXGI_FORMAT_R16G16_SINT;
-			case FT_SHORT4:
-				return DXGI_FORMAT_R16G16B16A16_SINT;
-			case FT_USHORT1:
-				return DXGI_FORMAT_R16_UINT;
-			case FT_USHORT2:
-				return DXGI_FORMAT_R16G16_UINT;
-			case FT_USHORT4:
-				return DXGI_FORMAT_R16G16B16A16_UINT;
-			case FT_UINT1:
-				return DXGI_FORMAT_R32_UINT;
-			case FT_UINT2:
-				return DXGI_FORMAT_R32G32_UINT;
-			case FT_UINT3:
-				return DXGI_FORMAT_R32G32B32_UINT;
-			case FT_UINT4:
-				return DXGI_FORMAT_R32G32B32A32_UINT;
-			case FT_SINT1:
-				return DXGI_FORMAT_R32_SINT;
-			case FT_SINT2:
-				return DXGI_FORMAT_R32G32_SINT;
-			case FT_SINT3:
-				return DXGI_FORMAT_R32G32B32_SINT;
-			case FT_SINT4:
-				return DXGI_FORMAT_R32G32B32A32_SINT;
-			case FT_NORM_BYTE1:
-				return DXGI_FORMAT_R8_UNORM;
-			case FT_NORM_BYTE2:
-				return DXGI_FORMAT_R8G8_UNORM;
-			case FT_NORM_BYTE4_SRGB:
-				return DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-			case FT_NORM_BYTE4:
-				return DXGI_FORMAT_R8G8B8A8_UNORM;
-			case FT_NORM_UBYTE1:
-				return DXGI_FORMAT_R8_UNORM;
-			case FT_NORM_UBYTE2:
-				return DXGI_FORMAT_R8G8_UNORM;
-			case FT_NORM_UBYTE4:
-				return DXGI_FORMAT_R8G8B8A8_UNORM;
-			case FT_NORM_SHORT1:
-				return DXGI_FORMAT_R16_UNORM;
-			case FT_NORM_SHORT2:
-				return DXGI_FORMAT_R16G16_UNORM;
-			case FT_NORM_SHORT4:
-				return DXGI_FORMAT_R16G16B16A16_UNORM;
-			case FT_NORM_USHORT1:
-				return DXGI_FORMAT_R16_UNORM;
-			case FT_NORM_USHORT2:
-				return DXGI_FORMAT_R16G16_UNORM;
-			case FT_NORM_USHORT4:
-				return DXGI_FORMAT_R16G16B16A16_UNORM;
-			case FT_FLOAT1_TYPELESS:
-				return DXGI_FORMAT_R32_TYPELESS;
-			case FT_FLOAT2_TYPELESS:
-				return DXGI_FORMAT_R32G32_TYPELESS;
-			case FT_FLOAT3_TYPELESS:
-				return DXGI_FORMAT_R32G32B32_TYPELESS;
-			case FT_FLOAT4_TYPELESS:
-				return DXGI_FORMAT_R32G32B32A32_TYPELESS;
-			case FT_D32:
-				return DXGI_FORMAT_D32_FLOAT;
-			case FT_UBYTE4_BGRA_UNORM:
-				return DXGI_FORMAT_B8G8R8A8_UNORM;
-		}
-
-		return DXGI_FORMAT_UNKNOWN;
-	}
-	
-	DXGI_FORMAT CD3D12Mappings::GetTypelessVersionOfFormat(E_FORMAT_TYPE format)
-	{
-		switch (format)
-		{
-			case FT_FLOAT1:
-			case FT_UINT1:
-			case FT_SINT1:
-			case FT_FLOAT1_TYPELESS:
-			case FT_D32:
-				return DXGI_FORMAT_R32_TYPELESS;
-			case FT_FLOAT2:
-			case FT_UINT2:
-			case FT_SINT2:
-			case FT_FLOAT2_TYPELESS:
-				return DXGI_FORMAT_R32G32_TYPELESS;
-			case FT_FLOAT3:
-			case FT_UINT3:
-			case FT_SINT3:
-			case FT_FLOAT3_TYPELESS:
-				return DXGI_FORMAT_R32G32B32_TYPELESS;
-			case FT_FLOAT4:
-			case FT_UINT4:
-			case FT_SINT4:
-			case FT_FLOAT4_TYPELESS:
-				return DXGI_FORMAT_R32G32B32A32_TYPELESS;
-			case FT_BYTE1:
-			case FT_UBYTE1:
-			case FT_NORM_BYTE1:
-			case FT_NORM_UBYTE1:
-				return DXGI_FORMAT_R8_TYPELESS;
-			case FT_BYTE2:
-			case FT_UBYTE2:
-			case FT_NORM_BYTE2:
-			case FT_NORM_UBYTE2:
-				return DXGI_FORMAT_R8G8_TYPELESS;
-			case FT_BYTE4:
-			case FT_UBYTE4:
-			case FT_NORM_BYTE4_SRGB:
-			case FT_NORM_BYTE4:
-			case FT_NORM_UBYTE4:
-				return DXGI_FORMAT_R8G8B8A8_TYPELESS;
-			case FT_SHORT1:
-			case FT_USHORT1:
-			case FT_NORM_SHORT1:
-			case FT_NORM_USHORT1:
-				return DXGI_FORMAT_R16_TYPELESS;
-			case FT_SHORT2:
-			case FT_USHORT2:
-			case FT_NORM_SHORT2:
-			case FT_NORM_USHORT2:
-				return DXGI_FORMAT_R16G16_TYPELESS;
-			case FT_SHORT4:
-			case FT_USHORT4:
-			case FT_NORM_SHORT4:
-			case FT_NORM_USHORT4:
-				return DXGI_FORMAT_R16G16B16A16_TYPELESS;
-				return DXGI_FORMAT_D32_FLOAT;
-		}
-
-		return DXGI_FORMAT_UNKNOWN;
-	}
-
 	E_FORMAT_TYPE CD3D12Mappings::GetBestFitStrongTypeFormat(E_FORMAT_TYPE format)
 	{
 		switch (format)
@@ -610,7 +453,7 @@ namespace TDEngine2
 		return DXGI_FORMAT_UNKNOWN;
 	}
 
-	/*DXGI_FORMAT CD3D12Mappings::GetIndexFormat(E_INDEX_FORMAT_TYPE indexFormatType)
+	DXGI_FORMAT CD3D12Mappings::GetIndexFormat(E_INDEX_FORMAT_TYPE indexFormatType)
 	{
 		switch (indexFormatType)
 		{
@@ -622,7 +465,7 @@ namespace TDEngine2
 
 		return DXGI_FORMAT_UNKNOWN;
 	}
-
+	
 	D3D12_FILTER CD3D12Mappings::GetFilterType(E_TEXTURE_FILTER_TYPE filterValue)
 	{		
 		switch (filterValue)
@@ -648,16 +491,16 @@ namespace TDEngine2
 		switch (addressMode)
 		{
 			case E_ADDRESS_MODE_TYPE::AMT_BORDER:
-				return D3D12_TEXTURE_ADDRESS_BORDER;
+				return D3D12_TEXTURE_ADDRESS_MODE_BORDER;
 			case E_ADDRESS_MODE_TYPE::AMT_CLAMP:
-				return D3D12_TEXTURE_ADDRESS_CLAMP;
+				return D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
 			case E_ADDRESS_MODE_TYPE::AMT_MIRROR:
-				return D3D12_TEXTURE_ADDRESS_MIRROR;
+				return D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
 			case E_ADDRESS_MODE_TYPE::AMT_WRAP:
-				return D3D12_TEXTURE_ADDRESS_WRAP;
+				return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 		}
 
-		return D3D12_TEXTURE_ADDRESS_WRAP;
+		return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	}
 
 	D3D12_BLEND CD3D12Mappings::GetBlendFactorValue(E_BLEND_FACTOR_VALUE factor)
@@ -707,8 +550,8 @@ namespace TDEngine2
 
 		return D3D12_BLEND_OP_ADD;
 	}
-
-	D3D12_TEXTURECUBE_FACE CD3D12Mappings::GetCubemapFace(E_CUBEMAP_FACE faceType)
+	
+	/*D3D12_TEXTURECUBE_FACE CD3D12Mappings::GetCubemapFace(E_CUBEMAP_FACE faceType)
 	{
 		switch (faceType)
 		{
@@ -727,30 +570,32 @@ namespace TDEngine2
 			default:
 				return D3D12_TEXTURECUBE_FACE_POSITIVE_X;
 		}
-	}
+	}*/
 
 	D3D12_COMPARISON_FUNC CD3D12Mappings::GetComparisonFunc(const E_COMPARISON_FUNC& func)
 	{
 		switch (func)
 		{
 			case E_COMPARISON_FUNC::NEVER:
-				return D3D12_COMPARISON_NEVER;
+				return D3D12_COMPARISON_FUNC_NEVER;
 			case E_COMPARISON_FUNC::LESS:
-				return D3D12_COMPARISON_LESS;
+				return D3D12_COMPARISON_FUNC_LESS;
 			case E_COMPARISON_FUNC::EQUAL:
-				return D3D12_COMPARISON_EQUAL;
+				return D3D12_COMPARISON_FUNC_EQUAL;
 			case E_COMPARISON_FUNC::LESS_EQUAL:
-				return D3D12_COMPARISON_LESS_EQUAL;
+				return D3D12_COMPARISON_FUNC_LESS_EQUAL;
 			case E_COMPARISON_FUNC::GREATER:
-				return D3D12_COMPARISON_GREATER;
+				return D3D12_COMPARISON_FUNC_GREATER;
 			case E_COMPARISON_FUNC::NOT_EQUAL:
-				return D3D12_COMPARISON_NOT_EQUAL;
+				return D3D12_COMPARISON_FUNC_NOT_EQUAL;
 			case E_COMPARISON_FUNC::GREATER_EQUAL:
-				return D3D12_COMPARISON_GREATER_EQUAL;
+				return D3D12_COMPARISON_FUNC_GREATER_EQUAL;
 			case E_COMPARISON_FUNC::ALWAYS:
 			default:
-				return D3D12_COMPARISON_ALWAYS;
+				return D3D12_COMPARISON_FUNC_ALWAYS;
 		}
+
+		return D3D12_COMPARISON_FUNC_ALWAYS;
 	}
 
 	D3D12_STENCIL_OP CD3D12Mappings::GetStencilOpType(const E_STENCIL_OP& stencilOp)
@@ -782,13 +627,68 @@ namespace TDEngine2
 		switch (cullMode)
 		{
 			case E_CULL_MODE::FRONT:
-				return D3D12_CULL_FRONT;
+				return D3D12_CULL_MODE_FRONT;
 			case E_CULL_MODE::BACK:
-				return D3D12_CULL_BACK;
+				return D3D12_CULL_MODE_BACK;
 		}
 
-		return D3D12_CULL_NONE;
-	}*/
+		return D3D12_CULL_MODE_NONE;
+	}
+
+	D3D12_RASTERIZER_DESC CD3D12Mappings::GetRasterizerState(const TRasterizerStateDesc& rasterizerDesc)
+	{
+		D3D12_RASTERIZER_DESC outputDesc{};
+		
+		outputDesc.FillMode              = rasterizerDesc.mIsWireframeModeEnabled ? D3D12_FILL_MODE_WIREFRAME : D3D12_FILL_MODE_SOLID;
+		outputDesc.CullMode              = GetCullMode(rasterizerDesc.mCullMode);
+		outputDesc.DepthBias             = static_cast<I32>(rasterizerDesc.mDepthBias);
+		outputDesc.DepthBiasClamp        = rasterizerDesc.mMaxDepthBias;
+		outputDesc.DepthClipEnable       = rasterizerDesc.mIsDepthClippingEnabled;
+		outputDesc.FrontCounterClockwise = rasterizerDesc.mIsFrontCCWEnabled;
+		outputDesc.SlopeScaledDepthBias  = rasterizerDesc.mDepthBias;
+
+		return outputDesc;
+	}
+
+	D3D12_BLEND_DESC CD3D12Mappings::GetBlendState(const TBlendStateDesc& blendStateDesc)
+	{
+		D3D12_BLEND_DESC outputDesc{};
+		D3D12_RENDER_TARGET_BLEND_DESC& mainRenderTargetBlendStateDesc = outputDesc.RenderTarget[0];
+
+		mainRenderTargetBlendStateDesc.BlendEnable           = blendStateDesc.mIsEnabled;
+		mainRenderTargetBlendStateDesc.SrcBlend              = GetBlendFactorValue(blendStateDesc.mScrValue);
+		mainRenderTargetBlendStateDesc.DestBlend             = GetBlendFactorValue(blendStateDesc.mDestValue);
+		mainRenderTargetBlendStateDesc.BlendOp               = GetBlendOpType(blendStateDesc.mOpType);
+		mainRenderTargetBlendStateDesc.SrcBlendAlpha         = GetBlendFactorValue(blendStateDesc.mScrAlphaValue);
+		mainRenderTargetBlendStateDesc.DestBlendAlpha        = GetBlendFactorValue(blendStateDesc.mDestAlphaValue);
+		mainRenderTargetBlendStateDesc.BlendOpAlpha          = GetBlendOpType(blendStateDesc.mAlphaOpType);
+		mainRenderTargetBlendStateDesc.RenderTargetWriteMask = blendStateDesc.mWriteMask;
+
+		return outputDesc;
+	}
+
+	D3D12_DEPTH_STENCIL_DESC CD3D12Mappings::GetDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc)
+	{
+		D3D12_DEPTH_STENCIL_DESC outputDesc{};
+
+		outputDesc.DepthEnable                  = depthStencilDesc.mIsDepthTestEnabled;
+		outputDesc.DepthWriteMask               = depthStencilDesc.mIsDepthWritingEnabled ? D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK_ZERO;
+		outputDesc.DepthFunc                    = GetComparisonFunc(depthStencilDesc.mDepthCmpFunc);
+		outputDesc.StencilEnable                = depthStencilDesc.mIsStencilTestEnabled;
+		outputDesc.StencilReadMask              = depthStencilDesc.mStencilReadMaskValue;
+		outputDesc.StencilWriteMask             = depthStencilDesc.mStencilWriteMaskValue;
+		outputDesc.FrontFace.StencilFunc        = GetComparisonFunc(depthStencilDesc.mStencilFrontFaceOp.mFunc);
+		outputDesc.FrontFace.StencilPassOp      = GetStencilOpType(depthStencilDesc.mStencilFrontFaceOp.mPassOp);
+		outputDesc.FrontFace.StencilFailOp      = GetStencilOpType(depthStencilDesc.mStencilFrontFaceOp.mFailOp);
+		outputDesc.FrontFace.StencilDepthFailOp = GetStencilOpType(depthStencilDesc.mStencilFrontFaceOp.mDepthFailOp);
+		outputDesc.BackFace.StencilFunc         = GetComparisonFunc(depthStencilDesc.mStencilBackFaceOp.mFunc);
+		outputDesc.BackFace.StencilPassOp       = GetStencilOpType(depthStencilDesc.mStencilBackFaceOp.mPassOp);
+		outputDesc.BackFace.StencilFailOp       = GetStencilOpType(depthStencilDesc.mStencilBackFaceOp.mFailOp);
+		outputDesc.BackFace.StencilDepthFailOp  = GetStencilOpType(depthStencilDesc.mStencilBackFaceOp.mDepthFailOp);
+
+		return outputDesc;
+	}
+
 }
 
 #endif
