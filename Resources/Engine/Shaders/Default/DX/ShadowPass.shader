@@ -49,10 +49,10 @@ void mainGS(triangle VertexOutput gin[3], inout TriangleStream<GeometryOutput> t
 
 	if (mIsSunLight == 1)
 	{
-		[unroll]
+		[unroll(3)]
 		for (int cascadeIndex = 0; cascadeIndex < ShadowCascadesCount; cascadeIndex++)
 		{
-			[unroll]
+			[unroll(3)]
 			for (int i = 0; i < 3; i++)
 			{
 				output.mPos = mul(SunLightMat[cascadeIndex], gin[i].mPos);
@@ -68,12 +68,12 @@ void mainGS(triangle VertexOutput gin[3], inout TriangleStream<GeometryOutput> t
 		return;
 	}
 
-	[unroll]
+	[unroll(3)]
 	for (int faceIndex = 0; faceIndex < 6; faceIndex++)
 	{
 		output.mFaceIndex = faceIndex;
 
-		[unroll]
+		[unroll(3)]
 		for (int i = 0; i < 3; i++)
 		{
 			output.mPos = mul(Lights[mPointLightIndex].mLightMats[faceIndex], gin[i].mPos);
