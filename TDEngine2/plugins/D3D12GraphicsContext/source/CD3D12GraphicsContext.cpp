@@ -34,6 +34,15 @@ template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 namespace TDEngine2
 {
+	static std::array<U32, D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES> DESCRIPTORS_PER_BLOCK
+	{
+		512,
+		128,
+		64,
+		32,
+	};
+
+
 #if TDE2_DEBUG_MODE
 
 	static TResult<ComPtr<ID3D12Debug1>> InitDebugLayer()
@@ -167,6 +176,8 @@ namespace TDEngine2
 	CD3D12DeviceContext* CreateD3D12DeviceContext(TPtr<IWindowSystem>, E_RESULT_CODE&);
 	CD3D12Swapchain* CreateD3D12Swapchain(CD3D12DeviceContext*, TPtr<IWindowSystem>, E_RESULT_CODE&);
 	CD3D12CommandBuffer* CreateD3D12CommandBuffer(CD3D12DeviceContext*, E_RESULT_CODE&);
+	ID3D12CPUDescriptorsAllocator* CreateD3D12CPUDescriptorsAllocator(CD3D12DeviceContext*, D3D12_DESCRIPTOR_HEAP_TYPE, U32, E_RESULT_CODE&);
+	CD3D12GPUDescriptorsHeap* CreateD3D12GPUDescriptorsHeap(CD3D12DeviceContext*, D3D12_DESCRIPTOR_HEAP_TYPE, U32, E_RESULT_CODE&);
 
 
 	class CD3D12Fence
@@ -193,6 +204,8 @@ namespace TDEngine2
 	{
 		public:
 			friend CD3D12DeviceContext* CreateD3D12DeviceContext(TPtr<IWindowSystem>, E_RESULT_CODE&);
+		public:
+			typedef std::array<TPtr<ID3D12CPUDescriptorsAllocator>, D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES> TDescriptorHeapsTable;
 		public:
 			E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem);
 
@@ -353,7 +366,15 @@ namespace TDEngine2
 		}
 
 		mpCommandQueue = createCommandQueueResult.Get();
+		mCommandQueueFence = CD3D12Fence(this, 0);
 
+		E_RESULT_CODE result = RC_OK;
+
+		for (I32 heapType = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV; heapType < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES; ++heapType)
+		{
+			mpDescriptorHeapsTable[heapType] = TPtr<ID3D12CPUDescriptorsAllocator>(CreateD3D12CPUDescriptorsAllocator(this, static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(heapType), DESCRIPTORS_PER_BLOCK[heapType], result));
+		}
+		
 		mIsInitialized  = true;
 
 		return RC_OK;
@@ -372,11 +393,40 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D12DeviceContext::_onFreeInternal()
 	{
+		mpMemoryAllocator = nullptr;
+
+		mpCommandQueue = nullptr;
+		mCommandQueueFence = {};
+
+		mpObjectsFactory = nullptr;
+		mpAdapter        = nullptr;
+
+		std::fill(mpDescriptorHeapsTable.begin(), mpDescriptorHeapsTable.end(), nullptr);
+
+#if TDE2_DEBUG_MODE
+		if (mpDebugDevice)
+		{
+			mpDebugDevice->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL);
+		}
+#endif
+
 		return RC_OK;
 	}
 
 	void CD3D12DeviceContext::WaitForIdle()
 	{
+		mCommandQueueFence.WaitForIdle();
+	}
+
+	TPtr<ID3D12CPUDescriptorsAllocator> CD3D12DeviceContext::GetDescriptorsAllocator(D3D12_DESCRIPTOR_HEAP_TYPE heapType) const
+	{
+		if (heapType >= D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES)
+		{
+			TDE2_ASSERT(false);
+			return nullptr;
+		}
+
+		return mpDescriptorHeapsTable[static_cast<USIZE>(heapType)];
 	}
 
 
@@ -387,6 +437,259 @@ namespace TDEngine2
 
 
 	TDE2_DEFINE_SCOPED_PTR(CD3D12DeviceContext);
+
+
+	/*!
+		\brief CD3D12CPUDescriptorsAllocator's definition
+	*/
+
+	class CD3D12CPUDescriptorsAllocator : public CBaseObject, public virtual ID3D12CPUDescriptorsAllocator
+	{
+		public:
+			friend ID3D12CPUDescriptorsAllocator* CreateD3D12CPUDescriptorsAllocator(CD3D12DeviceContext*, D3D12_DESCRIPTOR_HEAP_TYPE, U32, E_RESULT_CODE&);
+		public:
+			E_RESULT_CODE Init(CD3D12DeviceContext* pDeviceContext, D3D12_DESCRIPTOR_HEAP_TYPE type, U32 descriptorsPerBlock = 256) override;
+
+			TD3D12ResourceDescriptor AllocDescriptor() override;
+			E_RESULT_CODE FreeDescriptor(TD3D12ResourceDescriptor& descriptor) override;
+
+			D3D12_DESCRIPTOR_HEAP_TYPE GetType() const override { return mType; }
+			U32 GetDescriptorSize() const override { return mDescriptorSize; }
+		private:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D12CPUDescriptorsAllocator)
+
+			E_RESULT_CODE _allocateNewBlock();
+		private:
+			CD3D12DeviceContext*                 mpDeviceContext = nullptr;
+
+			Vector<ComPtr<ID3D12DescriptorHeap>> mpHeapBlocks{};
+			std::list<TD3D12ResourceDescriptor>  mFreeHandles{};
+
+			D3D12_DESCRIPTOR_HEAP_TYPE           mType = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES;
+			U32                                  mMaxDescriptorsPerBlock = 0;
+			U32                                  mDescriptorSize = 0;
+			U32                                  mActiveDescriptorsCount = 0;
+
+			mutable std::mutex                   mMutex;
+	};
+
+
+	CD3D12CPUDescriptorsAllocator::CD3D12CPUDescriptorsAllocator():
+		CBaseObject()
+	{
+	}
+
+	E_RESULT_CODE CD3D12CPUDescriptorsAllocator::Init(CD3D12DeviceContext* pDeviceContext, D3D12_DESCRIPTOR_HEAP_TYPE type, U32 descriptorsPerBlock)
+	{
+		if (!descriptorsPerBlock)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpDeviceContext = pDeviceContext;
+		mType = type;
+		mMaxDescriptorsPerBlock = descriptorsPerBlock;
+
+		mDescriptorSize = mpDeviceContext->GetDevice()->GetDescriptorHandleIncrementSize(type);
+
+		E_RESULT_CODE result = _allocateNewBlock();
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	TD3D12ResourceDescriptor CD3D12CPUDescriptorsAllocator::AllocDescriptor()
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		if (mFreeHandles.empty())
+		{
+			E_RESULT_CODE result = _allocateNewBlock();
+			TDE2_ASSERT(RC_OK == result);
+		}
+
+		TD3D12ResourceDescriptor currDescriptor = mFreeHandles.front();
+		mFreeHandles.pop_front();
+
+		++mActiveDescriptorsCount;
+
+		return currDescriptor;
+	}
+	
+	E_RESULT_CODE CD3D12CPUDescriptorsAllocator::FreeDescriptor(TD3D12ResourceDescriptor& descriptor)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		mFreeHandles.emplace_back(descriptor);
+		--mActiveDescriptorsCount;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D12CPUDescriptorsAllocator::_allocateNewBlock()
+	{
+		D3D12_DESCRIPTOR_HEAP_DESC heapDesc{};
+		heapDesc.NumDescriptors = mMaxDescriptorsPerBlock;
+		heapDesc.Type = mType;
+
+		ComPtr<ID3D12DescriptorHeap>& pNewDescriptorHeap = mpHeapBlocks.emplace_back();
+
+		if (FAILED(mpDeviceContext->GetDevice()->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(pNewDescriptorHeap.GetAddressOf()))))
+		{
+			return RC_FAIL;
+		}
+
+		D3D12_CPU_DESCRIPTOR_HANDLE firstCPUHandle = pNewDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+
+		for (U32 i = 0; i < mMaxDescriptorsPerBlock; ++i)
+		{
+			TD3D12ResourceDescriptor& currDescriptor = mFreeHandles.emplace_back();
+
+			currDescriptor.mCPUHandle = { static_cast<USIZE>(firstCPUHandle.ptr + static_cast<U64>(i) * mDescriptorSize) };
+			currDescriptor.mIndex     = i;
+		}
+
+		return RC_OK;
+	}
+
+
+	ID3D12CPUDescriptorsAllocator* CreateD3D12CPUDescriptorsAllocator(CD3D12DeviceContext* pDeviceContext, D3D12_DESCRIPTOR_HEAP_TYPE type, U32 descriptorsPerBlock, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(ID3D12CPUDescriptorsAllocator, CD3D12CPUDescriptorsAllocator, result, pDeviceContext, type, descriptorsPerBlock);
+	}
+
+
+	TDE2_DEFINE_SCOPED_PTR(CD3D12CPUDescriptorsAllocator);
+
+
+	/*!
+		\brief CD3D12GPUDescriptorsHeap's definition
+	*/
+
+	class CD3D12GPUDescriptorsHeap : public CBaseObject
+	{
+	public:
+		friend CD3D12GPUDescriptorsHeap* CreateD3D12GPUDescriptorsHeap(CD3D12DeviceContext*, D3D12_DESCRIPTOR_HEAP_TYPE, U32, E_RESULT_CODE&);
+	public:
+		E_RESULT_CODE Init(CD3D12DeviceContext* pDeviceContext, D3D12_DESCRIPTOR_HEAP_TYPE type, U32 descriptorsPerBlock = 256);
+
+		TD3D12ResourceDescriptor AllocDescriptorsBlock(U32 count);
+		TD3D12ResourceDescriptor GetReservedDescriptorByIndex(U32 index);
+		E_RESULT_CODE Reset();
+
+		D3D12_DESCRIPTOR_HEAP_TYPE GetType() const { return mType; }
+		U32 GetDescriptorSize() const { return mDescriptorSize; }
+	private:
+		DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D12GPUDescriptorsHeap)
+	private:
+		CD3D12DeviceContext*                 mpDeviceContext = nullptr;
+
+		ComPtr<ID3D12DescriptorHeap>         mpHeap = nullptr;
+
+		D3D12_DESCRIPTOR_HEAP_TYPE           mType = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES;
+		U32                                  mMaxDescriptorsPerBlock = 0;
+		U32                                  mDescriptorSize = 0;
+		U32                                  mActiveDescriptorsCount = 0;
+
+		mutable std::mutex                   mMutex;
+	};
+
+
+	CD3D12GPUDescriptorsHeap::CD3D12GPUDescriptorsHeap() :
+		CBaseObject()
+	{
+	}
+
+	E_RESULT_CODE CD3D12GPUDescriptorsHeap::Init(CD3D12DeviceContext* pDeviceContext, D3D12_DESCRIPTOR_HEAP_TYPE type, U32 descriptorsPerBlock)
+	{
+		if (!descriptorsPerBlock)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpDeviceContext = pDeviceContext;
+		mType = type;
+		mMaxDescriptorsPerBlock = descriptorsPerBlock;
+
+		mDescriptorSize = mpDeviceContext->GetDevice()->GetDescriptorHandleIncrementSize(type);
+
+		D3D12_DESCRIPTOR_HEAP_DESC heapDesc{};
+		heapDesc.NumDescriptors = mMaxDescriptorsPerBlock;
+		heapDesc.Type           = mType;
+		heapDesc.Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+
+		if (FAILED(mpDeviceContext->GetDevice()->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(mpHeap.GetAddressOf()))))
+		{
+			return RC_FAIL;
+		}
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	TD3D12ResourceDescriptor CD3D12GPUDescriptorsHeap::AllocDescriptorsBlock(U32 count)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		const U32 blockEnd = mActiveDescriptorsCount + count;
+		if (blockEnd >= mMaxDescriptorsPerBlock)
+		{
+			TDE2_ASSERT_MSG(false, "[CD3D12GPUDescriptorsHeap] GPU descriptors heap runs out of memory");
+			return {};
+		}
+
+		TD3D12ResourceDescriptor currDescriptor{};
+		currDescriptor.mCPUHandle = mpHeap->GetCPUDescriptorHandleForHeapStart();
+		currDescriptor.mGPUHandle = mpHeap->GetGPUDescriptorHandleForHeapStart();
+		currDescriptor.mIndex     = mActiveDescriptorsCount;
+
+		currDescriptor.mCPUHandle.ptr += static_cast<USIZE>(mActiveDescriptorsCount) * mDescriptorSize;
+		currDescriptor.mGPUHandle.ptr += static_cast<USIZE>(mActiveDescriptorsCount) * mDescriptorSize;
+
+		mActiveDescriptorsCount += count;
+
+		return currDescriptor;
+	}
+
+	TD3D12ResourceDescriptor CD3D12GPUDescriptorsHeap::GetReservedDescriptorByIndex(U32 index)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		TDE2_ASSERT_MSG(index < mMaxDescriptorsPerBlock, "[CD3D12GPUDescriptorsHeap] Index goes out of boundaries");
+
+		TD3D12ResourceDescriptor currDescriptor{};
+		currDescriptor.mCPUHandle = mpHeap->GetCPUDescriptorHandleForHeapStart();
+		currDescriptor.mGPUHandle = mpHeap->GetGPUDescriptorHandleForHeapStart();
+		currDescriptor.mIndex     = index;
+
+		currDescriptor.mCPUHandle.ptr += static_cast<USIZE>(index) * mDescriptorSize;
+		currDescriptor.mGPUHandle.ptr += static_cast<USIZE>(index) * mDescriptorSize;
+
+		return currDescriptor;
+	}
+
+	E_RESULT_CODE CD3D12GPUDescriptorsHeap::Reset()
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		mActiveDescriptorsCount = 0;
+
+		return RC_OK;
+	}
+
+
+	CD3D12GPUDescriptorsHeap* CreateD3D12GPUDescriptorsHeap(CD3D12DeviceContext* pDeviceContext, D3D12_DESCRIPTOR_HEAP_TYPE type, U32 descriptorsPerBlock, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(CD3D12GPUDescriptorsHeap, CD3D12GPUDescriptorsHeap, result, pDeviceContext, type, descriptorsPerBlock);
+	}
+
+
+	TDE2_DEFINE_SCOPED_PTR(CD3D12GPUDescriptorsHeap);
 
 
 	/*!
@@ -706,6 +1009,12 @@ namespace TDEngine2
 			E_RESULT_CODE localResult = RC_OK;
 
 			mpCommandBuffers[i] = TPtr<CD3D12CommandBuffer>(CreateD3D12CommandBuffer(mpDeviceContext.Get(), localResult));
+			result = result | localResult;
+
+			mpShaderResourcesDescriptorsHeaps[i] = TPtr<CD3D12GPUDescriptorsHeap>(CreateD3D12GPUDescriptorsHeap(mpDeviceContext.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_MAX_SHADER_VISIBLE_DESCRIPTOR_HEAP_SIZE_TIER_1, localResult));
+			result = result | localResult;
+
+			mpSamplersDescriptorsHeaps[i] = TPtr<CD3D12GPUDescriptorsHeap>(CreateD3D12GPUDescriptorsHeap(mpDeviceContext.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, D3D12_MAX_SHADER_VISIBLE_SAMPLER_HEAP_SIZE, localResult));
 			result = result | localResult;
 		}
 
@@ -1356,6 +1665,11 @@ namespace TDEngine2
 	D3D12MA::Allocator* CD3D12GraphicsContext::GetMemoryAllocator() const
 	{
 		return mpDeviceContext->GetMemoryAllocator().Get();
+	}
+
+	TPtr<ID3D12CPUDescriptorsAllocator> CD3D12GraphicsContext::GetDescriptorsAllocator(D3D12_DESCRIPTOR_HEAP_TYPE heapType) const
+	{
+		return mpDeviceContext->GetDescriptorsAllocator(heapType);
 	}
 
 

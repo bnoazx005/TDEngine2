@@ -31,12 +31,30 @@ namespace TDEngine2
 	class CD3D12Swapchain;
 	class CD3D12CommandBuffer;
 	class CD3D12GraphicsObjectManager;
+	class CD3D12BasePipeline;
+	class ID3D12CPUDescriptorsAllocator;
+	class CD3D12GPUDescriptorsHeap;
+	struct TD3D12ResourceDescriptor;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IEventManager);
 	TDE2_DECLARE_SCOPED_PTR(CD3D12DeviceContext);
 	TDE2_DECLARE_SCOPED_PTR(CD3D12Swapchain);
 	TDE2_DECLARE_SCOPED_PTR(CD3D12CommandBuffer);
+	TDE2_DECLARE_SCOPED_PTR(ID3D12CPUDescriptorsAllocator);
+	TDE2_DECLARE_SCOPED_PTR(CD3D12GPUDescriptorsHeap);
+
+
+	struct TD3D12ResourceDescriptor
+	{
+		inline bool IsValid() const { return mCPUHandle.ptr != 0; }
+		inline bool IsGPUVisible() const { return mGPUHandle.ptr != 0; }
+
+		D3D12_CPU_DESCRIPTOR_HANDLE mCPUHandle{ 0 };
+		D3D12_GPU_DESCRIPTOR_HANDLE mGPUHandle{ 0 };
+
+		U32                         mIndex = 0;
+	};
 
 
 	class CD3D12GraphicsContext : public IGraphicsContext, public IEventHandler, public CBaseObject
@@ -399,18 +417,20 @@ namespace TDEngine2
 
 			TPtr<IWindowSystem> GetWindowSystem() const override;
 
-			std::vector<U8> GetBackBufferData() const override;
+			Vector<U8> GetBackBufferData() const override;
 
-			ID3D12Device* GetDeviceContext() const;
+			ID3D12Device5* GetDeviceContext() const;
 			D3D12MA::Allocator* GetMemoryAllocator() const;
+			TPtr<ID3D12CPUDescriptorsAllocator> GetDescriptorsAllocator(D3D12_DESCRIPTOR_HEAP_TYPE heapType) const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D12GraphicsContext)
 
 			E_RESULT_CODE _onFreeInternal() override;
 
 			void _waitForIdle();
+			void _preparePipelineState();
 
-			ID3D12GraphicsCommandList* _getCurrCommandListPtr();
+			ID3D12GraphicsCommandList4* _getCurrCommandListPtr();
 		public:
 			TDE2_STATIC_CONSTEXPR      U32 BACK_BUFFERS_COUNT = 2;
 		protected:
@@ -438,30 +458,35 @@ namespace TDEngine2
 			//
 			//		DXGI_FORMAT              mCurrBackBufferFormat;
 			//
-			TPtr<IGraphicsObjectManager> mpGraphicsObjectManager = nullptr;
-			CD3D12GraphicsObjectManager* mpGraphicsObjectManagerD3D12Impl = nullptr;
+			TPtr<IGraphicsObjectManager>                                         mpGraphicsObjectManager = nullptr;
+			CD3D12GraphicsObjectManager*                                         mpGraphicsObjectManagerD3D12Impl = nullptr;
 			
-			TPtr<IWindowSystem>       mpWindowSystem = nullptr;
-			TPtr<IEventManager>       mpEventManager = nullptr;
+			TPtr<IWindowSystem>                                                  mpWindowSystem = nullptr;
+			TPtr<IEventManager>                                                  mpEventManager = nullptr;
 
-			TPtr<CD3D12DeviceContext> mpDeviceContext = nullptr;
-			TPtr<CD3D12Swapchain>     mpSwapchain = nullptr;
+			TPtr<CD3D12DeviceContext>                                            mpDeviceContext = nullptr;
+			TPtr<CD3D12Swapchain>                                                mpSwapchain = nullptr;
 
-			TPtr<CD3D12CommandBuffer> mpImmediateCommandBuffer = nullptr;
+			TPtr<CD3D12CommandBuffer>                                            mpImmediateCommandBuffer = nullptr;
 
-			std::array<TPtr<CD3D12CommandBuffer>, BACK_BUFFERS_COUNT> mpCommandBuffers {};
-			std::array<TGarbageCollection, BACK_BUFFERS_COUNT>        mAwaitingDeletionObjects {};
+			std::array<TPtr<CD3D12CommandBuffer>, BACK_BUFFERS_COUNT>            mpCommandBuffers {};
+			std::array<TGarbageCollection, BACK_BUFFERS_COUNT>                   mAwaitingDeletionObjects {};
 
-			std::array<TBarriersArray, BACK_BUFFERS_COUNT>            mResourceBarriers{};
+			std::array<TBarriersArray, BACK_BUFFERS_COUNT>                       mResourceBarriers{};
 
-			bool                                                      mIsRenderPassActive = false;
+			std::array<TPtr<CD3D12GPUDescriptorsHeap>, BACK_BUFFERS_COUNT>       mpShaderResourcesDescriptorsHeaps{};
+			std::array<TPtr<CD3D12GPUDescriptorsHeap>, BACK_BUFFERS_COUNT>       mpSamplersDescriptorsHeaps{};
 
-			mutable std::mutex                                        mGarbageCollectorMutex {};
+			mutable std::mutex                                                   mGarbageCollectorMutex {};
 
-			TDescriptorsBindingsTable                                 mDescriptorsBindingsTable{};
-			// 
-			//		ID3D12RenderTargetView* mpRenderTargets[mMaxNumOfRenderTargets];
-			//		U8                      mCurrNumOfActiveRenderTargets = 0;
+			TDescriptorsBindingsTable                                            mDescriptorsBindingsTable{};
+
+			TRenderPassInfo                                                      mCurrRenderPassInfo{};
+			bool                                                                 mIsRenderPassActive = false;
+
+			std::array<CD3D12BasePipeline*, BACK_BUFFERS_COUNT>                  mpActivePipelineStates{};
+			std::unordered_map<U64, Microsoft::WRL::ComPtr<ID3D12PipelineState>> mCachedPipelinesLibrary{};
+
 	};
 
 
@@ -472,6 +497,24 @@ namespace TDEngine2
 	*/
 
 	IGraphicsContext* CreateD3D12GraphicsContext(TPtr<IWindowSystem> pWindowSystem, E_RESULT_CODE& result);
+
+
+	class ID3D12CPUDescriptorsAllocator : public virtual IBaseObject
+	{
+		public:
+			virtual E_RESULT_CODE Init(CD3D12DeviceContext* pDeviceContext, D3D12_DESCRIPTOR_HEAP_TYPE type, U32 descriptorsPerBlock = 256) = 0;
+
+			virtual TD3D12ResourceDescriptor AllocDescriptor() = 0;
+			virtual E_RESULT_CODE FreeDescriptor(TD3D12ResourceDescriptor& descriptor) = 0;
+
+			virtual D3D12_DESCRIPTOR_HEAP_TYPE GetType() const = 0;
+			virtual U32 GetDescriptorSize() const = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(ID3D12CPUDescriptorsAllocator)
+	};
+
+
+	TDE2_DECLARE_SCOPED_PTR_INLINED(ID3D12CPUDescriptorsAllocator);
 }
 
 #endif

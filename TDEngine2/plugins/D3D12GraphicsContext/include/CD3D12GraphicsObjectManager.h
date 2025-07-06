@@ -20,6 +20,7 @@ namespace TDEngine2
 	class CD3D12TextureImpl;
 	class CD3D12Buffer;
 	class IGraphicsPipeline;
+	struct TD3D12ResourceDescriptor;
 
 
 	TDE2_DECLARE_SCOPED_PTR(CD3D12TextureImpl)
