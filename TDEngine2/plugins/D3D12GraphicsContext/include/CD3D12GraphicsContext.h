@@ -305,6 +305,8 @@ namespace TDEngine2
 
 			void DispatchIndirectCompute(TBufferHandleId argsBufferHandle, U32 alignedOffset) override;
 
+			E_RESULT_CODE BindPipelineState(CD3D12BasePipeline* pPipeline);
+
 			/*!
 				\brief The method binds a given blend state to rendering pipeline
 

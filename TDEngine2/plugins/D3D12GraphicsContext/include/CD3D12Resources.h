@@ -10,6 +10,8 @@
 #include <graphics/IBuffer.h>
 #include <graphics/ITexture.h>
 #include <graphics/CBaseShader.h>
+#include <graphics/BasePipelines.h>
+#include "CD3D12GraphicsContext.h"
 
 
 #if defined(TDE2_USE_WINPLATFORM) /// Used only on Windows platform
@@ -30,6 +32,7 @@ namespace D3D12MA
 namespace TDEngine2
 {
 	class CD3D12GraphicsContext;
+	class CD3D12GraphicsObjectManager;
 	class IVertexDeclaration;
 
 
@@ -231,12 +234,9 @@ namespace TDEngine2
 
 			void Unbind() override;
 
-			//VkPipelineShaderStageCreateInfo GetPipelineShaderStage(E_SHADER_STAGE_TYPE stageType) const;
-			//VkPipelineShaderStageCreateInfo* GetStages();
-			//U32 GetStagesCount() const;
+			const D3D12_SHADER_BYTECODE& GetPipelineShaderStage(E_SHADER_STAGE_TYPE stageType) const;
 
-			//const VkPipelineLayout GetPipelineLayout() const;
-			//const VkDescriptorSetLayout GetDescriptorSetLayout() const;
+			ComPtr<ID3D12RootSignature> GetRootSignature() const;
 
 			const TD3D12PipelineLayoutInfo& GetLayoutInfo() const;
 		protected:
@@ -244,15 +244,12 @@ namespace TDEngine2
 
 			E_RESULT_CODE _createInternalHandlers(const TShaderCompilerOutput* pCompilerData) override;
 			E_RESULT_CODE _createUniformBuffers(const TShaderCompilerOutput* pCompilerData);
+			E_RESULT_CODE _createRootSignature(const TShaderCompilerOutput* pCompilerData);
 
 		protected:
-			/*std::array<VkShaderModule, SST_NONE>                  mShaderStageModules;
-			std::array<VkPipelineShaderStageCreateInfo, SST_NONE> mPipelineShaderStagesInfo;
-			VkDevice                                              mDevice = VK_NULL_HANDLE;
-			VkPipelineLayout                                      mPipelineLayout = VK_NULL_HANDLE;
-			VkDescriptorSetLayout                                 mDescriptorsSetLayout = VK_NULL_HANDLE;*/
-
-			TD3D12PipelineLayoutInfo                             mLayoutInfo{};
+			std::array<D3D12_SHADER_BYTECODE, SST_NONE>  mStagesBytecode {};
+			ComPtr<ID3D12RootSignature>                  mpRootSignature = nullptr;
+			TD3D12PipelineLayoutInfo                     mLayoutInfo{};
 	};
 
 
@@ -335,6 +332,69 @@ namespace TDEngine2
 	*/
 
 	IVertexDeclaration* CreateD3D12VertexDeclaration(E_RESULT_CODE& result);
+
+
+	class CD3D12BasePipeline : public virtual IPipeline
+	{
+		public:
+			virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext);
+
+			//virtual VkPipelineLayout GetPipelineLayout() const;
+			virtual const TD3D12PipelineLayoutInfo& GetLayoutInfo() const;
+
+			virtual ComPtr<ID3D12PipelineState> GetNativePSO() const;
+			virtual ID3D12RootSignature* GetRootSignature() const;
+			virtual U32 GetHash() const;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D12BasePipeline)
+		protected:
+			CD3D12GraphicsObjectManager* mpD3D12GraphicsObjectManagerImpl = nullptr;
+			CD3D12GraphicsContext*       mpD3D12GraphicsContext = nullptr;
+
+			ComPtr<ID3D12PipelineState>  mpPipelineStateObject = nullptr;
+			ComPtr<ID3D12RootSignature>  mpCachedRootSignature = nullptr;
+
+			TD3D12PipelineLayoutInfo     mLayoutInfo{};
+			U32                          mConfigHash = 0;
+	};
+
+	TDE2_API IGraphicsPipeline* CreateD3D12GraphicsPipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig, E_RESULT_CODE& result);
+	TDE2_API IComputePipeline* CreateD3D12ComputePipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const std::string& shaderId, E_RESULT_CODE& result);
+
+
+	/*!
+		\brief CD3D12GraphicsPipeline's definition
+	*/
+
+	class CD3D12GraphicsPipeline : public CBaseGraphicsPipeline, public CD3D12BasePipeline
+	{
+		public:
+			TDE2_API friend IGraphicsPipeline* CreateD3D12GraphicsPipeline(IGraphicsContext*, IResourceManager*, const TGraphicsPipelineConfigDesc&, E_RESULT_CODE&);
+		public:
+			E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig) override;
+			E_RESULT_CODE Bind() override;
+
+			ComPtr<ID3D12PipelineState> GetPipelineForRenderPass(const TRenderPassInfo& renderPassInfo);
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D12GraphicsPipeline)
+	};
+
+
+	/*!
+		\brief CD3D12ComputePipeline's definition
+	*/
+
+	class CD3D12ComputePipeline : public CBaseComputePipeline, public CD3D12BasePipeline
+	{
+		public:
+			TDE2_API friend IComputePipeline* CreateD3D12ComputePipeline(IGraphicsContext*, IResourceManager*, const std::string&, E_RESULT_CODE&);
+		public:
+			E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const std::string& shaderId) override;
+			E_RESULT_CODE Bind() override;
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D12ComputePipeline)
+		private:
+	};
 }
 
 #endif

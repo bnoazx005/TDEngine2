@@ -7,6 +7,7 @@
 #include <core/CBaseObject.h>
 #include <core/IWindowSystem.h>
 #include <editor/CPerfProfiler.h>
+#include <utils/CContainers.h>
 #include <tuple>
 
 
@@ -70,7 +71,7 @@ namespace TDEngine2
 #endif
 
 
-	static TResult<std::tuple<ComPtr<ID3D12Device>, ComPtr<IDXGIAdapter1>>> InitPhysicalDevice(ComPtr<IDXGIFactory4> pFactory, D3D_FEATURE_LEVEL& selectedFeatureLevel)
+	static TResult<std::tuple<ComPtr<ID3D12Device5>, ComPtr<IDXGIAdapter1>>> InitPhysicalDevice(ComPtr<IDXGIFactory4> pFactory, D3D_FEATURE_LEVEL& selectedFeatureLevel)
 	{
 		TDE2_PROFILER_SCOPE("D3D12CreateDevice");
 
@@ -84,7 +85,7 @@ namespace TDEngine2
 		};
 
 		ComPtr<IDXGIAdapter1> pAdapter = nullptr;
-		ComPtr<ID3D12Device> p3dDevice = nullptr;
+		ComPtr<ID3D12Device5> p3dDevice = nullptr;
 
 		for (UINT i = 0; pFactory->EnumAdapters1(i, pAdapter.GetAddressOf()) != DXGI_ERROR_NOT_FOUND; ++i)
 		{
@@ -102,16 +103,16 @@ namespace TDEngine2
 				if (SUCCEEDED(D3D12CreateDevice(pAdapter.Get(), currFeatureLevel, IID_PPV_ARGS(&p3dDevice))))
 				{
 					selectedFeatureLevel = currFeatureLevel;
-					return Wrench::TOkValue<std::tuple<ComPtr<ID3D12Device>, ComPtr<IDXGIAdapter1>>>({ p3dDevice, pAdapter });
+					return Wrench::TOkValue<std::tuple<ComPtr<ID3D12Device5>, ComPtr<IDXGIAdapter1>>>({ p3dDevice, pAdapter });
 				}
 			}
 		}
 
-		return Wrench::TOkValue<std::tuple<ComPtr<ID3D12Device>, ComPtr<IDXGIAdapter1>>>({ nullptr, nullptr });
+		return Wrench::TOkValue<std::tuple<ComPtr<ID3D12Device5>, ComPtr<IDXGIAdapter1>>>({ nullptr, nullptr });
 	}
 
 
-	static TResult<ComPtr<ID3D12CommandQueue>> CreateCommandQueue(ComPtr<ID3D12Device> p3dDevice)
+	static TResult<ComPtr<ID3D12CommandQueue>> CreateCommandQueue(ComPtr<ID3D12Device5> p3dDevice)
 	{
 		ComPtr<ID3D12CommandQueue> pCommandQueue = nullptr;
 
@@ -128,7 +129,7 @@ namespace TDEngine2
 	}
 
 
-	static TResult<ComPtr<ID3D12CommandAllocator>> CreateCommandAllocator(ComPtr<ID3D12Device> p3dDevice)
+	static TResult<ComPtr<ID3D12CommandAllocator>> CreateCommandAllocator(ComPtr<ID3D12Device5> p3dDevice)
 	{
 		ComPtr<ID3D12CommandAllocator> pCommandAllocator = nullptr;
 
@@ -141,7 +142,7 @@ namespace TDEngine2
 	}
 
 
-	static TResult<ComPtr<ID3D12GraphicsCommandList>> CreateCommandList(ComPtr<ID3D12Device> p3dDevice, ComPtr<ID3D12CommandAllocator> pCommandAllocator)
+	static TResult<ComPtr<ID3D12GraphicsCommandList>> CreateCommandList(ComPtr<ID3D12Device5> p3dDevice, ComPtr<ID3D12CommandAllocator> pCommandAllocator)
 	{
 		ComPtr<ID3D12GraphicsCommandList> pCommandList = nullptr;
 
@@ -156,7 +157,7 @@ namespace TDEngine2
 	}
 
 
-	static TResult<ComPtr<D3D12MA::Allocator>> CreateMemoryAllocator(ComPtr<ID3D12Device> p3dDevice, ComPtr<IDXGIAdapter1> pAdapter)
+	static TResult<ComPtr<D3D12MA::Allocator>> CreateMemoryAllocator(ComPtr<ID3D12Device5> p3dDevice, ComPtr<IDXGIAdapter1> pAdapter)
 	{
 		D3D12MA::ALLOCATOR_DESC allocatorDesc {};
 		allocatorDesc.pDevice  = p3dDevice.Get();
@@ -217,7 +218,7 @@ namespace TDEngine2
 			//E_RESULT_CODE SubmitCommands(TPtr<CD3D12CommandBuffer> pCommandBuffer, VkSemaphore waitSemaphore = VK_NULL_HANDLE, VkSemaphore signalSemaphore = VK_NULL_HANDLE, VkFence fence = VK_NULL_HANDLE);
 			void WaitForIdle();
 
-			ComPtr<ID3D12Device> GetDevice() const { return mp3dDevice; }
+			ComPtr<ID3D12Device5> GetDevice() const { return mp3dDevice; }
 			//const VkPhysicalDevice GetPhysicalDevice() const { return mPhysicalDevice; }
 			//const VkDevice GetDevice() const { return mDevice; }
 			//const VkSurfaceKHR GetSwapchainSurface() const { return mSwapChainSurface; }
@@ -228,23 +229,25 @@ namespace TDEngine2
 			ComPtr<IDXGIFactory4> GetFactory() { return mpObjectsFactory; }
 
 			ComPtr<D3D12MA::Allocator> GetMemoryAllocator() const { return mpMemoryAllocator; }
+
+			TPtr<ID3D12CPUDescriptorsAllocator> GetDescriptorsAllocator(D3D12_DESCRIPTOR_HEAP_TYPE heapType) const;
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D12DeviceContext)
 
 			E_RESULT_CODE _onFreeInternal() override;
 		private:
-			TPtr<IWindowSystem>         mpWindowSystem = nullptr;
+			TPtr<IWindowSystem>            mpWindowSystem = nullptr;
 
-			D3D_FEATURE_LEVEL           mCurrFeatureLevel = D3D_FEATURE_LEVEL_12_2;
-			ComPtr<ID3D12Device>        mp3dDevice = nullptr;
-			ComPtr<IDXGIAdapter1>       mpAdapter = nullptr;
+			D3D_FEATURE_LEVEL              mCurrFeatureLevel = D3D_FEATURE_LEVEL_12_2;
+			ComPtr<ID3D12Device5>          mp3dDevice = nullptr;
+			ComPtr<IDXGIAdapter1>          mpAdapter = nullptr;
 									    
 #if TDE2_DEBUG_MODE					    
-			ComPtr<ID3D12Debug1>        mpDebugController = nullptr;
-			ComPtr<ID3D12DebugDevice>   mpDebugDevice = nullptr;
+			ComPtr<ID3D12Debug1>           mpDebugController = nullptr;
+			ComPtr<ID3D12DebugDevice>      mpDebugDevice = nullptr;
 #endif								    
 			    
-			ComPtr<D3D12MA::Allocator>  mpMemoryAllocator = nullptr;
+			ComPtr<D3D12MA::Allocator>     mpMemoryAllocator = nullptr;
 
 	//		VkInstance                  mInstance = VK_NULL_HANDLE;
 	//		VkPhysicalDevice            mPhysicalDevice = VK_NULL_HANDLE;
@@ -252,14 +255,18 @@ namespace TDEngine2
 
 	//		VkSurfaceKHR                mSwapChainSurface = VK_NULL_HANDLE;
 
-			ComPtr<IDXGIFactory4>       mpObjectsFactory = nullptr;
+			ComPtr<IDXGIFactory4>          mpObjectsFactory = nullptr;
 
 			// queues
-			ComPtr<ID3D12CommandQueue>  mpCommandQueue = nullptr;
+			ComPtr<ID3D12CommandQueue>     mpCommandQueue = nullptr;
+			CD3D12Fence                    mCommandQueueFence{};
+
 	//		VkQueue                     mGraphicsQueue = VK_NULL_HANDLE;
 	//		VkQueue                     mPresentQueue = VK_NULL_HANDLE;
 
 	//		TQueuesCreateInfo           mQueuesInfo{};
+
+			TDescriptorHeapsTable          mpDescriptorHeapsTable{};
 	};
 
 
@@ -761,12 +768,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D12Swapchain::Present()
 	{
-		if (FAILED(mpSwapChain->Present(static_cast<UINT>(mIsVSyncEnabled), 0)))
-		{
-			return RC_FAIL;
-		}
-
-		return RC_OK;
+		return SUCCEEDED(mpSwapChain->Present(static_cast<UINT>(mIsVSyncEnabled), 0)) ? RC_OK : RC_FAIL;
 	}
 
 	E_RESULT_CODE CD3D12Swapchain::TryProcessInvalidateState()
@@ -820,7 +822,7 @@ namespace TDEngine2
 		rtvHeapDesc.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 		rtvHeapDesc.Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
-		ComPtr<ID3D12Device> p3dDevice = mpDeviceContext->GetDevice();
+		ComPtr<ID3D12Device5> p3dDevice = mpDeviceContext->GetDevice();
 
 		if (FAILED(p3dDevice->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&mpRenderTargetViewsHeap))))
 		{
@@ -881,19 +883,29 @@ namespace TDEngine2
 
 			E_RESULT_CODE Reset();
 
-			ComPtr<ID3D12GraphicsCommandList> GetHandle() const { return mpCommandList; }
-			const CD3D12Fence& GetFenceEntry() const { return mFenceEntry; }
+			ComPtr<ID3D12GraphicsCommandList4> GetHandle() const 
+			{
+#if TDE2_DEBUG_MODE
+				TDE2_ASSERT(mIsRecordStateActive);
+#endif
+				return mpCommandList; 
+			}
+			CD3D12Fence& GetFenceEntry() { return mFenceEntry; }
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D12CommandBuffer)
 
 			E_RESULT_CODE _onFreeInternal() override;
 		private:
-			CD3D12DeviceContext*              mpDeviceContext = nullptr;
+			CD3D12DeviceContext*               mpDeviceContext = nullptr;
 
-			ComPtr<ID3D12CommandAllocator>    mpCommandListAllocator = nullptr;
-			ComPtr<ID3D12GraphicsCommandList> mpCommandList = nullptr;
+			ComPtr<ID3D12CommandAllocator>     mpCommandListAllocator = nullptr;
+			ComPtr<ID3D12GraphicsCommandList4> mpCommandList = nullptr;
 
-			CD3D12Fence                       mFenceEntry;
+			CD3D12Fence                        mFenceEntry{};
+
+#if TDE2_DEBUG_MODE
+			bool                               mIsRecordStateActive = false;
+#endif
 	};
 
 
@@ -910,7 +922,7 @@ namespace TDEngine2
 	{
 		mpDeviceContext = pDeviceContext;
 
-		ComPtr<ID3D12Device> p3dDevice = pDeviceContext->GetDevice();
+		ComPtr<ID3D12Device5> p3dDevice = pDeviceContext->GetDevice();
 
 		if (FAILED(p3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&mpCommandListAllocator))))
 		{
@@ -1485,6 +1497,8 @@ namespace TDEngine2
 
 	void CD3D12GraphicsContext::Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices)
 	{
+		_preparePipelineState();
+
 		ComPtr<ID3D12GraphicsCommandList> pCurrCommandBuffer = _getCurrCommandListPtr();
 
 		pCurrCommandBuffer->IASetPrimitiveTopology(CD3D12Mappings::GetPrimitiveTopology(topology));
@@ -1493,6 +1507,8 @@ namespace TDEngine2
 
 	void CD3D12GraphicsContext::DrawIndexed(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, U32 baseVertex, U32 startIndex, U32 numOfIndices)
 	{
+		_preparePipelineState();
+
 		ComPtr<ID3D12GraphicsCommandList> pCurrCommandBuffer = _getCurrCommandListPtr();
 
 		pCurrCommandBuffer->IASetPrimitiveTopology(CD3D12Mappings::GetPrimitiveTopology(topology));
@@ -1501,6 +1517,8 @@ namespace TDEngine2
 
 	void CD3D12GraphicsContext::DrawInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 verticesPerInstance, U32 startInstance, U32 numOfInstances)
 	{
+		_preparePipelineState();
+
 		ComPtr<ID3D12GraphicsCommandList> pCurrCommandBuffer = _getCurrCommandListPtr();
 
 		pCurrCommandBuffer->IASetPrimitiveTopology(CD3D12Mappings::GetPrimitiveTopology(topology));
@@ -1510,6 +1528,8 @@ namespace TDEngine2
 	void CD3D12GraphicsContext::DrawIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, U32 baseVertex, U32 startIndex,
 		U32 startInstance, U32 indicesPerInstance, U32 numOfInstances)
 	{
+		_preparePipelineState();
+
 		ComPtr<ID3D12GraphicsCommandList> pCurrCommandBuffer = _getCurrCommandListPtr();
 
 		pCurrCommandBuffer->IASetPrimitiveTopology(CD3D12Mappings::GetPrimitiveTopology(topology));
@@ -1518,6 +1538,8 @@ namespace TDEngine2
 
 	void CD3D12GraphicsContext::DrawIndirectInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, TBufferHandleId argsBufferHandle, U32 alignedOffset)
 	{
+		_preparePipelineState();
+
 		ComPtr<ID3D12GraphicsCommandList> pCurrCommandBuffer = _getCurrCommandListPtr();
 
 		pCurrCommandBuffer->IASetPrimitiveTopology(CD3D12Mappings::GetPrimitiveTopology(topology));
@@ -1528,6 +1550,8 @@ namespace TDEngine2
 
 	void CD3D12GraphicsContext::DrawIndirectIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, TBufferHandleId argsBufferHandle, U32 alignedOffset)
 	{
+		_preparePipelineState();
+
 		ComPtr<ID3D12GraphicsCommandList> pCurrCommandBuffer = _getCurrCommandListPtr();
 
 		pCurrCommandBuffer->IASetPrimitiveTopology(CD3D12Mappings::GetPrimitiveTopology(topology));
@@ -1538,6 +1562,8 @@ namespace TDEngine2
 
 	void CD3D12GraphicsContext::DispatchCompute(U32 groupsCountX, U32 groupsCountY, U32 groupsCountZ)
 	{
+		_preparePipelineState();
+
 		TDE2_PROFILER_SCOPE("CD3D12GraphicsContext::DispatchCompute");
 
 		ComPtr<ID3D12GraphicsCommandList> pCurrCommandBuffer = _getCurrCommandListPtr();
@@ -1547,10 +1573,55 @@ namespace TDEngine2
 
 	void CD3D12GraphicsContext::DispatchIndirectCompute(TBufferHandleId argsBufferHandle, U32 alignedOffset)
 	{
+		_preparePipelineState();
+
 		TDE2_PROFILER_SCOPE("CD3D12GraphicsContext::DispatchIndirectCompute");
 
 		//auto pArgsBuffer = mpGraphicsObjectManagerD3D11Impl->GetD3D11BufferPtr(argsBufferHandle);
 		//mp3dDeviceContext->DispatchIndirect(pArgsBuffer ? pArgsBuffer->GetD3D11Buffer() : nullptr, alignedOffset);
+	}
+
+	E_RESULT_CODE CD3D12GraphicsContext::BindPipelineState(CD3D12BasePipeline* pPipeline)
+	{
+		const bool isGraphicsPipeline = E_PIPELINE_TYPE::GRAPHICS == pPipeline->GetType();
+
+		if (isGraphicsPipeline)
+		{
+			TDE2_ASSERT(mIsRenderPassActive);
+		}
+
+		mpActivePipelineStates[mpSwapchain->GetBackBufferTargetIndex()] = pPipeline;
+
+		ComPtr<ID3D12PipelineState> pPSO = nullptr;
+		ID3D12GraphicsCommandList4* pCurrCommandList = _getCurrCommandListPtr();
+
+		if (isGraphicsPipeline)
+		{
+			pCurrCommandList->SetGraphicsRootSignature(pPipeline->GetRootSignature());
+
+			const U64 pipelineHash = isGraphicsPipeline ? (static_cast<U64>(ComputeStateDescHash(mCurrRenderPassInfo)) << 32) | pPipeline->GetHash() : pPipeline->GetHash();
+			
+			auto&& it = mCachedPipelinesLibrary.find(pipelineHash);
+			if (it == mCachedPipelinesLibrary.cend())
+			{
+				pPSO = dynamic_cast<CD3D12GraphicsPipeline*>(pPipeline)->GetPipelineForRenderPass(mCurrRenderPassInfo);
+				mCachedPipelinesLibrary[pipelineHash] = pPSO;
+			}
+			else
+			{
+				pPSO = it->second;
+			}
+		}
+		else
+		{
+			pCurrCommandList->SetComputeRootSignature(pPipeline->GetRootSignature());
+			pPSO = pPipeline->GetNativePSO();
+		}
+
+		TDE2_ASSERT(pPSO);
+		pCurrCommandList->SetPipelineState(pPSO.Get());
+
+		return RC_OK;
 	}
 
 	void CD3D12GraphicsContext::BindBlendState(TBlendStateId blendStateId)
@@ -1650,14 +1721,16 @@ namespace TDEngine2
 		return mpWindowSystem;
 	}
 
-	std::vector<U8> CD3D12GraphicsContext::GetBackBufferData() const
+	Vector<U8> CD3D12GraphicsContext::GetBackBufferData() const
 	{
-		std::vector<U8> backBufferData;
+		Vector<U8> backBufferData;
+
+		TDE2_UNIMPLEMENTED();
 
 		return std::move(backBufferData);
 	}
 
-	ID3D12Device* CD3D12GraphicsContext::GetDeviceContext() const
+	ID3D12Device5* CD3D12GraphicsContext::GetDeviceContext() const
 	{
 		return mpDeviceContext->GetDevice().Get();
 	}

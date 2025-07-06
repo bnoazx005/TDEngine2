@@ -307,17 +307,13 @@ namespace TDEngine2
 	TPtr<IGraphicsPipeline> CD3D12GraphicsObjectManager::_createGraphicsPipelineInternal(IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfigDesc)
 	{
 		E_RESULT_CODE result = RC_OK;
-		TDE2_UNIMPLEMENTED();
-		return nullptr;
-		//return TPtr<IGraphicsPipeline>(CreateD3D12GraphicsPipeline(mpGraphicsContext, pResourceManager, pipelineConfigDesc, result));
+		return TPtr<IGraphicsPipeline>(CreateD3D12GraphicsPipeline(mpGraphicsContext, pResourceManager, pipelineConfigDesc, result));
 	}
 
 	TPtr<IComputePipeline> CD3D12GraphicsObjectManager::_createComputePipelineInternal(IResourceManager* pResourceManager, const std::string& shaderId)
 	{
 		E_RESULT_CODE result = RC_OK;
-		TDE2_UNIMPLEMENTED();
-		return nullptr;
-		//return TPtr<IComputePipeline>(CreateD3D12ComputePipeline(mpGraphicsContext, pResourceManager, shaderId, result));
+		return TPtr<IComputePipeline>(CreateD3D12ComputePipeline(mpGraphicsContext, pResourceManager, shaderId, result));
 	}
 
 	E_RESULT_CODE CD3D12GraphicsObjectManager::_freeTextureSamplers()

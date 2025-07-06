@@ -1,14 +1,21 @@
 #include "../include/CD3D12Resources.h"
 #include "../include/CD3D12GraphicsContext.h"
 #include "../include/CD3D12Mappings.h"
+#include "../include/CD3D12GraphicsObjectManager.h"
 #include "../deps/D3D12MemAlloc/D3D12MemAlloc.h"
 #include <graphics/CBaseTexture2D.h>
 #include <graphics/IGraphicsObjectManager.h>
 #include <graphics/IShader.h>
 #include <graphics/CVertexDeclaration.h>
+#include <utils/CFileLogger.h>
+#define DEFER_IMPLEMENTATION
+#include "deferOperation.hpp"
+#include <unordered_set>
 
 
 #if defined(TDE2_USE_WINPLATFORM) /// Used only on Windows platform
+
+#include "../deps/dx12/d3dx12_root_signature.h"
 
 
 namespace TDEngine2
@@ -331,51 +338,27 @@ namespace TDEngine2
 	E_RESULT_CODE CD3D12Shader::Reset()
 	{
 		mIsInitialized = false;
-
-		E_RESULT_CODE result = RC_OK;
-
-		/*for (auto& currShaderModule : mShaderStageModules)
-		{
-			vkDestroyShaderModule(mDevice, currShaderModule, nullptr);
-		}*/
-
 		return RC_OK;
 	}
 
 	void CD3D12Shader::Bind()
 	{
 		CBaseShader::Bind();
-
 	}
 
 	void CD3D12Shader::Unbind()
 	{
 	}
 
-	//VkPipelineShaderStageCreateInfo CD3D12Shader::GetPipelineShaderStage(E_SHADER_STAGE_TYPE stageType) const
-	//{
-	//	return mPipelineShaderStagesInfo[stageType];
-	//}
+	const D3D12_SHADER_BYTECODE& CD3D12Shader::GetPipelineShaderStage(E_SHADER_STAGE_TYPE stageType) const
+	{
+		return mStagesBytecode[static_cast<U32>(stageType)];
+	}
 
-	//VkPipelineShaderStageCreateInfo* CD3D12Shader::GetStages()
-	//{
-	//	return mPipelineShaderStagesInfo.data();
-	//}
-
-	//U32 CD3D12Shader::GetStagesCount() const
-	//{
-	//	return static_cast<U32>(std::count_if(mPipelineShaderStagesInfo.cbegin(), mPipelineShaderStagesInfo.cend(), [](const VkPipelineShaderStageCreateInfo& info) { return info.sType == VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO; }));
-	//}
-
-	//const VkPipelineLayout CD3D12Shader::GetPipelineLayout() const
-	//{
-	//	return mPipelineLayout;
-	//}
-
-	//const VkDescriptorSetLayout CD3D12Shader::GetDescriptorSetLayout() const
-	//{
-	//	return mDescriptorsSetLayout;
-	//}
+	ComPtr<ID3D12RootSignature> CD3D12Shader::GetRootSignature() const
+	{
+		return mpRootSignature;
+	}
 
 	const TD3D12PipelineLayoutInfo& CD3D12Shader::GetLayoutInfo() const
 	{
@@ -392,25 +375,19 @@ namespace TDEngine2
 		CD3D12GraphicsContext* pD3D12ImplContext = dynamic_cast<CD3D12GraphicsContext*>(mpGraphicsContext);
 		TDE2_ASSERT(pD3D12ImplContext);
 
-		/*mDevice = pD3D12ImplContext->GetDevice();
-
 		for (U32 stageIndex = SST_VERTEX; stageIndex < SST_NONE; stageIndex++)
 		{
-			auto creationResult = CreateShaderModule(mDevice, static_cast<E_SHADER_STAGE_TYPE>(stageIndex), pCompilerData);
-			if (creationResult.HasError())
-			{
-				return creationResult.GetError();
-			}
+			D3D12_SHADER_BYTECODE& currBytecodeEntity = mStagesBytecode[stageIndex];
 
-			mShaderStageModules[stageIndex] = creationResult.Get();
-
-			if (VK_NULL_HANDLE == mShaderStageModules[stageIndex])
+			auto&& it = pCompilerData->mStagesInfo.find(static_cast<E_SHADER_STAGE_TYPE>(stageIndex));
+			if (it == pCompilerData->mStagesInfo.cend())
 			{
 				continue;
 			}
 
-			mPipelineShaderStagesInfo[stageIndex] = CreatePipelineShaderStageInfo(mDevice, static_cast<E_SHADER_STAGE_TYPE>(stageIndex), mShaderStageModules[stageIndex], pCompilerData);
-		}*/
+			currBytecodeEntity.pShaderBytecode = it->second.mBytecode.data();
+			currBytecodeEntity.BytecodeLength  = it->second.mBytecode.size();
+		}
 
 		return _createUniformBuffers(pCompilerData);
 	}
@@ -1007,6 +984,248 @@ namespace TDEngine2
 	IVertexDeclaration* CreateD3D12VertexDeclaration(E_RESULT_CODE& result)
 	{
 		return CREATE_IMPL(IVertexDeclaration, CD3D12VertexDeclaration, result);
+	}
+
+
+	/*!
+		\brief CD3D12BasePipeline's definition
+	*/
+
+	CD3D12BasePipeline::CD3D12BasePipeline()
+	{
+	}
+
+	E_RESULT_CODE CD3D12BasePipeline::Init(IGraphicsContext* pGraphicsContext)
+	{
+		mpD3D12GraphicsContext = dynamic_cast<CD3D12GraphicsContext*>(pGraphicsContext);
+		mpD3D12GraphicsObjectManagerImpl = dynamic_cast<CD3D12GraphicsObjectManager*>(mpD3D12GraphicsContext->GetGraphicsObjectManager());
+
+		return RC_OK;
+	}
+
+	const TD3D12PipelineLayoutInfo& CD3D12BasePipeline::GetLayoutInfo() const
+	{
+		return mLayoutInfo;
+	}
+	
+	ComPtr<ID3D12PipelineState> CD3D12BasePipeline::GetNativePSO() const
+	{
+		return mpPipelineStateObject;
+	}
+
+	ID3D12RootSignature* CD3D12BasePipeline::GetRootSignature() const
+	{
+		return mpCachedRootSignature.Get();
+	}
+
+	U32 CD3D12BasePipeline::GetHash() const
+	{
+		return mConfigHash;
+	}
+
+
+	CD3D12GraphicsPipeline::CD3D12GraphicsPipeline() :
+		CBaseGraphicsPipeline()
+	{
+	}
+
+	E_RESULT_CODE CD3D12GraphicsPipeline::Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig)
+	{
+		E_RESULT_CODE result = CBaseGraphicsPipeline::Init(pGraphicsContext, pResourceManager, pipelineConfig);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		result = CD3D12BasePipeline::Init(pGraphicsContext);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		mpPipelineStateObject = nullptr;
+
+		const TResourceId shaderHandle = pResourceManager->Load<IShader>(pipelineConfig.mShaderIdStr);
+		if (TResourceId::Invalid == shaderHandle)
+		{
+			return RC_FAIL;
+		}
+
+		if (TPtr<CD3D12Shader> pShader = pResourceManager->GetResource<CD3D12Shader>(shaderHandle))
+		{
+			mpCachedRootSignature = pShader->GetRootSignature();
+			mLayoutInfo           = pShader->GetLayoutInfo();
+		}
+
+		mConfigHash = ComputeStateDescHash(mConfig);
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D12GraphicsPipeline::Bind()
+	{
+		if (!mpGraphicsObjectManager)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = CBaseGraphicsPipeline::Bind();
+		result = result | mpD3D12GraphicsContext->BindPipelineState(this);
+
+		return result;
+	}
+
+
+	static D3D12_PRIMITIVE_TOPOLOGY_TYPE GetPrimitiveTopologyType(E_PRIMITIVE_TOPOLOGY_TYPE topologyType)
+	{
+		switch (topologyType)
+		{
+			case E_PRIMITIVE_TOPOLOGY_TYPE::PTT_POINT_LIST:
+				return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+			case E_PRIMITIVE_TOPOLOGY_TYPE::PTT_LINE_LIST:
+				return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+			case E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST:
+			case E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_STRIP:
+			case E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_FAN:
+				return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		}
+
+		TDE2_UNREACHABLE();
+		return D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED;
+	}
+
+
+	ComPtr<ID3D12PipelineState> CD3D12GraphicsPipeline::GetPipelineForRenderPass(const TRenderPassInfo& renderPassInfo)
+	{
+		const TResourceId shaderHandle = mpResourceManager->Load<IShader>(mConfig.mShaderIdStr);
+		if (TResourceId::Invalid == shaderHandle)
+		{
+			return nullptr;
+		}
+
+		TPtr<CD3D12Shader> pShader = mpResourceManager->GetResource<CD3D12Shader>(shaderHandle);
+		if (!pShader)
+		{
+			return nullptr;
+		}
+
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
+		psoDesc.NumRenderTargets = 0;
+		
+		for (USIZE i = 0; i < renderPassInfo.mRenderTargetFormats.size(); ++i)
+		{
+			if (E_FORMAT_TYPE::FT_UNKNOWN == renderPassInfo.mRenderTargetFormats[i])
+			{
+				break;
+			}
+
+			psoDesc.RTVFormats[i] = CD3D12Mappings::GetDXGIFormat(renderPassInfo.mRenderTargetFormats[i]);
+			++psoDesc.NumRenderTargets;
+		}
+
+		psoDesc.pRootSignature        = pShader->GetRootSignature().Get();
+		psoDesc.VS                    = pShader->GetPipelineShaderStage(E_SHADER_STAGE_TYPE::SST_VERTEX);
+		psoDesc.GS                    = pShader->GetPipelineShaderStage(E_SHADER_STAGE_TYPE::SST_GEOMETRY);
+		psoDesc.PS                    = pShader->GetPipelineShaderStage(E_SHADER_STAGE_TYPE::SST_PIXEL);
+		psoDesc.PrimitiveTopologyType = GetPrimitiveTopologyType(mConfig.mTopology);
+		psoDesc.DepthStencilState     = CD3D12Mappings::GetDepthStencilState(mConfig.mDepthStencilStateParams);
+		psoDesc.BlendState            = CD3D12Mappings::GetBlendState(mConfig.mBlendStateParams);
+		psoDesc.RasterizerState       = CD3D12Mappings::GetRasterizerState(mConfig.mRasterizerStateParams);
+		psoDesc.SampleDesc.Count      = 1;
+		psoDesc.SampleMask            = 0xffffffff;
+
+		ComPtr<ID3D12PipelineState> pPSO = nullptr;
+
+		if (FAILED(mpD3D12GraphicsContext->GetDeviceContext()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pPSO))))
+		{
+			TDE2_ASSERT_MSG(false, "[CD3D12GraphicsPipeline] PSO creation has failed");
+		}
+
+		return pPSO;
+	}
+
+	TDE2_DEFINE_SCOPED_PTR(CD3D12GraphicsPipeline);
+
+
+	IGraphicsPipeline* CreateD3D12GraphicsPipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& config, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IGraphicsPipeline, CD3D12GraphicsPipeline, result, pGraphicsContext, pResourceManager, config);
+	}
+
+
+	/*!
+		\brief CD3D12ComputePipeline's definition
+	*/
+
+	CD3D12ComputePipeline::CD3D12ComputePipeline() :
+		CBaseComputePipeline()
+	{
+	}
+
+	E_RESULT_CODE CD3D12ComputePipeline::Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const std::string& shaderId)
+	{
+		E_RESULT_CODE result = CBaseComputePipeline::Init(pGraphicsContext, pResourceManager, shaderId);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		result = CD3D12BasePipeline::Init(pGraphicsContext);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		const TResourceId shaderHandle = pResourceManager->Load<IShader>(shaderId);
+		if (TResourceId::Invalid == shaderHandle)
+		{
+			return RC_FAIL;
+		}
+
+		TPtr<CD3D12Shader> pShader = pResourceManager->GetResource<CD3D12Shader>(shaderHandle);
+		if (!pShader)
+		{
+			return RC_FAIL;
+		}
+
+		D3D12_COMPUTE_PIPELINE_STATE_DESC computePsoDesc{};
+		computePsoDesc.pRootSignature = pShader->GetRootSignature().Get();
+		computePsoDesc.CS             = pShader->GetPipelineShaderStage(E_SHADER_STAGE_TYPE::SST_COMPUTE);
+
+		if (FAILED(mpD3D12GraphicsContext->GetDeviceContext()->CreateComputePipelineState(&computePsoDesc, IID_PPV_ARGS(&mpPipelineStateObject))))
+		{
+			return RC_FAIL;
+		}
+
+		mConfigHash = TDE2_STRING_ID(mShaderIdStr.c_str());
+		mpCachedRootSignature = pShader->GetRootSignature();
+		mLayoutInfo           = pShader->GetLayoutInfo();
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D12ComputePipeline::Bind()
+	{
+		if (!mpGraphicsObjectManager)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = CBaseComputePipeline::Bind();
+		result = result | mpD3D12GraphicsContext->BindPipelineState(this);
+
+		return result;
+	}
+
+
+	TDE2_DEFINE_SCOPED_PTR(CD3D12ComputePipeline);
+
+
+	IComputePipeline* CreateD3D12ComputePipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const std::string& shaderId, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IComputePipeline, CD3D12ComputePipeline, result, pGraphicsContext, pResourceManager, shaderId);
 	}
 }
 
