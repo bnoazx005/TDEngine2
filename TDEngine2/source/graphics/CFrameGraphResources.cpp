@@ -119,6 +119,11 @@ namespace TDEngine2
 		transitionInfo.mCurrLayout = E_RESOURCE_LAYOUT::UNDEFINED;
 		transitionInfo.mNewLayout  = (E_STRUCTURED_BUFFER_TYPE::INDIRECT_DRAW_BUFFER == desc.mStructuredBufferType) ? E_RESOURCE_LAYOUT::INDIRECT_ARGS_BUFFER : E_RESOURCE_LAYOUT::UAV_RESOURCE;
 
+		if (!desc.mIsUnorderedAccessResource)
+		{
+			transitionInfo.mNewLayout = E_RESOURCE_LAYOUT::SHADER_RESOURCE;
+		}
+
 		pGraphicsObjectManager->GetGraphicsContext()->TransitionBarrier(transitionInfo);
 	}
 }
