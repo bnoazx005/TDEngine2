@@ -186,9 +186,14 @@ namespace TDEngine2
 		public:
 			CD3D12Fence() = default;
 			CD3D12Fence(CD3D12DeviceContext* pDeviceContext, U64 initialValue = 0);
+			CD3D12Fence(CD3D12Fence&& other) noexcept;
 			~CD3D12Fence();
 
-			void WaitForSignal();
+			U64 Signal();
+			void WaitForSignal(U64 signalValue);
+			void WaitForIdle();
+
+			CD3D12Fence& operator= (CD3D12Fence&& other) noexcept;
 		private:
 			CD3D12DeviceContext* mpDeviceContext = nullptr;
 			ComPtr<ID3D12Fence>  mpFence = nullptr;
@@ -283,33 +288,63 @@ namespace TDEngine2
 		}
 
 		mEventHandle = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-		if (!mEventHandle)
-		{
-			TDE2_ASSERT(false);
-		}
+		TDE2_ASSERT(INVALID_HANDLE_VALUE != mEventHandle);
+	}
+
+	CD3D12Fence::CD3D12Fence(CD3D12Fence&& other) noexcept:
+		mpDeviceContext(other.mpDeviceContext), mFenceValue(other.mFenceValue), mpFence(other.mpFence), mEventHandle(other.mEventHandle)
+	{
 	}
 
 	CD3D12Fence::~CD3D12Fence()
 	{
-		CloseHandle(mEventHandle);
+		if (mEventHandle)
+		{
+			CloseHandle(mEventHandle);
+		}
 	}
 
-	void CD3D12Fence::WaitForSignal()
+	U64 CD3D12Fence::Signal()
 	{
-		const UINT64 fenceValue = mFenceValue;
-
-		HRESULT result = mpDeviceContext->GetCommandQueue()->Signal(mpFence.Get(), fenceValue);
-		TDE2_ASSERT(SUCCEEDED(result));
-
 		++mFenceValue;
 
-		if (mpFence->GetCompletedValue() < fenceValue)
+		HRESULT result = mpDeviceContext->GetCommandQueue()->Signal(mpFence.Get(), mFenceValue);
+		TDE2_ASSERT(SUCCEEDED(result));
+
+		return mFenceValue;
+	}
+
+	void CD3D12Fence::WaitForSignal(U64 signalValue)
+	{
+		HRESULT result = S_OK;
+
+		if (mpFence->GetCompletedValue() < signalValue)
 		{
-			result = mpFence->SetEventOnCompletion(fenceValue, mEventHandle);
+			result = mpFence->SetEventOnCompletion(signalValue, mEventHandle);
 			TDE2_ASSERT(SUCCEEDED(result));
 
-			WaitForSingleObject(mEventHandle, INFINITE);
+			WaitForSingleObjectEx(mEventHandle, INFINITE, FALSE);
 		}
+	}
+
+	void CD3D12Fence::WaitForIdle()
+	{
+		WaitForSignal(Signal());
+	}
+
+	CD3D12Fence& CD3D12Fence::operator= (CD3D12Fence&& other) noexcept
+	{
+		mpDeviceContext = other.mpDeviceContext;
+		mFenceValue     = other.mFenceValue;
+		mpFence         = other.mpFence;
+		mEventHandle    = other.mEventHandle;
+
+		other.mpDeviceContext = nullptr;
+		other.mFenceValue     = 0;
+		other.mpFence         = nullptr;
+		other.mEventHandle    = nullptr;
+
+		return *this;
 	}
 
 
@@ -723,7 +758,7 @@ namespace TDEngine2
 			D3D12_CPU_DESCRIPTOR_HANDLE GetCurrRenderTargetView() const { return CD3DX12_CPU_DESCRIPTOR_HANDLE(mpRenderTargetViewsHeap->GetCPUDescriptorHandleForHeapStart(), GetBackBufferTargetIndex(), mRTVDescriptorSize); }
 			
 			ComPtr<ID3D12Resource> GetDefaultDepthStencilTarget() const { return mpDefaulDepthStencilTarget; }
-			//D3D12_CPU_DESCRIPTOR_HANDLE GetDefaultDepthStencilTargetView() const { return mpDefaulDepthStencilTarget; }
+			D3D12_CPU_DESCRIPTOR_HANDLE GetDefaultDepthStencilTargetView() const { return mDefaultDepthStencilDescriptor.mCPUHandle; }
 
 			E_FORMAT_TYPE GetBackBuffersFormat() const { return mBackBufferFormat; }
 
@@ -742,11 +777,14 @@ namespace TDEngine2
 			ComPtr<IDXGISwapChain3>      mpSwapChain = nullptr;
 			TRenderTargetsArray          mpRenderTargets;
 			ComPtr<ID3D12Resource>       mpDefaulDepthStencilTarget = nullptr;
+			D3D12MA::Allocation*         mpDefaultDepthStencilAllocation = nullptr;
 
 			E_FORMAT_TYPE                mBackBufferFormat = E_FORMAT_TYPE::FT_UNKNOWN;
 
 			ComPtr<ID3D12DescriptorHeap> mpRenderTargetViewsHeap = nullptr;
 			U32                          mRTVDescriptorSize = 0;
+
+			TD3D12ResourceDescriptor     mDefaultDepthStencilDescriptor{};
 
 			bool                         mIsVSyncEnabled = false;
 			bool                         mIsValid = true;
@@ -804,7 +842,7 @@ namespace TDEngine2
 		swapChainDesc.BufferUsage        = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		swapChainDesc.SwapEffect         = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 
-		mBackBufferFormat = (mpWindowSystem->GetFlags() & P_HARDWARE_GAMMA_CORRECTION) ? E_FORMAT_TYPE::FT_NORM_BYTE4_SRGB : E_FORMAT_TYPE::FT_UBYTE4_BGRA_UNORM;
+		mBackBufferFormat = (mpWindowSystem->GetFlags() & P_HARDWARE_GAMMA_CORRECTION) ? E_FORMAT_TYPE::FT_NORM_BYTE4_SRGB : E_FORMAT_TYPE::FT_NORM_BYTE4;
 
 		ComPtr<IDXGIFactory4> pFactory = mpDeviceContext->GetFactory();
 
@@ -840,9 +878,42 @@ namespace TDEngine2
 				return RC_FAIL;
 			}
 
+#if TDE2_DEBUG_MODE
+			std::string currBackBufferResourceId = "BackBuffer" + std::to_string(i);
+
+			mpRenderTargets[i]->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<U32>(currBackBufferResourceId.length()), currBackBufferResourceId.data());
+#endif
+
 			p3dDevice->CreateRenderTargetView(mpRenderTargets[i].Get(), nullptr, rtvHandle);
 			rtvHandle.ptr += mRTVDescriptorSize;
 		}
+
+		D3D12_RESOURCE_DESC textureDesc{};
+		textureDesc.Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		textureDesc.Width            = mpWindowSystem->GetWidth();
+		textureDesc.Height           = mpWindowSystem->GetHeight();
+		textureDesc.DepthOrArraySize = 1;
+		textureDesc.MipLevels        = 1;
+		textureDesc.SampleDesc.Count = 1;
+		textureDesc.Format           = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		textureDesc.Flags            = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+		D3D12MA::ALLOCATION_DESC allocationDesc{};
+		allocationDesc.HeapType = D3D12_HEAP_TYPE_DEFAULT;
+
+		if (FAILED(mpDeviceContext->GetMemoryAllocator()->CreateResource(&allocationDesc, &textureDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, &mpDefaultDepthStencilAllocation, IID_PPV_ARGS(&mpDefaulDepthStencilTarget))))
+		{
+			return RC_FAIL;
+		}
+
+		mDefaultDepthStencilDescriptor = mpDeviceContext->GetDescriptorsAllocator(D3D12_DESCRIPTOR_HEAP_TYPE_DSV)->AllocDescriptor();
+
+		D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc{};
+		depthStencilViewDesc.Format             = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthStencilViewDesc.ViewDimension      = D3D12_DSV_DIMENSION_TEXTURE2D;
+		depthStencilViewDesc.Texture2D.MipSlice = 0;
+
+		mpDeviceContext->GetDevice()->CreateDepthStencilView(mpDefaulDepthStencilTarget.Get(), &depthStencilViewDesc, mDefaultDepthStencilDescriptor.mCPUHandle);
 
 		mIsVSyncEnabled = mpWindowSystem->GetFlags() & P_VSYNC;
 
@@ -854,6 +925,12 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D12Swapchain::_onFreeInternal()
 	{
+		if (mpDefaultDepthStencilAllocation)
+		{
+			mpDefaultDepthStencilAllocation->Release();
+			mpDefaultDepthStencilAllocation = nullptr;
+		}
+
 		return RC_OK;
 	}
 
@@ -934,6 +1011,11 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		if (FAILED(mpCommandList->Close()))
+		{
+			return RC_FAIL;
+		}
+
 		mFenceEntry = mpDeviceContext->CreateFence();
 		
 		mIsInitialized = true;
@@ -943,11 +1025,17 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D12CommandBuffer::Begin()
 	{
+#if TDE2_DEBUG_MODE
+		mIsRecordStateActive = true;
+#endif
 		return Reset();
 	}
 
 	E_RESULT_CODE CD3D12CommandBuffer::End()
 	{
+#if TDE2_DEBUG_MODE
+		mIsRecordStateActive = false;
+#endif
 		return FAILED(mpCommandList->Close()) ? RC_FAIL : RC_OK;
 	}
 
@@ -1053,7 +1141,6 @@ namespace TDEngine2
 //		SetViewport(0.0f, 0.0f, static_cast<F32>(width), static_cast<F32>(height), 0.0f, 1.0f);
 //
 
-//
 		mpGraphicsObjectManager = TPtr<IGraphicsObjectManager>(CreateD3D12GraphicsObjectManager(this, result));
 		mpGraphicsObjectManagerD3D12Impl = dynamic_cast<CD3D12GraphicsObjectManager*>(mpGraphicsObjectManager.Get());
 
@@ -1082,7 +1169,36 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("CD3D12GraphicsContext::_onFreeInternal");
 
-		_waitForIdle();
+		mpDeviceContext->WaitForIdle();
+
+		std::fill(mpCommandBuffers.begin(), mpCommandBuffers.end(), nullptr);
+		std::fill(mpShaderResourcesDescriptorsHeaps.begin(), mpShaderResourcesDescriptorsHeaps.end(), nullptr);
+		std::fill(mpSamplersDescriptorsHeaps.begin(), mpSamplersDescriptorsHeaps.end(), nullptr);
+
+		mpGraphicsObjectManager          = nullptr;
+		mpGraphicsObjectManagerD3D12Impl = nullptr;
+
+		// \note Clean up is invoked only after all resources are freed in mpGraphicsObjectManager
+		for (TGarbageCollection& currGarbageCollection : mAwaitingDeletionObjects)
+		{
+			std::lock_guard<std::mutex> lock(mGarbageCollectorMutex);
+
+			for (auto& currGarbageEntity : currGarbageCollection)
+			{
+				if (!currGarbageEntity.mpAllocation)
+				{
+					continue;
+				}
+
+				currGarbageEntity.mpAllocation->Release();
+			}
+
+			currGarbageCollection.clear();
+		}
+
+		mpImmediateCommandBuffer = nullptr;
+		mpSwapchain              = nullptr;
+		mpDeviceContext          = nullptr;
 
 		return RC_OK;
 	}
@@ -1090,7 +1206,7 @@ namespace TDEngine2
 	void CD3D12GraphicsContext::_waitForIdle()
 	{
 		TDE2_PROFILER_SCOPE("CD3D12GraphicsContext::_waitForIdle");
-		
+				
 		/*const UINT64 fence = mCurrentFence;
 		HRESULT result = mpCommandQueue->Signal(mpFrameFence.Get(), fence);
 		TDE2_ASSERT(SUCCEEDED(result));
@@ -1108,22 +1224,30 @@ namespace TDEngine2
 		mCurrBackBufferIndex = mpSwapChain->GetCurrentBackBufferIndex();*/
 	}
 
-	ID3D12GraphicsCommandList* CD3D12GraphicsContext::_getCurrCommandListPtr()
+	void CD3D12GraphicsContext::_preparePipelineState()
+	{
+		TDE2_PROFILER_SCOPE("CD3D12GraphicsContext::_preparePipelineState");
+
+
+	}
+
+	ID3D12GraphicsCommandList4* CD3D12GraphicsContext::_getCurrCommandListPtr()
 	{
 		return mpCommandBuffers[mpSwapchain->GetBackBufferTargetIndex()]->GetHandle().Get();
 	}
 
 	void CD3D12GraphicsContext::BeginFrame()
 	{
-		/*HRESULT result = mpCommandAllocator->Reset();
-		TDE2_ASSERT(SUCCEEDED(result));
+		const U32 currFrameId = mpSwapchain->GetBackBufferTargetIndex();
 
-		result = mpCommandList->Reset(mpCommandAllocator.Get(), nullptr);*/
+		TPtr<CD3D12CommandBuffer> pCurrCommandBuffer = mpCommandBuffers[currFrameId];
+
+		pCurrCommandBuffer->GetFenceEntry().WaitForIdle();
 
 		{
 			std::lock_guard<std::mutex> lock(mGarbageCollectorMutex);
 
-			for (auto& currGarbageEntity : mAwaitingDeletionObjects[mpSwapchain->GetBackBufferTargetIndex()])
+			for (auto& currGarbageEntity : mAwaitingDeletionObjects[currFrameId])
 			{
 				if (!currGarbageEntity.mpAllocation)
 				{
@@ -1133,8 +1257,21 @@ namespace TDEngine2
 				currGarbageEntity.mpAllocation->Release();
 			}
 
-			mAwaitingDeletionObjects[mpSwapchain->GetBackBufferTargetIndex()].clear();
+			mAwaitingDeletionObjects[currFrameId].clear();
 		}
+
+		pCurrCommandBuffer->Begin();
+
+		mpShaderResourcesDescriptorsHeaps[currFrameId]->Reset();
+		mpSamplersDescriptorsHeaps[currFrameId]->Reset();
+
+		// TODO: Test code should be removed later 
+		//const auto& rtvHandle = mpSwapchain->GetCurrRenderTargetView();
+		//pCurrCommandBuffer->GetHandle()->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+
+		//// Record commands.
+		//const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
+		//pCurrCommandBuffer->GetHandle()->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 
 		mDescriptorsBindingsTable.Reset();
 	}
@@ -1142,16 +1279,19 @@ namespace TDEngine2
 	void CD3D12GraphicsContext::Present()
 	{
 		TDE2_PROFILER_SCOPE("CD3D12GraphicsContext::Present");
-		/*
-		CD3DX12_RESOURCE_BARRIER rtTransitionBarrier = CD3DX12_RESOURCE_BARRIER::Transition(mpRenderTargetViews[mCurrBackBufferIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-		mpCommandList->ResourceBarrier(1, &rtTransitionBarrier);
-		mpCommandList->Close();
+		
+		TPtr<CD3D12CommandBuffer> pCurrCommandBuffer = mpCommandBuffers[mpSwapchain->GetBackBufferTargetIndex()];
+		ID3D12GraphicsCommandList* pCurrCommandList = pCurrCommandBuffer->GetHandle().Get();
 
-		ID3D12CommandList* ppCommandLists[] = { mpCommandList.Get() };
-		mpCommandQueue->ExecuteCommandLists(1, ppCommandLists); */
+		CD3DX12_RESOURCE_BARRIER rtTransitionBarrier = CD3DX12_RESOURCE_BARRIER::Transition(mpSwapchain->GetCurrRenderTarget().Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+		pCurrCommandList->ResourceBarrier(1, &rtTransitionBarrier);
+
+		pCurrCommandBuffer->End();
+
+		ID3D12CommandList* ppCommandLists[] = { pCurrCommandList };
+		mpDeviceContext->GetCommandQueue()->ExecuteCommandLists(1, ppCommandLists);
 
 		mpSwapchain->Present();
-		_waitForIdle();
 	}
 
 	E_RESULT_CODE CD3D12GraphicsContext::DestroyObjectDeffered(Microsoft::WRL::ComPtr<ID3D12Resource> pResource, D3D12MA::Allocation* pAllocation)
@@ -1169,6 +1309,31 @@ namespace TDEngine2
 		mAwaitingDeletionObjects[mpSwapchain->GetBackBufferTargetIndex()].emplace_back(garbageEntity);
 
 		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D12GraphicsContext::ExecuteImmediate(const std::function<void(ID3D12GraphicsCommandList*)>& command)
+	{
+		if (!command)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		CD3D12Fence& fence = mpImmediateCommandBuffer->GetFenceEntry();
+
+		E_RESULT_CODE result = mpImmediateCommandBuffer->Begin();
+
+		ID3D12GraphicsCommandList* pInternalCommandList = mpImmediateCommandBuffer->GetHandle().Get();
+
+		command(pInternalCommandList);
+
+		result = result | mpImmediateCommandBuffer->End();
+
+		ID3D12CommandList* ppCommandLists[] = { pInternalCommandList };
+		mpDeviceContext->GetCommandQueue()->ExecuteCommandLists(1, ppCommandLists);
+
+		fence.WaitForIdle();
+
+		return result;
 	}
 
 	void CD3D12GraphicsContext::SetViewport(F32 x, F32 y, F32 width, F32 height, F32 minDepth, F32 maxDepth)
@@ -1324,54 +1489,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CD3D12GraphicsContext::UpdateTexture2D(TTextureHandleId textureHandle, U32 mipLevel, const TRectI32& regionRect, const void* pData, USIZE dataSize)
-	{
-		TDE2_UNIMPLEMENTED();
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CD3D12GraphicsContext::UpdateTexture2DArray(TTextureHandleId textureHandle, U32 index, const TRectI32& regionRect, const void* pData, USIZE dataSize)
-	{
-		TDE2_UNIMPLEMENTED();
-		return RC_NOT_IMPLEMENTED_YET;
-	}
-
-	E_RESULT_CODE CD3D12GraphicsContext::UpdateCubemapTexture(TTextureHandleId textureHandle, E_CUBEMAP_FACE face, const TRectI32& regionRect, const void* pData, USIZE dataSize)
-	{
-		TDE2_UNIMPLEMENTED();
-		return RC_NOT_IMPLEMENTED_YET;
-	}
-
-	E_RESULT_CODE CD3D12GraphicsContext::UpdateTexture3D(TTextureHandleId textureHandle, U32 depthFrom, U32 depthTo, const TRectI32& regionRect, const void* pData, USIZE dataSize)
-	{
-		TDE2_UNIMPLEMENTED();
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CD3D12GraphicsContext::CopyResource(TTextureHandleId sourceHandle, TTextureHandleId destHandle)
-	{
-		TDE2_UNIMPLEMENTED();
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CD3D12GraphicsContext::CopyResource(TBufferHandleId sourceHandle, TTextureHandleId destHandle)
-	{
-		TDE2_UNIMPLEMENTED();
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CD3D12GraphicsContext::CopyResource(TTextureHandleId sourceHandle, TBufferHandleId destHandle)
-	{
-		TDE2_UNIMPLEMENTED();
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CD3D12GraphicsContext::CopyResource(TBufferHandleId sourceHandle, TBufferHandleId destHandle)
-	{
-		TDE2_UNIMPLEMENTED();
-		return RC_OK;
-	}
-
 
 	static D3D12_RESOURCE_STATES GetInternalResourceState(E_RESOURCE_LAYOUT layout)
 	{
@@ -1400,6 +1517,205 @@ namespace TDEngine2
 		return D3D12_RESOURCE_STATE_COMMON;
 	}
 
+
+	E_RESULT_CODE CD3D12GraphicsContext::UpdateTexture2D(TTextureHandleId textureHandle, U32 mipLevel, const TRectI32& regionRect, const void* pData, USIZE dataSize)
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		auto pTexture = mpGraphicsObjectManagerD3D12Impl->GetD3D12TexturePtr(textureHandle);
+		if (!pTexture)
+		{
+			return RC_FAIL;
+		}
+
+		const USIZE textureSize = static_cast<USIZE>(regionRect.width * regionRect.height * CFormatUtils::GetFormatSize(pTexture->GetParams().mFormat));
+
+		TPtr<IBuffer> pStagingBuffer = TPtr<IBuffer>(CreateD3D12Buffer(this, { E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::GENERIC, textureSize, nullptr }, result));
+		if (RC_OK != result || !pStagingBuffer)
+		{
+			return result;
+		}
+
+		TPtr<CD3D12Buffer> pInternalStagingBuffer = DynamicPtrCast<CD3D12Buffer>(pStagingBuffer);
+
+		result = pStagingBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		result = pStagingBuffer->Write(pData, textureSize);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		pStagingBuffer->Unmap();
+		
+		result = ExecuteImmediate([=](ID3D12GraphicsCommandList* pCommandList)
+			{
+				CD3DX12_RESOURCE_BARRIER transitionBarrier = CD3DX12_RESOURCE_BARRIER::Transition(pTexture->GetHandle().Get(), GetInternalResourceState(pTexture->GetLayout()), D3D12_RESOURCE_STATE_COPY_DEST);
+				pCommandList->ResourceBarrier(1, &transitionBarrier);
+
+				const D3D12_RESOURCE_DESC& textureDesc = pTexture->GetHandle()->GetDesc();
+				D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout{};
+
+				mpDeviceContext->GetDevice()->GetCopyableFootprints(&textureDesc, 0, 1, 0, &layout, nullptr, nullptr, nullptr);
+
+				layout.Footprint.Width    = regionRect.width;
+				layout.Footprint.Height   = regionRect.height;
+				layout.Footprint.RowPitch = regionRect.width * CFormatUtils::GetFormatSize(pTexture->GetParams().mFormat);
+
+				D3D12_TEXTURE_COPY_LOCATION dst{ pTexture->GetHandle().Get(), D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX, {} };
+				D3D12_TEXTURE_COPY_LOCATION src{ pInternalStagingBuffer->GetHandle().Get(), D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT, { layout } };
+
+				pCommandList->CopyTextureRegion(&dst, static_cast<U32>(regionRect.x), static_cast<U32>(regionRect.y), 0, &src, nullptr);
+
+				transitionBarrier = CD3DX12_RESOURCE_BARRIER::Transition(pTexture->GetHandle().Get(), D3D12_RESOURCE_STATE_COPY_DEST, GetInternalResourceState(pTexture->GetLayout()));
+				pCommandList->ResourceBarrier(1, &transitionBarrier);
+			});
+
+		return result;
+	}
+
+	E_RESULT_CODE CD3D12GraphicsContext::UpdateTexture2DArray(TTextureHandleId textureHandle, U32 index, const TRectI32& regionRect, const void* pData, USIZE dataSize)
+	{
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		auto pTexture = mpGraphicsObjectManagerD3D12Impl->GetD3D12TexturePtr(textureHandle);
+		if (!pTexture)
+		{
+			return RC_FAIL;
+		}
+
+		const USIZE textureSize = static_cast<USIZE>(regionRect.width * regionRect.height * CFormatUtils::GetFormatSize(pTexture->GetParams().mFormat));
+		const U32 subresourceIndex = 0;// index* pTexture->GetParams().mNumOfMipLevels;
+
+		TPtr<IBuffer> pStagingBuffer = TPtr<IBuffer>(CreateD3D12Buffer(this, { E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::GENERIC, textureSize, nullptr }, result));
+		if (RC_OK != result || !pStagingBuffer)
+		{
+			return result;
+		}
+
+		TPtr<CD3D12Buffer> pInternalStagingBuffer = DynamicPtrCast<CD3D12Buffer>(pStagingBuffer);
+
+		result = pStagingBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		result = pStagingBuffer->Write(pData, textureSize);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		pStagingBuffer->Unmap();
+
+		result = ExecuteImmediate([=](ID3D12GraphicsCommandList* pCommandList)
+			{
+				CD3DX12_RESOURCE_BARRIER transitionBarrier = CD3DX12_RESOURCE_BARRIER::Transition(pTexture->GetHandle().Get(), GetInternalResourceState(pTexture->GetLayout()), D3D12_RESOURCE_STATE_COPY_DEST);
+				pCommandList->ResourceBarrier(1, &transitionBarrier);
+
+				const D3D12_RESOURCE_DESC& textureDesc = pTexture->GetHandle()->GetDesc();
+				D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout{};
+
+				mpDeviceContext->GetDevice()->GetCopyableFootprints(&textureDesc, 0, 1, 0, &layout, nullptr, nullptr, nullptr);
+
+				layout.Footprint.Width    = regionRect.width;
+				layout.Footprint.Height   = regionRect.height;
+				layout.Footprint.RowPitch = regionRect.width * CFormatUtils::GetFormatSize(pTexture->GetParams().mFormat);
+
+				D3D12_TEXTURE_COPY_LOCATION dst{ pTexture->GetHandle().Get(), D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX, { subresourceIndex } };
+				D3D12_TEXTURE_COPY_LOCATION src{ pInternalStagingBuffer->GetHandle().Get(), D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT, { layout } };
+
+				pCommandList->CopyTextureRegion(&dst, static_cast<U32>(regionRect.x), static_cast<U32>(regionRect.y), 0, &src, nullptr);
+
+				transitionBarrier = CD3DX12_RESOURCE_BARRIER::Transition(pTexture->GetHandle().Get(), D3D12_RESOURCE_STATE_COPY_DEST, GetInternalResourceState(pTexture->GetLayout()));
+				pCommandList->ResourceBarrier(1, &transitionBarrier);
+			});
+
+		return result;
+	}
+
+	E_RESULT_CODE CD3D12GraphicsContext::UpdateCubemapTexture(TTextureHandleId textureHandle, E_CUBEMAP_FACE face, const TRectI32& regionRect, const void* pData, USIZE dataSize)
+	{
+		return UpdateTexture2DArray(textureHandle, static_cast<U32>(face), regionRect, pData, dataSize);
+	}
+
+	E_RESULT_CODE CD3D12GraphicsContext::UpdateTexture3D(TTextureHandleId textureHandle, U32 depthFrom, U32 depthTo, const TRectI32& regionRect, const void* pData, USIZE dataSize)
+	{
+		TDE2_UNIMPLEMENTED();
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D12GraphicsContext::CopyResource(TTextureHandleId sourceHandle, TTextureHandleId destHandle)
+	{
+		auto pSourceTexture = mpGraphicsObjectManagerD3D12Impl->GetD3D12TexturePtr(sourceHandle);
+		if (!pSourceTexture)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		auto pDestTexture = mpGraphicsObjectManagerD3D12Impl->GetD3D12TexturePtr(destHandle);
+		if (!pDestTexture)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		const E_RESOURCE_LAYOUT currSourceLayout = pSourceTexture->GetLayout();
+		const E_RESOURCE_LAYOUT currDestLayout = pDestTexture->GetLayout();
+
+		E_RESULT_CODE result = RC_OK;
+
+		result = result | pSourceTexture->Transition(E_RESOURCE_LAYOUT::COPY_SRC);
+		result = result | pDestTexture->Transition(E_RESOURCE_LAYOUT::COPY_DEST);
+
+		FlushBarriers();
+
+		_getCurrCommandListPtr()->CopyResource(pDestTexture->GetHandle().Get(), pSourceTexture->GetHandle().Get());
+
+		if (E_RESOURCE_LAYOUT::UNDEFINED != currSourceLayout)
+		{
+			result = result | pSourceTexture->Transition(currSourceLayout);
+		}
+
+		if (E_RESOURCE_LAYOUT::UNDEFINED != currDestLayout)
+		{
+			result = result | pDestTexture->Transition(currDestLayout);
+		}
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D12GraphicsContext::CopyResource(TBufferHandleId sourceHandle, TTextureHandleId destHandle)
+	{
+		TDE2_UNIMPLEMENTED();
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D12GraphicsContext::CopyResource(TTextureHandleId sourceHandle, TBufferHandleId destHandle)
+	{
+		TDE2_UNIMPLEMENTED();
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D12GraphicsContext::CopyResource(TBufferHandleId sourceHandle, TBufferHandleId destHandle)
+	{
+		TDE2_UNIMPLEMENTED();
+		return RC_OK;
+	}
 
 	void CD3D12GraphicsContext::MemoryAccessBarrier(const std::variant<TBufferHandleId, TTextureHandleId> resourceHandle)
 	{
@@ -1446,7 +1762,7 @@ namespace TDEngine2
 		}
 
 		mResourceBarriers[mpSwapchain->GetBackBufferTargetIndex()].emplace_back(
-			CD3DX12_RESOURCE_BARRIER::Transition(pBuffer->GetHandle().Get(), GetInternalResourceState(barrierInfo.mCurrLayout), GetInternalResourceState(barrierInfo.mCurrLayout)));
+			CD3DX12_RESOURCE_BARRIER::Transition(pBuffer->GetHandle().Get(), GetInternalResourceState(barrierInfo.mCurrLayout), GetInternalResourceState(barrierInfo.mNewLayout)));
 	}
 
 	void CD3D12GraphicsContext::TransitionBarrier(const TTextureTransitionBarrierInfo& barrierInfo)
@@ -1460,7 +1776,7 @@ namespace TDEngine2
 		const U32 subresourceId = barrierInfo.mMipLevel ? *barrierInfo.mMipLevel : D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 		
 		mResourceBarriers[mpSwapchain->GetBackBufferTargetIndex()].emplace_back(
-			CD3DX12_RESOURCE_BARRIER::Transition(pTextureImpl->GetHandle().Get(), GetInternalResourceState(barrierInfo.mCurrLayout), GetInternalResourceState(barrierInfo.mCurrLayout), subresourceId));
+			CD3DX12_RESOURCE_BARRIER::Transition(pTextureImpl->GetHandle().Get(), GetInternalResourceState(barrierInfo.mCurrLayout), GetInternalResourceState(barrierInfo.mNewLayout), subresourceId));
 	}
 
 	void CD3D12GraphicsContext::DebugBarrier()
@@ -1478,7 +1794,8 @@ namespace TDEngine2
 			return;
 		}
 
-		_getCurrCommandListPtr()->ResourceBarrier(static_cast<U32>(resourceBarriers.size()), resourceBarriers.data());
+		for (int i = 0; i < resourceBarriers.size(); ++i)
+			_getCurrCommandListPtr()->ResourceBarrier(1, &resourceBarriers[i]);
 
 		resourceBarriers.clear();
 	}
@@ -1638,14 +1955,140 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D12GraphicsContext::BeginRenderPass(const TFramebufferInfo& framebufferInfo)
 	{
+		TDE2_ASSERT(!mIsRenderPassActive);
+
+		mCurrRenderPassInfo = TRenderPassInfo(mpGraphicsObjectManager.Get(), framebufferInfo);
+
+		CFixedVector<D3D12_RENDER_PASS_RENDER_TARGET_DESC, RENDER_TARGETS_MAX_COUNT> renderTargetsDescs{};
+		D3D12_RENDER_PASS_DEPTH_STENCIL_DESC depthStencilBufferDesc{};
+
+		TVector2 viewportSizes{};
+
+		for (USIZE i = 0; i < framebufferInfo.mAttachments.size(); ++i)
+		{
+			const TFramebufferInfo::TAttachment& currAttachment = framebufferInfo.mAttachments[i];
+
+			TPtr<CD3D12TextureImpl> pRenderTargetTexture = mpGraphicsObjectManagerD3D12Impl->GetD3D12TexturePtr(currAttachment.mTargetHandle);
+			if (!pRenderTargetTexture) // \note The special corner case when there is no render target attached except the back buffer
+			{
+				mCurrRenderPassInfo.mRenderTargetFormats[0] = mpSwapchain->GetBackBuffersFormat();
+
+				const TRectU32& windowRect = mpWindowSystem->GetClientRect();
+				viewportSizes.x = static_cast<F32>(windowRect.width);
+				viewportSizes.y = static_cast<F32>(windowRect.height);
+
+				D3D12_RENDER_PASS_RENDER_TARGET_DESC currRenderTargetDesc{};
+
+				if (currAttachment.mClearValue)
+				{
+					const TColor32F& targetClearColorValue = std::get<TColor32F>(currAttachment.mClearValue.value());
+					const F32 clearColor[] { targetClearColorValue.r, targetClearColorValue.g, targetClearColorValue.b, targetClearColorValue.a };
+
+					currRenderTargetDesc.BeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+					memcpy(&currRenderTargetDesc.BeginningAccess.Clear.ClearValue.Color, &clearColor, sizeof(TColor32F));
+				}
+
+				currRenderTargetDesc.cpuDescriptor     = mpSwapchain->GetCurrRenderTargetView();
+				currRenderTargetDesc.EndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+
+				renderTargetsDescs.emplace_back(currRenderTargetDesc);
+
+				//// \note Add barrier for current swapchain's image
+				mResourceBarriers[mpSwapchain->GetBackBufferTargetIndex()].emplace_back(CD3DX12_RESOURCE_BARRIER::Transition(mpSwapchain->GetCurrRenderTarget().Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+				continue;
+			}
+
+			if (!HasEnumFlag(pRenderTargetTexture->GetParams().mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET))
+			{
+				TDE2_ASSERT_MSG(false, "[CD3D12GraphicsContext] Try to use the texture that is not a render target as a color attachment");
+				return RC_FAIL;
+			}
+
+			viewportSizes.x = static_cast<F32>(std::max<U32>(static_cast<U32>(viewportSizes.x), pRenderTargetTexture->GetParams().mWidth));
+			viewportSizes.y = static_cast<F32>(std::max<U32>(static_cast<U32>(viewportSizes.y), pRenderTargetTexture->GetParams().mHeight));
+
+			D3D12_RENDER_PASS_RENDER_TARGET_DESC currRenderTargetDesc{};
+
+			if (currAttachment.mClearValue)
+			{
+				const TColor32F& targetClearColorValue = std::get<TColor32F>(currAttachment.mClearValue.value());
+				const F32 clearColor[]{ targetClearColorValue.r, targetClearColorValue.g, targetClearColorValue.b, targetClearColorValue.a };
+
+				currRenderTargetDesc.BeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+				memcpy(&currRenderTargetDesc.BeginningAccess.Clear.ClearValue.Color, &clearColor, sizeof(TColor32F));
+			}
+
+			currRenderTargetDesc.cpuDescriptor = pRenderTargetTexture->GetRenderTargetDescriptor().mCPUHandle; // \todo get CPU_HANDLE for back buffer view
+			currRenderTargetDesc.EndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+
+			renderTargetsDescs.emplace_back(currRenderTargetDesc);
+
+			pRenderTargetTexture->Transition(E_RESOURCE_LAYOUT::RENDER_TARGET);
+		}
+
+		if (framebufferInfo.mDepthStencilAttachment)
+		{
+			const auto& depthStencilAttachment = framebufferInfo.mDepthStencilAttachment.value();
+
+			TPtr<CD3D12TextureImpl> pDepthBufferTexture = mpGraphicsObjectManagerD3D12Impl->GetD3D12TexturePtr(depthStencilAttachment.mTargetHandle);
+
+			if (!HasEnumFlag(pDepthBufferTexture->GetParams().mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER))
+			{
+				TDE2_ASSERT_MSG(false, "[CD3D12GraphicsContext] Try to bind the texture that is not a depth buffer as a depth-stencil attachment");
+				return RC_FAIL;
+			}
+
+			if (framebufferInfo.mAttachments.empty())
+			{
+				viewportSizes.x = static_cast<F32>(std::max<U32>(static_cast<U32>(viewportSizes.x), pDepthBufferTexture->GetParams().mWidth));
+				viewportSizes.y = static_cast<F32>(std::max<U32>(static_cast<U32>(viewportSizes.y), pDepthBufferTexture->GetParams().mHeight));
+			}
+
+			const bool hasDepthClearValue   = depthStencilAttachment.mDepthClearValue.has_value();
+			const bool hasStencilClearValue = depthStencilAttachment.mStencilClearValue.has_value();
+
+			if (hasDepthClearValue)
+			{
+				const auto& targetClearValueVariant = depthStencilAttachment.mDepthClearValue.value();
+
+				depthStencilBufferDesc.DepthBeginningAccess.Clear.ClearValue.DepthStencil.Depth = std::get<F32>(targetClearValueVariant);
+				depthStencilBufferDesc.DepthBeginningAccess.Type                                = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+			}
+
+			if (hasStencilClearValue)
+			{
+				const auto& targetClearValueVariant = depthStencilAttachment.mStencilClearValue.value();
+
+				depthStencilBufferDesc.StencilBeginningAccess.Clear.ClearValue.DepthStencil.Stencil = std::get<U8>(targetClearValueVariant);
+				depthStencilBufferDesc.StencilBeginningAccess.Type                                  = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+				depthStencilBufferDesc.StencilEndingAccess.Type                                     = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+			}
+
+			if (pDepthBufferTexture)
+			{
+				depthStencilBufferDesc.cpuDescriptor          = pDepthBufferTexture->GetDepthBufferDescriptor().mCPUHandle;
+				depthStencilBufferDesc.DepthEndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+
+				pDepthBufferTexture->Transition(E_RESOURCE_LAYOUT::DEPTH_STENCIL);
+			}
+		}
+
+		FlushBarriers();
+
+		_getCurrCommandListPtr()->BeginRenderPass(static_cast<U32>(renderTargetsDescs.size()), renderTargetsDescs.data(), framebufferInfo.mDepthStencilAttachment ? &depthStencilBufferDesc : nullptr, D3D12_RENDER_PASS_FLAG_NONE);
 		mIsRenderPassActive = true;
+		
+		SetScissorRect({ 0, 0, static_cast<U32>(viewportSizes.x), static_cast<U32>(viewportSizes.y) }); // \note Set up default scissor rect for the whole screen
 
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CD3D12GraphicsContext::EndRenderPass()
 	{
+		TDE2_ASSERT(mIsRenderPassActive);
 
+		_getCurrCommandListPtr()->EndRenderPass();
 		mIsRenderPassActive = false;
 
 		return RC_OK;
@@ -1653,7 +2096,9 @@ namespace TDEngine2
 
 	const TGraphicsCtxInternalData& CD3D12GraphicsContext::GetInternalData() const
 	{
-		static TGraphicsCtxInternalData data;
+		TDE2_UNREACHABLE();
+
+		static TGraphicsCtxInternalData data;		
 		return data;
 	}
 
@@ -1675,6 +2120,14 @@ namespace TDEngine2
 	E_RESULT_CODE CD3D12GraphicsContext::OnEvent(const TBaseEvent* pEvent)
 	{
 		TDE2_PROFILER_SCOPE("CD3D12GraphicsContext::OnEvent");
+		
+		if (pEvent->GetEventType() != TOnWindowResized::GetTypeId())
+		{
+			return RC_OK;
+		}
+
+		const TOnWindowResized* pOnWindowResizedEvent = dynamic_cast<const TOnWindowResized*>(pEvent);
+
 		return RC_OK;
 	}
 
@@ -1682,13 +2135,11 @@ namespace TDEngine2
 
 	void CD3D12GraphicsContext::BeginSectionMarker(const std::string& id)
 	{
-		//_getCurrCommandListPtr()->BeginEvent(1, id.c_str(), static_cast<UINT>(id.length())); Old manner to annotate D3D's sections
 		PIXBeginEvent(_getCurrCommandListPtr(), 0x000000ff, id.c_str());
 	}
 
 	void CD3D12GraphicsContext::EndSectionMarker()
 	{
-		//_getCurrCommandListPtr()->EndEvent();  Old manner to annotate D3D's sections
 		PIXEndEvent(_getCurrCommandListPtr());
 	}
 

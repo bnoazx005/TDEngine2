@@ -93,6 +93,8 @@ namespace TDEngine2
 
 			E_RESULT_CODE DestroyObjectDeffered(Microsoft::WRL::ComPtr<ID3D12Resource> pResource, D3D12MA::Allocation* pAllocation);
 
+			E_RESULT_CODE ExecuteImmediate(const std::function<void(ID3D12GraphicsCommandList*)>& command);
+
 			/*!
 				\brief The method sets up a viewport's parameters
 
