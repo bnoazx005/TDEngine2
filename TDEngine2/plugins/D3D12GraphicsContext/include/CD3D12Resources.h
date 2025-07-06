@@ -294,9 +294,11 @@ namespace TDEngine2
 			E_RESULT_CODE SetHandle(TTextureHandleId handle, const CPassKey<CBaseGraphicsObjectManager>& passkey) override;
 
 			ComPtr<ID3D12Resource> GetHandle() const;
-			/*VkImageView GetTextureViewHandle();*/
 
-			std::vector<U8> ReadBytes(U32 index) override;
+			const TD3D12ResourceDescriptor& GetRenderTargetDescriptor() const;
+			const TD3D12ResourceDescriptor& GetDepthBufferDescriptor() const;
+
+			Vector<U8> ReadBytes(U32 index) override;
 
 			E_RESOURCE_LAYOUT GetLayout() const override;
 
@@ -307,21 +309,25 @@ namespace TDEngine2
 			E_RESULT_CODE _onInitInternal();
 			E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			CD3D12GraphicsContext*  mpGraphicsContextImpl = nullptr;
+			CD3D12GraphicsContext*   mpGraphicsContextImpl = nullptr;
 
-			TInitTextureImplParams  mInitParams;
-			TTextureHandleId        mHandle;
+			TInitTextureImplParams   mInitParams;
+			TTextureHandleId         mHandle;
 
-			ComPtr<ID3D12Resource>  mpResource = nullptr;
-			D3D12MA::Allocation*    mpAllocation = nullptr;
+			ComPtr<ID3D12Resource>   mpResource = nullptr;
+			D3D12MA::Allocation*     mpAllocation = nullptr;
+
+			TD3D12ResourceDescriptor mRenderTargetDescriptor{}; // IsValid() is true if it's active. The condition is correct for all the descriptors
+			TD3D12ResourceDescriptor mDepthStencilDescriptor{};
+
 			/*VkImageView             mInternalImageViewHandle = VK_NULL_HANDLE;
 
 			VmaAllocator            mAllocator = VK_NULL_HANDLE;
 			VmaAllocation           mAllocation = VK_NULL_HANDLE;*/
 
-			E_RESOURCE_LAYOUT       mCurrLayout;
+			E_RESOURCE_LAYOUT        mCurrLayout;
 
-			TPtr<CD3D12Buffer>      mpReadbackBuffer = nullptr;
+			TPtr<CD3D12Buffer>       mpReadbackBuffer = nullptr;
 	};
 
 

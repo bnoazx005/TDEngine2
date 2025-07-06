@@ -30,7 +30,7 @@ namespace TDEngine2
 	};
 
 
-	static TResult<TCreatedBufferInfo> CreateBufferInternal(D3D12MA::Allocator* pAllocator, U32 size, E_BUFFER_TYPE type, E_BUFFER_USAGE_TYPE usageType, bool isUAVResource, std::optional<E_STRUCTURED_BUFFER_TYPE> structuredBufferType = std::nullopt)
+	static TResult<TCreatedBufferInfo> CreateBufferInternal(D3D12MA::Allocator* pAllocator, USIZE size, E_BUFFER_TYPE type, E_BUFFER_USAGE_TYPE usageType, bool isUAVResource, std::optional<E_STRUCTURED_BUFFER_TYPE> structuredBufferType = std::nullopt)
 	{
 		if (!pAllocator || !size)
 		{
@@ -38,13 +38,13 @@ namespace TDEngine2
 		}
 
 		D3D12_RESOURCE_DESC bufferDesc{};
-		bufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-		bufferDesc.Width = size;
-		bufferDesc.Height = 1;
+		bufferDesc.Dimension        = D3D12_RESOURCE_DIMENSION_BUFFER;
+		bufferDesc.Width            = static_cast<U32>(size);
+		bufferDesc.Height           = 1;
 		bufferDesc.DepthOrArraySize = 1;
-		bufferDesc.MipLevels = 1;
+		bufferDesc.MipLevels        = 1;
 		bufferDesc.SampleDesc.Count = 1;
-		bufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+		bufferDesc.Layout           = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
 		if (isUAVResource)
 		{
@@ -52,16 +52,51 @@ namespace TDEngine2
 		}
 
 		D3D12MA::ALLOCATION_DESC allocationDesc{};
-		allocationDesc.HeapType = (E_BUFFER_TYPE::GENERIC == type && E_BUFFER_USAGE_TYPE::DYNAMIC == usageType) ? D3D12_HEAP_TYPE_READBACK : D3D12_HEAP_TYPE_DEFAULT;
+		allocationDesc.HeapType = (/*E_BUFFER_TYPE::GENERIC == type && */E_BUFFER_USAGE_TYPE::DYNAMIC == usageType) ? D3D12_HEAP_TYPE_UPLOAD : D3D12_HEAP_TYPE_DEFAULT;
 
 		TCreatedBufferInfo output{};
 
-		if (FAILED(pAllocator->CreateResource(&allocationDesc, &bufferDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, &output.mpAllocation, IID_PPV_ARGS(&output.mpResource))))
+		if (FAILED(pAllocator->CreateResource(&allocationDesc, &bufferDesc, (allocationDesc.HeapType == D3D12_HEAP_TYPE_UPLOAD) ? D3D12_RESOURCE_STATE_GENERIC_READ : D3D12_RESOURCE_STATE_COMMON, nullptr, &output.mpAllocation, IID_PPV_ARGS(&output.mpResource))))
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
 		return Wrench::TOkValue<TCreatedBufferInfo>(output);
+	}
+
+
+	static E_RESULT_CODE InitBufferContent(CD3D12GraphicsContext* pGraphicsContext, const TInitBufferParams& params, ComPtr<ID3D12Resource> destBufferHandle)
+	{
+		D3D12MA::Allocator* pAllocator = pGraphicsContext->GetMemoryAllocator();
+
+		auto createStagingBufferResult = CreateBufferInternal(pAllocator, params.mDataSize, E_BUFFER_TYPE::GENERIC, E_BUFFER_USAGE_TYPE::DYNAMIC, params.mIsUnorderedAccessResource, params.mStructuredBufferType);
+		if (createStagingBufferResult.HasError())
+		{
+			return createStagingBufferResult.GetError();
+		}
+
+		const TCreatedBufferInfo& stagingBufferInfo = createStagingBufferResult.Get();
+
+		defer([=] { pGraphicsContext->DestroyObjectDeffered(stagingBufferInfo.mpResource, stagingBufferInfo.mpAllocation); });
+
+		void* pStagingBufferMappedData = nullptr;
+
+		if (FAILED(stagingBufferInfo.mpResource->Map(0, nullptr, &pStagingBufferMappedData)))
+		{
+			return RC_FAIL;
+		}
+
+		memcpy(pStagingBufferMappedData, params.mpDataPtr, params.mDataSize);
+
+		stagingBufferInfo.mpResource->Unmap(0, nullptr);
+
+		// \note Copy data from staging buffer into destination
+		pGraphicsContext->ExecuteImmediate([=](ID3D12GraphicsCommandList* pCommandList)
+			{
+				pCommandList->CopyResource(destBufferHandle.Get(), stagingBufferInfo.mpResource.Get());
+			});
+
+		return RC_OK;
 	}
 
 
@@ -77,9 +112,9 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mBufferSize = params.mTotalBufferSize;
+		mBufferSize      = params.mTotalBufferSize;
 		mBufferUsageType = params.mUsageType;
-		mBufferType = params.mBufferType;
+		mBufferType      = params.mBufferType;
 
 		mpGraphicsContextImpl = dynamic_cast<CD3D12GraphicsContext*>(pGraphicsContext);
 		if (!mpGraphicsContextImpl)
@@ -99,7 +134,7 @@ namespace TDEngine2
 
 		if (params.mpDataPtr)
 		{
-			//result = InitBufferContent(mpGraphicsContextImpl, mInitParams, mInternalBufferHandle);
+			result = InitBufferContent(mpGraphicsContextImpl, mInitParams, mpResource);
 			if (RC_OK != result)
 			{
 				return result;
@@ -107,7 +142,10 @@ namespace TDEngine2
 		}
 
 #if TDE2_DEBUG_MODE
-		mpResource->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<U32>(strlen(params.mName)), params.mName);
+		if (params.mName)
+		{
+			mpResource->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<U32>(strlen(params.mName)), params.mName);
+		}
 #endif
 
 		mIsInitialized = true;
@@ -127,7 +165,7 @@ namespace TDEngine2
 			mpGraphicsContextImpl->DestroyObjectDeffered(mpResource, mpAllocation);
 		}
 
-		auto createBufferResult = CreateBufferInternal(mpGraphicsContextImpl->GetMemoryAllocator(), static_cast<U32>(newSize), mBufferType, mBufferUsageType, mIsUnorderedAccessResource, structuredBufferType);
+		auto createBufferResult = CreateBufferInternal(mpGraphicsContextImpl->GetMemoryAllocator(), newSize, mBufferType, mBufferUsageType, mIsUnorderedAccessResource, structuredBufferType);
 		if (createBufferResult.HasError())
 		{
 			return createBufferResult.GetError();
@@ -179,7 +217,10 @@ namespace TDEngine2
 		readRange.Begin = offset;
 		readRange.End = mBufferSize - offset - 1;
 
-		mpResource->Map(0, offset > 0 ? &readRange : nullptr, &mpMappedBufferData);
+		if (FAILED(mpResource->Map(0, offset > 0 ? &readRange : nullptr, &mpMappedBufferData)))
+		{
+			return RC_FAIL;
+		}
 
 #if TDE2_DEBUG_MODE
 		++mLockChecker;
@@ -419,135 +460,236 @@ namespace TDEngine2
 	}
 
 
+	static U16 GetBindingOffsetByResourceType(E_SHADER_RESOURCE_TYPE type)
+	{
+		switch (type)
+		{
+			case E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D:
+			case E_SHADER_RESOURCE_TYPE::SRT_TEXTURE3D:
+			case E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D_ARRAY:
+			case E_SHADER_RESOURCE_TYPE::SRT_TEXTURECUBE:
+			case E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER:
+			case E_SHADER_RESOURCE_TYPE::SRT_RAW_BUFFER:
+				return 1000;
+
+			case E_SHADER_RESOURCE_TYPE::SRT_SAMPLER_STATE:
+				return 2000;
+
+			case E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D:
+			case E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE3D:
+			case E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER:
+			case E_SHADER_RESOURCE_TYPE::SRT_RW_RAW_BUFFER:
+				return 3000;
+		}
+
+		TDE2_UNREACHABLE();
+		return 0;
+	}
+
+
+	template <typename TIter, typename TKeyFunctor>
+	std::vector<std::tuple<U32, U32>> GetConsecutiveRanges(TIter first, TIter last, const TKeyFunctor& getKey)
+	{
+		std::vector<std::tuple<U32, U32>> output{};
+
+		if (first == last)
+		{
+			return output;
+		}
+
+		TIter prevIt = first;
+		U32 length = 1;
+
+		for (TIter it = first + 1; it != last; ++it)
+		{
+			if (std::abs(getKey(*it) - getKey(*(it - 1))) <= 1)
+			{
+				++length;
+				continue;
+			}
+
+			output.emplace_back(static_cast<U32>(std::distance(first, prevIt)), length);
+			prevIt = it;
+
+			length = 1;
+		}
+
+		output.emplace_back(static_cast<U32>(std::distance(first, prevIt)), length);
+
+		return output;
+	}
+
+
+	E_RESULT_CODE CD3D12Shader::_createRootSignature(const TShaderCompilerOutput* pCompilerData)
+	{
+		CFixedVector<CD3DX12_ROOT_PARAMETER, D3D12_MAX_ROOT_COST> rootParams{};
+		CFixedVector<CD3DX12_DESCRIPTOR_RANGE, 256> descriptorRanges{};
+
+		for (U32 i = 0; i < static_cast<U32>(TotalNumberOfInternalConstantBuffers); ++i)
+		{
+			rootParams.emplace_back()->InitAsConstantBufferView(i);
+		}
+
+		std::unordered_set<U32> existingBindings;
+
+		for (const auto& currUniformBufferInfo : pCompilerData->mUniformBuffersInfo)
+		{
+			if (existingBindings.find(currUniformBufferInfo.second.mSlot) != existingBindings.cend() || HasEnumFlag(currUniformBufferInfo.second.mFlags, E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL))
+			{
+				continue;
+			}
+
+			mLayoutInfo.mCBVActiveSlots.push_back(currUniformBufferInfo.second.mSlot);
+		}
+
+		const U32 userDefinedConstantBuffersCount = static_cast<U32>(pCompilerData->mUniformBuffersInfo.size() - TotalNumberOfInternalConstantBuffers);
+		if (userDefinedConstantBuffersCount > 0)
+		{
+			descriptorRanges.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, userDefinedConstantBuffersCount, static_cast<U32>(TotalNumberOfInternalConstantBuffers));
+		}
+
+		for (const auto& currShaderResourceInfo : pCompilerData->mShaderResourcesInfo)
+		{
+			const U16 bindingOffset = GetBindingOffsetByResourceType(currShaderResourceInfo.second.mType); // \note This "binding offset" is used for code simplification to use same set for all types of resources instead of separate set per type
+
+			if (existingBindings.find(bindingOffset + currShaderResourceInfo.second.mSlot) != existingBindings.cend())
+			{
+				continue;
+			}
+
+			existingBindings.emplace(bindingOffset + currShaderResourceInfo.second.mSlot);
+
+			switch (currShaderResourceInfo.second.mType)
+			{
+				case E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D:
+				case E_SHADER_RESOURCE_TYPE::SRT_TEXTURE3D:
+				case E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D_ARRAY:
+				case E_SHADER_RESOURCE_TYPE::SRT_TEXTURECUBE:
+				case E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER:
+				case E_SHADER_RESOURCE_TYPE::SRT_RAW_BUFFER:
+				{
+					auto it = mLayoutInfo.mSRVActiveSlots.emplace(
+						std::upper_bound(mLayoutInfo.mSRVActiveSlots.begin(), mLayoutInfo.mSRVActiveSlots.end(),
+							TD3D12PipelineLayoutInfo::TBindingInfo{ static_cast<U32>(currShaderResourceInfo.second.mSlot) },
+							[](const TD3D12PipelineLayoutInfo::TBindingInfo& left, const TD3D12PipelineLayoutInfo::TBindingInfo& right) { return left.mSlot < right.mSlot; }));
+
+					it->mSlot = static_cast<U32>(currShaderResourceInfo.second.mSlot);
+					it->mType = ConvertToBindingType(currShaderResourceInfo.second.mType);
+				}
+				break;
+
+				case E_SHADER_RESOURCE_TYPE::SRT_SAMPLER_STATE:
+					mLayoutInfo.mSamplersActiveSlots.emplace(std::upper_bound(mLayoutInfo.mSamplersActiveSlots.begin(), mLayoutInfo.mSamplersActiveSlots.end(), currShaderResourceInfo.second.mSlot), currShaderResourceInfo.second.mSlot);
+					break;
+
+				case E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D:
+				case E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE3D:
+				case E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER:
+				case E_SHADER_RESOURCE_TYPE::SRT_RW_RAW_BUFFER:
+				{
+					auto it = mLayoutInfo.mUAVActiveSlots.emplace(
+						std::upper_bound(mLayoutInfo.mUAVActiveSlots.begin(), mLayoutInfo.mUAVActiveSlots.end(),
+							TD3D12PipelineLayoutInfo::TBindingInfo{ static_cast<U32>(currShaderResourceInfo.second.mSlot) },
+							[](const TD3D12PipelineLayoutInfo::TBindingInfo& left, const TD3D12PipelineLayoutInfo::TBindingInfo& right) { return left.mSlot < right.mSlot; }));
+
+					it->mSlot = static_cast<U32>(currShaderResourceInfo.second.mSlot);
+					it->mType = ConvertToBindingType(currShaderResourceInfo.second.mType);
+				}
+				break;
+			}
+		}
+
+		if (!mLayoutInfo.mSRVActiveSlots.empty())
+		{
+			for (const auto [firstIndex, length] : GetConsecutiveRanges(mLayoutInfo.mSRVActiveSlots.begin(), mLayoutInfo.mSRVActiveSlots.end(), [](const TD3D12PipelineLayoutInfo::TBindingInfo& info) { return static_cast<I32>(info.mSlot); }))
+			{
+				descriptorRanges.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, length, static_cast<U32>(mLayoutInfo.mSRVActiveSlots[firstIndex].mSlot));
+			}
+		}
+
+		if (!mLayoutInfo.mUAVActiveSlots.empty())
+		{
+			for (const auto [firstIndex, length] : GetConsecutiveRanges(mLayoutInfo.mUAVActiveSlots.begin(), mLayoutInfo.mUAVActiveSlots.end(), [](const TD3D12PipelineLayoutInfo::TBindingInfo& info) { return static_cast<I32>(info.mSlot); }))
+			{
+				descriptorRanges.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, length, static_cast<U32>(mLayoutInfo.mUAVActiveSlots[firstIndex].mSlot));
+			}
+		}
+
+		rootParams.emplace_back()->InitAsDescriptorTable(static_cast<U32>(descriptorRanges.size()), descriptorRanges.data());
+
+		if (!mLayoutInfo.mSamplersActiveSlots.empty())
+		{
+			const USIZE samplersStartOffset = descriptorRanges.size();
+
+			for (const auto [firstIndex, length] : GetConsecutiveRanges(mLayoutInfo.mSamplersActiveSlots.begin(), mLayoutInfo.mSamplersActiveSlots.end(), [](const U32& slot) { return static_cast<I32>(slot); }))
+			{
+				descriptorRanges.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, length, static_cast<U32>(mLayoutInfo.mSamplersActiveSlots[firstIndex]));
+			}
+
+			rootParams.emplace_back()->InitAsDescriptorTable(static_cast<U32>(descriptorRanges.size() - samplersStartOffset), &descriptorRanges[samplersStartOffset]);
+		}
+
+		CD3D12GraphicsContext* pD3D12ImplContext = dynamic_cast<CD3D12GraphicsContext*>(mpGraphicsContext);
+		TDE2_ASSERT(pD3D12ImplContext);
+
+		ComPtr<ID3DBlob> pSignatureBlob = nullptr;
+		ComPtr<ID3DBlob> pErrorBlob = nullptr;
+
+		D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
+		rootSignatureDesc.Flags         = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+		rootSignatureDesc.NumParameters = static_cast<U32>(rootParams.size());
+		rootSignatureDesc.pParameters   = rootParams.data();
+
+		if (FAILED(D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_0, &pSignatureBlob, &pErrorBlob)))
+		{
+			LOG_ERROR(Wrench::StringUtils::Format("[CD3D12Shader] Root signature creation failed, msg: {0}", reinterpret_cast<const C8*>(pErrorBlob->GetBufferPointer())));
+			return RC_FAIL;
+		}
+
+		if (FAILED(pD3D12ImplContext->GetDeviceContext()->CreateRootSignature(0, pSignatureBlob->GetBufferPointer(), pSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&mpRootSignature))))
+		{
+			return RC_FAIL;
+		}
+
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CD3D12Shader::_createUniformBuffers(const TShaderCompilerOutput* pCompilerData)
 	{
-		//std::vector<VkDescriptorSetLayoutBinding> bindings;
-		//std::unordered_set<U32> existingBindings;
+		E_RESULT_CODE result = _createRootSignature(pCompilerData);
 
-		//for (const auto& currUniformBufferInfo : pCompilerData->mUniformBuffersInfo)
-		//{
-		//	if (existingBindings.find(currUniformBufferInfo.second.mSlot) != existingBindings.cend())
-		//	{
-		//		continue;
-		//	}
+		auto uniformBuffersInfo = pCompilerData->mUniformBuffersInfo;
 
-		//	VkDescriptorSetLayoutBinding currBinding{};
+		TUniformBufferDesc currDesc;
 
-		//	currBinding.binding = currUniformBufferInfo.second.mSlot;
-		//	currBinding.descriptorCount = 1;
-		//	currBinding.stageFlags = VK_SHADER_STAGE_ALL;
-		//	currBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		mUniformBuffers.resize(uniformBuffersInfo.size() - TotalNumberOfInternalConstantBuffers);
 
-		//	bindings.emplace_back(currBinding);
-		//	existingBindings.emplace(currBinding.binding);
+		auto pGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
 
-		//	mLayoutInfo.mCBVActiveSlots.push_back(currBinding.binding);
-		//}
+		/// here only user uniforms buffers are created
+		for (auto iter = uniformBuffersInfo.cbegin(); iter != uniformBuffersInfo.cend(); ++iter)
+		{
+			currDesc = (*iter).second;
 
-		//for (const auto& currShaderResourceInfo : pCompilerData->mShaderResourcesInfo)
-		//{
-		//	const U16 bindingOffset = GetBindingOffsetByResourceType(currShaderResourceInfo.second.mType);
+			/// skip internal buffers, because they are created separately by IGlobalShaderProperties implementation
+			if (HasEnumFlag(currDesc.mFlags, E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL))
+			{
+				continue;
+			}
 
-		//	if (existingBindings.find(bindingOffset + currShaderResourceInfo.second.mSlot) != existingBindings.cend())
-		//	{
-		//		continue;
-		//	}
+			auto createBufferResult = pGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::CONSTANT, currDesc.mSize, nullptr });
+			if (createBufferResult.HasError())
+			{
+				return createBufferResult.GetError();
+			}
 
-		//	VkDescriptorSetLayoutBinding currBinding{};
+			const U32 index = static_cast<U32>(iter->second.mSlot - TotalNumberOfInternalConstantBuffers);
+			TDE2_ASSERT(index >= 0 && index <= 1024);
 
-		//	currBinding.binding = bindingOffset + currShaderResourceInfo.second.mSlot;
-		//	currBinding.descriptorCount = 1;
-		//	currBinding.stageFlags = VK_SHADER_STAGE_ALL;
-		//	currBinding.descriptorType = CD3D12Mappings::GetDescriptorType(currShaderResourceInfo.second.mType);
+			/// \note Ensure that we compute correct size of the constant buffer. We use ID3D11ShaderReflection to retrieve accurate information
 
-		//	bindings.emplace_back(currBinding);
-		//	existingBindings.emplace(currBinding.binding);
-
-		//	switch (currShaderResourceInfo.second.mType)
-		//	{
-		//	case E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D:
-		//	case E_SHADER_RESOURCE_TYPE::SRT_TEXTURE3D:
-		//	case E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D_ARRAY:
-		//	case E_SHADER_RESOURCE_TYPE::SRT_TEXTURECUBE:
-		//	case E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER:
-		//	case E_SHADER_RESOURCE_TYPE::SRT_RAW_BUFFER:
-		//	{
-		//		auto& srvBindingInfo = mLayoutInfo.mSRVActiveSlots.emplace_back();
-
-		//		srvBindingInfo.mSlot = static_cast<U32>(currShaderResourceInfo.second.mSlot);
-		//		srvBindingInfo.mType = ConvertToBindingType(currShaderResourceInfo.second.mType);
-		//	}
-		//	break;
-
-		//	case E_SHADER_RESOURCE_TYPE::SRT_SAMPLER_STATE:
-		//		mLayoutInfo.mSamplersActiveSlots.push_back(currShaderResourceInfo.second.mSlot);
-		//		break;
-
-		//	case E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D:
-		//	case E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE3D:
-		//	case E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER:
-		//	case E_SHADER_RESOURCE_TYPE::SRT_RW_RAW_BUFFER:
-		//	{
-		//		auto& srvBindingInfo = mLayoutInfo.mUAVActiveSlots.emplace_back();
-
-		//		srvBindingInfo.mSlot = static_cast<U32>(currShaderResourceInfo.second.mSlot);
-		//		srvBindingInfo.mType = ConvertToBindingType(currShaderResourceInfo.second.mType);
-		//	}
-		//	break;
-		//	}
-		//}
-
-		//VkDescriptorSetLayoutCreateInfo shaderDescriptorSetLayoutCreateInfo{};
-		//shaderDescriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		//shaderDescriptorSetLayoutCreateInfo.bindingCount = static_cast<U32>(bindings.size());
-		//shaderDescriptorSetLayoutCreateInfo.pBindings = bindings.data();
-		//shaderDescriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR;
-
-		//VK_SAFE_CALL(vkCreateDescriptorSetLayout(mDevice, &shaderDescriptorSetLayoutCreateInfo, nullptr, &mDescriptorsSetLayout));
-
-		//VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
-		//pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		//pipelineLayoutCreateInfo.setLayoutCount = 1;
-		//pipelineLayoutCreateInfo.pSetLayouts = &mDescriptorsSetLayout;
-		//pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
-		//pipelineLayoutCreateInfo.pPushConstantRanges = 0;
-
-		//VK_SAFE_CALL(vkCreatePipelineLayout(mDevice, &pipelineLayoutCreateInfo, nullptr, &mPipelineLayout));
-
-		//auto uniformBuffersInfo = pCompilerData->mUniformBuffersInfo;
-
-		//TUniformBufferDesc currDesc;
-
-		//E_RESULT_CODE result = RC_OK;
-
-		//mUniformBuffers.resize(uniformBuffersInfo.size() - TotalNumberOfInternalConstantBuffers);
-
-		//auto pGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
-
-		///// here only user uniforms buffers are created
-		//for (auto iter = uniformBuffersInfo.cbegin(); iter != uniformBuffersInfo.cend(); ++iter)
-		//{
-		//	currDesc = (*iter).second;
-
-		//	/// skip internal buffers, because they are created separately by IGlobalShaderProperties implementation
-		//	if ((currDesc.mFlags & E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL) == E_UNIFORM_BUFFER_DESC_FLAGS::UBDF_INTERNAL)
-		//	{
-		//		continue;
-		//	}
-
-		//	auto createBufferResult = pGraphicsObjectManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::CONSTANT, currDesc.mSize, nullptr });
-		//	if (createBufferResult.HasError())
-		//	{
-		//		return createBufferResult.GetError();
-		//	}
-
-		//	const U32 index = static_cast<U32>(iter->second.mSlot - TotalNumberOfInternalConstantBuffers);
-		//	TDE2_ASSERT(index >= 0 && index <= 1024);
-
-		//	/// \note Ensure that we compute correct size of the constant buffer. We use ID3D11ShaderReflection to retrieve accurate information
-
-		//	mUniformBuffers[index] = createBufferResult.Get(); // the offset is used because the shaders doesn't store internal buffer by themselves
-		//}
+			mUniformBuffers[index] = createBufferResult.Get(); // the offset is used because the shaders doesn't store internal buffer by themselves
+		}
 
 		return RC_OK;
 	}
@@ -631,6 +773,8 @@ namespace TDEngine2
 		switch (type)
 		{
 			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D:
+			case E_TEXTURE_IMPL_TYPE::CUBEMAP:
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D_ARRAY:
 				return D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 			case E_TEXTURE_IMPL_TYPE::TEXTURE_3D:
 				return D3D12_RESOURCE_DIMENSION_TEXTURE3D;
@@ -647,21 +791,21 @@ namespace TDEngine2
 		textureDesc.Dimension        = GetInternalTextureType(params.mType);
 		textureDesc.Width            = params.mWidth;
 		textureDesc.Height           = params.mHeight;
-		textureDesc.DepthOrArraySize = E_TEXTURE_IMPL_TYPE::TEXTURE_3D == params.mType ? params.mDepth : params.mArraySize;
+		textureDesc.DepthOrArraySize = E_TEXTURE_IMPL_TYPE::TEXTURE_3D == params.mType ? params.mDepth : (E_TEXTURE_IMPL_TYPE::CUBEMAP == params.mType ? 6 : params.mArraySize);
 		textureDesc.MipLevels        = params.mNumOfMipLevels;
 		textureDesc.SampleDesc.Count = 1;
-		textureDesc.Format           = (E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER)) ?
+		textureDesc.Format           = HasEnumFlag(params.mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER) ?
 			CD3D12Mappings::GetTypelessVersionOfFormat(params.mFormat) : CD3D12Mappings::GetDXGIFormat(params.mFormat);
 
-		if (E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET))
+		if (HasEnumFlag(params.mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET))
 		{
 			textureDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 		}
-		else if (E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER))
+		else if (HasEnumFlag(params.mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER))
 		{
 			textureDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 		}
-		else if (E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS))
+		else if (HasEnumFlag(params.mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS))
 		{
 			textureDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 		}
@@ -671,7 +815,7 @@ namespace TDEngine2
 
 		TCreatedImageInfo output{};
 
-		if (FAILED(pAllocator->CreateResource(&allocationDesc, &textureDesc, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, nullptr, &output.mpAllocation, IID_PPV_ARGS(&output.mpTexture))))
+		if (FAILED(pAllocator->CreateResource(&allocationDesc, &textureDesc, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, nullptr, &output.mpAllocation, IID_PPV_ARGS(&output.mpTexture))))
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
@@ -742,6 +886,71 @@ namespace TDEngine2
 		}
 		return Wrench::TOkValue<VkImageView>(textureImageView);
 	}*/
+
+	static TD3D12ResourceDescriptor CreateRenderTargetViewInternal(CD3D12GraphicsContext* pGraphicsContext, ComPtr<ID3D12Resource> pTextureResource, const TInitTextureImplParams& params)
+	{
+		TD3D12ResourceDescriptor renderTargetDescriptor = pGraphicsContext->GetDescriptorsAllocator(D3D12_DESCRIPTOR_HEAP_TYPE_RTV)->AllocDescriptor();
+
+		D3D12_RENDER_TARGET_VIEW_DESC viewDesc{};
+
+		const bool isCubemap = (params.mType == E_TEXTURE_IMPL_TYPE::CUBEMAP);
+
+		viewDesc.Format        = CD3D12Mappings::GetDXGIFormat(params.mFormat);
+		viewDesc.ViewDimension = (params.mArraySize > 1 || isCubemap) ? D3D12_RTV_DIMENSION_TEXTURE2DARRAY : D3D12_RTV_DIMENSION_TEXTURE2D;
+
+		switch (params.mType)
+		{
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D:
+				viewDesc.Texture2D.MipSlice = 0;
+				break;
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D_ARRAY:
+			case E_TEXTURE_IMPL_TYPE::CUBEMAP:
+				viewDesc.Texture2DArray.ArraySize = isCubemap ? 6 : params.mArraySize;
+				viewDesc.Texture2DArray.MipSlice = 0;
+				viewDesc.Texture2DArray.FirstArraySlice = 0;
+				break;
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_3D:
+				viewDesc.Texture3D.FirstWSlice = 0;
+				viewDesc.Texture3D.MipSlice = 0;
+				viewDesc.Texture3D.WSize = -1;
+				break;
+		}
+
+		pGraphicsContext->GetDeviceContext()->CreateRenderTargetView(pTextureResource.Get(), &viewDesc, renderTargetDescriptor.mCPUHandle);
+
+		return renderTargetDescriptor;
+	}
+
+
+	static TD3D12ResourceDescriptor CreateDepthStencilViewInternal(CD3D12GraphicsContext* pGraphicsContext, ComPtr<ID3D12Resource> pTextureResource, const TInitTextureImplParams& params)
+	{
+		TD3D12ResourceDescriptor renderTargetDescriptor = pGraphicsContext->GetDescriptorsAllocator(D3D12_DESCRIPTOR_HEAP_TYPE_DSV)->AllocDescriptor();
+
+		D3D12_DEPTH_STENCIL_VIEW_DESC viewDesc{};
+
+		const bool isCubemap = (params.mType == E_TEXTURE_IMPL_TYPE::CUBEMAP);
+
+		viewDesc.Format        = CD3D12Mappings::GetDXGIFormat(params.mFormat);
+		viewDesc.ViewDimension = (params.mArraySize > 1 || isCubemap) ? D3D12_DSV_DIMENSION_TEXTURE2DARRAY : D3D12_DSV_DIMENSION_TEXTURE2D;
+
+		switch (params.mType)
+		{
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D:
+				viewDesc.Texture2D.MipSlice = 0;
+				break;
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D_ARRAY:
+			case E_TEXTURE_IMPL_TYPE::CUBEMAP:
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_3D:
+				viewDesc.Texture2DArray.ArraySize = isCubemap ? 6 : params.mArraySize;
+				viewDesc.Texture2DArray.MipSlice = 0;
+				viewDesc.Texture2DArray.FirstArraySlice = 0;
+				break;
+		}
+
+		pGraphicsContext->GetDeviceContext()->CreateDepthStencilView(pTextureResource.Get(), &viewDesc, renderTargetDescriptor.mCPUHandle);
+
+		return renderTargetDescriptor;
+	}
 
 
 	CD3D12TextureImpl::CD3D12TextureImpl() :
@@ -821,16 +1030,21 @@ namespace TDEngine2
 		return mpResource;
 	}
 
-	//VkImageView CD3D12TextureImpl::GetTextureViewHandle()
-	//{
-	//	return mInternalImageViewHandle;
-	//}
+	const TD3D12ResourceDescriptor& CD3D12TextureImpl::GetRenderTargetDescriptor() const
+	{
+		return mRenderTargetDescriptor;
+	}
 
-	std::vector<U8> CD3D12TextureImpl::ReadBytes(U32 index)
+	const TD3D12ResourceDescriptor& CD3D12TextureImpl::GetDepthBufferDescriptor() const
+	{
+		return mDepthStencilDescriptor;
+	}
+
+	Vector<U8> CD3D12TextureImpl::ReadBytes(U32 index)
 	{
 		TDE2_ASSERT(E_TEXTURE_IMPL_USAGE_TYPE::DYNAMIC == mInitParams.mUsageType && mpReadbackBuffer);
 
-		std::vector<U8> outputBytes(static_cast<size_t>(mInitParams.mWidth * mInitParams.mHeight * mInitParams.mDepth * CFormatUtils::GetFormatSize(mInitParams.mFormat)));
+		Vector<U8> outputBytes(static_cast<size_t>(mInitParams.mWidth * mInitParams.mHeight * mInitParams.mDepth * CFormatUtils::GetFormatSize(mInitParams.mFormat)));
 
 		//mpGraphicsContextImpl->ExecuteImmediate([this, &outputBytes](VkCommandBuffer commandBuffer)
 		//	{
@@ -923,6 +1137,15 @@ namespace TDEngine2
 					static_cast<USIZE>(mInitParams.mWidth * mInitParams.mHeight * mInitParams.mDepth * CFormatUtils::GetFormatSize(mInitParams.mFormat)),
 					nullptr
 				}, result)));
+		}
+
+		if (HasEnumFlag(mInitParams.mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER))
+		{
+			mDepthStencilDescriptor = CreateDepthStencilViewInternal(mpGraphicsContextImpl, mpResource, mInitParams);
+		}
+		else if (HasEnumFlag(mInitParams.mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET))
+		{
+			mRenderTargetDescriptor = CreateRenderTargetViewInternal(mpGraphicsContextImpl, mpResource, mInitParams);
 		}
 
 #if TDE2_DEBUG_MODE
