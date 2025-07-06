@@ -178,35 +178,33 @@ namespace TDEngine2
 			return Wrench::TOkValue<TTextureSamplerId>(TTextureSamplerId(mTextureSamplesHashTable[hashValue]));
 		}
 
-		//VkSamplerCreateInfo samplerInfo{};
-		//samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-		//samplerInfo.magFilter = CD3D12Mappings::GetFilterType(samplerDesc.mFilteringType);
-		//samplerInfo.minFilter = CD3D12Mappings::GetFilterType(samplerDesc.mFilteringType);
-		//samplerInfo.addressModeU = CD3D12Mappings::GetTextureAddressMode(samplerDesc.mUAddressMode);
-		//samplerInfo.addressModeV = CD3D12Mappings::GetTextureAddressMode(samplerDesc.mVAddressMode);
-		//samplerInfo.addressModeW = CD3D12Mappings::GetTextureAddressMode(samplerDesc.mWAddressMode);
-		//samplerInfo.anisotropyEnable = VK_FALSE;
-		//samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-		//samplerInfo.unnormalizedCoordinates = VK_FALSE;
-		//samplerInfo.compareEnable = VK_FALSE;
-		//samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-		//samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-		//samplerInfo.mipLodBias = 0.0f;
-		//samplerInfo.minLod = 0.0f;
-		//samplerInfo.maxLod = 0.0f;
+		D3D12_SAMPLER_DESC samplerDescInfo{};
 
-		//auto pD3D12GraphicsContext = dynamic_cast<CD3D12GraphicsContext*>(mpGraphicsContext);
+		samplerDescInfo.AddressU = CD3D12Mappings::GetTextureAddressMode(samplerDesc.mUAddressMode);
+		samplerDescInfo.AddressV = CD3D12Mappings::GetTextureAddressMode(samplerDesc.mVAddressMode);
+		samplerDescInfo.AddressW = CD3D12Mappings::GetTextureAddressMode(samplerDesc.mWAddressMode);
+		samplerDescInfo.Filter   = CD3D12Mappings::GetFilterType(samplerDesc.mFilteringType);
+		samplerDescInfo.MinLOD   = 0.0f;
+		samplerDescInfo.MaxLOD   = D3D12_FLOAT32_MAX;
 
-		//VkSampler samplerHandle = VK_NULL_HANDLE;
-		//VK_SAFE_TRESULT_CALL(vkCreateSampler(pD3D12GraphicsContext->GetDevice(), &samplerInfo, nullptr, &samplerHandle));
+		CD3D12GraphicsContext* pD3D12GraphicsContext = dynamic_cast<CD3D12GraphicsContext*>(mpGraphicsContext);
+		
+		TPtr<ID3D12CPUDescriptorsAllocator> pDescriptorsAllocator = pD3D12GraphicsContext->GetDescriptorsAllocator(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+		if (!pDescriptorsAllocator)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
 
-		//U32 samplerId = static_cast<U32>(mTextureSamplersArray.size());
+		const TD3D12ResourceDescriptor& samplerDescriptor = pDescriptorsAllocator->AllocDescriptor();
 
-		/*mTextureSamplersArray.push_back(samplerHandle);
+		pD3D12GraphicsContext->GetDeviceContext()->CreateSampler(&samplerDescInfo, samplerDescriptor.mCPUHandle);
+		
+		const U32 samplerId = static_cast<U32>(mTextureSamplersArray.size());
+
+		mTextureSamplersArray.emplace_back(samplerDescriptor);
 		mTextureSamplesHashTable.insert({ hashValue, samplerId });
 
-		return Wrench::TOkValue<TTextureSamplerId>(TTextureSamplerId(samplerId));*/
-		return Wrench::TOkValue<TTextureSamplerId>(TTextureSamplerId(0));
+		return Wrench::TOkValue<TTextureSamplerId>(TTextureSamplerId(samplerId));
 	}
 
 	TPtr<IBuffer> CD3D12GraphicsObjectManager::GetBufferPtr(TBufferHandleId handle)
@@ -251,7 +249,7 @@ namespace TDEngine2
 		return mpTexturesArray[texturePlacementIndex];
 	}
 
-	/*TResult<VkSampler> CD3D12GraphicsObjectManager::GetTextureSampler(TTextureSamplerId texSamplerId) const
+	TResult<TD3D12ResourceDescriptor> CD3D12GraphicsObjectManager::GetTextureSampler(TTextureSamplerId texSamplerId) const
 	{
 		const USIZE textureSamplerIndex = static_cast<USIZE>(texSamplerId);
 		if (textureSamplerIndex >= mTextureSamplersArray.size())
@@ -259,8 +257,8 @@ namespace TDEngine2
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
-		return Wrench::TOkValue<VkSampler>(mTextureSamplersArray[textureSamplerIndex]);
-	}*/
+		return Wrench::TOkValue<TD3D12ResourceDescriptor>(mTextureSamplersArray[textureSamplerIndex]);
+	}
 
 	std::string CD3D12GraphicsObjectManager::GetDefaultShaderCode(const E_DEFAULT_SHADER_TYPE& type) const
 	{

@@ -52,9 +52,9 @@ namespace TDEngine2
 		public:
 			friend IGraphicsObjectManager* CreateD3D12GraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
 		public:
-			typedef std::vector<TPtr<CD3D12TextureImpl>> TNativeTexturesArray;
-			typedef std::vector<TPtr<CD3D12Buffer>>      TNativeBuffersArray;
-			//typedef std::vector<VkSampler>                TTextureSamplersArray;
+			typedef std::vector<TPtr<CD3D12TextureImpl>>  TNativeTexturesArray;
+			typedef std::vector<TPtr<CD3D12Buffer>>       TNativeBuffersArray;
+			typedef std::vector<TD3D12ResourceDescriptor> TTextureSamplersArray;
 		public:
 			TResult<TBufferHandleId> CreateBuffer(const TInitBufferParams& params) override;
 			TResult<TTextureHandleId> CreateTexture(const TInitTextureImplParams& params) override;
@@ -86,11 +86,11 @@ namespace TDEngine2
 			TPtr<ITextureImpl> GetTexturePtr(TTextureHandleId handle) override;
 			TPtr<CD3D12TextureImpl> GetD3D12TexturePtr(TTextureHandleId textureHandle);
 
-			///*!
-			//	\return The method returns VkSampler handle or an error code
-			//*/
+			/*!
+				\return The method returns VkSampler handle or an error code
+			*/
 
-			//TResult<VkSampler> GetTextureSampler(TTextureSamplerId texSamplerId) const;
+			TResult<TD3D12ResourceDescriptor> GetTextureSampler(TTextureSamplerId texSamplerId) const;
 
 			/*!
 				\brief The method returns a string which contains full source code of default shader that is specific
@@ -133,7 +133,7 @@ namespace TDEngine2
 			TNativeTexturesArray                                   mpTexturesArray;
 			TNativeBuffersArray                                    mpBuffersArray;
 
-			//TTextureSamplersArray                                  mTextureSamplersArray;
+			TTextureSamplersArray                                  mTextureSamplersArray;
 
 			std::unordered_map<U32, std::vector<TTextureHandleId>> mTransientTexturesPool;
 			std::unordered_map<U32, std::vector<TBufferHandleId>>  mTransientBuffersPool;
