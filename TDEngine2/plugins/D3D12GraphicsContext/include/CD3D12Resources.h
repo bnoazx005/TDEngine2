@@ -118,11 +118,14 @@ namespace TDEngine2
 			ComPtr<ID3D12Resource> GetHandle() const;
 			D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress() const;
 
+			const TD3D12ResourceDescriptor& GetUnorderedAccessViewHandle() const;
+			const TD3D12ResourceDescriptor& GetShaderResourceViewHandle() const;
+
 			const TInitBufferParams& GetParams() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D12Buffer)
 
-			E_RESULT_CODE _discardCurrentBuffer(USIZE newSize, E_STRUCTURED_BUFFER_TYPE structuredBufferType);
+			E_RESULT_CODE _discardCurrentBuffer(USIZE newSize, E_STRUCTURED_BUFFER_TYPE structuredBufferType, USIZE elementStrideSize);
 			E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			USIZE                    mBufferSize = 0;
@@ -141,15 +144,14 @@ namespace TDEngine2
 
 			CD3D12GraphicsContext*   mpGraphicsContextImpl = nullptr;
 
-			/*VkBuffer                 mInternalBufferHandle = VK_NULL_HANDLE;
-			VkBufferView             mInternalBufferViewHandle = VK_NULL_HANDLE;
-			VmaAllocator             mAllocator = VK_NULL_HANDLE;
-			VmaAllocation            mAllocation = VK_NULL_HANDLE;
-			VkDevice                 mDevice = VK_NULL_HANDLE;*/
 			ComPtr<ID3D12Resource>   mpResource = nullptr;
 			D3D12MA::Allocation*     mpAllocation = nullptr;
 
 			bool                     mIsUnorderedAccessResource = false;
+
+			TD3D12ResourceDescriptor mConstantBufferView{};
+			TD3D12ResourceDescriptor mUnorderedAccessView{};
+			TD3D12ResourceDescriptor mShaderResourceView{};
 
 			TInitBufferParams        mInitParams{};
 	};
@@ -198,6 +200,9 @@ namespace TDEngine2
 		std::vector<TBindingInfo> mSRVActiveSlots {};
 		std::vector<TBindingInfo> mUAVActiveSlots {};
 		std::vector<U32>          mSamplersActiveSlots {};
+
+		U32                       mResourcesTableRootIndex = std::numeric_limits<U32>::max();
+		U32                       mSamplersTableRootIndex = std::numeric_limits<U32>::max();
 	};
 
 
@@ -295,6 +300,7 @@ namespace TDEngine2
 
 			ComPtr<ID3D12Resource> GetHandle() const;
 
+			const TD3D12ResourceDescriptor& GetShaderResourceDescriptor() const;
 			const TD3D12ResourceDescriptor& GetRenderTargetDescriptor() const;
 			const TD3D12ResourceDescriptor& GetDepthBufferDescriptor() const;
 
@@ -317,6 +323,7 @@ namespace TDEngine2
 			ComPtr<ID3D12Resource>   mpResource = nullptr;
 			D3D12MA::Allocation*     mpAllocation = nullptr;
 
+			TD3D12ResourceDescriptor mShaderResourceDescriptor{};
 			TD3D12ResourceDescriptor mRenderTargetDescriptor{}; // IsValid() is true if it's active. The condition is correct for all the descriptors
 			TD3D12ResourceDescriptor mDepthStencilDescriptor{};
 

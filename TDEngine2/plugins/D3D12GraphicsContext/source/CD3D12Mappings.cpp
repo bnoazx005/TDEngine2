@@ -30,7 +30,7 @@ namespace TDEngine2
 		}
 
 		return D3D12_USAGE_DEFAULT;
-	}
+	}*/
 
 	E_FORMAT_TYPE CD3D12Mappings::GetBestFitStrongTypeFormat(E_FORMAT_TYPE format)
 	{
@@ -52,7 +52,7 @@ namespace TDEngine2
 
 		return FT_UNKNOWN;
 	}
-
+	/*
 	U32 CD3D12Mappings::GetFormatSize(E_FORMAT_TYPE format)
 	{
 		switch (format)

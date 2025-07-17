@@ -46,15 +46,15 @@ namespace TDEngine2
 
 			//static D3D12_USAGE GetUsageType(E_BUFFER_USAGE_TYPE type);
 
-			///*!
-			//	\brief The function maps weak typed version to best fit strongly typed one
+			/*!
+				\brief The function maps weak typed version to best fit strongly typed one
 
-			//	\param[in] format Weaked typed version of format
+				\param[in] format Weaked typed version of format
 
-			//	\return A value of DXGI_FORMAT type which corresponds to strongly typed format
-			//*/
+				\return A value of DXGI_FORMAT type which corresponds to strongly typed format
+			*/
 
-			//static E_FORMAT_TYPE GetBestFitStrongTypeFormat(E_FORMAT_TYPE format);
+			static E_FORMAT_TYPE GetBestFitStrongTypeFormat(E_FORMAT_TYPE format);
 
 			///*!
 			//	\brief The function returns a size of a specified format
