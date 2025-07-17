@@ -811,24 +811,24 @@ namespace TDEngine2
 
 		switch (params.mType)
 		{
-		case E_TEXTURE_IMPL_TYPE::CUBEMAP:
-			viewDesc.TextureCube.MipLevels = params.mNumOfMipLevels;
-			viewDesc.TextureCube.MostDetailedMip = 0;
-			break;
-		case E_TEXTURE_IMPL_TYPE::TEXTURE_2D:
-			viewDesc.Texture2D.MipLevels = params.mNumOfMipLevels;
-			viewDesc.Texture2D.MostDetailedMip = 0;
-			break;
-		case E_TEXTURE_IMPL_TYPE::TEXTURE_2D_ARRAY:
-			viewDesc.Texture2DArray.MipLevels = params.mNumOfMipLevels;
-			viewDesc.Texture2DArray.ArraySize = params.mArraySize;
-			viewDesc.Texture2DArray.FirstArraySlice = 0;
-			viewDesc.Texture2DArray.MostDetailedMip = 0;
-			break;
-		case E_TEXTURE_IMPL_TYPE::TEXTURE_3D:
-			viewDesc.Texture3D.MipLevels = params.mNumOfMipLevels;
-			viewDesc.Texture3D.MostDetailedMip = 0;
-			break;
+			case E_TEXTURE_IMPL_TYPE::CUBEMAP:
+				viewDesc.TextureCube.MipLevels = params.mNumOfMipLevels;
+				viewDesc.TextureCube.MostDetailedMip = 0;
+				break;
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D:
+				viewDesc.Texture2D.MipLevels = params.mNumOfMipLevels;
+				viewDesc.Texture2D.MostDetailedMip = 0;
+				break;
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D_ARRAY:
+				viewDesc.Texture2DArray.MipLevels = params.mNumOfMipLevels;
+				viewDesc.Texture2DArray.ArraySize = params.mArraySize;
+				viewDesc.Texture2DArray.FirstArraySlice = 0;
+				viewDesc.Texture2DArray.MostDetailedMip = 0;
+				break;
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_3D:
+				viewDesc.Texture3D.MipLevels = params.mNumOfMipLevels;
+				viewDesc.Texture3D.MostDetailedMip = 0;
+				break;
 		}
 
 		ID3D11ShaderResourceView* pShaderResourceView = nullptr;
