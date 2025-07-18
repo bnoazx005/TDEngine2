@@ -218,16 +218,10 @@ namespace TDEngine2
 			TPtr<CD3D12Swapchain> CreateSwapchain();
 
 			CD3D12Fence CreateFence(bool signaled = true);
-			//VkSemaphore CreateSemaphore(VkSemaphoreCreateFlags flags = 0x0);
 
-			//E_RESULT_CODE SubmitCommands(TPtr<CD3D12CommandBuffer> pCommandBuffer, VkSemaphore waitSemaphore = VK_NULL_HANDLE, VkSemaphore signalSemaphore = VK_NULL_HANDLE, VkFence fence = VK_NULL_HANDLE);
 			void WaitForIdle();
 
 			ComPtr<ID3D12Device5> GetDevice() const { return mp3dDevice; }
-			//const VkPhysicalDevice GetPhysicalDevice() const { return mPhysicalDevice; }
-			//const VkDevice GetDevice() const { return mDevice; }
-			//const VkSurfaceKHR GetSwapchainSurface() const { return mSwapChainSurface; }
-			//const VkInstance GetInstance() const { return mInstance; }
 
 			ComPtr<ID3D12CommandQueue> GetCommandQueue() { return mpCommandQueue; }
 
@@ -241,37 +235,25 @@ namespace TDEngine2
 
 			E_RESULT_CODE _onFreeInternal() override;
 		private:
-			TPtr<IWindowSystem>            mpWindowSystem = nullptr;
+			TPtr<IWindowSystem>        mpWindowSystem = nullptr;
 
-			D3D_FEATURE_LEVEL              mCurrFeatureLevel = D3D_FEATURE_LEVEL_12_2;
-			ComPtr<ID3D12Device5>          mp3dDevice = nullptr;
-			ComPtr<IDXGIAdapter1>          mpAdapter = nullptr;
+			D3D_FEATURE_LEVEL          mCurrFeatureLevel = D3D_FEATURE_LEVEL_12_2;
+			ComPtr<ID3D12Device5>      mp3dDevice = nullptr;
+			ComPtr<IDXGIAdapter1>      mpAdapter = nullptr;
 									    
 #if TDE2_DEBUG_MODE					    
-			ComPtr<ID3D12Debug1>           mpDebugController = nullptr;
-			ComPtr<ID3D12DebugDevice>      mpDebugDevice = nullptr;
+			ComPtr<ID3D12Debug1>       mpDebugController = nullptr;
+			ComPtr<ID3D12DebugDevice>  mpDebugDevice = nullptr;
 #endif								    
 			    
-			ComPtr<D3D12MA::Allocator>     mpMemoryAllocator = nullptr;
-
-	//		VkInstance                  mInstance = VK_NULL_HANDLE;
-	//		VkPhysicalDevice            mPhysicalDevice = VK_NULL_HANDLE;
-	//		VkDevice                    mDevice = VK_NULL_HANDLE;
-
-	//		VkSurfaceKHR                mSwapChainSurface = VK_NULL_HANDLE;
-
-			ComPtr<IDXGIFactory4>          mpObjectsFactory = nullptr;
+			ComPtr<D3D12MA::Allocator> mpMemoryAllocator = nullptr;
+			ComPtr<IDXGIFactory4>      mpObjectsFactory = nullptr;
 
 			// queues
-			ComPtr<ID3D12CommandQueue>     mpCommandQueue = nullptr;
-			CD3D12Fence                    mCommandQueueFence{};
+			ComPtr<ID3D12CommandQueue> mpCommandQueue = nullptr;
+			CD3D12Fence                mCommandQueueFence{};
 
-	//		VkQueue                     mGraphicsQueue = VK_NULL_HANDLE;
-	//		VkQueue                     mPresentQueue = VK_NULL_HANDLE;
-
-	//		TQueuesCreateInfo           mQueuesInfo{};
-
-			TDescriptorHeapsTable          mpDescriptorHeapsTable{};
+			TDescriptorHeapsTable      mpDescriptorHeapsTable{};
 	};
 
 
@@ -748,7 +730,6 @@ namespace TDEngine2
 		public:
 			E_RESULT_CODE Init(CD3D12DeviceContext* pDeviceContext, TPtr<IWindowSystem> pWindowSystem);
 
-			//E_RESULT_CODE AcquireNextImage(VkSemaphore semaphore);
 			E_RESULT_CODE Present();
 
 			void InvalidateState() { mIsValid = false; }
@@ -1463,14 +1444,6 @@ namespace TDEngine2
 
 		mpShaderResourcesDescriptorsHeaps[currFrameId]->Reset();
 		mpSamplersDescriptorsHeaps[currFrameId]->Reset();
-
-		// TODO: Test code should be removed later 
-		//const auto& rtvHandle = mpSwapchain->GetCurrRenderTargetView();
-		//pCurrCommandBuffer->GetHandle()->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
-
-		//// Record commands.
-		//const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
-		//pCurrCommandBuffer->GetHandle()->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 
 		mDescriptorsBindingsTable.Reset();
 	}
