@@ -624,6 +624,7 @@ namespace TDEngine2
 		TD3D12ResourceDescriptor GetReservedDescriptorByIndex(U32 index);
 		E_RESULT_CODE Reset();
 
+		ID3D12DescriptorHeap* GetNativeHandle() const { return mpHeap.Get(); }
 		D3D12_DESCRIPTOR_HEAP_TYPE GetType() const { return mType; }
 		U32 GetDescriptorSize() const { return mDescriptorSize; }
 	private:
@@ -1224,11 +1225,209 @@ namespace TDEngine2
 		mCurrBackBufferIndex = mpSwapChain->GetCurrentBackBufferIndex();*/
 	}
 
+
+	static bool IsBindingTypeAllowed(const TD3D12PipelineLayoutInfo::TBindingInfo& bindingInfo, const TDescriptorsBindingsTable::TDescriptorHandle& descriptorHandle)
+	{
+		using E_BINDING_TYPE    = TD3D12PipelineLayoutInfo::TBindingInfo::E_TYPE;
+		using E_DESCRIPTOR_TYPE = TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE;
+
+		const TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE descriptorHandleType = descriptorHandle.mType;
+
+		if ((bindingInfo.mType == E_BINDING_TYPE::BUFFER && descriptorHandleType == E_DESCRIPTOR_TYPE::BUFFER) ||
+			(bindingInfo.mType == E_BINDING_TYPE::RAW_BUFFER && descriptorHandleType == E_DESCRIPTOR_TYPE::RAW_BUFFER) ||
+			(bindingInfo.mType == E_BINDING_TYPE::TEXTURE && descriptorHandleType == E_DESCRIPTOR_TYPE::TEXTURE))
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+
 	void CD3D12GraphicsContext::_preparePipelineState()
 	{
 		TDE2_PROFILER_SCOPE("CD3D12GraphicsContext::_preparePipelineState");
 
+		const U32 currFrameIndex = mpSwapchain->GetBackBufferTargetIndex();
+		if (!mpActivePipelineStates[currFrameIndex])
+		{
+			TDE2_ASSERT(false);
+			return;
+		}
 
+		const auto pipelineType = mpActivePipelineStates[currFrameIndex]->GetType();
+		if (E_PIPELINE_TYPE::GRAPHICS == pipelineType)
+		{
+			TDE2_ASSERT(mIsRenderPassActive);
+		}
+		
+		const auto& currPipelineActiveSlots = mpActivePipelineStates[currFrameIndex]->GetLayoutInfo();
+
+		ID3D12GraphicsCommandList4* pCurrCommandBuffer = _getCurrCommandListPtr();
+
+		std::array<ID3D12DescriptorHeap*, 2> currDescriptorHeaps
+		{
+			mpShaderResourcesDescriptorsHeaps[currFrameIndex]->GetNativeHandle(),
+			mpSamplersDescriptorsHeaps[currFrameIndex]->GetNativeHandle()
+		};
+
+		pCurrCommandBuffer->SetDescriptorHeaps(2, currDescriptorHeaps.data());
+
+		for (U32 i = 0; i < currPipelineActiveSlots.mCBVActiveSlots.size(); ++i)
+		{
+			if (TPtr<CD3D12Buffer> pConstantBuffer = mpGraphicsObjectManagerD3D12Impl->GetD3D12BufferPtr(mDescriptorsBindingsTable.mConstantBuffers[currPipelineActiveSlots.mCBVActiveSlots[i]]))
+			{
+				switch (pipelineType)
+				{
+					case E_PIPELINE_TYPE::GRAPHICS:
+						pCurrCommandBuffer->SetGraphicsRootConstantBufferView(i, pConstantBuffer->GetGPUAddress());
+						break;
+					case E_PIPELINE_TYPE::COMPUTE:
+						pCurrCommandBuffer->SetComputeRootConstantBufferView(i, pConstantBuffer->GetGPUAddress());
+						break;
+				}
+			}
+		}
+
+		const TD3D12ResourceDescriptor& srvResourcesBlock = mpShaderResourcesDescriptorsHeaps[currFrameIndex]->AllocDescriptorsBlock(static_cast<U32>(currPipelineActiveSlots.mSRVActiveSlots.size()));
+		
+		// \note Allows to iterate through SRVs and UAVs like they all are placed in single contiguous array [SRVs, UAVs]
+		auto getResourceEntryByIndex = [this, &currPipelineActiveSlots](U32 index) -> const TDescriptorsBindingsTable::TDescriptorHandle&
+			{
+				static TDescriptorsBindingsTable::TDescriptorHandle invalidHandle{};
+
+				if (index < currPipelineActiveSlots.mSRVActiveSlots.size())
+				{
+					return mDescriptorsBindingsTable.mSRVBuffers[currPipelineActiveSlots.mSRVActiveSlots[index].mSlot];
+				}
+
+				if (const USIZE localIndex = static_cast<USIZE>(index - currPipelineActiveSlots.mSRVActiveSlots.size()); localIndex < currPipelineActiveSlots.mUAVActiveSlots.size())
+				{
+					return mDescriptorsBindingsTable.mUAVBuffers[currPipelineActiveSlots.mUAVActiveSlots[localIndex].mSlot];
+				}
+
+				TDE2_UNREACHABLE();
+				return invalidHandle;
+			};
+
+		auto getBindingInfoByIndex = [this, &currPipelineActiveSlots](U32 index) -> const TD3D12PipelineLayoutInfo::TBindingInfo&
+			{
+				static TD3D12PipelineLayoutInfo::TBindingInfo invalidHandle{};
+
+				if (index < currPipelineActiveSlots.mSRVActiveSlots.size())
+				{
+					return currPipelineActiveSlots.mSRVActiveSlots[index];
+				}
+
+				if (const USIZE localIndex = static_cast<USIZE>(index - currPipelineActiveSlots.mSRVActiveSlots.size()); localIndex < currPipelineActiveSlots.mUAVActiveSlots.size())
+				{
+					return currPipelineActiveSlots.mUAVActiveSlots[localIndex];
+				}
+
+				TDE2_UNREACHABLE();
+				return invalidHandle;
+			};
+
+		for (U32 i = 0; i < currPipelineActiveSlots.mSRVActiveSlots.size() + currPipelineActiveSlots.mUAVActiveSlots.size(); ++i)
+		{
+			const auto& currResourceEntity = getResourceEntryByIndex(i);
+			const bool isNullDescriptor = TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::UNKNOWN == currResourceEntity.mType;
+
+			if (isNullDescriptor || !IsBindingTypeAllowed(getBindingInfoByIndex(i), currResourceEntity)) // \note Process null descriptors
+			{
+				// \todo Implement assignment of null descriptors
+				continue;
+			}
+
+			D3D12_CPU_DESCRIPTOR_HANDLE srcSrvCPUHandle{};
+
+			switch (currResourceEntity.mType)
+			{
+				case TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::BUFFER:
+				case TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::RAW_BUFFER:
+				{
+					TPtr<CD3D12Buffer> pBuffer = mpGraphicsObjectManagerD3D12Impl->GetD3D12BufferPtr(currResourceEntity.mValue.mBuffer);
+					if (!pBuffer)
+					{
+						continue;
+					}
+
+					srcSrvCPUHandle = pBuffer->GetShaderResourceViewHandle().mCPUHandle;
+				}
+				break;
+
+				case TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::TEXTURE:
+				{
+					TPtr<CD3D12TextureImpl> pTexture = mpGraphicsObjectManagerD3D12Impl->GetD3D12TexturePtr(currResourceEntity.mValue.mTexture);
+					if (!pTexture)
+					{
+						continue;
+					}
+
+					srcSrvCPUHandle  = pTexture->GetShaderResourceDescriptor().mCPUHandle;
+				}
+				break;
+			}
+
+			D3D12_CPU_DESCRIPTOR_HANDLE destSrvCPUHandle = srvResourcesBlock.mCPUHandle;
+			destSrvCPUHandle.ptr += i * mpDeviceContext->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+			mpDeviceContext->GetDevice()->CopyDescriptorsSimple(1, destSrvCPUHandle, srcSrvCPUHandle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		}
+
+		switch (pipelineType)
+		{
+			case E_PIPELINE_TYPE::GRAPHICS:
+				pCurrCommandBuffer->SetGraphicsRootDescriptorTable(currPipelineActiveSlots.mResourcesTableRootIndex, srvResourcesBlock.mGPUHandle);
+				break;
+			case E_PIPELINE_TYPE::COMPUTE:
+				pCurrCommandBuffer->SetComputeRootDescriptorTable(currPipelineActiveSlots.mResourcesTableRootIndex, srvResourcesBlock.mGPUHandle);
+				break;
+		}
+
+		if (!currPipelineActiveSlots.mSamplersActiveSlots.empty())
+		{
+			const TD3D12ResourceDescriptor& samplersGPUDescriptorsBlock = mpSamplersDescriptorsHeaps[currFrameIndex]->AllocDescriptorsBlock(static_cast<U32>(currPipelineActiveSlots.mSamplersActiveSlots.size()));
+			D3D12_CPU_DESCRIPTOR_HANDLE currSamplersDestDescriptor = samplersGPUDescriptorsBlock.mCPUHandle;
+
+			for (U32 i = 0; i < currPipelineActiveSlots.mSamplersActiveSlots.size(); ++i)
+			{
+				const TTextureSamplerId currSamplerHandle = mDescriptorsBindingsTable.mSamplers[currPipelineActiveSlots.mSamplersActiveSlots[i]];
+				if (TTextureSamplerId::Invalid == currSamplerHandle)
+				{
+					continue;
+				}
+
+				const auto& getSamplerResult = mpGraphicsObjectManagerD3D12Impl->GetTextureSampler(currSamplerHandle);
+				if (getSamplerResult.HasError())
+				{
+					continue;
+				}
+
+				currSamplersDestDescriptor.ptr = samplersGPUDescriptorsBlock.mCPUHandle.ptr + currPipelineActiveSlots.mSamplersActiveSlots[i] * mpDeviceContext->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+
+				D3D12_CPU_DESCRIPTOR_HANDLE currSamplerSrcDescriptor = getSamplerResult.Get().mCPUHandle;
+				mpDeviceContext->GetDevice()->CopyDescriptorsSimple(1, currSamplersDestDescriptor, currSamplerSrcDescriptor, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+			}
+
+			switch (pipelineType)
+			{
+				case E_PIPELINE_TYPE::GRAPHICS:
+					pCurrCommandBuffer->SetGraphicsRootDescriptorTable(currPipelineActiveSlots.mSamplersTableRootIndex, samplersGPUDescriptorsBlock.mGPUHandle);
+					break;
+				case E_PIPELINE_TYPE::COMPUTE:
+					pCurrCommandBuffer->SetComputeRootDescriptorTable(currPipelineActiveSlots.mSamplersTableRootIndex, samplersGPUDescriptorsBlock.mGPUHandle);
+					break;
+			}
+		}
+
+		TDE2_ASSERT(mpActivePipelineStates[currFrameIndex]);
+		if (!mpActivePipelineStates[currFrameIndex])
+		{
+			return;
+		}
+
+		FlushBarriers();
 	}
 
 	ID3D12GraphicsCommandList4* CD3D12GraphicsContext::_getCurrCommandListPtr()
