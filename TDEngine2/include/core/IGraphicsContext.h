@@ -504,7 +504,7 @@ namespace TDEngine2
 		TDE2_API void Reset();
 
 		std::array<TBufferHandleId, MAX_CBV_COUNT>        mConstantBuffers;
-		std::array<TDescriptorHandle, MAX_SRV_COUNT>      mSRVBuffers;
+		std::array<TDescriptorHandle, MAX_SRV_COUNT>      mSRVBuffers; ///< \todo Replace Buffers with Resources
 		std::array<TDescriptorHandle, MAX_UAV_COUNT>      mUAVBuffers;
 		std::array<TTextureSamplerId, MAX_SAMPLERS_COUNT> mSamplers;
 	};
