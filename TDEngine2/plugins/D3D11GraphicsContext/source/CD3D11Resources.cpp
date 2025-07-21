@@ -855,20 +855,20 @@ namespace TDEngine2
 
 		switch (params.mType)
 		{
-		case E_TEXTURE_IMPL_TYPE::TEXTURE_2D:
-			viewDesc.Texture2D.MipSlice = 0;
-			break;
-		case E_TEXTURE_IMPL_TYPE::TEXTURE_2D_ARRAY:
-		case E_TEXTURE_IMPL_TYPE::CUBEMAP:
-			viewDesc.Texture2DArray.ArraySize = isCubemap ? 6 : params.mArraySize;
-			viewDesc.Texture2DArray.MipSlice = 0;
-			viewDesc.Texture2DArray.FirstArraySlice = 0;
-			break;
-		case E_TEXTURE_IMPL_TYPE::TEXTURE_3D:
-			viewDesc.Texture3D.FirstWSlice = 0;
-			viewDesc.Texture3D.MipSlice = 0;
-			viewDesc.Texture3D.WSize = -1;
-			break;
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D:
+				viewDesc.Texture2D.MipSlice = 0;
+				break;
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D_ARRAY:
+			case E_TEXTURE_IMPL_TYPE::CUBEMAP:
+				viewDesc.Texture2DArray.ArraySize = isCubemap ? 6 : params.mArraySize;
+				viewDesc.Texture2DArray.MipSlice = 0;
+				viewDesc.Texture2DArray.FirstArraySlice = 0;
+				break;
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_3D:
+				viewDesc.Texture3D.FirstWSlice = 0;
+				viewDesc.Texture3D.MipSlice = 0;
+				viewDesc.Texture3D.WSize = -1;
+				break;
 		}
 
 		ID3D11RenderTargetView* pRenderTargetView = nullptr;
@@ -895,16 +895,16 @@ namespace TDEngine2
 
 		switch (params.mType)
 		{
-		case E_TEXTURE_IMPL_TYPE::TEXTURE_2D:
-			viewDesc.Texture2D.MipSlice = 0;
-			break;
-		case E_TEXTURE_IMPL_TYPE::TEXTURE_2D_ARRAY:
-		case E_TEXTURE_IMPL_TYPE::CUBEMAP:
-		case E_TEXTURE_IMPL_TYPE::TEXTURE_3D:
-			viewDesc.Texture2DArray.ArraySize = isCubemap ? 6 : params.mArraySize;
-			viewDesc.Texture2DArray.MipSlice = 0;
-			viewDesc.Texture2DArray.FirstArraySlice = 0;
-			break;
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D:
+				viewDesc.Texture2D.MipSlice = 0;
+				break;
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D_ARRAY:
+			case E_TEXTURE_IMPL_TYPE::CUBEMAP:
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_3D:
+				viewDesc.Texture2DArray.ArraySize = isCubemap ? 6 : params.mArraySize;
+				viewDesc.Texture2DArray.MipSlice = 0;
+				viewDesc.Texture2DArray.FirstArraySlice = 0;
+				break;
 		}
 
 		ID3D11DepthStencilView* pDepthStencilView = nullptr;
@@ -936,20 +936,20 @@ namespace TDEngine2
 
 		switch (params.mType)
 		{
-		case E_TEXTURE_IMPL_TYPE::TEXTURE_2D:
-			viewDesc.Texture2D.MipSlice = 0;
-			break;
-		case E_TEXTURE_IMPL_TYPE::TEXTURE_2D_ARRAY:
-		case E_TEXTURE_IMPL_TYPE::CUBEMAP:
-			viewDesc.Texture2DArray.ArraySize = isCubemap ? 6 : params.mArraySize;
-			viewDesc.Texture2DArray.MipSlice = 0;
-			viewDesc.Texture2DArray.FirstArraySlice = 0;
-			break;
-		case E_TEXTURE_IMPL_TYPE::TEXTURE_3D:
-			viewDesc.Texture3D.WSize = -1;
-			viewDesc.Texture3D.MipSlice = 0;
-			viewDesc.Texture3D.FirstWSlice = 0;
-			break;
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D:
+				viewDesc.Texture2D.MipSlice = 0;
+				break;
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D_ARRAY:
+			case E_TEXTURE_IMPL_TYPE::CUBEMAP:
+				viewDesc.Texture2DArray.ArraySize = isCubemap ? 6 : params.mArraySize;
+				viewDesc.Texture2DArray.MipSlice = 0;
+				viewDesc.Texture2DArray.FirstArraySlice = 0;
+				break;
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_3D:
+				viewDesc.Texture3D.WSize = -1;
+				viewDesc.Texture3D.MipSlice = 0;
+				viewDesc.Texture3D.FirstWSlice = 0;
+				break;
 		}
 
 		ID3D11UnorderedAccessView* pUnorderedAccessView = nullptr;
