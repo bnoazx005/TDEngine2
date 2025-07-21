@@ -202,16 +202,19 @@ namespace TDEngine2
 			mpGraphicsContextImpl->GetDeviceContext()->CreateShaderResourceView(bufferInfo.mpResource.Get(), & srvDesc, mShaderResourceView.mCPUHandle);
 		}
 
-		//if (mIsUnorderedAccessResource)
-		//{
-		//	auto createBufferViewResult = CreateBufferViewInternal(mpGraphicsContextImpl, bufferInfo.mHandle, structuredBufferType);
-		//	if (createBufferViewResult.HasError())
-		//	{
-		//		return createBufferViewResult.GetError();
-		//	}
+		if (mIsUnorderedAccessResource)
+		{
+			mUnorderedAccessView = mpGraphicsContextImpl->GetDescriptorsAllocator(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)->AllocDescriptor();
 
-		//	mInternalBufferViewHandle = createBufferViewResult.Get();
-		//}
+			D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc{};
+			uavDesc.Format                     = E_STRUCTURED_BUFFER_TYPE::INDIRECT_DRAW_BUFFER != structuredBufferType ? DXGI_FORMAT_UNKNOWN : DXGI_FORMAT_R32_UINT;
+			uavDesc.ViewDimension              = D3D12_UAV_DIMENSION_BUFFER;
+			uavDesc.Buffer.FirstElement        = 0;
+			uavDesc.Buffer.StructureByteStride = static_cast<U32>(elementStrideSize);
+			uavDesc.Buffer.NumElements         = static_cast<U32>(newSize / elementStrideSize);
+
+			mpGraphicsContextImpl->GetDeviceContext()->CreateUnorderedAccessView(bufferInfo.mpResource.Get(), nullptr, &uavDesc, mUnorderedAccessView.mCPUHandle);
+		}
 
 		mpResource = bufferInfo.mpResource;
 		mpAllocation = bufferInfo.mpAllocation;
@@ -843,51 +846,10 @@ namespace TDEngine2
 
 		TCreatedImageInfo output{};
 
-		if (FAILED(pAllocator->CreateResource(&allocationDesc, &textureDesc, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, nullptr, &output.mpAllocation, IID_PPV_ARGS(&output.mpTexture))))
+		if (FAILED(pAllocator->CreateResource(&allocationDesc, &textureDesc, D3D12_RESOURCE_STATE_COMMON/*D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE*/, nullptr, &output.mpAllocation, IID_PPV_ARGS(&output.mpTexture))))
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
-
-		/*VkExtent3D imageExtent;
-		imageExtent.width = params.mWidth;
-		imageExtent.height = params.mHeight;
-		imageExtent.depth = params.mDepth;
-
-		VkImageCreateInfo imageInfo{};
-		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-		imageInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-		imageInfo.extent = imageExtent;
-		imageInfo.mipLevels = params.mNumOfMipLevels;
-		imageInfo.format = CVulkanMappings::GetInternalFormat(params.mFormat);
-		imageInfo.imageType = CVulkanMappings::GetTextureType(params.mType);
-		imageInfo.arrayLayers = E_TEXTURE_IMPL_TYPE::CUBEMAP == params.mType ? 6 : params.mArraySize;
-		imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-		imageInfo.samples = CVulkanMappings::GetSamplesCount(params.mNumOfSamples);
-		imageInfo.flags = E_TEXTURE_IMPL_TYPE::CUBEMAP == params.mType ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0x0;
-
-		if (E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET))
-		{
-			imageInfo.usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-		}
-		else if (E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_DEPTH_BUFFER))
-		{
-			imageInfo.usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-		}
-		else if (E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS == (params.mBindFlags & E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS))
-		{
-			imageInfo.usage |= VK_IMAGE_USAGE_STORAGE_BIT;
-		}
-
-		VmaAllocationCreateInfo allocInfo{};
-		allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
-		allocInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;*/
-
-
-		//VkResult result = vmaCreateImage(allocator, &imageInfo, &allocInfo, &output.mImage, &output.mAllocation, nullptr);
-		//if (VK_SUCCESS != result)
-		//{
-		//	return Wrench::TErrValue<E_RESULT_CODE>(CVulkanMappings::GetErrorCode(result));
-		//}
 
 		return Wrench::TOkValue<TCreatedImageInfo>(output);
 	}
@@ -935,6 +897,46 @@ namespace TDEngine2
 
 		return newResourceDescriptor;
 	}
+
+
+	static TD3D12ResourceDescriptor CreateUnorderedAccessViewInternal(CD3D12GraphicsContext* pGraphicsContext, ComPtr<ID3D12Resource> pTextureResource, const TInitTextureImplParams& params)
+	{
+		D3D12_UNORDERED_ACCESS_VIEW_DESC viewDesc{};
+
+		const bool isCubemap = (params.mType == E_TEXTURE_IMPL_TYPE::CUBEMAP);
+
+		viewDesc.Format        = CD3D12Mappings::GetDXGIFormat(params.mFormat);
+		viewDesc.ViewDimension = (params.mArraySize > 1 || isCubemap) ? D3D12_UAV_DIMENSION_TEXTURE2DARRAY : D3D12_UAV_DIMENSION_TEXTURE2D;
+
+		if (E_TEXTURE_IMPL_TYPE::TEXTURE_3D == params.mType)
+		{
+			viewDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE3D;
+		}
+
+		switch (params.mType)
+		{
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D:
+				viewDesc.Texture2D.MipSlice = 0;
+				break;
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D_ARRAY:
+			case E_TEXTURE_IMPL_TYPE::CUBEMAP:
+				viewDesc.Texture2DArray.ArraySize       = isCubemap ? 6 : params.mArraySize;
+				viewDesc.Texture2DArray.MipSlice        = 0;
+				viewDesc.Texture2DArray.FirstArraySlice = 0;
+				break;
+			case E_TEXTURE_IMPL_TYPE::TEXTURE_3D:
+				viewDesc.Texture3D.WSize       = -1;
+				viewDesc.Texture3D.MipSlice    = 0;
+				viewDesc.Texture3D.FirstWSlice = 0;
+				break;
+		}
+
+		TD3D12ResourceDescriptor newResourceDescriptor = pGraphicsContext->GetDescriptorsAllocator(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)->AllocDescriptor();
+		pGraphicsContext->GetDeviceContext()->CreateUnorderedAccessView(pTextureResource.Get(), nullptr, &viewDesc, newResourceDescriptor.mCPUHandle);
+
+		return newResourceDescriptor;
+	}
+
 
 	static TD3D12ResourceDescriptor CreateRenderTargetViewInternal(CD3D12GraphicsContext* pGraphicsContext, ComPtr<ID3D12Resource> pTextureResource, const TInitTextureImplParams& params)
 	{
@@ -1003,7 +1005,7 @@ namespace TDEngine2
 
 
 	CD3D12TextureImpl::CD3D12TextureImpl() :
-		CBaseObject(), mCurrLayout(E_RESOURCE_LAYOUT::UNDEFINED), mHandle(TTextureHandleId::Invalid)
+		CBaseObject(), mCurrLayout(E_RESOURCE_LAYOUT::SHADER_RESOURCE), mHandle(TTextureHandleId::Invalid)
 	{
 	}
 
@@ -1082,6 +1084,11 @@ namespace TDEngine2
 	const TD3D12ResourceDescriptor& CD3D12TextureImpl::GetShaderResourceDescriptor() const
 	{
 		return mShaderResourceDescriptor;
+	}
+
+	const TD3D12ResourceDescriptor& CD3D12TextureImpl::GetUnorderedAccessViewHandle() const
+	{
+		return mUnorderedAccessViewDescriptor;
 	}
 
 	const TD3D12ResourceDescriptor& CD3D12TextureImpl::GetRenderTargetDescriptor() const
@@ -1174,6 +1181,11 @@ namespace TDEngine2
 		
 		mShaderResourceDescriptor = CreateShaderResourceViewInternal(mpGraphicsContextImpl, mpResource, mInitParams);
 
+		if (HasEnumFlag(mInitParams.mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS))
+		{
+			mUnorderedAccessViewDescriptor = CreateUnorderedAccessViewInternal(mpGraphicsContextImpl, mpResource, mInitParams);
+		}
+
 		E_RESULT_CODE result = RC_OK;
 
 		if (E_TEXTURE_IMPL_USAGE_TYPE::DYNAMIC == mInitParams.mUsageType)
@@ -1211,9 +1223,6 @@ namespace TDEngine2
 
 		mpResource   = nullptr;
 		mpAllocation = nullptr;
-
-		/*
-		mpGraphicsContextImpl->DestroyObjectDeffered(mInternalImageViewHandle);*/
 
 		return RC_OK;
 	}

@@ -300,6 +300,7 @@ namespace TDEngine2
 
 			ComPtr<ID3D12Resource> GetHandle() const;
 
+			const TD3D12ResourceDescriptor& GetUnorderedAccessViewHandle() const;
 			const TD3D12ResourceDescriptor& GetShaderResourceDescriptor() const;
 			const TD3D12ResourceDescriptor& GetRenderTargetDescriptor() const;
 			const TD3D12ResourceDescriptor& GetDepthBufferDescriptor() const;
@@ -324,6 +325,7 @@ namespace TDEngine2
 			D3D12MA::Allocation*     mpAllocation = nullptr;
 
 			TD3D12ResourceDescriptor mShaderResourceDescriptor{};
+			TD3D12ResourceDescriptor mUnorderedAccessViewDescriptor{};
 			TD3D12ResourceDescriptor mRenderTargetDescriptor{}; // IsValid() is true if it's active. The condition is correct for all the descriptors
 			TD3D12ResourceDescriptor mDepthStencilDescriptor{};
 
