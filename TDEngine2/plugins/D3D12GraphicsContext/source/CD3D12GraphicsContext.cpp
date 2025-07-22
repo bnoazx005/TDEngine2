@@ -1270,7 +1270,7 @@ namespace TDEngine2
 			}
 		}
 
-		const TD3D12ResourceDescriptor& srvResourcesBlock = mpShaderResourcesDescriptorsHeaps[currFrameIndex]->AllocDescriptorsBlock(static_cast<U32>(currPipelineActiveSlots.mSRVActiveSlots.size()));
+		const TD3D12ResourceDescriptor& srvResourcesBlock = mpShaderResourcesDescriptorsHeaps[currFrameIndex]->AllocDescriptorsBlock(static_cast<U32>(currPipelineActiveSlots.mSRVActiveSlots.size() + currPipelineActiveSlots.mUAVActiveSlots.size()));
 		
 		// \note Allows to iterate through SRVs and UAVs like they all are placed in single contiguous array [SRVs, UAVs]
 		auto getResourceEntryByIndex = [this, &currPipelineActiveSlots](U32 index) -> const TDescriptorsBindingsTable::TDescriptorHandle&
@@ -1333,7 +1333,7 @@ namespace TDEngine2
 						continue;
 					}
 
-					srcSrvCPUHandle = pBuffer->GetShaderResourceViewHandle().mCPUHandle;
+					srcSrvCPUHandle = i < currPipelineActiveSlots.mSRVActiveSlots.size() ? pBuffer->GetShaderResourceViewHandle().mCPUHandle : pBuffer->GetUnorderedAccessViewHandle().mCPUHandle;
 				}
 				break;
 
@@ -1345,7 +1345,7 @@ namespace TDEngine2
 						continue;
 					}
 
-					srcSrvCPUHandle  = pTexture->GetShaderResourceDescriptor().mCPUHandle;
+					srcSrvCPUHandle  = i < currPipelineActiveSlots.mSRVActiveSlots.size() ? pTexture->GetShaderResourceDescriptor().mCPUHandle : pTexture->GetUnorderedAccessViewHandle().mCPUHandle;
 				}
 				break;
 			}
