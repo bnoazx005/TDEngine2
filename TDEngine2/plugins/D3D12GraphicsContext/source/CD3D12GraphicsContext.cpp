@@ -1885,7 +1885,40 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D12GraphicsContext::CopyResource(TBufferHandleId sourceHandle, TBufferHandleId destHandle)
 	{
-		TDE2_UNIMPLEMENTED();
+		auto pSourceBuffer = mpGraphicsObjectManagerD3D12Impl->GetD3D12BufferPtr(sourceHandle);
+		if (!pSourceBuffer)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		auto pDestBuffer = mpGraphicsObjectManagerD3D12Impl->GetD3D12BufferPtr(destHandle);
+		if (!pDestBuffer)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		const E_RESOURCE_LAYOUT currSourceLayout = pSourceBuffer->GetLayout();
+		const E_RESOURCE_LAYOUT currDestLayout = pDestBuffer->GetLayout();
+
+		E_RESULT_CODE result = RC_OK;
+
+		result = result | pSourceBuffer->Transition(E_RESOURCE_LAYOUT::COPY_SRC);
+		result = result | pDestBuffer->Transition(E_RESOURCE_LAYOUT::COPY_DEST);
+
+		FlushBarriers();
+
+		_getCurrCommandListPtr()->CopyResource(pDestBuffer->GetHandle().Get(), pSourceBuffer->GetHandle().Get());
+
+		if (E_RESOURCE_LAYOUT::UNDEFINED != currSourceLayout)
+		{
+			result = result | pSourceBuffer->Transition(currSourceLayout);
+		}
+
+		if (E_RESOURCE_LAYOUT::UNDEFINED != currDestLayout)
+		{
+			result = result | pDestBuffer->Transition(currDestLayout);
+		}
+
 		return RC_OK;
 	}
 
