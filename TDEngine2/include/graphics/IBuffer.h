@@ -15,6 +15,9 @@
 namespace TDEngine2
 {
 	class IGraphicsContext;
+	class CBaseGraphicsObjectManager;
+	enum class E_RESOURCE_LAYOUT : U32;
+	enum class TBufferHandleId : U32;
 
 
 	/*!
@@ -134,6 +137,8 @@ namespace TDEngine2
 
 			TDE2_API virtual void Unmap() = 0;
 
+			TDE2_API virtual E_RESULT_CODE Transition(E_RESOURCE_LAYOUT newLayout) = 0;
+
 			/*!
 				\brief The method writes data into a buffer
 
@@ -157,6 +162,8 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Resize(USIZE newSize) = 0;
 
+			TDE2_API virtual E_RESULT_CODE SetHandle(TBufferHandleId handle, const CPassKey<CBaseGraphicsObjectManager>& passkey) = 0;
+
 			/*!
 				\return The method returns an internal data of a buffer, which contains low-level platform specific buffer's handlers
 			*/
@@ -170,6 +177,9 @@ namespace TDEngine2
 			TDE2_API virtual USIZE GetSize() const = 0;
 
 			TDE2_API virtual const TInitBufferParams& GetParams() const = 0;
+
+			TDE2_API virtual E_RESOURCE_LAYOUT GetLayout() const = 0;
+
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IBuffer)
 	};

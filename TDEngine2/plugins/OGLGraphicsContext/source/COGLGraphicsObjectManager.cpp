@@ -58,6 +58,8 @@ namespace TDEngine2
 			mpBuffersArray[placementIndex] = DynamicPtrCast<COGLBuffer>(pBuffer);
 		}
 
+		pBuffer->SetHandle(static_cast<TBufferHandleId>(placementIndex), _getPassKey());
+
 		return Wrench::TOkValue<TBufferHandleId>(static_cast<TBufferHandleId>(placementIndex));
 	}
 

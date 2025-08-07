@@ -41,13 +41,13 @@ namespace TDEngine2
 		}
 
 		D3D12_RESOURCE_DESC bufferDesc{};
-		bufferDesc.Dimension        = D3D12_RESOURCE_DIMENSION_BUFFER;
-		bufferDesc.Width            = E_BUFFER_TYPE::CONSTANT == type ? static_cast<U32>(Align(static_cast<I32>(size), CBV_SIZE_ALIGNMENT)) : static_cast<U32>(size);
-		bufferDesc.Height           = 1;
+		bufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		bufferDesc.Width = E_BUFFER_TYPE::CONSTANT == type ? static_cast<U32>(Align(static_cast<I32>(size), CBV_SIZE_ALIGNMENT)) : static_cast<U32>(size);
+		bufferDesc.Height = 1;
 		bufferDesc.DepthOrArraySize = 1;
-		bufferDesc.MipLevels        = 1;
+		bufferDesc.MipLevels = 1;
 		bufferDesc.SampleDesc.Count = 1;
-		bufferDesc.Layout           = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+		bufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
 		if (isUAVResource)
 		{
@@ -104,7 +104,7 @@ namespace TDEngine2
 
 
 	CD3D12Buffer::CD3D12Buffer() :
-		CBaseObject()
+		CBaseObject(), mCurrLayout(E_RESOURCE_LAYOUT::SHADER_RESOURCE)
 	{
 	}
 
@@ -115,9 +115,9 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mBufferSize      = params.mTotalBufferSize;
+		mBufferSize = params.mTotalBufferSize;
 		mBufferUsageType = params.mUsageType;
-		mBufferType      = params.mBufferType;
+		mBufferType = params.mBufferType;
 
 		mpGraphicsContextImpl = dynamic_cast<CD3D12GraphicsContext*>(pGraphicsContext);
 		if (!mpGraphicsContextImpl)
@@ -182,24 +182,24 @@ namespace TDEngine2
 
 			D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc{};
 			cbvDesc.BufferLocation = bufferInfo.mpResource->GetGPUVirtualAddress();
-			cbvDesc.SizeInBytes    = static_cast<U32>(Align(static_cast<I32>(newSize), CBV_SIZE_ALIGNMENT));
+			cbvDesc.SizeInBytes = static_cast<U32>(Align(static_cast<I32>(newSize), CBV_SIZE_ALIGNMENT));
 
 			mpGraphicsContextImpl->GetDeviceContext()->CreateConstantBufferView(&cbvDesc, mConstantBufferView.mCPUHandle);
 		}
-		
+
 		if (E_BUFFER_TYPE::STRUCTURED == mBufferType && E_STRUCTURED_BUFFER_TYPE::INDIRECT_DRAW_BUFFER != structuredBufferType)
 		{
 			mShaderResourceView = mpGraphicsContextImpl->GetDescriptorsAllocator(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)->AllocDescriptor();
 
 			D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-			srvDesc.Format                     = DXGI_FORMAT_UNKNOWN;
-			srvDesc.ViewDimension              = D3D12_SRV_DIMENSION_BUFFER;
-			srvDesc.Buffer.FirstElement        = 0;
-			srvDesc.Buffer.NumElements         = static_cast<U32>(newSize / elementStrideSize);
+			srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+			srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+			srvDesc.Buffer.FirstElement = 0;
+			srvDesc.Buffer.NumElements = static_cast<U32>(newSize / elementStrideSize);
 			srvDesc.Buffer.StructureByteStride = static_cast<U32>(elementStrideSize);
-			srvDesc.Shader4ComponentMapping    = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+			srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
-			mpGraphicsContextImpl->GetDeviceContext()->CreateShaderResourceView(bufferInfo.mpResource.Get(), & srvDesc, mShaderResourceView.mCPUHandle);
+			mpGraphicsContextImpl->GetDeviceContext()->CreateShaderResourceView(bufferInfo.mpResource.Get(), &srvDesc, mShaderResourceView.mCPUHandle);
 		}
 
 		if (mIsUnorderedAccessResource)
@@ -207,17 +207,24 @@ namespace TDEngine2
 			mUnorderedAccessView = mpGraphicsContextImpl->GetDescriptorsAllocator(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)->AllocDescriptor();
 
 			D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc{};
-			uavDesc.Format                     = E_STRUCTURED_BUFFER_TYPE::INDIRECT_DRAW_BUFFER != structuredBufferType ? DXGI_FORMAT_UNKNOWN : DXGI_FORMAT_R32_UINT;
-			uavDesc.ViewDimension              = D3D12_UAV_DIMENSION_BUFFER;
-			uavDesc.Buffer.FirstElement        = 0;
+			uavDesc.Format = E_STRUCTURED_BUFFER_TYPE::INDIRECT_DRAW_BUFFER != structuredBufferType ? DXGI_FORMAT_UNKNOWN : DXGI_FORMAT_R32_UINT;
+			uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
+			uavDesc.Buffer.FirstElement = 0;
 			uavDesc.Buffer.StructureByteStride = static_cast<U32>(elementStrideSize);
-			uavDesc.Buffer.NumElements         = static_cast<U32>(newSize / elementStrideSize);
+			uavDesc.Buffer.NumElements = static_cast<U32>(newSize / elementStrideSize);
 
 			mpGraphicsContextImpl->GetDeviceContext()->CreateUnorderedAccessView(bufferInfo.mpResource.Get(), nullptr, &uavDesc, mUnorderedAccessView.mCPUHandle);
 		}
 
 		mpResource = bufferInfo.mpResource;
 		mpAllocation = bufferInfo.mpAllocation;
+
+#if TDE2_DEBUG_MODE
+		if (mInitParams.mName)
+		{
+			mpResource->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<U32>(strlen(mInitParams.mName)), mInitParams.mName);
+		}
+#endif
 
 		return RC_OK;
 	}
@@ -271,6 +278,24 @@ namespace TDEngine2
 		mpMappedBufferData = nullptr;
 	}
 
+	E_RESULT_CODE CD3D12Buffer::Transition(E_RESOURCE_LAYOUT newLayout)
+	{
+		if (mCurrLayout == newLayout)
+		{
+			return RC_OK;
+		}
+
+		TBufferTransitionBarrierInfo barrierInfo{};
+		barrierInfo.mCurrLayout = mCurrLayout;
+		barrierInfo.mNewLayout  = newLayout;
+		barrierInfo.mHandle     = mHandle;
+
+		mpGraphicsContextImpl->TransitionBarrier(barrierInfo);
+		mCurrLayout = newLayout;
+
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CD3D12Buffer::Write(const void* pData, USIZE size)
 	{
 		if (!mpMappedBufferData || size > mBufferSize)
@@ -298,6 +323,18 @@ namespace TDEngine2
 
 		mInitParams.mTotalBufferSize = newSize;
 		mBufferSize = newSize;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D12Buffer::SetHandle(TBufferHandleId handle, const CPassKey<CBaseGraphicsObjectManager>& passkey)
+	{
+		if (TBufferHandleId::Invalid == handle)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mHandle = handle;
 
 		return RC_OK;
 	}
@@ -335,6 +372,11 @@ namespace TDEngine2
 	const TInitBufferParams& CD3D12Buffer::GetParams() const
 	{
 		return mInitParams;
+	}
+
+	E_RESOURCE_LAYOUT CD3D12Buffer::GetLayout() const
+	{
+		return mCurrLayout;
 	}
 
 
@@ -1209,7 +1251,10 @@ namespace TDEngine2
 		}
 
 #if TDE2_DEBUG_MODE
-		mpResource->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<U32>(strlen(mInitParams.mName)), mInitParams.mName);
+		if (mInitParams.mName)
+		{
+			mpResource->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<U32>(strlen(mInitParams.mName)), mInitParams.mName);
+		}
 #endif
 
 		return result;

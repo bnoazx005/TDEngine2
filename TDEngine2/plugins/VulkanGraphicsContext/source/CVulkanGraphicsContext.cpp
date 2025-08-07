@@ -2641,8 +2641,22 @@ namespace TDEngine2
 		/*VkPhysicalDeviceProperties properties{};
 		vkGetPhysicalDeviceProperties(mPhysicalDevice, &properties);*/
 
+		std::array<VmaBudget, VK_MAX_MEMORY_HEAPS> memBudgets{};
+
+		vmaGetHeapBudgets(mpVulkanDeviceContext->GetMemoryAllocator(), memBudgets.data());
+
+		USIZE currentMemoryUsage = 0;
+		USIZE totalMemoryBudged = 0;
+
+		for (const VmaBudget& currHeapInfo : memBudgets)
+		{
+			currentMemoryUsage += currHeapInfo.usage;
+			totalMemoryBudged += currHeapInfo.budget;
+		}
+
 		TVideoAdapterInfo outputInfo{};
-		outputInfo.mAvailableVideoMemory = 0;
+		outputInfo.mAvailableVideoMemory = totalMemoryBudged;
+		outputInfo.mUsedVideoMemory = currentMemoryUsage;
 
 
 		return outputInfo;

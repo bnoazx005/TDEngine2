@@ -274,6 +274,11 @@ namespace TDEngine2
 		mp3dDeviceContext->Unmap(mpBufferInstance, 0);
 	}
 
+	E_RESULT_CODE CD3D11Buffer::Transition(E_RESOURCE_LAYOUT newLayout)
+	{
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CD3D11Buffer::Write(const void* pData, USIZE size)
 	{
 		TDE2_PROFILER_SCOPE("CD3D11Buffer::Write");
@@ -326,6 +331,18 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CD3D11Buffer::SetHandle(TBufferHandleId handle, const CPassKey<CBaseGraphicsObjectManager>& passkey)
+	{
+		if (TBufferHandleId::Invalid == handle)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mHandle = handle;
+
+		return RC_OK;
+	}
+
 	void* CD3D11Buffer::GetInternalData()
 	{
 		return reinterpret_cast<void*>(mpBufferInstance);
@@ -344,6 +361,11 @@ namespace TDEngine2
 	const TInitBufferParams& CD3D11Buffer::GetParams() const
 	{
 		return mInitParams;
+	}
+
+	E_RESOURCE_LAYOUT CD3D11Buffer::GetLayout() const
+	{
+		return E_RESOURCE_LAYOUT::SHADER_RESOURCE; // \note Not used for D3D11
 	}
 
 	ID3D11Buffer* CD3D11Buffer::GetD3D11Buffer()

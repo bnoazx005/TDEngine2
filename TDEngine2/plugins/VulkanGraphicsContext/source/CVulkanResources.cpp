@@ -147,7 +147,7 @@ namespace TDEngine2
 
 
 	CVulkanBuffer::CVulkanBuffer() :
-		CBaseObject()
+		CBaseObject(), mCurrLayout(E_RESOURCE_LAYOUT::SHADER_RESOURCE)
 	{
 	}
 
@@ -282,6 +282,24 @@ namespace TDEngine2
 		mpMappedBufferData = nullptr;
 	}
 
+	E_RESULT_CODE CVulkanBuffer::Transition(E_RESOURCE_LAYOUT newLayout)
+	{
+		if (mCurrLayout == newLayout)
+		{
+			return RC_OK;
+		}
+
+		TBufferTransitionBarrierInfo barrierInfo{};
+		barrierInfo.mCurrLayout = mCurrLayout;
+		barrierInfo.mNewLayout  = newLayout;
+		barrierInfo.mHandle     = mHandle;
+
+		mpGraphicsContextImpl->TransitionBarrier(barrierInfo);
+		mCurrLayout = newLayout;
+
+		return RC_OK;
+	}
+
 	E_RESULT_CODE CVulkanBuffer::Write(const void* pData, USIZE size)
 	{
 		if (!mpMappedBufferData || size > mBufferSize)
@@ -320,6 +338,18 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE CVulkanBuffer::SetHandle(TBufferHandleId handle, const CPassKey<CBaseGraphicsObjectManager>& passkey)
+	{
+		if (TBufferHandleId::Invalid == handle)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mHandle = handle;
+
+		return RC_OK;
+	}
+
 	void* CVulkanBuffer::GetInternalData() 
 	{
 		return reinterpret_cast<void*>(&mInternalBufferHandle);
@@ -343,6 +373,11 @@ namespace TDEngine2
 	const TInitBufferParams& CVulkanBuffer::GetParams() const
 	{
 		return mInitParams;
+	}
+
+	E_RESOURCE_LAYOUT CVulkanBuffer::GetLayout() const
+	{
+		return mCurrLayout;
 	}
 
 

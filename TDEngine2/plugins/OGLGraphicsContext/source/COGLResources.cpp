@@ -125,6 +125,11 @@ namespace TDEngine2
 		GL_SAFE_VOID_CALL(glUnmapBuffer(GetBufferType(mBufferType)));
 	}
 
+	E_RESULT_CODE COGLBuffer::Transition(E_RESOURCE_LAYOUT newLayout)
+	{
+		return RC_OK;
+	}
+
 	E_RESULT_CODE COGLBuffer::Write(const void* pData, USIZE size)
 	{
 		if (!mpMappedBufferData || size > mBufferSize)
@@ -165,6 +170,18 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	E_RESULT_CODE COGLBuffer::SetHandle(TBufferHandleId handle, const CPassKey<CBaseGraphicsObjectManager>& passkey)
+	{
+		if (TBufferHandleId::Invalid == handle)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mHandle = handle;
+
+		return RC_OK;
+	}
+
 	void* COGLBuffer::GetInternalData()
 	{
 		return reinterpret_cast<void*>(&mBufferHandler);
@@ -178,6 +195,11 @@ namespace TDEngine2
 	const TInitBufferParams& COGLBuffer::GetParams() const
 	{
 		return mInitParams;
+	}
+
+	E_RESOURCE_LAYOUT COGLBuffer::GetLayout() const
+	{
+		return E_RESOURCE_LAYOUT::SHADER_RESOURCE; // \note Not used in GL
 	}
 
 	GLuint COGLBuffer::GetOGLHandle()

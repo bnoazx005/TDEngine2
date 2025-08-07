@@ -63,6 +63,8 @@ namespace TDEngine2
 
 			void Unmap() override;
 
+			E_RESULT_CODE Transition(E_RESOURCE_LAYOUT newLayout) override;
+
 			/*!
 				\brief The method writes data into a buffer
 
@@ -87,6 +89,8 @@ namespace TDEngine2
 			*/
 
 			E_RESULT_CODE Resize(USIZE newSize) override;
+
+			E_RESULT_CODE SetHandle(TBufferHandleId handle, const CPassKey<CBaseGraphicsObjectManager>& passkey) override;
 
 			/*!
 				\brief The method returns an internal data of a buffer, which
@@ -116,6 +120,8 @@ namespace TDEngine2
 
 			const TInitBufferParams& GetParams() const override;
 
+			E_RESOURCE_LAYOUT GetLayout() const override;
+
 			ID3D11Buffer* GetD3D11Buffer();
 
 			ID3D11ShaderResourceView* GetShaderView();
@@ -144,6 +150,7 @@ namespace TDEngine2
 			void*                    mpLockDataPtr;
 
 			TInitBufferParams        mInitParams;
+			TBufferHandleId          mHandle;
 
 			ID3D11ShaderResourceView*  mpShaderView = nullptr;
 			ID3D11UnorderedAccessView* mpWritableShaderView = nullptr;
