@@ -727,6 +727,7 @@ namespace TDEngine2
 			friend CD3D12Swapchain* CreateD3D12Swapchain(CD3D12DeviceContext*, TPtr<IWindowSystem>, E_RESULT_CODE&);
 		private:
 			typedef std::array<ComPtr<ID3D12Resource>, CD3D12GraphicsContext::BACK_BUFFERS_COUNT> TRenderTargetsArray;
+			typedef std::array<E_RESOURCE_LAYOUT, CD3D12GraphicsContext::BACK_BUFFERS_COUNT>      TRenderTargetsLayoutsArray;
 		public:
 			E_RESULT_CODE Init(CD3D12DeviceContext* pDeviceContext, TPtr<IWindowSystem> pWindowSystem);
 
@@ -739,6 +740,9 @@ namespace TDEngine2
 			ComPtr<ID3D12Resource> GetCurrRenderTarget() const { return mpRenderTargets[GetBackBufferTargetIndex()]; }
 			D3D12_CPU_DESCRIPTOR_HANDLE GetCurrRenderTargetView() const { return CD3DX12_CPU_DESCRIPTOR_HANDLE(mpRenderTargetViewsHeap->GetCPUDescriptorHandleForHeapStart(), GetBackBufferTargetIndex(), mRTVDescriptorSize); }
 			
+			void SetCurrRenderTargetLayout(E_RESOURCE_LAYOUT layout) { mRenderTargetsLayouts[GetBackBufferTargetIndex()] = layout; }
+			E_RESOURCE_LAYOUT GetCurrRenderTargetLayout() const { return mRenderTargetsLayouts[GetBackBufferTargetIndex()]; }
+
 			ComPtr<ID3D12Resource> GetDefaultDepthStencilTarget() const { return mpDefaulDepthStencilTarget; }
 			D3D12_CPU_DESCRIPTOR_HANDLE GetDefaultDepthStencilTargetView() const { return mDefaultDepthStencilDescriptor.mCPUHandle; }
 
@@ -758,6 +762,7 @@ namespace TDEngine2
 
 			ComPtr<IDXGISwapChain3>      mpSwapChain = nullptr;
 			TRenderTargetsArray          mpRenderTargets;
+			TRenderTargetsLayoutsArray   mRenderTargetsLayouts;
 			ComPtr<ID3D12Resource>       mpDefaulDepthStencilTarget = nullptr;
 			D3D12MA::Allocation*         mpDefaultDepthStencilAllocation = nullptr;
 
@@ -865,6 +870,8 @@ namespace TDEngine2
 
 			mpRenderTargets[i]->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<U32>(currBackBufferResourceId.length()), currBackBufferResourceId.data());
 #endif
+
+			mRenderTargetsLayouts[i] = E_RESOURCE_LAYOUT::UNDEFINED;
 
 			p3dDevice->CreateRenderTargetView(mpRenderTargets[i].Get(), nullptr, rtvHandle);
 			rtvHandle.ptr += mRTVDescriptorSize;
@@ -1457,6 +1464,8 @@ namespace TDEngine2
 
 		CD3DX12_RESOURCE_BARRIER rtTransitionBarrier = CD3DX12_RESOURCE_BARRIER::Transition(mpSwapchain->GetCurrRenderTarget().Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 		pCurrCommandList->ResourceBarrier(1, &rtTransitionBarrier);
+
+		mpSwapchain->SetCurrRenderTargetLayout(E_RESOURCE_LAYOUT::UNDEFINED);
 
 		pCurrCommandBuffer->End();
 
@@ -2199,7 +2208,11 @@ namespace TDEngine2
 				renderTargetsDescs.emplace_back(currRenderTargetDesc);
 
 				//// \note Add barrier for current swapchain's image
-				mResourceBarriers[mpSwapchain->GetBackBufferTargetIndex()].emplace_back(CD3DX12_RESOURCE_BARRIER::Transition(mpSwapchain->GetCurrRenderTarget().Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+				if (mpSwapchain->GetCurrRenderTargetLayout() != E_RESOURCE_LAYOUT::RENDER_TARGET)
+				{
+					mResourceBarriers[mpSwapchain->GetBackBufferTargetIndex()].emplace_back(CD3DX12_RESOURCE_BARRIER::Transition(mpSwapchain->GetCurrRenderTarget().Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+					mpSwapchain->SetCurrRenderTargetLayout(E_RESOURCE_LAYOUT::RENDER_TARGET);
+				}
 
 				continue;
 			}
