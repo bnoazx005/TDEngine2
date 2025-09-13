@@ -1423,7 +1423,7 @@ namespace TDEngine2
 
 	void CVulkanGraphicsContext::Present()
 	{
-		TDE2_PROFILER_SCOPE("CVulkanGraphicsContext::GenerateMipMaps");
+		TDE2_PROFILER_SCOPE("CVulkanGraphicsContext::Present");
 
 		// \note Add final barrier for current swapchain's image
 		VkImageMemoryBarrier2 barrier = {};
