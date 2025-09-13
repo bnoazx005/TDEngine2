@@ -9,6 +9,7 @@
 #include <editor/CPerfProfiler.h>
 #include <utils/CContainers.h>
 #include <tuple>
+#include "deferOperation.hpp"
 
 
 #if defined(TDE2_USE_WINPLATFORM) /// Used only on Windows platform
@@ -193,6 +194,15 @@ namespace TDEngine2
 			void WaitForSignal(U64 signalValue);
 			void WaitForIdle();
 
+			void Reset(U64 value = 0) 
+			{ 
+				mpFence->Signal(value); 
+				mFenceValue = value;
+			}
+
+			U64 GetNextValue() const { return mFenceValue; }
+			U64 GetLastValue() const { return mpFence->GetCompletedValue(); }
+
 			CD3D12Fence& operator= (CD3D12Fence&& other) noexcept;
 		private:
 			CD3D12DeviceContext* mpDeviceContext = nullptr;
@@ -269,8 +279,15 @@ namespace TDEngine2
 			TDE2_ASSERT(false);
 		}
 
+		if (initialValue)
+		{
+			mpFence->Signal(initialValue);
+		}
+		
 		mEventHandle = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+
 		TDE2_ASSERT(INVALID_HANDLE_VALUE != mEventHandle);
+		TDE2_ASSERT(mpFence->GetCompletedValue() == initialValue);
 	}
 
 	CD3D12Fence::CD3D12Fence(CD3D12Fence&& other) noexcept:
@@ -296,7 +313,7 @@ namespace TDEngine2
 		return mFenceValue;
 	}
 
-	void CD3D12Fence::WaitForSignal(U64 signalValue)
+	void CD3D12Fence::WaitForSignal(U64 signalValue = 1)
 	{
 		HRESULT result = S_OK;
 
@@ -412,7 +429,7 @@ namespace TDEngine2
 
 	CD3D12Fence CD3D12DeviceContext::CreateFence(bool signaled)
 	{
-		return CD3D12Fence(this, 0);
+		return CD3D12Fence(this, signaled ? 1 : 0);
 	}
 
 	E_RESULT_CODE CD3D12DeviceContext::_onFreeInternal()
@@ -653,6 +670,11 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+#if TDE2_DEBUG_MODE
+		const std::string& heapDebugName = Wrench::StringUtils::Format("{0} GPU descriptors heap", type == D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER ? "samplers" : "SRVs");
+		mpHeap->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<U32>(heapDebugName.length()), heapDebugName.data());
+#endif
+
 		mIsInitialized = true;
 
 		return RC_OK;
@@ -866,7 +888,7 @@ namespace TDEngine2
 			}
 
 #if TDE2_DEBUG_MODE
-			std::string currBackBufferResourceId = "BackBuffer" + std::to_string(i);
+			std::string currBackBufferResourceId = "SwapchainImage_" + std::to_string(i);
 
 			mpRenderTargets[i]->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<U32>(currBackBufferResourceId.length()), currBackBufferResourceId.data());
 #endif
@@ -1081,6 +1103,8 @@ namespace TDEngine2
 		mpSwapchain = mpDeviceContext->CreateSwapchain();
 		TDE2_ASSERT(mpSwapchain);
 
+		mResourceBarriers[mpSwapchain->GetBackBufferTargetIndex()].emplace_back(CD3DX12_RESOURCE_BARRIER::Transition(mpSwapchain->GetDefaultDepthStencilTarget().Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+
 		auto createCommandAllocatorResult = CreateCommandAllocator(mpDeviceContext->GetDevice());
 		if (createCommandAllocatorResult.HasError())
 		{
@@ -1111,24 +1135,6 @@ namespace TDEngine2
 		{
 			return result;
 		}
-
-//
-//		/// create a depth buffer
-//		UINT width = pWindowSystem->GetWidth();
-//		UINT height = pWindowSystem->GetHeight();
-//
-//		if ((result = _createDepthBuffer(width, height, mpSwapChain, mp3dDevice, &mpDefaultDepthStencilView, &mpDefaultDepthStencilBuffer)) != RC_OK)
-//		{
-//			return result;
-//		}
-//
-//		mpCurrDepthStencilView = mpDefaultDepthStencilView;
-//
-//		mp3dDeviceContext->OMSetRenderTargets(1, &mpBackBufferView, mpDefaultDepthStencilView);
-//
-//		/// set up a default viewport
-//		SetViewport(0.0f, 0.0f, static_cast<F32>(width), static_cast<F32>(height), 0.0f, 1.0f);
-//
 
 		mpGraphicsObjectManager = TPtr<IGraphicsObjectManager>(CreateD3D12GraphicsObjectManager(this, result));
 		mpGraphicsObjectManagerD3D12Impl = dynamic_cast<CD3D12GraphicsObjectManager*>(mpGraphicsObjectManager.Get());
@@ -1392,10 +1398,8 @@ namespace TDEngine2
 					continue;
 				}
 
-				currSamplersDestDescriptor.ptr = samplersGPUDescriptorsBlock.mCPUHandle.ptr + currPipelineActiveSlots.mSamplersActiveSlots[i] * mpDeviceContext->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
-
-				D3D12_CPU_DESCRIPTOR_HANDLE currSamplerSrcDescriptor = getSamplerResult.Get().mCPUHandle;
-				mpDeviceContext->GetDevice()->CopyDescriptorsSimple(1, currSamplersDestDescriptor, currSamplerSrcDescriptor, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+				currSamplersDestDescriptor.ptr = samplersGPUDescriptorsBlock.mCPUHandle.ptr + i * mpDeviceContext->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+				mpDeviceContext->GetDevice()->CopyDescriptorsSimple(1, currSamplersDestDescriptor, getSamplerResult.Get().mCPUHandle, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
 			}
 
 			switch (pipelineType)
@@ -1429,7 +1433,9 @@ namespace TDEngine2
 
 		TPtr<CD3D12CommandBuffer> pCurrCommandBuffer = mpCommandBuffers[currFrameId];
 
-		pCurrCommandBuffer->GetFenceEntry().WaitForIdle();
+		CD3D12Fence& currCmdBufferFence = pCurrCommandBuffer->GetFenceEntry();
+		currCmdBufferFence.WaitForSignal();
+		currCmdBufferFence.Reset();
 
 		{
 			std::lock_guard<std::mutex> lock(mGarbageCollectorMutex);
@@ -1472,6 +1478,8 @@ namespace TDEngine2
 		ID3D12CommandList* ppCommandLists[] = { pCurrCommandList };
 		mpDeviceContext->GetCommandQueue()->ExecuteCommandLists(1, ppCommandLists);
 
+		pCurrCommandBuffer->GetFenceEntry().Signal();
+
 		mpSwapchain->Present();
 	}
 
@@ -1513,6 +1521,7 @@ namespace TDEngine2
 		mpDeviceContext->GetCommandQueue()->ExecuteCommandLists(1, ppCommandLists);
 
 		fence.WaitForIdle();
+		fence.Reset();
 
 		return result;
 	}
