@@ -1448,6 +1448,7 @@ namespace TDEngine2
 			++psoDesc.NumRenderTargets;
 		}
 
+		psoDesc.DSVFormat             = CD3D12Mappings::GetDXGIFormat(renderPassInfo.mDepthStencilFormat);
 		psoDesc.pRootSignature        = pShader->GetRootSignature().Get();
 		psoDesc.VS                    = pShader->GetPipelineShaderStage(E_SHADER_STAGE_TYPE::SST_VERTEX);
 		psoDesc.GS                    = pShader->GetPipelineShaderStage(E_SHADER_STAGE_TYPE::SST_GEOMETRY);
