@@ -2202,6 +2202,10 @@ namespace TDEngine2
 
 				D3D12_RENDER_PASS_RENDER_TARGET_DESC currRenderTargetDesc{};
 
+				currRenderTargetDesc.BeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+				currRenderTargetDesc.cpuDescriptor        = mpSwapchain->GetCurrRenderTargetView();
+				currRenderTargetDesc.EndingAccess.Type    = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+
 				if (currAttachment.mClearValue)
 				{
 					const TColor32F& targetClearColorValue = std::get<TColor32F>(currAttachment.mClearValue.value());
@@ -2211,15 +2215,12 @@ namespace TDEngine2
 					memcpy(&currRenderTargetDesc.BeginningAccess.Clear.ClearValue.Color, &clearColor, sizeof(TColor32F));
 				}
 
-				currRenderTargetDesc.cpuDescriptor     = mpSwapchain->GetCurrRenderTargetView();
-				currRenderTargetDesc.EndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
-
 				renderTargetsDescs.emplace_back(currRenderTargetDesc);
 
 				//// \note Add barrier for current swapchain's image
 				if (mpSwapchain->GetCurrRenderTargetLayout() != E_RESOURCE_LAYOUT::RENDER_TARGET)
 				{
-					mResourceBarriers[mpSwapchain->GetBackBufferTargetIndex()].emplace_back(CD3DX12_RESOURCE_BARRIER::Transition(mpSwapchain->GetCurrRenderTarget().Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+					mResourceBarriers[mpSwapchain->GetBackBufferTargetIndex()].emplace_back(CD3DX12_RESOURCE_BARRIER::Transition(mpSwapchain->GetCurrRenderTarget().Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));					
 					mpSwapchain->SetCurrRenderTargetLayout(E_RESOURCE_LAYOUT::RENDER_TARGET);
 				}
 
@@ -2237,6 +2238,10 @@ namespace TDEngine2
 
 			D3D12_RENDER_PASS_RENDER_TARGET_DESC currRenderTargetDesc{};
 
+			currRenderTargetDesc.BeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+			currRenderTargetDesc.cpuDescriptor        = pRenderTargetTexture->GetRenderTargetDescriptor().mCPUHandle; // \todo get CPU_HANDLE for back buffer view
+			currRenderTargetDesc.EndingAccess.Type    = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+
 			if (currAttachment.mClearValue)
 			{
 				const TColor32F& targetClearColorValue = std::get<TColor32F>(currAttachment.mClearValue.value());
@@ -2245,9 +2250,6 @@ namespace TDEngine2
 				currRenderTargetDesc.BeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
 				memcpy(&currRenderTargetDesc.BeginningAccess.Clear.ClearValue.Color, &clearColor, sizeof(TColor32F));
 			}
-
-			currRenderTargetDesc.cpuDescriptor = pRenderTargetTexture->GetRenderTargetDescriptor().mCPUHandle; // \todo get CPU_HANDLE for back buffer view
-			currRenderTargetDesc.EndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
 
 			renderTargetsDescs.emplace_back(currRenderTargetDesc);
 
@@ -2294,7 +2296,7 @@ namespace TDEngine2
 
 			if (pDepthBufferTexture)
 			{
-				depthStencilBufferDesc.cpuDescriptor          = pDepthBufferTexture->GetDepthBufferDescriptor().mCPUHandle;
+				depthStencilBufferDesc.cpuDescriptor          = framebufferInfo.mDepthStencilAttachment ? pDepthBufferTexture->GetDepthBufferDescriptor().mCPUHandle : mpSwapchain->GetDefaultDepthStencilTargetView();
 				depthStencilBufferDesc.DepthEndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
 
 				pDepthBufferTexture->Transition(E_RESOURCE_LAYOUT::DEPTH_STENCIL);
