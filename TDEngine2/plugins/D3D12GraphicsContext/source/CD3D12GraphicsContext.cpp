@@ -2277,6 +2277,11 @@ namespace TDEngine2
 			const bool hasDepthClearValue   = depthStencilAttachment.mDepthClearValue.has_value();
 			const bool hasStencilClearValue = depthStencilAttachment.mStencilClearValue.has_value();
 
+			depthStencilBufferDesc.DepthBeginningAccess.Type   = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+			depthStencilBufferDesc.StencilBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+			depthStencilBufferDesc.DepthEndingAccess.Type      = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+			depthStencilBufferDesc.StencilEndingAccess.Type    = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+
 			if (hasDepthClearValue)
 			{
 				const auto& targetClearValueVariant = depthStencilAttachment.mDepthClearValue.value();
@@ -2291,14 +2296,11 @@ namespace TDEngine2
 
 				depthStencilBufferDesc.StencilBeginningAccess.Clear.ClearValue.DepthStencil.Stencil = std::get<U8>(targetClearValueVariant);
 				depthStencilBufferDesc.StencilBeginningAccess.Type                                  = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
-				depthStencilBufferDesc.StencilEndingAccess.Type                                     = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
 			}
 
 			if (pDepthBufferTexture)
 			{
-				depthStencilBufferDesc.cpuDescriptor          = framebufferInfo.mDepthStencilAttachment ? pDepthBufferTexture->GetDepthBufferDescriptor().mCPUHandle : mpSwapchain->GetDefaultDepthStencilTargetView();
-				depthStencilBufferDesc.DepthEndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
-
+				depthStencilBufferDesc.cpuDescriptor = framebufferInfo.mDepthStencilAttachment ? pDepthBufferTexture->GetDepthBufferDescriptor().mCPUHandle : mpSwapchain->GetDefaultDepthStencilTargetView();
 				pDepthBufferTexture->Transition(E_RESOURCE_LAYOUT::DEPTH_STENCIL);
 			}
 		}
