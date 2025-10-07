@@ -207,7 +207,7 @@ namespace TDEngine2
 			mUnorderedAccessView = mpGraphicsContextImpl->GetDescriptorsAllocator(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)->AllocDescriptor();
 
 			D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc{};
-			uavDesc.Format = E_STRUCTURED_BUFFER_TYPE::INDIRECT_DRAW_BUFFER != structuredBufferType ? DXGI_FORMAT_UNKNOWN : DXGI_FORMAT_R32_UINT;
+			uavDesc.Format = DXGI_FORMAT_UNKNOWN;
 			uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
 			uavDesc.Buffer.FirstElement = 0;
 			uavDesc.Buffer.StructureByteStride = static_cast<U32>(elementStrideSize);

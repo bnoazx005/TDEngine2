@@ -240,30 +240,38 @@ namespace TDEngine2
 			ComPtr<D3D12MA::Allocator> GetMemoryAllocator() const { return mpMemoryAllocator; }
 
 			TPtr<ID3D12CPUDescriptorsAllocator> GetDescriptorsAllocator(D3D12_DESCRIPTOR_HEAP_TYPE heapType) const;
+
+			ComPtr<ID3D12CommandSignature> GetDispatchIndirectCmdSignature() { return mpDispatchIndirectCmdSignature; }
+			ComPtr<ID3D12CommandSignature> GetDrawInstancedIndirectCmdSignature() { return mpDrawInstancedIndirectCmdSignature; }
+			ComPtr<ID3D12CommandSignature> GetDrawIndexedInstancedIndirectCmdSignature() { return mpDrawIndexedInstancedIndirectCmdSignature; }
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D12DeviceContext)
 
 			E_RESULT_CODE _onFreeInternal() override;
 		private:
-			TPtr<IWindowSystem>        mpWindowSystem = nullptr;
+			TPtr<IWindowSystem>            mpWindowSystem = nullptr;
 
-			D3D_FEATURE_LEVEL          mCurrFeatureLevel = D3D_FEATURE_LEVEL_12_2;
-			ComPtr<ID3D12Device5>      mp3dDevice = nullptr;
-			ComPtr<IDXGIAdapter1>      mpAdapter = nullptr;
+			D3D_FEATURE_LEVEL              mCurrFeatureLevel = D3D_FEATURE_LEVEL_12_2;
+			ComPtr<ID3D12Device5>          mp3dDevice = nullptr;
+			ComPtr<IDXGIAdapter1>          mpAdapter = nullptr;
 									    
 #if TDE2_DEBUG_MODE					    
-			ComPtr<ID3D12Debug1>       mpDebugController = nullptr;
-			ComPtr<ID3D12DebugDevice>  mpDebugDevice = nullptr;
+			ComPtr<ID3D12Debug1>           mpDebugController = nullptr;
+			ComPtr<ID3D12DebugDevice>      mpDebugDevice = nullptr;
 #endif								    
 			    
-			ComPtr<D3D12MA::Allocator> mpMemoryAllocator = nullptr;
-			ComPtr<IDXGIFactory4>      mpObjectsFactory = nullptr;
+			ComPtr<D3D12MA::Allocator>     mpMemoryAllocator = nullptr;
+			ComPtr<IDXGIFactory4>          mpObjectsFactory = nullptr;
 
 			// queues
-			ComPtr<ID3D12CommandQueue> mpCommandQueue = nullptr;
-			CD3D12Fence                mCommandQueueFence{};
+			ComPtr<ID3D12CommandQueue>     mpCommandQueue = nullptr;
+			CD3D12Fence                    mCommandQueueFence{};
 
-			TDescriptorHeapsTable      mpDescriptorHeapsTable{};
+			TDescriptorHeapsTable          mpDescriptorHeapsTable{};
+
+			ComPtr<ID3D12CommandSignature> mpDispatchIndirectCmdSignature = nullptr;
+			ComPtr<ID3D12CommandSignature> mpDrawInstancedIndirectCmdSignature = nullptr;
+			ComPtr<ID3D12CommandSignature> mpDrawIndexedInstancedIndirectCmdSignature = nullptr;
 	};
 
 
@@ -415,7 +423,31 @@ namespace TDEngine2
 		{
 			mpDescriptorHeapsTable[heapType] = TPtr<ID3D12CPUDescriptorsAllocator>(CreateD3D12CPUDescriptorsAllocator(this, static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(heapType), DESCRIPTORS_PER_BLOCK[heapType], result));
 		}
-		
+
+		const D3D12_INDIRECT_ARGUMENT_DESC dispatchArgs { D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH };
+		const D3D12_INDIRECT_ARGUMENT_DESC drawInstancedArgs { D3D12_INDIRECT_ARGUMENT_TYPE_DRAW };
+		const D3D12_INDIRECT_ARGUMENT_DESC drawIndexedInstancedArgs { D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED };
+
+		std::array<std::tuple<D3D12_COMMAND_SIGNATURE_DESC, ID3D12CommandSignature**>, 3> commandSignatures
+		{
+			std::make_tuple(D3D12_COMMAND_SIGNATURE_DESC { sizeof(D3D12_DISPATCH_ARGUMENTS), 1, &dispatchArgs }, &mpDispatchIndirectCmdSignature),
+			std::make_tuple(D3D12_COMMAND_SIGNATURE_DESC { sizeof(D3D12_DRAW_ARGUMENTS), 1, &drawInstancedArgs }, &mpDrawInstancedIndirectCmdSignature),
+			std::make_tuple(D3D12_COMMAND_SIGNATURE_DESC { sizeof(D3D12_DRAW_INDEXED_ARGUMENTS), 1, &drawIndexedInstancedArgs }, &mpDrawIndexedInstancedIndirectCmdSignature),
+		};
+
+		for (auto& [currSignatureDesc, pCurrSignatureOutput] : commandSignatures)
+		{
+			if (FAILED(mp3dDevice->CreateCommandSignature(&currSignatureDesc, nullptr, IID_PPV_ARGS(pCurrSignatureOutput))))
+			{
+				result = result | RC_FAIL;
+			}
+		}
+
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
 		mIsInitialized  = true;
 
 		return RC_OK;
@@ -1633,14 +1665,18 @@ namespace TDEngine2
 		{
 			TDE2_ASSERT(slot < mDescriptorsBindingsTable.mUAVBuffers.size());
 
-			mDescriptorsBindingsTable.mUAVBuffers[slot].mType = TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::BUFFER;
+			mDescriptorsBindingsTable.mUAVBuffers[slot].mType = pBuffer->GetParams().mStructuredBufferType == E_STRUCTURED_BUFFER_TYPE::INDIRECT_DRAW_BUFFER ? 
+				TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::RAW_BUFFER : TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::BUFFER;
+
 			mDescriptorsBindingsTable.mUAVBuffers[slot].mValue.mBuffer = bufferHandle;
 		}
 		else
 		{
 			TDE2_ASSERT(slot < mDescriptorsBindingsTable.mSRVBuffers.size());
 
-			mDescriptorsBindingsTable.mSRVBuffers[slot].mType = TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::BUFFER;
+			mDescriptorsBindingsTable.mSRVBuffers[slot].mType = pBuffer->GetParams().mStructuredBufferType == E_STRUCTURED_BUFFER_TYPE::INDIRECT_DRAW_BUFFER ?
+				TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::RAW_BUFFER : TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::BUFFER;
+
 			mDescriptorsBindingsTable.mSRVBuffers[slot].mValue.mBuffer = bufferHandle;
 		}
 
@@ -2082,10 +2118,11 @@ namespace TDEngine2
 
 		ComPtr<ID3D12GraphicsCommandList> pCurrCommandBuffer = _getCurrCommandListPtr();
 
-		pCurrCommandBuffer->IASetPrimitiveTopology(CD3D12Mappings::GetPrimitiveTopology(topology));
+		auto pArgsBuffer = mpGraphicsObjectManagerD3D12Impl->GetD3D12BufferPtr(argsBufferHandle);
 
-		//auto pArgsBuffer = mpGraphicsObjectManagerD3D12Impl->GetD3D12BufferPtr(argsBufferHandle);
-		//pCurrCommandBuffer->DrawInstanced(pArgsBuffer ? pArgsBuffer->Get() : nullptr, alignedOffset);
+		// TODO: Add configurable commands count via either maxCount or pCountBuffer
+		pCurrCommandBuffer->IASetPrimitiveTopology(CD3D12Mappings::GetPrimitiveTopology(topology));
+		pCurrCommandBuffer->ExecuteIndirect(mpDeviceContext->GetDrawInstancedIndirectCmdSignature().Get(), 1, pArgsBuffer ? pArgsBuffer->GetHandle().Get() : nullptr, alignedOffset, nullptr, 0);
 	}
 
 	void CD3D12GraphicsContext::DrawIndirectIndexedInstanced(E_PRIMITIVE_TOPOLOGY_TYPE topology, E_INDEX_FORMAT_TYPE indexFormatType, TBufferHandleId argsBufferHandle, U32 alignedOffset)
@@ -2094,10 +2131,11 @@ namespace TDEngine2
 
 		ComPtr<ID3D12GraphicsCommandList> pCurrCommandBuffer = _getCurrCommandListPtr();
 
-		pCurrCommandBuffer->IASetPrimitiveTopology(CD3D12Mappings::GetPrimitiveTopology(topology));
+		auto pArgsBuffer = mpGraphicsObjectManagerD3D12Impl->GetD3D12BufferPtr(argsBufferHandle);
 
-		//auto pArgsBuffer = mpGraphicsObjectManagerD3D11Impl->GetD3D11BufferPtr(argsBufferHandle);
-		//mp3dDeviceContext->DrawIndexedInstancedIndirect(pArgsBuffer ? pArgsBuffer->GetD3D11Buffer() : nullptr, alignedOffset);
+		// TODO: Add configurable commands count via either maxCount or pCountBuffer
+		pCurrCommandBuffer->IASetPrimitiveTopology(CD3D12Mappings::GetPrimitiveTopology(topology));
+		pCurrCommandBuffer->ExecuteIndirect(mpDeviceContext->GetDrawIndexedInstancedIndirectCmdSignature().Get(), 1, pArgsBuffer ? pArgsBuffer->GetHandle().Get() : nullptr, alignedOffset, nullptr, 0);
 	}
 
 	void CD3D12GraphicsContext::DispatchCompute(U32 groupsCountX, U32 groupsCountY, U32 groupsCountZ)
@@ -2117,8 +2155,8 @@ namespace TDEngine2
 
 		TDE2_PROFILER_SCOPE("CD3D12GraphicsContext::DispatchIndirectCompute");
 
-		//auto pArgsBuffer = mpGraphicsObjectManagerD3D11Impl->GetD3D11BufferPtr(argsBufferHandle);
-		//mp3dDeviceContext->DispatchIndirect(pArgsBuffer ? pArgsBuffer->GetD3D11Buffer() : nullptr, alignedOffset);
+		auto pArgsBuffer = mpGraphicsObjectManagerD3D12Impl->GetD3D12BufferPtr(argsBufferHandle);
+		_getCurrCommandListPtr()->ExecuteIndirect(mpDeviceContext->GetDispatchIndirectCmdSignature().Get(), 1, pArgsBuffer ? pArgsBuffer->GetHandle().Get() : nullptr, alignedOffset, nullptr, 0);
 	}
 
 	E_RESULT_CODE CD3D12GraphicsContext::BindPipelineState(CD3D12BasePipeline* pPipeline)
