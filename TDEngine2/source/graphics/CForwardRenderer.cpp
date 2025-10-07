@@ -2628,7 +2628,8 @@ namespace TDEngine2
 						builder.Read(frameGraphBlackboard.mGPUParticlesData.mParticlesBufferHandle);
 						builder.Read(frameGraphBlackboard.mGPUParticlesData.mAliveParticlesIndicesListBufferHandle);
 						builder.Read(frameGraphBlackboard.mGPUParticlesData.mCountersBufferHandle);
-						builder.Read(frameGraphBlackboard.mGPUParticlesData.mIndirectDrawArgsBufferHandle);
+
+						builder.Write(builder.Read(frameGraphBlackboard.mGPUParticlesData.mIndirectDrawArgsBufferHandle));
 
 						static const U32 faces[] =
 						{

@@ -100,30 +100,23 @@ namespace TDEngine2
 
 	void TFrameGraphBuffer::BeforeReadOp(IGraphicsObjectManager* pGraphicsObjectManager, const TDesc& desc)
 	{
-		TPtr<IBuffer> pBuffer = pGraphicsObjectManager->GetBufferPtr(mBufferHandle);
-
-		TBufferTransitionBarrierInfo transitionInfo{};
-		transitionInfo.mHandle     = mBufferHandle;
-		transitionInfo.mCurrLayout = E_RESOURCE_LAYOUT::UNDEFINED;
-		transitionInfo.mNewLayout  = E_RESOURCE_LAYOUT::SHADER_RESOURCE;
-
-		pGraphicsObjectManager->GetGraphicsContext()->TransitionBarrier(transitionInfo);
+		if (TPtr<IBuffer> pBuffer = pGraphicsObjectManager->GetBufferPtr(mBufferHandle))
+		{
+			pBuffer->Transition(E_RESOURCE_LAYOUT::SHADER_RESOURCE);
+		}
 	}
 
 	void TFrameGraphBuffer::BeforeWriteOp(IGraphicsObjectManager* pGraphicsObjectManager, const TDesc& desc)
 	{
 		TPtr<IBuffer> pBuffer = pGraphicsObjectManager->GetBufferPtr(mBufferHandle);
 
-		TBufferTransitionBarrierInfo transitionInfo{};
-		transitionInfo.mHandle     = mBufferHandle;
-		transitionInfo.mCurrLayout = E_RESOURCE_LAYOUT::UNDEFINED;
-		transitionInfo.mNewLayout  = (E_STRUCTURED_BUFFER_TYPE::INDIRECT_DRAW_BUFFER == desc.mStructuredBufferType) ? E_RESOURCE_LAYOUT::INDIRECT_ARGS_BUFFER : E_RESOURCE_LAYOUT::UAV_RESOURCE;
+		E_RESOURCE_LAYOUT newLayout  = (E_STRUCTURED_BUFFER_TYPE::INDIRECT_DRAW_BUFFER == desc.mStructuredBufferType) ? E_RESOURCE_LAYOUT::INDIRECT_ARGS_BUFFER : E_RESOURCE_LAYOUT::UAV_RESOURCE;
 
 		if (!desc.mIsUnorderedAccessResource)
 		{
-			transitionInfo.mNewLayout = E_RESOURCE_LAYOUT::SHADER_RESOURCE;
+			newLayout = E_RESOURCE_LAYOUT::SHADER_RESOURCE;
 		}
 
-		pGraphicsObjectManager->GetGraphicsContext()->TransitionBarrier(transitionInfo);
+		pBuffer->Transition(newLayout);
 	}
 }
