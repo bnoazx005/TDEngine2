@@ -2012,10 +2012,44 @@ namespace TDEngine2
 		std::visit(TVisitor{ this }, resourceHandle);
 	}
 
+
+	static bool TrySimplifyPendingBarriers(CD3D12GraphicsContext::TBarriersArray& barriers, ID3D12Resource* pResource, D3D12_RESOURCE_STATES intermediateState, D3D12_RESOURCE_STATES newState)
+	{
+		CD3D12GraphicsContext::TBarriersArray::iterator it = std::find_if(barriers.begin(), barriers.end(),
+			[pResource, intermediateState](const D3D12_RESOURCE_BARRIER& currBarrier)
+			{
+				return currBarrier.Type == D3D12_RESOURCE_BARRIER_TYPE_TRANSITION && currBarrier.Transition.pResource == pResource && currBarrier.Transition.StateAfter == intermediateState;
+			});
+
+		if (it == barriers.end()) 
+		{
+			return false;
+		}
+
+		it->Transition.StateAfter = newState; // \note Merge transitions for a same resource if it's possible
+
+		if (it->Transition.StateBefore != it->Transition.StateAfter)
+		{
+			return true;
+		}
+
+		barriers.erase(it); // \note If a merged transition does nothing just throw it away
+
+		return true;
+	}
+
+
 	void CD3D12GraphicsContext::TransitionBarrier(const TBufferTransitionBarrierInfo& barrierInfo)
 	{
 		TPtr<CD3D12Buffer> pBuffer = mpGraphicsObjectManagerD3D12Impl->GetD3D12BufferPtr(barrierInfo.mHandle);
 		if (!pBuffer)
+		{
+			return;
+		}
+
+		TBarriersArray& pendingBarriers = mResourceBarriers[mpSwapchain->GetBackBufferTargetIndex()];
+
+		if (TrySimplifyPendingBarriers(pendingBarriers, pBuffer->GetHandle().Get(), GetInternalResourceState(barrierInfo.mCurrLayout), GetInternalResourceState(barrierInfo.mNewLayout)))
 		{
 			return;
 		}
@@ -2028,6 +2062,13 @@ namespace TDEngine2
 	{
 		TPtr<CD3D12TextureImpl> pTextureImpl = mpGraphicsObjectManagerD3D12Impl->GetD3D12TexturePtr(barrierInfo.mHandle);
 		if (!pTextureImpl)
+		{
+			return;
+		}
+
+		TBarriersArray& pendingBarriers = mResourceBarriers[mpSwapchain->GetBackBufferTargetIndex()];
+
+		if (TrySimplifyPendingBarriers(pendingBarriers, pTextureImpl->GetHandle().Get(), GetInternalResourceState(barrierInfo.mCurrLayout), GetInternalResourceState(barrierInfo.mNewLayout)))
 		{
 			return;
 		}
@@ -2053,8 +2094,7 @@ namespace TDEngine2
 			return;
 		}
 
-		for (int i = 0; i < resourceBarriers.size(); ++i)
-			_getCurrCommandListPtr()->ResourceBarrier(1, &resourceBarriers[i]);
+		_getCurrCommandListPtr()->ResourceBarrier(static_cast<U32>(resourceBarriers.size()), resourceBarriers.data());
 
 		resourceBarriers.clear();
 	}
