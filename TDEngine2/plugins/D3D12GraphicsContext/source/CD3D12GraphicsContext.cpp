@@ -2355,10 +2355,14 @@ namespace TDEngine2
 			const bool hasDepthClearValue   = depthStencilAttachment.mDepthClearValue.has_value();
 			const bool hasStencilClearValue = depthStencilAttachment.mStencilClearValue.has_value();
 
-			depthStencilBufferDesc.DepthBeginningAccess.Type   = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
-			depthStencilBufferDesc.StencilBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
-			depthStencilBufferDesc.DepthEndingAccess.Type      = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
-			depthStencilBufferDesc.StencilEndingAccess.Type    = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+			depthStencilBufferDesc.DepthBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+			depthStencilBufferDesc.DepthEndingAccess.Type    = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+
+			if (mCurrRenderPassInfo.mDepthStencilFormat == E_FORMAT_TYPE::FT_D32)
+			{
+				depthStencilBufferDesc.StencilBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS;
+				depthStencilBufferDesc.StencilEndingAccess.Type    = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS;
+			}
 
 			if (hasDepthClearValue)
 			{
@@ -2374,6 +2378,7 @@ namespace TDEngine2
 
 				depthStencilBufferDesc.StencilBeginningAccess.Clear.ClearValue.DepthStencil.Stencil = std::get<U8>(targetClearValueVariant);
 				depthStencilBufferDesc.StencilBeginningAccess.Type                                  = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+				depthStencilBufferDesc.StencilEndingAccess.Type                                     = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
 			}
 
 			if (pDepthBufferTexture)
