@@ -810,6 +810,8 @@ namespace TDEngine2
 
 			E_RESULT_CODE _onInitInternal();
 			E_RESULT_CODE _onFreeInternal() override;
+
+			E_RESULT_CODE _updateDescriptors();
 		private:
 			CD3D12DeviceContext*         mpDeviceContext = nullptr;
 			TPtr<IWindowSystem>          mpWindowSystem = nullptr;
@@ -859,12 +861,23 @@ namespace TDEngine2
 
 		mpDeviceContext->WaitForIdle();
 
-		E_RESULT_CODE result = RC_OK;
+		if (E_RESULT_CODE result = _onFreeInternal(); RC_OK != result)
+		{
+			return result;
+		}
 
-		result = result | _onFreeInternal();
-		result = result | _onInitInternal();
+		DXGI_SWAP_CHAIN_DESC swapChainDesc{};
+		if (FAILED(mpSwapChain->GetDesc(&swapChainDesc)))
+		{
+			return RC_FAIL;
+		}
 
-		return result;
+		if (FAILED(mpSwapChain->ResizeBuffers(CD3D12GraphicsContext::BACK_BUFFERS_COUNT, mpWindowSystem->GetWidth(), mpWindowSystem->GetHeight(), swapChainDesc.BufferDesc.Format, swapChainDesc.Flags)))
+		{
+			return RC_FAIL;
+		}
+
+		return _updateDescriptors();
 	}
 
 	E_RESULT_CODE CD3D12Swapchain::_onInitInternal()
@@ -910,9 +923,39 @@ namespace TDEngine2
 
 		mRTVDescriptorSize = p3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
+		if (E_RESULT_CODE result = _updateDescriptors(); RC_OK != result)
+		{
+			return result;
+		}
+
+		mIsVSyncEnabled = mpWindowSystem->GetFlags() & P_VSYNC;
+
+		mIsInitialized = true;
+		mIsValid = true;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D12Swapchain::_onFreeInternal()
+	{
+		std::fill(mpRenderTargets.begin(), mpRenderTargets.end(), nullptr);
+
+		if (mpDefaultDepthStencilAllocation)
+		{
+			mpDefaultDepthStencilAllocation->Release();
+			mpDefaultDepthStencilAllocation = nullptr;
+		}
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D12Swapchain::_updateDescriptors()
+	{
 		D3D12_CPU_DESCRIPTOR_HANDLE	rtvHandle(mpRenderTargetViewsHeap->GetCPUDescriptorHandleForHeapStart());
 
-		for (U32 i = 0; i < rtvHeapDesc.NumDescriptors; ++i)
+		ComPtr<ID3D12Device5> p3dDevice = mpDeviceContext->GetDevice();
+
+		for (U32 i = 0; i < CD3D12GraphicsContext::BACK_BUFFERS_COUNT; ++i)
 		{
 			if (FAILED(mpSwapChain->GetBuffer(i, IID_PPV_ARGS(&mpRenderTargets[i]))))
 			{
@@ -957,22 +1000,6 @@ namespace TDEngine2
 		depthStencilViewDesc.Texture2D.MipSlice = 0;
 
 		mpDeviceContext->GetDevice()->CreateDepthStencilView(mpDefaulDepthStencilTarget.Get(), &depthStencilViewDesc, mDefaultDepthStencilDescriptor.mCPUHandle);
-
-		mIsVSyncEnabled = mpWindowSystem->GetFlags() & P_VSYNC;
-
-		mIsInitialized = true;
-		mIsValid = true;
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CD3D12Swapchain::_onFreeInternal()
-	{
-		if (mpDefaultDepthStencilAllocation)
-		{
-			mpDefaultDepthStencilAllocation->Release();
-			mpDefaultDepthStencilAllocation = nullptr;
-		}
 
 		return RC_OK;
 	}
@@ -2441,6 +2468,9 @@ namespace TDEngine2
 		}
 
 		const TOnWindowResized* pOnWindowResizedEvent = dynamic_cast<const TOnWindowResized*>(pEvent);
+
+		mpSwapchain->InvalidateState();
+		mpSwapchain->TryProcessInvalidateState();
 
 		return RC_OK;
 	}
