@@ -1,0 +1,161 @@
+/*
+    \note Based on the following sources
+    https://github.com/microsoft/DirectX-Graphics-Samples/blob/master/MiniEngine/Core/Shaders/GenerateMipsCS.hlsli
+    https://www.3dgep.com/learning-directx-12-4/#Generate_Mipmaps_Compute_Shader
+*/
+
+#define COMPUTE_ENTRY MainCS
+#define ENABLE_MATH
+
+#program compute
+
+#include <TDEngine2Globals.inc>
+#include <TDEngine2MathUtils.inc>
+#include <TDEngine2EffectsUtils.inc>
+
+
+#define E_TEXTURE_FLAGS_WIDTH_EVEN_HEIGHT_EVEN 0x00
+#define E_TEXTURE_FLAGS_WIDTH_ODD_HEIGHT_EVEN  0x01
+#define E_TEXTURE_FLAGS_WIDTH_EVEN_HEIGHT_ODD  0x10
+#define E_TEXTURE_FLAGS_WIDTH_ODD_HEIGHT_ODD   0x11
+
+
+DECLARE_TEX2D_EX(SrcTexture, 1);
+
+RWTexture2D<float4> OutputMip0Texture : register(u0);
+RWTexture2D<float4> OutputMip1Texture : register(u1);
+RWTexture2D<float4> OutputMip2Texture : register(u2);
+RWTexture2D<float4> OutputMip3Texture : register(u3);
+
+
+CBUFFER_SECTION_EX(Parameters, 3)
+	uint   mCurrMipLevel;
+	uint   mAmountOfMipsToGenerate;
+	uint   mTextureFlags;
+	uint   mIsLinearSpaceEnabled;
+	float2 mTexelSize;
+CBUFFER_ENDSECTION
+
+
+// The reason for separating channels is to reduce bank conflicts in the local data memory controller
+groupshared float sharedRChannel[64];
+groupshared float sharedGChannel[64];
+groupshared float sharedBChannel[64];
+groupshared float sharedAChannel[64];
+
+
+void StoreGroupSharedColor(uint idx, float4 color)
+{
+    sharedRChannel[idx] = color.r;
+    sharedGChannel[idx] = color.g;
+    sharedBChannel[idx] = color.b;
+    sharedAChannel[idx] = color.a;
+}
+
+
+float RestoreGroupSharedColor(uint idx)
+{
+    return float4(sharedRChannel[idx], sharedGChannel[idx], sharedBChannel[idx], sharedAChannel[idx]);
+}
+
+
+float4 PackColor(float4 color)
+{
+    return mIsLinearSpaceEnabled ? color : LinearToGamma(color);
+}
+
+
+[numthreads(8, 8, 1)]
+void MainCS(uint3 dispatchThreadId : SV_DispatchThreadID, uint groupIndex : SV_GroupIndex)
+{
+    float4 srcColor = float4(0.0, 0.0, 0.0, 0.0);
+    
+    // \note Sample and blend original's mip-level color
+    switch (mTextureFlags)
+    {
+        case E_TEXTURE_FLAGS_WIDTH_EVEN_HEIGHT_EVEN:
+            {
+                float2 uv = mTexelSize * (dispatchThreadId.xy + 0.5);
+                srcColor = SrcTexture.SampleLevel(SrcTexture_SamplerState, uv, mCurrMipLevel);
+            }
+            break;
+        case E_TEXTURE_FLAGS_WIDTH_ODD_HEIGHT_EVEN:
+            {            
+                float2 uv     = mTexelSize * (dispatchThreadId.xy + float2(0.25, 0.5));
+                float2 offset = mTexelSize * float2(0.5, 0.0);
+            
+                srcColor = 0.5 * (SrcTexture.SampleLevel(SrcTexture_SamplerState, uv, mCurrMipLevel) +
+                                  SrcTexture.SampleLevel(SrcTexture_SamplerState, uv + offset, mCurrMipLevel));
+            }
+            break;
+        case E_TEXTURE_FLAGS_WIDTH_EVEN_HEIGHT_ODD:
+            {
+                float2 uv     = mTexelSize * (dispatchThreadId.xy + float2(0.5, 0.25));
+                float2 offset = mTexelSize * float2(0.0, 0.5);
+            
+                srcColor = 0.5 * (SrcTexture.SampleLevel(SrcTexture_SamplerState, uv, mCurrMipLevel) +
+                                  SrcTexture.SampleLevel(SrcTexture_SamplerState, uv + offset, mCurrMipLevel));
+            }
+            break;
+        case E_TEXTURE_FLAGS_WIDTH_ODD_HEIGHT_ODD:
+            {            
+                float2 uv     = mTexelSize * (dispatchThreadId.xy + float2(0.25, 0.25));
+                float2 offset = mTexelSize * 0.5;
+            
+                srcColor = 0.25 * (SrcTexture.SampleLevel(SrcTexture_SamplerState, uv, mCurrMipLevel) +
+                                   SrcTexture.SampleLevel(SrcTexture_SamplerState, uv + float2(offset.x, 0.0), mCurrMipLevel) +
+                                   SrcTexture.SampleLevel(SrcTexture_SamplerState, uv + float2(0.0, offset.y), mCurrMipLevel) +
+                                   SrcTexture.SampleLevel(SrcTexture_SamplerState, uv + offset, mCurrMipLevel));
+            }
+            break;
+    }
+
+    OutputMip0Texture[dispatchThreadId] = PackColor(srcColor);
+    
+    if (mAmountOfMipsToGenerate == 1) // first mip-level already generated if a total amount of levels equals to 1 skip all the other work
+    {
+        return;
+    }
+
+    StoreGroupSharedColor(groupIndex, srcColor);
+    GroupMemoryBarrierWithGroupSync();
+    
+    // second mip-level should be evaluated based on half in the width and height
+    if (!(groupIndex & 0x9)) // 0x9 comes from bitmask 001001 from low three bits for X and high three bits for Y, execute sampling only for even threads within the group
+    {
+        srcColor = 0.25 * (srcColor + RestoreGroupSharedColor(groupIndex + 0x1) + RestoreGroupSharedColor(groupIndex + 0x8) + RestoreGroupSharedColor(groupIndex + 0x9));
+        OutputMip1Texture[dispatchThreadId >> 1] = PackColor(srcColor);
+        
+        StoreGroupSharedColor(groupIndex, srcColor);
+    }
+    
+    if (mAmountOfMipsToGenerate == 2)
+    {
+        return;
+    }
+        
+    GroupMemoryBarrierWithGroupSync();
+    
+    if (!(groupIndex & 0x1b)) // 0x1b comes from bitmask 011011, execute sampling only for threads with indices of multiple of four
+    {
+        srcColor = 0.25 * (srcColor + RestoreGroupSharedColor(groupIndex + 0x2) + RestoreGroupSharedColor(groupIndex + 0x10) + RestoreGroupSharedColor(groupIndex + 0x12));
+        OutputMip2Texture[dispatchThreadId >> 2] = PackColor(srcColor);
+        
+        StoreGroupSharedColor(groupIndex, srcColor);
+    }
+    
+    if (mAmountOfMipsToGenerate == 3)
+    {
+        return;
+    }
+        
+    GroupMemoryBarrierWithGroupSync();
+    
+    if (!groupIndex) // bitmask 111111, execute sampling only for threads with indices of multiple of 8
+    {
+        srcColor = 0.25 * (srcColor + RestoreGroupSharedColor(groupIndex + 0x4) + RestoreGroupSharedColor(groupIndex + 0x20) + RestoreGroupSharedColor(groupIndex + 0x24));
+        OutputMip3Texture[dispatchThreadId >> 3] = PackColor(srcColor);
+    }
+}
+
+#endprogram
