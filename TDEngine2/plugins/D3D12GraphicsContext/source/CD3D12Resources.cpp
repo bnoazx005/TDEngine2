@@ -941,7 +941,7 @@ namespace TDEngine2
 	}
 
 
-	static TD3D12ResourceDescriptor CreateUnorderedAccessViewInternal(CD3D12GraphicsContext* pGraphicsContext, ComPtr<ID3D12Resource> pTextureResource, const TInitTextureImplParams& params)
+	static TD3D12ResourceDescriptor CreateUnorderedAccessViewInternal(CD3D12GraphicsContext* pGraphicsContext, ComPtr<ID3D12Resource> pTextureResource, const TInitTextureImplParams& params, U32 mipSliceIndex = 0)
 	{
 		D3D12_UNORDERED_ACCESS_VIEW_DESC viewDesc{};
 
@@ -958,17 +958,17 @@ namespace TDEngine2
 		switch (params.mType)
 		{
 			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D:
-				viewDesc.Texture2D.MipSlice = 0;
+				viewDesc.Texture2D.MipSlice = mipSliceIndex;
 				break;
 			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D_ARRAY:
 			case E_TEXTURE_IMPL_TYPE::CUBEMAP:
 				viewDesc.Texture2DArray.ArraySize       = isCubemap ? 6 : params.mArraySize;
-				viewDesc.Texture2DArray.MipSlice        = 0;
+				viewDesc.Texture2DArray.MipSlice        = mipSliceIndex;
 				viewDesc.Texture2DArray.FirstArraySlice = 0;
 				break;
 			case E_TEXTURE_IMPL_TYPE::TEXTURE_3D:
 				viewDesc.Texture3D.WSize       = -1;
-				viewDesc.Texture3D.MipSlice    = 0;
+				viewDesc.Texture3D.MipSlice    = mipSliceIndex;
 				viewDesc.Texture3D.FirstWSlice = 0;
 				break;
 		}
@@ -1128,9 +1128,9 @@ namespace TDEngine2
 		return mShaderResourceDescriptor;
 	}
 
-	const TD3D12ResourceDescriptor& CD3D12TextureImpl::GetUnorderedAccessViewHandle() const
+	const TD3D12ResourceDescriptor& CD3D12TextureImpl::GetUnorderedAccessViewHandle(U32 subresourceIndex) const
 	{
-		return mUnorderedAccessViewDescriptor;
+		return subresourceIndex < (std::numeric_limits<U32>::max)() ? mUnorderedAccessViewDescriptors[subresourceIndex] : mUnorderedAccessViewDescriptors.front();
 	}
 
 	const TD3D12ResourceDescriptor& CD3D12TextureImpl::GetRenderTargetDescriptor() const
@@ -1225,7 +1225,12 @@ namespace TDEngine2
 
 		if (HasEnumFlag(mInitParams.mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS))
 		{
-			mUnorderedAccessViewDescriptor = CreateUnorderedAccessViewInternal(mpGraphicsContextImpl, mpResource, mInitParams);
+			mUnorderedAccessViewDescriptors.emplace_back(CreateUnorderedAccessViewInternal(mpGraphicsContextImpl, mpResource, mInitParams));
+
+			for (U32 i = 1; i < mInitParams.mNumOfMipLevels; ++i)
+			{
+				mUnorderedAccessViewDescriptors.emplace_back(CreateUnorderedAccessViewInternal(mpGraphicsContextImpl, mpResource, mInitParams, i));
+			}
 		}
 
 		E_RESULT_CODE result = RC_OK;

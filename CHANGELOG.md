@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.32] 2025-06-30
+## [0.6.32] 2025-11-15
 
 ### Added
 
@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new subproject **benchmark** was declared in tests/ directory for benchmarking engine's functionality.
 
 - Add WinPixEventRuntime library as a dependency for D3D12GraphicsContext plugin.
+
+- A new graphics context implementation was integrated which provides Direct3D 12 GAPI support.
 
 ### Changed
 
