@@ -93,6 +93,8 @@ jobs:
 
       - name: Build Windows
         if: startsWith(matrix.config.name, 'windows')
+        env:
+          CMAKE_POLICY_VERSION_MINIMUM: 3.5
         shell: cmd
         run: |
           cd build
