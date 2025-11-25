@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.33] 2025-11-25
+
+### Added
+
+### Changed
+
+### Fixed
+
+- (Issue #98) Now all DLL dependencies of D3D12GraphicsContext are automatically copied into engine's binaries directory.
+
 ## [0.6.32] 2025-11-15
 
 ### Added

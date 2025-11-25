@@ -89,3 +89,8 @@ set_target_properties(${D3D12_GCTX_LIBRARY_NAME} PROPERTIES DEFINE_SYMBOL "")
 
 # bad decision to create a circular dependency TODO: dettach the plugin from TDEngine2
 target_link_libraries(${D3D12_GCTX_LIBRARY_NAME} PUBLIC ${TDENGINE2_LIBRARY_NAME})
+
+add_custom_command(TARGET ${D3D12_GCTX_LIBRARY_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/deps/pix/bin/x64/WinPixEventRuntime.dll" "$<TARGET_FILE_DIR:${D3D12_GCTX_LIBRARY_NAME}>"
+  COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/../../deps/dxc/bin/win/x64/dxcompiler.dll" "$<TARGET_FILE_DIR:${D3D12_GCTX_LIBRARY_NAME}>"
+  COMMAND_EXPAND_LISTS)
