@@ -2,8 +2,6 @@
 #include "../include/CD3D12GraphicsContext.h"
 #include "../include/CD3D12Mappings.h"
 #include "../include/CD3D12Resources.h"
-#include <core/IFileSystem.h>
-#include <core/IFile.h>
 #include <core/CProjectSettings.h>
 
 
