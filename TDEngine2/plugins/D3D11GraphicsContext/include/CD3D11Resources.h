@@ -18,6 +18,10 @@
 #if defined (TDE2_USE_WINPLATFORM)
 
 #include <d3d11.h>
+#include <wrl.h>
+
+
+template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 
 namespace TDEngine2
@@ -25,6 +29,8 @@ namespace TDEngine2
 	class IResourceManager;
 	class IGraphicsContext;
 	class IGraphicsPipeline;
+
+
 
 
 	/*!
@@ -167,43 +173,28 @@ namespace TDEngine2
 
 
 	/*!
-		\brief A factory function for creation objects of CD3D11Shader's type
-
-		\param[in, out] pResourceManager A pointer to IGraphicsContext's implementation
+		\brief A factory function for creation objects of CD3D11ShaderImpl's type
 
 		\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
-
-		\param[in] name A resource's name
-
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
-		\return A pointer to CD3D11Shader's implementation
+		\return A pointer to CD3D11ShaderImpl's implementation
 	*/
 
-	IShader* CreateD3D11Shader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result);
+	IShaderImpl* CreateD3D11ShaderImpl(IGraphicsContext* pGraphicsContext, const std::string& shaderId, E_RESULT_CODE& result);
 
 
 	/*!
-		class CD3D11Shader
+		class CD3D11ShaderImpl
 
-		\brief The class is a common implementation for all platforms
+		\brief The class implements shader object's functionality for D3D11 GAPI
 	*/
 
-	class CD3D11Shader : public CBaseShader
+	class CD3D11ShaderImpl : public CBaseShaderImpl
 	{
 		public:
-			friend IShader* CreateD3D11Shader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result);
+			friend IShaderImpl* CreateD3D11ShaderImpl(IGraphicsContext*, const std::string&, E_RESULT_CODE&);
 		public:
-			TDE2_REGISTER_TYPE(CD3D11Shader)
-
-			/*!
-				\brief The method resets current internal data of a resource
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			E_RESULT_CODE Reset() override;
-
 			/*!
 				\brief The method binds a shader to a rendering pipeline
 			*/
@@ -224,40 +215,21 @@ namespace TDEngine2
 
 			const std::vector<U8>& GetVertexShaderBytecode() const;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11Shader)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11ShaderImpl)
 
 			E_RESULT_CODE _createInternalHandlers(const TShaderCompilerOutput* pCompilerData) override;
-
 			E_RESULT_CODE _createUniformBuffers(const TShaderCompilerOutput* pCompilerData);
 		protected:
-			ID3D11DeviceContext* mp3dDeviceContext;
+			ID3D11DeviceContext*         mp3dDeviceContext = nullptr;
 
-			ID3D11VertexShader* mpVertexShader;
+			ComPtr<ID3D11VertexShader>   mpVertexShader = nullptr;
+			ComPtr<ID3D11PixelShader>    mpPixelShader = nullptr;
+			ComPtr<ID3D11GeometryShader> mpGeometryShader = nullptr;
+			ComPtr<ID3D11ComputeShader>  mpComputeShader = nullptr;
 
-			ID3D11PixelShader* mpPixelShader;
-
-			ID3D11GeometryShader* mpGeometryShader;
-
-			ID3D11ComputeShader* mpComputeShader;
-
-			std::vector<U8>       mVertexShaderBytecode;
+			std::vector<U8>              mVertexShaderBytecode;
 	};
 
-
-	/*!
-		\brief A factory function for creation objects of CD3D11ShaderFactory's type
-
-		\param[in, out] pResourceManager A pointer to IResourceManager's implementation
-
-		\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
-
-		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
-
-		\return A pointer to CD3D11ShaderFactory's implementation
-	*/
-
-	IResourceFactory* CreateD3D11ShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
-	
 
 	/*!
 		struct TD3D11ShaderCompilerOutput
@@ -385,7 +357,7 @@ namespace TDEngine2
 				\return The method creates a new input layout object  based on a given shader's description and returns it
 			*/
 
-			TResult<ID3D11InputLayout*> GetInputLayoutByShader(IGraphicsContext* pGraphicsContext, const IShader* pShader);
+			TResult<ID3D11InputLayout*> GetInputLayoutByShader(IGraphicsContext* pGraphicsContext, const IShaderImpl* pShader);
 
 			/*!
 				\brief The method creates an internal handlers for a vertex declaration and binds it
@@ -398,7 +370,7 @@ namespace TDEngine2
 				\param[in, out] pShader A pointer to IShader implementation
 			*/
 
-			void Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray, IShader* pShader) override;
+			void Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray, IShaderImpl* pShader) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11VertexDeclaration)
 

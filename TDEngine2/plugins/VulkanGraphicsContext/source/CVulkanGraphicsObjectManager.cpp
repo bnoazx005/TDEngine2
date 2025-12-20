@@ -6,6 +6,7 @@
 #include <core/IFileSystem.h>
 #include <core/IFile.h>
 #include <core/CProjectSettings.h>
+#include <core/IWindowSystem.h>
 
 
 namespace TDEngine2
@@ -16,96 +17,6 @@ namespace TDEngine2
 	CVulkanGraphicsObjectManager::CVulkanGraphicsObjectManager() :
 		CBaseGraphicsObjectManager()
 	{
-	}
-
-	TResult<TBufferHandleId> CVulkanGraphicsObjectManager::CreateBuffer(const TInitBufferParams& params)
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		if (HasEnumFlag(params.mFlags, E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT))
-		{
-			const U32 hash = ComputeStateDescHash(params);
-
-			auto&& it = mTransientBuffersPool.find(hash);
-			if (it != mTransientBuffersPool.cend())
-			{
-				auto& availableTransientBuffers = it->second;
-				if (!availableTransientBuffers.empty())
-				{
-					const TBufferHandleId resourceId = availableTransientBuffers.back();
-					availableTransientBuffers.pop_back();
-
-					return TResult<TBufferHandleId>(resourceId);
-				}
-			}
-		}
-
-		TPtr<IBuffer> pBuffer = TPtr<IBuffer>(CreateVulkanBuffer(mpGraphicsContext, params, result));
-		if (!pBuffer || RC_OK != result)
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(result);
-		}
-
-		auto it = std::find(mpBuffersArray.begin(), mpBuffersArray.end(), nullptr);
-		const USIZE placementIndex = static_cast<USIZE>(std::distance(mpBuffersArray.begin(), it));
-
-		if (placementIndex >= mpBuffersArray.size())
-		{
-			mpBuffersArray.emplace_back(DynamicPtrCast<CVulkanBuffer>(pBuffer));
-		}
-		else
-		{
-			mpBuffersArray[placementIndex] = DynamicPtrCast<CVulkanBuffer>(pBuffer);
-		}
-
-		pBuffer->SetHandle(static_cast<TBufferHandleId>(placementIndex), _getPassKey());
-
-		return Wrench::TOkValue<TBufferHandleId>(static_cast<TBufferHandleId>(placementIndex));
-	}
-
-	TResult<TTextureHandleId> CVulkanGraphicsObjectManager::CreateTexture(const TInitTextureImplParams& params)
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		if (HasEnumFlag(params.mFlags, E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT))
-		{
-			const U32 hash = ComputeStateDescHash(params);
-
-			auto&& it = mTransientTexturesPool.find(hash);
-			if (it != mTransientTexturesPool.cend())
-			{
-				auto& availableTransientTextures = it->second;
-				if (!availableTransientTextures.empty())
-				{
-					const TTextureHandleId resourceId = availableTransientTextures.back();
-					availableTransientTextures.pop_back();
-
-					return TResult<TTextureHandleId>(resourceId);
-				}
-			}
-		}
-
-		TPtr<ITextureImpl> pTexture = TPtr<ITextureImpl>(CreateVulkanTextureImpl(mpGraphicsContext, params, result));
-		if (!pTexture || RC_OK != result)
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(result);
-		}
-
-		auto it = std::find(mpTexturesArray.begin(), mpTexturesArray.end(), nullptr);
-		const USIZE placementIndex = static_cast<USIZE>(std::distance(mpTexturesArray.begin(), it));
-
-		if (placementIndex >= mpTexturesArray.size())
-		{
-			mpTexturesArray.emplace_back(DynamicPtrCast<CVulkanTextureImpl>(pTexture));
-		}
-		else
-		{
-			mpTexturesArray[placementIndex] = DynamicPtrCast<CVulkanTextureImpl>(pTexture);
-		}
-
-		pTexture->SetHandle(static_cast<TTextureHandleId>(placementIndex), _getPassKey());
-
-		return Wrench::TOkValue<TTextureHandleId>(static_cast<TTextureHandleId>(placementIndex));
 	}
 
 	E_RESULT_CODE CVulkanGraphicsObjectManager::DestroyBuffer(TBufferHandleId bufferHandle)
@@ -156,6 +67,24 @@ namespace TDEngine2
 		}
 
 		mpTexturesArray[texturePlacementIndex] = nullptr;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CVulkanGraphicsObjectManager::DestroyShader(TShaderHandleId shaderHandle)
+	{
+		if (TShaderHandleId::Invalid == shaderHandle)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		const USIZE shaderPlacementIndex = static_cast<USIZE>(shaderHandle);
+		if (shaderPlacementIndex >= mpTexturesArray.size())
+		{
+			return RC_FAIL;
+		}
+
+		mpShadersArray[shaderPlacementIndex] = nullptr;
 
 		return RC_OK;
 	}
@@ -256,6 +185,27 @@ namespace TDEngine2
 		return mpTexturesArray[texturePlacementIndex];
 	}
 
+	TPtr<IShaderImpl> CVulkanGraphicsObjectManager::GetShaderPtr(TShaderHandleId handle)
+	{
+		return DynamicPtrCast<IShaderImpl>(GetVulkanShaderPtr(handle));
+	}
+
+	TPtr<CVulkanShaderImpl> CVulkanGraphicsObjectManager::GetVulkanShaderPtr(TShaderHandleId handle)
+	{
+		if (TShaderHandleId::Invalid == handle)
+		{
+			return nullptr;
+		}
+
+		const USIZE placementIndex = static_cast<USIZE>(handle);
+		if (placementIndex >= mpShadersArray.size())
+		{
+			return nullptr;
+		}
+
+		return mpShadersArray[placementIndex];
+	}
+
 	TResult<VkSampler> CVulkanGraphicsObjectManager::GetTextureSampler(TTextureSamplerId texSamplerId) const
 	{
 		const USIZE textureSamplerIndex = static_cast<USIZE>(texSamplerId);
@@ -323,6 +273,39 @@ namespace TDEngine2
 		return TPtr<IComputePipeline>(CreateVulkanComputePipeline(mpGraphicsContext, pResourceManager, shaderId, result));
 	}
 
+	TPtr<IBuffer> CVulkanGraphicsObjectManager::_createBufferInternal(const TInitBufferParams& params)
+	{
+		E_RESULT_CODE result = RC_OK;
+		return TPtr<IBuffer>(CreateVulkanBuffer(mpGraphicsContext, params, result));
+	}
+
+	TPtr<ITextureImpl> CVulkanGraphicsObjectManager::_createTextureInternal(const TInitTextureImplParams& params)
+	{
+		E_RESULT_CODE result = RC_OK;
+		return TPtr<ITextureImpl>(CreateVulkanTextureImpl(mpGraphicsContext, params, result));
+	}
+
+	TPtr<IShaderImpl> CVulkanGraphicsObjectManager::_createShaderImplInternal(const std::string& shaderId)
+	{
+		E_RESULT_CODE result = RC_OK;
+		return TPtr<IShaderImpl>(CreateVulkanShaderImpl(mpGraphicsContext, shaderId, result));
+	}
+
+	USIZE CVulkanGraphicsObjectManager::_insertBuffer(TPtr<IBuffer> pObject)
+	{
+		return PlaceObjectAtFirstNullPosition(mpBuffersArray, DynamicPtrCast<CVulkanBuffer>(pObject));
+	}
+
+	USIZE CVulkanGraphicsObjectManager::_insertTexture(TPtr<ITextureImpl> pObject)
+	{
+		return PlaceObjectAtFirstNullPosition(mpTexturesArray, DynamicPtrCast<CVulkanTextureImpl>(pObject));
+	}
+
+	USIZE CVulkanGraphicsObjectManager::_insertShaderImpl(TPtr<IShaderImpl> pObject)
+	{
+		return PlaceObjectAtFirstNullPosition(mpShadersArray, DynamicPtrCast<CVulkanShaderImpl>(pObject));
+	}
+
 	E_RESULT_CODE CVulkanGraphicsObjectManager::_freeTextureSamplers()
 	{
 		return RC_OK;
@@ -349,8 +332,8 @@ namespace TDEngine2
 	}
 
 
-	IGraphicsObjectManager* CreateVulkanGraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
+	IGraphicsObjectManager* CreateVulkanGraphicsObjectManager(IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IGraphicsObjectManager, CVulkanGraphicsObjectManager, result, pGraphicsContext);
+		return CREATE_IMPL(IGraphicsObjectManager, CVulkanGraphicsObjectManager, result, pGraphicsContext, pFileSystem);
 	}
 }

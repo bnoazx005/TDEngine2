@@ -456,12 +456,13 @@ namespace TDEngine2
 			IGraphicsContext* mpGraphicsContext;
 	};
 
-	CVulkanShader::CVulkanShader() :
-		CBaseShader()
+
+	CVulkanShaderImpl::CVulkanShaderImpl() :
+		CBaseShaderImpl()
 	{
 	}
 
-	E_RESULT_CODE CVulkanShader::Reset()
+	E_RESULT_CODE CVulkanShaderImpl::_onFreeInternal()
 	{
 		mIsInitialized = false;
 
@@ -475,42 +476,32 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void CVulkanShader::Bind()
-	{
-		CBaseShader::Bind();
-
-	}
-
-	void CVulkanShader::Unbind()
-	{
-	}
-
-	VkPipelineShaderStageCreateInfo CVulkanShader::GetPipelineShaderStage(E_SHADER_STAGE_TYPE stageType) const
+	VkPipelineShaderStageCreateInfo CVulkanShaderImpl::GetPipelineShaderStage(E_SHADER_STAGE_TYPE stageType) const
 	{
 		return mPipelineShaderStagesInfo[stageType];
 	}
 
-	VkPipelineShaderStageCreateInfo* CVulkanShader::GetStages()
+	VkPipelineShaderStageCreateInfo* CVulkanShaderImpl::GetStages()
 	{
 		return mPipelineShaderStagesInfo.data();
 	}
 
-	U32 CVulkanShader::GetStagesCount() const
+	U32 CVulkanShaderImpl::GetStagesCount() const
 	{
 		return static_cast<U32>(std::count_if(mPipelineShaderStagesInfo.cbegin(), mPipelineShaderStagesInfo.cend(), [](const VkPipelineShaderStageCreateInfo& info) { return info.sType == VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO; }));
 	}
 
-	const VkPipelineLayout CVulkanShader::GetPipelineLayout() const
+	const VkPipelineLayout CVulkanShaderImpl::GetPipelineLayout() const
 	{
 		return mPipelineLayout;
 	}
 
-	const VkDescriptorSetLayout CVulkanShader::GetDescriptorSetLayout() const
+	const VkDescriptorSetLayout CVulkanShaderImpl::GetDescriptorSetLayout() const
 	{
 		return mDescriptorsSetLayout;
 	}
 
-	const TVulkanPipelineLayoutInfo& CVulkanShader::GetLayoutInfo() const
+	const TVulkanPipelineLayoutInfo& CVulkanShaderImpl::GetLayoutInfo() const
 	{
 		return mLayoutInfo;
 	}
@@ -552,7 +543,7 @@ namespace TDEngine2
 	}
 
 
-	E_RESULT_CODE CVulkanShader::_createInternalHandlers(const TShaderCompilerOutput* pCompilerData)
+	E_RESULT_CODE CVulkanShaderImpl::_createInternalHandlers(const TShaderCompilerOutput* pCompilerData)
 	{
 		if (!pCompilerData)
 		{
@@ -612,7 +603,7 @@ namespace TDEngine2
 	}
 
 
-	E_RESULT_CODE CVulkanShader::_createUniformBuffers(const TShaderCompilerOutput* pCompilerData)
+	E_RESULT_CODE CVulkanShaderImpl::_createUniformBuffers(const TShaderCompilerOutput* pCompilerData)
 	{
 		std::vector<VkDescriptorSetLayoutBinding> bindings;
 		std::unordered_set<U32> existingBindings;
@@ -746,60 +737,13 @@ namespace TDEngine2
 	}
 
 
-	IShader* CreateVulkanShader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
+	IShaderImpl* CreateVulkanShaderImpl(IGraphicsContext* pGraphicsContext, const std::string& shaderId, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IShader, CVulkanShader, result, pResourceManager, pGraphicsContext, name);
+		return CREATE_IMPL(IShaderImpl, CVulkanShaderImpl, result, pGraphicsContext, shaderId);
 	}
 
 
-	CVulkanShaderFactory::CVulkanShaderFactory() :
-		CBaseObject()
-	{
-	}
-
-	E_RESULT_CODE CVulkanShaderFactory::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext)
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		if (!pGraphicsContext || !pResourceManager)
-		{
-			return RC_INVALID_ARGS;
-		}
-
-		mpResourceManager = pResourceManager;
-
-		mpGraphicsContext = pGraphicsContext;
-
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	IResource* CVulkanShaderFactory::Create(const std::string& name, const TBaseResourceParameters& params) const
-	{
-		return nullptr;
-	}
-
-	IResource* CVulkanShaderFactory::CreateDefault(const std::string& name, const TBaseResourceParameters& params) const
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		return dynamic_cast<IResource*>(CreateVulkanShader(mpResourceManager, mpGraphicsContext, name, result));
-	}
-
-	TypeId CVulkanShaderFactory::GetResourceTypeId() const
-	{
-		return IShader::GetTypeId();
-	}
-
-
-	IResourceFactory* CreateVulkanShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
-	{
-		return CREATE_IMPL(IResourceFactory, CVulkanShaderFactory, result, pResourceManager, pGraphicsContext);
-	}
+	TDE2_DEFINE_SCOPED_PTR(CVulkanShaderImpl);
 
 
 	/*!
@@ -1120,7 +1064,7 @@ namespace TDEngine2
 				\param[in, out] pShader A pointer to IShader implementation
 			*/
 
-			void Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray, IShader* pShader) override;
+			void Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray, IShaderImpl* pShader) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanVertexDeclaration)
 
@@ -1137,7 +1081,7 @@ namespace TDEngine2
 	{
 	}
 
-	void CVulkanVertexDeclaration::Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray, IShader* pShader)
+	void CVulkanVertexDeclaration::Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray, IShaderImpl* pShader)
 	{
 	}
 
@@ -1299,13 +1243,19 @@ namespace TDEngine2
 			return result;
 		}
 
-		const TResourceId shaderHandle = pResourceManager->Load<IShader>(pipelineConfig.mShaderIdStr);
-		if (TResourceId::Invalid == shaderHandle)
+		auto loadShaderResult = mpVulkanGraphicsObjectManagerImpl->LoadShader(pipelineConfig.mShaderIdStr);
+		if (loadShaderResult.HasError())
+		{
+			return loadShaderResult.GetError();
+		}
+
+		mShaderResourceHandle = loadShaderResult.Get();
+
+		TPtr<CVulkanShaderImpl> pShader = mpVulkanGraphicsObjectManagerImpl->GetVulkanShaderPtr(mShaderResourceHandle);
+		if (!pShader)
 		{
 			return RC_FAIL;
 		}
-		
-		TPtr<CVulkanShader> pShader = pResourceManager->GetResource<CVulkanShader>(shaderHandle);
 
 		// \note Prepare basic pipeline that will be derived in runtime to override attachments
 
@@ -1518,13 +1468,19 @@ namespace TDEngine2
 			return result;
 		}
 
-		const TResourceId shaderHandle = pResourceManager->Load<IShader>(shaderId);
-		if (TResourceId::Invalid == shaderHandle)
+		auto loadShaderResult = mpVulkanGraphicsObjectManagerImpl->LoadShader(shaderId);
+		if (loadShaderResult.HasError())
+		{
+			return loadShaderResult.GetError();
+		}
+
+		mShaderResourceHandle = loadShaderResult.Get();
+
+		TPtr<CVulkanShaderImpl> pShader = mpVulkanGraphicsObjectManagerImpl->GetVulkanShaderPtr(mShaderResourceHandle);
+		if (!pShader)
 		{
 			return RC_FAIL;
 		}
-
-		TPtr<CVulkanShader> pShader = pResourceManager->GetResource<CVulkanShader>(shaderHandle);
 
 		mCachedPipelineLayoutHandle = pShader->GetPipelineLayout();
 

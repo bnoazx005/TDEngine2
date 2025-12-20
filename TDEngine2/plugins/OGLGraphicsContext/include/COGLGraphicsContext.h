@@ -32,6 +32,6 @@ namespace TDEngine2
 		\return A pointer to OGLGraphicsContext's implementation
 	*/
 
-	IGraphicsContext* CreateOGLGraphicsContext(TPtr<IWindowSystem> pWindowSystem, TCreateGLContextFactoryCallback glContextFactoryCallback,
+	IGraphicsContext* CreateOGLGraphicsContext(TPtr<IWindowSystem> pWindowSystem, TPtr<IFileSystem> pFileSystem, TCreateGLContextFactoryCallback glContextFactoryCallback,
 														E_RESULT_CODE& result);
 }

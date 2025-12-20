@@ -3,11 +3,15 @@
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IFileSystem.h"
 #include "../../include/core/IFile.h"
+#include "../../include/core/CProjectSettings.h"
 #include "../../include/graphics/CDebugUtility.h"
 #include "../../include/graphics/IRenderer.h"
 #include "../../include/graphics/ITexture.h"
 #include "../../include/graphics/CBaseShader.h"
 #include "../../include/graphics/BasePipelines.h"
+#include "../../include/graphics/IShaderCompiler.h"
+#include "../../include/editor/CPerfProfiler.h"
+#include "../../include/utils/CFileLogger.h"
 #include <unordered_map>
 #include <algorithm>
 
@@ -75,19 +79,29 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CBaseGraphicsObjectManager::Init(IGraphicsContext* pGraphicsContext)
+	E_RESULT_CODE CBaseGraphicsObjectManager::Init(IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pGraphicsContext)
+		if (!pGraphicsContext || !pFileSystem)
 		{
 			return RC_INVALID_ARGS;
 		}
 
 		mpGraphicsContext = pGraphicsContext;
+		mpFileSystem = pFileSystem;
+
+		auto createShaderCacheResult = CreateShaderCache(mpFileSystem);
+		if (createShaderCacheResult.HasError())
+		{
+			return createShaderCacheResult.GetError();
+		}
+
+		mpShaderCache = createShaderCacheResult.Get();
+
 
 		mIsInitialized = true;
 
@@ -135,10 +149,65 @@ namespace TDEngine2
 		return Wrench::TOkValue<IDebugUtility*>(mpDebugUtility);
 	}
 
+	TResult<TBufferHandleId> CBaseGraphicsObjectManager::CreateBuffer(const TInitBufferParams& params)
+	{
+		if (E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT == (params.mFlags & E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT))
+		{			
+			if (auto&& it = mTransientBuffersPool.find(ComputeStateDescHash(params)); it != mTransientBuffersPool.cend())
+			{				
+				if (auto& availableTransientBuffers = it->second; !availableTransientBuffers.empty())
+				{
+					const TBufferHandleId resourceId = availableTransientBuffers.back();
+					availableTransientBuffers.pop_back();
+
+					return TResult<TBufferHandleId>(resourceId);
+				}
+			}
+		}
+
+		TPtr<IBuffer> pBuffer = _createBufferInternal(params);
+		if (!pBuffer)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		const USIZE placementIndex = _insertBuffer(pBuffer);
+
+		pBuffer->SetHandle(static_cast<TBufferHandleId>(placementIndex), _getPassKey());
+
+		return Wrench::TOkValue<TBufferHandleId>(static_cast<TBufferHandleId>(placementIndex));
+	}
+
+	TResult<TTextureHandleId> CBaseGraphicsObjectManager::CreateTexture(const TInitTextureImplParams& params)
+	{
+		if (E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT == (params.mFlags & E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT))
+		{
+			if (auto&& it = mTransientTexturesPool.find(ComputeStateDescHash(params)); it != mTransientTexturesPool.cend())
+			{				
+				if (auto& availableTransientTextures = it->second; !availableTransientTextures.empty())
+				{
+					const TTextureHandleId resourceId = availableTransientTextures.back();
+					availableTransientTextures.pop_back();
+
+					return TResult<TTextureHandleId>(resourceId);
+				}
+			}
+		}
+
+		TPtr<ITextureImpl> pTexture = _createTextureInternal(params);
+		if (!pTexture)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		const USIZE placementIndex = _insertTexture(pTexture);
+		pTexture->SetHandle(static_cast<TTextureHandleId>(placementIndex), _getPassKey());
+
+		return Wrench::TOkValue<TTextureHandleId>(static_cast<TTextureHandleId>(placementIndex));
+	}
+
 	TResult<TGraphicsPipelineStateId> CBaseGraphicsObjectManager::CreateGraphicsPipelineState(TPtr<IResourceManager> pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfigDesc)
 	{
-		E_RESULT_CODE result = RC_OK;
-
 		const U32 hash = ComputeStateDescHash(pipelineConfigDesc);
 
 		auto existingItemIt = mGraphicsPipelinesHashTable.find(hash);
@@ -148,9 +217,9 @@ namespace TDEngine2
 		}
 
 		TPtr<IGraphicsPipeline> pGraphicsPipeline = _createGraphicsPipelineInternal(pResourceManager.Get(), pipelineConfigDesc);
-		if (!pGraphicsPipeline || RC_OK != result)
+		if (!pGraphicsPipeline)
 		{
-			return Wrench::TErrValue<E_RESULT_CODE>(result);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
 		auto it = std::find(mpGraphicsPipelines.begin(), mpGraphicsPipelines.end(), nullptr);
@@ -172,8 +241,6 @@ namespace TDEngine2
 
 	TResult<TComputePipelineStateId> CBaseGraphicsObjectManager::CreateComputePipelineState(TPtr<IResourceManager> pResourceManager, const std::string& shaderId)
 	{
-		E_RESULT_CODE result = RC_OK;
-
 		const U32 hash = TDE2_STRING_ID(shaderId.c_str());
 
 		auto existingItemIt = mComputePipelinesHashTable.find(hash);
@@ -183,9 +250,9 @@ namespace TDEngine2
 		}
 
 		TPtr<IComputePipeline> pComputePipeline = _createComputePipelineInternal(pResourceManager.Get(), shaderId);
-		if (!pComputePipeline || RC_OK != result)
+		if (!pComputePipeline)
 		{
-			return Wrench::TErrValue<E_RESULT_CODE>(result);
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
 		auto it = std::find(mpComputePipelines.begin(), mpComputePipelines.end(), nullptr);
@@ -205,14 +272,115 @@ namespace TDEngine2
 		return Wrench::TOkValue<TComputePipelineStateId>(static_cast<TComputePipelineStateId>(placementIndex));
 	}
 
-	TResult<TPtr<IShaderCache>> CBaseGraphicsObjectManager::CreateShaderCache(IFileSystem* pFileSystem, bool isReadOnly)
+
+	static E_RESULT_CODE CompileShader(const IShaderCompiler* pShaderCompiler, const std::string& resourceName,
+		IShaderImpl* pShader, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem)
+	{
+		TDE2_PROFILER_SCOPE("CBaseGraphicsObjectManager::CompileShader");
+
+		/// load source code
+		TResult<TFileEntryId> shaderFileId = pFileSystem->Open<ITextFileReader>(resourceName);
+
+		auto loadDefaultShaderRoutine = [&resourceName, pGraphicsContext, pShaderCompiler, pShader]
+			{
+				LOG_WARNING(std::string("[Shader Loader] Could not load the specified shader (").append(resourceName).append("), load default one instead..."));
+
+				/// \note can't load file with the shader, so load default one
+				return pShader->Compile(pShaderCompiler, pGraphicsContext->GetGraphicsObjectManager()->GetDefaultShaderCode(CBaseGraphicsObjectManager::GetDefaultShaderTypeByName(resourceName)));
+			};
+
+		if (shaderFileId.HasError())
+		{
+			return loadDefaultShaderRoutine();
+		}
+
+		ITextFileReader* pShaderFileReader = pFileSystem->Get<ITextFileReader>(shaderFileId.Get());
+		if (!pShaderFileReader)
+		{
+			return RC_FILE_NOT_FOUND;
+		}
+
+		const std::string& shaderSourceCode = pShaderFileReader->ReadToEnd();
+
+		E_RESULT_CODE result = RC_OK;
+
+		if ((result = pShaderFileReader->Close()) != RC_OK)
+		{
+			return result;
+		}
+
+		/// parse it and compile needed variant
+		if ((result = pShader->Compile(pShaderCompiler, shaderSourceCode)) != RC_OK)
+		{
+			return loadDefaultShaderRoutine();
+		}
+
+		return result;
+	}
+
+
+	static E_RESULT_CODE TryToCompileShader(IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, const IShaderCompiler* pShaderCompiler, IShaderCache* pShaderCache,
+		IShaderImpl* pShader, const std::string& shaderId)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		/// \note If there is meta information within the manifest try to read precompiled shader first		
+		if (!pShaderCache->HasShaderMetaData(shaderId) || !CProjectSettings::Get()->mGraphicsSettings.mIsShaderCacheEnabled)
+		{
+			return CompileShader(pShaderCompiler, shaderId, pShader, pGraphicsContext, pFileSystem);
+		}
+
+		if (RC_OK != (result = pShader->LoadFromShaderCache(pShaderCache)))
+		{
+			// if we failed in loading of precompiled shader try to compile it in runtime
+			return CompileShader(pShaderCompiler, shaderId, pShader, pGraphicsContext, pFileSystem);
+		}
+
+		return RC_OK;
+	}
+
+
+	TResult<TShaderHandleId> CBaseGraphicsObjectManager::LoadShader(const std::string& shaderId)
+	{
+		const U32 hash = TDE2_STRING_ID(shaderId.c_str());
+
+		auto existingItemIt = mLoadedShadersTable.find(hash);
+		if (existingItemIt != mLoadedShadersTable.cend())
+		{
+			return Wrench::TOkValue<TShaderHandleId>(existingItemIt->second);
+		}
+
+		TPtr<IShaderImpl> pShader = _createShaderImplInternal(shaderId);
+		if (!pShader)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		if (!mpShaderCompiler)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		if (E_RESULT_CODE result = TryToCompileShader(mpGraphicsContext, mpFileSystem, mpShaderCompiler.Get(), mpShaderCache.Get(), pShader.Get(), shaderId); RC_OK != result)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(result);
+		}
+
+		const USIZE placementIndex = _insertShaderImpl(pShader);
+
+		mLoadedShadersTable.emplace(hash, static_cast<TShaderHandleId>(placementIndex));
+
+		return Wrench::TOkValue<TShaderHandleId>(static_cast<TShaderHandleId>(placementIndex));
+	}
+
+	TResult<TPtr<IShaderCache>> CBaseGraphicsObjectManager::CreateShaderCache(bool isReadOnly)
 	{
 		E_RESULT_CODE result = RC_OK;
 
 		TPtr<IShaderCache> pShaderCache = TPtr<IShaderCache>(
 			::TDEngine2::CreateShaderCache(
-				pFileSystem->Get<IBinaryFileReader>(pFileSystem->Open<IBinaryFileReader>(_getShaderCacheFilePath(), true).Get()),
-				isReadOnly ? nullptr : pFileSystem->Get<IBinaryFileWriter>(pFileSystem->Open<IBinaryFileWriter>(_getShaderCacheFilePath(), true).Get()), result));
+				mpFileSystem->Get<IBinaryFileReader>(mpFileSystem->Open<IBinaryFileReader>(_getShaderCacheFilePath(), true).Get()),
+				isReadOnly ? nullptr : mpFileSystem->Get<IBinaryFileWriter>(mpFileSystem->Open<IBinaryFileWriter>(_getShaderCacheFilePath(), true).Get()), result));
 
 		if (!pShaderCache || RC_OK != result)
 		{
@@ -220,6 +388,18 @@ namespace TDEngine2
 		}
 
 		return Wrench::TOkValue<TPtr<IShaderCache>>(pShaderCache);
+	}
+
+	E_RESULT_CODE CBaseGraphicsObjectManager::SetShaderCompiler(TPtr<IShaderCompiler> pShaderCompiler)
+	{
+		if (!pShaderCompiler)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpShaderCompiler = pShaderCompiler;
+
+		return RC_OK;
 	}
 
 	IGraphicsContext* CBaseGraphicsObjectManager::GetGraphicsContext() const

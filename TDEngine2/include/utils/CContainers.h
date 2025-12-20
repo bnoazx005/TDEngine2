@@ -571,4 +571,21 @@ namespace TDEngine2
 			std::array<T, maxCapacity> mElementsStorage{};
 			size_type                  mSize = 0;
 	};
+
+
+	template <typename TType>
+	inline USIZE PlaceObjectAtFirstNullPosition(std::vector<TPtr<TType>>& container, TPtr<TType> pObject)
+	{
+		const USIZE placementIndex = static_cast<USIZE>(std::distance(container.cbegin(), std::find(container.cbegin(), container.cend(), nullptr)));
+
+		if (placementIndex >= container.size())
+		{
+			container.emplace_back(pObject);
+			return placementIndex;
+		}
+
+		container[placementIndex] = pObject;
+
+		return placementIndex;
+	}
 }

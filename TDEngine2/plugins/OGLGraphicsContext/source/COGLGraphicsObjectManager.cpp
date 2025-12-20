@@ -11,99 +11,12 @@ namespace TDEngine2
 {
 	TDE2_DEFINE_SCOPED_PTR(COGLTextureImpl)
 	TDE2_DEFINE_SCOPED_PTR(COGLBuffer)
+	TDE2_DEFINE_SCOPED_PTR(COGLShaderImpl)
 
 
 	COGLGraphicsObjectManager::COGLGraphicsObjectManager() :
 		CBaseGraphicsObjectManager()
 	{
-	}
-
-	TResult<TBufferHandleId> COGLGraphicsObjectManager::CreateBuffer(const TInitBufferParams& params)
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		if (E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT == (params.mFlags & E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT))
-		{
-			const U32 hash = ComputeStateDescHash(params);
-
-			auto&& it = mTransientBuffersPool.find(hash);
-			if (it != mTransientBuffersPool.cend())
-			{
-				auto& availableTransientBuffers = it->second;
-				if (!availableTransientBuffers.empty())
-				{
-					const TBufferHandleId resourceId = availableTransientBuffers.back();
-					availableTransientBuffers.pop_back();
-
-					return TResult<TBufferHandleId>(resourceId);
-				}
-			}
-		}
-
-		TPtr<IBuffer> pBuffer = TPtr<IBuffer>(CreateOGLBuffer(mpGraphicsContext, params, result));
-		if (!pBuffer || RC_OK != result)
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(result);
-		}
-
-		auto it = std::find(mpBuffersArray.begin(), mpBuffersArray.end(), nullptr);
-		const USIZE placementIndex = static_cast<USIZE>(std::distance(mpBuffersArray.begin(), it));
-
-		if (placementIndex >= mpBuffersArray.size())
-		{
-			mpBuffersArray.emplace_back(DynamicPtrCast<COGLBuffer>(pBuffer));
-		}
-		else
-		{
-			mpBuffersArray[placementIndex] = DynamicPtrCast<COGLBuffer>(pBuffer);
-		}
-
-		pBuffer->SetHandle(static_cast<TBufferHandleId>(placementIndex), _getPassKey());
-
-		return Wrench::TOkValue<TBufferHandleId>(static_cast<TBufferHandleId>(placementIndex));
-	}
-
-	TResult<TTextureHandleId> COGLGraphicsObjectManager::CreateTexture(const TInitTextureImplParams& params)
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		if (E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT == (params.mFlags & E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT))
-		{
-			const U32 hash = ComputeStateDescHash(params);
-
-			auto&& it = mTransientTexturesPool.find(hash);
-			if (it != mTransientTexturesPool.cend())
-			{
-				auto& availableTransientTextures = it->second;
-				if (!availableTransientTextures.empty())
-				{
-					const TTextureHandleId resourceId = availableTransientTextures.back();
-					availableTransientTextures.pop_back();
-
-					return TResult<TTextureHandleId>(resourceId);
-				}
-			}
-		}
-
-		TPtr<ITextureImpl> pTexture = TPtr<ITextureImpl>(CreateOGLTextureImpl(mpGraphicsContext, params, result));
-		if (!pTexture || RC_OK != result)
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(result);
-		}
-
-		auto it = std::find(mpTexturesArray.begin(), mpTexturesArray.end(), nullptr);
-		const USIZE placementIndex = static_cast<USIZE>(std::distance(mpTexturesArray.begin(), it));
-
-		if (placementIndex >= mpTexturesArray.size())
-		{
-			mpTexturesArray.emplace_back(DynamicPtrCast<COGLTextureImpl>(pTexture));
-		}
-		else
-		{
-			mpTexturesArray[placementIndex] = DynamicPtrCast<COGLTextureImpl>(pTexture);
-		}
-
-		return Wrench::TOkValue<TTextureHandleId>(static_cast<TTextureHandleId>(placementIndex));
 	}
 
 	E_RESULT_CODE COGLGraphicsObjectManager::DestroyBuffer(TBufferHandleId bufferHandle)
@@ -154,6 +67,24 @@ namespace TDEngine2
 		}
 
 		mpTexturesArray[texturePlacementIndex] = nullptr;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE COGLGraphicsObjectManager::DestroyShader(TShaderHandleId shaderHandle)
+	{
+		if (TShaderHandleId::Invalid == shaderHandle)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		const USIZE shaderPlacementIndex = static_cast<USIZE>(shaderHandle);
+		if (shaderPlacementIndex >= mpShadersArray.size())
+		{
+			return RC_FAIL;
+		}
+
+		mpShadersArray[shaderPlacementIndex] = nullptr;
 
 		return RC_OK;
 	}
@@ -299,6 +230,27 @@ namespace TDEngine2
 		return mpTexturesArray[bufferPlacementIndex];
 	}
 
+	TPtr<IShaderImpl> COGLGraphicsObjectManager::GetShaderPtr(TShaderHandleId handle)
+	{
+		return DynamicPtrCast<IShaderImpl>(GetOGLShaderPtr(handle));
+	}
+
+	TPtr<COGLShaderImpl> COGLGraphicsObjectManager::GetOGLShaderPtr(TShaderHandleId handle)
+	{
+		if (TShaderHandleId::Invalid == handle)
+		{
+			return nullptr;
+		}
+
+		const USIZE placementIndex = static_cast<USIZE>(handle);
+		if (placementIndex >= mpShadersArray.size())
+		{
+			return nullptr;
+		}
+
+		return mpShadersArray[placementIndex];
+	}
+
 	std::string COGLGraphicsObjectManager::GetDefaultShaderCode(const E_DEFAULT_SHADER_TYPE& type) const
 	{
 		switch (type)
@@ -355,6 +307,39 @@ namespace TDEngine2
 		return TPtr<IGraphicsPipeline>(CreateGLGraphicsPipeline(mpGraphicsContext, pResourceManager, pipelineConfigDesc, result));
 	}
 
+	TPtr<IBuffer> COGLGraphicsObjectManager::_createBufferInternal(const TInitBufferParams& params)
+	{
+		E_RESULT_CODE result = RC_OK;
+		return TPtr<IBuffer>(CreateOGLBuffer(mpGraphicsContext, params, result));
+	}
+
+	TPtr<ITextureImpl> COGLGraphicsObjectManager::_createTextureInternal(const TInitTextureImplParams& params)
+	{
+		E_RESULT_CODE result = RC_OK;
+		return TPtr<ITextureImpl>(CreateOGLTextureImpl(mpGraphicsContext, params, result));
+	}
+
+	TPtr<IShaderImpl> COGLGraphicsObjectManager::_createShaderImplInternal(const std::string& shaderId)
+	{
+		E_RESULT_CODE result = RC_OK;
+		return TPtr<IShaderImpl>(CreateOGLShaderImpl(mpGraphicsContext, shaderId, result));
+	}
+
+	USIZE COGLGraphicsObjectManager::_insertBuffer(TPtr<IBuffer> pObject)
+	{
+		return PlaceObjectAtFirstNullPosition(mpBuffersArray, DynamicPtrCast<COGLBuffer>(pObject));
+	}
+
+	USIZE COGLGraphicsObjectManager::_insertTexture(TPtr<ITextureImpl> pObject)
+	{
+		return PlaceObjectAtFirstNullPosition(mpTexturesArray, DynamicPtrCast<COGLTextureImpl>(pObject));
+	}
+
+	USIZE COGLGraphicsObjectManager::_insertShaderImpl(TPtr<IShaderImpl> pObject)
+	{
+		return PlaceObjectAtFirstNullPosition(mpShadersArray, DynamicPtrCast<COGLShaderImpl>(pObject));
+	}
+
 	E_RESULT_CODE COGLGraphicsObjectManager::_freeTextureSamplers()
 	{
 		if (mTextureSamplersArray.empty())
@@ -390,8 +375,8 @@ namespace TDEngine2
 	}
 
 
-	IGraphicsObjectManager* CreateOGLGraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
+	IGraphicsObjectManager* CreateOGLGraphicsObjectManager(IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IGraphicsObjectManager, COGLGraphicsObjectManager, result, pGraphicsContext);
+		return CREATE_IMPL(IGraphicsObjectManager, COGLGraphicsObjectManager, result, pGraphicsContext, pFileSystem);
 	}
 }

@@ -163,20 +163,15 @@ namespace TDEngine2
 
 
 	/*!
-		\brief A factory function for creation objects of CVulkanShader's type
-
-		\param[in, out] pResourceManager A pointer to IGraphicsContext's implementation
+		\brief A factory function for creation objects of CVulkanShaderImpl's type
 
 		\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
-
-		\param[in] name A resource's name
-
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
-		\return A pointer to CVulkanShader's implementation
+		\return A pointer to CVulkanShaderImpl's implementation
 	*/
 
-	IShader* CreateVulkanShader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result);
+	IShaderImpl* CreateVulkanShaderImpl(IGraphicsContext* pGraphicsContext, const std::string& shaderId, E_RESULT_CODE& result);
 
 
 	struct TVulkanPipelineLayoutInfo
@@ -197,38 +192,16 @@ namespace TDEngine2
 
 
 	/*!
-		class CVulkanShader
+		class CVulkanShaderImpl
 
-		\brief The class is a common implementation for all platforms
+		\brief The class implements shader object's functionality for Vulkan GAPI
 	*/
 
-	class CVulkanShader : public CBaseShader
+	class CVulkanShaderImpl : public CBaseShaderImpl
 	{
 		public:
-			friend IShader* CreateVulkanShader(IResourceManager*, IGraphicsContext*, const std::string&, E_RESULT_CODE&);
+			friend IShaderImpl* CreateVulkanShaderImpl(IGraphicsContext*, const std::string&, E_RESULT_CODE&);
 		public:
-			TDE2_REGISTER_TYPE(CVulkanShader)
-
-			/*!
-				\brief The method resets current internal data of a resource
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			E_RESULT_CODE Reset() override;
-
-			/*!
-				\brief The method binds a shader to a rendering pipeline
-			*/
-
-			void Bind() override;
-
-			/*!
-				\brief The method rejects a shader from a rendering pipeline
-			*/
-
-			void Unbind() override;
-
 			VkPipelineShaderStageCreateInfo GetPipelineShaderStage(E_SHADER_STAGE_TYPE stageType) const;
 			VkPipelineShaderStageCreateInfo* GetStages();
 			U32 GetStagesCount() const;
@@ -238,12 +211,13 @@ namespace TDEngine2
 
 			const TVulkanPipelineLayoutInfo& GetLayoutInfo() const;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanShader)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanShaderImpl)
 
 			E_RESULT_CODE _createInternalHandlers(const TShaderCompilerOutput* pCompilerData) override;
 
 			E_RESULT_CODE _createUniformBuffers(const TShaderCompilerOutput* pCompilerData);
 
+			E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			std::array<VkShaderModule, SST_NONE>                  mShaderStageModules;
 			std::array<VkPipelineShaderStageCreateInfo, SST_NONE> mPipelineShaderStagesInfo;
@@ -253,21 +227,6 @@ namespace TDEngine2
 
 			TVulkanPipelineLayoutInfo                             mLayoutInfo{};
 	};
-
-
-	/*!
-		\brief A factory function for creation objects of CVulkanShaderFactory's type
-
-		\param[in, out] pResourceManager A pointer to IResourceManager's implementation
-
-		\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
-
-		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
-
-		\return A pointer to CVulkanShaderFactory's implementation
-	*/
-
-	IResourceFactory* CreateVulkanShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
 
 
 	ITextureImpl* CreateVulkanTextureImpl(IGraphicsContext* pGraphicsContext, const TInitTextureImplParams& params, E_RESULT_CODE& result);
@@ -357,6 +316,8 @@ namespace TDEngine2
 			VkPipelineLayout              mCachedPipelineLayoutHandle = VK_NULL_HANDLE;
 
 			TVulkanPipelineLayoutInfo     mLayoutInfo{};
+
+			TShaderHandleId               mShaderResourceHandle;
 	};
 
 

@@ -53,10 +53,6 @@ namespace TDEngine2
 			TDE2_API const TPluginInfo& GetInfo() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11GCtxPlugin)
-
-			E_RESULT_CODE _registerFactories(IEngineCore* pEngineCore);
-
-			E_RESULT_CODE _registerResourceLoaders(IEngineCore* pEngineCore);
 		protected:
 			IEngineCore*      mpEngineCoreInstance;
 

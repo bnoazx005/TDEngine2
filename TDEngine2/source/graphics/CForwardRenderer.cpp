@@ -179,7 +179,7 @@ namespace TDEngine2
 
 		const TTextureSamplerId linearSamplerHandle = pGraphicsContext->GetGraphicsObjectManager()->GetDefaultTextureSampler(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
 
-		if (auto pShader = pResourceManager->GetResource<IShader>(pResourceManager->Load<IShader>(config.mShaderId)))
+		if (auto pShader = pGraphicsContext->GetGraphicsObjectManager()->GetShaderPtr(pGraphicsContext->GetGraphicsObjectManager()->LoadShader(config.mShaderId).GetOrDefault(TShaderHandleId::Invalid)))
 		{
 			pShader->Bind();
 

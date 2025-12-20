@@ -81,5 +81,6 @@ namespace TDEngine2
 	TDE2_DEFINE_SCOPED_PTR(IGraphicsObjectManager)
 	TDE2_DEFINE_SCOPED_PTR(IBuffer)
 	TDE2_DEFINE_SCOPED_PTR(ITextureImpl)
+	TDE2_DEFINE_SCOPED_PTR(IShaderImpl)
 	TDE2_DEFINE_SCOPED_PTR(CFramePacketsStorage)
 }

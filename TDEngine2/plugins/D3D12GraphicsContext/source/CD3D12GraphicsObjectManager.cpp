@@ -12,96 +12,6 @@ namespace TDEngine2
 	{
 	}
 
-	TResult<TBufferHandleId> CD3D12GraphicsObjectManager::CreateBuffer(const TInitBufferParams& params)
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		if (E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT == (params.mFlags & E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT))
-		{
-			const U32 hash = ComputeStateDescHash(params);
-
-			auto&& it = mTransientBuffersPool.find(hash);
-			if (it != mTransientBuffersPool.cend())
-			{
-				auto& availableTransientBuffers = it->second;
-				if (!availableTransientBuffers.empty())
-				{
-					const TBufferHandleId resourceId = availableTransientBuffers.back();
-					availableTransientBuffers.pop_back();
-
-					return TResult<TBufferHandleId>(resourceId);
-				}
-			}
-		}
-
-		TPtr<IBuffer> pBuffer = TPtr<IBuffer>(CreateD3D12Buffer(mpGraphicsContext, params, result));
-		if (!pBuffer || RC_OK != result)
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(result);
-		}
-
-		auto it = std::find(mpBuffersArray.begin(), mpBuffersArray.end(), nullptr);
-		const USIZE placementIndex = static_cast<USIZE>(std::distance(mpBuffersArray.begin(), it));
-
-		if (placementIndex >= mpBuffersArray.size())
-		{
-			mpBuffersArray.emplace_back(DynamicPtrCast<CD3D12Buffer>(pBuffer));
-		}
-		else
-		{
-			mpBuffersArray[placementIndex] = DynamicPtrCast<CD3D12Buffer>(pBuffer);
-		}
-
-		pBuffer->SetHandle(static_cast<TBufferHandleId>(placementIndex), _getPassKey());
-
-		return Wrench::TOkValue<TBufferHandleId>(static_cast<TBufferHandleId>(placementIndex));
-	}
-
-	TResult<TTextureHandleId> CD3D12GraphicsObjectManager::CreateTexture(const TInitTextureImplParams& params)
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		if (E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT == (params.mFlags & E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT))
-		{
-			const U32 hash = ComputeStateDescHash(params);
-
-			auto&& it = mTransientTexturesPool.find(hash);
-			if (it != mTransientTexturesPool.cend())
-			{
-				auto& availableTransientTextures = it->second;
-				if (!availableTransientTextures.empty())
-				{
-					const TTextureHandleId resourceId = availableTransientTextures.back();
-					availableTransientTextures.pop_back();
-
-					return TResult<TTextureHandleId>(resourceId);
-				}
-			}
-		}
-
-		TPtr<ITextureImpl> pTexture = TPtr<ITextureImpl>(CreateD3D12TextureImpl(mpGraphicsContext, params, result));
-		if (!pTexture || RC_OK != result)
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(result);
-		}
-
-		auto it = std::find(mpTexturesArray.begin(), mpTexturesArray.end(), nullptr);
-		const USIZE placementIndex = static_cast<USIZE>(std::distance(mpTexturesArray.begin(), it));
-
-		if (placementIndex >= mpTexturesArray.size())
-		{
-			mpTexturesArray.emplace_back(DynamicPtrCast<CD3D12TextureImpl>(pTexture));
-		}
-		else
-		{
-			mpTexturesArray[placementIndex] = DynamicPtrCast<CD3D12TextureImpl>(pTexture);
-		}
-
-		pTexture->SetHandle(static_cast<TTextureHandleId>(placementIndex), _getPassKey());
-
-		return Wrench::TOkValue<TTextureHandleId>(static_cast<TTextureHandleId>(placementIndex));
-	}
-
 	E_RESULT_CODE CD3D12GraphicsObjectManager::DestroyBuffer(TBufferHandleId bufferHandle)
 	{
 		if (TBufferHandleId::Invalid == bufferHandle)
@@ -150,6 +60,24 @@ namespace TDEngine2
 		}
 
 		mpTexturesArray[texturePlacementIndex] = nullptr;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CD3D12GraphicsObjectManager::DestroyShader(TShaderHandleId shaderHandle)
+	{
+		if (TShaderHandleId::Invalid == shaderHandle)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		const USIZE shaderPlacementIndex = static_cast<USIZE>(shaderHandle);
+		if (shaderPlacementIndex >= mpTexturesArray.size())
+		{
+			return RC_FAIL;
+		}
+
+		mpShadersArray[shaderPlacementIndex] = nullptr;
 
 		return RC_OK;
 	}
@@ -249,6 +177,27 @@ namespace TDEngine2
 		return mpTexturesArray[texturePlacementIndex];
 	}
 
+	TPtr<IShaderImpl> CD3D12GraphicsObjectManager::GetShaderPtr(TShaderHandleId handle)
+	{
+		return DynamicPtrCast<IShaderImpl>(GetD3D12ShaderPtr(handle));
+	}
+
+	TPtr<CD3D12ShaderImpl> CD3D12GraphicsObjectManager::GetD3D12ShaderPtr(TShaderHandleId handle)
+	{
+		if (TShaderHandleId::Invalid == handle)
+		{
+			return nullptr;
+		}
+
+		const USIZE placementIndex = static_cast<USIZE>(handle);
+		if (placementIndex >= mpShadersArray.size())
+		{
+			return nullptr;
+		}
+
+		return mpShadersArray[placementIndex];
+	}
+
 	TResult<TD3D12ResourceDescriptor> CD3D12GraphicsObjectManager::GetTextureSampler(TTextureSamplerId texSamplerId) const
 	{
 		const USIZE textureSamplerIndex = static_cast<USIZE>(texSamplerId);
@@ -316,6 +265,39 @@ namespace TDEngine2
 		return TPtr<IComputePipeline>(CreateD3D12ComputePipeline(mpGraphicsContext, pResourceManager, shaderId, result));
 	}
 
+	TPtr<IBuffer> CD3D12GraphicsObjectManager::_createBufferInternal(const TInitBufferParams& params)
+	{
+		E_RESULT_CODE result = RC_OK;
+		return TPtr<IBuffer>(CreateD3D12Buffer(mpGraphicsContext, params, result));
+	}
+
+	TPtr<ITextureImpl> CD3D12GraphicsObjectManager::_createTextureInternal(const TInitTextureImplParams& params)
+	{
+		E_RESULT_CODE result = RC_OK;
+		return TPtr<ITextureImpl>(CreateD3D12TextureImpl(mpGraphicsContext, params, result));
+	}
+
+	TPtr<IShaderImpl> CD3D12GraphicsObjectManager::_createShaderImplInternal(const std::string& shaderId)
+	{
+		E_RESULT_CODE result = RC_OK;
+		return TPtr<IShaderImpl>(CreateD3D12ShaderImpl(mpGraphicsContext, shaderId, result));
+	}
+
+	USIZE CD3D12GraphicsObjectManager::_insertBuffer(TPtr<IBuffer> pObject)
+	{
+		return PlaceObjectAtFirstNullPosition(mpBuffersArray, DynamicPtrCast<CD3D12Buffer>(pObject));
+	}
+
+	USIZE CD3D12GraphicsObjectManager::_insertTexture(TPtr<ITextureImpl> pObject)
+	{
+		return PlaceObjectAtFirstNullPosition(mpTexturesArray, DynamicPtrCast<CD3D12TextureImpl>(pObject));
+	}
+
+	USIZE CD3D12GraphicsObjectManager::_insertShaderImpl(TPtr<IShaderImpl> pObject)
+	{
+		return PlaceObjectAtFirstNullPosition(mpShadersArray, DynamicPtrCast<CD3D12ShaderImpl>(pObject));
+	}
+
 	E_RESULT_CODE CD3D12GraphicsObjectManager::_freeTextureSamplers()
 	{
 		return RC_OK;
@@ -342,8 +324,8 @@ namespace TDEngine2
 	}
 
 
-	IGraphicsObjectManager* CreateD3D12GraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
+	IGraphicsObjectManager* CreateD3D12GraphicsObjectManager(IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IGraphicsObjectManager, CD3D12GraphicsObjectManager, result, pGraphicsContext);
+		return CREATE_IMPL(IGraphicsObjectManager, CD3D12GraphicsObjectManager, result, pGraphicsContext, pFileSystem);
 	}
 }

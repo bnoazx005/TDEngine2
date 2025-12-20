@@ -215,43 +215,42 @@ namespace TDEngine2
 
 
 	/*!
-		\brief COGLShader's definition
+		\brief COGLShaderImpl's definition
 	*/
 
 	static const std::string ShaderLanguageId = "glsl";
 
 
-	COGLShader::COGLShader() :
-		CBaseShader(), mShaderHandler(0)
+	COGLShaderImpl::COGLShaderImpl() :
+		CBaseShaderImpl(), mShaderHandler(0)
 	{
 	}
 
-	E_RESULT_CODE COGLShader::Reset()
+	void COGLShaderImpl::Bind()
 	{
-		mIsInitialized = false;
+		CBaseShaderImpl::Bind();
+		GL_SAFE_VOID_CALL(glUseProgram(mShaderHandler));
+	}
+
+	void COGLShaderImpl::Unbind()
+	{
+		CBaseShaderImpl::Unbind();
+		GL_SAFE_VOID_CALL(glUseProgram(0));
+	}
+
+	E_RESULT_CODE COGLShaderImpl::_onFreeInternal()
+	{
+		E_RESULT_CODE result = CBaseShaderImpl::_onFreeInternal();
 
 		if (mShaderHandler)
 		{
 			GL_SAFE_CALL(glDeleteProgram(mShaderHandler));
 		}
 
-		return RC_OK;
+		return result;
 	}
 
-	void COGLShader::Bind()
-	{
-		CBaseShader::Bind();
-
-		GL_SAFE_VOID_CALL(glUseProgram(mShaderHandler));
-	}
-
-	void COGLShader::Unbind()
-	{
-		CBaseShader::Unbind();
-		GL_SAFE_VOID_CALL(glUseProgram(0));
-	}
-
-	E_RESULT_CODE COGLShader::_createInternalHandlers(const TShaderCompilerOutput* pCompilerData)
+	E_RESULT_CODE COGLShaderImpl::_createInternalHandlers(const TShaderCompilerOutput* pCompilerData)
 	{
 		const TOGLShaderCompilerOutput* pOGLShaderCompilerData = dynamic_cast<const TOGLShaderCompilerOutput*>(pCompilerData);
 
@@ -344,7 +343,7 @@ namespace TDEngine2
 		return _createUniformBuffers(pCompilerData);
 	}
 
-	E_RESULT_CODE COGLShader::_createUniformBuffers(const TShaderCompilerOutput* pCompilerData)
+	E_RESULT_CODE COGLShaderImpl::_createUniformBuffers(const TShaderCompilerOutput* pCompilerData)
 	{
 		auto uniformBuffersInfo = pCompilerData->mUniformBuffersInfo;
 
@@ -479,15 +478,15 @@ namespace TDEngine2
 	}
 #endif
 
-	void COGLShader::_bindUniformBuffer(U32 slot, TBufferHandleId uniformsBufferHandle)
+	void COGLShaderImpl::_bindUniformBuffer(U32 slot, TBufferHandleId uniformsBufferHandle)
 	{
-		CBaseShader::_bindUniformBuffer(slot, uniformsBufferHandle);
+		CBaseShaderImpl::_bindUniformBuffer(slot, uniformsBufferHandle);
 		GL_SAFE_VOID_CALL(glUniformBlockBinding(mShaderHandler, mUniformBuffersMap[slot], slot));
 	}
 
-	E_RESULT_CODE COGLShader::_createTexturesHashTable(const TShaderCompilerOutput* pCompilerData)
+	E_RESULT_CODE COGLShaderImpl::_createTexturesHashTable(const TShaderCompilerOutput* pCompilerData)
 	{
-		E_RESULT_CODE result = CBaseShader::_createTexturesHashTable(pCompilerData);
+		E_RESULT_CODE result = CBaseShaderImpl::_createTexturesHashTable(pCompilerData);
 
 		GL_SAFE_CALL(glUseProgram(mShaderHandler));
 
@@ -530,125 +529,9 @@ namespace TDEngine2
 	}
 
 
-	IShader* CreateOGLShader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
+	IShaderImpl* CreateOGLShaderImpl(IGraphicsContext* pGraphicsContext, const std::string& shaderId, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IShader, COGLShader, result, pResourceManager, pGraphicsContext, name);
-	}
-
-
-	/*!
-		class COGLShaderFactory
-
-		\brief The class is an abstract factory of COGLShader objects that
-		is used by a resource manager
-	*/
-
-	class COGLShaderFactory : public CBaseObject, public IShaderFactory
-	{
-		public:
-			friend IResourceFactory* CreateOGLShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
-		public:
-			/*!
-				\brief The method initializes an internal state of a shader factory
-
-				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
-
-				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext) override;
-
-			/*!
-				\brief The method creates a new instance of a resource based on passed parameters
-
-				\param[in] name A name of a resource
-
-				\param[in] params An object that contains parameters that are needed for the resource's creation
-
-				\return A pointer to a new instance of IResource type
-			*/
-
-			IResource* Create(const std::string& name, const TBaseResourceParameters& params) const override;
-
-			/*!
-				\brief The method creates a new instance of a resource based on passed parameters
-
-				\param[in] name A name of a resource
-
-				\param[in] params An object that contains parameters that are needed for the resource's creation
-
-				\return A pointer to a new instance of IResource type
-			*/
-
-			IResource* CreateDefault(const std::string& name, const TBaseResourceParameters& params) const override;
-
-			/*!
-				\brief The method returns an identifier of a resource's type, which
-				the factory serves
-
-				\return The method returns an identifier of a resource's type, which
-				the factory serves
-			*/
-
-			TypeId GetResourceTypeId() const override;
-		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLShaderFactory)
-		protected:
-			IResourceManager* mpResourceManager;
-
-			IGraphicsContext* mpGraphicsContext;
-	};
-
-
-	COGLShaderFactory::COGLShaderFactory() :
-		CBaseObject()
-	{
-	}
-
-	E_RESULT_CODE COGLShaderFactory::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext)
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		if (!pGraphicsContext || !pResourceManager)
-		{
-			return RC_INVALID_ARGS;
-		}
-
-		mpResourceManager = pResourceManager;
-
-		mpGraphicsContext = pGraphicsContext;
-
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	IResource* COGLShaderFactory::Create(const std::string& name, const TBaseResourceParameters& params) const
-	{
-		return nullptr;
-	}
-
-	IResource* COGLShaderFactory::CreateDefault(const std::string& name, const TBaseResourceParameters& params) const
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		return dynamic_cast<IResource*>(CreateOGLShader(mpResourceManager, mpGraphicsContext, name, result));
-	}
-
-	TypeId COGLShaderFactory::GetResourceTypeId() const
-	{
-		return IShader::GetTypeId();
-	}
-
-
-	IResourceFactory* CreateOGLShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
-	{
-		return CREATE_IMPL(IResourceFactory, COGLShaderFactory, result, pResourceManager, pGraphicsContext);
+		return CREATE_IMPL(IShaderImpl, COGLShaderImpl, result, pGraphicsContext, shaderId);
 	}
 
 
@@ -1009,7 +892,7 @@ namespace TDEngine2
 		return Wrench::TOkValue<GLuint>(vaoHandler);
 	}
 
-	void COGLVertexDeclaration::Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray, IShader* pShader)
+	void COGLVertexDeclaration::Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray, IShaderImpl* pShader)
 	{
 		GL_SAFE_VOID_CALL(glBindVertexArray(GetVertexArrayObject(pGraphicsContext, pVertexBuffersArray).Get()));
 	}

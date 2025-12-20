@@ -62,7 +62,7 @@ namespace TDEngine2
 	class CVulkanGraphicsContext : public IGraphicsContext, public IEventHandler, public CBaseObject
 	{
 		public:
-			friend IGraphicsContext* CreateVulkanGraphicsContext(TPtr<IWindowSystem>, TPtr<IWindowSurfaceFactory>, E_RESULT_CODE&);
+			friend IGraphicsContext* CreateVulkanGraphicsContext(TPtr<IWindowSystem>, TPtr<IFileSystem>, TPtr<IWindowSurfaceFactory>, E_RESULT_CODE&);
 		public:
 			struct TGarbageEntity
 			{
@@ -97,7 +97,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem) override;
+			E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem, TPtr<IFileSystem> pFileSystem) override;
 
 			void BeginFrame() override;
 
@@ -466,6 +466,7 @@ namespace TDEngine2
 
 			TPtr<IWindowSystem>                                  mpWindowSystem = nullptr;
 			TPtr<IEventManager>                                  mpEventManager = nullptr;
+			TPtr<IFileSystem>                                    mpFileSystem = nullptr;
 			TPtr<IWindowSurfaceFactory>                          mpWindowSurfaceFactory = nullptr;
 			
 			mutable TPtr<IGraphicsObjectManager>                 mpGraphicsObjectManager = nullptr;
@@ -518,5 +519,5 @@ namespace TDEngine2
 		\return A pointer to VulkanGraphicsContext's implementation
 	*/
 
-	IGraphicsContext* CreateVulkanGraphicsContext(TPtr<IWindowSystem> pWindowSystem, TPtr<IWindowSurfaceFactory> pWindowSurfaceFactory, E_RESULT_CODE& result);
+	IGraphicsContext* CreateVulkanGraphicsContext(TPtr<IWindowSystem> pWindowSystem, TPtr<IFileSystem> pFileSystem, TPtr<IWindowSurfaceFactory> pWindowSurfaceFactory, E_RESULT_CODE& result);
 }

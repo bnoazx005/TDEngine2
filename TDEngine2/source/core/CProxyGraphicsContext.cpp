@@ -10,14 +10,14 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CProxyGraphicsContext::Init(TPtr<IWindowSystem> pWindowSystem)
+	E_RESULT_CODE CProxyGraphicsContext::Init(TPtr<IWindowSystem> pWindowSystem, TPtr<IFileSystem> pFileSystem)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pWindowSystem)
+		if (!pWindowSystem || !pFileSystem)
 		{
 			return RC_INVALID_ARGS;
 		}
@@ -310,8 +310,8 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IGraphicsContext* CreateProxyGraphicsContext(TPtr<IWindowSystem> pWindowSystem, E_RESULT_CODE& result)
+	TDE2_API IGraphicsContext* CreateProxyGraphicsContext(TPtr<IWindowSystem> pWindowSystem, TPtr<IFileSystem> pFileSystem, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IGraphicsContext, CProxyGraphicsContext, result, pWindowSystem);
+		return CREATE_IMPL(IGraphicsContext, CProxyGraphicsContext, result, pWindowSystem, pFileSystem);
 	}
 }

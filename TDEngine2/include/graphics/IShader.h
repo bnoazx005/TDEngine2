@@ -10,6 +10,7 @@
 #include "../utils/Utils.h"
 #include "../utils/Types.h"
 #include "../core/IResourceFactory.h"
+#include "../core/IResourceLoader.h"
 #include "../core/IBaseObject.h"
 #include "IShaderCompiler.h"
 #include <unordered_map>
@@ -26,11 +27,13 @@ namespace TDEngine2
 	class IShaderCache;
 	class IBinaryFileReader;
 	class IBinaryFileWriter;
+	class CBaseGraphicsObjectManager;
 
 	struct TShaderCompilerOutput;
 
 
 	enum class TBufferHandleId : U32;
+	enum class TShaderHandleId : U32;
 
 
 	/*!
@@ -44,39 +47,6 @@ namespace TDEngine2
 	{
 		public:
 			TDE2_REGISTER_TYPE(IShader);
-
-			/*!
-				\brief The method initializes an internal state of a shader
-
-				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
-
-				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
-
-				\param[in] name A resource's name
-				
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name) = 0;
-
-			/*!
-				\brief The method compiles specified source code into shader's bytecode using IShaderCompiler's 
-				implementation
-
-				\param[in] pShaderCompiler A pointer to IShaderCompiler's implementation
-				\param[in] sourceCode A string that contains a source code of a shader (including all its stages)
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Compile(const IShaderCompiler* pShaderCompiler, const std::string& sourceCode) = 0;
-
-			/*!
-				\brief The method tries to load bytecode from pShaderCache storage based on given shader's metadata. If some error
-				appears the shader will be loaded using Compile method or some default instance will be created
-			*/
-
-			TDE2_API virtual E_RESULT_CODE LoadFromShaderCache(IShaderCache* pShaderCache) = 0;
 
 			/*!
 				\brief The method binds a shader to a rendering pipeline
@@ -153,13 +123,77 @@ namespace TDEngine2
 	} TShaderParameters, *TShaderParametersPtr;
 
 
-	/*!
-		interface IShaderFactory
-
-		\brief The interface describes a functionality of IShader objects' factory
-	*/
-
 	class IShaderFactory : public IGenericResourceFactory<IResourceManager*, IGraphicsContext*> {};
+	class IShaderLoader : public IGenericResourceLoader<IResourceManager*, IGraphicsContext*, IFileSystem*> {};
+
+
+	class IShaderResource : public IShader
+	{
+		public:
+			/*!
+				\brief The method initializes an internal state of a shader
+
+				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
+
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+
+				\param[in] name A resource's name
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name) = 0;
+
+			/*!
+				\brief The method initiates the process of shader's compilation. Firstly its source code is loaded if there is no information in the shader cache.
+				Then the text is compiled and a new instance of a shader is stored within IGraphicsObjectManager's instance
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE RequestShaderImpl() = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IShaderResource)
+	};
+
+
+	class IShaderImpl : public IShader
+	{
+		public:
+			/*!
+				\brief The method initializes an internal state of a shader
+
+				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+				\param[in] shaderId An identifier of a shader
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, const std::string& shaderId) = 0;
+
+			/*!
+				\brief The method compiles specified source code into shader's bytecode using IShaderCompiler's
+				implementation
+
+				\param[in] pShaderCompiler A pointer to IShaderCompiler's implementation
+				\param[in] sourceCode A string that contains a source code of a shader (including all its stages)
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE Compile(const IShaderCompiler* pShaderCompiler, const std::string& sourceCode) = 0;
+
+			/*!
+				\brief The method tries to load bytecode from pShaderCache storage based on given shader's metadata. If some error
+				appears the shader will be loaded using Compile method or some default instance will be created
+			*/
+
+			TDE2_API virtual E_RESULT_CODE LoadFromShaderCache(IShaderCache* pShaderCache) = 0;
+
+			TDE2_API virtual E_RESULT_CODE SetHandle(TShaderHandleId handle, const CPassKey<CBaseGraphicsObjectManager>& passkey) = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IShaderImpl)
+	};
 
 
 	/*!

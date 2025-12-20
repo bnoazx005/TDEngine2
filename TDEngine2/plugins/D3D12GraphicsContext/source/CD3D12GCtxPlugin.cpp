@@ -8,7 +8,6 @@
 #include <core/IResourceManager.h>
 #include <core/IFileSystem.h>
 #include <core/IPluginManager.h>
-#include <graphics/CBaseShaderLoader.h>
 #include <graphics/CBaseTexture2D.h>
 #include <graphics/IGraphicsObjectManager.h>
 
@@ -21,94 +20,6 @@ namespace TDEngine2
 		(TDE2_MAJOR_VERSION << 16) | TDE2_MINOR_VERSION,
 		(TDE2_MAJOR_VERSION << 16) | TDE2_MINOR_VERSION,
 	};
-
-
-	static E_RESULT_CODE RegisterFactories(IEngineCore* pEngineCore)
-	{
-		IResourceManager* pResourceManager = pEngineCore->GetSubsystem<IResourceManager>().Get();
-		IGraphicsContext* pGraphicsContext = pEngineCore->GetSubsystem<IGraphicsContext>().Get();
-
-		if (!pResourceManager || !pGraphicsContext)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = RC_OK;
-
-		auto factoryFunctions =
-		{
-			CreateD3D12ShaderFactory,
-		};
-
-		IResourceFactory* pFactoryInstance = nullptr;
-
-		for (auto currFactoryCallback : factoryFunctions)
-		{
-			pFactoryInstance = currFactoryCallback(pResourceManager, pGraphicsContext, result);
-
-			if (result != RC_OK)
-			{
-				return result;
-			}
-
-			auto registerResult = pResourceManager->RegisterFactory(pFactoryInstance);
-
-			if (registerResult.HasError())
-			{
-				return registerResult.GetError();
-			}
-		}
-
-		return RC_OK;
-	}
-
-	static E_RESULT_CODE RegisterResourceLoaders(IEngineCore* pEngineCore)
-	{
-		IResourceManager* pResourceManager = pEngineCore->GetSubsystem<IResourceManager>().Get();
-		IGraphicsContext* pGraphicsContext = pEngineCore->GetSubsystem<IGraphicsContext>().Get();
-		IFileSystem* pFileSystem = pEngineCore->GetSubsystem<IFileSystem>().Get();
-
-		if (!pResourceManager || !pGraphicsContext || !pFileSystem)
-		{
-			return RC_FAIL;
-		}
-
-		auto registerLoader = [](IResourceManager* pResourceManager, IResourceLoader* pLoader) -> E_RESULT_CODE
-		{
-			auto registerResult = pResourceManager->RegisterLoader(pLoader);
-
-			if (registerResult.HasError())
-			{
-				return registerResult.GetError();
-			}
-
-			return RC_OK;
-		};
-
-		E_RESULT_CODE result = RC_OK;
-
-		auto pShaderCompilerInstance = TPtr<IShaderCompiler>(CreateD3D12ShaderCompiler(pFileSystem, result));
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		IResourceLoader* pLoaderInstance = CreateBaseShaderLoader(
-			pResourceManager,
-			pGraphicsContext,
-			pFileSystem,
-			pShaderCompilerInstance,
-			pGraphicsContext->GetGraphicsObjectManager()->CreateShaderCache(pFileSystem).Get(),
-			result);
-
-		if (result != RC_OK || ((result = registerLoader(pResourceManager, pLoaderInstance)) != RC_OK))
-		{
-			return result;
-		}
-
-		return RC_OK;
-	}
 
 
 	CD3D12GCtxPlugin::CD3D12GCtxPlugin() :
@@ -132,23 +43,24 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		mpGraphicsContext = TPtr<IGraphicsContext>(CreateD3D12GraphicsContext(pEngineCore->GetSubsystem<IWindowSystem>(), result));
+		mpGraphicsContext = TPtr<IGraphicsContext>(CreateD3D12GraphicsContext(pEngineCore->GetSubsystem<IWindowSystem>(), pEngineCore->GetSubsystem<IFileSystem>(), result));
 		if (result != RC_OK)
 		{
 			return result;
 		}
-		
+
+		TPtr<IShaderCompiler> pShaderCompilerInstance = TPtr<IShaderCompiler>(CreateD3D12ShaderCompiler(pEngineCore->GetSubsystem<IFileSystem>().Get(), result));
+		if (result != RC_OK)
+		{
+			return result;
+		}
+
+		if ((result = mpGraphicsContext->GetGraphicsObjectManager()->SetShaderCompiler(pShaderCompilerInstance)) != RC_OK)
+		{
+			return result;
+		}
+
 		if ((result = pEngineCore->RegisterSubsystem(DynamicPtrCast<IEngineSubsystem>(mpGraphicsContext))) != RC_OK)
-		{
-			return result;
-		}
-
-		if (RC_OK != (result = RegisterFactories(pEngineCore)))
-		{
-			return result;
-		}
-
-		if (RC_OK != (result = RegisterResourceLoaders(pEngineCore)))
 		{
 			return result;
 		}

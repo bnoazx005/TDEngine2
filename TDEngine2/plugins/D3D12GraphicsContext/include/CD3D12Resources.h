@@ -181,20 +181,15 @@ namespace TDEngine2
 
 
 	/*!
-		\brief A factory function for creation objects of CD3D12Shader's type
-
-		\param[in, out] pResourceManager A pointer to IGraphicsContext's implementation
+		\brief A factory function for creation objects of CD3D12ShaderImpl's type
 
 		\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
-
-		\param[in] name A resource's name
-
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
-		\return A pointer to CD3D12Shader's implementation
+		\return A pointer to CD3D12ShaderImpl's implementation
 	*/
 
-	IShader* CreateD3D12Shader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result);
+	IShaderImpl* CreateD3D12ShaderImpl(IGraphicsContext* pGraphicsContext, const std::string& shaderId, E_RESULT_CODE& result);
 
 
 	struct TD3D12PipelineLayoutInfo
@@ -218,45 +213,23 @@ namespace TDEngine2
 
 
 	/*!
-		class CD3D12Shader
+		class CD3D12ShaderImpl
 
-		\brief The class is a common implementation for all platforms
+		\brief The class implements D3D12 GAPI's shaders functionality
 	*/
 
-	class CD3D12Shader : public CBaseShader
+	class CD3D12ShaderImpl : public CBaseShaderImpl
 	{
 		public:
-			friend IShader* CreateD3D12Shader(IResourceManager*, IGraphicsContext*, const std::string&, E_RESULT_CODE&);
+			friend IShaderImpl* CreateD3D12ShaderImpl(IGraphicsContext*, const std::string&, E_RESULT_CODE&);
 		public:
-			TDE2_REGISTER_TYPE(CD3D12Shader)
-
-			/*!
-				\brief The method resets current internal data of a resource
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			E_RESULT_CODE Reset() override;
-
-			/*!
-				\brief The method binds a shader to a rendering pipeline
-			*/
-
-			void Bind() override;
-
-			/*!
-				\brief The method rejects a shader from a rendering pipeline
-			*/
-
-			void Unbind() override;
-
 			const D3D12_SHADER_BYTECODE& GetPipelineShaderStage(E_SHADER_STAGE_TYPE stageType) const;
 
 			ComPtr<ID3D12RootSignature> GetRootSignature() const;
 
 			const TD3D12PipelineLayoutInfo& GetLayoutInfo() const;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D12Shader)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D12ShaderImpl)
 
 			E_RESULT_CODE _createInternalHandlers(const TShaderCompilerOutput* pCompilerData) override;
 			E_RESULT_CODE _createUniformBuffers(const TShaderCompilerOutput* pCompilerData);
@@ -267,21 +240,6 @@ namespace TDEngine2
 			ComPtr<ID3D12RootSignature>                  mpRootSignature = nullptr;
 			TD3D12PipelineLayoutInfo                     mLayoutInfo{};
 	};
-
-
-	/*!
-		\brief A factory function for creation objects of CD3D12ShaderFactory's type
-
-		\param[in, out] pResourceManager A pointer to IResourceManager's implementation
-
-		\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
-
-		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
-
-		\return A pointer to CD3D12ShaderFactory's implementation
-	*/
-
-	IResourceFactory* CreateD3D12ShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
 
 
 	ITextureImpl* CreateD3D12TextureImpl(IGraphicsContext* pGraphicsContext, const TInitTextureImplParams& params, E_RESULT_CODE& result);
@@ -377,6 +335,8 @@ namespace TDEngine2
 
 			TD3D12PipelineLayoutInfo     mLayoutInfo{};
 			U32                          mConfigHash = 0;
+
+			TShaderHandleId              mShaderResourceHandle;
 	};
 
 	TDE2_API IGraphicsPipeline* CreateD3D12GraphicsPipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig, E_RESULT_CODE& result);

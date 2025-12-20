@@ -19,7 +19,7 @@ namespace TDEngine2
 		\return A pointer to CProxyGraphicsContext's implementation
 	*/
 
-	TDE2_API IGraphicsContext* CreateProxyGraphicsContext(TPtr<IWindowSystem> pWindowSystem, E_RESULT_CODE& result);
+	TDE2_API IGraphicsContext* CreateProxyGraphicsContext(TPtr<IWindowSystem> pWindowSystem, TPtr<IFileSystem> pFileSystem, E_RESULT_CODE& result);
 
 
 	/*!
@@ -31,7 +31,7 @@ namespace TDEngine2
 	class CProxyGraphicsContext : public IGraphicsContext, public CBaseObject
 	{
 		public:
-			friend TDE2_API IGraphicsContext* CreateProxyGraphicsContext(TPtr<IWindowSystem>, E_RESULT_CODE&);
+			friend TDE2_API IGraphicsContext* CreateProxyGraphicsContext(TPtr<IWindowSystem>, TPtr<IFileSystem>, E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_TYPE(CProxyGraphicsContext)
 
@@ -43,7 +43,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem) override;
+			TDE2_API E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem, TPtr<IFileSystem> pFileSystem) override;
 
 			TDE2_API void BeginFrame() override;
 

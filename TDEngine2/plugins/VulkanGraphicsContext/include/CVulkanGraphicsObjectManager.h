@@ -18,11 +18,13 @@ namespace TDEngine2
 {
 	class CVulkanTextureImpl;
 	class CVulkanBuffer;
+	class CVulkanShaderImpl;
 	class IGraphicsPipeline;
 
 
 	TDE2_DECLARE_SCOPED_PTR(CVulkanTextureImpl)
 	TDE2_DECLARE_SCOPED_PTR(CVulkanBuffer)
+	TDE2_DECLARE_SCOPED_PTR(CVulkanShaderImpl)
 	TDE2_DECLARE_SCOPED_PTR(IGraphicsPipeline)
 
 
@@ -30,13 +32,14 @@ namespace TDEngine2
 		\brief A factory function for creation objects of CVulkanGraphicsObjectManager's type
 
 		\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+		\param[in, out] pFileSystem A pointer to implementation of IFileSystem interface
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to CVulkanGraphicsObjectManager's implementation
 	*/
 
-	IGraphicsObjectManager* CreateVulkanGraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
+	IGraphicsObjectManager* CreateVulkanGraphicsObjectManager(IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, E_RESULT_CODE& result);
 
 
 	/*!
@@ -48,17 +51,16 @@ namespace TDEngine2
 	class CVulkanGraphicsObjectManager : public CBaseGraphicsObjectManager
 	{
 		public:
-			friend IGraphicsObjectManager* CreateVulkanGraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
+			friend IGraphicsObjectManager* CreateVulkanGraphicsObjectManager(IGraphicsContext*, IFileSystem*, E_RESULT_CODE&);
 		public:
 			typedef std::vector<TPtr<CVulkanTextureImpl>> TNativeTexturesArray;
 			typedef std::vector<TPtr<CVulkanBuffer>>      TNativeBuffersArray;
+			typedef std::vector<TPtr<CVulkanShaderImpl>>  TNativeShadersArray;
 			typedef std::vector<VkSampler>                TTextureSamplersArray;
 		public:
-			TResult<TBufferHandleId> CreateBuffer(const TInitBufferParams& params) override;
-			TResult<TTextureHandleId> CreateTexture(const TInitTextureImplParams& params) override;
-
 			E_RESULT_CODE DestroyBuffer(TBufferHandleId bufferHandle) override;
 			E_RESULT_CODE DestroyTexture(TTextureHandleId textureHandle) override;
+			E_RESULT_CODE DestroyShader(TShaderHandleId shaderHandle) override;
 
 			/*!
 				\brief The method is a factory for creation objects of IVertexDeclaration's type
@@ -83,6 +85,9 @@ namespace TDEngine2
 
 			TPtr<ITextureImpl> GetTexturePtr(TTextureHandleId handle) override;
 			TPtr<CVulkanTextureImpl> GetVulkanTexturePtr(TTextureHandleId textureHandle);
+
+			TPtr<IShaderImpl> GetShaderPtr(TShaderHandleId handle) override;
+			TPtr<CVulkanShaderImpl> GetVulkanShaderPtr(TShaderHandleId handle);
 
 			/*!
 				\return The method returns VkSampler handle or an error code
@@ -114,10 +119,18 @@ namespace TDEngine2
 
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanGraphicsObjectManager)
+			
+			TPtr<IBuffer> _createBufferInternal(const TInitBufferParams& params) override;
+			TPtr<ITextureImpl> _createTextureInternal(const TInitTextureImplParams& params) override;
+			TPtr<IShaderImpl> _createShaderImplInternal(const std::string& shaderId) override;
 
 			TPtr<IGraphicsPipeline> _createGraphicsPipelineInternal(IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfigDesc) override;
 			TPtr<IComputePipeline> _createComputePipelineInternal(IResourceManager* pResourceManager, const std::string& shaderId) override;
-			
+
+			USIZE _insertBuffer(TPtr<IBuffer> pObject) override;
+			USIZE _insertTexture(TPtr<ITextureImpl> pObject) override;
+			USIZE _insertShaderImpl(TPtr<IShaderImpl> pObject) override;
+
 			E_RESULT_CODE _freeTextureSamplers() override;
 
 			E_RESULT_CODE _freeBlendStates() override;
@@ -130,10 +143,8 @@ namespace TDEngine2
 		protected:
 			TNativeTexturesArray  mpTexturesArray;
 			TNativeBuffersArray   mpBuffersArray;
+			TNativeShadersArray   mpShadersArray;
 
 			TTextureSamplersArray mTextureSamplersArray;
-
-			std::unordered_map<U32, std::vector<TTextureHandleId>> mTransientTexturesPool;
-			std::unordered_map<U32, std::vector<TBufferHandleId>>  mTransientBuffersPool;
 	};
 }

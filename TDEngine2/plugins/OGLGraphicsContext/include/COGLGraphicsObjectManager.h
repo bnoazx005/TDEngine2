@@ -16,23 +16,26 @@ namespace TDEngine2
 {
 	class COGLTextureImpl;
 	class COGLBuffer;
+	class COGLShaderImpl;
 
 
 	TDE2_DECLARE_SCOPED_PTR(COGLTextureImpl)
 	TDE2_DECLARE_SCOPED_PTR(COGLBuffer)
+	TDE2_DECLARE_SCOPED_PTR(COGLShaderImpl)
 
 
 	/*!
 		\brief A factory function for creation objects of COGLGraphicsObjectManager's type
 
 		\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+		\param[in, out] pFileSystem A pointer to implementation of IFileSystem interface
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to COGLGraphicsObjectManager's implementation
 	*/
 
-	TDE2_API IGraphicsObjectManager* CreateOGLGraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
+	TDE2_API IGraphicsObjectManager* CreateOGLGraphicsObjectManager(IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, E_RESULT_CODE& result);
 
 
 	/*!
@@ -44,7 +47,7 @@ namespace TDEngine2
 	class COGLGraphicsObjectManager : public CBaseGraphicsObjectManager
 	{
 		public:
-			friend TDE2_API IGraphicsObjectManager* CreateOGLGraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
+			friend TDE2_API IGraphicsObjectManager* CreateOGLGraphicsObjectManager(IGraphicsContext*, IFileSystem*, E_RESULT_CODE&);
 		protected:
 			typedef std::vector<GLuint>                        TTextureSamplersArray;
 			typedef CResourceContainer<TBlendStateDesc>        TBlendStatesArray;
@@ -52,12 +55,11 @@ namespace TDEngine2
 			typedef CResourceContainer<TRasterizerStateDesc>   TRasterizerStatesArray;
 			typedef std::vector<TPtr<COGLTextureImpl>>         TNativeTexturesArray;
 			typedef std::vector<TPtr<COGLBuffer>>              TNativeBuffersArray;
+			typedef std::vector<TPtr<COGLShaderImpl>>          TNativeShadersArray;
 		public:
-			TDE2_API TResult<TBufferHandleId> CreateBuffer(const TInitBufferParams& params) override;
-			TDE2_API TResult<TTextureHandleId> CreateTexture(const TInitTextureImplParams& params) override;
-
 			TDE2_API E_RESULT_CODE DestroyBuffer(TBufferHandleId bufferHandle) override;
 			TDE2_API E_RESULT_CODE DestroyTexture(TTextureHandleId textureHandle) override;
+			TDE2_API E_RESULT_CODE DestroyShader(TShaderHandleId shaderHandle) override;
 
 			/*!
 				\brief The method is a factory for creation objects of IVertexDeclaration's type
@@ -153,6 +155,9 @@ namespace TDEngine2
 			TDE2_API TPtr<ITextureImpl> GetTexturePtr(TTextureHandleId handle) override;
 			TDE2_API TPtr<COGLTextureImpl> GetOGLTexturePtr(TTextureHandleId textureHandle);
 
+			TPtr<IShaderImpl> GetShaderPtr(TShaderHandleId handle) override;
+			TPtr<COGLShaderImpl> GetOGLShaderPtr(TShaderHandleId handle);
+
 			/*!
 				\brief The method returns a string which contains full source code of default shader that is specific
 				for the graphics context
@@ -176,8 +181,16 @@ namespace TDEngine2
 			TDE2_API std::array<TVector4, 3> GetScreenTriangleVertices() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLGraphicsObjectManager)
+			
+			TPtr<IBuffer> _createBufferInternal(const TInitBufferParams& params) override;
+			TPtr<ITextureImpl> _createTextureInternal(const TInitTextureImplParams& params) override;
+			TPtr<IShaderImpl> _createShaderImplInternal(const std::string& shaderId) override;
 
 			TPtr<IGraphicsPipeline> _createGraphicsPipelineInternal(IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfigDesc) override;
+
+			USIZE _insertBuffer(TPtr<IBuffer> pObject) override;
+			USIZE _insertTexture(TPtr<ITextureImpl> pObject) override;
+			USIZE _insertShaderImpl(TPtr<IShaderImpl> pObject) override;
 
 			TDE2_API E_RESULT_CODE _freeTextureSamplers() override;
 
@@ -195,9 +208,7 @@ namespace TDEngine2
 			TRasterizerStatesArray   mRasterizerStates;
 
 			TNativeTexturesArray     mpTexturesArray;
-			TNativeBuffersArray      mpBuffersArray;
-
-			std::unordered_map<U32, std::vector<TTextureHandleId>> mTransientTexturesPool;
-			std::unordered_map<U32, std::vector<TBufferHandleId>>  mTransientBuffersPool;
+			TNativeBuffersArray      mpBuffersArray; 
+			TNativeShadersArray      mpShadersArray;
 	};
 }

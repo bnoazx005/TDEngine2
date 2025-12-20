@@ -60,7 +60,7 @@ namespace TDEngine2
 	class CD3D12GraphicsContext : public IGraphicsContext, public IEventHandler, public CBaseObject
 	{
 		public:
-			friend IGraphicsContext* CreateD3D12GraphicsContext(TPtr<IWindowSystem>, E_RESULT_CODE&);
+			friend IGraphicsContext* CreateD3D12GraphicsContext(TPtr<IWindowSystem>, TPtr<IFileSystem>, E_RESULT_CODE&);
 		public:
 			struct TGarbageEntity
 			{
@@ -81,7 +81,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem) override;
+			E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem, TPtr<IFileSystem> pFileSystem) override;
 
 			void BeginFrame() override;
 
@@ -467,6 +467,7 @@ namespace TDEngine2
 			
 			TPtr<IWindowSystem>                                                  mpWindowSystem = nullptr;
 			TPtr<IEventManager>                                                  mpEventManager = nullptr;
+			TPtr<IFileSystem>                                                    mpFileSystem = nullptr;
 
 			TPtr<CD3D12DeviceContext>                                            mpDeviceContext = nullptr;
 			TPtr<CD3D12Swapchain>                                                mpSwapchain = nullptr;
@@ -500,7 +501,7 @@ namespace TDEngine2
 		\return A pointer to CD3D12GraphicsContext's implementation
 	*/
 
-	IGraphicsContext* CreateD3D12GraphicsContext(TPtr<IWindowSystem> pWindowSystem, E_RESULT_CODE& result);
+	IGraphicsContext* CreateD3D12GraphicsContext(TPtr<IWindowSystem> pWindowSystem, TPtr<IFileSystem> pFileSystem, E_RESULT_CODE& result);
 
 
 	class ID3D12CPUDescriptorsAllocator : public virtual IBaseObject

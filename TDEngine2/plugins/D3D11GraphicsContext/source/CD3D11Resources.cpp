@@ -391,58 +391,37 @@ namespace TDEngine2
 
 
 	/*!
-		\brief CD3D11Shader's definition
+		\brief CD3D11ShaderImpl's definition
 	*/
 
-	CD3D11Shader::CD3D11Shader() :
-		CBaseShader(), mp3dDeviceContext(nullptr), mpVertexShader(nullptr), mpPixelShader(nullptr), mpGeometryShader(nullptr), mpComputeShader(nullptr)
+	CD3D11ShaderImpl::CD3D11ShaderImpl() :
+		CBaseShaderImpl()
 	{
 	}
 
-	E_RESULT_CODE CD3D11Shader::Reset()
-	{
-		mIsInitialized = false;
-
-		E_RESULT_CODE result = RC_OK;
-
-		if ((result = SafeReleaseCOMPtr<ID3D11VertexShader>(&mpVertexShader)) != RC_OK ||
-			(result = SafeReleaseCOMPtr<ID3D11PixelShader>(&mpPixelShader)) != RC_OK ||
-			(result = SafeReleaseCOMPtr<ID3D11GeometryShader>(&mpGeometryShader)) != RC_OK ||
-			(result = SafeReleaseCOMPtr<ID3D11ComputeShader>(&mpComputeShader)) != RC_OK)
-		{
-			return result;
-		}
-
-		mVertexShaderBytecode.clear();
-
-		mp3dDeviceContext = nullptr;
-
-		return RC_OK;
-	}
-
-	void CD3D11Shader::Bind()
+	void CD3D11ShaderImpl::Bind()
 	{
 		TDE2_PROFILER_SCOPE("CD3D11Shader::Bind");
-		CBaseShader::Bind();
+		CBaseShaderImpl::Bind();
 
 		if (!mp3dDeviceContext || !mIsInitialized)
 		{
 			return;
 		}
 
-		mp3dDeviceContext->VSSetShader(mpVertexShader, nullptr, 0);
-		mp3dDeviceContext->PSSetShader(mpPixelShader, nullptr, 0);
-		mp3dDeviceContext->GSSetShader(mpGeometryShader, nullptr, 0);
+		mp3dDeviceContext->VSSetShader(mpVertexShader.Get(), nullptr, 0);
+		mp3dDeviceContext->PSSetShader(mpPixelShader.Get(), nullptr, 0);
+		mp3dDeviceContext->GSSetShader(mpGeometryShader.Get(), nullptr, 0);
 
 		if (mpComputeShader)
 		{
-			mp3dDeviceContext->CSSetShader(mpComputeShader, nullptr, 0);
+			mp3dDeviceContext->CSSetShader(mpComputeShader.Get(), nullptr, 0);
 		}
 	}
 
-	void CD3D11Shader::Unbind()
+	void CD3D11ShaderImpl::Unbind()
 	{
-		CBaseShader::Unbind();
+		CBaseShaderImpl::Unbind();
 
 		/// \fixme Hack to unbind all UAVs from the pipeline when shader is used with Dispatch
 		std::array<ID3D11UnorderedAccessView*, 8> pNullUAVs { nullptr };
@@ -453,7 +432,7 @@ namespace TDEngine2
 		mp3dDeviceContext->GSSetShader(nullptr, nullptr, 0);*/
 	}
 
-	E_RESULT_CODE CD3D11Shader::_createInternalHandlers(const TShaderCompilerOutput* pCompilerData)
+	E_RESULT_CODE CD3D11ShaderImpl::_createInternalHandlers(const TShaderCompilerOutput* pCompilerData)
 	{
 		if (!pCompilerData)
 		{
@@ -545,7 +524,7 @@ namespace TDEngine2
 		return _createUniformBuffers(pCompilerData);
 	}
 
-	E_RESULT_CODE CD3D11Shader::_createUniformBuffers(const TShaderCompilerOutput* pCompilerData)
+	E_RESULT_CODE CD3D11ShaderImpl::_createUniformBuffers(const TShaderCompilerOutput* pCompilerData)
 	{
 		auto uniformBuffersInfo = pCompilerData->mUniformBuffersInfo;
 
@@ -585,130 +564,15 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	const std::vector<U8>& CD3D11Shader::GetVertexShaderBytecode() const
+	const std::vector<U8>& CD3D11ShaderImpl::GetVertexShaderBytecode() const
 	{
 		return mVertexShaderBytecode;
 	}
 
 
-	IShader* CreateD3D11Shader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
+	IShaderImpl* CreateD3D11ShaderImpl(IGraphicsContext* pGraphicsContext, const std::string& shaderId, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IShader, CD3D11Shader, result, pResourceManager, pGraphicsContext, name);
-	}
-
-
-	/*!
-		class CD3D11ShaderFactory
-
-		\brief The class is an abstract factory of CD3D11Shader objects that is used by a resource manager
-	*/
-
-	class CD3D11ShaderFactory : public CBaseObject, public IShaderFactory
-	{
-		public:
-			friend IResourceFactory* CreateD3D11ShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
-		public:
-			/*!
-				\brief The method initializes an internal state of a shader factory
-
-				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
-
-				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			E_RESULT_CODE Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext) override;
-
-			/*!
-				\brief The method creates a new instance of a resource based on passed parameters
-
-				\param[in] name A name of a resource
-
-				\param[in] params An object that contains parameters that are needed for the resource's creation
-
-				\return A pointer to a new instance of IResource type
-			*/
-
-			IResource* Create(const std::string& name, const TBaseResourceParameters& params) const override;
-
-			/*!
-				\brief The method creates a new instance of a resource based on passed parameters
-
-				\param[in] name A name of a resource
-
-				\param[in] params An object that contains parameters that are needed for the resource's creation
-
-				\return A pointer to a new instance of IResource type
-			*/
-
-			IResource* CreateDefault(const std::string& name, const TBaseResourceParameters& params) const override;
-
-			/*!
-				\brief The method returns an identifier of a resource's type, which
-				the factory serves
-
-				\return The method returns an identifier of a resource's type, which
-				the factory serves
-			*/
-
-			TypeId GetResourceTypeId() const override;
-		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D11ShaderFactory)
-		protected:
-			IResourceManager* mpResourceManager;
-
-			IGraphicsContext* mpGraphicsContext;
-	};
-
-
-	CD3D11ShaderFactory::CD3D11ShaderFactory() :
-		CBaseObject()
-	{
-	}
-
-	E_RESULT_CODE CD3D11ShaderFactory::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext)
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		if (!pGraphicsContext || !pResourceManager)
-		{
-			return RC_INVALID_ARGS;
-		}
-
-		mpResourceManager = pResourceManager;
-
-		mpGraphicsContext = pGraphicsContext;
-
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	IResource* CD3D11ShaderFactory::Create(const std::string& name, const TBaseResourceParameters& params) const
-	{
-		return nullptr;
-	}
-
-	IResource* CD3D11ShaderFactory::CreateDefault(const std::string& name, const TBaseResourceParameters& params) const
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		return dynamic_cast<IResource*>(CreateD3D11Shader(mpResourceManager, mpGraphicsContext, name, result));
-	}
-
-	TypeId CD3D11ShaderFactory::GetResourceTypeId() const
-	{
-		return IShader::GetTypeId();
-	}
-
-
-	IResourceFactory* CreateD3D11ShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
-	{
-		return CREATE_IMPL(IResourceFactory, CD3D11ShaderFactory, result, pResourceManager, pGraphicsContext);
+		return CREATE_IMPL(IShaderImpl, CD3D11ShaderImpl, result, pGraphicsContext, shaderId);
 	}
 
 
@@ -1255,9 +1119,9 @@ namespace TDEngine2
 		return SafeReleaseCOMPtr<ID3D11InputLayout>(&mpInputLayout) | CVertexDeclaration::_onFreeInternal();
 	}
 
-	TResult<ID3D11InputLayout*> CD3D11VertexDeclaration::GetInputLayoutByShader(IGraphicsContext* pGraphicsContext, const IShader* pShader)
+	TResult<ID3D11InputLayout*> CD3D11VertexDeclaration::GetInputLayoutByShader(IGraphicsContext* pGraphicsContext, const IShaderImpl* pShader)
 	{
-		const CD3D11Shader* pD3D11Shader = dynamic_cast<const CD3D11Shader*>(pShader);
+		const CD3D11ShaderImpl* pD3D11Shader = dynamic_cast<const CD3D11ShaderImpl*>(pShader);
 
 		if (!pGraphicsContext || !pD3D11Shader)
 		{
@@ -1338,7 +1202,7 @@ namespace TDEngine2
 		return Wrench::TOkValue<ID3D11InputLayout*>(pInputLayout);
 	}
 
-	void CD3D11VertexDeclaration::Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray, IShader* pShader)
+	void CD3D11VertexDeclaration::Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray, IShaderImpl* pShader)
 	{
 		if (!mpInputLayout)
 		{

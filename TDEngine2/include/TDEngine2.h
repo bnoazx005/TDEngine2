@@ -113,7 +113,6 @@
 #include "graphics/IShader.h"
 #include "graphics/CBaseShader.h"
 #include "graphics/IShaderCompiler.h"
-#include "graphics/CBaseShaderLoader.h"
 #include "graphics/ISprite.h"
 #include "graphics/CQuadSprite.h"
 #include "graphics/ITexture.h"

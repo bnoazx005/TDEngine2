@@ -213,11 +213,9 @@ namespace TDEngine2
 
 			TDE2_API static void MarkColorDataUniforms(TShaderMetadata& metadata);
 
-			TDE2_API virtual const C8* _getShaderStageDefineName(E_SHADER_STAGE_TYPE shaderStage) const;
-
-			TDE2_API virtual TShaderMetadata _parseShader(CTokenizer& tokenizer, const TDefinesMap& definesTable, const TStagesRegionsMap& stagesRegionsInfo) const;
+			TDE2_API TShaderMetadata _parseShader(CTokenizer& tokenizer, const TDefinesMap& definesTable, const TStagesRegionsMap& stagesRegionsInfo) const;
 			
-			TDE2_API virtual TStructDeclsMap _processStructDecls(CTokenizer& tokenizer) const;
+			TStructDeclsMap _processStructDecls(CTokenizer& tokenizer) const;
 
 			TDE2_API virtual USIZE _getPaddedStructSize(const TStructDeclsMap& structsMap, CTokenizer& tokenizer,
 														const TUniformVariableFunctor& uniformProcessor = [](auto){}) const;
@@ -228,7 +226,7 @@ namespace TDEngine2
 
 			TDE2_API virtual E_SHADER_FEATURE_LEVEL _getTargetVersionFromStr(const std::string& ver) const = 0;
 
-			TDE2_API virtual bool _isShaderStageEnabled(E_SHADER_STAGE_TYPE shaderStage, const TShaderMetadata& shaderMeta) const;
+			TDE2_API bool _isShaderStageEnabled(E_SHADER_STAGE_TYPE shaderStage, const TShaderMetadata& shaderMeta) const;
 
 			TDE2_API const C8* _getTargetVersionDefineName() const;
 
@@ -236,7 +234,7 @@ namespace TDEngine2
 
 			TDE2_API std::string _enableShaderStage(E_SHADER_STAGE_TYPE shaderStage, const TStagesRegionsMap& stagesRegionsInfo, const std::string& source) const;
 		protected:
-			static U32       mMaxStepsCount; ///< The value is used within _removeComments to bound a maximum number of steps of an automata
+			static const U32 mMaxStepsCount; ///< The value is used within _removeComments to bound a maximum number of steps of an automata
 
 			static const C8* mEntryPointsDefineNames[MaxNumOfShaderStages];
 

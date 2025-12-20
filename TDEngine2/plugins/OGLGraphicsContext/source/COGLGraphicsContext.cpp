@@ -36,7 +36,7 @@ namespace TDEngine2
 	class COGLGraphicsContext : public IGraphicsContext, public IEventHandler, public CBaseObject
 	{
 		public:
-			friend IGraphicsContext* CreateOGLGraphicsContext(TPtr<IWindowSystem>, TCreateGLContextFactoryCallback, E_RESULT_CODE&);
+			friend IGraphicsContext* CreateOGLGraphicsContext(TPtr<IWindowSystem>, TPtr<IFileSystem>, TCreateGLContextFactoryCallback, E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_TYPE(COGLGraphicsContext)
 
@@ -48,7 +48,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem) override;
+			E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem, TPtr<IFileSystem> pFileSystem) override;
 
 			void BeginFrame() override;
 
@@ -400,8 +400,9 @@ namespace TDEngine2
 			TPtr<IGraphicsObjectManager>    mpGraphicsObjectManager = nullptr;
 			COGLGraphicsObjectManager* mpGraphicsObjectManagerImpl = nullptr;
 
-			TPtr<IWindowSystem>             mpWindowSystem;
-			TPtr<IEventManager>             mpEventManager;
+			TPtr<IWindowSystem>             mpWindowSystem = nullptr;
+			TPtr<IEventManager>             mpEventManager = nullptr;
+			TPtr<IFileSystem>               mpFileSystem = nullptr;
 
 			GLuint                          mMainFBOHandler; /// \todo Replace it with FBOManager later
 			GLuint                          mMainDepthStencilRenderbuffer;
@@ -499,19 +500,20 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE COGLGraphicsContext::Init(TPtr<IWindowSystem> pWindowSystem)
+	E_RESULT_CODE COGLGraphicsContext::Init(TPtr<IWindowSystem> pWindowSystem, TPtr<IFileSystem> pFileSystem)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 		
-		if (!pWindowSystem)
+		if (!pWindowSystem || !pFileSystem)
 		{
 			return RC_INVALID_ARGS;
 		}
 
 		mpWindowSystem = pWindowSystem;
+		mpFileSystem = pFileSystem;
 
 		if (!mGLContextFactoryCallback)
 		{
@@ -554,7 +556,7 @@ namespace TDEngine2
 		GL_SAFE_CALL(glDebugMessageCallback(DebugMessageCallback, nullptr));
 #endif
 
-		mpGraphicsObjectManager = TPtr<IGraphicsObjectManager>(CreateOGLGraphicsObjectManager(this, result));
+		mpGraphicsObjectManager = TPtr<IGraphicsObjectManager>(CreateOGLGraphicsObjectManager(this, mpFileSystem.Get(), result));
 		mpGraphicsObjectManagerImpl = dynamic_cast<COGLGraphicsObjectManager*>(mpGraphicsObjectManager.Get());
 
 		if (result != RC_OK)
@@ -1419,7 +1421,7 @@ namespace TDEngine2
 	}
 
 
-	IGraphicsContext* CreateOGLGraphicsContext(TPtr<IWindowSystem> pWindowSystem, TCreateGLContextFactoryCallback glContextFactoryCallback, E_RESULT_CODE& result)
+	IGraphicsContext* CreateOGLGraphicsContext(TPtr<IWindowSystem> pWindowSystem, TPtr<IFileSystem> pFileSystem, TCreateGLContextFactoryCallback glContextFactoryCallback, E_RESULT_CODE& result)
 	{
 		COGLGraphicsContext* pGraphicsContextInstance = new (std::nothrow) COGLGraphicsContext(glContextFactoryCallback);
 
@@ -1430,7 +1432,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pGraphicsContextInstance->Init(pWindowSystem);
+		result = pGraphicsContextInstance->Init(pWindowSystem, pFileSystem);
 
 		if (result != RC_OK)
 		{

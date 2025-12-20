@@ -1116,7 +1116,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CVulkanGraphicsContext::Init(TPtr<IWindowSystem> pWindowSystem)
+	E_RESULT_CODE CVulkanGraphicsContext::Init(TPtr<IWindowSystem> pWindowSystem, TPtr<IFileSystem> pFileSystem)
 	{
 		TDE2_PROFILER_SCOPE("CVulkanGraphicsContext::Init");
 
@@ -1125,13 +1125,14 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		if (!pWindowSystem || !mpWindowSurfaceFactory)
+		if (!pWindowSystem || !pFileSystem || !mpWindowSurfaceFactory)
 		{
 			return RC_INVALID_ARGS;
 		}
 
 		mpWindowSystem = pWindowSystem;
 		mpEventManager = pWindowSystem->GetEventManager();
+		mpFileSystem   = pFileSystem;
 
 		if (!mpEventManager)
 		{
@@ -1146,7 +1147,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		mpGraphicsObjectManager = TPtr<IGraphicsObjectManager>(CreateVulkanGraphicsObjectManager(this, result));
+		mpGraphicsObjectManager = TPtr<IGraphicsObjectManager>(CreateVulkanGraphicsObjectManager(this, mpFileSystem.Get(), result));
 		if (result != RC_OK)
 		{
 			return result;
@@ -3021,7 +3022,7 @@ namespace TDEngine2
 	}
 
 
-	IGraphicsContext* CreateVulkanGraphicsContext(TPtr<IWindowSystem> pWindowSystem, TPtr<IWindowSurfaceFactory> pWindowSurfaceFactory, E_RESULT_CODE& result)
+	IGraphicsContext* CreateVulkanGraphicsContext(TPtr<IWindowSystem> pWindowSystem, TPtr<IFileSystem> pFileSystem, TPtr<IWindowSurfaceFactory> pWindowSurfaceFactory, E_RESULT_CODE& result)
 	{
 		CVulkanGraphicsContext* pGraphicsContext = new (std::nothrow) CVulkanGraphicsContext(pWindowSurfaceFactory);
 
@@ -3031,7 +3032,7 @@ namespace TDEngine2
 			return nullptr;
 		}
 
-		result = pGraphicsContext->Init(pWindowSystem);
+		result = pGraphicsContext->Init(pWindowSystem, pFileSystem);
 
 		if (result != RC_OK)
 		{

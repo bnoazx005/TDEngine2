@@ -42,6 +42,7 @@
 #include "../../include/platform/CBinaryMeshFileReader.h"
 #include "../../include/platform/BinaryArchives.h"
 #include "../../include/graphics/CForwardRenderer.h"
+#include "../../include/graphics/CBaseShader.h"
 #include "../../include/graphics/CBaseMaterial.h"
 #include "../../include/graphics/CTextureAtlas.h"
 #include "../../include/graphics/effects/CParticleEffect.h"
@@ -109,7 +110,7 @@ namespace TDEngine2
 
 		if (graphicsPluginPath.empty())
 		{
-			mpGraphicsContextInstance = CreateProxyGraphicsContext(mpWindowSystemInstance, result);
+			mpGraphicsContextInstance = CreateProxyGraphicsContext(mpWindowSystemInstance, mpFileSystemInstance, result);
 			if (RC_OK != result)
 			{
 				return result;
@@ -906,6 +907,7 @@ namespace TDEngine2
 		/// The third parameter defines whether the resource needs window mode or not
 		std::tuple<ResourceLoaderFactoryFunctor, ResourceFactoryFactoryFunctor, bool> builtinResourcesConstructorsTable[]
 		{
+			{ CreateBaseShaderLoader, CreateBaseShaderFactory, true },
 			{ CreateBaseTexture2DLoader, CreateBaseTexture2DFactory, true },
 			{ CreateBaseTexture3DLoader, CreateBaseTexture3DFactory, true },
 			{ CreateBaseCubemapTextureLoader, CreateBaseCubemapTextureFactory, true },

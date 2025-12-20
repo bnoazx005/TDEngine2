@@ -23,9 +23,11 @@ namespace TDEngine2
 	class IRenderer;
 	class IResourceManager;
 	class IShaderCache;
+	class IShaderCompiler;
 	class IFileSystem;
 	class IBuffer;
 	class ITextureImpl;
+	class IShaderImpl;
 	class IGraphicsPipeline;
 	class IComputePipeline;
 	struct TStructuredBuffersInitParams;
@@ -37,9 +39,11 @@ namespace TDEngine2
 	TDE2_DECLARE_SCOPED_PTR(IShaderCache);
 	TDE2_DECLARE_SCOPED_PTR(IBuffer);
 	TDE2_DECLARE_SCOPED_PTR(ITextureImpl);
+	TDE2_DECLARE_SCOPED_PTR(IShaderImpl);
 	TDE2_DECLARE_SCOPED_PTR(IGraphicsPipeline);
 	TDE2_DECLARE_SCOPED_PTR(IComputePipeline);
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager);
+	TDE2_DECLARE_SCOPED_PTR(IShaderCompiler);
 
 
 	/*!
@@ -56,6 +60,7 @@ namespace TDEngine2
 
 	TDE2_DECLARE_HANDLE_TYPE(TBufferHandleId);
 	TDE2_DECLARE_HANDLE_TYPE(TTextureHandleId);
+	TDE2_DECLARE_HANDLE_TYPE(TShaderHandleId);
 
 
 	/*!
@@ -73,17 +78,21 @@ namespace TDEngine2
 				\brief The method initializes an initial state of a buffer
 
 				\param[in] pGraphicsContext A pointer to implementation of IGraphicsContext interface
+				\param[in] pFileSystem A pointer to implementation of IFileSystem interface
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem) = 0;
 
 			TDE2_API virtual TResult<TBufferHandleId> CreateBuffer(const TInitBufferParams& params) = 0;
 			TDE2_API virtual E_RESULT_CODE DestroyBuffer(TBufferHandleId bufferHandle) = 0;
 
 			TDE2_API virtual TResult<TTextureHandleId> CreateTexture(const TInitTextureImplParams& params) = 0;
 			TDE2_API virtual E_RESULT_CODE DestroyTexture(TTextureHandleId textureHandle) = 0;
+
+			TDE2_API virtual TResult<TShaderHandleId> LoadShader(const std::string& shaderId) = 0;
+			TDE2_API virtual E_RESULT_CODE DestroyShader(TShaderHandleId shaderHandle) = 0;
 
 			/*!
 				\brief The method is a factory for creation objects of IVertexDeclaration's type
@@ -116,10 +125,14 @@ namespace TDEngine2
 
 			TDE2_API virtual TResult<IDebugUtility*> CreateDebugUtility(IResourceManager* pResourceManager, IRenderer* pRenderer) = 0;
 
-			TDE2_API virtual TResult<TPtr<IShaderCache>> CreateShaderCache(IFileSystem* pFileSystem, bool isReadOnly = true) = 0;
+			TDE2_API virtual TResult<TPtr<IShaderCache>> CreateShaderCache(bool isReadOnly = true) = 0;
+
+			TDE2_API virtual E_RESULT_CODE SetShaderCompiler(TPtr<IShaderCompiler> pShaderCompiler) = 0;
 
 			TDE2_API virtual TPtr<IBuffer> GetBufferPtr(TBufferHandleId handle) = 0;
 			TDE2_API virtual TPtr<ITextureImpl> GetTexturePtr(TTextureHandleId handle) = 0;
+
+			TDE2_API virtual TPtr<IShaderImpl> GetShaderPtr(TShaderHandleId handle) = 0;
 
 			TDE2_API virtual TPtr<IGraphicsPipeline> GetGraphicsPipeline(TGraphicsPipelineStateId handle) = 0;
 			TDE2_API virtual TPtr<IComputePipeline> GetComputePipeline(TComputePipelineStateId handle) = 0;

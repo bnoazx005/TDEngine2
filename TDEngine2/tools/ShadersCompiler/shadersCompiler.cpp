@@ -97,7 +97,7 @@ namespace TDEngine2
 		auto pFileSystem = pEngineCore->GetSubsystem<IFileSystem>();
 		auto pResourceManager = pEngineCore->GetSubsystem<IResourceManager>();
 		
-		auto pShaderCache = pGraphicsContext->GetGraphicsObjectManager()->CreateShaderCache(pFileSystem.Get(), false).Get();
+		auto pShaderCache = pGraphicsContext->GetGraphicsObjectManager()->CreateShaderCache(false).Get();
 
 		for (auto&& currShaderPath : files)
 		{

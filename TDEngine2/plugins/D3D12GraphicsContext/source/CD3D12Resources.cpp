@@ -455,42 +455,27 @@ namespace TDEngine2
 	};
 
 
-	CD3D12Shader::CD3D12Shader() :
-		CBaseShader()
+	CD3D12ShaderImpl::CD3D12ShaderImpl() :
+		CBaseShaderImpl()
 	{
 	}
 
-	E_RESULT_CODE CD3D12Shader::Reset()
-	{
-		mIsInitialized = false;
-		return RC_OK;
-	}
-
-	void CD3D12Shader::Bind()
-	{
-		CBaseShader::Bind();
-	}
-
-	void CD3D12Shader::Unbind()
-	{
-	}
-
-	const D3D12_SHADER_BYTECODE& CD3D12Shader::GetPipelineShaderStage(E_SHADER_STAGE_TYPE stageType) const
+	const D3D12_SHADER_BYTECODE& CD3D12ShaderImpl::GetPipelineShaderStage(E_SHADER_STAGE_TYPE stageType) const
 	{
 		return mStagesBytecode[static_cast<U32>(stageType)];
 	}
 
-	ComPtr<ID3D12RootSignature> CD3D12Shader::GetRootSignature() const
+	ComPtr<ID3D12RootSignature> CD3D12ShaderImpl::GetRootSignature() const
 	{
 		return mpRootSignature;
 	}
 
-	const TD3D12PipelineLayoutInfo& CD3D12Shader::GetLayoutInfo() const
+	const TD3D12PipelineLayoutInfo& CD3D12ShaderImpl::GetLayoutInfo() const
 	{
 		return mLayoutInfo;
 	}
 
-	E_RESULT_CODE CD3D12Shader::_createInternalHandlers(const TShaderCompilerOutput* pCompilerData)
+	E_RESULT_CODE CD3D12ShaderImpl::_createInternalHandlers(const TShaderCompilerOutput* pCompilerData)
 	{
 		if (!pCompilerData)
 		{
@@ -604,7 +589,7 @@ namespace TDEngine2
 	}
 
 
-	E_RESULT_CODE CD3D12Shader::_createRootSignature(const TShaderCompilerOutput* pCompilerData)
+	E_RESULT_CODE CD3D12ShaderImpl::_createRootSignature(const TShaderCompilerOutput* pCompilerData)
 	{
 		CFixedVector<CD3DX12_ROOT_PARAMETER, D3D12_MAX_ROOT_COST> rootParams{};
 		CFixedVector<CD3DX12_DESCRIPTOR_RANGE, 256> descriptorRanges{};
@@ -727,7 +712,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CD3D12Shader::_createUniformBuffers(const TShaderCompilerOutput* pCompilerData)
+	E_RESULT_CODE CD3D12ShaderImpl::_createUniformBuffers(const TShaderCompilerOutput* pCompilerData)
 	{
 		E_RESULT_CODE result = _createRootSignature(pCompilerData);
 
@@ -768,59 +753,13 @@ namespace TDEngine2
 	}
 
 
-	IShader* CreateD3D12Shader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
+	IShaderImpl* CreateD3D12ShaderImpl(IGraphicsContext* pGraphicsContext, const std::string& shaderId, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IShader, CD3D12Shader, result, pResourceManager, pGraphicsContext, name);
+		return CREATE_IMPL(IShaderImpl, CD3D12ShaderImpl, result, pGraphicsContext, shaderId);
 	}
 
 
-	CD3D12ShaderFactory::CD3D12ShaderFactory() :
-		CBaseObject()
-	{
-	}
-
-	E_RESULT_CODE CD3D12ShaderFactory::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext)
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		if (!pGraphicsContext || !pResourceManager)
-		{
-			return RC_INVALID_ARGS;
-		}
-
-		mpResourceManager = pResourceManager;
-		mpGraphicsContext = pGraphicsContext;
-
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	IResource* CD3D12ShaderFactory::Create(const std::string& name, const TBaseResourceParameters& params) const
-	{
-		return nullptr;
-	}
-
-	IResource* CD3D12ShaderFactory::CreateDefault(const std::string& name, const TBaseResourceParameters& params) const
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		return dynamic_cast<IResource*>(CreateD3D12Shader(mpResourceManager, mpGraphicsContext, name, result));
-	}
-
-	TypeId CD3D12ShaderFactory::GetResourceTypeId() const
-	{
-		return IShader::GetTypeId();
-	}
-
-
-	IResourceFactory* CreateD3D12ShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
-	{
-		return CREATE_IMPL(IResourceFactory, CD3D12ShaderFactory, result, pResourceManager, pGraphicsContext);
-	}
+	TDE2_DEFINE_SCOPED_PTR(CD3D12ShaderImpl);
 
 
 	/*!
@@ -1295,7 +1234,7 @@ namespace TDEngine2
 		public:
 			friend IVertexDeclaration* CreateD3D12VertexDeclaration(E_RESULT_CODE& result);
 		public:
-			void Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray, IShader* pShader) override;
+			void Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray, IShaderImpl* pShader) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D12VertexDeclaration)
 	};
@@ -1306,7 +1245,7 @@ namespace TDEngine2
 	{
 	}
 
-	void CD3D12VertexDeclaration::Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray, IShader* pShader)
+	void CD3D12VertexDeclaration::Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray, IShaderImpl* pShader)
 	{
 	}
 
@@ -1375,16 +1314,18 @@ namespace TDEngine2
 
 		mpPipelineStateObject = nullptr;
 
-		const TResourceId shaderHandle = pResourceManager->Load<IShader>(pipelineConfig.mShaderIdStr);
-		if (TResourceId::Invalid == shaderHandle)
+		auto loadShaderResult = mpD3D12GraphicsObjectManagerImpl->LoadShader(pipelineConfig.mShaderIdStr);
+		if (loadShaderResult.HasError())
 		{
-			return RC_FAIL;
+			return loadShaderResult.GetError();
 		}
 
-		if (TPtr<CD3D12Shader> pShader = pResourceManager->GetResource<CD3D12Shader>(shaderHandle))
+		mShaderResourceHandle = loadShaderResult.Get();
+
+		if (TPtr<CD3D12ShaderImpl> pShaderImpl = mpD3D12GraphicsObjectManagerImpl->GetD3D12ShaderPtr(mShaderResourceHandle))
 		{
-			mpCachedRootSignature = pShader->GetRootSignature();
-			mLayoutInfo           = pShader->GetLayoutInfo();
+			mpCachedRootSignature = pShaderImpl->GetRootSignature();
+			mLayoutInfo           = pShaderImpl->GetLayoutInfo();
 		}
 
 		mConfigHash = ComputeStateDescHash(mConfig);
@@ -1427,13 +1368,12 @@ namespace TDEngine2
 
 	ComPtr<ID3D12PipelineState> CD3D12GraphicsPipeline::GetPipelineForRenderPass(const TRenderPassInfo& renderPassInfo)
 	{
-		const TResourceId shaderHandle = mpResourceManager->Load<IShader>(mConfig.mShaderIdStr);
-		if (TResourceId::Invalid == shaderHandle)
+		if (TShaderHandleId::Invalid == mShaderResourceHandle)
 		{
 			return nullptr;
 		}
 
-		TPtr<CD3D12Shader> pShader = mpResourceManager->GetResource<CD3D12Shader>(shaderHandle);
+		TPtr<CD3D12ShaderImpl> pShader = mpD3D12GraphicsObjectManagerImpl->GetD3D12ShaderPtr(mShaderResourceHandle);
 		if (!pShader)
 		{
 			return nullptr;
@@ -1507,13 +1447,15 @@ namespace TDEngine2
 			return result;
 		}
 
-		const TResourceId shaderHandle = pResourceManager->Load<IShader>(shaderId);
-		if (TResourceId::Invalid == shaderHandle)
+		auto loadShaderResult = mpD3D12GraphicsObjectManagerImpl->LoadShader(shaderId);
+		if (loadShaderResult.HasError())
 		{
-			return RC_FAIL;
+			return loadShaderResult.GetError();
 		}
 
-		TPtr<CD3D12Shader> pShader = pResourceManager->GetResource<CD3D12Shader>(shaderHandle);
+		mShaderResourceHandle = loadShaderResult.Get();
+
+		TPtr<CD3D12ShaderImpl> pShader = mpD3D12GraphicsObjectManagerImpl->GetD3D12ShaderPtr(mShaderResourceHandle);
 		if (!pShader)
 		{
 			return RC_FAIL;

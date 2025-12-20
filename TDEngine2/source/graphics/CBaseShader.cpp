@@ -17,20 +17,19 @@ namespace TDEngine2
 		\brief CBaseShader's definition
 	*/
 
-
 	CBaseShader::CBaseShader():
-		CBaseResource()
+		CBaseResource(), mHandle(TShaderHandleId::Invalid)
 	{
 	}
 
-	E_RESULT_CODE CBaseShader::Unload()
+	E_RESULT_CODE CBaseShader::Reset()
 	{
-		if (mpShaderMeta)
-		{
-			delete mpShaderMeta;
-		}
+		E_RESULT_CODE result = mpGraphicsObjectManager->DestroyShader(mHandle);
+		mHandle = TShaderHandleId::Invalid;
 
-		return CBaseResource::Unload();
+		mIsInitialized = false;
+
+		return result;
 	}
 
 	E_RESULT_CODE CBaseShader::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name)
@@ -47,6 +46,103 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		mpGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
+		
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CBaseShader::RequestShaderImpl()
+	{
+		TDE2_PROFILER_SCOPE("CBaseShader::RequestShaderImpl");
+
+		auto loadShaderResult = mpGraphicsObjectManager->LoadShader(mName);
+		if (loadShaderResult.HasError())
+		{
+			return loadShaderResult.GetError();
+		}
+
+		mHandle = loadShaderResult.Get();
+		mpShaderImpl = mpGraphicsObjectManager->GetShaderPtr(mHandle);
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CBaseShader::SetUserUniformsBuffer(U8 slot, const U8* pData, USIZE dataSize)
+	{
+		TDE2_PROFILER_SCOPE("CBaseShader::SetUserUniformsBuffer");
+
+		return mpShaderImpl->SetUserUniformsBuffer(slot, pData, dataSize);
+	}
+
+	void CBaseShader::Bind()
+	{
+		TDE2_PROFILER_SCOPE("CBaseShader::Bind");
+		mpShaderImpl->Bind();
+	}
+
+	void CBaseShader::Unbind()
+	{
+		mpShaderImpl->Unbind();
+	}
+
+	E_RESULT_CODE CBaseShader::SetTextureResource(const std::string& resourceName, ITexture* pTexture)
+	{
+		TDE2_PROFILER_SCOPE("CBaseShader::SetTextureResource");
+		return mpShaderImpl->SetTextureResource(resourceName, pTexture);
+	}
+
+	E_RESULT_CODE CBaseShader::SetStructuredBufferResource(const std::string& resourceName, TBufferHandleId bufferHandle)
+	{
+		TDE2_PROFILER_SCOPE("CBaseShader::SetStructuredBufferResource");
+		return mpShaderImpl->SetStructuredBufferResource(resourceName, bufferHandle);
+	}
+
+	const TShaderCompilerOutput* CBaseShader::GetShaderMetaData() const
+	{
+		return mpShaderImpl->GetShaderMetaData();
+	}
+
+	U32 CBaseShader::GetResourceBindingSlot(const std::string& resourceName) const
+	{
+		return mpShaderImpl->GetResourceBindingSlot(resourceName);
+	}
+
+	const TPtr<IResourceLoader> CBaseShader::_getResourceLoader()
+	{
+		return mpResourceManager->GetResourceLoader<IShader>();
+	}
+
+
+	IShaderResource* CreateShader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IShaderResource, CBaseShader, result, pResourceManager, pGraphicsContext, name);
+	}
+
+
+	/*!
+		\brief CBaseShaderFactory's definition
+	*/
+
+	CBaseShaderFactory::CBaseShaderFactory() :
+		CBaseObject()
+	{
+	}
+
+	E_RESULT_CODE CBaseShaderFactory::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext)
+	{
+		if (mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		if (!pGraphicsContext || !pResourceManager)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpResourceManager = pResourceManager;
 		mpGraphicsContext = pGraphicsContext;
 
 		mIsInitialized = true;
@@ -54,9 +150,117 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CBaseShader::Compile(const IShaderCompiler* pShaderCompiler, const std::string& sourceCode)
+	IResource* CBaseShaderFactory::Create(const std::string& name, const TBaseResourceParameters& params) const
 	{
-		TDE2_PROFILER_SCOPE("CBaseShader::Compile");
+		E_RESULT_CODE result = RC_OK;
+		return dynamic_cast<IResource*>(CreateShader(mpResourceManager, mpGraphicsContext, name, result));
+	}
+
+	IResource* CBaseShaderFactory::CreateDefault(const std::string& name, const TBaseResourceParameters& params) const
+	{
+		E_RESULT_CODE result = RC_OK;
+		return dynamic_cast<IResource*>(CreateShader(mpResourceManager, mpGraphicsContext, name, result));
+	}
+
+	TypeId CBaseShaderFactory::GetResourceTypeId() const
+	{
+		return IShader::GetTypeId();
+	}
+
+
+	TDE2_API IResourceFactory* CreateBaseShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IResourceFactory, CBaseShaderFactory, result, pResourceManager, pGraphicsContext);
+	}
+
+
+	/*!
+		\brief CBaseShaderLoader's definition
+	*/
+
+	CBaseShaderLoader::CBaseShaderLoader() :
+		CBaseObject()
+	{
+	}
+
+	E_RESULT_CODE CBaseShaderLoader::Init(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem)
+	{
+		if (mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		if (!pResourceManager || !pGraphicsContext || !pFileSystem)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpResourceManager = pResourceManager;
+		mpFileSystem      = pFileSystem;
+		mpGraphicsContext = pGraphicsContext;
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CBaseShaderLoader::LoadResource(IResource* pResource) const
+	{
+		TDE2_PROFILER_SCOPE("CBaseShaderLoader::LoadResource");
+
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		IShaderResource* pShader = dynamic_cast<IShaderResource*>(pResource);
+		if (!pShader)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		return pShader->RequestShaderImpl();
+	}
+
+	TypeId CBaseShaderLoader::GetResourceTypeId() const
+	{
+		return IShader::GetTypeId();
+	}
+
+
+	TDE2_API IResourceLoader* CreateBaseShaderLoader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IResourceLoader, CBaseShaderLoader, result, pResourceManager, pGraphicsContext, pFileSystem);
+	}
+
+
+	/*!
+		\brief CBaseShaderImpl's definition
+	*/
+
+	CBaseShaderImpl::CBaseShaderImpl() :
+		CBaseObject()
+	{
+	}
+
+	E_RESULT_CODE CBaseShaderImpl::Init(IGraphicsContext* pGraphicsContext, const std::string& shaderId)
+	{
+		if (!pGraphicsContext || shaderId.empty())
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpGraphicsContext = pGraphicsContext;
+		mName = shaderId;
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CBaseShaderImpl::Compile(const IShaderCompiler* pShaderCompiler, const std::string& sourceCode)
+	{
+		TDE2_PROFILER_SCOPE("CBaseShaderImpl::Compile");
 
 		if (!mIsInitialized)
 		{
@@ -70,7 +274,7 @@ namespace TDEngine2
 
 		mSourceCode = sourceCode;
 
-		LOG_MESSAGE(Wrench::StringUtils::Format("[BaseShader] Compiling shader, name: {0}", mName));
+		LOG_MESSAGE(Wrench::StringUtils::Format("[BaseShaderImpl] Compiling shader, name: {0}", mName));
 
 		TResult<TShaderCompilerOutput*> compilerOutput = pShaderCompiler->Compile(mName, sourceCode);
 
@@ -84,15 +288,15 @@ namespace TDEngine2
 		return _initShaderInternal(pCompilerOutput);
 	}
 
-	E_RESULT_CODE CBaseShader::LoadFromShaderCache(IShaderCache* pShaderCache)
+	E_RESULT_CODE CBaseShaderImpl::LoadFromShaderCache(IShaderCache* pShaderCache)
 	{
-		TDE2_PROFILER_SCOPE("CBaseShader::LoadFromShaderCache");
+		TDE2_PROFILER_SCOPE("CBaseShaderImpl::LoadFromShaderCache");
 		return _initShaderInternal(pShaderCache->GetShaderMetaData(mName));
 	}
 
-	E_RESULT_CODE CBaseShader::SetUserUniformsBuffer(U8 slot, const U8* pData, USIZE dataSize)
+	E_RESULT_CODE CBaseShaderImpl::SetUserUniformsBuffer(U8 slot, const U8* pData, USIZE dataSize)
 	{
-		TDE2_PROFILER_SCOPE("CBaseShader::SetUserUniformsBuffer");
+		TDE2_PROFILER_SCOPE("CBaseShaderImpl::SetUserUniformsBuffer");
 
 		if (slot >= MaxNumberOfUserConstantBuffers)
 		{
@@ -127,9 +331,9 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void CBaseShader::Bind()
+	void CBaseShaderImpl::Bind()
 	{
-		TDE2_PROFILER_SCOPE("CBaseShader::Bind");
+		TDE2_PROFILER_SCOPE("CBaseShaderImpl::Bind");
 
 		ITexture* pCurrTexture = nullptr;
 		U16 currSlot = 0;
@@ -169,7 +373,7 @@ namespace TDEngine2
 		}
 	}
 
-	void CBaseShader::Unbind()
+	void CBaseShaderImpl::Unbind()
 	{
 		ITexture* pCurrTexture = nullptr;
 		U16 currSlot = 0;
@@ -188,9 +392,9 @@ namespace TDEngine2
 		}
 	}
 
-	E_RESULT_CODE CBaseShader::SetTextureResource(const std::string& resourceName, ITexture* pTexture)
+	E_RESULT_CODE CBaseShaderImpl::SetTextureResource(const std::string& resourceName, ITexture* pTexture)
 	{
-		TDE2_PROFILER_SCOPE("CBaseShader::SetTextureResource");
+		TDE2_PROFILER_SCOPE("CBaseShaderImpl::SetTextureResource");
 
 		if (resourceName.empty() || !pTexture)
 		{
@@ -208,9 +412,9 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CBaseShader::SetStructuredBufferResource(const std::string& resourceName, TBufferHandleId bufferHandle)
+	E_RESULT_CODE CBaseShaderImpl::SetStructuredBufferResource(const std::string& resourceName, TBufferHandleId bufferHandle)
 	{
-		TDE2_PROFILER_SCOPE("CBaseShader::SetStructuredBufferResource");
+		TDE2_PROFILER_SCOPE("CBaseShaderImpl::SetStructuredBufferResource");
 
 		if (resourceName.empty() || TBufferHandleId::Invalid == bufferHandle)
 		{
@@ -228,12 +432,24 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	const TShaderCompilerOutput* CBaseShader::GetShaderMetaData() const
+	E_RESULT_CODE CBaseShaderImpl::SetHandle(TShaderHandleId handle, const CPassKey<CBaseGraphicsObjectManager>& passkey)
 	{
-		return mpShaderMeta;
+		if (TShaderHandleId::Invalid == handle)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mHandle = handle;
+
+		return RC_OK;
 	}
 
-	U32 CBaseShader::GetResourceBindingSlot(const std::string& resourceName) const
+	const TShaderCompilerOutput* CBaseShaderImpl::GetShaderMetaData() const
+	{
+		return mpShaderMeta.get();
+	}
+
+	U32 CBaseShaderImpl::GetResourceBindingSlot(const std::string& resourceName) const
 	{
 		constexpr U32 INVALID_SLOT = (std::numeric_limits<U32>::max)();
 
@@ -251,19 +467,19 @@ namespace TDEngine2
 		return it->second.mSlot;
 	}
 
-	E_RESULT_CODE CBaseShader::_initShaderInternal(TShaderCompilerOutput* pShaderMetaData)
+	E_RESULT_CODE CBaseShaderImpl::_initShaderInternal(TShaderCompilerOutput* pShaderMetaData)
 	{
-		mpShaderMeta = pShaderMetaData;
+		mpShaderMeta.reset(pShaderMetaData);
 
-		E_RESULT_CODE result = _createInternalHandlers(mpShaderMeta); /// reimplement this method in a derived class to do some extra work
+		E_RESULT_CODE result = _createInternalHandlers(GetShaderMetaData()); /// reimplement this method in a derived class to do some extra work
 
 		if (result != RC_OK)
 		{
 			return result;
 		}
 
-		result = result | _createTexturesHashTable(mpShaderMeta);
-		result = result | _createStructuredBuffersHashTable(mpShaderMeta);
+		result = result | _createTexturesHashTable(GetShaderMetaData());
+		result = result | _createStructuredBuffersHashTable(GetShaderMetaData());
 
 		return result;
 	}
@@ -272,14 +488,14 @@ namespace TDEngine2
 	static bool IsTextureShaderResource(E_SHADER_RESOURCE_TYPE type)
 	{
 		return E_SHADER_RESOURCE_TYPE::SRT_SAMPLER_STATE != type
-			&& E_SHADER_RESOURCE_TYPE::SRT_RW_RAW_BUFFER != type
-			&& E_SHADER_RESOURCE_TYPE::SRT_RAW_BUFFER != type
-			&& E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER != type
-			&& E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER != type;
+				&& E_SHADER_RESOURCE_TYPE::SRT_RW_RAW_BUFFER != type
+				&& E_SHADER_RESOURCE_TYPE::SRT_RAW_BUFFER != type
+				&& E_SHADER_RESOURCE_TYPE::SRT_RW_STRUCTURED_BUFFER != type
+				&& E_SHADER_RESOURCE_TYPE::SRT_STRUCTURED_BUFFER != type;
 	}
 
 
-	E_RESULT_CODE CBaseShader::_createTexturesHashTable(const TShaderCompilerOutput* pCompilerData)
+	E_RESULT_CODE CBaseShaderImpl::_createTexturesHashTable(const TShaderCompilerOutput* pCompilerData)
 	{
 		auto shaderResourcesMap = pCompilerData->mShaderResourcesInfo;
 		if (shaderResourcesMap.empty())
@@ -290,7 +506,7 @@ namespace TDEngine2
 		mpTextures.clear();
 
 		USIZE currSlotIndex = 0;
-		
+
 		for (auto currShaderResourceInfo : shaderResourcesMap)
 		{
 			const TShaderResourceDesc& desc = currShaderResourceInfo.second;
@@ -309,7 +525,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CBaseShader::_createStructuredBuffersHashTable(const TShaderCompilerOutput* pCompilerData)
+	E_RESULT_CODE CBaseShaderImpl::_createStructuredBuffersHashTable(const TShaderCompilerOutput* pCompilerData)
 	{
 		auto shaderResourcesMap = pCompilerData->mShaderResourcesInfo;
 
@@ -340,14 +556,9 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void CBaseShader::_bindUniformBuffer(U32 slot, TBufferHandleId uniformsBufferHandle)
+	void CBaseShaderImpl::_bindUniformBuffer(U32 slot, TBufferHandleId uniformsBufferHandle)
 	{
 		mpGraphicsContext->SetConstantBuffer(slot, uniformsBufferHandle);
-	}
-
-	const TPtr<IResourceLoader> CBaseShader::_getResourceLoader()
-	{
-		return mpResourceManager->GetResourceLoader<IShader>();
 	}
 
 

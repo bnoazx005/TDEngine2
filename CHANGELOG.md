@@ -7,11 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.33] 2025-12-19
+## [0.6.33] 2025-12-26
 
 ### Added
 
+- The API of **IGraphicsObjectsManager** was extended with new methods to work with shaders objects.
+
 ### Changed
+
+- The signatures of factory methods of **IGraphicsContext** and **IGraphicsObjectsManager** were changed. Now it requires an instance of **IFileSystem**.
+
+- The API of **IGraphicsObjectsManager** was refactored to provide internal shaders loading instead of using **IResourceManager**'s interface.
 
 ### Fixed
 

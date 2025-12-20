@@ -19,23 +19,26 @@ namespace TDEngine2
 {
 	class CD3D11TextureImpl;
 	class CD3D11Buffer;
+	class CD3D11ShaderImpl;
 
 
 	TDE2_DECLARE_SCOPED_PTR(CD3D11TextureImpl)
 	TDE2_DECLARE_SCOPED_PTR(CD3D11Buffer)
+	TDE2_DECLARE_SCOPED_PTR(CD3D11ShaderImpl)
 
 
 	/*!
 		\brief A factory function for creation objects of CD3D11GraphicsObjectManager's type
 		
 		\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
+		\param[in, out] pFileSystem A pointer to implementation of IFileSystem interface
 
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
 		\return A pointer to CD3D11GraphicsObjectManager's implementation
 	*/
 
-	IGraphicsObjectManager* CreateD3D11GraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
+	IGraphicsObjectManager* CreateD3D11GraphicsObjectManager(IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem, E_RESULT_CODE& result);
 
 
 	/*!
@@ -47,7 +50,7 @@ namespace TDEngine2
 	class CD3D11GraphicsObjectManager : public CBaseGraphicsObjectManager
 	{
 		public:
-			friend IGraphicsObjectManager* CreateD3D11GraphicsObjectManager(IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
+			friend IGraphicsObjectManager* CreateD3D11GraphicsObjectManager(IGraphicsContext*, IFileSystem*, E_RESULT_CODE&);
 		protected:
 			typedef std::vector<ID3D11SamplerState*>             TTextureSamplersArray;
 			typedef CResourceContainer<ID3D11BlendState*>        TBlendStatesArray;
@@ -57,13 +60,8 @@ namespace TDEngine2
 			typedef TStateHashesTable<TRasterizerStateId>        TRasterizerStatesTable;
 			typedef std::vector<TPtr<CD3D11TextureImpl>>         TNativeTexturesArray;
 			typedef std::vector<TPtr<CD3D11Buffer>>              TNativeBuffersArray;
+			typedef std::vector<TPtr<CD3D11ShaderImpl>>          TNativeShadersArray;
 		public:
-			 TResult<TBufferHandleId> CreateBuffer(const TInitBufferParams& params) override;
-			 TResult<TTextureHandleId> CreateTexture(const TInitTextureImplParams& params) override;
-
-			 E_RESULT_CODE DestroyBuffer(TBufferHandleId bufferHandle) override;
-			 E_RESULT_CODE DestroyTexture(TTextureHandleId textureHandle) override;
-
 			/*!
 				\brief The method is a factory for creation objects of IVertexDeclaration's type
 
@@ -111,6 +109,10 @@ namespace TDEngine2
 			*/
 
 			 TResult<TRasterizerStateId> CreateRasterizerState(const TRasterizerStateDesc& rasterizerStateDesc);
+
+			 E_RESULT_CODE DestroyBuffer(TBufferHandleId bufferHandle) override;
+			 E_RESULT_CODE DestroyTexture(TTextureHandleId textureHandle) override;
+			 E_RESULT_CODE DestroyShader(TShaderHandleId shaderHandle) override;
 
 			/*!
 				\brief The method returns a pointer to ID3D11SamplerState which is related with a given identifier
@@ -170,6 +172,9 @@ namespace TDEngine2
 			 TPtr<ITextureImpl> GetTexturePtr(TTextureHandleId handle) override;
 			 TPtr<CD3D11TextureImpl> GetD3D11TexturePtr(TTextureHandleId textureHandle);
 
+			 TPtr<IShaderImpl> GetShaderPtr(TShaderHandleId handle) override;
+			 TPtr<CD3D11ShaderImpl> GetD3D11ShaderPtr(TShaderHandleId handle);
+
 			/*!
 				\brief The method returns vertices of a screen-quad triangle specific for the current GAPI.
 				XY of each element mean the position and ZW are texture coordinates
@@ -184,7 +189,15 @@ namespace TDEngine2
 
 			E_RESULT_CODE _onFreeInternal() override;
 
+			TPtr<IBuffer> _createBufferInternal(const TInitBufferParams& params) override;
+			TPtr<ITextureImpl> _createTextureInternal(const TInitTextureImplParams& params) override;
+			TPtr<IShaderImpl> _createShaderImplInternal(const std::string& shaderId) override;
+
 			TPtr<IGraphicsPipeline> _createGraphicsPipelineInternal(IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfigDesc) override;
+
+			USIZE _insertBuffer(TPtr<IBuffer> pObject) override;
+			USIZE _insertTexture(TPtr<ITextureImpl> pObject) override;
+			USIZE _insertShaderImpl(TPtr<IShaderImpl> pObject) override;
 
 			E_RESULT_CODE _freeTextureSamplers() override;
 
@@ -205,9 +218,7 @@ namespace TDEngine2
 
 			TNativeTexturesArray     mpTexturesArray;
 			TNativeBuffersArray      mpBuffersArray;
-
-			std::unordered_map<U32, std::vector<TTextureHandleId>> mTransientTexturesPool;
-			std::unordered_map<U32, std::vector<TBufferHandleId>>  mTransientBuffersPool;
+			TNativeShadersArray      mpShadersArray;
 	};
 }
 

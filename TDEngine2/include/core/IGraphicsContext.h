@@ -20,10 +20,12 @@ namespace TDEngine2
 {
 	class IWindowSystem;
 	class IGraphicsObjectManager;
+	class IFileSystem;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IWindowSystem)
 	TDE2_DECLARE_SCOPED_PTR(IGraphicsObjectManager)
+	TDE2_DECLARE_SCOPED_PTR(IFileSystem)
 
 
 	enum class TBufferHandleId : U32;
@@ -152,12 +154,13 @@ namespace TDEngine2
 			/*!
 				\brief The method initializes an initial state of the object
 
-				\param[in] pWindowSystem A pointer to implementation of IWindowSystem interface
+				\param[in, out] pWindowSystem A pointer to implementation of IWindowSystem interface
+				\param[in, out] pFileSystem A pointer to implementation of IFileSystem interface
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem, TPtr<IFileSystem> pFileSystem) = 0;
 
 			TDE2_API virtual void BeginFrame() = 0;
 

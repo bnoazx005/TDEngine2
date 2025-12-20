@@ -38,7 +38,7 @@ namespace TDEngine2
 	class CD3D11GraphicsContext : public IGraphicsContext, public IEventHandler, public CBaseObject
 	{
 		public:
-			friend IGraphicsContext* CreateD3D11GraphicsContext(TPtr<IWindowSystem>, E_RESULT_CODE&);
+			friend IGraphicsContext* CreateD3D11GraphicsContext(TPtr<IWindowSystem>, TPtr<IFileSystem>, E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_TYPE(CD3D11GraphicsContext)
 
@@ -50,7 +50,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem) override;
+			TDE2_API E_RESULT_CODE Init(TPtr<IWindowSystem> pWindowSystem, TPtr<IFileSystem> pFileSystem) override;
 
 			TDE2_API void BeginFrame() override;
 
@@ -425,8 +425,9 @@ namespace TDEngine2
 			TPtr<IGraphicsObjectManager> mpGraphicsObjectManager = nullptr;
 			CD3D11GraphicsObjectManager* mpGraphicsObjectManagerD3D11Impl = nullptr;
 
-			TPtr<IWindowSystem>      mpWindowSystem;
-			TPtr<IEventManager>      mpEventManager;
+			TPtr<IWindowSystem>      mpWindowSystem = nullptr;
+			TPtr<IEventManager>      mpEventManager = nullptr;
+			TPtr<IFileSystem>        mpFileSystem = nullptr;
 
 			ID3D11RenderTargetView* mpRenderTargets[mMaxNumOfRenderTargets];
 			U8                      mCurrNumOfActiveRenderTargets = 0;
@@ -438,7 +439,7 @@ namespace TDEngine2
 	{
 	}
 	
-	E_RESULT_CODE CD3D11GraphicsContext::Init(TPtr<IWindowSystem> pWindowSystem)
+	E_RESULT_CODE CD3D11GraphicsContext::Init(TPtr<IWindowSystem> pWindowSystem, TPtr<IFileSystem> pFileSystem)
 	{
 		TDE2_PROFILER_SCOPE("CD3D11GraphicsContext::Init");
 
@@ -447,12 +448,13 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		if (!pWindowSystem)
+		if (!pWindowSystem || !pFileSystem)
 		{
 			return RC_INVALID_ARGS;
 		}
 
 		mpWindowSystem = pWindowSystem;
+		mpFileSystem   = pFileSystem;
 
 		const D3D_FEATURE_LEVEL featureLevels[] =
 		{
@@ -532,7 +534,7 @@ namespace TDEngine2
 		mInternalDataObject.mD3D11 = { mp3dDevice, mp3dDeviceContext };
 #endif
 
-		mpGraphicsObjectManager = TPtr<IGraphicsObjectManager>(CreateD3D11GraphicsObjectManager(this, result));
+		mpGraphicsObjectManager = TPtr<IGraphicsObjectManager>(CreateD3D11GraphicsObjectManager(this, mpFileSystem.Get(), result));
 		mpGraphicsObjectManagerD3D11Impl = dynamic_cast<CD3D11GraphicsObjectManager*>(mpGraphicsObjectManager.Get());
 
 		if (result != RC_OK)
@@ -1542,9 +1544,9 @@ namespace TDEngine2
 	}
 
 
-	IGraphicsContext* CreateD3D11GraphicsContext(TPtr<IWindowSystem> pWindowSystem, E_RESULT_CODE& result)
+	IGraphicsContext* CreateD3D11GraphicsContext(TPtr<IWindowSystem> pWindowSystem, TPtr<IFileSystem> pFileSystem, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IGraphicsContext, CD3D11GraphicsContext, result, pWindowSystem);
+		return CREATE_IMPL(IGraphicsContext, CD3D11GraphicsContext, result, pWindowSystem, pFileSystem);
 	}
 }
 

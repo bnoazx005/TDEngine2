@@ -145,45 +145,30 @@ namespace TDEngine2
 
 
 	/*!
-		\brief A factory function for creation objects of COGLShader's type
-
-		\param[in, out] pResourceManager A pointer to IGraphicsContext's implementation
+		\brief A factory function for creation objects of COGLShaderImpl's type
 
 		\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
-
-		\param[in] name A resource's name
-
 		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
 
-		\return A pointer to COGLShader's implementation
+		\return A pointer to COGLShaderImpl's implementation
 	*/
 
-	IShader* CreateOGLShader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result);
+	IShaderImpl* CreateOGLShaderImpl(IGraphicsContext* pGraphicsContext, const std::string& shaderId, E_RESULT_CODE& result);
 
 
 	/*!
-		class COGLShader
+		class COGLShaderImpl
 
-		\brief The class is a common implementation for all platforms
+		\brief The class implements shader object's functionality for GL GAPI
 	*/
 
-	class COGLShader : public CBaseShader
+	class COGLShaderImpl : public CBaseShaderImpl
 	{
 		public:
-			friend IShader* CreateOGLShader(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name, E_RESULT_CODE& result);
+			friend IShaderImpl* CreateOGLShaderImpl(IGraphicsContext*, const std::string&, E_RESULT_CODE&);
 		protected:
 			typedef std::unordered_map<U32, U32> TUniformBuffersMap;
 		public:
-			TDE2_REGISTER_TYPE(COGLShader)
-
-			/*!
-				\brief The method resets current internal data of a resource
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			E_RESULT_CODE Reset() override;
-
 			/*!
 				\brief The method binds a shader to a rendering pipeline
 			*/
@@ -196,7 +181,7 @@ namespace TDEngine2
 
 			void Unbind() override;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLShader)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLShaderImpl)
 
 			E_RESULT_CODE _createInternalHandlers(const TShaderCompilerOutput* pCompilerData) override;
 
@@ -205,26 +190,13 @@ namespace TDEngine2
 			void _bindUniformBuffer(U32 slot, TBufferHandleId uniformsBufferHandle) override;
 
 			E_RESULT_CODE _createTexturesHashTable(const TShaderCompilerOutput* pCompilerData) override;
+
+			E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			GLuint             mShaderHandler;
+			GLuint             mShaderHandler = 0;
 
-			TUniformBuffersMap mUniformBuffersMap; ///< \note the hash table stores information about buffers indices that were assigned to them by GLSL compiler
+			TUniformBuffersMap mUniformBuffersMap{}; ///< \note the hash table stores information about buffers indices that were assigned to them by GLSL compiler
 	};
-
-
-	/*!
-		\brief A factory function for creation objects of COGLShaderFactory's type
-
-		\param[in, out] pResourceManager A pointer to IResourceManager's implementation
-
-		\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
-
-		\param[out] result Contains RC_OK if everything went ok, or some other code, which describes an error
-
-		\return A pointer to COGLShaderFactory's implementation
-	*/
-
-	IResourceFactory* CreateOGLShaderFactory(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, E_RESULT_CODE& result);
 
 
 	/*!
@@ -353,7 +325,7 @@ namespace TDEngine2
 				\param[in, out] pShader A pointer to IShader implementation
 			*/
 
-			void Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray, IShader* pShader) override;
+			void Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray, IShaderImpl* pShader) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(COGLVertexDeclaration)
 

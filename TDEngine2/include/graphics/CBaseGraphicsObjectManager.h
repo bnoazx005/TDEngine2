@@ -18,9 +18,11 @@ namespace TDEngine2
 {
 	class IBinaryFileReader;
 	class IGraphicsPipeline;
+	class IShaderCache;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IGraphicsPipeline);
+	TDE2_DECLARE_SCOPED_PTR(IShaderCache);
 
 
 	/*!
@@ -38,16 +40,18 @@ namespace TDEngine2
 			template <typename T> using                         TStateHashesTable = std::unordered_map<U32, T>;
 			typedef TStateHashesTable<TGraphicsPipelineStateId> TGraphicsPipelineStatesTable;
 			typedef TStateHashesTable<TComputePipelineStateId>  TComputePipelineStatesTable;
+			typedef TStateHashesTable<TShaderHandleId>          TShadersHashTable;
 		public:
 			/*!
 				\brief The method initializes an initial state of a buffer
 
-				\param[in] pGraphicsContext A pointer to implementation of IGraphicsContext interface
+				\param[in, out] pGraphicsContext A pointer to implementation of IGraphicsContext interface
+				\param[in, out] pFileSystem A pointer to implementation of IFileSystem interface
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext) override;
+			TDE2_API E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IFileSystem* pFileSystem) override;
 
 			/*!
 				\brief The method is a factory for creation of a debug helper object
@@ -60,11 +64,18 @@ namespace TDEngine2
 
 			TDE2_API TResult<IDebugUtility*> CreateDebugUtility(IResourceManager* pResourceManager, IRenderer* pRenderer) override;
 
+			TDE2_API TResult<TBufferHandleId> CreateBuffer(const TInitBufferParams& params) override;
+			TDE2_API TResult<TTextureHandleId> CreateTexture(const TInitTextureImplParams& params) override;
+			
 			TDE2_API TResult<TGraphicsPipelineStateId> CreateGraphicsPipelineState(TPtr<IResourceManager> pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfigDesc) override;
 			TDE2_API TResult<TComputePipelineStateId> CreateComputePipelineState(TPtr<IResourceManager> pResourceManager, const std::string& shaderId) override;
 
-			TDE2_API TResult<TPtr<IShaderCache>> CreateShaderCache(IFileSystem* pFileSystem, bool isReadOnly = true) override;
-			
+			TDE2_API TResult<TPtr<IShaderCache>> CreateShaderCache(bool isReadOnly = true) override;
+
+			TDE2_API TResult<TShaderHandleId> LoadShader(const std::string& shaderId) override;
+
+			TDE2_API E_RESULT_CODE SetShaderCompiler(TPtr<IShaderCompiler> pShaderCompiler) override;
+
 			/*!
 				\brief The method returns a pointer to IGraphicsContext
 				\return The method returns a pointer to IGraphicsContext
@@ -95,8 +106,16 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseGraphicsObjectManager)
 
+			TDE2_API virtual TPtr<IBuffer> _createBufferInternal(const TInitBufferParams& params) = 0;
+			TDE2_API virtual TPtr<ITextureImpl> _createTextureInternal(const TInitTextureImplParams& params) = 0;
+			TDE2_API virtual TPtr<IShaderImpl> _createShaderImplInternal(const std::string& shaderId) = 0;
+
 			TDE2_API virtual TPtr<IGraphicsPipeline> _createGraphicsPipelineInternal(IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfigDesc);
 			TDE2_API virtual TPtr<IComputePipeline> _createComputePipelineInternal(IResourceManager* pResourceManager, const std::string& shaderId);
+
+			TDE2_API virtual USIZE _insertBuffer(TPtr<IBuffer> pObject) = 0;
+			TDE2_API virtual USIZE _insertTexture(TPtr<ITextureImpl> pObject) = 0;
+			TDE2_API virtual USIZE _insertShaderImpl(TPtr<IShaderImpl> pObject) = 0;
 
 			TDE2_API void _insertVertexDeclaration(IVertexDeclaration* pVertDecl);
 
@@ -116,24 +135,32 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			IGraphicsContext*                    mpGraphicsContext;
+			IGraphicsContext*                                      mpGraphicsContext = nullptr;
+			IFileSystem*                                           mpFileSystem = nullptr;
 
-			TVertexDeclarationsArray             mVertexDeclarationsArray;
+			TVertexDeclarationsArray                               mVertexDeclarationsArray;
 
-			TFreeEntitiesRegistry                mFreeVertDeclsSlots;
+			TFreeEntitiesRegistry                                  mFreeVertDeclsSlots;
 
-			THashTable                           mTextureSamplesHashTable;
-			THashTable                           mBlendStatesHashTable;
+			THashTable                                             mTextureSamplesHashTable;
+			THashTable                                             mBlendStatesHashTable;
 
-			IDebugUtility*                       mpDebugUtility;
+			IDebugUtility*                                         mpDebugUtility;
 
-			IVertexDeclaration*                  mpDefaultPositionOnlyVertDeclaration = nullptr;
+			IVertexDeclaration*                                    mpDefaultPositionOnlyVertDeclaration = nullptr;
 
-			std::vector<TPtr<IGraphicsPipeline>> mpGraphicsPipelines;
-			std::vector<TPtr<IComputePipeline>>  mpComputePipelines;
-			
-			TGraphicsPipelineStatesTable         mGraphicsPipelinesHashTable;
-			TComputePipelineStatesTable          mComputePipelinesHashTable;
+			std::vector<TPtr<IGraphicsPipeline>>                   mpGraphicsPipelines;
+			std::vector<TPtr<IComputePipeline>>                    mpComputePipelines;
 
+			TShadersHashTable                                      mLoadedShadersTable{};
+
+			TGraphicsPipelineStatesTable                           mGraphicsPipelinesHashTable;
+			TComputePipelineStatesTable                            mComputePipelinesHashTable;
+
+			TPtr<IShaderCompiler>                                  mpShaderCompiler;
+			TPtr<IShaderCache>                                     mpShaderCache;
+
+			std::unordered_map<U32, std::vector<TTextureHandleId>> mTransientTexturesPool{};
+			std::unordered_map<U32, std::vector<TBufferHandleId>>  mTransientBuffersPool{};
 	};
 }

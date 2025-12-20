@@ -73,13 +73,4 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE Init(TInitArgs... args) = 0;
 	};
-
-
-	/*!
-		interface IShaderLoader
-
-		\brief The interface describes a functionality of a shaders loader
-	*/
-
-	class IShaderLoader : public IGenericResourceLoader<IResourceManager*, IGraphicsContext*, IFileSystem*, TPtr<IShaderCompiler>, TPtr<IShaderCache>> {};
 }

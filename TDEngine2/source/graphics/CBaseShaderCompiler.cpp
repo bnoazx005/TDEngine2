@@ -345,7 +345,7 @@ namespace TDEngine2
 	}
 
 
-	U32 CBaseShaderCompiler::mMaxStepsCount = 1000;
+	const U32 CBaseShaderCompiler::mMaxStepsCount = 1000;
 
 	const C8* CBaseShaderCompiler::mEntryPointsDefineNames[MaxNumOfShaderStages] = { "VERTEX_ENTRY", "PIXEL_ENTRY", "GEOMETRY_ENTRY", "COMPUTE_ENTRY" };
 
@@ -426,23 +426,6 @@ namespace TDEngine2
 				it->mTypeId = TDE2_TYPE_ID(TColor32F);
 			}
 		}
-	}
-
-	const C8* CBaseShaderCompiler::_getShaderStageDefineName(E_SHADER_STAGE_TYPE shaderStage) const
-	{
-		switch (shaderStage)
-		{
-			case SST_VERTEX:
-				return "VERTEX";
-			case SST_PIXEL:
-				return "PIXEL";
-			case SST_GEOMETRY:
-				return "GEOMETRY";
-			case SST_COMPUTE:
-				return "COMPUTE";
-		}
-
-		return nullptr;
 	}
 
 	CBaseShaderCompiler::TShaderMetadata CBaseShaderCompiler::_parseShader(CTokenizer& tokenizer, const TDefinesMap& definesTable, const TStagesRegionsMap& stagesRegionsInfo) const

@@ -21,7 +21,7 @@ namespace TDEngine2
 		\return A pointer to CD3D11GraphicsContext's implementation
 	*/
 
-	IGraphicsContext* CreateD3D11GraphicsContext(TPtr<IWindowSystem> pWindowSystem, E_RESULT_CODE& result);
+	IGraphicsContext* CreateD3D11GraphicsContext(TPtr<IWindowSystem> pWindowSystem, TPtr<IFileSystem> pFileSystem, E_RESULT_CODE& result);
 }
 
 #endif

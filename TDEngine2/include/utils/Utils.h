@@ -1057,5 +1057,5 @@ namespace TDEngine2
 
 
 	typedef std::vector<TEntityId> TEntitiesArray;
-	typedef Vector<TypeId>    TTypesArray;
+	typedef Vector<TypeId>         TTypesArray;
 }

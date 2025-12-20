@@ -17,7 +17,7 @@
 namespace TDEngine2
 {
 	class IGraphicsContext;
-	class IShader;
+	class IShaderImpl;
 
 
 	enum class TBufferHandleId : U32;
@@ -106,7 +106,7 @@ namespace TDEngine2
 				\param[in, out] pShader A pointer to IShader implementation
 			*/
 
-			TDE2_API virtual void Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray, IShader* pShader) = 0;
+			TDE2_API virtual void Bind(IGraphicsContext* pGraphicsContext, const CStaticArray<TBufferHandleId>& pVertexBuffersArray, IShaderImpl* pShader) = 0;
 
 			/*!
 				\brief The method returns current number of elements within the declaration

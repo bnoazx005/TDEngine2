@@ -1135,7 +1135,7 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CD3D12GraphicsContext::Init(TPtr<IWindowSystem> pWindowSystem)
+	E_RESULT_CODE CD3D12GraphicsContext::Init(TPtr<IWindowSystem> pWindowSystem, TPtr<IFileSystem> pFileSystem)
 	{
 		TDE2_PROFILER_SCOPE("CD3D12GraphicsContext::Init");
 
@@ -1144,12 +1144,13 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		if (!pWindowSystem)
+		if (!pWindowSystem || !pFileSystem)
 		{
 			return RC_INVALID_ARGS;
 		}
 
 		mpWindowSystem = pWindowSystem;
+		mpFileSystem = pFileSystem;
 
 		E_RESULT_CODE result = RC_OK;
 
@@ -1195,7 +1196,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		mpGraphicsObjectManager = TPtr<IGraphicsObjectManager>(CreateD3D12GraphicsObjectManager(this, result));
+		mpGraphicsObjectManager = TPtr<IGraphicsObjectManager>(CreateD3D12GraphicsObjectManager(this, mpFileSystem.Get(), result));
 		mpGraphicsObjectManagerD3D12Impl = dynamic_cast<CD3D12GraphicsObjectManager*>(mpGraphicsObjectManager.Get());
 
 		if (result != RC_OK)
@@ -2541,9 +2542,9 @@ namespace TDEngine2
 	}
 
 
-	IGraphicsContext* CreateD3D12GraphicsContext(TPtr<IWindowSystem> pWindowSystem, E_RESULT_CODE& result)
+	IGraphicsContext* CreateD3D12GraphicsContext(TPtr<IWindowSystem> pWindowSystem, TPtr<IFileSystem> pFileSystem, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IGraphicsContext, CD3D12GraphicsContext, result, pWindowSystem);
+		return CREATE_IMPL(IGraphicsContext, CD3D12GraphicsContext, result, pWindowSystem, pFileSystem);
 	}
 }
 
