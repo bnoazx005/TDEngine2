@@ -342,6 +342,8 @@ namespace TDEngine2
 
 	TResult<TShaderHandleId> CBaseGraphicsObjectManager::LoadShader(const std::string& shaderId)
 	{
+		TDE2_PROFILER_SCOPE("CBaseGraphicsObjectManager::LoadShader");
+
 		const U32 hash = TDE2_STRING_ID(shaderId.c_str());
 
 		auto existingItemIt = mLoadedShadersTable.find(hash);

@@ -8,6 +8,7 @@
 #include <graphics/IShader.h>
 #include <graphics/CVertexDeclaration.h>
 #include <utils/CFileLogger.h>
+#include <editor/CPerfProfiler.h>
 #define DEFER_IMPLEMENTATION
 #include "deferOperation.hpp"
 #include <unordered_set>
@@ -1300,6 +1301,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D12GraphicsPipeline::Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig)
 	{
+		TDE2_PROFILER_SCOPE("CD3D12GraphicsPipeline::Init");
+
 		E_RESULT_CODE result = CBaseGraphicsPipeline::Init(pGraphicsContext, pResourceManager, pipelineConfig);
 		if (RC_OK != result)
 		{
@@ -1435,6 +1438,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D12ComputePipeline::Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const std::string& shaderId)
 	{
+		TDE2_PROFILER_SCOPE("CD3D12ComputePipeline::Init");
+
 		E_RESULT_CODE result = CBaseComputePipeline::Init(pGraphicsContext, pResourceManager, shaderId);
 		if (RC_OK != result)
 		{

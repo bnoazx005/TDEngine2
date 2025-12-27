@@ -140,6 +140,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseGraphicsPipeline::Bind()
 	{
+		TDE2_PROFILER_SCOPE("CBaseGraphicsPipeline::Bind");
+
 		if (TResourceId::Invalid == mCachedShaderHandle)
 		{
 			mCachedShaderHandle = mpResourceManager->Load<IShader>(mConfig.mShaderIdStr);
@@ -383,6 +385,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseComputePipeline::Bind()
 	{
+		TDE2_PROFILER_SCOPE("CBaseComputePipeline::Bind");
+
 		if (TPtr<IShader> pShaderInstance = GetShaderPtr())
 		{
 			pShaderInstance->Bind();
