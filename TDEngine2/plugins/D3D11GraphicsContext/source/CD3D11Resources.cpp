@@ -434,6 +434,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D11ShaderImpl::_createInternalHandlers(const TShaderCompilerOutput* pCompilerData)
 	{
+		TDE2_PROFILER_SCOPE("CD3D11ShaderImpl::_createInternalHandlers");
+
 		if (!pCompilerData)
 		{
 			return RC_INVALID_ARGS;
@@ -615,7 +617,7 @@ namespace TDEngine2
 			}
 		}
 
-		textureDesc.CPUAccessFlags = isDepthBufferResource ? 0 : D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
+		textureDesc.CPUAccessFlags = (isDepthBufferResource || !isCPUAccessible) ? 0 : D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
 		textureDesc.Usage = isCPUAccessible ? D3D11_USAGE_STAGING : D3D11_USAGE_DEFAULT;
 		textureDesc.MiscFlags =
 			((params.mType == E_TEXTURE_IMPL_TYPE::CUBEMAP) ? D3D11_RESOURCE_MISC_TEXTURECUBE : 0x0) |

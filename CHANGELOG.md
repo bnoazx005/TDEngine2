@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.33] 2025-12-26
+## [0.6.33] 2025-12-27
 
 ### Added
 
@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - (Issue #98) Now all DLL dependencies of D3D12GraphicsContext are automatically copied into engine's binaries directory.
+
+- The issue that all render targets were created with CPU access flags under D3D11 grapics context was fixed.
 
 ## [0.6.32] 2025-11-15
 
