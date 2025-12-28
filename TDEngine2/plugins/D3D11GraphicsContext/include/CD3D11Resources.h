@@ -380,7 +380,7 @@ namespace TDEngine2
 	};
 
 
-	TDE2_API IGraphicsPipeline* CreateD3D11GraphicsPipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig, E_RESULT_CODE& result);
+	TDE2_API IGraphicsPipeline* CreateD3D11GraphicsPipeline(IGraphicsContext* pGraphicsContext, const TGraphicsPipelineConfigDesc& pipelineConfig, E_RESULT_CODE& result);
 }
 
 #endif

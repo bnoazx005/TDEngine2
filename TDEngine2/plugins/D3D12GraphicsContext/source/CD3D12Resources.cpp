@@ -1299,11 +1299,11 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CD3D12GraphicsPipeline::Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig)
+	E_RESULT_CODE CD3D12GraphicsPipeline::Init(IGraphicsContext* pGraphicsContext, const TGraphicsPipelineConfigDesc& pipelineConfig)
 	{
 		TDE2_PROFILER_SCOPE("CD3D12GraphicsPipeline::Init");
 
-		E_RESULT_CODE result = CBaseGraphicsPipeline::Init(pGraphicsContext, pResourceManager, pipelineConfig);
+		E_RESULT_CODE result = CBaseGraphicsPipeline::Init(pGraphicsContext, pipelineConfig);
 		if (RC_OK != result)
 		{
 			return result;
@@ -1421,9 +1421,9 @@ namespace TDEngine2
 	TDE2_DEFINE_SCOPED_PTR(CD3D12GraphicsPipeline);
 
 
-	IGraphicsPipeline* CreateD3D12GraphicsPipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& config, E_RESULT_CODE& result)
+	IGraphicsPipeline* CreateD3D12GraphicsPipeline(IGraphicsContext* pGraphicsContext, const TGraphicsPipelineConfigDesc& config, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IGraphicsPipeline, CD3D12GraphicsPipeline, result, pGraphicsContext, pResourceManager, config);
+		return CREATE_IMPL(IGraphicsPipeline, CD3D12GraphicsPipeline, result, pGraphicsContext, config);
 	}
 
 
@@ -1436,11 +1436,11 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CD3D12ComputePipeline::Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const std::string& shaderId)
+	E_RESULT_CODE CD3D12ComputePipeline::Init(IGraphicsContext* pGraphicsContext, const std::string& shaderId)
 	{
 		TDE2_PROFILER_SCOPE("CD3D12ComputePipeline::Init");
 
-		E_RESULT_CODE result = CBaseComputePipeline::Init(pGraphicsContext, pResourceManager, shaderId);
+		E_RESULT_CODE result = CBaseComputePipeline::Init(pGraphicsContext, shaderId);
 		if (RC_OK != result)
 		{
 			return result;
@@ -1501,9 +1501,9 @@ namespace TDEngine2
 	TDE2_DEFINE_SCOPED_PTR(CD3D12ComputePipeline);
 
 
-	IComputePipeline* CreateD3D12ComputePipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const std::string& shaderId, E_RESULT_CODE& result)
+	IComputePipeline* CreateD3D12ComputePipeline(IGraphicsContext* pGraphicsContext, const std::string& shaderId, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IComputePipeline, CD3D12ComputePipeline, result, pGraphicsContext, pResourceManager, shaderId);
+		return CREATE_IMPL(IComputePipeline, CD3D12ComputePipeline, result, pGraphicsContext, shaderId);
 	}
 }
 

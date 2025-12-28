@@ -111,24 +111,23 @@ namespace TDEngine2
 
 
 	CBaseGraphicsPipeline::CBaseGraphicsPipeline():
-		CBaseObject()
+		CBaseObject(), mCachedShaderHandle(TShaderHandleId::Invalid)
 	{
 	}
 
-	E_RESULT_CODE CBaseGraphicsPipeline::Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig)
+	E_RESULT_CODE CBaseGraphicsPipeline::Init(IGraphicsContext* pGraphicsContext, const TGraphicsPipelineConfigDesc& pipelineConfig)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pGraphicsContext || !pResourceManager)
+		if (!pGraphicsContext)
 		{
 			return RC_INVALID_ARGS;
 		}
 
 		mpGraphicsContext = pGraphicsContext;
-		mpResourceManager = pResourceManager;
 		mpGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
 
 		mConfig = pipelineConfig;
@@ -142,12 +141,12 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("CBaseGraphicsPipeline::Bind");
 
-		if (TResourceId::Invalid == mCachedShaderHandle)
+		if (TShaderHandleId::Invalid == mCachedShaderHandle)
 		{
-			mCachedShaderHandle = mpResourceManager->Load<IShader>(mConfig.mShaderIdStr);
+			mCachedShaderHandle = mpGraphicsObjectManager->LoadShader(mConfig.mShaderIdStr).GetOrDefault(TShaderHandleId::Invalid);
 		}
 
-		if (TPtr<IShader> pShaderInstance = mpResourceManager->GetResource<IShader>(mCachedShaderHandle))
+		if (TPtr<IShaderImpl> pShaderInstance = mpGraphicsObjectManager->GetShaderPtr(mCachedShaderHandle))
 		{
 			pShaderInstance->Bind();
 		}
@@ -166,9 +165,9 @@ namespace TDEngine2
 	}
 
 
-	TDE2_API IGraphicsPipeline* CreateBaseGraphicsPipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig, E_RESULT_CODE& result)
+	TDE2_API IGraphicsPipeline* CreateBaseGraphicsPipeline(IGraphicsContext* pGraphicsContext, const TGraphicsPipelineConfigDesc& pipelineConfig, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IGraphicsPipeline, CBaseGraphicsPipeline, result, pGraphicsContext, pResourceManager, pipelineConfig);
+		return CREATE_IMPL(IGraphicsPipeline, CBaseGraphicsPipeline, result, pGraphicsContext, pipelineConfig);
 	}
 
 
@@ -356,24 +355,23 @@ namespace TDEngine2
 	*/	
 	
 	CBaseComputePipeline::CBaseComputePipeline() :
-		CBaseObject()
+		CBaseObject(), mCachedShaderHandle(TShaderHandleId::Invalid)
 	{
 	}
 
-	E_RESULT_CODE CBaseComputePipeline::Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const std::string& shaderId)
+	E_RESULT_CODE CBaseComputePipeline::Init(IGraphicsContext* pGraphicsContext, const std::string& shaderId)
 	{
 		if (mIsInitialized)
 		{
 			return RC_FAIL;
 		}
 
-		if (!pGraphicsContext || !pResourceManager)
+		if (!pGraphicsContext)
 		{
 			return RC_INVALID_ARGS;
 		}
 
 		mpGraphicsContext = pGraphicsContext;
-		mpResourceManager = pResourceManager;
 		mpGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
 
 		mShaderIdStr = shaderId;
@@ -387,7 +385,7 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("CBaseComputePipeline::Bind");
 
-		if (TPtr<IShader> pShaderInstance = GetShaderPtr())
+		if (TPtr<IShaderImpl> pShaderInstance = GetShaderPtr())
 		{
 			pShaderInstance->Bind();
 		}
@@ -395,14 +393,14 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	TPtr<IShader> CBaseComputePipeline::GetShaderPtr() const
+	TPtr<IShaderImpl> CBaseComputePipeline::GetShaderPtr() const
 	{
-		if (TResourceId::Invalid == mCachedShaderHandle)
+		if (TShaderHandleId::Invalid == mCachedShaderHandle)
 		{
-			mCachedShaderHandle = mpResourceManager->Load<IShader>(mShaderIdStr);
+			mCachedShaderHandle = mpGraphicsObjectManager->LoadShader(mShaderIdStr).GetOrDefault(TShaderHandleId::Invalid);
 		}
 
-		return mpResourceManager->GetResource<IShader>(mCachedShaderHandle);
+		return mpGraphicsObjectManager->GetShaderPtr(mCachedShaderHandle);
 	}
 
 	const std::string& CBaseComputePipeline::GetShaderId() const
@@ -416,8 +414,8 @@ namespace TDEngine2
 	}
 	
 	
-	TDE2_API IComputePipeline* CreateBaseComputePipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const std::string& shaderId, E_RESULT_CODE& result)
+	TDE2_API IComputePipeline* CreateBaseComputePipeline(IGraphicsContext* pGraphicsContext, const std::string& shaderId, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IComputePipeline, CBaseComputePipeline, result, pGraphicsContext, pResourceManager, shaderId);
+		return CREATE_IMPL(IComputePipeline, CBaseComputePipeline, result, pGraphicsContext, shaderId);
 	}
 }

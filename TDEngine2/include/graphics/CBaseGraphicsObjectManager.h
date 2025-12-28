@@ -67,8 +67,8 @@ namespace TDEngine2
 			TDE2_API TResult<TBufferHandleId> CreateBuffer(const TInitBufferParams& params) override;
 			TDE2_API TResult<TTextureHandleId> CreateTexture(const TInitTextureImplParams& params) override;
 			
-			TDE2_API TResult<TGraphicsPipelineStateId> CreateGraphicsPipelineState(TPtr<IResourceManager> pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfigDesc) override;
-			TDE2_API TResult<TComputePipelineStateId> CreateComputePipelineState(TPtr<IResourceManager> pResourceManager, const std::string& shaderId) override;
+			TDE2_API TResult<TGraphicsPipelineStateId> CreateGraphicsPipelineState(const TGraphicsPipelineConfigDesc& pipelineConfigDesc) override;
+			TDE2_API TResult<TComputePipelineStateId> CreateComputePipelineState(const std::string& shaderId) override;
 
 			TDE2_API TResult<TPtr<IShaderCache>> CreateShaderCache(bool isReadOnly = true) override;
 
@@ -110,8 +110,8 @@ namespace TDEngine2
 			TDE2_API virtual TPtr<ITextureImpl> _createTextureInternal(const TInitTextureImplParams& params) = 0;
 			TDE2_API virtual TPtr<IShaderImpl> _createShaderImplInternal(const std::string& shaderId) = 0;
 
-			TDE2_API virtual TPtr<IGraphicsPipeline> _createGraphicsPipelineInternal(IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfigDesc);
-			TDE2_API virtual TPtr<IComputePipeline> _createComputePipelineInternal(IResourceManager* pResourceManager, const std::string& shaderId);
+			TDE2_API virtual TPtr<IGraphicsPipeline> _createGraphicsPipelineInternal(const TGraphicsPipelineConfigDesc& pipelineConfigDesc);
+			TDE2_API virtual TPtr<IComputePipeline> _createComputePipelineInternal(const std::string& shaderId);
 
 			TDE2_API virtual USIZE _insertBuffer(TPtr<IBuffer> pObject) = 0;
 			TDE2_API virtual USIZE _insertTexture(TPtr<ITextureImpl> pObject) = 0;

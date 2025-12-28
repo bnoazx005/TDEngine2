@@ -253,16 +253,16 @@ namespace TDEngine2
 		return { TVector4(-1.0f, -1.0f, 0.0f, 0.0f), TVector4(-1.0f, 3.0f, 0.0f, 2.0f), TVector4(3.0f, -1.0f, 2.0f, 0.0f) };
 	}
 
-	TPtr<IGraphicsPipeline> CD3D12GraphicsObjectManager::_createGraphicsPipelineInternal(IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfigDesc)
+	TPtr<IGraphicsPipeline> CD3D12GraphicsObjectManager::_createGraphicsPipelineInternal(const TGraphicsPipelineConfigDesc& pipelineConfigDesc)
 	{
 		E_RESULT_CODE result = RC_OK;
-		return TPtr<IGraphicsPipeline>(CreateD3D12GraphicsPipeline(mpGraphicsContext, pResourceManager, pipelineConfigDesc, result));
+		return TPtr<IGraphicsPipeline>(CreateD3D12GraphicsPipeline(mpGraphicsContext, pipelineConfigDesc, result));
 	}
 
-	TPtr<IComputePipeline> CD3D12GraphicsObjectManager::_createComputePipelineInternal(IResourceManager* pResourceManager, const std::string& shaderId)
+	TPtr<IComputePipeline> CD3D12GraphicsObjectManager::_createComputePipelineInternal(const std::string& shaderId)
 	{
 		E_RESULT_CODE result = RC_OK;
-		return TPtr<IComputePipeline>(CreateD3D12ComputePipeline(mpGraphicsContext, pResourceManager, shaderId, result));
+		return TPtr<IComputePipeline>(CreateD3D12ComputePipeline(mpGraphicsContext, shaderId, result));
 	}
 
 	TPtr<IBuffer> CD3D12GraphicsObjectManager::_createBufferInternal(const TInitBufferParams& params)

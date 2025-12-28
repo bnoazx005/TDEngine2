@@ -567,7 +567,7 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("InitGPUSort");
 
-		GpuSortLibContext.mInitSortPipelineHandle = pGraphicsContext->GetGraphicsObjectManager()->CreateComputePipelineState(pResourceManager, CProjectSettings::Get()->mGraphicsSettings.mInitSortComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
+		GpuSortLibContext.mInitSortPipelineHandle = pGraphicsContext->GetGraphicsObjectManager()->CreateComputePipelineState(CProjectSettings::Get()->mGraphicsSettings.mInitSortComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
 		TDE2_ASSERT(TComputePipelineStateId::Invalid != GpuSortLibContext.mInitSortPipelineHandle);
 
 		TPtr<IComputePipeline> pInitSortPipeline = pGraphicsContext->GetGraphicsObjectManager()->GetComputePipeline(GpuSortLibContext.mInitSortPipelineHandle);
@@ -576,7 +576,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		TPtr<IShader> pInitSortShader = pInitSortPipeline->GetShaderPtr();
+		TPtr<IShaderImpl> pInitSortShader = pInitSortPipeline->GetShaderPtr();
 		if (!pInitSortShader)
 		{
 			return RC_FAIL;
@@ -623,7 +623,7 @@ namespace TDEngine2
 		const U32 threadGroupsCount = ((maxCount - 1) >> 9) + 1;
 		TDE2_ASSERT(threadGroupsCount <= 1024);
 
-		GpuSortLibContext.mSortPipelineHandle = pGraphicsContext->GetGraphicsObjectManager()->CreateComputePipelineState(pResourceManager, CProjectSettings::Get()->mGraphicsSettings.mSortComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
+		GpuSortLibContext.mSortPipelineHandle = pGraphicsContext->GetGraphicsObjectManager()->CreateComputePipelineState(CProjectSettings::Get()->mGraphicsSettings.mSortComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
 		TDE2_ASSERT(TComputePipelineStateId::Invalid != GpuSortLibContext.mSortPipelineHandle);
 
 		TPtr<IComputePipeline> pSortPipeline = pGraphicsContext->GetGraphicsObjectManager()->GetComputePipeline(GpuSortLibContext.mSortPipelineHandle);
@@ -632,7 +632,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		TPtr<IShader> pSortShader = pSortPipeline->GetShaderPtr();
+		TPtr<IShaderImpl> pSortShader = pSortPipeline->GetShaderPtr();
 		if (!pSortShader)
 		{
 			return RC_FAIL;
@@ -654,7 +654,7 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("GPUSortIncremental");
 
-		GpuSortLibContext.mSortStepPipelineHandle = pGraphicsContext->GetGraphicsObjectManager()->CreateComputePipelineState(pResourceManager, CProjectSettings::Get()->mGraphicsSettings.mSortStepComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
+		GpuSortLibContext.mSortStepPipelineHandle = pGraphicsContext->GetGraphicsObjectManager()->CreateComputePipelineState(CProjectSettings::Get()->mGraphicsSettings.mSortStepComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
 		TDE2_ASSERT(TComputePipelineStateId::Invalid != GpuSortLibContext.mSortStepPipelineHandle);
 
 		TPtr<IComputePipeline> pSortStepPipeline = pGraphicsContext->GetGraphicsObjectManager()->GetComputePipeline(GpuSortLibContext.mSortStepPipelineHandle);
@@ -663,7 +663,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		TPtr<IShader> pSortStepShader = pSortStepPipeline->GetShaderPtr();
+		TPtr<IShaderImpl> pSortStepShader = pSortStepPipeline->GetShaderPtr();
 		if (!pSortStepShader)
 		{
 			return RC_FAIL;
@@ -715,7 +715,7 @@ namespace TDEngine2
 			pGraphicsContext->DispatchCompute(threadGroupsCount, 1, 1);
 		}
 
-		GpuSortLibContext.mSortInnerPipelineHandle = pGraphicsContext->GetGraphicsObjectManager()->CreateComputePipelineState(pResourceManager, CProjectSettings::Get()->mGraphicsSettings.mSortInnerComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
+		GpuSortLibContext.mSortInnerPipelineHandle = pGraphicsContext->GetGraphicsObjectManager()->CreateComputePipelineState(CProjectSettings::Get()->mGraphicsSettings.mSortInnerComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
 		TDE2_ASSERT(TComputePipelineStateId::Invalid != GpuSortLibContext.mSortInnerPipelineHandle);
 
 		TPtr<IComputePipeline> pSortInnerPipeline = pGraphicsContext->GetGraphicsObjectManager()->GetComputePipeline(GpuSortLibContext.mSortInnerPipelineHandle);
@@ -724,7 +724,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		TPtr<IShader> pSortInnerShader = pSortInnerPipeline->GetShaderPtr();
+		TPtr<IShaderImpl> pSortInnerShader = pSortInnerPipeline->GetShaderPtr();
 		if (!pSortInnerShader)
 		{
 			return RC_FAIL;

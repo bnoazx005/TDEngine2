@@ -339,8 +339,8 @@ namespace TDEngine2
 			TShaderHandleId              mShaderResourceHandle;
 	};
 
-	TDE2_API IGraphicsPipeline* CreateD3D12GraphicsPipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig, E_RESULT_CODE& result);
-	TDE2_API IComputePipeline* CreateD3D12ComputePipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const std::string& shaderId, E_RESULT_CODE& result);
+	TDE2_API IGraphicsPipeline* CreateD3D12GraphicsPipeline(IGraphicsContext* pGraphicsContext, const TGraphicsPipelineConfigDesc& pipelineConfig, E_RESULT_CODE& result);
+	TDE2_API IComputePipeline* CreateD3D12ComputePipeline(IGraphicsContext* pGraphicsContext, const std::string& shaderId, E_RESULT_CODE& result);
 
 
 	/*!
@@ -350,9 +350,9 @@ namespace TDEngine2
 	class CD3D12GraphicsPipeline : public CBaseGraphicsPipeline, public CD3D12BasePipeline
 	{
 		public:
-			TDE2_API friend IGraphicsPipeline* CreateD3D12GraphicsPipeline(IGraphicsContext*, IResourceManager*, const TGraphicsPipelineConfigDesc&, E_RESULT_CODE&);
+			TDE2_API friend IGraphicsPipeline* CreateD3D12GraphicsPipeline(IGraphicsContext*, const TGraphicsPipelineConfigDesc&, E_RESULT_CODE&);
 		public:
-			E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig) override;
+			E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, const TGraphicsPipelineConfigDesc& pipelineConfig) override;
 			E_RESULT_CODE Bind() override;
 
 			ComPtr<ID3D12PipelineState> GetPipelineForRenderPass(const TRenderPassInfo& renderPassInfo);
@@ -368,9 +368,9 @@ namespace TDEngine2
 	class CD3D12ComputePipeline : public CBaseComputePipeline, public CD3D12BasePipeline
 	{
 		public:
-			TDE2_API friend IComputePipeline* CreateD3D12ComputePipeline(IGraphicsContext*, IResourceManager*, const std::string&, E_RESULT_CODE&);
+			TDE2_API friend IComputePipeline* CreateD3D12ComputePipeline(IGraphicsContext*, const std::string&, E_RESULT_CODE&);
 		public:
-			E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const std::string& shaderId) override;
+			E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, const std::string& shaderId) override;
 			E_RESULT_CODE Bind() override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D12ComputePipeline)

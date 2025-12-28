@@ -15,8 +15,7 @@
 namespace TDEngine2
 {
 	class IGraphicsContext;
-	class IResourceManager;
-	class IShader;
+	class IShaderImpl;
 
 
 	enum class E_PIPELINE_TYPE : U32
@@ -48,13 +47,12 @@ namespace TDEngine2
 				\brief The method initializes an internal state of a pipeline
 
 				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
-				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
 				\param[in, out] pipelineConfig A desc with parameters of a graphics pipeline
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, const TGraphicsPipelineConfigDesc& pipelineConfig) = 0;
 
 			TDE2_API virtual const TGraphicsPipelineConfigDesc& GetConfig() const = 0;
 		protected:
@@ -73,15 +71,14 @@ namespace TDEngine2
 				\brief The method initializes an internal state of a pipeline
 
 				\param[in, out] pGraphicsContext A pointer to IGraphicsContext's implementation
-				\param[in, out] pResourceManager A pointer to IResourceManager's implementation
 				\param[in, out] shaderId 
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const std::string& shaderId) = 0;
+			TDE2_API virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, const std::string& shaderId) = 0;
 
-			TDE2_API virtual TPtr<IShader> GetShaderPtr() const = 0;
+			TDE2_API virtual TPtr<IShaderImpl> GetShaderPtr() const = 0;
 			TDE2_API virtual const std::string& GetShaderId() const = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IComputePipeline)

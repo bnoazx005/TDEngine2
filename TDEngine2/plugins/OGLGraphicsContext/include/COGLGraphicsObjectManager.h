@@ -186,7 +186,7 @@ namespace TDEngine2
 			TPtr<ITextureImpl> _createTextureInternal(const TInitTextureImplParams& params) override;
 			TPtr<IShaderImpl> _createShaderImplInternal(const std::string& shaderId) override;
 
-			TPtr<IGraphicsPipeline> _createGraphicsPipelineInternal(IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfigDesc) override;
+			TPtr<IGraphicsPipeline> _createGraphicsPipelineInternal(const TGraphicsPipelineConfigDesc& pipelineConfigDesc) override;
 
 			USIZE _insertBuffer(TPtr<IBuffer> pObject) override;
 			USIZE _insertTexture(TPtr<ITextureImpl> pObject) override;

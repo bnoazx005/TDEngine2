@@ -325,8 +325,8 @@ namespace TDEngine2
 	};
 
 
-	TDE2_API IGraphicsPipeline* CreateVulkanGraphicsPipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig, E_RESULT_CODE& result);
-	TDE2_API IComputePipeline* CreateVulkanComputePipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const std::string& shaderId, E_RESULT_CODE& result);
+	TDE2_API IGraphicsPipeline* CreateVulkanGraphicsPipeline(IGraphicsContext* pGraphicsContext, const TGraphicsPipelineConfigDesc& pipelineConfig, E_RESULT_CODE& result);
+	TDE2_API IComputePipeline* CreateVulkanComputePipeline(IGraphicsContext* pGraphicsContext, const std::string& shaderId, E_RESULT_CODE& result);
 
 
 	/*!
@@ -336,9 +336,9 @@ namespace TDEngine2
 	class CVulkanGraphicsPipeline : public CBaseGraphicsPipeline, public CVulkanBasePipeline
 	{
 		public:
-			TDE2_API friend IGraphicsPipeline* CreateVulkanGraphicsPipeline(IGraphicsContext*, IResourceManager*, const TGraphicsPipelineConfigDesc&, E_RESULT_CODE&);
+			TDE2_API friend IGraphicsPipeline* CreateVulkanGraphicsPipeline(IGraphicsContext*, const TGraphicsPipelineConfigDesc&, E_RESULT_CODE&);
 		public:
-			E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig) override;
+			E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, const TGraphicsPipelineConfigDesc& pipelineConfig) override;
 			E_RESULT_CODE Bind() override;
 
 			VkPipeline GetPipelineForRenderPass(const TRenderPassInfo& renderPassInfo);
@@ -360,9 +360,9 @@ namespace TDEngine2
 	class CVulkanComputePipeline : public CBaseComputePipeline, public CVulkanBasePipeline
 	{
 		public:
-			TDE2_API friend IComputePipeline* CreateVulkanComputePipeline(IGraphicsContext*, IResourceManager*, const std::string&, E_RESULT_CODE&);
+			TDE2_API friend IComputePipeline* CreateVulkanComputePipeline(IGraphicsContext*, const std::string&, E_RESULT_CODE&);
 		public:
-			E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const std::string& shaderId) override;
+			E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext, const std::string& shaderId) override;
 			E_RESULT_CODE Bind() override;
 
 			U32 GetHash() const override;

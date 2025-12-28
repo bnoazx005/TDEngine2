@@ -938,7 +938,7 @@ namespace TDEngine2
 	class CGLGraphicsPipeline : public CBaseGraphicsPipeline
 	{
 		public:
-			friend IGraphicsPipeline* CreateGLGraphicsPipeline(IGraphicsContext*, IResourceManager*, const TGraphicsPipelineConfigDesc&, E_RESULT_CODE&);
+			friend IGraphicsPipeline* CreateGLGraphicsPipeline(IGraphicsContext*, const TGraphicsPipelineConfigDesc&, E_RESULT_CODE&);
 		public:
 			E_RESULT_CODE Bind() override;
 		protected:
@@ -993,8 +993,8 @@ namespace TDEngine2
 	}
 
 
-	IGraphicsPipeline* CreateGLGraphicsPipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& config, E_RESULT_CODE& result)
+	IGraphicsPipeline* CreateGLGraphicsPipeline(IGraphicsContext* pGraphicsContext, const TGraphicsPipelineConfigDesc& config, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IGraphicsPipeline, CGLGraphicsPipeline, result, pGraphicsContext, pResourceManager, config);
+		return CREATE_IMPL(IGraphicsPipeline, CGLGraphicsPipeline, result, pGraphicsContext, config);
 	}
 }

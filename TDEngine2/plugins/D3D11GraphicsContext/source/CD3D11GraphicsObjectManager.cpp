@@ -449,10 +449,10 @@ namespace TDEngine2
 		return TPtr<ITextureImpl>(CreateD3D11TextureImpl(mpGraphicsContext, params, result));
 	}
 
-	TPtr<IGraphicsPipeline> CD3D11GraphicsObjectManager::_createGraphicsPipelineInternal(IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfigDesc)
+	TPtr<IGraphicsPipeline> CD3D11GraphicsObjectManager::_createGraphicsPipelineInternal(const TGraphicsPipelineConfigDesc& pipelineConfigDesc)
 	{
 		E_RESULT_CODE result = RC_OK;
-		return TPtr<IGraphicsPipeline>(CreateD3D11GraphicsPipeline(mpGraphicsContext, pResourceManager, pipelineConfigDesc, result));
+		return TPtr<IGraphicsPipeline>(CreateD3D11GraphicsPipeline(mpGraphicsContext, pipelineConfigDesc, result));
 	}
 
 	TPtr<IShaderImpl> CD3D11GraphicsObjectManager::_createShaderImplInternal(const std::string& shaderId)

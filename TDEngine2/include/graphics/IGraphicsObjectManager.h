@@ -112,8 +112,8 @@ namespace TDEngine2
 
 			TDE2_API virtual TResult<TTextureSamplerId> CreateTextureSampler(const TTextureSamplerDesc& samplerDesc) = 0;
 
-			TDE2_API virtual TResult<TGraphicsPipelineStateId> CreateGraphicsPipelineState(TPtr<IResourceManager> pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfigDesc) = 0;
-			TDE2_API virtual TResult<TComputePipelineStateId> CreateComputePipelineState(TPtr<IResourceManager> pResourceManager, const std::string& shaderId) = 0;
+			TDE2_API virtual TResult<TGraphicsPipelineStateId> CreateGraphicsPipelineState(const TGraphicsPipelineConfigDesc& pipelineConfigDesc) = 0;
+			TDE2_API virtual TResult<TComputePipelineStateId> CreateComputePipelineState(const std::string& shaderId) = 0;
 
 			/*!
 				\brief The method is a factory for creation of a debug helper object

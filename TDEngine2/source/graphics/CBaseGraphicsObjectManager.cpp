@@ -206,7 +206,7 @@ namespace TDEngine2
 		return Wrench::TOkValue<TTextureHandleId>(static_cast<TTextureHandleId>(placementIndex));
 	}
 
-	TResult<TGraphicsPipelineStateId> CBaseGraphicsObjectManager::CreateGraphicsPipelineState(TPtr<IResourceManager> pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfigDesc)
+	TResult<TGraphicsPipelineStateId> CBaseGraphicsObjectManager::CreateGraphicsPipelineState(const TGraphicsPipelineConfigDesc& pipelineConfigDesc)
 	{
 		const U32 hash = ComputeStateDescHash(pipelineConfigDesc);
 
@@ -216,7 +216,7 @@ namespace TDEngine2
 			return Wrench::TOkValue<TGraphicsPipelineStateId>(existingItemIt->second);
 		}
 
-		TPtr<IGraphicsPipeline> pGraphicsPipeline = _createGraphicsPipelineInternal(pResourceManager.Get(), pipelineConfigDesc);
+		TPtr<IGraphicsPipeline> pGraphicsPipeline = _createGraphicsPipelineInternal(pipelineConfigDesc);
 		if (!pGraphicsPipeline)
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
@@ -239,7 +239,7 @@ namespace TDEngine2
 		return Wrench::TOkValue<TGraphicsPipelineStateId>(static_cast<TGraphicsPipelineStateId>(placementIndex));
 	}
 
-	TResult<TComputePipelineStateId> CBaseGraphicsObjectManager::CreateComputePipelineState(TPtr<IResourceManager> pResourceManager, const std::string& shaderId)
+	TResult<TComputePipelineStateId> CBaseGraphicsObjectManager::CreateComputePipelineState(const std::string& shaderId)
 	{
 		const U32 hash = TDE2_STRING_ID(shaderId.c_str());
 
@@ -249,7 +249,7 @@ namespace TDEngine2
 			return Wrench::TOkValue<TComputePipelineStateId>(existingItemIt->second);
 		}
 
-		TPtr<IComputePipeline> pComputePipeline = _createComputePipelineInternal(pResourceManager.Get(), shaderId);
+		TPtr<IComputePipeline> pComputePipeline = _createComputePipelineInternal(shaderId);
 		if (!pComputePipeline)
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
@@ -468,16 +468,16 @@ namespace TDEngine2
 		return mpDefaultPositionOnlyVertDeclaration;
 	}
 
-	TPtr<IGraphicsPipeline> CBaseGraphicsObjectManager::_createGraphicsPipelineInternal(IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfigDesc)
+	TPtr<IGraphicsPipeline> CBaseGraphicsObjectManager::_createGraphicsPipelineInternal(const TGraphicsPipelineConfigDesc& pipelineConfigDesc)
 	{
 		E_RESULT_CODE result = RC_OK;
-		return TPtr<IGraphicsPipeline>(CreateBaseGraphicsPipeline(mpGraphicsContext, pResourceManager, pipelineConfigDesc, result));
+		return TPtr<IGraphicsPipeline>(CreateBaseGraphicsPipeline(mpGraphicsContext, pipelineConfigDesc, result));
 	}
 
-	TPtr<IComputePipeline> CBaseGraphicsObjectManager::_createComputePipelineInternal(IResourceManager* pResourceManager, const std::string& shaderId)
+	TPtr<IComputePipeline> CBaseGraphicsObjectManager::_createComputePipelineInternal(const std::string& shaderId)
 	{
 		E_RESULT_CODE result = RC_OK;
-		return TPtr<IComputePipeline>(CreateBaseComputePipeline(mpGraphicsContext, pResourceManager, shaderId, result));
+		return TPtr<IComputePipeline>(CreateBaseComputePipeline(mpGraphicsContext, shaderId, result));
 	}
 
 	void CBaseGraphicsObjectManager::_insertVertexDeclaration(IVertexDeclaration* pVertDecl)

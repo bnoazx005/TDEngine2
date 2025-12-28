@@ -691,7 +691,7 @@ namespace TDEngine2
 
 						TFrameGraphBuffer& tileFrustumsBufferHandle = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(lightCullingData.mTileFrustumsBufferHandle);
 
-						auto pLightCullPipeline = pGraphicsObjectManager->GetComputePipeline(pGraphicsObjectManager->CreateComputePipelineState(pResourceManager, "Shaders/Default/ForwardLightCulling.cshader").GetOrDefault(TComputePipelineStateId::Invalid));
+						auto pLightCullPipeline = pGraphicsObjectManager->GetComputePipeline(pGraphicsObjectManager->CreateComputePipelineState("Shaders/Default/ForwardLightCulling.cshader").GetOrDefault(TComputePipelineStateId::Invalid));
 						auto pLightCullShader = pLightCullPipeline->GetShaderPtr();
 
 						if (pLightCullShader)
@@ -1169,7 +1169,7 @@ namespace TDEngine2
 						LOG_MESSAGE("[GenerateCloudsNoiseTexture] Start generate low frequency clouds noise 3D texture...");
 
 						auto pLowFreqNoiseComputePipeline = pGraphicsObjectManager->GetComputePipeline(
-							pGraphicsObjectManager->CreateComputePipelineState(pResourceManager, "Shaders/Default/Volumetrics/GenerateLowFreqCloudsNoise.cshader").GetOrDefault(TComputePipelineStateId::Invalid));
+							pGraphicsObjectManager->CreateComputePipelineState("Shaders/Default/Volumetrics/GenerateLowFreqCloudsNoise.cshader").GetOrDefault(TComputePipelineStateId::Invalid));
 
 						auto pLowFreqCloudsNoiseGenerationShader = pLowFreqNoiseComputePipeline->GetShaderPtr();
 						pGraphicsContext->SetTexture(pLowFreqCloudsNoiseGenerationShader->GetResourceBindingSlot("noiseTexture"), lowFreqCloudsNoiseTexture.mTextureHandle, true);
@@ -1183,7 +1183,7 @@ namespace TDEngine2
 						LOG_MESSAGE("[GenerateCloudsNoiseTexture] Start generate high frequency clouds noise 3D texture...");
 
 						auto pHighFreqNoiseComputePipeline = pGraphicsObjectManager->GetComputePipeline(
-							pGraphicsObjectManager->CreateComputePipelineState(pResourceManager, "Shaders/Default/Volumetrics/GenerateHiFreqCloudsNoise.cshader").GetOrDefault(TComputePipelineStateId::Invalid));
+							pGraphicsObjectManager->CreateComputePipelineState("Shaders/Default/Volumetrics/GenerateHiFreqCloudsNoise.cshader").GetOrDefault(TComputePipelineStateId::Invalid));
 
 						auto pHighFreqCloudsNoiseGenerationShader = pHighFreqNoiseComputePipeline->GetShaderPtr();
 						pGraphicsContext->SetTexture(pHighFreqCloudsNoiseGenerationShader->GetResourceBindingSlot("noiseTexture"), highFreqCloudsNoiseTexture.mTextureHandle, true);
@@ -1277,7 +1277,7 @@ namespace TDEngine2
 						const TTextureSamplerId noiseTexturesSamplerHandle = pGraphicsObjectManager->CreateTextureSampler(TTextureSamplerDesc{ E_TEXTURE_FILTER_TYPE::FT_BILINEAR }).GetOrDefault(TTextureSamplerId::Invalid);
 
 						auto pVolumetricCloudsMainPipeline = pGraphicsObjectManager->GetComputePipeline(
-							pGraphicsObjectManager->CreateComputePipelineState(pResourceManager, CProjectSettings::Get()->mGraphicsSettings.mVolumetricCloudsMainShader).GetOrDefault(TComputePipelineStateId::Invalid));
+							pGraphicsObjectManager->CreateComputePipelineState(CProjectSettings::Get()->mGraphicsSettings.mVolumetricCloudsMainShader).GetOrDefault(TComputePipelineStateId::Invalid));
 						auto pVolumetricCloudsRenderPassShader = pVolumetricCloudsMainPipeline->GetShaderPtr();
 						
 						if (pVolumetricCloudsRenderPassShader)
@@ -1355,7 +1355,7 @@ namespace TDEngine2
 						const TTextureSamplerId linearSamplerHandle = pGraphicsContext->GetGraphicsObjectManager()->GetDefaultTextureSampler(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
 
 						auto pVolumetricCloudsUpscalePipeline = pGraphicsObjectManager->GetComputePipeline(
-							pGraphicsObjectManager->CreateComputePipelineState(pResourceManager, "Shaders/Default/Volumetrics/VolumetricCloudsBlur.cshader").GetOrDefault(TComputePipelineStateId::Invalid));
+							pGraphicsObjectManager->CreateComputePipelineState("Shaders/Default/Volumetrics/VolumetricCloudsBlur.cshader").GetOrDefault(TComputePipelineStateId::Invalid));
 						auto pVolumetricCloudsUpsampleBlurPassShader = pVolumetricCloudsUpscalePipeline->GetShaderPtr();
 
 						if (pVolumetricCloudsUpsampleBlurPassShader)
@@ -1392,7 +1392,6 @@ namespace TDEngine2
 				CBaseRenderPass(context)
 			{
 				mGraphicsPipelineHandle = mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateGraphicsPipelineState(
-					context.mpResourceManager,
 					{
 						mShaderId,
 						{},
@@ -1567,7 +1566,6 @@ namespace TDEngine2
 				CBaseRenderPass(context)
 			{
 				mGraphicsPipelineHandle = mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateGraphicsPipelineState(
-					context.mpResourceManager,
 					{
 						mShaderId,
 						{},
@@ -1648,7 +1646,6 @@ namespace TDEngine2
 				CBaseRenderPass(context)
 			{
 				mGraphicsPipelineHandle = mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateGraphicsPipelineState(
-					context.mpResourceManager,
 					{
 						mShaderId,
 						{},
@@ -1745,7 +1742,6 @@ namespace TDEngine2
 				CBaseRenderPass(context)
 			{
 				mGraphicsPipelineHandle = mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateGraphicsPipelineState(
-					context.mpResourceManager,
 					{
 						mShaderId,
 						{},
@@ -1877,7 +1873,6 @@ namespace TDEngine2
 				CBaseRenderPass(context)
 			{
 				mGraphicsPipelineHandle = mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateGraphicsPipelineState(
-					context.mpResourceManager,
 					{
 						mShaderId,
 						{},
@@ -1977,7 +1972,6 @@ namespace TDEngine2
 				CBaseRenderPass(context)
 			{
 				mGraphicsPipelineHandle = mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateGraphicsPipelineState(
-					context.mpResourceManager,
 					{
 						mShaderId,
 						{},
@@ -2060,7 +2054,6 @@ namespace TDEngine2
 				CBaseRenderPass(context)
 			{
 				mGraphicsPipelineHandle = mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateGraphicsPipelineState(
-					context.mpResourceManager,
 					{
 						mShaderId,
 						{},
@@ -2156,7 +2149,6 @@ namespace TDEngine2
 				CBaseRenderPass(context)
 			{
 				mGraphicsPipelineHandle = mContext.mpGraphicsContext->GetGraphicsObjectManager()->CreateGraphicsPipelineState(
-					context.mpResourceManager,
 					{
 						mShaderId,
 						{},
@@ -2298,9 +2290,9 @@ namespace TDEngine2
 				IGraphicsObjectManager* pGraphicsObjectManager = context.mpGraphicsContext->GetGraphicsObjectManager();
 				TPtr<IResourceManager> pResourceManager = context.mpResourceManager;
 
-				mEmitParticlesComputeStateHandle         = pGraphicsObjectManager->CreateComputePipelineState(pResourceManager, CProjectSettings::Get()->mGraphicsSettings.mEmitParticlesComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
-				mSimulateParticlesComputeStateHandle     = pGraphicsObjectManager->CreateComputePipelineState(pResourceManager, CProjectSettings::Get()->mGraphicsSettings.mSimulateParticlesComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
-				mInitDeadParticlesListComputeStateHandle = pGraphicsObjectManager->CreateComputePipelineState(pResourceManager, CProjectSettings::Get()->mGraphicsSettings.mInitDeadParticlesListComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
+				mEmitParticlesComputeStateHandle         = pGraphicsObjectManager->CreateComputePipelineState(CProjectSettings::Get()->mGraphicsSettings.mEmitParticlesComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
+				mSimulateParticlesComputeStateHandle     = pGraphicsObjectManager->CreateComputePipelineState(CProjectSettings::Get()->mGraphicsSettings.mSimulateParticlesComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
+				mInitDeadParticlesListComputeStateHandle = pGraphicsObjectManager->CreateComputePipelineState(CProjectSettings::Get()->mGraphicsSettings.mInitDeadParticlesListComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
 
 				TDE2_ASSERT(TComputePipelineStateId::Invalid != mEmitParticlesComputeStateHandle);
 				TDE2_ASSERT(TComputePipelineStateId::Invalid != mSimulateParticlesComputeStateHandle);
@@ -2433,7 +2425,7 @@ namespace TDEngine2
 				TDE2_PROFILER_SCOPE("CGPUParticlesSimulationPass::InitDeadParticlesList");
 
 				TPtr<IComputePipeline> pInitDeadParticlesListComputePipeline = mContext.mpGraphicsContext->GetGraphicsObjectManager()->GetComputePipeline(mInitDeadParticlesListComputeStateHandle);
-				TPtr<IShader> pInitDeadParticlesListShader = pInitDeadParticlesListComputePipeline->GetShaderPtr();
+				TPtr<IShaderImpl> pInitDeadParticlesListShader = pInitDeadParticlesListComputePipeline->GetShaderPtr();
 				if (!pInitDeadParticlesListShader)
 				{
 					return;
@@ -2474,7 +2466,7 @@ namespace TDEngine2
 
 				auto pEmitParticlesComputePipeline = mContext.mpGraphicsContext->GetGraphicsObjectManager()->GetComputePipeline(mEmitParticlesComputeStateHandle);
 
-				TPtr<IShader> pEmitParticlesShader = pEmitParticlesComputePipeline->GetShaderPtr();
+				TPtr<IShaderImpl> pEmitParticlesShader = pEmitParticlesComputePipeline->GetShaderPtr();
 				if (!pEmitParticlesShader)
 				{
 					return;
@@ -2531,7 +2523,7 @@ namespace TDEngine2
 				TPtr<IGraphicsContext> pGraphicsContext = mContext.mpGraphicsContext;
 
 				TPtr<IComputePipeline> pSimulateParticlesComputePipeline = pGraphicsContext->GetGraphicsObjectManager()->GetComputePipeline(mSimulateParticlesComputeStateHandle);
-				TPtr<IShader> pSimulateParticlesShader = pSimulateParticlesComputePipeline->GetShaderPtr();
+				TPtr<IShaderImpl> pSimulateParticlesShader = pSimulateParticlesComputePipeline->GetShaderPtr();
 				if (!pSimulateParticlesShader)
 				{
 					return;
@@ -2770,7 +2762,7 @@ namespace TDEngine2
 			{
 				TDE2_PROFILER_SCOPE("InitGPUSort");
 
-				mInitSortPipelineHandle = pGraphicsContext->GetGraphicsObjectManager()->CreateComputePipelineState(pResourceManager, CProjectSettings::Get()->mGraphicsSettings.mInitSortComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
+				mInitSortPipelineHandle = pGraphicsContext->GetGraphicsObjectManager()->CreateComputePipelineState(CProjectSettings::Get()->mGraphicsSettings.mInitSortComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
 				TDE2_ASSERT(TComputePipelineStateId::Invalid != mInitSortPipelineHandle);
 
 				TPtr<IComputePipeline> pInitSortPipeline = pGraphicsContext->GetGraphicsObjectManager()->GetComputePipeline(mInitSortPipelineHandle);
@@ -2779,7 +2771,7 @@ namespace TDEngine2
 					return RC_FAIL;
 				}
 
-				TPtr<IShader> pInitSortShader = pInitSortPipeline->GetShaderPtr();
+				TPtr<IShaderImpl> pInitSortShader = pInitSortPipeline->GetShaderPtr();
 				if (!pInitSortShader)
 				{
 					return RC_FAIL;
@@ -2802,7 +2794,7 @@ namespace TDEngine2
 				const U32 threadGroupsCount = ((maxCount - 1) >> 9) + 1;
 				TDE2_ASSERT(threadGroupsCount <= 1024);
 
-				mSortPipelineHandle = pGraphicsContext->GetGraphicsObjectManager()->CreateComputePipelineState(pResourceManager, CProjectSettings::Get()->mGraphicsSettings.mSortComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
+				mSortPipelineHandle = pGraphicsContext->GetGraphicsObjectManager()->CreateComputePipelineState(CProjectSettings::Get()->mGraphicsSettings.mSortComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
 				TDE2_ASSERT(TComputePipelineStateId::Invalid != mSortPipelineHandle);
 
 				TPtr<IComputePipeline> pSortPipeline = pGraphicsContext->GetGraphicsObjectManager()->GetComputePipeline(mSortPipelineHandle);
@@ -2811,7 +2803,7 @@ namespace TDEngine2
 					return RC_FAIL;
 				}
 
-				TPtr<IShader> pSortShader = pSortPipeline->GetShaderPtr();
+				TPtr<IShaderImpl> pSortShader = pSortPipeline->GetShaderPtr();
 				if (!pSortShader)
 				{
 					return RC_FAIL;
@@ -2833,7 +2825,7 @@ namespace TDEngine2
 			{
 				TDE2_PROFILER_SCOPE("GPUSortIncremental");
 
-				mSortStepPipelineHandle = pGraphicsContext->GetGraphicsObjectManager()->CreateComputePipelineState(pResourceManager, CProjectSettings::Get()->mGraphicsSettings.mSortStepComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
+				mSortStepPipelineHandle = pGraphicsContext->GetGraphicsObjectManager()->CreateComputePipelineState(CProjectSettings::Get()->mGraphicsSettings.mSortStepComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
 				TDE2_ASSERT(TComputePipelineStateId::Invalid != mSortStepPipelineHandle);
 
 				TPtr<IComputePipeline> pSortStepPipeline = pGraphicsContext->GetGraphicsObjectManager()->GetComputePipeline(mSortStepPipelineHandle);
@@ -2842,7 +2834,7 @@ namespace TDEngine2
 					return RC_FAIL;
 				}
 
-				TPtr<IShader> pSortStepShader = pSortStepPipeline->GetShaderPtr();
+				TPtr<IShaderImpl> pSortStepShader = pSortStepPipeline->GetShaderPtr();
 				if (!pSortStepShader)
 				{
 					return RC_FAIL;
@@ -2894,7 +2886,7 @@ namespace TDEngine2
 					pGraphicsContext->DispatchCompute(threadGroupsCount, 1, 1);
 				}
 
-				mSortInnerPipelineHandle = pGraphicsContext->GetGraphicsObjectManager()->CreateComputePipelineState(pResourceManager, CProjectSettings::Get()->mGraphicsSettings.mSortInnerComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
+				mSortInnerPipelineHandle = pGraphicsContext->GetGraphicsObjectManager()->CreateComputePipelineState(CProjectSettings::Get()->mGraphicsSettings.mSortInnerComputeShader).GetOrDefault(TComputePipelineStateId::Invalid);
 				TDE2_ASSERT(TComputePipelineStateId::Invalid != mSortInnerPipelineHandle);
 
 				TPtr<IComputePipeline> pSortInnerPipeline = pGraphicsContext->GetGraphicsObjectManager()->GetComputePipeline(mSortInnerPipelineHandle);
@@ -2903,7 +2895,7 @@ namespace TDEngine2
 					return RC_FAIL;
 				}
 
-				TPtr<IShader> pSortInnerShader = pSortInnerPipeline->GetShaderPtr();
+				TPtr<IShaderImpl> pSortInnerShader = pSortInnerPipeline->GetShaderPtr();
 				if (!pSortInnerShader)
 				{
 					return RC_FAIL;
@@ -3046,7 +3038,7 @@ namespace TDEngine2
 		IGraphicsObjectManager* pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
 
 		TPtr<IComputePipeline> pTileFrustumComputePipeline = pGraphicsObjectManager->GetComputePipeline(
-			pGraphicsObjectManager->CreateComputePipelineState(pResourceManager, "Shaders/Default/TileFrustumsConstruction.cshader").GetOrDefault(TComputePipelineStateId::Invalid));
+			pGraphicsObjectManager->CreateComputePipelineState("Shaders/Default/TileFrustumsConstruction.cshader").GetOrDefault(TComputePipelineStateId::Invalid));
 
 		auto pTileFrustumInitializationShader = pTileFrustumComputePipeline->GetShaderPtr();
 		
@@ -3161,6 +3153,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CForwardRenderer::Init(const TRendererInitParams& params)
 	{
+		TDE2_PROFILER_SCOPE("CForwardRenderer::Init");
+
 		if (mIsInitialized)
 		{
 			return RC_FAIL;

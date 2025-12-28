@@ -261,16 +261,16 @@ namespace TDEngine2
 		return { TVector4(-1.0f, -1.0f, 0.0f, 0.0f), TVector4(-1.0f, 3.0f, 0.0f, 2.0f), TVector4(3.0f, -1.0f, 2.0f, 0.0f) };
 	}
 
-	TPtr<IGraphicsPipeline> CVulkanGraphicsObjectManager::_createGraphicsPipelineInternal(IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfigDesc)
+	TPtr<IGraphicsPipeline> CVulkanGraphicsObjectManager::_createGraphicsPipelineInternal(const TGraphicsPipelineConfigDesc& pipelineConfigDesc)
 	{
 		E_RESULT_CODE result = RC_OK;
-		return TPtr<IGraphicsPipeline>(CreateVulkanGraphicsPipeline(mpGraphicsContext, pResourceManager, pipelineConfigDesc, result));
+		return TPtr<IGraphicsPipeline>(CreateVulkanGraphicsPipeline(mpGraphicsContext, pipelineConfigDesc, result));
 	}
 
-	TPtr<IComputePipeline> CVulkanGraphicsObjectManager::_createComputePipelineInternal(IResourceManager* pResourceManager, const std::string& shaderId)
+	TPtr<IComputePipeline> CVulkanGraphicsObjectManager::_createComputePipelineInternal(const std::string& shaderId)
 	{
 		E_RESULT_CODE result = RC_OK;
-		return TPtr<IComputePipeline>(CreateVulkanComputePipeline(mpGraphicsContext, pResourceManager, shaderId, result));
+		return TPtr<IComputePipeline>(CreateVulkanComputePipeline(mpGraphicsContext, shaderId, result));
 	}
 
 	TPtr<IBuffer> CVulkanGraphicsObjectManager::_createBufferInternal(const TInitBufferParams& params)

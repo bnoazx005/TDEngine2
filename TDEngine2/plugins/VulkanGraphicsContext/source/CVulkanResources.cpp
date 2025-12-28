@@ -1240,9 +1240,9 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CVulkanGraphicsPipeline::Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& pipelineConfig)
+	E_RESULT_CODE CVulkanGraphicsPipeline::Init(IGraphicsContext* pGraphicsContext, const TGraphicsPipelineConfigDesc& pipelineConfig)
 	{
-		E_RESULT_CODE result = CBaseGraphicsPipeline::Init(pGraphicsContext, pResourceManager, pipelineConfig);
+		E_RESULT_CODE result = CBaseGraphicsPipeline::Init(pGraphicsContext, pipelineConfig);
 		if (RC_OK != result)
 		{
 			return result;
@@ -1455,9 +1455,9 @@ namespace TDEngine2
 	TDE2_DEFINE_SCOPED_PTR(CVulkanGraphicsPipeline);
 
 
-	IGraphicsPipeline* CreateVulkanGraphicsPipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const TGraphicsPipelineConfigDesc& config, E_RESULT_CODE& result)
+	IGraphicsPipeline* CreateVulkanGraphicsPipeline(IGraphicsContext* pGraphicsContext, const TGraphicsPipelineConfigDesc& config, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IGraphicsPipeline, CVulkanGraphicsPipeline, result, pGraphicsContext, pResourceManager, config);
+		return CREATE_IMPL(IGraphicsPipeline, CVulkanGraphicsPipeline, result, pGraphicsContext, config);
 	}
 
 
@@ -1470,9 +1470,9 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CVulkanComputePipeline::Init(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const std::string& shaderId)
+	E_RESULT_CODE CVulkanComputePipeline::Init(IGraphicsContext* pGraphicsContext, const std::string& shaderId)
 	{
-		E_RESULT_CODE result = CBaseComputePipeline::Init(pGraphicsContext, pResourceManager, shaderId);
+		E_RESULT_CODE result = CBaseComputePipeline::Init(pGraphicsContext, shaderId);
 		if (RC_OK != result)
 		{
 			return result;
@@ -1543,8 +1543,8 @@ namespace TDEngine2
 	TDE2_DEFINE_SCOPED_PTR(CVulkanComputePipeline);
 
 
-	IComputePipeline* CreateVulkanComputePipeline(IGraphicsContext* pGraphicsContext, IResourceManager* pResourceManager, const std::string& shaderId, E_RESULT_CODE& result)
+	IComputePipeline* CreateVulkanComputePipeline(IGraphicsContext* pGraphicsContext, const std::string& shaderId, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(IComputePipeline, CVulkanComputePipeline, result, pGraphicsContext, pResourceManager, shaderId);
+		return CREATE_IMPL(IComputePipeline, CVulkanComputePipeline, result, pGraphicsContext, shaderId);
 	}
 }
