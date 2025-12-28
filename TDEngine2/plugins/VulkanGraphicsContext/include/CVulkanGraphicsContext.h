@@ -68,14 +68,24 @@ namespace TDEngine2
 			{
 				union
 				{
-					VkBuffer    mBufferHandle;
-					VkImage     mImageHandle;
-					VkImageView mImageViewHandle;
+					VkBuffer              mBufferHandle;
+					VkImage               mImageHandle;
+					VkImageView           mImageViewHandle;
+					VkPipeline            mPipelineHandle;
+					VkPipelineLayout      mPipelineLayoutHandle;
+					VkDescriptorSetLayout mDescriptorSetLayoutHandle;
+					VkSampler             mSamplerHandle;
 				} mData;
 
 				enum class E_TYPE : U8 
 				{
-					BUFFER, IMAGE, IMAGE_VIEW 
+					BUFFER, 
+					IMAGE, 
+					IMAGE_VIEW,
+					PIPELINE,
+					PIPELINE_LAYOUT,
+					DESCRIPTOR_SET_LAYOUT,
+					SAMPLER
 				} mType;
 
 				VmaAllocation mAllocation = VK_NULL_HANDLE;
@@ -114,6 +124,10 @@ namespace TDEngine2
 			E_RESULT_CODE DestroyObjectDeffered(VkBuffer bufferHandle, VmaAllocation allocation, VkBufferView bufferViewHandle);
 			E_RESULT_CODE DestroyObjectDeffered(VkImage imageHandle, VmaAllocation allocation);
 			E_RESULT_CODE DestroyObjectDeffered(VkImageView imageViewHandle);
+			E_RESULT_CODE DestroyObjectDeffered(VkPipeline pipelineHandle);
+			E_RESULT_CODE DestroyObjectDeffered(VkPipelineLayout pipelineLayoutHandle);
+			E_RESULT_CODE DestroyObjectDeffered(VkDescriptorSetLayout descriptorSetLayoutHandle);
+			E_RESULT_CODE DestroyObjectDeffered(VkSampler sampler);
 
 			E_RESULT_CODE ExecuteImmediate(const std::function<void(VkCommandBuffer)>& command);
 

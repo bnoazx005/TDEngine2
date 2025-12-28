@@ -219,6 +219,8 @@ namespace TDEngine2
 
 			E_RESULT_CODE _onFreeInternal() override;
 		protected:
+			CVulkanGraphicsContext*                               mpGraphicsContextImpl = nullptr;
+
 			std::array<VkShaderModule, SST_NONE>                  mShaderStageModules;
 			std::array<VkPipelineShaderStageCreateInfo, SST_NONE> mPipelineShaderStagesInfo;
 			VkDevice                                              mDevice = VK_NULL_HANDLE;
@@ -308,6 +310,8 @@ namespace TDEngine2
 			virtual U32 GetHash() const = 0;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanBasePipeline)
+
+			E_RESULT_CODE _reset();
 		protected:
 			CVulkanGraphicsObjectManager* mpVulkanGraphicsObjectManagerImpl = nullptr;
 			CVulkanGraphicsContext*       mpVulkanGraphicsContext = nullptr;
@@ -342,6 +346,7 @@ namespace TDEngine2
 			U32 GetHash() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanGraphicsPipeline)
+			E_RESULT_CODE _onFreeInternal() override;
 		private:
 			VkGraphicsPipelineCreateInfo  mBasePipelineConfig{};
 			U32                           mConfigHash = 0;
@@ -363,6 +368,7 @@ namespace TDEngine2
 			U32 GetHash() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanComputePipeline)
+			E_RESULT_CODE _onFreeInternal() override;
 		private:
 			VkComputePipelineCreateInfo  mBasePipelineConfig{};
 			U32                           mConfigHash = 0;

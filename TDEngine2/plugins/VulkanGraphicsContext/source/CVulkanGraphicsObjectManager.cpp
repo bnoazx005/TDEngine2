@@ -308,7 +308,16 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanGraphicsObjectManager::_freeTextureSamplers()
 	{
-		return RC_OK;
+		CVulkanGraphicsContext* pVulkanGraphicsContextImpl = dynamic_cast<CVulkanGraphicsContext*>(mpGraphicsContext);
+
+		E_RESULT_CODE result = RC_OK;
+
+		for (VkSampler currTextureSampler : mTextureSamplersArray)
+		{
+			result = result | pVulkanGraphicsContextImpl->DestroyObjectDeffered(currTextureSampler);
+		}
+
+		return result;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsObjectManager::_freeBlendStates()

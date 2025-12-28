@@ -473,6 +473,9 @@ namespace TDEngine2
 			vkDestroyShaderModule(mDevice, currShaderModule, nullptr);
 		}
 
+		mpGraphicsContextImpl->DestroyObjectDeffered(mDescriptorsSetLayout);
+		mpGraphicsContextImpl->DestroyObjectDeffered(mPipelineLayout);
+
 		return RC_OK;
 	}
 
@@ -550,10 +553,13 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		CVulkanGraphicsContext* pVulkanImplContext = dynamic_cast<CVulkanGraphicsContext*>(mpGraphicsContext);
-		TDE2_ASSERT(pVulkanImplContext);
+		mpGraphicsContextImpl = dynamic_cast<CVulkanGraphicsContext*>(mpGraphicsContext);
+		if (!mpGraphicsContextImpl)
+		{
+			return RC_FAIL;
+		}
 
-		mDevice = pVulkanImplContext->GetDevice();
+		mDevice = mpGraphicsContextImpl->GetDevice();
 
 		for (U32 stageIndex = SST_VERTEX; stageIndex < SST_NONE; stageIndex++)
 		{
@@ -1223,6 +1229,11 @@ namespace TDEngine2
 		return mBasePipelineHandle;
 	}
 
+	E_RESULT_CODE CVulkanBasePipeline::_reset()
+	{
+		return mpVulkanGraphicsContext->DestroyObjectDeffered(mBasePipelineHandle);
+	}
+
 
 	CVulkanGraphicsPipeline::CVulkanGraphicsPipeline() :
 		CBaseGraphicsPipeline()
@@ -1436,6 +1447,11 @@ namespace TDEngine2
 		return mConfigHash;
 	}
 
+	E_RESULT_CODE CVulkanGraphicsPipeline::_onFreeInternal()
+	{
+		return mpVulkanGraphicsContext->DestroyObjectDeffered(mBasePipelineHandle) | CBaseGraphicsPipeline::_onFreeInternal();
+	}
+
 	TDE2_DEFINE_SCOPED_PTR(CVulkanGraphicsPipeline);
 
 
@@ -1516,6 +1532,11 @@ namespace TDEngine2
 	U32 CVulkanComputePipeline::GetHash() const
 	{
 		return mConfigHash;
+	}
+
+	E_RESULT_CODE CVulkanComputePipeline::_onFreeInternal()
+	{
+		return mpVulkanGraphicsContext->DestroyObjectDeffered(mBasePipelineHandle) | CBaseComputePipeline::_onFreeInternal();
 	}
 
 

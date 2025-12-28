@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The issue that all render targets were created with CPU access flags under D3D11 grapics context was fixed.
 
+- Remaining instances of a few Vulkan internal types at engine's termination stage was fixed.
+
 ## [0.6.32] 2025-11-15
 
 ### Added
