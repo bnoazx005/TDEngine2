@@ -2147,8 +2147,154 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D12GraphicsContext::GenerateMipMaps(TTextureHandleId textureHandle)
 	{
-		TDE2_UNIMPLEMENTED();
-		return RC_OK;
+		TDE2_PROFILER_SCOPE("CD3D12GraphicsContext::GenerateMipMaps");
+
+		TPtr<CD3D12TextureImpl> pTextureImpl = mpGraphicsObjectManagerD3D12Impl->GetD3D12TexturePtr(textureHandle);
+		if (!pTextureImpl)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		TInitTextureParams textureParams = pTextureImpl->GetParams();
+		if (textureParams.mNumOfMipLevels <= 1)
+		{
+			return RC_OK;
+		}
+
+		TPtr<IComputePipeline> pMipMapsGenerateComputePipeline = 
+			mpGraphicsObjectManagerD3D12Impl->GetComputePipeline(mpGraphicsObjectManagerD3D12Impl->CreateComputePipelineState("Shaders/Default/GenerateMipMaps.cshader").GetOrDefault(TComputePipelineStateId::Invalid));
+
+		if (!pMipMapsGenerateComputePipeline)
+		{
+			return RC_FAIL;
+		}
+
+		/// \note To allow modifications within the compute shader
+		textureParams.mBindFlags = E_BIND_GRAPHICS_TYPE::BIND_SHADER_RESOURCE | E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS;
+		textureParams.mIsWriteable = true;
+		textureParams.mName = nullptr;
+		textureParams.mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
+
+#if TDE2_DEBUG_MODE
+		BeginSectionMarker("GenerateMipMaps");
+		defer([this] { EndSectionMarker(); });
+#endif
+
+		TResult<TTextureHandleId> writeableTextureCopyHandleResult = mpGraphicsObjectManagerD3D12Impl->CreateTexture(textureParams);
+		if (writeableTextureCopyHandleResult.HasError())
+		{
+			return writeableTextureCopyHandleResult.GetError();
+		}
+
+		const TTextureHandleId writeableTextureCopyHandle = writeableTextureCopyHandleResult.Get();
+
+		defer([this, writeableTextureCopyHandle] { mpGraphicsObjectManagerD3D12Impl->DestroyTexture(writeableTextureCopyHandle); });
+
+		TPtr<CD3D12TextureImpl> pTextureWritableCopyImpl = mpGraphicsObjectManagerD3D12Impl->GetD3D12TexturePtr(writeableTextureCopyHandle);
+		if (!pTextureWritableCopyImpl)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		const E_RESOURCE_LAYOUT initialOriginalTextureLayout = pTextureImpl->GetLayout();
+		const E_RESOURCE_LAYOUT initialCopyTextureLayout     = pTextureWritableCopyImpl->GetLayout();
+
+		E_RESULT_CODE result = RC_OK;
+
+		// \note Copy original texture into staging resource that will be processed in compute shader
+		{
+#if TDE2_DEBUG_MODE
+			BeginSectionMarker("CopyDataToStagingTexture");
+			defer([this] { EndSectionMarker(); });
+#endif
+
+			result = result | pTextureImpl->Transition(E_RESOURCE_LAYOUT::COPY_SRC);
+			result = result | pTextureWritableCopyImpl->Transition(E_RESOURCE_LAYOUT::COPY_DEST);
+
+			FlushBarriers();
+
+			_getCurrCommandListPtr()->CopyResource(pTextureWritableCopyImpl->GetHandle().Get(), pTextureImpl->GetHandle().Get());
+
+			result = result | pTextureWritableCopyImpl->Transition(E_RESOURCE_LAYOUT::SHADER_RESOURCE);
+		}
+		
+		/// \note Actual mipmaps chain computation using a compute shader
+		{
+#if TDE2_DEBUG_MODE
+			BeginSectionMarker("MipmapsEvaluation");
+			defer([this] { EndSectionMarker(); });
+#endif
+
+			TPtr<IShaderImpl> pMipMapsGenerateShader = pMipMapsGenerateComputePipeline->GetShaderPtr();
+
+			constexpr U32 MIP_GEN_BLOCK_SIZE = 8;
+
+			const U32 maxMipsCount = std::min(textureParams.mNumOfMipLevels, static_cast<U32>(floor(log2(std::max(textureParams.mWidth, textureParams.mHeight))) + 1));
+			const E_RESOURCE_LAYOUT originalLayout = pTextureImpl->GetLayout();
+
+			I32 mipWidth = textureParams.mWidth;
+			I32 mipHeight = textureParams.mHeight;
+
+			const TTextureSamplerId linearSamplerHandle = mpGraphicsObjectManager->GetDefaultTextureSampler(E_TEXTURE_FILTER_TYPE::FT_BILINEAR);
+
+			for (I32 i = 1; i < static_cast<I32>(maxMipsCount); ++i)
+			{
+				mipWidth  = (mipWidth > 1) ? mipWidth >> 1 : 1;
+				mipHeight = (mipHeight > 1) ? mipHeight >> 1 : 1;
+
+				SetTexture(pMipMapsGenerateShader->GetResourceBindingSlot("SrcTexture"), writeableTextureCopyHandle, false, i - 1);
+				SetSampler(pMipMapsGenerateShader->GetResourceBindingSlot("SrcTexture"), linearSamplerHandle);
+				SetTexture(pMipMapsGenerateShader->GetResourceBindingSlot("OutputMip0Texture"), writeableTextureCopyHandle, true, i);
+
+				struct
+				{
+					U32      mCurrMipLevel;
+					U32      mAmountOfMipsToGenerate = 1;
+					U32      mTextureFlags;
+					U32      mIsLinearSpaceEnabled;
+					TVector2 mTexelSize;
+				} uniformsData;
+
+				uniformsData.mCurrMipLevel           = i - 1;
+				uniformsData.mTextureFlags           = ((~mipWidth & 0x1) << 1) | (~mipHeight & 0x1); // 0th bit is used to store 1 when texture's height is even; 1th bit stores same for width
+				uniformsData.mIsLinearSpaceEnabled   = true;
+				uniformsData.mTexelSize              = TVector2{ 1.0f / static_cast<F32>(mipWidth), 1.0f / static_cast<F32>(mipHeight) };
+
+				pMipMapsGenerateShader->SetUserUniformsBuffer(0, reinterpret_cast<const U8*>(&uniformsData), sizeof(uniformsData));
+
+				pMipMapsGenerateComputePipeline->Bind();
+
+				TransitionBarrier(TTextureTransitionBarrierInfo{ writeableTextureCopyHandle, E_RESOURCE_LAYOUT::SHADER_RESOURCE, E_RESOURCE_LAYOUT::UAV_RESOURCE, i });
+				FlushBarriers();
+
+				DispatchCompute(std::max(1, Align(mipWidth / MIP_GEN_BLOCK_SIZE, MIP_GEN_BLOCK_SIZE)), std::max(1, Align(mipHeight / MIP_GEN_BLOCK_SIZE, MIP_GEN_BLOCK_SIZE)), 1);
+
+				TransitionBarrier(TTextureTransitionBarrierInfo{ writeableTextureCopyHandle, E_RESOURCE_LAYOUT::UAV_RESOURCE, E_RESOURCE_LAYOUT::SHADER_RESOURCE, i });
+				FlushBarriers();
+			}
+		}
+
+		// \note Copy processed mips data back to original texture
+		{
+#if TDE2_DEBUG_MODE
+			BeginSectionMarker("CopyDataBackToOriginalTexture");
+			defer([this] { EndSectionMarker(); });
+#endif
+
+			result = result | pTextureWritableCopyImpl->Transition(E_RESOURCE_LAYOUT::COPY_SRC);
+			result = result | pTextureImpl->Transition(E_RESOURCE_LAYOUT::COPY_DEST);
+
+			FlushBarriers();
+
+			_getCurrCommandListPtr()->CopyResource(pTextureImpl->GetHandle().Get(), pTextureWritableCopyImpl->GetHandle().Get());
+
+			if (E_RESOURCE_LAYOUT::UNDEFINED != initialOriginalTextureLayout)
+			{
+				result = result | pTextureImpl->Transition(initialOriginalTextureLayout);
+			}
+		}
+
+		return result;
 	}
 
 	void CD3D12GraphicsContext::Draw(E_PRIMITIVE_TOPOLOGY_TYPE topology, U32 startVertex, U32 numOfVertices)

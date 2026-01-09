@@ -14,10 +14,10 @@
 #include <TDEngine2EffectsUtils.inc>
 
 
-#define E_TEXTURE_FLAGS_WIDTH_EVEN_HEIGHT_EVEN 0x00
-#define E_TEXTURE_FLAGS_WIDTH_ODD_HEIGHT_EVEN  0x01
-#define E_TEXTURE_FLAGS_WIDTH_EVEN_HEIGHT_ODD  0x10
-#define E_TEXTURE_FLAGS_WIDTH_ODD_HEIGHT_ODD   0x11
+#define E_TEXTURE_FLAGS_WIDTH_ODD_HEIGHT_ODD   0x0 // 0b00
+#define E_TEXTURE_FLAGS_WIDTH_ODD_HEIGHT_EVEN  0x1 // 0b01
+#define E_TEXTURE_FLAGS_WIDTH_EVEN_HEIGHT_ODD  0x2 // 0b10
+#define E_TEXTURE_FLAGS_WIDTH_EVEN_HEIGHT_EVEN 0x3 // 0b11
 
 
 DECLARE_TEX2D_EX(SrcTexture, 1);
@@ -53,7 +53,7 @@ void StoreGroupSharedColor(uint idx, float4 color)
 }
 
 
-float RestoreGroupSharedColor(uint idx)
+float4 RestoreGroupSharedColor(uint idx)
 {
     return float4(sharedRChannel[idx], sharedGChannel[idx], sharedBChannel[idx], sharedAChannel[idx]);
 }
@@ -110,7 +110,7 @@ void MainCS(uint3 dispatchThreadId : SV_DispatchThreadID, uint groupIndex : SV_G
             break;
     }
 
-    OutputMip0Texture[dispatchThreadId] = PackColor(srcColor);
+    OutputMip0Texture[dispatchThreadId.xy] = PackColor(srcColor);
     
     if (mAmountOfMipsToGenerate == 1) // first mip-level already generated if a total amount of levels equals to 1 skip all the other work
     {
@@ -124,7 +124,7 @@ void MainCS(uint3 dispatchThreadId : SV_DispatchThreadID, uint groupIndex : SV_G
     if (!(groupIndex & 0x9)) // 0x9 comes from bitmask 001001 from low three bits for X and high three bits for Y, execute sampling only for even threads within the group
     {
         srcColor = 0.25 * (srcColor + RestoreGroupSharedColor(groupIndex + 0x1) + RestoreGroupSharedColor(groupIndex + 0x8) + RestoreGroupSharedColor(groupIndex + 0x9));
-        OutputMip1Texture[dispatchThreadId >> 1] = PackColor(srcColor);
+        OutputMip1Texture[dispatchThreadId.xy >> 1] = PackColor(srcColor);
         
         StoreGroupSharedColor(groupIndex, srcColor);
     }
@@ -139,7 +139,7 @@ void MainCS(uint3 dispatchThreadId : SV_DispatchThreadID, uint groupIndex : SV_G
     if (!(groupIndex & 0x1b)) // 0x1b comes from bitmask 011011, execute sampling only for threads with indices of multiple of four
     {
         srcColor = 0.25 * (srcColor + RestoreGroupSharedColor(groupIndex + 0x2) + RestoreGroupSharedColor(groupIndex + 0x10) + RestoreGroupSharedColor(groupIndex + 0x12));
-        OutputMip2Texture[dispatchThreadId >> 2] = PackColor(srcColor);
+        OutputMip2Texture[dispatchThreadId.xy >> 2] = PackColor(srcColor);
         
         StoreGroupSharedColor(groupIndex, srcColor);
     }
@@ -154,7 +154,7 @@ void MainCS(uint3 dispatchThreadId : SV_DispatchThreadID, uint groupIndex : SV_G
     if (!groupIndex) // bitmask 111111, execute sampling only for threads with indices of multiple of 8
     {
         srcColor = 0.25 * (srcColor + RestoreGroupSharedColor(groupIndex + 0x4) + RestoreGroupSharedColor(groupIndex + 0x20) + RestoreGroupSharedColor(groupIndex + 0x24));
-        OutputMip3Texture[dispatchThreadId >> 3] = PackColor(srcColor);
+        OutputMip3Texture[dispatchThreadId.xy >> 3] = PackColor(srcColor);
     }
 }
 
