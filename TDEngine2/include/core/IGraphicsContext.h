@@ -237,7 +237,7 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE SetConstantBuffer(U32 slot, TBufferHandleId constantsBufferHandle) = 0;
 			TDE2_API virtual E_RESULT_CODE SetStructuredBuffer(U32 slot, TBufferHandleId bufferHandle, bool isWriteEnabled = false) = 0;
 
-			TDE2_API virtual E_RESULT_CODE SetTexture(U32 slot, TTextureHandleId textureHandle, bool isWriteEnabled = false) = 0;
+			TDE2_API virtual E_RESULT_CODE SetTexture(U32 slot, TTextureHandleId textureHandle, bool isWriteEnabled = false, const std::optional<U32>& subresourceId = std::nullopt) = 0;
 			TDE2_API virtual E_RESULT_CODE SetSampler(U32 slot, TTextureSamplerId samplerHandle) = 0;
 
 			TDE2_API virtual E_RESULT_CODE UpdateTexture2D(TTextureHandleId textureHandle, U32 mipLevel, const TRectI32& regionRect, const void* pData, USIZE dataSize) = 0;
@@ -501,7 +501,8 @@ namespace TDEngine2
 				TTextureHandleId mTexture;
 			} mValue;
 
-			E_DESCRIPTOR_TYPE mType = E_DESCRIPTOR_TYPE::UNKNOWN;
+			E_DESCRIPTOR_TYPE  mType = E_DESCRIPTOR_TYPE::UNKNOWN;
+			std::optional<U32> mSubresourceIndex = std::nullopt;
 		};
 
 		TDE2_API void Reset();

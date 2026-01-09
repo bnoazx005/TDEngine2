@@ -1711,7 +1711,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CD3D12GraphicsContext::SetTexture(U32 slot, TTextureHandleId textureHandle, bool isWriteEnabled)
+	E_RESULT_CODE CD3D12GraphicsContext::SetTexture(U32 slot, TTextureHandleId textureHandle, bool isWriteEnabled, const std::optional<U32>& subresourceId)
 	{
 		auto pTexture = mpGraphicsObjectManagerD3D12Impl->GetD3D12TexturePtr(textureHandle);
 		if (!pTexture)

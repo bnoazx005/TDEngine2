@@ -124,7 +124,7 @@ namespace TDEngine2
 			E_RESULT_CODE SetConstantBuffer(U32 slot, TBufferHandleId constantsBufferHandle) override;
 			E_RESULT_CODE SetStructuredBuffer(U32 slot, TBufferHandleId bufferHandle, bool isWriteEnabled = false) override;
 
-			E_RESULT_CODE SetTexture(U32 slot, TTextureHandleId textureHandle, bool isWriteEnabled = false) override;
+			E_RESULT_CODE SetTexture(U32 slot, TTextureHandleId textureHandle, bool isWriteEnabled = false, const std::optional<U32>& subresourceId = std::nullopt) override;
 			E_RESULT_CODE SetSampler(U32 slot, TTextureSamplerId samplerHandle) override;
 
 			E_RESULT_CODE UpdateTexture2D(TTextureHandleId textureHandle, U32 mipLevel, const TRectI32& regionRect, const void* pData, USIZE dataSize) override;
@@ -719,7 +719,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE COGLGraphicsContext::SetTexture(U32 slot, TTextureHandleId textureHandle, bool isWriteEnabled)
+	E_RESULT_CODE COGLGraphicsContext::SetTexture(U32 slot, TTextureHandleId textureHandle, bool isWriteEnabled, const std::optional<U32>& subresourceId)
 	{
 		if (TTextureHandleId::Invalid == textureHandle)
 		{

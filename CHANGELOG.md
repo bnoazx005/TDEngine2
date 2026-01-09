@@ -7,17 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.33] 2025-12-27
+## [0.6.33] 2026-01-09
 
 ### Added
 
 - The API of **IGraphicsObjectsManager** was extended with new methods to work with shaders objects.
+
+- **CD3D12GraphicsContext::GenerateMipMaps** method was implemented using a compute shader.
 
 ### Changed
 
 - The signatures of factory methods of **IGraphicsContext** and **IGraphicsObjectsManager** were changed. Now it requires an instance of **IFileSystem**.
 
 - The API of **IGraphicsObjectsManager** was refactored to provide internal shaders loading instead of using **IResourceManager**'s interface.
+
+- The signature of **IGraphicsContext::SetTexture** was extended to allow specify particular subresource index of a texture.
+
+- Now D3D12 textures create subresources views in case a main resource contains more than 1 mip level.
 
 ### Fixed
 
