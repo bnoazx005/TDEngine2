@@ -1395,6 +1395,8 @@ namespace TDEngine2
 
 			D3D12_CPU_DESCRIPTOR_HANDLE srcSrvCPUHandle{};
 
+			const U32 subresourceIndex = currResourceEntity.mSubresourceIndex.value_or((std::numeric_limits<U32>::max)());
+
 			switch (currResourceEntity.mType)
 			{
 				case TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::BUFFER:
@@ -1418,7 +1420,7 @@ namespace TDEngine2
 						continue;
 					}
 
-					srcSrvCPUHandle  = i < currPipelineActiveSlots.mSRVActiveSlots.size() ? pTexture->GetShaderResourceDescriptor().mCPUHandle : pTexture->GetUnorderedAccessViewHandle().mCPUHandle;
+					srcSrvCPUHandle  = i < currPipelineActiveSlots.mSRVActiveSlots.size() ? pTexture->GetShaderResourceDescriptor(subresourceIndex).mCPUHandle : pTexture->GetUnorderedAccessViewHandle(subresourceIndex).mCPUHandle;
 				}
 				break;
 			}
@@ -1723,15 +1725,21 @@ namespace TDEngine2
 		{
 			TDE2_ASSERT(slot < mDescriptorsBindingsTable.mUAVBuffers.size());
 
-			mDescriptorsBindingsTable.mUAVBuffers[slot].mType = TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::TEXTURE;
-			mDescriptorsBindingsTable.mUAVBuffers[slot].mValue.mTexture = textureHandle;
+			TDescriptorsBindingsTable::TDescriptorHandle& uavDescriptorHandle = mDescriptorsBindingsTable.mUAVBuffers[slot];
+
+			uavDescriptorHandle.mType             = TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::TEXTURE;
+			uavDescriptorHandle.mValue.mTexture   = textureHandle;
+			uavDescriptorHandle.mSubresourceIndex = subresourceId;
 		}
 		else
 		{
 			TDE2_ASSERT(slot < mDescriptorsBindingsTable.mSRVBuffers.size());
 
-			mDescriptorsBindingsTable.mSRVBuffers[slot].mType = TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::TEXTURE;
-			mDescriptorsBindingsTable.mSRVBuffers[slot].mValue.mTexture = textureHandle;
+			TDescriptorsBindingsTable::TDescriptorHandle& srvDescriptorHandle = mDescriptorsBindingsTable.mSRVBuffers[slot];
+
+			srvDescriptorHandle.mType             = TDescriptorsBindingsTable::E_DESCRIPTOR_TYPE::TEXTURE;
+			srvDescriptorHandle.mValue.mTexture   = textureHandle;
+			srvDescriptorHandle.mSubresourceIndex = subresourceId;
 		}
 
 		return RC_OK;
@@ -2041,12 +2049,16 @@ namespace TDEngine2
 	}
 
 
-	static bool TrySimplifyPendingBarriers(CD3D12GraphicsContext::TBarriersArray& barriers, ID3D12Resource* pResource, D3D12_RESOURCE_STATES intermediateState, D3D12_RESOURCE_STATES newState)
+	static bool TrySimplifyPendingBarriers(CD3D12GraphicsContext::TBarriersArray& barriers, ID3D12Resource* pResource, D3D12_RESOURCE_STATES intermediateState, D3D12_RESOURCE_STATES newState, U32 subresourceId = (std::numeric_limits<U32>::max)())
 	{
 		CD3D12GraphicsContext::TBarriersArray::iterator it = std::find_if(barriers.begin(), barriers.end(),
-			[pResource, intermediateState](const D3D12_RESOURCE_BARRIER& currBarrier)
+			[pResource, intermediateState, subresourceId](const D3D12_RESOURCE_BARRIER& currBarrier)
 			{
-				return currBarrier.Type == D3D12_RESOURCE_BARRIER_TYPE_TRANSITION && currBarrier.Transition.pResource == pResource && currBarrier.Transition.StateAfter == intermediateState;
+				return 
+					currBarrier.Type == D3D12_RESOURCE_BARRIER_TYPE_TRANSITION && 
+					currBarrier.Transition.pResource == pResource && 
+					currBarrier.Transition.StateAfter == intermediateState && 
+					currBarrier.Transition.Subresource == subresourceId;
 			});
 
 		if (it == barriers.end()) 
@@ -2094,15 +2106,15 @@ namespace TDEngine2
 			return;
 		}
 
+		const U32 subresourceId = barrierInfo.mMipLevel ? *barrierInfo.mMipLevel : D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
 		TBarriersArray& pendingBarriers = mResourceBarriers[mpSwapchain->GetBackBufferTargetIndex()];
 
-		if (TrySimplifyPendingBarriers(pendingBarriers, pTextureImpl->GetHandle().Get(), GetInternalResourceState(barrierInfo.mCurrLayout), GetInternalResourceState(barrierInfo.mNewLayout)))
+		if (TrySimplifyPendingBarriers(pendingBarriers, pTextureImpl->GetHandle().Get(), GetInternalResourceState(barrierInfo.mCurrLayout), GetInternalResourceState(barrierInfo.mNewLayout), subresourceId))
 		{
 			return;
 		}
 
-		const U32 subresourceId = barrierInfo.mMipLevel ? *barrierInfo.mMipLevel : D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-		
 		mResourceBarriers[mpSwapchain->GetBackBufferTargetIndex()].emplace_back(
 			CD3DX12_RESOURCE_BARRIER::Transition(pTextureImpl->GetHandle().Get(), GetInternalResourceState(barrierInfo.mCurrLayout), GetInternalResourceState(barrierInfo.mNewLayout), subresourceId));
 	}

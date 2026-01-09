@@ -270,7 +270,7 @@ namespace TDEngine2
 			ComPtr<ID3D12Resource> GetHandle() const;
 
 			const TD3D12ResourceDescriptor& GetUnorderedAccessViewHandle(U32 subresourceIndex = (std::numeric_limits<U32>::max)()) const;
-			const TD3D12ResourceDescriptor& GetShaderResourceDescriptor() const;
+			const TD3D12ResourceDescriptor& GetShaderResourceDescriptor(U32 subresourceIndex = (std::numeric_limits<U32>::max)()) const;
 			const TD3D12ResourceDescriptor& GetRenderTargetDescriptor() const;
 			const TD3D12ResourceDescriptor& GetDepthBufferDescriptor() const;
 
@@ -293,7 +293,7 @@ namespace TDEngine2
 			ComPtr<ID3D12Resource>                 mpResource = nullptr;
 			D3D12MA::Allocation*                   mpAllocation = nullptr;
 
-			TD3D12ResourceDescriptor               mShaderResourceDescriptor{};
+			CFixedVector<TD3D12ResourceDescriptor> mShaderResourceDescriptors{};
 			CFixedVector<TD3D12ResourceDescriptor> mUnorderedAccessViewDescriptors{};
 			TD3D12ResourceDescriptor               mRenderTargetDescriptor{}; // IsValid() is true if it's active. The condition is correct for all the descriptors
 			TD3D12ResourceDescriptor               mDepthStencilDescriptor{};

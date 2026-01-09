@@ -836,7 +836,8 @@ namespace TDEngine2
 		return Wrench::TOkValue<TCreatedImageInfo>(output);
 	}
 
-	static TD3D12ResourceDescriptor CreateShaderResourceViewInternal(CD3D12GraphicsContext* pGraphicsContext, ComPtr<ID3D12Resource> pTextureResource, const TInitTextureImplParams& params)
+	static TD3D12ResourceDescriptor CreateShaderResourceViewInternal(CD3D12GraphicsContext* pGraphicsContext, ComPtr<ID3D12Resource> pTextureResource, const TInitTextureImplParams& params, 
+		const std::optional<U32>& firstMipLevel = std::nullopt, const std::optional<U32> mipsCount = std::nullopt)
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC viewDesc{};
 
@@ -851,26 +852,29 @@ namespace TDEngine2
 		{
 			viewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE3D;
 		}
+		
+		const U32 numOfMips     = firstMipLevel ? mipsCount.value_or(params.mNumOfMipLevels) : params.mNumOfMipLevels;
+		const U32 firstMipIndex = firstMipLevel ? *firstMipLevel : 0;
 
 		switch (params.mType)
 		{
 			case E_TEXTURE_IMPL_TYPE::CUBEMAP:
-				viewDesc.TextureCube.MipLevels       = params.mNumOfMipLevels;
-				viewDesc.TextureCube.MostDetailedMip = 0;
+				viewDesc.TextureCube.MipLevels       = numOfMips;
+				viewDesc.TextureCube.MostDetailedMip = firstMipIndex;
 				break;
 			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D:
-				viewDesc.Texture2D.MipLevels       = params.mNumOfMipLevels;
-				viewDesc.Texture2D.MostDetailedMip = 0;
+				viewDesc.Texture2D.MipLevels       = numOfMips;
+				viewDesc.Texture2D.MostDetailedMip = firstMipIndex;
 				break;
 			case E_TEXTURE_IMPL_TYPE::TEXTURE_2D_ARRAY:
-				viewDesc.Texture2DArray.MipLevels = params.mNumOfMipLevels;
-				viewDesc.Texture2DArray.ArraySize = params.mArraySize;
+				viewDesc.Texture2DArray.MipLevels       = numOfMips;
+				viewDesc.Texture2DArray.ArraySize       = params.mArraySize;
 				viewDesc.Texture2DArray.FirstArraySlice = 0;
-				viewDesc.Texture2DArray.MostDetailedMip = 0;
+				viewDesc.Texture2DArray.MostDetailedMip = firstMipIndex;
 				break;
 			case E_TEXTURE_IMPL_TYPE::TEXTURE_3D:
-				viewDesc.Texture3D.MipLevels       = params.mNumOfMipLevels;
-				viewDesc.Texture3D.MostDetailedMip = 0;
+				viewDesc.Texture3D.MipLevels       = numOfMips;
+				viewDesc.Texture3D.MostDetailedMip = firstMipIndex;
 				break;
 		}
 
@@ -1063,14 +1067,14 @@ namespace TDEngine2
 		return mpResource;
 	}
 
-	const TD3D12ResourceDescriptor& CD3D12TextureImpl::GetShaderResourceDescriptor() const
+	const TD3D12ResourceDescriptor& CD3D12TextureImpl::GetShaderResourceDescriptor(U32 subresourceIndex) const
 	{
-		return mShaderResourceDescriptor;
+		return subresourceIndex < (std::numeric_limits<U32>::max)() ? mShaderResourceDescriptors[subresourceIndex + 1] : mShaderResourceDescriptors.front();
 	}
 
 	const TD3D12ResourceDescriptor& CD3D12TextureImpl::GetUnorderedAccessViewHandle(U32 subresourceIndex) const
 	{
-		return subresourceIndex < (std::numeric_limits<U32>::max)() ? mUnorderedAccessViewDescriptors[subresourceIndex] : mUnorderedAccessViewDescriptors.front();
+		return subresourceIndex < (std::numeric_limits<U32>::max)() ? mUnorderedAccessViewDescriptors[subresourceIndex + 1] : mUnorderedAccessViewDescriptors.front();
 	}
 
 	const TD3D12ResourceDescriptor& CD3D12TextureImpl::GetRenderTargetDescriptor() const
@@ -1161,13 +1165,18 @@ namespace TDEngine2
 		mpResource   = createdImageInfo.mpTexture;
 		mpAllocation = createdImageInfo.mpAllocation;
 		
-		mShaderResourceDescriptor = CreateShaderResourceViewInternal(mpGraphicsContextImpl, mpResource, mInitParams);
+		mShaderResourceDescriptors.emplace_back(CreateShaderResourceViewInternal(mpGraphicsContextImpl, mpResource, mInitParams));
+
+		for (U32 i = 0; i < mInitParams.mNumOfMipLevels; ++i)
+		{
+			mShaderResourceDescriptors.emplace_back(CreateShaderResourceViewInternal(mpGraphicsContextImpl, mpResource, mInitParams, i, 1));
+		}
 
 		if (HasEnumFlag(mInitParams.mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_UNORDERED_ACCESS))
 		{
 			mUnorderedAccessViewDescriptors.emplace_back(CreateUnorderedAccessViewInternal(mpGraphicsContextImpl, mpResource, mInitParams));
 
-			for (U32 i = 1; i < mInitParams.mNumOfMipLevels; ++i)
+			for (U32 i = 0; i < mInitParams.mNumOfMipLevels; ++i)
 			{
 				mUnorderedAccessViewDescriptors.emplace_back(CreateUnorderedAccessViewInternal(mpGraphicsContextImpl, mpResource, mInitParams, i));
 			}
