@@ -474,6 +474,10 @@ namespace TDEngine2
 		mpObjectsFactory = nullptr;
 		mpAdapter        = nullptr;
 
+		mpDispatchIndirectCmdSignature             = nullptr;
+		mpDrawInstancedIndirectCmdSignature        = nullptr;
+		mpDrawIndexedInstancedIndirectCmdSignature = nullptr;
+			
 		std::fill(mpDescriptorHeapsTable.begin(), mpDescriptorHeapsTable.end(), nullptr);
 
 #if TDE2_DEBUG_MODE
@@ -1232,6 +1236,8 @@ namespace TDEngine2
 
 		mpGraphicsObjectManager          = nullptr;
 		mpGraphicsObjectManagerD3D12Impl = nullptr;
+
+		mCachedPipelinesLibrary.clear();
 
 		// \note Clean up is invoked only after all resources are freed in mpGraphicsObjectManager
 		for (TGarbageCollection& currGarbageCollection : mAwaitingDeletionObjects)
