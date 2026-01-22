@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.33] 2026-01-19
+## [0.6.33] 2026-01-22
 
 ### Added
 
@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The signature of **IGraphicsContext::SetTexture** was extended to allow specify particular subresource index of a texture.
 
 - Now D3D12 textures create subresources views in case a main resource contains more than 1 mip level.
+
+- Now selection map pass uses a depth buffer target to use early z-test rejection.
 
 ### Fixed
 

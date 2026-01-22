@@ -491,7 +491,7 @@ namespace TDEngine2
 		const TMaterialParameters selectionMaterialParams
 		{
 			materialName, false,
-			TDepthStencilStateDesc { true, true, E_COMPARISON_FUNC::LESS_EQUAL},
+			TDepthStencilStateDesc { true, false, E_COMPARISON_FUNC::LESS_EQUAL},
 			TRasterizerStateDesc { E_CULL_MODE::NONE, false, false, 0.0f, 1.0f, false }
 		};
 

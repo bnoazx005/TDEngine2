@@ -243,6 +243,7 @@ namespace TDEngine2
 			{
 				struct TPassData
 				{
+					TFrameGraphResourceHandle mDepthBufferTargetHandle = TFrameGraphResourceHandle::Invalid;
 					TFrameGraphResourceHandle mSelectionMapTargetHandle = TFrameGraphResourceHandle::Invalid;
 				};
 
@@ -262,6 +263,7 @@ namespace TDEngine2
 						selectionMapTargetParams.mName = "SelectionMapTarget";
 						selectionMapTargetParams.mFlags = E_GRAPHICS_RESOURCE_INIT_FLAGS::TRANSIENT;
 
+						data.mDepthBufferTargetHandle  = builder.Read(frameGraphBlackboard.mDepthBufferHandle);
 						data.mSelectionMapTargetHandle = builder.Create<TFrameGraphTexture>(selectionMapTargetParams.mName, selectionMapTargetParams);
 						data.mSelectionMapTargetHandle = builder.Write(data.mSelectionMapTargetHandle);
 
@@ -274,8 +276,9 @@ namespace TDEngine2
 						TDE_RENDER_SECTION(pGraphicsContext, renderPassName);
 
 						TFrameGraphTexture& selectionMapTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mSelectionMapTargetHandle);
+						TFrameGraphTexture& depthBufferMapTarget = executionContext.mpOwnerGraph->GetResource<TFrameGraphTexture>(data.mDepthBufferTargetHandle);
 
-						pGraphicsContext->BeginRenderPass({ { { selectionMapTarget.mTextureHandle, TColor32F(0.0f) }}});
+						pGraphicsContext->BeginRenderPass({ { { selectionMapTarget.mTextureHandle, TColor32F(0.0f) } }, TFramebufferInfo::TDepthStencilAttachment { depthBufferMapTarget.mTextureHandle } });
 						pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(mContext.mWindowWidth), static_cast<F32>(mContext.mWindowHeight), 0.0f, 1.0f);
 
 						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, true);
@@ -3359,11 +3362,6 @@ namespace TDEngine2
 				mpWindowSystem->GetHeight()
 			};
 
-			// \note editor mode (draw into selection buffer)
-#if TDE2_EDITORS_ENABLED
-			CRenderSelectionBufferPass{ passInvokeContext, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)] }.AddPass(mpFrameGraph, frameGraphBlackboard, mpSelectionManager);
-#endif
-
 			if (CProjectSettings::Get()->mGraphicsSettings.mIsGPUParticlesSimulationEnabled && !mpFramePacketsStorage->GetCurrentFrameForRender().mGpuParticleEmitters.empty())
 			{
 				pGPUParticlesSimulationPass->AddPass(mpFrameGraph, frameGraphBlackboard, mpFramePacketsStorage);
@@ -3414,6 +3412,11 @@ namespace TDEngine2
 
 			// \note depth pre-pass
 			CDepthPrePass{ passInvokeContext, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_DEPTH_PREPASS)] }.AddPass(mpFrameGraph, frameGraphBlackboard);
+
+			// \note editor mode (draw into selection buffer)
+#if TDE2_EDITORS_ENABLED
+			CRenderSelectionBufferPass{ passInvokeContext, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)] }.AddPass(mpFrameGraph, frameGraphBlackboard, mpSelectionManager);
+#endif
 
 			CSkyGeometryRenderPass{ passInvokeContext, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_OPAQUE_GEOMETRY)] }.AddPass(mpFrameGraph, frameGraphBlackboard, true); // \todo replace with configuration of hdr
 
