@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.33] 2026-01-22
+## [0.6.33] 2026-03-07
 
 ### Added
 
@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Now D3D12 textures create subresources views in case a main resource contains more than 1 mip level.
 
 - Now selection map pass uses a depth buffer target to use early z-test rejection.
+
+- TDEngine2::SafeFree<T> was removed due to it has no usages in the project.
 
 ### Fixed
 

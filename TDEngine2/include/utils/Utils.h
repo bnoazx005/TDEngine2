@@ -135,35 +135,6 @@ namespace TDEngine2
 					[](ConcreteType*& pPtr) { TDE2_UNREGISTER_BASE_OBJECT(pPtr); delete pPtr; }, __VA_ARGS__)
 
 
-	template <typename T> 
-	E_RESULT_CODE SafeFreeInternal(T*& pPtr, std::true_type)
-	{
-		if (!pPtr)
-		{
-			return RC_FAIL;
-		}
-
-		return pPtr->Free();
-	}
-
-	template <typename T>
-	E_RESULT_CODE SafeFreeInternal(T*& pPtr, std::false_type)
-	{
-		return RC_OK;
-	}
-
-
-	/*!
-		\brief The function implements a generic mechanism of releasing memory.
-		
-		\param [in,out] pObject A reference to pointer to IBaseObjetc object, that should be released
-
-		\return RC_OK if everything went ok, or some other code, which describes an error
-	*/
-
-	template <typename T> E_RESULT_CODE SafeFree(T*& pObject) { return SafeFreeInternal<T>(pObject, std::is_base_of<class IBaseObject, T>{}); }
-
-
 	/*!
 		\brief The macros is used to declare protected members of interfaces, which
 		should use two-step initialization technique
