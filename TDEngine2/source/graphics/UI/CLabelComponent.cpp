@@ -50,7 +50,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		mText = pReader->GetString(TLabelArchiveKeys::mTextKeyId);
 		mFontResourceId = pReader->GetString(TLabelArchiveKeys::mFontKeyId);
@@ -78,7 +78,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		pWriter->BeginGroup("component");
 		{
@@ -102,7 +102,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CLabel::Clone(IComponent*& pDestObject) const
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		if (auto pComponent = dynamic_cast<CLabel*>(pDestObject))
 		{
@@ -124,7 +124,7 @@ namespace TDEngine2
 
 	void CLabel::SetText(const std::string& text)
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		mPrevText = mText;
 		mText = text;
@@ -132,7 +132,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CLabel::SetFontId(const std::string& fontId)
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		if (fontId.empty())
 		{
@@ -146,7 +146,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CLabel::SetFontResourceHandle(TResourceId handle)
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		if (TResourceId::Invalid == handle)
 		{
@@ -160,93 +160,93 @@ namespace TDEngine2
 
 	void CLabel::SetAlignType(E_FONT_ALIGN_POLICY value)
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		mAlignType = value;
 	}
 
 	void CLabel::SetOverflowPolicyType(E_TEXT_OVERFLOW_POLICY value)
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		mOverflowPolicyType = value;
 	}
 
 	void CLabel::SetFontDataVersionId(U32 value)
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		mFontDataVersionId = value;
 	}
 
 	void CLabel::SetColor(const TColor32F& color)
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		mFontVertexColor = color;
 		mPrevText = Wrench::StringUtils::GetEmptyStr();
 	}
 
 	void CLabel::SetTextHeight(U32 height)
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		mTextHeight = height;
 		mPrevText = Wrench::StringUtils::GetEmptyStr();
 	}
 
 	void CLabel::ResetDirtyFlag()
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		mPrevText = mText;
 	}
 
 	const std::string& CLabel::GetText() const
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		return mText;
 	}
 
 	const std::string& CLabel::GetFontId() const
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		return mFontResourceId;
 	}
 
 	TResourceId CLabel::GetFontResourceHandle() const
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		return mFontResourceHandle;
 	}
 
 	E_FONT_ALIGN_POLICY CLabel::GetAlignType() const
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		return mAlignType;
 	}
 
 	E_TEXT_OVERFLOW_POLICY CLabel::GetOverflowPolicyType() const
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		return mOverflowPolicyType;
 	}
 
 	U32 CLabel::GetFontDataVersionId() const
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		return mFontDataVersionId;
 	}
 
 	const TColor32F& CLabel::GetColor() const
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		return mFontVertexColor;
 	}
 
 	U32 CLabel::GetTextHeight() const
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		return mTextHeight;
 	}
 
 	bool CLabel::IsDirty() const
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		return mPrevText != mText;
 	}
 
@@ -258,7 +258,7 @@ namespace TDEngine2
 
 	IPropertyWrapperPtr CLabel::GetProperty(const std::string& propertyName)
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		static const std::unordered_map<std::string, std::function<IPropertyWrapperPtr(CLabel*)>> propertiesFactories
 		{

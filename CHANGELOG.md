@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - TDEngine2::SafeFree<T> was removed due to it has no usages in the project.
 
+ The signature of TDE2_MULTI_THREAD_ACCESS_CHECK macro was simplified. Now it requires the only argument which is a name of debug MT lock object.
+
 ### Fixed
 
 - (Issue #98) Now all DLL dependencies of D3D12GraphicsContext are automatically copied into engine's binaries directory.

@@ -176,7 +176,7 @@ namespace TDEngine2
 
 	TFileEntryId CBaseMountableStorage::_registerFileEntry(IFile* pFileEntry)
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		USIZE localHandle = mActiveFiles.Add(pFileEntry);
 
 		const std::string& path = pFileEntry->GetFilename();
@@ -249,7 +249,7 @@ namespace TDEngine2
 
 	TResult<TPtr<IStream>> CPhysicalFilesStorage::_createStream(const std::string& path, E_FILE_FACTORY_TYPE type) const
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		E_RESULT_CODE result = RC_OK;
 		
 		IStream* pStream = (type == E_FILE_FACTORY_TYPE::READER) ? CreateFileInputStream(path, result) : CreateFileOutputStream(path, result);

@@ -36,7 +36,7 @@ namespace TDEngine2
 	E_RESULT_CODE CRuntimeFont::Reset()
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		E_RESULT_CODE result = CFont::Reset();
 
@@ -58,7 +58,7 @@ namespace TDEngine2
 		
 		{
 			std::lock_guard<std::mutex> lock(mMutex);
-			TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+			TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 			TUtf8CodePoint codePoint;
 
@@ -104,7 +104,7 @@ namespace TDEngine2
 		}
 
 		std::lock_guard<std::mutex> lock(mMutex);
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		const U64 fileSize = pFontFile->GetFileLength();
 
@@ -134,7 +134,7 @@ namespace TDEngine2
 	E_RESULT_CODE CRuntimeFont::SetFontHeight(F32 value)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		if (value < 0.0f)
 		{
@@ -155,7 +155,7 @@ namespace TDEngine2
 	F32 CRuntimeFont::GetFontHeight() const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		return mFontHeight;
 	}

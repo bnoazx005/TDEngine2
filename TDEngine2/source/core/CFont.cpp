@@ -46,7 +46,7 @@ namespace TDEngine2
 		}
 
 		std::lock_guard<std::mutex> lock(mMutex);
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		PANIC_ON_FAILURE(pWriter->SetString("name", mName));
 
@@ -107,7 +107,7 @@ namespace TDEngine2
 	E_RESULT_CODE CFont::Load(IArchiveReader* pReader)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		if (!pReader)
 		{
@@ -181,7 +181,7 @@ namespace TDEngine2
 	E_RESULT_CODE CFont::AddGlyphInfo(TUtf8CodePoint codePoint, const TFontGlyphInfo& info)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		return _addGlyphInfoInternal(codePoint, info);
 	}
@@ -189,7 +189,7 @@ namespace TDEngine2
 	E_RESULT_CODE CFont::SetTextureAtlasHandle(TResourceId atlasHandle)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		if (TResourceId::Invalid == atlasHandle)
 		{
@@ -204,7 +204,7 @@ namespace TDEngine2
 	E_RESULT_CODE CFont::SetFontHeight(F32 height)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		if (height < 0.0f)
 		{
@@ -248,7 +248,7 @@ namespace TDEngine2
 		TDE2_PROFILER_SCOPE("CFont::GenerateMesh");
 
 		std::lock_guard<std::mutex> lock(mMutex);
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		TPtr<ITextureAtlas> pTextureAtlas = mpResourceManager->GetResource<ITextureAtlas>(mFontTextureAtlasHandle);
 		if (!pTextureAtlas)
@@ -400,7 +400,7 @@ namespace TDEngine2
 	F32 CFont::GetFontHeight() const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		return mFontHeight;
 	}
@@ -408,7 +408,7 @@ namespace TDEngine2
 	F32 CFont::GetTextLength(const TTextMeshBuildParams& params, const std::string& text, USIZE pos, USIZE count) const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		const F32 scale = params.mScale;
 		F32 textLength = 0.0f;

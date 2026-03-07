@@ -159,7 +159,7 @@ namespace TDEngine2
 			return TPtr<IMaterialInstance>(nullptr);
 		}
 
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		if (auto newInstanceResult = _allocateNewInstance())
 		{
@@ -197,7 +197,7 @@ namespace TDEngine2
 	E_RESULT_CODE CBaseMaterial::Load(IArchiveReader* pReader)
 	{
 		TDE2_PROFILER_SCOPE("CBaseMaterial::Load");
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		if (!pReader)
 		{
@@ -324,7 +324,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseMaterial::Save(IArchiveWriter* pWriter)
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		if (!pWriter)
 		{
@@ -506,7 +506,7 @@ namespace TDEngine2
 
 	void CBaseMaterial::Bind(TMaterialInstanceId instanceId)
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		auto pShaderInstance = mpResourceManager->GetResource<IShader>(mShaderHandle);
 

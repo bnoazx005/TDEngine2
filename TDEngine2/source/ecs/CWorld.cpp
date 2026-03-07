@@ -332,7 +332,7 @@ namespace TDEngine2
 	TEntitiesArray CWorld::_findEntitiesWithComponents(const TTypesArray& types)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		return mpComponentManager->FindEntitiesWithAll(types);
 	}
@@ -340,7 +340,7 @@ namespace TDEngine2
 	TEntitiesArray CWorld::_findEntitiesWithAnyComponents(const TTypesArray& types)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		return mpComponentManager->FindEntitiesWithAny(types);
 	}
@@ -348,7 +348,7 @@ namespace TDEngine2
 	TEntityId CWorld::_findEntityWithUniqueComponent(TypeId typeId)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		TEntityId entityId = mpComponentManager->FindEntityWithUniqueComponent(typeId);
 		if (TEntityId::Invalid == entityId) /// \note Create a new instance because it doesn't exist yet

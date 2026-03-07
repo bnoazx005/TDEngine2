@@ -41,7 +41,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		mLabelEntityRef = static_cast<TEntityId>(pReader->GetUInt32(TDropDownArchiveKeys::mLabelEntityRefKeyId));
 		mPopupRootEntityRef = static_cast<TEntityId>(pReader->GetUInt32(TDropDownArchiveKeys::mPopupRootEntityRefKeyId));
@@ -73,7 +73,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		pWriter->BeginGroup("component");
 		{
@@ -104,7 +104,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CDropDown::PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper)
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		mLabelEntityRef = entitiesIdentifiersRemapper.Resolve(mLabelEntityRef);
 		mPopupRootEntityRef = entitiesIdentifiersRemapper.Resolve(mPopupRootEntityRef);
@@ -116,7 +116,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CDropDown::Clone(IComponent*& pDestObject) const
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		if (auto pComponent = dynamic_cast<CDropDown*>(pDestObject))
 		{
@@ -137,31 +137,31 @@ namespace TDEngine2
 
 	void CDropDown::SetLabelEntityId(TEntityId labelId)
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		mLabelEntityRef = labelId;
 	}
 
 	void CDropDown::SetPopupRootEntityId(TEntityId entityId)
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		mPopupRootEntityRef = entityId;
 	}
 
 	void CDropDown::SetContentEntityId(TEntityId contentEntityId)
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		mContentEntityRef = contentEntityId;
 	}
 
 	void CDropDown::SetItemPrefabEntityId(TEntityId entityId)
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		mItemPrefabEntityRef = entityId;
 	}
 
 	E_RESULT_CODE CDropDown::SetSelectedItem(U32 index)
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
 		if (index >= mItems.size())
 		{
@@ -175,61 +175,61 @@ namespace TDEngine2
 
 	void CDropDown::SetItems(const TOptionsArray& items)
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		mItems = std::move(items);
 	}
 
 	void CDropDown::SetExpanded(bool state)
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		mIsExpanded = state;
 	}
 
 	TEntityId CDropDown::GetLabelEntityId() const
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		return mLabelEntityRef;
 	}
 
 	TEntityId CDropDown::GetPopupRootEntityId() const
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		return mPopupRootEntityRef;
 	}
 
 	TEntityId CDropDown::GetContentEntityId() const
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		return mContentEntityRef;
 	}
 
 	TEntityId CDropDown::GetItemPrefabEntityId() const
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		return mItemPrefabEntityRef;
 	}
 
 	const CDropDown::TOptionsArray& CDropDown::GetItems() const
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		return mItems;
 	}
 
 	U32 CDropDown::GetSelectedItem() const
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		return mSelectedItemIndex;
 	}
 
 	TEntitiesArray& CDropDown::GetItemsEntities()
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		return mItemsEntities;
 	}
 
 	bool CDropDown::IsExpanded() const
 	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(debugLock, mMTCheckLock);
+		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 		return mIsExpanded;
 	}
 
