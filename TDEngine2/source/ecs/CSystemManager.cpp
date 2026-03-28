@@ -9,6 +9,7 @@
 #include "../../include/ecs/CBaseComponent.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include <algorithm>
+#include <unordered_set>
 
 
 namespace TDEngine2
@@ -197,21 +198,64 @@ namespace TDEngine2
 		TDE2_PROFILER_SCOPE("CSystemManager::Update");
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		ISystem* pCurrSystem = nullptr;
+		std::unordered_map<TypeId, U32> systemsAncestors{};
 
-		for (auto&& currSystemDesc : mpActiveSystems)
+		for (const TSystemDesc& currSystemEntry : mpActiveSystems)
 		{
-			pCurrSystem = currSystemDesc.mpSystem;
+			systemsAncestors[currSystemEntry.mpSystem->GetSystemType()] = 0;
+		}
 
-			if (mIsDirty)
+		for (const TSystemDesc& currSystemEntry : mpActiveSystems)
+		{
+			for (TPtr<ISystem> pCurrSystem : currSystemEntry.mpSystem->GetContinuations())
 			{
-				pCurrSystem->InjectBindings(mpWorld);
+				++systemsAncestors[pCurrSystem->GetSystemType()];
+			}
+		}
+
+		std::unordered_set<ISystem*> remainingSystems{};
+		std::transform(mpActiveSystems.cbegin(), mpActiveSystems.cend(), 
+			std::inserter(remainingSystems, remainingSystems.end()), 
+			[](const TSystemDesc& currSystemEntry) { return currSystemEntry.mpSystem; });
+
+		while (!remainingSystems.empty())
+		{
+			CFixedVector<ISystem*, 64> executionGroup{};
+
+			for (ISystem* pSystem : remainingSystems)
+			{
+				if (systemsAncestors[pSystem->GetSystemType()])
+				{
+					continue;
+				}
+
+				executionGroup.push_back(pSystem);
 			}
 
-			pCurrSystem->Update(pWorld, dt);
+			// Execute all systems that have no dependencies
+			// \todo All systems in group should be executed in parallel manner
+			for (ISystem* pSystem : executionGroup)
+			{
+				if (mIsDirty)
+				{
+					pSystem->InjectBindings(mpWorld);
+				}
 
-#if TDE2_EDITORS_ENABLED
-#endif
+				pSystem->Update(pWorld, dt);
+			}
+
+			for (ISystem* pSystem : executionGroup)
+			{
+				remainingSystems.erase(pSystem);
+			}
+
+			for (ISystem* pSystem : executionGroup)
+			{
+				for (TPtr<ISystem> pSubsystems : pSystem->GetContinuations())
+				{
+					--systemsAncestors[pSystem->GetSystemType()];
+				}
+			}
 		}
 
 		mIsDirty = false;
@@ -219,8 +263,7 @@ namespace TDEngine2
 		/// \note Execute all deferred commands after all updates
 		for (auto currSystemDesc : mpActiveSystems)
 		{
-			pCurrSystem = currSystemDesc.mpSystem;
-			pCurrSystem->ExecuteDeferredCommands();
+			currSystemDesc.mpSystem->ExecuteDeferredCommands();
 		}
 	}
 

@@ -16,9 +16,11 @@
 namespace TDEngine2
 {
 	class IJobManager;
+	class ISystem;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IJobManager)
+	TDE2_DECLARE_SCOPED_PTR(ISystem)
 
 
 	/*!
@@ -69,6 +71,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void InjectBindings(IWorld* pWorld) = 0;
+
+			TDE2_API virtual E_RESULT_CODE AddDependency(TPtr<ISystem> pDependency) = 0;
 
 			/*!
 				\brief The method adds a command into the deferred executed buffer 
@@ -129,6 +133,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual bool IsActive() const = 0;
+
+			TDE2_API virtual const Vector<TPtr<ISystem>>& GetContinuations() const = 0;
 
 			TDE2_API virtual const std::string& GetName() const = 0;
 

@@ -35,6 +35,8 @@ namespace TDEngine2
 
 			TDE2_API void OnInit(TPtr<IJobManager> pJobManager) override;
 
+			TDE2_API E_RESULT_CODE AddDependency(TPtr<ISystem> pDependency) override;
+
 			/*!
 				\brief The method adds a command into the deferred executed buffer
 
@@ -72,6 +74,8 @@ namespace TDEngine2
 
 			TDE2_API void OnSyncRequested() override;
 
+			TDE2_API const Vector<TPtr<ISystem>>& GetContinuations() const override;
+
 			/*!
 				\brief The method returns true if the system is registered and active
 			*/
@@ -85,6 +89,8 @@ namespace TDEngine2
 		private:
 			std::vector<TCommandFunctor> mDeferredCommandsBuffer {};
 			bool                         mIsActive = true;
+
+			Vector<TPtr<ISystem>>        mContinuations{};
 	};
 
 

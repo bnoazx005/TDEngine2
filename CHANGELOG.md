@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.33] 2026-03-07
+## [0.6.33] 2026-03-28
 
 ### Added
 
 - The API of **IGraphicsObjectsManager** was extended with new methods to work with shaders objects.
 
 - **CD3D12GraphicsContext::GenerateMipMaps** method was implemented using a compute shader.
+
+- The API of **ISystem** was extended with new methods AddDependency and GetContinuations to define order of systems execution.
 
 ### Changed
 
@@ -29,7 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - TDEngine2::SafeFree<T> was removed due to it has no usages in the project.
 
- The signature of TDE2_MULTI_THREAD_ACCESS_CHECK macro was simplified. Now it requires the only argument which is a name of debug MT lock object.
+- The signature of TDE2_MULTI_THREAD_ACCESS_CHECK macro was simplified. Now it requires the only argument which is a name of debug MT lock object.
+
+- The internal implementation of CSystemManager::Update was changed to support ordered execution of systems with interdependencies.
 
 ### Fixed
 

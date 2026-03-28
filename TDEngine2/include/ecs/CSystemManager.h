@@ -50,7 +50,7 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API ISystemManager* CreateSystemManager(IWorld*, IEventManager*, TPtr<IJobManager>, E_RESULT_CODE&);
-		protected:
+		public:
 			typedef struct TSystemDesc
 			{
 				TSystemId mSystemId; /// low bytes contains system's unique id, high bytes contains its priority

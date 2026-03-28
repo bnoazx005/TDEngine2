@@ -4,7 +4,6 @@
 #include "../../include/core/IJobManager.h"
 #include "../../include/core/Event.h"
 #include "../../include/core/IEventManager.h"
-#include "../../include/editor/CPerfProfiler.h"
 
 
 namespace TDEngine2
@@ -12,6 +11,22 @@ namespace TDEngine2
 	void CBaseSystem::OnInit(TPtr<IJobManager> pJobManager)
 	{
 		mpJobManager = pJobManager;
+	}
+
+	E_RESULT_CODE CBaseSystem::AddDependency(TPtr<ISystem> pDependency)
+	{
+		if (!pDependency || pDependency.Get() == this)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		if (TPtr<CBaseSystem> pBaseParentSystem = DynamicPtrCast<CBaseSystem>(pDependency))
+		{
+			pBaseParentSystem->mContinuations.emplace_back(MakeScopedFromRawPtr<ISystem>(this));
+			return RC_OK;
+		}
+
+		return RC_FAIL;
 	}
 
 	E_RESULT_CODE CBaseSystem::AddDeferredCommand(const TCommandFunctor& action)
@@ -64,6 +79,11 @@ namespace TDEngine2
 	{
 		mpJobManager->WaitForJobCounter(mMainSystemJobCounter);
 		mMainSystemJobCounter.mValue = TJobCounterId::Invalid;
+	}
+
+	const Vector<TPtr<ISystem>>& CBaseSystem::GetContinuations() const
+	{
+		return mContinuations;
 	}
 
 	bool CBaseSystem::IsActive() const
