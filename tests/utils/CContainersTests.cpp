@@ -1,5 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 #include <TDEngine2.h>
+#include <memory>
 
 using namespace TDEngine2;
 
@@ -240,5 +241,20 @@ TEST_CASE("CFixedVector<T, USIZE> Tests")
 			vec.erase(vec.cbegin());
 			REQUIRE(vec.size() == --expectedCount);
 		}
+	}
+
+	SECTION("TestDestructor_CreateAnArrayWithSharedPointers_AllPointersShouldCorrectlyStoredAndProcessedInArray")
+	{
+		std::shared_ptr<int> pPtr = std::make_shared<int>(42);
+		REQUIRE(pPtr.use_count() == 1);
+
+		{
+			CFixedVector<std::shared_ptr<int>> pPtrs{};
+			pPtrs.push_back(pPtr);
+
+			REQUIRE(pPtr.use_count() == 2);
+		}
+
+		REQUIRE(pPtr.use_count() == 1);
 	}
 }

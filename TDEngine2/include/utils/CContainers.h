@@ -367,7 +367,7 @@ namespace TDEngine2
 
 			~CFixedVector()
 			{
-				clear();
+				mSize = 0;
 			}
 
 			reference at(size_type index)
