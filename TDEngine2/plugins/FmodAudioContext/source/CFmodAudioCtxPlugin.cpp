@@ -83,7 +83,7 @@ namespace TDEngine2
 				continue;
 			}
 
-			pWorld->RegisterSystem(pCurrSystem);
+			pWorld->RegisterSystem(MakeScopedFromRawPtr<ISystem>(pCurrSystem));
 		}
 
 		return RC_OK;

@@ -57,7 +57,7 @@ namespace TDEngine2
 		return ClearSystemsRegistry();
 	}
 
-	TResult<TSystemId> CSystemManager::RegisterSystem(ISystem* pSystem, E_SYSTEM_PRIORITY priority)
+	TResult<TSystemId> CSystemManager::RegisterSystem(TPtr<ISystem> pSystem, E_SYSTEM_PRIORITY priority)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
@@ -99,13 +99,6 @@ namespace TDEngine2
 		return _internalUnregisterSystem(systemId);
 	}
 
-	E_RESULT_CODE CSystemManager::UnregisterSystemImmediately(TSystemId systemId)
-	{
-		std::lock_guard<std::mutex> lock(mMutex);
-
-		return _internalUnregisterSystemImmediately(systemId);
-	}
-
 	E_RESULT_CODE CSystemManager::ActivateSystem(TSystemId systemId)
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
@@ -117,7 +110,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		if (ISystem* pSystem = targetSystemIter->mpSystem)
+		if (TPtr<ISystem> pSystem = targetSystemIter->mpSystem)
 		{
 			pSystem->OnActivated();
 			pSystem->InjectBindings(mpWorld);
@@ -141,7 +134,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		if (ISystem* pSystem = targetSystemIter->mpSystem)
+		if (TPtr<ISystem> pSystem = targetSystemIter->mpSystem)
 		{
 			pSystem->OnDeactivated();
 		}
@@ -156,7 +149,7 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		ISystem* pCurrSystem = nullptr;
+		TPtr<ISystem> pCurrSystem = nullptr;
 
 		for (auto currSystemDesc : mpActiveSystems)
 		{
@@ -175,20 +168,8 @@ namespace TDEngine2
 
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		while (!mpActiveSystems.empty())
-		{
-			result = result | _internalUnregisterSystemImmediately(mpActiveSystems.front().mSystemId);
-		}
-
-		while (!mpDeactivatedSystems.empty())
-		{
-			if (auto pSystem = mpDeactivatedSystems.front().mpSystem)
-			{
-				pSystem->Free();
-			}
-
-			mpDeactivatedSystems.pop_front();
-		}
+		mpActiveSystems.clear();
+		mpDeactivatedSystems.clear();
 
 		return result;
 	}
@@ -213,16 +194,16 @@ namespace TDEngine2
 			}
 		}
 
-		std::unordered_set<ISystem*> remainingSystems{};
+		std::unordered_set<TPtr<ISystem>> remainingSystems{};
 		std::transform(mpActiveSystems.cbegin(), mpActiveSystems.cend(), 
 			std::inserter(remainingSystems, remainingSystems.end()), 
 			[](const TSystemDesc& currSystemEntry) { return currSystemEntry.mpSystem; });
 
 		while (!remainingSystems.empty())
 		{
-			CFixedVector<ISystem*, 64> executionGroup{};
+			CFixedVector<TPtr<ISystem>, 64> executionGroup{};
 
-			for (ISystem* pSystem : remainingSystems)
+			for (TPtr<ISystem> pSystem : remainingSystems)
 			{
 				if (systemsAncestors[pSystem->GetSystemType()])
 				{
@@ -234,7 +215,7 @@ namespace TDEngine2
 
 			// Execute all systems that have no dependencies
 			// \todo All systems in group should be executed in parallel manner
-			for (ISystem* pSystem : executionGroup)
+			for (TPtr<ISystem> pSystem : executionGroup)
 			{
 				if (mIsDirty)
 				{
@@ -244,12 +225,12 @@ namespace TDEngine2
 				pSystem->Update(pWorld, dt);
 			}
 
-			for (ISystem* pSystem : executionGroup)
+			for (TPtr<ISystem> pSystem : executionGroup)
 			{
 				remainingSystems.erase(pSystem);
 			}
 
-			for (ISystem* pSystem : executionGroup)
+			for (TPtr<ISystem> pSystem : executionGroup)
 			{
 				for (TPtr<ISystem> pSubsystems : pSystem->GetContinuations())
 				{
@@ -274,7 +255,7 @@ namespace TDEngine2
 
 		for (auto currSystemDesc : mpActiveSystems)
 		{
-			ISystem* pCurrSystem = currSystemDesc.mpSystem;
+			TPtr<ISystem> pCurrSystem = currSystemDesc.mpSystem;
 			pCurrSystem->OnSyncRequested();
 		}
 	}
@@ -285,7 +266,7 @@ namespace TDEngine2
 
 		auto&& preDestroySystem = [this](auto&& container)
 		{
-			ISystem* pCurrSystem = nullptr;
+			TPtr<ISystem> pCurrSystem = nullptr;
 
 			for (auto currSystemDesc : container)
 			{
@@ -323,12 +304,12 @@ namespace TDEngine2
 
 		for (auto&& currSystem : mpActiveSystems)
 		{
-			action(currSystem.mSystemId, currSystem.mpSystem);
+			action(currSystem.mSystemId, currSystem.mpSystem.Get());
 		}
 
 		for (auto&& currSystem : mpDeactivatedSystems)
 		{
-			action(currSystem.mSystemId, currSystem.mpSystem);
+			action(currSystem.mSystemId, currSystem.mpSystem.Get());
 		}
 	}
 
@@ -356,20 +337,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CSystemManager::_internalUnregisterSystemImmediately(TSystemId systemId)
-	{
-		ISystem* pSystem = _findSystemDesc(mpActiveSystems.begin(), mpActiveSystems.end(), systemId)->mpSystem;
-
-		E_RESULT_CODE result = _internalUnregisterSystem(systemId);
-
-		if (result != RC_OK)
-		{
-			return result;
-		}
-
-		return pSystem->Free();
-	}
-
 	TSystemId CSystemManager::FindSystem(TypeId typeId)
 	{
 		auto iter = std::find_if(mpActiveSystems.cbegin(), mpActiveSystems.cend(), [typeId](const TSystemDesc& systemDesc)
@@ -383,8 +350,7 @@ namespace TDEngine2
 
 	TPtr<ISystem> CSystemManager::GetSystem(TSystemId handle)
 	{
-		ISystem* pSystem = _findSystemDesc(mpActiveSystems.begin(), mpActiveSystems.end(), handle)->mpSystem;
-		return MakeScopedFromRawPtr<ISystem>(pSystem);
+		return _findSystemDesc(mpActiveSystems.begin(), mpActiveSystems.end(), handle)->mpSystem;
 	}
 
 

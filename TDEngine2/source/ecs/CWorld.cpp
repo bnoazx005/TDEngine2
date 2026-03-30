@@ -145,7 +145,7 @@ namespace TDEngine2
 		return mpComponentManager->UnregisterFactory(componentTypeId);
 	}
 
-	TResult<TSystemId> CWorld::RegisterSystem(ISystem* pSystem, E_SYSTEM_PRIORITY priority)
+	TResult<TSystemId> CWorld::RegisterSystem(TPtr<ISystem> pSystem, E_SYSTEM_PRIORITY priority)
 	{
 		TDE2_PROFILER_SCOPE("World::RegisterSystem");
 		return mpSystemManager->RegisterSystem(pSystem, priority);
@@ -155,12 +155,7 @@ namespace TDEngine2
 	{
 		return mpSystemManager->UnregisterSystem(systemId);
 	}
-	
-	E_RESULT_CODE CWorld::UnregisterSystemImmediately(TSystemId systemId)
-	{
-		return mpSystemManager->UnregisterSystemImmediately(systemId);
-	}
-	
+		
 	E_RESULT_CODE CWorld::ActivateSystem(TSystemId systemId)
 	{
 		return mpSystemManager->ActivateSystem(systemId);

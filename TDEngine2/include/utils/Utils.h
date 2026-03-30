@@ -699,8 +699,8 @@ namespace TDEngine2
 	class CScopedPtr
 	{
 		public:
-			CScopedPtr() : mpPtr(nullptr) {}
-			CScopedPtr(const CScopedPtr<T>& ptr) : mpPtr(ptr.mpPtr) 
+			CScopedPtr() noexcept : mpPtr(nullptr) {}
+			CScopedPtr(const CScopedPtr<T>& ptr) noexcept : mpPtr(ptr.mpPtr)
 			{
 				if (mpPtr)
 				{
@@ -709,8 +709,8 @@ namespace TDEngine2
 			}
 
 			CScopedPtr(CScopedPtr<T>&& ptr) noexcept : mpPtr(ptr.mpPtr) { ptr.mpPtr = nullptr; }
-			explicit CScopedPtr(T* pPtr) : mpPtr(pPtr) {}
-			CScopedPtr(std::nullptr_t) : mpPtr(nullptr) {}
+			explicit CScopedPtr(T* pPtr) noexcept : mpPtr(pPtr) {}
+			CScopedPtr(std::nullptr_t) noexcept : mpPtr(nullptr) {}
 
 			~CScopedPtr()
 			{
@@ -761,6 +761,9 @@ namespace TDEngine2
 
 
 	template <typename T> using TPtr = CScopedPtr<T>;
+
+
+	template <typename T> bool operator== (const CScopedPtr<T>& lhs, const CScopedPtr<T>& rhs) { return lhs.Get() == rhs.Get(); }
 
 
 	template <typename T, typename U> 
@@ -1029,4 +1032,17 @@ namespace TDEngine2
 
 	typedef std::vector<TEntityId> TEntitiesArray;
 	typedef Vector<TypeId>         TTypesArray;
+}
+
+
+namespace std
+{
+	template <typename T>
+	struct hash<TDEngine2::CScopedPtr<T>>
+	{
+		size_t operator() (const TDEngine2::CScopedPtr<T>& pPtr) const noexcept
+		{
+			return hash<const T*>()(pPtr.Get());
+		}
+	};
 }

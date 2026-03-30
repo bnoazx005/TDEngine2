@@ -80,7 +80,7 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 		auto pPhysicsSystem = CreatePhysics3DSystem(pEngineCore->GetSubsystem<IEventManager>().Get(), result);
-		pWorld->RegisterSystem(pPhysicsSystem);
+		pWorld->RegisterSystem(TPtr<ISystem>(pPhysicsSystem));
 
 		if (auto pRaycastContext = pWorld->GetRaycastContext())
 		{

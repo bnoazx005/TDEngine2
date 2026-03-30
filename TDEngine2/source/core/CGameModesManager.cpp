@@ -181,7 +181,7 @@ namespace TDEngine2
 		/// \note Register the system that processes splash screens
 		E_RESULT_CODE result = RC_OK;
 
-		auto registerResult = mpWorld->RegisterSystem(CreateSplashScreenLogicSystem({ mpSceneManager, mpEventManager, mMaxShowDuration, mShouldSkipScreenCallback }, result));
+		auto registerResult = mpWorld->RegisterSystem(TPtr<ISystem>(CreateSplashScreenLogicSystem({ mpSceneManager, mpEventManager, mMaxShowDuration, mShouldSkipScreenCallback }, result)));
 		TDE2_ASSERT(registerResult.IsOk() && RC_OK == result);
 
 		mSplashScreenSystemHandle = registerResult.Get();

@@ -23,6 +23,9 @@ namespace TDEngine2
 	class IWorld;
 	class ISystem;
 
+
+	TDE2_DECLARE_SCOPED_PTR(ISystem);
+
 		
 	/*!
 		\brief A factory function for creation objects of CSystemManager's type.
@@ -53,9 +56,8 @@ namespace TDEngine2
 		public:
 			typedef struct TSystemDesc
 			{
-				TSystemId mSystemId; /// low bytes contains system's unique id, high bytes contains its priority
-
-				ISystem*  mpSystem;
+				TSystemId     mSystemId; /// low bytes contains system's unique id, high bytes contains its priority
+				TPtr<ISystem> mpSystem;
 			} TSystemDesc, *TSystemDescPtr;
 
 			typedef std::vector<TSystemDesc>                   TSystemsArray;
@@ -89,10 +91,10 @@ namespace TDEngine2
 				\return Either registered system's identifier or an error code
 			*/
 
-			TDE2_API TResult<TSystemId> RegisterSystem(ISystem* pSystem, E_SYSTEM_PRIORITY priority = E_SYSTEM_PRIORITY::SP_NORMAL_PRIORITY) override;
+			TDE2_API TResult<TSystemId> RegisterSystem(TPtr<ISystem> pSystem, E_SYSTEM_PRIORITY priority = E_SYSTEM_PRIORITY::SP_NORMAL_PRIORITY) override;
 			
 			/*!
-				\brief The method unregisters specified system, but doesn't free its memory
+				\brief The method unregisters specified system and free its memory
 
 				\param[in] systemId A system's identifier
 
@@ -102,31 +104,21 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE UnregisterSystem(TSystemId systemId) override;
 
 			/*!
-				\brief The method unregisters specified system and free its memory
+				\brief The method marks specified system as an active
 
 				\param[in] systemId A system's identifier
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE UnregisterSystemImmediately(TSystemId systemId) override;
-
-			/*!
-			\brief The method marks specified system as an active
-
-			\param[in] systemId A system's identifier
-
-			\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
 			TDE2_API E_RESULT_CODE ActivateSystem(TSystemId systemId) override;
 
 			/*!
-			\brief The method deactivates specified system
+				\brief The method deactivates specified system
 
-			\param[in] systemId A system's identifier
+				\param[in] systemId A system's identifier
 
-			\return RC_OK if everything went ok, or some other code, which describes an error
+				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
 			TDE2_API E_RESULT_CODE DeactivateSystem(TSystemId systemId) override;
@@ -214,13 +206,12 @@ namespace TDEngine2
 			}
 
 			TDE2_API E_RESULT_CODE _internalUnregisterSystem(TSystemId systemId);
-			TDE2_API E_RESULT_CODE _internalUnregisterSystemImmediately(TSystemId systemId);
 			
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			TSystemsArray        mpActiveSystems;
+			TSystemsArray        mpActiveSystems{};
 
-			TSystemsList         mpDeactivatedSystems;
+			TSystemsList         mpDeactivatedSystems{};
 			
 			IEventManager*       mpEventManager;
 

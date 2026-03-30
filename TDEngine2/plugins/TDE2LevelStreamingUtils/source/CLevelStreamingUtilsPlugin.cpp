@@ -40,7 +40,7 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
-		auto systemRegistrationResult = pWorld->RegisterSystem(CreateSceneChunksLoadingSystem(pEngineCore->GetSubsystem<ISceneManager>().Get(), result));
+		auto systemRegistrationResult = pWorld->RegisterSystem(TPtr<ISystem>(CreateSceneChunksLoadingSystem(pEngineCore->GetSubsystem<ISceneManager>().Get(), result)));
 		if (systemRegistrationResult.HasError())
 		{
 			return systemRegistrationResult.GetError();

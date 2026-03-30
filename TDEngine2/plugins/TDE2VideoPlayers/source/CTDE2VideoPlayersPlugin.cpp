@@ -42,7 +42,7 @@ namespace TDEngine2
 		E_RESULT_CODE result = RC_OK;
 
 		auto systemRegistrationResult = pWorld->RegisterSystem(
-			CreateVideoProcessSystem(pEngineCore->GetSubsystem<IResourceManager>().Get(), pEngineCore->GetSubsystem<IFileSystem>().Get(), result));
+			TPtr<ISystem>(CreateVideoProcessSystem(pEngineCore->GetSubsystem<IResourceManager>().Get(), pEngineCore->GetSubsystem<IFileSystem>().Get(), result)));
 		if (systemRegistrationResult.HasError())
 		{
 			return systemRegistrationResult.GetError();
