@@ -28,6 +28,7 @@
 #include <unordered_map>
 #include <optional>
 #include <variant>
+#include <functional>
 
 
 namespace TDEngine2
@@ -906,4 +907,9 @@ namespace TDEngine2
 		static U32 mGlobalFrameNumber;
 	} TFrameCounter, *TFrameCounterPtr;
 
+
+	template <typename T> class CScopedPtr;
+
+
+	typedef std::function<CScopedPtr<class IEngineSubsystem> (E_ENGINE_SUBSYSTEM_TYPE)> TRequestSubsystemCallback;
 }

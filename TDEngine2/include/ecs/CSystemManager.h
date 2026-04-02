@@ -16,15 +16,27 @@
 #include <list>
 #include <algorithm>
 #include <mutex>
+#include <functional>
 
 
 namespace TDEngine2
 {
 	class IWorld;
 	class ISystem;
+	class CEngineCore;
 
 
 	TDE2_DECLARE_SCOPED_PTR(ISystem);
+
+
+	struct TSystemRegistrar
+	{
+		TDE2_API virtual ~TSystemRegistrar();
+
+		TDE2_API virtual E_RESULT_CODE ManageDependencies(IWorld* pWorld);
+
+		TDE2_API virtual ISystem* GetSystem(const TRequestSubsystemCallback& subsystemsProviderCallback) = 0;
+	};
 
 		
 	/*!
@@ -60,11 +72,13 @@ namespace TDEngine2
 				TPtr<ISystem> mpSystem;
 			} TSystemDesc, *TSystemDescPtr;
 
-			typedef std::vector<TSystemDesc>                   TSystemsArray;
+			typedef std::vector<TSystemDesc>                       TSystemsArray;
 
-			typedef std::list<TSystemDesc>                     TSystemsList;
+			typedef std::list<TSystemDesc>                         TSystemsList;
 
-			typedef std::unordered_map<E_SYSTEM_PRIORITY, U32> TSystemsAccountTable;
+			typedef std::unordered_map<E_SYSTEM_PRIORITY, U32>     TSystemsAccountTable;
+
+			typedef std::vector<std::unique_ptr<TSystemRegistrar>> TSystemsInitializersArray;
 		public:
 			TDE2_REGISTER_TYPE(CSystemManager)
 
@@ -102,6 +116,13 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE UnregisterSystem(TSystemId systemId) override;
+
+			/*!
+				\brief The method registers all awaiting  systems that were registered through TDE2_REGISTER_SYSTEM
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API E_RESULT_CODE RegisterPendingSystems(IWorld* pWorld, const TRequestSubsystemCallback& subsystemsProviderCallback) override;
 
 			/*!
 				\brief The method marks specified system as an active
@@ -192,6 +213,8 @@ namespace TDEngine2
 
 			TDE2_API void ForEachSystem(const std::function<void(TSystemId, const ISystem* const)> action = nullptr) const override;
 
+			TDE2_API static E_RESULT_CODE RegisterSystemInitializer(std::unique_ptr<TSystemRegistrar> registrar);
+
 			TDE2_API bool IsSystemActive(TSystemId systemId) const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSystemManager)
@@ -224,5 +247,21 @@ namespace TDEngine2
 			mutable std::mutex   mMutex;
 
 			bool                 mIsDirty;
+
+			static TSystemsInitializersArray mSystemsInitializersRegistry;
 	};
+
+
+	template <typename T>
+	struct TSystemGlobalRegistrar
+	{
+		TSystemGlobalRegistrar()
+		{
+			CSystemManager::RegisterSystemInitializer(std::make_unique<T>());
+		}
+	};
+
+
+#define TDE2_REGISTER_SYSTEM(Type) \
+	static TSystemGlobalRegistrar<Type> TDE2_CONCAT(TDE2_CONCAT(SystemInitializerFor, Type), __LINE__)
 }

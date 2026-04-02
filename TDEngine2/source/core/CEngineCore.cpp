@@ -547,6 +547,8 @@ namespace TDEngine2
 			}
 		}
 
+		result = result | pWorldInstance->RegisterPendingSystems([this](E_ENGINE_SUBSYSTEM_TYPE type) { return mSubsystems[static_cast<USIZE>(type)]; });
+
 		if (auto pBaseCameraSystem = dynamic_cast<ICameraSystem*>(pCameraSystem))
 		{
 			pBaseCameraSystem->SetDebugUtility(mpDebugUtility);

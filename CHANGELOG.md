@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.33] 2026-03-30
+## [0.6.33] 2026-04-02
 
 ### Added
 
@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CD3D12GraphicsContext::GenerateMipMaps** method was implemented using a compute shader.
 
 - The API of **ISystem** was extended with new methods AddDependency and GetContinuations to define order of systems execution.
+
+- The API of **IWorld** was extended with a new method RegisterPendingSystems(). The API of **ISystemManager** was extended with new methods RegisterPendinSystems(IWorld*).
 
 ### Changed
 

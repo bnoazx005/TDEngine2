@@ -166,6 +166,11 @@ namespace TDEngine2
 		return mpSystemManager->DeactivateSystem(systemId);
 	}
 
+	E_RESULT_CODE CWorld::RegisterPendingSystems(const TRequestSubsystemCallback& subsystemsProviderCallback)
+	{
+		return mpSystemManager->RegisterPendingSystems(this, subsystemsProviderCallback);
+	}
+
 	E_RESULT_CODE CWorld::OnBeforeFree()
 	{
 		std::lock_guard<std::mutex> lock(mMutex);

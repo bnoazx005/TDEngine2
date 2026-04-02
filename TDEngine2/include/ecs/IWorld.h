@@ -195,6 +195,13 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE DeactivateSystem(TSystemId systemId) = 0;
 
 			/*!
+				\brief The method registers all awaiting  systems that were registered through TDE2_REGISTER_SYSTEM
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			TDE2_API virtual E_RESULT_CODE RegisterPendingSystems(const TRequestSubsystemCallback& subsystemsProviderCallback) = 0;
+
+			/*!
 				\brief The method implements the logic that should be done before the object will be released
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/

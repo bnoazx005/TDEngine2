@@ -14,6 +14,20 @@
 
 namespace TDEngine2
 {
+	TSystemRegistrar::~TSystemRegistrar()
+	{
+	}
+
+	E_RESULT_CODE TSystemRegistrar::ManageDependencies(IWorld* pWorld)
+	{
+		return RC_OK;
+	}
+
+
+
+	CSystemManager::TSystemsInitializersArray CSystemManager::mSystemsInitializersRegistry{};
+
+
 	CSystemManager::CSystemManager() :
 		CBaseObject(), mpEventManager(nullptr), mpWorld(nullptr), mIsDirty(true)
 	{
@@ -97,6 +111,36 @@ namespace TDEngine2
 		std::lock_guard<std::mutex> lock(mMutex);
 
 		return _internalUnregisterSystem(systemId);
+	}
+
+	E_RESULT_CODE CSystemManager::RegisterPendingSystems(IWorld* pWorld, const TRequestSubsystemCallback& subsystemsProviderCallback)
+	{
+		TDE2_PROFILER_SCOPE("CSystemManager::RegisterPendingSystems");
+
+		if (!pWorld)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		for (auto&& pSystemRegistrar : mSystemsInitializersRegistry)
+		{
+			TResult<TSystemId> registerSystemResult = RegisterSystem(TPtr<ISystem>(pSystemRegistrar->GetSystem(subsystemsProviderCallback)));
+			if (registerSystemResult.HasError())
+			{
+				result = result | registerSystemResult.GetError();
+			}
+		}
+
+		for (auto&& pSystemRegistrar : mSystemsInitializersRegistry)
+		{
+			result = result | pSystemRegistrar->ManageDependencies(pWorld);
+		}
+
+		mSystemsInitializersRegistry.clear();
+
+		return result;
 	}
 
 	E_RESULT_CODE CSystemManager::ActivateSystem(TSystemId systemId)
@@ -312,6 +356,20 @@ namespace TDEngine2
 			action(currSystem.mSystemId, currSystem.mpSystem.Get());
 		}
 	}
+
+
+	E_RESULT_CODE CSystemManager::RegisterSystemInitializer(std::unique_ptr<TSystemRegistrar> registrar)
+	{
+		if (!registrar)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mSystemsInitializersRegistry.emplace_back(std::move(registrar));
+
+		return RC_OK;
+	}
+
 
 	bool CSystemManager::IsSystemActive(TSystemId systemId) const
 	{

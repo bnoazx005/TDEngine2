@@ -7,8 +7,8 @@
 #pragma once
 
 
-#include "./../core/IBaseObject.h"
-#include "./../utils/Utils.h"
+#include "../core/IBaseObject.h"
+#include "../utils/Utils.h"
 #include "CBaseComponent.h"
 #include <functional>
 #include <vector>
@@ -224,7 +224,7 @@ namespace TDEngine2
 	#else
 				typename std::enable_if<std::is_base_of<IComponent, T>::value, T*>::type
 	#endif
-				GetComponent(TEntityId id)
+			GetComponent(TEntityId id)
 			{
 				return dynamic_cast<T*>(_getComponent(T::GetTypeId(), id));
 			}

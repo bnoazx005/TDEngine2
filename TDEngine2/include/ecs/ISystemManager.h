@@ -67,6 +67,13 @@ namespace TDEngine2
 			TDE2_API virtual E_RESULT_CODE UnregisterSystem(TSystemId systemId) = 0;
 
 			/*!
+				\brief The method registers all awaiting  systems that were registered through TDE2_REGISTER_SYSTEM
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+			
+			TDE2_API virtual E_RESULT_CODE RegisterPendingSystems(IWorld* pWorld, const TRequestSubsystemCallback& subsystemsProviderCallback) = 0;
+
+			/*!
 				\brief The method marks specified system as an active
 
 				\param[in] systemId A system's identifier
