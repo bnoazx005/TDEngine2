@@ -539,7 +539,7 @@ namespace TDEngine2
 				continue;
 			}
 
-			auto registeredSystemIdResult = pWorldInstance->RegisterSystem(MakeScopedFromRawPtr<ISystem>(pCurrSystem));
+			auto registeredSystemIdResult = pWorldInstance->RegisterSystem(TPtr<ISystem>(pCurrSystem));
 
 			if (registeredSystemIdResult.HasError())
 			{
