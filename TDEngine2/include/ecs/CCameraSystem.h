@@ -126,7 +126,13 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SetMainCamera(const ICamera* pCamera) override;
 
 #if TDE2_EDITORS_ENABLED
-			TDE2_API E_RESULT_CODE SetDebugUtility(IDebugUtility* pDebugUtility) override;
+
+			/*!
+				\brief The method is targeted to draw debug information (textual or graphical) which is related with the given system
+			*/
+
+			TDE2_API void DebugOutput(IDebugUtility* pDebugUtility, F32 dt) const override;
+
 #endif
 
 			/*!
@@ -152,7 +158,7 @@ namespace TDEngine2
 			const ICamera*            mpMainCamera = nullptr;
 
 #if TDE2_EDITORS_ENABLED
-			IDebugUtility*            mpDebugUtility = nullptr;
+			IWorld*                   mpWorld = nullptr;
 #endif
 	};
 

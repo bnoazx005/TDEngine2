@@ -547,12 +547,7 @@ namespace TDEngine2
 			}
 		}
 
-		result = result | pWorldInstance->RegisterPendingSystems([this](E_ENGINE_SUBSYSTEM_TYPE type) { return mSubsystems[static_cast<USIZE>(type)]; });
-
-		if (auto pBaseCameraSystem = dynamic_cast<ICameraSystem*>(pCameraSystem))
-		{
-			pBaseCameraSystem->SetDebugUtility(mpDebugUtility);
-		}
+		result = result | pWorldInstance->RegisterPendingSystems([this](E_ENGINE_SUBSYSTEM_TYPE type) { return mSubsystems[static_cast<USIZE>(type)].Get(); });
 
 		auto pRaycastContextInstance = CreateBaseRaycastContext(dynamic_cast<CPhysics2DSystem*>(p2dPhysics), 
 																nullptr, 

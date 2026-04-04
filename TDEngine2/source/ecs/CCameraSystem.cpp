@@ -164,7 +164,7 @@ namespace TDEngine2
 		SetMainCamera(mCamerasContext.mpCameras[std::distance(mCamerasContext.mEntities.cbegin(), it)]);
 
 #if TDE2_EDITORS_ENABLED
-		DrawCameraFrustums(mpDebugUtility, pWorld, mCamerasContext, mpCamerasContextComponent->GetActiveCameraEntityId(), ndcZmin);
+		mpWorld = pWorld;
 #endif
 	}
 
@@ -212,17 +212,14 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CCameraSystem::SetDebugUtility(IDebugUtility* pDebugUtility)
+#if TDE2_EDITORS_ENABLED
+
+	void CCameraSystem::DebugOutput(IDebugUtility* pDebugUtility, F32 dt) const
 	{
-		if (!pDebugUtility)
-		{
-			return RC_INVALID_ARGS;
-		}
-
-		mpDebugUtility = pDebugUtility;
-
-		return RC_OK;
+		DrawCameraFrustums(pDebugUtility, mpWorld, mCamerasContext, mpCamerasContextComponent->GetActiveCameraEntityId(), mpGraphicsContext->GetContextInfo().mNDCBox.min.z);
 	}
+
+#endif
 
 	const ICamera* CCameraSystem::GetMainCamera() const
 	{

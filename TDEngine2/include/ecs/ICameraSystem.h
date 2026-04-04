@@ -77,10 +77,6 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE SetMainCamera(const ICamera* pCamera) = 0;
 
-#if TDE2_EDITORS_ENABLED
-			TDE2_API virtual E_RESULT_CODE SetDebugUtility(IDebugUtility* pDebugUtility) = 0;
-#endif
-
 			/*!
 				\brief The method returns a pointer to a main camera from which the scene is rendered
 				
