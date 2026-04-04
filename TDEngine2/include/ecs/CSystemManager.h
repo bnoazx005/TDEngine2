@@ -29,9 +29,9 @@ namespace TDEngine2
 	TDE2_DECLARE_SCOPED_PTR(ISystem);
 
 
-	struct TSystemRegistrar
+	struct TSystemAutoInitializer
 	{
-		TDE2_API virtual ~TSystemRegistrar();
+		TDE2_API virtual ~TSystemAutoInitializer();
 
 		TDE2_API virtual E_RESULT_CODE ManageDependencies(IWorld* pWorld);
 
@@ -78,7 +78,7 @@ namespace TDEngine2
 
 			typedef std::unordered_map<E_SYSTEM_PRIORITY, U32>     TSystemsAccountTable;
 
-			typedef std::vector<std::unique_ptr<TSystemRegistrar>> TSystemsInitializersArray;
+			typedef std::vector<std::unique_ptr<TSystemAutoInitializer>> TSystemsInitializersArray;
 		public:
 			TDE2_REGISTER_TYPE(CSystemManager)
 
@@ -213,7 +213,7 @@ namespace TDEngine2
 
 			TDE2_API void ForEachSystem(const std::function<void(TSystemId, const ISystem* const)> action = nullptr) const override;
 
-			TDE2_API static E_RESULT_CODE RegisterSystemInitializer(std::unique_ptr<TSystemRegistrar> registrar);
+			TDE2_API static E_RESULT_CODE RegisterSystemInitializer(std::unique_ptr<TSystemAutoInitializer> registrar);
 
 			TDE2_API bool IsSystemActive(TSystemId systemId) const override;
 		protected:

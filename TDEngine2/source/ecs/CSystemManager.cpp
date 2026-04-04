@@ -14,11 +14,11 @@
 
 namespace TDEngine2
 {
-	TSystemRegistrar::~TSystemRegistrar()
+	TSystemAutoInitializer::~TSystemAutoInitializer()
 	{
 	}
 
-	E_RESULT_CODE TSystemRegistrar::ManageDependencies(IWorld* pWorld)
+	E_RESULT_CODE TSystemAutoInitializer::ManageDependencies(IWorld* pWorld)
 	{
 		return RC_OK;
 	}
@@ -243,9 +243,15 @@ namespace TDEngine2
 			std::inserter(remainingSystems, remainingSystems.end()), 
 			[](const TSystemDesc& currSystemEntry) { return currSystemEntry.mpSystem; });
 
+#if TDE2_DEBUG_MODE
+		U32 currIterationsCount = 0;
+#endif
+
 		while (!remainingSystems.empty())
 		{
 			CFixedVector<TPtr<ISystem>, 64> executionGroup{};
+
+			TDE2_ASSERT_MSG(currIterationsCount++ <= MAX_SYSTEMS_PER_FRAME, "[CSystemManager] Maximum iterations count exceeded. Possibly circlular dependencies between systems exists");
 
 			for (TPtr<ISystem> pSystem : remainingSystems)
 			{
@@ -276,9 +282,9 @@ namespace TDEngine2
 
 			for (TPtr<ISystem> pSystem : executionGroup)
 			{
-				for (TPtr<ISystem> pSubsystems : pSystem->GetContinuations())
+				for (TPtr<ISystem> pSubsystem : pSystem->GetContinuations())
 				{
-					--systemsAncestors[pSystem->GetSystemType()];
+					--systemsAncestors[pSubsystem->GetSystemType()];
 				}
 			}
 		}
@@ -358,7 +364,7 @@ namespace TDEngine2
 	}
 
 
-	E_RESULT_CODE CSystemManager::RegisterSystemInitializer(std::unique_ptr<TSystemRegistrar> registrar)
+	E_RESULT_CODE CSystemManager::RegisterSystemInitializer(std::unique_ptr<TSystemAutoInitializer> registrar)
 	{
 		if (!registrar)
 		{

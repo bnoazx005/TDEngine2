@@ -22,6 +22,10 @@ namespace TDEngine2
 	TDE2_DECLARE_SCOPED_PTR(IJobManager)
 	TDE2_DECLARE_SCOPED_PTR(ISystem)
 
+
+	constexpr U32 MAX_SYSTEMS_PER_FRAME = 1024;
+
+
 	/*!
 		interface ISystemManager
 

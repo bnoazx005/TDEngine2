@@ -908,8 +908,5 @@ namespace TDEngine2
 	} TFrameCounter, *TFrameCounterPtr;
 
 
-	template <typename T> class CScopedPtr;
-
-
-	typedef std::function<CScopedPtr<class IEngineSubsystem> (E_ENGINE_SUBSYSTEM_TYPE)> TRequestSubsystemCallback;
+	typedef std::function<class IEngineSubsystem*(E_ENGINE_SUBSYSTEM_TYPE)> TRequestSubsystemCallback;
 }

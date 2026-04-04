@@ -22,7 +22,7 @@ namespace TDEngine2
 
 		if (TPtr<CBaseSystem> pBaseParentSystem = DynamicPtrCast<CBaseSystem>(pDependency))
 		{
-			pBaseParentSystem->mContinuations.emplace_back(TPtr<ISystem>(this));
+			pBaseParentSystem->mContinuations.emplace_back(MakeScopedFromRawPtr<ISystem>(this));
 			return RC_OK;
 		}
 
