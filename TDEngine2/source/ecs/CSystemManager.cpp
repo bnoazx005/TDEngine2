@@ -8,12 +8,69 @@
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/CBaseComponent.h"
 #include "../../include/editor/CPerfProfiler.h"
+#include "../../include/core/CGameUserSettings.h"
 #include <algorithm>
 #include <unordered_set>
+#if TDE2_EDITORS_ENABLED
+	#include "../../include/platform/CBaseFile.h"
+	#include "../../include/platform/IOStreams.h"
+	#include "../../include/platform/CTextFileWriter.h"
+#endif
 
 
 namespace TDEngine2
 {
+	CInt32ConsoleVarDecl TriggerDumpSystemsDepsGraph("ecs.dump_systems_graph", "", 0); // \todo For now triggers are not supported so mimic them using usual cvars
+
+
+#if TDE2_EDITORS_ENABLED
+	static inline void DumpSystemsDepsGraph(const CSystemManager::TSystemsArray& systems)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		auto pFileStream = TPtr<TDEngine2::IStream>(CreateFileOutputStream("SystemsDependenciesGraphDump.dot", result));
+		ITextFileWriter* pFileWriter = dynamic_cast<ITextFileWriter*>(CreateTextFileWriter(nullptr, pFileStream, result));
+
+		// \note Writes file in DOT format
+		pFileWriter->WriteLine("digraph SystemsGraph {");
+		pFileWriter->WriteLine("rankdir = LR\nsplines=spline\nnode [shape=rectangle, fontname=\"helvetica\", fontsize=12]\n");
+
+		// \note Write passes nodes
+		for (auto&& currSystemDesc : systems)
+		{
+			pFileWriter->WriteLine(Wrench::StringUtils::Format("\"{0}\" [label=\"{0}\", style=\"rounded, filled\", fillcolor=darkorange]", currSystemDesc.mpSystem->GetName()));
+		}
+
+		pFileWriter->WriteLine(Wrench::StringUtils::GetEmptyStr());
+
+		// \note Create edges between systems
+		for (auto&& currSystemDesc : systems)
+		{
+			if (currSystemDesc.mpSystem->GetContinuations().empty())
+			{
+				continue;
+			}
+
+			pFileWriter->WriteLine(Wrench::StringUtils::Format("\"{0}\" -> {", currSystemDesc.mpSystem->GetName()));
+
+			for (TPtr<ISystem> continuation: currSystemDesc.mpSystem->GetContinuations())
+			{
+				pFileWriter->WriteLine("\"" + continuation->GetName() + "\" ");
+			}
+
+			pFileWriter->WriteLine("} [color = seagreen]");
+		}
+
+		pFileWriter->WriteLine("}");
+
+		pFileWriter->Close();
+
+		TriggerDumpSystemsDepsGraph.Set(0);
+	}
+
+#endif
+
+
 	TSystemAutoInitializer::~TSystemAutoInitializer()
 	{
 	}
@@ -222,6 +279,13 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("CSystemManager::Update");
 		std::lock_guard<std::mutex> lock(mMutex);
+
+#if TDE2_EDITORS_ENABLED
+		if (TriggerDumpSystemsDepsGraph.Get())
+		{
+			DumpSystemsDepsGraph(mpActiveSystems);
+		}
+#endif
 
 		std::unordered_map<TypeId, U32> systemsAncestors{};
 
