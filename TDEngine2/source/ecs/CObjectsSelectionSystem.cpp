@@ -20,6 +20,12 @@
 #include "../../include/ecs/CTransform.h"
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CEntity.h"
+#include "../../include/ecs/CSystemManager.h"
+#include "../../include/ecs/CCameraSystem.h"
+#include "../../include/ecs/CStaticMeshRendererSystem.h"
+#include "../../include/ecs/CSkinnedMeshRendererSystem.h"
+#include "../../include/ecs/CSpriteRendererSystem.h"
+#include "../../include/ecs/CUIElementsProcessSystem.h"
 #include "../../include/ecs/components/CBoundsComponent.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/editor/ecs/EditorComponents.h"
@@ -558,6 +564,49 @@ namespace TDEngine2
 	{
 		return CREATE_IMPL(ISystem, CObjectsSelectionSystem, result, pRenderer, pGraphicsObjectManager);
 	}
+
+
+	struct TObjectsSelectionSystemAutoInitializer : TSystemAutoInitializer
+	{
+		virtual ~TObjectsSelectionSystemAutoInitializer() = default;
+
+		E_RESULT_CODE ManageDependencies(IWorld* pWorld) override
+		{
+			std::array<TSystemId, 5> dependenciesHandles
+			{
+				pWorld->FindSystem<CCameraSystem>(),
+				pWorld->FindSystem<CStaticMeshRendererSystem>(),
+				pWorld->FindSystem<CSkinnedMeshRendererSystem>(),
+				pWorld->FindSystem<CSpriteRendererSystem>(),
+				pWorld->FindSystem<CUIElementsProcessSystem>()
+			};
+
+			E_RESULT_CODE result = RC_OK;
+
+			for (const TSystemId& currDependencyHandle : dependenciesHandles)
+			{
+				result = result | (currDependencyHandle == TSystemId::Invalid ? RC_FAIL : RC_OK);
+				result = result | pSystemInstance->AddDependency(pWorld->GetSystem(currDependencyHandle));
+			}
+
+			return result;
+		}
+
+		ISystem* GetSystem(IWorld* pWorld, const TRequestSubsystemCallback& subsystemsProviderCallback)
+		{
+			E_RESULT_CODE result = RC_OK;
+			pSystemInstance = CreateObjectsSelectionSystem(
+				PolymorphicCast<IRenderer*>(subsystemsProviderCallback(E_ENGINE_SUBSYSTEM_TYPE::EST_RENDERER)),
+				PolymorphicCast<IGraphicsContext*>(subsystemsProviderCallback(E_ENGINE_SUBSYSTEM_TYPE::EST_GRAPHICS_CONTEXT))->GetGraphicsObjectManager(), result);
+
+			return pSystemInstance;
+		}
+
+		ISystem* pSystemInstance = nullptr;
+	};
+
+
+	TDE2_REGISTER_SYSTEM(TObjectsSelectionSystemAutoInitializer);
 }
 
 #endif

@@ -35,7 +35,7 @@ namespace TDEngine2
 
 		TDE2_API virtual E_RESULT_CODE ManageDependencies(IWorld* pWorld);
 
-		TDE2_API virtual ISystem* GetSystem(const TRequestSubsystemCallback& subsystemsProviderCallback) = 0;
+		TDE2_API virtual ISystem* GetSystem(IWorld* pWorld, const TRequestSubsystemCallback& subsystemsProviderCallback) = 0;
 	};
 
 		

@@ -4,6 +4,7 @@
 */
 
 #include "../../include/ecs/CWeatherSystem.h"
+#include "../../include/ecs/CSystemManager.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IJobManager.h"
@@ -121,4 +122,24 @@ namespace TDEngine2
 	{
 		return CREATE_IMPL(ISystem, CWeatherSystem, result, params);
 	}
+
+
+	struct TWeatherSystemAutoInitializer : TSystemAutoInitializer
+	{
+		virtual ~TWeatherSystemAutoInitializer() = default;
+
+		ISystem* GetSystem(IWorld* pWorld, const TRequestSubsystemCallback& subsystemsProviderCallback)
+		{
+			E_RESULT_CODE result = RC_OK;
+			return CreateWeatherSystem(
+				{
+					PolymorphicCast<IResourceManager*>(subsystemsProviderCallback(E_ENGINE_SUBSYSTEM_TYPE::EST_RESOURCE_MANAGER)),
+					PolymorphicCast<IGraphicsContext*>(subsystemsProviderCallback(E_ENGINE_SUBSYSTEM_TYPE::EST_GRAPHICS_CONTEXT)),
+					PolymorphicCast<IJobManager*>(subsystemsProviderCallback(E_ENGINE_SUBSYSTEM_TYPE::EST_JOB_MANAGER))
+				}, result);
+		}
+	};
+
+
+	TDE2_REGISTER_SYSTEM(TWeatherSystemAutoInitializer);
 }

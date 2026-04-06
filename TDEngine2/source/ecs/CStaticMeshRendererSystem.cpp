@@ -9,6 +9,8 @@
 #include "../../include/ecs/CTransform.h"
 #include "../../include/ecs/CWorld.h"
 #include "../../include/ecs/CEntity.h"
+#include "../../include/ecs/CSystemManager.h"
+#include "../../include/ecs/CBoundsUpdatingSystem.h"
 #include "../../include/ecs/components/CBoundsComponent.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IJobManager.h"
@@ -93,7 +95,7 @@ namespace TDEngine2
 			return;
 		}
 
-		mpJobManager->SubmitJob(&mMainSystemJobCounter, [this](auto)
+		//mpJobManager->SubmitJob(&mMainSystemJobCounter, [this](auto)
 			{
 				// \note first pass (construct an array of materials)
 				// \note Materials: | {opaque_material_group1}, ..., {opaque_material_groupN} | {transp_material_group1}, ..., {transp_material_groupM} |
@@ -117,7 +119,7 @@ namespace TDEngine2
 				{
 					_populateCommandsBuffer(mProcessingEntities, pTransparentRenderGroup, nullptr, mCurrMaterialsArray[i], mpCurrActiveCamera);
 				}
-			});
+			}//);
 	}
 
 	void CStaticMeshRendererSystem::_collectUsedMaterials(const TSystemContext& entities, IResourceManager* pResourceManager, TMaterialsArray& usedMaterials)
@@ -184,7 +186,7 @@ namespace TDEngine2
 			auto pTransform           = std::get<CTransform*>(*iter);
 			auto pBounds              = std::get<CBoundsComponent*>(*iter);
 
-			if (E_GEOMETRY_SUBGROUP_TAGS::SKYBOX != pCastedMaterial->GetGeometrySubGroupTag() && !pCamera->GetFrustum()->TestAABB(pBounds->GetBounds()))
+			if (E_GEOMETRY_SUBGROUP_TAGS::SKYBOX != pCastedMaterial->GetGeometrySubGroupTag() && (pCamera->GetFrustum() && !pCamera->GetFrustum()->TestAABB(pBounds->GetBounds())))
 			{
 				++iter;
 				continue;
@@ -275,4 +277,36 @@ namespace TDEngine2
 	{
 		return CREATE_IMPL(ISystem, CStaticMeshRendererSystem, result, pRenderer, pGraphicsObjectManager);
 	}
+
+
+	struct TStaticMeshRendererSystemAutoInitializer : TSystemAutoInitializer
+	{
+		virtual ~TStaticMeshRendererSystemAutoInitializer() = default;
+
+		E_RESULT_CODE ManageDependencies(IWorld* pWorld) override
+		{
+			TSystemId boundsUpdatingSystemHandle = pWorld->FindSystem<CBoundsUpdatingSystem>();
+			if (boundsUpdatingSystemHandle == TSystemId::Invalid)
+			{
+				return RC_FAIL;
+			}
+
+			return pSystemInstance ? pSystemInstance->AddDependency(pWorld->GetSystem(boundsUpdatingSystemHandle)) : RC_FAIL;
+		}
+
+		ISystem* GetSystem(IWorld* pWorld, const TRequestSubsystemCallback& subsystemsProviderCallback)
+		{
+			E_RESULT_CODE result = RC_OK;
+			pSystemInstance = CreateStaticMeshRendererSystem(
+				PolymorphicCast<IRenderer*>(subsystemsProviderCallback(E_ENGINE_SUBSYSTEM_TYPE::EST_RENDERER)),
+				PolymorphicCast<IGraphicsContext*>(subsystemsProviderCallback(E_ENGINE_SUBSYSTEM_TYPE::EST_GRAPHICS_CONTEXT))->GetGraphicsObjectManager(), result);
+
+			return pSystemInstance;
+		}
+
+		ISystem* pSystemInstance = nullptr;
+	};
+
+
+	TDE2_REGISTER_SYSTEM(TStaticMeshRendererSystemAutoInitializer);
 }

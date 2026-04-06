@@ -3,6 +3,7 @@
 #include "../../include/ecs/CTransform.h"
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/ecs/CEntity.h"
+#include "../../include/ecs/CSystemManager.h"
 #include "../../include/ecs/components/CBoundsComponent.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/graphics/COrthoCamera.h"
@@ -197,4 +198,19 @@ namespace TDEngine2
 	{
 		return CREATE_IMPL(ISystem, CTransformSystem, result, pGraphicsContext);
 	}
+
+
+	struct TTransformSystemAutoInitializer : TSystemAutoInitializer
+	{
+		virtual ~TTransformSystemAutoInitializer() = default;
+
+		ISystem* GetSystem(IWorld* pWorld, const TRequestSubsystemCallback& subsystemsProviderCallback)
+		{
+			E_RESULT_CODE result = RC_OK;
+			return CreateTransformSystem(PolymorphicCast<IGraphicsContext*>(subsystemsProviderCallback(E_ENGINE_SUBSYSTEM_TYPE::EST_GRAPHICS_CONTEXT)), result);
+		}
+	};
+
+
+	TDE2_REGISTER_SYSTEM(TTransformSystemAutoInitializer);
 }

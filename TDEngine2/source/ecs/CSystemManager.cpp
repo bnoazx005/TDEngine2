@@ -126,7 +126,7 @@ namespace TDEngine2
 
 		for (auto&& pSystemRegistrar : mSystemsInitializersRegistry)
 		{
-			TResult<TSystemId> registerSystemResult = RegisterSystem(TPtr<ISystem>(pSystemRegistrar->GetSystem(subsystemsProviderCallback)));
+			TResult<TSystemId> registerSystemResult = RegisterSystem(TPtr<ISystem>(pSystemRegistrar->GetSystem(pWorld, subsystemsProviderCallback)));
 			if (registerSystemResult.HasError())
 			{
 				result = result | registerSystemResult.GetError();

@@ -215,13 +215,17 @@ namespace TDEngine2
 
 		mpInternalTimer = pWindowSystem->GetTimer();
 
-		/// \todo This is not critical error, but for now I leave it as is
-		if ((result = _registerBuiltinSystems(mpWorldInstance, pWindowSystem,
-			_getSubsystemAs<IGraphicsContext>(EST_GRAPHICS_CONTEXT),
-			_getSubsystemAs<IRenderer>(EST_RENDERER), 
-			_getSubsystemAs<IEventManager>(EST_EVENT_MANAGER))) != RC_OK)
+		result = result | mpWorldInstance->RegisterPendingSystems([this](E_ENGINE_SUBSYSTEM_TYPE type) { return mSubsystems[static_cast<USIZE>(type)].Get(); });
+
+		// \note Send event that a new world was created
 		{
-			return result;
+			TOnNewWorldInstanceCreated onNewWorldInstanceCreated;
+			onNewWorldInstanceCreated.mpWorldInstance = mpWorldInstance;
+
+			if (IEventManager* pEventManager = _getSubsystemAs<IEventManager>(EST_EVENT_MANAGER))
+			{
+				pEventManager->Notify(&onNewWorldInstanceCreated);
+			}
 		}
 
 		if (IPluginManager* pPluginManager = _getSubsystemAs<IPluginManager>(EST_PLUGIN_MANAGER))
@@ -478,95 +482,6 @@ namespace TDEngine2
 		}
 
 		return result;
-	}
-
-	/// \todo Refactor the method
-
-	E_RESULT_CODE CEngineCore::_registerBuiltinSystems(TPtr<IWorld> pWorldInstance, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext,
-													   IRenderer* pRenderer, IEventManager* pEventManager)
-	{
-		TDE2_PROFILER_SCOPE("_registerBuiltinSystems");
-
-		IGraphicsObjectManager* pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
-		IResourceManager* pResourceManager = _getSubsystemAs<IResourceManager>(EST_RESOURCE_MANAGER);
-
-		E_RESULT_CODE result = RC_OK;
-
-		if (auto debugUtilityResult = pGraphicsObjectManager->CreateDebugUtility(pResourceManager, pRenderer))
-		{
-			mpDebugUtility = debugUtilityResult.Get();
-		}
-
-		ISystem* p2dPhysics = nullptr;
-		ISystem* p3dPhysics = nullptr;
-		ISystem* pCameraSystem = nullptr;
-
-		std::vector<ISystem*> builtinSystems
-		{
-			CreateTransformSystem(pGraphicsContext, result),
-			CreateBoundsUpdatingSystem(pResourceManager, mpDebugUtility, _getSubsystemAs<ISceneManager>(EST_SCENE_MANAGER), result),
-			CreateSpriteRendererSystem(TPtr<IAllocator>(CreateLinearAllocator(5 * CSpriteRendererSystem::SPRITE_INSTANCE_DATA_BUFFER_SIZE, result)),
-									   pRenderer, pGraphicsObjectManager, result),
-			(pCameraSystem = CreateCameraSystem(pWindowSystem, pGraphicsContext, pRenderer, result)),
-			CreateLODMeshSwitchSystem(result),
-			CreateWeatherSystem({ pResourceManager, pGraphicsContext, _getSubsystemAs<IJobManager>(EST_JOB_MANAGER) }, result),
-			CreateStaticMeshRendererSystem(pRenderer, pGraphicsObjectManager, result),
-			CreateAnimationSystem(pResourceManager, pEventManager, result),
-			CreateMeshAnimatorUpdatingSystem(pResourceManager, result),
-			CreateSkinnedMeshRendererSystem(pRenderer, pGraphicsObjectManager, result),
-			CreateLightingSystem(pRenderer, pGraphicsObjectManager, mpInternalTimer, result),
-			CProjectSettings::Get()->mGraphicsSettings.mIsGPUParticlesSimulationEnabled ? 
-				CreateParticlesGPUSimulationSystem(pRenderer, pGraphicsObjectManager, result) :
-				CreateParticlesSimulationSystem(pRenderer, pGraphicsObjectManager, result),
-			
-			CreateAsyncSystemsGroup(pEventManager, /// \note Systems within the group is executed sequentially, but the group itself runs at worker thread
-				{
-					CreateUIEventsSystem(_getSubsystemAs<IInputContext>(EST_INPUT_CONTEXT), mpImGUIContext, result),
-					CreateUIElementsProcessSystem(pGraphicsContext, pResourceManager,_getSubsystemAs<ISceneManager>(EST_SCENE_MANAGER), result),
-					CreateUIElementsRenderSystem(pRenderer, pGraphicsObjectManager, result),
-				}, result),
-
-#if TDE2_EDITORS_ENABLED
-			CreateObjectsSelectionSystem(pRenderer, pGraphicsObjectManager, result),
-#endif
-			(p2dPhysics = CreatePhysics2DSystem(pEventManager, result)),
-		};
-
-		for (ISystem* pCurrSystem : builtinSystems)
-		{
-			if (!pCurrSystem)
-			{
-				continue;
-			}
-
-			auto registeredSystemIdResult = pWorldInstance->RegisterSystem(TPtr<ISystem>(pCurrSystem));
-
-			if (registeredSystemIdResult.HasError())
-			{
-				LOG_ERROR("[Engine Core] Could not register system");
-			}
-		}
-
-		result = result | pWorldInstance->RegisterPendingSystems([this](E_ENGINE_SUBSYSTEM_TYPE type) { return mSubsystems[static_cast<USIZE>(type)].Get(); });
-
-		auto pRaycastContextInstance = CreateBaseRaycastContext(dynamic_cast<CPhysics2DSystem*>(p2dPhysics), 
-																nullptr, 
-																result);
-
-		if ((result != RC_OK) || (result = pWorldInstance->RegisterRaycastContext(TPtr<IRaycastContext>(pRaycastContextInstance))) != RC_OK)
-		{
-			return result;
-		}
-	
-		// \note Send event that a new world was created
-		{
-			TOnNewWorldInstanceCreated onNewWorldInstanceCreated;
-			onNewWorldInstanceCreated.mpWorldInstance = pWorldInstance;
-
-			pEventManager->Notify(&onNewWorldInstanceCreated);
-		}
-
-		return RC_OK;
 	}
 
 	E_RESULT_CODE CEngineCore::_registerSubsystemInternal(TPtr<IEngineSubsystem> pSubsystem)

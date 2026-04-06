@@ -2,9 +2,12 @@
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/CTransform.h"
+#include "../../include/ecs/CSystemManager.h"
+#include "../../include/ecs/CTransformSystem.h"
 #include "../../include/physics/2D/CBoxCollisionObject2D.h"
 #include "../../include/physics/2D/CCircleCollisionObject2D.h"
 #include "../../include/physics/2D/CTrigger2D.h"
+#include "../../include/physics/CBaseRaycastContext.h"
 #include "../../include/core/IEventManager.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include <algorithm>
@@ -365,4 +368,37 @@ namespace TDEngine2
 	{
 		return CREATE_IMPL(ISystem, CPhysics2DSystem, result, pEventManager);
 	}
+
+
+	struct TPhysics2DSystemAutoInitializer : TSystemAutoInitializer
+	{
+		virtual ~TPhysics2DSystemAutoInitializer() = default;
+
+		E_RESULT_CODE ManageDependencies(IWorld* pWorld) override
+		{
+			TSystemId transformSystemHandle = pWorld->FindSystem<CTransformSystem>();
+			if (transformSystemHandle == TSystemId::Invalid)
+			{
+				return RC_FAIL;
+			}
+
+			return pSystemInstance ? pSystemInstance->AddDependency(pWorld->GetSystem(transformSystemHandle)) : RC_FAIL;
+		}
+
+		ISystem* GetSystem(IWorld* pWorld, const TRequestSubsystemCallback& subsystemsProviderCallback)
+		{
+			E_RESULT_CODE result = RC_OK;
+
+			pSystemInstance = CreatePhysics2DSystem(PolymorphicCast<IEventManager*>(subsystemsProviderCallback(E_ENGINE_SUBSYSTEM_TYPE::EST_EVENT_MANAGER)), result);
+
+			pWorld->RegisterRaycastContext(TPtr<IRaycastContext>(CreateBaseRaycastContext(dynamic_cast<CPhysics2DSystem*>(pSystemInstance), nullptr, result)));
+
+			return pSystemInstance;
+		}
+
+		ISystem* pSystemInstance = nullptr;
+	};
+
+
+	TDE2_REGISTER_SYSTEM(TPhysics2DSystemAutoInitializer);
 }

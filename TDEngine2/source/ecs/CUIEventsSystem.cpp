@@ -2,6 +2,8 @@
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/CTransform.h"
+#include "../../include/ecs/CSystemManager.h"
+#include "../../include/ecs/CTransformSystem.h"
 #include "../../include/graphics/UI/CInputReceiverComponent.h"
 #include "../../include/graphics/UI/CLayoutElementComponent.h"
 #include "../../include/graphics/UI/CCanvasComponent.h"
@@ -352,4 +354,36 @@ namespace TDEngine2
 	{
 		return CREATE_IMPL(ISystem, CUIEventsSystem, result, pInputContext, pImGUIContext);
 	}
+
+
+	struct TUIEventsSystemAutoInitializer : TSystemAutoInitializer
+	{
+		virtual ~TUIEventsSystemAutoInitializer() = default;
+
+		E_RESULT_CODE ManageDependencies(IWorld* pWorld) override
+		{
+			TSystemId transformSystemHandle = pWorld->FindSystem<CTransformSystem>();
+			if (transformSystemHandle == TSystemId::Invalid)
+			{
+				return RC_FAIL;
+			}
+
+			return pSystemInstance ? pSystemInstance->AddDependency(pWorld->GetSystem(transformSystemHandle)) : RC_FAIL;
+		}
+
+		ISystem* GetSystem(IWorld* pWorld, const TRequestSubsystemCallback& subsystemsProviderCallback)
+		{
+			E_RESULT_CODE result = RC_OK;
+			pSystemInstance = CreateUIEventsSystem(
+				PolymorphicCast<IInputContext*>(subsystemsProviderCallback(E_ENGINE_SUBSYSTEM_TYPE::EST_INPUT_CONTEXT)),
+				PolymorphicCast<IImGUIContext*>(subsystemsProviderCallback(E_ENGINE_SUBSYSTEM_TYPE::EST_IMGUI_CONTEXT)), result);
+
+			return pSystemInstance;
+		}
+
+		ISystem* pSystemInstance = nullptr;
+	};
+
+
+	TDE2_REGISTER_SYSTEM(TUIEventsSystemAutoInitializer);
 }

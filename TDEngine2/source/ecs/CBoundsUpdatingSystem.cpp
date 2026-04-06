@@ -2,10 +2,15 @@
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/CTransform.h"
+#include "../../include/ecs/CSystemManager.h"
+#include "../../include/ecs/CAnimationSystem.h"
 #include "../../include/ecs/components/CBoundsComponent.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IJobManager.h"
 #include "../../include/core/CProjectSettings.h"
+#include "../../include/core/IGraphicsContext.h"
+#include "../../include/graphics/IGraphicsObjectManager.h"
+#include "../../include/graphics/IRenderer.h"
 #include "../../include/graphics/CStaticMesh.h"
 #include "../../include/graphics/CStaticMeshContainer.h"
 #include "../../include/graphics/CSkinnedMesh.h"
@@ -330,4 +335,42 @@ namespace TDEngine2
 	{
 		return CREATE_IMPL(ISystem, CBoundsUpdatingSystem, result, pResourceManager, pDebugUtility, pSceneManager);
 	}
+
+
+	struct TBoundsUpdateSystemAutoInitializer : TSystemAutoInitializer
+	{
+		virtual ~TBoundsUpdateSystemAutoInitializer() = default;
+
+		E_RESULT_CODE ManageDependencies(IWorld* pWorld) override
+		{
+			TSystemId animationSystemHandle = pWorld->FindSystem<CAnimationSystem>();
+			if (animationSystemHandle == TSystemId::Invalid)
+			{
+				return RC_FAIL;
+			}
+
+			return pSystemInstance ? pSystemInstance->AddDependency(pWorld->GetSystem(animationSystemHandle)) : RC_FAIL;
+		}
+
+		ISystem* GetSystem(IWorld* pWorld, const TRequestSubsystemCallback& subsystemsProviderCallback)
+		{
+			E_RESULT_CODE result = RC_OK;
+
+			IResourceManager* pResourceManager = PolymorphicCast<IResourceManager*>(subsystemsProviderCallback(E_ENGINE_SUBSYSTEM_TYPE::EST_RESOURCE_MANAGER));
+			IGraphicsContext* pGraphicsContext = PolymorphicCast<IGraphicsContext*>(subsystemsProviderCallback(E_ENGINE_SUBSYSTEM_TYPE::EST_GRAPHICS_CONTEXT));
+
+			IDebugUtility* pDebugUtility = 
+				pGraphicsContext->GetGraphicsObjectManager()->
+					CreateDebugUtility(pResourceManager, PolymorphicCast<IRenderer*>(subsystemsProviderCallback(E_ENGINE_SUBSYSTEM_TYPE::EST_RENDERER))).GetOrDefault(nullptr);
+			
+			pSystemInstance = CreateBoundsUpdatingSystem(pResourceManager, pDebugUtility, PolymorphicCast<ISceneManager*>(subsystemsProviderCallback(E_ENGINE_SUBSYSTEM_TYPE::EST_SCENE_MANAGER)), result);
+
+			return pSystemInstance;
+		}
+
+		ISystem* pSystemInstance = nullptr;
+	};
+
+
+	TDE2_REGISTER_SYSTEM(TBoundsUpdateSystemAutoInitializer);
 }

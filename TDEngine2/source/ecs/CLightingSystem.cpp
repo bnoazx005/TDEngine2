@@ -2,6 +2,11 @@
 #include "../../include/ecs/CWorld.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/CTransform.h"
+#include "../../include/ecs/CSystemManager.h"
+#include "../../include/ecs/CSkinnedMeshRendererSystem.h"
+#include "../../include/ecs/CStaticMeshRendererSystem.h"
+#include "../../include/ecs/CCameraSystem.h"
+#include "../../include/ecs/CSpriteRendererSystem.h"
 #include "../../include/graphics/CStaticMesh.h"
 #include "../../include/graphics/ICamera.h"
 #include "../../include/graphics/CStaticMeshContainer.h"
@@ -16,6 +21,7 @@
 #include "../../include/graphics/CBaseMaterial.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IGraphicsContext.h"
+#include "../../include/core/IWindowSystem.h"
 #include "../../include/core/CGameUserSettings.h"
 #include "../../include/core/IJobManager.h"
 #include "../../include/utils/ITimer.h"
@@ -590,4 +596,47 @@ namespace TDEngine2
 	{
 		return CREATE_IMPL(ISystem, CLightingSystem, result, pRenderer, pGraphicsObjectManager, pTimer);
 	}
+
+
+	struct TLightingSystemAutoInitializer : TSystemAutoInitializer
+	{
+		virtual ~TLightingSystemAutoInitializer() = default;
+
+		E_RESULT_CODE ManageDependencies(IWorld* pWorld) override
+		{
+			std::array<TSystemId, 4> dependenciesHandles
+			{
+				pWorld->FindSystem<CCameraSystem>(),
+				pWorld->FindSystem<CStaticMeshRendererSystem>(),
+				pWorld->FindSystem<CSkinnedMeshRendererSystem>(),
+				pWorld->FindSystem<CSpriteRendererSystem>()
+			};
+
+			E_RESULT_CODE result = RC_OK;
+
+			for (const TSystemId& currDependencyHandle : dependenciesHandles)
+			{
+				result = result | (currDependencyHandle == TSystemId::Invalid ? RC_FAIL : RC_OK);
+				result = result | pSystemInstance->AddDependency(pWorld->GetSystem(currDependencyHandle));
+			}
+
+			return result;
+		}
+
+		ISystem* GetSystem(IWorld* pWorld, const TRequestSubsystemCallback& subsystemsProviderCallback)
+		{
+			E_RESULT_CODE result = RC_OK;
+			pSystemInstance = CreateLightingSystem(
+				PolymorphicCast<IRenderer*>(subsystemsProviderCallback(E_ENGINE_SUBSYSTEM_TYPE::EST_RENDERER)),
+				PolymorphicCast<IGraphicsContext*>(subsystemsProviderCallback(E_ENGINE_SUBSYSTEM_TYPE::EST_GRAPHICS_CONTEXT))->GetGraphicsObjectManager(),
+				PolymorphicCast<IWindowSystem*>(subsystemsProviderCallback(E_ENGINE_SUBSYSTEM_TYPE::EST_WINDOW))->GetTimer(), result);
+
+			return pSystemInstance;
+		}
+
+		ISystem* pSystemInstance = nullptr;
+	};
+
+
+	TDE2_REGISTER_SYSTEM(TLightingSystemAutoInitializer);
 }

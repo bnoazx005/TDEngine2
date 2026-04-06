@@ -12,6 +12,8 @@
 #include "../../include/ecs/CTransform.h"
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CEntity.h"
+#include "../../include/ecs/CSystemManager.h"
+#include "../../include/ecs/CTransformSystem.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/CProjectSettings.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
@@ -1064,4 +1066,40 @@ namespace TDEngine2
 	{
 		return CREATE_IMPL(ISystem, CParticlesGPUSimulationSystem, result, pRenderer, pGraphicsObjectManager);
 	}
+
+
+	struct TParticlesSimulationSystemAutoInitializer : TSystemAutoInitializer
+	{
+		virtual ~TParticlesSimulationSystemAutoInitializer() = default;
+
+		E_RESULT_CODE ManageDependencies(IWorld* pWorld) override
+		{
+			TSystemId transformSystemHandle = pWorld->FindSystem<CTransformSystem>();
+			if (transformSystemHandle == TSystemId::Invalid)
+			{
+				return RC_FAIL;
+			}
+
+			return pSystemInstance ? pSystemInstance->AddDependency(pWorld->GetSystem(transformSystemHandle)) : RC_FAIL;
+		}
+
+		ISystem* GetSystem(IWorld* pWorld, const TRequestSubsystemCallback& subsystemsProviderCallback)
+		{
+			E_RESULT_CODE result = RC_OK;
+			pSystemInstance = CProjectSettings::Get()->mGraphicsSettings.mIsGPUParticlesSimulationEnabled ?
+				CreateParticlesGPUSimulationSystem(
+					PolymorphicCast<IRenderer*>(subsystemsProviderCallback(E_ENGINE_SUBSYSTEM_TYPE::EST_RENDERER)),
+					PolymorphicCast<IGraphicsContext*>(subsystemsProviderCallback(E_ENGINE_SUBSYSTEM_TYPE::EST_GRAPHICS_CONTEXT))->GetGraphicsObjectManager(), result) :
+				CreateParticlesSimulationSystem(
+					PolymorphicCast<IRenderer*>(subsystemsProviderCallback(E_ENGINE_SUBSYSTEM_TYPE::EST_RENDERER)),
+					PolymorphicCast<IGraphicsContext*>(subsystemsProviderCallback(E_ENGINE_SUBSYSTEM_TYPE::EST_GRAPHICS_CONTEXT))->GetGraphicsObjectManager(), result);
+
+			return pSystemInstance;
+		}
+
+		ISystem* pSystemInstance = nullptr;
+	};
+
+
+	TDE2_REGISTER_SYSTEM(TParticlesSimulationSystemAutoInitializer);
 }

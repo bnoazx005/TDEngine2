@@ -2,6 +2,10 @@
 #include "../../include/editor/CPerfProfiler.h"
 #include "../../include/ecs/IWorld.h"
 #include "../../include/ecs/CTransform.h"
+#include "../../include/ecs/CSystemManager.h"
+#include "../../include/ecs/CStaticMeshRendererSystem.h"
+#include "../../include/ecs/CSkinnedMeshRendererSystem.h"
+#include "../../include/ecs/CCameraSystem.h"
 #include "../../include/graphics/CStaticMeshContainer.h"
 #include "../../include/graphics/CSkinnedMeshContainer.h"
 #include "../../include/graphics/CBaseCamera.h"
@@ -85,4 +89,42 @@ namespace TDEngine2
 	{
 		return CREATE_IMPL(ISystem, CLODMeshSwitchSystem, result);
 	}
+
+
+	struct TLODMeshSwitchSystemAutoInitializer : TSystemAutoInitializer
+	{
+		virtual ~TLODMeshSwitchSystemAutoInitializer() = default;
+
+		E_RESULT_CODE ManageDependencies(IWorld* pWorld) override
+		{
+			std::array<TSystemId, 3> dependenciesHandles
+			{
+				pWorld->FindSystem<CCameraSystem>(),
+				pWorld->FindSystem<CStaticMeshRendererSystem>(),
+				pWorld->FindSystem<CSkinnedMeshRendererSystem>(),
+			};
+
+			E_RESULT_CODE result = RC_OK;
+
+			for (const TSystemId& currDependencyHandle : dependenciesHandles)
+			{
+				result = result | (currDependencyHandle == TSystemId::Invalid ? RC_FAIL : RC_OK);
+				result = result | pSystemInstance->AddDependency(pWorld->GetSystem(currDependencyHandle));
+			}
+			return result;
+		}
+
+		ISystem* GetSystem(IWorld* pWorld, const TRequestSubsystemCallback& subsystemsProviderCallback)
+		{
+			E_RESULT_CODE result = RC_OK;
+			pSystemInstance = CreateLODMeshSwitchSystem(result);
+
+			return pSystemInstance;
+		}
+
+		ISystem* pSystemInstance = nullptr;
+	};
+
+
+	TDE2_REGISTER_SYSTEM(TLODMeshSwitchSystemAutoInitializer);
 }

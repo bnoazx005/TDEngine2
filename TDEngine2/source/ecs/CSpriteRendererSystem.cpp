@@ -4,6 +4,8 @@
 #include "../../include/editor/CPerfProfiler.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/CTransform.h"
+#include "../../include/ecs/CSystemManager.h"
+#include "../../include/ecs/CBoundsUpdatingSystem.h"
 #include "../../include/ecs/components/CBoundsComponent.h"
 #include "../../include/graphics/CRenderQueue.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
@@ -11,6 +13,7 @@
 #include "../../include/graphics/CGraphicsLayersInfo.h"
 #include "../../include/graphics/ITexture.h"
 #include "../../include/core/IGraphicsContext.h"
+#include "../../include/core/memory/CLinearAllocator.h"
 #include "../../include/graphics/IRenderer.h"
 #include "../../include/graphics/ICamera.h"
 #include "../../include/graphics/CFramePacketsStorage.h"
@@ -128,7 +131,7 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("CSpriteRendererSystem::InjectBindings");
 
-		TEntitiesArray entities = pWorld->FindEntitiesWithComponents<CTransform, CQuadSprite>();
+		TEntitiesArray entities = pWorld->FindEntitiesWithComponents<CTransform, CQuadSprite, CBoundsComponent>();
 
 		mTransforms.clear();		
 		mSprites.clear();
@@ -307,4 +310,37 @@ namespace TDEngine2
 	{
 		return CREATE_IMPL(ISystem, CSpriteRendererSystem, result, allocator, pRenderer, pGraphicsObjectManager);
 	}
+
+
+	struct TSpritesRendererSystemAutoInitializer : TSystemAutoInitializer
+	{
+		virtual ~TSpritesRendererSystemAutoInitializer() = default;
+
+		E_RESULT_CODE ManageDependencies(IWorld* pWorld) override
+		{
+			TSystemId boundsUpdatingSystemHandle = pWorld->FindSystem<CBoundsUpdatingSystem>();
+			if (boundsUpdatingSystemHandle == TSystemId::Invalid)
+			{
+				return RC_FAIL;
+			}
+
+			return pSystemInstance ? pSystemInstance->AddDependency(pWorld->GetSystem(boundsUpdatingSystemHandle)) : RC_FAIL;
+		}
+
+		ISystem* GetSystem(IWorld* pWorld, const TRequestSubsystemCallback& subsystemsProviderCallback)
+		{
+			E_RESULT_CODE result = RC_OK;
+			pSystemInstance = CreateSpriteRendererSystem(
+				TPtr<IAllocator>(CreateLinearAllocator(5 * CSpriteRendererSystem::SPRITE_INSTANCE_DATA_BUFFER_SIZE, result)),
+				PolymorphicCast<IRenderer*>(subsystemsProviderCallback(E_ENGINE_SUBSYSTEM_TYPE::EST_RENDERER)),
+				PolymorphicCast<IGraphicsContext*>(subsystemsProviderCallback(E_ENGINE_SUBSYSTEM_TYPE::EST_GRAPHICS_CONTEXT))->GetGraphicsObjectManager(), result);
+
+			return pSystemInstance;
+		}
+
+		ISystem* pSystemInstance = nullptr;
+	};
+
+
+	TDE2_REGISTER_SYSTEM(TSpritesRendererSystemAutoInitializer);
 }

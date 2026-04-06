@@ -162,9 +162,6 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE _registerSubsystemInternal(TPtr<IEngineSubsystem> pSubsystem);
 			TDE2_API E_RESULT_CODE _unregisterSubsystem(E_ENGINE_SUBSYSTEM_TYPE subsystemType);
 
-			TDE2_API E_RESULT_CODE _registerBuiltinSystems(TPtr<IWorld> pWorldInstance, IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext,
-														   IRenderer* pRenderer, IEventManager* pEventManager);
-
 			TDE2_API E_RESULT_CODE _cleanUpSubsystems();
 
 			template <typename T>

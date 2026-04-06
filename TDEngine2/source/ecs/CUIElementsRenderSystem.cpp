@@ -3,6 +3,8 @@
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/CTransform.h"
 #include "../../include/ecs/CUIEventsSystem.h"
+#include "../../include/ecs/CUIElementsProcessSystem.h"
+#include "../../include/ecs/CSystemManager.h"
 #include "../../include/graphics/UI/CCanvasComponent.h"
 #include "../../include/graphics/UI/CLayoutElementComponent.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
@@ -420,4 +422,36 @@ namespace TDEngine2
 	{
 		return CREATE_IMPL(ISystem, CUIElementsRenderSystem, result, pRenderer, pGraphicsObjectManager);
 	}
+
+
+	struct TUIElementsRenderSystemAutoInitializer : TSystemAutoInitializer
+	{
+		virtual ~TUIElementsRenderSystemAutoInitializer() = default;
+
+		E_RESULT_CODE ManageDependencies(IWorld* pWorld) override
+		{
+			TSystemId uiProcessSystemHandle = pWorld->FindSystem<CUIElementsProcessSystem>();
+			if (uiProcessSystemHandle == TSystemId::Invalid)
+			{
+				return RC_FAIL;
+			}
+
+			return pSystemInstance ? pSystemInstance->AddDependency(pWorld->GetSystem(uiProcessSystemHandle)) : RC_FAIL;
+		}
+
+		ISystem* GetSystem(IWorld* pWorld, const TRequestSubsystemCallback& subsystemsProviderCallback)
+		{
+			E_RESULT_CODE result = RC_OK;
+			pSystemInstance = CreateUIElementsRenderSystem(
+				PolymorphicCast<IRenderer*>(subsystemsProviderCallback(E_ENGINE_SUBSYSTEM_TYPE::EST_RENDERER)),
+				PolymorphicCast<IGraphicsContext*>(subsystemsProviderCallback(E_ENGINE_SUBSYSTEM_TYPE::EST_GRAPHICS_CONTEXT))->GetGraphicsObjectManager(), result);
+
+			return pSystemInstance;
+		}
+
+		ISystem* pSystemInstance = nullptr;
+	};
+
+
+	TDE2_REGISTER_SYSTEM(TUIElementsRenderSystemAutoInitializer);
 }
