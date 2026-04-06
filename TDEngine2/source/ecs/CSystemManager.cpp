@@ -315,7 +315,9 @@ namespace TDEngine2
 		{
 			CFixedVector<TPtr<ISystem>, 64> executionGroup{};
 
+#if TDE2_DEBUG_MODE
 			TDE2_ASSERT_MSG(currIterationsCount++ <= MAX_SYSTEMS_PER_FRAME, "[CSystemManager] Maximum iterations count exceeded. Possibly circlular dependencies between systems exists");
+#endif
 
 			for (TPtr<ISystem> pSystem : remainingSystems)
 			{
