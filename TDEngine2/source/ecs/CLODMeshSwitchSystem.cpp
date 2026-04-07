@@ -111,6 +111,7 @@ namespace TDEngine2
 				result = result | (currDependencyHandle == TSystemId::Invalid ? RC_FAIL : RC_OK);
 				result = result | pSystemInstance->AddDependency(pWorld->GetSystem(currDependencyHandle));
 			}
+
 			return result;
 		}
 

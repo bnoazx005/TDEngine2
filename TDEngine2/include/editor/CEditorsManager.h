@@ -199,8 +199,6 @@ namespace TDEngine2
 
 			TPtr<IWorld>            mpWorld;
 
-			TSystemId               mEditorCameraControlSystemId = TSystemId::Invalid;
-
 			TPtr<ISelectionManager> mpSelectionManager;
 	};
 }

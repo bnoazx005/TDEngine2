@@ -4,6 +4,7 @@
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/CSystemManager.h"
 #include "../../include/ecs/CTransformSystem.h"
+#include "../../include/editor/ecs/CEditorCameraControlSystem.h"
 #include "../../include/editor/ecs/EditorComponents.h"
 #include "../../include/graphics/CBaseCamera.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
@@ -14,6 +15,7 @@
 #include "../../include/core/IWindowSystem.h"
 #include "../../include/graphics/IRenderer.h"
 #include "../../include/editor/CPerfProfiler.h"
+#include "../../include/utils/CContainers.h"
 #include <algorithm>
 
 
@@ -268,13 +270,23 @@ namespace TDEngine2
 
 		E_RESULT_CODE ManageDependencies(IWorld* pWorld) override
 		{
-			TSystemId transformSystemHandle = pWorld->FindSystem<CTransformSystem>();
-			if (transformSystemHandle == TSystemId::Invalid)
+			CFixedVector<TSystemId, 2> dependenciesHandles
 			{
-				return RC_FAIL;
+				pWorld->FindSystem<CTransformSystem>(),
+#if TDE2_EDITORS_ENABLED
+				pWorld->FindSystem<CEditorCameraControlSystem>(),
+#endif
+			};
+
+			E_RESULT_CODE result = RC_OK;
+
+			for (const TSystemId& currDependencyHandle : dependenciesHandles)
+			{
+				result = result | (currDependencyHandle == TSystemId::Invalid ? RC_FAIL : RC_OK);
+				result = result | pSystemInstance->AddDependency(pWorld->GetSystem(currDependencyHandle));
 			}
 
-			return pSystemInstance ? pSystemInstance->AddDependency(pWorld->GetSystem(transformSystemHandle)) : RC_FAIL;
+			return result;
 		}
 
 		ISystem* GetSystem(IWorld* pWorld, const TRequestSubsystemCallback& subsystemsProviderCallback)

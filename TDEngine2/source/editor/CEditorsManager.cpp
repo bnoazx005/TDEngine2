@@ -191,20 +191,7 @@ namespace TDEngine2
 
 		mpWorld = pWorld;
 
-		E_RESULT_CODE result = RC_OK;
-
-		if (mEditorCameraControlSystemId == TSystemId::Invalid)
-		{
-			auto registerResult = mpWorld->RegisterSystem(TPtr<ISystem>(CreateEditorCameraControlSystem(mpInputContext.Get(), this, result)), E_SYSTEM_PRIORITY::SP_NORMAL_PRIORITY);
-			if (registerResult.HasError())
-			{
-				return result;
-			}
-
-			mEditorCameraControlSystemId = registerResult.Get();
-		}
-
-		return result;
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CEditorsManager::SetSelectionManager(TPtr<ISelectionManager> pSelectionManager)
