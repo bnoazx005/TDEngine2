@@ -409,8 +409,8 @@ namespace TDEngine2
 			reverse_iterator rbegin() noexcept { return mElementsStorage.begin() + mSize; }
 			const_reverse_iterator crbegin() const noexcept { return mElementsStorage.cbegin() + mSize; }
 
-			iterator end() noexcept { return &mElementsStorage[mSize]; }
-			const_iterator cend() const noexcept { return &mElementsStorage[mSize]; }
+			iterator end() noexcept { return data() + mSize; }
+			const_iterator cend() const noexcept { return data() + mSize; }
 			reverse_iterator rend() noexcept { return mElementsStorage.rbegin(); }
 			const_reverse_iterator crend() const noexcept { return mElementsStorage.crbegin(); }
 
