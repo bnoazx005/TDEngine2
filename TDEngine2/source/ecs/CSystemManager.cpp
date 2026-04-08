@@ -330,15 +330,27 @@ namespace TDEngine2
 			}
 
 			// Execute all systems that have no dependencies
-			// \todo All systems in group should be executed in parallel manner
-			for (TPtr<ISystem> pSystem : executionGroup)
 			{
-				if (mIsDirty)
 				{
-					pSystem->InjectBindings(mpWorld);
+					TDE2_PROFILER_SCOPE("InjectBindings");
+
+					for (TPtr<ISystem> pSystem : executionGroup)
+					{
+						if (mIsDirty)
+						{
+							pSystem->InjectBindings(mpWorld);
+						}
+					}
 				}
 
-				pSystem->Update(pWorld, dt);
+				TJobCounter executionCounterGroup{};
+
+				mpJobManager->SubmitMultipleJobs(&executionCounterGroup, static_cast<U32>(executionGroup.size()), 1, [this, &executionGroup, pWorld, dt](const TJobArgs& args)
+					{
+						executionGroup[args.mJobIndex]->Update(pWorld, dt);
+					});
+
+				mpJobManager->WaitForJobCounter(executionCounterGroup);
 			}
 
 			for (TPtr<ISystem> pSystem : executionGroup)
