@@ -258,3 +258,61 @@ TEST_CASE("CFixedVector<T, USIZE> Tests")
 		REQUIRE(pPtr.use_count() == 1);
 	}
 }
+
+
+
+TEST_CASE("CFixedEventQueue<T, USIZE> Tests")
+{
+	struct TTestEventType
+	{
+		TTestEventType() = default;
+		TTestEventType(I32 value) : mIndex(value) {}
+
+		I32 mIndex = 0;
+	};
+
+	SECTION("TestPush_PushFewItemsAndEmitEvents_AllEventsShouldBeExecutedCorrectly")
+	{
+		CFixedEventQeueue<TTestEventType> queue{};
+		queue.Push(TTestEventType{ 0 });
+		queue.Push(TTestEventType{ 1 });
+		queue.Push(TTestEventType{ 2 });
+
+		REQUIRE(!queue.IsEmpty());
+	}
+
+	SECTION("TestEmplace_PushFewItemsAndEmitEvents_AllEventsShouldBeExecutedCorrectly")
+	{
+		CFixedEventQeueue<TTestEventType> queue{};
+		queue.Emplace(0);
+		queue.Emplace(1);
+		queue.Emplace(2);
+
+		REQUIRE(!queue.IsEmpty());
+	}
+
+	SECTION("TestIsEmpty_ExecuteOnEmptyQueue_ReturnsTrue")
+	{
+		CFixedEventQeueue<TTestEventType> queue{};
+		REQUIRE(queue.IsEmpty());
+	}
+
+	SECTION("TestTryPop_PushItemsThenTryPopThemOut_AllElementsCorrectlyPopped")
+	{	
+		const USIZE expectedItemsCount = 10;
+
+		CFixedEventQeueue<TTestEventType> queue{};
+
+		for (USIZE i = 0; i < expectedItemsCount; ++i)
+		{
+			queue.Emplace(static_cast<I32>(i));
+		}
+
+		for (USIZE i = 0; i < expectedItemsCount; ++i)
+		{
+			TTestEventType& currItem = queue.TryPop();
+			REQUIRE(currItem.mIndex == static_cast<I32>(i));
+		}
+	}
+
+}

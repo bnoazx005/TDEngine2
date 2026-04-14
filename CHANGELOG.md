@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.33] 2026-04-06
+## [0.6.33] 2026-04-14
 
 ### Added
 
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The API of **ISystem** was extended with new methods AddDependency and GetContinuations to define order of systems execution.
 
 - The API of **IWorld** was extended with a new method RegisterPendingSystems(). The API of **ISystemManager** was extended with new methods RegisterPendinSystems(IWorld*).
+
+- A new container type **CFixedEventQueue<T, USIZE>** was defined.
 
 ### Changed
 

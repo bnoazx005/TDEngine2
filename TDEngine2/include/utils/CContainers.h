@@ -11,6 +11,9 @@
 #include "Types.h"
 #include "../core/memory/IAllocator.h"
 #include <cstring>
+#include <mutex>
+#include <condition_variable>
+#include <atomic>
 
 
 namespace TDEngine2
@@ -496,7 +499,7 @@ namespace TDEngine2
 			}
 
 			template <typename... TArgs>
-			iterator emplace(const_iterator pos, TArgs... args) noexcept
+			iterator emplace(const_iterator pos, TArgs&&... args) noexcept
 			{
 				if (mSize >= maxCapacity)
 				{
@@ -588,4 +591,53 @@ namespace TDEngine2
 
 		return placementIndex;
 	}
+
+
+	template <typename T, USIZE maxCapacity = 16>
+	class CFixedEventQeueue
+	{
+		public:
+			void Push(T&& value)
+			{
+				std::scoped_lock<std::mutex> lock(mMutex);
+
+				mEvents.insert(mEvents.begin() + mTailPos, std::forward<T>(value));
+				mTailPos = (mTailPos + 1) & (maxCapacity - 1);
+
+				mCondVariable.notify_one();
+			}
+
+			template <typename... TArgs>
+			void Emplace(TArgs&&... args)
+			{
+				std::scoped_lock<std::mutex> lock(mMutex);
+
+				mEvents.emplace(mEvents.begin() + mTailPos, std::forward<TArgs>(args)...);
+				mTailPos = (mTailPos + 1) & (maxCapacity - 1);
+
+				mCondVariable.notify_one();
+			}
+
+			T& TryPop()
+			{
+				std::unique_lock<std::mutex> lock(mMutex);
+				mCondVariable.wait(lock, [this] { return !mEvents.empty(); });
+
+				const USIZE lastHeadPos = mHeadPos;
+				mHeadPos = (mHeadPos + 1) & (maxCapacity - 1);
+
+				return mEvents.at(static_cast<USIZE>(lastHeadPos & (maxCapacity - 1)));
+			}
+
+			bool IsEmpty() const
+			{
+				return mHeadPos == mTailPos;
+			}
+		private:
+			CFixedVector<T, maxCapacity> mEvents{};
+			std::mutex                   mMutex{};
+			std::condition_variable      mCondVariable{};
+			std::atomic<USIZE>           mHeadPos = 0;
+			std::atomic<USIZE>           mTailPos = 0;
+	};
 }
