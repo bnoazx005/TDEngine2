@@ -387,17 +387,15 @@ namespace TDEngine2
 		return CSceneLoader::LoadPrefab(pReader, pWorld, pEntityManager, entityCustomFactory, prefabCustomFactory).Get();
 	}
 
-	E_RESULT_CODE CPrefabsRegistry::OnEvent(const TBaseEvent* pEvent)
+	E_RESULT_CODE CPrefabsRegistry::OnEvent(const TBaseEvent& event)
 	{
-		const TOnNewComponentFactoryRegistered* pConcreteEvent = dynamic_cast<const TOnNewComponentFactoryRegistered*>(pEvent);
-		if (!pConcreteEvent)
+		if (event.GetEventType() != TOnNewComponentFactoryRegistered::GetTypeId())
 		{
-			TDE2_ASSERT(false);
-			return RC_FAIL;
+			return RC_OK;
 		}
 
 		/// \note Register all user's components factories to correctly spawn the prefabs that contains them
-		return mpComponentsManager->RegisterFactory(pConcreteEvent->mpFactory);
+		return mpComponentsManager->RegisterFactory(dynamic_cast<const TOnNewComponentFactoryRegistered&>(event).mpFactory);
 	}
 
 	const CPrefabsRegistry::TPrefabInfoEntity* CPrefabsRegistry::GetPrefabInfo(const std::string& prefabId) const

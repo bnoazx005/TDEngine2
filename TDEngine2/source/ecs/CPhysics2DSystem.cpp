@@ -291,7 +291,7 @@ namespace TDEngine2
 		trigger2DEnterEventData.mEntities[0] = _getEntityIdByBody(contact->GetFixtureA()->GetBody());
 		trigger2DEnterEventData.mEntities[1] = _getEntityIdByBody(contact->GetFixtureB()->GetBody());
 
-		mpEventManager->Notify(&trigger2DEnterEventData);
+		mpEventManager->Notify(trigger2DEnterEventData);
 	}
 
 	void CPhysics2DSystem::CTriggerContactsListener::EndContact(b2Contact* contact)
@@ -305,7 +305,7 @@ namespace TDEngine2
 		trigger2DExitEventData.mEntities[0] = _getEntityIdByBody(contact->GetFixtureA()->GetBody());
 		trigger2DExitEventData.mEntities[1] = _getEntityIdByBody(contact->GetFixtureB()->GetBody());
 
-		mpEventManager->Notify(&trigger2DExitEventData);
+		mpEventManager->Notify(trigger2DExitEventData);
 	}
 
 	CPhysics2DSystem::CRayCastClosestCallback::CRayCastClosestCallback(const TOnRaycastHitCallback& onHitCallback):

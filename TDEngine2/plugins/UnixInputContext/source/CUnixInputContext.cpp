@@ -109,11 +109,11 @@ namespace TDEngine2
 		return (_isButtonPressed(mPrevMouseState, button)) && (!_isButtonPressed(mCurrMouseState, button));
 	}
 
-	E_RESULT_CODE CUnixInputContext::OnEvent(const TBaseEvent* pEvent)
+	E_RESULT_CODE CUnixInputContext::OnEvent(const TBaseEvent& event)
 	{
-		if (auto pInputEvent = dynamic_cast<const TOnCharInputEvent*>(pEvent))
+		if (event.GetEventType == TOnCharInputEvent::GetTypeId())
 		{
-			mOnCharInputCallback(static_cast<TUtf8CodePoint>(pInputEvent->mCharCode));
+			mOnCharInputCallback(static_cast<TUtf8CodePoint>(dynamic_cast<const TOnCharInputEvent&>(event).mCharCode));
 		}
 
 		return RC_OK;

@@ -10,6 +10,7 @@
 #include "IEventManager.h"
 #include "CBaseObject.h"
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include <list>
 
@@ -39,11 +40,16 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IEventManager* CreateEventManager(E_RESULT_CODE& result);
 		protected:
-			typedef std::unordered_map<TypeId, U32>           TListenersMap;
+			typedef std::unordered_map<TypeId, U32>                          TListenersMap;
 
-			typedef std::vector<std::vector<IEventHandler*>>  TListenersMatrix;
+			typedef Vector<IEventHandler*>                                   TEventHandlersArray;
+			typedef Vector<TEventHandlersArray>                              TListenersMatrix;
 
-			typedef std::list<U32>                            TFreeGroupsRegistry;
+			typedef std::list<U32>                                           TFreeGroupsRegistry;
+
+			typedef std::unordered_set<TypeId>                               TTypesTable;
+
+			typedef std::unordered_map<TypeId, std::unique_ptr<IEventQueue>> TEventQueuesTable;
 		public:
 			/*!
 				\brief The method initializes a file system's object
@@ -78,14 +84,15 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE Unsubscribe(TypeId eventType, IEventHandler* pEventListener) override;
 
 			/*!
-				\brief The method broadcasts a given event to its listeners
+				\brief The method broadcasts a given event to its listeners just in time no matter of whether a given event type
+				supports buffering or not
 
-				\param[in] pEvent A pointer to event data
+				\param[in] event A reference to triggered event that contains all its data
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Notify(const TBaseEvent* pEvent) override;
+			TDE2_API E_RESULT_CODE NotifyImmediate(const TBaseEvent& event) override;
 
 			/*!
 				\brief The method returns a type of the subsystem
@@ -100,11 +107,21 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEventManager)
 
 			TDE2_API E_RESULT_CODE _createNewListenersGroup(TypeId eventTypeId);
+
+			TDE2_API E_RESULT_CODE _registerEventQueue(TypeId eventTypeId, std::unique_ptr<IEventQueue> pEventQueue) override;
+			TDE2_API IEventQueue* _getEventQueueByType(TypeId eventTypeId) override;
+
+			TDE2_API E_RESULT_CODE _enableBufferingForEventTypeImpl(TypeId eventTypeId) override;
+			bool _isEventTypeSupportBuffering(TypeId eventTypeId) const override;
 		protected:
 			TListenersMap       mListenersMap;
 
 			TListenersMatrix    mListeners;
 
 			TFreeGroupsRegistry mFreeGroupsRegistry;
+
+			TTypesTable         mEventTypesWithBufferingTable{};
+
+			TEventQueuesTable   mEventQueues{};
 	};
 }

@@ -35,12 +35,14 @@ add_subdirectory(benchmark)
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/lib/Catch2/contrib/")
 add_subdirectory(lib/Catch2)
 
-set(HEADERS )
+set(HEADERS 
+	"${CMAKE_CURRENT_SOURCE_DIR}/stubs/CStubEventManager.h")
 
 set(SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/core/AllocatorsTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/core/CBaseJobManagerTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/core/SerializationTests.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/core/CEventManagerTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/graphics/CGraphicsLayersInfoTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/graphics/CFrustumTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/graphics/CAnimationCurveTests.cpp"

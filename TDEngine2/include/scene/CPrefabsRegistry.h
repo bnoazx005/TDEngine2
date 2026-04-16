@@ -105,12 +105,12 @@ namespace TDEngine2
 			/*!
 				\brief The method receives a given event and processes it
 
-				\param[in] pEvent A pointer to event data
+				\param[in] event A reference to triggered event that contains all its data
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE OnEvent(const TBaseEvent* pEvent) override;
+			TDE2_API E_RESULT_CODE OnEvent(const TBaseEvent& event) override;
 
 			/*!
 				\brief The method tries to extract information about prefab with given identifier and returns it. If there is no

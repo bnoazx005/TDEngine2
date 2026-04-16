@@ -46,7 +46,7 @@ namespace TDEngine2
 			onResizedEvent.mWidth = width;
 			onResizedEvent.mHeight = height;
 
-			pEventManager->Notify(&onResizedEvent);
+			pEventManager->Notify(onResizedEvent);
 
 			LOG_MESSAGE(std::string("[Win32 Window System] The window's sizes were changed (width: ").
 				append(std::to_string(onResizedEvent.mWidth)).
@@ -96,12 +96,12 @@ namespace TDEngine2
 				onMovedEvent.mX = lParam & (0x0000FFFF);
 				onMovedEvent.mY = (lParam & (0xFFFF0000)) >> 16;
 
-				pEventManager->Notify(&onMovedEvent);
+				pEventManager->Notify(onMovedEvent);
 				break;
 
 			case WM_CHAR:
 				onCharInputEvent.mCharCode = static_cast<U32>(wParam);
-				pEventManager->Notify(&onCharInputEvent);
+				pEventManager->Notify(onCharInputEvent);
 				break;
 
 			default:
@@ -434,26 +434,26 @@ namespace TDEngine2
 		return mpEventManager;
 	}
 
-	E_RESULT_CODE CWin32WindowSystem::OnEvent(const TBaseEvent* pEvent)
+	E_RESULT_CODE CWin32WindowSystem::OnEvent(const TBaseEvent& event)
 	{
-		TypeId eventTypeId = pEvent->GetEventType();
+		TypeId eventTypeId = event.GetEventType();
 
 		if (eventTypeId == TOnWindowResized::GetTypeId())
 		{
-			const TOnWindowResized* pOnWindowResizedEvent = dynamic_cast<const TOnWindowResized*>(pEvent);
+			const TOnWindowResized& onWindowResizedEvent = dynamic_cast<const TOnWindowResized&>(event);
 
-			mWidth  = pOnWindowResizedEvent->mWidth;
-			mHeight = pOnWindowResizedEvent->mHeight;
+			mWidth  = onWindowResizedEvent.mWidth;
+			mHeight = onWindowResizedEvent.mHeight;
 
 			return RC_OK;
 		}
 
 		if (eventTypeId == TOnWindowMoved::GetTypeId())
 		{
-			const TOnWindowMoved* pOnWindowMovedEvent = dynamic_cast<const TOnWindowMoved*>(pEvent);
+			const TOnWindowMoved& onWindowMovedEvent = dynamic_cast<const TOnWindowMoved&>(event);
 
-			mWindowXPos = pOnWindowMovedEvent->mX;
-			mWindowYPos = pOnWindowMovedEvent->mY;
+			mWindowXPos = onWindowMovedEvent.mX;
+			mWindowYPos = onWindowMovedEvent.mY;
 
 			return RC_OK;
 		}

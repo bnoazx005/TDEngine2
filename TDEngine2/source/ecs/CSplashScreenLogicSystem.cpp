@@ -92,7 +92,7 @@ namespace TDEngine2
 			AddDeferredCommand([this]
 			{
 				TOnSplashScreensFinishedEvent spashScreenFinishedEvent;
-				mpEventManager->Notify(&spashScreenFinishedEvent);
+				mpEventManager->Notify(spashScreenFinishedEvent);
 			});
 
 			return;

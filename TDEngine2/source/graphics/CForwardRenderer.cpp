@@ -3551,9 +3551,9 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CForwardRenderer::OnEvent(const TBaseEvent* pEvent)
+	E_RESULT_CODE CForwardRenderer::OnEvent(const TBaseEvent& event)
 	{
-		if (pEvent->GetEventType() != TOnWindowResized::GetTypeId())
+		if (event.GetEventType() != TOnWindowResized::GetTypeId())
 		{
 			return RC_OK;
 		}

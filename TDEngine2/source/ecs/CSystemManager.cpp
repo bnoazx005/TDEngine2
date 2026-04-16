@@ -86,7 +86,7 @@ namespace TDEngine2
 
 
 	CSystemManager::CSystemManager() :
-		CBaseObject(), mpEventManager(nullptr), mpWorld(nullptr), mIsDirty(true)
+		CBaseObject()
 	{
 	}
 
@@ -411,7 +411,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CSystemManager::OnEvent(const TBaseEvent* pEvent)
+	E_RESULT_CODE CSystemManager::OnEvent(const TBaseEvent& event)
 	{
 		mIsDirty = true;
 		return RC_OK;

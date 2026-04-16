@@ -173,8 +173,8 @@ namespace TDEngine2
 			TOnEditorModeEnabled  onEditorEnabledEvent;
 			TOnEditorModeDisabled onEditorDisabledEvent;
 
-			TBaseEvent* pEvent = mIsVisible ? dynamic_cast<TBaseEvent*>(&onEditorEnabledEvent) : dynamic_cast<TBaseEvent*>(&onEditorDisabledEvent);
-			mpEventManager->Notify(pEvent);
+			TBaseEvent& event = mIsVisible ? dynamic_cast<TBaseEvent&>(onEditorEnabledEvent) : dynamic_cast<TBaseEvent&>(onEditorDisabledEvent);
+			mpEventManager->Notify(event);
 
 			SetEditorCameraActive(mpWorld, mIsVisible);
 		}
@@ -232,11 +232,11 @@ namespace TDEngine2
 		return mpSelectionManager;
 	}
 
-	E_RESULT_CODE CEditorsManager::OnEvent(const TBaseEvent* pEvent)
+	E_RESULT_CODE CEditorsManager::OnEvent(const TBaseEvent& event)
 	{
-		if (auto pOnWorldInstanceCreated = dynamic_cast<const TOnNewWorldInstanceCreated*>(pEvent))
+		if (event.GetEventType() == TOnNewWorldInstanceCreated::GetTypeId())
 		{
-			PANIC_ON_FAILURE(mpSelectionManager->SetWorldInstance(pOnWorldInstanceCreated->mpWorldInstance));
+			PANIC_ON_FAILURE(mpSelectionManager->SetWorldInstance(dynamic_cast<const TOnNewWorldInstanceCreated&>(event).mpWorldInstance));
 		}
 
 		return RC_OK;

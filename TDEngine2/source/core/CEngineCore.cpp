@@ -224,7 +224,7 @@ namespace TDEngine2
 
 			if (IEventManager* pEventManager = _getSubsystemAs<IEventManager>(EST_EVENT_MANAGER))
 			{
-				pEventManager->Notify(&onNewWorldInstanceCreated);
+				pEventManager->Notify(onNewWorldInstanceCreated);
 			}
 		}
 

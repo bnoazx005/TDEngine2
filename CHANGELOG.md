@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.33] 2026-04-14
+## [0.6.33] 2026-04-16
 
 ### Added
 
@@ -44,6 +44,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The API of **CCameraSystem** was changed. CCameraSystem::SetDebugUtility was removed and replaced with basic CBaseSystem::DebugOutput() invocation.
 
 - Now all systems that process entities can have dependencies on each other and be parallelized based on this call graph.
+
+- The signatures of IEventHandler::OnEvent and IEventManager::Notify methods were changed.
 
 ### Fixed
 

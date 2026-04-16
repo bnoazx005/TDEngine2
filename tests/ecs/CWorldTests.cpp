@@ -1,6 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <TDEngine2.h>
 #include <unordered_set>
+#include "../stubs/CStubEventManager.h"
 
 
 using namespace TDEngine2;
@@ -8,62 +9,6 @@ using namespace TDEngine2;
 
 namespace
 {
-	class CStubEventManager : public IEventManager, public CBaseObject
-	{
-		public:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CStubEventManager)
-
-			E_RESULT_CODE Init() override
-			{
-				mIsInitialized = true;
-				return RC_OK;
-			}
-
-			E_RESULT_CODE Subscribe(TypeId eventType, IEventHandler* pEventListener) override
-			{
-				return RC_OK;
-			}
-
-			E_RESULT_CODE Unsubscribe(TypeId eventType, IEventHandler* pEventListener) override
-			{
-				return RC_OK;
-			}
-
-			E_RESULT_CODE Notify(const TBaseEvent* pEvent) override
-			{
-				for (auto&& currListener : mListeners)
-				{
-					if (currListener.first == pEvent->GetEventType())
-					{
-						if (!currListener.second)
-						{
-							continue;
-						}
-
-						(currListener.second)();
-					}
-				}
-
-				return RC_OK;
-			}
-
-			void AddSimpleListener(TypeId eventType, const std::function<void()>& callback)
-			{
-				mListeners.emplace(eventType, callback);
-			}
-
-			E_ENGINE_SUBSYSTEM_TYPE GetType() const { return GetTypeID(); }
-			static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_EVENT_MANAGER; }
-		private:
-			std::unordered_map<TypeId, std::function<void()>> mListeners;
-	};
-
-	CStubEventManager::CStubEventManager() :
-		CBaseObject()
-	{
-	}
-
-
 	class CStubJobManager : public IJobManager, public CBaseObject
 	{
 	public:

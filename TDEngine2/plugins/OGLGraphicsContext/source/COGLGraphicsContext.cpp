@@ -338,12 +338,12 @@ namespace TDEngine2
 			/*!
 				\brief The method receives a given event and processes it
 
-				\param[in] pEvent A pointer to event data
+				\param[in] event A reference to triggered event that contains all its data
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			E_RESULT_CODE OnEvent(const TBaseEvent* pEvent);
+			E_RESULT_CODE OnEvent(const TBaseEvent& event);
 
 	#if TDE2_DEBUG_MODE
 			void BeginSectionMarker(const std::string& id) override;
@@ -1291,16 +1291,16 @@ namespace TDEngine2
 		return 1.0f;
 	}
 
-	E_RESULT_CODE COGLGraphicsContext::OnEvent(const TBaseEvent* pEvent)
+	E_RESULT_CODE COGLGraphicsContext::OnEvent(const TBaseEvent& event)
 	{
-		if (pEvent->GetEventType() != TOnWindowResized::GetTypeId())
+		if (event.GetEventType() != TOnWindowResized::GetTypeId())
 		{
 			return RC_OK;
 		}
 
-		const TOnWindowResized* pOnWindowResizedEvent = dynamic_cast<const TOnWindowResized*>(pEvent);
+		const TOnWindowResized& onWindowResizedEvent = dynamic_cast<const TOnWindowResized&>(event);
 
-		SetViewport(0.0f, 0.0f, static_cast<F32>(pOnWindowResizedEvent->mWidth), static_cast<F32>(pOnWindowResizedEvent->mHeight), 0.0f, 1.0f);
+		SetViewport(0.0f, 0.0f, static_cast<F32>(onWindowResizedEvent.mWidth), static_cast<F32>(onWindowResizedEvent.mHeight), 0.0f, 1.0f);
 
 		GL_SAFE_CALL(glDeleteRenderbuffers(1, &mMainDepthStencilRenderbuffer)); /// Remove previously created depth-stencil buffer
 		GL_SAFE_CALL(glGenRenderbuffers(1, &mMainDepthStencilRenderbuffer));
@@ -1311,7 +1311,7 @@ namespace TDEngine2
 			defer([] { glBindRenderbuffer(GL_RENDERBUFFER, 0); glBindFramebuffer(GL_FRAMEBUFFER, 0); });
 
 			/// \note Create a new depth-stencil with new sizes
-			GL_SAFE_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, pOnWindowResizedEvent->mWidth, pOnWindowResizedEvent->mHeight));
+			GL_SAFE_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, onWindowResizedEvent.mWidth, onWindowResizedEvent.mHeight));
 			GL_SAFE_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mMainDepthStencilRenderbuffer));
 
 			TDE2_ASSERT(GL_FRAMEBUFFER_COMPLETE == glCheckFramebufferStatus(GL_FRAMEBUFFER));

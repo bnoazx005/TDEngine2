@@ -102,7 +102,7 @@ namespace TDEngine2
 			onComponentsRemovedEvent.mEntityId = entityId;
 			onComponentsRemovedEvent.mRemovedComponentsTypeId = std::move(removedComponents);
 
-			mpEventManager->Notify(&onComponentsRemovedEvent);
+			mpEventManager->Notify(onComponentsRemovedEvent);
 		});
 
 		if (result != RC_OK)
@@ -134,7 +134,7 @@ namespace TDEngine2
 			TDE2_ASSERT(mActiveEntities.size() == mEntitiesHashTable.size());
 		}
 
-		mpEventManager->Notify(&onEntityRemoved);
+		mpEventManager->Notify(onEntityRemoved);
 
 		TDE2_STATS_COUNTER_DECREMENT(mTotalEntitiesCount);
 
@@ -254,7 +254,7 @@ namespace TDEngine2
 			pTransform->SetOwnerId(id);
 		}
 
-		mpEventManager->Notify(&onEntityCreated);
+		mpEventManager->Notify(onEntityCreated);
 
 		TDE2_STATS_COUNTER_INCREMENT(mTotalEntitiesCount);
 
@@ -268,7 +268,7 @@ namespace TDEngine2
 		onComponentCreated.mEntityId               = entityId;
 		onComponentCreated.mCreatedComponentTypeId = componentTypeId;
 
-		mpEventManager->Notify(&onComponentCreated);
+		mpEventManager->Notify(onComponentCreated);
 	}
 
 	void CEntityManager::_notifyOnRemovedComponent(TEntityId entityId, TypeId componentTypeId)
@@ -278,7 +278,7 @@ namespace TDEngine2
 		onComponentRemoved.mEntityId               = entityId;
 		onComponentRemoved.mRemovedComponentsTypeId.emplace_back(componentTypeId);
 
-		mpEventManager->Notify(&onComponentRemoved);
+		mpEventManager->Notify(onComponentRemoved);
 	}
 	
 

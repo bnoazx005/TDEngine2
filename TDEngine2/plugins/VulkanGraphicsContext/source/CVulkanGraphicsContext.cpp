@@ -2663,14 +2663,12 @@ namespace TDEngine2
 		return 1.0f;
 	}
 
-	E_RESULT_CODE CVulkanGraphicsContext::OnEvent(const TBaseEvent* pEvent)
+	E_RESULT_CODE CVulkanGraphicsContext::OnEvent(const TBaseEvent& event)
 	{
-		if (pEvent->GetEventType() != TOnWindowResized::GetTypeId())
+		if (event.GetEventType() != TOnWindowResized::GetTypeId())
 		{
 			return RC_OK;
 		}
-
-		const TOnWindowResized* pOnWindowResizedEvent = dynamic_cast<const TOnWindowResized*>(pEvent);
 
 		mpSwapchain->InvalidateState();
 		mpSwapchain->TryProcessInvalidateState();

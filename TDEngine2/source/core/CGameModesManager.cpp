@@ -216,7 +216,7 @@ namespace TDEngine2
 		}
 	}
 
-	E_RESULT_CODE CSplashScreenGameMode::OnEvent(const TBaseEvent* pEvent)
+	E_RESULT_CODE CSplashScreenGameMode::OnEvent(const TBaseEvent& event)
 	{
 		mCurrTime += mMaxShowDuration;
 		return RC_OK;

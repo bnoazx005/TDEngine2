@@ -379,12 +379,12 @@ namespace TDEngine2
 			/*!
 				\brief The method receives a given event and processes it
 
-				\param[in] pEvent A pointer to event data
+				\param[in] event A reference to triggered event that contains all its data
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			E_RESULT_CODE OnEvent(const TBaseEvent* pEvent);
+			E_RESULT_CODE OnEvent(const TBaseEvent& event);
 
 	#if TDE2_DEBUG_MODE
 			void BeginSectionMarker(const std::string& id) override;

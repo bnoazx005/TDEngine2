@@ -137,7 +137,7 @@ namespace TDEngine2
 		TOnNewComponentFactoryRegistered event;
 		event.mpFactory = pFactory;
 
-		return mpEventManager->Notify(&event) | result;
+		return mpEventManager->Notify(event) | result;
 	}
 
 	E_RESULT_CODE CWorld::UnregisterComponentFactory(TypeId componentTypeId)
@@ -205,7 +205,7 @@ namespace TDEngine2
 		onHierarchyChangedEvent.mParentEntityId = parentEntityId;
 		onHierarchyChangedEvent.mChildEntityId = childEntityId;
 
-		return mpEventManager->Notify(&onHierarchyChangedEvent);
+		return mpEventManager->Notify(onHierarchyChangedEvent);
 	}
 
 	E_RESULT_CODE CWorld::NotifyOnEntityActivityChanged(TEntityId entityId, bool state)
@@ -221,7 +221,7 @@ namespace TDEngine2
 		onActivityChangedEvent.mEntityId = entityId;
 		onActivityChangedEvent.mNewActivityState = state;
 
-		return mpEventManager->Notify(&onActivityChangedEvent);
+		return mpEventManager->Notify(onActivityChangedEvent);
 	}
 
 	CEntity* CWorld::FindEntity(TEntityId entityId) const

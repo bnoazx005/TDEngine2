@@ -81,35 +81,22 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CEventManager::Notify(const TBaseEvent* pEvent)
+	E_RESULT_CODE CEventManager::NotifyImmediate(const TBaseEvent& event)
 	{
-		if (!pEvent)
-		{
-			return RC_INVALID_ARGS;
-		}
-
-		TListenersMap::const_iterator handlersGroupIter = mListenersMap.find(pEvent->GetEventType());
-
+		TListenersMap::const_iterator handlersGroupIter = mListenersMap.find(event.GetEventType());
 		if (handlersGroupIter == mListenersMap.cend())
 		{
 			return RC_FAIL;
 		}
 
-		auto currEventListenersGroup = mListeners[(*handlersGroupIter).second];
-
-		IEventHandler* pCurrEventHandler = nullptr;
-
-		for (auto iter = currEventListenersGroup.begin(); iter != currEventListenersGroup.end(); ++iter)
+		for (IEventHandler* pCurrEventHandler : mListeners[(*handlersGroupIter).second])
 		{
-			pCurrEventHandler = *iter;
-
-			if (!pCurrEventHandler || 
-				(pEvent->mReceiverId != pCurrEventHandler->GetListenerId() && pEvent->mReceiverId != BroadcastListenersIdValue))
+			if (!pCurrEventHandler || (event.mReceiverId != pCurrEventHandler->GetListenerId() && event.mReceiverId != BroadcastListenersIdValue))
 			{
 				continue;
 			}
 
-			E_RESULT_CODE result = pCurrEventHandler->OnEvent(pEvent);
+			[[maybe_unused]] E_RESULT_CODE result = pCurrEventHandler->OnEvent(event);
 			TDE2_ASSERT(result == RC_OK);
 		}
 
@@ -129,7 +116,7 @@ namespace TDEngine2
 
 			mListenersMap[eventTypeId] = newGroupHash;
 
-			mListeners.push_back(std::vector<IEventHandler*>());
+			mListeners.emplace_back();
 
 			return RC_OK;
 		}
@@ -141,6 +128,41 @@ namespace TDEngine2
 		mListenersMap[eventTypeId] = newGroupHash;
 		
 		return RC_OK;
+	}
+
+	E_RESULT_CODE CEventManager::_registerEventQueue(TypeId eventTypeId, std::unique_ptr<IEventQueue> pEventQueue)
+	{
+		if (!pEventQueue)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		pEventQueue->Reserve();
+		mEventQueues.emplace(eventTypeId, std::move(pEventQueue));
+
+		return RC_OK;
+	}
+
+	IEventQueue* CEventManager::_getEventQueueByType(TypeId eventTypeId)
+	{
+		auto&& it = mEventQueues.find(eventTypeId);
+		return (it == mEventQueues.cend()) ? nullptr : it->second.get();
+	}
+
+	E_RESULT_CODE CEventManager::_enableBufferingForEventTypeImpl(TypeId eventTypeId)
+	{
+		if (TypeId::Invalid == eventTypeId)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mEventTypesWithBufferingTable.emplace(eventTypeId);
+		return RC_OK;
+	}
+
+	bool CEventManager::_isEventTypeSupportBuffering(TypeId eventTypeId) const
+	{
+		return mEventTypesWithBufferingTable.find(eventTypeId) != mEventTypesWithBufferingTable.cend();
 	}
 
 

@@ -61,12 +61,12 @@ namespace TDEngine2
 			/*!
 				\brief The method receives a given event and processes it
 
-				\param[in] pEvent A pointer to event data
+				\param[in] event A reference to triggered event that contains all its data
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API virtual E_RESULT_CODE OnEvent(const TBaseEvent* pEvent) = 0;
+			TDE2_API virtual E_RESULT_CODE OnEvent(const TBaseEvent& event) = 0;
 			
 			/*!
 				\brief The method returns an identifier of a listener

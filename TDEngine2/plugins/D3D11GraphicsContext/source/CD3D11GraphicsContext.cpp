@@ -340,12 +340,12 @@ namespace TDEngine2
 			/*!
 				\brief The method receives a given event and processes it
 
-				\param[in] pEvent A pointer to event data
+				\param[in] event A reference to triggered event that contains all its data
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE OnEvent(const TBaseEvent* pEvent);
+			TDE2_API E_RESULT_CODE OnEvent(const TBaseEvent& event);
 
 	#if TDE2_DEBUG_MODE
 			TDE2_API void BeginSectionMarker(const std::string& id) override;
@@ -1215,23 +1215,23 @@ namespace TDEngine2
 		return 1.0f;
 	}
 
-	E_RESULT_CODE CD3D11GraphicsContext::OnEvent(const TBaseEvent* pEvent)
+	E_RESULT_CODE CD3D11GraphicsContext::OnEvent(const TBaseEvent& event)
 	{
 		TDE2_PROFILER_SCOPE("CD3D11GraphicsContext::OnEvent");
 
-		if (pEvent->GetEventType() != TOnWindowResized::GetTypeId())
+		if (event.GetEventType() != TOnWindowResized::GetTypeId())
 		{
 			return RC_OK;
 		}
 
-		const TOnWindowResized* pOnWindowResizedEvent = dynamic_cast<const TOnWindowResized*>(pEvent);
+		const TOnWindowResized& onWindowResizedEvent = dynamic_cast<const TOnWindowResized&>(event);
 
 		HRESULT internalResult = S_OK;
 
 		E_RESULT_CODE result = RC_OK;
 
-		U32 width  = pOnWindowResizedEvent->mWidth;
-		U32 height = pOnWindowResizedEvent->mHeight;
+		U32 width  = onWindowResizedEvent.mWidth;
+		U32 height = onWindowResizedEvent.mHeight;
 
 		if (mpSwapChain)
 		{

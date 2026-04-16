@@ -301,7 +301,7 @@ namespace TDEngine2
 						TOn3DCollisionRegisteredEvent::E_COLLISION_EVENT_TYPE::ON_STAY :
 						TOn3DCollisionRegisteredEvent::E_COLLISION_EVENT_TYPE::ON_ENTER;
 
-					pEventManager->Notify(&collisionEventData);
+					pEventManager->Notify(collisionEventData);
 				}
 
 				/// \note Check up exit events
@@ -322,7 +322,7 @@ namespace TDEngine2
 						collisionEventData.mEntities[1] = static_cast<TEntityId>(currHash & (std::numeric_limits<U32>::max)());
 						collisionEventData.mType = TOn3DCollisionRegisteredEvent::E_COLLISION_EVENT_TYPE::ON_EXIT;
 
-						pEventManager->Notify(&collisionEventData);
+						pEventManager->Notify(collisionEventData);
 					}
 				}
 			}
@@ -427,7 +427,7 @@ namespace TDEngine2
 							trigger3DEventData.mEntities[0] = static_cast<TEntityId>(pCurrTrigger->getUserIndex());
 							trigger3DEventData.mEntities[1] = static_cast<TEntityId>(((pCurrTrigger == manifoldArray[j]->getBody0()) ? manifoldArray[j]->getBody1() : manifoldArray[j]->getBody0())->getUserIndex());
 
-							mpEventManager->Notify(&trigger3DEventData);
+							mpEventManager->Notify(trigger3DEventData);
 
 							continue;
 						}

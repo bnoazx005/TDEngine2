@@ -108,33 +108,29 @@ namespace TDEngine2
 		return TEntityId::Invalid;
 	}
 
-	E_RESULT_CODE CSelectionManager::OnEvent(const TBaseEvent* pEvent)
+	E_RESULT_CODE CSelectionManager::OnEvent(const TBaseEvent& event)
 	{
-		TypeId eventType = pEvent->GetEventType();
+		TypeId eventType = event.GetEventType();
 
-		static const std::unordered_map<TypeId, std::function<E_RESULT_CODE(const TBaseEvent*)>> handlers
+		static const std::unordered_map<TypeId, std::function<E_RESULT_CODE(const TBaseEvent&)>> handlers
 		{
 			{
-				TOnEditorModeEnabled::GetTypeId(), [this](const TBaseEvent* pEventData)
+				TOnEditorModeEnabled::GetTypeId(), [this](const TBaseEvent& eventData)
 				{
 					return mpWorld->ActivateSystem(mObjectSelectionSystemId);
 				}
 			},
 			{
-				TOnEditorModeDisabled::GetTypeId(), [this](const TBaseEvent* pEventData)
+				TOnEditorModeDisabled::GetTypeId(), [this](const TBaseEvent& eventData)
 				{
 					return mpWorld->DeactivateSystem(mObjectSelectionSystemId);
 				}
 			},
 			{
-				TOnWindowResized::GetTypeId(), [this](const TBaseEvent* pEventData)
+				TOnWindowResized::GetTypeId(), [this](const TBaseEvent& eventData)
 				{
-					if (const TOnWindowResized* pOnResizedEvent = dynamic_cast<const TOnWindowResized*>(pEventData))
-					{
-						return _createRenderTarget(pOnResizedEvent->mWidth, pOnResizedEvent->mHeight);
-					}
-
-					return RC_FAIL;
+					const TOnWindowResized& onResizedEvent = dynamic_cast<const TOnWindowResized&>(eventData);
+					return _createRenderTarget(onResizedEvent.mWidth, onResizedEvent.mHeight);
 				}
 			}
 		};
@@ -143,7 +139,7 @@ namespace TDEngine2
 
 		if ((iter = handlers.find(eventType)) != handlers.cend())
 		{
-			return iter->second(pEvent);
+			return iter->second(event);
 		}
 
 		return RC_OK;
@@ -244,7 +240,7 @@ namespace TDEngine2
 			onObjectSelected.mObjectID = id;
 			onObjectSelected.mpWorld = mpWorld.Get();
 
-			mpEventManager->Notify(&onObjectSelected);
+			mpEventManager->Notify(onObjectSelected);
 		}
 
 		return RC_OK;

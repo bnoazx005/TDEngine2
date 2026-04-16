@@ -33,17 +33,15 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CProjectSettingsWindow::OnEvent(const TBaseEvent* pEvent)
+	E_RESULT_CODE CProjectSettingsWindow::OnEvent(const TBaseEvent& event)
 	{
-		if (TOnNewWorldInstanceCreated::GetTypeId() != pEvent->GetEventType())
+		if (TOnNewWorldInstanceCreated::GetTypeId() != event.GetEventType())
 		{
 			return RC_OK;
 		}
 
-		if (auto&& pWorldEvent = dynamic_cast<const TOnNewWorldInstanceCreated*>(pEvent))
-		{
-			mpWorld = pWorldEvent->mpWorldInstance;
-		}
+		auto&& worldEvent = dynamic_cast<const TOnNewWorldInstanceCreated&>(event);
+		mpWorld = worldEvent.mpWorldInstance;
 
 		return RC_OK;
 	}

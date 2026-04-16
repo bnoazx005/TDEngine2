@@ -220,7 +220,7 @@ namespace TDEngine2
 		animationEvent.mAnimationSourceEntityId = id;
 		animationEvent.mEventId = eventId;
 
-		mpEventManager->Notify(&animationEvent);
+		mpEventManager->Notify(animationEvent);
 	}
 
 

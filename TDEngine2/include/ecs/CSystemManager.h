@@ -183,12 +183,12 @@ namespace TDEngine2
 			/*!
 				\brief The method receives a given event and processes it
 
-				\param[in] pEvent A pointer to event data
+				\param[in] event A reference to triggered event that contains all its data
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE OnEvent(const TBaseEvent* pEvent) override;
+			TDE2_API E_RESULT_CODE OnEvent(const TBaseEvent& event) override;
 
 			/*!
 				\brief The method returns an identifier of a listener
@@ -236,9 +236,9 @@ namespace TDEngine2
 
 			TSystemsList         mpDeactivatedSystems{};
 			
-			IEventManager*       mpEventManager;
+			IEventManager*       mpEventManager = nullptr;
 
-			IWorld*              mpWorld;
+			IWorld*              mpWorld = nullptr;
 
 			TPtr<IJobManager>    mpJobManager;
 
@@ -246,7 +246,7 @@ namespace TDEngine2
 
 			mutable std::mutex   mMutex;
 
-			bool                 mIsDirty;
+			bool                 mIsDirty = true;
 
 			static TSystemsInitializersArray mSystemsInitializersRegistry;
 	};

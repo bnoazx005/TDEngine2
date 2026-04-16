@@ -108,7 +108,7 @@ namespace TDEngine2
 
 			void Update(IWorld* pWorld, F32 dt) override;
 
-			E_RESULT_CODE OnEvent(const TBaseEvent* pEvent) override;
+			E_RESULT_CODE OnEvent(const TBaseEvent& event) override;
 			TEventListenerId GetListenerId() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CAsyncSystemsGroup)
@@ -183,7 +183,7 @@ namespace TDEngine2
 			});
 	}
 
-	E_RESULT_CODE CAsyncSystemsGroup::OnEvent(const TBaseEvent* pEvent)
+	E_RESULT_CODE CAsyncSystemsGroup::OnEvent(const TBaseEvent& event)
 	{
 		mIsDirty = true;
 		return RC_OK;
