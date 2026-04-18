@@ -94,6 +94,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE NotifyImmediate(const TBaseEvent& event) override;
 
+			TDE2_API void FlushAll() override;
+
 			/*!
 				\brief The method returns a type of the subsystem
 
@@ -113,6 +115,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _enableBufferingForEventTypeImpl(TypeId eventTypeId) override;
 			bool _isEventTypeSupportBuffering(TypeId eventTypeId) const override;
+
+			TDE2_API E_RESULT_CODE _flushImpl(TypeId eventTypeId) override;
 		protected:
 			TListenersMap       mListenersMap;
 

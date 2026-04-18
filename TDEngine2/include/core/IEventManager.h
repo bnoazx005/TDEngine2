@@ -128,6 +128,14 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE NotifyImmediate(const TBaseEvent& event) = 0;
 
+			template <typename TEventType>
+			std::enable_if_t<std::is_base_of_v<TBaseEvent, TEventType>, E_RESULT_CODE> Flush()
+			{
+				return _flushImpl(TEventType::GetTypeId());
+			}
+
+			TDE2_API virtual void FlushAll() = 0;
+
 			TDE2_API static E_ENGINE_SUBSYSTEM_TYPE GetTypeID() { return EST_EVENT_MANAGER; }
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IEventManager)
@@ -137,6 +145,8 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE _enableBufferingForEventTypeImpl(TypeId eventTypeId) = 0;
 			TDE2_API virtual bool _isEventTypeSupportBuffering(TypeId eventTypeId) const = 0;
+
+			TDE2_API virtual E_RESULT_CODE _flushImpl(TypeId eventTypeId) = 0;
 	};
 
 

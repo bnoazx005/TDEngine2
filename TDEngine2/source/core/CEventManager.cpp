@@ -103,6 +103,14 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	void CEventManager::FlushAll()
+	{
+		for (const auto& eventQueueEntry : mEventQueues)
+		{
+			eventQueueEntry.second->Flush(*this);
+		}
+	}
+
 	E_ENGINE_SUBSYSTEM_TYPE CEventManager::GetType() const
 	{
 		return EST_EVENT_MANAGER;
@@ -163,6 +171,19 @@ namespace TDEngine2
 	bool CEventManager::_isEventTypeSupportBuffering(TypeId eventTypeId) const
 	{
 		return mEventTypesWithBufferingTable.find(eventTypeId) != mEventTypesWithBufferingTable.cend();
+	}
+
+	E_RESULT_CODE CEventManager::_flushImpl(TypeId eventTypeId)
+	{
+		IEventQueue* pEventQueue = _getEventQueueByType(eventTypeId);
+		if (!pEventQueue)
+		{
+			return RC_FAIL;
+		}
+
+		pEventQueue->Flush(*this);
+
+		return RC_OK;
 	}
 
 

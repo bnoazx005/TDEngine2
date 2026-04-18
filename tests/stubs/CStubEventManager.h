@@ -50,6 +50,10 @@ namespace TDEngine2
 				return RC_OK;
 			}
 
+			void FlushAll() override
+			{
+
+			}
 
 			void AddSimpleListener(TypeId eventType, const std::function<void()>& callback)
 			{
@@ -64,6 +68,8 @@ namespace TDEngine2
 
 			E_RESULT_CODE _enableBufferingForEventTypeImpl(TypeId eventTypeId) override { return RC_OK; }
 			bool _isEventTypeSupportBuffering(TypeId eventTypeId) const { return false; }
+
+			E_RESULT_CODE _flushImpl(TypeId eventTypeId) override { return RC_OK; }
 		private:
 			std::unordered_map<TypeId, std::function<void()>> mListeners;
 	};

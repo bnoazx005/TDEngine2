@@ -286,14 +286,14 @@ namespace TDEngine2
 
 	E_RESULT_CODE CUnixWindowSystem::OnEvent(const TBaseEvent& event)
 	{
-		TypeId eventTypeId = pEvent->GetEventType();
+		const TypeId eventTypeId = event.GetEventType();
 
 		if (eventTypeId == TOnWindowResized::GetTypeId())
 		{
 			const TOnWindowResized& onWindowResizedEvent = dynamic_cast<const TOnWindowResized&>(event);
 
-			mWidth  = onWindowResizedEventþmWidth;
-			mHeight = onWindowResizedEventþmHeight;
+			mWidth  = onWindowResizedEvent.mWidth;
+			mHeight = onWindowResizedEvent.mHeight;
 
 			return RC_OK;
 		}
@@ -302,8 +302,8 @@ namespace TDEngine2
 		{
 			const TOnWindowMoved& onWindowMovedEvent = dynamic_cast<const TOnWindowMoved&>(event);
 
-			mWindowXPos = onWindowMovedEventmX;
-			mWindowYPos = onWindowMovedEventmY;
+			mWindowXPos = onWindowMovedEvent.mX;
+			mWindowYPos = onWindowMovedEvent.mY;
 
 			return RC_OK;
 		}

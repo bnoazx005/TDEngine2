@@ -473,6 +473,11 @@ namespace TDEngine2
 						});
 
 						result = result | pListener->OnUpdate(dt);
+
+						if (IEventManager* pEventManager = _getSubsystemAs<IEventManager>(EST_EVENT_MANAGER))
+						{
+							pEventManager->FlushAll();
+						}
 					}
 					break;
 				case EET_ONFREE:
