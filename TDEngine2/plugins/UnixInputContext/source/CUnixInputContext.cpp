@@ -111,7 +111,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CUnixInputContext::OnEvent(const TBaseEvent& event)
 	{
-		if (event.GetEventType == TOnCharInputEvent::GetTypeId())
+		if (event.GetEventType() == TOnCharInputEvent::GetTypeId())
 		{
 			mOnCharInputCallback(static_cast<TUtf8CodePoint>(dynamic_cast<const TOnCharInputEvent&>(event).mCharCode));
 		}
