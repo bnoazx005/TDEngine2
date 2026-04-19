@@ -1,5 +1,6 @@
 #include "../../include/core/CEventManager.h"
 #include "../../include/core/Event.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include <algorithm>
 
 
@@ -83,6 +84,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEventManager::NotifyImmediate(const TBaseEvent& event)
 	{
+		TDE2_PROFILER_SCOPE("CEventManager::NotifyImmediate");
+
 		TListenersMap::const_iterator handlersGroupIter = mListenersMap.find(event.GetEventType());
 		if (handlersGroupIter == mListenersMap.cend())
 		{
@@ -105,6 +108,8 @@ namespace TDEngine2
 
 	void CEventManager::FlushAll()
 	{
+		TDE2_PROFILER_SCOPE("CEventManager::FlushAll");
+
 		for (const auto& eventQueueEntry : mEventQueues)
 		{
 			eventQueueEntry.second->Flush(*this);
@@ -140,6 +145,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEventManager::_registerEventQueue(TypeId eventTypeId, std::unique_ptr<IEventQueue> pEventQueue)
 	{
+		TDE2_PROFILER_SCOPE("CEventManager::_registerEventQueue");
+
 		if (!pEventQueue)
 		{
 			return RC_INVALID_ARGS;
@@ -175,6 +182,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CEventManager::_flushImpl(TypeId eventTypeId)
 	{
+		TDE2_PROFILER_SCOPE("CEventManager::_flushImpl");
+
 		IEventQueue* pEventQueue = _getEventQueueByType(eventTypeId);
 		if (!pEventQueue)
 		{

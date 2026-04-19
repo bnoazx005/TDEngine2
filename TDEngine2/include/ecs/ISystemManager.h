@@ -172,6 +172,10 @@ namespace TDEngine2
 			TDE2_API virtual void ForEachSystem(const std::function<void(TSystemId, const ISystem* const)> action = nullptr) const = 0;
 
 			TDE2_API virtual bool IsSystemActive(TSystemId systemId) const = 0;
+
+#if TDE2_DEBUG_MODE
+			TDE2_API virtual bool IsUpdateSystemsStageExecuted() const = 0;
+#endif
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISystemManager)
 	};

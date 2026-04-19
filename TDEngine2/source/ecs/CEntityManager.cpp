@@ -34,6 +34,12 @@ namespace TDEngine2
 
 		mCreateEntitiesWithPredefinedComponents = createWithPredefinedComponents;
 		
+		mpEventManager->EnableBufferingForEventType<TOnEntityCreatedEvent>();
+		mpEventManager->EnableBufferingForEventType<TOnEntityRemovedEvent>();
+		mpEventManager->EnableBufferingForEventType<TOnComponentCreatedEvent>();
+		mpEventManager->EnableBufferingForEventType<TOnComponentRemovedEvent>();
+		mpEventManager->EnableBufferingForEventType<TOnEntityActivityChangedEvent>();
+
 		mNextIdValue = 0;
 		mIsInitialized = true;
 

@@ -216,6 +216,10 @@ namespace TDEngine2
 			TDE2_API static E_RESULT_CODE RegisterSystemInitializer(std::unique_ptr<TSystemAutoInitializer> registrar);
 
 			TDE2_API bool IsSystemActive(TSystemId systemId) const override;
+
+#if TDE2_DEBUG_MODE
+			TDE2_API bool IsUpdateSystemsStageExecuted() const override;
+#endif
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSystemManager)
 
@@ -249,6 +253,10 @@ namespace TDEngine2
 			bool                 mIsDirty = true;
 
 			static TSystemsInitializersArray mSystemsInitializersRegistry;
+
+#if TDE2_DEBUG_MODE
+			std::atomic<bool>   mIsUpdateSystemsStageExecuted{ false };
+#endif
 	};
 
 

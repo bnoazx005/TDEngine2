@@ -287,6 +287,8 @@ namespace TDEngine2
 		}
 #endif
 
+		mIsUpdateSystemsStageExecuted.store(true);
+
 		std::unordered_map<TypeId, U32> systemsAncestors{};
 
 		for (const TSystemDesc& currSystemEntry : mpActiveSystems)
@@ -367,6 +369,7 @@ namespace TDEngine2
 			}
 		}
 
+		mIsUpdateSystemsStageExecuted.store(false);
 		mIsDirty = false;
 
 		/// \note Execute all deferred commands after all updates
@@ -459,6 +462,16 @@ namespace TDEngine2
 	{
 		return std::find_if(mpActiveSystems.cbegin(), mpActiveSystems.cend(), [systemId](auto&& systemInfoEntity) { return systemId == systemInfoEntity.mSystemId; }) != mpActiveSystems.cend();
 	}
+
+
+#if TDE2_DEBUG_MODE
+
+	bool CSystemManager::IsUpdateSystemsStageExecuted() const
+	{
+		return mIsUpdateSystemsStageExecuted;
+	}
+
+#endif // TDE2_DEBUG_MODE
 
 	E_RESULT_CODE CSystemManager::_internalUnregisterSystem(TSystemId systemId)
 	{
