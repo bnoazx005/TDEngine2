@@ -287,7 +287,9 @@ namespace TDEngine2
 		}
 #endif
 
+#if TDE2_DEBUG_MODE
 		mIsUpdateSystemsStageExecuted.store(true);
+#endif
 
 		std::unordered_map<TypeId, U32> systemsAncestors{};
 
@@ -369,7 +371,10 @@ namespace TDEngine2
 			}
 		}
 
+#if TDE2_DEBUG_MODE
 		mIsUpdateSystemsStageExecuted.store(false);
+#endif
+
 		mIsDirty = false;
 
 		/// \note Execute all deferred commands after all updates
