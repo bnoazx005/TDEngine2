@@ -9,8 +9,10 @@
 
 #include "../core/CBaseObject.h"
 #include "../core/Event.h"
+#include "../utils/CContainers.h"
 #include "IWorld.h"
 #include <mutex>
+#include <thread>
 
 
 namespace TDEngine2
@@ -22,6 +24,7 @@ namespace TDEngine2
 	class ISystemManager;
 	class IComponentIterator;
 	class IComponentFactory;
+	class IECSCommandBuffer;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IComponentFactory);
@@ -92,6 +95,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE Destroy(TEntityId entityId) override;
+
+			/*!
+				\return The method creates a new instance of a command buffer that allows to prerecord ECS actions and play them back at end of Update phase
+			*/
+
+			TDE2_API TPtr<IECSCommandBuffer> CreateCommandBuffer() override;
 
 			/*!
 				\brief The method registers specified resource factory within a manager
@@ -260,22 +269,24 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			CEntityManager*       mpEntityManager = nullptr;
+			CEntityManager*                                              mpEntityManager = nullptr;
 
-			IComponentManager*    mpComponentManager = nullptr;
+			IComponentManager*                                           mpComponentManager = nullptr;
 
-			ISystemManager*       mpSystemManager = nullptr;
+			ISystemManager*                                              mpSystemManager = nullptr;
 
-			TPtr<IEventManager>   mpEventManager;
+			TPtr<IEventManager>                                          mpEventManager;
 
-			TPtr<IJobManager>     mpJobManager = nullptr;
+			TPtr<IJobManager>                                            mpJobManager = nullptr;
 
-			TPtr<IRaycastContext> mpRaycastContext = nullptr;
+			TPtr<IRaycastContext>                                        mpRaycastContext = nullptr;
 
-			F32                   mTimeScaleFactor = 1.0f;
+			F32                                                          mTimeScaleFactor = 1.0f;
+
+			std::unordered_map<std::thread::id, TPtr<IECSCommandBuffer>> mpCommandBuffers{};
 
 			TDE2_MULTI_THREAD_CHECK_LOCK;
-			mutable std::mutex    mMutex;
+			mutable std::mutex                        mMutex;
 	};
 
 

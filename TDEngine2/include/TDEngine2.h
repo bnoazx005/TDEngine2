@@ -85,6 +85,8 @@
 #include "ecs/CTransform.h"
 #include "ecs/IComponentFactory.h"
 #include "ecs/IComponentManager.h"
+#include "ecs/IECSCommandBuffer.h"
+#include "ecs/CECSCommandBuffer.h"
 #include "ecs/CTransformSystem.h"
 #include "ecs/CSpriteRendererSystem.h"
 #include "ecs/ICameraSystem.h"

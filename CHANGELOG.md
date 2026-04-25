@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.33] 2026-04-18
+## [0.6.33] 2026-04-25
 
 ### Added
 
@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new container type **CFixedEventQueue<T, USIZE>** was defined.
 
 - The core API of **IEventManager** was changed, not it supports buffering events into queues.
+
+- A new approach to change ECS world's state was partially integrated which is **IECSCommandBuffer**.
 
 ### Changed
 

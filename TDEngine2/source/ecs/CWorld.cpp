@@ -5,6 +5,7 @@
 #include "../../include/ecs/ISystem.h"
 #include "../../include/ecs/CComponentManager.h"
 #include "../../include/ecs/CSystemManager.h"
+#include "../../include/ecs/CECSCommandBuffer.h"
 #include "../../include/core/IEventManager.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include "../../include/physics/IRaycastContext.h"
@@ -100,6 +101,8 @@ namespace TDEngine2
 			{
 				return result;
 			}
+
+			mpCommandBuffers.clear();
 		}
 
 		return RC_OK;
@@ -127,6 +130,26 @@ namespace TDEngine2
 	{
 		//TDE2_ASSERT_MSG(!mpSystemManager->IsUpdateSystemsStageExecuted(), "DeestroyEntity should not be called during Update phase, use AddDefferedCommand instead");
 		return mpEntityManager->Destroy(entityId);
+	}
+
+	TPtr<IECSCommandBuffer> CWorld::CreateCommandBuffer()
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		const std::thread::id& currThreadId = std::this_thread::get_id();
+
+		auto&& it = mpCommandBuffers.find(currThreadId);
+		if (it != mpCommandBuffers.cend())
+		{
+			return it->second;
+		}
+
+		E_RESULT_CODE result = RC_OK;
+
+		TPtr<IECSCommandBuffer> pNewCommandBuffer = TPtr<IECSCommandBuffer>(CreateECSCommandBuffer(result));
+		mpCommandBuffers.emplace(currThreadId, pNewCommandBuffer);
+
+		return pNewCommandBuffer;
 	}
 
 	E_RESULT_CODE CWorld::RegisterComponentFactory(TPtr<IComponentFactory> pFactory)
@@ -264,6 +287,11 @@ namespace TDEngine2
 		TDE2_BUILTIN_SPEC_PROFILER_EVENT(E_SPECIAL_PROFILE_EVENT::WORLD_UPDATE);
 
 		mpSystemManager->Update(this, mTimeScaleFactor * dt);
+
+		for (auto&& currCommandBufferEntry : mpCommandBuffers)
+		{
+			currCommandBufferEntry.second->Flush(this);
+		}
 
 		// \note reset all allocated raycasts results data
 		mpRaycastContext->Reset();

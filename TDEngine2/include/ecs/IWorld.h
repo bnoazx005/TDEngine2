@@ -32,6 +32,7 @@ namespace TDEngine2
 	class IRaycastContext;
 	class IComponentFactory;
 	class IDebugUtility;
+	class IECSCommandBuffer;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IEventManager)
@@ -39,6 +40,7 @@ namespace TDEngine2
 	TDE2_DECLARE_SCOPED_PTR(IRaycastContext)
 	TDE2_DECLARE_SCOPED_PTR(IComponentFactory)
 	TDE2_DECLARE_SCOPED_PTR(ISystem)
+	TDE2_DECLARE_SCOPED_PTR(IECSCommandBuffer)
 
 
 	/*!
@@ -129,6 +131,12 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual E_RESULT_CODE Destroy(TEntityId entityId) = 0;
+
+			/*!
+				\return The method creates a new instance of a command buffer that allows to prerecord ECS actions and play them back at end of Update phase
+			*/
+
+			TDE2_API virtual TPtr<IECSCommandBuffer> CreateCommandBuffer() = 0;
 
 			/*!
 				\brief The method registers specified resource factory within a manager

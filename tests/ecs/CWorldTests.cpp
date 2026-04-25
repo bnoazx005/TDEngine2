@@ -392,4 +392,44 @@ TEST_CASE("CWorld Tests")
 		REQUIRE(RC_OK == pWorld->Destroy(pNewEntity->GetId()));
 		REQUIRE((haveComponentsBeenRemoved && hasEntityBeenRemoved));
 	}
+
+	SECTION("TestCreateCommandBuffer_InvokeFewTimesInSameThread_FirstTimeCreatesAnInstanceOtherTimesJustReturnsCachedObject")
+	{
+		auto pFirstCmdBuffer = pWorld->CreateCommandBuffer();
+		auto pSecondCmdBuffer = pWorld->CreateCommandBuffer();
+
+		REQUIRE((pFirstCmdBuffer && pFirstCmdBuffer == pSecondCmdBuffer));
+	}
+
+	SECTION("TestCreateCommandBuffer_InvokeFewTimesInFewThread_CreatesSingleInstancePerThread")
+	{
+		std::vector<std::thread> threads;
+		
+		std::vector<TPtr<IECSCommandBuffer>> buffers;
+		std::mutex mutex;
+
+		const U32 expectedCommandBuffersCount = 4;
+
+		for (U32 i = 0; i < expectedCommandBuffersCount; ++i)
+		{
+			threads.emplace_back([&buffers, &mutex, &pWorld]
+				{
+					std::scoped_lock<std::mutex> lock(mutex);
+					buffers.emplace_back(pWorld->CreateCommandBuffer());
+				});
+		}
+
+		for (auto& currThread : threads)
+		{
+			currThread.join();
+		}
+
+		for (U32 i = 0; i < buffers.size(); ++i)
+		{
+			for (U32 j = i + 1; j < buffers.size(); ++j)
+			{
+				REQUIRE(buffers[i] != buffers[j]);
+			}
+		}
+	}
 }

@@ -14,7 +14,7 @@ namespace TDEngine2
 			{
 			}
 
-			~CStubEventManager() = default;
+			virtual ~CStubEventManager() = default;
 
 			E_RESULT_CODE Init() override
 			{
