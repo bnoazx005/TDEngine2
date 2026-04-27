@@ -294,21 +294,29 @@ namespace TDEngine2
 	}
 
 
+	std::atomic<U32> GlobalCounter{ 0xffff };
+
 	TEntityId GetNextUniqueIdentifier()
 	{
-		static Wrench::Random<U32, F32> randGenerator(static_cast<U32>(time(NULL)));
-		static std::unordered_set<U32> generatedIdentifiers;
+		thread_local U32 localFirstBlockId   = 0;
+		thread_local U32 localLastBlockId    = 0;
+		thread_local U32 localCurrentCounter = 0;
 
-		U32 value = 0;
-
-		do
+		if (localCurrentCounter >= localLastBlockId)
 		{
-			value = randGenerator.Get(0, std::numeric_limits<U32>::max() - 1);
-		} 
-		while (generatedIdentifiers.find(value) != generatedIdentifiers.cend());
+			constexpr U32 BLOCK_SIZE = 1024;
 
-		generatedIdentifiers.emplace(value);
+			U32 start = GlobalCounter.fetch_add(BLOCK_SIZE, std::memory_order_relaxed);
+			if (start > std::numeric_limits<U32>::max() - BLOCK_SIZE)
+			{
+				return TEntityId::Invalid;
+			}
 
-		return static_cast<TEntityId>(value);
+			localFirstBlockId   = start;
+			localLastBlockId    = start + BLOCK_SIZE;
+			localCurrentCounter = localFirstBlockId;
+		}
+
+		return static_cast<TEntityId>(localCurrentCounter++);
 	}
 }
