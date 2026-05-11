@@ -340,44 +340,50 @@ namespace TDEngine2
 				mSize(count)
 			{
 				TDE2_ASSERT(count <= maxCapacity);
+				std::uninitialized_default_construct(begin(), end());
 			}
 
 			CFixedVector(size_type count, const_reference value) noexcept:
 				mSize(count)
 			{
 				TDE2_ASSERT(count <= maxCapacity);
-				std::fill(mElementsStorage.begin(), mElementsStorage.end(), value);
+				std::uninitialized_fill(begin(), end(), value);
 			}
 
 			CFixedVector(std::initializer_list<value_type> initializer) noexcept:
 				mSize(initializer.size())
 			{
 				TDE2_ASSERT(mSize <= maxCapacity);
-				std::uninitialized_copy(initializer.begin(), initializer.end(), mElementsStorage.begin());
+				std::uninitialized_copy(initializer.begin(), initializer.end(), begin());
 			}
 
 			CFixedVector(const CFixedVector& other) noexcept:
 				mSize(other.mSize)
 			{
-				std::uninitialized_copy(other.mElementsStorage.begin(), other.mElementsStorage.end(), mElementsStorage.begin());
+				std::uninitialized_copy(other.cbegin(), other.cend(), begin());
 			}
 
 			CFixedVector(CFixedVector&& other) noexcept :
-				mSize(other.mSize),
-				mElementsStorage(std::move(other.mElementsStorage))
+				mSize(other.mSize)
 			{
+				for (size_type i = 0; i < mSize; ++i)
+				{
+					new (_slot(i)) value_type(std::move(other[i]));
+				}
+
+				other.clear();
 			}
 
 			~CFixedVector()
 			{
-				mSize = 0;
+				clear();
 			}
 
 			reference at(size_type index)
 			{
 				if (index < mSize)
 				{
-					return mElementsStorage[index];
+					return *_slot(index);
 				}
 
 				TDE2_ASSERT(index < mSize);
@@ -388,7 +394,7 @@ namespace TDEngine2
 			{
 				if (index < mSize)
 				{
-					return mElementsStorage[index];
+					return *_slot(index);
 				}
 
 				TDE2_ASSERT(index < mSize);
@@ -398,24 +404,24 @@ namespace TDEngine2
 			reference operator[](size_type index) { return at(index); }
 			const_reference operator[](size_type index) const { return at(index); }
 
-			reference front() noexcept { return mElementsStorage.front(); }
-			const_reference front() const noexcept { return mElementsStorage.front(); }
+			reference front() noexcept { return *_slot(0); }
+			const_reference front() const noexcept { return *_slot(0); }
 
-			reference back() noexcept { return mElementsStorage[mSize - 1]; }
-			const_reference back() const noexcept { return mElementsStorage[mSize - 1]; }
+			reference back() noexcept { return *_slot(mSize - 1); }
+			const_reference back() const noexcept { return *_slot(mSize - 1); }
 
-			pointer data() noexcept { return mElementsStorage.data(); }
-			const_pointer data() const noexcept { return mElementsStorage.data(); }
+			pointer data() noexcept { return mSize ? _slot(0) : nullptr; }
+			const_pointer data() const noexcept { return mSize ? _slot(0) : nullptr; }
 
-			iterator begin() noexcept { return &mElementsStorage[0]; }
-			const_iterator cbegin() const noexcept { return &mElementsStorage[0]; }
-			reverse_iterator rbegin() noexcept { return mElementsStorage.begin() + mSize; }
-			const_reverse_iterator crbegin() const noexcept { return mElementsStorage.cbegin() + mSize; }
+			iterator begin() noexcept { return data(); }
+			const_iterator cbegin() const noexcept { return data(); }
+			reverse_iterator rbegin() noexcept { return reverse_iterator(end()); }
+			const_reverse_iterator crbegin() const noexcept { return const_reverse_iterator(end()); }
 
 			iterator end() noexcept { return data() + mSize; }
 			const_iterator cend() const noexcept { return data() + mSize; }
-			reverse_iterator rend() noexcept { return mElementsStorage.rbegin(); }
-			const_reverse_iterator crend() const noexcept { return mElementsStorage.crbegin(); }
+			reverse_iterator rend() noexcept { return reverse_iterator(begin()); }
+			const_reverse_iterator crend() const noexcept { return const_reverse_iterator(begin()); }
 
 			CFixedVector& operator= (const CFixedVector& other) noexcept
 			{
@@ -427,7 +433,7 @@ namespace TDEngine2
 				clear();
 
 				mSize = other.mSize;
-				std::uninitialized_copy(other.mElementsStorage.begin(), other.mElementsStorage.end(), mElementsStorage.begin());
+				std::uninitialized_copy(other.cbegin(), other.cend(), begin());
 
 				return *this;
 			}
@@ -442,7 +448,13 @@ namespace TDEngine2
 				clear();
 
 				mSize = other.mSize;
-				mElementsStorage = std::move(other.mElementsStorage);
+				
+				for (size_type i = 0; i < mSize; ++i)
+				{
+					new (_slot(i)) value_type(std::move(other[i]));
+				}
+
+				other.clear();
 
 				return *this;
 			}
@@ -455,12 +467,9 @@ namespace TDEngine2
 
 			void clear()
 			{
-				if (!std::is_trivially_destructible<value_type>::value)
+				for (size_type i = 0; i < mSize; ++i)
 				{
-					for (auto& currValue : mElementsStorage)
-					{
-						currValue.~value_type();
-					}
+					_slot(i)->~T();
 				}
 
 				mSize = 0;
@@ -475,7 +484,19 @@ namespace TDEngine2
 				}
 
 				const size_type index = static_cast<size_type>(std::distance(cbegin(), pos));
-				mElementsStorage[index] = value;
+				if (index == mSize)
+				{
+					return push_back(value);
+				}
+
+				new (_slot(mSize)) value_type(std::move(back()));
+
+				for (size_type i = mSize - 1; i > index; --i)
+				{
+					(*this)[i] = std::move((*this)[i - 1]);
+				}
+
+				(*this)[index] = value;
 
 				++mSize;
 
@@ -491,7 +512,19 @@ namespace TDEngine2
 				}
 
 				const size_type index = static_cast<size_type>(std::distance(cbegin(), pos));
-				mElementsStorage[index] = std::move(value);
+				if (index == mSize)
+				{
+					return push_back(std::move(value));
+				}
+
+				new (_slot(mSize)) value_type(std::move(back()));
+
+				for (size_type i = mSize - 1; i > index; --i)
+				{
+					(*this)[i] = std::move((*this)[i - 1]);
+				}
+
+				(*this)[index] = std::move(value);
 
 				++mSize;
 
@@ -508,7 +541,20 @@ namespace TDEngine2
 				}
 
 				const size_type index = static_cast<size_type>(std::distance(cbegin(), pos));
-				new (&mElementsStorage[index]) value_type(std::forward<TArgs>(args)...);
+				if (index == mSize)
+				{
+					return emplace_back(std::forward<TArgs>(args)...);
+				}
+
+				new (_slot(mSize)) value_type(std::move(back()));
+
+				for (size_type i = mSize - 1; i > index; --i)
+				{
+					(*this)[i] = std::move((*this)[i - 1]);
+				}
+
+				(*this)[index].~value_type();
+				new (_slot(index)) value_type(std::forward<TArgs>(args)...);
 
 				++mSize;
 
@@ -524,7 +570,7 @@ namespace TDEngine2
 					return end();
 				}
 
-				mElementsStorage[index].~value_type();
+				_slot(index)->~value_type();
 				std::move(begin() + index + 1, end(), begin() + index);
 				--mSize;
 
@@ -538,10 +584,11 @@ namespace TDEngine2
 					TDE2_ASSERT(false);
 					return end();
 				}
+				
+				new (_slot(mSize)) value_type(value);
+				++mSize;
 
-				mElementsStorage[mSize++] = value;
-
-				return &mElementsStorage[mSize - 1];
+				return &back();
 			}
 
 			iterator push_back(value_type&& value) noexcept
@@ -552,9 +599,10 @@ namespace TDEngine2
 					return end();
 				}
 
-				mElementsStorage[mSize++] = std::move(value);
+				new (_slot(mSize)) value_type(std::move(value));
+				++mSize;
 
-				return &mElementsStorage[mSize - 1];
+				return &back();
 			}
 
 			template <typename... TArgs>
@@ -566,13 +614,17 @@ namespace TDEngine2
 					return end();
 				}
 
-				new (&mElementsStorage[mSize++]) value_type(std::forward<TArgs>(args)...);
+				new (_slot(mSize)) value_type(std::forward<TArgs>(args)...);
+				++mSize;
 
-				return &mElementsStorage[mSize - 1];
+				return &back();
 			}
 		private:
-			std::array<T, maxCapacity> mElementsStorage{};
-			size_type                  mSize = 0;
+			pointer _slot(size_type index) noexcept { return reinterpret_cast<pointer>(mElementsStorage + index * sizeof(value_type)); }
+			const_pointer _slot(size_type index) const noexcept { return reinterpret_cast<const_pointer>(mElementsStorage + index * sizeof(value_type)); }
+		private:
+			alignas(T) std::byte mElementsStorage[sizeof(T) * maxCapacity];
+			size_type            mSize = 0;
 	};
 
 
