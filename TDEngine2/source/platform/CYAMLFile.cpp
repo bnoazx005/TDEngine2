@@ -423,6 +423,8 @@ namespace TDEngine2
 	
 	E_RESULT_CODE CYAMLFileReader::_internalDeserialize(Yaml::Node& outputObject)
 	{
+		TDE2_PROFILER_SCOPE("CYAMLFileReader::_internalDeserialize");
+
 		if (!mpStreamImpl->IsValid())
 		{
 			return RC_FAIL;

@@ -469,6 +469,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseShaderImpl::_initShaderInternal(TShaderCompilerOutput* pShaderMetaData)
 	{
+		TDE2_PROFILER_SCOPE("CBaseShaderImpl::_initShaderInternal");
+
 		mpShaderMeta.reset(pShaderMetaData);
 
 		E_RESULT_CODE result = _createInternalHandlers(GetShaderMetaData()); /// reimplement this method in a derived class to do some extra work
@@ -497,6 +499,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseShaderImpl::_createTexturesHashTable(const TShaderCompilerOutput* pCompilerData)
 	{
+		TDE2_PROFILER_SCOPE("CBaseShaderImpl::_createTexturesHashTable");
+
 		auto shaderResourcesMap = pCompilerData->mShaderResourcesInfo;
 		if (shaderResourcesMap.empty())
 		{
@@ -527,6 +531,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseShaderImpl::_createStructuredBuffersHashTable(const TShaderCompilerOutput* pCompilerData)
 	{
+		TDE2_PROFILER_SCOPE("CBaseShaderImpl::_createStructuredBuffersHashTable");
+
 		auto shaderResourcesMap = pCompilerData->mShaderResourcesInfo;
 
 		if (shaderResourcesMap.empty())

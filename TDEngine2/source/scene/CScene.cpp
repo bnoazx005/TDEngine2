@@ -56,6 +56,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CScene::Init(TPtr<IWorld> pWorld, TPtr<IPrefabsRegistry> pPrefabsRegistry, const std::string& id, const std::string& scenePath, bool isMainScene)
 	{
+		TDE2_PROFILER_SCOPE("CScene::Init");
+
 		std::lock_guard<std::mutex> lock(mMutex);
 
 		if (mIsInitialized)
@@ -114,6 +116,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CScene::Load(IArchiveReader* pReader)
 	{
+		TDE2_PROFILER_SCOPE("CScene::Load");
+
 		if (!pReader)
 		{
 			return RC_FAIL;
@@ -174,6 +178,8 @@ namespace TDEngine2
 
 	CEntity* CScene::CreateEntity(const std::string& name)
 	{
+		TDE2_PROFILER_SCOPE("CScene::CreateEntity");
+
 		if (!mpWorld)
 		{
 			return nullptr;
@@ -190,6 +196,8 @@ namespace TDEngine2
 
 	CEntity* CScene::CreateEntityWithUUID(TEntityId id)
 	{
+		TDE2_PROFILER_SCOPE("CScene::CreateEntityWithUUID");
+
 		if (!mpWorld)
 		{
 			return nullptr;
@@ -571,6 +579,8 @@ namespace TDEngine2
 		const std::function<CEntity*(TEntityId)>& entityFactory, 
 		const std::function<CEntity*(TEntityId, const std::string&, CEntity*)>& prefabLinkFactory)
 	{
+		TDE2_PROFILER_SCOPE("LoadEntitiesImpl");
+
 		TDE2_ASSERT(pReader);
 		TDE2_ASSERT(pEntityManager);
 		TDE2_ASSERT(entityFactory);
@@ -771,6 +781,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CSceneLoader::LoadScene(IArchiveReader* pReader, IWorld* pWorld, IScene* pScene)
 	{
+		TDE2_PROFILER_SCOPE("CSceneLoader::LoadScene");
+
 		auto&& loadResult = LoadEntitiesImpl(
 			pReader,
 			pWorld,
@@ -794,6 +806,8 @@ namespace TDEngine2
 		const IPrefabsRegistry::TEntityFactoryFunctor& entityFactory,
 		const IPrefabsRegistry::TPrefabFactoryFunctor& prefabFactory)
 	{
+		TDE2_PROFILER_SCOPE("CSceneLoader::LoadPrefab");
+
 		TDE2_ASSERT(pReader);
 		TDE2_ASSERT(pEntityManager);
 		TDE2_ASSERT(entityFactory);

@@ -112,6 +112,8 @@ namespace TDEngine2
 
 	void CSceneManager::LoadSceneAsync(const std::string& scenePath, const TLoadSceneCallback& onResultCallback)
 	{
+		TDE2_PROFILER_SCOPE("CSceneManager::LoadSceneAsync");
+
 		std::lock_guard<std::mutex> lock(mMutex);
 
 		IJobManager* pJobManager = mpFileSystem->GetJobManager();

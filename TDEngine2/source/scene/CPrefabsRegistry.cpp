@@ -15,6 +15,7 @@
 #include "../../include/scene/CPrefabChangesList.h"
 #include "../../include/platform/CYAMLFile.h"
 #include "../../include/utils/CFileLogger.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include "../../include/editor/ecs/EditorComponents.h"
 #include <algorithm> 
 #include <stack>
@@ -93,6 +94,8 @@ namespace TDEngine2
 	static CPrefabsRegistry::TPrefabInfoEntity LoadPrefabInfoFromManifest(IPrefabsRegistry* pPrefabsRegistry, IResourceManager* pResourceManager, IFileSystem* pFileSystem,
 		TPtr<CEntityManager>& pEntityManager, IWorld* pWorld, const std::string& id)
 	{
+		TDE2_PROFILER_SCOPE("LoadPrefabInfoFromManifest");
+
 		/// \note Iterate over all CPrefabsManifest resources and try to find the corresponding prefab's path
 		std::string pathToPrefab;
 
@@ -135,6 +138,8 @@ namespace TDEngine2
 	static CEntity* ClonePrefabHierarchy(IPrefabsRegistry* pPrefabsRegistry, const CPrefabsRegistry::TPrefabInfoEntity& prefabInfo, TPtr<CEntityManager>& pEntityManager, IWorld* pWorld,
 		const IPrefabsRegistry::TEntityCallback& prefabEntityVisitor, TEntityId prefabLinkUUID)
 	{
+		TDE2_PROFILER_SCOPE("ClonePrefabHierarchy");
+
 		CEntity* pPrefabInstance = nullptr;
 
 		TEntitiesMapper entitiesIdsMap;
@@ -222,6 +227,8 @@ namespace TDEngine2
 
 	CEntity* CPrefabsRegistry::Spawn(const std::string& id, CEntity* pParent, const TEntityCallback& prefabEntityVisitor, TEntityId prefabLinkUUID)
 	{
+		TDE2_PROFILER_SCOPE("CPrefabsRegistry::Spawn");
+
 		auto pPrefabInfo = TryGetLoadedPrefabEntity(mpWorld, mPrefabsToEntityTable, id);
 		if (!pPrefabInfo)
 		{
@@ -256,6 +263,8 @@ namespace TDEngine2
 
 	CEntity* CPrefabsRegistry::Spawn(CEntity* pObject, CEntity* pParent, const TEntityCallback& prefabEntityVisitor)
 	{
+		TDE2_PROFILER_SCOPE("CPrefabsRegistry::Spawn");
+
 		if (!pObject)
 		{
 			return pObject;

@@ -241,6 +241,8 @@ namespace TDEngine2
 
 	E_RESULT_CODE CBaseJobManager::ExecuteInMainThread(const std::function<void()>& action)
 	{
+		TDE2_PROFILER_SCOPE("CBaseJobManager::ExecuteInMainThread");
+
 		if (!action)
 		{
 			return RC_INVALID_ARGS;
