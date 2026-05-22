@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.33] 2026-05-15
+## [0.6.33] 2026-05-22
 
 ### Added
 
@@ -52,6 +52,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The signatures of IEventHandler::OnEvent and IEventManager::Notify methods were changed.
 
 - tde2_introspector utility was updated.
+
+- The signatures of Serialize helper function and its overloads were changed. New version Serialize<T>(IArchiveWriter*, const std::string&, const T&) was introduced.
 
 ### Fixed
 

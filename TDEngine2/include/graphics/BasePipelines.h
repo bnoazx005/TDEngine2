@@ -66,7 +66,7 @@ namespace TDEngine2
 	// \note The reason why there are defined Serialize/Deserialize for TGraphicsPipelineConfigDesc instead of making CBaseGraphicsPipeline ISerializable
 	// is that we should know config before we create a new instance of the type
 
-	template <> TDE2_API E_RESULT_CODE Serialize<TGraphicsPipelineConfigDesc>(class IArchiveWriter* pWriter, TGraphicsPipelineConfigDesc value);
+	template <> TDE2_API E_RESULT_CODE Serialize<TGraphicsPipelineConfigDesc>(class IArchiveWriter* pWriter, const TGraphicsPipelineConfigDesc& value);
 	template <> TDE2_API TResult<TGraphicsPipelineConfigDesc> Deserialize<TGraphicsPipelineConfigDesc>(IArchiveReader* pReader);
 
 

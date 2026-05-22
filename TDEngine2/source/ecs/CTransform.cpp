@@ -26,33 +26,10 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		pReader->BeginGroup("pivot");
-		if (auto pivotResult = LoadVector3(pReader))
-		{
-			mPivot = pivotResult.Get();
-		}
-		pReader->EndGroup();
-
-		pReader->BeginGroup("position");
-		if (auto positionResult = LoadVector3(pReader))
-		{
-			mPosition = positionResult.Get();
-		}
-		pReader->EndGroup();
-
-		pReader->BeginGroup("rotation");
-		if (auto rotationResult = LoadQuaternion(pReader))
-		{
-			mRotation = rotationResult.Get();
-		}
-		pReader->EndGroup();
-
-		pReader->BeginGroup("scale");
-		if (auto scaleResult = LoadVector3(pReader))
-		{
-			mScale = scaleResult.Get();
-		}
-		pReader->EndGroup();
+		mPivot    = Deserialize<TVector3>(pReader, "pivot").GetOrDefault(TVector3());
+		mPosition = Deserialize<TVector3>(pReader, "position").GetOrDefault(TVector3());
+		mRotation = Deserialize<TQuaternion>(pReader, "rotation").GetOrDefault(TQuaternion());
+		mScale    = Deserialize<TVector3>(pReader, "scale").GetOrDefault(TVector3(1.0f));
 
 		// \note Load children's identifiers
 		pReader->BeginGroup("Children");
@@ -89,21 +66,10 @@ namespace TDEngine2
 		{
 			pWriter->SetUInt32("type_id", static_cast<U32>(CTransform::GetTypeId()));
 
-			pWriter->BeginGroup("pivot", false);
-			SaveVector3(pWriter, mPivot);
-			pWriter->EndGroup();
-
-			pWriter->BeginGroup("position", false);
-			SaveVector3(pWriter, mPosition);
-			pWriter->EndGroup();
-			
-			pWriter->BeginGroup("rotation", false);
-			SaveQuaternion(pWriter, mRotation);
-			pWriter->EndGroup();
-
-			pWriter->BeginGroup("scale", false);
-			SaveVector3(pWriter, mScale);
-			pWriter->EndGroup();
+			Serialize(pWriter, "pivot", mPivot);
+			Serialize(pWriter, "position", mPosition);			
+			Serialize(pWriter, "rotation", mRotation);
+			Serialize(pWriter, "scale", mScale);
 
 			// \note Save children's identifiers
 			pWriter->BeginGroup("Children", true);

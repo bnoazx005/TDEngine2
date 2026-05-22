@@ -275,7 +275,7 @@ namespace TDEngine2
 	}
 
 
-	template <> TDE2_API E_RESULT_CODE Serialize<TGraphicsPipelineConfigDesc>(class IArchiveWriter* pWriter, TGraphicsPipelineConfigDesc value)
+	template <> TDE2_API E_RESULT_CODE Serialize<TGraphicsPipelineConfigDesc>(class IArchiveWriter* pWriter, const TGraphicsPipelineConfigDesc& value)
 	{
 		if (!pWriter)
 		{

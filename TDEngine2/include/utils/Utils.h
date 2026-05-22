@@ -1032,6 +1032,10 @@ namespace TDEngine2
 
 	typedef std::vector<TEntityId> TEntitiesArray;
 	typedef Vector<TypeId>         TTypesArray;
+
+
+	template <typename T> struct TIsVector : std::false_type {};
+	template <typename T, typename TAllocator> struct TIsVector<std::vector<T, TAllocator>> : std::true_type {};
 }
 
 

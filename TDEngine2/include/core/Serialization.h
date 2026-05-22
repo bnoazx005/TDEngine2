@@ -10,6 +10,7 @@
 #include "../utils/Config.h"
 #include "../utils/Types.h"
 #include "../utils/Utils.h"
+#include "stringUtils.hpp"
 #include "Meta.h"
 #include <string>
 #include <memory>
@@ -219,28 +220,74 @@ namespace TDEngine2
 	};
 
 
-	template <typename T> E_RESULT_CODE Serialize(IArchiveWriter* pWriter, T value) { return RC_FAIL; }
+	enum class TEntityId : U32;
+
+
+	template <typename T> E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const T& value) { return RC_FAIL; }
+	template <typename T> E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, const T& value) { return RC_FAIL; }
 	template <typename T> TResult<T> Deserialize(IArchiveReader* pReader) { return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL); }
+	template <typename T> TResult<T> Deserialize(IArchiveReader* pReader, const std::string& name) { return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL); }
 
 	/*!
 		\brief serialization helpers for built-in types
 	*/
 
-	template <> TDE2_API E_RESULT_CODE Serialize<I8>(IArchiveWriter* pWriter, I8 value);
-	template <> TDE2_API E_RESULT_CODE Serialize<I16>(IArchiveWriter* pWriter, I16 value);
-	template <> TDE2_API E_RESULT_CODE Serialize<I32>(IArchiveWriter* pWriter, I32 value);
-	template <> TDE2_API E_RESULT_CODE Serialize<I64>(IArchiveWriter* pWriter, I64 value);
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, I8 value);
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, I16 value);
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, I32 value);
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, I64 value);
 
-	template <> TDE2_API E_RESULT_CODE Serialize<U8>(IArchiveWriter* pWriter, U8 value);
-	template <> TDE2_API E_RESULT_CODE Serialize<U16>(IArchiveWriter* pWriter, U16 value);
-	template <> TDE2_API E_RESULT_CODE Serialize<U32>(IArchiveWriter* pWriter, U32 value);
-	template <> TDE2_API E_RESULT_CODE Serialize<U64>(IArchiveWriter* pWriter, U64 value);
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, U8 value);
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, U16 value);
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, U32 value);
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, U64 value);
 
-	template <> TDE2_API E_RESULT_CODE Serialize<F32>(IArchiveWriter* pWriter, F32 value);
-	template <> TDE2_API E_RESULT_CODE Serialize<F64>(IArchiveWriter* pWriter, F64 value);
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, F32 value);
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, F64 value);
 
-	template <> TDE2_API E_RESULT_CODE Serialize<bool>(IArchiveWriter* pWriter, bool value);
-	template <> TDE2_API E_RESULT_CODE Serialize<std::string>(IArchiveWriter* pWriter, std::string value);
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, bool value);
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, TEntityId value);
+	template <> TDE2_API E_RESULT_CODE Serialize<std::string>(IArchiveWriter* pWriter, const std::string& value);
+
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, I8 value);
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, I16 value);
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, I32 value);
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, I64 value);
+
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, U8 value);
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, U16 value);
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, U32 value);
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, U64 value);
+
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, F32 value);
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, F64 value);
+
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, bool value);
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, TEntityId value);
+	template <> TDE2_API E_RESULT_CODE Serialize<std::string>(IArchiveWriter* pWriter, const std::string& name, const std::string& value);
+
+
+	template <typename T>
+	E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, const std::vector<T>& array, const std::string& itemName = "item")
+	{
+		E_RESULT_CODE result = pWriter->BeginGroup(name, true);
+		{
+			U32 index = 0;
+
+			for (const T& currItem : array)
+			{
+				result = result | pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+				{
+					result = result | Serialize<T>(pWriter, itemName, currItem);
+				}
+				result = result | pWriter->EndGroup();
+			}
+		}
+		result = result | pWriter->EndGroup();
+
+		return result;
+	}
+
 
 	/*!
 		\brief deserialization helpers for built-in types
@@ -260,7 +307,53 @@ namespace TDEngine2
 	template <> TDE2_API TResult<F64> Deserialize<F64>(IArchiveReader* pReader);
 									   
 	template <> TDE2_API TResult<bool> Deserialize<bool>(IArchiveReader* pReader);
+	template <> TDE2_API TResult<TEntityId> Deserialize<TEntityId>(IArchiveReader* pReader);
 	template <> TDE2_API TResult<std::string> Deserialize<std::string>(IArchiveReader* pReader);
+
+	template <> TDE2_API TResult<I8> Deserialize<I8>(IArchiveReader* pReader, const std::string& name);
+	template <> TDE2_API TResult<I16> Deserialize<I16>(IArchiveReader* pReader, const std::string& name);
+	template <> TDE2_API TResult<I32> Deserialize<I32>(IArchiveReader* pReader, const std::string& name);
+	template <> TDE2_API TResult<I64> Deserialize<I64>(IArchiveReader* pReader, const std::string& name);
+
+	template <> TDE2_API TResult<U8> Deserialize<U8>(IArchiveReader* pReader, const std::string& name);
+	template <> TDE2_API TResult<U16> Deserialize<U16>(IArchiveReader* pReader, const std::string& name);
+	template <> TDE2_API TResult<U32> Deserialize<U32>(IArchiveReader* pReader, const std::string& name);
+	template <> TDE2_API TResult<U64> Deserialize<U64>(IArchiveReader* pReader, const std::string& name);
+
+	template <> TDE2_API TResult<F32> Deserialize<F32>(IArchiveReader* pReader, const std::string& name);
+	template <> TDE2_API TResult<F64> Deserialize<F64>(IArchiveReader* pReader, const std::string& name);
+
+	template <> TDE2_API TResult<bool> Deserialize<bool>(IArchiveReader* pReader, const std::string& name);
+	template <> TDE2_API TResult<TEntityId> Deserialize<TEntityId>(IArchiveReader* pReader, const std::string& name);
+	template <> TDE2_API TResult<std::string> Deserialize<std::string>(IArchiveReader* pReader, const std::string& name);
+
+
+	template <typename T> 
+	std::enable_if_t<TIsVector<T>::value, TResult<T>> Deserialize(IArchiveReader* pReader, const std::string& name, const std::string& itemName = "item")
+	{
+		T elements{};
+
+		pReader->BeginGroup(name);
+		{
+			while (pReader->HasNextItem())
+			{
+				pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
+				{
+					auto&& itemResult = Deserialize<typename T::value_type>(pReader, itemName);
+					if (itemResult.HasError())
+					{
+						return Wrench::TErrValue<E_RESULT_CODE>(itemResult.GetError());
+					}
+
+					elements.emplace_back(itemResult.Get());
+				}
+				pReader->EndGroup();
+			}
+		}
+		pReader->EndGroup();
+
+		return Wrench::TOkValue<T>(elements);
+	}
 
 
 	class IPropertyWrapper;
