@@ -61,8 +61,10 @@ namespace TDEngine2
 	typedef uintptr_t U32Ptr;
 
 
+/// \note Macroes that are used for serialization purposes
 #define ENUM_META(...)
 #define CLASS_META(...)
+#define FIELD_META(...)
 
 
 	/// Error codes
