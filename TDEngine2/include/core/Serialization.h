@@ -272,8 +272,6 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = pWriter->BeginGroup(name, true);
 		{
-			U32 index = 0;
-
 			for (const T& currItem : array)
 			{
 				result = result | pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
@@ -329,7 +327,7 @@ namespace TDEngine2
 
 
 	template <typename T> 
-	std::enable_if_t<TIsVector<T>::value, TResult<T>> Deserialize(IArchiveReader* pReader, const std::string& name, const std::string& itemName = "item")
+	std::enable_if_t<TIsVector<T>::value, TResult<T>> Deserialize(IArchiveReader* pReader, const std::string& name, const std::string& itemName)
 	{
 		T elements{};
 
