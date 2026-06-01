@@ -66,7 +66,7 @@ namespace TDEngine2
 	template <> TDE2_API TResult<F64> Deserialize<F64>(IArchiveReader* pReader) { return Wrench::TOkValue<F64>(pReader->GetDouble("value")); }
 
 	template <> TDE2_API TResult<bool> Deserialize<bool>(IArchiveReader* pReader) { return Wrench::TOkValue<bool>(pReader->GetBool("value")); }
-	template <> TDE2_API TResult<TEntityId> Deserialize<TEntityId>(IArchiveReader* pReader) { return Wrench::TOkValue<TEntityId>(static_cast<TEntityId>(pReader->GetUInt32("value"))); }
+	template <> TDE2_API TResult<TEntityId> Deserialize<TEntityId>(IArchiveReader* pReader) { return Wrench::TOkValue<TEntityId>(static_cast<TEntityId>(pReader->GetUInt32("value", static_cast<U32>(TEntityId::Invalid)))); }
 	template <> TDE2_API TResult<std::string> Deserialize<std::string>(IArchiveReader* pReader) { return Wrench::TOkValue<std::string>(pReader->GetString("value")); }
 
 	template <> TDE2_API TResult<I8> Deserialize<I8>(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<I8>(pReader->GetInt8(name)); }
@@ -83,7 +83,7 @@ namespace TDEngine2
 	template <> TDE2_API TResult<F64> Deserialize<F64>(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<F64>(pReader->GetDouble(name)); }
 
 	template <> TDE2_API TResult<bool> Deserialize<bool>(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<bool>(pReader->GetBool(name)); }
-	template <> TDE2_API TResult<TEntityId> Deserialize<TEntityId>(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<TEntityId>(static_cast<TEntityId>(pReader->GetUInt32(name))); }
+	template <> TDE2_API TResult<TEntityId> Deserialize<TEntityId>(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<TEntityId>(static_cast<TEntityId>(pReader->GetUInt32(name, static_cast<U32>(TEntityId::Invalid)))); }
 	template <> TDE2_API TResult<std::string> Deserialize<std::string>(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<std::string>(pReader->GetString(name)); }
   
 

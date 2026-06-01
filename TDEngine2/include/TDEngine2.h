@@ -81,7 +81,6 @@
 #include "ecs/CSystemManager.h"
 #include "ecs/IWorld.h"
 #include "ecs/CWorld.h"
-#include "ecs/ITransform.h"
 #include "ecs/CTransform.h"
 #include "ecs/IComponentFactory.h"
 #include "ecs/IComponentManager.h"

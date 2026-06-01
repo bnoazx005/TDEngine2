@@ -8,7 +8,6 @@
 
 
 #include "CBaseComponent.h"
-#include "ITransform.h"
 #include "IComponentFactory.h"
 #include "../core/memory/CPoolAllocator.h"
 #include "../math/TMatrix4.h"
@@ -16,6 +15,35 @@
 
 namespace TDEngine2
 {
+	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
+	struct TTransformComponentData
+	{
+		FIELD_META(name = pivot)     TVector3      mPivot = ZeroVector3;
+		FIELD_META(name = position)  TVector3      mPosition = ZeroVector3;
+
+		FIELD_META(name = rotation)  TQuaternion   mRotation = UnitQuaternion;
+
+		FIELD_META(name = scale)     TVector3      mScale = TVector3(1.0f);
+
+		FIELD_META(name = parent_id) TEntityId     mParentEntityId = TEntityId::Invalid;
+		TEntityId                                  mPrevParentEntityId = TEntityId::Invalid;
+
+		FIELD_META(name = owner_id)  TEntityId     mOwnerId = TEntityId::Invalid; /// mOwnerId contains id of the entity itself
+
+		TMatrix4                                   mLocalToWorldMatrix = IdentityMatrix4;
+		TMatrix4                                   mWorldToLocalMatrix = IdentityMatrix4;
+		TMatrix4                                   mChild2ParentMatrix = IdentityMatrix4;
+
+		bool                                       mHasChanged = true;
+		bool                                       mIsFirstFrameAfterCreation = true;
+
+		FIELD_META(name = Children) TEntitiesArray mChildrenEntities {};
+
+		TDE2_API static TResult<TTransformComponentData> Load(IArchiveReader* pReader);
+		TDE2_API static E_RESULT_CODE Save(IArchiveWriter* pWriter, const TTransformComponentData& data);
+	};
+
+
 	/*!
 		\brief A factory function for creation objects of CTransform's type.
 
@@ -35,7 +63,7 @@ namespace TDEngine2
 		an object
 	*/
 
-	class CTransform: public ITransform, public CBaseComponent, public CPoolMemoryAllocPolicy<CTransform, 1 << 20>
+	class CTransform: public CBaseComponent, public CPoolMemoryAllocPolicy<CTransform, 1 << 20>
 	{
 		public:
 			friend TDE2_API IComponent* CreateTransform(E_RESULT_CODE&);
@@ -87,9 +115,9 @@ namespace TDEngine2
 				\brief The method resets all values of this transform
 			*/
 
-			TDE2_API void Reset() override;
+			TDE2_API void Reset();
 
-			TDE2_API void SetPivot(const TVector3& pivot) override;
+			TDE2_API void SetPivot(const TVector3& pivot);
 
 			/*!
 				\brief The method sets up a global position of an object
@@ -97,7 +125,7 @@ namespace TDEngine2
 				\param[in] A new position's value
 			*/
 
-			TDE2_API void SetPosition(const TVector3& position) override;
+			TDE2_API void SetPosition(const TVector3& position);
 
 			/*!
 				\brief The method sets up a global rotation of an object
@@ -105,7 +133,7 @@ namespace TDEngine2
 				\param[in] A rotation that is represented in Euler angles
 			*/
 
-			TDE2_API void SetRotation(const TVector3& eulerAngles) override;
+			TDE2_API void SetRotation(const TVector3& eulerAngles);
 
 			/*!
 				\brief The method sets up a global rotation of an object
@@ -113,7 +141,7 @@ namespace TDEngine2
 				\param[in] A rotation that is represented via quaternion
 			*/
 
-			TDE2_API void SetRotation(const TQuaternion& q) override;
+			TDE2_API void SetRotation(const TQuaternion& q);
 
 			/*!
 				\brief The method sets up a global scale of an object
@@ -121,7 +149,7 @@ namespace TDEngine2
 				\param[in] Per-axis scaling coefficients
 			*/
 
-			TDE2_API void SetScale(const TVector3& scale) override;
+			TDE2_API void SetScale(const TVector3& scale);
 
 			/*!
 				\brief The method sets up a world transform
@@ -129,11 +157,11 @@ namespace TDEngine2
 				\param[in] transform matrix 4x4 that specifies local to world transformation
 			*/
 
-			TDE2_API void SetTransform(const TMatrix4& local2World, const TMatrix4& child2Parent) override;
+			TDE2_API void SetTransform(const TMatrix4& local2World, const TMatrix4& child2Parent);
 
-			TDE2_API E_RESULT_CODE AttachChild(TEntityId childEntityId) override;
+			TDE2_API E_RESULT_CODE AttachChild(TEntityId childEntityId);
 
-			TDE2_API E_RESULT_CODE DettachChild(TEntityId childEntityId) override;
+			TDE2_API E_RESULT_CODE DettachChild(TEntityId childEntityId);
 
 			/*!
 				\brief The method assigns an identifier of an entity which will be corresponding as parent of it
@@ -143,31 +171,31 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE SetParent(TEntityId parentEntityId) override;
+			TDE2_API E_RESULT_CODE SetParent(TEntityId parentEntityId);
 
 			/*!
 				\brief The method used to control whether the parent's changed or not. Don't use it directly
 			*/
 
-			TDE2_API void SetHierarchyChangedFlag(TEntityId parentEntityId) override;
+			TDE2_API void SetHierarchyChangedFlag(TEntityId parentEntityId);
 
-			TDE2_API void SetDirtyFlag(bool value) override;
+			TDE2_API void SetDirtyFlag(bool value);
 
-			TDE2_API E_RESULT_CODE SetOwnerId(TEntityId id) override;
+			TDE2_API E_RESULT_CODE SetOwnerId(TEntityId id);
 
-			TDE2_API TEntityId GetOwnerId() const override;
+			TDE2_API TEntityId GetOwnerId() const;
 
 			/*!
 				\return The method returns an identifier of a parent or TEntityId::Invalid if the entity has no that
 			*/
 
-			TDE2_API TEntityId GetParent() const override;
+			TDE2_API TEntityId GetParent() const;
 
-			TDE2_API TEntityId GetPrevParent() const override;
+			TDE2_API TEntityId GetPrevParent() const;
 
-			TDE2_API const TEntitiesArray& GetChildren() const override;
+			TDE2_API const TEntitiesArray& GetChildren() const;
 
-			TDE2_API const TVector3& GetPivot() const override;
+			TDE2_API const TVector3& GetPivot() const;
 			
 			/*!
 				\brief The method returns a global position's value
@@ -175,7 +203,7 @@ namespace TDEngine2
 				\return The method returns a global position's value
 			*/
 
-			TDE2_API const TVector3& GetPosition() const override;
+			TDE2_API const TVector3& GetPosition() const;
 
 			/*!
 				\brief The method returns a global rotation's value
@@ -183,7 +211,7 @@ namespace TDEngine2
 				\return The method returns a global rotation's value
 			*/
 
-			TDE2_API const TQuaternion& GetRotation() const override;
+			TDE2_API const TQuaternion& GetRotation() const;
 
 			/*!
 				\brief The method returns a global scale's value
@@ -191,7 +219,7 @@ namespace TDEngine2
 				\return The method returns a global scale's value
 			*/
 
-			TDE2_API const TVector3& GetScale() const override;
+			TDE2_API const TVector3& GetScale() const;
 
 			/*!
 				\brief The method returns local to world matrix
@@ -199,7 +227,7 @@ namespace TDEngine2
 				\return The method returns local to world matrix
 			*/
 
-			TDE2_API const TMatrix4& GetLocalToWorldTransform() const override;
+			TDE2_API const TMatrix4& GetLocalToWorldTransform() const;
 
 			/*!
 				\brief The method returns world to local matrix
@@ -207,9 +235,9 @@ namespace TDEngine2
 				\return The method returns world to local matrix
 			*/
 
-			TDE2_API const TMatrix4& GetWorldToLocalTransform() const override;
+			TDE2_API const TMatrix4& GetWorldToLocalTransform() const;
 
-			TDE2_API const TMatrix4& GetChildToParentTransform() const override;
+			TDE2_API const TMatrix4& GetChildToParentTransform() const;
 
 			/*!
 				\brief The method returns a basis vector which corresponds to Z axis in local space of the object
@@ -217,7 +245,7 @@ namespace TDEngine2
 				\return The method returns a basis vector which corresponds to Z axis in local space of the object
 			*/
 
-			TDE2_API TVector3 GetForwardVector() const override;
+			TDE2_API TVector3 GetForwardVector() const;
 
 			/*!
 				\brief The method returns a basis vector which corresponds to X axis in local space of the object
@@ -225,7 +253,7 @@ namespace TDEngine2
 				\return The method returns a basis vector which corresponds to X axis in local space of the object
 			*/
 
-			TDE2_API TVector3 GetRightVector() const override;
+			TDE2_API TVector3 GetRightVector() const;
 
 			/*!
 				\brief The method returns a basis vector which corresponds to Y axis in local space of the object
@@ -233,14 +261,14 @@ namespace TDEngine2
 				\return The method returns a basis vector which corresponds to Y axis in local space of the object
 			*/
 
-			TDE2_API TVector3 GetUpVector() const override;
+			TDE2_API TVector3 GetUpVector() const;
 			/*!
 				\brief The method returns true if a state of a component was changed
 
 				\return The method returns true if a state of a component was changed
 			*/
 
-			TDE2_API bool HasChanged() const override;
+			TDE2_API bool HasChanged() const;
 
 			TDE2_API bool HasHierarchyChanged() const;
 
@@ -262,31 +290,15 @@ namespace TDEngine2
 
 			TDE2_API const std::vector<std::string>& GetAllProperties() const override;
 
-			TDE2_API void ResetFirstFrameAfterCreationFlag() override;
-			TDE2_API bool IsFirstFrameAfterCreation() const override;
+			TDE2_API void ResetFirstFrameAfterCreationFlag();
+			TDE2_API bool IsFirstFrameAfterCreation() const;
+
+			TDE2_API TTransformComponentData & GetData();
+			TDE2_API const TTransformComponentData & GetData() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTransform)
 		protected:
-			TVector3    mPivot;
-			TVector3    mPosition;
-
-			TQuaternion mRotation;
-
-			TVector3    mScale;
-
-			TEntityId   mParentEntityId = TEntityId::Invalid;
-			TEntityId   mPrevParentEntityId = TEntityId::Invalid;
-
-			TEntityId   mOwnerId = TEntityId::Invalid; /// mOwnerId contains id of the entity itself
-
-			TMatrix4    mLocalToWorldMatrix;
-			TMatrix4    mWorldToLocalMatrix;
-			TMatrix4    mChild2ParentMatrix;
-
-			bool        mHasChanged;
-			bool        mIsFirstFrameAfterCreation = true;
-
-			TEntitiesArray mChildrenEntities;
+			TTransformComponentData mData{};
 	};
 
 

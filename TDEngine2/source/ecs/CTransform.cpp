@@ -2,6 +2,9 @@
 #include "../../include/core/Serialization.h"
 #include "../../include/ecs/CWorld.h"
 #include "../../include/ecs/CEntity.h"
+#define META_EXPORT_ECS_SECTION
+#include "../../include/metadata.h"
+#include "../../include/utils/CFileLogger.h"
 
 
 namespace TDEngine2
@@ -9,13 +12,68 @@ namespace TDEngine2
 	TDE2_REGISTER_COMPONENT_FACTORY(CreateTransformFactory)
 
 
+	TDE2_API TResult<TTransformComponentData> TTransformComponentData::Load(IArchiveReader* pReader)
+	{
+		TTransformComponentData resultData{};
+		E_RESULT_CODE resultCode = RC_OK;
+
+		Meta::VisitSerializableClassFields(resultData, [pReader, &resultCode](const C8* pFieldNamePtr, auto& fieldValue)
+			{
+				if constexpr (TIsVector<typename std::decay_t<decltype(fieldValue)>>::value)
+				{
+					auto&& result = Deserialize<typename std::decay_t<decltype(fieldValue)>>(pReader, pFieldNamePtr, "child_id");
+					if (result.HasError())
+					{
+						resultCode = result.GetError();
+						return;
+					}
+
+					fieldValue = result.Get();
+				}
+				else
+				{
+					auto&& result = Deserialize<typename std::decay_t<decltype(fieldValue)>>(pReader, pFieldNamePtr);
+					if (result.HasError())
+					{
+						resultCode = result.GetError();
+						return;
+					}
+
+					fieldValue = result.Get();
+				}
+			});
+
+		if (RC_OK != resultCode)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(resultCode);
+		}
+
+		return Wrench::TOkValue<TTransformComponentData>(resultData);
+	}
+	
+	
+	TDE2_API E_RESULT_CODE TTransformComponentData::Save(IArchiveWriter* pWriter, const TTransformComponentData& data)
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		Meta::VisitSerializableClassFields(data, [pWriter, &result](const C8* pFieldNamePtr, const auto& fieldValue)
+			{
+				if constexpr (TIsVector<typename std::decay_t<decltype(fieldValue)>>::value)
+				{
+					result = result | Serialize(pWriter, pFieldNamePtr, fieldValue, "child_id");
+				}
+				else
+				{
+					result = result | Serialize<typename std::decay_t<decltype(fieldValue)>>(pWriter, pFieldNamePtr, fieldValue);
+				}
+			});
+
+		return result;
+	}
+	
+
 	CTransform::CTransform() :
-		CBaseComponent(), 
-		mLocalToWorldMatrix(IdentityMatrix4), 
-		mHasChanged(true),
-		mPosition(ZeroVector3),
-		mRotation(UnitQuaternion),
-		mScale(1.0f)
+		CBaseComponent()
 	{
 	}
 
@@ -26,31 +84,13 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mPivot    = Deserialize<TVector3>(pReader, "pivot").GetOrDefault(TVector3());
-		mPosition = Deserialize<TVector3>(pReader, "position").GetOrDefault(TVector3());
-		mRotation = Deserialize<TQuaternion>(pReader, "rotation").GetOrDefault(TQuaternion());
-		mScale    = Deserialize<TVector3>(pReader, "scale").GetOrDefault(TVector3(1.0f));
-
-		// \note Load children's identifiers
-		pReader->BeginGroup("Children");
+		auto&& loadResult = TTransformComponentData::Load(pReader);
+		if (loadResult.HasError())
 		{
-			while (pReader->HasNextItem())
-			{
-				pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
-				{
-					mChildrenEntities.push_back(static_cast<TEntityId>(pReader->GetUInt32("child_id")));
-				}
-				pReader->EndGroup();
-			}
+			return loadResult.GetError();
 		}
-		pReader->EndGroup();
 
-		mParentEntityId = static_cast<TEntityId>(pReader->GetUInt32("parent_id", static_cast<U32>(TEntityId::Invalid)));
-		mOwnerId = static_cast<TEntityId>(pReader->GetUInt32("owner_id", static_cast<U32>(TEntityId::Invalid)));
-		
-		mPrevParentEntityId = TEntityId::Invalid;
-
-		mIsFirstFrameAfterCreation = true;
+		mData = loadResult.GetOrDefault({});
 
 		return RC_OK;
 	}
@@ -62,35 +102,16 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		pWriter->BeginGroup("component");
+		E_RESULT_CODE result = RC_OK;
+
+		result = result | pWriter->BeginGroup("component");
 		{
-			pWriter->SetUInt32("type_id", static_cast<U32>(CTransform::GetTypeId()));
-
-			Serialize(pWriter, "pivot", mPivot);
-			Serialize(pWriter, "position", mPosition);			
-			Serialize(pWriter, "rotation", mRotation);
-			Serialize(pWriter, "scale", mScale);
-
-			// \note Save children's identifiers
-			pWriter->BeginGroup("Children", true);
-			{
-				for (const TEntityId currChildId : mChildrenEntities)
-				{
-					pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
-					{
-						pWriter->SetUInt32("child_id", static_cast<U32>(currChildId));
-					}
-					pWriter->EndGroup();
-				}
-			}
-			pWriter->EndGroup();
-
-			pWriter->SetUInt32("parent_id", static_cast<U32>(mParentEntityId));
-			pWriter->SetUInt32("owner_id", static_cast<U32>(mOwnerId));
+			result = result | pWriter->SetUInt32("type_id", static_cast<U32>(CTransform::GetTypeId()));
+			result = result | TTransformComponentData::Save(pWriter, mData);
 		}
-		pWriter->EndGroup();
+		result = result | pWriter->EndGroup();
 
-		return RC_OK;
+		return result;
 	}
 
 	E_RESULT_CODE CTransform::PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper)
@@ -100,9 +121,9 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mOwnerId = entitiesIdentifiersRemapper.Resolve(mOwnerId);
+		mData.mOwnerId = entitiesIdentifiersRemapper.Resolve(mData.mOwnerId);
 
-		for (TEntityId& currChildId : mChildrenEntities)
+		for (TEntityId& currChildId : mData.mChildrenEntities)
 		{
 			currChildId = entitiesIdentifiersRemapper.Resolve(currChildId);
 
@@ -110,7 +131,7 @@ namespace TDEngine2
 			{
 				if (auto pTransform = pChildEntity->GetComponent<CTransform>())
 				{
-					pTransform->SetParent(mOwnerId);
+					pTransform->SetParent(mData.mOwnerId);
 				}
 			}
 		}
@@ -122,19 +143,7 @@ namespace TDEngine2
 	{
 		if (CTransform* pDestComponent = dynamic_cast<CTransform*>(pDestObject))
 		{
-			pDestComponent->mPivot = mPivot;
-			pDestComponent->mPosition = mPosition;
-			pDestComponent->mRotation = mRotation;
-			pDestComponent->mScale = mScale;
-			pDestComponent->mParentEntityId = mParentEntityId;
-			pDestComponent->mOwnerId = mOwnerId;
-
-			pDestComponent->mLocalToWorldMatrix = mLocalToWorldMatrix;
-			pDestComponent->mWorldToLocalMatrix = mWorldToLocalMatrix;
-			pDestComponent->mHasChanged = mHasChanged;
-
-			std::copy(mChildrenEntities.begin(), mChildrenEntities.end(), std::back_inserter(pDestComponent->mChildrenEntities));
-
+			pDestComponent->mData = mData;
 			return RC_OK;
 		}
 
@@ -143,59 +152,50 @@ namespace TDEngine2
 
 	void CTransform::Reset()
 	{
-		mPivot = ZeroVector3;
-
-		mPosition = ZeroVector3;
-
-		mRotation = UnitQuaternion;
-
-		mScale = TVector3(1.0f, 1.0f, 1.0f);
-
-		mHasChanged = true;
-		mIsFirstFrameAfterCreation = true;
+		mData = {};
 	}
 
 	void CTransform::SetPivot(const TVector3& pivot)
 	{
-		mPivot = pivot;
+		mData.mPivot = pivot;
 
-		mHasChanged = true;
+		mData.mHasChanged = true;
 	}
 
 	void CTransform::SetPosition(const TVector3& position)
 	{
-		mPosition = position;
+		mData.mPosition = position;
 
-		mHasChanged = true;
+		mData.mHasChanged = true;
 	}
 
 	void CTransform::SetRotation(const TVector3& eulerAngles)
 	{
-		mRotation = TQuaternion(eulerAngles);
+		mData.mRotation = TQuaternion(eulerAngles);
 
-		mHasChanged = true;
+		mData.mHasChanged = true;
 	}
 
 	void CTransform::SetRotation(const TQuaternion& q)
 	{
-		mRotation = q;
+		mData.mRotation = q;
 
-		mHasChanged = true;
+		mData.mHasChanged = true;
 	}
 
 	void CTransform::SetScale(const TVector3& scale)
 	{
-		mScale = scale;
+		mData.mScale = scale;
 
-		mHasChanged = true;
+		mData.mHasChanged = true;
 	}
 
 	void CTransform::SetTransform(const TMatrix4& local2World, const TMatrix4& child2Parent)
 	{
-		mLocalToWorldMatrix = local2World;
-		mWorldToLocalMatrix = Inverse(local2World);
+		mData.mLocalToWorldMatrix = local2World;
+		mData.mWorldToLocalMatrix = Inverse(local2World);
 
-		mChild2ParentMatrix = child2Parent;
+		mData.mChild2ParentMatrix = child2Parent;
 	}
 
 	E_RESULT_CODE CTransform::AttachChild(TEntityId childEntityId)
@@ -205,13 +205,13 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		auto it = std::find_if(mChildrenEntities.cbegin(), mChildrenEntities.cend(), [childEntityId](const TEntityId& id) { return id == childEntityId; });
-		if (it != mChildrenEntities.cend())
+		auto it = std::find_if(mData.mChildrenEntities.cbegin(), mData.mChildrenEntities.cend(), [childEntityId](const TEntityId& id) { return id == childEntityId; });
+		if (it != mData.mChildrenEntities.cend())
 		{
 			return RC_FAIL;
 		}
 
-		mChildrenEntities.push_back(childEntityId);
+		mData.mChildrenEntities.push_back(childEntityId);
 
 		return RC_OK;
 	}
@@ -223,94 +223,94 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		auto it = std::find_if(mChildrenEntities.cbegin(), mChildrenEntities.cend(), [childEntityId](const TEntityId& id) { return id == childEntityId; });
-		if (it == mChildrenEntities.cend())
+		auto it = std::find_if(mData.mChildrenEntities.cbegin(), mData.mChildrenEntities.cend(), [childEntityId](const TEntityId& id) { return id == childEntityId; });
+		if (it == mData.mChildrenEntities.cend())
 		{
 			return RC_FAIL;
 		}
 
-		mChildrenEntities.erase(it);
+		mData.mChildrenEntities.erase(it);
 
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CTransform::SetParent(TEntityId parentEntityId)
 	{
-		mParentEntityId = parentEntityId;
-		mHasChanged = true;
+		mData.mParentEntityId = parentEntityId;
+		mData.mHasChanged = true;
 
 		return RC_OK;
 	}
 
 	void CTransform::SetHierarchyChangedFlag(TEntityId parentEntityId)
 	{
-		mPrevParentEntityId = parentEntityId;
+		mData.mPrevParentEntityId = parentEntityId;
 	}
 
 	void CTransform::SetDirtyFlag(bool value)
 	{
-		mHasChanged = value;
+		mData.mHasChanged = value;
 	}
 
 	E_RESULT_CODE CTransform::SetOwnerId(TEntityId id)
 	{
-		mOwnerId = id;
+		mData.mOwnerId = id;
 		return RC_OK;
 	}
 
 	TEntityId CTransform::GetOwnerId() const
 	{
-		return mOwnerId;
+		return mData.mOwnerId;
 	}
 
 	TEntityId CTransform::GetParent() const
 	{
-		return mParentEntityId;
+		return mData.mParentEntityId;
 	}
 
 	TEntityId CTransform::GetPrevParent() const
 	{
-		return mPrevParentEntityId;
+		return mData.mPrevParentEntityId;
 	}
 
 	const TEntitiesArray& CTransform::GetChildren() const
 	{
-		return mChildrenEntities;
+		return mData.mChildrenEntities;
 	}
 
 	const TVector3& CTransform::GetPivot() const
 	{
-		return mPivot;
+		return mData.mPivot;
 	}
 
 	const TVector3& CTransform::GetPosition() const
 	{
-		return mPosition;
+		return mData.mPosition;
 	}
 
 	const TQuaternion& CTransform::GetRotation() const
 	{
-		return mRotation;
+		return mData.mRotation;
 	}
 
 	const TVector3& CTransform::GetScale() const
 	{
-		return mScale;
+		return mData.mScale;
 	}
 
 	const TMatrix4& CTransform::GetLocalToWorldTransform() const
 	{
-		return mLocalToWorldMatrix;
+		return mData.mLocalToWorldMatrix;
 	}
 
 	const TMatrix4& CTransform::GetWorldToLocalTransform() const
 	{
-		return mWorldToLocalMatrix;
+		return mData.mWorldToLocalMatrix;
 	}
 
 	const TMatrix4& CTransform::GetChildToParentTransform() const
 	{
-		return mChild2ParentMatrix;
+		return mData.mChild2ParentMatrix;
 	}
 	
 	TVector3 CTransform::GetForwardVector() const
@@ -333,12 +333,12 @@ namespace TDEngine2
 
 	bool CTransform::HasChanged() const
 	{
-		return mHasChanged;
+		return mData.mHasChanged;
 	}
 
 	bool CTransform::HasHierarchyChanged() const
 	{
-		return mPrevParentEntityId != mParentEntityId;
+		return mData.mPrevParentEntityId != mData.mParentEntityId;
 	}
 
 	const std::string& CTransform::GetTypeName() const
@@ -393,14 +393,23 @@ namespace TDEngine2
 	
 	void CTransform::ResetFirstFrameAfterCreationFlag()
 	{
-		mIsFirstFrameAfterCreation = false;
+		mData.mIsFirstFrameAfterCreation = false;
 	}
 
 	bool CTransform::IsFirstFrameAfterCreation() const
 	{
-		return mIsFirstFrameAfterCreation;
+		return mData.mIsFirstFrameAfterCreation;
 	}
 
+	TTransformComponentData& CTransform::GetData()
+	{
+		return mData;
+	}
+
+	const TTransformComponentData& CTransform::GetData() const
+	{
+		return mData;
+	}
 
 
 	IComponent* CreateTransform(E_RESULT_CODE& result)

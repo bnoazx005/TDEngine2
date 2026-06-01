@@ -20,7 +20,7 @@ TEST_CASE("CBaseComponentCloneable Tests")
 
 		const TEntityId parentId = TEntityId(2);
 
-		if (auto pTransform = DynamicPtrCast<ITransform>(pSourceComponent))
+		if (auto pTransform = DynamicPtrCast<CTransform>(pSourceComponent))
 		{
 			pTransform->SetPosition(expectedPosition);
 			pTransform->SetRotation(TQuaternion(expectedRotation * CMathConstants::Deg2Rad));
@@ -34,7 +34,7 @@ TEST_CASE("CBaseComponentCloneable Tests")
 		IComponent* pDestPtr = pDestComponent.Get();
 		REQUIRE(RC_OK == pSourceComponent->Clone(pDestPtr));
 
-		if (auto pTransform = DynamicPtrCast<ITransform>(pDestComponent))
+		if (auto pTransform = DynamicPtrCast<CTransform>(pDestComponent))
 		{
 			REQUIRE(expectedPosition == pTransform->GetPosition());
 			REQUIRE(TQuaternion(expectedRotation * CMathConstants::Deg2Rad) == pTransform->GetRotation());
