@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.20)
 
 project (TDEngine2 
-	VERSION 0.6.33
+	VERSION 0.6.34
 	LANGUAGES CXX)
 
 # The options which are related with plugins are placed here
@@ -119,7 +119,6 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/ISystem.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/ISystemManager.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/IWorld.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/ITransform.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/CTransform.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/IComponentFactory.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ecs/IComponentManager.h"
