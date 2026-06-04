@@ -3,7 +3,7 @@ entities:
       components: 
         - component: 
             Children: 
-              - child_id: 1142
+              - item: 1142
             owner_id: 1141
             parent_id: 4294967295
             position: 

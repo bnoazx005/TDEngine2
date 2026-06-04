@@ -3,8 +3,8 @@ entities:
       components: 
         - component: 
             Children: 
-              - child_id: 1507570810
-              - child_id: 1467800428
+              - item: 1507570810
+              - item: 1467800428
             owner_id: 2458767966
             parent_id: 4294967295
             pivot: 

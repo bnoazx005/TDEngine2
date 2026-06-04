@@ -3,8 +3,8 @@ entities:
       components: 
         - component: 
             Children: 
-              - child_id: 1342
-              - child_id: 1343
+              - item: 1342
+              - item: 1343
             owner_id: 1341
             parent_id: 4294967295
             position: 
@@ -26,7 +26,7 @@ entities:
       components: 
         - component: 
             Children: 
-              - child_id: 1344
+              - item: 1344
             owner_id: 1343
             parent_id: 1341
             position: 

@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.34] 2026-06-01
+## [0.6.34] 2026-06-04
 
 ### Changed
 
-- **ITransform** interface was removed.
+- **ITransform** interface was removed. Now all data of **CTransform** should be changed via GetData() method.
+
+- Now **CTransform** children entities array is serialized with "item": {}, ..., "item" : {} instead of "child_id" : {}, ..., "child_id" : {}
 
 ## [0.6.33] 2026-05-22
 

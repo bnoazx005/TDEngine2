@@ -3,9 +3,9 @@ entities:
       components: 
         - component: 
             Children: 
-              - child_id: 1785771150
-              - child_id: 2133525210
-              - child_id: 1418401809
+              - item: 1785771150
+              - item: 2133525210
+              - item: 1418401809
             owner_id: 2299039786
             parent_id: 4294967295
             position: 

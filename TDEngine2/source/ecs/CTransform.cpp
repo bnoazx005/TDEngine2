@@ -21,7 +21,7 @@ namespace TDEngine2
 			{
 				if constexpr (TIsVector<typename std::decay_t<decltype(fieldValue)>>::value)
 				{
-					auto&& result = Deserialize<typename std::decay_t<decltype(fieldValue)>>(pReader, pFieldNamePtr, "child_id");
+					auto&& result = Deserialize<typename std::decay_t<decltype(fieldValue)>>(pReader, pFieldNamePtr, "item");
 					if (result.HasError())
 					{
 						resultCode = result.GetError();
@@ -60,7 +60,7 @@ namespace TDEngine2
 			{
 				if constexpr (TIsVector<typename std::decay_t<decltype(fieldValue)>>::value)
 				{
-					result = result | Serialize(pWriter, pFieldNamePtr, fieldValue, "child_id");
+					result = result | Serialize(pWriter, pFieldNamePtr, fieldValue, "item");
 				}
 				else
 				{

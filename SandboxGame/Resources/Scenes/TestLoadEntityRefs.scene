@@ -19,8 +19,8 @@ entities:
       components: 
         - component: 
             Children: 
-              - child_id: 10302
-              - child_id: 10312
+              - item: 10302
+              - item: 10312
             owner_id: 2530779440
             parent_id: 4294967295
             position: 
