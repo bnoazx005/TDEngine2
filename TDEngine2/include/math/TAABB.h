@@ -56,6 +56,10 @@ namespace TDEngine2
 		TDE2_API F32 GetVolume() const;
 	};
 
+	
+	TDE2_API bool operator== (const TAABB& left, const TAABB& right);
+	TDE2_API bool operator!= (const TAABB& left, const TAABB& right);
+
 
 	/*!
 		\brief The function determines whether a point stays inside of an AABB or not

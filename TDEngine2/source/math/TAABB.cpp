@@ -98,4 +98,15 @@ namespace TDEngine2
 
 		return TAABB(minVec3(left.min, right.min), maxVec3(left.max, right.max));
 	}
+
+
+	TDE2_API bool operator== (const TAABB& left, const TAABB& right)
+	{
+		return left.min == right.min && left.max == right.max;
+	}
+
+	TDE2_API bool operator!= (const TAABB& left, const TAABB& right)
+	{
+		return left.min != right.min || left.max != right.max;
+	}
 }

@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.34] 2026-06-04
+## [0.6.34] 2026-06-13
+
+### Added
+
+- Comparison operators were added for **TAABB**.
 
 ### Changed
 
