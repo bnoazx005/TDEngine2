@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Comparison operators were added for **TAABB**.
 
+- A new implementation of **IPropertyWrapper** was added which is **CRawPropertyWrapper<T>**.
+
 ### Changed
 
 - **ITransform** interface was removed. Now all data of **CTransform** should be changed via GetData() method.

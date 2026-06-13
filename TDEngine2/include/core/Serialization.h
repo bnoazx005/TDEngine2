@@ -401,10 +401,18 @@ namespace TDEngine2
 
 			TDE2_API virtual TypeId GetValueType() const = 0;
 
-			TDE2_API virtual bool EqualsTo(const CScopedPtr<IPropertyWrapper>& property) const = 0;
+			TDE2_API virtual bool EqualsTo(const CScopedPtr<IPropertyWrapper>& property) const
+			{
+				if (!property || property->GetValueType() != GetValueType())
+				{
+					return false;
+				}
 
-			TDE2_API virtual bool operator== (const CScopedPtr<IPropertyWrapper>& property) const = 0;
-			TDE2_API virtual bool operator!= (const CScopedPtr<IPropertyWrapper>& property) const = 0;
+				return _equalsToInternal(property);
+			}
+
+			TDE2_API virtual bool operator== (const CScopedPtr<IPropertyWrapper>& property) const { return this->EqualsTo(property); }
+			TDE2_API virtual bool operator!= (const CScopedPtr<IPropertyWrapper>& property) const { return !(*this == property); }
 
 			TDE2_API virtual std::unique_ptr<IValueConcept> ToValueWrapper() const = 0;
 
@@ -413,6 +421,8 @@ namespace TDEngine2
 
 			TDE2_API virtual E_RESULT_CODE _setInternal(const void* pValue, size_t valueSize) = 0;
 			TDE2_API virtual const void* _getInternal() const = 0;
+
+			TDE2_API virtual bool _equalsToInternal(const CScopedPtr<IPropertyWrapper>& property) const = 0;
 	};
 
 
@@ -520,37 +530,12 @@ namespace TDEngine2
 				return new (std::nothrow) CBasePropertyWrapper<TValueType>(setter, getter);
 			}
 
-			TDE2_API TypeId GetValueType() const override
+			TypeId GetValueType() const override
 			{
 				return GetTypeId<TValueType>::mValue;
 			}
 
-			TDE2_API bool EqualsTo(const CScopedPtr<IPropertyWrapper>& property) const override
-			{
-				if (!property)
-				{
-					return false;
-				}
-
-				if (property->GetValueType() != GetValueType())
-				{
-					return false;
-				}
-
-				return property->Get<TValueType>() == Get<TValueType>();
-			}
-
-			TDE2_API bool operator== (const IPropertyWrapperPtr& property) const override
-			{
-				return this->EqualsTo(property);
-			}
-
-			TDE2_API bool operator!= (const IPropertyWrapperPtr& property) const override
-			{
-				return !(*this == property);
-			}
-			
-			TDE2_API std::unique_ptr<IValueConcept> ToValueWrapper() const override
+			std::unique_ptr<IValueConcept> ToValueWrapper() const override
 			{
 				return std::make_unique<CTypedValue<TValueType>>(*mGetterFunc());
 			}
@@ -563,14 +548,19 @@ namespace TDEngine2
 
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBasePropertyWrapper)
 
-			TDE2_API E_RESULT_CODE _setInternal(const void* pValue, size_t valueSize)
+			E_RESULT_CODE _setInternal(const void* pValue, size_t valueSize)
 			{
 				return mSetterFunc ? mSetterFunc(*static_cast<const TValueType*>(pValue)) : RC_FAIL;
 			}
 
-			TDE2_API const void* _getInternal() const
+			const void* _getInternal() const
 			{
 				return mGetterFunc ? mGetterFunc() : nullptr;
+			}
+
+			bool _equalsToInternal(const CScopedPtr<IPropertyWrapper>& property) const override
+			{
+				return property->Get<TValueType>() == Get<TValueType>();
 			}
 		protected:
 			TPropertySetterFunctor mSetterFunc;
@@ -579,6 +569,62 @@ namespace TDEngine2
 
 
 	template <typename TValueType> CBasePropertyWrapper<TValueType>::CBasePropertyWrapper() : CBaseObject() {}
+
+
+	template <typename TValueType>
+	class CRawPropertyWrapper : public IPropertyWrapper, public CBaseObject
+	{
+		public:
+			static TDE2_API IPropertyWrapper* Create(TValueType& valueRef)
+			{
+				return new (std::nothrow) CRawPropertyWrapper<TValueType>(valueRef);
+			}
+
+			TypeId GetValueType() const override
+			{
+				return GetTypeId<TValueType>::mValue;
+			}
+
+			std::unique_ptr<IValueConcept> ToValueWrapper() const override
+			{
+				return std::make_unique<CTypedValue<TValueType>>(mValueRef);
+			}
+
+		protected:
+			CRawPropertyWrapper(TValueType& valueRef) : CBaseObject(), mValueRef(valueRef)
+			{
+				mIsInitialized = true;
+			}
+
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CRawPropertyWrapper)
+
+			E_RESULT_CODE _setInternal(const void* pValue, size_t valueSize)
+			{
+				if (!pValue)
+				{
+					return RC_INVALID_ARGS;
+				}
+
+				mValueRef = *static_cast<const TValueType*>(pValue);
+
+				return RC_OK;
+			}
+
+			const void* _getInternal() const
+			{
+				return &mValueRef;
+			}
+
+			bool _equalsToInternal(const CScopedPtr<IPropertyWrapper>& property) const override
+			{
+				return property->Get<TValueType>() == Get<TValueType>();
+			}
+		protected:
+			TValueType& mValueRef;
+	};
+
+
+	template <typename TValueType> CRawPropertyWrapper<TValueType>::CRawPropertyWrapper() : CBaseObject() {}
 
 
 	/*!
