@@ -1,78 +1,24 @@
 #include "../../include/graphics/animation/CAnimationContainerComponent.h"
+#define META_EXPORT_ECS_SECTION
+#include "../../include/metadata.h"
 
 
 namespace TDEngine2
 {
 	TDE2_REGISTER_COMPONENT_FACTORY(CreateAnimationContainerComponentFactory)
-
-
-	struct TAnimationContainerArchiveKeys
-	{
-		static const std::string mAnimationClipKeyId;
-		static const std::string mAnimationDurationKeyId;
-	};
-
-
-	const std::string TAnimationContainerArchiveKeys::mAnimationClipKeyId = "clip_id";
-	const std::string TAnimationContainerArchiveKeys::mAnimationDurationKeyId = "clip_duration";
+	TDE2_DEFINE_COMPONENT_META(TAnimationContainerComponentData);
 
 
 	CAnimationContainerComponent::CAnimationContainerComponent() :
-		CBaseComponent(), mCurrTime(0.0f)
+		CBaseComponentT()
 	{
-	}
-
-	E_RESULT_CODE CAnimationContainerComponent::Load(IArchiveReader* pReader)
-	{
-		if (!pReader)
-		{
-			return RC_FAIL;
-		}
-		
-		mAnimationClipId = pReader->GetString(TAnimationContainerArchiveKeys::mAnimationClipKeyId);
-		mDuration = pReader->GetFloat(TAnimationContainerArchiveKeys::mAnimationDurationKeyId);
-
-		mCurrTime = 0.0f;
-
-		mIsPlaying = false;
-		mIsStarted = false;
-		mIsStopped = true;
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CAnimationContainerComponent::Save(IArchiveWriter* pWriter)
-	{
-		if (!pWriter)
-		{
-			return RC_FAIL;
-		}
-
-		pWriter->BeginGroup("component");
-		{
-			pWriter->SetUInt32("type_id", static_cast<U32>(CAnimationContainerComponent::GetTypeId()));
-
-			pWriter->SetString(TAnimationContainerArchiveKeys::mAnimationClipKeyId, mAnimationClipId);
-			pWriter->SetFloat(TAnimationContainerArchiveKeys::mAnimationDurationKeyId, mDuration);
-			
-		}
-		pWriter->EndGroup();
-
-		return RC_OK;
 	}
 
 	E_RESULT_CODE CAnimationContainerComponent::Clone(IComponent*& pDestObject) const
 	{
 		if (auto pComponent = dynamic_cast<CAnimationContainerComponent*>(pDestObject))
 		{
-			pComponent->mAnimationClipId = mAnimationClipId;
-			pComponent->mAnimationClipResourceId = mAnimationClipResourceId;
-			pComponent->mCurrTime = mCurrTime;
-			pComponent->mDuration = mDuration;
-			pComponent->mIsPaused = mIsPaused;
-			pComponent->mIsPlaying = mIsPlaying;
-			pComponent->mIsStarted = mIsStarted;
-			pComponent->mIsStopped = mIsStopped;
+			pComponent->mData = mData;
 
 			pComponent->mCachedProperties.clear();
 
@@ -89,17 +35,17 @@ namespace TDEngine2
 
 	E_RESULT_CODE CAnimationContainerComponent::Play()
 	{
-		if (mIsStarted || mIsPlaying)
+		if (mData.mIsStarted || mData.mIsPlaying)
 		{
 			return RC_FAIL;
 		}
 
-		mIsStarted = true;
-		mIsPlaying = false;
-		mIsPaused = false;
-		mIsStopped = false;
+		mData.mIsStarted = true;
+		mData.mIsPlaying = false;
+		mData.mIsPaused = false;
+		mData.mIsStopped = false;
 
-		mCurrTime = 0.0f;
+		mData.mCurrTime = 0.0f;
 
 		return RC_OK;
 	}
@@ -111,7 +57,7 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mAnimationClipId = id;
+		mData.mAnimationClipId = id;
 
 		return RC_OK;
 	}
@@ -123,7 +69,7 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mAnimationClipResourceId = resourceId;
+		mData.mAnimationClipResourceId = resourceId;
 
 		return RC_OK;
 	}
@@ -135,7 +81,7 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mCurrTime = value;
+		mData.mCurrTime = value;
 
 		return RC_OK;
 	}
@@ -147,59 +93,59 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mDuration = value;
+		mData.mDuration = value;
 
 		return RC_OK;
 	}
 
 	void CAnimationContainerComponent::SetStartedFlag(bool value)
 	{
-		mIsStarted = value;
+		mData.mIsStarted = value;
 	}
 
 	void CAnimationContainerComponent::SetPlayingFlag(bool value)
 	{
-		mIsPlaying = value;
+		mData.mIsPlaying = value;
 	}
 
 	void CAnimationContainerComponent::SetStoppedFlag(bool value)
 	{
-		mIsStopped = value;
+		mData.mIsStopped = value;
 	}
 
 	void CAnimationContainerComponent::SetPausedFlag(bool value)
 	{
-		mIsPaused = value;
+		mData.mIsPaused = value;
 	}
 
 	F32 CAnimationContainerComponent::GetTime() const
 	{
-		return mCurrTime;
+		return mData.mCurrTime;
 	}
 
 	F32 CAnimationContainerComponent::GetDuration() const
 	{
-		return mDuration;
+		return mData.mDuration;
 	}
 
 	bool CAnimationContainerComponent::IsPlaying() const
 	{
-		return mIsPlaying;
+		return mData.mIsPlaying;
 	}
 
 	bool CAnimationContainerComponent::IsStarted() const
 	{
-		return mIsStarted;
+		return mData.mIsStarted;
 	}
 
 	bool CAnimationContainerComponent::IsStopped() const
 	{
-		return mIsStopped;
+		return mData.mIsStopped;
 	}
 
 	bool CAnimationContainerComponent::IsPaused() const
 	{
-		return mIsPaused;
+		return mData.mIsPaused;
 	}
 
 	CAnimationContainerComponent::TPropertiesTable& CAnimationContainerComponent::GetCachedPropertiesTable()
@@ -209,7 +155,7 @@ namespace TDEngine2
 
 	const std::string& CAnimationContainerComponent::GetAnimationClipId() const
 	{
-		return mAnimationClipId;
+		return mData.mAnimationClipId;
 	}
 
 	const std::string& CAnimationContainerComponent::GetTypeName() const
@@ -220,7 +166,7 @@ namespace TDEngine2
 
 	TResourceId CAnimationContainerComponent::GetAnimationClipResourceId() const
 	{
-		return mAnimationClipResourceId;
+		return mData.mAnimationClipResourceId;
 	}
 
 	IComponent* CreateAnimationContainerComponent(E_RESULT_CODE& result)

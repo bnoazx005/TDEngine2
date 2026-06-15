@@ -441,3 +441,33 @@ TEST_CASE("CBaseComponentCloneable Tests")
 		REQUIRE(RC_OK == pSourceComponent->Clone(pDestPtr));
 	}
 }
+
+
+TEST_CASE("CTransform Tests")
+{
+	E_RESULT_CODE result = RC_OK;
+
+	SECTION("TestGetProperty_TryToGetPropertyAndAssignValuesThroughIt_InternalStateOfTransformComponentShouldBeCHanged")
+	{
+		auto pTransform = DynamicPtrCast<CTransform>(TPtr<IComponent>(CreateTransform(result)));
+		REQUIRE((pTransform && RC_OK == result));
+
+		const TVector3 expectedPosition = RandVector3(ZeroVector3, TVector3(1.0f));
+
+		IPropertyWrapperPtr pPositionProperty = pTransform->GetProperty("position");
+		REQUIRE(pPositionProperty);
+
+		pPositionProperty->Set<TVector3>(expectedPosition);
+
+		REQUIRE((pPositionProperty->Get<TVector3>() == expectedPosition && pTransform->GetData().mPosition == expectedPosition));
+
+		const TEntityId expectedOwnerId = TEntityId(42);
+
+		IPropertyWrapperPtr pOwnerIdProperty = pTransform->GetProperty("owner_id");
+		REQUIRE(pOwnerIdProperty);
+
+		pOwnerIdProperty->Set<TEntityId>(expectedOwnerId);
+
+		REQUIRE((pOwnerIdProperty->Get<TEntityId>() == expectedOwnerId && pTransform->GetData().mOwnerId == expectedOwnerId));
+	}
+}

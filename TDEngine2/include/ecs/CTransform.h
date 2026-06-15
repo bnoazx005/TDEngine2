@@ -39,8 +39,7 @@ namespace TDEngine2
 
 		FIELD_META(name = Children) TEntitiesArray mChildrenEntities {};
 
-		TDE2_API static TResult<TTransformComponentData> Load(IArchiveReader* pReader);
-		TDE2_API static E_RESULT_CODE Save(IArchiveWriter* pWriter, const TTransformComponentData& data);
+		TDE2_DECLARE_COMPONENT_META(TTransformComponentData);
 	};
 
 
@@ -63,32 +62,12 @@ namespace TDEngine2
 		an object
 	*/
 
-	class CTransform: public CBaseComponent, public CPoolMemoryAllocPolicy<CTransform, 1 << 20>
+	class CTransform: public CBaseComponentT<CTransform, TTransformComponentData>
 	{
 		public:
 			friend TDE2_API IComponent* CreateTransform(E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_COMPONENT_TYPE(CTransform)
-
-			/*!
-				\brief The method deserializes object's state from given reader
-
-				\param[in, out] pReader An input stream of data that contains information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
-
-			/*!
-				\brief The method serializes object's state into given stream
-
-				\param[in, out] pWriter An output stream of data that writes information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
 			/*!
 				\brief The method is called after all entities of particular scene were loaded. It remaps all identifiers to
@@ -101,15 +80,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper) override;
-
-			/*!
-				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
-				The original state of the object stays the same
-
-				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
-			*/
-
-			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
 			/*!
 				\brief The method resets all values of this transform
@@ -278,27 +248,10 @@ namespace TDEngine2
 
 			TDE2_API const std::string& GetTypeName() const override;
 
-			/*!
-				\return The method returns a pointer to a type's property if the latter does exist or null pointer in other cases
-			*/
-
-			TDE2_API IPropertyWrapperPtr GetProperty(const std::string& propertyName) override;
-
-			/*!
-				\brief The method returns an array of properties names that are available for usage
-			*/
-
-			TDE2_API const std::vector<std::string>& GetAllProperties() const override;
-
 			TDE2_API void ResetFirstFrameAfterCreationFlag();
 			TDE2_API bool IsFirstFrameAfterCreation() const;
-
-			TDE2_API TTransformComponentData & GetData();
-			TDE2_API const TTransformComponentData & GetData() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTransform)
-		protected:
-			TTransformComponentData mData{};
 	};
 
 

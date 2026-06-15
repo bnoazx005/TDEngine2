@@ -189,7 +189,7 @@ TDE2_TEST_FIXTURE("EntityRefTests")
 
 				TDE2_TEST_IS_TRUE(pathParts.size() == 2);
 				TDE2_TEST_IS_TRUE(static_cast<TEntityId>(pathParts.front()) == prefabRootEntity->GetId());
-				TDE2_TEST_IS_TRUE(pathParts.back() == pWorld->FindEntity(childEntityId)->GetComponent<CObjIdComponent>()->mId);
+				TDE2_TEST_IS_TRUE(pathParts.back() == pWorld->FindEntity(childEntityId)->GetComponent<CObjIdComponent>()->GetData().mId);
 
 				TDE2_TEST_IS_TRUE(RC_OK == result);
 			}
@@ -518,7 +518,7 @@ TDE2_TEST_FIXTURE("EntityRefTests")
 
 				TDE2_TEST_IS_TRUE(pathParts.size() == 2);
 				TDE2_TEST_IS_TRUE(static_cast<TEntityId>(pathParts.front()) == pTestScene->FindEntityByPath("Entity2/Entity0", pNestedPrefabRoot)->GetId());
-				TDE2_TEST_IS_TRUE(pathParts.back() == pTargetEntity->GetComponent<CObjIdComponent>()->mId);
+				TDE2_TEST_IS_TRUE(pathParts.back() == pTargetEntity->GetComponent<CObjIdComponent>()->GetData().mId);
 
 				TDE2_TEST_IS_TRUE(RC_OK == result);
 

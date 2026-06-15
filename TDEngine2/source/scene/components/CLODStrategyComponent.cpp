@@ -1,89 +1,55 @@
 #include "../../include/scene/components/CLODStrategyComponent.h"
 #include <algorithm>
+#define META_EXPORT_ECS_SECTION
+#include "../../include/metadata.h"
 
 
 namespace TDEngine2
 {
 	TDE2_REGISTER_COMPONENT_FACTORY(CreateLODStrategyComponentFactory)
+	TDE2_DEFINE_COMPONENT_META(TLODStrategyComponentData)
+
+
+	bool operator== (const TLODInstanceInfo& left, const TLODInstanceInfo& right)
+	{
+		return left.mActiveParams == right.mActiveParams && left.mMeshId == right.mMeshId && left.mSubMeshId == right.mSubMeshId && left.mMaterialId == right.mMaterialId;
+	}
 
 
 	CLODStrategyComponent::CLODStrategyComponent() :
-		CBaseComponent()
+		CBaseComponentT()
 	{
-	}
-
-	E_RESULT_CODE CLODStrategyComponent::Load(IArchiveReader* pReader)
-	{
-		if (!pReader)
-		{
-			return RC_FAIL;
-		}
-
-		mIsDirty = true;
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CLODStrategyComponent::Save(IArchiveWriter* pWriter)
-	{
-		if (!pWriter)
-		{
-			return RC_FAIL;
-		}
-
-		pWriter->BeginGroup("component");
-		{
-			pWriter->SetUInt32("type_id", static_cast<U32>(CLODStrategyComponent::GetTypeId()));
-		}
-		pWriter->EndGroup();
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CLODStrategyComponent::Clone(IComponent*& pDestObject) const
-	{
-		if (auto pComponent = dynamic_cast<CLODStrategyComponent*>(pDestObject))
-		{
-			pComponent->mLODInstances.clear();
-			std::copy(mLODInstances.begin(), mLODInstances.end(), std::back_inserter(pComponent->mLODInstances));
-
-			pComponent->mIsDirty = true;
-
-			return RC_OK;
-		}
-
-		return RC_FAIL;
 	}
 
 	E_RESULT_CODE CLODStrategyComponent::AddLODInstance(const TLODInstanceInfo& info)
 	{
-		mLODInstances.emplace_back(info);
-		mIsDirty = true;
+		mData.mLODInstances.emplace_back(info);
+		mData.mIsDirty = true;
 
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CLODStrategyComponent::RemoveLODInstance(U32 index)
 	{
-		if (static_cast<USIZE>(index) >= mLODInstances.size())
+		if (static_cast<USIZE>(index) >= mData.mLODInstances.size())
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		mLODInstances.erase(mLODInstances.cbegin() + static_cast<USIZE>(index));
-		mIsDirty = true;
+		mData.mLODInstances.erase(mData.mLODInstances.cbegin() + static_cast<USIZE>(index));
+		mData.mIsDirty = true;
 
 		return RC_OK;
 	}
 
 	void CLODStrategyComponent::Sort()
 	{
-		std::sort(mLODInstances.begin(), mLODInstances.end(), [](auto&& left, auto&& right)
+		std::sort(mData.mLODInstances.begin(), mData.mLODInstances.end(), [](auto&& left, auto&& right)
 		{
 			return left.mSwitchDistance < right.mSwitchDistance;
 		});
 
-		mIsDirty = true;
+		mData.mIsDirty = true;
 	}
 
 	void CLODStrategyComponent::ForEachInstance(const std::function<bool(USIZE, TLODInstanceInfo&)>& action)
@@ -93,9 +59,9 @@ namespace TDEngine2
 			return;
 		}
 
-		for (USIZE i = 0; i < mLODInstances.size(); ++i)
+		for (USIZE i = 0; i < mData.mLODInstances.size(); ++i)
 		{
-			if (!action(i, mLODInstances[i]))
+			if (!action(i, mData.mLODInstances[i]))
 			{
 				return;
 			}
@@ -104,23 +70,23 @@ namespace TDEngine2
 
 	TLODInstanceInfo* CLODStrategyComponent::GetLODInfo(U32 index)
 	{
-		if (static_cast<USIZE>(index) >= mLODInstances.size())
+		if (static_cast<USIZE>(index) >= mData.mLODInstances.size())
 		{
 			return nullptr;
 		}
 
-		return &mLODInstances[index];
+		return &mData.mLODInstances[index];
 	}
 
 	TLODInstanceInfo* CLODStrategyComponent::GetLODInfo(F32 distanceToCamera)
 	{
 		F32 prevSwitchDistance = 0.0f;
 
-		for (USIZE i = 0; i < mLODInstances.size(); ++i)
+		for (USIZE i = 0; i < mData.mLODInstances.size(); ++i)
 		{
-			if (distanceToCamera > prevSwitchDistance && distanceToCamera < mLODInstances[i].mSwitchDistance)
+			if (distanceToCamera > prevSwitchDistance && distanceToCamera < mData.mLODInstances[i].mSwitchDistance)
 			{
-				return &mLODInstances[i];
+				return &mData.mLODInstances[i];
 			}
 		}
 

@@ -297,7 +297,7 @@ namespace TDEngine2
 
 		if (auto pObjIdComponent = pCurrEntity->GetComponent<CObjIdComponent>())
 		{
-			pathOutput = std::to_string(pObjIdComponent->mId) + (isPathEmpty ? Wrench::StringUtils::GetEmptyStr() : delimiter) + pathOutput;
+			pathOutput = std::to_string(pObjIdComponent->GetData().mId) + (isPathEmpty ? Wrench::StringUtils::GetEmptyStr() : delimiter) + pathOutput;
 			return;
 		}
 
@@ -413,7 +413,7 @@ namespace TDEngine2
 
 			if (auto pObjIdComponent = pCurrEntity->GetComponent<CObjIdComponent>())
 			{
-				if (pObjIdComponent->mId == objectId)
+				if (pObjIdComponent->GetData().mId == objectId)
 				{
 					return pCurrEntity;
 				}

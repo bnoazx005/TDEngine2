@@ -14,6 +14,16 @@
 
 namespace TDEngine2
 {
+	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
+	struct TSplashScreenComponentData
+	{
+		FIELD_META(name = elapsed_time) F32 mElapsedTime = 0.0f;
+		FIELD_META(name = duration) F32     mDuration = 1.0f;
+
+		TDE2_DECLARE_COMPONENT_META(TSplashScreenComponentData);
+	};
+
+
 	/*!
 		\brief A factory function for creation objects of CSplashScreenItemComponent's type.
 
@@ -25,41 +35,12 @@ namespace TDEngine2
 	TDE2_API IComponent* CreateSplashScreenItemComponent(E_RESULT_CODE& result);
 
 
-	class CSplashScreenItemComponent : public CBaseComponent, public CPoolMemoryAllocPolicy<CSplashScreenItemComponent, 1 << 20>
+	class CSplashScreenItemComponent : public CBaseComponentT<CSplashScreenItemComponent, TSplashScreenComponentData>
 	{
 		public:
 			friend TDE2_API IComponent* CreateSplashScreenItemComponent(E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_COMPONENT_TYPE(CSplashScreenItemComponent)
-
-			/*!
-				\brief The method deserializes object's state from given reader
-
-				\param[in, out] pReader An input stream of data that contains information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
-
-			/*!
-				\brief The method serializes object's state into given stream
-
-				\param[in, out] pWriter An output stream of data that writes information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
-
-			/*!
-				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
-				The original state of the object stays the same
-
-				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
-			*/
-
-			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
 			/*!
 				\return The method returns type name (lowercase is preffered)
@@ -68,9 +49,6 @@ namespace TDEngine2
 			TDE2_API const std::string& GetTypeName() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSplashScreenItemComponent)
-		public:
-			F32 mElapsedTime = 0.0f;
-			F32 mDuration = 1.0f;
 	};
 
 

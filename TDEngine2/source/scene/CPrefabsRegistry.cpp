@@ -156,7 +156,7 @@ namespace TDEngine2
 				{
 					if (auto pObjIdComponent = pNewEntity->AddComponent<CObjIdComponent>())
 					{
-						pObjIdComponent->mId = static_cast<U32>(currEntityId);
+						pObjIdComponent->GetData().mId = static_cast<U32>(currEntityId);
 					}
 
 					pNewEntity->SetName(pOriginalEntity->GetName());

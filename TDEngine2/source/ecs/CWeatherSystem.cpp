@@ -95,15 +95,16 @@ namespace TDEngine2
 			F32       mDensityFactor;
 		} uniformsData;
 
+		const TWeatherComponentData& weatherData = mpWeatherComponent->GetData();
 
-		uniformsData.mAmbientCloudsColor   = mpWeatherComponent->mAmbientCloudColor;
-		uniformsData.mAtmosphereParameters = TVector4{ EarthRadius, mpWeatherComponent->mAtmosphereStartRadius, mpWeatherComponent->mAtmosphereThickness, 0.0f };
-		uniformsData.mWindParameters       = TVector4{ mpWeatherComponent->mWindDirection.x, mpWeatherComponent->mWindDirection.y, 0.0f, mpWeatherComponent->mWindScaleFactor };
-		uniformsData.mAbsorption           = mpWeatherComponent->mSunLightAbsorption;
-		uniformsData.mCoverage             = mpWeatherComponent->mCoverage;
-		uniformsData.mCurliness            = mpWeatherComponent->mCurliness;
-		uniformsData.mCrispiness           = mpWeatherComponent->mCrispiness;
-		uniformsData.mDensityFactor        = mpWeatherComponent->mDensityFactor;
+		uniformsData.mAmbientCloudsColor   = weatherData.mAmbientCloudColor;
+		uniformsData.mAtmosphereParameters = TVector4{ EarthRadius, weatherData.mAtmosphereStartRadius, weatherData.mAtmosphereThickness, 0.0f };
+		uniformsData.mWindParameters       = TVector4{ weatherData.mWindDirection.x, weatherData.mWindDirection.y, 0.0f, weatherData.mWindScaleFactor };
+		uniformsData.mAbsorption           = weatherData.mSunLightAbsorption;
+		uniformsData.mCoverage             = weatherData.mCoverage;
+		uniformsData.mCurliness            = weatherData.mCurliness;
+		uniformsData.mCrispiness           = weatherData.mCrispiness;
+		uniformsData.mDensityFactor        = weatherData.mDensityFactor;
 
 		const TResourceId volumetricCloudsShaderHandle = mpResourceManager->Load<IShader>(CProjectSettings::Get()->mGraphicsSettings.mVolumetricCloudsMainShader);
 		TDE2_ASSERT(TResourceId::Invalid != volumetricCloudsShaderHandle);
@@ -112,7 +113,7 @@ namespace TDEngine2
 		{
 			pVolumetricCloudsMainShader->SetUserUniformsBuffer(1, reinterpret_cast<const U8*>(&uniformsData), sizeof(uniformsData));
 
-			auto pWeatherMapTexture = mpResourceManager->GetResource<ITexture2D>(mpResourceManager->Load<ITexture2D>(mpWeatherComponent->mWeatherMapTextureId));
+			auto pWeatherMapTexture = mpResourceManager->GetResource<ITexture2D>(mpResourceManager->Load<ITexture2D>(weatherData.mWeatherMapTextureId));
 			pVolumetricCloudsMainShader->SetTextureResource("WeatherMap", pWeatherMapTexture.Get());
 		}
 	}

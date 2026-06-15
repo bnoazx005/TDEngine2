@@ -15,6 +15,32 @@
 
 namespace TDEngine2
 {
+	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
+	struct TWeatherComponentData
+	{
+		FIELD_META(name = ambient_clouds_color) TColor32F mAmbientCloudColor = TColor32F(0.41f, 0.41f, 0.41f, 1.0f);
+
+		FIELD_META(name = absorption) F32                 mSunLightAbsorption = 0.002f;
+
+		// clouds
+		FIELD_META(name = atmo_start_radius) F32          mAtmosphereStartRadius = 1500.0f;
+		FIELD_META(name = atmo_thickness) F32             mAtmosphereThickness = 14000.0f;
+		FIELD_META(name = wind_scale) F32                 mWindScaleFactor = 2500.0f;
+
+		FIELD_META(name = coverage) F32                   mCoverage = 0.3f;
+		FIELD_META(name = curliness) F32                  mCurliness = 1.1f;
+		FIELD_META(name = crispiness) F32                 mCrispiness = 43.0f;
+
+		FIELD_META(name = density_factor) F32             mDensityFactor = 0.006f;
+
+		FIELD_META(name = wind_direction) TVector2        mWindDirection = RightVector2;
+
+		FIELD_META(name = weather_texture) std::string    mWeatherMapTextureId;
+
+		TDE2_DECLARE_COMPONENT_META(TWeatherComponentData);
+	};
+
+
 	/*!
 		\brief A factory function for creation objects of CWeatherComponent's type.
 
@@ -26,41 +52,12 @@ namespace TDEngine2
 	TDE2_API IComponent* CreateWeatherComponent(E_RESULT_CODE& result);
 
 
-	class CWeatherComponent : public CBaseComponent, public CPoolMemoryAllocPolicy<CWeatherComponent, 1 << 20>
+	class CWeatherComponent : public CBaseComponentT<CWeatherComponent, TWeatherComponentData>
 	{
 		public:
 			friend TDE2_API IComponent* CreateWeatherComponent(E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_COMPONENT_TYPE(CWeatherComponent)
-
-			/*!
-				\brief The method deserializes object's state from given reader
-
-				\param[in, out] pReader An input stream of data that contains information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
-
-			/*!
-				\brief The method serializes object's state into given stream
-
-				\param[in, out] pWriter An output stream of data that writes information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
-
-			/*!
-				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
-				The original state of the object stays the same
-
-				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
-			*/
-
-			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
 			/*!
 				\return The method returns type name (lowercase is preffered)
@@ -69,25 +66,6 @@ namespace TDEngine2
 			TDE2_API const std::string& GetTypeName() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWeatherComponent)
-		public:
-			TColor32F mAmbientCloudColor = TColor32F(0.41f, 0.41f, 0.41f, 1.0f);
-
-			F32 mSunLightAbsorption = 0.002f;
-
-			// clouds
-			F32 mAtmosphereStartRadius = 1500.0f;
-			F32 mAtmosphereThickness = 14000.0f;
-			F32 mWindScaleFactor = 2500.0f;
-
-			F32 mCoverage = 0.3f;
-			F32 mCurliness = 1.1f;
-			F32 mCrispiness = 43.0f;
-
-			F32 mDensityFactor = 0.006f;
-
-			TVector2 mWindDirection = RightVector2;
-
-			std::string mWeatherMapTextureId;
 	};
 
 

@@ -132,7 +132,7 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 			if (auto pWeatherComponent = pMainScene->CreateEntity("Weather")->AddComponent<CWeatherComponent>())
 			{
-				pWeatherComponent->mWeatherMapTextureId = "ProjectResources/Textures/weather.png";
+				pWeatherComponent->GetData().mWeatherMapTextureId = "ProjectResources/Textures/weather.png";
 			}
 
 #if 1

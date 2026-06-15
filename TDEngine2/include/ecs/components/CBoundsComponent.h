@@ -14,6 +14,16 @@
 
 namespace TDEngine2
 {
+	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
+	struct TBoundsComponentData
+	{
+		FIELD_META(name = bounds) TAABB mBounds;
+		bool                            mIsDirty = true;
+
+		TDE2_DECLARE_COMPONENT_META(TBoundsComponentData);
+	};
+
+
 	/*!
 		\brief A factory function for creation objects of CBoundsComponent's type.
 
@@ -31,7 +41,7 @@ namespace TDEngine2
 		\brief The class represents a component that stores information about object's boundaries
 	*/
 
-	class CBoundsComponent: public CBaseComponent, public CPoolMemoryAllocPolicy<CBoundsComponent, 1 << 20>
+	class CBoundsComponent: public CBaseComponentT<CBoundsComponent, TBoundsComponentData>
 	{
 		public:
 			friend TDE2_API IComponent* CreateBoundsComponent(E_RESULT_CODE&);
@@ -45,22 +55,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void SetBounds(const TAABB& aabbBounds);
-
-			/*!
-				\brief The method is invoked at the end of frame to swap current and previous state of the component.
-				Used to prevent using locks
-			*/
-
-			TDE2_API void SwapState();
-
-			/*!
-				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
-				The original state of the object stays the same
-
-				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
-			*/
-
-			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
 			/*!
 				\brief The method changes so called 'dirty' flag of the object that means that it was modified
@@ -91,25 +85,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API const std::string& GetTypeName() const override;
-
-			/*!
-				\return The method returns a pointer to a type's property if the latter does exist or null pointer in other cases
-			*/
-
-			TDE2_API IPropertyWrapperPtr GetProperty(const std::string& propertyName) override;
-
-			/*!
-				\brief The method returns an array of properties names that are available for usage
-			*/
-
-			TDE2_API const std::vector<std::string>& GetAllProperties() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBoundsComponent)
-		protected:
-			TAABB mUpdatedBounds;
-			TAABB mBounds;
-
-			bool  mIsDirty;
 	};
 
 

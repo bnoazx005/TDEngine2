@@ -1,77 +1,27 @@
 #include "../../../include/scene/components/ShadowMappingComponents.h"
+#define META_EXPORT_ECS_SECTION
+#include "../../include/metadata.h"
 
 
 namespace TDEngine2
 {
 	TDE2_REGISTER_COMPONENT_FACTORY(CreateShadowCasterComponentFactory)
+	TDE2_DEFINE_COMPONENT_META(TShadowCasterComponentData)
 
 
 	CShadowCasterComponent::CShadowCasterComponent() :
-		CBaseComponent(), mIsTransparent(false)
+		CBaseComponentT()
 	{
-	}
-
-	E_RESULT_CODE CShadowCasterComponent::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CShadowCasterComponent::Load(IArchiveReader* pReader)
-	{
-		if (!pReader)
-		{
-			return RC_FAIL;
-		}
-
-		mIsTransparent = pReader->GetBool("transparent");
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CShadowCasterComponent::Save(IArchiveWriter* pWriter)
-	{
-		if (!pWriter)
-		{
-			return RC_FAIL;
-		}
-
-		pWriter->BeginGroup("component");
-		{
-			pWriter->SetUInt32("type_id", static_cast<U32>(CShadowCasterComponent::GetTypeId()));
-			pWriter->SetBool("transparent", mIsTransparent);
-		}
-		pWriter->EndGroup();
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CShadowCasterComponent::Clone(IComponent*& pDestObject) const
-	{
-		if (auto pComponent = dynamic_cast<CShadowCasterComponent*>(pDestObject))
-		{
-			pComponent->mIsTransparent = mIsTransparent;
-
-			return RC_OK;
-		}
-
-		return RC_FAIL;
 	}
 
 	void CShadowCasterComponent::SetTransparentFlag(bool value)
 	{
-		mIsTransparent = value;
+		mData.mIsTransparent = value;
 	}
 
 	bool CShadowCasterComponent::IsTransparentObject() const
 	{
-		return mIsTransparent;
+		return mData.mIsTransparent;
 	}
 
 	const std::string& CShadowCasterComponent::GetTypeName() const

@@ -1,102 +1,44 @@
 #include "../../include/scene/components/AudioComponents.h"
+#define META_EXPORT_ECS_SECTION
+#include "../../include/metadata.h"
 
 
 namespace TDEngine2
 {
 	TDE2_DEFINE_FLAG_COMPONENT(AudioListenerComponent);
 	TDE2_REGISTER_COMPONENT_FACTORY(CreateAudioSourceComponentFactory)
+	TDE2_DEFINE_COMPONENT_META(TAudioSourceComponentData)
 
 
 	CAudioSourceComponent::CAudioSourceComponent() :
-		CBaseComponent(), mVolume(1.0f), mPanning(0.0f), mIsLooped(false), mIsMuted(false), mIsPaused(false), mIsPlaying(false)
+		CBaseComponentT()
 	{
-	}
-
-	E_RESULT_CODE CAudioSourceComponent::Load(IArchiveReader* pReader)
-	{
-		if (!pReader)
-		{
-			return RC_FAIL;
-		}
-
-		mAudioClipId = pReader->GetString("clip_id");
-
-		mIsMuted = pReader->GetBool("is_muted");
-		mIsPaused = pReader->GetBool("is_paused");
-		mIsLooped = pReader->GetBool("is_looped");
-
-		mVolume = pReader->GetFloat("volume");
-		mPanning = pReader->GetFloat("panning");
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CAudioSourceComponent::Save(IArchiveWriter* pWriter)
-	{
-		if (!pWriter)
-		{
-			return RC_FAIL;
-		}
-
-		pWriter->BeginGroup("component");
-		{
-			pWriter->SetUInt32("type_id", static_cast<U32>(CAudioSourceComponent::GetTypeId()));
-			pWriter->SetString("clip_id", mAudioClipId);
-
-			pWriter->SetBool("is_muted", mIsMuted);
-			pWriter->SetBool("is_paused", mIsPaused);
-			pWriter->SetBool("is_looped", mIsLooped);
-
-			pWriter->SetFloat("volume", mVolume);
-			pWriter->SetFloat("panning", mPanning);
-		}
-		pWriter->EndGroup();
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CAudioSourceComponent::Clone(IComponent*& pDestObject) const
-	{
-		if (auto pComponent = dynamic_cast<CAudioSourceComponent*>(pDestObject))
-		{
-			pComponent->mAudioClipId = mAudioClipId;
-			pComponent->mIsLooped = mIsLooped;
-			pComponent->mIsMuted = mIsMuted;
-			pComponent->mIsPaused = mIsPaused;
-			pComponent->mIsPlaying = mIsPlaying;
-			pComponent->mPanning = mPanning;
-			pComponent->mVolume = mVolume;
-
-			return RC_OK;
-		}
-
-		return RC_FAIL;
 	}
 
 	E_RESULT_CODE CAudioSourceComponent::SetAudioClipId(const std::string& id)
 	{
-		mAudioClipId = id;
+		mData.mAudioClipId = id;
 		return RC_OK;
 	}
 
 	void CAudioSourceComponent::SetMuted(bool value)
 	{
-		mIsMuted = value;
+		mData.mIsMuted = value;
 	}
 
 	void CAudioSourceComponent::SetPaused(bool value)
 	{
-		mIsPaused = value;
+		mData.mIsPaused = value;
 	}
 
 	void CAudioSourceComponent::SetLooped(bool value)
 	{
-		mIsLooped = value;
+		mData.mIsLooped = value;
 	}
 
 	void CAudioSourceComponent::SetPlaying(bool value)
 	{
-		mIsPlaying = value;
+		mData.mIsPlaying = value;
 	}
 
 	E_RESULT_CODE CAudioSourceComponent::SetVolume(F32 value)
@@ -106,7 +48,7 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mVolume = value;
+		mData.mVolume = value;
 
 		return RC_OK;
 	}
@@ -118,44 +60,44 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mPanning = value;
+		mData.mPanning = value;
 
 		return RC_OK;
 	}
 
 	const std::string& CAudioSourceComponent::GetAudioClipId() const
 	{
-		return mAudioClipId;
+		return mData.mAudioClipId;
 	}
 
 	bool CAudioSourceComponent::IsMuted() const
 	{
-		return mIsMuted;
+		return mData.mIsMuted;
 	}
 
 	bool CAudioSourceComponent::IsPaused() const
 	{
-		return mIsPaused;
+		return mData.mIsPaused;
 	}
 
 	bool CAudioSourceComponent::IsLooped() const
 	{
-		return mIsLooped;
+		return mData.mIsLooped;
 	}
 
 	bool CAudioSourceComponent::IsPlaying() const
 	{
-		return mIsPlaying;
+		return mData.mIsPlaying;
 	}
 
 	F32 CAudioSourceComponent::GetVolume() const
 	{
-		return mVolume;
+		return mData.mVolume;
 	}
 
 	F32 CAudioSourceComponent::GetPanning() const
 	{
-		return mPanning;
+		return mData.mPanning;
 	}
 
 

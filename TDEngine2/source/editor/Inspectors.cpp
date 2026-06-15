@@ -498,6 +498,7 @@ namespace TDEngine2
 			IComponent& component = editorContext.mComponent;
 
 			CParticleEmitter& particleEmitter = dynamic_cast<CParticleEmitter&>(component);
+			TParticleEmitterComponentData& particleEmitterData = particleEmitter.GetData();
 
 			/// \note particle effect's identifier
 			{
@@ -510,9 +511,9 @@ namespace TDEngine2
 			}
 
 			// \note Stop
-			imguiContext.Button("Reset", buttonSizes, [&particleEmitter]
+			imguiContext.Button("Reset", buttonSizes, [&particleEmitterData]
 			{
-				particleEmitter.mResetStateOnNextFrame = true;
+				particleEmitterData.mResetStateOnNextFrame = true;
 			});
 		});
 	}
@@ -1958,31 +1959,32 @@ namespace TDEngine2
 			IComponent& component = editorContext.mComponent;
 
 			CWeatherComponent& weatherComponent = dynamic_cast<CWeatherComponent&>(component);
+			TWeatherComponentData& weatherData = weatherComponent.GetData();
 
 			/// Ambient color
 			{
-				TColor32F ambientCloudsColor = weatherComponent.mAmbientCloudColor;
+				TColor32F ambientCloudsColor = weatherData.mAmbientCloudColor;
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Ambient Color: ");
-				imguiContext.ColorPickerField("##AmbientColor", ambientCloudsColor, [&ambientCloudsColor, &weatherComponent]
+				imguiContext.ColorPickerField("##AmbientColor", ambientCloudsColor, [&ambientCloudsColor, &weatherData]
 				{
-					weatherComponent.mAmbientCloudColor = ambientCloudsColor;
+					weatherData.mAmbientCloudColor = ambientCloudsColor;
 				});
 				imguiContext.EndHorizontal();
 			}
 
 			/// Light absorption
 			{
-				F32 lightAbsorption = weatherComponent.mSunLightAbsorption;
+				F32 lightAbsorption = weatherData.mSunLightAbsorption;
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Light Absorption: ");
-				imguiContext.FloatSlider("##LightAbsorption", lightAbsorption, 0.0f, 0.02f, [&lightAbsorption, &weatherComponent]
+				imguiContext.FloatSlider("##LightAbsorption", lightAbsorption, 0.0f, 0.02f, [&lightAbsorption, &weatherData]
 				{
-					if (lightAbsorption != weatherComponent.mSunLightAbsorption)
+					if (lightAbsorption != weatherData.mSunLightAbsorption)
 					{
-						weatherComponent.mSunLightAbsorption = lightAbsorption;
+						weatherData.mSunLightAbsorption = lightAbsorption;
 					}
 
 				});
@@ -1991,15 +1993,15 @@ namespace TDEngine2
 
 			/// Atmosphere Start Radius
 			{
-				F32 atmosphereRadius = weatherComponent.mAtmosphereStartRadius;
+				F32 atmosphereRadius = weatherData.mAtmosphereStartRadius;
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Atmosphere Start Radius: ");
-				imguiContext.FloatField("##AtmoStartRadius", atmosphereRadius, [&atmosphereRadius, &weatherComponent]
+				imguiContext.FloatField("##AtmoStartRadius", atmosphereRadius, [&atmosphereRadius, &weatherData]
 				{
-					if (atmosphereRadius != weatherComponent.mAtmosphereStartRadius)
+					if (atmosphereRadius != weatherData.mAtmosphereStartRadius)
 					{
-						weatherComponent.mAtmosphereStartRadius = atmosphereRadius;
+						weatherData.mAtmosphereStartRadius = atmosphereRadius;
 					}
 
 				});
@@ -2008,15 +2010,15 @@ namespace TDEngine2
 
 			/// Atmosphere Thickness
 			{
-				F32 atmosphereThickness = weatherComponent.mAtmosphereThickness;
+				F32 atmosphereThickness = weatherData.mAtmosphereThickness;
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Atmosphere Thickness: ");
-				imguiContext.FloatField("##AtmoThickness", atmosphereThickness, [&atmosphereThickness, &weatherComponent]
+				imguiContext.FloatField("##AtmoThickness", atmosphereThickness, [&atmosphereThickness, &weatherData]
 				{
-					if (atmosphereThickness != weatherComponent.mAtmosphereThickness)
+					if (atmosphereThickness != weatherData.mAtmosphereThickness)
 					{
-						weatherComponent.mAtmosphereThickness = atmosphereThickness;
+						weatherData.mAtmosphereThickness = atmosphereThickness;
 					}
 
 				});
@@ -2025,15 +2027,15 @@ namespace TDEngine2
 
 			/// Coverage
 			{
-				F32 coverage = weatherComponent.mCoverage;
+				F32 coverage = weatherData.mCoverage;
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Coverage: ");
-				imguiContext.FloatSlider("##Coverage", coverage, 0.0f, 1.0f, [&coverage, &weatherComponent]
+				imguiContext.FloatSlider("##Coverage", coverage, 0.0f, 1.0f, [&coverage, &weatherData]
 				{
-					if (coverage != weatherComponent.mCoverage)
+					if (coverage != weatherData.mCoverage)
 					{
-						weatherComponent.mCoverage = coverage;
+						weatherData.mCoverage = coverage;
 					}
 
 				});
@@ -2042,15 +2044,15 @@ namespace TDEngine2
 
 			/// Curliness
 			{
-				F32 curliness = weatherComponent.mCurliness;
+				F32 curliness = weatherData.mCurliness;
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Curliness: ");
-				imguiContext.FloatSlider("##Curliness", curliness, 0.0f, 10.0f, [&curliness, &weatherComponent]
+				imguiContext.FloatSlider("##Curliness", curliness, 0.0f, 10.0f, [&curliness, &weatherData]
 				{
-					if (curliness != weatherComponent.mCurliness)
+					if (curliness != weatherData.mCurliness)
 					{
-						weatherComponent.mCurliness = curliness;
+						weatherData.mCurliness = curliness;
 					}
 
 				});
@@ -2059,15 +2061,15 @@ namespace TDEngine2
 
 			/// Crispiness
 			{
-				F32 crispiness = weatherComponent.mCrispiness;
+				F32 crispiness = weatherData.mCrispiness;
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Crispiness: ");
-				imguiContext.FloatSlider("##Crispiness", crispiness, 0.0f, 100.0f, [&crispiness, &weatherComponent]
+				imguiContext.FloatSlider("##Crispiness", crispiness, 0.0f, 100.0f, [&crispiness, &weatherData]
 				{
-					if (crispiness != weatherComponent.mCrispiness)
+					if (crispiness != weatherData.mCrispiness)
 					{
-						weatherComponent.mCrispiness = crispiness;
+						weatherData.mCrispiness = crispiness;
 					}
 
 				});
@@ -2076,15 +2078,15 @@ namespace TDEngine2
 
 			/// Density factor
 			{
-				F32 densityFactor = weatherComponent.mDensityFactor;
+				F32 densityFactor = weatherData.mDensityFactor;
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Density Factor: ");
-				imguiContext.FloatSlider("##DensityFactor", densityFactor, 0.0f, 1.0f, [&densityFactor, &weatherComponent]
+				imguiContext.FloatSlider("##DensityFactor", densityFactor, 0.0f, 1.0f, [&densityFactor, &weatherData]
 				{
-					if (densityFactor != weatherComponent.mDensityFactor)
+					if (densityFactor != weatherData.mDensityFactor)
 					{
-						weatherComponent.mDensityFactor = densityFactor;
+						weatherData.mDensityFactor = densityFactor;
 					}
 
 				});
@@ -2093,15 +2095,15 @@ namespace TDEngine2
 
 			/// Wind direction
 			{
-				TVector2 windDirection = weatherComponent.mWindDirection;
+				TVector2 windDirection = weatherData.mWindDirection;
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Wind Direction: ");
-				imguiContext.Vector2Field("##WindDirection", windDirection, [&windDirection, &weatherComponent]
+				imguiContext.Vector2Field("##WindDirection", windDirection, [&windDirection, &weatherData]
 				{
-					if (windDirection != weatherComponent.mWindDirection)
+					if (windDirection != weatherData.mWindDirection)
 					{
-						weatherComponent.mWindDirection = windDirection;
+						weatherData.mWindDirection = windDirection;
 					}
 
 				});
@@ -2110,15 +2112,15 @@ namespace TDEngine2
 
 			/// Wind Scale factor
 			{
-				F32 windScaleFactor = weatherComponent.mWindScaleFactor;
+				F32 windScaleFactor = weatherData.mWindScaleFactor;
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Wind Scale Factor: ");
-				imguiContext.FloatField("##WindScaleFactor", windScaleFactor, [&windScaleFactor, &weatherComponent]
+				imguiContext.FloatField("##WindScaleFactor", windScaleFactor, [&windScaleFactor, &weatherData]
 				{
-					if (windScaleFactor != weatherComponent.mWindScaleFactor)
+					if (windScaleFactor != weatherData.mWindScaleFactor)
 					{
-						weatherComponent.mWindScaleFactor = windScaleFactor;
+						weatherData.mWindScaleFactor = windScaleFactor;
 					}
 
 				});
@@ -2136,18 +2138,19 @@ namespace TDEngine2
 			IComponent& component = editorContext.mComponent;
 
 			CSplashScreenItemComponent& splashScreenItem = dynamic_cast<CSplashScreenItemComponent&>(component);
+			TSplashScreenComponentData& splashScreenData = splashScreenItem.GetData();
 
 			/// Duration
 			{
-				F32 duration = splashScreenItem.mDuration;
+				F32 duration = splashScreenData.mDuration;
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Duration: ");
-				imguiContext.FloatField("##Duration", duration, [&duration, &splashScreenItem]
+				imguiContext.FloatField("##Duration", duration, [&duration, &splashScreenData]
 				{
-					if (duration != splashScreenItem.mDuration)
+					if (duration != splashScreenData.mDuration)
 					{
-						splashScreenItem.mDuration = duration;
+						splashScreenData.mDuration = duration;
 					}
 
 				});

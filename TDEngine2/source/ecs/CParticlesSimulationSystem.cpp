@@ -339,6 +339,8 @@ namespace TDEngine2
 						continue;
 					}
 
+					TParticleEmitterComponentData& particleEmitterData = pEmitterComponent->GetData();
+
 					auto pCurrEffectResource = mpResourceManager->GetResource<IParticleEffect>(pEmitterComponent->GetParticleEffectHandle());
 					if (!pCurrEffectResource)
 					{
@@ -347,10 +349,10 @@ namespace TDEngine2
 
 					auto& particles = mParticles[i];
 
-					if (pEmitterComponent->mResetStateOnNextFrame)
+					if (particleEmitterData.mResetStateOnNextFrame)
 					{
 						std::fill(particles.begin(), particles.end(), TParticleInfo{});
-						pEmitterComponent->mResetStateOnNextFrame = false;
+						particleEmitterData.mResetStateOnNextFrame = false;
 					}
 
 					// \note Process emission

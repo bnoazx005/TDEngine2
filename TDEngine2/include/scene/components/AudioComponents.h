@@ -14,6 +14,30 @@
 namespace TDEngine2
 {
 	TDE2_DECLARE_FLAG_COMPONENT(AudioListenerComponent);
+	//pWriter->SetString("clip_id", mAudioClipId);
+
+	//pWriter->SetBool("is_muted", mIsMuted);
+	//pWriter->SetBool("is_paused", mIsPaused);
+	//pWriter->SetBool("is_looped", mIsLooped);
+
+	//pWriter->SetFloat("volume", mVolume);
+	//pWriter->SetFloat("panning", mPanning);
+
+	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
+	struct TAudioSourceComponentData
+	{
+		FIELD_META(name = clip_id) std::string mAudioClipId = "";
+
+		FIELD_META(name = is_muted) bool       mIsMuted = false;
+		FIELD_META(name = is_paused) bool      mIsPaused = false;
+		FIELD_META(name = is_looped) bool      mIsLooped = false;
+		bool                                   mIsPlaying = false;
+
+		FIELD_META(name = volume) F32          mVolume = 1.0f;
+		FIELD_META(name = panning) F32         mPanning = 0.0f;
+
+		TDE2_DECLARE_COMPONENT_META(TAudioSourceComponentData);
+	};
 
 
 	/*!
@@ -52,41 +76,12 @@ namespace TDEngine2
 		\brief The class represents a component of a 3D audio source 
 	*/
 
-	class CAudioSourceComponent : public CBaseComponent, public CPoolMemoryAllocPolicy<CAudioSourceComponent, 1 << 20>
+	class CAudioSourceComponent: public CBaseComponentT<CAudioSourceComponent, TAudioSourceComponentData>
 	{
 		public:
 			friend TDE2_API IComponent* CreateAudioSourceComponent(E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_COMPONENT_TYPE(CAudioSourceComponent)
-
-			/*!
-				\brief The method deserializes object's state from given reader
-
-				\param[in, out] pReader An input stream of data that contains information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
-
-			/*!
-				\brief The method serializes object's state into given stream
-
-				\param[in, out] pWriter An output stream of data that writes information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
-
-			/*!
-				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
-				The original state of the object stays the same
-
-				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
-			*/
-
-			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
 			TDE2_API E_RESULT_CODE SetAudioClipId(const std::string& id);
 
@@ -109,16 +104,6 @@ namespace TDEngine2
 			TDE2_API F32 GetPanning() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CAudioSourceComponent)
-		protected:
-			std::string mAudioClipId;
-
-			bool mIsMuted;
-			bool mIsPaused;
-			bool mIsLooped;
-			bool mIsPlaying;
-
-			F32 mVolume;
-			F32 mPanning;
 	};
 
 

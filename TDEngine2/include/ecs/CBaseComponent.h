@@ -12,6 +12,7 @@
 #include "../core/Event.h"
 #include "../core/memory/CPoolAllocator.h"
 #include "../ecs/IComponentFactory.h"
+#include "../utils/CFileLogger.h"
 #include <vector>
 
 
@@ -36,8 +37,6 @@ namespace TDEngine2
 	class CBaseComponent : public virtual IComponent, public CBaseObject
 	{
 		public:
-			TDE2_REGISTER_TYPE(CBaseComponent)
-
 			/*!
 				\brief The method initializes an internal state of an object
 
@@ -111,6 +110,166 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseComponent)
 	};
+
+
+	template <typename TComponentType, typename TComponentDataType>
+	class CBaseComponentT : public virtual IComponent, public CBaseObject, public CPoolMemoryAllocPolicy<TComponentType, 1 << 20>
+	{
+		public:
+			/*!
+				\brief The method initializes an internal state of an object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			E_RESULT_CODE Init() override
+			{
+				if (mIsInitialized)
+				{
+					return RC_FAIL;
+				}
+
+				mIsInitialized = true;
+
+				return RC_OK;
+			}
+
+			/*!
+				\brief The method deserializes object's state from given reader
+
+				\param[in, out] pReader An input stream of data that contains information about the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			E_RESULT_CODE Load(IArchiveReader* pReader) override
+			{
+				if (!pReader)
+				{
+					return RC_INVALID_ARGS;
+				}
+
+				auto&& loadResult = TComponentDataType::Load(pReader);
+				if (loadResult.HasError())
+				{
+					return loadResult.GetError();
+				}
+
+				mData = loadResult.Get();
+
+				return RC_OK;
+			}
+
+			/*!
+				\brief The method serializes object's state into given stream
+
+				\param[in, out] pWriter An output stream of data that writes information about the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			E_RESULT_CODE Save(IArchiveWriter* pWriter) override
+			{
+				if (!pWriter)
+				{
+					return RC_FAIL;
+				}
+
+				E_RESULT_CODE result = RC_OK;
+
+				result = result | pWriter->BeginGroup("component");
+				{
+					result = result | pWriter->SetUInt32("type_id", static_cast<U32>(TComponentType::GetTypeId()));
+					result = result | TComponentDataType::Save(pWriter, mData);
+				}
+				result = result | pWriter->EndGroup();
+
+				return result;
+			}
+
+			/*!
+				\brief The method is called after all entities of particular scene were loaded. It remaps all identifiers to
+				make them correctly corresponds to saved state
+
+				\param[in, out] pEntityManager A pointer to entities manager
+				\param[in] entitiesIdentifiersRemapper A structure that maps saved identifier to current runtime equivalent
+			*/
+
+			E_RESULT_CODE PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper) override
+			{
+				return RC_OK;
+			}
+
+			/*!
+				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
+				The original state of the object stays the same
+
+				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
+			*/
+
+			E_RESULT_CODE Clone(IComponent*& pDestObject) const override
+			{
+				if (CBaseComponentT<TComponentType, TComponentDataType>* pDestComponentPtr = dynamic_cast<CBaseComponentT<TComponentType, TComponentDataType>*>(pDestObject))
+				{
+					pDestComponentPtr->mData = mData;
+					return RC_OK;
+				}
+
+				return RC_FAIL;
+			}
+
+			/*!
+				\return The method returns type name (lowercase is preffered)
+			*/
+
+			const std::string& GetTypeName() const override
+			{
+				TDE2_UNIMPLEMENTED();
+				return Wrench::StringUtils::GetEmptyStr();
+			}
+
+			/*!
+				\return The method returns a pointer to a type's property if the latter does exist or null pointer in other cases
+			*/
+
+			IPropertyWrapperPtr GetProperty(const std::string& propertyName) override
+			{
+				static const TComponentDataType::TPropertyWrappersFactoryTable propertiesFactories = TComponentDataType::GetPropertiesFactoriesTable(GetData());
+
+				auto it = propertiesFactories.find(propertyName);
+
+				return (it != propertiesFactories.cend()) ? (it->second)(GetData()) : CBaseComponentT::GetProperty(propertyName);
+			}
+
+			/*!
+				\brief The method returns an array of properties names that are available for usage
+			*/
+
+			const std::vector<std::string>& GetAllProperties() const override
+			{
+				static const std::vector<std::string> properties = TComponentDataType::GetPropertiesNames();
+				return properties;
+			}
+
+			/*!
+				\return The method returns true if the given component type is for runtime purposes only
+			*/
+
+			bool IsRuntimeOnly() const override { return false; }
+
+			const TComponentDataType& GetData() const { return mData; }
+			TComponentDataType& GetData() { return mData; }
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseComponentT)
+		protected:
+			TComponentDataType mData{};
+	};
+
+
+	template <typename TComponentType, typename TComponentTypeData> CBaseComponentT<TComponentType, TComponentTypeData>::CBaseComponentT() :
+		CBaseObject()
+	{
+	}
 
 
 	/*!
@@ -500,6 +659,90 @@ namespace TDEngine2
 																					TDE2_COMPONENT_FACTORY_NAME(ComponentName),				      \
 																					TDE2_COMPONENT_FACTORY_FUNCTION_NAME(ComponentName), true)
 
+
+#define TDE2_DECLARE_COMPONENT_META(Type)																				\
+	using TPropertyWrappersFactoryTable = std::unordered_map<std::string, std::function<IPropertyWrapperPtr(Type&)>>;	\
+																														\
+	TDE2_API static TResult<Type> Load(IArchiveReader* pReader);														\
+	TDE2_API static E_RESULT_CODE Save(IArchiveWriter* pWriter, const Type& data);										\
+	TDE2_API static TPropertyWrappersFactoryTable GetPropertiesFactoriesTable(Type& data);								\
+	TDE2_API static std::vector<std::string> GetPropertiesNames();
+
+
+#define TDE2_DEFINE_COMPONENT_META(Type)																							\
+	TResult<Type> Type::Load(IArchiveReader* pReader)																				\
+	{																																\
+		Type resultData{};																											\
+		E_RESULT_CODE resultCode = RC_OK;																							\
+		Meta::VisitSerializableClassFields(resultData, [pReader, &resultCode](const C8* pFieldNamePtr, auto& fieldValue)			\
+		{																															\
+			if constexpr (TIsVector<typename std::decay_t<decltype(fieldValue)>>::value)											\
+			{																														\
+				auto&& result = Deserialize<typename std::decay_t<decltype(fieldValue)>>(pReader, pFieldNamePtr, "item");			\
+				if (result.HasError())																								\
+				{																													\
+					resultCode = result.GetError();																					\
+					return;																											\
+				}																													\
+																																	\
+				fieldValue = result.Get();																							\
+			}																														\
+			else																													\
+			{																														\
+				auto&& result = Deserialize<typename std::decay_t<decltype(fieldValue)>>(pReader, pFieldNamePtr);					\
+				if (result.HasError())																								\
+				{																													\
+					resultCode = result.GetError();																					\
+					return;																											\
+				}																													\
+																																	\
+				fieldValue = result.Get();																							\
+			}																														\
+		});																															\
+																																	\
+		if (RC_OK != resultCode)																									\
+		{																															\
+			return Wrench::TErrValue<E_RESULT_CODE>(resultCode);																	\
+		}																															\
+		return Wrench::TOkValue<Type>(resultData);																					\
+	}																																\
+																																	\
+	E_RESULT_CODE Type::Save(IArchiveWriter* pWriter, const Type& data)																\
+	{																																\
+		E_RESULT_CODE result = RC_OK;																								\
+		Meta::VisitSerializableClassFields(data, [pWriter, &result](const C8* pFieldNamePtr, const auto& fieldValue)				\
+		{																															\
+			if constexpr (TIsVector<typename std::decay_t<decltype(fieldValue)>>::value)											\
+			{																														\
+				result = result | Serialize(pWriter, pFieldNamePtr, fieldValue, "item");											\
+			}																														\
+			else																													\
+			{																														\
+				result = result | Serialize<typename std::decay_t<decltype(fieldValue)>>(pWriter, pFieldNamePtr, fieldValue);		\
+			}																														\
+		});																															\
+		return result;																												\
+	}																																\
+																																	\
+	std::vector<std::string> Type::GetPropertiesNames()																				\
+	{																																\
+		return Meta::Impl::GetPropertiesNamesImpl<Type>();																			\
+	}																																\
+																																	\
+	Type::TPropertyWrappersFactoryTable Type::GetPropertiesFactoriesTable(Type& data)												\
+	{																																\
+		Type::TPropertyWrappersFactoryTable result{};																				\
+																																	\
+		Meta::VisitSerializableClassFields(data, [&result](const C8* pFieldNamePtr, auto& fieldValue)								\
+		{																															\
+			result.emplace(pFieldNamePtr, [&fieldValue](Type& data)																	\
+			{																														\
+				return IPropertyWrapperPtr(CRawPropertyWrapper<std::decay_t<decltype(fieldValue)>>::Create(fieldValue));			\
+			});																														\
+		});																															\
+																																	\
+		return result;																												\
+	}
 
 
 	/*!

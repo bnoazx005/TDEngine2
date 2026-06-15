@@ -113,7 +113,9 @@ namespace TDEngine2
 
 		const bool shouldSkipCurrScreen = mShouldSkipPredicate ? mShouldSkipPredicate() : false;
 
-		if (shouldSkipCurrScreen || pSplashScreenItem->mElapsedTime > pSplashScreenItem->mDuration)
+		TSplashScreenComponentData& splashScreenData = pSplashScreenItem->GetData();
+
+		if (shouldSkipCurrScreen || splashScreenData.mElapsedTime > splashScreenData.mDuration)
 		{
 			AddDeferredCommand([this, pWorld, entityId = pCurrSplashScreenEntity->GetId(), &childrenEntities]
 			{
@@ -132,7 +134,7 @@ namespace TDEngine2
 			return;
 		}
 
-		pSplashScreenItem->mElapsedTime += dt;		
+		splashScreenData.mElapsedTime += dt;
 	}
 
 

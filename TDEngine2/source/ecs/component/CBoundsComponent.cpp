@@ -1,71 +1,43 @@
 #include "../../../include/ecs/components/CBoundsComponent.h"
+#define META_EXPORT_ECS_SECTION
+#include "../../include/metadata.h"
 
 
 namespace TDEngine2
 {
 	TDE2_REGISTER_COMPONENT_FACTORY(CreateBoundsComponentFactory)
+	TDE2_DEFINE_COMPONENT_META(TBoundsComponentData)
 
 
 	CBoundsComponent::CBoundsComponent():
-		CBaseComponent(), mIsDirty(true)
+		CBaseComponentT()
 	{
 	}
 
 	void CBoundsComponent::SetBounds(const TAABB& aabbBounds)
 	{
-		mUpdatedBounds = aabbBounds;
-	}
-
-	E_RESULT_CODE CBoundsComponent::Clone(IComponent*& pDestObject) const
-	{
-		if (auto pComponent = dynamic_cast<CBoundsComponent*>(pDestObject))
-		{
-			pComponent->mBounds = mBounds;
-			return RC_OK;
-		}
-
-		return RC_FAIL;
-	}
-
-	void CBoundsComponent::SwapState()
-	{
-		mBounds = mUpdatedBounds;
+		mData.mBounds = aabbBounds;
 	}
 
 	void CBoundsComponent::SetDirty(bool value)
 	{
-		mIsDirty = value;
+		mData.mIsDirty = value;
 	}
 
 	const TAABB& CBoundsComponent::GetBounds() const
 	{
-		return mBounds;
+		return mData.mBounds;
 	}
 
 	bool CBoundsComponent::IsDirty() const
 	{
-		return mIsDirty;
+		return mData.mIsDirty;
 	}
 
 	const std::string& CBoundsComponent::GetTypeName() const
 	{
 		static const std::string id { "bounds" };
 		return id;
-	}
-
-	IPropertyWrapperPtr CBoundsComponent::GetProperty(const std::string& propertyName)
-	{
-		return CBaseComponent::GetProperty(propertyName);
-	}
-
-	const std::vector<std::string>& CBoundsComponent::GetAllProperties() const
-	{
-		static const std::vector<std::string> properties 
-		{
-
-		};
-
-		return properties;
 	}
 
 

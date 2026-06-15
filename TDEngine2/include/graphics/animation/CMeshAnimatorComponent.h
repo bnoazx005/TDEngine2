@@ -19,6 +19,24 @@
 
 namespace TDEngine2
 {
+	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
+	struct TMeshAnimatorComponentData
+	{
+		typedef std::vector<TMatrix4>                TJointPose;
+		typedef std::unordered_map<std::string, U32> TJointsMap;
+
+		TJointPose               mCurrAnimationPose{};
+		TJointsMap               mJointsTable{};
+
+		std::vector<TVector3>    mJointsCurrPositions{};
+		std::vector<TQuaternion> mJointsCurrRotation{};
+
+		bool                     mIsDirty = true;
+
+		TDE2_DECLARE_COMPONENT_META(TMeshAnimatorComponentData);
+	};
+
+
 	/*!
 		struct TMeshAnimatorComponentParameters
 
@@ -47,7 +65,7 @@ namespace TDEngine2
 		\brief The class represents animator system for skinned meshes
 	*/
 
-	class CMeshAnimatorComponent : public CBaseComponent, public CPoolMemoryAllocPolicy<CMeshAnimatorComponent, 1 << 20>
+	class CMeshAnimatorComponent : public CBaseComponentT<CMeshAnimatorComponent, TMeshAnimatorComponentData>
 	{
 		public:
 			friend TDE2_API IComponent* CreateMeshAnimatorComponent(E_RESULT_CODE&);
@@ -55,55 +73,16 @@ namespace TDEngine2
 			TDE2_API static const std::string mPositionJointChannelPattern;
 			TDE2_API static const std::string mRotationJointChannelPattern;
 
-			typedef std::vector<TMatrix4> TJointPose;
-			typedef std::unordered_map<std::string, U32> TJointsMap;
 		public:
 			TDE2_REGISTER_COMPONENT_TYPE(CMeshAnimatorComponent)
-
-			/*!
-				\brief The method initializes an internal state of the light
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Init();
-
-			/*!
-				\brief The method deserializes object's state from given reader
-
-				\param[in, out] pReader An input stream of data that contains information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
-
-			/*!
-				\brief The method serializes object's state into given stream
-
-				\param[in, out] pWriter An output stream of data that writes information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
-
-			/*!
-				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
-				The original state of the object stays the same
-
-				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
-			*/
-
-			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
 			void SetDirtyFlag(bool value);
 
 			bool IsDirty() const;
 
-			TJointsMap& GetJointsTable();
+			TMeshAnimatorComponentData::TJointsMap& GetJointsTable();
 
-			TJointPose& GetCurrAnimationPose();
+			TMeshAnimatorComponentData::TJointPose& GetCurrAnimationPose();
 
 			const std::vector<TVector3>& GetJointPositionsArray() const;
 			const std::vector<TQuaternion>& GetJointRotationsArray() const;
@@ -134,14 +113,6 @@ namespace TDEngine2
 
 			TDE2_API void _setPositionForJoint(const std::string& jointId, const TVector3& position);
 			TDE2_API void _setRotationForJoint(const std::string& jointId, const TQuaternion& rotation);
-		protected:
-			TJointPose               mCurrAnimationPose;
-			TJointsMap               mJointsTable;
-
-			std::vector<TVector3>    mJointsCurrPositions;
-			std::vector<TQuaternion> mJointsCurrRotation;
-
-			bool                     mIsDirty;
 	};
 
 

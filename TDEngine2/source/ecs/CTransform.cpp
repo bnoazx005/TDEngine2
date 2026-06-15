@@ -10,108 +10,12 @@
 namespace TDEngine2
 {
 	TDE2_REGISTER_COMPONENT_FACTORY(CreateTransformFactory)
+	TDE2_DEFINE_COMPONENT_META(TTransformComponentData)
 
-
-	TDE2_API TResult<TTransformComponentData> TTransformComponentData::Load(IArchiveReader* pReader)
-	{
-		TTransformComponentData resultData{};
-		E_RESULT_CODE resultCode = RC_OK;
-
-		Meta::VisitSerializableClassFields(resultData, [pReader, &resultCode](const C8* pFieldNamePtr, auto& fieldValue)
-			{
-				if constexpr (TIsVector<typename std::decay_t<decltype(fieldValue)>>::value)
-				{
-					auto&& result = Deserialize<typename std::decay_t<decltype(fieldValue)>>(pReader, pFieldNamePtr, "item");
-					if (result.HasError())
-					{
-						resultCode = result.GetError();
-						return;
-					}
-
-					fieldValue = result.Get();
-				}
-				else
-				{
-					auto&& result = Deserialize<typename std::decay_t<decltype(fieldValue)>>(pReader, pFieldNamePtr);
-					if (result.HasError())
-					{
-						resultCode = result.GetError();
-						return;
-					}
-
-					fieldValue = result.Get();
-				}
-			});
-
-		if (RC_OK != resultCode)
-		{
-			return Wrench::TErrValue<E_RESULT_CODE>(resultCode);
-		}
-
-		return Wrench::TOkValue<TTransformComponentData>(resultData);
-	}
-	
-	
-	TDE2_API E_RESULT_CODE TTransformComponentData::Save(IArchiveWriter* pWriter, const TTransformComponentData& data)
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		Meta::VisitSerializableClassFields(data, [pWriter, &result](const C8* pFieldNamePtr, const auto& fieldValue)
-			{
-				if constexpr (TIsVector<typename std::decay_t<decltype(fieldValue)>>::value)
-				{
-					result = result | Serialize(pWriter, pFieldNamePtr, fieldValue, "item");
-				}
-				else
-				{
-					result = result | Serialize<typename std::decay_t<decltype(fieldValue)>>(pWriter, pFieldNamePtr, fieldValue);
-				}
-			});
-
-		return result;
-	}
-	
 
 	CTransform::CTransform() :
-		CBaseComponent()
+		CBaseComponentT()
 	{
-	}
-
-	E_RESULT_CODE CTransform::Load(IArchiveReader* pReader)
-	{
-		if (!pReader)
-		{
-			return RC_FAIL;
-		}
-
-		auto&& loadResult = TTransformComponentData::Load(pReader);
-		if (loadResult.HasError())
-		{
-			return loadResult.GetError();
-		}
-
-		mData = loadResult.GetOrDefault({});
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CTransform::Save(IArchiveWriter* pWriter)
-	{
-		if (!pWriter)
-		{
-			return RC_FAIL;
-		}
-
-		E_RESULT_CODE result = RC_OK;
-
-		result = result | pWriter->BeginGroup("component");
-		{
-			result = result | pWriter->SetUInt32("type_id", static_cast<U32>(CTransform::GetTypeId()));
-			result = result | TTransformComponentData::Save(pWriter, mData);
-		}
-		result = result | pWriter->EndGroup();
-
-		return result;
 	}
 
 	E_RESULT_CODE CTransform::PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper)
@@ -139,17 +43,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 	
-	E_RESULT_CODE CTransform::Clone(IComponent*& pDestObject) const
-	{
-		if (CTransform* pDestComponent = dynamic_cast<CTransform*>(pDestObject))
-		{
-			pDestComponent->mData = mData;
-			return RC_OK;
-		}
-
-		return RC_FAIL;
-	}
-
 	void CTransform::Reset()
 	{
 		mData = {};
@@ -347,50 +240,6 @@ namespace TDEngine2
 		return id;
 	}
 
-	IPropertyWrapperPtr CTransform::GetProperty(const std::string& propertyName)
-	{
-		static const std::unordered_map<std::string, std::function<IPropertyWrapperPtr(CTransform*)>> propertiesFactories
-		{
-			{ "position", [](CTransform* pTransform)
-				{ 
-					return IPropertyWrapperPtr(CBasePropertyWrapper<TVector3>::Create(
-						[pTransform](const TVector3& pos) { pTransform->SetPosition(pos); return RC_OK; },
-						[pTransform]() { return &pTransform->GetPosition(); }));
-				} 
-			},
-			{ "rotation", [](CTransform* pTransform)
-				{
-					return IPropertyWrapperPtr(CBasePropertyWrapper<TQuaternion>::Create(
-						[pTransform](const TQuaternion& rot) { pTransform->SetRotation(rot); return RC_OK; },
-						[pTransform]() { return &pTransform->GetRotation(); }));
-				} 
-			},
-			{ "scale", [](CTransform* pTransform)
-				{ 
-					return IPropertyWrapperPtr(CBasePropertyWrapper<TVector3>::Create(
-						[pTransform](const TVector3& scale) { pTransform->SetPosition(scale); return RC_OK; },
-						[pTransform]() { return &pTransform->GetScale(); }));
-				} 
-			}
-		};
-
-		auto it = propertiesFactories.find(propertyName);
-
-		return (it != propertiesFactories.cend()) ? (it->second)(this) : CBaseComponent::GetProperty(propertyName);
-	}
-
-	const std::vector<std::string>& CTransform::GetAllProperties() const
-	{
-		static const std::vector<std::string> properties
-		{
-			"position",
-			"rotation",
-			"scale"
-		};
-
-		return properties;
-	}
-	
 	void CTransform::ResetFirstFrameAfterCreationFlag()
 	{
 		mData.mIsFirstFrameAfterCreation = false;
@@ -399,16 +248,6 @@ namespace TDEngine2
 	bool CTransform::IsFirstFrameAfterCreation() const
 	{
 		return mData.mIsFirstFrameAfterCreation;
-	}
-
-	TTransformComponentData& CTransform::GetData()
-	{
-		return mData;
-	}
-
-	const TTransformComponentData& CTransform::GetData() const
-	{
-		return mData;
 	}
 
 

@@ -1,10 +1,13 @@
 #include "../../include/graphics/animation/CMeshAnimatorComponent.h"
 #include <tuple>
+#define META_EXPORT_ECS_SECTION
+#include "../../include/metadata.h"
 
 
 namespace TDEngine2
 {
 	TDE2_REGISTER_COMPONENT_FACTORY(CreateMeshAnimatorComponentFactory)
+	TDE2_DEFINE_COMPONENT_META(TMeshAnimatorComponentData);
 
 
 	static const std::string ComponentTypeName = "mesh_animator";
@@ -28,101 +31,38 @@ namespace TDEngine2
 	}
 
 	CMeshAnimatorComponent::CMeshAnimatorComponent() :
-		CBaseComponent()
+		CBaseComponentT()
 	{
-	}
-
-	E_RESULT_CODE CMeshAnimatorComponent::Init()
-	{
-		if (mIsInitialized)
-		{
-			return RC_FAIL;
-		}
-
-		mIsDirty = true;
-		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CMeshAnimatorComponent::Load(IArchiveReader* pReader)
-	{
-		if (!pReader)
-		{
-			return RC_FAIL;
-		}
-
-		mIsDirty = true;
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CMeshAnimatorComponent::Save(IArchiveWriter* pWriter)
-	{
-		if (!pWriter)
-		{
-			return RC_FAIL;
-		}
-
-		pWriter->BeginGroup("component");
-		{
-			pWriter->SetUInt32("type_id", static_cast<U32>(CMeshAnimatorComponent::GetTypeId()));
-			
-		}
-		pWriter->EndGroup();
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CMeshAnimatorComponent::Clone(IComponent*& pDestObject) const
-	{
-		if (auto pComponent = dynamic_cast<CMeshAnimatorComponent*>(pDestObject))
-		{
-			pComponent->mCurrAnimationPose.clear();
-			std::copy(mCurrAnimationPose.begin(), mCurrAnimationPose.end(), std::back_inserter(pComponent->mCurrAnimationPose));
-			
-			pComponent->mJointsCurrPositions.clear();
-			std::copy(mJointsCurrPositions.begin(), mJointsCurrPositions.end(), std::back_inserter(pComponent->mJointsCurrPositions));
-
-			pComponent->mJointsCurrRotation.clear();
-			std::copy(mJointsCurrRotation.begin(), mJointsCurrRotation.end(), std::back_inserter(pComponent->mJointsCurrRotation));
-
-			pComponent->mIsDirty = true;
-
-			return RC_OK;
-		}
-
-		return RC_FAIL;
 	}
 
 	void CMeshAnimatorComponent::SetDirtyFlag(bool value)
 	{
-		mIsDirty = value;
+		mData.mIsDirty = value;
 	}
 
 	bool CMeshAnimatorComponent::IsDirty() const
 	{
-		return mIsDirty;
+		return mData.mIsDirty;
 	}
 
-	CMeshAnimatorComponent::TJointsMap& CMeshAnimatorComponent::GetJointsTable()
+	TMeshAnimatorComponentData::TJointsMap& CMeshAnimatorComponent::GetJointsTable()
 	{
-		return mJointsTable;
+		return mData.mJointsTable;
 	}
 
-	CMeshAnimatorComponent::TJointPose& CMeshAnimatorComponent::GetCurrAnimationPose()
+	TMeshAnimatorComponentData::TJointPose& CMeshAnimatorComponent::GetCurrAnimationPose()
 	{
-		return mCurrAnimationPose;
+		return mData.mCurrAnimationPose;
 	}
 
 	const std::vector<TVector3>& CMeshAnimatorComponent::GetJointPositionsArray() const
 	{
-		return mJointsCurrPositions;
+		return mData.mJointsCurrPositions;
 	}
 
 	const std::vector<TQuaternion>& CMeshAnimatorComponent::GetJointRotationsArray() const
 	{
-		return mJointsCurrRotation;
+		return mData.mJointsCurrRotation;
 	}
 
 
@@ -146,7 +86,7 @@ namespace TDEngine2
 		auto&& properties = GetAllProperties();
 		if (std::find_if(properties.cbegin(), properties.cend(), [&propertyName](const std::string& id) { return propertyName == id; }) == properties.cend())
 		{
-			return CBaseComponent::GetProperty(propertyName);
+			return CBaseComponentT::GetProperty(propertyName);
 		}
 
 		std::string jointId;
@@ -162,21 +102,21 @@ namespace TDEngine2
 				return IPropertyWrapperPtr(CBasePropertyWrapper<TQuaternion>::Create([this, jointId](const TQuaternion& rot) { _setRotationForJoint(jointId, rot); return RC_OK; }, nullptr));
 		}
 
-		return CBaseComponent::GetProperty(propertyName);
+		return CBaseComponentT::GetProperty(propertyName);
 	}
 
 	const std::vector<std::string>& CMeshAnimatorComponent::GetAllProperties() const
 	{
 		static std::vector<std::string> properties;
 
-		if (properties.size() / 2 == mJointsTable.size())
+		if (properties.size() / 2 == mData.mJointsTable.size())
 		{
 			return properties;
 		}
 
 		properties.clear();
 
-		for (auto&& currJointEntity : mJointsTable)
+		for (auto&& currJointEntity : mData.mJointsTable)
 		{
 			properties.push_back(Wrench::StringUtils::Format(CMeshAnimatorComponent::mPositionJointChannelPattern, currJointEntity.first));
 			properties.push_back(Wrench::StringUtils::Format(CMeshAnimatorComponent::mRotationJointChannelPattern, currJointEntity.first));
@@ -192,40 +132,40 @@ namespace TDEngine2
 
 	void CMeshAnimatorComponent::_setPositionForJoint(const std::string& jointId, const TVector3& position)
 	{
-		auto it = mJointsTable.find(jointId);
-		if (it == mJointsTable.cend())
+		auto it = mData.mJointsTable.find(jointId);
+		if (it == mData.mJointsTable.cend())
 		{
 			TDE2_ASSERT(false);
 			return;
 		}
 
-		if (static_cast<U32>(mJointsCurrPositions.size()) <= it->second)
+		if (static_cast<U32>(mData.mJointsCurrPositions.size()) <= it->second)
 		{
-			mJointsCurrPositions.resize(it->second + 1);
+			mData.mJointsCurrPositions.resize(it->second + 1);
 		}
 
-		mJointsCurrPositions[it->second] = position;
+		mData.mJointsCurrPositions[it->second] = position;
 
-		mIsDirty = true;
+		mData.mIsDirty = true;
 	}
 
 	void CMeshAnimatorComponent::_setRotationForJoint(const std::string& jointId, const TQuaternion& rotation)
 	{
-		auto it = mJointsTable.find(jointId);
-		if (it == mJointsTable.cend())
+		auto it = mData.mJointsTable.find(jointId);
+		if (it == mData.mJointsTable.cend())
 		{
 			TDE2_ASSERT(false);
 			return;
 		}
 
-		if (static_cast<U32>(mJointsCurrRotation.size()) <= it->second)
+		if (static_cast<U32>(mData.mJointsCurrRotation.size()) <= it->second)
 		{
-			mJointsCurrRotation.resize(it->second + 1);
+			mData.mJointsCurrRotation.resize(it->second + 1);
 		}
 
-		mJointsCurrRotation[it->second] = rotation;
+		mData.mJointsCurrRotation[it->second] = rotation;
 
-		mIsDirty = true;
+		mData.mIsDirty = true;
 	}
 
 
