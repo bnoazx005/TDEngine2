@@ -7,12 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.34] 2026-06-13
+## [0.6.34] 2026-06-14
 
 ### Added
 
-- Comparison operators were added for **TAABB**.
-
+- Comparison operators were added for **TAABB** and **TColor<T>**.
+	
 - A new implementation of **IPropertyWrapper** was added which is **CRawPropertyWrapper<T>**.
 
 ### Changed

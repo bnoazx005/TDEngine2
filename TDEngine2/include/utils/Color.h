@@ -85,6 +85,21 @@ namespace TDEngine2
 		return TColor<T>(color.r * value, color.g * value, color.b * value, color.a * value);
 	}
 
+	// Comparison operators for TColor<T>
+	template <typename T> bool operator== (const TColor<T>& left, const TColor<T>& right) { return left.r == right.r && left.g == right.g && left.b == right.b && left.a == right.a; }
+	template <typename T> bool operator!= (const TColor<T>& left, const TColor<T>& right) { return left.r != right.r || left.g != right.g || left.b != right.b || left.a != right.a; }
+
+	// specializations for F32
+	template <> inline bool operator== <F32>(const TColor<F32>& left, const TColor<F32>& right) 
+	{
+		return CMathUtils::Abs(left.r - right.r) < 1e-3f && CMathUtils::Abs(left.g - right.g) < 1e-3f && CMathUtils::Abs(left.b - right.b) < 1e-3f && CMathUtils::Abs(left.a - right.a) < 1e-3f; 
+	}
+
+	template <> inline bool operator!= <F32>(const TColor<F32>& left, const TColor<F32>& right) 
+	{
+		return CMathUtils::Abs(left.r - right.r) > 1e-3f || CMathUtils::Abs(left.g - right.g) > 1e-3f || CMathUtils::Abs(left.b - right.b) > 1e-3f || CMathUtils::Abs(left.a - right.a) > 1e-3f;
+	}
+
 
 	struct TColorUtils
 	{
