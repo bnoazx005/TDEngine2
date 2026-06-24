@@ -200,8 +200,8 @@ namespace TDEngine2
 	template <> struct GetTypeId<TQuaternion> { TDE2_API TDE2_STATIC_CONSTEXPR TypeId mValue = TDE2_TYPE_ID(TQuaternion); };
 
 
-	template <> TDE2_API E_RESULT_CODE Serialize<TQuaternion>(class IArchiveWriter* pWriter, const TQuaternion& value);
-	template <> TDE2_API E_RESULT_CODE Serialize<TQuaternion>(class IArchiveWriter* pWriter, const std::string& name, const TQuaternion& value);
+	TDE2_API E_RESULT_CODE Serialize(class IArchiveWriter* pWriter, const TQuaternion& value);
+	TDE2_API E_RESULT_CODE Serialize(class IArchiveWriter* pWriter, const std::string& name, const TQuaternion& value);
 	template <> TDE2_API TResult<TQuaternion> Deserialize<TQuaternion>(IArchiveReader* pReader);
-	template <> TDE2_API TResult<TQuaternion> Deserialize<TQuaternion>(IArchiveReader* pReader, const std::string& name);
+	template <>	struct TDeserializer<TQuaternion> { TDE2_API static TResult<TQuaternion> Deserialize(IArchiveReader* pReader, const std::string& name); };
 }

@@ -16,6 +16,12 @@
 #include <memory>
 
 
+namespace Meta
+{
+	template <typename T> struct EnumTrait;
+	template <typename T> struct HasMetaData;
+}
+
 namespace TDEngine2
 {
 	class IArchiveReader;
@@ -224,9 +230,9 @@ namespace TDEngine2
 
 
 	template <typename T> E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const T& value) { return RC_FAIL; }
-	template <typename T> E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, const T& value) { return RC_FAIL; }
+	template <typename T> std::enable_if_t<!(Meta::HasMetaData<T>::value), E_RESULT_CODE> Serialize(IArchiveWriter* pWriter, const std::string& name, const T& value) { return RC_FAIL; }
 	template <typename T> TResult<T> Deserialize(IArchiveReader* pReader) { return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL); }
-	template <typename T> TResult<T> Deserialize(IArchiveReader* pReader, const std::string& name) { return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL); }
+	
 
 	/*!
 		\brief serialization helpers for built-in types
@@ -247,7 +253,7 @@ namespace TDEngine2
 
 	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, bool value);
 	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, TEntityId value);
-	template <> TDE2_API E_RESULT_CODE Serialize<std::string>(IArchiveWriter* pWriter, const std::string& value);
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& value);
 
 	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, I8 value);
 	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, I16 value);
@@ -264,7 +270,7 @@ namespace TDEngine2
 
 	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, bool value);
 	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, TEntityId value);
-	template <> TDE2_API E_RESULT_CODE Serialize<std::string>(IArchiveWriter* pWriter, const std::string& name, const std::string& value);
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, const std::string& value);
 
 
 	template <typename T>
@@ -287,6 +293,71 @@ namespace TDEngine2
 	}
 
 
+	template <typename T>
+	std::enable_if_t<(std::is_enum_v<T> && Meta::HasMetaData<T>::value), E_RESULT_CODE> Serialize(IArchiveWriter* pWriter, const std::string& name, T value)
+	{
+		return pWriter->SetString(name, Meta::EnumTrait<T>::ToString(value));
+	}
+
+
+	/*!
+		The template structure is used to overcome limitations of the language to overload functions that differs only with return values.
+		This one should be explicitly implemented for all basic non-template types
+	*/
+
+	template <typename T, typename TEnable = void> struct TDeserializer 
+	{ 
+		static TResult<T> Deserialize(IArchiveReader* pReader, const std::string& name)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+	};
+
+
+	template <>	struct TDeserializer<I8> { TDE2_API static TResult<I8> Deserialize(IArchiveReader* pReader, const std::string& name); };
+	template <>	struct TDeserializer<I16> { TDE2_API static TResult<I16> Deserialize(IArchiveReader* pReader, const std::string& name); };
+	template <>	struct TDeserializer<I32> { TDE2_API static TResult<I32> Deserialize(IArchiveReader* pReader, const std::string& name); };
+	template <>	struct TDeserializer<I64> { TDE2_API static TResult<I64> Deserialize(IArchiveReader* pReader, const std::string& name); };
+
+	template <>	struct TDeserializer<U8> { TDE2_API static TResult<U8> Deserialize(IArchiveReader* pReader, const std::string& name); };
+	template <>	struct TDeserializer<U16> { TDE2_API static TResult<U16> Deserialize(IArchiveReader* pReader, const std::string& name); };
+	template <>	struct TDeserializer<U32> { TDE2_API static TResult<U32> Deserialize(IArchiveReader* pReader, const std::string& name); };
+	template <>	struct TDeserializer<U64> { TDE2_API static TResult<U64> Deserialize(IArchiveReader* pReader, const std::string& name); };
+
+	template <>	struct TDeserializer<F32> { TDE2_API static TResult<F32> Deserialize(IArchiveReader* pReader, const std::string& name); };
+	template <>	struct TDeserializer<F64> { TDE2_API static TResult<F64> Deserialize(IArchiveReader* pReader, const std::string& name); };
+
+	template <>	struct TDeserializer<bool> { TDE2_API static TResult<bool> Deserialize(IArchiveReader* pReader, const std::string& name); };
+	template <>	struct TDeserializer<TEntityId> { TDE2_API static TResult<TEntityId> Deserialize(IArchiveReader* pReader, const std::string& name); };
+	template <>	struct TDeserializer<std::string> { TDE2_API static TResult<std::string> Deserialize(IArchiveReader* pReader, const std::string& name); };
+
+
+	template <typename T>
+	struct TDeserializer<T, std::enable_if_t<std::is_enum_v<T>&& Meta::HasMetaData<T>::value>>
+	{
+		static TResult<T> Deserialize(IArchiveReader* pReader, const std::string& name)
+		{
+			return Wrench::TOkValue<T>(Meta::EnumTrait<T>::FromString(pReader->GetString(name)));
+		}
+	};
+
+
+	template <typename T>
+	struct TDeserializer<T, std::enable_if_t<TIsVector<T>::value>>
+	{
+		static TResult<T> Deserialize(IArchiveReader* pReader, const std::string& name)
+		{
+			return Deserialize(pReader, name, "item");
+		}
+	};
+	
+	
+	template <typename T> TResult<T> Deserialize(IArchiveReader* pReader, const std::string& name)
+	{
+		return TDeserializer<T>::Deserialize(pReader, name);
+	}
+
+	
 	/*!
 		\brief deserialization helpers for built-in types
 	*/
@@ -307,23 +378,6 @@ namespace TDEngine2
 	template <> TDE2_API TResult<bool> Deserialize<bool>(IArchiveReader* pReader);
 	template <> TDE2_API TResult<TEntityId> Deserialize<TEntityId>(IArchiveReader* pReader);
 	template <> TDE2_API TResult<std::string> Deserialize<std::string>(IArchiveReader* pReader);
-
-	template <> TDE2_API TResult<I8> Deserialize<I8>(IArchiveReader* pReader, const std::string& name);
-	template <> TDE2_API TResult<I16> Deserialize<I16>(IArchiveReader* pReader, const std::string& name);
-	template <> TDE2_API TResult<I32> Deserialize<I32>(IArchiveReader* pReader, const std::string& name);
-	template <> TDE2_API TResult<I64> Deserialize<I64>(IArchiveReader* pReader, const std::string& name);
-
-	template <> TDE2_API TResult<U8> Deserialize<U8>(IArchiveReader* pReader, const std::string& name);
-	template <> TDE2_API TResult<U16> Deserialize<U16>(IArchiveReader* pReader, const std::string& name);
-	template <> TDE2_API TResult<U32> Deserialize<U32>(IArchiveReader* pReader, const std::string& name);
-	template <> TDE2_API TResult<U64> Deserialize<U64>(IArchiveReader* pReader, const std::string& name);
-
-	template <> TDE2_API TResult<F32> Deserialize<F32>(IArchiveReader* pReader, const std::string& name);
-	template <> TDE2_API TResult<F64> Deserialize<F64>(IArchiveReader* pReader, const std::string& name);
-
-	template <> TDE2_API TResult<bool> Deserialize<bool>(IArchiveReader* pReader, const std::string& name);
-	template <> TDE2_API TResult<TEntityId> Deserialize<TEntityId>(IArchiveReader* pReader, const std::string& name);
-	template <> TDE2_API TResult<std::string> Deserialize<std::string>(IArchiveReader* pReader, const std::string& name);
 
 
 	template <typename T> 

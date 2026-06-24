@@ -214,12 +214,12 @@ namespace TDEngine2
 	}
 
 
-	template <> TDE2_API E_RESULT_CODE Serialize<TVector2>(IArchiveWriter* pWriter, const TVector2& value)
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const TVector2& value)
 	{
 		return pWriter->SetUInt32("type_id", static_cast<U32>(GetTypeId<TVector2>::mValue)) | SaveVector2(pWriter, value);
 	}
 
-	template <> TDE2_API E_RESULT_CODE Serialize<TVector2>(IArchiveWriter* pWriter, const std::string& name, const TVector2& value)
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, const TVector2& value)
 	{
 		E_RESULT_CODE result = pWriter->BeginGroup(name, false);
 		result = result | SaveVector2(pWriter, value);
@@ -233,7 +233,7 @@ namespace TDEngine2
 		return LoadVector2(pReader);
 	}
 
-	template <> TDE2_API TResult<TVector2> Deserialize<TVector2>(IArchiveReader* pReader, const std::string& name)
+	TDE2_API TResult<TVector2> TDeserializer<TVector2>::Deserialize(IArchiveReader* pReader, const std::string& name)
 	{
 		pReader->BeginGroup(name);
 		auto result = LoadVector2(pReader);

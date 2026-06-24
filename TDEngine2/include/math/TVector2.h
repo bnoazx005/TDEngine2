@@ -205,8 +205,8 @@ namespace TDEngine2
 	template <> struct GetTypeId<TVector2> { TDE2_API TDE2_STATIC_CONSTEXPR TypeId mValue = TDE2_TYPE_ID(TVector2); };
 
 
-	template <> TDE2_API E_RESULT_CODE Serialize<TVector2>(class IArchiveWriter* pWriter, const TVector2& value);
-	template <> TDE2_API E_RESULT_CODE Serialize<TVector2>(class IArchiveWriter* pWriter, const std::string& name, const TVector2& value);
+	TDE2_API E_RESULT_CODE Serialize(class IArchiveWriter* pWriter, const TVector2& value);
+	TDE2_API E_RESULT_CODE Serialize(class IArchiveWriter* pWriter, const std::string& name, const TVector2& value);
 	template <> TDE2_API TResult<TVector2> Deserialize<TVector2>(IArchiveReader* pReader);
-	template <> TDE2_API TResult<TVector2> Deserialize<TVector2>(IArchiveReader* pReader, const std::string& name);
+	template <>	struct TDeserializer<TVector2> { TDE2_API static TResult<TVector2> Deserialize(IArchiveReader* pReader, const std::string& name); };
 }

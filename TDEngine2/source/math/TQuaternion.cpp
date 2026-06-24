@@ -312,12 +312,12 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	template <> TDE2_API E_RESULT_CODE Serialize<TQuaternion>(IArchiveWriter* pWriter, const TQuaternion& value)
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const TQuaternion& value)
 	{
 		return pWriter->SetUInt32("type_id", static_cast<U32>(GetTypeId<TQuaternion>::mValue)) | SaveQuaternion(pWriter, value);
 	}
 
-	template <> TDE2_API E_RESULT_CODE Serialize<TQuaternion>(IArchiveWriter* pWriter, const std::string& name, const TQuaternion& value)
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, const TQuaternion& value)
 	{
 		E_RESULT_CODE result = pWriter->BeginGroup(name, false);
 		result = result | SaveQuaternion(pWriter, value);
@@ -331,7 +331,7 @@ namespace TDEngine2
 		return LoadQuaternion(pReader);
 	}
 
-	template <> TDE2_API TResult<TQuaternion> Deserialize<TQuaternion>(IArchiveReader* pReader, const std::string& name)
+	TDE2_API TResult<TQuaternion> TDeserializer<TQuaternion>::Deserialize(IArchiveReader* pReader, const std::string& name)
 	{
 		pReader->BeginGroup(name);
 		auto result = LoadQuaternion(pReader);

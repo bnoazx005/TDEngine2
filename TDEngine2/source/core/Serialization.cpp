@@ -29,7 +29,7 @@ namespace TDEngine2
 
 	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, bool value) { return TDE2_SERIALIZE_IMPL(bool, SetBool, value); }
 	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, TEntityId value) { return TDE2_SERIALIZE_IMPL(bool, SetUInt32, static_cast<U32>(value)); }
-	template <> TDE2_API E_RESULT_CODE Serialize<std::string>(IArchiveWriter* pWriter, const std::string& value) { return TDE2_SERIALIZE_IMPL(std::string, SetString, value); }
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& value) { return TDE2_SERIALIZE_IMPL(std::string, SetString, value); }
 
 	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, I8 value) { return pWriter->SetInt8(name, value); }
 	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, I16 value) { return pWriter->SetInt16(name, value); }
@@ -46,11 +46,29 @@ namespace TDEngine2
 
 	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, bool value) { return pWriter->SetBool(name, value); }
 	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, TEntityId value) { return pWriter->SetUInt32(name, static_cast<U32>(value)); }
-	template <> TDE2_API E_RESULT_CODE Serialize<std::string>(IArchiveWriter* pWriter, const std::string& name, const std::string& value) { return pWriter->SetString(name, value); }
+	TDE2_API E_RESULT_CODE Serialize(IArchiveWriter* pWriter, const std::string& name, const std::string& value) { return pWriter->SetString(name, value); }
 
 	/*!
 		\brief Built in types deserialization helpers
 	*/
+
+	TDE2_API TResult<I8> TDeserializer<I8>::Deserialize(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<I8>(pReader->GetInt8(name)); }
+	TDE2_API TResult<I16> TDeserializer<I16>::Deserialize(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<I16>(pReader->GetInt16(name)); }
+	TDE2_API TResult<I32> TDeserializer<I32>::Deserialize(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<I32>(pReader->GetInt32(name)); }
+	TDE2_API TResult<I64> TDeserializer<I64>::Deserialize(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<I64>(pReader->GetInt64(name)); }
+
+	TDE2_API TResult<U8> TDeserializer<U8>::Deserialize(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<U8>(pReader->GetUInt8(name)); }
+	TDE2_API TResult<U16> TDeserializer<U16>::Deserialize(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<U16>(pReader->GetUInt16(name)); }
+	TDE2_API TResult<U32> TDeserializer<U32>::Deserialize(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<U32>(pReader->GetUInt32(name)); }
+	TDE2_API TResult<U64> TDeserializer<U64>::Deserialize(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<U64>(pReader->GetUInt64(name)); }
+	
+	TDE2_API TResult<F32> TDeserializer<F32>::Deserialize(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<F32>(pReader->GetFloat(name)); }
+	TDE2_API TResult<F64> TDeserializer<F64>::Deserialize(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<F64>(pReader->GetDouble(name)); }
+	
+	TDE2_API TResult<bool> TDeserializer<bool>::Deserialize(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<bool>(pReader->GetBool(name)); }
+	TDE2_API TResult<TEntityId> TDeserializer<TEntityId>::Deserialize(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<TEntityId>(static_cast<TEntityId>(pReader->GetUInt32(name, static_cast<U32>(TEntityId::Invalid)))); }
+	TDE2_API TResult<std::string> TDeserializer<std::string>::Deserialize(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<std::string>(pReader->GetString(name)); }
+
 
 	template <> TDE2_API TResult<I8> Deserialize<I8>(IArchiveReader* pReader) { return Wrench::TOkValue<I8>(pReader->GetInt8("value")); }
 	template <> TDE2_API TResult<I16> Deserialize<I16>(IArchiveReader* pReader) { return Wrench::TOkValue<I16>(pReader->GetInt16("value")); }
@@ -69,23 +87,6 @@ namespace TDEngine2
 	template <> TDE2_API TResult<TEntityId> Deserialize<TEntityId>(IArchiveReader* pReader) { return Wrench::TOkValue<TEntityId>(static_cast<TEntityId>(pReader->GetUInt32("value", static_cast<U32>(TEntityId::Invalid)))); }
 	template <> TDE2_API TResult<std::string> Deserialize<std::string>(IArchiveReader* pReader) { return Wrench::TOkValue<std::string>(pReader->GetString("value")); }
 
-	template <> TDE2_API TResult<I8> Deserialize<I8>(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<I8>(pReader->GetInt8(name)); }
-	template <> TDE2_API TResult<I16> Deserialize<I16>(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<I16>(pReader->GetInt16(name)); }
-	template <> TDE2_API TResult<I32> Deserialize<I32>(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<I32>(pReader->GetInt32(name)); }
-	template <> TDE2_API TResult<I64> Deserialize<I64>(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<I64>(pReader->GetInt64(name)); }
-
-	template <> TDE2_API TResult<U8> Deserialize<U8>(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<U8>(pReader->GetUInt8(name)); }
-	template <> TDE2_API TResult<U16> Deserialize<U16>(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<U16>(pReader->GetUInt16(name)); }
-	template <> TDE2_API TResult<U32> Deserialize<U32>(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<U32>(pReader->GetUInt32(name)); }
-	template <> TDE2_API TResult<U64> Deserialize<U64>(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<U64>(pReader->GetUInt64(name)); }
-
-	template <> TDE2_API TResult<F32> Deserialize<F32>(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<F32>(pReader->GetFloat(name)); }
-	template <> TDE2_API TResult<F64> Deserialize<F64>(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<F64>(pReader->GetDouble(name)); }
-
-	template <> TDE2_API TResult<bool> Deserialize<bool>(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<bool>(pReader->GetBool(name)); }
-	template <> TDE2_API TResult<TEntityId> Deserialize<TEntityId>(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<TEntityId>(static_cast<TEntityId>(pReader->GetUInt32(name, static_cast<U32>(TEntityId::Invalid)))); }
-	template <> TDE2_API TResult<std::string> Deserialize<std::string>(IArchiveReader* pReader, const std::string& name) { return Wrench::TOkValue<std::string>(pReader->GetString(name)); }
-  
 
 	/*!
 		\brief CValueWrapper's definition
