@@ -7,12 +7,33 @@
 #pragma once
 
 
-#include "ISprite.h"
-#include "./../ecs/CBaseComponent.h"
+#include "../utils/Utils.h"
+#include "../utils/Color.h"
+#include "../ecs/CBaseComponent.h"
 
 
 namespace TDEngine2
 {
+	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
+	struct TQuadSpriteComponentData
+	{
+		FIELD_META(name= material) std::string mMaterialName;
+
+		FIELD_META(name = color) TColor32F     mColor;
+
+		/*!
+			\todo a sprite should contains
+			- ref to atlas
+			- curr image id
+			- curr material
+			- flip X Y?
+			- graphics layer id ?
+		*/
+
+		TDE2_DECLARE_COMPONENT_META(TQuadSpriteComponentData);
+	};
+
+
 	/*!
 		\brief A factory function for creation objects of CQuadSprite's type.
 
@@ -31,97 +52,14 @@ namespace TDEngine2
 		By now only in plans only quad sprites support
 	*/
 
-	class CQuadSprite: public ISprite, public CBaseComponent, public CPoolMemoryAllocPolicy<CQuadSprite, 1 << 20>
+	class CQuadSprite: public CBaseComponentT<CQuadSprite, TQuadSpriteComponentData>
 	{
 		public:
 			friend TDE2_API IComponent* CreateQuadSprite(E_RESULT_CODE& result);
 		public:
 			TDE2_REGISTER_COMPONENT_TYPE(CQuadSprite)
-
-			/*!
-				\brief The method initializes an internal state of a quad sprite
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Init() override;
-
-			/*!
-				\brief The method deserializes object's state from given reader
-
-				\param[in, out] pReader An input stream of data that contains information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
-
-			/*!
-				\brief The method serializes object's state into given stream
-
-				\param[in, out] pWriter An output stream of data that writes information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
-
-			/*!
-				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
-				The original state of the object stays the same
-
-				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
-			*/
-
-			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
-
-			/*!
-				\brief The method sets up an identifier fo a material that will be used for the sprite
-
-				\param[in] materialName A string that contains material's name
-
-				\param[in] materialId An identifier of a material
-			*/
-
-			TDE2_API void SetMaterialName(const std::string& materialName) override;
-
-			/*!
-				\brief The method sets up a color for a sprite
-
-				\param[in] color A color that will be specified for a sprite
-			*/
-
-			TDE2_API void SetColor(const TColor32F& color) override;
-
-			/*!
-					\brief The method returns an identifier of used material
-
-					\return The method returns an identifier of used material
-			*/
-
-			TDE2_API const std::string& GetMaterialName() const override;
-
-			/*!
-				\brief The method returns a color of a sprite
-
-				\return The method returns a color of a sprite
-			*/
-
-			TDE2_API const TColor32F& GetColor() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CQuadSprite)
-		protected:
-			std::string mMaterialName;
-
-			TColor32F   mColor;
-			/*!
-				\todo a sprite should contains
-				- ref to atlas 
-				- curr image id
-				- curr material
-				- flip X Y?
-				- graphics layer id ?
-			*/
 	};
 
 	

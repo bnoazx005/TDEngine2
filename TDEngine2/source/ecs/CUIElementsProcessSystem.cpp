@@ -891,7 +891,8 @@ namespace TDEngine2
 				continue;
 			}
 
-			if (!pCurrInputReceiver->mPrevState && pCurrInputReceiver->mCurrState)
+			TInputReceiverComponentData& inputReceiverData = pCurrInputReceiver->GetData();
+			if (!inputReceiverData.mPrevState && inputReceiverData.mCurrState)
 			{
 				pCurrToggle->SetState(!pCurrToggle->GetState());
 
@@ -924,12 +925,13 @@ namespace TDEngine2
 				continue;
 			}
 
-			if (!pCurrInputReceiver->mCurrState)
+			TInputReceiverComponentData& inputReceiverData = pCurrInputReceiver->GetData();
+			if (!inputReceiverData.mCurrState)
 			{
 				continue;
 			}
 
-			auto& currPosition = pCurrInputReceiver->mNormalizedInputPosition;
+			auto& currPosition = inputReceiverData.mNormalizedInputPosition;
 			pCurrSlider->SetValue(CMathUtils::Lerp(pCurrSlider->GetMinValue(), pCurrSlider->GetMaxValue(), currPosition.x));
 
 			if (auto pMarkerEntity = pWorld->FindEntity(pCurrSlider->GetMarkerEntityId()))
@@ -1021,7 +1023,7 @@ namespace TDEngine2
 			}
 
 			CInputReceiver* pCurrInputReceiver = inputReceivers[i];
-			if (!pCurrInputReceiver || !pCurrInputReceiver->mIsFocused)
+			if (!pCurrInputReceiver || !pCurrInputReceiver->GetData().mIsFocused)
 			{
 				SetEntityActive(pWorld, pCurrInputField->GetCursorEntityId(), false);
 
@@ -1037,6 +1039,8 @@ namespace TDEngine2
 
 				continue;
 			}
+
+			TInputReceiverComponentData& inputReceiverData = pCurrInputReceiver->GetData();
 
 			pCurrInputField->SetEditingFlag(true);
 
@@ -1055,7 +1059,7 @@ namespace TDEngine2
 			I32 newCaretPosition = 0;
 
 			/// \note Process input events
-			switch (pCurrInputReceiver->mActionType)
+			switch (inputReceiverData.mActionType)
 			{
 				case E_INPUT_ACTIONS::BACKSPACE: /// \note Done
 					if (pCurrInputField->GetCaretPosition() > 0)
@@ -1088,7 +1092,7 @@ namespace TDEngine2
 					break;
 
 				case E_INPUT_ACTIONS::CHAR_INPUT: /// \note Done
-					pCurrInputField->SetValue(CU8String::InsertAt(pCurrInputField->GetValue(), std::min(currLabelTextLength, physicalCaretPosition), CU8String::StringToUTF8CodePoint(pCurrInputReceiver->mInputBuffer)));
+					pCurrInputField->SetValue(CU8String::InsertAt(pCurrInputField->GetValue(), std::min(currLabelTextLength, physicalCaretPosition), CU8String::StringToUTF8CodePoint(inputReceiverData.mInputBuffer)));
 					SetInputFieldMarkerPos(
 						pCurrInputField,
 						pLabel, 
@@ -1100,14 +1104,14 @@ namespace TDEngine2
 
 				case E_INPUT_ACTIONS::MOVE_LEFT:
 				case E_INPUT_ACTIONS::MOVE_RIGHT:
-					newCaretPosition = pCurrInputField->GetCaretPosition() + (E_INPUT_ACTIONS::MOVE_LEFT == pCurrInputReceiver->mActionType ? -1 : 1);
+					newCaretPosition = pCurrInputField->GetCaretPosition() + (E_INPUT_ACTIONS::MOVE_LEFT == inputReceiverData.mActionType ? -1 : 1);
 					
 					/// \todo Refactor this spaghetti
 					if (newCaretPosition < 0 && pCurrInputField->GetFirstVisibleCharPosition() > 0)
 					{
 						pCurrInputField->SetFirstVisibleCharPosition(pCurrInputField->GetFirstVisibleCharPosition() - 1);
 					}
-					else if (E_INPUT_ACTIONS::MOVE_RIGHT == pCurrInputReceiver->mActionType &&
+					else if (E_INPUT_ACTIONS::MOVE_RIGHT == inputReceiverData.mActionType &&
 						static_cast<U32>(pCurrInputField->GetFirstVisibleCharPosition()) < GetFirstVisibleGlyphIndex(pCurrInputField, pFontResource, pLabel->GetTextHeight(), maxTextWidth))
 					{
 						pCurrInputField->SetFirstVisibleCharPosition(pCurrInputField->GetFirstVisibleCharPosition() + 1);
@@ -1125,11 +1129,11 @@ namespace TDEngine2
 						pCurrInputField, 
 						pLabel, 
 						pFontResource,
-						E_INPUT_ACTIONS::MOVE_HOME == pCurrInputReceiver->mActionType ? 0 : currLabelTextLength,
+						E_INPUT_ACTIONS::MOVE_HOME == inputReceiverData.mActionType ? 0 : currLabelTextLength,
 						maxTextWidth, 
-						E_INPUT_ACTIONS::MOVE_HOME == pCurrInputReceiver->mActionType);
+						E_INPUT_ACTIONS::MOVE_HOME == inputReceiverData.mActionType);
 
-					if (E_INPUT_ACTIONS::MOVE_HOME == pCurrInputReceiver->mActionType)
+					if (E_INPUT_ACTIONS::MOVE_HOME == inputReceiverData.mActionType)
 					{
 						pCurrInputField->SetFirstVisibleCharPosition(0);
 					}
@@ -1183,7 +1187,9 @@ namespace TDEngine2
 
 	static inline void ProcessScrollableAreaInput(CScrollableUIArea* pScroller, CLayoutElement* pScrollAreaLayout, CInputReceiver* pInputReceiver, F32 dt)
 	{
-		if (E_INPUT_ACTIONS::NONE == pInputReceiver->mActionType && !pInputReceiver->mCurrState)
+		TInputReceiverComponentData& inputReceiverData = pInputReceiver->GetData();
+
+		if (E_INPUT_ACTIONS::NONE == inputReceiverData.mActionType && !inputReceiverData.mCurrState)
 		{
 			return;
 		}
@@ -1193,18 +1199,18 @@ namespace TDEngine2
 
 		TVector2 cursorPosition = pScroller->GetNormalizedScrollPosition();
 
-		if (E_INPUT_ACTIONS::SCROLL == pInputReceiver->mActionType)
+		if (E_INPUT_ACTIONS::SCROLL == inputReceiverData.mActionType)
 		{
-			const F32 scrollDelta = pScroller->GetScrollSpeedFactor() * pInputReceiver->mMouseShiftVec.z * dt;
+			const F32 scrollDelta = pScroller->GetScrollSpeedFactor() * inputReceiverData.mMouseShiftVec.z * dt;
 
 			cursorPosition.x = CMathUtils::Clamp01(cursorPosition.x - (pScroller->IsVertical() ? 0.0f : scrollDelta * invScrollAreaSizes.x));
 			cursorPosition.y = CMathUtils::Clamp01(cursorPosition.y + (pScroller->IsVertical() ? scrollDelta * invScrollAreaSizes.y : 0.0f));
 		}
 
-		if (pInputReceiver->mCurrState)
+		if (inputReceiverData.mCurrState)
 		{
-			cursorPosition.x = CMathUtils::Clamp01(cursorPosition.x - (pScroller->IsVertical() ? 0.0f : pInputReceiver->mMouseShiftVec.x * invScrollAreaSizes.x));
-			cursorPosition.y = CMathUtils::Clamp01(cursorPosition.y + (pScroller->IsVertical() ? pInputReceiver->mMouseShiftVec.y * invScrollAreaSizes.y : 0.0f));
+			cursorPosition.x = CMathUtils::Clamp01(cursorPosition.x - (pScroller->IsVertical() ? 0.0f : inputReceiverData.mMouseShiftVec.x * invScrollAreaSizes.x));
+			cursorPosition.y = CMathUtils::Clamp01(cursorPosition.y + (pScroller->IsVertical() ? inputReceiverData.mMouseShiftVec.y * invScrollAreaSizes.y : 0.0f));
 		}
 
 		pScroller->SetNormalizedScrollPosition(cursorPosition);
@@ -1313,7 +1319,7 @@ namespace TDEngine2
 			}
 
 			CInputReceiver* pCurrInputReceiver = pCurrItemEntity->GetComponent<CInputReceiver>();
-			if (!pCurrInputReceiver || !pCurrInputReceiver->mCurrState)
+			if (!pCurrInputReceiver || !pCurrInputReceiver->GetData().mCurrState)
 			{
 				continue;
 			}
@@ -1366,7 +1372,7 @@ namespace TDEngine2
 
 			pLabel->SetText(selectedItemIndex < items.size() ? items[selectedItemIndex] : Wrench::StringUtils::GetEmptyStr());
 
-			if (!pCurrInputReceiver->mIsFocused || items.empty())
+			if (!pCurrInputReceiver->GetData().mIsFocused || items.empty())
 			{
 				if (pCurrDropDown->IsExpanded())
 				{

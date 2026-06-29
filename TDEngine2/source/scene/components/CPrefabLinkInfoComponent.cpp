@@ -2,52 +2,53 @@
 #include "../../../include/scene/CPrefabChangesList.h"
 #include "../../include/scene/IScene.h"
 #include <stringUtils.hpp>
+#define META_EXPORT_ECS_SECTION
+#include "../../include/metadata.h"
 
 
 namespace TDEngine2
 {
 	TDE2_REGISTER_COMPONENT_FACTORY(CreatePrefabLinkInfoComponentFactory)
+	TDE2_DEFINE_COMPONENT_META(TPrefabLinkComponentData)
 
 
 	CPrefabLinkInfoComponent::CPrefabLinkInfoComponent() :
-		CBaseComponent()
+		CBaseComponentT()
 	{
 	}
 
 	E_RESULT_CODE CPrefabLinkInfoComponent::Load(IArchiveReader* pReader)
 	{
-		if (!pReader)
+		E_RESULT_CODE result = CBaseComponentT::Load(pReader);
+		if (result != RC_OK)
 		{
-			return RC_FAIL;
+			return result;
 		}
 
-		E_RESULT_CODE result = RC_OK;
-
-		mpChangesList = TPtr<CPrefabChangesList>(CreatePrefabChangesList(result));
+		mData.mpChangesList = TPtr<CPrefabChangesList>(CreatePrefabChangesList(result));
 		if (RC_OK != result)
 		{
 			return result;
 		}
 
-		result = result | mpChangesList->Load(pReader);
+		result = result | mData.mpChangesList->Load(pReader);
 
 		return result;
 	}
 
 	E_RESULT_CODE CPrefabLinkInfoComponent::Save(IArchiveWriter* pWriter)
 	{
-		if (!pWriter)
+		E_RESULT_CODE result = CBaseComponentT::Save(pWriter);
+		if (result != RC_OK)
 		{
-			return RC_FAIL;
+			return result;
 		}
 
 		pWriter->BeginGroup("component");
 		{
-			pWriter->SetUInt32("type_id", static_cast<U32>(CPrefabLinkInfoComponent::GetTypeId()));
-
-			if (mIsChangesListSerializationEnabled && mpChangesList)
+			if (mData.mpChangesList)
 			{
-				mpChangesList->Save(pWriter);
+				mData.mpChangesList->Save(pWriter);
 			}
 		}
 		pWriter->EndGroup();
@@ -59,8 +60,8 @@ namespace TDEngine2
 	{
 		if (auto pLinkInfo = dynamic_cast<CPrefabLinkInfoComponent*>(pDestObject))
 		{
-			pLinkInfo->mPrefabLinkId = mPrefabLinkId;
-			pLinkInfo->mpChangesList = mpChangesList->Clone();
+			pLinkInfo->mData = mData;
+			pLinkInfo->mData.mpChangesList = mData.mpChangesList->Clone();
 
 			return RC_OK;
 		}
@@ -70,17 +71,17 @@ namespace TDEngine2
 
 	void CPrefabLinkInfoComponent::SetPrefabLinkId(const std::string& id)
 	{
-		mPrefabLinkId = id;
+		mData.mPrefabLinkId = id;
 	}
 
 	const std::string& CPrefabLinkInfoComponent::GetPrefabLinkId() const
 	{
-		return mPrefabLinkId;
+		return mData.mPrefabLinkId;
 	}
 
 	TPtr<CPrefabChangesList> CPrefabLinkInfoComponent::GetPrefabsChangesList() const
 	{
-		return mpChangesList;
+		return mData.mpChangesList;
 	}
 
 	bool CPrefabLinkInfoComponent::IsRuntimeOnly() const

@@ -16,6 +16,21 @@
 
 namespace TDEngine2
 {
+	CLASS_META(SECTION = scene_loading_ecs_plugin, flags = SERIALIZE_MARKED_ONLY_FIELDS)
+	struct TSceneLoadingTriggerComponentData
+	{
+		FIELD_META(name = scene_path) std::string mScenePath;
+
+		FIELD_META(name = offset) TVector3        mOffset = ZeroVector3;
+		FIELD_META(name = sizes) TVector3         mSizes = TVector3(1.0f);
+
+		bool                                      mIsDirty = true;
+		bool                                      mOverlappingState = false;
+
+		TDE2_DECLARE_COMPONENT_META(TSceneLoadingTriggerComponentData);
+	};
+
+
 	/*!
 		\brief A factory function for creation objects of CSceneLoadingTriggerComponent's type.
 
@@ -33,32 +48,12 @@ namespace TDEngine2
 		\brief The class represents a volume that invokes loading of specified scene's chunk
 	*/
 
-	class CSceneLoadingTriggerComponent: public CBaseComponent, public CPoolMemoryAllocPolicy<CSceneLoadingTriggerComponent, 1 << 20>
+	class CSceneLoadingTriggerComponent: public CBaseComponentT<CSceneLoadingTriggerComponent, TSceneLoadingTriggerComponentData>
 	{
 		public:
 			friend TDE2_API IComponent* CreateSceneLoadingTriggerComponent(E_RESULT_CODE&);
 		public:
 			TDE2_REGISTER_COMPONENT_TYPE(CSceneLoadingTriggerComponent)
-
-			/*!
-				\brief The method deserializes object's state from given reader
-
-				\param[in, out] pReader An input stream of data that contains information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
-
-			/*!
-				\brief The method serializes object's state into given stream
-
-				\param[in, out] pWriter An output stream of data that writes information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
 			TDE2_API E_RESULT_CODE SetScenePath(const std::string& scenePath);
 
@@ -81,14 +76,6 @@ namespace TDEngine2
 #endif
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSceneLoadingTriggerComponent)
-		protected:
-			std::string mScenePath;
-
-			TVector3    mOffset = ZeroVector3;
-			TVector3    mSizes = TVector3(1.0f);
-
-			bool mIsDirty = true;
-			bool mOverlappingState = false;
 	};
 
 

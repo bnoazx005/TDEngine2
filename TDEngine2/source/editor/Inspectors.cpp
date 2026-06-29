@@ -178,7 +178,7 @@ namespace TDEngine2
 
 			CQuadSprite& sprite = dynamic_cast<CQuadSprite&>(component);
 
-			imguiContext.Label(sprite.GetMaterialName());
+			imguiContext.Label(sprite.GetData().mMaterialName);
 			// \todo Implement this drawer
 		});
 	}
@@ -1354,32 +1354,33 @@ namespace TDEngine2
 			IComponent& component = editorContext.mComponent;
 
 			CInputReceiver& inputReceiver = dynamic_cast<CInputReceiver&>(component);
+			TInputReceiverComponentData& inputReceiverData = inputReceiver.GetData();
 
 			{
-				bool ignoreInput = inputReceiver.mIsIgnoreInput;
+				bool ignoreInput = inputReceiverData.mIsIgnoreInput;
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Ignore Input");
 				imguiContext.Checkbox("##IgnoreInput", ignoreInput);
 				imguiContext.EndHorizontal();
 
-				if (inputReceiver.mIsIgnoreInput != ignoreInput)
+				if (inputReceiverData.mIsIgnoreInput != ignoreInput)
 				{
-					inputReceiver.mIsIgnoreInput = ignoreInput;
+					inputReceiverData.mIsIgnoreInput = ignoreInput;
 				}
 			}
 
 			{
-				bool isBypassInputEnabled = inputReceiver.mIsInputBypassEnabled;
+				bool isBypassInputEnabled = inputReceiverData.mIsInputBypassEnabled;
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Bypass Input");
 				imguiContext.Checkbox("##BypassInput", isBypassInputEnabled);
 				imguiContext.EndHorizontal();
 
-				if (inputReceiver.mIsInputBypassEnabled != isBypassInputEnabled)
+				if (inputReceiverData.mIsInputBypassEnabled != isBypassInputEnabled)
 				{
-					inputReceiver.mIsInputBypassEnabled = isBypassInputEnabled;
+					inputReceiverData.mIsInputBypassEnabled = isBypassInputEnabled;
 				}
 			}
 
@@ -1387,12 +1388,12 @@ namespace TDEngine2
 			{
 				imguiContext.Label(Wrench::StringUtils::Format(
 					"On Pressed: {0}\nNormalized Input Pos: ({1}; {2})\nHovered: {3}\nFocused: {4}\nMouse delta: {5}",
-					inputReceiver.mCurrState ? "pressed" : "none",
-					inputReceiver.mNormalizedInputPosition.x,
-					inputReceiver.mNormalizedInputPosition.y,
-					inputReceiver.mIsHovered ? "true" : "false",
-					inputReceiver.mIsFocused ? "true" : "false",
-					inputReceiver.mMouseShiftVec.ToString()));
+					inputReceiverData.mCurrState ? "pressed" : "none",
+					inputReceiverData.mNormalizedInputPosition.x,
+					inputReceiverData.mNormalizedInputPosition.y,
+					inputReceiverData.mIsHovered ? "true" : "false",
+					inputReceiverData.mIsFocused ? "true" : "false",
+					inputReceiverData.mMouseShiftVec.ToString()));
 
 				imguiContext.EndTreeNode();
 			}

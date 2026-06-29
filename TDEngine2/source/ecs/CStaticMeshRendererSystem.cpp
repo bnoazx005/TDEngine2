@@ -134,7 +134,7 @@ namespace TDEngine2
 			{
 				TDE2_PROFILER_SCOPE("CStaticMeshRendererSystem::CollectUsedMaterials");
 
-				IStaticMeshContainer* pCurrStaticMeshContainer = std::get<CStaticMeshContainer*>(entities[args.mJobIndex]);
+				CStaticMeshContainer* pCurrStaticMeshContainer = std::get<CStaticMeshContainer*>(entities[args.mJobIndex]);
 
 				auto&& currMaterialId = pCurrStaticMeshContainer->GetMaterialName();
 				if (currMaterialId.empty())

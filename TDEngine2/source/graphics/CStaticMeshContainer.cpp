@@ -1,155 +1,95 @@
 #include "../../include/graphics/CStaticMeshContainer.h"
+#define META_EXPORT_ECS_SECTION
+#include "../../include/metadata.h"
 
 
 namespace TDEngine2
 {
 	TDE2_REGISTER_COMPONENT_FACTORY(CreateStaticMeshContainerFactory)
+	TDE2_DEFINE_COMPONENT_META(TStaticMeshContainerComponentData)
 
 
 	CStaticMeshContainer::CStaticMeshContainer():
-		CBaseComponent(), mMaterialName(), mMeshName()
+		CBaseComponentT()
 	{
-	}
-
-	E_RESULT_CODE CStaticMeshContainer::Load(IArchiveReader* pReader)
-	{
-		if (!pReader)
-		{
-			return RC_FAIL;
-		}
-
-		mMaterialName = pReader->GetString("material");
-		mMeshName = pReader->GetString("mesh");
-		mSubMeshId = pReader->GetString("sub_mesh_id");
-
-		if (mSubMeshId == "\n" || mSubMeshId == "\r")
-		{
-			mSubMeshId = Wrench::StringUtils::GetEmptyStr();
-		}
-
-		mIsDirty = true;
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CStaticMeshContainer::Save(IArchiveWriter* pWriter)
-	{
-		if (!pWriter)
-		{
-			return RC_FAIL;
-		}
-
-		pWriter->BeginGroup("component");
-		{
-			pWriter->SetUInt32("type_id", static_cast<U32>(CStaticMeshContainer::GetTypeId()));
-
-			pWriter->SetString("material", mMaterialName);
-			pWriter->SetString("mesh", mMeshName);
-			pWriter->SetString("sub_mesh_id", mSubMeshId);
-		}
-		pWriter->EndGroup();
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CStaticMeshContainer::Clone(IComponent*& pDestObject) const
-	{
-		if (CStaticMeshContainer* pDestComponent = dynamic_cast<CStaticMeshContainer*>(pDestObject))
-		{
-			pDestComponent->mMaterialName              = mMaterialName;
-			pDestComponent->mMeshName                  = mMeshName;
-			pDestComponent->mSubMeshId                 = mSubMeshId;
-			pDestComponent->mSubMeshInfo.mIndicesCount = mSubMeshInfo.mIndicesCount;
-			pDestComponent->mSubMeshInfo.mStartIndex   = mSubMeshInfo.mStartIndex;
-			pDestComponent->mSystemBuffersHandle       = mSystemBuffersHandle;
-
-#if TDE2_EDITORS_ENABLED
-			pDestComponent->mSubmeshesIdentifiers.clear();
-			std::copy(mSubmeshesIdentifiers.begin(), mSubmeshesIdentifiers.end(), std::back_inserter(pDestComponent->mSubmeshesIdentifiers));
-#endif
-
-			pDestComponent->mIsDirty = true;
-		}
-
-		return RC_OK;
 	}
 
 	void CStaticMeshContainer::SetMaterialName(const std::string& materialName)
 	{
-		mMaterialName = materialName;
+		mData.mMaterialName = materialName;
 	}
 
 	void CStaticMeshContainer::SetMeshName(const std::string& meshName)
 	{
-		mMeshName = meshName;
-		mIsDirty = true;
+		mData.mMeshName = meshName;
+		mData.mIsDirty = true;
 	}
 
 	void CStaticMeshContainer::SetSubMeshId(const std::string& meshName)
 	{
-		mSubMeshId = meshName;
-		mIsDirty = true;
+		mData.mSubMeshId = meshName;
+		mData.mIsDirty = true;
 	}
 
 	void CStaticMeshContainer::SetSubMeshRenderInfo(const TSubMeshRenderInfo& info)
 	{
-		mSubMeshInfo = info;
+		mData.mSubMeshInfo = info;
 	}
 
 	void CStaticMeshContainer::SetSystemBuffersHandle(U32 handle)
 	{
-		mSystemBuffersHandle = handle;
+		mData.mSystemBuffersHandle = handle;
 	}
 
 	void CStaticMeshContainer::SetDirty(bool value)
 	{
-		mIsDirty = value;
+		mData.mIsDirty = value;
 	}
 
 #if TDE2_EDITORS_ENABLED
 
 	void CStaticMeshContainer::AddSubmeshIdentifier(const std::string& submeshId)
 	{
-		mSubmeshesIdentifiers.push_back(submeshId);
+		mData.mSubmeshesIdentifiers.push_back(submeshId);
 	}
 
 #endif
 
 	const std::string& CStaticMeshContainer::GetMaterialName() const
 	{
-		return mMaterialName;
+		return mData.mMaterialName;
 	}
 
 	const std::string& CStaticMeshContainer::GetMeshName() const
 	{
-		return mMeshName;
+		return mData.mMeshName;
 	}
 
 	const std::string& CStaticMeshContainer::GetSubMeshId() const
 	{
-		return mSubMeshId;
+		return mData.mSubMeshId;
 	}
 
 	const TSubMeshRenderInfo& CStaticMeshContainer::GetSubMeshInfo() const
 	{
-		return mSubMeshInfo;
+		return mData.mSubMeshInfo;
 	}
 
 	U32 CStaticMeshContainer::GetSystemBuffersHandle() const
 	{
-		return mSystemBuffersHandle;
+		return mData.mSystemBuffersHandle;
 	}
 
 	bool CStaticMeshContainer::IsDirty() const
 	{
-		return mIsDirty;
+		return mData.mIsDirty;
 	}
 
 #if TDE2_EDITORS_ENABLED
 
 	const std::vector<std::string>& CStaticMeshContainer::GetSubmeshesIdentifiers() const
 	{
-		return mSubmeshesIdentifiers;
+		return mData.mSubmeshesIdentifiers;
 	}
 
 #endif

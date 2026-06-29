@@ -148,7 +148,7 @@ namespace TDEngine2
 
 		mpJobManager->SubmitMultipleJobs(&counter, static_cast<U32>(entities.size()), 1, [&](const TJobArgs& args)
 			{
-				ISkinnedMeshContainer* pCurrSkinnedMeshContainer = nullptr;
+				CSkinnedMeshContainer* pCurrSkinnedMeshContainer = nullptr;
 
 				TPtr<IMaterial> pCurrMaterial;
 

@@ -572,7 +572,7 @@ namespace TDEngine2
 
 					if (auto pInputReceiver = pScrollerEntity->GetComponent<CInputReceiver>())
 					{
-						pInputReceiver->mIsInputBypassEnabled = true;
+						pInputReceiver->GetData().mIsInputBypassEnabled = true;
 					}
 
 					if (auto pScrollerContentEntity = pWorld->FindEntity(pScrollerEntity->GetComponent<CTransform>()->GetChildren().front()))

@@ -7,13 +7,45 @@
 #pragma once
 
 
-#include "ISkinnedMeshContainer.h"
+#include "../utils/Utils.h"
 #include "../ecs/CBaseComponent.h"
 #include "IMesh.h"
 
 
 namespace TDEngine2
 {
+	enum class TMaterialInstanceId : U32;
+
+
+	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
+	struct TSkinnedMeshContainerComponentData
+	{
+		FIELD_META(name = material) std::string    mMaterialName;
+		FIELD_META(name = mesh) std::string        mMeshName; /// \todo replace with GUID or something like that
+
+		FIELD_META(name = skeleton) std::string    mSkeletonName;
+		FIELD_META(name = sub_mesh_id) std::string mSubMeshId = Wrench::StringUtils::GetEmptyStr(); ///< If the field's value is empty the whole mesh will be rendered with same material
+		
+		U32                      mSystemBuffersHandle = static_cast<U32>(-1);
+
+		TMaterialInstanceId      mMaterialInstanceId;
+
+		std::vector<TMatrix4>    mCurrAnimationPose;
+
+		bool                     mShouldShowDebugSkeleton = false;
+
+		TSubMeshRenderInfo       mSubMeshInfo;
+
+		bool                     mIsDirty = true;
+
+#if TDE2_EDITORS_ENABLED
+		std::vector<std::string> mSubmeshesIdentifiers;
+#endif
+
+		TDE2_DECLARE_COMPONENT_META(TSkinnedMeshContainerComponentData);
+	};
+
+
 	/*!
 		\brief A factory function for creation objects of CSkinnedMeshContainer's type.
 
@@ -31,7 +63,7 @@ namespace TDEngine2
 		\brief The interface describes a functionality of a container for 3d animated meshes
 	*/
 
-	class CSkinnedMeshContainer : public ISkinnedMeshContainer, public CBaseComponent, public CPoolMemoryAllocPolicy<CSkinnedMeshContainer, 1 << 20>
+	class CSkinnedMeshContainer : public CBaseComponentT<CSkinnedMeshContainer, TSkinnedMeshContainerComponentData>
 	{
 		public:
 			friend TDE2_API IComponent* CreateSkinnedMeshContainer(E_RESULT_CODE& result);
@@ -42,35 +74,6 @@ namespace TDEngine2
 			TDE2_REGISTER_COMPONENT_TYPE(CSkinnedMeshContainer)
 
 			/*!
-				\brief The method deserializes object's state from given reader
-
-				\param[in, out] pReader An input stream of data that contains information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
-
-			/*!
-				\brief The method serializes object's state into given stream
-
-				\param[in, out] pWriter An output stream of data that writes information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
-
-			/*!
-				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
-				The original state of the object stays the same
-
-				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
-			*/
-
-			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
-
-			/*!
 				\brief The method sets up an identifier fo a material that will be used for the sprite
 
 				\param[in] materialName A string that contains material's name
@@ -78,7 +81,7 @@ namespace TDEngine2
 				\param[in] materialId An identifier of a material
 			*/
 
-			TDE2_API void SetMaterialName(const std::string& materialName) override;
+			TDE2_API void SetMaterialName(const std::string& materialName);
 
 			/*!
 				\brief The method sets up an identifier fo a mesh that will be used
@@ -86,20 +89,20 @@ namespace TDEngine2
 				\param[in] meshName A string that contains mesh's name
 			*/
 
-			TDE2_API void SetMeshName(const std::string& meshName) override;
+			TDE2_API void SetMeshName(const std::string& meshName);
 
 			/*!
 				\brief The method specifies sub-mesh identifier if it's empty the whole mesh is renderer with single material
 			*/
 
-			TDE2_API void SetSubMeshId(const std::string& meshName) override;
+			TDE2_API void SetSubMeshId(const std::string& meshName);
 
-			TDE2_API void SetSubMeshRenderInfo(const TSubMeshRenderInfo& info) override;
+			TDE2_API void SetSubMeshRenderInfo(const TSubMeshRenderInfo& info);
 
-			TDE2_API void SetDirty(bool value) override;
+			TDE2_API void SetDirty(bool value);
 
 #if TDE2_EDITORS_ENABLED
-			TDE2_API void AddSubmeshIdentifier(const std::string& submeshId) override;
+			TDE2_API void AddSubmeshIdentifier(const std::string& submeshId);
 #endif
 
 			/*!
@@ -110,13 +113,13 @@ namespace TDEngine2
 				vertex and index buffers within system that renders static meshes
 			*/
 
-			TDE2_API void SetSystemBuffersHandle(U32 handle) override;
+			TDE2_API void SetSystemBuffersHandle(U32 handle);
 
-			TDE2_API void SetMaterialInstanceHandle(TMaterialInstanceId materialInstanceId) override;
+			TDE2_API void SetMaterialInstanceHandle(TMaterialInstanceId materialInstanceId);
 			
-			TDE2_API void SetSkeletonName(const std::string& skeletonName) override;
+			TDE2_API void SetSkeletonName(const std::string& skeletonName);
 
-			TDE2_API void SetShowDebugSkeleton(bool value) override;
+			TDE2_API void SetShowDebugSkeleton(bool value);
 
 			/*!
 				\brief The method returns an identifier of used material
@@ -124,7 +127,7 @@ namespace TDEngine2
 				\return The method returns an identifier of used material
 			*/
 
-			TDE2_API const std::string& GetMaterialName() const override;
+			TDE2_API const std::string& GetMaterialName() const;
 
 			/*!
 				\brief The method returns an identifier of used mesh
@@ -132,55 +135,34 @@ namespace TDEngine2
 				\return The method returns an identifier of used mesh
 			*/
 
-			TDE2_API const std::string& GetMeshName() const override;
+			TDE2_API const std::string& GetMeshName() const;
 
-			TDE2_API const std::string& GetSubMeshId() const override;
+			TDE2_API const std::string& GetSubMeshId() const;
 
-			TDE2_API const TSubMeshRenderInfo& GetSubMeshInfo() const override;
+			TDE2_API const TSubMeshRenderInfo& GetSubMeshInfo() const;
 
-			TDE2_API TMaterialInstanceId GetMaterialInstanceHandle() const override;
+			TDE2_API TMaterialInstanceId GetMaterialInstanceHandle() const;
 
 			/*!
 				\brief The method returns an internal handle which points to pair
 				vertex and index buffers within system that renders static meshes
 			*/
 
-			TDE2_API U32 GetSystemBuffersHandle() const override;
+			TDE2_API U32 GetSystemBuffersHandle() const;
 
-			TDE2_API const std::string& GetSkeletonName() const override;
+			TDE2_API const std::string& GetSkeletonName() const;
 
-			TDE2_API std::vector<TMatrix4>& GetCurrentAnimationPose() override;
+			TDE2_API std::vector<TMatrix4>& GetCurrentAnimationPose();
 
-			TDE2_API bool ShouldShowDebugSkeleton() const override;
+			TDE2_API bool ShouldShowDebugSkeleton() const;
 
-			TDE2_API bool IsDirty() const override;
+			TDE2_API bool IsDirty() const;
 
 #if TDE2_EDITORS_ENABLED
-			TDE2_API const std::vector<std::string>& GetSubmeshesIdentifiers() const override;
+			TDE2_API const std::vector<std::string>& GetSubmeshesIdentifiers() const;
 #endif
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSkinnedMeshContainer)
-		protected:
-			std::string              mMaterialName;
-			std::string              mMeshName; /// \todo replace with GUID or something like that
-			std::string              mSkeletonName;			
-			std::string              mSubMeshId = Wrench::StringUtils::GetEmptyStr(); ///< If the field's value is empty the whole mesh will be rendered with same material
-
-			U32                      mSystemBuffersHandle = static_cast<U32>(-1);
-
-			TMaterialInstanceId      mMaterialInstanceId;
-
-			std::vector<TMatrix4>    mCurrAnimationPose;
-
-			bool                     mShouldShowDebugSkeleton = false;
-
-			TSubMeshRenderInfo       mSubMeshInfo;
-
-			bool                     mIsDirty = true;
-
-#if TDE2_EDITORS_ENABLED
-			std::vector<std::string> mSubmeshesIdentifiers;
-#endif
 	};
 
 

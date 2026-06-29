@@ -193,6 +193,8 @@ namespace TDEngine2
 						CQuadSprite* pCurrSprite = mSprites[args.mJobIndex];
 						CBoundsComponent* pCurrBounds = mSpritesBounds[args.mJobIndex];
 
+						TQuadSpriteComponentData& spriteData = pCurrSprite->GetData();
+
 						bool isVisible = true;
 						if (pCameraComponent)
 						{
@@ -203,7 +205,7 @@ namespace TDEngine2
 							}
 						}
 
-						const TResourceId currMaterialHandle = mpResourceManager->Load<IMaterial>(pCurrSprite->GetMaterialName());
+						const TResourceId currMaterialHandle = mpResourceManager->Load<IMaterial>(spriteData.mMaterialName);
 
 						U32 groupKey = _computeSpriteCommandKey(currMaterialHandle, mpGraphicsLayers->GetLayerIndex(pCurrTransform->GetPosition().z));
 
@@ -216,7 +218,7 @@ namespace TDEngine2
 							currBatchEntry.mpInstancesData = new CDynamicArray<TSpriteInstanceData>(*mpTempAllocator.Get(), 100);
 						}
 
-						currBatchEntry.mpInstancesData->PushBack({ Transpose(pCurrTransform->GetLocalToWorldTransform()), pCurrSprite->GetColor() });
+						currBatchEntry.mpInstancesData->PushBack({ Transpose(pCurrTransform->GetLocalToWorldTransform()), spriteData.mColor });
 					});
 
 				mpJobManager->WaitForJobCounter(counter);

@@ -98,7 +98,9 @@ namespace TDEngine2
 			pCurrVideoDecoder = pVideoContainer->mpInternalData->mpDecoder;
 			pCurrVideoFrame = pVideoContainer->mpInternalData->mpCurrVideoFrame;
 
-			if (!pVideoContainer->mIsPlaying)
+			TUIVideoContainerComponentData& videoContainerData = pVideoContainer->GetData();
+
+			if (!videoContainerData.mIsPlaying)
 			{
 				continue;
 			}
@@ -106,8 +108,8 @@ namespace TDEngine2
 			if (!pCurrVideoDecoder)
 			{
 				pCurrVideoDecoder = THEORAPLAY_startDecodeFile(
-					mpFileSystem->ResolveVirtualPath(pVideoContainer->mVideoResourceId, false).c_str(),
-					static_cast<U32>(pVideoContainer->mFPS), THEORAPLAY_VIDFMT_RGBA);
+					mpFileSystem->ResolveVirtualPath(videoContainerData.mVideoResourceId, false).c_str(),
+					static_cast<U32>(videoContainerData.mFPS), THEORAPLAY_VIDFMT_RGBA);
 
 				pVideoContainer->mpInternalData->mpDecoder = pCurrVideoDecoder;
 			}
@@ -117,10 +119,10 @@ namespace TDEngine2
 				continue;
 			}
 
-			if (pVideoContainer->mStopPlayback) // \note Received signal to stop the playback
+			if (videoContainerData.mStopPlayback) // \note Received signal to stop the playback
 			{
-				pVideoContainer->mStopPlayback = false;
-				pVideoContainer->mIsPlaying = false;
+				videoContainerData.mStopPlayback = false;
+				videoContainerData.mIsPlaying = false;
 
 				THEORAPLAY_freeVideo(pCurrVideoFrame);
 				THEORAPLAY_stopDecode(pCurrVideoDecoder);
@@ -136,7 +138,7 @@ namespace TDEngine2
 				pCurrVideoFrame = THEORAPLAY_getVideo(pCurrVideoDecoder);
 				if (!pCurrVideoFrame)
 				{
-					if (!pVideoContainer->mIsLooped)
+					if (!videoContainerData.mIsLooped)
 					{
 						pVideoContainer->StopPlayback();
 						continue;
@@ -162,12 +164,12 @@ namespace TDEngine2
 
 			pVideoContainer->mpInternalData->mpCurrVideoFrame = pCurrVideoFrame;
 
-			const U32 currTimeMs = static_cast<U32>(1000 * pVideoContainer->mCurrTime);
-			const U32 frameTime = static_cast<U32>(1000 / std::min(pCurrVideoFrame->fps, static_cast<F64>(pVideoContainer->mFPS)));
+			const U32 currTimeMs = static_cast<U32>(1000 * videoContainerData.mCurrTime);
+			const U32 frameTime = static_cast<U32>(1000 / std::min(pCurrVideoFrame->fps, static_cast<F64>(videoContainerData.mFPS)));
 
 			if (pCurrVideoFrame->playms > currTimeMs) 
 			{
-				pVideoContainer->mCurrTime += dt;
+				videoContainerData.mCurrTime += dt;
 				continue;
 			}
 
@@ -228,7 +230,7 @@ namespace TDEngine2
 			pVideoContainer->mpInternalData->mpCurrVideoFrame = nullptr;
 			pVideoContainer->mpInternalData->mCurrVideoFrameIndex++;
 
-			pVideoContainer->mCurrTime += dt;
+			videoContainerData.mCurrTime += dt;
 		}
 	}
 

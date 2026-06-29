@@ -239,7 +239,13 @@ namespace TDEngine2
 			pInputReceiver = inputReceivers[index];
 			pLayoutElement = layoutElements[index];
 
-			if (!pInputReceiver || (pInputReceiver && pInputReceiver->mIsIgnoreInput))
+			if (!pInputReceiver)
+			{
+				continue;
+			}
+
+			TInputReceiverComponentData& inputReceiverData = pInputReceiver->GetData();
+			if (inputReceiverData.mIsIgnoreInput)
 			{
 				continue;
 			}
@@ -256,33 +262,33 @@ namespace TDEngine2
 			}
 
 			/// \fixme For now it's the simplest solution for checking buttons 
-			pInputReceiver->mIsHovered = ContainsPoint(IntersectRects(pLayoutElement->GetWorldRect(), pLayoutElement->GetParentWorldRect()), mousePosition);
+			inputReceiverData.mIsHovered = ContainsPoint(IntersectRects(pLayoutElement->GetWorldRect(), pLayoutElement->GetParentWorldRect()), mousePosition);
 
-			pInputReceiver->mCurrState = pInputReceiver->mIsHovered && pInputContext->IsMouseButton(0);
+			inputReceiverData.mCurrState = inputReceiverData.mIsHovered && pInputContext->IsMouseButton(0);
 
-			pInputReceiver->mIsControlModifierActive = pInputContext->IsKey(E_KEYCODES::KC_LCONTROL) || pInputContext->IsKey(E_KEYCODES::KC_RCONTROL);
-			pInputReceiver->mIsShiftModifierActive = pInputContext->IsKey(E_KEYCODES::KC_LSHIFT) || pInputContext->IsKey(E_KEYCODES::KC_RSHIFT);
-			pInputReceiver->mActionType = GetActionType(pInputContext);
+			inputReceiverData.mIsControlModifierActive = pInputContext->IsKey(E_KEYCODES::KC_LCONTROL) || pInputContext->IsKey(E_KEYCODES::KC_RCONTROL);
+			inputReceiverData.mIsShiftModifierActive = pInputContext->IsKey(E_KEYCODES::KC_LSHIFT) || pInputContext->IsKey(E_KEYCODES::KC_RSHIFT);
+			inputReceiverData.mActionType = GetActionType(pInputContext);
 
-			pInputReceiver->mMouseShiftVec = pInputContext->GetMouseShiftVec();
+			inputReceiverData.mMouseShiftVec = pInputContext->GetMouseShiftVec();
 
 			/// focus/unfocus logic
 			{
-				if ((TEntityId::Invalid == currFocusedInputEntity) && pInputContext->IsMouseButtonPressed(0) && pInputReceiver->mIsHovered && !pInputReceiver->mIsFocused)
+				if ((TEntityId::Invalid == currFocusedInputEntity) && pInputContext->IsMouseButtonPressed(0) && inputReceiverData.mIsHovered && !inputReceiverData.mIsFocused)
 				{
-					pInputReceiver->mIsFocused = true;
+					inputReceiverData.mIsFocused = true;
 					currFocusedInputEntity = pTransform->GetOwnerId();
 				}
 
-				if (pInputReceiver->mIsFocused)
+				if (inputReceiverData.mIsFocused)
 				{
-					pInputReceiver->mInputBuffer = inputBuffer;
+					inputReceiverData.mInputBuffer = inputBuffer;
 				}
 			}
 
-			pInputReceiver->mNormalizedInputPosition = PointToNormalizedCoords(pLayoutElement->GetWorldRect(), mousePosition);
+			inputReceiverData.mNormalizedInputPosition = PointToNormalizedCoords(pLayoutElement->GetWorldRect(), mousePosition);
 
-			if (/*!pInputReceiver->mIsInputBypassEnabled && */pInputReceiver->mCurrState || pInputReceiver->mIsHovered)
+			if (/*!pInputReceiver->mIsInputBypassEnabled && */inputReceiverData.mCurrState || inputReceiverData.mIsHovered)
 			{
 				return true;
 			}
@@ -304,10 +310,12 @@ namespace TDEngine2
 				continue;
 			}
 
-			pInputReceiver->mIsHovered = false;
+			TInputReceiverComponentData& inputReceiverData = pInputReceiver->GetData();
 
-			pInputReceiver->mPrevState = pInputReceiver->mCurrState; // reset state
-			pInputReceiver->mCurrState = false;
+			inputReceiverData.mIsHovered = false;
+
+			inputReceiverData.mPrevState = inputReceiverData.mCurrState; // reset state
+			inputReceiverData.mCurrState = false;
 		}
 	}
 
@@ -335,9 +343,11 @@ namespace TDEngine2
 		{
 			if (auto pInputReceiver = pEntity->GetComponent<CInputReceiver>())
 			{
-				if (!pInputReceiver->mIsHovered && (mpDesktopInputContext->IsMouseButtonPressed(0) || isCancelAction) || mpDesktopInputContext->IsKeyPressed(E_KEYCODES::KC_RETURN))
+				TInputReceiverComponentData& inputReceiverData = pInputReceiver->GetData();
+
+				if (!inputReceiverData.mIsHovered && (mpDesktopInputContext->IsMouseButtonPressed(0) || isCancelAction) || mpDesktopInputContext->IsKeyPressed(E_KEYCODES::KC_RETURN))
 				{
-					pInputReceiver->mIsFocused = false;
+					inputReceiverData.mIsFocused = false;
 					mCurrFocusedInputEntity = TEntityId::Invalid;
 					mInputBuffer.clear();
 				}

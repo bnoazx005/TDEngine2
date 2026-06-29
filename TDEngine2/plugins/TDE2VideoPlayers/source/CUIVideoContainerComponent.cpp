@@ -2,27 +2,17 @@
 #include "../include/CVideoProcessSystem.h"
 #include <editor/Inspectors.h>
 #include <core/IImGUIContext.h>
+#define META_EXPORT_VIDEO_PLAYER_ECS_PLUGIN_SECTION
+#include "../../include/metadata.h"
 
 
 namespace TDEngine2
 {
-	struct TUIVideoContainerArchiveKeys
-	{
-		static const std::string mVideoResourceIdKeyId;
-		static const std::string mIsLoopedKeyId;
-		static const std::string mIsAutoplayEnabledKeyId;
-		static const std::string mFramesPerSecondKeyId;
-	};
-
-
-	const std::string TUIVideoContainerArchiveKeys::mVideoResourceIdKeyId = "video_id";
-	const std::string TUIVideoContainerArchiveKeys::mIsLoopedKeyId = "is_looped";
-	const std::string TUIVideoContainerArchiveKeys::mIsAutoplayEnabledKeyId = "autoplay";
-	const std::string TUIVideoContainerArchiveKeys::mFramesPerSecondKeyId = "fps";
+	TDE2_DEFINE_COMPONENT_META(TUIVideoContainerComponentData)
 
 
 	CUIVideoContainerComponent::CUIVideoContainerComponent():
-		CBaseComponent(), mpInternalData(std::make_unique<TInternalVideoData>())
+		CBaseComponentT(), mpInternalData(std::make_unique<TInternalVideoData>())
 	{
 		ResetState();
 	}
@@ -33,78 +23,43 @@ namespace TDEngine2
 
 	E_RESULT_CODE CUIVideoContainerComponent::Load(IArchiveReader* pReader)
 	{
-		if (!pReader)
-		{
-			return RC_FAIL;
-		}
-
-		mVideoResourceId = pReader->GetString(TUIVideoContainerArchiveKeys::mVideoResourceIdKeyId);
-		mIsLooped = pReader->GetBool(TUIVideoContainerArchiveKeys::mIsLoopedKeyId);
-		mIsAutoplayEnabled = pReader->GetBool(TUIVideoContainerArchiveKeys::mIsAutoplayEnabledKeyId);
-		mFPS = pReader->GetUInt16(TUIVideoContainerArchiveKeys::mFramesPerSecondKeyId, 30);
-		
+		E_RESULT_CODE result = CBaseComponentT::Load(pReader);
 		ResetState();
 
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CUIVideoContainerComponent::Save(IArchiveWriter* pWriter)
-	{
-		if (!pWriter)
-		{
-			return RC_FAIL;
-		}
-
-		pWriter->BeginGroup("component");
-		{
-			pWriter->SetUInt32("type_id", static_cast<U32>(CUIVideoContainerComponent::GetTypeId()));
-
-			pWriter->SetString(TUIVideoContainerArchiveKeys::mVideoResourceIdKeyId, mVideoResourceId);
-			pWriter->SetBool(TUIVideoContainerArchiveKeys::mIsLoopedKeyId, mIsLooped);
-			pWriter->SetBool(TUIVideoContainerArchiveKeys::mIsAutoplayEnabledKeyId, mIsAutoplayEnabled);
-			pWriter->SetUInt16(TUIVideoContainerArchiveKeys::mFramesPerSecondKeyId, mFPS);
-		}
-		pWriter->EndGroup();
-
-		return RC_OK;
+		return result;
 	}
 
 	E_RESULT_CODE CUIVideoContainerComponent::Clone(IComponent*& pDestObject) const
 	{
-		if (auto pComponent = dynamic_cast<CUIVideoContainerComponent*>(pDestObject))
+		if (CUIVideoContainerComponent* pDestComponentPtr = dynamic_cast<CUIVideoContainerComponent*>(pDestObject))
 		{
-			pComponent->mVideoResourceId = mVideoResourceId;
-			pComponent->mFPS = mFPS;
-			pComponent->mFrameTime = mFrameTime;
-			pComponent->mIsLooped = mIsLooped;
-			pComponent->mIsAutoplayEnabled = mIsAutoplayEnabled;
-
-			pComponent->ResetState();
+			pDestComponentPtr->mData = mData;
+			pDestComponentPtr->ResetState();
 
 			return RC_OK;
 		}
 
-		return RC_FAIL;
+		return RC_OK;
 	}
 
 	void CUIVideoContainerComponent::StartPlayback()
 	{
 		ResetState();
-		mIsPlaying = true;
+		mData.mIsPlaying = true;
 	}
 
 	void CUIVideoContainerComponent::StopPlayback()
 	{
-		mStopPlayback = true;
+		mData.mStopPlayback = true;
 	}
 
 	void CUIVideoContainerComponent::ResetState()
 	{
-		mIsDirty = true;
-		mIsPlaying = mIsAutoplayEnabled;
-		mCurrTime = 0.0f;
+		mData.mIsDirty = true;
+		mData.mIsPlaying = mData.mIsAutoplayEnabled;
+		mData.mCurrTime = 0.0f;
 
-		mFrameTime = mFPS ? static_cast<U32>(1000.0f / static_cast<F32>(mFPS)) : 0;
+		mData.mFrameTime = mData.mFPS ? static_cast<U32>(1000.0f / static_cast<F32>(mData.mFPS)) : 0;
 	}
 
 
@@ -116,42 +71,43 @@ namespace TDEngine2
 		{
 			IImGUIContext& imguiContext = editorContext.mImGUIContext;
 			CUIVideoContainerComponent& component = dynamic_cast<CUIVideoContainerComponent&>(editorContext.mComponent);
+			TUIVideoContainerComponentData& videoComponentData = component.mData;
 
 			/// \note loop
 			{
-				bool isLooped = component.mIsLooped;
+				bool isLooped = videoComponentData.mIsLooped;
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("IsLooped: ");
 				imguiContext.Checkbox("##IsLooped", isLooped);
 				imguiContext.EndHorizontal();
 
-				if (isLooped != component.mIsLooped)
+				if (isLooped != videoComponentData.mIsLooped)
 				{
-					component.mIsLooped = isLooped;
+					videoComponentData.mIsLooped = isLooped;
 				}
 			}
 
 			/// \note autoplay
 			{
-				bool isAutoplayOnStart = component.mIsAutoplayEnabled;
+				bool isAutoplayOnStart = videoComponentData.mIsAutoplayEnabled;
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Autoplay: ");
 				imguiContext.Checkbox("##Autoplay", isAutoplayOnStart);
 				imguiContext.EndHorizontal();
 
-				if (isAutoplayOnStart != component.mIsAutoplayEnabled)
+				if (isAutoplayOnStart != videoComponentData.mIsAutoplayEnabled)
 				{
-					component.mIsAutoplayEnabled = isAutoplayOnStart;
+					videoComponentData.mIsAutoplayEnabled = isAutoplayOnStart;
 				}
 			}
 
 			imguiContext.BeginHorizontal();
 			{
-				if (imguiContext.Button(component.mIsPlaying ? "Stop" : "Play", TVector2(100.0f, 25.0f)))
+				if (imguiContext.Button(videoComponentData.mIsPlaying ? "Stop" : "Play", TVector2(100.0f, 25.0f)))
 				{
-					if (component.mIsPlaying)
+					if (videoComponentData.mIsPlaying)
 					{
 						component.StopPlayback();
 					}

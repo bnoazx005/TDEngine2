@@ -19,6 +19,16 @@ namespace TDEngine2
 	TDE2_DECLARE_SCOPED_PTR(CPrefabChangesList)
 
 
+	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
+	struct TPrefabLinkComponentData
+	{
+		std::string              mPrefabLinkId;
+		TPtr<CPrefabChangesList> mpChangesList = nullptr;
+
+		TDE2_DECLARE_COMPONENT_META(TPrefabLinkComponentData);
+	};
+
+
 	/*!
 		\brief A factory function for creation objects of CPrefabLinkInfoComponent's type.
 
@@ -30,7 +40,7 @@ namespace TDEngine2
 	TDE2_API IComponent* CreatePrefabLinkInfoComponent(E_RESULT_CODE& result);
 
 
-	class CPrefabLinkInfoComponent : public CBaseComponent, public CPoolMemoryAllocPolicy<CPrefabLinkInfoComponent, 1 << 20>
+	class CPrefabLinkInfoComponent : public CBaseComponentT<CPrefabLinkInfoComponent, TPrefabLinkComponentData>
 	{
 		public:
 			friend TDE2_API IComponent* CreatePrefabLinkInfoComponent(E_RESULT_CODE&);
@@ -85,14 +95,6 @@ namespace TDEngine2
 			TDE2_API const std::string& GetTypeName() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPrefabLinkInfoComponent)
-#if TDE2_EDITORS_ENABLED
-		public:
-			bool mIsChangesListSerializationEnabled = true;
-#endif
-		protected:
-			TPtr<CPrefabChangesList> mpChangesList;
-
-			std::string mPrefabLinkId;
 	};
 
 

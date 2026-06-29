@@ -1,77 +1,18 @@
 #include "../include/CSceneLoadingTriggerComponent.h"
 #include <editor/Inspectors.h>
 #include <core/IImGUIContext.h>
+#define META_EXPORT_SCENE_LOADING_ECS_PLUGIN_SECTION
+#include "../../include/metadata.h"
 
 
 namespace TDEngine2
 {
-	struct TSceneLoadingTriggerArchiveKeys
-	{
-		static const std::string mScenePathKeyId;
-		static const std::string mOffsetKeyId;
-		static const std::string mSizesKeyId;
-	};
-
-
-	const std::string TSceneLoadingTriggerArchiveKeys::mScenePathKeyId = "scene_path";
-	const std::string TSceneLoadingTriggerArchiveKeys::mOffsetKeyId = "offset";
-	const std::string TSceneLoadingTriggerArchiveKeys::mSizesKeyId = "sizes";
+	TDE2_DEFINE_COMPONENT_META(TSceneLoadingTriggerComponentData)
 
 
 	CSceneLoadingTriggerComponent::CSceneLoadingTriggerComponent():
-		CBaseComponent(), mScenePath()
+		CBaseComponentT()
 	{
-	}
-
-	E_RESULT_CODE CSceneLoadingTriggerComponent::Load(IArchiveReader* pReader)
-	{
-		if (!pReader)
-		{
-			return RC_FAIL;
-		}
-
-		mScenePath = pReader->GetString(TSceneLoadingTriggerArchiveKeys::mScenePathKeyId);
-
-		pReader->BeginGroup(TSceneLoadingTriggerArchiveKeys::mOffsetKeyId);
-		if (auto loadVecResult = LoadVector3(pReader))
-		{
-			mOffset = loadVecResult.Get();
-		}
-		pReader->EndGroup();
-
-		pReader->BeginGroup(TSceneLoadingTriggerArchiveKeys::mSizesKeyId);
-		if (auto loadVecResult = LoadVector3(pReader))
-		{
-			mSizes = loadVecResult.Get();
-		}
-		pReader->EndGroup();
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CSceneLoadingTriggerComponent::Save(IArchiveWriter* pWriter)
-	{
-		if (!pWriter)
-		{
-			return RC_FAIL;
-		}
-
-		pWriter->BeginGroup("component");
-		{
-			pWriter->SetUInt32("type_id", static_cast<U32>(CSceneLoadingTriggerComponent::GetTypeId()));
-			pWriter->SetString(TSceneLoadingTriggerArchiveKeys::mScenePathKeyId, mScenePath);
-
-			pWriter->BeginGroup(TSceneLoadingTriggerArchiveKeys::mOffsetKeyId);
-			SaveVector3(pWriter, mOffset);
-			pWriter->EndGroup();
-
-			pWriter->BeginGroup(TSceneLoadingTriggerArchiveKeys::mSizesKeyId);
-			SaveVector3(pWriter, mSizes);
-			pWriter->EndGroup();
-		}
-		pWriter->EndGroup();
-
-		return RC_OK;
 	}
 
 	E_RESULT_CODE CSceneLoadingTriggerComponent::SetScenePath(const std::string& scenePath)
@@ -81,16 +22,16 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mScenePath = scenePath;
-		mIsDirty = true;
+		mData.mScenePath = scenePath;
+		mData.mIsDirty = true;
 
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CSceneLoadingTriggerComponent::SetVolumeOffset(const TVector3& value)
 	{
-		mOffset = value;
-		mIsDirty = true;
+		mData.mOffset = value;
+		mData.mIsDirty = true;
 
 		return RC_OK;
 	}
@@ -103,45 +44,45 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mSizes = value;
-		mIsDirty = true;
+		mData.mSizes = value;
+		mData.mIsDirty = true;
 
 		return RC_OK;
 	}
 
 	void CSceneLoadingTriggerComponent::SetDirtyFlag(bool value)
 	{
-		mIsDirty = value;
+		mData.mIsDirty = value;
 	}
 	
 	void CSceneLoadingTriggerComponent::SetOverlappingState(bool value)
 	{
-		mOverlappingState = value;
+		mData.mOverlappingState = value;
 	}
 
 	const std::string& CSceneLoadingTriggerComponent::GetScenePath() const
 	{
-		return mScenePath;
+		return mData.mScenePath;
 	}
 
 	const TVector3& CSceneLoadingTriggerComponent::GetVolumeOffset() const
 	{
-		return mOffset;
+		return mData.mOffset;
 	}
 
 	const TVector3& CSceneLoadingTriggerComponent::GetVolumeSizes() const
 	{
-		return mSizes;
+		return mData.mSizes;
 	}
 
 	bool CSceneLoadingTriggerComponent::IsDirty() const
 	{
-		return mIsDirty;
+		return mData.mIsDirty;
 	}
 
 	bool CSceneLoadingTriggerComponent::GetOverlappingState() const
 	{
-		return mOverlappingState;
+		return mData.mOverlappingState;
 	}
 
 

@@ -65,6 +65,9 @@ namespace TDEngine2
 	} TSubMeshRenderInfo, * TSubMeshRenderInfoPtr;
 
 
+	inline bool operator== (const TSubMeshRenderInfo& left, const TSubMeshRenderInfo& right) { return left.mStartIndex == right.mStartIndex && left.mIndicesCount == right.mIndicesCount; }
+
+
 	/*!
 		interface IMesh
 
