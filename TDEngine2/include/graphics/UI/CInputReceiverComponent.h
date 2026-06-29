@@ -34,6 +34,31 @@ namespace TDEngine2
 	};
 
 
+	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
+	struct TInputReceiverComponentData
+	{
+		bool                                   mPrevState = false;
+		bool                                   mCurrState = false;
+		bool                                   mIsHovered : 1;
+		bool                                   mIsFocused : 1;
+
+		bool                                   mIsControlModifierActive : 1;
+		bool                                   mIsShiftModifierActive : 1;
+
+		FIELD_META(name = ignore_input) bool   mIsIgnoreInput = false;
+		FIELD_META(name = bypass_enabled) bool mIsInputBypassEnabled : 1;
+
+		E_INPUT_ACTIONS                        mActionType;
+
+		TVector2                               mNormalizedInputPosition; ///< Position of an input event that's normalized relative to receiver's rectangle
+		TVector3                               mMouseShiftVec = ZeroVector3; ///< z contains scroll delta
+
+		std::string                            mInputBuffer;
+
+		TDE2_DECLARE_COMPONENT_META(TInputReceiverComponentData);
+	};
+
+
 	/*!
 		\brief A factory function for creation objects of CInputReceiver's type.
 
@@ -52,41 +77,12 @@ namespace TDEngine2
 		The best usage example is a button
 	*/
 
-	class CInputReceiver : public CBaseComponent, public CPoolMemoryAllocPolicy<CInputReceiver, 1 << 20>
+	class CInputReceiver : public CBaseComponentT<CInputReceiver, TInputReceiverComponentData>
 	{
 		public:
 			friend TDE2_API IComponent* CreateInputReceiver(E_RESULT_CODE& result);
 		public:
 			TDE2_REGISTER_COMPONENT_TYPE(CInputReceiver)
-
-			/*!
-				\brief The method deserializes object's state from given reader
-
-				\param[in, out] pReader An input stream of data that contains information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
-
-			/*!
-				\brief The method serializes object's state into given stream
-
-				\param[in, out] pWriter An output stream of data that writes information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
-
-			/*!
-				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
-				The original state of the object stays the same
-
-				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
-			*/
-
-			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
 			/*!
 				\return The method returns type name (lowercase is preffered)
@@ -96,24 +92,6 @@ namespace TDEngine2
 
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CInputReceiver)
-		public:
-			bool mPrevState     : 1;
-			bool mCurrState     : 1;
-			bool mIsHovered     : 1;
-			bool mIsFocused     : 1;
-			
-			bool mIsControlModifierActive : 1;
-			bool mIsShiftModifierActive : 1;
-			
-			bool mIsIgnoreInput : 1;
-			bool mIsInputBypassEnabled : 1;
-
-			E_INPUT_ACTIONS mActionType;
-
-			TVector2 mNormalizedInputPosition; ///< Position of an input event that's normalized relative to receiver's rectangle
-			TVector3 mMouseShiftVec = ZeroVector3; ///< z contains scroll delta
-
-			std::string mInputBuffer;
 	};
 
 

@@ -38,6 +38,33 @@ namespace TDEngine2
 	TDE2_API TVector2 CalcContentRectAlignByType(const TRectF32& holderRect, const TRectF32& contentRect, E_UI_ELEMENT_ALIGNMENT_TYPE alignType);
 
 
+	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
+	struct TLayoutElementComponentData
+	{
+		FIELD_META(name = min_anchor) TVector2  mMinAnchor = ZeroVector2;
+		FIELD_META(name = max_anchor) TVector2  mMaxAnchor = ZeroVector2;
+
+		FIELD_META(name = min_offset) TVector2  mMinOffset = ZeroVector2;
+		FIELD_META(name = max_offset) TVector2  mMaxOffset = TVector2{ 100.0f };
+
+		FIELD_META(name = pivot) TVector2       mPivot = ZeroVector2;
+		TVector2                                mPositionOffset = ZeroVector2;
+
+		TRectF32                                mWorldRect;
+		TRectF32                                mAnchorWorldRect;
+		TRectF32                                mParentWorldRect;
+
+		TEntityId                               mCanvasEntityId = TEntityId::Invalid;
+
+		FIELD_META(name = scale) TVector2       mScale = 1.0f;
+		FIELD_META(name = angle) F32            mRotationAngle = 0.0f; // Z axis, in radians
+
+		bool                                    mIsDirty = true;
+		bool                                    mIsPositionOffsetApplied = false;
+
+		TDE2_DECLARE_COMPONENT_META(TLayoutElementComponentData);
+	};
+
 
 	/*!
 		\brief A factory function for creation objects of CLayoutElement's type.
@@ -62,41 +89,12 @@ namespace TDEngine2
 		But if they're matched at some axis minOffset contains position of a rectangle's pivot in coordinates relative to parent's rectangle.
 	*/
 
-	class CLayoutElement : public CBaseComponent, public CPoolMemoryAllocPolicy<CLayoutElement, 1 << 20>
+	class CLayoutElement : public CBaseComponentT<CLayoutElement, TLayoutElementComponentData>
 	{
 		public:
 			friend TDE2_API IComponent* CreateLayoutElement(E_RESULT_CODE& result);
 		public:
 			TDE2_REGISTER_COMPONENT_TYPE(CLayoutElement)
-
-			/*!
-				\brief The method deserializes object's state from given reader
-
-				\param[in, out] pReader An input stream of data that contains information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
-
-			/*!
-				\brief The method serializes object's state into given stream
-
-				\param[in, out] pWriter An output stream of data that writes information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
-
-			/*!
-				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
-				The original state of the object stays the same
-
-				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
-			*/
-
-			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
 			TDE2_API E_RESULT_CODE SetMinAnchor(const TVector2& value);
 			TDE2_API E_RESULT_CODE SetMaxAnchor(const TVector2& value);
@@ -153,27 +151,6 @@ namespace TDEngine2
 
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CLayoutElement)
-		protected:
-			TVector2  mMinAnchor;
-			TVector2  mMaxAnchor;
-
-			TVector2  mMinOffset;
-			TVector2  mMaxOffset;
-
-			TVector2  mPivot;
-			TVector2  mPositionOffset;
-
-			TRectF32  mWorldRect;
-			TRectF32  mAnchorWorldRect;
-			TRectF32  mParentWorldRect;
-
-			TEntityId mCanvasEntityId;
-
-			TVector2  mScale;
-			F32       mRotationAngle; // Z axis, in radians
-
-			bool      mIsDirty;
-			bool      mIsPositionOffsetApplied = false;
 	};
 
 

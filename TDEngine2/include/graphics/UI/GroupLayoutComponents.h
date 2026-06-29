@@ -16,6 +16,20 @@ namespace TDEngine2
 	enum class E_UI_ELEMENT_ALIGNMENT_TYPE : U8;
 
 
+	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
+	struct TGridGroupLayoutComponentData
+	{
+		FIELD_META(name = cell_size) TVector2                     mCellSize = TVector2(100.0f);
+		FIELD_META(name = spacing) TVector2                       mSpaceBetweenElements = TVector2(10.0f);
+
+		FIELD_META(name = align_type) E_UI_ELEMENT_ALIGNMENT_TYPE mAlignType;
+
+		bool                                                      mIsDirty = true;
+
+		TDE2_DECLARE_COMPONENT_META(TGridGroupLayoutComponentData);
+	};
+
+
 	/*!
 		\brief A factory function for creation objects of CGridGroupLayout's type.
 
@@ -33,41 +47,12 @@ namespace TDEngine2
 		\brief The component stores the data that's used to group a bunch of child LayoutElement entities
 	*/
 
-	class CGridGroupLayout : public CBaseComponent, public CPoolMemoryAllocPolicy<CGridGroupLayout, 1 << 20>
+	class CGridGroupLayout : public CBaseComponentT<CGridGroupLayout, TGridGroupLayoutComponentData>
 	{
 		public:
 			friend TDE2_API IComponent* CreateGridGroupLayout(E_RESULT_CODE& result);
 		public:
 			TDE2_REGISTER_COMPONENT_TYPE(CGridGroupLayout)
-
-			/*!
-				\brief The method deserializes object's state from given reader
-
-				\param[in, out] pReader An input stream of data that contains information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
-
-			/*!
-				\brief The method serializes object's state into given stream
-
-				\param[in, out] pWriter An output stream of data that writes information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
-
-			/*!
-				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
-				The original state of the object stays the same
-
-				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
-			*/
-
-			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
 			TDE2_API E_RESULT_CODE SetCellSize(const TVector2& value);
 
@@ -86,13 +71,6 @@ namespace TDEngine2
 			TDE2_API bool IsDirty() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CGridGroupLayout)
-		protected:
-			TVector2                    mCellSize = TVector2(100.0f);
-			TVector2                    mSpaceBetweenElements = TVector2(10.0f);
-			
-			E_UI_ELEMENT_ALIGNMENT_TYPE mAlignType;
-
-			bool                        mIsDirty = true;
 	};
 
 

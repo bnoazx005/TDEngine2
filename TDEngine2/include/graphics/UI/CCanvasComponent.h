@@ -16,6 +16,23 @@ namespace TDEngine2
 	enum class TResourceId : U32;
 
 
+	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
+	struct TCanvasComponentData
+	{
+		FIELD_META(name = width) U32                 mWidth = 1280;
+		FIELD_META(name = height) U32                mHeight = 720;
+
+		bool                                         mIsDirty = true;
+		FIELD_META(name = inherit_camera_sizes) bool mInheritsSizesFromMainCamera;
+
+		TMatrix4                                     mProjMatrix = IdentityMatrix4;
+
+		FIELD_META(name = priority) int              mPriority = 0;
+
+		TDE2_DECLARE_COMPONENT_META(TCanvasComponentData);
+	};
+
+
 	/*!
 		\brief A factory function for creation objects of CCanvas's type.
 
@@ -33,41 +50,12 @@ namespace TDEngine2
 		\brief The class is a main element that determines sizes of UI's field
 	*/
 
-	class CCanvas : public CBaseComponent, public CPoolMemoryAllocPolicy<CCanvas, 1 << 20>
+	class CCanvas : public CBaseComponentT<CCanvas, TCanvasComponentData>
 	{
 		public:
 			friend TDE2_API IComponent* CreateCanvas(E_RESULT_CODE& result);
 		public:
 			TDE2_REGISTER_COMPONENT_TYPE(CCanvas)
-
-			/*!
-				\brief The method deserializes object's state from given reader
-
-				\param[in, out] pReader An input stream of data that contains information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
-
-			/*!
-				\brief The method serializes object's state into given stream
-
-				\param[in, out] pWriter An output stream of data that writes information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
-
-			/*!
-				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
-				The original state of the object stays the same
-
-				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
-			*/
-
-			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
 			TDE2_API void SetWidth(U32 value);
 			TDE2_API void SetHeight(U32 value);
@@ -89,16 +77,6 @@ namespace TDEngine2
 			TDE2_API int GetPriority() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CCanvas)
-		protected:
-			U32 mWidth;
-			U32 mHeight;
-
-			bool mIsDirty;
-			bool mInheritsSizesFromMainCamera;
-
-			TMatrix4 mProjMatrix;
-
-			int mPriority = 0;
 	};
 
 

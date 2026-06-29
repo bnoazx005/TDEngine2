@@ -95,3 +95,77 @@ TEST_CASE("CValueWrapper Tests")
 		REQUIRE(!CValueWrapper(TVector3(1.0f)).CastTo<TVector2>());
 	}
 }
+
+
+TEST_CASE("Serialize function Tests")
+{
+	SECTION("SerializeTTransformComponentDataThenTryDeserializeItBack_TheValuesOfStructureShouldStaySame")
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		auto pMemoryMappedStream = TPtr<TDEngine2::IStream>(CreateMemoryIOStream(Wrench::StringUtils::GetEmptyStr(), {}, result));
+		REQUIRE(pMemoryMappedStream);
+
+		IYAMLFileWriter* pFileWriter = dynamic_cast<IYAMLFileWriter*>(CreateYAMLFileWriter(nullptr, pMemoryMappedStream, result));
+		REQUIRE(pFileWriter);
+
+		TTransformComponentData expectedData{};
+		expectedData.mPosition = RandVector3(ZeroVector3, TVector3{ 1.0f });
+		expectedData.mPivot    = RandVector3(ZeroVector3, TVector3{ 1.0f });
+		expectedData.mRotation = TQuaternion{ RandVector3(ZeroVector3, TVector3{ 1.0f }) };
+		expectedData.mScale    = RandVector3(ZeroVector3, TVector3{ 1.0f });
+		expectedData.mOwnerId  = TEntityId(42);
+
+		result = TTransformComponentData::Save(pFileWriter, expectedData);
+		REQUIRE(RC_OK == result);
+
+		pFileWriter->Close();
+
+		/// \note Read back the structure of the archive
+		IYAMLFileReader* pFileReader = dynamic_cast<IYAMLFileReader*>(CreateYAMLFileReader(nullptr, pMemoryMappedStream, result));
+		REQUIRE(pFileReader);
+
+		TTransformComponentData deserializedData = TTransformComponentData::Load(pFileReader).Get();
+
+		pFileReader->Close();
+
+		REQUIRE(deserializedData.mPivot == expectedData.mPivot);
+		REQUIRE(deserializedData.mPosition == expectedData.mPosition);
+		REQUIRE(deserializedData.mRotation == expectedData.mRotation);
+		REQUIRE(deserializedData.mScale == expectedData.mScale);
+		REQUIRE(deserializedData.mOwnerId == expectedData.mOwnerId);
+	}
+
+	SECTION("SerializeTGridGroupLayoutComponentDataThenTryDeserializeItBack_TheValuesOfStructureShouldStaySame")
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		auto pMemoryMappedStream = TPtr<TDEngine2::IStream>(CreateMemoryIOStream(Wrench::StringUtils::GetEmptyStr(), {}, result));
+		REQUIRE(pMemoryMappedStream);
+
+		IYAMLFileWriter* pFileWriter = dynamic_cast<IYAMLFileWriter*>(CreateYAMLFileWriter(nullptr, pMemoryMappedStream, result));
+		REQUIRE(pFileWriter);
+
+		TGridGroupLayoutComponentData expectedData{};
+		expectedData.mAlignType            = E_UI_ELEMENT_ALIGNMENT_TYPE::BOTTOM;
+		expectedData.mCellSize             = TVector2(15.0f, 3.0f);
+		expectedData.mSpaceBetweenElements = TVector2(5.0f, 10.0f);
+
+		result = TGridGroupLayoutComponentData::Save(pFileWriter, expectedData);
+		REQUIRE(RC_OK == result);
+
+		pFileWriter->Close();
+
+		/// \note Read back the structure of the archive
+		IYAMLFileReader* pFileReader = dynamic_cast<IYAMLFileReader*>(CreateYAMLFileReader(nullptr, pMemoryMappedStream, result));
+		REQUIRE(pFileReader);
+
+		TGridGroupLayoutComponentData deserializedData = TGridGroupLayoutComponentData::Load(pFileReader).Get();
+
+		pFileReader->Close();
+
+		REQUIRE(deserializedData.mAlignType == expectedData.mAlignType);
+		REQUIRE(deserializedData.mCellSize == expectedData.mCellSize);
+		REQUIRE(deserializedData.mSpaceBetweenElements == expectedData.mSpaceBetweenElements);
+	}
+}

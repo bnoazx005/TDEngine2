@@ -13,6 +13,23 @@
 
 namespace TDEngine2
 {
+	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
+	struct TScrollableUIAreaComponentData
+	{
+		FIELD_META(name = content_entity_ref) TEntityId   mContentEntityRef = TEntityId::Invalid;
+		FIELD_META(name = content_entity_ref) F32         mScrollSpeedFactor = 25.0f;
+
+		FIELD_META(name = normalized_scroll_pos) TVector2 mNormalizedScrollPosition = ZeroVector2;
+
+		bool                                              mIsLayoutPrepared = false;
+		FIELD_META(name = is_horizontal) bool             mIsHorizontal = true;
+		FIELD_META(name = is_vertical) bool               mIsVertical = true;
+		FIELD_META(name = enabled) bool                   mIsEnabled = true;
+
+		TDE2_DECLARE_COMPONENT_META(TScrollableUIAreaComponentData);
+	};
+
+
 	/*!
 		\brief A factory function for creation objects of CScrollableUIArea's type.
 
@@ -28,32 +45,12 @@ namespace TDEngine2
 		class CScrollableUIArea
 	*/
 
-	class CScrollableUIArea : public CBaseComponent, public CPoolMemoryAllocPolicy<CScrollableUIArea, 1 << 20>
+	class CScrollableUIArea : public CBaseComponentT<CScrollableUIArea, TScrollableUIAreaComponentData>
 	{
 		public:
 			friend TDE2_API IComponent* CreateScrollableUIArea(E_RESULT_CODE& result);
 		public:
 			TDE2_REGISTER_COMPONENT_TYPE(CScrollableUIArea)
-
-			/*!
-				\brief The method deserializes object's state from given reader
-
-				\param[in, out] pReader An input stream of data that contains information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
-
-			/*!
-				\brief The method serializes object's state into given stream
-
-				\param[in, out] pWriter An output stream of data that writes information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
 			/*!
 				\brief The method is called after all entities of particular scene were loaded. It remaps all identifiers to
@@ -64,15 +61,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper) override;
-
-			/*!
-				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
-				The original state of the object stays the same
-
-				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
-			*/
-
-			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
 			TDE2_API void SetContentEntityId(TEntityId cursorId);
 
@@ -100,16 +88,6 @@ namespace TDEngine2
 
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CScrollableUIArea)
-		protected:
-			TEntityId mContentEntityRef;
-			F32       mScrollSpeedFactor = 25.0f;
-
-			TVector2  mNormalizedScrollPosition = ZeroVector2;
-
-			bool      mIsLayoutPrepared = false;
-			bool      mIsHorizontal = true;
-			bool      mIsVertical = true;
-			bool      mIsEnabled = true;
 	};
 
 

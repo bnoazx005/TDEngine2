@@ -1,187 +1,124 @@
 #include "../../../include/graphics/UI/CInputFieldComponent.h"
+#define META_EXPORT_ECS_SECTION
+#include "../../../include/metadata.h"
 
 
 namespace TDEngine2
 {
 	TDE2_REGISTER_COMPONENT_FACTORY(CreateInputFieldFactory)
-
+	TDE2_DEFINE_COMPONENT_META(TInputFieldComponentData)
 
 	CInputField::CInputField() :
-		CBaseComponent()
+		CBaseComponentT()
 	{
-	}
-
-
-	struct TInputFieldArchiveKeys
-	{
-		static const std::string mCursorEntityRefKeyId;
-		static const std::string mLabelEntityRefKeyId;
-		static const std::string mValueKeyId;
-		static const std::string mCaretBlinkKeyId;
-	};
-
-
-	const std::string TInputFieldArchiveKeys::mCursorEntityRefKeyId = "cursor_entity_ref";
-	const std::string TInputFieldArchiveKeys::mLabelEntityRefKeyId = "label_entity_ref";
-	const std::string TInputFieldArchiveKeys::mValueKeyId = "value";
-	const std::string TInputFieldArchiveKeys::mCaretBlinkKeyId = "caret_blink_rate";
-
-	E_RESULT_CODE CInputField::Load(IArchiveReader* pReader)
-	{
-		if (!pReader)
-		{
-			return RC_FAIL;
-		}
-
-		mCursorEntityRef = static_cast<TEntityId>(pReader->GetUInt32(TInputFieldArchiveKeys::mCursorEntityRefKeyId));
-		mLabelEntityRef = static_cast<TEntityId>(pReader->GetUInt32(TInputFieldArchiveKeys::mLabelEntityRefKeyId));
-		mValue = pReader->GetString(TInputFieldArchiveKeys::mValueKeyId);
-		mCaretBlinkRate = pReader->GetFloat(TInputFieldArchiveKeys::mCaretBlinkKeyId, 1.0f);
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CInputField::Save(IArchiveWriter* pWriter)
-	{
-		if (!pWriter)
-		{
-			return RC_FAIL;
-		}
-
-		pWriter->BeginGroup("component");
-		{
-			pWriter->SetUInt32("type_id", static_cast<U32>(CInputField::GetTypeId()));
-
-			pWriter->SetUInt32(TInputFieldArchiveKeys::mCursorEntityRefKeyId, static_cast<U32>(mCursorEntityRef));			
-			pWriter->SetUInt32(TInputFieldArchiveKeys::mLabelEntityRefKeyId, static_cast<U32>(mLabelEntityRef));			
-			pWriter->SetString(TInputFieldArchiveKeys::mValueKeyId, mValue);
-			pWriter->SetFloat(TInputFieldArchiveKeys::mCaretBlinkKeyId, mCaretBlinkRate);
-		}
-		pWriter->EndGroup();
-
-		return RC_OK;
 	}
 
 	E_RESULT_CODE CInputField::PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper)
 	{
-		mCursorEntityRef = entitiesIdentifiersRemapper.Resolve(mCursorEntityRef);
-		mLabelEntityRef = entitiesIdentifiersRemapper.Resolve(mLabelEntityRef);
+		mData.mCursorEntityRef = entitiesIdentifiersRemapper.Resolve(mData.mCursorEntityRef);
+		mData.mLabelEntityRef = entitiesIdentifiersRemapper.Resolve(mData.mLabelEntityRef);
 
-		return CBaseComponent::PostLoad(pEntityManager, entitiesIdentifiersRemapper);
-	}
-
-	E_RESULT_CODE CInputField::Clone(IComponent*& pDestObject) const
-	{
-		if (auto pComponent = dynamic_cast<CInputField*>(pDestObject))
-		{
-			pComponent->mCursorEntityRef = mCursorEntityRef;
-			pComponent->mLabelEntityRef = mLabelEntityRef;
-			pComponent->mValue = mValue;
-
-			return RC_OK;
-		}
-
-		return RC_FAIL;
+		return CBaseComponentT::PostLoad(pEntityManager, entitiesIdentifiersRemapper);
 	}
 
 	void CInputField::ResetChanges()
 	{
-		if (!mIsEditing)
+		if (!mData.mIsEditing)
 		{
 			return;
 		}
 
-		std::swap(mTempValue, mValue);
+		std::swap(mData.mTempValue, mData.mValue);
 	}
 
 	void CInputField::SetValue(const std::string& value)
 	{
-		(mIsEditing ? mTempValue : mValue) = value;
+		(mData.mIsEditing ? mData.mTempValue : mData.mValue) = value;
 	}
 
 	void CInputField::SetCursorEntityId(TEntityId cursorId)
 	{
-		mCursorEntityRef = cursorId;
+		mData.mCursorEntityRef = cursorId;
 	}
 	
 	void CInputField::SetLabelEntityId(TEntityId labelId)
 	{
-		mLabelEntityRef = labelId;
+		mData.mLabelEntityRef = labelId;
 	}
 
 	void CInputField::SetEditingFlag(bool state)
 	{
-		mIsEditing = state;
+		mData.mIsEditing = state;
 	}
 
 	void CInputField::SetCaretPosition(I32 value)
 	{
-		mCurrCaretPosition = value;
+		mData.mCurrCaretPosition = value;
 	}
 
 	void CInputField::SetFirstVisibleCharPosition(I32 value)
 	{
-		mFirstVisibleCharPosition = value;
+		mData.mFirstVisibleCharPosition = value;
 	}
 
 	void CInputField::SetLastVisibleCharPosition(I32 value)
 	{
-		mLastVisibleCharPosition = value;
+		mData.mLastVisibleCharPosition = value;
 	}
 
 	void CInputField::SetCaretBlinkRate(F32 value)
 	{
-		mCaretBlinkRate = value;
+		mData.mCaretBlinkRate = value;
 	}
 
 	void CInputField::SetCaretBlinkTimer(F32 value)
 	{
-		mCaretBlinkTimer = value;
+		mData.mCaretBlinkTimer = value;
 	}
 
 	const std::string& CInputField::GetValue() const
 	{
-		return mIsEditing ? mTempValue : mValue;
+		return mData.mIsEditing ? mData.mTempValue : mData.mValue;
 	}
 
 	TEntityId CInputField::GetCursorEntityId() const
 	{
-		return mCursorEntityRef;
+		return mData.mCursorEntityRef;
 	}
 
 	TEntityId CInputField::GetLabelEntityId() const
 	{
-		return mLabelEntityRef;
+		return mData.mLabelEntityRef;
 	}
 
 	bool CInputField::IsEditing() const
 	{
-		return mIsEditing;
+		return mData.mIsEditing;
 	}
 
 	I32 CInputField::GetCaretPosition() const
 	{
-		return mCurrCaretPosition;
+		return mData.mCurrCaretPosition;
 	}
 
 	I32 CInputField::GetFirstVisibleCharPosition() const
 	{
-		return mFirstVisibleCharPosition;
+		return mData.mFirstVisibleCharPosition;
 	}
 
 	I32 CInputField::GetLastVisibleCharPosition() const
 	{
-		return mLastVisibleCharPosition;
+		return mData.mLastVisibleCharPosition;
 	}
 
 	F32 CInputField::GetCaretBlinkRate() const
 	{
-		return mCaretBlinkRate;
+		return mData.mCaretBlinkRate;
 	}
 
 	F32 CInputField::GetCaretBlinkTimer() const
 	{
-		return mCaretBlinkTimer;
+		return mData.mCaretBlinkTimer;
 	}
 
 

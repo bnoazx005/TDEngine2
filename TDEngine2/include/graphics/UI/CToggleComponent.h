@@ -13,6 +13,15 @@
 
 namespace TDEngine2
 {
+	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
+	struct TToggleComponentData
+	{
+		FIELD_META(name = marker_entity_ref) TEntityId mMarkerEntityRef = TEntityId::Invalid;
+		FIELD_META(name = state) bool                  mCurrState = true;
+
+		TDE2_DECLARE_COMPONENT_META(TToggleComponentData);
+	};
+
 	/*!
 		\brief A factory function for creation objects of CToggle's type.
 
@@ -30,32 +39,12 @@ namespace TDEngine2
 		\brief The implementation of on/off switching UI element
 	*/
 
-	class CToggle : public CBaseComponent, public CPoolMemoryAllocPolicy<CToggle, 1 << 20>
+	class CToggle : public CBaseComponentT<CToggle, TToggleComponentData>
 	{
 		public:
 			friend TDE2_API IComponent* CreateToggle(E_RESULT_CODE& result);
 		public:
 			TDE2_REGISTER_COMPONENT_TYPE(CToggle)
-
-			/*!
-				\brief The method deserializes object's state from given reader
-
-				\param[in, out] pReader An input stream of data that contains information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
-
-			/*!
-				\brief The method serializes object's state into given stream
-
-				\param[in, out] pWriter An output stream of data that writes information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
 			/*!
 				\brief The method is called after all entities of particular scene were loaded. It remaps all identifiers to
@@ -67,15 +56,6 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper) override;
 
-			/*!
-				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
-				The original state of the object stays the same
-
-				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
-			*/
-
-			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
-
 			TDE2_API void SetState(bool state);
 			TDE2_API void SetMarkerEntityId(TEntityId markerId);
 
@@ -83,9 +63,6 @@ namespace TDEngine2
 			TDE2_API TEntityId GetMarkerEntityId() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CToggle)
-		protected:
-			TEntityId mMarkerEntityRef;
-			bool mCurrState = true;
 	};
 
 

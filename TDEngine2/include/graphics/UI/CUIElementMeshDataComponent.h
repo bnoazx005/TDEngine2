@@ -28,6 +28,30 @@ namespace TDEngine2
 	} TUIElementsVertex, *TUIElementsVertexPtr;
 
 
+	TDE2_API inline bool operator== (const TUIElementsVertex& left, const TUIElementsVertex& right) { return left.mPosUV == right.mPosUV && left.mColor == right.mColor; }
+
+
+	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
+	struct TUIElementMeshComponentData
+	{
+		typedef std::vector<TUIElementsVertex> TVertexArray;
+		typedef std::vector<U16> TIndexArray;
+
+		TVertexArray       mVertices;
+		TIndexArray        mIndices;
+
+		TVector2           mMinBounds;
+		TVector2           mMaxBounds;
+
+		bool               mIsFontMesh = false;
+		E_UI_MATERIAL_TYPE mUIMaterialType;
+
+		TResourceId        mTextureResourceId = TResourceId::Invalid;
+
+		TDE2_DECLARE_COMPONENT_META(TUIElementMeshComponentData);
+	};
+
+
 	/*!
 		\brief A factory function for creation objects of CUIElementMeshData's type.
 
@@ -43,44 +67,12 @@ namespace TDEngine2
 		class CUIElementMeshData
 	*/
 
-	class CUIElementMeshData : public CBaseComponent, public CPoolMemoryAllocPolicy<CUIElementMeshData, 1 << 20>
+	class CUIElementMeshData : public CBaseComponentT<CUIElementMeshData, TUIElementMeshComponentData>
 	{
 		public:
 			friend TDE2_API IComponent* CreateUIElementMeshData(E_RESULT_CODE& result);
 		public:
-			typedef std::vector<TUIElementsVertex> TVertexArray;
-			typedef std::vector<U16> TIndexArray;
-		public:
 			TDE2_REGISTER_COMPONENT_TYPE(CUIElementMeshData)
-
-			/*!
-				\brief The method deserializes object's state from given reader
-
-				\param[in, out] pReader An input stream of data that contains information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
-
-			/*!
-				\brief The method serializes object's state into given stream
-
-				\param[in, out] pWriter An output stream of data that writes information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
-
-			/*!
-				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
-				The original state of the object stays the same
-
-				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
-			*/
-
-			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
 			TDE2_API void ResetMesh();
 
@@ -92,8 +84,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE SetTextureResourceId(TResourceId resourceId);
 
-			TDE2_API const TVertexArray& GetVertices() const;
-			TDE2_API const TIndexArray& GetIndices() const;
+			TDE2_API const TUIElementMeshComponentData::TVertexArray& GetVertices() const;
+			TDE2_API const TUIElementMeshComponentData::TIndexArray& GetIndices() const;
 
 			TDE2_API const TVector2& GetMinBound() const;
 			TDE2_API const TVector2& GetMaxBound() const;
@@ -104,17 +96,6 @@ namespace TDEngine2
 			TDE2_API E_UI_MATERIAL_TYPE GetMaterialType() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUIElementMeshData)
-		protected:
-			TVertexArray mVertices;
-			TIndexArray  mIndices;
-
-			TVector2     mMinBounds;
-			TVector2     mMaxBounds;
-
-			bool mIsFontMesh;
-			E_UI_MATERIAL_TYPE mUIMaterialType;
-
-			TResourceId mTextureResourceId;
 	};
 
 

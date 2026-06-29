@@ -1,236 +1,129 @@
 #include "../../../include/graphics/UI/CDropDownComponent.h"
 #include <algorithm>
+#define META_EXPORT_ECS_SECTION
+#include "../../../include/metadata.h"
 
 
 namespace TDEngine2
 {
 	TDE2_REGISTER_COMPONENT_FACTORY(CreateDropDownFactory)
+	TDE2_DEFINE_COMPONENT_META(TDropDownComponentData)
 
 
 	CDropDown::CDropDown() :
-		CBaseComponent()
+		CBaseComponentT()
 	{
 	}
 
-
-	struct TDropDownArchiveKeys
-	{
-		static const std::string mLabelEntityRefKeyId;
-		static const std::string mPopupRootEntityRefKeyId;
-		static const std::string mContentEntityRefKeyId;
-		static const std::string mItemPrefabEntityRefKeyId;
-		static const std::string mItemsKeyId;
-		static const std::string mSingleItemKeyId;
-		static const std::string mSelectedItemKeyId;
-	};
-
-
-	const std::string TDropDownArchiveKeys::mLabelEntityRefKeyId = "label_entity_ref";
-	const std::string TDropDownArchiveKeys::mPopupRootEntityRefKeyId = "popup_root_entity_ref";
-	const std::string TDropDownArchiveKeys::mContentEntityRefKeyId = "content_entity_ref";
-	const std::string TDropDownArchiveKeys::mItemPrefabEntityRefKeyId = "item_prefab_ref";
-	const std::string TDropDownArchiveKeys::mItemsKeyId = "items";
-	const std::string TDropDownArchiveKeys::mSingleItemKeyId = "item";
-	const std::string TDropDownArchiveKeys::mSelectedItemKeyId = "selected_item";
-
-
-	E_RESULT_CODE CDropDown::Load(IArchiveReader* pReader)
-	{
-		if (!pReader)
-		{
-			return RC_FAIL;
-		}
-
-		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
-
-		mLabelEntityRef = static_cast<TEntityId>(pReader->GetUInt32(TDropDownArchiveKeys::mLabelEntityRefKeyId));
-		mPopupRootEntityRef = static_cast<TEntityId>(pReader->GetUInt32(TDropDownArchiveKeys::mPopupRootEntityRefKeyId));
-		mContentEntityRef = static_cast<TEntityId>(pReader->GetUInt32(TDropDownArchiveKeys::mContentEntityRefKeyId));
-		mItemPrefabEntityRef = static_cast<TEntityId>(pReader->GetUInt32(TDropDownArchiveKeys::mItemPrefabEntityRefKeyId));
-
-		mSelectedItemIndex = pReader->GetUInt32(TDropDownArchiveKeys::mSelectedItemKeyId, 0);
-
-		mItems.clear();
-
-		pReader->BeginGroup(TDropDownArchiveKeys::mItemsKeyId);
-		
-		while (pReader->HasNextItem())
-		{
-			pReader->BeginGroup(Wrench::StringUtils::GetEmptyStr());
-			mItems.emplace_back(pReader->GetString(TDropDownArchiveKeys::mSingleItemKeyId));
-			pReader->EndGroup();
-		}
-		
-		pReader->EndGroup();
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CDropDown::Save(IArchiveWriter* pWriter)
-	{
-		if (!pWriter)
-		{
-			return RC_FAIL;
-		}
-
-		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
-
-		pWriter->BeginGroup("component");
-		{
-			pWriter->SetUInt32("type_id", static_cast<U32>(CDropDown::GetTypeId()));
-
-			pWriter->SetUInt32(TDropDownArchiveKeys::mLabelEntityRefKeyId, static_cast<U32>(mLabelEntityRef));
-			pWriter->SetUInt32(TDropDownArchiveKeys::mPopupRootEntityRefKeyId, static_cast<U32>(mPopupRootEntityRef));
-			pWriter->SetUInt32(TDropDownArchiveKeys::mContentEntityRefKeyId, static_cast<U32>(mContentEntityRef));
-			pWriter->SetUInt32(TDropDownArchiveKeys::mItemPrefabEntityRefKeyId, static_cast<U32>(mItemPrefabEntityRef));
-
-			pWriter->SetUInt32(TDropDownArchiveKeys::mSelectedItemKeyId, mSelectedItemIndex);
-
-			pWriter->BeginGroup(TDropDownArchiveKeys::mItemsKeyId);
-			
-			for (auto&& currItem : mItems)
-			{
-				pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
-				pWriter->SetString(TDropDownArchiveKeys::mSingleItemKeyId, currItem);
-				pWriter->EndGroup();
-			}
-
-			pWriter->EndGroup();
-		}
-		pWriter->EndGroup();
-
-		return RC_OK;
-	}
 
 	E_RESULT_CODE CDropDown::PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper)
 	{
 		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
-		mLabelEntityRef = entitiesIdentifiersRemapper.Resolve(mLabelEntityRef);
-		mPopupRootEntityRef = entitiesIdentifiersRemapper.Resolve(mPopupRootEntityRef);
-		mContentEntityRef = entitiesIdentifiersRemapper.Resolve(mContentEntityRef);
-		mItemPrefabEntityRef = entitiesIdentifiersRemapper.Resolve(mItemPrefabEntityRef);
+		mData.mLabelEntityRef = entitiesIdentifiersRemapper.Resolve(mData.mLabelEntityRef);
+		mData.mPopupRootEntityRef = entitiesIdentifiersRemapper.Resolve(mData.mPopupRootEntityRef);
+		mData.mContentEntityRef = entitiesIdentifiersRemapper.Resolve(mData.mContentEntityRef);
+		mData.mItemPrefabEntityRef = entitiesIdentifiersRemapper.Resolve(mData.mItemPrefabEntityRef);
 
-		return CBaseComponent::PostLoad(pEntityManager, entitiesIdentifiersRemapper);
-	}
-
-	E_RESULT_CODE CDropDown::Clone(IComponent*& pDestObject) const
-	{
-		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
-
-		if (auto pComponent = dynamic_cast<CDropDown*>(pDestObject))
-		{
-			pComponent->mLabelEntityRef = mLabelEntityRef;
-			pComponent->mPopupRootEntityRef = mPopupRootEntityRef;
-			pComponent->mContentEntityRef = mContentEntityRef;
-			pComponent->mItemPrefabEntityRef = mItemPrefabEntityRef;
-			pComponent->mSelectedItemIndex = mSelectedItemIndex;
-
-			pComponent->mItems.clear();
-			std::copy(mItems.cbegin(), mItems.cend(), std::back_inserter(pComponent->mItems));
-
-			return RC_OK;
-		}
-
-		return RC_FAIL;
+		return CBaseComponentT::PostLoad(pEntityManager, entitiesIdentifiersRemapper);
 	}
 
 	void CDropDown::SetLabelEntityId(TEntityId labelId)
 	{
 		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
-		mLabelEntityRef = labelId;
+		mData.mLabelEntityRef = labelId;
 	}
 
 	void CDropDown::SetPopupRootEntityId(TEntityId entityId)
 	{
 		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
-		mPopupRootEntityRef = entityId;
+		mData.mPopupRootEntityRef = entityId;
 	}
 
 	void CDropDown::SetContentEntityId(TEntityId contentEntityId)
 	{
 		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
-		mContentEntityRef = contentEntityId;
+		mData.mContentEntityRef = contentEntityId;
 	}
 
 	void CDropDown::SetItemPrefabEntityId(TEntityId entityId)
 	{
 		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
-		mItemPrefabEntityRef = entityId;
+		mData.mItemPrefabEntityRef = entityId;
 	}
 
 	E_RESULT_CODE CDropDown::SetSelectedItem(U32 index)
 	{
 		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
 
-		if (index >= mItems.size())
+		if (index >= mData.mItems.size())
 		{
 			return RC_INVALID_ARGS;
 		}
 
-		mSelectedItemIndex = index;
+		mData.mSelectedItemIndex = index;
 
 		return RC_OK;
 	}
 
-	void CDropDown::SetItems(const TOptionsArray& items)
+	void CDropDown::SetItems(const TDropDownComponentData::TOptionsArray& items)
 	{
 		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
-		mItems = std::move(items);
+		mData.mItems = std::move(items);
 	}
 
 	void CDropDown::SetExpanded(bool state)
 	{
 		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
-		mIsExpanded = state;
+		mData.mIsExpanded = state;
 	}
 
 	TEntityId CDropDown::GetLabelEntityId() const
 	{
 		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
-		return mLabelEntityRef;
+		return mData.mLabelEntityRef;
 	}
 
 	TEntityId CDropDown::GetPopupRootEntityId() const
 	{
 		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
-		return mPopupRootEntityRef;
+		return mData.mPopupRootEntityRef;
 	}
 
 	TEntityId CDropDown::GetContentEntityId() const
 	{
 		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
-		return mContentEntityRef;
+		return mData.mContentEntityRef;
 	}
 
 	TEntityId CDropDown::GetItemPrefabEntityId() const
 	{
 		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
-		return mItemPrefabEntityRef;
+		return mData.mItemPrefabEntityRef;
 	}
 
-	const CDropDown::TOptionsArray& CDropDown::GetItems() const
+	const TDropDownComponentData::TOptionsArray& CDropDown::GetItems() const
 	{
 		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
-		return mItems;
+		return mData.mItems;
 	}
 
 	U32 CDropDown::GetSelectedItem() const
 	{
 		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
-		return mSelectedItemIndex;
+		return mData.mSelectedItemIndex;
 	}
 
 	TEntitiesArray& CDropDown::GetItemsEntities()
 	{
 		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
-		return mItemsEntities;
+		return mData.mItemsEntities;
 	}
 
 	bool CDropDown::IsExpanded() const
 	{
 		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
-		return mIsExpanded;
+		return mData.mIsExpanded;
 	}
 
 

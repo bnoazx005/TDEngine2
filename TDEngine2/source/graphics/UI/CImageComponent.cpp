@@ -1,85 +1,16 @@
 #include "../../../include/graphics/UI/CImageComponent.h"
+#define META_EXPORT_ECS_SECTION
+#include "../../../include/metadata.h"
 
 
 namespace TDEngine2
 {
 	TDE2_REGISTER_COMPONENT_FACTORY(CreateImageFactory)
+	TDE2_DEFINE_COMPONENT_META(TImageComponentData)
 
-
-	struct TImageArchiveKeys
+	CImage::CImage() : 
+		CBaseComponentT()
 	{
-		static const std::string mSpriteKeyId;
-		static const std::string mColorKeyId;
-	};
-
-
-	const std::string TImageArchiveKeys::mSpriteKeyId = "sprite_id";
-	const std::string TImageArchiveKeys::mColorKeyId = "color";
-
-
-	CImage::CImage() : /// \todo Replace with global configurable constant
-		CBaseComponent(), mImageResourceId(TResourceId::Invalid), mImageSpriteId("DefaultResources/Textures/DefaultUIWhite_Sprite.png"),
-		mColor(TColorUtils::mWhite), mIsDirty(true)
-	{
-	}
-
-	E_RESULT_CODE CImage::Load(IArchiveReader* pReader)
-	{
-		if (!pReader)
-		{
-			return RC_FAIL;
-		}
-
-		mImageSpriteId = pReader->GetString(TImageArchiveKeys::mSpriteKeyId);
-
-		pReader->BeginGroup(TImageArchiveKeys::mColorKeyId);
-		
-		if (auto colorLoadResult = LoadColor32F(pReader))
-		{
-			mColor = colorLoadResult.Get();
-		}
-
-		pReader->EndGroup();
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CImage::Save(IArchiveWriter* pWriter)
-	{
-		if (!pWriter)
-		{
-			return RC_FAIL;
-		}
-
-		pWriter->BeginGroup("component");
-		{
-			pWriter->SetUInt32("type_id", static_cast<U32>(CImage::GetTypeId()));
-
-			pWriter->SetString(TImageArchiveKeys::mSpriteKeyId, mImageSpriteId);
-
-			pWriter->BeginGroup(TImageArchiveKeys::mColorKeyId);
-			SaveColor32F(pWriter, mColor);
-			pWriter->EndGroup();
-		}
-		pWriter->EndGroup();
-
-		
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CImage::Clone(IComponent*& pDestObject) const
-	{
-		if (auto pComponent = dynamic_cast<CImage*>(pDestObject))
-		{
-			pComponent->mColor = mColor;
-			pComponent->mImageResourceId = mImageResourceId;
-			pComponent->mImageSpriteId = mImageSpriteId;
-			pComponent->mIsDirty = true;
-
-			return RC_OK;
-		}
-
-		return RC_FAIL;
 	}
 
 	E_RESULT_CODE CImage::SetImageId(const std::string& id)
@@ -89,8 +20,8 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mImageSpriteId = id;
-		mIsDirty = true;
+		mData.mImageSpriteId = id;
+		mData.mIsDirty = true;
 
 		return RC_OK;
 	}
@@ -102,41 +33,41 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mImageResourceId = resourceId;
-		mIsDirty = true;
+		mData.mImageResourceId = resourceId;
+		mData.mIsDirty = true;
 
 		return RC_OK;
 	}
 
 	void CImage::SetColor(const TColor32F& value)
 	{
-		mColor = value;
-		mIsDirty = true;
+		mData.mColor = value;
+		mData.mIsDirty = true;
 	}
 
 	void CImage::SetDirtyFlag(bool value)
 	{
-		mIsDirty = value;
+		mData.mIsDirty = value;
 	}
 
 	const std::string& CImage::GetImageId() const
 	{
-		return mImageSpriteId;
+		return mData.mImageSpriteId;
 	}
 
 	TResourceId CImage::GetImageResourceId() const
 	{
-		return mImageResourceId;
+		return mData.mImageResourceId;
 	}
 
 	const TColor32F& CImage::GetColor() const
 	{
-		return mColor;
+		return mData.mColor;
 	}
 
 	bool CImage::IsDirty() const
 	{
-		return mIsDirty;
+		return mData.mIsDirty;
 	}
 	
 	const std::string& CImage::GetTypeName() const

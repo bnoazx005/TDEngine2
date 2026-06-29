@@ -8,6 +8,7 @@
 
 
 #include "../../ecs/CBaseComponent.h"
+#include "../../core/IFont.h"
 #include "../../math/TVector2.h"
 #include "../../math/TRect.h"
 #include "../../utils/Color.h"
@@ -18,6 +19,28 @@ namespace TDEngine2
 	enum class TResourceId : U32;
 	enum class E_FONT_ALIGN_POLICY : U16;
 	enum class E_TEXT_OVERFLOW_POLICY : U16;
+
+
+	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
+	struct TLabelComponentData
+	{
+		FIELD_META(name = text) std::string                            mText = "New Text";
+		std::string                                                    mPrevText = "";
+		FIELD_META(name = font) std::string                            mFontResourceId = "";
+
+		FIELD_META(name = align_type) E_FONT_ALIGN_POLICY              mAlignType = E_FONT_ALIGN_POLICY::CENTER;
+
+		FIELD_META(name = overflow_policy_type) E_TEXT_OVERFLOW_POLICY mOverflowPolicyType;
+
+		TResourceId                                                    mFontResourceHandle = TResourceId::Invalid;
+
+		U32                                                            mFontDataVersionId = 0;
+		FIELD_META(name = text_height) U32                             mTextHeight = 12;
+
+		FIELD_META(name = color) TColor32F                             mFontVertexColor = TColorUtils::mWhite;
+
+		TDE2_DECLARE_COMPONENT_META(TLabelComponentData);
+	};
 
 
 	/*!
@@ -37,41 +60,12 @@ namespace TDEngine2
 		\brief The interface describes a functionality of UI element that represents labels
 	*/
 
-	class CLabel : public CBaseComponent, public CPoolMemoryAllocPolicy<CLabel, 1 << 20>
+	class CLabel : public CBaseComponentT<CLabel, TLabelComponentData>
 	{
 		public:
 			friend TDE2_API IComponent* CreateLabel(E_RESULT_CODE& result);
 		public:
 			TDE2_REGISTER_COMPONENT_TYPE(CLabel)
-
-			/*!
-				\brief The method deserializes object's state from given reader
-
-				\param[in, out] pReader An input stream of data that contains information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
-
-			/*!
-				\brief The method serializes object's state into given stream
-
-				\param[in, out] pWriter An output stream of data that writes information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
-
-			/*!
-				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
-				The original state of the object stays the same
-
-				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
-			*/
-
-			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
 			TDE2_API void SetText(const std::string& text);
 
@@ -109,27 +103,12 @@ namespace TDEngine2
 
 			TDE2_API bool IsDirty() const;
 
-			TDE2_REGISTER_COMPONENT_PROPERTIES
+			TDE2_API const std::string& GetTypeName() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CLabel)
 
 		protected:
 			TDE2_MULTI_THREAD_CHECK_LOCK;
-
-			std::string mText;
-			std::string mPrevText;
-			std::string mFontResourceId;
-
-			E_FONT_ALIGN_POLICY mAlignType;
-
-			E_TEXT_OVERFLOW_POLICY mOverflowPolicyType;
-
-			TResourceId mFontResourceHandle;
-
-			U32         mFontDataVersionId = 0;
-			U32         mTextHeight = 12;
-
-			TColor32F   mFontVertexColor = TColorUtils::mWhite;
 	};
 
 

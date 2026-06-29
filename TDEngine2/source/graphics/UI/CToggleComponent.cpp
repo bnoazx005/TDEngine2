@@ -1,96 +1,44 @@
 #include "../../../include/graphics/UI/CToggleComponent.h"
+#define META_EXPORT_ECS_SECTION
+#include "../../../include/metadata.h"
 
 
 namespace TDEngine2
 {
 	TDE2_REGISTER_COMPONENT_FACTORY(CreateToggleFactory)
+	TDE2_DEFINE_COMPONENT_META(TToggleComponentData)
 
 
 	CToggle::CToggle() :
-		CBaseComponent()
+		CBaseComponentT()
 	{
-	}
-
-
-	struct TToggleArchiveKeys
-	{
-		static const std::string mMarkerEntityRefKey;
-		static const std::string mStateKey;
-	};
-
-
-	const std::string TToggleArchiveKeys::mMarkerEntityRefKey = "marker_entity_ref";
-	const std::string TToggleArchiveKeys::mStateKey = "state";
-
-	E_RESULT_CODE CToggle::Load(IArchiveReader* pReader)
-	{
-		if (!pReader)
-		{
-			return RC_FAIL;
-		}
-
-		mMarkerEntityRef = static_cast<TEntityId>(pReader->GetUInt32(TToggleArchiveKeys::mMarkerEntityRefKey));
-		mCurrState = pReader->GetBool(TToggleArchiveKeys::mStateKey);
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CToggle::Save(IArchiveWriter* pWriter)
-	{
-		if (!pWriter)
-		{
-			return RC_FAIL;
-		}
-
-		pWriter->BeginGroup("component");
-		{
-			pWriter->SetUInt32("type_id", static_cast<U32>(CToggle::GetTypeId()));
-
-			pWriter->SetUInt32(TToggleArchiveKeys::mMarkerEntityRefKey, static_cast<U32>(mMarkerEntityRef));			
-			pWriter->SetBool(TToggleArchiveKeys::mStateKey, mCurrState);
-		}
-		pWriter->EndGroup();
-
-		return RC_OK;
 	}
 
 	E_RESULT_CODE CToggle::PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper)
 	{
-		mMarkerEntityRef = entitiesIdentifiersRemapper.Resolve(mMarkerEntityRef);
+		mData.mMarkerEntityRef = entitiesIdentifiersRemapper.Resolve(mData.mMarkerEntityRef);
 
-		return CBaseComponent::PostLoad(pEntityManager, entitiesIdentifiersRemapper);
-	}
-
-	E_RESULT_CODE CToggle::Clone(IComponent*& pDestObject) const
-	{
-		if (auto pComponent = dynamic_cast<CToggle*>(pDestObject))
-		{
-			pComponent->mMarkerEntityRef = mMarkerEntityRef;
-
-			return RC_OK;
-		}
-
-		return RC_FAIL;
+		return CBaseComponentT::PostLoad(pEntityManager, entitiesIdentifiersRemapper);
 	}
 
 	void CToggle::SetState(bool state)
 	{
-		mCurrState = state;
+		mData.mCurrState = state;
 	}
 
 	void CToggle::SetMarkerEntityId(TEntityId markerId)
 	{
-		mMarkerEntityRef = markerId;
+		mData.mMarkerEntityRef = markerId;
 	}
 
 	bool CToggle::GetState() const
 	{
-		return mCurrState;
+		return mData.mCurrState;
 	}
 
 	TEntityId CToggle::GetMarkerEntityId() const
 	{
-		return mMarkerEntityRef;
+		return mData.mMarkerEntityRef;
 	}
 
 

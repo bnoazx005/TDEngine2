@@ -718,7 +718,7 @@ namespace TDEngine2
 			}																														\
 			else																													\
 			{																														\
-				result = result | Serialize<typename std::decay_t<decltype(fieldValue)>>(pWriter, pFieldNamePtr, fieldValue);		\
+				result = result | Serialize(pWriter, pFieldNamePtr, fieldValue);		\
 			}																														\
 		});																															\
 		return result;																												\

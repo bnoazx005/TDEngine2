@@ -1,95 +1,52 @@
 #include "../../../include/graphics/UI/CUIElementMeshDataComponent.h"
 #include "../../../include/ecs/CUIElementsRenderSystem.h"
+#define META_EXPORT_ECS_SECTION
+#include "../../../include/metadata.h"
 
 
 namespace TDEngine2
 {
 	TDE2_REGISTER_COMPONENT_FACTORY(CreateUIElementMeshDataFactory)
-
-
-	struct TUIElementMeshDataArchiveKeys
-	{
-	};
+	TDE2_DEFINE_COMPONENT_META(TUIElementMeshComponentData)
 
 
 	CUIElementMeshData::CUIElementMeshData() :
-		CBaseComponent(), mTextureResourceId(TResourceId::Invalid), mIsFontMesh(false), mUIMaterialType(E_UI_MATERIAL_TYPE::DEFAULT)
+		CBaseComponentT()
 	{
-	}
-
-	E_RESULT_CODE CUIElementMeshData::Load(IArchiveReader* pReader)
-	{
-		if (!pReader)
-		{
-			return RC_FAIL;
-		}
-		
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CUIElementMeshData::Save(IArchiveWriter* pWriter)
-	{
-		if (!pWriter)
-		{
-			return RC_FAIL;
-		}
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CUIElementMeshData::Clone(IComponent*& pDestObject) const
-	{
-		if (auto pComponent = dynamic_cast<CUIElementMeshData*>(pDestObject))
-		{
-			pComponent->mIndices.clear();
-			std::copy(mIndices.begin(), mIndices.end(), std::back_inserter(pComponent->mIndices));
-
-			pComponent->mIsFontMesh = mIsFontMesh;
-			pComponent->mMaxBounds = mMaxBounds;
-			pComponent->mMinBounds = mMinBounds;
-			pComponent->mTextureResourceId = mTextureResourceId;
-			
-			pComponent->mVertices.clear();
-			std::copy(mVertices.begin(), mVertices.end(), std::back_inserter(pComponent->mVertices));
-
-			return RC_OK;
-		}
-
-		return RC_FAIL;
 	}
 
 	void CUIElementMeshData::ResetMesh()
 	{
-		mVertices.clear();
-		mIndices.clear();
+		mData.mVertices.clear();
+		mData.mIndices.clear();
 
-		mMinBounds = TVector2((std::numeric_limits<F32>::max)());
-		mMaxBounds = TVector2(-(std::numeric_limits<F32>::max)());
+		mData.mMinBounds = TVector2((std::numeric_limits<F32>::max)());
+		mData.mMaxBounds = TVector2(-(std::numeric_limits<F32>::max)());
 	}
 
 	void CUIElementMeshData::AddVertex(const TUIElementsVertex& vertex)
 	{
 		const auto& pos = vertex.mPosUV;
 
-		mMinBounds = TVector2(CMathUtils::Min(pos.x, mMinBounds.x), CMathUtils::Min(pos.y, mMinBounds.y));
-		mMaxBounds = TVector2(CMathUtils::Max(pos.x, mMaxBounds.x), CMathUtils::Max(pos.y, mMaxBounds.y));
+		mData.mMinBounds = TVector2(CMathUtils::Min(pos.x, mData.mMinBounds.x), CMathUtils::Min(pos.y, mData.mMinBounds.y));
+		mData.mMaxBounds = TVector2(CMathUtils::Max(pos.x, mData.mMaxBounds.x), CMathUtils::Max(pos.y, mData.mMaxBounds.y));
 
-		mVertices.emplace_back(vertex);
+		mData.mVertices.emplace_back(vertex);
 	}
 
 	void CUIElementMeshData::AddIndex(U16 value)
 	{
-		mIndices.push_back(value);
+		mData.mIndices.push_back(value);
 	}
 
 	void CUIElementMeshData::SetTextMeshFlag(bool value)
 	{
-		mIsFontMesh = value;
+		mData.mIsFontMesh = value;
 	}
 
 	void CUIElementMeshData::SetMaterialType(E_UI_MATERIAL_TYPE type)
 	{
-		mUIMaterialType = type;
+		mData.mUIMaterialType = type;
 	}
 
 	E_RESULT_CODE CUIElementMeshData::SetTextureResourceId(TResourceId resourceId)
@@ -99,44 +56,44 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mTextureResourceId = resourceId;
+		mData.mTextureResourceId = resourceId;
 
 		return RC_OK;
 	}
 
-	const CUIElementMeshData::TVertexArray& CUIElementMeshData::GetVertices() const
+	const TUIElementMeshComponentData::TVertexArray& CUIElementMeshData::GetVertices() const
 	{
-		return mVertices;
+		return mData.mVertices;
 	}
 
-	const CUIElementMeshData::TIndexArray& CUIElementMeshData::GetIndices() const
+	const TUIElementMeshComponentData::TIndexArray& CUIElementMeshData::GetIndices() const
 	{
-		return mIndices;
+		return mData.mIndices;
 	}
 
 	const TVector2& CUIElementMeshData::GetMinBound() const
 	{
-		return mMinBounds;
+		return mData.mMinBounds;
 	}
 
 	const TVector2& CUIElementMeshData::GetMaxBound() const
 	{
-		return mMaxBounds;
+		return mData.mMaxBounds;
 	}
 
 	bool CUIElementMeshData::IsTextMesh() const
 	{
-		return mIsFontMesh;
+		return mData.mIsFontMesh;
 	}
 
 	E_UI_MATERIAL_TYPE CUIElementMeshData::GetMaterialType() const
 	{
-		return mUIMaterialType;
+		return mData.mUIMaterialType;
 	}
 
 	TResourceId CUIElementMeshData::GetTextureResourceId() const
 	{
-		return mTextureResourceId;
+		return mData.mTextureResourceId;
 	}
 
 

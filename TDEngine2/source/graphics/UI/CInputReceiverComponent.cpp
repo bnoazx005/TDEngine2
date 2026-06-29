@@ -1,70 +1,17 @@
 #include "../../../include/graphics/UI/CInputReceiverComponent.h"
+#define META_EXPORT_ECS_SECTION
+#include "../../../include/metadata.h"
 
 
 namespace TDEngine2
 {
 	TDE2_REGISTER_COMPONENT_FACTORY(CreateInputReceiverFactory)
-
-
-	struct TInputReceiverArchiveKeys
-	{
-		static const std::string mIgnoreInputKeyId;
-		static const std::string mInputBypassEnabledKeyId;
-	};
-
-
-	const std::string TInputReceiverArchiveKeys::mIgnoreInputKeyId        = "ignore_input";
-	const std::string TInputReceiverArchiveKeys::mInputBypassEnabledKeyId = "bypass_enabled";
+	TDE2_DEFINE_COMPONENT_META(TInputReceiverComponentData)
 
 
 	CInputReceiver::CInputReceiver() :
-		CBaseComponent(), mPrevState(false), mCurrState(false), mIsIgnoreInput(false)
+		CBaseComponentT()
 	{
-	}
-
-	E_RESULT_CODE CInputReceiver::Load(IArchiveReader* pReader)
-	{
-		if (!pReader)
-		{
-			return RC_FAIL;
-		}
-
-		mIsIgnoreInput = pReader->GetBool(TInputReceiverArchiveKeys::mIgnoreInputKeyId);
-		mIsInputBypassEnabled = pReader->GetBool(TInputReceiverArchiveKeys::mInputBypassEnabledKeyId);
-		
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CInputReceiver::Save(IArchiveWriter* pWriter)
-	{
-		if (!pWriter)
-		{
-			return RC_FAIL;
-		}
-
-		pWriter->BeginGroup("component");
-		{
-			pWriter->SetUInt32("type_id", static_cast<U32>(CInputReceiver::GetTypeId()));
-
-			pWriter->SetBool(TInputReceiverArchiveKeys::mIgnoreInputKeyId, mIsIgnoreInput);
-			pWriter->SetBool(TInputReceiverArchiveKeys::mInputBypassEnabledKeyId, mIsInputBypassEnabled);
-		}
-		pWriter->EndGroup();
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CInputReceiver::Clone(IComponent*& pDestObject) const
-	{
-		if (auto pComponent = dynamic_cast<CInputReceiver*>(pDestObject))
-		{
-			pComponent->mIsIgnoreInput = mIsIgnoreInput;
-			pComponent->mIsInputBypassEnabled = mIsInputBypassEnabled;
-
-			return RC_OK;
-		}
-
-		return RC_FAIL;
 	}
 
 	const std::string& CInputReceiver::GetTypeName() const

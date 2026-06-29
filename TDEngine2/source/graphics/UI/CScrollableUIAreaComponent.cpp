@@ -1,183 +1,95 @@
 #include "../../../include/graphics/UI/CScrollableUIAreaComponent.h"
 #include "../../../include/math/MathUtils.h"
+#define META_EXPORT_ECS_SECTION
+#include "../../../include/metadata.h"
 
 
 namespace TDEngine2
 {
 	TDE2_REGISTER_COMPONENT_FACTORY(CreateScrollableUIAreaFactory)
+	TDE2_DEFINE_COMPONENT_META(TScrollableUIAreaComponentData)
 
 
 	CScrollableUIArea::CScrollableUIArea() :
-		CBaseComponent()
+		CBaseComponentT()
 	{
-	}
-
-
-	struct TScrollableUIAreaArchiveKeys
-	{
-		static const std::string mContentEntityRefKeyId;
-		static const std::string mScrollSpeedKeyId;
-		static const std::string mIsHorizontalKeyId;
-		static const std::string mIsVerticalKeyId;
-		static const std::string mNormalizedScrollPositionKeyId;
-		static const std::string mIsEnabledKeyId;
-	};
-
-
-	const std::string TScrollableUIAreaArchiveKeys::mContentEntityRefKeyId = "content_entity_ref";
-	const std::string TScrollableUIAreaArchiveKeys::mScrollSpeedKeyId = "scroll_speed";
-	const std::string TScrollableUIAreaArchiveKeys::mIsHorizontalKeyId = "is_horizontal";
-	const std::string TScrollableUIAreaArchiveKeys::mIsVerticalKeyId = "is_vertical";
-	const std::string TScrollableUIAreaArchiveKeys::mNormalizedScrollPositionKeyId = "normalized_scroll_pos";
-	const std::string TScrollableUIAreaArchiveKeys::mIsEnabledKeyId = "enabled";
-
-	E_RESULT_CODE CScrollableUIArea::Load(IArchiveReader* pReader)
-	{
-		if (!pReader)
-		{
-			return RC_FAIL;
-		}
-
-		mContentEntityRef = static_cast<TEntityId>(pReader->GetUInt32(TScrollableUIAreaArchiveKeys::mContentEntityRefKeyId));
-
-		mScrollSpeedFactor = pReader->GetFloat(TScrollableUIAreaArchiveKeys::mScrollSpeedKeyId, 100.0f);
-		mIsHorizontal = pReader->GetBool(TScrollableUIAreaArchiveKeys::mIsHorizontalKeyId, true);
-		mIsVertical = pReader->GetBool(TScrollableUIAreaArchiveKeys::mIsVerticalKeyId, true);
-		mIsEnabled = pReader->GetBool(TScrollableUIAreaArchiveKeys::mIsEnabledKeyId, true);
-
-		pReader->BeginGroup(TScrollableUIAreaArchiveKeys::mNormalizedScrollPositionKeyId);
-		
-		auto posResult = LoadVector2(pReader);
-		if (posResult.HasError())
-		{
-			return posResult.GetError();
-		}
-
-		mNormalizedScrollPosition = posResult.Get();
-
-		pReader->EndGroup();
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CScrollableUIArea::Save(IArchiveWriter* pWriter)
-	{
-		if (!pWriter)
-		{
-			return RC_FAIL;
-		}
-
-		pWriter->BeginGroup("component");
-		{
-			pWriter->SetUInt32("type_id", static_cast<U32>(CScrollableUIArea::GetTypeId()));
-
-			pWriter->SetUInt32(TScrollableUIAreaArchiveKeys::mContentEntityRefKeyId, static_cast<U32>(mContentEntityRef));	
-			pWriter->SetFloat(TScrollableUIAreaArchiveKeys::mScrollSpeedKeyId, mScrollSpeedFactor);
-
-			pWriter->SetBool(TScrollableUIAreaArchiveKeys::mIsHorizontalKeyId, mIsHorizontal);
-			pWriter->SetBool(TScrollableUIAreaArchiveKeys::mIsVerticalKeyId, mIsVertical);
-			pWriter->SetBool(TScrollableUIAreaArchiveKeys::mIsEnabledKeyId, mIsEnabled);
-
-			pWriter->BeginGroup(TScrollableUIAreaArchiveKeys::mNormalizedScrollPositionKeyId);
-			SaveVector2(pWriter, mNormalizedScrollPosition);
-			pWriter->EndGroup();
-		}
-		pWriter->EndGroup();
-
-		return RC_OK;
 	}
 
 	E_RESULT_CODE CScrollableUIArea::PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper)
 	{
-		mContentEntityRef = entitiesIdentifiersRemapper.Resolve(mContentEntityRef);
+		mData.mContentEntityRef = entitiesIdentifiersRemapper.Resolve(mData.mContentEntityRef);
 		
-		return CBaseComponent::PostLoad(pEntityManager, entitiesIdentifiersRemapper);
-	}
-
-	E_RESULT_CODE CScrollableUIArea::Clone(IComponent*& pDestObject) const
-	{
-		if (auto pComponent = dynamic_cast<CScrollableUIArea*>(pDestObject))
-		{
-			pComponent->mContentEntityRef = mContentEntityRef;
-			pComponent->mScrollSpeedFactor = mScrollSpeedFactor;
-			pComponent->mIsHorizontal = mIsHorizontal;
-			pComponent->mIsVertical = mIsVertical;
-			pComponent->mIsEnabled = mIsEnabled;
-
-			return RC_OK;
-		}
-
-		return RC_FAIL;
+		return CBaseComponentT::PostLoad(pEntityManager, entitiesIdentifiersRemapper);
 	}
 
 	void CScrollableUIArea::SetContentEntityId(TEntityId cursorId)
 	{
-		mContentEntityRef = cursorId;
+		mData.mContentEntityRef = cursorId;
 	}
 
 	void CScrollableUIArea::SetScrollSpeedFactor(F32 value)
 	{
-		mScrollSpeedFactor = value;
+		mData.mScrollSpeedFactor = value;
 	}
 
 	void CScrollableUIArea::SetLayoutPrepared(bool value)
 	{
-		mIsLayoutPrepared = value;
+		mData.mIsLayoutPrepared = value;
 	}
 
 	void CScrollableUIArea::SetHorizontal(bool state)
 	{
-		mIsHorizontal = state;
+		mData.mIsHorizontal = state;
 	}
 
 	void CScrollableUIArea::SetVertical(bool state)
 	{
-		mIsVertical = state;
+		mData.mIsVertical = state;
 	}
 
 	void CScrollableUIArea::SetEnabled(bool value)
 	{
-		mIsEnabled = value;
+		mData.mIsEnabled = value;
 	}
 
 	void CScrollableUIArea::SetNormalizedScrollPosition(const TVector2& value)
 	{
-		mNormalizedScrollPosition = TVector2(CMathUtils::Clamp01(value.x), CMathUtils::Clamp01(value.y));
+		mData.mNormalizedScrollPosition = TVector2(CMathUtils::Clamp01(value.x), CMathUtils::Clamp01(value.y));
 	}
 	
 	TEntityId CScrollableUIArea::GetContentEntityId() const
 	{
-		return mContentEntityRef;
+		return mData.mContentEntityRef;
 	}
 
 	F32 CScrollableUIArea::GetScrollSpeedFactor() const
 	{
-		return mScrollSpeedFactor;
+		return mData.mScrollSpeedFactor;
 	}
 
 	bool CScrollableUIArea::IsLayoutInitialized() const
 	{
-		return mIsLayoutPrepared;
+		return mData.mIsLayoutPrepared;
 	}
 
 	bool CScrollableUIArea::IsHorizontal() const
 	{
-		return mIsHorizontal;
+		return mData.mIsHorizontal;
 	}
 
 	bool CScrollableUIArea::IsVertical() const
 	{
-		return mIsVertical;
+		return mData.mIsVertical;
 	}
 
 	bool CScrollableUIArea::IsEnabled() const
 	{
-		return mIsEnabled;
+		return mData.mIsEnabled;
 	}
 
 	const TVector2& CScrollableUIArea::GetNormalizedScrollPosition() const
 	{
-		return mNormalizedScrollPosition;
+		return mData.mNormalizedScrollPosition;
 	}
 
 

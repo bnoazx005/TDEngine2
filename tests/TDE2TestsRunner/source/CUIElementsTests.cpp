@@ -389,9 +389,9 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 		{
 			if (auto pInputReceiver = pButtonEntity->GetComponent<CInputReceiver>())
 			{
-				TDE2_TEST_IS_TRUE(pInputReceiver->mIsHovered);
-				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
-				TDE2_TEST_IS_TRUE(pInputReceiver->mPrevState);
+				TDE2_TEST_IS_TRUE(pInputReceiver->GetData().mIsHovered);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->GetData().mCurrState);
+				TDE2_TEST_IS_TRUE(pInputReceiver->GetData().mPrevState);
 			}
 		});
 
@@ -404,9 +404,9 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 		{
 			if (auto pInputReceiver = pButtonEntity->GetComponent<CInputReceiver>())
 			{
-				TDE2_TEST_IS_TRUE(!pInputReceiver->mIsHovered);
-				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
-				TDE2_TEST_IS_TRUE(!pInputReceiver->mPrevState);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->GetData().mIsHovered);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->GetData().mCurrState);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->GetData().mPrevState);
 			}
 		});
 
@@ -477,16 +477,16 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 		{
 			if (auto pInputReceiver = pButtonEntity->GetComponent<CInputReceiver>())
 			{
-				TDE2_TEST_IS_TRUE(pInputReceiver->mIsHovered);
-				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
-				TDE2_TEST_IS_TRUE(pInputReceiver->mPrevState);
+				TDE2_TEST_IS_TRUE(pInputReceiver->GetData().mIsHovered);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->GetData().mCurrState);
+				TDE2_TEST_IS_TRUE(pInputReceiver->GetData().mPrevState);
 			}
 
 			if (auto pInputReceiver = pNestedButtonEntity->GetComponent<CInputReceiver>())
 			{
-				TDE2_TEST_IS_TRUE(!pInputReceiver->mIsHovered);
-				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
-				TDE2_TEST_IS_TRUE(!pInputReceiver->mPrevState);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->GetData().mIsHovered);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->GetData().mCurrState);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->GetData().mPrevState);
 			}
 		});
 
@@ -499,16 +499,16 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 		{
 			if (auto pInputReceiver = pButtonEntity->GetComponent<CInputReceiver>())
 			{
-				TDE2_TEST_IS_TRUE(!pInputReceiver->mIsHovered);
-				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
-				TDE2_TEST_IS_TRUE(!pInputReceiver->mPrevState);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->GetData().mIsHovered);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->GetData().mCurrState);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->GetData().mPrevState);
 			}
 
 			if (auto pInputReceiver = pNestedButtonEntity->GetComponent<CInputReceiver>())
 			{
-				TDE2_TEST_IS_TRUE(pInputReceiver->mIsHovered);
-				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
-				TDE2_TEST_IS_TRUE(pInputReceiver->mPrevState);
+				TDE2_TEST_IS_TRUE(pInputReceiver->GetData().mIsHovered);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->GetData().mCurrState);
+				TDE2_TEST_IS_TRUE(pInputReceiver->GetData().mPrevState);
 			}
 		});
 
@@ -571,16 +571,16 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 		{
 			if (auto pInputReceiver = pTopButtonEntity->GetComponent<CInputReceiver>())
 			{
-				TDE2_TEST_IS_TRUE(pInputReceiver->mIsHovered);
-				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
-				TDE2_TEST_IS_TRUE(pInputReceiver->mPrevState);
+				TDE2_TEST_IS_TRUE(pInputReceiver->GetData().mIsHovered);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->GetData().mCurrState);
+				TDE2_TEST_IS_TRUE(pInputReceiver->GetData().mPrevState);
 			}
 
 			if (auto pInputReceiver = pBottomButtonEntity->GetComponent<CInputReceiver>())
 			{
-				TDE2_TEST_IS_TRUE(!pInputReceiver->mIsHovered);
-				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
-				TDE2_TEST_IS_TRUE(!pInputReceiver->mPrevState);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->GetData().mIsHovered);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->GetData().mCurrState);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->GetData().mPrevState);
 			}
 		});
 
@@ -650,16 +650,16 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 		{
 			if (auto pInputReceiver = pBottomCanvasButtonEntity->GetComponent<CInputReceiver>())
 			{
-				TDE2_TEST_IS_TRUE(!pInputReceiver->mIsHovered);
-				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
-				TDE2_TEST_IS_TRUE(!pInputReceiver->mPrevState);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->GetData().mIsHovered);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->GetData().mCurrState);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->GetData().mPrevState);
 			}
 			
 			if (auto pInputReceiver = pTopCanvasButtonEntity->GetComponent<CInputReceiver>())
 			{
-				TDE2_TEST_IS_TRUE(pInputReceiver->mIsHovered);
-				TDE2_TEST_IS_TRUE(!pInputReceiver->mCurrState);
-				TDE2_TEST_IS_TRUE(pInputReceiver->mPrevState);
+				TDE2_TEST_IS_TRUE(pInputReceiver->GetData().mIsHovered);
+				TDE2_TEST_IS_TRUE(!pInputReceiver->GetData().mCurrState);
+				TDE2_TEST_IS_TRUE(pInputReceiver->GetData().mPrevState);
 			}
 		});
 
@@ -803,7 +803,7 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 		pTestCase->ExecuteAction([&]
 		{
 			TDE2_TEST_IS_TRUE(pInputReceiver);
-			TDE2_TEST_IS_TRUE(pInputReceiver->mIsHovered && (pInputReceiver->mCurrState || pInputReceiver->mPrevState));
+			TDE2_TEST_IS_TRUE(pInputReceiver->GetData().mIsHovered && (pInputReceiver->GetData().mCurrState || pInputReceiver->GetData().mPrevState));
 		});
 
 		pTestCase->WaitForNextFrame();
@@ -815,7 +815,7 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 		pTestCase->ExecuteAction([&]
 		{
 			TDE2_TEST_IS_TRUE(pInputReceiver);
-			TDE2_TEST_IS_TRUE(!pInputReceiver->mIsHovered && !pInputReceiver->mCurrState && !pInputReceiver->mPrevState);
+			TDE2_TEST_IS_TRUE(!pInputReceiver->GetData().mIsHovered && !pInputReceiver->GetData().mCurrState && !pInputReceiver->GetData().mPrevState);
 		});
 
 		pTestCase->WaitForNextFrame();

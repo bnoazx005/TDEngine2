@@ -13,6 +13,28 @@
 
 namespace TDEngine2
 {
+	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
+	struct TInputFieldComponentData
+	{
+		FIELD_META(name = cursor_entity_ref) TEntityId mCursorEntityRef;
+		FIELD_META(name = label_entity_ref) TEntityId  mLabelEntityRef;
+
+		FIELD_META(name = value) std::string           mValue;
+		std::string                                    mTempValue; ///< Used to revert previous changes when a user cancels input
+
+		bool                                           mIsEditing = false;
+
+		I32                                            mCurrCaretPosition = 0;
+		I32                                            mFirstVisibleCharPosition = 0;
+		I32                                            mLastVisibleCharPosition = 0;
+
+		FIELD_META(name = caret_blink_rate) F32        mCaretBlinkRate = 1.0f;
+		F32                                            mCaretBlinkTimer = 0.0f;
+
+		TDE2_DECLARE_COMPONENT_META(TInputFieldComponentData);
+	};
+
+
 	/*!
 		\brief A factory function for creation objects of CInputField's type.
 
@@ -30,32 +52,12 @@ namespace TDEngine2
 		\brief The implementation of a UI editable element
 	*/
 
-	class CInputField : public CBaseComponent, public CPoolMemoryAllocPolicy<CInputField, 1 << 20>
+	class CInputField : public CBaseComponentT<CInputField, TInputFieldComponentData>
 	{
 		public:
 			friend TDE2_API IComponent* CreateInputField(E_RESULT_CODE& result);
 		public:
 			TDE2_REGISTER_COMPONENT_TYPE(CInputField)
-
-			/*!
-				\brief The method deserializes object's state from given reader
-
-				\param[in, out] pReader An input stream of data that contains information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
-
-			/*!
-				\brief The method serializes object's state into given stream
-
-				\param[in, out] pWriter An output stream of data that writes information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
 
 			/*!
 				\brief The method is called after all entities of particular scene were loaded. It remaps all identifiers to
@@ -66,15 +68,6 @@ namespace TDEngine2
 			*/
 
 			TDE2_API E_RESULT_CODE PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper) override;
-
-			/*!
-				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
-				The original state of the object stays the same
-
-				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
-			*/
-
-			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
 			TDE2_API void SetValue(const std::string& value);
 			TDE2_API void SetCursorEntityId(TEntityId cursorId);
@@ -102,21 +95,6 @@ namespace TDEngine2
 			TDE2_API F32 GetCaretBlinkTimer() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CInputField)
-		protected:
-			TEntityId   mCursorEntityRef;
-			TEntityId   mLabelEntityRef;
-			
-			std::string mValue;
-			std::string mTempValue; ///< Used to revert previous changes when a user cancels input
-
-			bool        mIsEditing = false;
-			
-			I32         mCurrCaretPosition = 0;
-			I32         mFirstVisibleCharPosition = 0;
-			I32         mLastVisibleCharPosition = 0;
-
-			F32 mCaretBlinkRate = 1.0f;
-			F32 mCaretBlinkTimer = 0.0f;
 	};
 
 

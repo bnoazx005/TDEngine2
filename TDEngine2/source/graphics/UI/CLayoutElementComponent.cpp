@@ -1,233 +1,66 @@
 #include "../../../include/graphics/UI/CLayoutElementComponent.h"
+#define META_EXPORT_ECS_SECTION
+#include "../../../include/metadata.h"
 
 
 namespace TDEngine2
 {
 	TDE2_REGISTER_COMPONENT_FACTORY(CreateLayoutElementFactory)
-
-
-	struct TLayoutElementArchiveKeys
-	{
-		static const std::string mMinAnchorKeyId;
-		static const std::string mMaxAnchorKeyId;
-		
-		static const std::string mMinOffsetKeyId;
-		static const std::string mMaxOffsetKeyId;
-		
-		static const std::string mPivotKeyId;
-
-		static const std::string mRotationAngleKeyId;
-		static const std::string mScaleKeyId;
-	};
-
-
-	const std::string TLayoutElementArchiveKeys::mMinAnchorKeyId = "min_anchor";
-	const std::string TLayoutElementArchiveKeys::mMaxAnchorKeyId = "max_anchor";
-
-	const std::string TLayoutElementArchiveKeys::mMinOffsetKeyId = "min_offset";
-	const std::string TLayoutElementArchiveKeys::mMaxOffsetKeyId = "max_offset";
-
-	const std::string TLayoutElementArchiveKeys::mPivotKeyId = "pivot";
-
-	const std::string TLayoutElementArchiveKeys::mRotationAngleKeyId = "angle";
-	const std::string TLayoutElementArchiveKeys::mScaleKeyId = "scale";
+	TDE2_DEFINE_COMPONENT_META(TLayoutElementComponentData)
 
 
 	CLayoutElement::CLayoutElement() :
-		CBaseComponent(), 
-		mCanvasEntityId(TEntityId::Invalid), 
-		mIsDirty(true),
-		mMinAnchor(ZeroVector2),
-		mMaxAnchor(ZeroVector2),
-		mMinOffset(ZeroVector2),
-		mMaxOffset(TVector2(100.0f)),
-		mScale(1.0f)
+		CBaseComponentT()
 	{
-	}
-
-	E_RESULT_CODE CLayoutElement::Load(IArchiveReader* pReader)
-	{
-		if (!pReader)
-		{
-			return RC_FAIL;
-		}
-
-		/// \note Anchors
-		pReader->BeginGroup(TLayoutElementArchiveKeys::mMinAnchorKeyId);
-		if (auto value = LoadVector2(pReader))
-		{
-			mMinAnchor = value.Get();
-		}
-		pReader->EndGroup();
-
-		pReader->BeginGroup(TLayoutElementArchiveKeys::mMaxAnchorKeyId);
-		if (auto value = LoadVector2(pReader))
-		{
-			mMaxAnchor = value.Get();
-		}
-		pReader->EndGroup();
-
-		/// \note Offsets
-		pReader->BeginGroup(TLayoutElementArchiveKeys::mMinOffsetKeyId);
-		if (auto value = LoadVector2(pReader))
-		{
-			mMinOffset = value.Get();
-		}
-		pReader->EndGroup();
-
-		pReader->BeginGroup(TLayoutElementArchiveKeys::mMaxOffsetKeyId);
-		if (auto value = LoadVector2(pReader))
-		{
-			mMaxOffset = value.Get();
-		}
-		pReader->EndGroup();
-
-		/// \note Pivot
-		pReader->BeginGroup(TLayoutElementArchiveKeys::mPivotKeyId);
-		if (auto value = LoadVector2(pReader))
-		{
-			mPivot = value.Get();
-		}
-		pReader->EndGroup();
-
-		/// \note Scale
-		pReader->BeginGroup(TLayoutElementArchiveKeys::mScaleKeyId);
-		
-		if (auto value = LoadVector2(pReader))
-		{
-			mScale = value.Get();
-		}
-		else
-		{
-			mScale = TVector2(1.0f);
-		}
-
-		pReader->EndGroup();
-
-		mRotationAngle = pReader->GetFloat(TLayoutElementArchiveKeys::mRotationAngleKeyId);
-
-		mIsDirty = true;
-		
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CLayoutElement::Save(IArchiveWriter* pWriter)
-	{
-		if (!pWriter)
-		{
-			return RC_FAIL;
-		}
-
-		pWriter->BeginGroup("component");
-		{
-			pWriter->SetUInt32("type_id", static_cast<U32>(CLayoutElement::GetTypeId()));
-
-			/// \note Anchors
-			pWriter->BeginGroup(TLayoutElementArchiveKeys::mMinAnchorKeyId, false);
-			SaveVector2(pWriter, mMinAnchor);
-			pWriter->EndGroup();
-
-			pWriter->BeginGroup(TLayoutElementArchiveKeys::mMaxAnchorKeyId, false);
-			SaveVector2(pWriter, mMaxAnchor);
-			pWriter->EndGroup();
-
-			/// \note Offsets
-			pWriter->BeginGroup(TLayoutElementArchiveKeys::mMinOffsetKeyId, false);
-			SaveVector2(pWriter, mMinOffset);
-			pWriter->EndGroup();
-
-			pWriter->BeginGroup(TLayoutElementArchiveKeys::mMaxOffsetKeyId, false);
-			SaveVector2(pWriter, mMaxOffset);
-			pWriter->EndGroup();
-
-			/// \note Pivot
-			pWriter->BeginGroup(TLayoutElementArchiveKeys::mPivotKeyId, false);
-			SaveVector2(pWriter, mPivot);
-			pWriter->EndGroup();
-
-			/// \note Scale
-			pWriter->BeginGroup(TLayoutElementArchiveKeys::mScaleKeyId, false);
-			SaveVector2(pWriter, mScale);
-			pWriter->EndGroup();
-
-			pWriter->SetFloat(TLayoutElementArchiveKeys::mRotationAngleKeyId, mRotationAngle);
-		}
-		pWriter->EndGroup();
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CLayoutElement::Clone(IComponent*& pDestObject) const
-	{
-		if (auto pComponent = dynamic_cast<CLayoutElement*>(pDestObject))
-		{
-			pComponent->mAnchorWorldRect = mAnchorWorldRect;
-			pComponent->mCanvasEntityId = mCanvasEntityId;
-			pComponent->mMaxAnchor = mMaxAnchor;
-			pComponent->mMaxOffset = mMaxOffset;
-			pComponent->mMinAnchor = mMinAnchor;
-			pComponent->mMinOffset = mMinOffset;
-			pComponent->mParentWorldRect = mParentWorldRect;
-			pComponent->mPivot = mPivot;
-			pComponent->mWorldRect = mWorldRect;
-			pComponent->mScale = mScale;
-			pComponent->mRotationAngle = mRotationAngle;
-
-			pComponent->mIsDirty = true;
-
-			return RC_OK;
-		}
-
-		return RC_FAIL;
 	}
 
 	void CLayoutElement::SetWorldRect(const TRectF32& rect)
 	{
-		mWorldRect = rect;
-		mIsDirty = true;
+		mData.mWorldRect = rect;
+		mData.mIsDirty = true;
 	}
 
 	void CLayoutElement::SetAnchorWorldRect(const TRectF32& rect)
 	{
-		mAnchorWorldRect = rect;
-		mIsDirty = true;
+		mData.mAnchorWorldRect = rect;
+		mData.mIsDirty = true;
 	}
 
 	void CLayoutElement::SetParentWorldRect(const TRectF32& rect)
 	{
-		mParentWorldRect = rect;
-		mIsDirty = true;
+		mData.mParentWorldRect = rect;
+		mData.mIsDirty = true;
 	}
 
 	void CLayoutElement::SetOwnerCanvasId(TEntityId canvasEntityId)
 	{
-		mCanvasEntityId = canvasEntityId;
+		mData.mCanvasEntityId = canvasEntityId;
 	}
 
 	void CLayoutElement::SetDirty(bool value)
 	{
-		mIsDirty = value;
+		mData.mIsDirty = value;
 	}
 
 	void CLayoutElement::SetIsPositionOffsetUsed(bool value)
 	{
-		mIsPositionOffsetApplied = value;
+		mData.mIsPositionOffsetApplied = value;
 		
 		if (!value)
 		{
-			mPositionOffset = ZeroVector2;
+			mData.mPositionOffset = ZeroVector2;
 		}
 	}
 
 	E_RESULT_CODE CLayoutElement::SetScale(const TVector2& scale)
 	{
-		mScale = scale;
+		mData.mScale = scale;
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CLayoutElement::SetRotationAngle(F32 angle)
 	{
-		mRotationAngle = angle;
+		mData.mRotationAngle = angle;
 		return RC_OK;
 	}
 
@@ -238,8 +71,8 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mMinAnchor = value;
-		mIsDirty = true;
+		mData.mMinAnchor = value;
+		mData.mIsDirty = true;
 
 		return RC_OK;
 	}
@@ -251,112 +84,112 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mMaxAnchor = TVector2(CMathUtils::Max(mMinAnchor.x, value.x), CMathUtils::Max(mMinAnchor.y, value.y));
-		mIsDirty = true;
+		mData.mMaxAnchor = TVector2(CMathUtils::Max(mData.mMinAnchor.x, value.x), CMathUtils::Max(mData.mMinAnchor.y, value.y));
+		mData.mIsDirty = true;
 
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CLayoutElement::SetMinOffset(const TVector2& value)
 	{
-		mMinOffset = value;
-		mIsDirty = true;
+		mData.mMinOffset = value;
+		mData.mIsDirty = true;
 
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CLayoutElement::SetMaxOffset(const TVector2& value)
 	{
-		mMaxOffset = value;
-		mIsDirty = true;
+		mData.mMaxOffset = value;
+		mData.mIsDirty = true;
 
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CLayoutElement::SetPivot(const TVector2& value)
 	{
-		mPivot = value;
-		mIsDirty = true;
+		mData.mPivot = value;
+		mData.mIsDirty = true;
 
 		return RC_OK;
 	}
 
 	void CLayoutElement::SetPositionOffset(const TVector2& value)
 	{
-		mPositionOffset = value;
+		mData.mPositionOffset = value;
 
-		mIsPositionOffsetApplied = true;
-		mIsDirty = true;
+		mData.mIsPositionOffsetApplied = true;
+		mData.mIsDirty = true;
 	}
 
 	const TVector2& CLayoutElement::GetMinAnchor() const
 	{
-		return mMinAnchor;
+		return mData.mMinAnchor;
 	}
 
 	const TVector2& CLayoutElement::GetMaxAnchor() const
 	{
-		return mMaxAnchor;
+		return mData.mMaxAnchor;
 	}
 
 	const TVector2& CLayoutElement::GetMinOffset() const
 	{
-		return mMinOffset;
+		return mData.mMinOffset;
 	}
 
 	const TVector2& CLayoutElement::GetMaxOffset() const
 	{
-		return mMaxOffset;
+		return mData.mMaxOffset;
 	}
 
 	const TVector2& CLayoutElement::GetPivot() const
 	{
-		return mPivot;
+		return mData.mPivot;
 	}
 
 	const TVector2& CLayoutElement::GetPositionOffset() const
 	{
-		return mPositionOffset;
+		return mData.mPositionOffset;
 	}
 	
 	bool CLayoutElement::IsPositionOffsetUsed() const
 	{
-		return mIsPositionOffsetApplied;
+		return mData.mIsPositionOffsetApplied;
 	}
 
 	const TRectF32& CLayoutElement::GetWorldRect() const
 	{
-		return mWorldRect;
+		return mData.mWorldRect;
 	}
 
 	const TRectF32& CLayoutElement::GetAnchorWorldRect() const
 	{
-		return mAnchorWorldRect;
+		return mData.mAnchorWorldRect;
 	}
 
 	const TRectF32& CLayoutElement::GetParentWorldRect() const
 	{
-		return mParentWorldRect;
+		return mData.mParentWorldRect;
 	}
 
 	TEntityId CLayoutElement::GetOwnerCanvasId() const
 	{
-		return mCanvasEntityId;
+		return mData.mCanvasEntityId;
 	}
 
 	bool CLayoutElement::IsDirty() const
 	{
-		return mIsDirty;
+		return mData.mIsDirty;
 	}
 
 	const TVector2& CLayoutElement::GetScale() const
 	{
-		return mScale;
+		return mData.mScale;
 	}
 	
 	F32 CLayoutElement::GetRotationAngle() const
 	{
-		return mRotationAngle;
+		return mData.mRotationAngle;
 	}
 
 	const std::string& CLayoutElement::GetTypeName() const

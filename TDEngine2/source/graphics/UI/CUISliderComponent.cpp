@@ -1,131 +1,65 @@
 #include "../../../include/graphics/UI/CUISliderComponent.h"
 #include "../../../include/math/MathUtils.h"
+#define META_EXPORT_ECS_SECTION
+#include "../../../include/metadata.h"
 
 
 namespace TDEngine2
 {
 	TDE2_REGISTER_COMPONENT_FACTORY(CreateUISliderFactory)
+	TDE2_DEFINE_COMPONENT_META(TUISliderComponentData)
 
 
 	CUISlider::CUISlider() :
-		CBaseComponent()
+		CBaseComponentT()
 	{
-	}
-
-
-	struct TUISliderArchiveKeys
-	{
-		static const std::string mMarkerEntityRefKeyId;
-		static const std::string mValueKeyId;
-		static const std::string mMinValueKeyId;
-		static const std::string mMaxValueKeyId;
-	};
-
-
-	const std::string TUISliderArchiveKeys::mMarkerEntityRefKeyId = "marker_entity_ref";
-	const std::string TUISliderArchiveKeys::mValueKeyId = "value";
-	const std::string TUISliderArchiveKeys::mMinValueKeyId = "min_value";
-	const std::string TUISliderArchiveKeys::mMaxValueKeyId = "max_value";
-
-	E_RESULT_CODE CUISlider::Load(IArchiveReader* pReader)
-	{
-		if (!pReader)
-		{
-			return RC_FAIL;
-		}
-
-		mMarkerEntityRef = static_cast<TEntityId>(pReader->GetUInt32(TUISliderArchiveKeys::mMarkerEntityRefKeyId));
-		
-		mMinValue = pReader->GetFloat(TUISliderArchiveKeys::mMinValueKeyId);
-		mMaxValue = pReader->GetFloat(TUISliderArchiveKeys::mMaxValueKeyId);
-
-		SetValue(pReader->GetFloat(TUISliderArchiveKeys::mValueKeyId));
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CUISlider::Save(IArchiveWriter* pWriter)
-	{
-		if (!pWriter)
-		{
-			return RC_FAIL;
-		}
-
-		pWriter->BeginGroup("component");
-		{
-			pWriter->SetUInt32("type_id", static_cast<U32>(CUISlider::GetTypeId()));
-
-			pWriter->SetUInt32(TUISliderArchiveKeys::mMarkerEntityRefKeyId, static_cast<U32>(mMarkerEntityRef));
-			
-			pWriter->SetFloat(TUISliderArchiveKeys::mMinValueKeyId, mMinValue);
-			pWriter->SetFloat(TUISliderArchiveKeys::mMaxValueKeyId, mMaxValue);
-			pWriter->SetFloat(TUISliderArchiveKeys::mValueKeyId, mValue);
-		}
-		pWriter->EndGroup();
-
-		return RC_OK;
 	}
 
 	E_RESULT_CODE CUISlider::PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper)
 	{
-		mMarkerEntityRef = entitiesIdentifiersRemapper.Resolve(mMarkerEntityRef);
+		mData.mMarkerEntityRef = entitiesIdentifiersRemapper.Resolve(mData.mMarkerEntityRef);
 
-		return CBaseComponent::PostLoad(pEntityManager, entitiesIdentifiersRemapper);
-	}
-
-	E_RESULT_CODE CUISlider::Clone(IComponent*& pDestObject) const
-	{
-		if (auto pComponent = dynamic_cast<CUISlider*>(pDestObject))
-		{
-			pComponent->mMarkerEntityRef = mMarkerEntityRef;
-			pComponent->mValue = mValue;
-			pComponent->mMinValue = mMinValue;
-			pComponent->mMaxValue = mMaxValue;
-
-			return RC_OK;
-		}
-
-		return RC_FAIL;
+		return CBaseComponentT::PostLoad(pEntityManager, entitiesIdentifiersRemapper);
 	}
 
 	void CUISlider::SetValue(F32 value)
 	{
-		mValue = CMathUtils::Clamp(mMinValue, mMaxValue, value);
+		mData.mValue = CMathUtils::Clamp(mData.mMinValue, mData.mMaxValue, value);
 	}
 
 	void CUISlider::SetMinValue(F32 value)
 	{
-		mMinValue = value;
+		mData.mMinValue = value;
 	}
 
 	void CUISlider::SetMaxValue(F32 value)
 	{
-		mMaxValue = value;
+		mData.mMaxValue = value;
 	}
 
 	void CUISlider::SetMarkerEntityId(TEntityId markerId)
 	{
-		mMarkerEntityRef = markerId;
+		mData.mMarkerEntityRef = markerId;
 	}
 
 	F32 CUISlider::GetValue() const
 	{
-		return mValue;
+		return mData.mValue;
 	}
 
 	F32 CUISlider::GetMinValue() const
 	{
-		return mMinValue;
+		return mData.mMinValue;
 	}
 
 	F32 CUISlider::GetMaxValue() const
 	{
-		return mMaxValue;
+		return mData.mMaxValue;
 	}
 
 	TEntityId CUISlider::GetMarkerEntityId() const
 	{
-		return mMarkerEntityRef;
+		return mData.mMarkerEntityRef;
 	}
 
 

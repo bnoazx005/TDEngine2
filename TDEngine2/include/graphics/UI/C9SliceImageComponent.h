@@ -18,6 +18,25 @@ namespace TDEngine2
 	enum class TResourceId : U32;
 
 
+	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
+	struct T9SliceImageComponentData
+	{
+		FIELD_META(name = sprite_id) std::string mImageSpriteId;
+		TResourceId                              mImageResourceId = TResourceId::Invalid;
+
+		FIELD_META(name = left_slice) F32        mXStart = 0.0f;
+		FIELD_META(name = right_slice) F32       mXEnd = 1.0f;
+		FIELD_META(name = bottom_slice) F32      mYStart = 0.0f;
+		FIELD_META(name = mTopSliceKey) F32      mYEnd = 1.0f;
+
+		FIELD_META(name = margin) F32            mRelativeBorderSize = 0.1f;
+
+		FIELD_META(name = color) TColor32F       mColor = TColorUtils::mWhite;
+
+		TDE2_DECLARE_COMPONENT_META(T9SliceImageComponentData);
+	};
+
+
 	/*!
 		\brief A factory function for creation objects of C9SliceImage's type.
 
@@ -35,41 +54,12 @@ namespace TDEngine2
 		\brief The implementation of 9 sliced UI images
 	*/
 
-	class C9SliceImage : public CBaseComponent, public CPoolMemoryAllocPolicy<C9SliceImage, 1 << 20>
+	class C9SliceImage : public CBaseComponentT<C9SliceImage, T9SliceImageComponentData>
 	{
 		public:
 			friend TDE2_API IComponent* Create9SliceImage(E_RESULT_CODE& result);
 		public:
 			TDE2_REGISTER_COMPONENT_TYPE(C9SliceImage)
-
-			/*!
-				\brief The method deserializes object's state from given reader
-
-				\param[in, out] pReader An input stream of data that contains information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
-
-			/*!
-				\brief The method serializes object's state into given stream
-
-				\param[in, out] pWriter An output stream of data that writes information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
-
-			/*!
-				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
-				The original state of the object stays the same
-
-				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
-			*/
-
-			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
 			TDE2_API E_RESULT_CODE SetImageId(const std::string& id);
 			TDE2_API E_RESULT_CODE SetImageResourceId(TResourceId resourceId);
@@ -103,16 +93,6 @@ namespace TDEngine2
 
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(C9SliceImage)
-		protected:
-			std::string mImageSpriteId;
-			TResourceId mImageResourceId;
-
-			F32         mXStart = 0.0f, mXEnd = 1.0f;
-			F32         mYStart = 0.0f, mYEnd = 1.0f;
-
-			F32         mRelativeBorderSize = 0.1f;
-
-			TColor32F   mColor;
 	};
 
 
