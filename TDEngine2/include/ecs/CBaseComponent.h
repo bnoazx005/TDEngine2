@@ -238,7 +238,7 @@ namespace TDEngine2
 
 				auto it = propertiesFactories.find(propertyName);
 
-				return (it != propertiesFactories.cend()) ? (it->second)(GetData()) : CBaseComponentT::GetProperty(propertyName);
+				return (it != propertiesFactories.cend()) ? (it->second)(GetData()) : nullptr;
 			}
 
 			/*!
@@ -270,6 +270,153 @@ namespace TDEngine2
 		CBaseObject()
 	{
 	}
+
+
+	struct TComponentTag {}; ///< The type is used with component-tags
+
+
+	/*!
+		\brief Template specialization for CBaseComponentT<TComponentType, TComponentDataType> to use in cases when a component-tag type is needed instead of actual data storage
+	*/
+
+	template <typename TComponentType>
+	class CBaseComponentT<TComponentType, TComponentTag> : public virtual IComponent, public CBaseObject, public CPoolMemoryAllocPolicy<TComponentType, 1 << 20>
+	{
+		public:
+			/*!
+				\brief The method initializes an internal state of an object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			E_RESULT_CODE Init() override
+			{
+				if (mIsInitialized)
+				{
+					return RC_FAIL;
+				}
+
+				mIsInitialized = true;
+
+				return RC_OK;
+			}
+
+			/*!
+				\brief The method deserializes object's state from given reader
+
+				\param[in, out] pReader An input stream of data that contains information about the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			E_RESULT_CODE Load(IArchiveReader* pReader) override
+			{
+				return RC_OK;
+			}
+
+			/*!
+				\brief The method serializes object's state into given stream
+
+				\param[in, out] pWriter An output stream of data that writes information about the object
+
+				\return RC_OK if everything went ok, or some other code, which describes an error
+			*/
+
+			E_RESULT_CODE Save(IArchiveWriter* pWriter) override
+			{
+				if (!pWriter)
+				{
+					return RC_FAIL;
+				}
+
+				E_RESULT_CODE result = RC_OK;
+
+				result = result | pWriter->BeginGroup("component");
+				{
+					result = result | pWriter->SetUInt32("type_id", static_cast<U32>(TComponentType::GetTypeId()));
+				}
+				result = result | pWriter->EndGroup();
+
+				return result;
+			}
+
+			/*!
+				\brief The method is called after all entities of particular scene were loaded. It remaps all identifiers to
+				make them correctly corresponds to saved state
+
+				\param[in, out] pEntityManager A pointer to entities manager
+				\param[in] entitiesIdentifiersRemapper A structure that maps saved identifier to current runtime equivalent
+			*/
+
+			E_RESULT_CODE PostLoad(CEntityManager* pEntityManager, const TEntitiesMapper& entitiesIdentifiersRemapper) override
+			{
+				return RC_OK;
+			}
+
+			/*!
+				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
+				The original state of the object stays the same
+
+				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
+			*/
+
+			E_RESULT_CODE Clone(IComponent*& pDestObject) const override
+			{
+				return RC_OK;
+			}
+
+			/*!
+				\return The method returns type name (lowercase is preffered)
+			*/
+
+			const std::string& GetTypeName() const override
+			{
+				TDE2_UNIMPLEMENTED();
+				return Wrench::StringUtils::GetEmptyStr();
+			}
+
+			/*!
+				\return The method returns a pointer to a type's property if the latter does exist or null pointer in other cases
+			*/
+
+			IPropertyWrapperPtr GetProperty(const std::string& propertyName) override
+			{
+				return nullptr;
+			}
+
+			/*!
+				\brief The method returns an array of properties names that are available for usage
+			*/
+
+			const std::vector<std::string>& GetAllProperties() const override
+			{
+				static const std::vector<std::string> properties{};
+				return properties;
+			}
+
+			/*!
+				\return The method returns true if the given component type is for runtime purposes only
+			*/
+
+			bool IsRuntimeOnly() const override { return false; }
+
+			const TComponentTag& GetData() const { return mData; }
+			TComponentTag& GetData() { return mData; }
+		protected:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseComponentT)
+		protected:
+			static TComponentTag mData;
+	};
+
+
+	template <typename TComponentType>
+	CBaseComponentT<TComponentType, TComponentTag>::CBaseComponentT() :
+		CBaseObject()
+	{
+	}
+
+	template <typename TComponentType>
+	TComponentTag CBaseComponentT<TComponentType, TComponentTag>::mData{};
 
 
 	/*!
@@ -541,17 +688,11 @@ namespace TDEngine2
 #define TDE2_DECLARE_FLAG_COMPONENT_IMPL(ComponentNameStr, ComponentName, ComponentFuncName, ComponentFactoryName, ComponentFactoryFuncName)						\
 	TDE2_API ::TDEngine2::IComponent* ComponentFuncName(::TDEngine2::E_RESULT_CODE& result);																		\
 																																									\
-	class ComponentName : public ::TDEngine2::CBaseComponent, public ::TDEngine2::CPoolMemoryAllocPolicy<ComponentName, 1 << 10>									\
+	class ComponentName : public ::TDEngine2::CBaseComponentT<ComponentName,  ::TDEngine2::TComponentTag>															\
 	{																																								\
 		public:																																						\
 			friend TDE2_API TDEngine2::IComponent* ComponentFuncName(::TDEngine2::E_RESULT_CODE&);																	\
 			TDE2_REGISTER_COMPONENT_TYPE(ComponentName)																												\
-																																									\
-			TDE2_API ::TDEngine2::E_RESULT_CODE Init();																												\
-																																									\
-			TDE2_API ::TDEngine2::E_RESULT_CODE Load(::TDEngine2::IArchiveReader* pReader) override;																\
-			TDE2_API ::TDEngine2::E_RESULT_CODE Save(::TDEngine2::IArchiveWriter* pWriter) override;																\
-			TDE2_API ::TDEngine2::E_RESULT_CODE Clone(class ::TDEngine2::IComponent*& pDestObject) const override;													\
 																																									\
 			TDE2_API const std::string& GetTypeName() const override;																								\
 			TDE2_API bool IsRuntimeOnly() const override;																											\
@@ -579,37 +720,7 @@ namespace TDEngine2
 #define TDE2_DEFINE_FLAG_COMPONENT_IMPL(ComponentName, ComponentFuncName, ComponentFactoryName, ComponentFactoryFuncName, IsRuntimeOnlyFlag)					\
 	TDE2_REGISTER_COMPONENT_FACTORY(ComponentFactoryFuncName)																									\
 																																								\
-	ComponentName::ComponentName() : ::TDEngine2::CBaseComponent() { }																							\
-																																								\
-	::TDEngine2::E_RESULT_CODE ComponentName::Init()																											\
-	{ 																																							\
-		mIsInitialized = true;																																	\
-		return ::TDEngine2::RC_OK;																																\
-	}																																							\
-																																								\
-	::TDEngine2::E_RESULT_CODE ComponentName::Load(::TDEngine2::IArchiveReader* pReader)																		\
-	{																																							\
-		return CBaseComponent::Load(pReader);																													\
-	}																																							\
-																																								\
-	::TDEngine2::E_RESULT_CODE ComponentName::Save(::TDEngine2::IArchiveWriter* pWriter)																		\
-	{																																							\
-		if (!pWriter)																																			\
-		{																																						\
-			return ::TDEngine2::RC_FAIL;																														\
-		}																																						\
-																																								\
-		pWriter->BeginGroup("component");																														\
-		pWriter->SetUInt32("type_id", static_cast<::TDEngine2::U32>(ComponentName::GetTypeId()));																\
-		pWriter->EndGroup();																																	\
-																																								\
-		return ::TDEngine2::RC_OK;																																\
-	}																																							\
-																																								\
-	::TDEngine2::E_RESULT_CODE ComponentName::Clone(::TDEngine2::IComponent*& pDestObject) const																\
-	{																																							\
-		return ::TDEngine2::RC_OK;																																\
-	}																																							\
+	ComponentName::ComponentName() : ::TDEngine2::CBaseComponentT<ComponentName,  ::TDEngine2::TComponentTag>() { }												\
 																																								\
 	const std::string& ComponentName::GetTypeName() const																										\
 	{																																							\
@@ -718,7 +829,7 @@ namespace TDEngine2
 			}																														\
 			else																													\
 			{																														\
-				result = result | Serialize(pWriter, pFieldNamePtr, fieldValue);		\
+				result = result | Serialize(pWriter, pFieldNamePtr, fieldValue);													\
 			}																														\
 		});																															\
 		return result;																												\

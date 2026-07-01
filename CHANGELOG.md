@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.34] 2026-06-14
+## [0.6.34] 2026-07-01
 
 ### Added
 
@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **ITransform** interface was removed. Now all data of **CTransform** should be changed via GetData() method.
 
 - Now **CTransform** children entities array is serialized with "item": {}, ..., "item" : {} instead of "child_id" : {}, ..., "child_id" : {}
+
+- Most part of components were migrated to new parent type which is CBaseComponentT<TComponentType, TComponentDataType> that simplifies declarations and provides
+automated serialization/deserialization of components.
 
 ## [0.6.33] 2026-05-22
 
