@@ -18,7 +18,7 @@ common_settings:
     - id: ./TDE2VideoPlayers
 
 graphics_settings:
-  graphics_plugin: ./D3D11GraphicsContext
+  graphics_plugin: ./D3D12GraphicsContext
   
 quality_presets:
   LOW:
