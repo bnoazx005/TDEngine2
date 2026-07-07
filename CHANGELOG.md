@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.34] 2026-07-01
+## [0.6.34] 2026-07-07
 
 ### Added
 
@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Most part of components were migrated to new parent type which is CBaseComponentT<TComponentType, TComponentDataType> that simplifies declarations and provides
 automated serialization/deserialization of components.
+
+### Fixed
+
+- Incorrect serialization/deserialization of **TTransformComponentData** was fixed.
 
 ## [0.6.33] 2026-05-22
 

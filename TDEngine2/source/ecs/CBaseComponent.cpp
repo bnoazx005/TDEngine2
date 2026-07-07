@@ -154,6 +154,10 @@ namespace TDEngine2
 		return false;
 	}
 
+	
+	template <typename TComponentType>
+	TComponentTag CBaseComponentT<TComponentType, TComponentTag>::mData{};
+
 
 	TDE2_DEFINE_FLAG_COMPONENT(DeactivatedComponent)
 	TDE2_DEFINE_FLAG_COMPONENT(DeactivatedGroupComponent)

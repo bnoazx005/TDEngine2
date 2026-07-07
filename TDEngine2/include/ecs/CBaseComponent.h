@@ -415,9 +415,6 @@ namespace TDEngine2
 	{
 	}
 
-	template <typename TComponentType>
-	TComponentTag CBaseComponentT<TComponentType, TComponentTag>::mData{};
-
 
 	/*!
 		class CComponentIterator

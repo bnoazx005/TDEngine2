@@ -282,7 +282,7 @@ namespace TDEngine2
 			{
 				result = result | pWriter->BeginGroup(Wrench::StringUtils::GetEmptyStr());
 				{
-					result = result | Serialize<T>(pWriter, itemName, currItem);
+					result = result | Serialize(pWriter, itemName, currItem);
 				}
 				result = result | pWriter->EndGroup();
 			}

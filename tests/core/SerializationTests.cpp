@@ -110,11 +110,14 @@ TEST_CASE("Serialize function Tests")
 		REQUIRE(pFileWriter);
 
 		TTransformComponentData expectedData{};
-		expectedData.mPosition = RandVector3(ZeroVector3, TVector3{ 1.0f });
-		expectedData.mPivot    = RandVector3(ZeroVector3, TVector3{ 1.0f });
-		expectedData.mRotation = TQuaternion{ RandVector3(ZeroVector3, TVector3{ 1.0f }) };
-		expectedData.mScale    = RandVector3(ZeroVector3, TVector3{ 1.0f });
-		expectedData.mOwnerId  = TEntityId(42);
+		expectedData.mPosition       = RandVector3(ZeroVector3, TVector3{ 1.0f });
+		expectedData.mPivot          = RandVector3(ZeroVector3, TVector3{ 1.0f });
+		expectedData.mRotation       = TQuaternion{ RandVector3(ZeroVector3, TVector3{ 1.0f }) };
+		expectedData.mScale          = RandVector3(ZeroVector3, TVector3{ 1.0f });
+		expectedData.mOwnerId        = TEntityId(42);
+		expectedData.mParentEntityId = TEntityId(41);
+		expectedData.mChildrenEntities.emplace_back(TEntityId(43));
+		expectedData.mChildrenEntities.emplace_back(TEntityId(44));
 
 		result = TTransformComponentData::Save(pFileWriter, expectedData);
 		REQUIRE(RC_OK == result);
@@ -134,6 +137,12 @@ TEST_CASE("Serialize function Tests")
 		REQUIRE(deserializedData.mRotation == expectedData.mRotation);
 		REQUIRE(deserializedData.mScale == expectedData.mScale);
 		REQUIRE(deserializedData.mOwnerId == expectedData.mOwnerId);
+		REQUIRE(deserializedData.mParentEntityId == expectedData.mParentEntityId);
+
+		for (USIZE i = 0; i < expectedData.mChildrenEntities.size(); ++i)
+		{
+			REQUIRE(deserializedData.mChildrenEntities[i] == expectedData.mChildrenEntities[i]);
+		}
 	}
 
 	SECTION("SerializeTGridGroupLayoutComponentDataThenTryDeserializeItBack_TheValuesOfStructureShouldStaySame")
@@ -167,5 +176,31 @@ TEST_CASE("Serialize function Tests")
 		REQUIRE(deserializedData.mAlignType == expectedData.mAlignType);
 		REQUIRE(deserializedData.mCellSize == expectedData.mCellSize);
 		REQUIRE(deserializedData.mSpaceBetweenElements == expectedData.mSpaceBetweenElements);
+	}
+
+	SECTION("Serialize_PassEntityId_ThatValueShouldBeCorrectlySerializedAndThenDeserializedBack")
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		auto pMemoryMappedStream = TPtr<TDEngine2::IStream>(CreateMemoryIOStream(Wrench::StringUtils::GetEmptyStr(), {}, result));
+		REQUIRE(pMemoryMappedStream);
+
+		IYAMLFileWriter* pFileWriter = dynamic_cast<IYAMLFileWriter*>(CreateYAMLFileWriter(nullptr, pMemoryMappedStream, result));
+		REQUIRE(pFileWriter);
+
+		const TEntityId expectedEntity = TEntityId(42);
+		REQUIRE(RC_OK == Serialize(pFileWriter, expectedEntity));
+
+		pFileWriter->Close();
+
+		/// \note Read back the value
+		IYAMLFileReader* pFileReader = dynamic_cast<IYAMLFileReader*>(CreateYAMLFileReader(nullptr, pMemoryMappedStream, result));
+		REQUIRE(pFileReader);
+
+		TEntityId actualEntity = Deserialize<TEntityId>(pFileReader).Get();
+
+		pFileReader->Close();
+
+		REQUIRE(actualEntity == expectedEntity);
 	}
 }
