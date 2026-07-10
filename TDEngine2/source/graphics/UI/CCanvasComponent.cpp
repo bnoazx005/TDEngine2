@@ -73,6 +73,12 @@ namespace TDEngine2
 		return mData.mPriority;
 	}
 
+	const std::string& CCanvas::GetTypeName() const
+	{
+		static const std::string typeName = "canvas";
+		return typeName;
+	}
+
 
 	IComponent* CreateCanvas(E_RESULT_CODE& result)
 	{
