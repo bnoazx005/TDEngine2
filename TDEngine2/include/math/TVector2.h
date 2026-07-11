@@ -34,7 +34,7 @@ namespace TDEngine2
 			\param[in] initializer A value, which will be assigned to all the components
 		*/
 
-		TDE2_API TVector2(F32 initializer);
+		TDE2_API explicit TVector2(F32 initializer);
 
 		/*!
 			\brief Simple copy constructor

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.34] 2026-07-07
+## [0.6.34] 2026-07-11
 
 ### Added
 
@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Most part of components were migrated to new parent type which is CBaseComponentT<TComponentType, TComponentDataType> that simplifies declarations and provides
 automated serialization/deserialization of components.
+
+- **TVector2(F32)** constructor was marked as explicit.
 
 ### Fixed
 

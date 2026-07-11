@@ -473,7 +473,7 @@ namespace TDEngine2
 
 			if (ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left))
 			{
-				dragVector = ImGui::GetIO().MouseDelta.x;
+				dragVector = TVector2{ ImGui::GetIO().MouseDelta.x };
 			}
 
 			if (ImGui::IsMouseReleased(ImGuiMouseButton_Left))

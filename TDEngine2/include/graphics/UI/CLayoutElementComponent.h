@@ -56,7 +56,7 @@ namespace TDEngine2
 
 		TEntityId                               mCanvasEntityId = TEntityId::Invalid;
 
-		FIELD_META(name = scale) TVector2       mScale = 1.0f;
+		FIELD_META(name = scale) TVector2       mScale = TVector2{ 1.0f };
 		FIELD_META(name = angle) F32            mRotationAngle = 0.0f; // Z axis, in radians
 
 		bool                                    mIsDirty = true;
