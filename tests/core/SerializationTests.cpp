@@ -178,6 +178,47 @@ TEST_CASE("Serialize function Tests")
 		REQUIRE(deserializedData.mSpaceBetweenElements == expectedData.mSpaceBetweenElements);
 	}
 
+	SECTION("SerializeTLayoutElementComponentDataThenTryDeserializeItBack_TheValuesOfStructureShouldStaySame")
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		auto pMemoryMappedStream = TPtr<TDEngine2::IStream>(CreateMemoryIOStream(Wrench::StringUtils::GetEmptyStr(), {}, result));
+		REQUIRE(pMemoryMappedStream);
+
+		IYAMLFileWriter* pFileWriter = dynamic_cast<IYAMLFileWriter*>(CreateYAMLFileWriter(nullptr, pMemoryMappedStream, result));
+		REQUIRE(pFileWriter);
+
+		TLayoutElementComponentData expectedData{};
+		expectedData.mMinAnchor     = TVector2{ 0.0f, 1.0f };
+		expectedData.mMaxAnchor     = TVector2{ 1.0f };
+		expectedData.mMinOffset     = TVector2{ 40.0f, 40.0f };
+		expectedData.mMaxOffset     = TVector2{ -40.0f, 40.0f };
+		expectedData.mPivot         = TVector2{ 0.5f };
+		expectedData.mScale         = TVector2{ 0.5f, 0.8f };
+		expectedData.mRotationAngle = 42.0f;
+
+		result = TLayoutElementComponentData::Save(pFileWriter, expectedData);
+		REQUIRE(RC_OK == result);
+
+		pFileWriter->Close();
+
+		/// \note Read back the structure of the archive
+		IYAMLFileReader* pFileReader = dynamic_cast<IYAMLFileReader*>(CreateYAMLFileReader(nullptr, pMemoryMappedStream, result));
+		REQUIRE(pFileReader);
+
+		TLayoutElementComponentData deserializedData = TLayoutElementComponentData::Load(pFileReader).Get();
+
+		pFileReader->Close();
+
+		REQUIRE(deserializedData.mMinAnchor == expectedData.mMinAnchor);
+		REQUIRE(deserializedData.mMaxAnchor == expectedData.mMaxAnchor);
+		REQUIRE(deserializedData.mMinOffset == expectedData.mMinOffset);
+		REQUIRE(deserializedData.mMaxOffset == expectedData.mMaxOffset);
+		REQUIRE(deserializedData.mPivot == expectedData.mPivot);
+		REQUIRE(deserializedData.mScale == expectedData.mScale);
+		REQUIRE(deserializedData.mRotationAngle == expectedData.mRotationAngle);
+	}
+
 	SECTION("Serialize_PassEntityId_ThatValueShouldBeCorrectlySerializedAndThenDeserializedBack")
 	{
 		E_RESULT_CODE result = RC_OK;

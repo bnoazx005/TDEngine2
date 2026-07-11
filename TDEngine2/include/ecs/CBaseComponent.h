@@ -798,13 +798,11 @@ namespace TDEngine2
 			else																													\
 			{																														\
 				auto&& result = Deserialize<typename std::decay_t<decltype(fieldValue)>>(pReader, pFieldNamePtr);					\
-				if (result.HasError())																								\
+				if (result.IsOk())																									\
 				{																													\
-					resultCode = result.GetError();																					\
+					fieldValue = result.Get();																						\
 					return;																											\
 				}																													\
-																																	\
-				fieldValue = result.Get();																							\
 			}																														\
 		});																															\
 																																	\

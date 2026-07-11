@@ -16,8 +16,8 @@ namespace TDEngine2
 	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
 	struct TInputFieldComponentData
 	{
-		FIELD_META(name = cursor_entity_ref) TEntityId mCursorEntityRef;
-		FIELD_META(name = label_entity_ref) TEntityId  mLabelEntityRef;
+		FIELD_META(name = cursor_entity_ref) TEntityId mCursorEntityRef = TEntityId::Invalid;
+		FIELD_META(name = label_entity_ref) TEntityId  mLabelEntityRef = TEntityId::Invalid;
 
 		FIELD_META(name = value) std::string           mValue;
 		std::string                                    mTempValue; ///< Used to revert previous changes when a user cancels input

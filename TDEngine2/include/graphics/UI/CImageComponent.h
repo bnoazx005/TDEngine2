@@ -22,7 +22,7 @@ namespace TDEngine2
 	struct TImageComponentData
 	{
 		FIELD_META(name = sprite_id) std::string mImageSpriteId = "DefaultResources/Textures/DefaultUIWhite_Sprite.png"; /// \todo Replace with global configurable constant
-		TResourceId                              mImageResourceId;
+		TResourceId                              mImageResourceId = TResourceId::Invalid;
 		FIELD_META(name = color) TColor32F       mColor = TColorUtils::mWhite;
 		bool                                     mIsDirty = true;
 

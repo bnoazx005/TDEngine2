@@ -22,10 +22,10 @@ namespace TDEngine2
 
 		FIELD_META(name = items) TOptionsArray             mItems;
 
-		FIELD_META(name = label_entity_ref) TEntityId      mLabelEntityRef;
-		FIELD_META(name = popup_root_entity_ref) TEntityId mPopupRootEntityRef;
-		FIELD_META(name = content_entity_ref) TEntityId    mContentEntityRef;
-		FIELD_META(name = item_prefab_ref) TEntityId       mItemPrefabEntityRef;
+		FIELD_META(name = label_entity_ref) TEntityId      mLabelEntityRef = TEntityId::Invalid;
+		FIELD_META(name = popup_root_entity_ref) TEntityId mPopupRootEntityRef = TEntityId::Invalid;
+		FIELD_META(name = content_entity_ref) TEntityId    mContentEntityRef = TEntityId::Invalid;
+		FIELD_META(name = item_prefab_ref) TEntityId       mItemPrefabEntityRef = TEntityId::Invalid;
 
 		TEntitiesArray mItemsEntities;
 
