@@ -839,13 +839,13 @@ namespace TDEngine2
 	{																																\
 		Type::TPropertyWrappersFactoryTable result{};																				\
 																																	\
-		Meta::VisitSerializableClassFields(data, [&result](const C8* pFieldNamePtr, auto& fieldValue)								\
+		Meta::VisitSerializableClassFields(data, [&result](const C8* pFieldNamePtr, auto pFieldPtr)									\
 		{																															\
-			result.emplace(pFieldNamePtr, [&fieldValue](Type& data)																	\
+			result.emplace(pFieldNamePtr, [pFieldPtr](Type& data)																	\
 			{																														\
-				return IPropertyWrapperPtr(CRawPropertyWrapper<std::decay_t<decltype(fieldValue)>>::Create(fieldValue));			\
+				return IPropertyWrapperPtr(CRawPropertyWrapper<std::decay_t<decltype(data.*pFieldPtr)>>::Create(data.*pFieldPtr));	\
 			});																														\
-		});																															\
+		}, Meta::Impl::TMemberPointerPolicy{});																						\
 																																	\
 		return result;																												\
 	}
