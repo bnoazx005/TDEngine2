@@ -35,7 +35,7 @@
 #include "../../include/graphics/IRenderer.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/graphics/IDebugUtility.h"
-#include "../../include/graphics/CBaseCamera.h"
+#include "../../include/graphics/CCamera.h"
 #include "../../include/graphics/CFramePacketsStorage.h"
 #include "../../include/utils/CFileLogger.h"
 #include "../../include/utils/ITimer.h"

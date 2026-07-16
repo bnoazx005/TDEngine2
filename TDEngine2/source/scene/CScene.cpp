@@ -15,7 +15,7 @@
 #include "../../include/graphics/CStaticMesh.h"
 #include "../../include/graphics/CBaseMaterial.h"
 #include "../../include/graphics/CBaseCubemapTexture.h"
-#include "../../include/graphics/CBaseCamera.h"
+#include "../../include/graphics/CCamera.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/graphics/COrthoCamera.h"
 #include "../../include/core/CProjectSettings.h"

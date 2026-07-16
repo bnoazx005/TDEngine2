@@ -9,7 +9,7 @@
 #include "../../include/core/IEventManager.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include "../../include/physics/IRaycastContext.h"
-#include "../../include/graphics/CBaseCamera.h"
+#include "../../include/graphics/CCamera.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/graphics/COrthoCamera.h"
 #include "../../include/ecs/CTransform.h"

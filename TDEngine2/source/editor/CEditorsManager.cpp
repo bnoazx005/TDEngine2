@@ -14,7 +14,7 @@
 #include "../../include/editor/CLevelEditorWindow.h"
 #include "../../include/core/IEventManager.h"
 #include "../../include/utils/CFileLogger.h"
-#include "../../include/graphics/CBaseCamera.h"
+#include "../../include/graphics/CCamera.h"
 #include "stringUtils.hpp"
 #include <algorithm>
 

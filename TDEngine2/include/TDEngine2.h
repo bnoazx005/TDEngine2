@@ -122,7 +122,7 @@
 #include "graphics/CBaseTexture2D.h"
 #include "graphics/CBaseCubemapTexture.h"
 #include "graphics/ICamera.h"
-#include "graphics/CBaseCamera.h"
+#include "graphics/CCamera.h"
 #include "graphics/CPerspectiveCamera.h"
 #include "graphics/COrthoCamera.h"
 #include "graphics/CBaseShaderCompiler.h"

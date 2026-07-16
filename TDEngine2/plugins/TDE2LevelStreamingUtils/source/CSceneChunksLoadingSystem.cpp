@@ -5,7 +5,7 @@
 #include <ecs/IWorld.h>
 #include <ecs/CTransform.h>
 #include <ecs/components/CBoundsComponent.h>
-#include <graphics/CBaseCamera.h>
+#include <graphics/CCamera.h>
 #include <editor/CPerfProfiler.h>
 
 

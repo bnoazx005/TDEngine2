@@ -1,5 +1,5 @@
 /*!
-	\file CBaseCamera.h
+	\file CCamera.h
 	\date 22.11.2018
 	\authors Kasimov Ildar
 */
@@ -19,6 +19,25 @@ namespace TDEngine2
 	class IWorld;
 
 	TDE2_DECLARE_SCOPED_PTR(IWorld);
+
+
+	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
+	struct TCommonCameraComponentData
+	{
+		F32       mZNear = 0.01f;
+		F32       mZFar = 1000.0f;
+
+		TVector3  mPosition = ZeroVector3;
+
+		TMatrix4  mProjMatrix;
+		TMatrix4  mViewMatrix;
+		TMatrix4  mViewProjMatrix;
+		TMatrix4  mInvViewProjMatrix;
+
+		IFrustum* mpCameraFrustum = nullptr;
+
+		TDE2_DECLARE_COMPONENT_META(TCommonCameraComponentData);
+	};
 
 
 	/*!
@@ -246,6 +265,16 @@ namespace TDEngine2
 	};
 
 
+	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
+	struct TCamerasContextComponentData
+	{
+		TEntityId mActiveCameraEntityId = TEntityId::Invalid;
+		TEntityId mPrevCameraEntityId = TEntityId::Invalid;
+
+		TDE2_DECLARE_COMPONENT_META(TCamerasContextComponentData);
+	};
+
+
 	/*!
 		\brief A factory function for creation objects of CFrustum's type
 
@@ -264,7 +293,7 @@ namespace TDEngine2
 		The component is a signleton and the world contains the only one instance of it
 	*/
 
-	class CCamerasContextComponent : public CBaseComponent
+	class CCamerasContextComponent : public CBaseComponentT<CCamerasContextComponent, TCamerasContextComponentData>
 	{
 		public:
 			friend TDE2_API CCamerasContextComponent* CreateCamerasContextComponent(E_RESULT_CODE&);
@@ -277,9 +306,6 @@ namespace TDEngine2
 				TDE2_API TEntityId GetActiveCameraEntityId() const;
 			protected:
 				DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CCamerasContextComponent)
-			private:
-				TEntityId mActiveCameraEntityId = TEntityId::Invalid;
-				TEntityId mPrevCameraEntityId = TEntityId::Invalid;
 	};
 
 
@@ -292,4 +318,14 @@ namespace TDEngine2
 
 
 	TDE2_API E_RESULT_CODE SetActiveCamera(TPtr<IWorld> pWorld, TEntityId cameraEntityId);
+
+
+	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
+	struct TOrthoCameraComponentData
+	{
+		FIELD_META(name = width) F32  mWidth = 1.0f;
+		FIELD_META(name = height) F32 mHeight = 1.0f;
+
+		TDE2_DECLARE_COMPONENT_META(TOrthoCameraComponentData);
+	};
 }

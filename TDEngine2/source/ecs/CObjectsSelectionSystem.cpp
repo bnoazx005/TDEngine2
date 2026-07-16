@@ -3,7 +3,7 @@
 #include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/graphics/CRenderQueue.h"
 #include "../../include/graphics/COrthoCamera.h"
-#include "../../include/graphics/CBaseCamera.h"
+#include "../../include/graphics/CCamera.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/graphics/CStaticMeshContainer.h"
 #include "../../include/graphics/CStaticMesh.h"

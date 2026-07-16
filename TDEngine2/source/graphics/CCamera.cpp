@@ -1,15 +1,18 @@
-#include "../../include/graphics/CBaseCamera.h"
+#include "../../include/graphics/CCamera.h"
 #include "../../include/math/TAABB.h"
 #include "../../include/utils/Utils.h"
 #include "../../include/ecs/CComponentManager.h"
 #include "../../include/ecs/IWorld.h"
 #include <array>
 #include "deferOperation.hpp"
+#define META_EXPORT_ECS_SECTION
+#include "../../../include/metadata.h"
 
 
 namespace TDEngine2
 {
 	TDE2_REGISTER_COMPONENT_FACTORY(CreateCamerasContextComponentFactory)
+	TDE2_DEFINE_COMPONENT_META(TCamerasContextComponentData);
 
 
 	CBaseCamera::CBaseCamera():
@@ -250,32 +253,32 @@ namespace TDEngine2
 	TDE2_REGISTER_UNIQUE_COMPONENT(CCamerasContextComponent);
 
 	CCamerasContextComponent::CCamerasContextComponent():
-		CBaseComponent()
+		CBaseComponentT()
 	{
 	}
 
 	void CCamerasContextComponent::SetActiveCameraEntity(TEntityId entityId)
 	{
-		mPrevCameraEntityId = mActiveCameraEntityId;
-		mActiveCameraEntityId = entityId;
+		mData.mPrevCameraEntityId = mData.mActiveCameraEntityId;
+		mData.mActiveCameraEntityId = entityId;
 	}
 
 	E_RESULT_CODE CCamerasContextComponent::RestorePreviousCameraEntity()
 	{
-		if (TEntityId::Invalid == mPrevCameraEntityId)
+		if (TEntityId::Invalid == mData.mPrevCameraEntityId)
 		{
 			return RC_FAIL;
 		}
 
-		mActiveCameraEntityId = mPrevCameraEntityId;
-		mPrevCameraEntityId = TEntityId::Invalid;
+		mData.mActiveCameraEntityId = mData.mPrevCameraEntityId;
+		mData.mPrevCameraEntityId = TEntityId::Invalid;
 
 		return RC_OK;
 	}
 
 	TEntityId CCamerasContextComponent::GetActiveCameraEntityId() const
 	{
-		return mActiveCameraEntityId;
+		return mData.mActiveCameraEntityId;
 	}
 
 	TDE2_API CCamerasContextComponent* CreateCamerasContextComponent(E_RESULT_CODE& result)

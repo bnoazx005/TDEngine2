@@ -8,7 +8,7 @@
 
 
 #include "ICamera.h"
-#include "CBaseCamera.h"
+#include "CCamera.h"
 
 
 namespace TDEngine2

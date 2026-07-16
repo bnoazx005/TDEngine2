@@ -8,7 +8,7 @@
 #include "../../include/ecs/CCameraSystem.h"
 #include "../../include/graphics/CStaticMeshContainer.h"
 #include "../../include/graphics/CSkinnedMeshContainer.h"
-#include "../../include/graphics/CBaseCamera.h"
+#include "../../include/graphics/CCamera.h"
 #include "../../include/scene/components/CLODStrategyComponent.h"
 
 

@@ -4,7 +4,7 @@
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/CSystemManager.h"
 #include "../../include/ecs/CTransformSystem.h"
-#include "../../include/graphics/CBaseCamera.h"
+#include "../../include/graphics/CCamera.h"
 #include "../../include/graphics/COrthoCamera.h"
 #include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/core/IInputContext.h"
