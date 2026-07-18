@@ -211,6 +211,19 @@ namespace TDEngine2
 
 #if TDE2_EDITORS_ENABLED
 		InitEditorCamera(pWindowSystem, _getSubsystemAs<ISceneManager>(EST_SCENE_MANAGER), mpWorldInstance);
+
+		// \note Create debug utility's instance
+		if (IGraphicsContext* pGraphicsContext = _getSubsystemAs<IGraphicsContext>(EST_GRAPHICS_CONTEXT))
+		{
+			auto debugUtilityResult = pGraphicsContext->GetGraphicsObjectManager()->CreateDebugUtility(
+				_getSubsystemAs<IResourceManager>(EST_RESOURCE_MANAGER),
+				_getSubsystemAs<IRenderer>(EST_RENDERER));
+
+			if (debugUtilityResult.IsOk())
+			{
+				mpDebugUtility = debugUtilityResult.Get();
+			}
+		}
 #endif
 
 		mpInternalTimer = pWindowSystem->GetTimer();

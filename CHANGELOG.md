@@ -34,6 +34,8 @@ automated serialization/deserialization of components.
 
 - Incorrect serialization/deserialization of **TTransformComponentData** was fixed.
 
+- A null pointer of **IDebugUtility** that's passed into CWorld::DebugOutput() call was fixed.
+
 ## [0.6.33] 2026-05-22
 
 ### Added
