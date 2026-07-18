@@ -7,8 +7,6 @@
 #include "../../include/editor/ecs/CEditorCameraControlSystem.h"
 #include "../../include/editor/ecs/EditorComponents.h"
 #include "../../include/graphics/CCamera.h"
-#include "../../include/graphics/CPerspectiveCamera.h"
-#include "../../include/graphics/COrthoCamera.h"
 #include "../../include/graphics/IDebugUtility.h"
 #include "../../include/ecs/CTransform.h"
 #include "../../include/core/IGraphicsContext.h"
@@ -51,7 +49,7 @@ namespace TDEngine2
 
 	void CCameraSystem::InjectBindings(IWorld* pWorld)
 	{
-		auto&& entities = pWorld->FindEntitiesWithAny<COrthoCamera, CPerspectiveCamera>();
+		auto&& entities = pWorld->FindEntitiesWithAny<CCamera>();
 
 		auto& cameras = mCamerasContext.mpCameras;
 		auto& transforms = mCamerasContext.mpTransforms;
@@ -65,8 +63,7 @@ namespace TDEngine2
 		{
 			if (auto pCurrEntity = pWorld->FindEntity(currEntityId))
 			{
-				CBaseCamera* pCamera = pCurrEntity->GetComponent<CPerspectiveCamera>();
-				pCamera = pCamera ? pCamera : pCurrEntity->GetComponent<COrthoCamera>();
+				CCamera* pCamera = pCurrEntity->GetComponent<CCamera>();
 
 				cameras.push_back(pCamera);
 				transforms.push_back(pCurrEntity->GetComponent<CTransform>());
@@ -78,6 +75,10 @@ namespace TDEngine2
 		{
 			mpCamerasContextComponent = pCamerasContextEntity->GetComponent<CCamerasContextComponent>();
 		}
+
+#if TDE2_EDITORS_ENABLED
+		mpWorld = pWorld;
+#endif
 	}
 
 
@@ -98,8 +99,8 @@ namespace TDEngine2
 				continue;
 			}
 
-			CBaseCamera* pCamera = camerasContext.mpCameras[i];
-			IFrustum* pFrustum = pCamera->GetFrustum();
+			CCamera* pCamera = camerasContext.mpCameras[i];
+			TPtr<IFrustum> pFrustum = pCamera->GetFrustum();
 
 			const auto& vertices = pFrustum->GetVertices(pCamera->GetInverseViewProjMatrix(), ndcZMin);
 
@@ -122,7 +123,6 @@ namespace TDEngine2
 
 #endif
 
-
 	void CCameraSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		TDE2_PROFILER_SCOPE("CCameraSystem::Update");
@@ -131,7 +131,7 @@ namespace TDEngine2
 
 		CTransform* pCurrTransform = nullptr;
 
-		CBaseCamera* pCurrCamera = nullptr;
+		CCamera* pCurrCamera = nullptr;
 
 		const F32 graphicsCtxPositiveZAxisDirection = mpGraphicsContext->GetPositiveZAxisDirection();
 		const F32 ndcZmin = mpGraphicsContext->GetContextInfo().mNDCBox.min.z;
@@ -143,77 +143,41 @@ namespace TDEngine2
 			pCurrCamera = mCamerasContext.mpCameras[i];
 			pCurrTransform = mCamerasContext.mpTransforms[i];
 
+			TCameraComponentData& cameraData = pCurrCamera->GetData();
+
 			TMatrix4 viewMatrix = pCurrTransform->GetLocalToWorldTransform();
 
 			viewMatrix.m[0][3] = -viewMatrix.m[0][3];
 			viewMatrix.m[1][3] = -viewMatrix.m[1][3];
 
 			// \note This thing is a kind of a hack for OpenGL graphics context which is using orthographic projection to make it uniform for both GAPIs
-			viewMatrix.m[2][3] *= ((pCurrCamera->GetProjType() == E_CAMERA_PROJECTION_TYPE::ORTHOGRAPHIC) && (graphicsCtxPositiveZAxisDirection < 0.0f)) ? 1.0f : -1.0f;
+			viewMatrix.m[2][3] *= ((cameraData.mType == E_CAMERA_PROJECTION_TYPE::ORTHOGRAPHIC) && (graphicsCtxPositiveZAxisDirection < 0.0f)) ? 1.0f : -1.0f;
 			
-			pCurrCamera->SetViewMatrix(viewMatrix);
-			pCurrCamera->ComputeProjectionMatrix(this);
+			cameraData.mViewMatrix = viewMatrix;
+
+			switch (cameraData.mType)
+			{
+				case E_CAMERA_PROJECTION_TYPE::ORTHOGRAPHIC:
+					{
+						const TVector2 halfSizes = 0.5f * cameraData.mParams;
+
+						cameraData.mProjMatrix = mpGraphicsContext->CalcOrthographicMatrix(-halfSizes.x, halfSizes.y, halfSizes.x, -halfSizes.y,
+							cameraData.mZNear, cameraData.mZFar);
+					}
+					break;
+				case E_CAMERA_PROJECTION_TYPE::PERSPECTIVE:
+					{
+						const F32 aspect = mpWindowSystem->GetWidth() / static_cast<F32>(mpWindowSystem->GetHeight());
+
+						cameraData.mParams.y = aspect;
+						cameraData.mProjMatrix = mpGraphicsContext->CalcPerspectiveMatrix(cameraData.mParams.x, aspect, cameraData.mZNear, cameraData.mZFar);
+					}
+					break;
+			}
 
 			pCurrCamera->SetViewProjMatrix(pCurrCamera->GetProjMatrix() * pCurrCamera->GetViewMatrix(), ndcZmin);
-			pCurrCamera->SetPosition(pCurrTransform->GetPosition());
+			cameraData.mPosition = pCurrTransform->GetPosition();
 		}
-
-		/// \note Update active camera
-		auto it = std::find(mCamerasContext.mEntities.cbegin(), mCamerasContext.mEntities.cend(), mpCamerasContextComponent->GetActiveCameraEntityId());
-		if (it == mCamerasContext.mEntities.cend())
-		{
-			return;
-		}
-
-		SetMainCamera(mCamerasContext.mpCameras[std::distance(mCamerasContext.mEntities.cbegin(), it)]);
-
-#if TDE2_EDITORS_ENABLED
-		mpWorld = pWorld;
-#endif
-	}
-
-	E_RESULT_CODE CCameraSystem::ComputePerspectiveProjection(IPerspectiveCamera* pCamera) const
-	{
-		if (!pCamera)
-		{
-			return RC_INVALID_ARGS;
-		}
-
-		F32 aspect = mpWindowSystem->GetWidth() / static_cast<F32>(mpWindowSystem->GetHeight());
-		
-		pCamera->SetAspect(aspect);
-
-		pCamera->SetProjMatrix(mpGraphicsContext->CalcPerspectiveMatrix(pCamera->GetFOV(), aspect, pCamera->GetNearPlane(), pCamera->GetFarPlane()));
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CCameraSystem::ComputeOrthographicProjection(IOrthoCamera* pCamera) const
-	{
-		if (!pCamera)
-		{
-			return RC_INVALID_ARGS;
-		}
-
-		F32 halfWidth  = 0.5f * pCamera->GetWidth();
-		F32 halfHeight = 0.5f * pCamera->GetHeight();
-
-		pCamera->SetProjMatrix(mpGraphicsContext->CalcOrthographicMatrix(-halfWidth, halfHeight, halfWidth, -halfHeight, 
-																				   pCamera->GetNearPlane(), pCamera->GetFarPlane()));
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CCameraSystem::SetMainCamera(const ICamera* pCamera)
-	{
-		if (!pCamera)
-		{
-			return RC_INVALID_ARGS;
-		}
-
-		mpMainCamera = pCamera;
-
-		return RC_OK;
 	}
 
 #if TDE2_EDITORS_ENABLED
@@ -224,11 +188,6 @@ namespace TDEngine2
 	}
 
 #endif
-
-	const ICamera* CCameraSystem::GetMainCamera() const
-	{
-		return mpMainCamera;
-	}
 
 
 	TDE2_API ISystem* CreateCameraSystem(const IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, IRenderer* pRenderer, E_RESULT_CODE& result)

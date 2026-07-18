@@ -198,7 +198,7 @@ namespace TDEngine2
 						bool isVisible = true;
 						if (pCameraComponent)
 						{
-							IFrustum* pCameraFrustum = pCameraComponent->GetFrustum();
+							TPtr<IFrustum> pCameraFrustum = pCameraComponent->GetFrustum();
 							if (pCameraFrustum && !pCameraFrustum->TestAABB(pCurrBounds->GetBounds()))
 							{
 								return;

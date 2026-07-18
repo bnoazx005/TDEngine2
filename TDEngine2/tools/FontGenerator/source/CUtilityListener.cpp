@@ -26,7 +26,7 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 	{
 		if (CEntity* pCameraEntity = pWorld->CreateEntity("Camera"))
 		{
-			pCameraEntity->AddComponent<TDEngine2::COrthoCamera>();
+			pCameraEntity->AddComponent<TDEngine2::CCamera>();
 		}
 	}
 

@@ -5,8 +5,7 @@
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/CSystemManager.h"
 #include "../../include/ecs/components/CBoundsComponent.h"
-#include "../../include/graphics/CPerspectiveCamera.h"
-#include "../../include/graphics/COrthoCamera.h"
+#include "../../include/graphics/CCamera.h"
 #include "../../include/editor/CPerfProfiler.h"
 
 
@@ -86,7 +85,7 @@ namespace TDEngine2
 			{
 				transforms.push_back(pEntity->GetComponent<CTransform>());
 				bounds.push_back(pEntity->GetComponent<CBoundsComponent>());
-				hasCameras.push_back(pEntity->HasComponent<CPerspectiveCamera>() || pEntity->HasComponent<COrthoCamera>());
+				hasCameras.push_back(pEntity->HasComponent<CCamera>());
 				parentsTable.push_back(currParentElementIndex);
 			}
 

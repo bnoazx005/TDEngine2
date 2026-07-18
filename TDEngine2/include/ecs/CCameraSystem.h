@@ -7,20 +7,21 @@
 #pragma once
 
 
-#include "./../utils/Types.h"
-#include "./../utils/Utils.h"
-#include "./../math/TRay.h"
+#include "../utils/Types.h"
+#include "../utils/Utils.h"
+#include "../math/TRay.h"
 #include "CBaseSystem.h"
-#include "ICameraSystem.h"
 
 
 namespace TDEngine2
 {
 	class IGraphicsContext;
 	class IWindowSystem;
-	class CBaseCamera;
+	class ICamera;
+	class CCamera;
 	class CTransform;
 	class CCamerasContextComponent;
+	class IRenderer;
 
 
 	/*!
@@ -47,7 +48,7 @@ namespace TDEngine2
 		\brief The class represents a system that updates cameras data
 	*/
 
-	class CCameraSystem : public CBaseSystem, public ICameraSystem
+	class CCameraSystem : public CBaseSystem
 	{
 		public:
 			friend TDE2_API ISystem* CreateCameraSystem(const IWindowSystem*, IGraphicsContext*, IRenderer*, E_RESULT_CODE&);
@@ -55,9 +56,9 @@ namespace TDEngine2
 		public:
 			struct TSystemContext
 			{
-				Vector<CBaseCamera*> mpCameras;
-				Vector<CTransform*>  mpTransforms;
-				TEntitiesArray       mEntities;
+				Vector<CCamera*>    mpCameras;
+				Vector<CTransform*> mpTransforms;
+				TEntitiesArray      mEntities;
 			};
 		public:
 			TDE2_SYSTEM(CCameraSystem);
@@ -74,7 +75,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Init(const IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, IRenderer* pRenderer) override;
+			TDE2_API virtual E_RESULT_CODE Init(const IWindowSystem* pWindowSystem, IGraphicsContext* pGraphicsContext, IRenderer* pRenderer);
 
 			/*!
 				\brief The method inject components array into a system
@@ -95,36 +96,6 @@ namespace TDEngine2
 
 			TDE2_API void Update(IWorld* pWorld, F32 dt) override;
 
-			/*!
-				\brief The method computes a perspective projection matrix based on parameters of a given camera
-
-				\param[in, out] pCamera A pointer to ICamera component
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE ComputePerspectiveProjection(IPerspectiveCamera* pCamera) const override;
-
-			/*!
-				\brief The method computes a orthographic projection matrix based on parameters of a given camera
-
-				\param[in, out] pCamera A pointer to ICamera component
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE ComputeOrthographicProjection(IOrthoCamera* pCamera) const override;
-			
-			/*!
-				\brief The method sets up a main camera from which the scene will be rendered
-
-				\param[in] pCamera A pointer to ICamera component
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE SetMainCamera(const ICamera* pCamera) override;
-
 #if TDE2_EDITORS_ENABLED
 
 			/*!
@@ -134,14 +105,6 @@ namespace TDEngine2
 			TDE2_API void DebugOutput(IDebugUtility* pDebugUtility, F32 dt) const override;
 
 #endif
-
-			/*!
-				\brief The method returns a pointer to a main camera from which the scene is rendered
-
-				\brief The method returns a pointer to a main camera from which the scene is rendered
-			*/
-
-			TDE2_API const ICamera* GetMainCamera() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CCameraSystem)
 		protected:
@@ -154,8 +117,6 @@ namespace TDEngine2
 			const IWindowSystem*      mpWindowSystem = nullptr;
 
 			IRenderer*                mpRenderer = nullptr;
-
-			const ICamera*            mpMainCamera = nullptr;
 
 #if TDE2_EDITORS_ENABLED
 			IWorld*                   mpWorld = nullptr;

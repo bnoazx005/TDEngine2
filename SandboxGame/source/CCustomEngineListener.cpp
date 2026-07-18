@@ -115,9 +115,10 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 		if (auto pMainScene = pSceneManager->GetScene(MainScene).Get())
 		{
-			TPerspectiveCameraParameters cameraParams;
-			cameraParams.mAspect = static_cast<F32>(mpWindowSystem->GetWidth() / mpWindowSystem->GetHeight());
-			cameraParams.mFOV    = 0.5f * CMathConstants::Pi;
+			TCameraComponentData cameraParams{};
+
+			cameraParams.mType   = E_CAMERA_PROJECTION_TYPE::PERSPECTIVE;
+			cameraParams.mParams = TVector2{ 0.5f * CMathConstants::Pi, mpWindowSystem->GetWidth() / static_cast<F32>(mpWindowSystem->GetHeight()) };
 			cameraParams.mZNear  = 0.1f;
 			cameraParams.mZFar   = 500.0f;
 

@@ -16,8 +16,6 @@
 #include "../../include/graphics/CBaseMaterial.h"
 #include "../../include/graphics/CBaseCubemapTexture.h"
 #include "../../include/graphics/CCamera.h"
-#include "../../include/graphics/CPerspectiveCamera.h"
-#include "../../include/graphics/COrthoCamera.h"
 #include "../../include/core/CProjectSettings.h"
 #include "../../include/ecs/CTransform.h"
 #include <unordered_map>
@@ -358,10 +356,12 @@ namespace TDEngine2
 	{
 		CEntity* pEditorCameraEntity = mpWorld->CreateEntity("EditorCamera");
 
-		if (auto pCamera = pEditorCameraEntity->AddComponent<CPerspectiveCamera>())
+		if (auto pCamera = pEditorCameraEntity->AddComponent<CCamera>())
 		{
-			pCamera->SetAspect(aspect);
-			pCamera->SetFOV(fov);
+			TCameraComponentData& cameraData = pCamera->GetData();
+
+			cameraData.mParams = TVector2{ fov, aspect };
+			cameraData.mType = E_CAMERA_PROJECTION_TYPE::PERSPECTIVE;
 		}		
 
 		pEditorCameraEntity->AddComponent<CEditorCamera>();
@@ -371,37 +371,14 @@ namespace TDEngine2
 
 #endif
 
-	CEntity* CScene::CreateCamera(const std::string& id, E_CAMERA_PROJECTION_TYPE cameraType, const TBaseCameraParameters& params)
+	CEntity* CScene::CreateCamera(const std::string& id, E_CAMERA_PROJECTION_TYPE cameraType, const TCameraComponentData& cameraParams)
 	{
 		CEntity* pCameraEntity = CreateEntity(id);
-
-		switch (cameraType)
+		
+		if (CCamera* pCameraComponent = pCameraEntity->AddComponent<CCamera>())
 		{
-			case E_CAMERA_PROJECTION_TYPE::PERSPECTIVE:
-				if (auto pCamera = pCameraEntity->AddComponent<CPerspectiveCamera>())
-				{
-					auto&& perspectiveCameraParams = dynamic_cast<const TPerspectiveCameraParameters&>(params);
-
-					pCamera->SetAspect(perspectiveCameraParams.mAspect);
-					pCamera->SetFOV(perspectiveCameraParams.mFOV);
-					pCamera->SetNearPlane(perspectiveCameraParams.mZNear);
-					pCamera->SetFarPlane(perspectiveCameraParams.mZFar);
-				}
-
-				return pCameraEntity;
-
-			case E_CAMERA_PROJECTION_TYPE::ORTHOGRAPHIC:
-				if (auto pCamera = pCameraEntity->AddComponent<COrthoCamera>())
-				{
-					auto&& orthoCameraParams = dynamic_cast<const TOrthoCameraParameters&>(params);
-
-					pCamera->SetWidth(orthoCameraParams.mViewportWidth);
-					pCamera->SetHeight(orthoCameraParams.mViewportHeight);
-					pCamera->SetNearPlane(orthoCameraParams.mZNear);
-					pCamera->SetFarPlane(orthoCameraParams.mZFar);
-				}
-
-				return pCameraEntity;
+			pCameraComponent->GetData() = cameraParams;
+			return pCameraEntity;
 		}
 
 		TDE2_UNREACHABLE();

@@ -241,7 +241,7 @@ namespace TDEngine2
 	}
 
 
-	static std::array<TVector4, 8> GetCascadeFrustumVertices(IGraphicsContext* pGraphicsContext, IPerspectiveCamera* pActiveCamera, F32 zn, F32 zf) /// zMin - least value for Z axis in NDC space (depends on GAPI)
+	static std::array<TVector4, 8> GetCascadeFrustumVertices(IGraphicsContext* pGraphicsContext, ICamera* pActiveCamera, F32 zn, F32 zf) /// zMin - least value for Z axis in NDC space (depends on GAPI)
 	{
 		TDE2_PROFILER_SCOPE("CLightingSystem::GetCascadeFrustumVertices");
 
@@ -289,7 +289,7 @@ namespace TDEngine2
 
 		const F32 handedness = pGraphicsContext->GetPositiveZAxisDirection();
 
-		auto&& cascadeFrustumCorners = GetCascadeFrustumVertices(pGraphicsContext, dynamic_cast<IPerspectiveCamera*>(pActiveCamera), zn, zf);
+		auto&& cascadeFrustumCorners = GetCascadeFrustumVertices(pGraphicsContext, pActiveCamera, zn, zf);
 
 		TVector3 frustumCenter;
 		{

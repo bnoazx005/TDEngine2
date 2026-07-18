@@ -24,8 +24,6 @@ namespace TDEngine2
 	class IResourceManager;
 	class IMaterial;
 	class IVertexDeclaration;
-	class COrthoCamera;
-	class CPerspectiveCamera;
 	class CEntity;
 	class ICamera;
 	class CBoundsComponent;

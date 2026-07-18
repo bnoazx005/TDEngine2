@@ -13,8 +13,7 @@
 #include "../../include/ecs/CWorld.h"
 #include "../../include/ecs/CEntity.h"
 #include "../../include/ecs/CTransform.h"
-#include "../../include/graphics/CPerspectiveCamera.h"
-#include "../../include/graphics/COrthoCamera.h"
+#include "../../include/graphics/CCamera.h"
 #include "../../include/ecs/CCameraSystem.h"
 #include "../../include/scene/IScene.h"
 #include "../../include/scene/ISceneManager.h"
@@ -275,7 +274,7 @@ namespace TDEngine2
 
 			TMatrix4 matrix = Transpose(pSelectedTransform->GetLocalToWorldTransform());
 			
-			const bool isCameraEntity = pSelectedEntity->HasComponent<CPerspectiveCamera>() || pSelectedEntity->HasComponent<COrthoCamera>();
+			const bool isCameraEntity = pSelectedEntity->HasComponent<CCamera>();
 			if (isCameraEntity)
 			{
 				TQuaternion cameraRotation = pSelectedTransform->GetRotation();

@@ -55,24 +55,12 @@ TEST_CASE("CBaseComponentCloneable Tests")
 		REQUIRE(RC_OK == pSourceComponent->Clone(pDestPtr));
 	}
 
-	SECTION("TestClone_TryClonePerspectiveCamera_ANewInstanceCreatedWithSameParametersValues")
+	SECTION("TestClone_TryCloneCamera_ANewInstanceCreatedWithSameParametersValues")
 	{
-		auto pSourceComponent = TPtr<IComponent>(CreatePerspectiveCamera(result));
+		auto pSourceComponent = TPtr<IComponent>(CreateCamera(result));
 		REQUIRE((pSourceComponent && RC_OK == result));
 
-		auto pDestComponent = TPtr<IComponent>(CreatePerspectiveCamera(result));
-		REQUIRE((pDestComponent && RC_OK == result));
-
-		IComponent* pDestPtr = pDestComponent.Get();
-		REQUIRE(RC_OK == pSourceComponent->Clone(pDestPtr));
-	}
-
-	SECTION("TestClone_TryCloneOrthoCamera_ANewInstanceCreatedWithSameParametersValues")
-	{
-		auto pSourceComponent = TPtr<IComponent>(CreateOrthoCamera(result));
-		REQUIRE((pSourceComponent && RC_OK == result));
-
-		auto pDestComponent = TPtr<IComponent>(CreateOrthoCamera(result));
+		auto pDestComponent = TPtr<IComponent>(CreateCamera(result));
 		REQUIRE((pDestComponent && RC_OK == result));
 
 		IComponent* pDestPtr = pDestComponent.Get();

@@ -10,8 +10,6 @@
 #include "../../include/editor/CPerfProfiler.h"
 #include "../../include/physics/IRaycastContext.h"
 #include "../../include/graphics/CCamera.h"
-#include "../../include/graphics/CPerspectiveCamera.h"
-#include "../../include/graphics/COrthoCamera.h"
 #include "../../include/ecs/CTransform.h"
 #include "../../include/scene/components/CPrefabLinkInfoComponent.h"
 #if TDE2_EDITORS_ENABLED
@@ -580,7 +578,7 @@ namespace TDEngine2
 			{
 				if (auto pCameraEntity = pWorld->FindEntity(pCamerasContext->GetActiveCameraEntityId()))
 				{
-					return GetValidPtrOrDefault<ICamera*>(pCameraEntity->GetComponent<CPerspectiveCamera>(), pCameraEntity->GetComponent<COrthoCamera>());
+					return pCameraEntity->GetComponent<CCamera>();
 				}
 			}
 		}

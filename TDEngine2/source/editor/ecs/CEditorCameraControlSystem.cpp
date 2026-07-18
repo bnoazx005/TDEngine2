@@ -5,8 +5,6 @@
 #include "../../include/ecs/CSystemManager.h"
 #include "../../include/ecs/CTransformSystem.h"
 #include "../../include/graphics/CCamera.h"
-#include "../../include/graphics/COrthoCamera.h"
-#include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/core/IInputContext.h"
 #include "../../include/editor/IEditorsManager.h"
 #include "../../include/utils/CFileLogger.h"

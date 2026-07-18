@@ -23,8 +23,7 @@
 #include "../../include/graphics/UI/CDropDownComponent.h"
 #include "../../include/graphics/animation/CAnimationContainerComponent.h"
 #include "../../include/graphics/animation/CMeshAnimatorComponent.h"
-#include "../../include/graphics/CPerspectiveCamera.h"
-#include "../../include/graphics/COrthoCamera.h"
+#include "../../include/graphics/CCamera.h"
 #include "../../include/physics/2D/CBoxCollisionObject2D.h"
 #include "../../include/physics/2D/CCircleCollisionObject2D.h"
 #include "../../include/physics/2D/CTrigger2D.h"
@@ -43,6 +42,7 @@
 #include "../../include/editor/CEditorSettings.h"
 #include "../../include/utils/CFileLogger.h"
 #define META_EXPORT_UI_SECTION
+#define META_EXPORT_GRAPHICS_SECTION
 #include "../../include/metadata.h"
 #include <array>
 #include <tuple>
@@ -574,99 +574,110 @@ namespace TDEngine2
 	}
 
 
-	static void DrawBaseCameraGUI(const TEditorContext& editorContext)
+	static void DrawCameraGUI(const TEditorContext& editorContext)
 	{
-		IImGUIContext& imguiContext = editorContext.mImGUIContext;
-		CBaseCamera& camera = dynamic_cast<CBaseCamera&>(editorContext.mComponent);
+		Header("Camera", editorContext, [](const TEditorContext& editorContext)
+			{
+				IImGUIContext& imguiContext = editorContext.mImGUIContext;
+				CCamera& camera = dynamic_cast<CCamera&>(editorContext.mComponent);
 
-		/// \note ZNear
-		{
-			F32 zNear = camera.GetNearPlane();
+				TCameraComponentData& cameraData = camera.GetData();
 
-			imguiContext.BeginHorizontal();
-			imguiContext.Label("Near Plane: ");
-			imguiContext.FloatField("##ZNear", zNear, [&camera, &zNear] { camera.SetNearPlane(zNear); });
-			imguiContext.EndHorizontal();
-		}
+				/// \note ZNear
+				{
+					F32 zNear = camera.GetNearPlane();
 
-		/// \note ZFar
-		{
-			F32 zFar = camera.GetFarPlane();
+					imguiContext.BeginHorizontal();
+					imguiContext.Label("Near Plane: ");
+					imguiContext.FloatField("##ZNear", zNear, [&cameraData, &zNear] { cameraData.mZNear = zNear; });
+					imguiContext.EndHorizontal();
+				}
 
-			imguiContext.BeginHorizontal();
-			imguiContext.Label("Far Plane: ");
-			imguiContext.FloatField("##ZFar", zFar, [&camera, &zFar] { camera.SetFarPlane(zFar); });
-			imguiContext.EndHorizontal();
-		}
+				/// \note ZFar
+				{
+					F32 zFar = camera.GetFarPlane();
+
+					imguiContext.BeginHorizontal();
+					imguiContext.Label("Far Plane: ");
+					imguiContext.FloatField("##ZFar", zFar, [&cameraData, &zFar] { cameraData.mZFar = zFar; });
+					imguiContext.EndHorizontal();
+				}
+
+				/// \note Camera projection type
+				{
+					static std::vector<std::string> cameraTypes;
+					if (cameraTypes.empty())
+					{
+						for (auto&& currValueInfo : Meta::EnumTrait<E_CAMERA_PROJECTION_TYPE>::fields)
+						{
+							cameraTypes.push_back(currValueInfo.name);
+						}
+					}
+
+					imguiContext.BeginHorizontal();
+
+					I32 currCameraType = static_cast<U32>(cameraData.mType);
+
+					imguiContext.Label("Text Align");
+					currCameraType = imguiContext.Popup("##CameraType", currCameraType, cameraTypes);
+
+					cameraData.mType = static_cast<E_CAMERA_PROJECTION_TYPE>(currCameraType);
+
+					imguiContext.EndHorizontal();
+				}
+
+				switch (cameraData.mType)
+				{
+					case E_CAMERA_PROJECTION_TYPE::PERSPECTIVE:
+						{
+							/// \note Fov
+							{
+								F32 fov = camera.GetFOV() * CMathConstants::Rad2Deg;
+
+								imguiContext.BeginHorizontal();
+								imguiContext.Label("Field of View: ");
+								imguiContext.FloatField("##FOV", fov, [&cameraData, &fov] { cameraData.mParams.x = (fov * CMathConstants::Deg2Rad); });
+								imguiContext.EndHorizontal();
+							}
+
+							/// \note Aspect
+							{
+								F32 aspect = camera.GetAspect();
+
+								imguiContext.BeginHorizontal();
+								imguiContext.Label("Aspect: ");
+								imguiContext.FloatField("##Aspect", aspect, [&cameraData, &aspect] { cameraData.mParams.y = aspect; });
+								imguiContext.EndHorizontal();
+							}
+						}
+						break;
+
+					case E_CAMERA_PROJECTION_TYPE::ORTHOGRAPHIC:
+						{
+							/// \note Width
+							{
+								F32 width = camera.GetWidth();
+
+								imguiContext.BeginHorizontal();
+								imguiContext.Label("Width: ");
+								imguiContext.FloatField("##Width", width, [&cameraData, &width] { cameraData.mParams.x = width; });
+								imguiContext.EndHorizontal();
+							}
+
+							/// \note Height
+							{
+								F32 height = camera.GetHeight();
+
+								imguiContext.BeginHorizontal();
+								imguiContext.Label("Height: ");
+								imguiContext.FloatField("##Height", height, [&cameraData, &height] { cameraData.mParams.y = height; });
+								imguiContext.EndHorizontal();
+							}
+						}
+						break;
+				}
+			});
 	}
-
-
-	static void DrawPerspectiveCameraGUI(const TEditorContext& editorContext)
-	{
-		Header("Perspective Camera", editorContext, [](const TEditorContext& editorContext)
-		{
-			IImGUIContext& imguiContext = editorContext.mImGUIContext;
-			IComponent& component = editorContext.mComponent;
-
-			CPerspectiveCamera& camera = dynamic_cast<CPerspectiveCamera&>(component);
-
-			/// \note Fov
-			{
-				F32 fov = camera.GetFOV() * CMathConstants::Rad2Deg;
-
-				imguiContext.BeginHorizontal();
-				imguiContext.Label("Field of View: ");
-				imguiContext.FloatField("##FOV", fov, [&camera, &fov] { camera.SetFOV(fov * CMathConstants::Deg2Rad); });
-				imguiContext.EndHorizontal();
-			}
-
-			/// \note Aspect
-			{
-				F32 aspect = camera.GetAspect();
-
-				imguiContext.BeginHorizontal();
-				imguiContext.Label("Aspect: ");
-				imguiContext.FloatField("##Aspect", aspect, [&camera, &aspect] { camera.SetAspect(aspect); });
-				imguiContext.EndHorizontal();
-			}
-
-			DrawBaseCameraGUI(editorContext);
-		});
-	}
-
-	static void DrawOrthographicCameraGUI(const TEditorContext& editorContext)
-	{
-		Header("Orthographic Camera", editorContext, [](const TEditorContext& editorContext)
-		{
-			IImGUIContext& imguiContext = editorContext.mImGUIContext;
-			IComponent& component = editorContext.mComponent;
-
-			COrthoCamera& camera = dynamic_cast<COrthoCamera&>(component);
-
-			/// \note Width
-			{
-				F32 width = camera.GetWidth();
-
-				imguiContext.BeginHorizontal();
-				imguiContext.Label("Width: ");
-				imguiContext.FloatField("##Width", width, [&camera, &width] { camera.SetWidth(width); });
-				imguiContext.EndHorizontal();
-			}
-
-			/// \note Height
-			{
-				F32 height = camera.GetHeight();
-
-				imguiContext.BeginHorizontal();
-				imguiContext.Label("Height: ");
-				imguiContext.FloatField("##Height", height, [&camera, &height] { camera.SetHeight(height); });
-				imguiContext.EndHorizontal();
-			}
-
-			DrawBaseCameraGUI(editorContext);
-		});
-	}
-
 
 	typedef std::vector<std::pair<CSnapGuidesContainer::TSnapGuideline, TVector2>> TPOISnapGuidelines;
 
@@ -2181,8 +2192,7 @@ namespace TDEngine2
 		result = result | editor.RegisterInspector(CSkyboxComponent::GetTypeId(), DrawSkyboxGUI);
 		result = result | editor.RegisterInspector(CParticleEmitter::GetTypeId(), DrawParticleEmitterGUI);
 		result = result | editor.RegisterInspector(CMeshAnimatorComponent::GetTypeId(), DrawMeshAnimatorGUI);
-		result = result | editor.RegisterInspector(CPerspectiveCamera::GetTypeId(), DrawPerspectiveCameraGUI);
-		result = result | editor.RegisterInspector(COrthoCamera::GetTypeId(), DrawOrthographicCameraGUI);
+		result = result | editor.RegisterInspector(CCamera::GetTypeId(), DrawCameraGUI);
 
 		result = result | editor.RegisterInspector(CCanvas::GetTypeId(), DrawCanvasGUI);
 		result = result | editor.RegisterInspector(CLayoutElement::GetTypeId(), DrawLayoutElementGUI);

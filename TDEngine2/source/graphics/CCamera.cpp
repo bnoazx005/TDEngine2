@@ -11,111 +11,154 @@
 
 namespace TDEngine2
 {
+	TDE2_REGISTER_COMPONENT_FACTORY(CreateCameraFactory)
 	TDE2_REGISTER_COMPONENT_FACTORY(CreateCamerasContextComponentFactory)
+	TDE2_DEFINE_COMPONENT_META(TCameraComponentData);
 	TDE2_DEFINE_COMPONENT_META(TCamerasContextComponentData);
 
 
-	CBaseCamera::CBaseCamera():
-		CBaseComponent(),
-		mZNear(0.1f),
-		mZFar(1000.f),
-		mpCameraFrustum(nullptr)
+	CCamera::CCamera():
+		CBaseComponentT()
 	{
 	}
 
-	E_RESULT_CODE CBaseCamera::_onFreeInternal()
+	void CCamera::SetViewProjMatrix(const TMatrix4& viewProjMatrix, F32 zNDCMin)
 	{
-		defer([this] 
-		{ 
-			if (mpCameraFrustum)
-			{
-				mpCameraFrustum->Free();
-			}
-		});
-
-		return CBaseComponent::_onFreeInternal();
-	}
-
-	void CBaseCamera::SetNearPlane(F32 zn)
-	{
-		mZNear = zn;
-	}
-
-	void CBaseCamera::SetFarPlane(F32 zf)
-	{
-		mZFar = zf;
-	}
-
-	void CBaseCamera::SetProjMatrix(const TMatrix4& projMatrix)
-	{
-		mProjMatrix = projMatrix;
-	}
-
-	void CBaseCamera::SetViewMatrix(const TMatrix4& viewMatrix)
-	{
-		mViewMatrix = viewMatrix;
-	}
-
-	void CBaseCamera::SetViewProjMatrix(const TMatrix4& viewProjMatrix, F32 zNDCMin)
-	{
-		mViewProjMatrix    = viewProjMatrix;
-		mInvViewProjMatrix = Inverse(viewProjMatrix);
+		mData.mViewProjMatrix    = viewProjMatrix;
+		mData.mInvViewProjMatrix = Inverse(viewProjMatrix);
 
 		if (!mpCameraFrustum)
 		{
 			E_RESULT_CODE result = RC_OK;
-			mpCameraFrustum = CreateFrustum(result);
+			mpCameraFrustum = TPtr<IFrustum>(CreateFrustum(result));
 		}
 
 		if (mpCameraFrustum)
 		{
-			TDE2_ASSERT(mpCameraFrustum->ComputeBounds(mInvViewProjMatrix, zNDCMin) == RC_OK);
+			TDE2_ASSERT(mpCameraFrustum->ComputeBounds(mData.mInvViewProjMatrix, zNDCMin) == RC_OK);
 		}
 	}
 
-	void CBaseCamera::SetPosition(const TVector3& position)
+	E_RESULT_CODE CCamera::Clone(IComponent*& pDestObject) const
 	{
-		mPosition = position;
+		if (CCamera* pDestComponentPtr = dynamic_cast<CCamera*>(pDestObject))
+		{
+			pDestComponentPtr->mData           = mData;
+			pDestComponentPtr->mpCameraFrustum = mpCameraFrustum;
+
+			return RC_OK;
+		}
+
+		return RC_FAIL;
 	}
 
-	F32 CBaseCamera::GetNearPlane() const
+	F32 CCamera::GetNearPlane() const
 	{
-		return mZNear;
+		return mData.mZNear;
 	}
 
-	F32 CBaseCamera::GetFarPlane() const
+	F32 CCamera::GetFarPlane() const
 	{
-		return mZFar;
+		return mData.mZFar;
 	}
 
-	const TMatrix4& CBaseCamera::GetProjMatrix() const
+
+	F32 CCamera::GetWidth() const
 	{
-		return mProjMatrix;
+		TDE2_ASSERT(mData.mType == E_CAMERA_PROJECTION_TYPE::ORTHOGRAPHIC);
+		return mData.mParams.x;
 	}
 
-	const TMatrix4& CBaseCamera::GetViewMatrix() const
+	F32 CCamera::GetHeight() const
 	{
-		return mViewMatrix;
+		TDE2_ASSERT(mData.mType == E_CAMERA_PROJECTION_TYPE::ORTHOGRAPHIC);
+		return mData.mParams.y;
 	}
 
-	const TMatrix4& CBaseCamera::GetViewProjMatrix() const
+	F32 CCamera::GetFOV() const
 	{
-		return mViewProjMatrix;
+		TDE2_ASSERT(mData.mType == E_CAMERA_PROJECTION_TYPE::PERSPECTIVE);
+		return mData.mParams.x;
 	}
 
-	const TMatrix4& CBaseCamera::GetInverseViewProjMatrix() const
+	F32 CCamera::GetAspect() const
 	{
-		return mInvViewProjMatrix;
+		TDE2_ASSERT(mData.mType == E_CAMERA_PROJECTION_TYPE::PERSPECTIVE);
+		return mData.mParams.y;
 	}
 
-	const TVector3& CBaseCamera::GetPosition() const
+	const TMatrix4& CCamera::GetProjMatrix() const
 	{
-		return mPosition;
+		return mData.mProjMatrix;
 	}
 
-	IFrustum* CBaseCamera::GetFrustum() const
+	const TMatrix4& CCamera::GetViewMatrix() const
+	{
+		return mData.mViewMatrix;
+	}
+
+	const TMatrix4& CCamera::GetViewProjMatrix() const
+	{
+		return mData.mViewProjMatrix;
+	}
+
+	const TMatrix4& CCamera::GetInverseViewProjMatrix() const
+	{
+		return mData.mInvViewProjMatrix;
+	}
+
+	TPtr<IFrustum> CCamera::GetFrustum() const
 	{
 		return mpCameraFrustum;
+	}
+
+	const TVector3& CCamera::GetPosition() const
+	{
+		return mData.mPosition;
+	}
+
+	const std::string& CCamera::GetTypeName() const
+	{
+		static const std::string id{ "camera" };
+		return id;
+	}
+
+
+	IComponent* CreateCamera(E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IComponent, CCamera, result);
+	}
+
+
+	/*!
+		\brief CCameraFactory's definition
+	*/
+
+	CCameraFactory::CCameraFactory() :
+		CBaseComponentFactory()
+	{
+	}
+
+	IComponent* CCameraFactory::CreateDefault() const
+	{
+		E_RESULT_CODE result = RC_OK;
+		return CreateCamera(result);
+	}
+
+	E_RESULT_CODE CCameraFactory::SetupComponent(CCamera* pComponent, const TCameraParameters& params) const
+	{
+		if (!pComponent)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		return RC_OK;
+	}
+
+
+	IComponentFactory* CreateCameraFactory(E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(IComponentFactory, CCameraFactory, result);
 	}
 
 	

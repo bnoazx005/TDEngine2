@@ -2,9 +2,7 @@
 #include "../../include/graphics/IRenderer.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/graphics/CRenderQueue.h"
-#include "../../include/graphics/COrthoCamera.h"
 #include "../../include/graphics/CCamera.h"
-#include "../../include/graphics/CPerspectiveCamera.h"
 #include "../../include/graphics/CStaticMeshContainer.h"
 #include "../../include/graphics/CStaticMesh.h"
 #include "../../include/graphics/CSkinnedMeshContainer.h"
@@ -553,7 +551,7 @@ namespace TDEngine2
 
 		if (CEntity* pCameraEntity = pWorld->FindEntity(cameraEntityId))
 		{
-			return GetValidPtrOrDefault<ICamera*>(pCameraEntity->GetComponent<CPerspectiveCamera>(), pCameraEntity->GetComponent<COrthoCamera>());
+			return pCameraEntity->GetComponent<CCamera>();
 		}
 
 		return nullptr;

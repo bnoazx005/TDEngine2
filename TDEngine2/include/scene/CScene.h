@@ -154,7 +154,7 @@ namespace TDEngine2
 			TDE2_API CEntity* CreateEditorCamera(F32 aspect, F32 fov) override;
 #endif
 
-			TDE2_API CEntity* CreateCamera(const std::string& id, E_CAMERA_PROJECTION_TYPE cameraType, const TBaseCameraParameters& params) override;
+			TDE2_API CEntity* CreateCamera(const std::string& id, E_CAMERA_PROJECTION_TYPE cameraType, const TCameraComponentData& params) override;
 			
 			/*!
 				\brief The method instantiates a new copy of specified prefab's hierarchy

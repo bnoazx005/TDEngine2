@@ -21,7 +21,7 @@ namespace TDEngine2
 	class IResourceManager;
 	class CEntity;
 	class IPrefabsRegistry;
-	struct TBaseCameraParameters;
+	struct TCameraComponentData;
 
 
 	enum class E_CAMERA_PROJECTION_TYPE : U8;
@@ -135,7 +135,7 @@ namespace TDEngine2
 			TDE2_API virtual CEntity* CreateEditorCamera(F32 aspect, F32 fov) = 0;
 #endif
 
-			TDE2_API virtual CEntity* CreateCamera(const std::string& id, E_CAMERA_PROJECTION_TYPE cameraType, const TBaseCameraParameters& params) = 0;
+			TDE2_API virtual CEntity* CreateCamera(const std::string& id, E_CAMERA_PROJECTION_TYPE cameraType, const TCameraComponentData& params) = 0;
 			
 			/*!
 				\brief The method instantiates a new copy of specified prefab's hierarchy

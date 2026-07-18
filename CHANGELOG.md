@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.34] 2026-07-14
+## [0.6.34] 2026-07-18
 
 ### Added
 
@@ -27,6 +27,8 @@ automated serialization/deserialization of components.
 - **TVector2(F32)** constructor was marked as explicit.
 
 - Incorrect work of **CBaseComponentT<T>::GetPropertyFactoriesTable()** was fixed.
+
+- Now only one type of a component for a camera is used which is **CCamera** that can be configured for both types of projection. **COrthoCamera** and **CPerspectiveCamera** components were removed.
 
 ### Fixed
 

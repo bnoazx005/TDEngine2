@@ -16,8 +16,7 @@
 #include "../../include/ecs/CTransformSystem.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/CProjectSettings.h"
-#include "../../include/graphics/CPerspectiveCamera.h"
-#include "../../include/graphics/COrthoCamera.h"
+#include "../../include/graphics/CCamera.h"
 #include "../../include/graphics/IShader.h"
 #include "../../include/graphics/ITexture2D.h"
 #include "../../include/graphics/IPipeline.h"
@@ -210,7 +209,7 @@ namespace TDEngine2
 				mParticlesInstancesBufferHandles.resize(particleEmitters.size());
 				mActiveParticlesCount.resize(particleEmitters.size());
 
-				const auto& cameras = pWorld->FindEntitiesWithAny<CPerspectiveCamera, COrthoCamera>();
+				const auto& cameras = pWorld->FindEntitiesWithAny<CCamera>();
 				mpCameraEntity = !cameras.empty() ? pWorld->FindEntity(cameras.front()) : nullptr;
 
 				mUsedMaterials = GetUsedMaterials(entities, pWorld, mpResourceManager.Get());
@@ -275,7 +274,7 @@ namespace TDEngine2
 					return;
 				}
 
-				ICamera* pCameraComponent = GetValidPtrOrDefault<ICamera*>(mpCameraEntity->GetComponent<CPerspectiveCamera>(), mpCameraEntity->GetComponent<COrthoCamera>());
+				ICamera* pCameraComponent = mpCameraEntity->GetComponent<CCamera>();
 				TDE2_ASSERT(pCameraComponent);
 
 				// \note Process a new step of particles simulation

@@ -27,10 +27,12 @@ TDEngine2::E_RESULT_CODE CUtilityListener::OnStart()
 
 	if (CEntity* pCameraEntity = pWorld->CreateEntity("Camera"))
 	{
-		if (auto pCamera = pCameraEntity->AddComponent<CPerspectiveCamera>())
+		if (auto pCamera = pCameraEntity->AddComponent<CCamera>())
 		{
-			pCamera->SetAspect(mpWindowSystem->GetWidth() / static_cast<F32>(mpWindowSystem->GetHeight()));
-			pCamera->SetFOV(0.5f * CMathConstants::Pi);
+			TCameraComponentData& cameraData = pCamera->GetData();
+
+			cameraData.mType = E_CAMERA_PROJECTION_TYPE::PERSPECTIVE;
+			cameraData.mParams = TVector2{ 0.5f * CMathConstants::Pi, mpWindowSystem->GetWidth() / static_cast<F32>(mpWindowSystem->GetHeight()) };
 		}
 	}
 

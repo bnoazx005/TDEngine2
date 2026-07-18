@@ -17,73 +17,51 @@
 namespace TDEngine2
 {
 	class IWorld;
+	class IFrustum;
+
 
 	TDE2_DECLARE_SCOPED_PTR(IWorld);
+	TDE2_DECLARE_SCOPED_PTR(IFrustum);
 
 
 	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
-	struct TCommonCameraComponentData
+	struct TCameraComponentData
 	{
-		F32       mZNear = 0.01f;
-		F32       mZFar = 1000.0f;
+		FIELD_META(name = znear) F32                     mZNear = 0.01f;
+		FIELD_META(name = zfar) F32                      mZFar = 1000.0f;
 
-		TVector3  mPosition = ZeroVector3;
+		TVector3                                         mPosition = ZeroVector3;
 
-		TMatrix4  mProjMatrix;
-		TMatrix4  mViewMatrix;
-		TMatrix4  mViewProjMatrix;
-		TMatrix4  mInvViewProjMatrix;
+		TMatrix4                                         mProjMatrix;
+		TMatrix4                                         mViewMatrix;
+		TMatrix4                                         mViewProjMatrix;
+		TMatrix4                                         mInvViewProjMatrix;
 
-		IFrustum* mpCameraFrustum = nullptr;
+		FIELD_META(name = type) E_CAMERA_PROJECTION_TYPE mType = E_CAMERA_PROJECTION_TYPE::PERSPECTIVE;
 
-		TDE2_DECLARE_COMPONENT_META(TCommonCameraComponentData);
+		FIELD_META(name = typed_params) TVector2         mParams = TVector2{ CMathConstants::Pi * 0.5f, 1.0f }; // For ortho camera contains width/height, for perspective one contains fov and aspect
+
+		TDE2_DECLARE_COMPONENT_META(TCameraComponentData);
 	};
 
 
+	TDE2_API IComponent* CreateCamera(E_RESULT_CODE& result);
+
+
 	/*!
-		class CBaseCamera
+		class CCamera
 
 		\brief The class represents a foundation for all types of camera's 
 		implementation in the engine. If you want to implement your custom
 		camera component use this class as a basis.
 	*/
 
-	class CBaseCamera : public virtual ICamera, public CBaseComponent
+	class CCamera : public virtual ICamera, public CBaseComponentT<CCamera, TCameraComponentData>
 	{
 		public:
-			TDE2_REGISTER_TYPE(CBaseCamera)
-
-			/*!
-				\brief The method sets up a position of a near clip plane along Z axis
-
-				\param[in] zn A position of a near clip plane on Z axis
-			*/
-
-			TDE2_API void SetNearPlane(F32 zn) override;
-
-			/*!
-				\brief The method sets up a position of a far clip plane along Z axis
-
-				\param[in] zn A position of a far clip plane on Z axis
-			*/
-
-			TDE2_API void SetFarPlane(F32 zf) override;
-
-			/*!
-				\brief The method specifies a projection matrix for a camera
-
-				\param[in] projMatrix A projection matrix
-			*/
-
-			TDE2_API void SetProjMatrix(const TMatrix4& projMatrix) override;
-
-			/*!
-				\brief The method specifies a view matrix for a camera
-
-				\param[in] viewMatrix A view matrix
-			*/
-
-			TDE2_API void SetViewMatrix(const TMatrix4& viewMatrix) override;
+			friend TDE2_API IComponent* CreateCamera(E_RESULT_CODE&);
+		public:
+			TDE2_REGISTER_COMPONENT_TYPE(CCamera)
 
 			/*!
 				\brief The method specifies a view-projection matrix for a camera
@@ -93,8 +71,15 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void SetViewProjMatrix(const TMatrix4& viewProjMatrix, F32 zNDCMin) override;
+			
+			/*!
+				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
+				The original state of the object stays the same
 
-			TDE2_API void SetPosition(const TVector3& position) override;
+				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
+			*/
+
+			E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
 			/*!
 				\brief The method returns a position of a near clip plane on Z axis
@@ -111,6 +96,38 @@ namespace TDEngine2
 			*/
 
 			TDE2_API F32 GetFarPlane() const override;
+
+			/*!
+				\brief The method returns a camera viewport's width
+
+				\return The method returns a camera viewport's width
+			*/
+
+			TDE2_API F32 GetWidth() const override;
+
+			/*!
+				\brief The method returns a camera viewport's height
+
+				\return The method returns a camera viewport's height
+			*/
+
+			TDE2_API F32 GetHeight() const override;
+
+			/*!
+				\brief The method returns a camera's field of view
+
+				\return The method returns a camera's field of view
+			*/
+
+			TDE2_API F32 GetFOV() const override;
+
+			/*!
+				\brief The method returns a camera's aspect ratio
+
+				\return The method returns a camera's aspect ratio
+			*/
+
+			TDE2_API F32 GetAspect() const override;
 
 			/*!
 				\brief The method returns a projection matrix of a camera
@@ -143,7 +160,7 @@ namespace TDEngine2
 			*/
 
 			TDE2_API const TMatrix4& GetInverseViewProjMatrix() const override;
-
+			
 			TDE2_API const TVector3& GetPosition() const override;
 
 			/*!
@@ -152,28 +169,21 @@ namespace TDEngine2
 				\return The method returns pointer to camera's actual frustum implementation
 			*/
 
-			TDE2_API IFrustum* GetFrustum() const override;
+			TDE2_API TPtr<IFrustum> GetFrustum() const override;
+
+			/*!
+				\return The method returns type name (lowercase is preffered)
+			*/
+
+			TDE2_API const std::string& GetTypeName() const override;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseCamera)
-
-			TDE2_API E_RESULT_CODE _onFreeInternal() override;
-		protected:
-			F32       mZNear;
-
-			F32       mZFar;
-			
-			TVector3  mPosition;
-
-			TMatrix4  mProjMatrix;
-
-			TMatrix4  mViewMatrix;
-
-			TMatrix4  mViewProjMatrix;
-
-			TMatrix4  mInvViewProjMatrix;
-
-			IFrustum* mpCameraFrustum;
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CCamera)
+		private:
+			TPtr<IFrustum> mpCameraFrustum = nullptr;
 	};
+
+
+	TDE2_DECLARE_COMPONENT_FACTORY(Camera, TCameraParameters);
 
 
 	/*!
@@ -318,14 +328,4 @@ namespace TDEngine2
 
 
 	TDE2_API E_RESULT_CODE SetActiveCamera(TPtr<IWorld> pWorld, TEntityId cameraEntityId);
-
-
-	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
-	struct TOrthoCameraComponentData
-	{
-		FIELD_META(name = width) F32  mWidth = 1.0f;
-		FIELD_META(name = height) F32 mHeight = 1.0f;
-
-		TDE2_DECLARE_COMPONENT_META(TOrthoCameraComponentData);
-	};
 }
