@@ -390,7 +390,7 @@ namespace TDEngine2
 
 		lightingData.mSunLightDirection = Normalize(TVector4(pLightTransform->GetForwardVector(), 0.0f)); //TVector4(Normalize(pSunLight->GetDirection()), 0.0f);
 		lightingData.mSunLightPosition  = TVector4(pLightTransform->GetPosition(), 1.0f);
-		lightingData.mSunLightColor     = pCurrLight->GetColor();
+		lightingData.mSunLightColor     = pCurrLight->GetData().mColor;
 
 		auto&& sunLightMatrices = CalcSunLightCascadesMatrices(pGraphicsContext, pCamera, pLightTransform, cascadesSplitsPlanes, shadowMapCascadesCount);
 
@@ -405,7 +405,7 @@ namespace TDEngine2
 	}
 
 
-	static TMatrix4 ConstructPointLightMatrix(IGraphicsContext* pGraphicsContext, IPointLight* pPointLight, const TVector3& lightPos, USIZE i)
+	static TMatrix4 ConstructPointLightMatrix(IGraphicsContext* pGraphicsContext, CPointLight* pPointLight, const TVector3& lightPos, USIZE i)
 	{
 		const F32 handedness = -pGraphicsContext->GetPositiveZAxisDirection();
 		auto&& ndcInfo = pGraphicsContext->GetContextInfo().mNDCBox;
@@ -430,7 +430,7 @@ namespace TDEngine2
 			TVector3(0.0f, 0.0f, -1.0f)
 		};
 
-		return Transpose(Mul(PerspectiveProj(90.0f * CMathConstants::Deg2Rad, 1.0f, 0.001f, pPointLight->GetRange(), ndcInfo.min.z, ndcInfo.max.z, handedness),
+		return Transpose(Mul(PerspectiveProj(90.0f * CMathConstants::Deg2Rad, 1.0f, 0.001f, pPointLight->GetData().mRange, ndcInfo.min.z, ndcInfo.max.z, handedness),
 			LookAt(lightPos, lightUpVectors[i], lightPos + lightPosOffsets[i], handedness)));
 	}
 
@@ -448,12 +448,14 @@ namespace TDEngine2
 			CTransform* pLightTransform = transforms[i];
 			CPointLight* pLight = lights[i];
 
+			const TPointLightComponentData& pointLightData = pLight->GetData();
+
 			TLightData currPointLight;
 			currPointLight.mLightType = static_cast<I32>(E_LIGHT_SOURCE_TYPE::POINT);
-			currPointLight.mPosition = TVector4(pLightTransform->GetPosition(), 1.0f);
-			currPointLight.mColor = pLight->GetColor();
-			currPointLight.mIntensity = pLight->GetIntensity();
-			currPointLight.mRange = pLight->GetRange();
+			currPointLight.mPosition  = TVector4(pLightTransform->GetPosition(), 1.0f);
+			currPointLight.mColor     = pointLightData.mColor;
+			currPointLight.mIntensity = pointLightData.mIntensity;
+			currPointLight.mRange     = pointLightData.mRange;
 
 			for (USIZE sideIndex = 0; sideIndex < 6; sideIndex++)
 			{
@@ -480,14 +482,16 @@ namespace TDEngine2
 			CTransform* pLightTransform = transforms[i];
 			CSpotLight* pLight = lights[i];
 
+			const TSpotLightComponentData& spotLightData = pLight->GetData();
+
 			TLightData currSpotLight;
 			currSpotLight.mLightType = static_cast<I32>(E_LIGHT_SOURCE_TYPE::SPOT);
-			currSpotLight.mPosition = TVector4(pLightTransform->GetPosition(), 1.0f);
+			currSpotLight.mPosition  = TVector4(pLightTransform->GetPosition(), 1.0f);
 			currSpotLight.mDirection = Normalize(TVector4(pLightTransform->GetForwardVector(), 0.0f));
-			currSpotLight.mColor = pLight->GetColor();
-			currSpotLight.mIntensity = pLight->GetIntensity();
-			currSpotLight.mAngle = pLight->GetAngle();
-			currSpotLight.mRange = pLight->GetRange();
+			currSpotLight.mColor     = spotLightData.mColor;
+			currSpotLight.mIntensity = spotLightData.mIntensity;
+			currSpotLight.mAngle     = spotLightData.mConeAngle;
+			currSpotLight.mRange     = spotLightData.mRange;
 
 			lightsData.emplace_back(currSpotLight);
 		}

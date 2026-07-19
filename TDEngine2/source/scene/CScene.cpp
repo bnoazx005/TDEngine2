@@ -263,8 +263,10 @@ namespace TDEngine2
 
 		if (auto pDirectionLightComponent = pDirectionLightEntity->AddComponent<CDirectionalLight>())
 		{
-			pDirectionLightComponent->SetColor(tint);
-			pDirectionLightComponent->SetIntensity(intensity);
+			TDirectionalLightComponentData& dirLightData = pDirectionLightComponent->GetData();
+
+			dirLightData.mColor     = tint;
+			dirLightData.mIntensity = intensity;
 		}
 
 		return pDirectionLightEntity;
@@ -276,9 +278,11 @@ namespace TDEngine2
 
 		if (auto pPointLight = pPointLightEntity->AddComponent<CPointLight>())
 		{
-			pPointLight->SetColor(tint);
-			pPointLight->SetIntensity(intensity);
-			pPointLight->SetRange(range);
+			TPointLightComponentData& pointLightData = pPointLight->GetData();
+
+			pointLightData.mColor     = tint;
+			pointLightData.mIntensity = intensity;
+			pointLightData.mRange     = range;
 		}
 
 		return pPointLightEntity;
@@ -290,9 +294,11 @@ namespace TDEngine2
 
 		if (auto pSpotLight = pSpotLightEntity->AddComponent<CSpotLight>())
 		{
-			pSpotLight->SetColor(tint);
-			pSpotLight->SetIntensity(intensity);
-			pSpotLight->SetAngle(angle);
+			TSpotLightComponentData& spotLightData = pSpotLight->GetData();
+
+			spotLightData.mColor     = tint;
+			spotLightData.mIntensity = intensity;
+			spotLightData.mConeAngle = angle;
 		}
 
 		return pSpotLightEntity;

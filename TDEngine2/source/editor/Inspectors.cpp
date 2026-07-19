@@ -350,34 +350,35 @@ namespace TDEngine2
 			IComponent& component = editorContext.mComponent;
 
 			CPointLight& pointLight = dynamic_cast<CPointLight&>(component);
+			TPointLightComponentData& pointLightData = pointLight.GetData();
 
 			/// \note color
 			{
-				TColor32F color = pointLight.GetColor();
+				TColor32F color = pointLightData.mColor;
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Color: ");
-				imguiContext.ColorPickerField("##Color", color, [&pointLight, &color] { pointLight.SetColor(color); });
+				imguiContext.ColorPickerField("##Color", color, [&pointLightData, &color] { pointLightData.mColor = color; });
 				imguiContext.EndHorizontal();
 			}
 
 			/// \note range
 			{
-				F32 range = pointLight.GetRange();
+				F32 range = pointLightData.mRange;
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Range: ");
-				imguiContext.FloatField("##Range", range, [&pointLight, &range] { pointLight.SetRange(range); });
+				imguiContext.FloatField("##Range", range, [&pointLightData, &range] { pointLightData.mRange = range; });
 				imguiContext.EndHorizontal();
 			}
 
 			/// \note intensity
 			{
-				F32 intensity = pointLight.GetIntensity();
+				F32 intensity = pointLightData.mIntensity;
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Intensity: ");
-				imguiContext.FloatField("##Intensity", intensity, [&pointLight, &intensity] { pointLight.SetIntensity(intensity); });
+				imguiContext.FloatField("##Intensity", intensity, [&pointLightData, &intensity] { pointLightData.mIntensity = intensity; });
 				imguiContext.EndHorizontal();
 			}
 		});
@@ -391,44 +392,45 @@ namespace TDEngine2
 			IComponent& component = editorContext.mComponent;
 
 			CSpotLight& spotLight = dynamic_cast<CSpotLight&>(component);
+			TSpotLightComponentData& spotLightData = spotLight.GetData();
 
 			/// \note color
 			{
-				TColor32F color = spotLight.GetColor();
+				TColor32F color = spotLightData.mColor;
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Color: ");
-				imguiContext.ColorPickerField("##Color", color, [&spotLight, &color] { spotLight.SetColor(color); });
+				imguiContext.ColorPickerField("##Color", color, [&spotLightData, &color] { spotLightData.mColor = color; });
 				imguiContext.EndHorizontal();
 			}
 
 			/// \note angle
 			{
-				F32 angle = spotLight.GetAngle();
+				F32 angle = spotLightData.mConeAngle;
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Angle: ");
-				imguiContext.FloatField("##Angle", angle, [&spotLight, &angle] { spotLight.SetAngle(angle); });
+				imguiContext.FloatField("##Angle", angle, [&spotLightData, &angle] { spotLightData.mConeAngle = angle; });
 				imguiContext.EndHorizontal();
 			}
 
 			/// \note range
 			{
-				F32 range = spotLight.GetRange();
+				F32 range = spotLightData.mRange;
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Range: ");
-				imguiContext.FloatField("##Range", range, [&spotLight, &range] { spotLight.SetRange(range); });
+				imguiContext.FloatField("##Range", range, [&spotLightData, &range] { spotLightData.mRange = range; });
 				imguiContext.EndHorizontal();
 			}
 
 			/// \note intensity
 			{
-				F32 intensity = spotLight.GetIntensity();
+				F32 intensity = spotLightData.mIntensity;
 
 				imguiContext.BeginHorizontal();
 				imguiContext.Label("Intensity: ");
-				imguiContext.FloatField("##Intensity", intensity, [&spotLight, &intensity] { spotLight.SetIntensity(intensity); });
+				imguiContext.FloatField("##Intensity", intensity, [&spotLightData, &intensity] { spotLightData.mIntensity = intensity; });
 				imguiContext.EndHorizontal();
 			}
 		});

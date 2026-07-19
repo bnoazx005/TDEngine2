@@ -8,11 +8,21 @@
 
 
 #include "ILight.h"
-#include "CBaseLight.h"
+#include "../../ecs/CBaseComponent.h"
 
 
 namespace TDEngine2
 {
+	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
+	struct TPointLightComponentData
+	{
+		FIELD_META(name = color) TColor32F mColor = TColorUtils::mWhite;
+		FIELD_META(name = intensity) F32   mIntensity = 1.0f;
+		FIELD_META(name = range) F32       mRange = 1.0f;
+		TDE2_DECLARE_COMPONENT_META(TPointLightComponentData);
+	};
+
+
 	/*!
 		\brief A factory function for creation objects of CPointLight's type
 
@@ -30,7 +40,7 @@ namespace TDEngine2
 		\brief The class represents omni directional light source 
 	*/
 
-	class CPointLight : public CBaseLight, public IPointLight, public CPoolMemoryAllocPolicy<CPointLight, 1 << 20>
+	class CPointLight : public CBaseComponentT<CPointLight, TPointLightComponentData>
 	{
 		public:
 			friend TDE2_API IComponent* CreatePointLight(E_RESULT_CODE&);
@@ -38,54 +48,12 @@ namespace TDEngine2
 			TDE2_REGISTER_COMPONENT_TYPE(CPointLight)
 
 			/*!
-				\brief The method deserializes object's state from given reader
-
-				\param[in, out] pReader An input stream of data that contains information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
+				\return The method returns type name (lowercase is preffered)
 			*/
 
-			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
-
-			/*!
-				\brief The method serializes object's state into given stream
-
-				\param[in, out] pWriter An output stream of data that writes information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
-
-			/*!
-				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
-				The original state of the object stays the same
-
-				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
-			*/
-
-			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
-
-			/*!
-				\brief The method specifies radius of the point light
-
-				\param[in] range A maximum distance at which the light affects to objects
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE SetRange(F32 range) override;
-
-			/*!
-				\brief The method returns a radius of the point light
-				\return The method returns a radius of the point light
-			*/
-
-			TDE2_API F32 GetRange() const override;
+			TDE2_API const std::string& GetTypeName() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPointLight)
-		protected:
-			F32 mRange;
 	};
 
 

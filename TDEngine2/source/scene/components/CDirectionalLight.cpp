@@ -1,67 +1,23 @@
 #include "../../include/scene/components/CDirectionalLight.h"
+#define META_EXPORT_ECS_SECTION
+#include "../../include/metadata.h"
 
 
 namespace TDEngine2
 {
 	TDE2_REGISTER_COMPONENT_FACTORY(CreateDirectionalLightFactory)
+	TDE2_DEFINE_COMPONENT_META(TDirectionalLightComponentData);
 
 
 	CDirectionalLight::CDirectionalLight() :
-		CBaseLight()
+		CBaseComponentT()
 	{
 	}
 
-	E_RESULT_CODE CDirectionalLight::Load(IArchiveReader* pReader)
+	const std::string& CDirectionalLight::GetTypeName() const
 	{
-		if (!pReader)
-		{
-			return RC_FAIL;
-		}
-
-		pReader->BeginGroup("direction");
-		{
-			if (auto directionResult = LoadVector3(pReader))
-			{
-				//mDirection = Normalize(directionResult.Get());
-			}
-		}
-		pReader->EndGroup();
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CDirectionalLight::Save(IArchiveWriter* pWriter)
-	{
-		if (!pWriter)
-		{
-			return RC_FAIL;
-		}
-
-		pWriter->BeginGroup("component");
-		{
-			pWriter->SetUInt32("type_id", static_cast<U32>(CDirectionalLight::GetTypeId()));
-			pWriter->BeginGroup("direction");
-			{
-				//SaveVector3(pWriter, mDirection);
-			}
-			pWriter->EndGroup();
-		}
-		pWriter->EndGroup();
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CDirectionalLight::Clone(IComponent*& pDestObject) const
-	{
-		if (auto pComponent = dynamic_cast<CDirectionalLight*>(pDestObject))
-		{
-			pComponent->mColor = mColor;
-			pComponent->mIntensity = mIntensity;
-
-			return RC_OK;
-		}
-
-		return RC_FAIL;
+		static const std::string id{ "directional_light" };
+		return id;
 	}
 	
 
@@ -93,8 +49,9 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		pComponent->SetColor(params.mColor);
-		pComponent->SetIntensity(params.mIntensity);
+		TDirectionalLightComponentData& dirLightData = pComponent->GetData();
+		dirLightData.mColor     = params.mColor;
+		dirLightData.mIntensity = params.mIntensity;
 
 		return RC_OK;
 	}

@@ -1,90 +1,24 @@
 #include "../../include/scene/components/CSpotLight.h"
+#define META_EXPORT_ECS_SECTION
+#include "../../include/metadata.h"
 
 
 namespace TDEngine2
 {
 	TDE2_REGISTER_COMPONENT_FACTORY(CreateSpotLightFactory)
+	TDE2_DEFINE_COMPONENT_META(TSpotLightComponentData);
 
 
 	CSpotLight::CSpotLight() :
-		CBaseLight()
+		CBaseComponentT()
 	{
 	}
 
-	E_RESULT_CODE CSpotLight::Load(IArchiveReader* pReader)
+	const std::string& CSpotLight::GetTypeName() const
 	{
-		if (!pReader)
-		{
-			return RC_FAIL;
-		}
-
-		mConeAngle = pReader->GetFloat("angle");
-		mRange = pReader->GetFloat("range");
-
-		return RC_OK;
+		static const std::string id{ "spot_light" };
+		return id;
 	}
-
-	E_RESULT_CODE CSpotLight::Save(IArchiveWriter* pWriter)
-	{
-		if (!pWriter)
-		{
-			return RC_FAIL;
-		}
-
-		pWriter->BeginGroup("component");
-		{
-			pWriter->SetUInt32("type_id", static_cast<U32>(CSpotLight::GetTypeId()));
-			pWriter->SetFloat("angle", mConeAngle);
-			pWriter->SetFloat("range", mRange);
-		}
-		pWriter->EndGroup();
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CSpotLight::Clone(IComponent*& pDestObject) const
-	{
-		if (auto pComponent = dynamic_cast<CSpotLight*>(pDestObject))
-		{
-			pComponent->mColor = mColor;
-			pComponent->mIntensity = mIntensity;
-			pComponent->mConeAngle = mConeAngle;
-			pComponent->mRange = mRange;
-
-			return RC_OK;
-		}
-
-		return RC_FAIL;
-	}
-
-	E_RESULT_CODE CSpotLight::SetAngle(F32 value)
-	{
-		mConeAngle = value;
-		return RC_OK;
-	}
-
-	F32 CSpotLight::GetAngle() const
-	{
-		return mConeAngle;
-	}
-
-	E_RESULT_CODE CSpotLight::SetRange(F32 range)
-	{
-		if (range < 0.0f)
-		{
-			return RC_INVALID_ARGS;
-		}
-
-		mRange = range;
-
-		return RC_OK;
-	}
-
-	F32 CSpotLight::GetRange() const
-	{
-		return mRange;
-	}
-
 
 	IComponent* CreateSpotLight(E_RESULT_CODE& result)
 	{
@@ -114,10 +48,12 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		pComponent->SetColor(params.mColor);
-		pComponent->SetIntensity(params.mIntensity);
-		pComponent->SetAngle(params.mAngle);
-		pComponent->SetRange(params.mRange);
+		TSpotLightComponentData& spotLightData = pComponent->GetData();
+
+		spotLightData.mColor     = params.mColor;
+		spotLightData.mIntensity = params.mIntensity;
+		spotLightData.mConeAngle = params.mAngle;
+		spotLightData.mRange     = params.mRange;
 
 		return RC_OK;
 	}

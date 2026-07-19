@@ -259,7 +259,6 @@
 /// scene
 #include "scene/components/ShadowMappingComponents.h"
 #include "scene/components/ILight.h"
-#include "scene/components/CBaseLight.h"
 #include "scene/components/CDirectionalLight.h"
 #include "scene/components/CPointLight.h"
 #include "scene/components/CSpotLight.h"

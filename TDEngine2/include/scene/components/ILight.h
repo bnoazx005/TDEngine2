@@ -24,59 +24,9 @@ namespace TDEngine2
 
 	typedef struct TBaseLightParameters : public TBaseComponentParameters
 	{
-		TColor32F mColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-
+		TColor32F mColor = TColorUtils::mWhite;
 		F32       mIntensity = 1.0f;
 	} TBaseLightParameters;
-
-
-	/*!
-		interface ILight
-
-		\brief The interface describes a common functionality of a light source
-	*/
-
-	class ILight
-	{
-		public:
-			/*!
-				\brief The method assigns color of the light
-
-				\param[in] color A color of the light source
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE SetColor(const TColor32F& color) = 0;
-			
-			/*!
-				\brief The method specifies intensity of the light
-
-				\param[in] intensity An intensity of the light source
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE SetIntensity(F32 intensity) = 0;
-
-			/*!
-				\brief The method returns a color of the light source
-
-				\return The method returns a color of the light source
-			*/
-
-			TDE2_API virtual const TColor32F& GetColor() const = 0;
-
-			/*!
-				\brief The method returns an intensity of the light source
-
-				\return The method returns an intensity of the light source
-			*/
-
-			TDE2_API virtual F32 GetIntensity() const = 0;
-		protected:
-			DECLARE_INTERFACE_PROTECTED_MEMBERS(ILight)
-	};
 
 
 	/*!
@@ -92,20 +42,6 @@ namespace TDEngine2
 
 
 	/*!
-		interface IDirectionalLight
-
-		\brief The interface describes a functionality of a directional light source component
-	*/
-
-	class IDirectionalLight : public virtual ILight
-	{
-		public:
-		protected:
-			DECLARE_INTERFACE_PROTECTED_MEMBERS(IDirectionalLight)
-	};
-
-
-	/*!
 		struct TPointLightParameters
 
 		\brief The structure contains parameters for creation of a point light's component
@@ -115,34 +51,6 @@ namespace TDEngine2
 	{
 		F32 mRange = 1.0f;
 	} TPointLightParameters;
-
-
-	/*!
-		interface IPointLight
-	*/
-
-	class IPointLight : public virtual ILight
-	{
-		public:
-			/*!
-				\brief The method specifies radius of the point light
-
-				\param[in] range A maximum distance at which the light affects to objects
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE SetRange(F32 range) = 0;
-
-			/*!
-				\brief The method returns a radius of the point light
-				\return The method returns a radius of the point light
-			*/
-
-			TDE2_API virtual F32 GetRange() const = 0;
-		protected:
-			DECLARE_INTERFACE_PROTECTED_MEMBERS(IPointLight)
-	};
 
 
 	/*!
@@ -156,69 +64,4 @@ namespace TDEngine2
 		F32 mAngle = 0.0f;
 		F32 mRange = 1.0f;
 	} TSpotLightParameters;
-
-
-	/*!
-		interface ISpotLight
-	*/
-
-	class ISpotLight : public virtual ILight
-	{
-		public:
-			/*!
-				\brief The method specifies an angle of a spotlight
-
-				\param[in] angle value of cone's angle in radians
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE SetAngle(F32 value) = 0;
-
-			/*!
-				\brief The method returns an angle of a cone of the Spot light
-			*/
-
-			TDE2_API virtual F32 GetAngle() const = 0;
-
-			/*!
-				\brief The method specifies radius of the point light
-
-				\param[in] range A maximum distance at which the light affects to objects
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE SetRange(F32 range) = 0;
-
-			/*!
-				\brief The method returns a radius of the point light
-				\return The method returns a radius of the point light
-			*/
-
-			TDE2_API virtual F32 GetRange() const = 0;
-		protected:
-			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISpotLight)
-	};
-
-
-	/*!
-		interface ILightFactory
-
-		\brief The interface represents a functionality of a factory of ILight objects
-	*/
-
-	class ILightFactory : public IComponentFactory
-	{
-		public:
-			/*!
-				\brief The method initializes an internal state of a factory
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API virtual E_RESULT_CODE Init() = 0;
-		protected:
-			DECLARE_INTERFACE_PROTECTED_MEMBERS(ILightFactory)
-	};
 }
