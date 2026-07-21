@@ -1,45 +1,23 @@
 #include "../../../include/physics/2D/CTrigger2D.h"
+#define META_EXPORT_ECS_SECTION
+#include "../../include/metadata.h"
 
 
 namespace TDEngine2
 {
 	TDE2_REGISTER_COMPONENT_FACTORY(CreateTrigger2DFactory)
+	TDE2_DEFINE_COMPONENT_META(TTrigger2DComponentData)
 
 
 	CTrigger2D::CTrigger2D() :
-		CBaseComponent()
+		CBaseComponentT()
 	{
 	}
 
-	E_RESULT_CODE CTrigger2D::Load(IArchiveReader* pReader)
+	const std::string& CTrigger2D::GetTypeName() const
 	{
-		return CBaseComponent::Load(pReader);
-	}
-
-	E_RESULT_CODE CTrigger2D::Save(IArchiveWriter* pWriter)
-	{
-		if (!pWriter)
-		{
-			return RC_FAIL;
-		}
-
-		pWriter->BeginGroup("component");
-		{
-			pWriter->SetUInt32("type_id", static_cast<U32>(CTrigger2D::GetTypeId()));
-		}
-		pWriter->EndGroup();
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CTrigger2D::Clone(IComponent*& pDestObject) const
-	{
-		if (auto pComponent = dynamic_cast<CTrigger2D*>(pDestObject))
-		{
-			return RC_OK;
-		}
-
-		return RC_FAIL;
+		static const std::string id{ "trigger_2d" };
+		return id;
 	}
 
 

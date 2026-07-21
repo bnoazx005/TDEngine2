@@ -8,14 +8,19 @@
 
 
 #include "CBaseSystem.h"
-#include "./../core/Event.h"
-#include "./../physics/2D/ICollisionObjectsVisitor.h"
-#include "./../physics/IRaycastContext.h"
-#include "./../math/TVector2.h"
-#include "Box2D.h"
+#include "../core/Event.h"
+#include "../physics/2D/ICollisionObjectsVisitor.h"
+#include "../physics/IRaycastContext.h"
+#include "../math/TVector2.h"
 #include <vector>
 #include <unordered_map>
 #include <functional>
+#include <memory>
+
+
+class b2World;
+class b2ContactListener;
+class b2Body;
 
 
 namespace TDEngine2
@@ -76,57 +81,7 @@ namespace TDEngine2
 			typedef std::unordered_map<U32, TEntityId>     THandles2EntitiesMap;
 			typedef TCollidersData<CBaseCollisionObject2D> TBaseCollidersData;
 
-			/*!
-				class CContactsListener
-
-				\brief The class implements a listener of all contacts
-				that are occurs within b2World's instance
-			*/
-
-			class CTriggerContactsListener : public b2ContactListener
-			{
-				public:
-					CTriggerContactsListener(IEventManager*& pEventManager, std::vector<b2Body*>& bodiesArray, const THandles2EntitiesMap& handles2EntitiesMap);
-
-					/// Called when two fixtures begin to touch.
-					void BeginContact(b2Contact* contact) override;
-
-					/// Called when two fixtures cease to touch.
-					void EndContact(b2Contact* contact) override;
-				private:	
-					TEntityId _getEntityIdByBody(const b2Body* pBody) const;
-				private:
-					std::vector<b2Body*>*       mpBodies;
-					const THandles2EntitiesMap* mpHandles2EntitiesMap;
-					IEventManager*              mpEventManager;
-			};
-
 			typedef std::function<void(const TRaycastResult&)> TOnRaycastHitCallback;
-
-			class CRayCastClosestCallback : public b2RayCastCallback
-			{
-				public:
-					TDE2_API CRayCastClosestCallback(const TOnRaycastHitCallback& onHitCallback);
-					TDE2_API F32 ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, F32 fraction);
-				private:
-					bool                  mHit;
-
-					b2Vec2                mPoint;
-					b2Vec2                mNormal;
-
-					TOnRaycastHitCallback mOnHitCallback;
-			};
-			
-			class CPointOverlapCallback : public b2QueryCallback
-			{
-				public:
-					TDE2_API CPointOverlapCallback() = default;
-					TDE2_API bool ReportFixture(b2Fixture* pFixture);
-
-					TDE2_API TEntityId GetEntityId() const;
-				private:
-					b2Body* mpBody = nullptr;
-			};
 		public:
 			TDE2_SYSTEM(CPhysics2DSystem);
 
@@ -208,24 +163,10 @@ namespace TDEngine2
 			TDE2_API bool RaycastAll(const TVector2& origin, const TVector2& direction, F32 maxDistance, std::vector<TRaycastResult>& hitResults);
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPhysics2DSystem)
-
-			TDE2_API b2Body* _createPhysicsBody(const CTransform* pTransform, bool isTrigger, const CBaseCollisionObject2D* pCollider);
-
-			TDE2_API void _testPointOverlap(const TVector2& point, const TOnRaycastHitCallback& onHitCallback) const;
-
-			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			static const TVector2 mDefaultGravity;
+			std::unique_ptr<b2World>           mpWorldInstance = nullptr;
 
-			static const F32      mDefaultTimeStep;
-
-			static const U32      mDefaultVelocityIterations;
-
-			static const U32      mDefaultPositionIterations;
-
-			b2World*              mpWorldInstance = nullptr;
-
-			b2ContactListener*    mpContactsListener = nullptr;
+			std::unique_ptr<b2ContactListener> mpContactsListener = nullptr;
 
 			IEventManager*        mpEventManager = nullptr;
 

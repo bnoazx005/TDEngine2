@@ -10,18 +10,146 @@
 #include "../../include/physics/CBaseRaycastContext.h"
 #include "../../include/core/IEventManager.h"
 #include "../../include/editor/CPerfProfiler.h"
+#include "Box2D.h"
 #include <algorithm>
 
 
 namespace TDEngine2
 {
-	const TVector2 CPhysics2DSystem::mDefaultGravity = TVector2(0.0f, -10.0f);
+	static const TVector2 DEFAULT_GRAVITY = TVector2(0.0f, -10.0f);
 
-	const F32 CPhysics2DSystem::mDefaultTimeStep = 1.0f / 60.0f;
+	TDE2_STATIC_CONSTEXPR const F32 DEFAULT_TIME_STEP = 1.0f / 60.0f;
 
-	const U32 CPhysics2DSystem::mDefaultVelocityIterations = 6;
+	TDE2_STATIC_CONSTEXPR const U32 DEFAULT_VELOCITY_ITERATIONS = 6;
 
-	const U32 CPhysics2DSystem::mDefaultPositionIterations = 2;
+	TDE2_STATIC_CONSTEXPR const U32 DEFAULT_POSITION_ITERATIONS = 2;
+
+
+	class CPointOverlapCallback : public b2QueryCallback
+	{
+		public:
+			CPointOverlapCallback() = default;
+
+			bool ReportFixture(b2Fixture* pFixture)
+			{
+				mpBody = pFixture ? pFixture->GetBody() : nullptr;
+				return false;
+			}
+
+			TEntityId GetEntityId() const
+			{
+				if (auto pUserData = GetValidPtrOrDefault<void*>(mpBody ? mpBody->GetUserData() : nullptr, nullptr))
+				{
+					return static_cast<CEntity*>(pUserData)->GetId();
+				}
+
+				return TEntityId::Invalid;
+			}
+		private:
+			b2Body* mpBody = nullptr;
+	};
+
+
+	class CRayCastClosestCallback : public b2RayCastCallback
+	{
+		public:
+			CRayCastClosestCallback(const CPhysics2DSystem::TOnRaycastHitCallback& onHitCallback) :
+				mOnHitCallback(onHitCallback)
+			{
+			}
+
+			F32 ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, F32 fraction)
+			{
+				b2Body* body = fixture->GetBody();
+
+				TEntityId entityId = TEntityId::Invalid;
+
+				if (auto pUserData = GetValidPtrOrDefault<void*>(body ? body->GetUserData() : nullptr, nullptr))
+				{
+					entityId = static_cast<CEntity*>(pUserData)->GetId();
+				}
+
+				mHit = true;
+
+				mPoint = point;
+				mNormal = normal;
+
+				if (mOnHitCallback)
+				{
+					mOnHitCallback({ entityId, { mPoint.x, mPoint.y, 0.0f }, { mNormal.x, mNormal.y, 0.0f } });
+				}
+
+				// By returning the current fraction, we instruct the calling code to clip the ray and
+				// continue the ray-cast to the next fixture. WARNING: do not assume that fixtures
+				// are reported in order. However, by clipping, we can always get the closest fixture.
+				return fraction;
+			}
+		private:
+			bool                  mHit = false;
+
+			b2Vec2                mPoint{};
+			b2Vec2                mNormal{};
+
+			CPhysics2DSystem::TOnRaycastHitCallback mOnHitCallback = nullptr;
+	};
+
+
+	/*!
+		class CContactsListener
+
+		\brief The class implements a listener of all contacts that are occurs within b2World's instance
+	*/
+
+	class CTriggerContactsListener : public b2ContactListener
+	{
+		public:
+			CTriggerContactsListener(IEventManager*& pEventManager, std::vector<b2Body*>& bodiesArray, const CPhysics2DSystem::THandles2EntitiesMap& handles2EntitiesMap):
+				mpBodies(&bodiesArray), mpHandles2EntitiesMap(&handles2EntitiesMap), mpEventManager(pEventManager)
+			{
+			}
+
+			/// Called when two fixtures begin to touch.
+			void BeginContact(b2Contact* contact)
+			{
+				if (!contact->GetFixtureA()->IsSensor() && !contact->GetFixtureB()->IsSensor())
+				{
+					return;
+				}
+
+				TOnTrigger2DEnterEvent trigger2DEnterEventData;
+				trigger2DEnterEventData.mEntities[0] = _getEntityIdByBody(contact->GetFixtureA()->GetBody());
+				trigger2DEnterEventData.mEntities[1] = _getEntityIdByBody(contact->GetFixtureB()->GetBody());
+
+				mpEventManager->Notify(trigger2DEnterEventData);
+			}
+
+			/// Called when two fixtures cease to touch.
+			void EndContact(b2Contact* contact)
+			{
+				if (!contact->GetFixtureA()->IsSensor() && !contact->GetFixtureB()->IsSensor())
+				{
+					return;
+				}
+
+				TOnTrigger2DExitEvent trigger2DExitEventData;
+				trigger2DExitEventData.mEntities[0] = _getEntityIdByBody(contact->GetFixtureA()->GetBody());
+				trigger2DExitEventData.mEntities[1] = _getEntityIdByBody(contact->GetFixtureB()->GetBody());
+
+				mpEventManager->Notify(trigger2DExitEventData);
+			}
+
+		private:
+			TEntityId _getEntityIdByBody(const b2Body* pBody) const
+			{
+				auto iter = std::find(mpBodies->cbegin(), mpBodies->cend(), pBody);
+				return (iter != mpBodies->cend()) ? static_cast<TEntityId>(mpHandles2EntitiesMap->at(static_cast<U32>(std::distance(mpBodies->cbegin(), iter)))) : TEntityId::Invalid;
+			}
+
+		private:
+			std::vector<b2Body*>*                         mpBodies = nullptr;
+			const CPhysics2DSystem::THandles2EntitiesMap* mpHandles2EntitiesMap;
+			IEventManager*                                mpEventManager = nullptr;
+	};
 
 
 	CPhysics2DSystem::CPhysics2DSystem() :
@@ -38,36 +166,78 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mpWorldInstance = new b2World({ mDefaultGravity.x, mDefaultGravity.y });
-		mpWorldInstance->SetContactListener(mpContactsListener = new CTriggerContactsListener(pEventManager, mCollidersData.mBodies, mHandles2EntitiesMap));
+		mpWorldInstance    = std::make_unique<b2World>(b2Vec2{ DEFAULT_GRAVITY.x, DEFAULT_GRAVITY.y });
+		mpContactsListener = std::make_unique<CTriggerContactsListener>(pEventManager, mCollidersData.mBodies, mHandles2EntitiesMap);
+
+		mpWorldInstance->SetContactListener(mpContactsListener.get());
 
 		mpEventManager = pEventManager;
 
-		mCurrGravity = mDefaultGravity;
+		mCurrGravity = DEFAULT_GRAVITY;
 
-		mCurrTimeStep = mDefaultTimeStep;
+		mCurrTimeStep = DEFAULT_TIME_STEP;
 
-		mCurrVelocityIterations = mDefaultVelocityIterations;
-		mCurrPositionIterations = mDefaultPositionIterations;
+		mCurrVelocityIterations = DEFAULT_VELOCITY_ITERATIONS;
+		mCurrPositionIterations = DEFAULT_POSITION_ITERATIONS;
 
 		mIsInitialized = true;
 
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CPhysics2DSystem::_onFreeInternal()
+
+	static b2Body* CreatePhysicsBody(b2World* pWorld, ICollisionObjectsVisitor* pCollisionObjectsVisitor, const CTransform* pTransform, bool isTrigger, const CBaseCollisionObject2D* pCollider)
 	{
-		if (mpWorldInstance)
+		TVector3 position = pTransform->GetPosition();
+		TVector3 scale = pTransform->GetScale();
+
+		b2BodyDef bodyDef;
+
+		bodyDef.position.Set(position.x, position.y);
+
+		switch (pCollider->GetCollisionType())
 		{
-			delete mpWorldInstance;
-
-			mpWorldInstance = nullptr;
+			case E_COLLISION_OBJECT_TYPE::COT_DYNAMIC:
+				bodyDef.type = b2_dynamicBody;
+				break;
+			case E_COLLISION_OBJECT_TYPE::COT_STATIC:
+				bodyDef.type = b2_staticBody;
+				break;
+			case E_COLLISION_OBJECT_TYPE::COT_KINEMATIC:
+				bodyDef.type = b2_kinematicBody;
+				break;
 		}
-		
-		delete mpContactsListener;
 
-		return RC_OK;
+		bodyDef.angle          = 0.0f;
+		bodyDef.linearDamping  = 0.0f;
+		bodyDef.angularDamping = 0.01f;
+		bodyDef.gravityScale   = 1.0f;
+		bodyDef.allowSleep     = true;
+		bodyDef.awake          = true;
+		bodyDef.active         = true;
+
+		b2Body* pCreatedBody = pWorld->CreateBody(&bodyDef);
+		if (!pCreatedBody)
+		{
+			return pCreatedBody;
+		}
+
+		b2FixtureDef fixtureDef;
+
+		fixtureDef.friction = 0.3f;
+		fixtureDef.density = 1.0f;
+		fixtureDef.isSensor = isTrigger;
+
+		pCollider->GetCollisionShape(pCollisionObjectsVisitor, [&fixtureDef, &pCreatedBody](const b2Shape* pShapeCollider)
+			{
+				fixtureDef.shape = pShapeCollider;
+
+				pCreatedBody->CreateFixture(&fixtureDef);
+			}); /// this invokation creates a new fixture object
+
+		return pCreatedBody;
 	}
+
 
 	void CPhysics2DSystem::InjectBindings(IWorld* pWorld)
 	{
@@ -116,10 +286,8 @@ namespace TDEngine2
 				mCollidersData.mTriggers.push_back(pCurrTrigger);
 			}
 
-			pCurrBody = _createPhysicsBody(pTransform, pCurrTrigger,
-										   GetValidPtrOrDefault<CBaseCollisionObject2D*>(
-													pCurrEntity->GetComponent<CBoxCollisionObject2D>(), 
-													pCurrEntity->GetComponent<CCircleCollisionObject2D>()));
+			pCurrBody = CreatePhysicsBody(mpWorldInstance.get(), this, pTransform, pCurrTrigger,
+										   GetValidPtrOrDefault<CBaseCollisionObject2D*>(pCurrEntity->GetComponent<CBoxCollisionObject2D>(), pCurrEntity->GetComponent<CCircleCollisionObject2D>()));
 			
 			pCurrBody->SetUserData(pCurrEntity);
 
@@ -180,6 +348,26 @@ namespace TDEngine2
 		return circleCollider;
 	}
 
+
+	static void TestPointOverlap(b2World* pWorld, const TVector2& point, const CPhysics2DSystem::TOnRaycastHitCallback& onHitCallback)
+	{
+		CPointOverlapCallback callback;
+
+		b2Vec2 p{ point.x, point.y };
+		b2AABB aabb;
+		aabb.lowerBound = p;
+		aabb.upperBound = p;
+
+		pWorld->QueryAABB(&callback, aabb);
+
+		TEntityId entityId = callback.GetEntityId();
+		if (entityId != TEntityId::Invalid && onHitCallback)
+		{
+			onHitCallback({ entityId, { point.x, point.y, 0.0f }, ZeroVector3 });
+		}
+	}
+
+
 	void CPhysics2DSystem::RaycastClosest(const TVector2& origin, const TVector2& direction, F32 maxDistance, const TOnRaycastHitCallback& onHitCallback)
 	{
 		TVector2 end = origin + (Length(direction) > 1e-3f ? Normalize(direction) : ZeroVector2) * maxDistance;
@@ -187,7 +375,7 @@ namespace TDEngine2
 		if (Length(end - origin) < 1e-3f)
 		{
 			// \note the case of ray that's orthogonal for XY plane
-			_testPointOverlap(origin, onHitCallback);
+			TestPointOverlap(mpWorldInstance.get(), origin, onHitCallback);
 			return;
 		}
 
@@ -199,168 +387,6 @@ namespace TDEngine2
 	bool CPhysics2DSystem::RaycastAll(const TVector2& origin, const TVector2& direction, F32 maxDistance, std::vector<TRaycastResult>& hitResults)
 	{
 		return false;
-	}
-
-	b2Body* CPhysics2DSystem::_createPhysicsBody(const CTransform* pTransform, bool isTrigger, const CBaseCollisionObject2D* pCollider)
-	{
-		TVector3 position = pTransform->GetPosition();
-		TVector3 scale    = pTransform->GetScale();
-
-		E_COLLISION_OBJECT_TYPE type = pCollider->GetCollisionType();
-
-		b2BodyDef bodyDef;
-
-		bodyDef.position.Set(position.x, position.y);
-
-		switch (type)
-		{
-			case E_COLLISION_OBJECT_TYPE::COT_DYNAMIC:
-				bodyDef.type = b2_dynamicBody;
-				break;
-			case E_COLLISION_OBJECT_TYPE::COT_STATIC:
-				bodyDef.type = b2_staticBody;
-				break;
-			case E_COLLISION_OBJECT_TYPE::COT_KINEMATIC:
-				bodyDef.type = b2_kinematicBody;
-				break;
-		}
-
-		bodyDef.angle          = 0.0f;
-		bodyDef.linearDamping  = 0.0f;
-		bodyDef.angularDamping = 0.01f;
-		bodyDef.gravityScale   = 1.0f;
-		bodyDef.allowSleep     = true;
-		bodyDef.awake          = true;
-		bodyDef.active         = true;
-				
-		b2Body* pCreatedBody = mpWorldInstance->CreateBody(&bodyDef);
-
-		if (!pCreatedBody)
-		{
-			return pCreatedBody;
-		}
-
-		b2FixtureDef fixtureDef;
-
-		fixtureDef.friction = 0.3f;
-		fixtureDef.density  = 1.0f;
-		fixtureDef.isSensor = isTrigger;
-		
-		pCollider->GetCollisionShape(this, [&fixtureDef, &pCreatedBody](const b2Shape* pShapeCollider)
-		{
-			fixtureDef.shape = pShapeCollider;
-
-			pCreatedBody->CreateFixture(&fixtureDef);
-		}); /// this invokation creates a new fixture object
-
-		return pCreatedBody;
-	}
-
-	void CPhysics2DSystem::_testPointOverlap(const TVector2& point, const TOnRaycastHitCallback& onHitCallback) const
-	{
-		CPointOverlapCallback callback;
-
-		b2Vec2 p { point.x, point.y };
-		b2AABB aabb;
-		aabb.lowerBound = p;
-		aabb.upperBound = p;
-
-		mpWorldInstance->QueryAABB(&callback, aabb);
-
-		TEntityId entityId = callback.GetEntityId();
-		if (entityId != TEntityId::Invalid && onHitCallback)
-		{
-			onHitCallback({ entityId, { point.x, point.y, 0.0f }, ZeroVector3 });
-		}
-	}
-
-	CPhysics2DSystem::CTriggerContactsListener::CTriggerContactsListener(IEventManager*& pEventManager, std::vector<b2Body*>& bodiesArray, 
-																		 const THandles2EntitiesMap& handles2EntitiesMap):
-		mpBodies(&bodiesArray), mpHandles2EntitiesMap(&handles2EntitiesMap), mpEventManager(pEventManager)
-	{
-	}
-
-	void CPhysics2DSystem::CTriggerContactsListener::BeginContact(b2Contact* contact)
-	{
-		if (!contact->GetFixtureA()->IsSensor() && !contact->GetFixtureB()->IsSensor())
-		{
-			return;
-		}
-
-		TOnTrigger2DEnterEvent trigger2DEnterEventData;
-		trigger2DEnterEventData.mEntities[0] = _getEntityIdByBody(contact->GetFixtureA()->GetBody());
-		trigger2DEnterEventData.mEntities[1] = _getEntityIdByBody(contact->GetFixtureB()->GetBody());
-
-		mpEventManager->Notify(trigger2DEnterEventData);
-	}
-
-	void CPhysics2DSystem::CTriggerContactsListener::EndContact(b2Contact* contact)
-	{
-		if (!contact->GetFixtureA()->IsSensor() && !contact->GetFixtureB()->IsSensor())
-		{
-			return;
-		}
-
-		TOnTrigger2DExitEvent trigger2DExitEventData;
-		trigger2DExitEventData.mEntities[0] = _getEntityIdByBody(contact->GetFixtureA()->GetBody());
-		trigger2DExitEventData.mEntities[1] = _getEntityIdByBody(contact->GetFixtureB()->GetBody());
-
-		mpEventManager->Notify(trigger2DExitEventData);
-	}
-
-	CPhysics2DSystem::CRayCastClosestCallback::CRayCastClosestCallback(const TOnRaycastHitCallback& onHitCallback):
-		mHit(false), mOnHitCallback(onHitCallback)
-	{
-	}
-
-	F32 CPhysics2DSystem::CRayCastClosestCallback::ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, F32 fraction)
-	{
-		b2Body* body = fixture->GetBody();
-		
-		TEntityId entityId = TEntityId::Invalid;
-
-		if (auto pUserData = GetValidPtrOrDefault<void*>(body ? body->GetUserData() : nullptr, nullptr))
-		{
-			entityId = static_cast<CEntity*>(pUserData)->GetId();
-		}
-
-		mHit = true;
-
-		mPoint  = point;
-		mNormal = normal;
-
-		if (mOnHitCallback)
-		{
-			mOnHitCallback({ entityId, { mPoint.x, mPoint.y, 0.0f }, { mNormal.x, mNormal.y, 0.0f } });
-		}
-
-		// By returning the current fraction, we instruct the calling code to clip the ray and
-		// continue the ray-cast to the next fixture. WARNING: do not assume that fixtures
-		// are reported in order. However, by clipping, we can always get the closest fixture.
-		return fraction;
-	}
-
-
-	bool CPhysics2DSystem::CPointOverlapCallback::ReportFixture(b2Fixture* pFixture)
-	{
-		mpBody = pFixture ? pFixture->GetBody() : nullptr;
-		return false;
-	}
-
-	TEntityId CPhysics2DSystem::CPointOverlapCallback::GetEntityId() const
-	{
-		if (auto pUserData = GetValidPtrOrDefault<void*>(mpBody ? mpBody->GetUserData() : nullptr, nullptr))
-		{
-			return static_cast<CEntity*>(pUserData)->GetId();
-		}
-
-		return TEntityId::Invalid;
-	}
-
-	TEntityId CPhysics2DSystem::CTriggerContactsListener::_getEntityIdByBody(const b2Body* pBody) const
-	{
-		auto iter = std::find(mpBodies->cbegin(), mpBodies->cend(), pBody);
-		return (iter != mpBodies->cend()) ? static_cast<TEntityId>(mpHandles2EntitiesMap->at(static_cast<U32>(std::distance(mpBodies->cbegin(), iter)))) : TEntityId::Invalid;
 	}
 
 
