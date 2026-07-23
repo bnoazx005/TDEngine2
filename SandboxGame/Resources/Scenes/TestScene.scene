@@ -16,7 +16,13 @@ entities:
               y: 1.000000
               z: 1.000000
             type_id: 3864726948
-        - component: 
+        - component:
+            intensity: 1.0
+            color:
+              r: 1.0
+              g: 1.0
+              b: 1.0
+              a: 1.0
             type_id: 114296622
       id: 16
       name: DirectionalLight
