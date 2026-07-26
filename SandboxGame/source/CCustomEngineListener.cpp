@@ -47,7 +47,8 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 	pTransform->SetPosition({ 0.0f, -1.0f, 1.0f });
 	pTransform->SetScale({ 10.0f, 1.0f, 1.0f });
 	auto collider = pTriggerEntity->AddComponent<CBoxCollisionObject2D>();
-	collider->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_STATIC);
+	auto physicsBody = pTriggerEntity->AddComponent<CPhysicsBody2D>();
+	physicsBody->GetData().mType = E_COLLISION_OBJECT_TYPE::COT_STATIC;
 	pTriggerEntity->AddComponent<CTrigger2D>();
 
 	//mpResourceManager->Load<IStaticMesh>("hq.mesh");

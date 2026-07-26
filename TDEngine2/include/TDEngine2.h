@@ -240,13 +240,11 @@
 #include "math/TRay.h"
 
 ///physics
-#include "physics/2D/ICollisionObject2D.h"
-#include "physics/2D/CBaseCollisionObject2D.h"
 #include "physics/2D/CBoxCollisionObject2D.h"
 #include "physics/2D/CCircleCollisionObject2D.h"
-#include "physics/2D/ICollisionObjectsVisitor.h"
 #include "physics/2D/ITrigger2D.h"
 #include "physics/2D/CTrigger2D.h"
+#include "physics/2D/CPhysicsBody2D.h"
 #include "physics/3D/IBoxCollisionObject3D.h"
 #include "physics/3D/ISphereCollisionObject3D.h"
 #include "physics/3D/IConvexHullCollisionObject3D.h"

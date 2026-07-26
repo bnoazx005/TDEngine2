@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.34] 2026-07-19
+## [0.6.34] 2026-07-26
 
 ### Added
 
@@ -30,7 +30,7 @@ automated serialization/deserialization of components.
 
 - Now only one type of a component for a camera is used which is **CCamera** that can be configured for both types of projection. **COrthoCamera** and **CPerspectiveCamera** components were removed.
 
-- **ILight**, **IDirectionalLight**, **IPointLight**, **ISpotLight** interfaces were removed. Now all light types are inherited from **CBaseComponentT<TComponentType, TComponentDataType>**.
+- 2D physics system and its components were refactored. Now separate component **CPhysicsBody2D** is used to specify collision type and mass of an object. Part of interfaces were removed from the code.
 
 ### Fixed
 

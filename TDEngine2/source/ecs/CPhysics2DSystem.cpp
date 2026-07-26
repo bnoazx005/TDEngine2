@@ -7,9 +7,11 @@
 #include "../../include/physics/2D/CBoxCollisionObject2D.h"
 #include "../../include/physics/2D/CCircleCollisionObject2D.h"
 #include "../../include/physics/2D/CTrigger2D.h"
+#include "../../include/physics/2D/CPhysicsBody2D.h"
 #include "../../include/physics/CBaseRaycastContext.h"
 #include "../../include/core/IEventManager.h"
 #include "../../include/editor/CPerfProfiler.h"
+#include "../../include/math/MathUtils.h"
 #include "Box2D.h"
 #include <algorithm>
 
@@ -18,10 +20,8 @@ namespace TDEngine2
 {
 	static const TVector2 DEFAULT_GRAVITY = TVector2(0.0f, -10.0f);
 
-	TDE2_STATIC_CONSTEXPR const F32 DEFAULT_TIME_STEP = 1.0f / 60.0f;
-
+	TDE2_STATIC_CONSTEXPR const F32 DEFAULT_TIME_STEP           = 1.0f / 60.0f;
 	TDE2_STATIC_CONSTEXPR const U32 DEFAULT_VELOCITY_ITERATIONS = 6;
-
 	TDE2_STATIC_CONSTEXPR const U32 DEFAULT_POSITION_ITERATIONS = 2;
 
 
@@ -103,8 +103,8 @@ namespace TDEngine2
 	class CTriggerContactsListener : public b2ContactListener
 	{
 		public:
-			CTriggerContactsListener(IEventManager*& pEventManager, std::vector<b2Body*>& bodiesArray, const CPhysics2DSystem::THandles2EntitiesMap& handles2EntitiesMap):
-				mpBodies(&bodiesArray), mpHandles2EntitiesMap(&handles2EntitiesMap), mpEventManager(pEventManager)
+			CTriggerContactsListener(IEventManager*& pEventManager):
+				mpEventManager(pEventManager)
 			{
 			}
 
@@ -117,8 +117,8 @@ namespace TDEngine2
 				}
 
 				TOnTrigger2DEnterEvent trigger2DEnterEventData;
-				trigger2DEnterEventData.mEntities[0] = _getEntityIdByBody(contact->GetFixtureA()->GetBody());
-				trigger2DEnterEventData.mEntities[1] = _getEntityIdByBody(contact->GetFixtureB()->GetBody());
+				trigger2DEnterEventData.mEntities[0] = static_cast<CTransform*>(contact->GetFixtureA()->GetUserData())->GetOwnerId();
+				trigger2DEnterEventData.mEntities[1] = static_cast<CTransform*>(contact->GetFixtureB()->GetUserData())->GetOwnerId();
 
 				mpEventManager->Notify(trigger2DEnterEventData);
 			}
@@ -132,28 +132,23 @@ namespace TDEngine2
 				}
 
 				TOnTrigger2DExitEvent trigger2DExitEventData;
-				trigger2DExitEventData.mEntities[0] = _getEntityIdByBody(contact->GetFixtureA()->GetBody());
-				trigger2DExitEventData.mEntities[1] = _getEntityIdByBody(contact->GetFixtureB()->GetBody());
+				trigger2DExitEventData.mEntities[0] = static_cast<CTransform*>(contact->GetFixtureA()->GetUserData())->GetOwnerId();
+				trigger2DExitEventData.mEntities[1] = static_cast<CTransform*>(contact->GetFixtureB()->GetUserData())->GetOwnerId();
 
 				mpEventManager->Notify(trigger2DExitEventData);
 			}
 
 		private:
-			TEntityId _getEntityIdByBody(const b2Body* pBody) const
-			{
-				auto iter = std::find(mpBodies->cbegin(), mpBodies->cend(), pBody);
-				return (iter != mpBodies->cend()) ? static_cast<TEntityId>(mpHandles2EntitiesMap->at(static_cast<U32>(std::distance(mpBodies->cbegin(), iter)))) : TEntityId::Invalid;
-			}
-
-		private:
-			std::vector<b2Body*>*                         mpBodies = nullptr;
-			const CPhysics2DSystem::THandles2EntitiesMap* mpHandles2EntitiesMap;
-			IEventManager*                                mpEventManager = nullptr;
+			IEventManager* mpEventManager = nullptr;
 	};
 
 
 	CPhysics2DSystem::CPhysics2DSystem() :
-		CBaseSystem(), mpWorldInstance(nullptr)
+		CBaseSystem()
+	{
+	}
+
+	CPhysics2DSystem::~CPhysics2DSystem()
 	{
 	}
 
@@ -167,7 +162,7 @@ namespace TDEngine2
 		}
 
 		mpWorldInstance    = std::make_unique<b2World>(b2Vec2{ DEFAULT_GRAVITY.x, DEFAULT_GRAVITY.y });
-		mpContactsListener = std::make_unique<CTriggerContactsListener>(pEventManager, mCollidersData.mBodies, mHandles2EntitiesMap);
+		mpContactsListener = std::make_unique<CTriggerContactsListener>(pEventManager);
 
 		mpWorldInstance->SetContactListener(mpContactsListener.get());
 
@@ -186,7 +181,35 @@ namespace TDEngine2
 	}
 
 
-	static b2Body* CreatePhysicsBody(b2World* pWorld, ICollisionObjectsVisitor* pCollisionObjectsVisitor, const CTransform* pTransform, bool isTrigger, const CBaseCollisionObject2D* pCollider)
+	template <typename TCollisionType, typename TFunctor>
+	static void CreateCollisionShape(const TCollisionType& collisionObject, TFunctor&& postAction)
+	{
+		static_assert(false);
+	}
+
+
+	template <typename TFunctor>
+	static void CreateCollisionShape(const CBoxCollisionObject2D& box, TFunctor&& postAction)
+	{
+		b2PolygonShape boxCollider;
+
+		boxCollider.SetAsBox(box.GetData().mWidth * 0.5f, box.GetData().mHeight * 0.5f);
+		postAction(&boxCollider);
+	}
+
+
+	template <typename TFunctor>
+	static void CreateCollisionShape(const CCircleCollisionObject2D& circle, TFunctor&& postAction)
+	{
+		b2CircleShape circleCollider;
+
+		circleCollider.m_radius = circle.GetData().mRadius;
+		postAction(&circleCollider);
+	}
+
+
+	template <typename TCollisionObjectType>
+	static b2Body* CreatePhysicsBody(b2World* pWorld, CTransform* pTransform, bool isTrigger, CPhysicsBody2D* pPhysicsBody, const TCollisionObjectType* pCollider)
 	{
 		TVector3 position = pTransform->GetPosition();
 		TVector3 scale = pTransform->GetScale();
@@ -195,7 +218,9 @@ namespace TDEngine2
 
 		bodyDef.position.Set(position.x, position.y);
 
-		switch (pCollider->GetCollisionType())
+		const TPhysicsBody2DComponentData& physicsObjectData = pPhysicsBody->GetData();
+		
+		switch (physicsObjectData.mType)
 		{
 			case E_COLLISION_OBJECT_TYPE::COT_DYNAMIC:
 				bodyDef.type = b2_dynamicBody;
@@ -225,84 +250,71 @@ namespace TDEngine2
 		b2FixtureDef fixtureDef;
 
 		fixtureDef.friction = 0.3f;
-		fixtureDef.density = 1.0f;
+		fixtureDef.density  = 1.0f;
 		fixtureDef.isSensor = isTrigger;
 
-		pCollider->GetCollisionShape(pCollisionObjectsVisitor, [&fixtureDef, &pCreatedBody](const b2Shape* pShapeCollider)
+		CreateCollisionShape(*pCollider, [&fixtureDef, &pCreatedBody, pTransform](const b2Shape* pShapeCollider)
 			{
 				fixtureDef.shape = pShapeCollider;
 
-				pCreatedBody->CreateFixture(&fixtureDef);
+				b2Fixture* pFixture = pCreatedBody->CreateFixture(&fixtureDef);
+				pFixture->SetUserData(pTransform);
 			}); /// this invokation creates a new fixture object
 
 		return pCreatedBody;
 	}
 
 
-	void CPhysics2DSystem::InjectBindings(IWorld* pWorld)
+	template <typename TCollisionObjectType>
+	static void InitCollidersContext(b2World* pPhysicsWorld, IWorld* pWorld, CPhysics2DSystem::TCollidersData<TCollisionObjectType>& context, const TEntitiesArray& entities)
 	{
-		auto&& interactiveEntities = pWorld->FindEntitiesWithAny<CBoxCollisionObject2D, CCircleCollisionObject2D, CTrigger2D>();
-		
 		/// Remove all bodies from the world's instance
-		for (auto pCurrBody : mCollidersData.mBodies)
+		for (auto pCurrBody : context.mpBodies)
 		{
 			if (!pCurrBody)
 			{
 				continue;
 			}
 
-			mpWorldInstance->DestroyBody(pCurrBody);
+			pPhysicsWorld->DestroyBody(pCurrBody);
 		}
 
-		mHandles2EntitiesMap.clear();
-		mCollidersData.Clear();
+		context.Clear();
 
 		CEntity* pCurrEntity = nullptr;
 
-		CTransform* pTransform = nullptr;
-
-		CBaseCollisionObject2D* pCollisionObject = nullptr;
-
 		b2Body* pCurrBody = nullptr;
 
-		CTrigger2D* pCurrTrigger = nullptr;
-
-		for (TEntityId currEntityId : interactiveEntities)
+		for (TEntityId currEntityId : entities)
 		{
 			if (!(pCurrEntity = pWorld->FindEntity(currEntityId)))
 			{
 				continue;
 			}
 
-			mHandles2EntitiesMap[static_cast<U32>(mCollidersData.mTransforms.size())] = currEntityId;
+			context.mpTransforms.push_back(pCurrEntity->GetComponent<CTransform>());
+			context.mpCollisionObjects.push_back(pCurrEntity->GetComponent<TCollisionObjectType>());
+			context.mpPhysBodies.push_back(pCurrEntity->GetComponent<CPhysicsBody2D>());
+			context.mpTriggers.push_back(pCurrEntity->GetComponent<CTrigger2D>());
 
-			pTransform = pCurrEntity->GetComponent<CTransform>();
-			
-			mCollidersData.mTransforms.push_back(pTransform);
-			mCollidersData.mCollisionObjects.push_back(pCollisionObject);
-
-			if (pCurrTrigger = pCurrEntity->GetComponent<CTrigger2D>())
-			{
-				mCollidersData.mTriggers.push_back(pCurrTrigger);
-			}
-
-			pCurrBody = CreatePhysicsBody(mpWorldInstance.get(), this, pTransform, pCurrTrigger,
-										   GetValidPtrOrDefault<CBaseCollisionObject2D*>(pCurrEntity->GetComponent<CBoxCollisionObject2D>(), pCurrEntity->GetComponent<CCircleCollisionObject2D>()));
-			
+			pCurrBody = CreatePhysicsBody(pPhysicsWorld, context.mpTransforms.back(), context.mpTriggers.back(), context.mpPhysBodies.back(), context.mpCollisionObjects.back());
 			pCurrBody->SetUserData(pCurrEntity);
 
-			mCollidersData.mBodies.push_back(pCurrBody);
+			context.mpBodies.push_back(pCurrBody);
 		}
 	}
 
-	void CPhysics2DSystem::Update(IWorld* pWorld, F32 dt)
+
+	void CPhysics2DSystem::InjectBindings(IWorld* pWorld)
+	{		
+		InitCollidersContext(mpWorldInstance.get(), pWorld, mBoxCollidersData, pWorld->FindEntitiesWithComponents<CBoxCollisionObject2D, CPhysicsBody2D>());
+		InitCollidersContext(mpWorldInstance.get(), pWorld, mCircleCollidersData, pWorld->FindEntitiesWithComponents<CCircleCollisionObject2D, CPhysicsBody2D>());
+	}
+
+
+	template <typename TCollisionObjectType>
+	static void UpdateTransforms(CPhysics2DSystem::TCollidersData<TCollisionObjectType>& context)
 	{
-		TDE2_PROFILER_SCOPE("CPhysics2DSystem::Update");
-
-		mpWorldInstance->Step(mCurrTimeStep, mCurrVelocityIterations, mCurrPositionIterations);
-
-		auto& collisionObjects = mCollidersData.mBodies;
-
 		CTransform* pCurrTransform = nullptr;
 
 		b2Body* pCurrBody = nullptr;
@@ -311,14 +323,14 @@ namespace TDEngine2
 
 		b2Vec2 currBodyPosition;
 
-		auto& transforms = mCollidersData.mTransforms;
+		auto& transforms = context.mpTransforms;
 
 		for (U32 i = 0; i < transforms.size(); ++i)
 		{
 			pCurrTransform = transforms[i];
 
-			pCurrBody = mCollidersData.mBodies[i];
-			
+			pCurrBody = context.mpBodies[i];
+
 			currBodyPosition = pCurrBody->GetPosition();
 
 			currPosition = pCurrTransform->GetPosition();
@@ -329,23 +341,16 @@ namespace TDEngine2
 			pCurrTransform->SetPosition(currPosition);
 		}
 	}
-	
-	b2PolygonShape CPhysics2DSystem::CreateBoxCollisionShape(const CBoxCollisionObject2D& box) const
+
+
+	void CPhysics2DSystem::Update(IWorld* pWorld, F32 dt)
 	{
-		b2PolygonShape boxCollider;
+		TDE2_PROFILER_SCOPE("CPhysics2DSystem::Update");
 
-		boxCollider.SetAsBox(box.GetWidth() * 0.5f, box.GetHeight() * 0.5f);
-		
-		return boxCollider;
-	}
+		mpWorldInstance->Step(mCurrTimeStep, mCurrVelocityIterations, mCurrPositionIterations);
 
-	b2CircleShape CPhysics2DSystem::CreateCircleCollisionShape(const CCircleCollisionObject2D& circle) const
-	{
-		b2CircleShape circleCollider;
-
-		circleCollider.m_radius = circle.GetRadius();
-
-		return circleCollider;
+		UpdateTransforms(mBoxCollidersData);
+		UpdateTransforms(mCircleCollidersData);
 	}
 
 
@@ -370,9 +375,9 @@ namespace TDEngine2
 
 	void CPhysics2DSystem::RaycastClosest(const TVector2& origin, const TVector2& direction, F32 maxDistance, const TOnRaycastHitCallback& onHitCallback)
 	{
-		TVector2 end = origin + (Length(direction) > 1e-3f ? Normalize(direction) : ZeroVector2) * maxDistance;
+		TVector2 end = origin + (Length(direction) > CMathConstants::Epsilon ? Normalize(direction) : ZeroVector2) * maxDistance;
 
-		if (Length(end - origin) < 1e-3f)
+		if (Length(end - origin) < CMathConstants::Epsilon)
 		{
 			// \note the case of ray that's orthogonal for XY plane
 			TestPointOverlap(mpWorldInstance.get(), origin, onHitCallback);

@@ -1,83 +1,17 @@
 #include "../../../include/physics/2D/CCircleCollisionObject2D.h"
-#include "../../../include/physics/2D/ICollisionObjectsVisitor.h"
+#define META_EXPORT_ECS_SECTION
+#include "../../include/metadata.h"
 
 
 namespace TDEngine2
 {
 	TDE2_REGISTER_COMPONENT_FACTORY(CreateCircleCollisionObject2DFactory)
+	TDE2_DEFINE_COMPONENT_META(TCircleCollisionObject2DComponentData);
 
 
 	CCircleCollisionObject2D::CCircleCollisionObject2D() :
-		CBaseCollisionObject2D(), mRadius(1.0f)
+		CBaseComponentT()
 	{
-	}
-
-	E_RESULT_CODE CCircleCollisionObject2D::Load(IArchiveReader* pReader)
-	{
-		if (!pReader)
-		{
-			return RC_FAIL;
-		}
-
-		mRadius = pReader->GetFloat("radius");
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CCircleCollisionObject2D::Save(IArchiveWriter* pWriter)
-	{
-		if (!pWriter)
-		{
-			return RC_FAIL;
-		}
-
-		pWriter->BeginGroup("component");
-		{
-			pWriter->SetUInt32("type_id", static_cast<U32>(CCircleCollisionObject2D::GetTypeId()));
-
-			pWriter->SetFloat("radius", mRadius);
-		}
-		pWriter->EndGroup();
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CCircleCollisionObject2D::Clone(IComponent*& pDestObject) const
-	{
-		if (auto pComponent = dynamic_cast<CCircleCollisionObject2D*>(pDestObject))
-		{
-			pComponent->mMass = mMass;
-			pComponent->mRadius = mRadius;
-			pComponent->mType = mType;
-
-			pComponent->mHasChanged = true;
-
-			return RC_OK;
-		}
-
-		return RC_FAIL;
-	}
-
-	void CCircleCollisionObject2D::SetRadius(F32 radius)
-	{
-		mRadius = radius;
-	}
-	
-	F32 CCircleCollisionObject2D::GetRadius() const
-	{
-		return mRadius;
-	}
-
-	void CCircleCollisionObject2D::GetCollisionShape(const ICollisionObjectsVisitor* pVisitor, const std::function<void(const b2Shape*)>& callback) const
-	{
-		if (!pVisitor)
-		{
-			return;
-		}
-
-		b2CircleShape circleShape = pVisitor->CreateCircleCollisionShape(*this);
-
-		callback(&circleShape);
 	}
 
 
@@ -109,7 +43,7 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		pComponent->SetRadius(params.mRadius);
+		pComponent->GetData().mRadius = params.mRadius;
 
 		return RC_OK;
 	}

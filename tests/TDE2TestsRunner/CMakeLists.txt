@@ -35,6 +35,7 @@ set(SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CUIElementsTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CEntityRefTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CPrefabsChangesTests.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/CPhysics2DTests.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
 
 source_group("includes" FILES ${HEADERS})
