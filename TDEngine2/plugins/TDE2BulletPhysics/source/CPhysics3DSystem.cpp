@@ -20,14 +20,12 @@
 
 namespace TDEngine2
 {
-	const F32 CPhysics3DSystem::mDefaultTimeStep = 1.0f / 60.0f;
+	TDE2_STATIC_CONSTEXPR F32 DEFAULT_TIME_STEP           = 1.0f / 60.0f;
+	TDE2_STATIC_CONSTEXPR U32 DEFAULT_POSITION_ITERATIONS = 10;
 
-	const U32 CPhysics3DSystem::mDefaultPositionIterations = 10;
 
-
-	/// \fixme Replace this directive with alignas when corresponding functionality will be supported in tde2_introspector
 #pragma pack(push, 16)
-	struct /*alignas(16) */TEntitiesMotionState : public btMotionState
+	struct alignas(16) TEntitiesMotionState : public btMotionState
 	{
 		btTransform mGraphicsWorldTrans;
 		btTransform mCenterOfMassOffset;
@@ -94,6 +92,10 @@ namespace TDEngine2
 	{
 	}
 
+	CPhysics3DSystem::~CPhysics3DSystem()
+	{
+	}
+
 	E_RESULT_CODE CPhysics3DSystem::Init(IEventManager* pEventManager)
 	{
 		if (mIsInitialized)
@@ -105,17 +107,17 @@ namespace TDEngine2
 
 		mCurrGravity = CProjectSettings::Get()->m3DPhysicsSettings.mGravity;
 
-		mCurrTimeStep = mDefaultTimeStep;
+		mCurrTimeStep           = DEFAULT_TIME_STEP;
+		mCurrPositionIterations = DEFAULT_POSITION_ITERATIONS;
 
-		mCurrPositionIterations = mDefaultPositionIterations;
-
-		mpCollisionConfiguration  = new btDefaultCollisionConfiguration();
-		mpCollisionsDispatcher    = new btCollisionDispatcher(mpCollisionConfiguration);
-		mpBroadphaseSolver        = new btDbvtBroadphase();
-		mpImpulseConstraintSolver = new btSequentialImpulseConstraintSolver();
-		mpWorld                   = new btDiscreteDynamicsWorld(mpCollisionsDispatcher, mpBroadphaseSolver, mpImpulseConstraintSolver, mpCollisionConfiguration);
+		mpCollisionConfiguration  = std::make_unique<btDefaultCollisionConfiguration>();
+		mpCollisionsDispatcher    = std::make_unique<btCollisionDispatcher>(mpCollisionConfiguration.get());
+		mpBroadphaseSolver        = std::make_unique<btDbvtBroadphase>();
+		mpImpulseConstraintSolver = std::make_unique<btSequentialImpulseConstraintSolver>();
+		mpWorld                   = std::make_unique<btDiscreteDynamicsWorld>(mpCollisionsDispatcher.get(), mpBroadphaseSolver.get(), mpImpulseConstraintSolver.get(), mpCollisionConfiguration.get());
+		mpGhostPairCallback       = std::make_unique<btGhostPairCallback>();
 		
-		mpBroadphaseSolver->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+		mpBroadphaseSolver->getOverlappingPairCache()->setInternalGhostPairCallback(mpGhostPairCallback.get());
 
 		mpWorld->setGravity({ mCurrGravity.x, mCurrGravity.y, mCurrGravity.z });
 
@@ -127,13 +129,6 @@ namespace TDEngine2
 	E_RESULT_CODE CPhysics3DSystem::_onFreeInternal()
 	{
 		E_RESULT_CODE result = _freePhysicsObjects(mPhysicsObjectsData);
-
-		// \note invocation of destructors should be in reversed order of construction of these objects
-		delete mpWorld;
-		delete mpImpulseConstraintSolver;
-		delete mpBroadphaseSolver;
-		delete mpCollisionsDispatcher;
-		delete mpCollisionConfiguration;
 
 		return result;
 	}
@@ -382,7 +377,7 @@ namespace TDEngine2
 		
 		mpWorld->stepSimulation(mCurrTimeStep, mCurrPositionIterations);
 
-		UpdateKinematicObjects(mPhysicsObjectsData.mpTransforms, mPhysicsObjectsData.mpInternalCollisionObjects, mpWorld, mpEventManager);
+		UpdateKinematicObjects(mPhysicsObjectsData.mpTransforms, mPhysicsObjectsData.mpInternalCollisionObjects, mpWorld.get(), mpEventManager);
 
 #if 1
 		const btCollisionObject* pColliderObject = nullptr;

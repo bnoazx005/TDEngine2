@@ -28,6 +28,7 @@ class btRigidBody;
 class btCollisionObject;
 class btPairCachingGhostObject;
 class btMotionState;
+class btGhostPairCallback;
 
 
 namespace TDEngine2
@@ -64,21 +65,21 @@ namespace TDEngine2
 		protected:
 			typedef struct TPhysicsObjectsData
 			{
-				std::vector<CTransform*>             mpTransforms;
+				std::vector<CTransform*>               mpTransforms;
 
-				std::vector<CBaseCollisionObject3D*> mpCollisionObjects;
+				std::vector<CBaseCollisionObject3D*>   mpCollisionObjects;
 
-				std::vector<btCollisionShape*>       mpBulletColliderShapes;
+				std::vector<btCollisionShape*>         mpBulletColliderShapes;
 
 				std::vector<btPairCachingGhostObject*> mpTriggers;
 
-				std::vector<btCollisionObject*>      mpInternalCollisionObjects;
+				std::vector<btCollisionObject*>        mpInternalCollisionObjects;
 
-				std::vector<btMotionState*>          mpMotionHandlers;
+				std::vector<btMotionState*>            mpMotionHandlers;
 
-				std::vector<bool>                    mInUseTable;
+				std::vector<bool>                      mInUseTable;
 
-				TEntitiesArray                       mEntities;
+				TEntitiesArray                         mEntities;
 
 				void Clear();
 
@@ -196,39 +197,33 @@ namespace TDEngine2
 
 			TDE2_API bool RaycastAll(const TVector3& origin, const TVector3& direction, F32 maxDistance, std::vector<TRaycastResult>& hitResults);
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPhysics3DSystem)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS_NO_DCTR(CPhysics3DSystem)
+			TDE2_API virtual ~CPhysics3DSystem();
 
-			TDE2_API std::tuple<btRigidBody*, btMotionState*> _createRigidbody(const CBaseCollisionObject3D& collisionObject, CTransform* pTransform, btCollisionShape* pColliderShape) const;
+			std::tuple<btRigidBody*, btMotionState*> _createRigidbody(const CBaseCollisionObject3D& collisionObject, CTransform* pTransform, btCollisionShape* pColliderShape) const;
 
-			TDE2_API std::tuple<btPairCachingGhostObject*, btMotionState*> _createTrigger(const CBaseCollisionObject3D& collisionObject, CTransform* pTransform, btCollisionShape* pColliderShape) const;
+			std::tuple<btPairCachingGhostObject*, btMotionState*> _createTrigger(const CBaseCollisionObject3D& collisionObject, CTransform* pTransform, btCollisionShape* pColliderShape) const;
 
-			TDE2_API E_RESULT_CODE _freePhysicsObjects(TPhysicsObjectsData& physicsData);
+			E_RESULT_CODE _freePhysicsObjects(TPhysicsObjectsData& physicsData);
 
-			TDE2_API E_RESULT_CODE _onFreeInternal() override;
+			E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			static const F32                     mDefaultTimeStep;
+			IEventManager*                                       mpEventManager = nullptr;
 
-			static const U32                     mDefaultPositionIterations;
+			std::unique_ptr<btDefaultCollisionConfiguration>     mpCollisionConfiguration = nullptr;
+			std::unique_ptr<btCollisionDispatcher>               mpCollisionsDispatcher = nullptr;
+			std::unique_ptr<btBroadphaseInterface>               mpBroadphaseSolver = nullptr;
+			std::unique_ptr<btSequentialImpulseConstraintSolver> mpImpulseConstraintSolver = nullptr;
+			std::unique_ptr<btDiscreteDynamicsWorld>             mpWorld = nullptr;			
+			std::unique_ptr<btGhostPairCallback>                 mpGhostPairCallback = nullptr;
 
-			IEventManager*                       mpEventManager;
+			TVector3                                             mCurrGravity = ZeroVector3;
 
-			btDefaultCollisionConfiguration*     mpCollisionConfiguration;
+			F32                                                  mCurrTimeStep = 0.0f;
 
-			btCollisionDispatcher*               mpCollisionsDispatcher;
+			U32                                                  mCurrPositionIterations = 0;
 
-			btBroadphaseInterface*               mpBroadphaseSolver;
-
-			btSequentialImpulseConstraintSolver* mpImpulseConstraintSolver;
-
-			btDiscreteDynamicsWorld*             mpWorld;
-
-			TVector3                             mCurrGravity;
-
-			F32                                  mCurrTimeStep;
-
-			U32                                  mCurrPositionIterations;
-
-			TPhysicsObjectsData                  mPhysicsObjectsData;
+			TPhysicsObjectsData                                  mPhysicsObjectsData{};
 	};
 
 
