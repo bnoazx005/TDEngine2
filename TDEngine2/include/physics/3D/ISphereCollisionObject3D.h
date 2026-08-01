@@ -20,7 +20,7 @@ namespace TDEngine2
 		\brief The interface describes a functionality of a sphere collision object
 	*/
 
-	class ISphereCollisionObject3D : public virtual ICollisionObject, public virtual IComponent
+	class ISphereCollisionObject3D : public virtual IComponent
 	{
 		public:
 			TDE2_REGISTER_COMPONENT_TYPE(ISphereCollisionObject3D)

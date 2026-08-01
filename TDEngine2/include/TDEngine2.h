@@ -250,6 +250,7 @@
 #include "physics/3D/IConvexHullCollisionObject3D.h"
 #include "physics/3D/ICapsuleCollisionObject3D.h"
 #include "physics/3D/ITrigger3D.h"
+#include "physics/3D/IPhysicsBody3D.h"
 #include "physics/ICollisionObject.h"
 #include "physics/IRaycastContext.h"
 #include "physics/CBaseRaycastContext.h"

@@ -20,11 +20,10 @@ namespace TDEngine2
 		\brief The interface describes a functionality of a ConvexHull collision object
 	*/
 
-	class IConvexHullCollisionObject3D : public virtual ICollisionObject, public virtual IComponent
+	class IConvexHullCollisionObject3D : public virtual IComponent
 	{
 		public:
 			TDE2_REGISTER_COMPONENT_TYPE(IConvexHullCollisionObject3D)
-
 
 			TDE2_API virtual E_RESULT_CODE SetVertices(const std::vector<TVector4>& vertices) = 0;
 

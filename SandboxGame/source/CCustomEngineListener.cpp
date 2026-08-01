@@ -341,10 +341,11 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 					pMeshContainer->SetMeshName("Cube");
 				}
 
-				if (auto pCollider = pPhysicsObject0->AddComponent<IBoxCollisionObject3D>())
+				pPhysicsObject0->AddComponent<IBoxCollisionObject3D>();
+
+				if (auto pPhysicsBody = pPhysicsObject0->AddComponent<IPhysicsBody3D>())
 				{
-					pCollider->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_STATIC);
-					pCollider->SetSizes(TVector3(1.0f));
+					pPhysicsBody->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_STATIC);
 				}
 
 				if (auto pTransform = pPhysicsObject0->AddComponent<CTransform>())
@@ -365,8 +366,12 @@ E_RESULT_CODE CCustomEngineListener::OnStart()
 
 				if (auto pCollider = pPhysicsObject0->AddComponent<IBoxCollisionObject3D>())
 				{
-					pCollider->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_KINEMATIC);
 					pCollider->SetSizes(TVector3(0.3f));
+				}
+
+				if (auto pPhysicsBody = pPhysicsObject0->AddComponent<IPhysicsBody3D>())
+				{
+					pPhysicsBody->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_KINEMATIC);
 				}
 
 				if (auto pTransform = pPhysicsObject0->AddComponent<CTransform>())

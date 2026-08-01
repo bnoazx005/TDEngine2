@@ -12,7 +12,6 @@
 #include <physics/IRaycastContext.h>
 #include <math/TVector3.h>
 #include <core/Event.h>
-#include "ICollisionObjects3DVisitor.h"
 #include <vector>
 #include <functional>
 
@@ -37,6 +36,7 @@ namespace TDEngine2
 	class CBaseCollisionObject3D;
 	class CEntity;
 	class IEventManager;
+	class CPhysicsBody3D;
 
 
 	/*!
@@ -58,7 +58,7 @@ namespace TDEngine2
 		\brief The system implements an update step of 3D physics engine
 	*/
 
-	class CPhysics3DSystem : public CBaseSystem, public ICollisionObjects3DVisitor, public IPhysics3DSystem
+	class CPhysics3DSystem : public CBaseSystem, public IPhysics3DSystem
 	{
 		public:
 			friend TDE2_API ISystem* CreatePhysics3DSystem(IEventManager* pEventManager, E_RESULT_CODE& result);
@@ -67,7 +67,7 @@ namespace TDEngine2
 			{
 				std::vector<CTransform*>               mpTransforms;
 
-				std::vector<CBaseCollisionObject3D*>   mpCollisionObjects;
+				std::vector<CPhysicsBody3D*>           mpPhysicsBodies;
 
 				std::vector<btCollisionShape*>         mpBulletColliderShapes;
 
@@ -129,47 +129,6 @@ namespace TDEngine2
 #endif
 
 			/*!
-				\brief The method returns a new created collision shape which is a box collider
-
-				\param[in] box A reference to a box collision object
-
-				\return The method returns a new created collision shape of a box collider
-			*/
-
-			TDE2_API btBoxShape* CreateBoxCollisionShape(const CBoxCollisionObject3D& box) const override;
-
-			/*!
-				\brief The method returns a new created collision shape which is a sphere collider
-
-				\param[in] sphere A reference to a sphere collision object
-
-				\return The method returns a new created collision shape of a sphere collider
-			*/
-
-			TDE2_API btSphereShape* CreateSphereCollisionShape(const CSphereCollisionObject3D& sphere) const override;
-
-			/*!
-				\brief The method returns a new created collision shape which is a convex hull. This is handful for
-				approximations of triangle meshes
-
-				\param[in] hull A reference to a convex hull's object
-
-				\return The method returns a new created collision shape of a convex hull
-			*/
-
-			TDE2_API btConvexHullShape* CreateConvexHullCollisionShape(const CConvexHullCollisionObject3D& hull) const override;
-
-			/*!
-				\brief The method returns a new created collision shape which is a capsule collider
-
-				\param[in] sphere A reference to a sphere collision object
-
-				\return The method returns a new created collision shape of a capsule collider
-			*/
-
-			TDE2_API btCapsuleShape* CreateCapsuleCollisionShape(const CCapsuleCollisionObject3D& capsule) const override;
-
-			/*!
 				\brief The method casts a ray into a scene and returns closest object which is intersected by that.
 				If there wasn't intersections nullptr is returned. The method isn't asynchronous, its callback will
 				be called before the method returns execution context to its caller
@@ -199,10 +158,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS_NO_DCTR(CPhysics3DSystem)
 			TDE2_API virtual ~CPhysics3DSystem();
-
-			std::tuple<btRigidBody*, btMotionState*> _createRigidbody(const CBaseCollisionObject3D& collisionObject, CTransform* pTransform, btCollisionShape* pColliderShape) const;
-
-			std::tuple<btPairCachingGhostObject*, btMotionState*> _createTrigger(const CBaseCollisionObject3D& collisionObject, CTransform* pTransform, btCollisionShape* pColliderShape) const;
 
 			E_RESULT_CODE _freePhysicsObjects(TPhysicsObjectsData& physicsData);
 

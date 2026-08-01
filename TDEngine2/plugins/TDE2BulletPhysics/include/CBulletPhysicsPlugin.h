@@ -12,14 +12,12 @@
 
 
 #include "CBulletPhysicsPlugin.h"
-#include "ICollisionObject3D.h"
-#include "CBaseCollisionObject3D.h"
 #include "CBoxCollisionObject3D.h"
-#include "ICollisionObjects3DVisitor.h"
 #include "CSphereCollisionObject3D.h"
 #include "CConvexHullCollisionObject3D.h"
 #include "CCapsuleCollisionObject3D.h"
 #include "CTrigger3D.h"
+#include "CPhysicsBody3D.h"
 #include "CPhysics3DSystem.h"
 
 
@@ -82,6 +80,6 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBulletPhysicsPlugin)
 		protected:
-			IEngineCore* mpEngineCoreInstance;
+			IEngineCore* mpEngineCoreInstance = nullptr;
 	};
 }

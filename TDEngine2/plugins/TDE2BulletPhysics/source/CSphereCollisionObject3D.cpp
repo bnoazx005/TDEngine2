@@ -1,73 +1,33 @@
 #include "../include/CSphereCollisionObject3D.h"
-#include "../include/ICollisionObjects3DVisitor.h"
 #include "../deps/bullet3/src/btBulletDynamicsCommon.h"
+#define META_EXPORT_BULLET_ECS_PLUGIN_SECTION
+#include "../../include/metadata.h"
 
 
 namespace TDEngine2
 {
+	TDE2_DEFINE_COMPONENT_META(TSphereCollisionObject3DComponentData)
+
+
 	CSphereCollisionObject3D::CSphereCollisionObject3D() :
-		CBaseCollisionObject3D(), mRadius(1.0f)
+		CBaseComponentT()
 	{
-	}
-
-	E_RESULT_CODE CSphereCollisionObject3D::Load(IArchiveReader* pReader)
-	{
-		if (!pReader)
-		{
-			return RC_FAIL;
-		}
-
-		mRadius = pReader->GetFloat("radius");
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CSphereCollisionObject3D::Save(IArchiveWriter* pWriter)
-	{
-		if (!pWriter)
-		{
-			return RC_FAIL;
-		}
-
-		pWriter->BeginGroup("component");
-		{
-			pWriter->SetUInt32("type_id", static_cast<U32>(CSphereCollisionObject3D::GetTypeId()));
-			pWriter->SetFloat("radius", mRadius);
-		}
-		pWriter->EndGroup();
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CSphereCollisionObject3D::Clone(IComponent*& pDestObject) const
-	{
-		if (auto pComponent = dynamic_cast<CSphereCollisionObject3D*>(pDestObject))
-		{
-			pComponent->mRadius = mRadius;
-			pComponent->mType = mType;
-			pComponent->mMass = mMass;
-
-			pComponent->mHasChanged = true;
-
-			return RC_OK;
-		}
-
-		return RC_FAIL;
 	}
 
 	void CSphereCollisionObject3D::SetRadius(F32 radius)
 	{
-		mRadius = radius;
+		mData.mRadius = radius;
 	}
 
 	F32 CSphereCollisionObject3D::GetRadius() const
 	{
-		return mRadius;
+		return mData.mRadius;
 	}
 
-	btCollisionShape* CSphereCollisionObject3D::GetCollisionShape(const ICollisionObjects3DVisitor* pVisitor) const
+	const std::string& CSphereCollisionObject3D::GetTypeName() const
 	{
-		return dynamic_cast<btCollisionShape*>(pVisitor->CreateSphereCollisionShape(*this));
+		static std::string typeName{ "sphere_collision_3d" };
+		return typeName;
 	}
 
 

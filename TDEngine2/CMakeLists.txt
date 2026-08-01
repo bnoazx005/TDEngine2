@@ -333,6 +333,7 @@ set(TDENGINE2_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/3D/IConvexHullCollisionObject3D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/3D/ICapsuleCollisionObject3D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/3D/ITrigger3D.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/3D/IPhysicsBody3D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/ICollisionObject.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/IRaycastContext.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/physics/CBaseRaycastContext.h"

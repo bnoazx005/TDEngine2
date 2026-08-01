@@ -3,6 +3,7 @@
 #include "../include/CSphereCollisionObject3D.h"
 #include "../include/CConvexHullCollisionObject3D.h"
 #include "../include/CTrigger3D.h"
+#include "../include/CPhysicsBody3D.h"
 #include "../include/CPhysics3DSystem.h"
 #include "../include/ComponentsInspectors.h"
 #include <core/IEngineCore.h>
@@ -51,6 +52,7 @@ namespace TDEngine2
 			CreateConvexHullCollisionObject3DFactory,
 			CreateCapsuleCollisionObject3DFactory,
 			CreateTrigger3DFactory,
+			CreatePhysicsBody3DFactory,
 		};
 
 		for (auto pCurrFactoryCallback : componentsFactories)

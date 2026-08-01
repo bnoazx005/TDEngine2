@@ -3,6 +3,7 @@
 #include "../include/CSphereCollisionObject3D.h"
 #include "../include/CConvexHullCollisionObject3D.h"
 #include "../include/CTrigger3D.h"
+#include "../include/CPhysicsBody3D.h"
 #include <ecs/IComponent.h>
 #include <ecs/CTransform.h>
 #include <ecs/IWorld.h>
@@ -45,40 +46,53 @@ namespace TDEngine2
 	}
 
 
-	template <typename T>
-	static void DrawCommonPhysicsFields(IImGUIContext& imguiContext, T& baseCollisionObject)
+	static void DrawPhysicsBody3DGUI(const TEditorContext& editorContext)
 	{
-		static std::vector<std::string> collisionTypes;
-		if (collisionTypes.empty())
-		{
-			for (auto&& currEnumFieldInfo : Meta::EnumTrait<E_COLLISION_OBJECT_TYPE>::fields)
+		Header("PhysicsBody3D", editorContext, [](const TEditorContext& editorContext)
 			{
-				collisionTypes.emplace_back(currEnumFieldInfo.name);
-			}
-		}
+				IImGUIContext& imguiContext = editorContext.mImGUIContext;
+				IComponent& component = editorContext.mComponent;
 
-		/// \note Collision type
-		{
-			I32 currCollisionType = static_cast<I32>(baseCollisionObject.GetCollisionType());
+				CPhysicsBody3D& physicsBody3D = dynamic_cast<CPhysicsBody3D&>(component);
+				TPhysicsBody3DComponentData& physicsBodyComponentData = physicsBody3D.GetData();
 
-			imguiContext.BeginHorizontal();
-			imguiContext.Label("Type: ");
-			currCollisionType = imguiContext.Popup("##CollisionType", currCollisionType, collisionTypes);
-			imguiContext.EndHorizontal();
+				static std::vector<std::string> collisionTypes;
+				if (collisionTypes.empty())
+				{
+					for (auto&& currEnumFieldInfo : Meta::EnumTrait<E_COLLISION_OBJECT_TYPE>::fields)
+					{
+						collisionTypes.emplace_back(currEnumFieldInfo.name);
+					}
+				}
 
-			baseCollisionObject.SetCollisionType(static_cast<E_COLLISION_OBJECT_TYPE>(currCollisionType));
-		}
+				/// \note Collision type
+				{
+					I32 currCollisionType = static_cast<I32>(physicsBodyComponentData.mType);
 
-		/// \note mass
-		if (E_COLLISION_OBJECT_TYPE::COT_DYNAMIC == baseCollisionObject.GetCollisionType())
-		{
-			F32 mass = baseCollisionObject.GetMass();
+					imguiContext.BeginHorizontal();
+					imguiContext.Label("Type: ");
+					currCollisionType = imguiContext.Popup("##CollisionType", currCollisionType, collisionTypes);
+					imguiContext.EndHorizontal();
 
-			imguiContext.BeginHorizontal();
-			imguiContext.Label("Mass: ");
-			imguiContext.FloatField("##Mass", mass, [&baseCollisionObject, &mass] { baseCollisionObject.SetMass(mass); });
-			imguiContext.EndHorizontal();
-		}
+					physicsBodyComponentData.mType = static_cast<E_COLLISION_OBJECT_TYPE>(currCollisionType);
+					physicsBodyComponentData.mHasChanged = true;
+				}
+
+				/// \note mass
+				if (E_COLLISION_OBJECT_TYPE::COT_DYNAMIC == physicsBodyComponentData.mType)
+				{
+					F32 mass = physicsBodyComponentData.mMass;
+
+					imguiContext.BeginHorizontal();
+					imguiContext.Label("Mass: ");
+					imguiContext.FloatField("##Mass", mass, [&physicsBodyComponentData, &mass] 
+						{
+							physicsBodyComponentData.mMass = mass;
+							physicsBodyComponentData.mHasChanged = true;
+						});
+					imguiContext.EndHorizontal();
+				}
+			});
 	}
 
 
@@ -90,8 +104,6 @@ namespace TDEngine2
 			IComponent& component = editorContext.mComponent;
 
 			CBoxCollisionObject3D& box3Dcollision = dynamic_cast<CBoxCollisionObject3D&>(component);
-
-			DrawCommonPhysicsFields(imguiContext, box3Dcollision);
 
 			/// \note Extents
 			{
@@ -105,6 +117,7 @@ namespace TDEngine2
 		});
 	}
 
+
 	static void DrawSphereCollision3DGUI(const TEditorContext& editorContext)
 	{
 		Header("SphereCollision3D", editorContext, [](const TEditorContext& editorContext)
@@ -113,8 +126,6 @@ namespace TDEngine2
 			IComponent& component = editorContext.mComponent;
 
 			CSphereCollisionObject3D& sphereCollision = dynamic_cast<CSphereCollisionObject3D&>(component);
-
-			DrawCommonPhysicsFields(imguiContext, sphereCollision);
 
 			/// \note Radius
 			{
@@ -128,6 +139,7 @@ namespace TDEngine2
 		});
 	}
 
+
 	static void DrawConvexHullCollision3DGUI(const TEditorContext& editorContext)
 	{
 		Header("ConvexHullCollision3D", editorContext, [](const TEditorContext& editorContext)
@@ -136,10 +148,9 @@ namespace TDEngine2
 			IComponent& component = editorContext.mComponent;
 
 			CConvexHullCollisionObject3D& convexHullCollision = dynamic_cast<CConvexHullCollisionObject3D&>(component);
-
-			DrawCommonPhysicsFields(imguiContext, convexHullCollision);
 		});
 	}
+
 
 	static void DrawTrigger3DGUI(const TEditorContext& editorContext)
 	{
@@ -157,6 +168,7 @@ namespace TDEngine2
 	{
 		E_RESULT_CODE result = RC_OK;
 
+		result = result | pEditorsManager->RegisterComponentInspector(CPhysicsBody3D::GetTypeId(), DrawPhysicsBody3DGUI);
 		result = result | pEditorsManager->RegisterComponentInspector(CBoxCollisionObject3D::GetTypeId(), DrawBoxCollision3DGUI);
 		result = result | pEditorsManager->RegisterComponentInspector(CSphereCollisionObject3D::GetTypeId(), DrawSphereCollision3DGUI);
 		result = result | pEditorsManager->RegisterComponentInspector(CConvexHullCollisionObject3D::GetTypeId(), DrawConvexHullCollision3DGUI);

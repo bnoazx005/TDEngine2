@@ -1,42 +1,22 @@
 #include "../include/CTrigger3D.h"
+#define META_EXPORT_BULLET_ECS_PLUGIN_SECTION
+#include "../../include/metadata.h"
 
 
 namespace TDEngine2
 {
+	TDE2_DEFINE_COMPONENT_META(TTrigger3DComponentData)
+
+
 	CTrigger3D::CTrigger3D() :
-		CBaseComponent()
+		CBaseComponentT()
 	{
 	}
 
-	E_RESULT_CODE CTrigger3D::Load(IArchiveReader* pReader)
+	const std::string& CTrigger3D::GetTypeName() const
 	{
-		return CBaseComponent::Load(pReader);
-	}
-
-	E_RESULT_CODE CTrigger3D::Save(IArchiveWriter* pWriter)
-	{
-		if (!pWriter)
-		{
-			return RC_FAIL;
-		}
-
-		pWriter->BeginGroup("component");
-		{
-			pWriter->SetUInt32("type_id", static_cast<U32>(CTrigger3D::GetTypeId()));
-		}
-		pWriter->EndGroup();
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CTrigger3D::Clone(IComponent*& pDestObject) const
-	{
-		if (auto pComponent = dynamic_cast<CTrigger3D*>(pDestObject))
-		{
-			return RC_OK;
-		}
-
-		return RC_FAIL;
+		static const std::string id{ "trigger_3d" };
+		return id;
 	}
 
 

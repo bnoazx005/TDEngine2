@@ -7,13 +7,22 @@
 #pragma once
 
 
-#include "CBaseCollisionObject3D.h"
+#include <ecs/CBaseComponent.h>
 #include <math/TVector3.h>
 #include <physics/3D/IBoxCollisionObject3D.h>
 
 
 namespace TDEngine2
 {
+	CLASS_META(SECTION = bullet_ecs_plugin, flags = SERIALIZE_MARKED_ONLY_FIELDS)
+	struct TBoxCollisionObject3DComponentData
+	{
+		FIELD_META(name = extents) TVector3 mExtents = TVector3{ 1.0f };
+
+		TDE2_DECLARE_COMPONENT_META(TBoxCollisionObject3DComponentData);
+	};
+
+
 	/*!
 		\brief A factory function for creation objects of CBoxCollisionObject3D's type.
 
@@ -32,41 +41,12 @@ namespace TDEngine2
 		which is controlled by Bullet3 physics engine
 	*/
 
-	class CBoxCollisionObject3D : public CBaseCollisionObject3D, public CPoolMemoryAllocPolicy<CBoxCollisionObject3D, 1 << 20>, public virtual IBoxCollisionObject3D
+	class CBoxCollisionObject3D : public CBaseComponentT<CBoxCollisionObject3D, TBoxCollisionObject3DComponentData>, public IBoxCollisionObject3D
 	{
 		public:
 			friend TDE2_API IComponent* CreateBoxCollisionObject3D(E_RESULT_CODE& result);
 		public:
 			TDE2_REGISTER_COMPONENT_TYPE(IBoxCollisionObject3D)
-
-			/*!
-				\brief The method deserializes object's state from given reader
-
-				\param[in, out] pReader An input stream of data that contains information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Load(IArchiveReader* pReader) override;
-
-			/*!
-				\brief The method serializes object's state into given stream
-
-				\param[in, out] pWriter An output stream of data that writes information about the object
-
-				\return RC_OK if everything went ok, or some other code, which describes an error
-			*/
-
-			TDE2_API E_RESULT_CODE Save(IArchiveWriter* pWriter) override;
-
-			/*!
-				\brief The method creates a new deep copy of the instance and returns a smart pointer to it.
-				The original state of the object stays the same
-
-				\param[in] pDestObject A valid pointer to an object which the properties will be assigned into
-			*/
-
-			TDE2_API E_RESULT_CODE Clone(IComponent*& pDestObject) const override;
 
 			/*!
 				\brief The method sets up sizes of a box collider
@@ -85,20 +65,12 @@ namespace TDEngine2
 			TDE2_API virtual const TVector3& GetSizes() const;
 
 			/*!
-				\brief The method returns a pointer to internal representation of a collision
-				shape that is used by Bullet3 physics engine
-
-				\param[in] pVisitor A pointer to implementation of ICollisionObjects3DVisitor
-
-				\return The method returns a pointer to internal representation of a collision
-				shape that is used by Bullet3 physics engine
+				\return The method returns type name (lowercase is preffered)
 			*/
 
-			TDE2_API btCollisionShape* GetCollisionShape(const ICollisionObjects3DVisitor* pVisitor) const override;
+			TDE2_API const std::string& GetTypeName() const override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBoxCollisionObject3D)
-		protected:
-			TVector3 mExtents;
 	};
 
 

@@ -1,84 +1,34 @@
 #include "../include/CConvexHullCollisionObject3D.h"
-#include "../include/ICollisionObjects3DVisitor.h"
 #include "../deps/bullet3/src/btBulletDynamicsCommon.h"
+#define META_EXPORT_BULLET_ECS_PLUGIN_SECTION
+#include "../../include/metadata.h"
 
 
 namespace TDEngine2
 {
+	TDE2_DEFINE_COMPONENT_META(TConvexHullCollisionObject3DComponentData)
+
+
 	CConvexHullCollisionObject3D::CConvexHullCollisionObject3D() :
-		CBaseCollisionObject3D()
+		CBaseComponentT()
 	{
-	}
-
-	E_RESULT_CODE CConvexHullCollisionObject3D::Load(IArchiveReader* pReader)
-	{
-		if (!pReader)
-		{
-			return RC_FAIL;
-		}
-/*
-		pReader->BeginGroup("extents");
-		{
-			if (auto extentsResult = LoadVector3(pReader))
-			{
-				mExtents = extentsResult.Get();
-			}
-		}
-		pReader->EndGroup();*/
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CConvexHullCollisionObject3D::Save(IArchiveWriter* pWriter)
-	{
-		if (!pWriter)
-		{
-			return RC_FAIL;
-		}
-/*
-		pWriter->BeginGroup("component");
-		{
-			pWriter->SetUInt32("type_id", static_cast<U32>(CConvexHullCollisionObject3D::GetTypeId()));
-			pWriter->BeginGroup("extents");
-			{
-				SaveVector3(pWriter, mExtents);
-			}
-			pWriter->EndGroup();
-		}
-		pWriter->EndGroup();*/
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CConvexHullCollisionObject3D::Clone(IComponent*& pDestObject) const
-	{
-		if (auto pComponent = dynamic_cast<CConvexHullCollisionObject3D*>(pDestObject))
-		{
-			pComponent->mType = mType;
-			pComponent->mMass = mMass;
-
-			pComponent->mHasChanged = true;
-
-			return RC_OK;
-		}
-
-		return RC_FAIL;
 	}
 
 	E_RESULT_CODE CConvexHullCollisionObject3D::SetVertices(const std::vector<TVector4>& vertices)
 	{
-		mpVertices = &vertices;
+		mData.mVertices = std::move(vertices);
 		return RC_OK;
 	}
 
 	const std::vector<TVector4>& CConvexHullCollisionObject3D::GetVertices() const
 	{
-		return *mpVertices;
+		return mData.mVertices;
 	}
 
-	btCollisionShape* CConvexHullCollisionObject3D::GetCollisionShape(const ICollisionObjects3DVisitor* pVisitor) const
+	const std::string& CConvexHullCollisionObject3D::GetTypeName() const
 	{
-		return dynamic_cast<btCollisionShape*>(pVisitor->CreateConvexHullCollisionShape(*this));
+		static std::string typeName{ "convex_hull_collision_3d" };
+		return typeName;
 	}
 
 

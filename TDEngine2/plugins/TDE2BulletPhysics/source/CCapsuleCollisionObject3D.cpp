@@ -1,74 +1,16 @@
 #include "../include/CCapsuleCollisionObject3D.h"
-#include "../include/ICollisionObjects3DVisitor.h"
-#include "../deps/bullet3/src/btBulletDynamicsCommon.h"
+#define META_EXPORT_BULLET_ECS_PLUGIN_SECTION
+#include "../../include/metadata.h"
 
 
 namespace TDEngine2
 {
-	struct TCapsuleCollisionObjectArchiveKeys
-	{
-		static const std::string mRadiusKeyId;
-		static const std::string mHeightKeyId;
-	};
-
-
-	const std::string TCapsuleCollisionObjectArchiveKeys::mRadiusKeyId = "radius";
-	const std::string TCapsuleCollisionObjectArchiveKeys::mHeightKeyId = "height";
+	TDE2_DEFINE_COMPONENT_META(TCapsuleCollisionObject3DComponentData)
 
 
 	CCapsuleCollisionObject3D::CCapsuleCollisionObject3D() :
-		CBaseCollisionObject3D(), mRadius(1.0f)
+		CBaseComponentT()
 	{
-	}
-
-	E_RESULT_CODE CCapsuleCollisionObject3D::Load(IArchiveReader* pReader)
-	{
-		if (!pReader)
-		{
-			return RC_FAIL;
-		}
-
-		mRadius = pReader->GetFloat(TCapsuleCollisionObjectArchiveKeys::mRadiusKeyId);
-		mHeight = pReader->GetFloat(TCapsuleCollisionObjectArchiveKeys::mHeightKeyId);
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CCapsuleCollisionObject3D::Save(IArchiveWriter* pWriter)
-	{
-		if (!pWriter)
-		{
-			return RC_FAIL;
-		}
-
-		pWriter->BeginGroup("component");
-		{
-			pWriter->SetUInt32("type_id", static_cast<U32>(CCapsuleCollisionObject3D::GetTypeId()));
-
-			pWriter->SetFloat(TCapsuleCollisionObjectArchiveKeys::mRadiusKeyId, mRadius);
-			pWriter->SetFloat(TCapsuleCollisionObjectArchiveKeys::mHeightKeyId, mHeight);
-		}
-		pWriter->EndGroup();
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CCapsuleCollisionObject3D::Clone(IComponent*& pDestObject) const
-	{
-		if (auto pComponent = dynamic_cast<CCapsuleCollisionObject3D*>(pDestObject))
-		{
-			pComponent->mRadius = mRadius;
-			pComponent->mHeight = mHeight;
-
-			pComponent->mType = mType;
-			pComponent->mMass = mMass;
-
-			pComponent->mHasChanged = true;
-
-			return RC_OK;
-		}
-
-		return RC_FAIL;
 	}
 
 	E_RESULT_CODE CCapsuleCollisionObject3D::SetRadius(F32 radius)
@@ -78,7 +20,7 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mRadius = radius;
+		mData.mRadius = radius;
 		
 		return RC_OK;
 	}
@@ -90,24 +32,25 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mHeight = height;
+		mData.mHeight = height;
 
 		return RC_OK;
 	}
 
 	F32 CCapsuleCollisionObject3D::GetRadius() const
 	{
-		return mRadius;
+		return mData.mRadius;
 	}
 
 	F32 CCapsuleCollisionObject3D::GetHeight() const
 	{
-		return mHeight;
+		return mData.mHeight;
 	}
 
-	btCollisionShape* CCapsuleCollisionObject3D::GetCollisionShape(const ICollisionObjects3DVisitor* pVisitor) const
+	const std::string& CCapsuleCollisionObject3D::GetTypeName() const
 	{
-		return dynamic_cast<btCollisionShape*>(pVisitor->CreateCapsuleCollisionShape(*this));
+		static std::string typeName{ "capsule_collision_3d" };
+		return typeName;
 	}
 
 

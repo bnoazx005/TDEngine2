@@ -17,26 +17,24 @@ set(TDE2_BULLET_PHYSICS_LIBRARY_NAME "TDE2BulletPhysics")
 
 set(TDE2_BULLET_PHYSICS_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CBulletPhysicsPlugin.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/ICollisionObject3D.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/CBaseCollisionObject3D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CBoxCollisionObject3D.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/ICollisionObjects3DVisitor.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CSphereCollisionObject3D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CConvexHullCollisionObject3D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CCapsuleCollisionObject3D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CTrigger3D.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/CPhysicsBody3D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/ComponentsInspectors.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/CPhysics3DSystem.h"
 	)
 
 set(TDE2_BULLET_PHYSICS_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CBulletPhysicsPlugin.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/source/CBaseCollisionObject3D.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CBoxCollisionObject3D.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CSphereCollisionObject3D.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CConvexHullCollisionObject3D.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CCapsuleCollisionObject3D.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CTrigger3D.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/source/CPhysicsBody3D.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/ComponentsInspectors.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/source/CPhysics3DSystem.cpp"
 	)

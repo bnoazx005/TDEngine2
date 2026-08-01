@@ -3,6 +3,7 @@
 #include "../include/CSphereCollisionObject3D.h"
 #include "../include/CConvexHullCollisionObject3D.h"
 #include "../include/CCapsuleCollisionObject3D.h"
+#include "../include/CPhysicsBody3D.h"
 #include "../include/CTrigger3D.h"
 #include "../deps/bullet3/src/btBulletDynamicsCommon.h"
 #include "../deps/bullet3/src/btBulletCollisionCommon.h"
@@ -24,7 +25,6 @@ namespace TDEngine2
 	TDE2_STATIC_CONSTEXPR U32 DEFAULT_POSITION_ITERATIONS = 10;
 
 
-#pragma pack(push, 16)
 	struct alignas(16) TEntitiesMotionState : public btMotionState
 	{
 		btTransform mGraphicsWorldTrans;
@@ -59,14 +59,11 @@ namespace TDEngine2
 		}
 	};
 
-#pragma pack(pop)
-
-
 
 	void CPhysics3DSystem::TPhysicsObjectsData::Clear()
 	{
 		mpTransforms.clear();
-		mpCollisionObjects.clear();
+		mpPhysicsBodies.clear();
 		mpBulletColliderShapes.clear();
 		mpInternalCollisionObjects.clear();
 		mpTriggers.clear();
@@ -79,7 +76,7 @@ namespace TDEngine2
 		TDE2_ASSERT(mpTransforms.size() > index);
 
 		mpTransforms.erase(mpTransforms.begin() + index);
-		mpCollisionObjects.erase(mpCollisionObjects.begin() + index);
+		mpPhysicsBodies.erase(mpPhysicsBodies.begin() + index);
 		mpBulletColliderShapes.erase(mpBulletColliderShapes.begin() + index);
 		mpInternalCollisionObjects.erase(mpInternalCollisionObjects.begin() + index);
 		mpTriggers.erase(mpTriggers.begin() + index);
@@ -133,10 +130,158 @@ namespace TDEngine2
 		return result;
 	}
 
+
+	static std::tuple<btRigidBody*, btMotionState*> CreateRigidbody(const CPhysicsBody3D& physicsObject, CTransform* pTransform, btCollisionShape* pColliderShape)
+	{
+		const TPhysicsBody3DComponentData& physicsObjectData = physicsObject.GetData();
+
+		const E_COLLISION_OBJECT_TYPE rigidBodyType = physicsObjectData.mType;
+
+		F32 mass = physicsObjectData.mMass;
+
+		btVector3 localInertia{ 0.0f, 0.0f, 0.0f };
+
+		if (rigidBodyType == E_COLLISION_OBJECT_TYPE::COT_DYNAMIC)
+		{
+			pColliderShape->calculateLocalInertia(mass, localInertia);
+		}
+		else
+		{
+			// \note Bullet3 describes static and kinematic rigid bodies as objects with zero mass
+			mass = 0.0f;
+		}
+
+		btTransform internalTransform;
+		{
+			internalTransform.setIdentity();
+
+			auto&& pos = pTransform->GetPosition();
+			internalTransform.setOrigin({ pos.x, pos.y, pos.z });
+
+			auto&& rot = pTransform->GetRotation();
+			internalTransform.setRotation({ rot.x, rot.y, rot.z, rot.w });
+		}
+
+		btMotionState* pMotionHandler = new TEntitiesMotionState(pTransform, internalTransform);
+		btRigidBody::btRigidBodyConstructionInfo rigidbodyConfiguration(mass, pMotionHandler, pColliderShape, localInertia);
+
+		btRigidBody* pRigidBody = new btRigidBody(rigidbodyConfiguration);
+
+		if (E_COLLISION_OBJECT_TYPE::COT_KINEMATIC == rigidBodyType)
+		{
+			pRigidBody->setCollisionFlags(pRigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+			pRigidBody->setActivationState(DISABLE_DEACTIVATION);
+		}
+
+		return { pRigidBody, pMotionHandler };
+	}
+
+
+	static std::tuple<btPairCachingGhostObject*, btMotionState*> CreateTrigger(const CPhysicsBody3D& physicsObject, CTransform* pTransform, btCollisionShape* pColliderShape)
+	{
+		const TPhysicsBody3DComponentData& physicsObjectData = physicsObject.GetData();
+
+		E_COLLISION_OBJECT_TYPE triggerType = physicsObjectData.mType;
+
+		F32 mass = physicsObjectData.mMass;
+
+		btVector3 localInertia{ 0.0f, 0.0f, 0.0f };
+
+		if (triggerType == E_COLLISION_OBJECT_TYPE::COT_DYNAMIC)
+		{
+			pColliderShape->calculateLocalInertia(mass, localInertia);
+		}
+		else
+		{
+			// \note Bullet3 describes static and kinematic rigid bodies as objects with zero mass
+			mass = 0.0f;
+		}
+
+		btTransform internalTransform;
+		{
+			internalTransform.setIdentity();
+
+			auto&& pos = pTransform->GetPosition();
+			internalTransform.setOrigin({ pos.x, pos.y, pos.z });
+
+			auto&& rot = pTransform->GetRotation();
+			internalTransform.setRotation({ rot.x, rot.y, rot.z, rot.w });
+		}
+
+		btMotionState* pMotionHandler = new TEntitiesMotionState(pTransform, internalTransform);
+
+		auto pTriggerObject = new btPairCachingGhostObject();
+
+		pTriggerObject->setCollisionShape(pColliderShape);
+		pTriggerObject->setCollisionFlags(pTriggerObject->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+
+		switch (triggerType)
+		{
+			case E_COLLISION_OBJECT_TYPE::COT_KINEMATIC:
+				pTriggerObject->setCollisionFlags(pTriggerObject->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+				break;
+			case E_COLLISION_OBJECT_TYPE::COT_STATIC:
+				pTriggerObject->setCollisionFlags(pTriggerObject->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);
+				break;
+		}
+
+		if (E_COLLISION_OBJECT_TYPE::COT_DYNAMIC != triggerType)
+		{
+			pTriggerObject->setActivationState(DISABLE_DEACTIVATION);
+		}
+
+		return { pTriggerObject, pMotionHandler };
+	}
+
+
+	template <typename TCollisionType>
+	static btCollisionShape* CreateCollisionShape(const TCollisionType* collisionObject)
+	{
+		static_assert(false, "Unknown collision shape type");
+		return nullptr;
+	}
+
+
+	template <>
+	static btCollisionShape* CreateCollisionShape(const CBoxCollisionObject3D* pBox)
+	{
+		TVector3 halfExtents = pBox->GetSizes() * 0.5f;
+		return new btBoxShape({ halfExtents.x, halfExtents.y, halfExtents.z });
+	}
+
+
+	template <>
+	static btCollisionShape* CreateCollisionShape(const CSphereCollisionObject3D* pSphere)
+	{
+		return new btSphereShape(pSphere->GetRadius());
+	}
+
+
+	template <>
+	static btCollisionShape* CreateCollisionShape(const CCapsuleCollisionObject3D* pCapsule)
+	{
+		return new btCapsuleShape(pCapsule->GetRadius(), pCapsule->GetHeight());
+	}
+
+
+	template <>
+	static btCollisionShape* CreateCollisionShape(const CConvexHullCollisionObject3D* pHull)
+	{
+		auto pHullShape = new btConvexHullShape();
+
+		for (auto&& currVertex : pHull->GetVertices())
+		{
+			pHullShape->addPoint(btVector3(currVertex.x, currVertex.y, currVertex.z));
+		}
+
+		return pHullShape;
+	}
+
+
 	void CPhysics3DSystem::InjectBindings(IWorld* pWorld)
 	{
 		auto& transforms = mPhysicsObjectsData.mpTransforms;
-		auto& collisionObjects = mPhysicsObjectsData.mpCollisionObjects;
+		auto& physicsBodies = mPhysicsObjectsData.mpPhysicsBodies;
 		auto& collisionShapes = mPhysicsObjectsData.mpBulletColliderShapes;
 		auto& usageTable = mPhysicsObjectsData.mInUseTable;
 		auto& entities = mPhysicsObjectsData.mEntities;
@@ -177,13 +322,26 @@ namespace TDEngine2
 				continue;
 			}
 
-			pBaseCollisionObject = GetValidPtrOrDefault<CBaseCollisionObject3D*>(pCurrEntity->GetComponent<CBoxCollisionObject3D>(),
-				GetValidPtrOrDefault<CBaseCollisionObject3D*>(pCurrEntity->GetComponent<CSphereCollisionObject3D>(),
-					pCurrEntity->GetComponent<CConvexHullCollisionObject3D>()));
+			CPhysicsBody3D* pPhysicsBody3D = pCurrEntity->GetComponent<CPhysicsBody3D>();
+			physicsBodies.push_back(pPhysicsBody3D);
 
-			collisionObjects.push_back(pBaseCollisionObject);
+			if (auto pBoxCollisionObjectComponent = pCurrEntity->GetComponent<CBoxCollisionObject3D>())
+			{
+				pInternalColliderShape = CreateCollisionShape(pBoxCollisionObjectComponent);
+			}
+			else if (auto pSphereCollisionObjectComponent = pCurrEntity->GetComponent<CSphereCollisionObject3D>())
+			{
+				pInternalColliderShape = CreateCollisionShape(pSphereCollisionObjectComponent);
+			}
+			else if (auto pCapsuleCollisionObjectComponent = pCurrEntity->GetComponent<CCapsuleCollisionObject3D>())
+			{
+				pInternalColliderShape = CreateCollisionShape(pCapsuleCollisionObjectComponent);
+			}
+			else if (auto pConvexHullCollisionObjectComponent = pCurrEntity->GetComponent<CConvexHullCollisionObject3D>())
+			{
+				pInternalColliderShape = CreateCollisionShape(pConvexHullCollisionObjectComponent);
+			}
 
-			pInternalColliderShape = pBaseCollisionObject->GetCollisionShape(this);
 			collisionShapes.push_back(pInternalColliderShape);
 
 			pTransform = pCurrEntity->GetComponent<CTransform>();
@@ -194,7 +352,7 @@ namespace TDEngine2
 			{
 				btPairCachingGhostObject* pPairGhostObject = nullptr;
 
-				std::tie(pPairGhostObject, pMotionHandler) = _createTrigger(*pBaseCollisionObject, pTransform, pInternalColliderShape);
+				std::tie(pPairGhostObject, pMotionHandler) = CreateTrigger(*pPhysicsBody3D, pTransform, pInternalColliderShape);
 				mPhysicsObjectsData.mpTriggers.push_back(pPairGhostObject);
 
 				mpWorld->addCollisionObject(pPairGhostObject, btBroadphaseProxy::SensorTrigger, btBroadphaseProxy::AllFilter & ~btBroadphaseProxy::SensorTrigger);
@@ -202,7 +360,7 @@ namespace TDEngine2
 			}
 			else
 			{
-				std::tie(pCurrCollisionObject, pMotionHandler) = _createRigidbody(*pBaseCollisionObject, pTransform, pInternalColliderShape);
+				std::tie(pCurrCollisionObject, pMotionHandler) = CreateRigidbody(*pPhysicsBody3D, pTransform, pInternalColliderShape);
 				mpWorld->addRigidBody(btRigidBody::upcast(pCurrCollisionObject));
 
 				mPhysicsObjectsData.mpTriggers.push_back(nullptr);
@@ -445,34 +603,6 @@ namespace TDEngine2
 
 #endif
 
-	btBoxShape* CPhysics3DSystem::CreateBoxCollisionShape(const CBoxCollisionObject3D& box) const
-	{
-		TVector3 halfExtents = box.GetSizes() * 0.5f;
-		return new btBoxShape({ halfExtents.x, halfExtents.y, halfExtents.z });
-	}
-
-	btSphereShape* CPhysics3DSystem::CreateSphereCollisionShape(const CSphereCollisionObject3D& sphere) const
-	{
-		return new btSphereShape(sphere.GetRadius());
-	}
-
-	btConvexHullShape* CPhysics3DSystem::CreateConvexHullCollisionShape(const CConvexHullCollisionObject3D& hull) const
-	{
-		auto pHullShape = new btConvexHullShape();
-
-		for (auto&& currVertex : hull.GetVertices())
-		{
-			pHullShape->addPoint(btVector3(currVertex.x, currVertex.y, currVertex.z));
-		}
-
-		return pHullShape;
-	}
-
-	btCapsuleShape* CPhysics3DSystem::CreateCapsuleCollisionShape(const CCapsuleCollisionObject3D& capsule) const
-	{
-		return new btCapsuleShape(capsule.GetRadius(), capsule.GetHeight());
-	}
-
 	void CPhysics3DSystem::RaycastClosest(const TVector3& origin, const TVector3& direction, F32 maxDistance, const TOnRaycastHitCallback& onHitCallback)
 	{
 		TVector3 finishPos = origin + maxDistance * Normalize(direction);
@@ -524,103 +654,6 @@ namespace TDEngine2
 		return allResults.hasHit();
 	}
 
-	std::tuple<btRigidBody*, btMotionState*> CPhysics3DSystem::_createRigidbody(const CBaseCollisionObject3D& collisionObject, CTransform* pTransform, btCollisionShape* pColliderShape) const
-	{
-		E_COLLISION_OBJECT_TYPE rigidBodyType = collisionObject.GetCollisionType();
-
-		F32 mass = collisionObject.GetMass();
-
-		btVector3 localInertia{ 0.0f, 0.0f, 0.0f };
-
-		if (rigidBodyType == E_COLLISION_OBJECT_TYPE::COT_DYNAMIC)
-		{
-			pColliderShape->calculateLocalInertia(mass, localInertia);
-		}
-		else
-		{
-			// \note Bullet3 describes static and kinematic rigid bodies as objects with zero mass
-			mass = 0.0f;
-		}
-
-		btTransform internalTransform;
-		{
-			internalTransform.setIdentity();
-
-			auto&& pos = pTransform->GetPosition();
-			internalTransform.setOrigin({ pos.x, pos.y, pos.z });
-
-			auto&& rot = pTransform->GetRotation();
-			internalTransform.setRotation({ rot.x, rot.y, rot.z, rot.w });
-		}
-
-		btMotionState* pMotionHandler = new TEntitiesMotionState(pTransform, internalTransform);
-		btRigidBody::btRigidBodyConstructionInfo rigidbodyConfiguration(mass, pMotionHandler, pColliderShape, localInertia);
-
-		btRigidBody* pRigidBody = new btRigidBody(rigidbodyConfiguration);
-
-		if (E_COLLISION_OBJECT_TYPE::COT_KINEMATIC == rigidBodyType)
-		{
-			pRigidBody->setCollisionFlags(pRigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
-			pRigidBody->setActivationState(DISABLE_DEACTIVATION);
-		}
-
-		return { pRigidBody, pMotionHandler };
-	}
-
-	std::tuple<btPairCachingGhostObject*, btMotionState*> CPhysics3DSystem::_createTrigger(const CBaseCollisionObject3D& collisionObject, CTransform* pTransform, btCollisionShape* pColliderShape) const
-	{
-		E_COLLISION_OBJECT_TYPE triggerType = collisionObject.GetCollisionType();
-
-		F32 mass = collisionObject.GetMass();
-
-		btVector3 localInertia{ 0.0f, 0.0f, 0.0f };
-
-		if (triggerType == E_COLLISION_OBJECT_TYPE::COT_DYNAMIC)
-		{
-			pColliderShape->calculateLocalInertia(mass, localInertia);
-		}
-		else
-		{
-			// \note Bullet3 describes static and kinematic rigid bodies as objects with zero mass
-			mass = 0.0f;
-		}
-
-		btTransform internalTransform;
-		{
-			internalTransform.setIdentity();
-
-			auto&& pos = pTransform->GetPosition();
-			internalTransform.setOrigin({ pos.x, pos.y, pos.z });
-
-			auto&& rot = pTransform->GetRotation();
-			internalTransform.setRotation({ rot.x, rot.y, rot.z, rot.w });
-		}
-
-		btMotionState* pMotionHandler = new TEntitiesMotionState(pTransform, internalTransform);
-		
-		auto pTriggerObject = new btPairCachingGhostObject();
-
-		pTriggerObject->setCollisionShape(pColliderShape);
-		pTriggerObject->setCollisionFlags(pTriggerObject->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
-
-		switch (triggerType)
-		{
-			case E_COLLISION_OBJECT_TYPE::COT_KINEMATIC:
-				pTriggerObject->setCollisionFlags(pTriggerObject->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
-				break;
-			case E_COLLISION_OBJECT_TYPE::COT_STATIC:
-				pTriggerObject->setCollisionFlags(pTriggerObject->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);
-				break;
-		}
-
-		if (E_COLLISION_OBJECT_TYPE::COT_DYNAMIC != triggerType)
-		{
-			pTriggerObject->setActivationState(DISABLE_DEACTIVATION);
-		}
-
-		return { pTriggerObject, pMotionHandler };
-	}
-
 	E_RESULT_CODE CPhysics3DSystem::_freePhysicsObjects(TPhysicsObjectsData& physicsData)
 	{
 		E_RESULT_CODE result = RC_OK;
@@ -660,6 +693,7 @@ namespace TDEngine2
 
 		return result;
 	}
+
 
 	TDE2_API ISystem* CreatePhysics3DSystem(IEventManager* pEventManager, E_RESULT_CODE& result)
 	{
