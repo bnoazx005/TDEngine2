@@ -33,10 +33,10 @@ TDE2_TEST_FIXTURE("Physics3D Tests")
 
 				pKinematicEntity->AddComponent<CBoxCollisionObject3D>();
 
-				CPhysicsBody3D* pKinematicObject = pKinematicEntity->AddComponent<CPhysicsBody3D>();
+				IPhysicsBody3D* pKinematicObject = pKinematicEntity->AddComponent<IPhysicsBody3D>();
 				TDE2_TEST_IS_TRUE(pKinematicObject);
 
-				pKinematicObject->GetData().mType = E_COLLISION_OBJECT_TYPE::COT_KINEMATIC;
+				pKinematicObject->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_KINEMATIC);
 
 				kinematicOriginalPosition = pKinematicEntity->GetComponent<CTransform>()->GetPosition();
 
@@ -45,10 +45,10 @@ TDE2_TEST_FIXTURE("Physics3D Tests")
 
 				pDynamicEntity->AddComponent<CBoxCollisionObject3D>();
 
-				CPhysicsBody3D* pDynamicObject = pDynamicEntity->AddComponent<CPhysicsBody3D>();
+				IPhysicsBody3D* pDynamicObject = pDynamicEntity->AddComponent<IPhysicsBody3D>();
 				TDE2_TEST_IS_TRUE(pDynamicObject);
 
-				pDynamicObject->GetData().mType = E_COLLISION_OBJECT_TYPE::COT_DYNAMIC;
+				pDynamicObject->SetCollisionType(E_COLLISION_OBJECT_TYPE::COT_DYNAMIC);
 
 				dynamicOriginalPosition = pKinematicEntity->GetComponent<CTransform>()->GetPosition();
 			});

@@ -16,20 +16,6 @@
 #include "../../include/core/IJobManager.h"
 #include "../../include/core/IGameModesManager.h"
 #include "../../include/ecs/CWorld.h"
-#include "../../include/ecs/CSpriteRendererSystem.h"
-#include "../../include/ecs/CTransformSystem.h"
-#include "../../include/ecs/CCameraSystem.h"
-#include "../../include/ecs/CPhysics2DSystem.h"
-#include "../../include/ecs/CStaticMeshRendererSystem.h"
-#include "../../include/ecs/CSkinnedMeshRendererSystem.h"
-#include "../../include/ecs/CAnimationSystem.h"
-#include "../../include/ecs/CParticlesSimulationSystem.h"
-#include "../../include/ecs/CUIElementsProcessSystem.h"
-#include "../../include/ecs/CUIElementsRenderSystem.h"
-#include "../../include/ecs/CUIEventsSystem.h"
-#include "../../include/ecs/CMeshAnimatorUpdatingSystem.h"
-#include "../../include/ecs/CLODMeshSwitchSystem.h"
-#include "../../include/ecs/CWeatherSystem.h"
 #include "../../include/scene/CSceneManager.h"
 #include "../../include/scene/IScene.h"
 #include "../../include/graphics/IRenderer.h"
@@ -52,10 +38,6 @@
 #include "../../include/editor/CMemoryProfiler.h"
 #endif
 
-#include "../../include/physics/CBaseRaycastContext.h"
-#include "../../include/ecs/CObjectsSelectionSystem.h"
-#include "../../include/ecs/CBoundsUpdatingSystem.h"
-#include "../../include/ecs/CLightingSystem.h"
 #include <cstring>
 #include <algorithm>
 #include "deferOperation.hpp"

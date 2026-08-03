@@ -165,12 +165,12 @@ namespace TDEngine2
 		protected:
 			IEventManager*                                       mpEventManager = nullptr;
 
-			std::unique_ptr<btDefaultCollisionConfiguration>     mpCollisionConfiguration = nullptr;
-			std::unique_ptr<btCollisionDispatcher>               mpCollisionsDispatcher = nullptr;
-			std::unique_ptr<btBroadphaseInterface>               mpBroadphaseSolver = nullptr;
-			std::unique_ptr<btSequentialImpulseConstraintSolver> mpImpulseConstraintSolver = nullptr;
-			std::unique_ptr<btDiscreteDynamicsWorld>             mpWorld = nullptr;			
-			std::unique_ptr<btGhostPairCallback>                 mpGhostPairCallback = nullptr;
+			std::unique_ptr<btDefaultCollisionConfiguration>     mpCollisionConfiguration;
+			std::unique_ptr<btCollisionDispatcher>               mpCollisionsDispatcher;
+			std::unique_ptr<btBroadphaseInterface>               mpBroadphaseSolver;
+			std::unique_ptr<btSequentialImpulseConstraintSolver> mpImpulseConstraintSolver;
+			std::unique_ptr<btDiscreteDynamicsWorld>             mpWorld;			
+			std::unique_ptr<btGhostPairCallback>                 mpGhostPairCallback;
 
 			TVector3                                             mCurrGravity = ZeroVector3;
 

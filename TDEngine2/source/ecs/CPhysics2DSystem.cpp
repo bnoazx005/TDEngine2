@@ -20,9 +20,9 @@ namespace TDEngine2
 {
 	static const TVector2 DEFAULT_GRAVITY = TVector2(0.0f, -10.0f);
 
-	TDE2_STATIC_CONSTEXPR const F32 DEFAULT_TIME_STEP           = 1.0f / 60.0f;
-	TDE2_STATIC_CONSTEXPR const U32 DEFAULT_VELOCITY_ITERATIONS = 6;
-	TDE2_STATIC_CONSTEXPR const U32 DEFAULT_POSITION_ITERATIONS = 2;
+	TDE2_STATIC_CONSTEXPR F32 DEFAULT_TIME_STEP           = 1.0f / 60.0f;
+	TDE2_STATIC_CONSTEXPR U32 DEFAULT_VELOCITY_ITERATIONS = 6;
+	TDE2_STATIC_CONSTEXPR U32 DEFAULT_POSITION_ITERATIONS = 2;
 
 
 	class CPointOverlapCallback : public b2QueryCallback
@@ -144,7 +144,7 @@ namespace TDEngine2
 
 
 	CPhysics2DSystem::CPhysics2DSystem() :
-		CBaseSystem()
+		CBaseSystem(), mpWorldInstance(nullptr), mpContactsListener(nullptr)
 	{
 	}
 
@@ -184,7 +184,6 @@ namespace TDEngine2
 	template <typename TCollisionType, typename TFunctor>
 	static void CreateCollisionShape(const TCollisionType& collisionObject, TFunctor&& postAction)
 	{
-		static_assert(false);
 	}
 
 

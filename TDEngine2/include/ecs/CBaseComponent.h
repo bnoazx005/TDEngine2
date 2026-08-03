@@ -112,6 +112,23 @@ namespace TDEngine2
 	};
 
 
+	/*!
+		\brief The class is a wrapper for structure based components that provides automatic serialization/deserialization functionality.
+		All the components types also have provided pool allocator.
+
+		The example of custom component declaration:
+
+		struct TCustomComponentData 
+		{
+			//...
+		};
+
+		class CCustomComponent: public CBaseComponentT<CCustomComponent, TCustomComponentData>
+		{
+			//...
+		};
+	*/
+
 	template <typename TComponentType, typename TComponentDataType>
 	class CBaseComponentT : public virtual IComponent, public CBaseObject, public CPoolMemoryAllocPolicy<TComponentType, 1 << 20>
 	{
@@ -234,7 +251,7 @@ namespace TDEngine2
 
 			IPropertyWrapperPtr GetProperty(const std::string& propertyName) override
 			{
-				static const TComponentDataType::TPropertyWrappersFactoryTable propertiesFactories = TComponentDataType::GetPropertiesFactoriesTable(GetData());
+				static const typename TComponentDataType::TPropertyWrappersFactoryTable propertiesFactories = TComponentDataType::GetPropertiesFactoriesTable(GetData());
 
 				auto it = propertiesFactories.find(propertyName);
 

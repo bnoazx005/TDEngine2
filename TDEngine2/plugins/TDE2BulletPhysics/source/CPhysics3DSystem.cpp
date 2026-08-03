@@ -234,47 +234,49 @@ namespace TDEngine2
 	}
 
 
-	template <typename TCollisionType>
-	static btCollisionShape* CreateCollisionShape(const TCollisionType* collisionObject)
+	namespace
 	{
-		static_assert(false, "Unknown collision shape type");
-		return nullptr;
-	}
-
-
-	template <>
-	static btCollisionShape* CreateCollisionShape(const CBoxCollisionObject3D* pBox)
-	{
-		TVector3 halfExtents = pBox->GetSizes() * 0.5f;
-		return new btBoxShape({ halfExtents.x, halfExtents.y, halfExtents.z });
-	}
-
-
-	template <>
-	static btCollisionShape* CreateCollisionShape(const CSphereCollisionObject3D* pSphere)
-	{
-		return new btSphereShape(pSphere->GetRadius());
-	}
-
-
-	template <>
-	static btCollisionShape* CreateCollisionShape(const CCapsuleCollisionObject3D* pCapsule)
-	{
-		return new btCapsuleShape(pCapsule->GetRadius(), pCapsule->GetHeight());
-	}
-
-
-	template <>
-	static btCollisionShape* CreateCollisionShape(const CConvexHullCollisionObject3D* pHull)
-	{
-		auto pHullShape = new btConvexHullShape();
-
-		for (auto&& currVertex : pHull->GetVertices())
+		template <typename TCollisionType>
+		btCollisionShape* CreateCollisionShape(const TCollisionType* collisionObject)
 		{
-			pHullShape->addPoint(btVector3(currVertex.x, currVertex.y, currVertex.z));
+			return nullptr;
 		}
 
-		return pHullShape;
+
+		template <>
+		btCollisionShape* CreateCollisionShape(const CBoxCollisionObject3D* pBox)
+		{
+			TVector3 halfExtents = pBox->GetSizes() * 0.5f;
+			return new btBoxShape({ halfExtents.x, halfExtents.y, halfExtents.z });
+		}
+
+
+		template <>
+		btCollisionShape* CreateCollisionShape(const CSphereCollisionObject3D* pSphere)
+		{
+			return new btSphereShape(pSphere->GetRadius());
+		}
+
+
+		template <>
+		btCollisionShape* CreateCollisionShape(const CCapsuleCollisionObject3D* pCapsule)
+		{
+			return new btCapsuleShape(pCapsule->GetRadius(), pCapsule->GetHeight());
+		}
+
+
+		template <>
+		btCollisionShape* CreateCollisionShape(const CConvexHullCollisionObject3D* pHull)
+		{
+			auto pHullShape = new btConvexHullShape();
+
+			for (auto&& currVertex : pHull->GetVertices())
+			{
+				pHullShape->addPoint(btVector3(currVertex.x, currVertex.y, currVertex.z));
+			}
+
+			return pHullShape;
+		}
 	}
 
 

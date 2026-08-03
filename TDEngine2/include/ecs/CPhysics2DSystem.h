@@ -146,9 +146,9 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS_NO_DCTR(CPhysics2DSystem)
 			TDE2_API virtual ~CPhysics2DSystem();
 		protected:
-			std::unique_ptr<b2World>           mpWorldInstance = nullptr;
+			std::unique_ptr<b2World>           mpWorldInstance;
 
-			std::unique_ptr<b2ContactListener> mpContactsListener = nullptr;
+			std::unique_ptr<b2ContactListener> mpContactsListener ;
 
 			IEventManager*                     mpEventManager = nullptr;
 
