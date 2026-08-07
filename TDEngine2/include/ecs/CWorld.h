@@ -283,7 +283,7 @@ namespace TDEngine2
 
 			F32                                                          mTimeScaleFactor = 1.0f;
 
-			std::unordered_map<std::thread::id, TPtr<IECSCommandBuffer>> mpCommandBuffers{};
+			CFixedVector<TPtr<IECSCommandBuffer>>                        mpCommandBuffers{};
 
 			TDE2_MULTI_THREAD_CHECK_LOCK;
 			mutable std::mutex                        mMutex;

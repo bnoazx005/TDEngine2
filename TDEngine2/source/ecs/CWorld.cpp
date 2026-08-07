@@ -108,46 +108,43 @@ namespace TDEngine2
 
 	CEntity* CWorld::CreateEntity()
 	{
-		//TDE2_ASSERT_MSG(!mpSystemManager->IsUpdateSystemsStageExecuted(), "CreateEntity should not be called during Update phase, use AddDefferedCommand instead");
+		TDE2_ASSERT_MSG(!mpSystemManager->IsUpdateSystemsStageExecuted(), "CreateEntity should not be called during Update phase, use AddDefferedCommand instead");
 		return mpEntityManager->Create().Get();
 	}
 
 	CEntity* CWorld::CreateEntityWithUUID(TEntityId id)
 	{
-		//TDE2_ASSERT_MSG(!mpSystemManager->IsUpdateSystemsStageExecuted(), "CreateEntityWithUUID should not be called during Update phase, use AddDefferedCommand instead");
+		TDE2_ASSERT_MSG(!mpSystemManager->IsUpdateSystemsStageExecuted(), "CreateEntityWithUUID should not be called during Update phase, use AddDefferedCommand instead");
 		return mpEntityManager->CreateWithUUID(id).Get();
 	}
 
 	CEntity* CWorld::CreateEntity(const std::string& name)
 	{
-		//TDE2_ASSERT_MSG(!mpSystemManager->IsUpdateSystemsStageExecuted(), "CreateEntity should not be called during Update phase, use AddDefferedCommand instead");
+		TDE2_ASSERT_MSG(!mpSystemManager->IsUpdateSystemsStageExecuted(), "CreateEntity should not be called during Update phase, use AddDefferedCommand instead");
 		return mpEntityManager->Create(name).Get();
 	}
 
 	E_RESULT_CODE CWorld::Destroy(TEntityId entityId)
 	{
-		//TDE2_ASSERT_MSG(!mpSystemManager->IsUpdateSystemsStageExecuted(), "DeestroyEntity should not be called during Update phase, use AddDefferedCommand instead");
+		TDE2_ASSERT_MSG(!mpSystemManager->IsUpdateSystemsStageExecuted(), "DeestroyEntity should not be called during Update phase, use AddDefferedCommand instead");
 		return mpEntityManager->Destroy(entityId);
 	}
 
 	TPtr<IECSCommandBuffer> CWorld::CreateCommandBuffer()
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
+		static thread_local TPtr<IECSCommandBuffer> pLocalThreadCmdBuffer = nullptr;
 
-		const std::thread::id& currThreadId = std::this_thread::get_id();
-
-		auto&& it = mpCommandBuffers.find(currThreadId);
-		if (it != mpCommandBuffers.cend())
+		if (!pLocalThreadCmdBuffer)
 		{
-			return it->second;
+			E_RESULT_CODE result = RC_OK;
+
+			pLocalThreadCmdBuffer = TPtr<IECSCommandBuffer>(CreateECSCommandBuffer(result));
+
+			std::lock_guard<std::mutex> lock(mMutex);
+			mpCommandBuffers.emplace_back(pLocalThreadCmdBuffer);
 		}
 
-		E_RESULT_CODE result = RC_OK;
-
-		TPtr<IECSCommandBuffer> pNewCommandBuffer = TPtr<IECSCommandBuffer>(CreateECSCommandBuffer(result));
-		mpCommandBuffers.emplace(currThreadId, pNewCommandBuffer);
-
-		return pNewCommandBuffer;
+		return pLocalThreadCmdBuffer;
 	}
 
 	E_RESULT_CODE CWorld::RegisterComponentFactory(TPtr<IComponentFactory> pFactory)
@@ -288,8 +285,10 @@ namespace TDEngine2
 
 		for (auto&& currCommandBufferEntry : mpCommandBuffers)
 		{
-			currCommandBufferEntry.second->Flush(this);
+			currCommandBufferEntry->Flush(this);
 		}
+
+		mpCommandBuffers.clear();
 
 		// \note reset all allocated raycasts results data
 		mpRaycastContext->Reset();
