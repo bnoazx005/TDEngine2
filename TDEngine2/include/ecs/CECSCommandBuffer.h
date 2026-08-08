@@ -32,43 +32,47 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IECSCommandBuffer* CreateECSCommandBuffer(E_RESULT_CODE&);
 		private:
-			enum class E_ECS_COMMAND_BUFFER_ENTRY_TYPE : U8
+			struct TAddEntityWithUUIDCmd
 			{
-				ADD_ENTITY           = 0x1,
-				ADD_ENTITY_WITH_UUID = 0x2,
-				ADD_ENTITY_BY_NAME   = 0x3,
-				DESTROY_ENTITY       = 0x4,
-				ADD_COMPONENT        = 0x5,
-				REMOVE_COMPONENT     = 0x6,
-				UNKNOWN = 0xFF
+				TEntityId mUUID;
 			};
 
-			struct TCommandBufferEntry
+			struct TAddEntityByNameCmd
 			{
-				E_ECS_COMMAND_BUFFER_ENTRY_TYPE mType = E_ECS_COMMAND_BUFFER_ENTRY_TYPE::UNKNOWN;
-
-				union
-				{
-					struct { TEntityId mValue = TEntityId::Invalid; } mOpWithID;
-
-					struct 
-					{ 
-						C8        mName[255];
-						U32       mNameLength = 0;
-						TEntityId mId = TEntityId::Invalid; 
-					} mOpWithName;
-
-					struct 
-					{
-						TEntityId mValue = TEntityId::Invalid;
-						TypeId    mComponentTypeId = TypeId::Invalid;
-					} mComponentOpWithID;
-				} mArgs;
+				TEntityId   mEntityId;
+				std::string mName;
 			};
+
+			struct TDestroyEntityCmd
+			{
+				TEntityId mEntityId;
+			};
+
+			struct TAddComponentCmd
+			{
+				TEntityId mEntityId;
+				TypeId    mComponentTypeId;
+			};
+
+			struct TRemoveComponentCmd
+			{
+				TEntityId mEntityId;
+				TypeId    mComponentTypeId;
+			};
+
+			struct TCustomActionCmd
+			{
+				TCustomAction mAction = nullptr;
+			};
+
+			using TCommandBufferEntry = std::variant<TAddEntityWithUUIDCmd,
+			                                         TAddEntityByNameCmd,
+			                                         TDestroyEntityCmd,
+			                                         TAddComponentCmd,
+			                                         TRemoveComponentCmd,
+			                                         TCustomActionCmd>;
 
 			typedef CFixedVector<TCommandBufferEntry, 1024> TCommandsArray;
-
-			static_assert(std::is_trivially_copyable_v<TCommandBufferEntry>, "TCommandBufferEntry must be trivially copyable");
 		public:
 			TDE2_API E_RESULT_CODE Init() override;
 
@@ -81,6 +85,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE AddComponent(TEntityId entityId, TypeId componentTypeId) override;
 
 			TDE2_API E_RESULT_CODE RemoveComponent(TEntityId entityId, TypeId componentTypeId) override;
+
+			TDE2_API E_RESULT_CODE AddDelayedAction(const TCustomAction& action) override;
 
 			TDE2_API E_RESULT_CODE Flush(IWorld* pWorld) override;
 		private:

@@ -9,6 +9,7 @@
 
 #include "../core/IBaseObject.h"
 #include "../utils/Types.h"
+#include <functional>
 
 
 namespace TDEngine2
@@ -29,6 +30,9 @@ namespace TDEngine2
 	class IECSCommandBuffer : public virtual IBaseObject
 	{
 		public:
+			typedef std::function<void()> TCustomAction;
+
+		public:
 			TDE2_API virtual E_RESULT_CODE Init() = 0;
 
 			TDE2_API virtual TEntityId AddEntity() = 0;
@@ -46,6 +50,8 @@ namespace TDEngine2
 			}
 
 			TDE2_API virtual E_RESULT_CODE RemoveComponent(TEntityId entityId, TypeId componentTypeId) = 0;
+
+			TDE2_API virtual E_RESULT_CODE AddDelayedAction(const TCustomAction& action) = 0;
 
 			TDE2_API virtual E_RESULT_CODE Flush(IWorld* pWorld) = 0;
 		protected:

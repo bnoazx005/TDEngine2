@@ -20,19 +20,13 @@ namespace TDEngine2
 	{
 		const TEntityId newEntityId = GetNextUniqueIdentifier();
 
-		TCommandBufferEntry commandEntry{ E_ECS_COMMAND_BUFFER_ENTRY_TYPE::ADD_ENTITY };
-		commandEntry.mArgs.mOpWithID.mValue = newEntityId;
-
+		mCommands.emplace_back(TAddEntityWithUUIDCmd { newEntityId });
 		return newEntityId;
 	}
 
 	E_RESULT_CODE CECSCommandBuffer::AddEntityWithUUID(TEntityId uuid)
 	{
-		TCommandBufferEntry commandEntry{ E_ECS_COMMAND_BUFFER_ENTRY_TYPE::ADD_ENTITY_WITH_UUID };
-		commandEntry.mArgs.mOpWithID.mValue = uuid;
-
-		mCommands.emplace_back(commandEntry);
-
+		mCommands.emplace_back(TAddEntityWithUUIDCmd{ uuid });
 		return RC_OK;
 	}
 
@@ -40,46 +34,36 @@ namespace TDEngine2
 	{
 		const TEntityId newEntityId = GetNextUniqueIdentifier();
 
-		TCommandBufferEntry commandEntry{ E_ECS_COMMAND_BUFFER_ENTRY_TYPE::ADD_ENTITY_BY_NAME };
-
-		memcpy(static_cast<void*>(commandEntry.mArgs.mOpWithName.mName), name.data(), name.size());
-		commandEntry.mArgs.mOpWithName.mNameLength = static_cast<U32>(name.length());
-		commandEntry.mArgs.mOpWithName.mId         = newEntityId;
-
-		mCommands.emplace_back(commandEntry);
-
+		mCommands.emplace_back(TAddEntityByNameCmd{ newEntityId, name });
 		return newEntityId;
 	}
 
 	E_RESULT_CODE CECSCommandBuffer::DestroyEntity(TEntityId entityId)
 	{
-		TCommandBufferEntry commandEntry{ E_ECS_COMMAND_BUFFER_ENTRY_TYPE::DESTROY_ENTITY };
-		commandEntry.mArgs.mOpWithID.mValue = entityId;
-
-		mCommands.emplace_back(commandEntry);
-
+		mCommands.emplace_back(TDestroyEntityCmd{ entityId });
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CECSCommandBuffer::AddComponent(TEntityId entityId, TypeId componentTypeId)
 	{
-		TCommandBufferEntry commandEntry{ E_ECS_COMMAND_BUFFER_ENTRY_TYPE::ADD_COMPONENT };
-		commandEntry.mArgs.mComponentOpWithID.mValue           = entityId;
-		commandEntry.mArgs.mComponentOpWithID.mComponentTypeId = componentTypeId;
-
-		mCommands.emplace_back(commandEntry);
-
+		mCommands.emplace_back(TAddComponentCmd{ entityId, componentTypeId });
 		return RC_OK;
 	}
 
 	E_RESULT_CODE CECSCommandBuffer::RemoveComponent(TEntityId entityId, TypeId componentTypeId)
 	{
-		TCommandBufferEntry commandEntry{ E_ECS_COMMAND_BUFFER_ENTRY_TYPE::REMOVE_COMPONENT };
-		commandEntry.mArgs.mComponentOpWithID.mValue           = entityId;
-		commandEntry.mArgs.mComponentOpWithID.mComponentTypeId = componentTypeId;
+		mCommands.emplace_back(TRemoveComponentCmd{ entityId, componentTypeId });
+		return RC_OK;
+	}
 
-		mCommands.emplace_back(commandEntry);
+	E_RESULT_CODE CECSCommandBuffer::AddDelayedAction(const TCustomAction& action)
+	{
+		if (!action)
+		{
+			return RC_INVALID_ARGS;
+		}
 
+		mCommands.emplace_back(TCustomActionCmd{ action });
 		return RC_OK;
 	}
 
@@ -98,54 +82,49 @@ namespace TDEngine2
 
 		for (const TCommandBufferEntry& currCommandEntry : mCommands)
 		{
-			switch (currCommandEntry.mType)
-			{
-				case E_ECS_COMMAND_BUFFER_ENTRY_TYPE::ADD_ENTITY:
-				case E_ECS_COMMAND_BUFFER_ENTRY_TYPE::ADD_ENTITY_WITH_UUID:
-					pWorld->CreateEntityWithUUID(currCommandEntry.mArgs.mOpWithID.mValue);
-					break;
+			std::visit([pWorld, &result](const auto& arg) {
+				using T = std::decay_t<decltype(arg)>;
 
-				case E_ECS_COMMAND_BUFFER_ENTRY_TYPE::ADD_ENTITY_BY_NAME:
-					if (CEntity* pEntity = pWorld->CreateEntityWithUUID(currCommandEntry.mArgs.mOpWithName.mId))
+				if constexpr (std::is_same_v<T, TAddEntityWithUUIDCmd>) {
+					pWorld->CreateEntityWithUUID(arg.mUUID);
+				}
+				else if constexpr (std::is_same_v<T, TAddEntityByNameCmd>) {
+					if (CEntity* pEntity = pWorld->CreateEntityWithUUID(arg.mEntityId))
 					{
-						pEntity->SetName(std::string(currCommandEntry.mArgs.mOpWithName.mNameLength, currCommandEntry.mArgs.mOpWithName.mNameLength));
+						pEntity->SetName(arg.mName);
 					}
 					else
 					{
 						result = result | RC_FAIL;
 					}
-					break;
-
-				case E_ECS_COMMAND_BUFFER_ENTRY_TYPE::DESTROY_ENTITY:
-					result = result | pWorld->Destroy(currCommandEntry.mArgs.mOpWithID.mValue);
-					break;
-
-				case E_ECS_COMMAND_BUFFER_ENTRY_TYPE::ADD_COMPONENT:
-					if (CEntity* pEntity = pWorld->FindEntity(currCommandEntry.mArgs.mComponentOpWithID.mValue))
+				}
+				else if constexpr (std::is_same_v<T, TDestroyEntityCmd>) {
+					pWorld->Destroy(arg.mEntityId);
+				}
+				else if constexpr (std::is_same_v<T, TAddComponentCmd>) {
+					if (CEntity* pEntity = pWorld->FindEntity(arg.mEntityId))
 					{
-						pEntity->AddComponent(currCommandEntry.mArgs.mComponentOpWithID.mComponentTypeId);
+						pEntity->AddComponent(arg.mComponentTypeId);
 					}
 					else
 					{
 						result = result | RC_FAIL;
 					}
-					break;
-
-				case E_ECS_COMMAND_BUFFER_ENTRY_TYPE::REMOVE_COMPONENT:
-					if (CEntity* pEntity = pWorld->FindEntity(currCommandEntry.mArgs.mComponentOpWithID.mValue))
+				}
+				else if constexpr (std::is_same_v<T, TRemoveComponentCmd>) {
+					if (CEntity* pEntity = pWorld->FindEntity(arg.mEntityId))
 					{
-						result = result | pEntity->RemoveComponent(currCommandEntry.mArgs.mComponentOpWithID.mComponentTypeId);
+						result = result | pEntity->RemoveComponent(arg.mComponentTypeId);
 					}
 					else
 					{
 						result = result | RC_FAIL;
 					}
-					break;
-
-				default:
-					TDE2_UNREACHABLE();
-					break;
-			}
+				}
+				else if constexpr (std::is_same_v<T, TCustomActionCmd>) {
+					arg.mAction();
+				}
+				}, currCommandEntry);
 		}
 
 		mCommands.clear();
