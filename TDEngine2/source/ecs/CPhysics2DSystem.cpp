@@ -374,9 +374,9 @@ namespace TDEngine2
 
 	void CPhysics2DSystem::RaycastClosest(const TVector2& origin, const TVector2& direction, F32 maxDistance, const TOnRaycastHitCallback& onHitCallback)
 	{
-		TVector2 end = origin + (Length(direction) > CMathConstants::Epsilon ? Normalize(direction) : ZeroVector2) * maxDistance;
+		TVector2 end = origin + (Length(direction) > FloatEpsilon ? Normalize(direction) : ZeroVector2) * maxDistance;
 
-		if (Length(end - origin) < CMathConstants::Epsilon)
+		if (Length(end - origin) < FloatEpsilon)
 		{
 			// \note the case of ray that's orthogonal for XY plane
 			TestPointOverlap(mpWorldInstance.get(), origin, onHitCallback);
