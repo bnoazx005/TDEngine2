@@ -113,6 +113,8 @@ namespace TDEngine2
 		mEntityComponentMap[entityId].erase(componentTypeId);
 		mComponentEntityMap[componentTypeId].erase(entityId);
 
+		mEntityComponentsBitmaskRegistry[entityId].reset(componentHashValue);
+
 		TDE2_STATS_COUNTER_DECREMENT(mTotalComponentsCount);
 
 		return RC_OK;
@@ -196,6 +198,8 @@ namespace TDEngine2
 			// mark handlers as invalid
 			mEntityComponentMap[entityId].erase(componentType);
 			mComponentEntityMap[componentType].erase(entityId);
+
+			mEntityComponentsBitmaskRegistry[entityId].reset(componentTypeHashValue);
 
 			TDE2_STATS_COUNTER_DECREMENT(mTotalComponentsCount);
 		}
@@ -351,8 +355,10 @@ namespace TDEngine2
 
 			mActiveComponents.emplace_back();
 		}
+
+		const U32 componentIndex = mComponentsHashTable[componentTypeId];
 		
-		std::vector<IComponent*>& componentsGroup = mActiveComponents[mComponentsHashTable[componentTypeId]];
+		std::vector<IComponent*>& componentsGroup = mActiveComponents[componentIndex];
 
 		componentsGroup.push_back(pNewComponent);
 
@@ -360,6 +366,8 @@ namespace TDEngine2
 
 		mComponentEntityMap[componentTypeId][entityId] = hash;
 		mEntityComponentMap[entityId][componentTypeId] = hash;
+
+		mEntityComponentsBitmaskRegistry[entityId].set(componentIndex);
 
 		if (isUniqueComponentType)
 		{
@@ -430,9 +438,13 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("CComponentManager::_hasComponent");
 
-		U32 instanceHashValue = mComponentEntityMap[componentTypeId][entityId];
+		if (auto it = mComponentsHashTable.find(componentTypeId); it != mComponentsHashTable.cend())
+		{
+			return mEntityComponentsBitmaskRegistry[entityId].test(it->second);
+		}
 
-		return instanceHashValue && (mComponentsHashTable.find(componentTypeId) != mComponentsHashTable.cend());
+		// \note Missing hash value in mComponentsHashTable means that we don't have any component of corresponding type
+		return false;
 	}
 
 	CComponentIterator CComponentManager::FindComponentsOfType(TypeId typeId)
@@ -483,36 +495,38 @@ namespace TDEngine2
 
 		TEntitiesArray filter;
 
-		bool containsAll = false;
-
-		for (const auto& entityComponentsTablePair : mEntityComponentMap)
+		TComponentsBitmask queryMask{};
+		
+		for (const TypeId currType : types)
 		{
-			const auto& entityComponentsTable = entityComponentsTablePair.second;
-
-			containsAll = true;
-
-			if (_hasComponent(CDeactivatedComponent::GetTypeId(), entityComponentsTablePair.first) || 
-				_hasComponent(CDeactivatedGroupComponent::GetTypeId(), entityComponentsTablePair.first))
+			auto it = mComponentsHashTable.find(currType);
+			if (it == mComponentsHashTable.cend())
 			{
-				continue; /// If the entity marked with CDeactivatedComponent component it means that is should be skipped from processing
+				// \note Early exit because there are no entities with component of corresponding type
+				// mComponentsHashTable[currType] should exist if there is at least one component
+				return filter;
 			}
 
-			for (auto typeIter = types.cbegin(); typeIter != types.cend(); ++typeIter)
-			{
-				containsAll = containsAll && (entityComponentsTable.find(*typeIter) != entityComponentsTable.cend());
+			queryMask.set(it->second);
+		}
 
-				if (!containsAll) /// an early interruption of the loop if one of operands is false
-				{
-					break;
-				}
-			}
+		auto deactivatedComponentHashIter = mComponentsHashTable.find(CDeactivatedComponent::GetTypeId());
+		auto deactivatedGroupComponentHashIter = mComponentsHashTable.find(CDeactivatedGroupComponent::GetTypeId());
 
-			if (!containsAll)
+		for (const auto& [entityId, entityComponentsMask] : mEntityComponentsBitmaskRegistry)
+		{
+			if ((deactivatedComponentHashIter != mComponentsHashTable.cend() && entityComponentsMask.test(deactivatedComponentHashIter->second)) ||
+				(deactivatedGroupComponentHashIter != mComponentsHashTable.cend() && entityComponentsMask.test(deactivatedGroupComponentHashIter->second)))
 			{
 				continue;
 			}
 
-			filter.push_back(entityComponentsTablePair.first);
+			if ((entityComponentsMask & queryMask) != queryMask)
+			{
+				continue;
+			}
+
+			filter.push_back(entityId);
 		}
 
 		return filter;
@@ -522,27 +536,38 @@ namespace TDEngine2
 	{
 		TEntitiesArray filter;
 
-		std::unordered_map<TypeId, U32> entityComponentsTable;
+		TComponentsBitmask queryMask{};
 
-		for (auto entityComponentsTablePair : mEntityComponentMap)
+		for (const TypeId currType : types)
 		{
-			entityComponentsTable = entityComponentsTablePair.second;
-
-			if (_hasComponent(CDeactivatedComponent::GetTypeId(), entityComponentsTablePair.first) ||
-				_hasComponent(CDeactivatedGroupComponent::GetTypeId(), entityComponentsTablePair.first))
+			auto it = mComponentsHashTable.find(currType);
+			if (it == mComponentsHashTable.cend())
 			{
-				continue; /// If the entity marked with CDeactivatedComponent component it means that is should be skipped from processing
+				// \note Early exit because there are no entities with component of corresponding type
+				// mComponentsHashTable[currType] should exist if there is at least one component
+				return filter;
 			}
 
-			for (auto typeIter = types.cbegin(); typeIter != types.cend(); ++typeIter)
-			{
-				if (entityComponentsTable.find(*typeIter) != entityComponentsTable.cend())
-				{
-					filter.push_back(entityComponentsTablePair.first);
+			queryMask.set(it->second);
+		}
 
-					break;
-				}
+		auto deactivatedComponentHashIter      = mComponentsHashTable.find(CDeactivatedComponent::GetTypeId());
+		auto deactivatedGroupComponentHashIter = mComponentsHashTable.find(CDeactivatedGroupComponent::GetTypeId());
+
+		for (const auto& [entityId, entityComponentsMask] : mEntityComponentsBitmaskRegistry)
+		{
+			if ((deactivatedComponentHashIter != mComponentsHashTable.cend() && entityComponentsMask.test(deactivatedComponentHashIter->second)) || 
+				(deactivatedGroupComponentHashIter != mComponentsHashTable.cend() && entityComponentsMask.test(deactivatedGroupComponentHashIter->second)))
+			{
+				continue;
 			}
+
+			if ((entityComponentsMask & queryMask).none())
+			{
+				continue;
+			}
+
+			filter.push_back(entityId);
 		}
 
 		return filter;

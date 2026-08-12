@@ -16,6 +16,7 @@
 #include <unordered_map>
 #include <functional>
 #include <memory>
+#include <bitset>
 #include "IComponent.h"
 
 
@@ -39,6 +40,9 @@ namespace TDEngine2
 	{
 		public:
 			friend TDE2_API IComponentManager* CreateComponentManager(E_RESULT_CODE& result);
+		public:
+			TDE2_STATIC_CONSTEXPR USIZE MAX_COMPONENTS_COUNT = 1024;
+
 		protected:
 			typedef std::unordered_map<TypeId, std::unordered_map<TEntityId, U32>> TComponentEntityMap;
 
@@ -55,6 +59,10 @@ namespace TDEngine2
 			typedef std::vector<std::vector<IComponent*>>                          TComponentsMatrix;
 
 			typedef std::unordered_map<TypeId, TEntityId>                          TUniqueComponentsTable;
+
+			typedef std::bitset<MAX_COMPONENTS_COUNT>                              TComponentsBitmask;
+
+			typedef std::unordered_map<TEntityId, TComponentsBitmask>              TEntityComponentsBitmaskTable;
 		public:
 			/*!
 				\brief The method initializes a component manager's instance
@@ -180,27 +188,29 @@ namespace TDEngine2
 			
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			TComponentEntityMap      mComponentEntityMap;
+			TComponentEntityMap                          mComponentEntityMap;
 
-			TEntityComponentMap      mEntityComponentMap;
+			TEntityComponentMap                          mEntityComponentMap;
 
-			TComponentHashTable      mComponentsHashTable;
+			TComponentHashTable                          mComponentsHashTable;
 
-			TComponentsMatrix        mActiveComponents;
+			TComponentsMatrix                            mActiveComponents;
 
-			TComponentFactoriesMap   mComponentFactoriesMap;
+			TComponentFactoriesMap                       mComponentFactoriesMap;
 
-			TComponentFactoriesArray mComponentFactories; 
+			TComponentFactoriesArray                     mComponentFactories; 
 			
-			TFreeEntitiesRegistry    mFreeComponentFactoriesRegistry;
+			TFreeEntitiesRegistry                        mFreeComponentFactoriesRegistry;
 
-			TUniqueComponentsTable   mUniqueComponentsRegistry;
+			TUniqueComponentsTable                       mUniqueComponentsRegistry;
+
+			TEntityComponentsBitmaskTable                mEntityComponentsBitmaskRegistry;
 
 			static std::unordered_set<TypeId>            mUniqueComponentTypesRegistry;
 			static std::vector<TComponentFactoryFunctor> mComponentFactoriesToRegister;
 
 #if TDE2_EDITORS_ENABLED
-			std::vector<TComponentTypeInfo> mRegisteredComponentTypes;
+			std::vector<TComponentTypeInfo>              mRegisteredComponentTypes;
 #endif
 	};
 
