@@ -12,6 +12,8 @@
 #include "../graphics/IRenderer.h"
 #include "../graphics/effects/ParticleEmitters.h"
 #include <array>
+#include <mutex>
+#include <condition_variable>
 
 
 namespace TDEngine2
@@ -58,10 +60,25 @@ namespace TDEngine2
 			friend TDE2_API CFramePacketsStorage* CreateFramePacketsStorage(TAllocatorFactoryFunctor, E_RESULT_CODE&);
 		public:
 			TDE2_STATIC_CONSTEXPR U32 MAX_FRAME_PACKETS_COUNT = 16;
+			static_assert((MAX_FRAME_PACKETS_COUNT & (MAX_FRAME_PACKETS_COUNT - 1)) == 0, "MAX_FRAME_PACKETS_COUNT should be power of 2");
 
-			typedef std::array<TFramePacket, 16> TFramePacketsArray;
+			enum class E_PACKET_STATE : U8
+			{
+				EMPTY,
+				WRITING,
+				READY
+			};
+
+			typedef std::array<TFramePacket, MAX_FRAME_PACKETS_COUNT>                TFramePacketsArray;
+			typedef std::array<std::atomic<E_PACKET_STATE>, MAX_FRAME_PACKETS_COUNT> TFramePacketsStatesArray;
 		public:
 			TDE2_API E_RESULT_CODE Init(TAllocatorFactoryFunctor allocatorFactoryFunctor);
+
+			TDE2_API TFramePacket& AcquireGameLogicFramePacket();
+			TDE2_API E_RESULT_CODE SubmitGameLogicFramePacket();
+
+			TDE2_API TFramePacket& AcquireRenderLogicFramePacket();
+			TDE2_API E_RESULT_CODE SubmitRenderLogicFramePacket();
 
 			TDE2_API void IncrementGameLogicFrameCounter();
 			TDE2_API void IncrementRenderFrameCounter();
@@ -69,14 +86,18 @@ namespace TDEngine2
 			TDE2_API TFramePacket& GetCurrentFrameForGameLogic();
 			TDE2_API TFramePacket& GetCurrentFrameForRender();
 
-			TDE2_API U32 GetGameLogicFrameIndex() const;
-			TDE2_API U32 GetRenderFrameIndex() const;
+			TDE2_API U64 GetGameLogicFrameIndex() const;
+			TDE2_API U64 GetRenderFrameIndex() const;
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFramePacketsStorage)
 		private:
-			TFramePacketsArray mFramePackets;
+			TFramePacketsArray       mFramePackets;
+			TFramePacketsStatesArray mFramePacketsState;
 
-			U32                mCurrGameLogicFrameIndex = 1;
-			U32                mCurrRenderFrameIndex = 0;
+			std::atomic<U64>         mCurrGameLogicFrameIndex { 0 };
+			std::atomic<U64>         mCurrRenderFrameIndex{ 0 };
+
+			mutable std::mutex       mMutex;
+			std::condition_variable  mSignal;
 	};
 }

@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The implementation of **CComponentManager::FindEntitiesWithAll** and **CComponentManager::FindEntitiesWithAny** was optimized using bitmasks. 
 
+- The API of **CFramePacketsStorage** class was extended to provide consumer - producer logic for game and render threads.
+
 ### Fixed
 
 

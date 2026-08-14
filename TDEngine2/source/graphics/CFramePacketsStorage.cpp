@@ -24,7 +24,7 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		U32 frameIndex = 0;
+		U64 frameIndex = 0;
 
 		for (auto& currFramePacket : mFramePackets)
 		{
@@ -36,7 +36,7 @@ namespace TDEngine2
 					return result;
 				}
 
-				/// \note this CRenderQueue's instance now owns this allocator
+				/// \note this CRenderQueue's instance now owns this allocators
 				currFramePacket.mpRenderQueues[i] = TPtr<CRenderQueue>(CreateRenderQueue(pRenderGroupAllocator, result));
 				if (result != RC_OK)
 				{
@@ -52,6 +52,58 @@ namespace TDEngine2
 		mIsInitialized = true;
 
 		return result;
+	}
+
+	TFramePacket& CFramePacketsStorage::AcquireGameLogicFramePacket()
+	{
+		const U64 nextIndex = static_cast<U64>((mCurrGameLogicFrameIndex.load() + 1) & (MAX_FRAME_PACKETS_COUNT - 1));
+
+		while (true)
+		{
+			E_PACKET_STATE expectedState = E_PACKET_STATE::EMPTY;
+
+			if (mFramePacketsState[nextIndex].compare_exchange_weak(expectedState, E_PACKET_STATE::WRITING))
+			{
+				break;
+			}
+
+			std::this_thread::yield();
+		}
+
+		mFramePacketsState[nextIndex].store(E_PACKET_STATE::EMPTY);
+		++mCurrGameLogicFrameIndex;
+
+		return mFramePackets[nextIndex];
+	}
+
+	E_RESULT_CODE CFramePacketsStorage::SubmitGameLogicFramePacket()
+	{
+		const U64 currentIndex = static_cast<U64>((mCurrGameLogicFrameIndex.load()) & (MAX_FRAME_PACKETS_COUNT - 1));
+		mFramePacketsState[currentIndex].store(E_PACKET_STATE::READY);
+
+		mSignal.notify_one();
+
+		return RC_OK;
+	}
+
+	TFramePacket& CFramePacketsStorage::AcquireRenderLogicFramePacket()
+	{
+		const U64 nextIndex = static_cast<U64>((mCurrRenderFrameIndex.load() + 1) & (MAX_FRAME_PACKETS_COUNT - 1));
+
+		std::unique_lock<std::mutex> lock(mMutex);
+		mSignal.wait(lock, [this, nextIndex] { return mFramePacketsState[nextIndex].load() == E_PACKET_STATE::READY; });
+
+		++mCurrRenderFrameIndex;
+
+		return mFramePackets[nextIndex];
+	}
+
+	E_RESULT_CODE CFramePacketsStorage::SubmitRenderLogicFramePacket()
+	{
+		const U64 currentIndex = static_cast<U64>((mCurrRenderFrameIndex.load()) & (MAX_FRAME_PACKETS_COUNT - 1));
+		mFramePacketsState[currentIndex].store(E_PACKET_STATE::EMPTY);
+
+		return RC_OK;
 	}
 
 	void CFramePacketsStorage::IncrementGameLogicFrameCounter()
@@ -74,12 +126,12 @@ namespace TDEngine2
 		return mFramePackets[mCurrRenderFrameIndex];
 	}
 
-	U32 CFramePacketsStorage::GetGameLogicFrameIndex() const
+	U64 CFramePacketsStorage::GetGameLogicFrameIndex() const
 	{
 		return mCurrGameLogicFrameIndex;
 	}
 
-	U32 CFramePacketsStorage::GetRenderFrameIndex() const
+	U64 CFramePacketsStorage::GetRenderFrameIndex() const
 	{
 		return mCurrRenderFrameIndex;
 	}
