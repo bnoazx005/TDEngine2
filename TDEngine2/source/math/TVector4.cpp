@@ -1,77 +1,11 @@
-#include "./../../include/math/TVector4.h"
-#include "./../../include/math/TVector3.h"
+#include "../../include/math/TVector4.h"
+#include "../../include/math/TVector3.h"
 #include <algorithm>
 #include <cmath>
 
 
 namespace TDEngine2
 {
-	TVector4::TVector4():
-		x(0.0f), y(0.0f), z(0.0f), w(0.0f)
-	{
-	}
-
-	TVector4::TVector4(float initializer) :
-		x(initializer), y(initializer), z(initializer), w(initializer)
-	{
-	}
-	 
-	TVector4::TVector4(const TVector4& vec4) :
-		x(vec4.x), y(vec4.y), z(vec4.z), w(vec4.w)
-	{
-	}
-
-	TVector4::TVector4(TVector4&& vec4) :
-		x(vec4.x), y(vec4.y), z(vec4.z), w(vec4.w)
-	{
-	}
-
-	TVector4::TVector4(const float pArray[4]) :
-		x(pArray[0]), y(pArray[1]), z(pArray[2]), w(pArray[3])
-	{
-	}
-
-	TVector4::TVector4(float x, float y, float z, float w) :
-		x(x), y(y), z(z), w(w)
-	{
-	}
-
-	TVector4::TVector4(const TVector3& vec3, float w) :
-		x(vec3.x), y(vec3.y), z(vec3.z), w(w)
-	{
-	}
-
-	TVector4  TVector4::operator= (const TVector4& vec4)
-	{
-		x = vec4.x;
-		y = vec4.y;
-		z = vec4.z;
-		w = vec4.w;
-
-		return *this;
-	}
-
-	TVector4&  TVector4::operator= (TVector4&& vec4)
-	{
-		x = vec4.x;
-		y = vec4.y;
-		z = vec4.z;
-		w = vec4.w;
-
-		vec4.x = 0.0f;
-		vec4.y = 0.0f;
-		vec4.z = 0.0f;
-		vec4.w = 0.0f;
-
-		return *this;
-	}
-
-	TVector4 TVector4::operator- () const
-	{
-		return { -x, -y, -z, -w };
-	}
-
-
 	TVector4 operator+ (const TVector4& lvec4, const TVector4& rvec4)
 	{
 		return TVector4(lvec4.x + rvec4.x, lvec4.y + rvec4.y, lvec4.z + rvec4.z, lvec4.w + rvec4.w);

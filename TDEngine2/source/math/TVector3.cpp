@@ -9,69 +9,6 @@
 
 namespace TDEngine2
 {
-	TVector3::TVector3():
-		x(0.0f), y(0.0f), z(0.0f)
-	{
-	}
-
-	TVector3::TVector3(float initializer) :
-		x(initializer), y(initializer), z(initializer)
-	{
-	}
-
-	TVector3::TVector3(const TVector3& vec3) :
-		x(vec3.x), y(vec3.y), z(vec3.z)
-	{
-	}
-
-	TVector3::TVector3(TVector3&& vec3) :
-		x(vec3.x), y(vec3.y), z(vec3.z)
-	{
-	}
-
-	TVector3::TVector3(const float pArray[3]):
-		x(pArray[0]), y(pArray[1]), z(pArray[2])
-	{
-	}
-
-	TVector3::TVector3(const TVector2& vec2):
-		x(vec2.x), y(vec2.y), z(0.0f)
-	{
-	}
-
-	TVector3::TVector3(float x, float y, float z) :
-		x(x), y(y), z(z)
-	{
-	}
-
-	TVector3 TVector3::operator= (const TVector3& vec3)
-	{
-		x = vec3.x;
-		y = vec3.y;
-		z = vec3.z;
-
-		return *this;
-	}
-
-	TVector3& TVector3::operator= (TVector3&& vec3)
-	{
-		x = vec3.x;
-		y = vec3.y;
-		z = vec3.z;
-
-		vec3.x = 0.0f;
-		vec3.y = 0.0f;
-		vec3.z = 0.0f;
-
-		return *this;
-	}
-
-	TVector3 TVector3::operator- () const
-	{
-		return { -x, -y, -z };
-	}
-
-
 	TVector3 operator+ (const TVector3& lvec3, const TVector3& rvec3)
 	{
 		return TVector3(lvec3.x + rvec3.x, lvec3.y + rvec3.y, lvec3.z + rvec3.z);

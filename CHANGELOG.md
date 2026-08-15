@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.35] 2026-08-12
+## [0.6.35] 2026-08-15
 
 ### Added
 
@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The implementation of **CComponentManager::FindEntitiesWithAll** and **CComponentManager::FindEntitiesWithAny** was optimized using bitmasks. 
 
 - The API of **CFramePacketsStorage** class was extended to provide consumer - producer logic for game and render threads.
+
+- Math types **TVector2**, **TVector3**, **TVector4** are marked as constexpr.
 
 ### Fixed
 

@@ -5,61 +5,6 @@
 
 namespace TDEngine2
 {
-	TVector2::TVector2():
-		x(0.0f), y(0.0f)
-	{
-	}
-
-	TVector2::TVector2(float initializer):
-		x(initializer), y(initializer)
-	{
-	}
-
-	TVector2::TVector2(const TVector2& vec2):
-		x(vec2.x), y(vec2.y)
-	{
-	}
-
-	TVector2::TVector2(TVector2&& vec2):
-		x(vec2.x), y(vec2.y)
-	{
-	}
-
-	TVector2::TVector2(const float pArray[2]):
-		x(pArray[0]), y(pArray[1])
-	{
-	}
-
-	TVector2::TVector2(float x, float y):
-		x(x), y(y)
-	{
-	}
-
-	TVector2 TVector2::operator= (const TVector2& vec2)
-	{
-		x = vec2.x;
-		y = vec2.y;
-
-		return *this;
-	}
-
-	TVector2& TVector2::operator= (TVector2&& vec2)
-	{
-		x = vec2.x;
-		y = vec2.y;
-
-		vec2.x = 0.0f;
-		vec2.y = 0.0f;
-
-		return *this;
-	}
-
-	TVector2 TVector2::operator- () const
-	{
-		return { -x, -y };
-	}
-
-
 	TVector2 operator+ (const TVector2& lvec2, const TVector2& rvec2)
 	{
 		return TVector2(lvec2.x + rvec2.x, lvec2.y + rvec2.y);

@@ -24,10 +24,12 @@ namespace TDEngine2
 
 	typedef struct TVector3
 	{
-		F32 x, y, z;
+		F32 x = 0.0f;
+		F32 y = 0.0f;
+		F32 z = 0.0f;
 
-		TDE2_API TVector3();
-
+		TDE2_API constexpr TVector3() = default;
+		
 		/*!
 			\brief The constructor initializes a vector's components
 			with the same specified value
@@ -35,19 +37,10 @@ namespace TDEngine2
 			\param[in] initializer A value, which will be assigned to all the components
 		*/
 
-		TDE2_API explicit TVector3(F32 initializer);
-
-		/*!
-			\brief Simple copy constructor
-		*/
-
-		TDE2_API TVector3(const TVector3& vec3);
-
-		/*!
-			\brief Move constructor
-		*/
-
-		TDE2_API explicit TVector3(TVector3&& vec3);
+		TDE2_API constexpr explicit TVector3(F32 initializer) :
+			x(initializer), y(initializer), z(initializer)
+		{
+		}
 
 		/*!
 			\brief The constructor, which uses an array's values to initialize
@@ -56,32 +49,31 @@ namespace TDEngine2
 			\param[in] pArray An array contains components' values
 		*/
 
-		TDE2_API TVector3(const F32 pArray[3]);
+		TDE2_API constexpr TVector3(const F32 pArray[3]) :
+			x(pArray[0]), y(pArray[1]), z(pArray[2])
+		{
+		}
 
-		explicit TDE2_API TVector3(const TVector2& vec2);
+		TDE2_API constexpr explicit TVector3(const TVector2& vec2) :
+			x(vec2.x), y(vec2.y), z(0.0f)
+		{
+		}
 
 		/*!
 			\brief The constructor with separate arguments for 
 			components initialization
 		*/
 
-		TDE2_API TVector3(F32 x, F32 y, F32 z);
+		TDE2_API constexpr TVector3(F32 x, F32 y, F32 z) :
+			x(x), y(y), z(z)
+		{
+		}
 
-		/*!
-			\brief Assigment operator for TVector3
-			\param vec3 A reference to another vec3
-			\return A TVector3's instance, which equals to the input
-		*/
+		TDE2_API constexpr TVector3(const TVector3& vec3) = default;
+		TDE2_API constexpr explicit TVector3(TVector3&& vec3) = default;
 
-		TDE2_API TVector3 operator= (const TVector3& vec3);
-
-		/*!
-			\brief Assigment operator for TVector3
-			\param vec3 A reference to another vec3
-			\return A TVector3's instance, which equals to the input
-		*/
-
-		TDE2_API TVector3& operator= (TVector3&& vec3);
+		TDE2_API constexpr TVector3& operator= (const TVector3& vec3) = default;
+		TDE2_API constexpr TVector3& operator= (TVector3&& vec3) = default;
 
 		/*!
 			\brief The operator returns opposite vector to the given one
@@ -89,12 +81,21 @@ namespace TDEngine2
 			\return The operator returns opposite vector to the given one
 		*/
 
-		TDE2_API TVector3 operator- () const;
+		TDE2_API constexpr TVector3 operator- () const
+		{
+			return { -x, -y, -z };
+		}
 
 		TDE2_API inline std::string ToString() const { return Wrench::StringUtils::Format("TVector3({0}, {1}, {2})", x, y, z); }
 
-		TDE2_API operator TVector2() const { return TVector2{ x, y }; }
+		TDE2_API constexpr operator TVector2() const 
+		{ 
+			return TVector2{ x, y }; 
+		}
 	} TVector3, *TVector3Ptr;
+
+
+	static_assert(std::is_trivially_copyable_v<TVector3>, "TVector3 should be trivially copyable");
 
 
 	/// TVector3's predefined constants
