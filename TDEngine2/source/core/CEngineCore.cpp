@@ -71,8 +71,6 @@ namespace TDEngine2
 		
 		mIsInitialized = true;
 
-		memset(mSubsystems, 0, sizeof(mSubsystems));
-
 		LOG_MESSAGE("[Engine Core] >>>=================================================");
 		LOG_MESSAGE("[Engine Core] The engine's core starts to work...");
 		LOG_MESSAGE("[Engine Core] <<<=================================================\n");
@@ -83,7 +81,7 @@ namespace TDEngine2
 	E_RESULT_CODE CEngineCore::_onFreeInternal()
 	{
 		{
-			E_RESULT_CODE result = _onNotifyEngineListeners(EET_ONFREE); ///< \note call user's code
+			E_RESULT_CODE result = _onNotifyEngineListeners(E_ENGINE_EVENT_TYPE::ON_FREE); ///< \note call user's code
 
 			std::lock_guard<std::mutex> lock(mMutex);
 
@@ -186,7 +184,7 @@ namespace TDEngine2
 		}
 
 		/// \note we can proceed if the window wasn't initialized properly or some error has happened within user's code
-		if (!pWindowSystem || (_onNotifyEngineListeners(EET_ONSTART) != RC_OK))
+		if (!pWindowSystem || (_onNotifyEngineListeners(E_ENGINE_EVENT_TYPE::ON_START) != RC_OK))
 		{
 			return RC_FAIL;
 		}
@@ -365,31 +363,8 @@ namespace TDEngine2
 		OPTICK_FRAME("MainThread");
 	#endif
 #endif
-		{
-			TDE2_BUILTIN_SPEC_PROFILER_EVENT(E_SPECIAL_PROFILE_EVENT::UPDATE);
 
-			if (mpInputContext)
-			{
-				mpInputContext->Update();
-			}
-
-			_onNotifyEngineListeners(EET_ONUPDATE);
-
-			if (auto pGameModesManager = _getSubsystemAs<IGameModesManager>(EST_GAME_MODES_MANAGER))
-			{
-				pGameModesManager->Update(mpInternalTimer->GetDeltaTime());
-			}
-
-			if (IAudioContext* pAudioContext = _getSubsystemAs<IAudioContext>(EST_AUDIO_CONTEXT))
-			{
-				pAudioContext->Update();
-			}
-
-			if (IRenderer* pRenderer = _getSubsystemAs<IRenderer>(EST_RENDERER))
-			{
-				pRenderer->GetFramePacketsStorage()->IncrementGameLogicFrameCounter();
-			}
-		}
+		_onGameLogicUpdate();
 
 		if (IRenderer* pRenderer = _getSubsystemAs<IRenderer>(EST_RENDERER))
 		{
@@ -411,6 +386,70 @@ namespace TDEngine2
 		FrameMark;
 	}
 
+	void CEngineCore::_onGameLogicUpdate()
+	{
+		TDE2_PROFILER_SCOPE("CEngineCore::_onGameLogicUpdate");
+		TDE2_BUILTIN_SPEC_PROFILER_EVENT(E_SPECIAL_PROFILE_EVENT::UPDATE);
+
+		if (mpInputContext)
+		{
+			mpInputContext->Update();
+		}
+
+		{
+			const F32 dt = mpInternalTimer->GetDeltaTime();
+
+			mpWorldInstance->Update(dt);
+
+			if (mpImGUIContext)
+			{
+				mpImGUIContext->BeginFrame(dt);
+			}
+
+#if TDE2_EDITORS_ENABLED
+			if (mpEditorsManager)
+			{
+				mpEditorsManager->Update(dt);
+			}
+
+			mpWorldInstance->DebugOutput(mpDebugUtility, dt);
+#endif
+
+			mpWorldInstance->SyncSystemsExecution();
+
+			/// \note The internal callback will be invoked when the execution process will go out of the scope
+			defer([this]()
+				{
+					if (mpImGUIContext)
+					{
+						mpImGUIContext->EndFrame();
+					}
+				});
+
+			_onNotifyEngineListeners(E_ENGINE_EVENT_TYPE::ON_UPDATE);
+
+			if (IEventManager* pEventManager = _getSubsystemAs<IEventManager>(EST_EVENT_MANAGER))
+			{
+				pEventManager->FlushAll();
+			}
+		}
+
+		if (auto pGameModesManager = _getSubsystemAs<IGameModesManager>(EST_GAME_MODES_MANAGER))
+		{
+			pGameModesManager->Update(mpInternalTimer->GetDeltaTime());
+		}
+
+		if (IAudioContext* pAudioContext = _getSubsystemAs<IAudioContext>(EST_AUDIO_CONTEXT))
+		{
+			pAudioContext->Update();
+		}
+
+		if (IRenderer* pRenderer = _getSubsystemAs<IRenderer>(EST_RENDERER))
+		{
+			pRenderer->GetFramePacketsStorage()->IncrementGameLogicFrameCounter();
+		}
+	}
+
 	E_RESULT_CODE CEngineCore::_onNotifyEngineListeners(E_ENGINE_EVENT_TYPE eventType)
 	{
 		TDE2_PROFILER_SCOPE("NotifyEngineListeners");
@@ -422,8 +461,6 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		F32 dt = 0.0f;
-
 		for (auto&& pListener : mEngineListeners)
 		{
 			if (!pListener)
@@ -433,49 +470,16 @@ namespace TDEngine2
 
 			switch (eventType)
 			{
-				case EET_ONSTART:
+				case E_ENGINE_EVENT_TYPE::ON_START:
 					result = result | pListener->OnStart();
 					break;
-				case EET_ONUPDATE:
+				case E_ENGINE_EVENT_TYPE::ON_UPDATE:
 					{
-						dt = mpInternalTimer->GetDeltaTime();
-
-						mpWorldInstance->Update(dt);
-
-						if (mpImGUIContext)
-						{
-							mpImGUIContext->BeginFrame(dt);
-						}
-
-#if TDE2_EDITORS_ENABLED
-						if (mpEditorsManager)
-						{
-							mpEditorsManager->Update(dt);
-						}
-
-						mpWorldInstance->DebugOutput(mpDebugUtility, dt);
-#endif
-
-						mpWorldInstance->SyncSystemsExecution();
-
-						/// \note The internal callback will be invoked when the execution process will go out of the scope
-						defer([this]()
-						{
-							if (mpImGUIContext)
-							{
-								mpImGUIContext->EndFrame();
-							}
-						});
-
-						result = result | pListener->OnUpdate(dt);
-
-						if (IEventManager* pEventManager = _getSubsystemAs<IEventManager>(EST_EVENT_MANAGER))
-						{
-							pEventManager->FlushAll();
-						}
+						TDE2_PROFILER_SCOPE("ICustomEngineListener::OnUpdate");
+						result = result | pListener->OnUpdate(mpInternalTimer->GetDeltaTime());
 					}
 					break;
-				case EET_ONFREE:
+				case E_ENGINE_EVENT_TYPE::ON_FREE:
 					result = result | pListener->OnFree();
 					break;
 			}

@@ -8,6 +8,7 @@
 
 #include "IEngineCore.h"
 #include "CBaseObject.h"
+#include <array>
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -50,14 +51,15 @@ namespace TDEngine2
 				\brief The enumeration contains all types of built-in events that can occur during engine's work
 			*/
 
-			enum E_ENGINE_EVENT_TYPE: U8
+			enum class E_ENGINE_EVENT_TYPE: U8
 			{
-				EET_ONSTART,
-				EET_ONUPDATE,
-				EET_ONFREE
+				ON_START,
+				ON_UPDATE,
+				ON_FREE
 			};
 
-			typedef std::vector<std::unique_ptr<IEngineListener>> TListenersArray;
+			typedef Vector<std::unique_ptr<IEngineListener>>        TListenersArray;
+			typedef std::array<TPtr<IEngineSubsystem>, EST_UNKNOWN> TSubsystemsArray;
 		public:
 			/*!
 				\brief The method initializes the object
@@ -153,28 +155,28 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEngineCore)
 
-			TDE2_API TPtr<IEngineSubsystem> _getSubsystem(E_ENGINE_SUBSYSTEM_TYPE type) const override;
+			TPtr<IEngineSubsystem> _getSubsystem(E_ENGINE_SUBSYSTEM_TYPE type) const override;
 
-			TDE2_API void _onFrameUpdateCallback();
+			void _onFrameUpdateCallback();
+			void _onGameLogicUpdate();
 
-			TDE2_API E_RESULT_CODE _onNotifyEngineListeners(E_ENGINE_EVENT_TYPE eventType);
+			E_RESULT_CODE _onNotifyEngineListeners(E_ENGINE_EVENT_TYPE eventType);
 
-			TDE2_API E_RESULT_CODE _registerSubsystemInternal(TPtr<IEngineSubsystem> pSubsystem);
-			TDE2_API E_RESULT_CODE _unregisterSubsystem(E_ENGINE_SUBSYSTEM_TYPE subsystemType);
+			E_RESULT_CODE _registerSubsystemInternal(TPtr<IEngineSubsystem> pSubsystem);
+			E_RESULT_CODE _unregisterSubsystem(E_ENGINE_SUBSYSTEM_TYPE subsystemType);
 
-			TDE2_API E_RESULT_CODE _cleanUpSubsystems();
+			E_RESULT_CODE _cleanUpSubsystems();
 
 			template <typename T>
-			TDE2_API T* _getSubsystemAs(E_ENGINE_SUBSYSTEM_TYPE type)
+			T* _getSubsystemAs(E_ENGINE_SUBSYSTEM_TYPE type)
 			{
 				static_assert(std::is_base_of<IEngineSubsystem, T>::value, "The given template argument isn't implement IEngineSubsystem interface");
-
 				return dynamic_cast<T*>(mSubsystems[type].Get());
 			}
 
-			TDE2_API E_RESULT_CODE _onFreeInternal() override;
+			E_RESULT_CODE _onFreeInternal() override;
 		protected:
-			TPtr<IEngineSubsystem>  mSubsystems[EST_UNKNOWN]; /// stores current registered subsystems, at one time the only subsystem of specific type can be loaded			
+			TSubsystemsArray   mSubsystems{ }; /// stores current registered subsystems, at one time the only subsystem of specific type can be loaded			
 
 			TListenersArray    mEngineListeners;
 
