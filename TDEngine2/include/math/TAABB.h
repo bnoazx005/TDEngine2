@@ -7,9 +7,9 @@
 #pragma once
 
 
-#include "./../utils/Types.h"
-#include "./../utils/Config.h"
-#include "./../math/TVector3.h"
+#include "../utils/Types.h"
+#include "../utils/Config.h"
+#include "../math/TVector3.h"
 
 
 namespace TDEngine2

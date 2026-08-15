@@ -7,9 +7,9 @@
 #pragma once
 
 
-#include "./../../include/utils/Types.h"
-#include "./../../include/math/TVector3.h"
-#include "./stringUtils.hpp"
+#include "../../include/utils/Types.h"
+#include "../../include/math/TVector3.h"
+#include "stringUtils.hpp"
 #include <string>
 
 

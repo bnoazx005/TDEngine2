@@ -7,7 +7,7 @@
 #pragma once
 
 
-#include "./../utils/Types.h"
+#include "../utils/Types.h"
 #include "TVector3.h"
 
 

@@ -7,8 +7,8 @@
 #pragma once
 
 
-#include "./../utils/Config.h"
-#include "./../utils/Types.h"
+#include "../utils/Config.h"
+#include "../utils/Types.h"
 #include "../core/Serialization.h"
 #include <array>
 
