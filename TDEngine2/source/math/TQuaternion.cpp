@@ -6,16 +6,6 @@
 
 namespace TDEngine2
 {
-	TQuaternion::TQuaternion() :
-		x(0.0f), y(0.0f), z(0.0f), w(0.0f)
-	{
-	}
-
-	TQuaternion::TQuaternion(F32 x, F32 y, F32 z, F32 w) :
-		x(x), y(y), z(z), w(w)
-	{
-	}
-	
 	TQuaternion::TQuaternion(const TVector3& v, F32 w)
 	{
 		const TVector3 normal = Normalize(v);
@@ -105,96 +95,10 @@ namespace TDEngine2
 		}
 	}
 
-	TQuaternion::TQuaternion(const TQuaternion& q):
-		x(q.x), y(q.y), z(q.z), w(q.w)
-	{
-	}
-
-	TQuaternion::TQuaternion(TQuaternion&& q) :
-		x(q.x), y(q.y), z(q.z), w(q.w)
-	{
-		q.x = 0.0f;
-		q.y = 0.0f;
-		q.z = 0.0f;
-		q.w = 0.0f;
-	}
-
-	TQuaternion TQuaternion::operator= (const TQuaternion& q)
-	{
-		x = q.x;
-		y = q.y;
-		z = q.z;
-		w = q.w;
-
-		return *this;
-	}
-
-	TQuaternion& TQuaternion::operator= (TQuaternion&& q)
-	{
-		x = q.x;
-		y = q.y;
-		z = q.z;
-		w = q.w;
-
-		q.x = 0.0f;
-		q.y = 0.0f;
-		q.z = 0.0f;
-		q.w = 0.0f;
-
-		return *this;
-	}
-
-
-	TDE2_API TQuaternion operator+ (const TQuaternion& q1, const TQuaternion& q2)
-	{
-		return TQuaternion(q1.x + q2.x, q1.y + q2.y, q1.z + q2.z, q1.w + q2.w);
-	}
-
-	TDE2_API TQuaternion operator- (const TQuaternion& q1, const TQuaternion& q2)
-	{
-		return TQuaternion(q1.x - q2.x, q1.y - q2.y, q1.z - q2.z, q1.w - q2.w);
-	}
-
-	TDE2_API TQuaternion operator* (const TQuaternion& q1, const TQuaternion& q2)
-	{
-		F32 w = q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z;
-
-		F32 x = q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y;
-		F32 y = q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x;
-		F32 z = q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w;
-
-		return TQuaternion(x, y, z, w);
-	}
-
-	TDE2_API TQuaternion operator* (F32 scalar, const TQuaternion& q)
-	{
-		return TQuaternion(q.x * scalar, q.y * scalar, q.z * scalar, q.w * scalar);
-	}
-
-	TDE2_API TQuaternion operator* (const TQuaternion& q, F32 scalar)
-	{
-		return TQuaternion(q.x * scalar, q.y * scalar, q.z * scalar, q.w * scalar);
-	}
 
 	TDE2_API TVector4 operator* (const TQuaternion& q, const TVector4& v)
 	{
 		return RotationMatrix(q) * v;
-	}
-
-	TDE2_API bool operator== (const TQuaternion& lq, const TQuaternion& rq)
-	{
-		return	(CMathUtils::Abs(lq.x - rq.x) < FloatEpsilon) && 
-				(CMathUtils::Abs(lq.y - rq.y) < FloatEpsilon) && 
-				(CMathUtils::Abs(lq.z - rq.z) < FloatEpsilon) && 
-				(CMathUtils::Abs(lq.w - rq.w) < FloatEpsilon);
-	}
-
-	TDE2_API bool operator!= (const TQuaternion& lq, const TQuaternion& rq)
-	{
-		return	(CMathUtils::Abs(lq.x - rq.x) > FloatEpsilon) ||
-				(CMathUtils::Abs(lq.y - rq.y) > FloatEpsilon) ||
-				(CMathUtils::Abs(lq.z - rq.z) > FloatEpsilon) ||
-				(CMathUtils::Abs(lq.w - rq.w) > FloatEpsilon);
 	}
 
 

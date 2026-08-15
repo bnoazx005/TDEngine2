@@ -27,8 +27,8 @@ namespace TDEngine2
 	template <typename T>
 	struct TRay
 	{
-		TRay() = default;
-		TRay(const T& origin, const T& direction) :
+		constexpr TRay() = default;
+		constexpr TRay(const T& origin, const T& direction) :
 			origin(origin), dir(Normalize(direction))
 		{
 		}
@@ -44,7 +44,7 @@ namespace TDEngine2
 			\return A point which is computed by the following formula origin + t x dir
 		*/
 
-		inline T operator() (F32 t) const
+		constexpr inline T operator() (F32 t) const
 		{
 			return origin + t * dir;
 		}
@@ -53,6 +53,10 @@ namespace TDEngine2
 
 	typedef TRay<TVector2> TRay2D;
 	typedef TRay<TVector3> TRay3D;
+
+
+	static_assert(std::is_trivially_copyable_v<TRay2D>, "TRay2D should be trivially copyable");
+	static_assert(std::is_trivially_copyable_v<TRay3D>, "TRay3D should be trivially copyable");
 
 
 	/*!

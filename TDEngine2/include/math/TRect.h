@@ -44,7 +44,7 @@ namespace TDEngine2
 		{
 		}
 
-		TDE2_API TRect(const TVector2& leftBottom, const TVector2& rightTop):
+		TDE2_API constexpr TRect(const TVector2& leftBottom, const TVector2& rightTop):
 			x(static_cast<T>(leftBottom.x)), y(static_cast<T>(leftBottom.y))
 		{
 			const TVector2 sizes = rightTop - leftBottom;
@@ -53,17 +53,14 @@ namespace TDEngine2
 			height = static_cast<T>(std::abs(sizes.y));
 		}
 
-		TDE2_API TRect& operator= (TRect<T> rect)
-		{
-			_swap(rect);
-			return *this;
-		}
+		TDE2_API constexpr TRect& operator= (const TRect<T>& rect) = default;
+		TDE2_API constexpr TRect& operator= (TRect<T>&& rect) = default;
 
-		TDE2_API TVector2 GetLeftBottom() const { return TVector2(static_cast<F32>(x), static_cast<F32>(y)); }
-		TDE2_API TVector2 GetRightTop() const { return TVector2(static_cast<F32>(x + width), static_cast<F32>(y + height)); }
-		TDE2_API TVector2 GetSizes() const { return TVector2(static_cast<F32>(width), static_cast<F32>(height)); }
+		TDE2_API constexpr TVector2 GetLeftBottom() const { return TVector2(static_cast<F32>(x), static_cast<F32>(y)); }
+		TDE2_API constexpr TVector2 GetRightTop() const { return TVector2(static_cast<F32>(x + width), static_cast<F32>(y + height)); }
+		TDE2_API constexpr TVector2 GetSizes() const { return TVector2(static_cast<F32>(width), static_cast<F32>(height)); }
 
-		TDE2_API std::array<TVector2, 4> GetPoints() const 
+		TDE2_API constexpr std::array<TVector2, 4> GetPoints() const
 		{ 
 			F32 x0 = static_cast<F32>(x);
 			F32 y0 = static_cast<F32>(y);
@@ -78,21 +75,17 @@ namespace TDEngine2
 				TVector2(x0, y1),
 			};
 		}
-
-		protected:
-			TDE2_API void _swap(TRect<T>& rect)
-			{
-				std::swap(x, rect.x);
-				std::swap(y, rect.y);
-				std::swap(width, rect.width);
-				std::swap(height, rect.height);
-			}
 	};
 
 
 	typedef TRect<F32> TRectF32;
 	typedef TRect<U32> TRectU32;
 	typedef TRect<I32> TRectI32;
+
+
+	static_assert(std::is_trivially_copyable_v<TRectF32>, "TRectF32 should be trivially copyable");
+	static_assert(std::is_trivially_copyable_v<TRectU32>, "TRectU32 should be trivially copyable");
+	static_assert(std::is_trivially_copyable_v<TRectI32>, "TRectI32 should be trivially copyable");
 
 
 	/*!
@@ -107,14 +100,14 @@ namespace TDEngine2
 	*/
 
 	template <typename T>
-	TRect<T> operator+ (const TRect<T>& rect, const TVector2& translation)
+	constexpr TRect<T> operator+ (const TRect<T>& rect, const TVector2& translation)
 	{
 		return { rect.x + translation.x, rect.y + translation.y, rect.width, rect.height };
 	}
 
 
 	template <typename T>
-	bool operator== (const TRect<T>& leftRect, const TRect<T>& rightRect)
+	constexpr bool operator== (const TRect<T>& leftRect, const TRect<T>& rightRect)
 	{
 		return (leftRect.x == rightRect.x) &&
 				(leftRect.y == rightRect.y) &&
@@ -124,7 +117,7 @@ namespace TDEngine2
 
 
 	template <typename T>
-	bool operator!= (const TRect<T>& leftRect, const TRect<T>& rightRect)
+	constexpr bool operator!= (const TRect<T>& leftRect, const TRect<T>& rightRect)
 	{
 		return (leftRect.x != rightRect.x) ||
 				(leftRect.y != rightRect.y) ||
@@ -147,7 +140,7 @@ namespace TDEngine2
 	*/
 
 	template <typename T>
-	bool ContainsPoint(const TRect<T>& rect, const TVector2& point)
+	constexpr bool ContainsPoint(const TRect<T>& rect, const TVector2& point)
 	{
 		return (point.x > rect.x && point.x < (rect.x + rect.width) && point.y < (rect.y + rect.height) && point.y > rect.y);
 	}

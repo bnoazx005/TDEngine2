@@ -10,6 +10,7 @@
 #include "../../include/utils/Types.h"
 #include "../../include/core/Serialization.h"
 #include "TVector2.h"
+#include "MathUtils.h"
 #include "stringUtils.hpp"
 #include <string>
 
@@ -107,19 +108,61 @@ namespace TDEngine2
 
 
 	///TVector3's operators overloading
-	TDE2_API TVector3 operator+ (const TVector3& lvec3, const TVector3& rvec3);
+	TDE2_API constexpr TVector3 operator+ (const TVector3& lvec3, const TVector3& rvec3)
+	{
+		return TVector3(lvec3.x + rvec3.x, lvec3.y + rvec3.y, lvec3.z + rvec3.z);
+	}
 
-	TDE2_API TVector3 operator- (const TVector3& lvec3, const TVector3& rvec3);
+	TDE2_API constexpr TVector3 operator- (const TVector3& lvec3, const TVector3& rvec3)
+	{
+		return TVector3(lvec3.x - rvec3.x, lvec3.y - rvec3.y, lvec3.z - rvec3.z);
+	}
 
-	TDE2_API TVector3 operator* (const TVector3& lvec3, const TVector3& rvec3);
+	TDE2_API constexpr TVector3 operator* (const TVector3& lvec3, const TVector3& rvec3)
+	{
+		F32 lx = lvec3.x, ly = lvec3.y, lz = lvec3.z;
+		F32 rx = rvec3.x, ry = rvec3.y, rz = rvec3.z;
 
-	TDE2_API TVector3 operator* (const TVector3& lvec3, const F32& coeff);
+		F32 x = ly * rz - lz * ry;
+		F32 y = lz * rx - lx * rz;
+		F32 z = lx * ry - ly * rx;
 
-	TDE2_API TVector3 operator* (const F32& coeff, const TVector3& lvec3);
+		return TVector3(x, y, z);
+	}
 
-	TDE2_API bool operator== (const TVector3& lvec3, const TVector3& rvec3);
+	TDE2_API constexpr TVector3 operator* (const TVector3& lvec3, const F32& coeff)
+	{
+		return TVector3(lvec3.x * coeff, lvec3.y * coeff, lvec3.z * coeff);
+	}
 
-	TDE2_API bool operator!= (const TVector3& lvec3, const TVector3& rvec3);
+	TDE2_API constexpr TVector3 operator* (const F32& coeff, const TVector3& lvec3)
+	{
+		return TVector3(lvec3.x * coeff, lvec3.y * coeff, lvec3.z * coeff);
+	}
+
+	TDE2_API constexpr bool operator== (const TVector3& lvec3, const TVector3& rvec3)
+	{
+		if (CMathUtils::Abs(lvec3.x - rvec3.x) < FloatEpsilon &&
+			CMathUtils::Abs(lvec3.y - rvec3.y) < FloatEpsilon &&
+			CMathUtils::Abs(lvec3.z - rvec3.z) < FloatEpsilon)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	TDE2_API constexpr bool operator!= (const TVector3& lvec3, const TVector3& rvec3)
+	{
+		if (CMathUtils::Abs(lvec3.x - rvec3.x) > FloatEpsilon ||
+			CMathUtils::Abs(lvec3.y - rvec3.y) > FloatEpsilon ||
+			CMathUtils::Abs(lvec3.z - rvec3.z) > FloatEpsilon)
+		{
+			return true;
+		}
+
+		return false;
+	}
 
 
 	///TVector3's functions

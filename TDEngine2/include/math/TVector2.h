@@ -9,6 +9,7 @@
 
 #include "../../include/utils/Types.h"
 #include "../../include/core/Serialization.h"
+#include "MathUtils.h"
 #include "stringUtils.hpp"
 #include <string>
 
@@ -94,19 +95,52 @@ namespace TDEngine2
 
 
 	///TVector2's operators overloading
-	TDE2_API TVector2 operator+ (const TVector2& lvec2, const TVector2& rvec2);
+	TDE2_API constexpr TVector2 operator+ (const TVector2& lvec2, const TVector2& rvec2)
+	{
+		return TVector2(lvec2.x + rvec2.x, lvec2.y + rvec2.y);
+	}
 
-	TDE2_API TVector2 operator- (const TVector2& lvec2, const TVector2& rvec2);
+	TDE2_API constexpr TVector2 operator- (const TVector2& lvec2, const TVector2& rvec2)
+	{
+		return TVector2(lvec2.x - rvec2.x, lvec2.y - rvec2.y);
+	}
 
-	TDE2_API TVector2 operator* (const TVector2& lvec2, const TVector2& rvec2);
+	TDE2_API constexpr TVector2 operator* (const TVector2& lvec2, const TVector2& rvec2)
+	{
+		return TVector2(lvec2.x * rvec2.x, lvec2.y * rvec2.y);
+	}
 
-	TDE2_API TVector2 operator* (const TVector2& lvec2, const F32& coeff);
+	TDE2_API constexpr TVector2 operator* (const TVector2& vec2, const F32& coeff)
+	{
+		return TVector2(vec2.x * coeff, vec2.y * coeff);
+	}
 
-	TDE2_API TVector2 operator* (const F32& coeff, const TVector2& lvec2);
+	TDE2_API constexpr TVector2 operator* (const F32& coeff, const TVector2& vec2)
+	{
+		return TVector2(vec2.x * coeff, vec2.y * coeff);
+	}
 
-	TDE2_API bool operator== (const TVector2& lvec2, const TVector2& rvec2);
+	TDE2_API constexpr bool operator== (const TVector2& lvec2, const TVector2& rvec2)
+	{
+		if (CMathUtils::Abs(lvec2.x - rvec2.x) <= FloatEpsilon &&
+			CMathUtils::Abs(lvec2.y - rvec2.y) <= FloatEpsilon)
+		{
+			return true;
+		}
 
-	TDE2_API bool operator!= (const TVector2& lvec2, const TVector2& rvec2);
+		return false;
+	}
+
+	TDE2_API constexpr bool operator!= (const TVector2& lvec2, const TVector2& rvec2)
+	{
+		if (CMathUtils::Abs(lvec2.x - rvec2.x) > FloatEpsilon ||
+			CMathUtils::Abs(lvec2.y - rvec2.y) > FloatEpsilon)
+		{
+			return true;
+		}
+
+		return false;
+	}
 
 
 	///TVector2's functions

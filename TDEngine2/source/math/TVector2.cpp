@@ -5,53 +5,6 @@
 
 namespace TDEngine2
 {
-	TVector2 operator+ (const TVector2& lvec2, const TVector2& rvec2)
-	{
-		return TVector2(lvec2.x + rvec2.x, lvec2.y + rvec2.y);
-	}
-
-	TVector2 operator- (const TVector2& lvec2, const TVector2& rvec2)
-	{
-		return TVector2(lvec2.x - rvec2.x, lvec2.y - rvec2.y);
-	}
-
-	TVector2 operator* (const TVector2& lvec2, const F32& coeff)
-	{
-		return TVector2(lvec2.x * coeff, lvec2.y * coeff);
-	}
-
-	TVector2 operator* (const F32& coeff, const TVector2& lvec2)
-	{
-		return TVector2(lvec2.x * coeff, lvec2.y * coeff);
-	}
-
-	TVector2 operator* (const TVector2& lvec2, const TVector2& rvec2)
-	{
-		return TVector2(lvec2.x * rvec2.x, lvec2.y * rvec2.y);
-	}
-
-	bool operator== (const TVector2& lvec2, const TVector2& rvec2)
-	{
-		if (fabs(lvec2.x - rvec2.x) <= FloatEpsilon &&
-			fabs(lvec2.y - rvec2.y) <= FloatEpsilon)
-		{
-			return true;
-		}
-
-		return false;
-	}
-
-	bool operator!= (const TVector2& lvec2, const TVector2& rvec2)
-	{
-		if (fabs(lvec2.x - rvec2.x) > FloatEpsilon ||
-			fabs(lvec2.y - rvec2.y) > FloatEpsilon)
-		{
-			return true;
-		}
-
-		return false;
-	}
-
 	F32 Dot(const TVector2& lvec2, const TVector2& rvec2)
 	{
 		return lvec2.x * rvec2.x + lvec2.y * rvec2.y;

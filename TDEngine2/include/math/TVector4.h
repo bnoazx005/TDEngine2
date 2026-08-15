@@ -9,6 +9,7 @@
 
 #include "../../include/utils/Types.h"
 #include "../../include/math/TVector3.h"
+#include "MathUtils.h"
 #include "stringUtils.hpp"
 #include <string>
 
@@ -110,19 +111,56 @@ namespace TDEngine2
 
 	///TVector4's operators overloading
 
-	TDE2_API TVector4 operator+ (const TVector4& lvec4, const TVector4& rvec4);
+	TDE2_API constexpr TVector4 operator+ (const TVector4& lvec4, const TVector4& rvec4)
+	{
+		return TVector4(lvec4.x + rvec4.x, lvec4.y + rvec4.y, lvec4.z + rvec4.z, lvec4.w + rvec4.w);
+	}
 
-	TDE2_API TVector4 operator- (const TVector4& lvec4, const TVector4& rvec4);
+	TDE2_API constexpr TVector4 operator- (const TVector4& lvec4, const TVector4& rvec4)
+	{
+		return TVector4(lvec4.x - rvec4.x, lvec4.y - rvec4.y, lvec4.z - rvec4.z, lvec4.w - rvec4.w);
+	}
 
-	TDE2_API TVector4 operator* (const TVector4& lvec4, const F32& coeff);
+	TDE2_API constexpr TVector4 operator* (const TVector4& vec4, const F32& coeff)
+	{
+		return TVector4(vec4.x * coeff, vec4.y * coeff, vec4.z * coeff, vec4.w * coeff);
+	}
 	
-	TDE2_API TVector4 operator* (const F32& coeff, const TVector4& lvec4);
+	TDE2_API constexpr TVector4 operator* (const F32& coeff, const TVector4& vec4)
+	{
+		return TVector4(vec4.x * coeff, vec4.y * coeff, vec4.z * coeff, vec4.w * coeff);
+	}
 
-	TDE2_API TVector4 operator* (const TVector4& lvec4, const TVector4& rvec4);
+	TDE2_API constexpr TVector4 operator* (const TVector4& lvec4, const TVector4& rvec4)
+	{
+		return TVector4(lvec4.x * rvec4.x, lvec4.y * rvec4.y, lvec4.z * rvec4.z, lvec4.w * rvec4.w);
+	}
 
-	TDE2_API bool operator== (const TVector4& lvec4, const TVector4& rvec4);
+	TDE2_API constexpr bool operator== (const TVector4& lvec4, const TVector4& rvec4)
+	{
+		if (CMathUtils::Abs(lvec4.x - rvec4.x) <= FloatEpsilon &&
+			CMathUtils::Abs(lvec4.y - rvec4.y) <= FloatEpsilon &&
+			CMathUtils::Abs(lvec4.z - rvec4.z) <= FloatEpsilon &&
+			CMathUtils::Abs(lvec4.w - rvec4.w) <= FloatEpsilon)
+		{
+			return true;
+		}
 
-	TDE2_API bool operator!= (const TVector4& lvec4, const TVector4& rvec4);
+		return false;
+	}
+
+	TDE2_API constexpr bool operator!= (const TVector4& lvec4, const TVector4& rvec4)
+	{
+		if (CMathUtils::Abs(lvec4.x - rvec4.x) > FloatEpsilon ||
+			CMathUtils::Abs(lvec4.y - rvec4.y) > FloatEpsilon ||
+			CMathUtils::Abs(lvec4.z - rvec4.z) > FloatEpsilon ||
+			CMathUtils::Abs(lvec4.w - rvec4.w) > FloatEpsilon)
+		{
+			return true;
+		}
+
+		return false;
+	}
 
 
 	///TVector4's functions

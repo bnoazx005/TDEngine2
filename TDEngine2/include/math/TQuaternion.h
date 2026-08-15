@@ -24,15 +24,18 @@ namespace TDEngine2
 
 	typedef struct TQuaternion
 	{
-		F32 w, x, y, z;
+		F32 w = 0.0f, x = 0.0f, y = 0.0f, z = 0.0f;
 
 		/*!
 			\brief Default constructor
 		*/
 
-		TDE2_API TQuaternion();
+		TDE2_API constexpr TQuaternion() = default;
 
-		TDE2_API TQuaternion(F32 x, F32 y, F32 z, F32 w);
+		TDE2_API constexpr TQuaternion(F32 x, F32 y, F32 z, F32 w) :
+			x(x), y(y), z(z), w(w)
+		{
+		}
 
 		/*!
 			\brief The constructor creates a quaternion from direction v and angle 
@@ -53,30 +56,15 @@ namespace TDEngine2
 
 		TDE2_API explicit TQuaternion(const TMatrix4& rotationMatrix);
 
-		TDE2_API TQuaternion(const TQuaternion& q);
+		TDE2_API constexpr TQuaternion(const TQuaternion& q) = default;		
+		TDE2_API constexpr TQuaternion(TQuaternion&& q) = default;
 		
-		TDE2_API TQuaternion(TQuaternion&& q);
-		
-		/*!
-			\brief An assigment operator for TQuaternion
-
-			\param[in] mat A reference to another quaternion
-
-			\return A TQuaternion's instance, which equals to the input
-		*/
-
-		TDE2_API TQuaternion operator= (const TQuaternion& q);
-
-		/*!
-			\brief An assigment operator for TQuaternion
-
-			\param[in, out] mat A reference to another quaternion
-
-			\return A TQuaternion's instance, which equals to the input
-		*/
-
-		TDE2_API TQuaternion& operator= (TQuaternion&& q);
+		TDE2_API constexpr TQuaternion& operator= (const TQuaternion& q) = default;
+		TDE2_API constexpr TQuaternion& operator= (TQuaternion&& q) = default;
 	} TQuaternion, *TQuaternionPtr;
+
+
+	static_assert(std::is_trivially_copyable_v<TQuaternion>, "TQuaternion should be trivially copyable");
 
 
 	/// TQuaternion's predefined constants
@@ -86,22 +74,54 @@ namespace TDEngine2
 
 	/// TQuaternion's operators
 
-	TDE2_API TQuaternion operator+ (const TQuaternion& q1, const TQuaternion& q2);
+	TDE2_API constexpr TQuaternion operator+ (const TQuaternion& q1, const TQuaternion& q2)
+	{
+		return TQuaternion(q1.x + q2.x, q1.y + q2.y, q1.z + q2.z, q1.w + q2.w);
+	}
 
-	TDE2_API TQuaternion operator- (const TQuaternion& q1, const TQuaternion& q2);
+	TDE2_API constexpr TQuaternion operator- (const TQuaternion& q1, const TQuaternion& q2)
+	{
+		return TQuaternion(q1.x - q2.x, q1.y - q2.y, q1.z - q2.z, q1.w - q2.w);
+	}
 
-	TDE2_API TQuaternion operator* (const TQuaternion& q1, const TQuaternion& q2);
+	TDE2_API constexpr TQuaternion operator* (const TQuaternion& q1, const TQuaternion& q2)
+	{
+		F32 w = q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z;
 
-	TDE2_API TQuaternion operator* (F32 scalar, const TQuaternion& q);
+		F32 x = q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y;
+		F32 y = q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x;
+		F32 z = q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w;
 
-	TDE2_API TQuaternion operator* (const TQuaternion& q, F32 scalar);
+		return TQuaternion(x, y, z, w);
+	}
+
+	TDE2_API constexpr TQuaternion operator* (F32 scalar, const TQuaternion& q)
+	{
+		return TQuaternion(q.x * scalar, q.y * scalar, q.z * scalar, q.w * scalar);
+	}
+
+	TDE2_API constexpr TQuaternion operator* (const TQuaternion& q, F32 scalar)
+	{
+		return TQuaternion(q.x * scalar, q.y * scalar, q.z * scalar, q.w * scalar);
+	}
 
 	TDE2_API TVector4 operator* (const TQuaternion& q, const TVector4& v);
 
-	TDE2_API bool operator== (const TQuaternion& lq, const TQuaternion& rq);
+	TDE2_API constexpr bool operator== (const TQuaternion& lq, const TQuaternion& rq)
+	{
+		return (CMathUtils::Abs(lq.x - rq.x) < FloatEpsilon) &&
+			   (CMathUtils::Abs(lq.y - rq.y) < FloatEpsilon) &&
+			   (CMathUtils::Abs(lq.z - rq.z) < FloatEpsilon) &&
+			   (CMathUtils::Abs(lq.w - rq.w) < FloatEpsilon);
+	}
 
-	TDE2_API bool operator!= (const TQuaternion& lq, const TQuaternion& rq);
-
+	TDE2_API constexpr bool operator!= (const TQuaternion& lq, const TQuaternion& rq)
+	{
+		return (CMathUtils::Abs(lq.x - rq.x) > FloatEpsilon) ||
+			   (CMathUtils::Abs(lq.y - rq.y) > FloatEpsilon) ||
+			   (CMathUtils::Abs(lq.z - rq.z) > FloatEpsilon) ||
+			   (CMathUtils::Abs(lq.w - rq.w) > FloatEpsilon);
+	}
 
 
 	/*!

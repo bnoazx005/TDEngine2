@@ -22,12 +22,12 @@ namespace TDEngine2
 
 	struct TAABB
 	{
-		TVector3 min;
-		TVector3 max;
+		TVector3 min = ZeroVector3;
+		TVector3 max = ZeroVector3;
 
-		TDE2_API TAABB() = default;
-		TDE2_API TAABB(const TAABB& aabb) = default;
-		TDE2_API TAABB(TAABB&& aabb) = default;
+		TDE2_API constexpr TAABB() = default;
+		TDE2_API constexpr TAABB(const TAABB& aabb) = default;
+		TDE2_API constexpr TAABB(TAABB&& aabb) = default;
 
 		/*!
 			\brief The constructor defines AABB based on two points
@@ -36,7 +36,11 @@ namespace TDEngine2
 			\param[in] _max
 		*/
 
-		TDE2_API TAABB(const TVector3& _min, const TVector3& _max);
+		TDE2_API constexpr TAABB(const TVector3& _min, const TVector3& _max)
+		{
+			this->min = _min;
+			this->max = _max;
+		}
 
 		/*!
 			\brief The constructor defines AABB based on a point and desired
@@ -48,13 +52,28 @@ namespace TDEngine2
 			\param[in] depth A depth of the box
 		*/
 
-		TDE2_API TAABB(const TVector3& center, F32 width, F32 height, F32 depth);
+		TDE2_API constexpr TAABB(const TVector3& center, F32 width, F32 height, F32 depth)
+		{
+			F32 halfWidth = 0.5f * width;
+			F32 halfHeight = 0.5f * height;
+			F32 halfDepth = 0.5f * depth;
 
-		TDE2_API TAABB& operator= (const TAABB& aabb) = default;
-		TDE2_API TAABB& operator= (TAABB&& aabb) = default;
+			this->min = TVector3(center.x - halfHeight, center.y - halfHeight, center.z - halfDepth);
+			this->max = TVector3(center.x + halfHeight, center.y + halfHeight, center.z + halfDepth);
+		}
 
-		TDE2_API F32 GetVolume() const;
+		TDE2_API constexpr TAABB& operator= (const TAABB& aabb) = default;
+		TDE2_API constexpr TAABB& operator= (TAABB&& aabb) = default;
+
+		TDE2_API constexpr F32 GetVolume() const
+		{
+			TVector3 diag = max - min;
+			return CMathUtils::Abs(diag.x * diag.y * diag.z);
+		}
 	};
+
+
+	static_assert(std::is_trivially_copyable_v<TAABB>, "TAABB should be trivially copyable");
 
 	
 	TDE2_API bool operator== (const TAABB& left, const TAABB& right);

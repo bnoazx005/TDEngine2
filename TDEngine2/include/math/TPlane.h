@@ -23,11 +23,11 @@ namespace TDEngine2
 	template <typename T>
 	struct TPlane
 	{
-		T a, b, c, d;
+		T  a = 0, b = 0, c = 0, d = 0;
 
-		TDE2_API TPlane() = default;
-		TDE2_API TPlane(const TPlane& plane) = default;
-		TDE2_API TPlane(TPlane&& plane) = default;
+		TDE2_API constexpr TPlane() = default;
+		TDE2_API constexpr TPlane(const TPlane& plane) = default;
+		TDE2_API constexpr TPlane(TPlane&& plane) = default;
 
 		/*!
 			\brief The constructor which defines a plane based on its normal and distance's value
@@ -36,7 +36,7 @@ namespace TDEngine2
 			\param[in] distance A value on which the plane is stands off from the origin
 		*/
 
-		TDE2_API TPlane(const TVector3& normal, F32 distance):
+		TDE2_API constexpr TPlane(const TVector3& normal, F32 distance):
 			a(normal.x), b(normal.y), c(normal.z), d(distance)
 		{
 		}
@@ -60,12 +60,15 @@ namespace TDEngine2
 			d = Dot(n, points[0]);
 		}
 
-		TDE2_API TPlane& operator= (const TPlane& plane) = default;
-		TDE2_API TPlane& operator= (TPlane&& plane) = default;
+		TDE2_API constexpr TPlane& operator= (const TPlane& plane) = default;
+		TDE2_API constexpr TPlane& operator= (TPlane&& plane) = default;
 	};
 
 
 	typedef TPlane<F32> TPlaneF32;
+
+
+	static_assert(std::is_trivially_copyable_v<TPlaneF32>, "TPlaneF32 should be trivially copyable");
 
 
 	/*!

@@ -9,62 +9,6 @@
 
 namespace TDEngine2
 {
-	TVector3 operator+ (const TVector3& lvec3, const TVector3& rvec3)
-	{
-		return TVector3(lvec3.x + rvec3.x, lvec3.y + rvec3.y, lvec3.z + rvec3.z);
-	}
-
-	TVector3 operator- (const TVector3& lvec3, const TVector3& rvec3)
-	{
-		return TVector3(lvec3.x - rvec3.x, lvec3.y - rvec3.y, lvec3.z - rvec3.z);
-	}
-
-	TVector3 operator* (const TVector3& lvec3, const TVector3& rvec3)
-	{
-		F32 lx = lvec3.x, ly = lvec3.y, lz = lvec3.z;
-		F32 rx = rvec3.x, ry = rvec3.y, rz = rvec3.z;
-
-		F32 x = ly * rz - lz * ry;
-		F32 y = lz * rx - lx * rz;
-		F32 z = lx * ry - ly * rx;
-
-		return TVector3(x, y, z);
-	}
-
-	TVector3 operator* (const TVector3& lvec3, const F32& coeff)
-	{
-		return TVector3(lvec3.x * coeff, lvec3.y * coeff, lvec3.z * coeff);
-	}
-
-	TVector3 operator* (const F32& coeff, const TVector3& lvec3)
-	{
-		return TVector3(lvec3.x * coeff, lvec3.y * coeff, lvec3.z * coeff);
-	}
-
-	bool operator== (const TVector3& lvec3, const TVector3& rvec3)
-	{
-		if (fabs(lvec3.x - rvec3.x) < FloatEpsilon &&
-			fabs(lvec3.y - rvec3.y) < FloatEpsilon &&
-			fabs(lvec3.z - rvec3.z) < FloatEpsilon)
-		{
-			return true;
-		}
-
-		return false;
-	}
-
-	bool operator!= (const TVector3& lvec3, const TVector3& rvec3)
-	{
-		if (fabs(lvec3.x - rvec3.x) > FloatEpsilon ||
-			fabs(lvec3.y - rvec3.y) > FloatEpsilon ||
-			fabs(lvec3.z - rvec3.z) > FloatEpsilon)
-		{
-			return true;
-		}
-
-		return false;
-	}
-
 	TVector3 Cross(const TVector3& lvec3, const TVector3& rvec3)
 	{
 		return lvec3 * rvec3;

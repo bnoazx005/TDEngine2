@@ -6,58 +6,6 @@
 
 namespace TDEngine2
 {
-	TVector4 operator+ (const TVector4& lvec4, const TVector4& rvec4)
-	{
-		return TVector4(lvec4.x + rvec4.x, lvec4.y + rvec4.y, lvec4.z + rvec4.z, lvec4.w + rvec4.w);
-	}
-
-	TVector4 operator- (const TVector4& lvec4, const TVector4& rvec4)
-	{
-		return TVector4(lvec4.x - rvec4.x, lvec4.y - rvec4.y, lvec4.z - rvec4.z, lvec4.w - rvec4.w);
-	}
-
-	TVector4 operator* (const TVector4& lvec4, const float& coeff)
-	{
-		return TVector4(lvec4.x * coeff, lvec4.y * coeff, lvec4.z * coeff, lvec4.w * coeff);
-	}
-	
-	TVector4 operator* (const float& coeff, const TVector4& lvec4)
-	{
-		return TVector4(lvec4.x * coeff, lvec4.y * coeff, lvec4.z * coeff, lvec4.w * coeff);
-	}
-
-	TVector4 operator* (const TVector4& lvec4, const TVector4& rvec4)
-	{
-		return TVector4(lvec4.x * rvec4.x, lvec4.y * rvec4.y, lvec4.z * rvec4.z, lvec4.w * rvec4.w);
-	}
-
-	bool operator== (const TVector4& lvec4, const TVector4& rvec4)
-	{
-		if (fabs(lvec4.x - rvec4.x) <= FloatEpsilon &&
-			fabs(lvec4.y - rvec4.y) <= FloatEpsilon &&
-			fabs(lvec4.z - rvec4.z) <= FloatEpsilon &&
-			fabs(lvec4.w - rvec4.w) <= FloatEpsilon)
-		{
-			return true;
-		}
-
-		return false;
-	}
-
-	bool operator!= (const TVector4& lvec4, const TVector4& rvec4)
-	{
-		if (fabs(lvec4.x - rvec4.x) > FloatEpsilon ||
-			fabs(lvec4.y - rvec4.y) > FloatEpsilon ||
-			fabs(lvec4.z - rvec4.z) > FloatEpsilon ||
-			fabs(lvec4.w - rvec4.w) > FloatEpsilon)
-		{
-			return true;
-		}
-
-		return false;
-	}
-
-
 	F32 Dot(const TVector4& lvec4, const TVector4& rvec4)
 	{
 		return lvec4.x * rvec4.x + lvec4.y * rvec4.y + lvec4.z * rvec4.z + lvec4.w * rvec4.w;
