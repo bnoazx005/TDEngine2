@@ -108,25 +108,33 @@ namespace TDEngine2
 
 	CEntity* CWorld::CreateEntity()
 	{
+#if TDE2_DEBUG_MODE
 		TDE2_ASSERT_MSG(!mpSystemManager->IsUpdateSystemsStageExecuted(), "CreateEntity should not be called during Update phase, use AddDefferedCommand instead");
+#endif
 		return mpEntityManager->Create().Get();
 	}
 
 	CEntity* CWorld::CreateEntityWithUUID(TEntityId id)
 	{
+#if TDE2_DEBUG_MODE
 		TDE2_ASSERT_MSG(!mpSystemManager->IsUpdateSystemsStageExecuted(), "CreateEntityWithUUID should not be called during Update phase, use AddDefferedCommand instead");
+#endif
 		return mpEntityManager->CreateWithUUID(id).Get();
 	}
 
 	CEntity* CWorld::CreateEntity(const std::string& name)
 	{
+#if TDE2_DEBUG_MODE
 		TDE2_ASSERT_MSG(!mpSystemManager->IsUpdateSystemsStageExecuted(), "CreateEntity should not be called during Update phase, use AddDefferedCommand instead");
+#endif
 		return mpEntityManager->Create(name).Get();
 	}
 
 	E_RESULT_CODE CWorld::Destroy(TEntityId entityId)
 	{
+#if TDE2_DEBUG_MODE
 		TDE2_ASSERT_MSG(!mpSystemManager->IsUpdateSystemsStageExecuted(), "DeestroyEntity should not be called during Update phase, use AddDefferedCommand instead");
+#endif
 		return mpEntityManager->Destroy(entityId);
 	}
 
