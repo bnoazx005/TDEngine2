@@ -21,13 +21,18 @@ namespace TDEngine2
 
 	typedef struct TMatrix3
 	{
-		F32 m[3][3];
+		F32 m[3][3] 
+		{ 
+			{ 1.0f, 0.0f, 0.0f },
+			{ 0.0f, 1.0f, 0.0f }, 
+			{ 0.0f, 0.0f, 1.0f } 
+		};
 
 		/*!
 			\brief The default constructor generates a zero matrix
 		*/
 
-		TDE2_API TMatrix3();
+		TDE2_API constexpr TMatrix3() = default;
 
 		/*!
 			\brief The constructor that assigns values from the specified array
@@ -36,13 +41,35 @@ namespace TDEngine2
 			\param[in] arr An array of 9 floats
 		*/
 
-		TDE2_API explicit TMatrix3(const F32 arr[9]);
+		TDE2_API constexpr explicit TMatrix3(const F32 arr[9])
+		{
+			for (I32 i = 0; i < 3; ++i)
+			{
+				for (I32 j = 0; j < 3; ++j)
+				{
+					m[i][j] = arr[i * 3 + j];
+				}
+			}
+		}
 		
 		/*!
 			\brief The constructor that assigns values from the specified arguments
 		*/
 
-		TDE2_API TMatrix3(F32 m00, F32 m01, F32 m02, F32 m10, F32 m11, F32 m12, F32 m20, F32 m21, F32 m22);
+		TDE2_API constexpr TMatrix3(F32 m00, F32 m01, F32 m02, F32 m10, F32 m11, F32 m12, F32 m20, F32 m21, F32 m22)
+		{
+			m[0][0] = m00;
+			m[0][1] = m01;
+			m[0][2] = m02;
+
+			m[1][0] = m10;
+			m[1][1] = m11;
+			m[1][2] = m12;
+
+			m[2][0] = m20;
+			m[2][1] = m21;
+			m[2][2] = m22;
+		}
 
 		/*!
 			\brief The constructor that creates a diagonal matrix
@@ -50,44 +77,22 @@ namespace TDEngine2
 			\param[in] diagElements A 3d vector that contains diagonal elements values
 		*/
 
-		TDE2_API explicit TMatrix3(const TVector3& diagElements);
+		TDE2_API constexpr explicit TMatrix3(const TVector3& diagElements)
+		{
+			m[0][0] = diagElements.x;
+			m[1][1] = diagElements.y;
+			m[2][2] = diagElements.z;
+		}
 
-		/*!
-			\brief Copy constructor
+		TDE2_API constexpr TMatrix3(const TMatrix3& mat) = default;
+		TDE2_API constexpr TMatrix3(TMatrix3&& mat) = default;
 
-			\param[in] mat A 3x3 matrix that will be used as a copy's origin
-		*/
-
-		TDE2_API TMatrix3(const TMatrix3& mat);
-
-		/*!
-			\brief Move constructor
-
-			\param[in] mat A 3x3 matrix that will be moved into the existing one
-		*/
-
-		TDE2_API TMatrix3(TMatrix3&& mat);
-
-		/*!
-			\brief An assigment operator for TMatrix3
-
-			\param mat A reference to another 3x3 matrix
-
-			\return A TMatrix3's instance, which equals to the input
-		*/
-
-		TDE2_API TMatrix3 operator= (const TMatrix3& mat);
-
-		/*!
-			\brief An assigment operator for TMatrix3
-
-			\param mat A reference to another 3x3 matrix
-
-			\return A TMatrix3's instance, which equals to the input
-		*/
-
-		TDE2_API TMatrix3& operator= (TMatrix3&& mat);
+		TDE2_API constexpr TMatrix3& operator= (const TMatrix3& mat) = default;
+		TDE2_API constexpr TMatrix3& operator= (TMatrix3&& mat) = default;
 	} TMatrix3, *TMatrix3Ptr;
+
+
+	static_assert(std::is_trivially_copyable_v<TMatrix3>, "TMatrix3 should be trivially copyable");
 
 
 	/// TMatrix3's predefined constants

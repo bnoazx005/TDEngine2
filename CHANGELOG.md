@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The API of **CFramePacketsStorage** class was extended to provide consumer - producer logic for game and render threads.
 
-- Math types **TVector2**, **TVector3**, **TVector4** are marked as constexpr.
+- Math types **TVector2**, **TVector3**, **TVector4**, **TMatrix3**, **TMatrix4** are marked as constexpr and now trivially copyable.
 
 ### Fixed
 

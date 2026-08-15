@@ -26,14 +26,21 @@ namespace TDEngine2
 
 	typedef union TMatrix4
 	{
-		F32 m[4][4];
+		F32 m[4][4]
+		{
+			{ 1.0f, 0.0f, 0.0f, 0.0f },
+			{ 0.0f, 1.0f, 0.0f, 0.0f },
+			{ 0.0f, 0.0f, 1.0f, 0.0f },
+			{ 0.0f, 0.0f, 0.0f, 1.0f },
+		};
+
 		F32 arr[16];
 
 		/*!
 			\brief The default constructor generates a zero matrix
 		*/
 
-		TDE2_API TMatrix4();
+		TDE2_API constexpr TMatrix4() = default;
 
 		/*!
 			\brief The constructor that assigns values from the specified array
@@ -42,12 +49,27 @@ namespace TDEngine2
 			\param[in] arr An array of 16 floats
 		*/
 
-		TDE2_API explicit TMatrix4(const F32 arr[16]);
+		TDE2_API constexpr explicit TMatrix4(const F32 arr[16])
+		{
+			for (I32 i = 0; i < 4; ++i)
+			{
+				for (I32 j = 0; j < 4; ++j)
+				{
+					m[i][j] = arr[i * 4 + j];
+				}
+			}
+		}
 
-		TDE2_API TMatrix4(F32 _11, F32 _12, F32 _13, F32 _14, 
-						  F32 _21, F32 _22, F32 _23, F32 _24, 
-						  F32 _31, F32 _32, F32 _33, F32 _34,
-						  F32 _41, F32 _42, F32 _43, F32 _44);
+		TDE2_API constexpr TMatrix4(F32 _11, F32 _12, F32 _13, F32 _14,
+			                        F32 _21, F32 _22, F32 _23, F32 _24,
+			                        F32 _31, F32 _32, F32 _33, F32 _34,
+			                        F32 _41, F32 _42, F32 _43, F32 _44)
+		{
+			m[0][0] = _11; m[0][1] = _12; m[0][2] = _13; m[0][3] = _14;
+			m[1][0] = _21; m[1][1] = _22; m[1][2] = _23; m[1][3] = _24;
+			m[2][0] = _31; m[2][1] = _32; m[2][2] = _33; m[2][3] = _34;
+			m[3][0] = _41; m[3][1] = _42; m[3][2] = _43; m[3][3] = _44;
+		}
 
 		/*!
 			\brief The constructor that creates a diagonal matrix
@@ -55,47 +77,27 @@ namespace TDEngine2
 			\param[in] diagElements A 4d vector that contains diagonal elements values
 		*/
 
-		TDE2_API explicit TMatrix4(const TVector4& diagElements);
+		TDE2_API constexpr explicit TMatrix4(const TVector4& diagElements)
+		{
+			m[0][0] = diagElements.x;
+			m[1][1] = diagElements.y;
+			m[2][2] = diagElements.z;
+			m[3][3] = diagElements.w;
+		}
 
-		/*!
-			\brief Copy constructor
-
-			\param[in] mat A 4x4 matrix that will be used as a copy's origin
-		*/
-
-		TDE2_API TMatrix4(const TMatrix4& mat);
-
-		/*!
-			\brief Move constructor
-
-			\param[in] mat A 4x4 matrix that will be moved into the existing one
-		*/
-
-		TDE2_API TMatrix4(TMatrix4&& mat);
+		TDE2_API constexpr TMatrix4(const TMatrix4& mat) = default;
+		TDE2_API constexpr TMatrix4(TMatrix4&& mat) = default;
 		
-		/*!
-			\brief An assigment operator for TMatrix4
 
-			\param mat A reference to another 4x4 matrix
-
-			\return A TMatrix4's instance, which equals to the input
-		*/
-
-		TDE2_API TMatrix4 operator= (const TMatrix4& mat);
-		
-		/*!
-			\brief An assigment operator for TMatrix4
-
-			\param mat A reference to another 4x4 matrix
-
-			\return A TMatrix4's instance, which equals to the input
-		*/
-
-		TDE2_API TMatrix4& operator= (TMatrix4&& mat);
+		TDE2_API constexpr TMatrix4& operator= (const TMatrix4& mat) = default;
+		TDE2_API constexpr TMatrix4& operator= (TMatrix4&& mat) = default;
 
 		TDE2_API std::string ToString() const;
 	} TMatrix4, *TMatrix4Ptr;
-	
+
+
+	static_assert(std::is_trivially_copyable_v<TMatrix4>, "TMatrix4 should be trivially copyable");
+
 
 	/// TMatrix4's predefined constants
 
