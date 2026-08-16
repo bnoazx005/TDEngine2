@@ -101,10 +101,10 @@ namespace TDEngine2
 
 	/// TVector3's predefined constants
 
-	static const TVector3 ZeroVector3    = TVector3();
-	static const TVector3 RightVector3   = TVector3(1.0f, 0.0f, 0.0f);
-	static const TVector3 UpVector3      = TVector3(0.0f, 1.0f, 0.0f);
-	static const TVector3 ForwardVector3 = TVector3(0.0f, 0.0f, 1.0f);
+	TDE2_STATIC_CONSTEXPR TVector3 ZeroVector3    = TVector3();
+	TDE2_STATIC_CONSTEXPR TVector3 RightVector3   = TVector3(1.0f, 0.0f, 0.0f);
+	TDE2_STATIC_CONSTEXPR TVector3 UpVector3      = TVector3(0.0f, 1.0f, 0.0f);
+	TDE2_STATIC_CONSTEXPR TVector3 ForwardVector3 = TVector3(0.0f, 0.0f, 1.0f);
 
 
 	///TVector3's operators overloading

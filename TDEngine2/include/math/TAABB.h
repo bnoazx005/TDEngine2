@@ -22,8 +22,8 @@ namespace TDEngine2
 
 	struct TAABB
 	{
-		TVector3 min = ZeroVector3;
-		TVector3 max = ZeroVector3;
+		TVector3 min = TVector3{};
+		TVector3 max = TVector3{};
 
 		TDE2_API constexpr TAABB() = default;
 		TDE2_API constexpr TAABB(const TAABB& aabb) = default;
