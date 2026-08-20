@@ -138,6 +138,11 @@ namespace TDEngine2
 		return mFlags;
 	}
 
+	bool CProxyWindowSystem::IsRunning() const
+	{
+		return false;
+	}
+
 	TPtr<IEventManager> CProxyWindowSystem::GetEventManager() const
 	{
 		return mpEventManager;

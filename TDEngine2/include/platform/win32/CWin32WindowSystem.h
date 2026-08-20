@@ -16,6 +16,7 @@
 
 #include "../../core/IWindowSystem.h"
 #include <Windows.h>
+#include <atomic>
 
 
 namespace TDEngine2
@@ -161,6 +162,8 @@ namespace TDEngine2
 
 			TDE2_API U32 GetFlags() const override;
 
+			TDE2_API bool IsRunning() const override;
+
 			/*!
 				\brief The method returns a pointer to IEventManager implementation
 
@@ -265,6 +268,8 @@ namespace TDEngine2
 			TPtr<IEventManager>      mpEventManager;
 			
 			WINDOWPLACEMENT          mPrevWindowState;
+
+			std::atomic_bool         mIsRunning{ false };
 	};
 
 

@@ -184,6 +184,8 @@ namespace TDEngine2
 
 			TDE2_API virtual U32 GetFlags() const = 0;
 
+			TDE2_API virtual bool IsRunning() const = 0;
+
 			/*!
 				\brief The method returns a pointer to IEventManager implementation
 

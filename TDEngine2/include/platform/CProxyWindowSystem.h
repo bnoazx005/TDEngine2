@@ -154,6 +154,8 @@ namespace TDEngine2
 
 			TDE2_API U32 GetFlags() const override;
 
+			TDE2_API bool IsRunning() const override;
+
 			/*!
 				\brief The method returns a pointer to IEventManager implementation
 

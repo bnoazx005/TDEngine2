@@ -12,6 +12,7 @@
 #include "../../core/Event.h"
 #include <vector>
 #include <functional>
+#include <atomic>
 
 #if defined(TDE2_USE_UNIXPLATFORM)
 
@@ -190,6 +191,8 @@ namespace TDEngine2
 
 			TDE2_API U32 GetFlags() const override;
 
+			TDE2_API bool IsRunning() const override;
+
 			/*!
 				\brief The method returns a pointer to IEventManager implementation
 
@@ -305,7 +308,7 @@ namespace TDEngine2
 			
 			TPtr<ITimer>              mpTimer;
 
-			volatile bool             mIsRunning;
+			std::atomic_bool          mIsRunning{ false };
 
 			TPtr<IEventManager>       mpEventManager;
 	};

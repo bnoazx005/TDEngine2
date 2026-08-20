@@ -7,11 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.35] 2026-08-15
+## [0.6.35] 2026-08-20
 
 ### Added
 
-
+- The API of **IWindowSystem** was extended with a new getter IsRunning().
 
 ### Changed
 

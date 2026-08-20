@@ -279,6 +279,11 @@ namespace TDEngine2
 		return mSetupFlags;
 	}
 
+	bool CUnixWindowSystem::IsRunning() const
+	{
+		return mIsRunning;
+	}
+
 	TPtr<IEventManager> CUnixWindowSystem::GetEventManager() const
 	{
 		return mpEventManager;

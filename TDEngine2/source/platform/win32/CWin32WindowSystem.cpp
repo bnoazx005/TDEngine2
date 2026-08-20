@@ -254,22 +254,22 @@ namespace TDEngine2
 
 		memset(&currMessage, 0, sizeof(currMessage));
 
-		bool isRunning = true;
+		mIsRunning = true;
 
-		while (isRunning)
+		while (mIsRunning)
 		{
 			while (PeekMessage(&currMessage, 0, 0, 0, PM_REMOVE))
 			{
 				if (WM_QUIT == currMessage.message)
 				{
-					isRunning = false;
+					mIsRunning = false;
 				}
 
 				TranslateMessage(&currMessage);
 				DispatchMessage(&currMessage);
 			}
 
-			if (!isRunning)
+			if (!mIsRunning)
 			{
 				break;
 			}
@@ -427,6 +427,11 @@ namespace TDEngine2
 	U32 CWin32WindowSystem::GetFlags() const
 	{
 		return mSetupFlags;
+	}
+
+	bool CWin32WindowSystem::IsRunning() const
+	{
+		return mIsRunning;
 	}
 
 	TPtr<IEventManager> CWin32WindowSystem::GetEventManager() const
