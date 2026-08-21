@@ -86,9 +86,9 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CAnimationSystem)
 
-			static TDE2_API F32 _adjustTimeToFitRange(F32 time, bool isLooping, F32 startTime, F32 endTime);
+			static F32 _adjustTimeToFitRange(F32 time, bool isLooping, F32 startTime, F32 endTime);
 
-			TDE2_API void _notifyOnAnimationEvent(TEntityId id, const std::string& eventId);
+			void _notifyOnAnimationEvent(TEntityId id, const std::string& eventId);
 
 		protected:
 			IResourceManager*   mpResourceManager = nullptr;

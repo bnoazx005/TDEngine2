@@ -112,8 +112,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CGradientColor)
 
-			TDE2_API E_RESULT_CODE _addPointInternal(const TColorSample& point);
-			TDE2_API I32 _getFrameIndexByTime(F32 t) const;
+			E_RESULT_CODE _addPointInternal(const TColorSample& point);
+			I32 _getFrameIndexByTime(F32 t) const;
 
 		protected:
 			TColorsArray mPoints;

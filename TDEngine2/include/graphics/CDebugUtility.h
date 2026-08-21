@@ -182,9 +182,9 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CDebugUtility)
 
-			TDE2_API std::vector<U32> _buildTextIndexBuffer(U32 textLength) const;
+			std::vector<U32> _buildTextIndexBuffer(U32 textLength) const;
 
-			TDE2_API E_RESULT_CODE _onFreeInternal() override;
+			E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			IGraphicsObjectManager*  mpGraphicsObjectManager;
 

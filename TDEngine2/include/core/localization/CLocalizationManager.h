@@ -126,13 +126,13 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CLocalizationManager)
 
-			TDE2_API E_RESULT_CODE _readConfiguration(const CProjectSettings::TLocalizationSettings& settings);
+			E_RESULT_CODE _readConfiguration(const CProjectSettings::TLocalizationSettings& settings);
 
-			TDE2_API E_RESULT_CODE _loadLocaleResources(TLocaleId locale);
+			E_RESULT_CODE _loadLocaleResources(TLocaleId locale);
 
-			TDE2_API std::string _getTextInternal(const std::string& key) const;
+			std::string _getTextInternal(const std::string& key) const;
 
-			TDE2_API TLocaleId _getLocaleHashInternal(const std::string& localeId) const;
+			TLocaleId _getLocaleHashInternal(const std::string& localeId) const;
 		protected:
 			mutable std::mutex mMutex;
 

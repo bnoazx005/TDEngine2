@@ -34,7 +34,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CDefaultEngineCoreBuilder)
 
-			TDE2_API E_RESULT_CODE _initEngineSettings() override;
+			E_RESULT_CODE _initEngineSettings() override;
 	};
 
 

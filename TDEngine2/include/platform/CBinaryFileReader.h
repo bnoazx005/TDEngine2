@@ -117,10 +117,10 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBinaryFileReader)
 
-			TDE2_API E_RESULT_CODE _onInit() override;
-			TDE2_API E_RESULT_CODE _onFree() override;
+			E_RESULT_CODE _onInit() override;
+			E_RESULT_CODE _onFree() override;
 
-			TDE2_API IInputStream* _getInputStream();
+			IInputStream* _getInputStream();
 		private:
 			IInputStream* mpCachedInputStream;
 	};

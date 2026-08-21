@@ -312,7 +312,7 @@ namespace TDEngine2
 			*/
 
 			template <typename T>
-			TDE2_API T* SubmitDrawCommand(U32 groupKey)
+			T* SubmitDrawCommand(U32 groupKey)
 			{
 				static_assert(std::is_base_of<TRenderCommand, T>::value, "Invalid template argument's type. \"T\" should derive TRenderCommand type");
 
@@ -363,7 +363,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CRenderQueue)
 
-			TDE2_API E_RESULT_CODE _onFreeInternal() override;
+			E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			TCommandsArray mCommandsBuffer;
 

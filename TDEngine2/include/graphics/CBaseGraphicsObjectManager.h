@@ -106,32 +106,32 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseGraphicsObjectManager)
 
-			TDE2_API virtual TPtr<IBuffer> _createBufferInternal(const TInitBufferParams& params) = 0;
-			TDE2_API virtual TPtr<ITextureImpl> _createTextureInternal(const TInitTextureImplParams& params) = 0;
-			TDE2_API virtual TPtr<IShaderImpl> _createShaderImplInternal(const std::string& shaderId) = 0;
+			virtual TPtr<IBuffer> _createBufferInternal(const TInitBufferParams& params) = 0;
+			virtual TPtr<ITextureImpl> _createTextureInternal(const TInitTextureImplParams& params) = 0;
+			virtual TPtr<IShaderImpl> _createShaderImplInternal(const std::string& shaderId) = 0;
 
 			TDE2_API virtual TPtr<IGraphicsPipeline> _createGraphicsPipelineInternal(const TGraphicsPipelineConfigDesc& pipelineConfigDesc);
 			TDE2_API virtual TPtr<IComputePipeline> _createComputePipelineInternal(const std::string& shaderId);
 
-			TDE2_API virtual USIZE _insertBuffer(TPtr<IBuffer> pObject) = 0;
-			TDE2_API virtual USIZE _insertTexture(TPtr<ITextureImpl> pObject) = 0;
-			TDE2_API virtual USIZE _insertShaderImpl(TPtr<IShaderImpl> pObject) = 0;
+			virtual USIZE _insertBuffer(TPtr<IBuffer> pObject) = 0;
+			virtual USIZE _insertTexture(TPtr<ITextureImpl> pObject) = 0;
+			virtual USIZE _insertShaderImpl(TPtr<IShaderImpl> pObject) = 0;
 
 			TDE2_API void _insertVertexDeclaration(IVertexDeclaration* pVertDecl);
 
-			TDE2_API E_RESULT_CODE _freeVertexDeclarations();
+			E_RESULT_CODE _freeVertexDeclarations();
 
-			TDE2_API virtual E_RESULT_CODE _freeTextureSamplers() = 0;
+			virtual E_RESULT_CODE _freeTextureSamplers() = 0;
 
-			TDE2_API virtual E_RESULT_CODE _freeBlendStates() = 0;
+			virtual E_RESULT_CODE _freeBlendStates() = 0;
 
-			TDE2_API virtual E_RESULT_CODE _freeDepthStencilStates() = 0;
+			virtual E_RESULT_CODE _freeDepthStencilStates() = 0;
 
-			TDE2_API virtual E_RESULT_CODE _freeRasterizerStates() = 0;
+			virtual E_RESULT_CODE _freeRasterizerStates() = 0;
 
-			TDE2_API virtual const std::string _getShaderCacheFilePath() const = 0;
+			virtual const std::string _getShaderCacheFilePath() const = 0;
 
-			TDE2_API CPassKey<CBaseGraphicsObjectManager> _getPassKey() const;
+			CPassKey<CBaseGraphicsObjectManager> _getPassKey() const;
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:

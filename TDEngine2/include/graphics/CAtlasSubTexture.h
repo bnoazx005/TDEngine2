@@ -132,7 +132,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CAtlasSubTexture)
 
-			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
+			const TPtr<IResourceLoader> _getResourceLoader() override;
 		protected:
 			IGraphicsContext*   mpGraphicsContext;
 

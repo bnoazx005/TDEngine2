@@ -101,7 +101,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPoolAllocator)
 
-			TDE2_API void _clearMemoryRegion(TMemoryBlockEntity*& pRegion);
+			void _clearMemoryRegion(TMemoryBlockEntity*& pRegion);
 		protected:
 			TSizeType mObjectSize;
 			TSizeType mObjectAlignment;

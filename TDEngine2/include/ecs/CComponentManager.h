@@ -179,9 +179,8 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _removeComponentsWithAction(TEntityId entityId, const std::function<E_RESULT_CODE(IComponent*&)>& action);
 			
-			TDE2_API E_RESULT_CODE _registerBuiltinComponentFactories();
-
-			TDE2_API E_RESULT_CODE _unregisterBuiltinComponentFactories();
+			E_RESULT_CODE _registerBuiltinComponentFactories();
+			E_RESULT_CODE _unregisterBuiltinComponentFactories();
 
 			TDE2_API bool _hasComponent(TypeId componentTypeId, TEntityId entityId) override;
 			TDE2_API bool _isUniqueComponent(TypeId componentTypeId) const;

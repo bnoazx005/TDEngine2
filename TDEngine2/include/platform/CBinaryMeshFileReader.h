@@ -62,18 +62,18 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBinaryMeshFileReader)
 
-			TDE2_API E_RESULT_CODE _onInit() override;
-			TDE2_API E_RESULT_CODE _onFree() override;
+			E_RESULT_CODE _onInit() override;
+			E_RESULT_CODE _onFree() override;
 
-			TDE2_API TResult<TMeshFileHeader> _readMeshFileHeader();
+			TResult<TMeshFileHeader> _readMeshFileHeader();
 
-			TDE2_API E_RESULT_CODE _readSubmeshes(IMesh*& pMesh, const TMeshFileHeader& header);
+			E_RESULT_CODE _readSubmeshes(IMesh*& pMesh, const TMeshFileHeader& header);
 
-			TDE2_API TResult<TMeshEntityHeader> _readSubMeshEntryHeader();
-			TDE2_API E_RESULT_CODE _readCommonMeshVertexData(IMesh*& pMesh, U32 vertexCount, U32 facesCount, U16 texCoordsChannelsCount);
-			TDE2_API E_RESULT_CODE _readMeshFacesData(IMesh*& pMesh, U32 facesCount);
+			TResult<TMeshEntityHeader> _readSubMeshEntryHeader();
+			E_RESULT_CODE _readCommonMeshVertexData(IMesh*& pMesh, U32 vertexCount, U32 facesCount, U16 texCoordsChannelsCount);
+			E_RESULT_CODE _readMeshFacesData(IMesh*& pMesh, U32 facesCount);
 
-			TDE2_API E_RESULT_CODE _readSceneDescBlock(IMesh*& pMesh, U32 offset);
+			E_RESULT_CODE _readSceneDescBlock(IMesh*& pMesh, U32 offset);
 		protected:
 			static const U32 mMeshVersion;
 	};

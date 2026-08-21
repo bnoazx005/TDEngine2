@@ -403,14 +403,14 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseMaterial)
 
-			TDE2_API TResult<TPtr<IMaterialInstance>> _setVariable(const std::string& name, const void* pValue, U32 size) override;
-			TDE2_API E_RESULT_CODE _setVariableForInstance(TMaterialInstanceId instanceId, const std::string& name, const void* pValue, U32 size) override;
+			TResult<TPtr<IMaterialInstance>> _setVariable(const std::string& name, const void* pValue, U32 size) override;
+			E_RESULT_CODE _setVariableForInstance(TMaterialInstanceId instanceId, const std::string& name, const void* pValue, U32 size) override;
 
-			TDE2_API E_RESULT_CODE _allocateUserDataBuffers(const TShaderCompilerOutput& metadata);
+			E_RESULT_CODE _allocateUserDataBuffers(const TShaderCompilerOutput& metadata);
 
-			TDE2_API TResult<TMaterialInstanceId> _allocateNewInstance();
+			TResult<TMaterialInstanceId> _allocateNewInstance();
 
-			TDE2_API E_RESULT_CODE _initDefaultInstance(const TShaderCompilerOutput& metadata);
+			E_RESULT_CODE _initDefaultInstance(const TShaderCompilerOutput& metadata);
 
 			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
 		protected:
@@ -663,7 +663,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseMaterialInstance)
 
-			TDE2_API E_RESULT_CODE _setVariable(const std::string& name, const void* pValue, U32 size) override;
+			E_RESULT_CODE _setVariable(const std::string& name, const void* pValue, U32 size) override;
 		protected:
 			IMaterial*          mpSharedMaterial;
 

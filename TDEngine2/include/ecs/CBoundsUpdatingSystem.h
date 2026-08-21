@@ -101,7 +101,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBoundsUpdatingSystem)
 
-			TDE2_API void _processScenesEntities(IWorld* pWorld);
+			void _processScenesEntities(IWorld* pWorld);
 		protected:
 			TStaticMeshesBoundsContext  mStaticMeshesContext;
 			TSkinnedMeshesBoundsContext mSkinnedMeshesContext;

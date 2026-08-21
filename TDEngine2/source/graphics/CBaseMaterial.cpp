@@ -866,7 +866,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	TDE2_API TResult<TMaterialInstanceId> CBaseMaterial::_allocateNewInstance()
+	TResult<TMaterialInstanceId> CBaseMaterial::_allocateNewInstance()
 	{
 		E_RESULT_CODE result = RC_OK;
 

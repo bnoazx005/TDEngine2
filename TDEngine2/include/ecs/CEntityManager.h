@@ -121,7 +121,7 @@ namespace TDEngine2
 			*/
 
 			template <typename T>
-			TDE2_API T* AddComponent(TEntityId id);
+			T* AddComponent(TEntityId id);
 
 			TDE2_API IComponent* AddComponent(TEntityId entityId, TypeId componentTypeId);
 
@@ -132,7 +132,7 @@ namespace TDEngine2
 			*/
 
 			template <typename T>
-			TDE2_API E_RESULT_CODE RemoveComponent(TEntityId id);
+			E_RESULT_CODE RemoveComponent(TEntityId id);
 
 			TDE2_API E_RESULT_CODE RemoveComponent(TEntityId id, TypeId componentTypeId);
 
@@ -152,7 +152,7 @@ namespace TDEngine2
 			*/
 
 			template <typename T>
-			TDE2_API T* GetComponent(TEntityId id);
+			T* GetComponent(TEntityId id);
 			
 			/*!
 				\brief The method checks up whether a given entity has a component of specified type or not
@@ -161,7 +161,7 @@ namespace TDEngine2
 			*/
 
 			template <typename T>
-			TDE2_API bool HasComponent(TEntityId id);
+			bool HasComponent(TEntityId id);
 
 			TDE2_API bool HasComponent(TEntityId entityId, TypeId componentTypeId);
 
@@ -181,15 +181,15 @@ namespace TDEngine2
 
 			std::string _constructDefaultEntityName(U32 id) const;
 
-			TDE2_API TPtr<CEntity> _createEntity(const std::string& name, TEntityId id);
+			TPtr<CEntity> _createEntity(const std::string& name, TEntityId id);
 
 			TDE2_API void _notifyOnAddComponent(TEntityId entityId, TypeId componentTypeId);
 
-			TDE2_API void _notifyOnRemovedComponent(TEntityId entityId, TypeId componentTypeId);
+			void _notifyOnRemovedComponent(TEntityId entityId, TypeId componentTypeId);
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 
-			TDE2_API E_RESULT_CODE _destroyInternal(TEntityId entityId, bool recomputeHandles = true);
+			E_RESULT_CODE _destroyInternal(TEntityId entityId, bool recomputeHandles = true);
 		protected:
 			mutable std::mutex mMutex;
 
@@ -207,7 +207,7 @@ namespace TDEngine2
 	
 
 	template <typename T>
-	TDE2_API T* CEntityManager::AddComponent(TEntityId id)
+	T* CEntityManager::AddComponent(TEntityId id)
 	{
 		T* componentInstance = mpComponentManager->CreateComponent<T>(id);
 
@@ -217,19 +217,19 @@ namespace TDEngine2
 	}
 
 	template <typename T>
-	TDE2_API E_RESULT_CODE CEntityManager::RemoveComponent(TEntityId id)
+	E_RESULT_CODE CEntityManager::RemoveComponent(TEntityId id)
 	{
 		return RemoveComponent(id, T::GetTypeId());
 	}
 
 	template <typename T>
-	TDE2_API T* CEntityManager::GetComponent(TEntityId id)
+	T* CEntityManager::GetComponent(TEntityId id)
 	{
 		return mpComponentManager->GetComponent<T>(id);
 	}
 	
 	template <typename T>
-	TDE2_API bool CEntityManager::HasComponent(TEntityId id)
+	bool CEntityManager::HasComponent(TEntityId id)
 	{
 		return mpComponentManager->HasComponent<T>(id);
 	}

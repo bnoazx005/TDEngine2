@@ -109,11 +109,11 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CConfigFileReader)
 
-			TDE2_API E_RESULT_CODE _parseFileUntilParam(const std::string& group, const std::string& paramName, TConfigParamsMap& paramsMap, std::string& value);
+			E_RESULT_CODE _parseFileUntilParam(const std::string& group, const std::string& paramName, TConfigParamsMap& paramsMap, std::string& value);
 
-			TDE2_API E_RESULT_CODE _onFree() override;
+			E_RESULT_CODE _onFree() override;
 
-			TDE2_API std::string _removeComments(const std::string& line);
+			std::string _removeComments(const std::string& line);
 		protected:
 			TConfigParamsMap mParamsMap;
 

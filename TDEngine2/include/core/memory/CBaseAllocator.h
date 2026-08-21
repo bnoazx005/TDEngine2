@@ -154,14 +154,14 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseAllocator)
 
-			TDE2_API TMemoryBlockEntity* _getCurrFitBlock(TSizeType allocationSize);
-			TDE2_API TMemoryBlockEntity* _findOwnerBlock(void* pObjectPtr);
-			TDE2_API TMemoryBlockEntity* _allocateNewBlock(TMemoryBlockEntity* pPrevBlockEntity = nullptr);
+			TMemoryBlockEntity* _getCurrFitBlock(TSizeType allocationSize);
+			TMemoryBlockEntity* _findOwnerBlock(void* pObjectPtr);
+			TMemoryBlockEntity* _allocateNewBlock(TMemoryBlockEntity* pPrevBlockEntity = nullptr);
 
-			TDE2_API TMemoryBlockEntity* _getLastBlockEntity() const;
+			TMemoryBlockEntity* _getLastBlockEntity() const;
 
 			/// \brief The method returns false if allocationSize is greater than mPageSize
-			TDE2_API bool _isAllocationPossible(TSizeType allocationSize) const;
+			bool _isAllocationPossible(TSizeType allocationSize) const;
 
 		protected:
 			std::unique_ptr<TMemoryBlockEntity> mpRootBlock;

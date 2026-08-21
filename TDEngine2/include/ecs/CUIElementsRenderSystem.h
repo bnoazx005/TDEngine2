@@ -119,9 +119,9 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUIElementsRenderSystem)
 
-			TDE2_API E_RESULT_CODE _initDefaultResources();
+			E_RESULT_CODE _initDefaultResources();
 
-			TDE2_API E_RESULT_CODE _updateGPUBuffers();
+			E_RESULT_CODE _updateGPUBuffers();
 		protected:
 			static constexpr U32            mMaxVerticesCount = 1 << 14;
 

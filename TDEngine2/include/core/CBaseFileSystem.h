@@ -227,22 +227,22 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseFileSystem)
 
-			TDE2_API E_RESULT_CODE _mountInternal(const std::string& aliasPath, IMountableStorage* pStorage, U16 relativePriority);
+			E_RESULT_CODE _mountInternal(const std::string& aliasPath, IMountableStorage* pStorage, U16 relativePriority);
 
-			TDE2_API std::string _normalizePathView(const std::string& path, bool isDirectory = true) const;
+			std::string _normalizePathView(const std::string& path, bool isDirectory = true) const;
 
-			TDE2_API virtual E_RESULT_CODE _onInit() = 0;
+			virtual E_RESULT_CODE _onInit() = 0;
 
-			TDE2_API TResult<TFileEntryId> _openFile(const TypeId& typeId, const std::string& filename, bool createIfDoesntExist) override;
+			TResult<TFileEntryId> _openFile(const TypeId& typeId, const std::string& filename, bool createIfDoesntExist) override;
 
-			TDE2_API E_RESULT_CODE _registerFileFactory(const TypeId& typeId, const TFileFactory& fileFactory) override;
+			E_RESULT_CODE _registerFileFactory(const TypeId& typeId, const TFileFactory& fileFactory) override;
 
-			TDE2_API E_RESULT_CODE _unregisterFileFactory(const TypeId& typeId) override;
+			E_RESULT_CODE _unregisterFileFactory(const TypeId& typeId) override;
 
-			TDE2_API IFile* _getFile(TFileEntryId fileId) override;
-			TDE2_API IFile* _getFileUnsafe(TFileEntryId fileId) override;
+			IFile* _getFile(TFileEntryId fileId) override;
+			IFile* _getFileUnsafe(TFileEntryId fileId) override;
 
-			TDE2_API void _createNewFile(const std::string& filename);
+			void _createNewFile(const std::string& filename);
 
 			/*!
 				\brief The method converts virtual path into a real one. For example, if
@@ -252,9 +252,9 @@ namespace TDEngine2
 				\return A string that contains a physical path
 			*/
 
-			TDE2_API std::string _resolveVirtualPathInternal(const TMountedStorageInfo& mountInfo, const std::string& path, bool isDirectory) const;
+			std::string _resolveVirtualPathInternal(const TMountedStorageInfo& mountInfo, const std::string& path, bool isDirectory) const;
 			
-			TDE2_API E_RESULT_CODE _onFreeInternal() override;
+			E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			mutable std::mutex mMutex;
 

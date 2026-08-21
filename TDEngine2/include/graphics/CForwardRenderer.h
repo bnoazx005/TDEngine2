@@ -154,8 +154,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CForwardRenderer)
 
-			TDE2_API void _prepareFrame(F32 currTime, F32 deltaTime);
-			TDE2_API E_RESULT_CODE _onFreeInternal() override;
+			void _prepareFrame(F32 currTime, F32 deltaTime);
+			E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			TPtr<IGraphicsContext>        mpGraphicsContext;
 			TPtr<IResourceManager>        mpResourceManager;

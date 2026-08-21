@@ -136,15 +136,15 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSceneManager)
 
-			TDE2_API TResult<TSceneId> _createInternal(const std::string& name);
-			TDE2_API TResult<TSceneId> _registerSceneInternal(const std::string& name, IScene* pScene);
-			TDE2_API E_RESULT_CODE _unregisterSceneInternal(TSceneId id);
+			TResult<TSceneId> _createInternal(const std::string& name);
+			TResult<TSceneId> _registerSceneInternal(const std::string& name, IScene* pScene);
+			E_RESULT_CODE _unregisterSceneInternal(TSceneId id);
 
-			TDE2_API TResult<TSceneId> _loadSceneInternal(const std::string& scenePath);
+			TResult<TSceneId> _loadSceneInternal(const std::string& scenePath);
 
-			TDE2_API E_RESULT_CODE _onPostInit();
+			E_RESULT_CODE _onPostInit();
 
-			TDE2_API E_RESULT_CODE _onFreeInternal() override;
+			E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			mutable std::mutex     mMutex;
 

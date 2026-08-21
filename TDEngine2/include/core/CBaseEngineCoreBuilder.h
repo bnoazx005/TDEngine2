@@ -55,7 +55,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseEngineCoreBuilder)
 
-			TDE2_API E_RESULT_CODE _registerBuiltinInfrastructure(bool isWindowModeEnabled);
+			E_RESULT_CODE _registerBuiltinInfrastructure(bool isWindowModeEnabled);
 
 			/*!
 				\brief The method tries to configure graphics context based on specified parameters
@@ -63,7 +63,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE _configureGraphicsContext(const std::string& graphicsPluginPath) override;
+			E_RESULT_CODE _configureGraphicsContext(const std::string& graphicsPluginPath) override;
 
 			/*!
 				\brief The method configures an audio context based on type of middleware API
@@ -73,7 +73,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE _configureAudioContext(const std::string& audioPluginPath) override;
+			E_RESULT_CODE _configureAudioContext(const std::string& audioPluginPath) override;
 
 			/*!
 				\brief The method tries to configure windows system based on specified parameters.
@@ -82,7 +82,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE _configureWindowSystem(const std::string& name, U32 width, U32 height, U32 flags) override;
+			E_RESULT_CODE _configureWindowSystem(const std::string& name, U32 width, U32 height, U32 flags) override;
 
 			/*!
 				\brief The method tries to configure a file system based on current data that is stored in Config.h
@@ -90,7 +90,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE _configureFileSystem() override;
+			E_RESULT_CODE _configureFileSystem() override;
 
 			/*!
 				\brief The method tries to configure a resource manager
@@ -98,7 +98,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE _configureResourceManager() override;
+			E_RESULT_CODE _configureResourceManager() override;
 
 			/*!
 				\brief The method tries to configure a job manager
@@ -108,7 +108,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE _configureJobManager(U32 maxNumOfThreads) override;
+			E_RESULT_CODE _configureJobManager(U32 maxNumOfThreads) override;
 
 			/*!
 				\brief The method tries to configure a plugin manager
@@ -116,7 +116,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE _configurePluginManager() override;
+			E_RESULT_CODE _configurePluginManager() override;
 
 			/*!
 				\brief The method tries to configure an event manager.
@@ -124,7 +124,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE _configureEventManager() override;
+			E_RESULT_CODE _configureEventManager() override;
 
 			/*!
 				\brief The method tries to configure a renderer
@@ -132,7 +132,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE _configureRenderer() override;
+			 E_RESULT_CODE _configureRenderer() override;
 
 			/*!
 				\brief The method tries to configure a low-level input context
@@ -140,7 +140,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE _configureInputContext() override;
+			E_RESULT_CODE _configureInputContext() override;
 
 			/*!
 				\brief The method tries to configure an immediate GUI context
@@ -148,7 +148,7 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE _configureImGUIContext() override;
+			E_RESULT_CODE _configureImGUIContext() override;
 
 			/*!
 				\brief The method tries to configure the manager of engine's editors
@@ -156,15 +156,15 @@ namespace TDEngine2
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE _configureEditorsManager() override;
+			E_RESULT_CODE _configureEditorsManager() override;
 
-			TDE2_API E_RESULT_CODE _configureSceneManager() override;
+			E_RESULT_CODE _configureSceneManager() override;
 
-			TDE2_API E_RESULT_CODE _configureLocalizationManager() override;
+			E_RESULT_CODE _configureLocalizationManager() override;
 
-			TDE2_API E_RESULT_CODE _configureSaveManager() override;
+			E_RESULT_CODE _configureSaveManager() override;
 
-			TDE2_API virtual E_RESULT_CODE _initEngineSettings() = 0;
+			virtual E_RESULT_CODE _initEngineSettings() = 0;
 		protected:
 			TPtr<IEngineCore> mpEngineCoreInstance;
 

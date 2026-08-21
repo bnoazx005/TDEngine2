@@ -103,9 +103,9 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CYAMLFileWriter)
 
-			TDE2_API E_RESULT_CODE _internalSerialize(Yaml::Node& object);
+			E_RESULT_CODE _internalSerialize(Yaml::Node& object);
 
-			TDE2_API E_RESULT_CODE _onFree() override;
+			E_RESULT_CODE _onFree() override;
 
 			TDE2_API Yaml::Node* _getCurrScope() const;
 
@@ -232,11 +232,11 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CYAMLFileReader)
 
-			TDE2_API E_RESULT_CODE _onFree() override;
+			E_RESULT_CODE _onFree() override;
 
 			TDE2_API Yaml::Node* _getCurrScope() const;
 
-			TDE2_API E_RESULT_CODE _internalDeserialize(Yaml::Node& outputObject);
+			E_RESULT_CODE _internalDeserialize(Yaml::Node& outputObject);
 
 			template <typename T>
 			T _getContentAs(const std::string& key)

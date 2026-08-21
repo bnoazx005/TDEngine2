@@ -14,14 +14,7 @@
 namespace TDEngine2
 {
 	TDE2_DECLARE_FLAG_COMPONENT(AudioListenerComponent);
-	//pWriter->SetString("clip_id", mAudioClipId);
 
-	//pWriter->SetBool("is_muted", mIsMuted);
-	//pWriter->SetBool("is_paused", mIsPaused);
-	//pWriter->SetBool("is_looped", mIsLooped);
-
-	//pWriter->SetFloat("volume", mVolume);
-	//pWriter->SetFloat("panning", mPanning);
 
 	CLASS_META(SECTION = ecs, flags = SERIALIZE_MARKED_ONLY_FIELDS)
 	struct TAudioSourceComponentData

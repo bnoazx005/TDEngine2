@@ -131,11 +131,11 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSpriteRendererSystem)
 
-			TDE2_API U32 _computeSpriteCommandKey(TResourceId materialId, U16 graphicsLayerId);
+			U32 _computeSpriteCommandKey(TResourceId materialId, U16 graphicsLayerId);
 
-			TDE2_API void _initializeBatchVertexBuffers(IGraphicsObjectManager* pGraphicsObjectManager, U32 numOfBuffers);
+			void _initializeBatchVertexBuffers(IGraphicsObjectManager* pGraphicsObjectManager, U32 numOfBuffers);
 
-			TDE2_API E_RESULT_CODE _onFreeInternal() override;
+			E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			TPtr<IAllocator>          mpTempAllocator;
 

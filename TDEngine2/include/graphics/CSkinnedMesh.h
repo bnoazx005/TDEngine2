@@ -65,7 +65,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSkinnedMesh)
 
-			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
+			const TPtr<IResourceLoader> _getResourceLoader() override;
 
 			bool _hasVertexStreamInternal(E_VERTEX_STREAM_TYPE streamType) const override;
 		protected:

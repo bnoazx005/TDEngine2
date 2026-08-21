@@ -253,13 +253,13 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CParticleEffect)
 
-			TDE2_API E_RESULT_CODE _saveColorData(IArchiveWriter* pWriter, const TParticleColorParameter& colorData);
-			TDE2_API TResult<TParticleColorParameter> _loadColorData(IArchiveReader* pReader);
+			E_RESULT_CODE _saveColorData(IArchiveWriter* pWriter, const TParticleColorParameter& colorData);
+			TResult<TParticleColorParameter> _loadColorData(IArchiveReader* pReader);
 
-			TDE2_API E_RESULT_CODE _saveVelocityData(IArchiveWriter* pWriter, const TParticleVelocityParameter& colorData);
-			TDE2_API TResult<TParticleVelocityParameter> _loadVelocityData(IArchiveReader* pReader);
+			E_RESULT_CODE _saveVelocityData(IArchiveWriter* pWriter, const TParticleVelocityParameter& colorData);
+			TResult<TParticleVelocityParameter> _loadVelocityData(IArchiveReader* pReader);
 
-			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
+			const TPtr<IResourceLoader> _getResourceLoader() override;
 		protected:
 			F32                               mDuration = 1.0f;
 

@@ -224,7 +224,6 @@ namespace TDEngine2
 			*/
 
 			template <typename T>
-			TDE2_API
 #if _HAS_CXX17
 			std::enable_if_t<std::is_base_of_v<ISystem, T>, TSystemId>
 #else
@@ -249,7 +248,6 @@ namespace TDEngine2
 			*/
 
 			template <typename T>
-			TDE2_API
 #if _HAS_CXX17
 				std::enable_if_t<std::is_base_of_v<IComponent, T>, CComponentIterator>
 #else
@@ -269,7 +267,6 @@ namespace TDEngine2
 			*/
 
 			template <typename T>
-			TDE2_API
 #if _HAS_CXX17
 			std::enable_if_t<std::is_base_of_v<IComponent, T>, void>
 #else
@@ -291,7 +288,7 @@ namespace TDEngine2
 			*/
 
 			template <typename... TArgs>
-			TDE2_API TEntitiesArray FindEntitiesWithComponents()
+			TEntitiesArray FindEntitiesWithComponents()
 			{
 				/// \todo this implementation is not safe enough, another solution should be found instead
 				return _findEntitiesWithComponents({ { TArgs::GetTypeId()... } });
@@ -306,7 +303,7 @@ namespace TDEngine2
 			*/
 
 			template <typename... TArgs>
-			TDE2_API TEntitiesArray FindEntitiesWithAny()
+			TEntitiesArray FindEntitiesWithAny()
 			{
 				return _findEntitiesWithAnyComponents({ { TArgs::GetTypeId()... } });
 			}
@@ -322,13 +319,13 @@ namespace TDEngine2
 			TDE2_API virtual CEntity* FindEntity(TEntityId entityId) const = 0;
 
 			template <typename TComponentType>
-			TDE2_API TEntityId FindEntityWithUniqueComponent()
+			TEntityId FindEntityWithUniqueComponent()
 			{
 				return _findEntityWithUniqueComponent(TComponentType::GetTypeId());
 			}
 
 			template <typename... TArgs>
-			TDE2_API TComponentsQueryLocalSlice<TArgs...> CreateLocalComponentsSlice()
+			TComponentsQueryLocalSlice<TArgs...> CreateLocalComponentsSlice()
 			{
 				TEntitiesArray entities = FindEntitiesWithComponents<TArgs...>();
 				
@@ -481,7 +478,7 @@ namespace TDEngine2
 			TDE2_API virtual TSystemId _findSystem(TypeId typeId) = 0;
 
 			template <typename TComponentType>
-			TDE2_API Vector<TComponentType*> _getComponentsOfTypeFromEntities(const TEntitiesArray& entities)
+			Vector<TComponentType*> _getComponentsOfTypeFromEntities(const TEntitiesArray& entities)
 			{
 				Vector<TComponentType*> components;
 

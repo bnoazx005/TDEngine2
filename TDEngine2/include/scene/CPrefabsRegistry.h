@@ -135,7 +135,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPrefabsRegistry)
 
-			TDE2_API E_RESULT_CODE _onFreeInternal() override;
+			E_RESULT_CODE _onFreeInternal() override;
 		private:
 			IResourceManager*       mpResourceManager = nullptr;
 			IFileSystem*            mpFileSystem = nullptr;

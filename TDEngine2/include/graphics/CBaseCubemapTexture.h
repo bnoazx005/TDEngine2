@@ -148,7 +148,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseCubemapTexture)
 
-			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
+			const TPtr<IResourceLoader> _getResourceLoader() override;
 
 		protected:
 			IGraphicsContext*   mpGraphicsContext = nullptr;
@@ -242,9 +242,9 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseCubemapTextureLoader)
 
-			TDE2_API TResult<TCubemapMetaInfo> _readCubemapInfo(const std::string& filename) const;
+			TResult<TCubemapMetaInfo> _readCubemapInfo(const std::string& filename) const;
 
-			TDE2_API E_RESULT_CODE _loadFaceTexture(ICubemapTexture* pCubemapTexture, const TCubemapMetaInfo& info, E_CUBEMAP_FACE face) const;
+			E_RESULT_CODE _loadFaceTexture(ICubemapTexture* pCubemapTexture, const TCubemapMetaInfo& info, E_CUBEMAP_FACE face) const;
 		protected:
 			IResourceManager* mpResourceManager = nullptr;
 

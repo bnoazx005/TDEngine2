@@ -75,7 +75,7 @@ namespace TDEngine2
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CGlobalShaderProperties)
 
-			TDE2_API E_RESULT_CODE _initializeUniformsBuffers(IGraphicsObjectManager* pGraphicsObjectManager, U8 numOfBuffers);
+			E_RESULT_CODE _initializeUniformsBuffers(IGraphicsObjectManager* pGraphicsObjectManager, U8 numOfBuffers);
 		private:
 			IGraphicsObjectManager*                                           mpGraphicsObjectManager = nullptr;
 			std::array<TBufferHandleId, TotalNumberOfInternalConstantBuffers> mInternalEngineUniforms{};

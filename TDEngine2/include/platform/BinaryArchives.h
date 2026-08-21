@@ -146,7 +146,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBinaryArchiveWriter)
 
-			TDE2_API E_RESULT_CODE _onFree() override;
+			E_RESULT_CODE _onFree() override;
 		protected:
 			IOutputStream* mpCachedOutputStream;
 
@@ -242,22 +242,22 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBinaryArchiveReader)
 
-			TDE2_API E_RESULT_CODE _onFree() override;
+			E_RESULT_CODE _onFree() override;
 
-			TDE2_API E_RESULT_CODE _deserializeInternal();
+			E_RESULT_CODE _deserializeInternal();
 			
-			TDE2_API std::unique_ptr<TArchiveValue> _readChunkData();
-			TDE2_API U32 _readChunkTag();
-			TDE2_API std::string _readStringChunk();
+			std::unique_ptr<TArchiveValue> _readChunkData();
+			U32 _readChunkTag();
+			std::string _readStringChunk();
 			
-			TDE2_API std::unique_ptr<TArchiveValue> _readIntValue(const std::string& key, TSizeType size);
-			TDE2_API std::unique_ptr<TArchiveValue> _readFloatValue(const std::string& key, TSizeType size);
-			TDE2_API std::unique_ptr<TArchiveValue> _readBoolValue(const std::string& key);
-			TDE2_API std::unique_ptr<TArchiveValue> _readStringValue(const std::string& key);
+			std::unique_ptr<TArchiveValue> _readIntValue(const std::string& key, TSizeType size);
+			std::unique_ptr<TArchiveValue> _readFloatValue(const std::string& key, TSizeType size);
+			std::unique_ptr<TArchiveValue> _readBoolValue(const std::string& key);
+			std::unique_ptr<TArchiveValue> _readStringValue(const std::string& key);
 
-			TDE2_API TArchiveValue::TArchiveValuesArray _readChunk();
+			TArchiveValue::TArchiveValuesArray _readChunk();
 
-			TDE2_API E_RESULT_CODE _readValue(void* pBuffer, TSizeType size);
+			E_RESULT_CODE _readValue(void* pBuffer, TSizeType size);
 
 			TDE2_API const TArchiveValue* _getContent(const std::string& key);
 

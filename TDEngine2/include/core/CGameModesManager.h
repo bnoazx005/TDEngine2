@@ -89,7 +89,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CGameModesManager)
 
-			TDE2_API TPtr<IGameMode> _getCurrentGameMode();
+			TPtr<IGameMode> _getCurrentGameMode();
 		protected:
 			std::stack<TPtr<IGameMode>> mModesContext;
 	};

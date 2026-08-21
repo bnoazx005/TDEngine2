@@ -64,7 +64,7 @@ namespace TDEngine2
 			TDE2_API CFileLogger(const CFileLogger& builder) = delete;
 			TDE2_API virtual CFileLogger& operator= (CFileLogger& builder) = delete;
 
-			TDE2_API void _logMessageByType(E_LOG_MESSAGE_TYPE messageType, const std::string& message);
+			void _logMessageByType(E_LOG_MESSAGE_TYPE messageType, const std::string& message);
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 
@@ -72,7 +72,7 @@ namespace TDEngine2
 			TDE2_API virtual void _onBeforeMemoryRelease();
 #endif
 
-			TDE2_API void _writeMessageInternal(const std::string& message);
+			void _writeMessageInternal(const std::string& message);
 
 		protected:
 			std::ofstream      mOutputLog;

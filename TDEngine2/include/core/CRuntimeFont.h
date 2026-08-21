@@ -113,9 +113,9 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS_NO_DCTR(CRuntimeFont)
 			virtual ~CRuntimeFont(); /// \note declare own destructor because of incomplete type as argument of std::unique_ptr
 
-			TDE2_API E_RESULT_CODE _updateFontTextureCache(ITextureAtlas* pFontCacheTexture);
+			E_RESULT_CODE _updateFontTextureCache(ITextureAtlas* pFontCacheTexture);
 
-			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
+			const TPtr<IResourceLoader> _getResourceLoader() override;
 		protected:
 			std::unordered_set<TUtf8CodePoint> mCachedGlyphs;
 

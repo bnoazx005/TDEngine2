@@ -76,7 +76,7 @@ namespace TDEngine2
 		private:
 			TDE2_API CTokenizer() = default;
 
-			TDE2_API std::vector<std::string> _tokenize(const std::string& str, const std::string& delims, const std::string& specDelims);
+			std::vector<std::string> _tokenize(const std::string& str, const std::string& delims, const std::string& specDelims);
 		private:
 			std::vector<std::string> mTokens;
 			
@@ -218,19 +218,19 @@ namespace TDEngine2
 			TStructDeclsMap _processStructDecls(CTokenizer& tokenizer) const;
 
 			TDE2_API virtual USIZE _getPaddedStructSize(const TStructDeclsMap& structsMap, CTokenizer& tokenizer,
-														const TUniformVariableFunctor& uniformProcessor = [](auto){}) const;
+											            const TUniformVariableFunctor& uniformProcessor = [](auto){}) const;
 
-			TDE2_API virtual USIZE _getBuiltinTypeSize(const std::string& type, const std::function<void(const std::string&)> typeProcessor = nullptr) const = 0;
+			virtual USIZE _getBuiltinTypeSize(const std::string& type, const std::function<void(const std::string&)> typeProcessor = nullptr) const = 0;
 
 			TDE2_API virtual TUniformBuffersMap _processUniformBuffersDecls(const TStructDeclsMap& structsMap, CTokenizer& tokenizer) const;
 
-			TDE2_API virtual E_SHADER_FEATURE_LEVEL _getTargetVersionFromStr(const std::string& ver) const = 0;
+			virtual E_SHADER_FEATURE_LEVEL _getTargetVersionFromStr(const std::string& ver) const = 0;
 
 			TDE2_API bool _isShaderStageEnabled(E_SHADER_STAGE_TYPE shaderStage, const TShaderMetadata& shaderMeta) const;
 
-			TDE2_API const C8* _getTargetVersionDefineName() const;
+			const C8* _getTargetVersionDefineName() const;
 
-			TDE2_API virtual TShaderResourcesMap _processShaderResourcesDecls(CTokenizer& tokenizer) const = 0;
+			virtual TShaderResourcesMap _processShaderResourcesDecls(CTokenizer& tokenizer) const = 0;
 
 			TDE2_API std::string _enableShaderStage(E_SHADER_STAGE_TYPE shaderStage, const TStagesRegionsMap& stagesRegionsInfo, const std::string& source) const;
 		protected:

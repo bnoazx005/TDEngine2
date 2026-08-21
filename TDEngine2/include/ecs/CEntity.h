@@ -135,7 +135,7 @@ namespace TDEngine2
 			*/
 
 			template <typename T>
-			TDE2_API E_RESULT_CODE RemoveComponent();
+			E_RESULT_CODE RemoveComponent();
 
 			TDE2_API E_RESULT_CODE RemoveComponent(TypeId componentTypeId);
 
@@ -155,7 +155,7 @@ namespace TDEngine2
 			*/
 
 			template <typename T>
-			TDE2_API T* GetComponent();
+			T* GetComponent();
 
 			/*!
 				\return The method returns an array of all components that're related with the corresponding entity
@@ -170,7 +170,7 @@ namespace TDEngine2
 			*/
 
 			template <typename T>
-			TDE2_API bool HasComponent();
+			bool HasComponent();
 
 			TDE2_API bool HasComponent(TypeId componentTypeId);
 
@@ -200,7 +200,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEntity)
 
-			TDE2_API IComponent* _addComponentInternal(TypeId typeId);
+			IComponent* _addComponentInternal(TypeId typeId);
 		protected:
 			CEntityManager* mpEntityManager = nullptr;
 
@@ -211,25 +211,25 @@ namespace TDEngine2
 
 
 	template <typename T>
-	TDE2_API T* CEntity::AddComponent()
+	T* CEntity::AddComponent()
 	{
 		return mpEntityManager->AddComponent<T>(mId);
 	}
 
 	template <typename T>
-	TDE2_API E_RESULT_CODE CEntity::RemoveComponent()
+	E_RESULT_CODE CEntity::RemoveComponent()
 	{
 		return mpEntityManager->RemoveComponent<T>(mId);
 	}
 
 	template <typename T>
-	TDE2_API T* CEntity::GetComponent()
+	T* CEntity::GetComponent()
 	{
 		return mpEntityManager->GetComponent<T>(mId);
 	}
 
 	template <typename T>
-	TDE2_API bool CEntity::HasComponent()
+	bool CEntity::HasComponent()
 	{
 		return mpEntityManager->HasComponent<T>(mId);
 	}

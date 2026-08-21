@@ -136,7 +136,7 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS_NO_DCTR(CBaseJobManager)
 			virtual ~CBaseJobManager();
 
-			TDE2_API E_RESULT_CODE _onFreeInternal() override;
+			E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			static constexpr U8     mUpdateTickRate = 60; // \note Single update every 60 frames
 

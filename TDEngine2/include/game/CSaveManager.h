@@ -104,11 +104,11 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSaveManager)
 
-			TDE2_API E_RESULT_CODE _scanAndLoadSaveFiles(const std::string& path);
+			E_RESULT_CODE _scanAndLoadSaveFiles(const std::string& path);
 
-			TDE2_API E_RESULT_CODE _freeSaveGamesObjects();			
+			E_RESULT_CODE _freeSaveGamesObjects();			
 
-			TDE2_API E_RESULT_CODE _onFreeInternal() override;
+			E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			mutable std::mutex mMutex;
 

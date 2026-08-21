@@ -104,7 +104,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CLightingSystem)
 
-			TDE2_API E_RESULT_CODE _prepareResources();
+			E_RESULT_CODE _prepareResources();
 		protected:
 			IRenderer*                   mpRenderer = nullptr;
 

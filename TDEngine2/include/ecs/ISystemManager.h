@@ -141,7 +141,6 @@ namespace TDEngine2
 			*/
 
 			template <typename T>
-			TDE2_API
 #if _HAS_CXX17
 				std::enable_if_t<std::is_base_of_v<ISystem, T>, TSystemId>
 #else

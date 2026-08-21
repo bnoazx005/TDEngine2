@@ -373,7 +373,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	TDE2_API E_RESULT_CODE CSceneManager::_onPostInit()
+	E_RESULT_CODE CSceneManager::_onPostInit()
 	{
 		auto createEmptyMainScene = [this](const std::string& scenePath) 
 		{

@@ -108,7 +108,7 @@ namespace TDEngine2
 
 			virtual TDE2_API E_RESULT_CODE _init(IResourceManager* pResourceManager, const std::string& name);
 
-			TDE2_API virtual const TPtr<IResourceLoader> _getResourceLoader() = 0;
+			virtual const TPtr<IResourceLoader> _getResourceLoader() = 0;
 
 			TDE2_API E_RESULT_CODE _onFreeInternal() override;
 		protected:

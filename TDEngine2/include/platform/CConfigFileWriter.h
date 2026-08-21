@@ -43,11 +43,11 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CConfigFileWriter)
 
-			TDE2_API E_RESULT_CODE _onFree() override;
+			E_RESULT_CODE _onFree() override;
 
-			TDE2_API E_RESULT_CODE _writeValueToMap(const std::string& group, const std::string& paramName, const std::string& value);
+			E_RESULT_CODE _writeValueToMap(const std::string& group, const std::string& paramName, const std::string& value);
 
-			TDE2_API IOutputStream* _getOutputStream();
+			IOutputStream* _getOutputStream();
 		protected:
 			TConfigParamsMap mParamsMap;
 			IOutputStream*   mpCachedOutputStream;

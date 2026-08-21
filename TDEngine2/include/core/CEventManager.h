@@ -108,15 +108,15 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CEventManager)
 
-			TDE2_API E_RESULT_CODE _createNewListenersGroup(TypeId eventTypeId);
+			E_RESULT_CODE _createNewListenersGroup(TypeId eventTypeId);
 
-			TDE2_API E_RESULT_CODE _registerEventQueue(TypeId eventTypeId, std::unique_ptr<IEventQueue> pEventQueue) override;
-			TDE2_API IEventQueue* _getEventQueueByType(TypeId eventTypeId) override;
+			E_RESULT_CODE _registerEventQueue(TypeId eventTypeId, std::unique_ptr<IEventQueue> pEventQueue) override;
+			IEventQueue* _getEventQueueByType(TypeId eventTypeId) override;
 
-			TDE2_API E_RESULT_CODE _enableBufferingForEventTypeImpl(TypeId eventTypeId) override;
+			E_RESULT_CODE _enableBufferingForEventTypeImpl(TypeId eventTypeId) override;
 			bool _isEventTypeSupportBuffering(TypeId eventTypeId) const override;
 
-			TDE2_API E_RESULT_CODE _flushImpl(TypeId eventTypeId) override;
+			E_RESULT_CODE _flushImpl(TypeId eventTypeId) override;
 		protected:
 			TListenersMap       mListenersMap;
 

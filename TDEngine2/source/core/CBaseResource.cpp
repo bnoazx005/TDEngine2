@@ -117,7 +117,7 @@ namespace TDEngine2
 		return mLoadingPolicy;
 	}
 
-	TDE2_API E_RESULT_CODE CBaseResource::_init(IResourceManager* pResourceManager, const std::string& name)
+	E_RESULT_CODE CBaseResource::_init(IResourceManager* pResourceManager, const std::string& name)
 	{
 		if (mIsInitialized)
 		{

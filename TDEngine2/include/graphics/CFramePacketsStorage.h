@@ -59,7 +59,7 @@ namespace TDEngine2
 		public:
 			friend TDE2_API CFramePacketsStorage* CreateFramePacketsStorage(TAllocatorFactoryFunctor, E_RESULT_CODE&);
 		public:
-			TDE2_STATIC_CONSTEXPR U32 MAX_FRAME_PACKETS_COUNT = 16;
+			TDE2_STATIC_CONSTEXPR U32 MAX_FRAME_PACKETS_COUNT = 1;
 			static_assert((MAX_FRAME_PACKETS_COUNT & (MAX_FRAME_PACKETS_COUNT - 1)) == 0, "MAX_FRAME_PACKETS_COUNT should be power of 2");
 
 			enum class E_PACKET_STATE : U8

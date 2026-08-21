@@ -95,8 +95,8 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseFile)
 
-			TDE2_API virtual E_RESULT_CODE _onInit();
-			TDE2_API virtual E_RESULT_CODE _onFree() = 0;
+			virtual E_RESULT_CODE _onInit();
+			virtual E_RESULT_CODE _onFree() = 0;
 		protected:
 			TPtr<IStream>      mpStreamImpl;
 

@@ -125,7 +125,6 @@ namespace TDEngine2
 			*/
 
 			template <typename T, typename TResourceProviderInfo>
-			TDE2_API
 #if _HAS_CXX17
 			std::enable_if_t<std::is_base_of_v<IResource, T>, TResourceId>
 #else
@@ -137,7 +136,6 @@ namespace TDEngine2
 			}
 
 			template <typename T, typename TResourceProviderInfo>
-			TDE2_API
 #if _HAS_CXX17
 				std::enable_if_t<std::is_base_of_v<IResource, T>, TResourceId>
 #else
@@ -227,7 +225,6 @@ namespace TDEngine2
 
 			template <typename T>
 #if 0 /// \fixme Check this later
-			TDE2_API
 #if _HAS_CXX17
 			std::enable_if_t<std::is_base_of_v<IResource, T>, TResourceId>
 #else
@@ -265,7 +262,6 @@ namespace TDEngine2
 		
 			template <typename T>
 #if 0 /// \todo Fix this concept 
-			TDE2_API
 #if _HAS_CXX17
 			std::enable_if_t<std::is_base_of_v<IResource, T>, T*>
 #else
@@ -284,13 +280,12 @@ namespace TDEngine2
 			*/
 			
 			template <typename T>
-			TDE2_API const TPtr<IResourceLoader> GetResourceLoader() const
+			const TPtr<IResourceLoader> GetResourceLoader() const
 			{
 				return _getResourceLoader(T::GetTypeId());
 			}
 
 			template <typename T>
-			TDE2_API
 #if _HAS_CXX17
 				std::enable_if_t<std::is_base_of_v<IResource, T>, std::vector<std::string>>
 #else

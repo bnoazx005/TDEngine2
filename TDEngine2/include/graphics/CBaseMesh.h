@@ -143,7 +143,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBaseMesh)
 
-			TDE2_API std::vector<U8> _getIndicesArray(const E_INDEX_FORMAT_TYPE& indexFormat) const;
+			std::vector<U8> _getIndicesArray(const E_INDEX_FORMAT_TYPE& indexFormat) const;
 
 			virtual bool _hasVertexStreamInternal(E_VERTEX_STREAM_TYPE streamType) const;
 

@@ -114,7 +114,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CBasePluginManager)
 			
-			TDE2_API virtual E_RESULT_CODE _onFreeInternal();
+			virtual E_RESULT_CODE _onFreeInternal();
 		protected:
 			TPluginsMap        mLoadedPlugins;
 

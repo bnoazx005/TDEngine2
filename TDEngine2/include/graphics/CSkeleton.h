@@ -111,11 +111,11 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSkeleton)
 
-			TDE2_API E_RESULT_CODE _postLoad();
+			E_RESULT_CODE _postLoad();
 
-			TDE2_API U32 _insertJoint(TJoint jointData);
+			U32 _insertJoint(TJoint jointData);
 
-			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
+			const TPtr<IResourceLoader> _getResourceLoader() override;
 		protected:
 			std::vector<TJoint> mJoints;
 

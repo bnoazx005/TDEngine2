@@ -264,11 +264,11 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CTextureAtlas)
 
-			TDE2_API void _updateAtlasSizes(IResource* pTexture);
+			void _updateAtlasSizes(IResource* pTexture);
 
-			TDE2_API TResult<TResourceId> _createSubTexture(const std::string& id, const TRectI32& rect);
+			TResult<TResourceId> _createSubTexture(const std::string& id, const TRectI32& rect);
 
-			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
+			const TPtr<IResourceLoader> _getResourceLoader() override;
 
 			/// The context is lazy evaluated entity, so always use the method to access it
 			stbrp_context& _getAtlasEntitiesContext();

@@ -81,11 +81,11 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPackageFileReader)
 
-			TDE2_API E_RESULT_CODE _onInit() override;
+			E_RESULT_CODE _onInit() override;
 			//TDE2_API E_RESULT_CODE _onFree() override;
 
-			TDE2_API E_RESULT_CODE _readPackageHeader();
-			TDE2_API E_RESULT_CODE _readFilesTableDescription();
+			E_RESULT_CODE _readPackageHeader();
+			E_RESULT_CODE _readFilesTableDescription();
 		private:
 			TPackageFileHeader mCurrHeader;
 			std::vector<TPackageFileEntryInfo> mFilesTable;
@@ -117,13 +117,13 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CPackageFileWriter)
 
-			TDE2_API E_RESULT_CODE _onInit() override;
-			TDE2_API E_RESULT_CODE _onFree() override;
+			E_RESULT_CODE _onInit() override;
+			E_RESULT_CODE _onFree() override;
 			
-			TDE2_API E_RESULT_CODE _writeFileInternal(TypeId fileTypeId, const std::string& path, const IFileReader& file, bool useCompression) override;
+			E_RESULT_CODE _writeFileInternal(TypeId fileTypeId, const std::string& path, const IFileReader& file, bool useCompression) override;
 
-			TDE2_API E_RESULT_CODE _writePackageHeader();
-			TDE2_API E_RESULT_CODE _writeFilesTableDescription();
+			E_RESULT_CODE _writePackageHeader();
+			E_RESULT_CODE _writeFilesTableDescription();
 		private:
 			TPackageFileHeader mCurrHeader;
 			std::vector<TPackageFileEntryInfo> mFilesTable;
