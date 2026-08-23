@@ -1,6 +1,7 @@
 #include "../../include/graphics/CGeometryBuilder.h"
 #include "../../include/math/MathUtils.h"
 #include "../../include/graphics/IDebugUtility.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include <cmath>
 
 
@@ -25,6 +26,8 @@ namespace TDEngine2
 
 	CGeometryBuilder::TGeometryData CGeometryBuilder::CreateCubeGeometry(const TVector3& position, F32 size)
 	{
+		TDE2_PROFILER_SCOPE("CGeometryBuilder::CreateCubeGeometry");
+
 		std::vector<TGeometryData::TVertex> vertices;
 
 		F32 halfSize = 0.5f * size;
@@ -88,6 +91,8 @@ namespace TDEngine2
 	
 	CGeometryBuilder::TGeometryData CGeometryBuilder::CreateCylinderGeometry(const TVector3& position, const TVector3& axis, F32 radius, F32 height, U16 segmentsCount)
 	{
+		TDE2_PROFILER_SCOPE("CGeometryBuilder::CreateCylinderGeometry");
+
 		F32 deltaAngle = 2.0f * CMathConstants::Pi / segmentsCount;
 
 		F32 currAngle = 0.0f;
@@ -156,6 +161,8 @@ namespace TDEngine2
 
 	CGeometryBuilder::TGeometryData CGeometryBuilder::CreateConeGeometry(const TVector3& position, const TVector3& axis, F32 radius, F32 height, U16 segmentsCount)
 	{
+		TDE2_PROFILER_SCOPE("CGeometryBuilder::CreateConeGeometry");
+
 		F32 deltaAngle = 2.0f * CMathConstants::Pi / segmentsCount;
 
 		F32 currAngle = 0.0f;
@@ -205,6 +212,8 @@ namespace TDEngine2
 
 	CGeometryBuilder::TGeometryData CGeometryBuilder::CreatePlaneGeometry(const TVector3& position, const TVector3& normal, F32 width, F32 height, U16 segmentsPerSide)
 	{
+		TDE2_PROFILER_SCOPE("CGeometryBuilder::CreatePlaneGeometry");
+
 		std::vector<TGeometryData::TVertex> vertices;
 		std::vector<U16> faces;
 
@@ -255,6 +264,8 @@ namespace TDEngine2
 
 	CGeometryBuilder::TGeometryData CGeometryBuilder::CreateTranslateGizmo(E_GIZMO_TYPE type)
 	{
+		TDE2_PROFILER_SCOPE("CGeometryBuilder::CreateTranslateGizmo");
+
 		constexpr F32 axisRadius = 0.02f;
 		constexpr F32 axisTipRadius = 0.1f;
 
@@ -317,6 +328,7 @@ namespace TDEngine2
 
 	CGeometryBuilder::TGeometryData CGeometryBuilder::CreateRotationGizmo(E_GIZMO_TYPE type)
 	{
+		TDE2_PROFILER_SCOPE("CGeometryBuilder::CreateRotationGizmo");
 		TDE2_ASSERT(type == E_GIZMO_TYPE::ROTATION || type == E_GIZMO_TYPE::ROTATION_X || type == E_GIZMO_TYPE::ROTATION_Y || type == E_GIZMO_TYPE::ROTATION_Z);
 
 		std::vector<TGeometryData::TVertex> verts;
@@ -358,6 +370,7 @@ namespace TDEngine2
 
 	CGeometryBuilder::TGeometryData CGeometryBuilder::CreateScaleGizmo(E_GIZMO_TYPE type)
 	{
+		TDE2_PROFILER_SCOPE("CGeometryBuilder::CreateScaleGizmo");
 		TDE2_ASSERT(type == E_GIZMO_TYPE::SCALING || type == E_GIZMO_TYPE::SCALING_X || type == E_GIZMO_TYPE::SCALING_Y || type == E_GIZMO_TYPE::SCALING_Z);
 
 		constexpr F32 axisRadius    = 0.02f;
@@ -423,6 +436,7 @@ namespace TDEngine2
 	CGeometryBuilder::TGeometryData CGeometryBuilder::CreateSolidArcGeometry(const TVector3& position, const TVector3& normal, F32 radius,
 										 F32 fromAngle, F32 toAngle, bool isLooped, F32 width, U16 segmentsCount)
 	{
+		TDE2_PROFILER_SCOPE("CGeometryBuilder::CreateSolidArcGeometry");
 		std::vector<TGeometryData::TVertex> verts;
 		std::vector<U16> indices;
 

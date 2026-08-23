@@ -3618,7 +3618,7 @@ namespace TDEngine2
 		mpGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_FRAME, reinterpret_cast<const U8*>(&perFrameShaderData), sizeof(perFrameShaderData));		
 		mpGlobalShaderProperties->Bind();
 
-		mpDebugUtility->PreRender();
+		mpDebugUtility->PreRender(mpFramePacketsStorage->GetCurrentFrameForRender().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_DEBUG)]);
 
 		if (!mLightGridData.mIsTileFrustumsInitialized)
 		{

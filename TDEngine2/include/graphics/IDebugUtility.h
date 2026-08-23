@@ -22,8 +22,12 @@ namespace TDEngine2
 	class IResourceManager;
 	class IRenderer;
 	class IGraphicsObjectManager;
+	class CRenderQueue;
 	struct TAABB;
 	union TMatrix4;
+
+
+	TDE2_DECLARE_SCOPED_PTR(CRenderQueue);
 
 
 	/*!
@@ -156,7 +160,7 @@ namespace TDEngine2
 				\brief The method prepares internal state of the helper before it will be actually rendered
 			*/
 
-			TDE2_API virtual void PreRender() = 0;
+			TDE2_API virtual void PreRender(TPtr<CRenderQueue> pRenderQueue) = 0;
 
 			/*!
 				\brief The method resets current state of the helper

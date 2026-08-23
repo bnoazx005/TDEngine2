@@ -18,8 +18,10 @@
 
 namespace TDEngine2
 {
-	class CFramePacketsStorage;
 	class IGeometryBuilder;
+
+
+	TDE2_DECLARE_SCOPED_PTR(IGeometryBuilder);
 
 
 	enum class TBufferHandleId : U32;
@@ -97,7 +99,7 @@ namespace TDEngine2
 				\brief The method prepares internal state of the helper before it will be actually rendered
 			*/
 
-			TDE2_API void PreRender() override;
+			TDE2_API void PreRender(TPtr<CRenderQueue> pRenderQueue) override;
 
 			/*!
 				\brief The method resets current state of the helper
@@ -183,14 +185,10 @@ namespace TDEngine2
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CDebugUtility)
 
 			std::vector<U32> _buildTextIndexBuffer(U32 textLength) const;
-
-			E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			IGraphicsObjectManager*  mpGraphicsObjectManager;
 
 			IResourceManager*        mpResourceManager;
-
-			CFramePacketsStorage*    mpFramePacketsStorage = nullptr;
 
 			TBufferHandleId          mLinesVertexBufferHandle;
 
@@ -213,7 +211,7 @@ namespace TDEngine2
 
 			const static std::string mTextMaterialName;
 
-			IGeometryBuilder*        mpGeometryBuilder;
+			TPtr<IGeometryBuilder>   mpGeometryBuilder = nullptr;
 
 			mutable std::mutex       mMutex;
 	};

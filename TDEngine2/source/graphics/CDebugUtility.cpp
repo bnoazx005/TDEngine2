@@ -50,8 +50,6 @@ namespace TDEngine2
 		mpResourceManager       = pResourceManager;
 		mpGraphicsObjectManager = pGraphicsObjectManager;
 
-		mpFramePacketsStorage = pRenderer->GetFramePacketsStorage().Get();
-
 		mLinesVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer({ 
 				E_BUFFER_USAGE_TYPE::DYNAMIC, 
 				E_BUFFER_TYPE::STRUCTURED, 
@@ -100,7 +98,7 @@ namespace TDEngine2
 				E_STRUCTURED_BUFFER_TYPE::DEFAULT
 			}).Get();
 
-		mpGeometryBuilder = CreateGeometryBuilder(result);
+		mpGeometryBuilder = TPtr<IGeometryBuilder>(CreateGeometryBuilder(result));
 
 		if (result != RC_OK)
 		{
@@ -112,15 +110,8 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CDebugUtility::_onFreeInternal()
+	void CDebugUtility::PreRender(TPtr<CRenderQueue> pRenderQueue)
 	{
-		return mpGeometryBuilder ? mpGeometryBuilder->Free() : RC_FAIL;
-	}
-
-	void CDebugUtility::PreRender()
-	{
-		TPtr<CRenderQueue> pRenderQueue = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_DEBUG)];
-
 		auto pLinesVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(mLinesVertexBufferHandle);
 		if (pLinesVertexBuffer && !mLinesDataBuffer.empty())
 		{
