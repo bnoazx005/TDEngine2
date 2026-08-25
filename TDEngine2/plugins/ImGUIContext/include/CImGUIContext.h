@@ -29,6 +29,8 @@ namespace TDEngine2
 
 	class IVertexDeclaration;
 
+	struct TImGUIFramePacketData;
+
 	enum class TMaterialInstanceId : U32;
 	enum class TBufferHandleId : U32;
 
@@ -59,6 +61,7 @@ namespace TDEngine2
 			typedef std::stack<ImDrawList*> TDrawListsStack;
 			typedef std::vector<TResourceId> TResourceHandlesArray;
 
+			typedef std::unique_ptr<TImGUIFramePacketData> TImGUIFramePacketDataPtr;
 		public:
 			/*!
 				\brief The method initializes an internal state of a context
@@ -102,6 +105,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void EndFrame() override;
+
+			TDE2_API E_RESULT_CODE FillFramePacket(TFramePacket& framePacket) override;
 
 			/*!
 				\brief The method returns a type of the subsystem
@@ -619,7 +624,8 @@ namespace TDEngine2
 			TDE2_API ImDrawList* GetCurrActiveDrawList() const;
 
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CImGUIContext)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS_NO_DCTR(CImGUIContext)
+			TDE2_API virtual ~CImGUIContext();
 
 			TDE2_API E_RESULT_CODE _initInternalImGUIContext(ImGuiIO& io);
 
@@ -630,7 +636,7 @@ namespace TDEngine2
 
 			TDE2_API E_RESULT_CODE _initSystemFonts(ImGuiIO& io, IResourceManager* pResourceManager, IGraphicsObjectManager* pGraphicsManager);
 
-			TDE2_API void _engineInternalRender(ImDrawData* pImGUIData, CRenderQueue* pRenderQueue);
+			TDE2_API void _processRenderCommands(ImDrawData* pImGUIData);
 
 			TDE2_API void _initInputMappings(ImGuiIO& io);
 
@@ -672,6 +678,8 @@ namespace TDEngine2
 			std::unordered_map<U32, TVector2> mElementsPositionMap;
 
 			// \todo Refactor this later
-			bool                    mIsGradientColorEditorOpened = false;
+			bool                     mIsGradientColorEditorOpened = false;
+
+			TImGUIFramePacketDataPtr mpPendingFramePacketData = nullptr;
 	};
 }

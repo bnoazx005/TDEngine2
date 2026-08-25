@@ -32,6 +32,7 @@ namespace TDEngine2
 	union TMatrix4;
 	class CGradientColor;
 	class IGraphicsContext;
+	struct TFramePacket;
 
 	enum class E_GIZMO_TYPE : U8;
 
@@ -159,6 +160,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API virtual void EndFrame() = 0;
+
+			TDE2_API virtual E_RESULT_CODE FillFramePacket(TFramePacket& framePacket) = 0;
 
 			/*!
 				\brief The method creates a label within current active window

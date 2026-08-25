@@ -36,8 +36,35 @@
 
 namespace TDEngine2
 {
+	struct TImGUIFramePacketData
+	{
+		struct TImGUIDrawCommand
+		{
+			U32                     mElementsCount = 0;
+			U32                     mVertexOffset = 0;
+			U32                     mIndexOffset = 0;
+			TResourceId             mTextureId = TResourceId::Invalid;
+			std::optional<TRectU32> mClipRect = std::nullopt;
+		};
+
+		typedef Vector<ImDrawVert>        TVertexArray;
+		typedef Vector<ImDrawIdx>         TIndexArray;
+		typedef Vector<TImGUIDrawCommand> TCommandsArray;
+
+		TVertexArray   mVertices{};
+		TIndexArray    mIndices{};
+		TCommandsArray mCommands{};
+
+		TRectF32       mDisplayRect{};
+	};
+
+
 	CImGUIContext::CImGUIContext():
 		CBaseObject()
+	{
+	}
+
+	CImGUIContext::~CImGUIContext()
 	{
 	}
 
@@ -63,7 +90,7 @@ namespace TDEngine2
 		mpResourceManager       = params.mpResourceManager;
 		mpInputContext          = params.mpInputContext;
 		mpFramePacketsStorage   = params.mpRenderer->GetFramePacketsStorage().Get();
-
+		
 		if (!mpGraphicsContext) // \note the really strange case, but if it's happened we should check for it
 		{
 			return RC_FAIL;
@@ -96,7 +123,13 @@ namespace TDEngine2
 		{
 			return result;
 		}
-		
+
+		mpPendingFramePacketData = std::make_unique<TImGUIFramePacketData>();
+		if (!mpPendingFramePacketData)
+		{
+			return RC_FAIL;
+		}
+
 		// \note Setup Dear ImGui style
 		ImGui::StyleColorsDark();
 
@@ -178,7 +211,92 @@ namespace TDEngine2
 			ImGui::ResetMouseDragDelta(i);
 		}
 
-		_engineInternalRender(ImGui::GetDrawData(), mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_DEBUG_UI)].Get());
+		_processRenderCommands(ImGui::GetDrawData());
+	}
+
+	constexpr USIZE VERTEX_BUFFER_CHUNK_SIZE = 8192 * sizeof(ImDrawVert);
+	constexpr USIZE INDEX_BUFFER_CHUNK_SIZE  = 4096 * sizeof(U16);
+
+	E_RESULT_CODE CImGUIContext::FillFramePacket(TFramePacket& framePacket)
+	{
+		// \todo For now keep single vertex/index buffer as is, but later they should be replaced with transient buffers a pair per game frame's update to prevent same buffers access violations
+		auto pVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(mVertexBufferHandle);
+		auto pIndexBuffer = mpGraphicsObjectManager->GetBufferPtr(mIndexBufferHandle);
+
+		TImGUIFramePacketData::TVertexArray& pendingVertices   = mpPendingFramePacketData->mVertices;
+		TImGUIFramePacketData::TIndexArray& pendingIndices     = mpPendingFramePacketData->mIndices;
+
+		pVertexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
+		pIndexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
+		{
+			if (pendingVertices.size() > pVertexBuffer->GetSize() / sizeof(ImDrawVert))
+			{
+				pVertexBuffer->Resize(pVertexBuffer->GetSize() + VERTEX_BUFFER_CHUNK_SIZE);
+				pVertexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
+			}
+
+			if (pendingIndices.size() > pIndexBuffer->GetSize() / sizeof(ImDrawIdx))
+			{
+				pIndexBuffer->Resize(pIndexBuffer->GetSize() + INDEX_BUFFER_CHUNK_SIZE);
+				pIndexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
+			}
+
+			if (!pendingVertices.empty())
+			{
+				pVertexBuffer->Write(pendingVertices.data(), sizeof(ImDrawVert) * pendingVertices.size());
+			}
+
+			if (!pendingIndices.empty())
+			{
+				pIndexBuffer->Write(pendingIndices.data(), sizeof(ImDrawIdx) * pendingIndices.size());
+			}
+		}
+		pIndexBuffer->Unmap();
+		pVertexBuffer->Unmap();
+
+		const TRectF32 displaySizes = mpPendingFramePacketData->mDisplayRect;
+
+		const TMatrix4 projectionMatrix = mpGraphicsContext->CalcOrthographicMatrix(displaySizes.x, displaySizes.y,
+			displaySizes.x + displaySizes.width,
+			displaySizes.y + displaySizes.height,
+			0.0f, 1.0f, true);
+
+		CRenderQueue* pRenderQueue = framePacket.mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_DEBUG_UI)].Get();
+
+		U32 batchId = 0;
+
+		for (const TImGUIFramePacketData::TImGUIDrawCommand& currDrawCommand : mpPendingFramePacketData->mCommands)
+		{
+			TDrawIndexedCommand* pCurrDrawCommand = pRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>((0xFFFFFFF0 - batchId++));
+
+			TPtr<ITexture> pTexture = mpResourceManager->GetResource<ITexture>(currDrawCommand.mTextureId);
+			if (!pTexture)
+			{
+				continue;
+			}
+
+			auto&& uvRect = pTexture ? pTexture->GetNormalizedTextureRect() : TRectF32{ 0.0f, 0.0f, 1.0f, 1.0f };
+
+			pCurrDrawCommand->mObjectData.mModelMatrix = Transpose(projectionMatrix); // \note assign it as ModelMat and don't use global ProjMat
+			pCurrDrawCommand->mObjectData.mTextureTransformDesc = TVector4(uvRect.x, uvRect.y, uvRect.width, uvRect.height);
+
+			pCurrDrawCommand->mVertexBufferHandle = mVertexBufferHandle;
+			pCurrDrawCommand->mIndexBufferHandle  = mIndexBufferHandle;
+			pCurrDrawCommand->mMaterialHandle     = mDefaultEditorMaterialHandle;
+			pCurrDrawCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+			pCurrDrawCommand->mNumOfIndices       = currDrawCommand.mElementsCount;
+			pCurrDrawCommand->mMaterialInstanceId = mUsingMaterials[static_cast<U32>(currDrawCommand.mTextureId)];
+
+			pCurrDrawCommand->mObjectData.mStartVertexOffset = currDrawCommand.mVertexOffset;
+			pCurrDrawCommand->mObjectData.mStartIndexOffset  = currDrawCommand.mIndexOffset;
+
+			if (currDrawCommand.mClipRect)
+			{
+				pCurrDrawCommand->mScissorRect = *currDrawCommand.mClipRect;
+			}
+		}
+
+		return RC_OK;
 	}
 
 	E_ENGINE_SUBSYSTEM_TYPE CImGUIContext::GetType() const
@@ -1192,11 +1310,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	
-	static constexpr USIZE VertexBufferChunkSize = 8192 * sizeof(ImDrawVert);
-	static constexpr USIZE IndexBufferChunkSize = 65536 * sizeof(U16);
-
-
 	void CImGUIContext::_updateInputState(ImGuiIO& io, IInputContext* pInputContext)
 	{
 		IDesktopInputContext* pDesktopInputCtx = dynamic_cast<IDesktopInputContext*>(mpInputContext.Get());
@@ -1240,8 +1353,8 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 
-		auto vertexBufferResult = pGraphicsManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::STRUCTURED, VertexBufferChunkSize, nullptr,
-					VertexBufferChunkSize,
+		auto vertexBufferResult = pGraphicsManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::STRUCTURED, VERTEX_BUFFER_CHUNK_SIZE, nullptr,
+					VERTEX_BUFFER_CHUNK_SIZE,
 					false,
 					sizeof(ImDrawVert),
 					E_STRUCTURED_BUFFER_TYPE::DEFAULT });
@@ -1252,8 +1365,8 @@ namespace TDEngine2
 
 		mVertexBufferHandle = vertexBufferResult.Get();
 
-		auto indexBufferResult = pGraphicsManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::STRUCTURED, IndexBufferChunkSize, nullptr,
-					IndexBufferChunkSize,
+		auto indexBufferResult = pGraphicsManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::STRUCTURED, INDEX_BUFFER_CHUNK_SIZE, nullptr,
+					INDEX_BUFFER_CHUNK_SIZE,
 					false,
 					sizeof(U32),
 					E_STRUCTURED_BUFFER_TYPE::DEFAULT });
@@ -1324,68 +1437,23 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void CImGUIContext::_engineInternalRender(ImDrawData* pImGUIData, CRenderQueue* pRenderQueue)
+	void CImGUIContext::_processRenderCommands(ImDrawData* pImGUIData)
 	{
-		auto pVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(mVertexBufferHandle);
-		auto pIndexBuffer = mpGraphicsObjectManager->GetBufferPtr(mIndexBufferHandle);
+		TImGUIFramePacketData::TVertexArray& pendingVertices = mpPendingFramePacketData->mVertices;
+		TImGUIFramePacketData::TIndexArray& pendingIndices = mpPendingFramePacketData->mIndices;
+		TImGUIFramePacketData::TCommandsArray& pendingCommands = mpPendingFramePacketData->mCommands;
 
-		pVertexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
-		pIndexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
-		{
-			std::vector<ImDrawVert> vertices(pImGUIData->TotalVtxCount);
-			std::vector<ImDrawIdx> indices(pImGUIData->TotalIdxCount);
+		pendingVertices.clear();
+		pendingIndices.clear();
+		pendingCommands.clear();
 
-			ImDrawVert* pCurrVertexPtr = !vertices.empty() ? &vertices[0] : nullptr;
-			ImDrawIdx* pCurrIndexPtr = !indices.empty() ? &indices[0] : nullptr;
+		pendingVertices.reserve(pImGUIData->TotalVtxCount);
+		pendingIndices.reserve(pImGUIData->TotalIdxCount);
 
-			for (I32 n = 0; n < pImGUIData->CmdListsCount; ++n)
-			{
-				const ImDrawList* pCommandList = pImGUIData->CmdLists[n];
-
-				memcpy(pCurrVertexPtr, pCommandList->VtxBuffer.Data, pCommandList->VtxBuffer.Size * sizeof(ImDrawVert));
-				memcpy(pCurrIndexPtr, pCommandList->IdxBuffer.Data, pCommandList->IdxBuffer.Size * sizeof(ImDrawIdx));
-				
-				pCurrVertexPtr += pCommandList->VtxBuffer.Size;
-				pCurrIndexPtr  += pCommandList->IdxBuffer.Size;
-			}
-
-			if (vertices.size() > pVertexBuffer->GetSize() / sizeof(ImDrawVert))
-			{
-				pVertexBuffer->Resize(pVertexBuffer->GetSize() + VertexBufferChunkSize);
-				pVertexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
-			}
-
-			if (indices.size() > pIndexBuffer->GetSize() / sizeof(ImDrawIdx))
-			{
-				pIndexBuffer->Resize(pIndexBuffer->GetSize() + IndexBufferChunkSize);
-				pIndexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
-			}
-
-			if (!vertices.empty())
-			{
-				pVertexBuffer->Write(&vertices[0], sizeof(ImDrawVert) * vertices.size());
-			}
-
-			if (!indices.empty())
-			{
-				pIndexBuffer->Write(&indices[0], sizeof(ImDrawIdx) * indices.size());
-			}
-		}
-		pIndexBuffer->Unmap();
-		pVertexBuffer->Unmap();
-
-		// \note Render command lists
-		I32 currIndexOffset  = 0;
+		I32 currIndexOffset = 0;
 		I32 currVertexOffset = 0;
 
-		TMatrix4 projectionMatrix = mpGraphicsContext->CalcOrthographicMatrix(pImGUIData->DisplayPos.x, pImGUIData->DisplayPos.y,
-																			  pImGUIData->DisplayPos.x + pImGUIData->DisplaySize.x,
-																			  pImGUIData->DisplayPos.y + pImGUIData->DisplaySize.y,
-																			  0.0f, 1.0f, true);
-
 		ImVec2 clipRect = pImGUIData->DisplayPos;
-
-		U32 batchId = 0x0;
 
 		TPtr<IMaterial> pMaterial = mpResourceManager->GetResource<IMaterial>(mDefaultEditorMaterialHandle);
 
@@ -1393,59 +1461,52 @@ namespace TDEngine2
 		{
 			const ImDrawList* pCommandList = pImGUIData->CmdLists[n];
 
+			pendingVertices.insert(pendingVertices.end(), pCommandList->VtxBuffer.Data, pCommandList->VtxBuffer.Data + pCommandList->VtxBuffer.Size);
+			pendingIndices.insert(pendingIndices.end(), pCommandList->IdxBuffer.Data, pCommandList->IdxBuffer.Data + pCommandList->IdxBuffer.Size);
+
 			for (I32 currCommandIndex = 0; currCommandIndex < pCommandList->CmdBuffer.Size; ++currCommandIndex)
 			{
 				const ImDrawCmd* pCurrCommand = &pCommandList->CmdBuffer[currCommandIndex];
-				
-				const TResourceId textureHandle = *static_cast<const TResourceId*>(pCurrCommand->TextureId);
-				const U32 textureHandleHash = static_cast<U32>(textureHandle);
 
-				if (mUsingMaterials.find(static_cast<U32>(textureHandle)) == mUsingMaterials.cend()) // \note create a new instance
+				const TResourceId textureResourceHandle = *static_cast<const TResourceId*>(pCurrCommand->TextureId);
+				const U32 textureHandleHash = static_cast<U32>(textureResourceHandle);
+
+				if (mUsingMaterials.find(textureHandleHash) == mUsingMaterials.cend()) // \note create a new instance
 				{
-					mUsingMaterials.emplace(static_cast<U32>(textureHandle), pMaterial->CreateInstance()->GetInstanceId());
+					mUsingMaterials.emplace(textureHandleHash, pMaterial->CreateInstance()->GetInstanceId());
 				}
-				
-				TPtr<ITexture> pTexture = mpResourceManager->GetResource<ITexture>(textureHandle);
+
+				TPtr<ITexture> pTexture = mpResourceManager->GetResource<ITexture>(textureResourceHandle);
 
 				pMaterial->SetTextureResource("Texture", pTexture.Get(), mUsingMaterials[textureHandleHash]);
 
-				TDrawIndexedCommand* pCurrDrawCommand = pRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>((0xFFFFFFF0 - batchId));
-
-				auto&& uvRect = pTexture ? pTexture->GetNormalizedTextureRect() : TRectF32{ 0.0f, 0.0f, 1.0f, 1.0f };
-
-				pCurrDrawCommand->mObjectData.mModelMatrix = Transpose(projectionMatrix); // \note assign it as ModelMat and don't use global ProjMat
-				pCurrDrawCommand->mObjectData.mTextureTransformDesc = TVector4(uvRect.x, uvRect.y, uvRect.width, uvRect.height);
-
-				pCurrDrawCommand->mVertexBufferHandle = mVertexBufferHandle;
-				pCurrDrawCommand->mIndexBufferHandle  = mIndexBufferHandle;
-				pCurrDrawCommand->mMaterialHandle     = mDefaultEditorMaterialHandle;
-				pCurrDrawCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-				pCurrDrawCommand->mNumOfIndices       = pCurrCommand->ElemCount;
-				pCurrDrawCommand->mMaterialInstanceId = mUsingMaterials[textureHandleHash];
-
-				pCurrDrawCommand->mObjectData.mStartVertexOffset = pCurrCommand->VtxOffset + currVertexOffset;
-				pCurrDrawCommand->mObjectData.mStartIndexOffset  = pCurrCommand->IdxOffset + currIndexOffset;
-
 				const TVector2 clipMin(pCurrCommand->ClipRect.x - clipRect.x, pCurrCommand->ClipRect.y - clipRect.y);
 				const TVector2 clipMax(pCurrCommand->ClipRect.z - clipRect.x, pCurrCommand->ClipRect.w - clipRect.y);
-				
-				if (clipMax.x < clipMin.x || clipMax.y < clipMin.y)
-				{
-					continue;
-				}
 
-				pCurrDrawCommand->mScissorRect = TRectU32(
-					static_cast<U32>(clipMin.x), 
-					static_cast<U32>(clipMin.y), 
-					static_cast<U32>(CMathUtils::Abs(clipMax.x - clipMin.x)), 
-					static_cast<U32>(CMathUtils::Abs(clipMax.y - clipMin.y)));
-
-				++batchId;
+				pendingCommands.push_back(
+					{
+						pCurrCommand->ElemCount,
+						static_cast<U32>(pCurrCommand->VtxOffset + currVertexOffset),
+						static_cast<U32>(pCurrCommand->IdxOffset + currIndexOffset),
+						textureResourceHandle,
+						(clipMax.x < clipMin.x || clipMax.y < clipMin.y) ? std::nullopt : std::optional 
+						{
+							TRectU32
+							{
+								static_cast<U32>(clipMin.x),
+								static_cast<U32>(clipMin.y),
+								static_cast<U32>(CMathUtils::Abs(clipMax.x - clipMin.x)),
+								static_cast<U32>(CMathUtils::Abs(clipMax.y - clipMin.y))
+							}
+						}
+					});
 			}
 
-			currIndexOffset  += pCommandList->IdxBuffer.Size;
+			currIndexOffset += pCommandList->IdxBuffer.Size;
 			currVertexOffset += pCommandList->VtxBuffer.Size;
 		}
+
+		mpPendingFramePacketData->mDisplayRect = TRectF32{ clipRect.x, clipRect.y, pImGUIData->DisplaySize.x, pImGUIData->DisplaySize.y };
 	}
 
 	void CImGUIContext::_initInputMappings(ImGuiIO& io)
