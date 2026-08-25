@@ -140,6 +140,11 @@ namespace TDEngine2
 
 #endif
 
+	// \fixme Remove later when logic and render threads will be separated properly
+	std::mutex              mRenderThreadMutex{};
+	std::condition_variable mRenderThreadSignal{};
+	std::atomic_bool        mIsGameFrameReady{ false };
+
 
 	E_RESULT_CODE CEngineCore::Run()
 	{
@@ -245,8 +250,13 @@ namespace TDEngine2
 			TDE2_SAVE_REPORT_PROFILE("TDEngine_StartUp");
 		}
 
+		std::thread renderLogicThread{ std::bind(&CEngineCore::_onRenderLogicUpdate, this) };
 		/// \todo replace _onFrameUpdateCallback with a user defined callback
 		pWindowSystem->Run(std::bind(&CEngineCore::_onFrameUpdateCallback, this));
+
+		mRenderThreadSignal.notify_all();
+
+		renderLogicThread.join();
 		
 		return RC_OK;
 	}
@@ -366,11 +376,6 @@ namespace TDEngine2
 
 		_onGameLogicUpdate();
 
-		if (IRenderer* pRenderer = _getSubsystemAs<IRenderer>(EST_RENDERER))
-		{
-			pRenderer->Draw(mpInternalTimer->GetCurrTime(), mpInternalTimer->GetDeltaTime());
-		}
-
 		if (IJobManager* pJobManager = _getSubsystemAs<IJobManager>(EST_JOB_MANAGER))
 		{
 			pJobManager->ProcessMainThreadQueue();
@@ -391,52 +396,52 @@ namespace TDEngine2
 		TDE2_PROFILER_SCOPE("CEngineCore::_onGameLogicUpdate");
 		TDE2_BUILTIN_SPEC_PROFILER_EVENT(E_SPECIAL_PROFILE_EVENT::UPDATE);
 
+		// \fixme Remove later, for now it's used to wait for end of rendering in the separate thread
+		while (mIsGameFrameReady.load() != false)
+		{
+			std::this_thread::yield();
+		}
+
 		if (mpInputContext)
 		{
 			mpInputContext->Update();
 		}
 
+		const F32 dt = mpInternalTimer->GetDeltaTime();
+
+		mpWorldInstance->Update(dt);
+
+		if (mpImGUIContext)
 		{
-			const F32 dt = mpInternalTimer->GetDeltaTime();
-
-			mpWorldInstance->Update(dt);
-
-			if (mpImGUIContext)
-			{
-				mpImGUIContext->BeginFrame(dt);
-			}
+			mpImGUIContext->BeginFrame(dt);
+		}
 
 #if TDE2_EDITORS_ENABLED
-			if (mpEditorsManager)
-			{
-				mpEditorsManager->Update(dt);
-			}
+		if (mpEditorsManager)
+		{
+			mpEditorsManager->Update(dt);
+		}
 
-			mpWorldInstance->DebugOutput(mpDebugUtility, dt);
+		mpWorldInstance->DebugOutput(mpDebugUtility, dt);
 #endif
 
-			mpWorldInstance->SyncSystemsExecution();
+		mpWorldInstance->SyncSystemsExecution();
 
-			/// \note The internal callback will be invoked when the execution process will go out of the scope
-			defer([this]()
-				{
-					if (mpImGUIContext)
-					{
-						mpImGUIContext->EndFrame();
-					}
-				});
-
-			_onNotifyEngineListeners(E_ENGINE_EVENT_TYPE::ON_UPDATE);
-
-			if (IEventManager* pEventManager = _getSubsystemAs<IEventManager>(EST_EVENT_MANAGER))
-			{
-				pEventManager->FlushAll();
-			}
-		}
+		_onNotifyEngineListeners(E_ENGINE_EVENT_TYPE::ON_UPDATE);
 
 		if (auto pGameModesManager = _getSubsystemAs<IGameModesManager>(EST_GAME_MODES_MANAGER))
 		{
 			pGameModesManager->Update(mpInternalTimer->GetDeltaTime());
+		}
+
+		if (IEventManager* pEventManager = _getSubsystemAs<IEventManager>(EST_EVENT_MANAGER))
+		{
+			pEventManager->FlushAll();
+		}
+
+		if (mpImGUIContext)
+		{
+			mpImGUIContext->EndFrame();
 		}
 
 		if (IAudioContext* pAudioContext = _getSubsystemAs<IAudioContext>(EST_AUDIO_CONTEXT))
@@ -444,9 +449,44 @@ namespace TDEngine2
 			pAudioContext->Update();
 		}
 
+		// \todo Implement sync point here (where all the data will be copied into frame packet for the renderer)
+
 		if (IRenderer* pRenderer = _getSubsystemAs<IRenderer>(EST_RENDERER))
 		{
+			// \todo For now there is no special sync point where we copy all the relevant data into the frame packet fill it here
+			if (mpImGUIContext)
+			{
+				mpImGUIContext->FillFramePacket(pRenderer->GetFramePacketsStorage()->GetCurrentFrameForGameLogic());
+			}
+
 			pRenderer->GetFramePacketsStorage()->IncrementGameLogicFrameCounter();
+		}
+
+		// \fixme Remove later, for now it's used to synchronize game logic and render threads
+		mIsGameFrameReady.store(true);
+		mRenderThreadSignal.notify_one();
+	}
+
+	void CEngineCore::_onRenderLogicUpdate()
+	{
+#if TDE2_DEBUG_MODE && defined(TDE2_USE_WINPLATFORM)
+		tracy::SetThreadName("RenderThread");
+#endif
+
+		IWindowSystem* pWindowSystem = _getSubsystemAs<IWindowSystem>(EST_WINDOW);
+		IRenderer* pRenderer         = _getSubsystemAs<IRenderer>(EST_RENDERER);
+
+		while (pWindowSystem->IsRunning())
+		{
+			std::unique_lock<std::mutex> lock(mRenderThreadMutex);
+			mRenderThreadSignal.wait(lock, [pWindowSystem] { return mIsGameFrameReady.load() == true || !pWindowSystem->IsRunning(); });
+
+			if (pRenderer)
+			{
+				pRenderer->Draw(mpInternalTimer->GetCurrTime(), mpInternalTimer->GetDeltaTime());
+			}
+
+			mIsGameFrameReady.store(false);
 		}
 	}
 

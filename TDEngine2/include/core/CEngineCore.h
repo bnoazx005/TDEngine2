@@ -159,6 +159,7 @@ namespace TDEngine2
 
 			void _onFrameUpdateCallback();
 			void _onGameLogicUpdate();
+			void _onRenderLogicUpdate();
 
 			E_RESULT_CODE _onNotifyEngineListeners(E_ENGINE_EVENT_TYPE eventType);
 
