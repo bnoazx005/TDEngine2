@@ -76,7 +76,7 @@ namespace TDEngine2
 
 		TDE2_API E_RESULT_CODE Submit(const TRenderCommandSubmitParams& params) override;
 
-		TBufferHandleId   mBufferHandle;
+		TBufferHandleId   mBufferHandle = TBufferHandleId::Invalid;
 		E_BUFFER_MAP_TYPE mMapType;
 		USIZE             mMapOffset = 0;
 		const void*       mpData = nullptr;
@@ -134,8 +134,8 @@ namespace TDEngine2
 
 		TDE2_API E_RESULT_CODE Submit(const TRenderCommandSubmitParams& params) override;
 
-		U32 mNumOfVertices;
-		U32 mStartVertex;
+		U32 mNumOfVertices = 0;
+		U32 mStartVertex = 0;
 	} TDrawCommand, *TDrawCommandPtr;
 
 
@@ -151,11 +151,11 @@ namespace TDEngine2
 
 		TDE2_API E_RESULT_CODE Submit(const TRenderCommandSubmitParams& params) override;
 
-		U32             mNumOfIndices;
-		U32             mStartIndex;
-		U32             mStartVertex;
+		U32             mNumOfIndices = 0;
+		U32             mStartIndex = 0;
+		U32             mStartVertex = 0;
 
-		TBufferHandleId mIndexBufferHandle;
+		TBufferHandleId mIndexBufferHandle = TBufferHandleId::Invalid;
 	} TDrawIndexedCommand, *TDrawIndexedCommandPtr;
 
 
@@ -171,15 +171,15 @@ namespace TDEngine2
 
 		TDE2_API E_RESULT_CODE Submit(const TRenderCommandSubmitParams& params) override;
 
-		U32            mStartVertex;
+		U32            mStartVertex = 0;
 
-		U32            mVerticesPerInstance;
+		U32            mVerticesPerInstance = 0;
 
-		U32            mStartInstance;
+		U32            mStartInstance = 0;
 
-		U32            mNumOfInstances;
+		U32            mNumOfInstances = 0;
 
-		IVertexBuffer* mpInstancingBuffer;		
+		IVertexBuffer* mpInstancingBuffer = nullptr;		
 	} TDrawInstancedCommand, *TDrawInstancedCommandPtr;
 
 
@@ -195,14 +195,14 @@ namespace TDEngine2
 
 		TDE2_API E_RESULT_CODE Submit(const TRenderCommandSubmitParams& params) override;
 
-		U32            mBaseVertexIndex;
-		U32            mStartIndex;
-		U32            mStartInstance;
-		U32            mIndicesPerInstance;
-		U32            mNumOfInstances;
+		U32            mBaseVertexIndex = 0;
+		U32            mStartIndex = 0;
+		U32            mStartInstance = 0;
+		U32            mIndicesPerInstance = 0;
+		U32            mNumOfInstances = 0;
 
-		TBufferHandleId mIndexBufferHandle;
-		TBufferHandleId mInstancingBufferHandle;
+		TBufferHandleId mIndexBufferHandle = TBufferHandleId::Invalid;
+		TBufferHandleId mInstancingBufferHandle = TBufferHandleId::Invalid;
 	} TDrawIndexedInstancedCommand, *TDrawIndexedInstancedCommandPtr;
 
 
@@ -218,12 +218,12 @@ namespace TDEngine2
 
 		TDE2_API E_RESULT_CODE Submit(const TRenderCommandSubmitParams& params) override;
 
-		TBufferHandleId mIndexBufferHandle;
+		TBufferHandleId mIndexBufferHandle = TBufferHandleId::Invalid;
 
 		U32             mAlignedOffset = 0;
 		bool            mUseIndexedCommand = false;
 
-		TBufferHandleId mArgsBufferHandle;
+		TBufferHandleId mArgsBufferHandle = TBufferHandleId::Invalid;
 	} TDrawIndirectIndexedInstancedCommand, *TDrawIndirectIndexedInstancedCommandPtr;
 
 

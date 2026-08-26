@@ -664,16 +664,13 @@ namespace TDEngine2
 
 			TResourceId             mDefaultEditorMaterialHandle;
 
-			TBufferHandleId         mVertexBufferHandle;
-			TBufferHandleId         mIndexBufferHandle;
-
 			CFramePacketsStorage*   mpFramePacketsStorage = nullptr;
 
 			bool                    mIsHorizontalGroupEnabled = false;
 
 			TDrawListsStack         mpDrawListsContext;
 
-			std::unordered_map<uintptr_t, TMaterialInstanceId> mUsingMaterials;
+			std::unordered_map<TResourceId, TMaterialInstanceId> mUsingMaterials;
 
 			std::unordered_map<U32, TVector2> mElementsPositionMap;
 

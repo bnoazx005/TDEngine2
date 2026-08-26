@@ -217,14 +217,67 @@ namespace TDEngine2
 	constexpr USIZE VERTEX_BUFFER_CHUNK_SIZE = 8192 * sizeof(ImDrawVert);
 	constexpr USIZE INDEX_BUFFER_CHUNK_SIZE  = 4096 * sizeof(U16);
 
+
+	static TResult<TBufferHandleId> CreateBuffer(IGraphicsObjectManager* pGraphicsObjectManager, USIZE size, USIZE strideSize)
+	{
+		TDE2_PROFILER_SCOPE("CreateBuffer");
+
+		auto createBufferResult = pGraphicsObjectManager->CreateBuffer(
+			{ 
+					E_BUFFER_USAGE_TYPE::DYNAMIC,
+					E_BUFFER_TYPE::STRUCTURED,
+					size,
+					nullptr,
+					size,
+					false,
+					strideSize,
+					E_STRUCTURED_BUFFER_TYPE::DEFAULT 
+			});
+		
+		return createBufferResult;
+	}
+
+
 	E_RESULT_CODE CImGUIContext::FillFramePacket(TFramePacket& framePacket)
 	{
-		// \todo For now keep single vertex/index buffer as is, but later they should be replaced with transient buffers a pair per game frame's update to prevent same buffers access violations
-		auto pVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(mVertexBufferHandle);
-		auto pIndexBuffer = mpGraphicsObjectManager->GetBufferPtr(mIndexBufferHandle);
+		TDE2_PROFILER_SCOPE("CImGUIContext::FillFramePacket");
 
-		TImGUIFramePacketData::TVertexArray& pendingVertices   = mpPendingFramePacketData->mVertices;
-		TImGUIFramePacketData::TIndexArray& pendingIndices     = mpPendingFramePacketData->mIndices;
+		TFramePacket::TImGUIFrameData& imGuiData = framePacket.mImGUIFrameData;
+
+		if (TBufferHandleId::Invalid == imGuiData.mVertexBufferHandle)
+		{
+			auto createVertexBufferResult = CreateBuffer(mpGraphicsObjectManager, VERTEX_BUFFER_CHUNK_SIZE, sizeof(ImDrawVert));
+			if (createVertexBufferResult.HasError())
+			{
+				LOG_ERROR(Wrench::StringUtils::Format("[CImGUIContext] Failed to create vertex buffer: {0}", createVertexBufferResult.GetError()));
+				return createVertexBufferResult.GetError();
+			}
+
+			imGuiData.mVertexBufferHandle = createVertexBufferResult.Get();
+		}
+
+		if (TBufferHandleId::Invalid == imGuiData.mIndexBufferHandle)
+		{
+			auto createIndexBufferResult = CreateBuffer(mpGraphicsObjectManager, INDEX_BUFFER_CHUNK_SIZE, sizeof(U32));
+			if (createIndexBufferResult.HasError())
+			{
+				LOG_ERROR(Wrench::StringUtils::Format("[CImGUIContext] Failed to create index buffer: {0}", createIndexBufferResult.GetError()));
+				return createIndexBufferResult.GetError();
+			}
+
+			imGuiData.mIndexBufferHandle = createIndexBufferResult.Get();
+		}
+
+		auto pVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(imGuiData.mVertexBufferHandle);
+		auto pIndexBuffer = mpGraphicsObjectManager->GetBufferPtr(imGuiData.mIndexBufferHandle);
+
+		if (!pVertexBuffer || !pIndexBuffer)
+		{
+			return RC_FAIL;
+		}
+
+		TImGUIFramePacketData::TVertexArray& pendingVertices = mpPendingFramePacketData->mVertices;
+		TImGUIFramePacketData::TIndexArray& pendingIndices   = mpPendingFramePacketData->mIndices;
 
 		pVertexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
 		pIndexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
@@ -254,12 +307,12 @@ namespace TDEngine2
 		pIndexBuffer->Unmap();
 		pVertexBuffer->Unmap();
 
-		const TRectF32 displaySizes = mpPendingFramePacketData->mDisplayRect;
+		const TRectF32& displaySizes = mpPendingFramePacketData->mDisplayRect;
 
-		const TMatrix4 projectionMatrix = mpGraphicsContext->CalcOrthographicMatrix(displaySizes.x, displaySizes.y,
+		const TMatrix4 projectionMatrix = Transpose(mpGraphicsContext->CalcOrthographicMatrix(displaySizes.x, displaySizes.y,
 			displaySizes.x + displaySizes.width,
 			displaySizes.y + displaySizes.height,
-			0.0f, 1.0f, true);
+			0.0f, 1.0f, true));
 
 		CRenderQueue* pRenderQueue = framePacket.mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_DEBUG_UI)].Get();
 
@@ -277,15 +330,15 @@ namespace TDEngine2
 
 			auto&& uvRect = pTexture ? pTexture->GetNormalizedTextureRect() : TRectF32{ 0.0f, 0.0f, 1.0f, 1.0f };
 
-			pCurrDrawCommand->mObjectData.mModelMatrix = Transpose(projectionMatrix); // \note assign it as ModelMat and don't use global ProjMat
+			pCurrDrawCommand->mObjectData.mModelMatrix          = projectionMatrix; // \note assign it as ModelMat and don't use global ProjMat
 			pCurrDrawCommand->mObjectData.mTextureTransformDesc = TVector4(uvRect.x, uvRect.y, uvRect.width, uvRect.height);
 
-			pCurrDrawCommand->mVertexBufferHandle = mVertexBufferHandle;
-			pCurrDrawCommand->mIndexBufferHandle  = mIndexBufferHandle;
+			pCurrDrawCommand->mVertexBufferHandle = imGuiData.mVertexBufferHandle;
+			pCurrDrawCommand->mIndexBufferHandle  = imGuiData.mIndexBufferHandle;
 			pCurrDrawCommand->mMaterialHandle     = mDefaultEditorMaterialHandle;
 			pCurrDrawCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 			pCurrDrawCommand->mNumOfIndices       = currDrawCommand.mElementsCount;
-			pCurrDrawCommand->mMaterialInstanceId = mUsingMaterials[static_cast<U32>(currDrawCommand.mTextureId)];
+			pCurrDrawCommand->mMaterialInstanceId = mUsingMaterials[currDrawCommand.mTextureId];
 
 			pCurrDrawCommand->mObjectData.mStartVertexOffset = currDrawCommand.mVertexOffset;
 			pCurrDrawCommand->mObjectData.mStartIndexOffset  = currDrawCommand.mIndexOffset;
@@ -1351,32 +1404,6 @@ namespace TDEngine2
 	{
 		io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
 
-		E_RESULT_CODE result = RC_OK;
-
-		auto vertexBufferResult = pGraphicsManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::STRUCTURED, VERTEX_BUFFER_CHUNK_SIZE, nullptr,
-					VERTEX_BUFFER_CHUNK_SIZE,
-					false,
-					sizeof(ImDrawVert),
-					E_STRUCTURED_BUFFER_TYPE::DEFAULT });
-		if (vertexBufferResult.HasError())
-		{
-			return vertexBufferResult.GetError();
-		}
-
-		mVertexBufferHandle = vertexBufferResult.Get();
-
-		auto indexBufferResult = pGraphicsManager->CreateBuffer({ E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::STRUCTURED, INDEX_BUFFER_CHUNK_SIZE, nullptr,
-					INDEX_BUFFER_CHUNK_SIZE,
-					false,
-					sizeof(U32),
-					E_STRUCTURED_BUFFER_TYPE::DEFAULT });
-		if (indexBufferResult.HasError())
-		{
-			return indexBufferResult.GetError();
-		}
-
-		mIndexBufferHandle = indexBufferResult.Get();
-
 		// \note load default editor's material (depth test and writing to the depth buffer are disabled)
 		TMaterialParameters editorUIMaterialParams { "Shaders/Default/UI/EditorUI.shader", true, { false, false } };
 
@@ -1390,6 +1417,8 @@ namespace TDEngine2
 		rasterizerParams.mIsScissorTestEnabled = true;
 
 		mDefaultEditorMaterialHandle = pResourceManager->Create<IMaterial>("DefaultEditorUIMaterial.material", editorUIMaterialParams);
+
+		E_RESULT_CODE result = RC_OK;
 
 		// \note Create a font texture
 		if ((result = _initSystemFonts(io, pResourceManager, pGraphicsManager)) != RC_OK)
@@ -1439,8 +1468,10 @@ namespace TDEngine2
 
 	void CImGUIContext::_processRenderCommands(ImDrawData* pImGUIData)
 	{
-		TImGUIFramePacketData::TVertexArray& pendingVertices = mpPendingFramePacketData->mVertices;
-		TImGUIFramePacketData::TIndexArray& pendingIndices = mpPendingFramePacketData->mIndices;
+		TDE2_PROFILER_SCOPE("CImGUIContext::_processRenderCommands");
+
+		TImGUIFramePacketData::TVertexArray& pendingVertices   = mpPendingFramePacketData->mVertices;
+		TImGUIFramePacketData::TIndexArray& pendingIndices     = mpPendingFramePacketData->mIndices;
 		TImGUIFramePacketData::TCommandsArray& pendingCommands = mpPendingFramePacketData->mCommands;
 
 		pendingVertices.clear();
@@ -1469,16 +1500,14 @@ namespace TDEngine2
 				const ImDrawCmd* pCurrCommand = &pCommandList->CmdBuffer[currCommandIndex];
 
 				const TResourceId textureResourceHandle = *static_cast<const TResourceId*>(pCurrCommand->TextureId);
-				const U32 textureHandleHash = static_cast<U32>(textureResourceHandle);
-
-				if (mUsingMaterials.find(textureHandleHash) == mUsingMaterials.cend()) // \note create a new instance
+				if (mUsingMaterials.find(textureResourceHandle) == mUsingMaterials.cend()) // \note create a new instance
 				{
-					mUsingMaterials.emplace(textureHandleHash, pMaterial->CreateInstance()->GetInstanceId());
+					mUsingMaterials.emplace(textureResourceHandle, pMaterial->CreateInstance()->GetInstanceId());
 				}
 
 				TPtr<ITexture> pTexture = mpResourceManager->GetResource<ITexture>(textureResourceHandle);
 
-				pMaterial->SetTextureResource("Texture", pTexture.Get(), mUsingMaterials[textureHandleHash]);
+				pMaterial->SetTextureResource("Texture", pTexture.Get(), mUsingMaterials[textureResourceHandle]);
 
 				const TVector2 clipMin(pCurrCommand->ClipRect.x - clipRect.x, pCurrCommand->ClipRect.y - clipRect.y);
 				const TVector2 clipMax(pCurrCommand->ClipRect.z - clipRect.x, pCurrCommand->ClipRect.w - clipRect.y);
@@ -1502,7 +1531,7 @@ namespace TDEngine2
 					});
 			}
 
-			currIndexOffset += pCommandList->IdxBuffer.Size;
+			currIndexOffset  += pCommandList->IdxBuffer.Size;
 			currVertexOffset += pCommandList->VtxBuffer.Size;
 		}
 

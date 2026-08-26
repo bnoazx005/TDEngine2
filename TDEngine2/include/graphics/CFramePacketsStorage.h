@@ -11,6 +11,7 @@
 #include "../graphics/InternalShaderData.h"
 #include "../graphics/IRenderer.h"
 #include "../graphics/effects/ParticleEmitters.h"
+#include "../graphics/IGraphicsObjectManager.h"
 #include <array>
 #include <mutex>
 #include <condition_variable>
@@ -37,6 +38,12 @@ namespace TDEngine2
 		typedef std::array<TPtr<IAllocator>, NumOfRenderQueuesGroup>   TAllocatorsArray;
 		typedef std::vector<TEmitterUniformsData>                      TGPUParticleEmittersArray;
 
+		struct TImGUIFrameData
+		{
+			TBufferHandleId mVertexBufferHandle = TBufferHandleId::Invalid;
+			TBufferHandleId mIndexBufferHandle = TBufferHandleId::Invalid;
+		};
+
 		U32                       mFrameIndex = 0;
 		F32                       mDeltaTime = 0.0f; ///< Also it could be retrieved from mPerFrameData.mTime.y
 		
@@ -48,6 +55,8 @@ namespace TDEngine2
 		TGPUParticleEmittersArray mGpuParticleEmitters;
 
 		TLightsDataArray          mActiveLightSources;
+
+		TImGUIFrameData           mImGUIFrameData{};
 	} TFramePacket, *TFramePacketPtr;
 
 
