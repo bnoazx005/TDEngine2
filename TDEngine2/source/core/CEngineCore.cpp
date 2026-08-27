@@ -454,6 +454,8 @@ namespace TDEngine2
 		if (IRenderer* pRenderer = _getSubsystemAs<IRenderer>(EST_RENDERER))
 		{
 			// \todo For now there is no special sync point where we copy all the relevant data into the frame packet fill it here
+			mpWorldInstance->FillFramePacket(pRenderer->GetFramePacketsStorage()->GetCurrentFrameForGameLogic());
+			
 			if (mpImGUIContext)
 			{
 				mpImGUIContext->FillFramePacket(pRenderer->GetFramePacketsStorage()->GetCurrentFrameForGameLogic());

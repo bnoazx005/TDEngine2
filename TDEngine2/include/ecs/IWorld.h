@@ -33,6 +33,7 @@ namespace TDEngine2
 	class IComponentFactory;
 	class IDebugUtility;
 	class IECSCommandBuffer;
+	struct TFramePacket;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IEventManager)
@@ -444,6 +445,8 @@ namespace TDEngine2
 #endif
 
 			TDE2_API virtual void SyncSystemsExecution() = 0;
+
+			TDE2_API virtual void FillFramePacket(TFramePacket& framePacket) = 0;
 
 			/*!
 				\brief The method returns a pointer to IRaycastContext, use

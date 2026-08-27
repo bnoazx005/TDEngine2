@@ -159,6 +159,11 @@ namespace TDEngine2
 		TSystemId internalSystemPriority = TSystemId(static_cast<U32>(priority) << 16 | lastUsedSystemId);
 
 		mpActiveSystems.push_back({ internalSystemPriority, pSystem });
+		
+		if (auto pRenderSystem = DynamicPtrCast<IRenderSystem>(pSystem))
+		{
+			mpRenderSystems.emplace_back(pRenderSystem);
+		}
 
 		return Wrench::TOkValue<TSystemId>(TSystemId(internalSystemPriority));
 	}
@@ -219,6 +224,11 @@ namespace TDEngine2
 
 		mpActiveSystems.emplace_back(*targetSystemIter);
 
+		if (auto pRenderSystem = DynamicPtrCast<IRenderSystem>(targetSystemIter->mpSystem))
+		{
+			mpRenderSystems.emplace_back(pRenderSystem);
+		}
+
 		mpDeactivatedSystems.erase(targetSystemIter);
 
 		return RC_OK;
@@ -238,6 +248,11 @@ namespace TDEngine2
 		if (TPtr<ISystem> pSystem = targetSystemIter->mpSystem)
 		{
 			pSystem->OnDeactivated();
+		}
+
+		if (auto pRenderSystem = DynamicPtrCast<IRenderSystem>(targetSystemIter->mpSystem))
+		{
+			mpRenderSystems.erase(std::find(mpRenderSystems.cbegin(), mpRenderSystems.cend(), pRenderSystem));
 		}
 
 		mpDeactivatedSystems.emplace_back(*targetSystemIter);
@@ -396,6 +411,17 @@ namespace TDEngine2
 		}
 	}
 
+	void CSystemManager::FillFramePacket(TFramePacket& framePacket)
+	{
+		TDE2_PROFILER_SCOPE("CSystemManager::FillFramePacket");
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		for (TPtr<IRenderSystem> pRenderSystem : mpRenderSystems)
+		{
+			pRenderSystem->FillFramePacket(framePacket);
+		}
+	}
+
 	E_RESULT_CODE CSystemManager::DestroySystems()
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
@@ -490,6 +516,11 @@ namespace TDEngine2
 		if (targetSystemIter == mpActiveSystems.end()) /// specified system is not registred yet
 		{
 			return RC_FAIL;
+		}
+
+		if (auto pRenderSystem = DynamicPtrCast<IRenderSystem>(targetSystemIter->mpSystem))
+		{
+			mpRenderSystems.erase(std::find(mpRenderSystems.cbegin(), mpRenderSystems.cend(), pRenderSystem));
 		}
 
 		mpActiveSystems.erase(targetSystemIter);

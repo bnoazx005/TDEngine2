@@ -235,6 +235,8 @@ namespace TDEngine2
 
 			TDE2_API void SyncSystemsExecution() override;
 
+			TDE2_API void FillFramePacket(TFramePacket& framePacket) override;
+
 			/*!
 				\brief The method returns a pointer to IRaycastContext, use
 

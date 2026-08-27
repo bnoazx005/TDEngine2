@@ -322,6 +322,11 @@ namespace TDEngine2
 		mpSystemManager->SyncSystemsExecution();
 	}
 
+	void CWorld::FillFramePacket(TFramePacket& framePacket)
+	{
+		mpSystemManager->FillFramePacket(framePacket);
+	}
+
 	TPtr<IRaycastContext> CWorld::GetRaycastContext() const
 	{
 		std::lock_guard<std::mutex> lock(mMutex);

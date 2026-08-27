@@ -17,6 +17,7 @@ namespace TDEngine2
 	class IWorld;
 	class IEventManager;
 	class IJobManager;
+	struct TFramePacket;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IJobManager)
@@ -116,6 +117,8 @@ namespace TDEngine2
 			TDE2_API virtual void Update(IWorld* pWorld, F32 dt) = 0;
 
 			TDE2_API virtual void SyncSystemsExecution() = 0;
+			
+			TDE2_API virtual void FillFramePacket(TFramePacket& framePacket) = 0;
 
 			/*!
 				\brief The method unregisters and frees all existing systems

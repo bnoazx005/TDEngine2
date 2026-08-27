@@ -23,6 +23,7 @@ namespace TDEngine2
 {
 	class IWorld;
 	class ISystem;
+	class IRenderSystem;
 	class CEngineCore;
 
 
@@ -72,11 +73,13 @@ namespace TDEngine2
 				TPtr<ISystem> mpSystem;
 			} TSystemDesc, *TSystemDescPtr;
 
-			typedef std::vector<TSystemDesc>                       TSystemsArray;
+			typedef std::vector<TSystemDesc>                             TSystemsArray;
 
-			typedef std::list<TSystemDesc>                         TSystemsList;
+			typedef Vector<TPtr<IRenderSystem>>                          TRenderSystemsArray;
 
-			typedef std::unordered_map<E_SYSTEM_PRIORITY, U32>     TSystemsAccountTable;
+			typedef std::list<TSystemDesc>                               TSystemsList;
+
+			typedef std::unordered_map<E_SYSTEM_PRIORITY, U32>           TSystemsAccountTable;
 
 			typedef std::vector<std::unique_ptr<TSystemAutoInitializer>> TSystemsInitializersArray;
 		public:
@@ -172,6 +175,8 @@ namespace TDEngine2
 
 			TDE2_API void SyncSystemsExecution() override;
 
+			TDE2_API void FillFramePacket(TFramePacket& framePacket) override;
+
 			/*!
 				\brief The method calls ISystem::OnDestroy method on each system
 
@@ -240,6 +245,8 @@ namespace TDEngine2
 
 			TSystemsList         mpDeactivatedSystems{};
 			
+			TRenderSystemsArray  mpRenderSystems{}; ///< Contains systems that implements IRenderSystem and are currently active
+
 			IEventManager*       mpEventManager = nullptr;
 
 			IWorld*              mpWorld = nullptr;

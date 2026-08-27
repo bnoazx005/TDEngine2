@@ -780,8 +780,6 @@ namespace TDEngine2
 			pPtr->AddRef();
 		}
 
-		TDE2_ASSERT(dynamic_cast<T*>(pPtr));
-
 		return CScopedPtr<T>(dynamic_cast<T*>(pPtr));
 	}
 

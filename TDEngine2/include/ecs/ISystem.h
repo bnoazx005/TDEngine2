@@ -148,4 +148,16 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(ISystem)
 	};
+
+
+	struct TFramePacket;
+
+
+	class IRenderSystem : public virtual ISystem
+	{
+		public:
+			TDE2_API virtual E_RESULT_CODE FillFramePacket(TFramePacket& framePacket) = 0;
+		protected:
+			DECLARE_INTERFACE_PROTECTED_MEMBERS(IRenderSystem)
+	};
 }
