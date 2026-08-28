@@ -50,7 +50,6 @@ namespace TDEngine2
 		}
 
 		mpRenderer              = pRenderer;
-		mpFramePacketsStorage   = pRenderer->GetFramePacketsStorage().Get();
 		mpGraphicsObjectManager = pGraphicsObjectManager;
 		mpResourceManager       = pRenderer->GetResourceManager();
 
@@ -114,36 +113,105 @@ namespace TDEngine2
 			{
 				// \note first pass (construct an array of materials)
 				// \note Materials: | {opaque_material_group1}, ..., {opaque_material_groupN} | {transp_material_group1}, ..., {transp_material_groupM} |
-				_collectUsedMaterials(mProcessingEntities, mpResourceManager.Get(), mCurrMaterialsArray);
-
-				const U32 opaqueMaterialsCount = static_cast<U32>(std::min<USIZE>(mCurrMaterialsArray.size(), std::distance(mCurrMaterialsArray.cbegin(), std::find_if(mCurrMaterialsArray.cbegin(), mCurrMaterialsArray.cend(),
-					[](auto&& pCurrMaterial) { return pCurrMaterial->IsTransparent(); }))));
-
-				CRenderQueue* pOpaqueRenderGroup = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_OPAQUE_GEOMETRY)].Get();
-				CRenderQueue* pTransparentRenderGroup = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_TRANSPARENT_GEOMETRY)].Get();
-				CRenderQueue* pDepthOnlyRenderGroup = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_DEPTH_PREPASS)].Get();
+				const USIZE opaqueMaterialsCount = _collectUsedMaterials(mProcessingEntities, mpResourceManager.Get(), mCurrMaterialsArray);
 
 				// \note construct commands for opaque geometry
-				for (U32 i = 0; i < opaqueMaterialsCount; ++i)
+				for (USIZE i = 0; i < opaqueMaterialsCount; ++i)
 				{
-					_populateCommandsBuffer(mProcessingEntities, pOpaqueRenderGroup, pDepthOnlyRenderGroup, mCurrMaterialsArray[i], mpCameraComponent);
+					_prepareLocalRenderCommands(mProcessingEntities, mCurrMaterialsArray[i], mpCameraComponent, mVisibleOpaqueMeshes);
 				}
 
 				// \note construct commands for transparent geometry
-				for (U32 i = opaqueMaterialsCount; i < mCurrMaterialsArray.size(); ++i)
+				for (USIZE i = opaqueMaterialsCount; i < mCurrMaterialsArray.size(); ++i)
 				{
-					_populateCommandsBuffer(mProcessingEntities, pTransparentRenderGroup, nullptr, mCurrMaterialsArray[i], mpCameraComponent);
+					_prepareLocalRenderCommands(mProcessingEntities, mCurrMaterialsArray[i], mpCameraComponent, mVisibleTransparentMeshes);
 				}
 			});
 	}
 
-	void CSkinnedMeshRendererSystem::_collectUsedMaterials(const TSystemContext& entities, IResourceManager* pResourceManager, TMaterialsArray& usedMaterials)
+
+	static void AddRenderCommandInternal(TPtr<IResourceManager> pResourceManager, TPtr<CRenderQueue> pMainRenderQueue, TPtr<CRenderQueue> pDepthOnlyRenderQueue, const CSkinnedMeshRendererSystem::TMeshDrawEntry& meshEntry)
+	{
+		TDE2_PROFILER_SCOPE("CSkinnedMeshRendererSystem::AddRenderCommandInternal");
+
+		TDrawIndexedCommand* pCommand = pMainRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(
+			static_cast<U32>(meshEntry.mGeometrySubGroupTag) + (static_cast<U32>(meshEntry.mMaterialHandle) << 16) | static_cast<U16>(fabs(meshEntry.mDistanceToCamera)));
+
+		TPtr<ISkinnedMesh> pSharedMeshResource = pResourceManager->GetResource<ISkinnedMesh>(meshEntry.mMeshHandle);
+		if (!pSharedMeshResource)
+		{
+			return;
+		}
+
+		pCommand->mVertexBufferHandle = meshEntry.mSharedPositionOnlyVertexBufferHandle;
+		pCommand->mIndexBufferHandle = pSharedMeshResource->GetSharedIndexBuffer();
+
+		for (U32 i = 1; i < static_cast<U32>(E_VERTEX_STREAM_TYPE::COUNT); ++i)
+		{
+			pCommand->mAdditionalVertexBuffers[i - 1] = pSharedMeshResource->GetVertexBufferForStream(static_cast<E_VERTEX_STREAM_TYPE>(i));
+		}
+
+		pCommand->mMaterialHandle                = meshEntry.mMaterialHandle;
+		pCommand->mMaterialInstanceId            = meshEntry.mMaterialInstanceId;
+		pCommand->mStartIndex                    = meshEntry.mStartIndex;
+		pCommand->mNumOfIndices                  = meshEntry.mIndicesCount;
+		pCommand->mPrimitiveType                 = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+		pCommand->mObjectData.mModelMatrix       = meshEntry.mModelMat;
+		pCommand->mObjectData.mInvModelMatrix    = meshEntry.mInvModelMat;
+		pCommand->mObjectData.mStartIndexOffset  = meshEntry.mStartIndex;
+		pCommand->mObjectData.mVertexFormatFlags = meshEntry.mVertexFormatFlags;
+
+		if (pDepthOnlyRenderQueue && E_GEOMETRY_SUBGROUP_TAGS::SKYBOX != meshEntry.mGeometrySubGroupTag)
+		{
+			auto pDepthOnlyCommand = pDepthOnlyRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(static_cast<U32>(fabs(meshEntry.mDistanceToCamera)));
+
+			pDepthOnlyCommand->mVertexBufferHandle           = pSharedMeshResource->GetVertexBufferForStream(E_VERTEX_STREAM_TYPE::POSITIONS);
+			pDepthOnlyCommand->mIndexBufferHandle            = pCommand->mIndexBufferHandle;
+			pDepthOnlyCommand->mMaterialHandle               = DepthOnlyMaterialHandle;
+			pDepthOnlyCommand->mStartIndex                   = pCommand->mStartIndex;
+			pDepthOnlyCommand->mNumOfIndices                 = pCommand->mNumOfIndices;
+			pDepthOnlyCommand->mPrimitiveType                = pCommand->mPrimitiveType;
+			pDepthOnlyCommand->mObjectData.mModelMatrix      = pCommand->mObjectData.mModelMatrix;
+			pDepthOnlyCommand->mObjectData.mInvModelMatrix   = pCommand->mObjectData.mInvModelMatrix;
+			pDepthOnlyCommand->mObjectData.mStartIndexOffset = pCommand->mStartIndex;
+			pCommand->mObjectData.mVertexFormatFlags         = pCommand->mObjectData.mVertexFormatFlags;
+		}
+	}
+
+
+	E_RESULT_CODE CSkinnedMeshRendererSystem::FillFramePacket(TFramePacket& framePacket)
+	{
+		TDE2_PROFILER_SCOPE("CSkinnedMeshRendererSystem::FillFramePacket");
+
+		TPtr<CRenderQueue> pOpaqueRenderGroup    = framePacket.mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_OPAQUE_GEOMETRY)];
+		TPtr<CRenderQueue> pDepthOnlyRenderGroup = framePacket.mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_DEPTH_PREPASS)];
+
+		for (const TMeshDrawEntry& currMeshEntry : mVisibleOpaqueMeshes)
+		{
+			AddRenderCommandInternal(mpResourceManager, pOpaqueRenderGroup, pDepthOnlyRenderGroup, currMeshEntry);
+		}
+
+		TPtr<CRenderQueue> pTransparentRenderGroup = framePacket.mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_TRANSPARENT_GEOMETRY)];
+
+		for (const TMeshDrawEntry& currMeshEntry : mVisibleTransparentMeshes)
+		{
+			AddRenderCommandInternal(mpResourceManager, pTransparentRenderGroup, nullptr, currMeshEntry);
+		}
+
+		mVisibleOpaqueMeshes.clear();
+		mVisibleTransparentMeshes.clear();
+
+		return RC_OK;
+	}
+
+	USIZE CSkinnedMeshRendererSystem::_collectUsedMaterials(const TSystemContext& entities, IResourceManager* pResourceManager, TMaterialsArray& usedMaterials)
 	{
 		usedMaterials.clear();
 
 		TJobCounter counter{};
-
 		std::mutex mutex;
+
+		std::atomic_size_t opaqueMaterialsCount = 0;
 
 		mpJobManager->SubmitMultipleJobs(&counter, static_cast<U32>(entities.size()), 1, [&](const TJobArgs& args)
 			{
@@ -163,6 +231,12 @@ namespace TDEngine2
 						return;
 					}
 
+					const bool isTransparent = pCurrMaterial->IsTransparent();
+					if (!isTransparent)
+					{
+						++opaqueMaterialsCount;
+					}
+
 					{
 						std::lock_guard<std::mutex> lock(mutex);
 						// \note skip duplicates
@@ -171,12 +245,14 @@ namespace TDEngine2
 							return;
 						}
 
-						usedMaterials.insert(pCurrMaterial->IsTransparent() ? usedMaterials.end() : usedMaterials.begin(), pCurrMaterial);
+						usedMaterials.insert(isTransparent ? usedMaterials.end() : usedMaterials.begin(), pCurrMaterial);
 					}
 				}
 			});
 
 		mpJobManager->WaitForJobCounter(counter);
+
+		return std::min<USIZE>(opaqueMaterialsCount, usedMaterials.size());
 	}
 
 
@@ -221,8 +297,7 @@ namespace TDEngine2
 	}
 
 
-	void CSkinnedMeshRendererSystem::_populateCommandsBuffer(const TSystemContext& entities, CRenderQueue*& pRenderGroup, CRenderQueue* pDepthOnlyRenderGroup,
-															TPtr<IMaterial> pCurrMaterial, const ICamera* pCamera)
+	void CSkinnedMeshRendererSystem::_prepareLocalRenderCommands(const TSystemContext& entities, TPtr<IMaterial> pCurrMaterial, const ICamera* pCamera, Vector<TMeshDrawEntry>& visibleMeshes)
 	{
 		auto iter = entities.begin();
 
@@ -317,55 +392,24 @@ namespace TDEngine2
 
 			auto&& objectTransformMatrix = pTransform->GetLocalToWorldTransform();
 
-			F32 distanceToCamera = ((viewMatrix * objectTransformMatrix) * TVector4(0.0f, 0.0f, 1.0f, 1.0f)).z;
+			TMeshDrawEntry meshDrawCommandEntry{};
+			meshDrawCommandEntry.mDistanceToCamera                     = ((viewMatrix * objectTransformMatrix) * TVector4(0.0f, 0.0f, 1.0f, 1.0f)).z;
+			meshDrawCommandEntry.mGeometrySubGroupTag                  = pCastedMaterial->GetGeometrySubGroupTag();
+			meshDrawCommandEntry.mSharedPositionOnlyVertexBufferHandle = pSharedMeshResource->GetVertexBufferForStream(E_VERTEX_STREAM_TYPE::POSITIONS);
+			meshDrawCommandEntry.mSharedIndexBufferHandle              = pSharedMeshResource->GetSharedIndexBuffer();
+			meshDrawCommandEntry.mMeshHandle                           = sharedMeshId;
+			meshDrawCommandEntry.mMaterialHandle                       = currMaterialId;
+			meshDrawCommandEntry.mMaterialInstanceId                   = materialInstance;
+			meshDrawCommandEntry.mModelMat                             = Transpose(objectTransformMatrix);
+			meshDrawCommandEntry.mInvModelMat                          = Transpose(Inverse(objectTransformMatrix));
+			meshDrawCommandEntry.mStartIndex                           = subMeshInfo.mStartIndex;
+			meshDrawCommandEntry.mIndicesCount                         = subMeshInfo.mIndicesCount;
+			meshDrawCommandEntry.mVertexFormatFlags                    = pSharedMeshResource->GetVertexFormatFlags();
 
-			// create a command for the renderer
-			auto pCommand = pRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(static_cast<U32>(pCastedMaterial->GetGeometrySubGroupTag()) + 
-																				 _computeMeshCommandHash(currMaterialId, distanceToCamera));
-			
-			TDE2_ASSERT(pCommand);
-
-			pCommand->mVertexBufferHandle = pSharedMeshResource->GetVertexBufferForStream(E_VERTEX_STREAM_TYPE::POSITIONS);
-
-			for (U32 i = 1; i < static_cast<U32>(E_VERTEX_STREAM_TYPE::COUNT); ++i)
-			{
-				pCommand->mAdditionalVertexBuffers[i - 1] = pSharedMeshResource->GetVertexBufferForStream(static_cast<E_VERTEX_STREAM_TYPE>(i));
-			}
-
-			pCommand->mIndexBufferHandle             = pSharedMeshResource->GetSharedIndexBuffer();
-			pCommand->mMaterialHandle                = currMaterialId;
-			pCommand->mMaterialInstanceId            = materialInstance;
-			pCommand->mNumOfIndices                  = subMeshInfo.mIndicesCount;
-			pCommand->mStartIndex                    = subMeshInfo.mStartIndex;
-			pCommand->mPrimitiveType                 = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-			pCommand->mObjectData.mModelMatrix       = Transpose(objectTransformMatrix);
-			pCommand->mObjectData.mInvModelMatrix    = Transpose(Inverse(objectTransformMatrix));
-			pCommand->mObjectData.mStartIndexOffset  = subMeshInfo.mStartIndex;
-			pCommand->mObjectData.mVertexFormatFlags = pSharedMeshResource->GetVertexFormatFlags();
-
-			if (pDepthOnlyRenderGroup && E_GEOMETRY_SUBGROUP_TAGS::SKYBOX != pCastedMaterial->GetGeometrySubGroupTag())
-			{
-				auto pDepthOnlyCommand = pDepthOnlyRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(static_cast<U32>(fabs(distanceToCamera)));
-
-				pDepthOnlyCommand->mVertexBufferHandle            = pSharedMeshResource->GetVertexBufferForStream(E_VERTEX_STREAM_TYPE::POSITIONS);
-				pDepthOnlyCommand->mIndexBufferHandle             = pCommand->mIndexBufferHandle;
-				pDepthOnlyCommand->mMaterialHandle                = DepthOnlyMaterialHandle;
-				pDepthOnlyCommand->mStartIndex                    = pCommand->mStartIndex;
-				pDepthOnlyCommand->mNumOfIndices                  = pCommand->mNumOfIndices;
-				pDepthOnlyCommand->mPrimitiveType                 = pCommand->mPrimitiveType;
-				pDepthOnlyCommand->mObjectData.mModelMatrix       = pCommand->mObjectData.mModelMatrix;
-				pDepthOnlyCommand->mObjectData.mInvModelMatrix    = pCommand->mObjectData.mInvModelMatrix;
-				pDepthOnlyCommand->mObjectData.mStartIndexOffset  = pCommand->mStartIndex;
-				pDepthOnlyCommand->mObjectData.mVertexFormatFlags = pCommand->mObjectData.mVertexFormatFlags;
-			}
+			visibleMeshes.emplace_back(meshDrawCommandEntry);
 
 			++iter;
 		}
-	}
-
-	U32 CSkinnedMeshRendererSystem::_computeMeshCommandHash(TResourceId materialId, F32 distanceToCamera)
-	{
-		return (static_cast<U32>(materialId) << 16) | static_cast<U16>(fabs(distanceToCamera));
 	}
 
 

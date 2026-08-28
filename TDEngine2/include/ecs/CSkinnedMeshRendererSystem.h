@@ -8,6 +8,7 @@
 
 
 #include "CBaseSystem.h"
+#include "../math/TMatrix4.h"
 #include <vector>
 #include <tuple>
 
@@ -28,10 +29,11 @@ namespace TDEngine2
 	class CEntity;
 	class ICamera;
 	class CBoundsComponent;
-	class CFramePacketsStorage;
 
 
 	enum class TBufferHandleId : U32;
+	enum class E_GEOMETRY_SUBGROUP_TAGS : U32;
+	enum class TMaterialInstanceId : U32;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
@@ -57,7 +59,7 @@ namespace TDEngine2
 		\brief The class is a system that processes ISkinnedMesh components
 	*/
 
-	class CSkinnedMeshRendererSystem : public CBaseSystem
+	class CSkinnedMeshRendererSystem : public CBaseSystem, public IRenderSystem
 	{
 		public:
 			friend TDE2_API ISystem* CreateSkinnedMeshRendererSystem(IRenderer* pRenderer, IGraphicsObjectManager* pGraphicsObjectManager, E_RESULT_CODE& result);
@@ -72,6 +74,28 @@ namespace TDEngine2
 			typedef std::vector<std::tuple<CTransform*, CSkinnedMeshContainer*, CBoundsComponent*>> TSystemContext;
 			typedef std::vector<TPtr<IMaterial>>                                                    TMaterialsArray;
 			typedef std::vector<TMeshBuffersEntry>                                                  TMeshBuffersMap;
+
+
+			struct TMeshDrawEntry
+			{
+				CSkinnedMeshContainer*   mpMeshContainer = nullptr;
+				TMatrix4                 mModelMat{};
+				TMatrix4                 mInvModelMat{};
+				TBufferHandleId          mSharedPositionOnlyVertexBufferHandle;
+				TBufferHandleId          mSharedIndexBufferHandle;
+				TResourceId              mMaterialHandle;
+				TResourceId              mMeshHandle;
+
+				U32                      mStartIndex = 0;
+				U32                      mIndicesCount = 0;
+				U32                      mVertexFormatFlags = 0;
+
+				F32                      mDistanceToCamera = 0.0f;
+				E_GEOMETRY_SUBGROUP_TAGS mGeometrySubGroupTag;
+
+				TMaterialInstanceId      mMaterialInstanceId;
+			};
+
 		public:
 			TDE2_SYSTEM(CSkinnedMeshRendererSystem);
 
@@ -105,15 +129,14 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void Update(IWorld* pWorld, F32 dt) override;
+
+			TDE2_API E_RESULT_CODE FillFramePacket(TFramePacket& framePacket) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSkinnedMeshRendererSystem)
 
-			void _collectUsedMaterials(const TSystemContext& entities, IResourceManager* pResourceManager, TMaterialsArray& usedMaterials);
+			USIZE _collectUsedMaterials(const TSystemContext& entities, IResourceManager* pResourceManager, TMaterialsArray& usedMaterials);
 
-			void _populateCommandsBuffer(const TSystemContext& entities, CRenderQueue*& pRenderGroup, CRenderQueue* pDepthOnlyRenderGroup, TPtr<IMaterial> pCurrMaterial,
-										 const ICamera* pCamera);
-
-			U32 _computeMeshCommandHash(TResourceId materialId, F32 distanceToCamera);
+			void _prepareLocalRenderCommands(const TSystemContext& entities, TPtr<IMaterial> pCurrMaterial, const ICamera* pCamera, Vector<TMeshDrawEntry>& visibleMeshes);
 		protected:
 			TSystemContext          mProcessingEntities;
 
@@ -122,12 +145,14 @@ namespace TDEngine2
 			TPtr<IResourceManager>  mpResourceManager = nullptr;
 			
 			IRenderer*              mpRenderer = nullptr;
-			CFramePacketsStorage*   mpFramePacketsStorage = nullptr;
 
 			TMaterialsArray         mCurrMaterialsArray;
 
 			TMeshBuffersMap         mMeshBuffersMap;
 
 			ICamera*                mpCameraComponent = nullptr;
+
+			Vector<TMeshDrawEntry>  mVisibleOpaqueMeshes{};
+			Vector<TMeshDrawEntry>  mVisibleTransparentMeshes{};
 	};
 }
