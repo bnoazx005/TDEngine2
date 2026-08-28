@@ -674,6 +674,6 @@ namespace TDEngine2
 			// \todo Refactor this later
 			bool                     mIsGradientColorEditorOpened = false;
 
-			TImGUIFramePacketDataPtr mpPendingFramePacketData = nullptr;
+			TImGUIFramePacketDataPtr mpPendingFramePacketData;
 	};
 }
