@@ -30,7 +30,6 @@ namespace TDEngine2
 	class CShadowReceiverComponent;
 	class CStaticMeshContainer;
 	class CSkinnedMeshContainer;
-	class CFramePacketsStorage;
 	class ITimer;
 
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
@@ -57,7 +56,7 @@ namespace TDEngine2
 		\brief The class is a system that processes ILighting components
 	*/
 
-	class CLightingSystem : public CBaseSystem
+	class CLightingSystem : public CBaseSystem, public IRenderSystem
 	{
 		public:
 			friend TDE2_API ISystem* CreateLightingSystem(IRenderer*, IGraphicsObjectManager*, TPtr<ITimer>, E_RESULT_CODE& result);
@@ -69,6 +68,15 @@ namespace TDEngine2
 			typedef TComponentsQueryLocalSlice<CShadowReceiverComponent, CStaticMeshContainer>            TStaticShadowReceiverContext;
 			typedef TComponentsQueryLocalSlice<CShadowReceiverComponent, CSkinnedMeshContainer>           TSkinnedShadowReceiverContext;
 			typedef TComponentsQueryLocalSlice<CShadowCasterComponent, CSkinnedMeshContainer, CTransform> TSkinnedShadowCastersContext;
+
+			struct TShadowCasterEntry
+			{
+				typedef std::variant<CStaticMeshContainer*, CSkinnedMeshContainer*> TMeshContainerComponent;
+
+				CTransform*             mpTransform = nullptr;
+				TMeshContainerComponent mpMeshContainer;				
+			};
+
 		public:
 			TDE2_SYSTEM(CLightingSystem);
 
@@ -101,6 +109,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void Update(IWorld* pWorld, F32 dt) override;
+
+			TDE2_API E_RESULT_CODE FillFramePacket(TFramePacket& framePacket) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CLightingSystem)
 
@@ -127,10 +137,13 @@ namespace TDEngine2
 			TResourceId                  mShadowPassMaterialHandle;
 			TResourceId                  mShadowPassSkinnedMaterialHandle;
 
-			CFramePacketsStorage*        mpFramePacketsStorage = nullptr;
-
 			Vector<TLightData>           mActiveLightsData;
+			Vector<TShadowCasterEntry>   mShadowCastersData;
 			
 			TPtr<ITimer>                 mpTimer = nullptr;
+			
+			TPerFrameShaderData          mPerFrameShaderData{};
+
+			F32                          mLocalDeltaTime = 0.0f;
 	};
 }

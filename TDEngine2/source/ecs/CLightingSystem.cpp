@@ -64,7 +64,6 @@ namespace TDEngine2
 		mpRenderer              = pRenderer;
 		mpGraphicsObjectManager = pGraphicsObjectManager;
 		mpResourceManager       = mpRenderer->GetResourceManager();
-		mpFramePacketsStorage   = mpRenderer->GetFramePacketsStorage().Get();
 		mpGraphicsContext       = pGraphicsObjectManager->GetGraphicsContext();
 		mpTimer                 = pTimer;
 
@@ -90,6 +89,8 @@ namespace TDEngine2
 
 		mStaticShadowReceiversContext = pWorld->CreateLocalComponentsSlice<CShadowReceiverComponent, CStaticMeshContainer>();
 		mSkinnedShadowReceiversContext = pWorld->CreateLocalComponentsSlice<CShadowReceiverComponent, CSkinnedMeshContainer>();
+
+		mShadowCastersData.reserve(mStaticShadowCastersContext.mComponentsCount + mSkinnedShadowCastersContext.mComponentsCount);
 	}
 
 
@@ -102,22 +103,16 @@ namespace TDEngine2
 	};
 
 
-	static U32 ProcessStaticMeshCasterEntity(const TProcessParams& params, CLightingSystem::TStaticShadowCastersContext& staticShadowCasters, USIZE id)
+	static E_RESULT_CODE ProcessStaticMeshCasterEntity(const TProcessParams& params, CTransform* pTransform, CStaticMeshContainer* pStaticMeshContainer)
 	{
 		TDE2_PROFILER_SCOPE("ProcessStaticMeshCasterEntity");
 
-		IResourceManager* pResourceManager = params.mpResourceManager;
-
-		auto&& staticMeshContainers = std::get<Vector<CStaticMeshContainer*>>(staticShadowCasters.mComponentsSlice);
-		auto&& transforms = std::get<Vector<CTransform*>>(staticShadowCasters.mComponentsSlice);
-
-		CStaticMeshContainer* pStaticMeshContainer = staticMeshContainers[id];
-		if (!pStaticMeshContainer)
+		if (!pStaticMeshContainer || !pTransform)
 		{
-			return params.mDrawIndex;
+			return RC_INVALID_ARGS;
 		}
 
-		CTransform* pTransform = transforms[id];
+		IResourceManager* pResourceManager = params.mpResourceManager;
 
 		TResourceId meshResourceHandle = pResourceManager->Load<IStaticMesh>(pStaticMeshContainer->GetMeshName());
 		TDE2_ASSERT(meshResourceHandle != TResourceId::Invalid);
@@ -131,43 +126,37 @@ namespace TDEngine2
 			{
 				if (E_RESOURCE_STATE_TYPE::RST_LOADED != pResource->GetState() || !subMeshInfo.mIndicesCount)
 				{
-					return params.mDrawIndex;
+					return RC_FAIL;
 				}
 			}
 
 			if (TDrawIndexedCommand* pDrawCommand = params.mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(params.mDrawIndex))
 			{
-				pDrawCommand->mVertexBufferHandle = pStaticMeshResource->GetVertexBufferForStream(E_VERTEX_STREAM_TYPE::POSITIONS);
-				pDrawCommand->mIndexBufferHandle = pStaticMeshResource->GetSharedIndexBuffer();
-				pDrawCommand->mMaterialHandle = params.mMaterialId;
-				pDrawCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+				pDrawCommand->mVertexBufferHandle      = pStaticMeshResource->GetVertexBufferForStream(E_VERTEX_STREAM_TYPE::POSITIONS);
+				pDrawCommand->mIndexBufferHandle       = pStaticMeshResource->GetSharedIndexBuffer();
+				pDrawCommand->mMaterialHandle          = params.mMaterialId;
+				pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
-				pDrawCommand->mObjectData.mObjectID = static_cast<U32>(id);
-				pDrawCommand->mStartIndex = subMeshInfo.mStartIndex;
-				pDrawCommand->mStartVertex = 0;
-				pDrawCommand->mNumOfIndices = subMeshInfo.mIndicesCount;
+				pDrawCommand->mObjectData.mObjectID    = static_cast<U32>(params.mDrawIndex);
+				pDrawCommand->mStartIndex              = subMeshInfo.mStartIndex;
+				pDrawCommand->mStartVertex             = 0;
+				pDrawCommand->mNumOfIndices            = subMeshInfo.mIndicesCount;
 			}
 		}
 
-		return params.mDrawIndex + 1;
+		return RC_OK;
 	}
 
-	static U32 ProcessSkinnedMeshCasterEntity(const TProcessParams& params, CLightingSystem::TSkinnedShadowCastersContext& skinnedShadowCasters, USIZE id)
+	static U32 ProcessSkinnedMeshCasterEntity(const TProcessParams& params, CTransform* pTransform, CSkinnedMeshContainer* pSkinnedMeshContainer)
 	{
 		TDE2_PROFILER_SCOPE("ProcessSkinnedMeshCasterEntity");
 
-		IResourceManager* pResourceManager = params.mpResourceManager;
-
-		auto&& skinnedMeshContainers = std::get<Vector<CSkinnedMeshContainer*>>(skinnedShadowCasters.mComponentsSlice);
-		auto&& transforms = std::get<Vector<CTransform*>>(skinnedShadowCasters.mComponentsSlice);
-
-		CSkinnedMeshContainer* pSkinnedMeshContainer = skinnedMeshContainers[id];
-		if (!pSkinnedMeshContainer)
+		if (!pSkinnedMeshContainer || !pTransform)
 		{
-			return params.mDrawIndex;
+			return RC_INVALID_ARGS;
 		}
 
-		CTransform* pTransform = transforms[id];
+		IResourceManager* pResourceManager = params.mpResourceManager;
 
 		TResourceId meshResourceHandle = pResourceManager->Load<ISkinnedMesh>(pSkinnedMeshContainer->GetMeshName());
 		TDE2_ASSERT(meshResourceHandle != TResourceId::Invalid);
@@ -201,15 +190,15 @@ namespace TDEngine2
 
 			if (TDrawIndexedCommand* pDrawCommand = params.mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(params.mDrawIndex))
 			{
-				pDrawCommand->mVertexBufferHandle = pSkinnedMeshResource->GetVertexBufferForStream(E_VERTEX_STREAM_TYPE::POSITIONS);
-				pDrawCommand->mIndexBufferHandle = pSkinnedMeshResource->GetSharedIndexBuffer();
-				pDrawCommand->mMaterialHandle = params.mMaterialId;
-				pDrawCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+				pDrawCommand->mVertexBufferHandle      = pSkinnedMeshResource->GetVertexBufferForStream(E_VERTEX_STREAM_TYPE::POSITIONS);
+				pDrawCommand->mIndexBufferHandle       = pSkinnedMeshResource->GetSharedIndexBuffer();
+				pDrawCommand->mMaterialHandle          = params.mMaterialId;
+				pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
-				pDrawCommand->mObjectData.mObjectID = static_cast<U32>(id);
-				pDrawCommand->mStartIndex = subMeshInfo.mStartIndex;
-				pDrawCommand->mStartVertex = 0;
-				pDrawCommand->mNumOfIndices = subMeshInfo.mIndicesCount;
+				pDrawCommand->mObjectData.mObjectID    = static_cast<U32>(params.mDrawIndex);
+				pDrawCommand->mStartIndex              = subMeshInfo.mStartIndex;
+				pDrawCommand->mStartVertex             = 0;
+				pDrawCommand->mNumOfIndices            = subMeshInfo.mIndicesCount;
 			}
 		}
 
@@ -505,69 +494,98 @@ namespace TDEngine2
 		TDE2_PROFILER_SCOPE("CLightingSystem::Update");
 		TDE2_ASSERT(mpRenderer);
 
+		mLocalDeltaTime = dt;
+
 		mpJobManager->SubmitJob(&mMainSystemJobCounter, [dt, pWorld, this](auto)
 			{
 				mpJobManager->SubmitJob(nullptr, [this, pWorld, dt](auto)
 					{
 						TLightingShaderData lightingData;
-						mActiveLightsData.clear();
 
 						ProcessDirectionalLights(mpGraphicsContext, GetCurrentActiveCamera(pWorld), lightingData, mDirectionalLightsContext);
 						ProcessPointLights(mpGraphicsContext, lightingData, mActiveLightsData, mPointLightsContext);
 						ProcessSpotLights(mpGraphicsContext, lightingData, mActiveLightsData, mSpotLightsContext);
 
-						if (mpFramePacketsStorage)
+						///set up global shader properties for TPerFrameShaderData buffer
+						mPerFrameShaderData.mLightingData = lightingData;
+
+						ICamera* pMainCamera = GetCurrentActiveCamera(pWorld);
+						if (pMainCamera)
 						{
-							///set up global shader properties for TPerFrameShaderData buffer
-							TPerFrameShaderData perFrameShaderData{};
-							perFrameShaderData.mLightingData = lightingData;
+							mPerFrameShaderData.mProjMatrix             = Transpose(pMainCamera->GetProjMatrix());
+							mPerFrameShaderData.mViewMatrix             = Transpose(pMainCamera->GetViewMatrix());
+							mPerFrameShaderData.mInvProjMatrix          = Transpose(Inverse(pMainCamera->GetProjMatrix()));
+							mPerFrameShaderData.mInvViewMatrix          = Transpose(Inverse(pMainCamera->GetViewMatrix()));
+							mPerFrameShaderData.mInvViewProjMatrix      = Transpose(pMainCamera->GetInverseViewProjMatrix());
+							mPerFrameShaderData.mCameraPosition         = TVector4(pMainCamera->GetPosition(), 1.0f);
+							mPerFrameShaderData.mCameraProjectionParams = TVector4(pMainCamera->GetNearPlane(), pMainCamera->GetFarPlane(), 0.0f, 0.0f);
+						}
 
-							ICamera* pMainCamera = GetCurrentActiveCamera(pWorld);
-							if (pMainCamera)
-							{
-								perFrameShaderData.mProjMatrix = Transpose(pMainCamera->GetProjMatrix());
-								perFrameShaderData.mViewMatrix = Transpose(pMainCamera->GetViewMatrix());
-								perFrameShaderData.mInvProjMatrix = Transpose(Inverse(pMainCamera->GetProjMatrix()));
-								perFrameShaderData.mInvViewMatrix = Transpose(Inverse(pMainCamera->GetViewMatrix()));
-								perFrameShaderData.mInvViewProjMatrix = Transpose(pMainCamera->GetInverseViewProjMatrix());
-								perFrameShaderData.mCameraPosition = TVector4(pMainCamera->GetPosition(), 1.0f);
-								perFrameShaderData.mCameraProjectionParams = TVector4(pMainCamera->GetNearPlane(), pMainCamera->GetFarPlane(), 0.0f, 0.0f);
-							}
+						mPerFrameShaderData.mTime = TVector4(mpTimer->GetCurrTime(), dt, 0.0f, 0.0f);
+					});
 
-							perFrameShaderData.mTime = TVector4(mpTimer->GetCurrTime(), dt, 0.0f, 0.0f);
+				mpJobManager->SubmitJob(nullptr, [this](auto)
+					{
+						TDE2_PROFILER_SCOPE("CLightingSystem::ProcessStaticShadowCasters");
 
-							TFramePacket& currFramePacket = mpFramePacketsStorage->GetCurrentFrameForGameLogic();
+						auto&& staticMeshContainers = std::get<Vector<CStaticMeshContainer*>>(mStaticShadowCastersContext.mComponentsSlice);
+						auto&& staticMeshesTransforms = std::get<Vector<CTransform*>>(mStaticShadowCastersContext.mComponentsSlice);
 
-							currFramePacket.mFrameIndex = TFrameCounter::mGlobalFrameNumber;
-							currFramePacket.mDeltaTime = dt;
-							currFramePacket.mPerFrameData = perFrameShaderData;
-							//currFramePacket.mRareUpdatedData    = perFrameShaderData;
-							currFramePacket.mActiveLightSources = mActiveLightsData;
+						for (USIZE i = 0; i < mStaticShadowCastersContext.mComponentsCount; ++i)
+						{
+							mShadowCastersData.push_back({ staticMeshesTransforms[i], staticMeshContainers[i] });
 						}
 					});
 
 				mpJobManager->SubmitJob(nullptr, [this](auto)
 					{
-						U32 drawIndex = 0;
+						TDE2_PROFILER_SCOPE("CLightingSystem::ProcessSkinnedShadowCasters");
 
-						CRenderQueue* pShadowPassRenderQueue = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)].Get();
+						auto&& skinnedMeshContainers = std::get<Vector<CSkinnedMeshContainer*>>(mSkinnedShadowCastersContext.mComponentsSlice);
+						auto&& skinnedMeshesTransforms = std::get<Vector<CTransform*>>(mSkinnedShadowCastersContext.mComponentsSlice);
 
-						// \note Prepare commands for the renderer
+						for (USIZE i = 0; i < mSkinnedShadowCastersContext.mComponentsCount; ++i)
 						{
-							TDE2_PROFILER_SCOPE("CLightingSystem::ProcessShadowCasters");
-
-							for (USIZE i = 0; i < mStaticShadowCastersContext.mComponentsCount; ++i)
-							{
-								drawIndex = ProcessStaticMeshCasterEntity({ mpResourceManager.Get(), mShadowPassMaterialHandle, drawIndex, pShadowPassRenderQueue }, mStaticShadowCastersContext, i);
-							}
-
-							for (USIZE i = 0; i < mSkinnedShadowCastersContext.mComponentsCount; ++i)
-							{
-								drawIndex = ProcessSkinnedMeshCasterEntity({ mpResourceManager.Get(), mShadowPassSkinnedMaterialHandle, drawIndex, pShadowPassRenderQueue }, mSkinnedShadowCastersContext, i);
-							}
+							mShadowCastersData.push_back({ skinnedMeshesTransforms[i], skinnedMeshContainers[i] });
 						}
 					});
 			});
+	}
+
+	E_RESULT_CODE CLightingSystem::FillFramePacket(TFramePacket& framePacket)
+	{
+		TDE2_PROFILER_SCOPE("CLightingSystem::FillFramePacket");
+
+		framePacket.mFrameIndex         = TFrameCounter::mGlobalFrameNumber;
+		framePacket.mPerFrameData       = mPerFrameShaderData;
+		framePacket.mDeltaTime          = mLocalDeltaTime;
+		framePacket.mActiveLightSources = mActiveLightsData;
+
+		CRenderQueue* pShadowPassRenderQueue = framePacket.mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)].Get();
+
+		for (USIZE drawIndex = 0; drawIndex < mShadowCastersData.size(); ++drawIndex)
+		{
+			const TShadowCasterEntry& currShadowCasterEntry = mShadowCastersData[drawIndex];
+
+			std::visit([drawIndex, &currShadowCasterEntry, pShadowPassRenderQueue, this](auto* pMeshContainer)
+				{
+					using T = decltype(pMeshContainer);
+
+					if constexpr (std::is_same_v<T, CStaticMeshContainer*>) 
+					{
+						ProcessStaticMeshCasterEntity({ mpResourceManager.Get(), mShadowPassMaterialHandle, static_cast<U32>(drawIndex), pShadowPassRenderQueue }, currShadowCasterEntry.mpTransform, pMeshContainer);
+					}
+					else if constexpr (std::is_same_v<T, CSkinnedMeshContainer*>)
+					{
+						ProcessSkinnedMeshCasterEntity({ mpResourceManager.Get(), mShadowPassSkinnedMaterialHandle, static_cast<U32>(drawIndex), pShadowPassRenderQueue }, currShadowCasterEntry.mpTransform, pMeshContainer);
+					}
+				}, currShadowCasterEntry.mpMeshContainer);
+		}
+
+		mActiveLightsData.clear();
+		mShadowCastersData.clear();
+
+		return RC_OK;
 	}
 
 
