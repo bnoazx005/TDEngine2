@@ -82,13 +82,16 @@ namespace TDEngine2
 
 		for (const TCommandBufferEntry& currCommandEntry : mCommands)
 		{
-			std::visit([pWorld, &result](const auto& arg) {
+			std::visit([pWorld, &result](const auto& arg)
+			{
 				using T = std::decay_t<decltype(arg)>;
 
-				if constexpr (std::is_same_v<T, TAddEntityWithUUIDCmd>) {
+				if constexpr (std::is_same_v<T, TAddEntityWithUUIDCmd>)
+				{
 					pWorld->CreateEntityWithUUID(arg.mUUID);
 				}
-				else if constexpr (std::is_same_v<T, TAddEntityByNameCmd>) {
+				else if constexpr (std::is_same_v<T, TAddEntityByNameCmd>)
+				{
 					if (CEntity* pEntity = pWorld->CreateEntityWithUUID(arg.mEntityId))
 					{
 						pEntity->SetName(arg.mName);
@@ -98,10 +101,12 @@ namespace TDEngine2
 						result = result | RC_FAIL;
 					}
 				}
-				else if constexpr (std::is_same_v<T, TDestroyEntityCmd>) {
+				else if constexpr (std::is_same_v<T, TDestroyEntityCmd>)
+				{
 					pWorld->Destroy(arg.mEntityId);
 				}
-				else if constexpr (std::is_same_v<T, TAddComponentCmd>) {
+				else if constexpr (std::is_same_v<T, TAddComponentCmd>)
+				{
 					if (CEntity* pEntity = pWorld->FindEntity(arg.mEntityId))
 					{
 						pEntity->AddComponent(arg.mComponentTypeId);
@@ -111,7 +116,8 @@ namespace TDEngine2
 						result = result | RC_FAIL;
 					}
 				}
-				else if constexpr (std::is_same_v<T, TRemoveComponentCmd>) {
+				else if constexpr (std::is_same_v<T, TRemoveComponentCmd>)
+				{
 					if (CEntity* pEntity = pWorld->FindEntity(arg.mEntityId))
 					{
 						result = result | pEntity->RemoveComponent(arg.mComponentTypeId);
@@ -121,10 +127,11 @@ namespace TDEngine2
 						result = result | RC_FAIL;
 					}
 				}
-				else if constexpr (std::is_same_v<T, TCustomActionCmd>) {
+				else if constexpr (std::is_same_v<T, TCustomActionCmd>)
+				{
 					arg.mAction();
 				}
-				}, currCommandEntry);
+			}, currCommandEntry);
 		}
 
 		mCommands.clear();

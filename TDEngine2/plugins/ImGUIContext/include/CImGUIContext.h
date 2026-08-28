@@ -25,7 +25,6 @@ namespace TDEngine2
 {
 	class IGraphicsContext;
 	class CRenderQueue;
-	class CFramePacketsStorage;
 
 	class IVertexDeclaration;
 
@@ -663,8 +662,6 @@ namespace TDEngine2
 			TResourceHandlesArray   mUsedResourcesRegistry;
 
 			TResourceId             mDefaultEditorMaterialHandle;
-
-			CFramePacketsStorage*   mpFramePacketsStorage = nullptr;
 
 			bool                    mIsHorizontalGroupEnabled = false;
 

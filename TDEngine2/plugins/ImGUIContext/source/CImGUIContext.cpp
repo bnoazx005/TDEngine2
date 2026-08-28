@@ -89,7 +89,6 @@ namespace TDEngine2
 		mpGraphicsObjectManager = params.mpGraphicsObjectManager;
 		mpResourceManager       = params.mpResourceManager;
 		mpInputContext          = params.mpInputContext;
-		mpFramePacketsStorage   = params.mpRenderer->GetFramePacketsStorage().Get();
 		
 		if (!mpGraphicsContext) // \note the really strange case, but if it's happened we should check for it
 		{
