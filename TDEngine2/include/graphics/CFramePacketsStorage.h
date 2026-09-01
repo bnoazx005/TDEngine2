@@ -36,12 +36,17 @@ namespace TDEngine2
 	{
 		typedef std::array<TPtr<CRenderQueue>, NumOfRenderQueuesGroup> TRenderQueuesArray;
 		typedef std::array<TPtr<IAllocator>, NumOfRenderQueuesGroup>   TAllocatorsArray;
-		typedef std::vector<TEmitterUniformsData>                      TGPUParticleEmittersArray;
+		typedef Vector<TEmitterUniformsData>                           TGPUParticleEmittersArray;
 
 		struct TImGUIFrameData
 		{
 			TBufferHandleId mVertexBufferHandle = TBufferHandleId::Invalid;
 			TBufferHandleId mIndexBufferHandle = TBufferHandleId::Invalid;
+		};
+
+		struct TSpritesFrameData
+		{
+			Vector<TBufferHandleId> mSpritesPerInstanceDataHandles{};
 		};
 
 		U32                       mFrameIndex = 0;
@@ -57,6 +62,7 @@ namespace TDEngine2
 		TLightsDataArray          mActiveLightSources;
 
 		TImGUIFrameData           mImGUIFrameData{};
+		TSpritesFrameData         mSpritesBatchesData{};
 	} TFramePacket, *TFramePacketPtr;
 
 

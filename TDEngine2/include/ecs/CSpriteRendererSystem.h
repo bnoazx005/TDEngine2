@@ -29,7 +29,9 @@ namespace TDEngine2
 	class IResourceManager;
 	class IAllocator;
 	class CBoundsComponent;
-	class CFramePacketsStorage;
+
+
+	template <typename T> class CSTLAllocatorWrapper;
 
 
 	enum class TBufferHandleId : U32;
@@ -37,6 +39,7 @@ namespace TDEngine2
 
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
 	TDE2_DECLARE_SCOPED_PTR(IAllocator)
+	TDE2_DECLARE_SCOPED_PTR(IGraphicsLayersInfo)
 
 
 	/*!
@@ -62,7 +65,7 @@ namespace TDEngine2
 		\brief The class is a system that processes ISprite components
 	*/
 
-	class CSpriteRendererSystem : public CBaseSystem
+	class CSpriteRendererSystem : public CBaseSystem, public IRenderSystem
 	{
 		public:
 			friend TDE2_API ISystem* CreateSpriteRendererSystem(TPtr<IAllocator>, IRenderer*, IGraphicsObjectManager*, E_RESULT_CODE&);
@@ -82,12 +85,16 @@ namespace TDEngine2
 				TColor32F mColor;
 			} TSpriteInstanceData, *TSpriteInstanceDataPtr;
 
+			static_assert(std::is_trivially_destructible_v<TSpriteInstanceData>, "TSpriteInstanceData should be trivially destructible");
+
 			typedef struct TBatchEntry
 			{
-				//std::vector<TSpriteInstanceData> mInstancesData;
-				CDynamicArray<TSpriteInstanceData>* mpInstancesData;
+				std::vector<TSpriteInstanceData, CSTLAllocatorWrapper<TSpriteInstanceData>> mInstancesData;
 				
-				TResourceId mMaterialHandle;
+				TResourceId mMaterialHandle = TResourceId::Invalid;
+
+				TBatchEntry() = delete;
+				explicit TBatchEntry(TPtr<IAllocator> pAllocator);
 			} TBatchEntry, *TBatchEntryPtr;
 
 			typedef std::unordered_map<U32, TBatchEntry> TBatchesBuffer;
@@ -128,14 +135,10 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void Update(IWorld* pWorld, F32 dt) override;
+
+			TDE2_API E_RESULT_CODE FillFramePacket(TFramePacket& framePacket) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CSpriteRendererSystem)
-
-			U32 _computeSpriteCommandKey(TResourceId materialId, U16 graphicsLayerId);
-
-			void _initializeBatchVertexBuffers(IGraphicsObjectManager* pGraphicsObjectManager, U32 numOfBuffers);
-
-			E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			TPtr<IAllocator>          mpTempAllocator;
 
@@ -148,8 +151,6 @@ namespace TDEngine2
 
 			TPtr<IResourceManager>    mpResourceManager;
 
-			CFramePacketsStorage*     mpFramePacketsStorage = nullptr;
-
 			IGraphicsObjectManager*   mpGraphicsObjectManager;
 
 			Vector<TBufferHandleId>   mSpritesPerInstanceDataHandles;
@@ -159,7 +160,7 @@ namespace TDEngine2
 
 			U32                       mSpriteFaces[6];
 
-			IGraphicsLayersInfo*      mpGraphicsLayers;
+			TPtr<IGraphicsLayersInfo> mpGraphicsLayers;
 
 			TBatchesBuffer            mBatches;
 	};

@@ -7,6 +7,7 @@
 #include "../../include/ecs/CSystemManager.h"
 #include "../../include/ecs/CBoundsUpdatingSystem.h"
 #include "../../include/ecs/components/CBoundsComponent.h"
+#include "../../include/core/memory/CBaseAllocator.h"
 #include "../../include/graphics/CRenderQueue.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/graphics/IVertexDeclaration.h"
@@ -26,6 +27,12 @@
 
 namespace TDEngine2
 {
+	CSpriteRendererSystem::TBatchEntry::TBatchEntry(TPtr<IAllocator> pAllocator):
+		mInstancesData(CSTLAllocatorWrapper<CSpriteRendererSystem::TSpriteInstanceData>(pAllocator))
+	{
+	}
+
+
 	CSpriteRendererSystem::CSpriteRendererSystem() :
 		CBaseSystem(), 
 		mSpriteVertexBufferHandle(TBufferHandleId::Invalid), 
@@ -51,17 +58,11 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
-		mpTempAllocator = allocator;
-
-		mpRenderer = pRenderer;
-		mpFramePacketsStorage = mpRenderer->GetFramePacketsStorage().Get();
-
+		mpTempAllocator   = allocator;
+		mpRenderer        = pRenderer;
 		mpResourceManager = mpRenderer->GetResourceManager();
 
 		mpGraphicsObjectManager = pGraphicsObjectManager;
-
-		/// pre allocated temporary buffer for batching sprites instancing data
-		_initializeBatchVertexBuffers(mpGraphicsObjectManager, PreCreatedNumOfVertexBuffers);
 
 		TSpriteVertex vertices[] =
 		{
@@ -95,34 +96,15 @@ namespace TDEngine2
 
 		E_RESULT_CODE result = RC_OK;
 		
-		mpGraphicsLayers = CreateGraphicsLayersInfo(result);
-		mpGraphicsLayers->AddLayer(4.0f, "Layer1");
-
+		mpGraphicsLayers = TPtr<IGraphicsLayersInfo>(CreateGraphicsLayersInfo(result));
 		if (result != RC_OK)
 		{
 			return result;
 		}
 
+		mpGraphicsLayers->AddLayer(4.0f, "Layer1");
+
 		mIsInitialized = true;
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CSpriteRendererSystem::_onFreeInternal()
-	{
-		E_RESULT_CODE result = RC_OK;
-
-		if ((result = mpGraphicsLayers->Free()) != RC_OK)
-		{
-			return result;
-		}
-
-		for (auto iter = mBatches.begin(); iter != mBatches.end(); ++iter)
-		{
-			TBatchEntry& currBatchEntry = (*iter).second;
-
-			delete currBatchEntry.mpInstancesData;
-		}
 
 		return RC_OK;
 	}
@@ -131,18 +113,15 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("CSpriteRendererSystem::InjectBindings");
 
-		TEntitiesArray entities = pWorld->FindEntitiesWithComponents<CTransform, CQuadSprite, CBoundsComponent>();
-
 		mTransforms.clear();		
 		mSprites.clear();
 		mSpritesBounds.clear();
 		mBatches.clear();
 
-		CEntity* pCurrEntity = nullptr;
-
-		for (auto iter = entities.begin(); iter != entities.end(); ++iter)
+		TEntitiesArray entities = pWorld->FindEntitiesWithComponents<CTransform, CQuadSprite, CBoundsComponent>();
+		for (TEntityId currEntityId : entities)
 		{
-			pCurrEntity = pWorld->FindEntity(*iter);
+			CEntity* pCurrEntity = pWorld->FindEntity(currEntityId);
 			if (!pCurrEntity)
 			{
 				continue;
@@ -158,9 +137,23 @@ namespace TDEngine2
 		}
 	}
 
+
+	static inline U32 ComputeSpriteCommandKey(TResourceId materialId, U16 graphicsLayerId)
+	{
+		return static_cast<U32>(materialId) << 16 | graphicsLayerId;
+	}
+
+
 	void CSpriteRendererSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		TDE2_PROFILER_SCOPE("CSpriteRendererSystem::Update");
+
+		mBatches.clear();
+
+		if (mpTempAllocator)
+		{
+			mpTempAllocator->Clear();
+		}
 
 		TDrawIndexedInstancedCommand* pCurrCommand = nullptr;
 
@@ -168,18 +161,23 @@ namespace TDEngine2
 		CQuadSprite* pCurrSprite = nullptr;
 		CBoundsComponent* pCurrBounds = nullptr;
 
-		U32 groupKey = 0x0;
-
-		/// allocate memory for vertex buffers that will store instances data if it's not allocated yet
-		if (mSpritesPerInstanceDataHandles.empty())
+		struct TLocalBatchEntry
 		{
-			_initializeBatchVertexBuffers(mpGraphicsObjectManager, PreCreatedNumOfVertexBuffers);
-		}
+			std::vector<TSpriteInstanceData> mInstancesData{};
+			TResourceId                      mMaterialHandle = TResourceId::Invalid;
+		};
+
+		typedef std::unordered_map<U32, TLocalBatchEntry> TLocalTBatchesBuffer;
 
 		mpJobManager->SubmitJob(&mMainSystemJobCounter, [this, pWorld](auto)
 			{
 				TJobCounter counter{};
-				mpJobManager->SubmitMultipleJobs(&counter, static_cast<U32>(mSprites.size()), 2, [this, pWorld](const TJobArgs& args)
+
+				constexpr U32 GROUP_SIZE = 2;
+
+				Vector<TLocalTBatchesBuffer> perGroupBatches(static_cast<USIZE>(std::ceil(mSprites.size() / GROUP_SIZE)));
+
+				mpJobManager->SubmitMultipleJobs(&counter, static_cast<U32>(mSprites.size()), GROUP_SIZE, [this, pWorld, &perGroupBatches](const TJobArgs& args)
 					{
 						TDE2_PROFILER_SCOPE("CSpriteRendererSystem::ProcessSprite");
 
@@ -195,7 +193,6 @@ namespace TDEngine2
 
 						TQuadSpriteComponentData& spriteData = pCurrSprite->GetData();
 
-						bool isVisible = true;
 						if (pCameraComponent)
 						{
 							TPtr<IFrustum> pCameraFrustum = pCameraComponent->GetFrustum();
@@ -206,105 +203,131 @@ namespace TDEngine2
 						}
 
 						const TResourceId currMaterialHandle = mpResourceManager->Load<IMaterial>(spriteData.mMaterialName);
+						const U32 groupKey = ComputeSpriteCommandKey(currMaterialHandle, mpGraphicsLayers->GetLayerIndex(pCurrTransform->GetPosition().z));
 
-						U32 groupKey = _computeSpriteCommandKey(currMaterialHandle, mpGraphicsLayers->GetLayerIndex(pCurrTransform->GetPosition().z));
-
-						TBatchEntry& currBatchEntry = mBatches[groupKey];
-
-						currBatchEntry.mMaterialHandle = currMaterialHandle;
-
-						if (!currBatchEntry.mpInstancesData)
+						TLocalTBatchesBuffer& localBatches = perGroupBatches[args.mGroupIndex];
+						auto it = localBatches.find(groupKey);
+						if (it == localBatches.end())
 						{
-							currBatchEntry.mpInstancesData = new CDynamicArray<TSpriteInstanceData>(*mpTempAllocator.Get(), 100);
+							it = localBatches.emplace(groupKey, TLocalBatchEntry{}).first;
 						}
 
-						currBatchEntry.mpInstancesData->PushBack({ Transpose(pCurrTransform->GetLocalToWorldTransform()), spriteData.mColor });
+						TLocalBatchEntry& currBatchEntry = it->second;
+
+						currBatchEntry.mMaterialHandle = currMaterialHandle;
+						currBatchEntry.mInstancesData.push_back({ Transpose(pCurrTransform->GetLocalToWorldTransform()), spriteData.mColor });
 					});
 
 				mpJobManager->WaitForJobCounter(counter);
 
-				mpJobManager->SubmitJob(&counter, [this](auto)
+				{
+					TDE2_PROFILER_SCOPE("CSpriteRendererSystem::GatcherBatches");
+
+					for (const TLocalTBatchesBuffer& currGroupBatch : perGroupBatches)
 					{
-						U32 currInstancesBufferIndex = 0;
-
-						TPtr<IBuffer> pCurrBatchInstancesBuffer = nullptr;
-
-						TPtr<CRenderQueue> pRenderQueue = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_SPRITES)];
-
-						for (auto iter = mBatches.begin(); iter != mBatches.end(); ++iter)
+						for (auto& currBatchEntry : currGroupBatch)
 						{
-							TDE2_PROFILER_SCOPE("CSpriteRendererSystem::processBatch");
-
-							const TBufferHandleId currInstancingBufferHandle = mSpritesPerInstanceDataHandles[currInstancesBufferIndex++];
-							pCurrBatchInstancesBuffer = mpGraphicsObjectManager->GetBufferPtr(currInstancingBufferHandle);
-
-							TBatchEntry& currBatchEntry = (*iter).second;
-
-							U32 instancesCount = static_cast<U32>(currBatchEntry.mpInstancesData->GetSize());
-							U32 currBatchSize = instancesCount * sizeof(TSpriteInstanceData);
-
-							if (!instancesCount)
+							auto destBatchIt = mBatches.find(currBatchEntry.first);
+							if (destBatchIt == mBatches.end())
 							{
-								continue;
+								destBatchIt = mBatches.emplace(currBatchEntry.first, mpTempAllocator).first;
 							}
 
-							if (currBatchSize <= SPRITE_INSTANCE_DATA_BUFFER_SIZE)
-							{
-								pCurrBatchInstancesBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
-								pCurrBatchInstancesBuffer->Write(&(*currBatchEntry.mpInstancesData)[0], currBatchSize);
-								pCurrBatchInstancesBuffer->Unmap();
-							}
-
-							TPtr<IMaterial> pMaterial = mpResourceManager->GetResource<IMaterial>(currBatchEntry.mMaterialHandle);
-							ITexture* pMainTexture = pMaterial->GetTextureResource(Wrench::StringUtils::GetEmptyStr());
-
-							TDrawIndexedInstancedCommand* pCurrCommand = pRenderQueue->SubmitDrawCommand<TDrawIndexedInstancedCommand>((*iter).first); /// \note (*iter).first is a group key that was computed before
-
-							pCurrCommand->mVertexBufferHandle = mSpriteVertexBufferHandle;
-							pCurrCommand->mIndexBufferHandle = mSpriteIndexBufferHandle;
-							pCurrCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-							pCurrCommand->mIndicesPerInstance = 6;
-							pCurrCommand->mBaseVertexIndex = 0;
-							pCurrCommand->mStartIndex = 0;
-							pCurrCommand->mStartInstance = 0;
-							pCurrCommand->mNumOfInstances = instancesCount;/// assign number of sprites in a batch
-							pCurrCommand->mInstancingBufferHandle = currInstancingBufferHandle; /// assign accumulated data of a batch
-							pCurrCommand->mMaterialHandle = currBatchEntry.mMaterialHandle;
-
-							auto&& uvRect = pMainTexture ? pMainTexture->GetNormalizedTextureRect() : TRectF32{ 0.0f, 0.0f, 1.0f, 1.0f };
-
-							pCurrCommand->mObjectData.mModelMatrix = IdentityMatrix4;
-							pCurrCommand->mObjectData.mTextureTransformDesc = { uvRect.x, uvRect.y, uvRect.width, uvRect.height };
-
-							currBatchEntry.mpInstancesData->Clear();
+							destBatchIt->second.mMaterialHandle = currBatchEntry.second.mMaterialHandle;
+							destBatchIt->second.mInstancesData.insert(destBatchIt->second.mInstancesData.end(),
+								std::make_move_iterator(currBatchEntry.second.mInstancesData.begin()),
+								std::make_move_iterator(currBatchEntry.second.mInstancesData.end()));
 						}
-					});
+					}
+				}
 			});
 	}
 
-	U32 CSpriteRendererSystem::_computeSpriteCommandKey(TResourceId materialId, U16 graphicsLayerId)
+	E_RESULT_CODE CSpriteRendererSystem::FillFramePacket(TFramePacket& framePacket)
 	{
-		return static_cast<U32>(materialId) << 16 | graphicsLayerId;
-	}
+		TDE2_PROFILER_SCOPE("CSpriteRendererSystem::FillFramePacket");
 
-	void CSpriteRendererSystem::_initializeBatchVertexBuffers(IGraphicsObjectManager* pGraphicsObjectManager, U32 numOfBuffers)
-	{
-		TDE2_PROFILER_SCOPE("CSpriteRendererSystem::_initializeBatchVertexBuffers");
+		U32 currInstancesBufferIndex = 0;
 
-		for (U32 i = 0; i < numOfBuffers; ++i)
+		TPtr<CRenderQueue> pRenderQueue = framePacket.mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_SPRITES)];
+
+		TFramePacket::TSpritesFrameData& spritesRenderData = framePacket.mSpritesBatchesData;
+		
+		for (auto& currBatchPairEntry : mBatches)
 		{
-			mSpritesPerInstanceDataHandles.push_back(
-				pGraphicsObjectManager->CreateBuffer({
+			TDE2_PROFILER_SCOPE("CSpriteRendererSystem::processBatch");
+
+			TBufferHandleId currInstancingBufferHandle = TBufferHandleId::Invalid;
+
+			if (spritesRenderData.mSpritesPerInstanceDataHandles.size() <= currInstancesBufferIndex)
+			{
+				auto createInstancesBufferResult = mpGraphicsObjectManager->CreateBuffer(
+					{
 						E_BUFFER_USAGE_TYPE::DYNAMIC,
-						E_BUFFER_TYPE::STRUCTURED, 
+						E_BUFFER_TYPE::STRUCTURED,
 						SPRITE_INSTANCE_DATA_BUFFER_SIZE,
 						nullptr,
 						SPRITE_INSTANCE_DATA_BUFFER_SIZE,
 						false,
 						sizeof(TSpriteInstanceData),
-						E_STRUCTURED_BUFFER_TYPE::DEFAULT 
-					}).Get());
+						E_STRUCTURED_BUFFER_TYPE::DEFAULT
+					});
+
+				if (createInstancesBufferResult.HasError())
+				{
+					LOG_ERROR(Wrench::StringUtils::Format("[CSpriteRendererSystem] Failed to create instances buffer: {0}", createInstancesBufferResult.GetError()));
+					return createInstancesBufferResult.GetError();
+				}
+
+				currInstancingBufferHandle = spritesRenderData.mSpritesPerInstanceDataHandles.emplace_back(createInstancesBufferResult.Get());
+			}
+
+			currInstancingBufferHandle = spritesRenderData.mSpritesPerInstanceDataHandles[currInstancesBufferIndex++];
+
+			TPtr<IBuffer> pCurrBatchInstancesBuffer = mpGraphicsObjectManager->GetBufferPtr(currInstancingBufferHandle);
+
+			TBatchEntry& currBatchEntry = currBatchPairEntry.second;
+
+			const U32 instancesCount = static_cast<U32>(currBatchEntry.mInstancesData.size());
+			const U32 currBatchSize = instancesCount * sizeof(TSpriteInstanceData);
+
+			if (!instancesCount)
+			{
+				continue;
+			}
+
+			if (currBatchSize <= SPRITE_INSTANCE_DATA_BUFFER_SIZE)
+			{
+				pCurrBatchInstancesBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
+				pCurrBatchInstancesBuffer->Write(currBatchEntry.mInstancesData.data(), currBatchSize);
+				pCurrBatchInstancesBuffer->Unmap();
+			}
+
+			TDrawIndexedInstancedCommand* pCurrCommand = pRenderQueue->SubmitDrawCommand<TDrawIndexedInstancedCommand>(currBatchPairEntry.first); /// \note currBatchPairEntry.first is a group key that was computed before
+
+			pCurrCommand->mVertexBufferHandle     = mSpriteVertexBufferHandle;
+			pCurrCommand->mIndexBufferHandle      = mSpriteIndexBufferHandle;
+			pCurrCommand->mPrimitiveType          = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+			pCurrCommand->mIndicesPerInstance     = 6;
+			pCurrCommand->mBaseVertexIndex        = 0;
+			pCurrCommand->mStartIndex             = 0;
+			pCurrCommand->mStartInstance          = 0;
+			pCurrCommand->mNumOfInstances         = instancesCount;/// assign number of sprites in a batch
+			pCurrCommand->mInstancingBufferHandle = currInstancingBufferHandle; /// assign accumulated data of a batch
+			pCurrCommand->mMaterialHandle         = currBatchEntry.mMaterialHandle;
+
+			TPtr<IMaterial> pMaterial = mpResourceManager->GetResource<IMaterial>(currBatchEntry.mMaterialHandle);
+			ITexture* pMainTexture = pMaterial->GetTextureResource(Wrench::StringUtils::GetEmptyStr());
+
+			auto&& uvRect = pMainTexture ? pMainTexture->GetNormalizedTextureRect() : TRectF32{ 0.0f, 0.0f, 1.0f, 1.0f };
+
+			pCurrCommand->mObjectData.mModelMatrix          = IdentityMatrix4;
+			pCurrCommand->mObjectData.mTextureTransformDesc = { uvRect.x, uvRect.y, uvRect.width, uvRect.height };
+
+			currBatchEntry.mInstancesData.clear();
 		}
+
+		return RC_OK;
 	}
 
 
