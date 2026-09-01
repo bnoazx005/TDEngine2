@@ -190,4 +190,60 @@ namespace TDEngine2
 	*/
 
 	TDE2_API void* AllocateMemory(IAllocator* pAllocator, USIZE size, USIZE alignment);
+
+
+	template <typename T>
+	class CSTLAllocatorWrapper
+	{
+		public:
+			template <typename U> friend class CSTLAllocatorWrapper;
+			using value_type = T;
+
+			explicit CSTLAllocatorWrapper(TPtr<IAllocator> pAllocator) :
+				mpAllocator(pAllocator)
+			{
+			}
+
+			template <typename U> CSTLAllocatorWrapper(const CSTLAllocatorWrapper<U>& other) :
+				mpAllocator(other.mpAllocator)
+			{
+			}
+
+			[[nodiscard]] T* allocate(std::size_t n)
+			{
+				TDE2_ASSERT(mpAllocator);
+				if (!mpAllocator || n > (std::numeric_limits<std::size_t>::max)() / sizeof(T))
+				{
+					throw std::bad_alloc();
+				}
+
+				T* pPtr = static_cast<T*>(mpAllocator->Allocate(n * sizeof(T), alignof(T)));
+				if (!pPtr)
+				{
+					throw std::bad_alloc();
+				}
+
+				return pPtr;
+			}
+
+			void deallocate(T* p, std::size_t n) noexcept
+			{
+				TDE2_ASSERT(mpAllocator);
+				if (!mpAllocator)
+				{
+					return;
+				}
+
+				mpAllocator->Deallocate(p);
+			}
+
+			template <typename U>
+			bool operator== (const CSTLAllocatorWrapper<U>& other) const noexcept { return mpAllocator == other.mpAllocator; }
+
+			template <typename U>
+			bool operator!= (const CSTLAllocatorWrapper<U>& other) const noexcept { return !(*this == other); }
+
+		private:
+			TPtr<IAllocator> mpAllocator = nullptr;
+	};
 }

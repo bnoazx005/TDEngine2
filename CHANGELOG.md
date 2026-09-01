@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.35] 2026-08-27
+## [0.6.35] 2026-09-01
 
 ### Added
 
@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The APIs of **IWorld**, **ISystemManager** were extended with new public methods FillFramePacket. A new interface **IRenderSystem** was added to
 mark up systems that require send their data into the renderer's thread.
+
+- A new templated STL compatible allocator was defined which is **CSTLAllocatorWrapper<T>**.
 
 ### Changed
 
