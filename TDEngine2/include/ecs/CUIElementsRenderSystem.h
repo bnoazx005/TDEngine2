@@ -24,7 +24,8 @@ namespace TDEngine2
 	class CTransform;
 	class CUIElementMeshData;
 	class CLayoutElement;
-	class CFramePacketsStorage;
+
+	struct TUIElementsFramePacketData;
 
 	enum class TResourceId : U32;
 	enum class TMaterialInstanceId : U32;
@@ -63,7 +64,7 @@ namespace TDEngine2
 		\brief The class is a system that processes UI elements such as canvases and LayoutElement components
 	*/
 
-	class CUIElementsRenderSystem : public CBaseSystem
+	class CUIElementsRenderSystem : public CBaseSystem, public IRenderSystem
 	{
 		public:
 			friend TDE2_API ISystem* CreateUIElementsRenderSystem(IRenderer*, IGraphicsObjectManager*, E_RESULT_CODE&);
@@ -83,6 +84,7 @@ namespace TDEngine2
 			};
 
 			typedef std::array<TResourceId, static_cast<USIZE>(E_UI_MATERIAL_TYPE::COUNT)> TMaterialsArray;
+			typedef std::unique_ptr<TUIElementsFramePacketData>                            TUIElementsFramePacketDataPtr;
 		public:
 			TDE2_SYSTEM(CUIElementsRenderSystem);
 
@@ -116,34 +118,30 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void Update(IWorld* pWorld, F32 dt) override;
+
+			TDE2_API E_RESULT_CODE FillFramePacket(TFramePacket& framePacket) override;
 		protected:
-			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CUIElementsRenderSystem)
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS_NO_DCTR(CUIElementsRenderSystem)
+			virtual ~CUIElementsRenderSystem();
 
 			E_RESULT_CODE _initDefaultResources();
-
-			E_RESULT_CODE _updateGPUBuffers();
 		protected:
 			static constexpr U32            mMaxVerticesCount = 1 << 14;
 
 			IGraphicsObjectManager*         mpGraphicsObjectManager;
-
-			CFramePacketsStorage*           mpFramePacketsStorage = nullptr;
 
 			TPtr<IResourceManager>          mpResourceManager;
 
 			TMaterialsArray                 mDefaultUIMaterialId;
 			TMaterialsArray                 mDefaultFontMaterialId;
 			
-			CScopedPtr<IGraphicsLayersInfo> mpGraphicsLayers;
-
 			TSystemContext                  mUIElementsContext;
 
-			std::vector<TUIElementsVertex>  mVertices, mIntermediateVertsBuffer;
-			std::vector<U32>                mIndices, mIntermediateIndexBuffer;
-
-			TBufferHandleId                 mVertexBufferHandle;
-			TBufferHandleId                 mIndexBufferHandle;
+			Vector<TUIElementsVertex>       mIntermediateVertsBuffer;
+			Vector<U32>                     mIntermediateIndexBuffer;
 
 			TMaterialsMap                   mUsingMaterials;
+
+			TUIElementsFramePacketDataPtr   mpPendingFramePacketData;
 	};
 }

@@ -26,8 +26,40 @@
 
 namespace TDEngine2
 {
+	struct TUIElementsFramePacketData
+	{
+		struct TUIElementsDrawCommand
+		{
+			TMatrix4                 mModelMat{};
+			TVector4                 mTextureTransformDesc = TVector4{};
+
+			U32                      mStartIndex = 0;
+			U32                      mStartVertex = 0;
+			U32                      mIndicesCount = 0;
+
+			U32                      mDrawGroupKey = 0;
+
+			TResourceId              mTextureId = TResourceId::Invalid;
+			TResourceId              mMaterialHandle = TResourceId::Invalid;
+			TMaterialInstanceId      mMaterialInstanceId = DefaultMaterialInstanceId;
+		};
+
+		typedef Vector<TUIElementsVertex>      TVertexArray;
+		typedef Vector<U32>                    TIndexArray;
+		typedef Vector<TUIElementsDrawCommand> TCommandsArray;
+
+		TVertexArray   mVertices{};
+		TIndexArray    mIndices{};
+		TCommandsArray mCommands{};
+	};
+
+
 	CUIElementsRenderSystem::CUIElementsRenderSystem() :
 		CBaseSystem()
+	{
+	}
+
+	CUIElementsRenderSystem::~CUIElementsRenderSystem()
 	{
 	}
 
@@ -46,7 +78,6 @@ namespace TDEngine2
 		}
 
 		mpGraphicsObjectManager = pGraphicsObjectManager;
-		mpFramePacketsStorage   = pRenderer->GetFramePacketsStorage().Get();
 		mpResourceManager       = pRenderer->GetResourceManager();
 
 		E_RESULT_CODE result = _initDefaultResources();
@@ -55,10 +86,10 @@ namespace TDEngine2
 			return result;
 		}
 
-		mpGraphicsLayers = CreateGraphicsLayersInfo(result);
-		if (RC_OK != result)
+		mpPendingFramePacketData = std::make_unique<TUIElementsFramePacketData>();
+		if (!mpPendingFramePacketData)
 		{
-			return result;
+			return RC_FAIL;
 		}
 
 		mIsInitialized = true;
@@ -163,9 +194,6 @@ namespace TDEngine2
 		CCanvas* pCurrCanvas = nullptr;
 		CCanvas* pPrevCanvas = nullptr;
 
-		mVertices.clear();
-		mIndices.clear();
-
 		U32 index = 0;
 
 		TResourceId prevMaterialId = TResourceId::Invalid;
@@ -207,7 +235,16 @@ namespace TDEngine2
 			return false;
 		};
 
-		TPtr<CRenderQueue> pUIElementsRenderGroup = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_OVERLAY)];
+		TUIElementsFramePacketData::TVertexArray& pendingVertices   = mpPendingFramePacketData->mVertices;
+		TUIElementsFramePacketData::TIndexArray& pendingIndices     = mpPendingFramePacketData->mIndices;
+		TUIElementsFramePacketData::TCommandsArray& pendingCommands = mpPendingFramePacketData->mCommands;
+
+		pendingVertices.clear();
+		pendingIndices.clear();
+		pendingCommands.clear();
+
+		pendingVertices.reserve(layoutElements.size() * 4);
+		pendingIndices.reserve(layoutElements.size() * 6);
 
 		for (USIZE i = 0; i < layoutElements.size(); ++i)
 		{
@@ -273,29 +310,24 @@ namespace TDEngine2
 			/// \note Flush current buffers when the batch is splitted
 			if (shouldBatchBeFlushed(currMaterialId, currMaterialInstance, i) || (pCurrCanvas && pPrevCanvas != pCurrCanvas))
 			{
-				auto pCurrCommand = pUIElementsRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(
-					((0xFFFF - (pCurrCanvas->GetPriority() + (0xFFFF >> 1))) << 16) | (static_cast<U32>(layoutElements.size()) - index + (static_cast<U32>(priorities.size()) - priorities[i])));
+				const TRectF32 uvRect = pTexture ? pTexture->GetNormalizedTextureRect() : TRectF32{ 0.0f, 0.0f, 1.0f, 1.0f };
 
-				pCurrCommand->mVertexBufferHandle = mVertexBufferHandle;
-				pCurrCommand->mIndexBufferHandle = mIndexBufferHandle;
-				pCurrCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-				pCurrCommand->mMaterialHandle = currMaterialId;
-				pCurrCommand->mMaterialInstanceId = currMaterialInstance;
-				pCurrCommand->mStartIndex = static_cast<U32>(mIndices.size());
-				pCurrCommand->mStartVertex = static_cast<U32>(mVertices.size());
-				pCurrCommand->mNumOfIndices = static_cast<U32>(mIntermediateIndexBuffer.size());
+				pendingCommands.emplace_back(
+					TUIElementsFramePacketData::TUIElementsDrawCommand
+					{
+						Transpose(pCurrCanvas->GetProjMatrix() * pTransform->GetLocalToWorldTransform()),
+						TVector4 { uvRect.x, uvRect.y, uvRect.width, uvRect.height },
+						static_cast<U32>(pendingIndices.size()),
+						static_cast<U32>(pendingVertices.size()),
+						static_cast<U32>(mIntermediateIndexBuffer.size()),
+						((0xFFFF - (pCurrCanvas->GetPriority() + (0xFFFF >> 1))) << 16) | (static_cast<U32>(layoutElements.size()) - index + (static_cast<U32>(priorities.size()) - priorities[i])),
+						currTextureId,
+						currMaterialId,
+						currMaterialInstance
+					});
 
-				pCurrCommand->mObjectData.mStartIndexOffset  = static_cast<U32>(mIndices.size());
-				pCurrCommand->mObjectData.mStartVertexOffset = static_cast<U32>(mVertices.size());
-
-				std::copy(mIntermediateVertsBuffer.cbegin(), mIntermediateVertsBuffer.cend(), std::back_inserter(mVertices));
-				std::copy(mIntermediateIndexBuffer.cbegin(), mIntermediateIndexBuffer.cend(), std::back_inserter(mIndices));
-
-				/// \todo Implement this
-				auto&& uvRect = pTexture ? pTexture->GetNormalizedTextureRect() : TRectF32{ 0.0f, 0.0f, 1.0f, 1.0f };
-
-				pCurrCommand->mObjectData.mModelMatrix = Transpose(pCurrCanvas->GetProjMatrix() * pTransform->GetLocalToWorldTransform());
-				pCurrCommand->mObjectData.mTextureTransformDesc = { uvRect.x, uvRect.y, uvRect.width, uvRect.height };
+				std::copy(mIntermediateVertsBuffer.cbegin(), mIntermediateVertsBuffer.cend(), std::back_inserter(pendingVertices));
+				std::copy(mIntermediateIndexBuffer.cbegin(), mIntermediateIndexBuffer.cend(), std::back_inserter(pendingIndices));
 
 				mIntermediateVertsBuffer.clear();
 				mIntermediateIndexBuffer.clear();
@@ -303,17 +335,109 @@ namespace TDEngine2
 				++index;
 
 				continue;
-			}		
+			}
 		}
+	}
 
-		if (mVertices.empty())
+
+	static inline TResult<TBufferHandleId> CreateBuffer(IGraphicsObjectManager* pGraphicsObjectManager, USIZE size, USIZE strideSize)
+	{
+		TDE2_PROFILER_SCOPE("CreateBuffer");
+
+		return pGraphicsObjectManager->CreateBuffer(
+			{
+					E_BUFFER_USAGE_TYPE::DYNAMIC,
+					E_BUFFER_TYPE::STRUCTURED,
+					size,
+					nullptr,
+					size,
+					false,
+					strideSize,
+					E_STRUCTURED_BUFFER_TYPE::DEFAULT
+			});
+	}
+
+
+	E_RESULT_CODE CUIElementsRenderSystem::FillFramePacket(TFramePacket& framePacket)
+	{
+		TDE2_PROFILER_SCOPE("CUIElementsRenderSystem::FillFramePacket");
+
+		TFramePacket::TUIElementsFrameData& uiElementsFrameData = framePacket.mUIElementsFrameData;
+
+		if (TBufferHandleId::Invalid == uiElementsFrameData.mVertexBufferHandle)
 		{
-			return;
+			auto createVertexBufferResult = CreateBuffer(mpGraphicsObjectManager, sizeof(TUIElementsVertex) * mMaxVerticesCount, sizeof(TUIElementsVertex));
+			if (createVertexBufferResult.HasError())
+			{
+				LOG_ERROR(Wrench::StringUtils::Format("[CUIElementsRenderSystem] Failed to create vertex buffer: {0}", createVertexBufferResult.GetError()));
+				return createVertexBufferResult.GetError();
+			}
+
+			uiElementsFrameData.mVertexBufferHandle = createVertexBufferResult.Get();
 		}
 
-		/// \note Write data into GPU buffers
-		E_RESULT_CODE result = _updateGPUBuffers();
-		TDE2_ASSERT(RC_OK == result);
+		if (TBufferHandleId::Invalid == uiElementsFrameData.mIndexBufferHandle)
+		{
+			auto createIndexBufferResult = CreateBuffer(mpGraphicsObjectManager, sizeof(U32) * mMaxVerticesCount * 3, sizeof(U32));
+			if (createIndexBufferResult.HasError())
+			{
+				LOG_ERROR(Wrench::StringUtils::Format("[CUIElementsRenderSystem] Failed to create index buffer: {0}", createIndexBufferResult.GetError()));
+				return createIndexBufferResult.GetError();
+			}
+
+			uiElementsFrameData.mIndexBufferHandle = createIndexBufferResult.Get();
+		}
+
+		TPtr<IBuffer> pVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(uiElementsFrameData.mVertexBufferHandle);
+		TPtr<IBuffer> pIndexBuffer  = mpGraphicsObjectManager->GetBufferPtr(uiElementsFrameData.mIndexBufferHandle);
+
+		if (!pVertexBuffer || !pIndexBuffer)
+		{
+			return RC_FAIL;
+		}
+
+		TPtr<CRenderQueue> pUIElementsRenderGroup = framePacket.mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_OVERLAY)];
+
+		const TUIElementsFramePacketData::TVertexArray& vertices = mpPendingFramePacketData->mVertices;
+		const TUIElementsFramePacketData::TIndexArray& indices   = mpPendingFramePacketData->mIndices;
+
+		for (const TUIElementsFramePacketData::TUIElementsDrawCommand& currDrawCommand : mpPendingFramePacketData->mCommands)
+		{
+			auto pCurrCommand = pUIElementsRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(currDrawCommand.mDrawGroupKey);
+			pCurrCommand->mVertexBufferHandle = uiElementsFrameData.mVertexBufferHandle;
+			pCurrCommand->mIndexBufferHandle  = uiElementsFrameData.mIndexBufferHandle;
+			pCurrCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+			pCurrCommand->mMaterialHandle     = currDrawCommand.mMaterialHandle;
+			pCurrCommand->mMaterialInstanceId = currDrawCommand.mMaterialInstanceId;
+			pCurrCommand->mStartIndex         = currDrawCommand.mStartIndex;
+			pCurrCommand->mStartVertex        = currDrawCommand.mStartVertex;
+			pCurrCommand->mNumOfIndices       = currDrawCommand.mIndicesCount;
+
+			pCurrCommand->mObjectData.mStartIndexOffset     = currDrawCommand.mStartIndex;
+			pCurrCommand->mObjectData.mStartVertexOffset    = currDrawCommand.mStartVertex;
+			pCurrCommand->mObjectData.mModelMatrix          = currDrawCommand.mModelMat;
+			pCurrCommand->mObjectData.mTextureTransformDesc = currDrawCommand.mTextureTransformDesc;
+		}
+
+		if (vertices.empty())
+		{
+			return RC_OK;
+		}
+
+		// \note Copy vertex/index data into their target buffers
+		TUpdateBufferCommand* pUpdateVertexBufferCmd = pUIElementsRenderGroup->SubmitDrawCommand<TUpdateBufferCommand>(0);
+		pUpdateVertexBufferCmd->mBufferHandle = uiElementsFrameData.mVertexBufferHandle;
+		pUpdateVertexBufferCmd->mpData        = vertices.data();
+		pUpdateVertexBufferCmd->mDataSize     = sizeof(TUIElementsVertex) * vertices.size();
+		pUpdateVertexBufferCmd->mMapType      = E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD;
+
+		TUpdateBufferCommand* pUpdateIndexBufferCmd = pUIElementsRenderGroup->SubmitDrawCommand<TUpdateBufferCommand>(0);
+		pUpdateIndexBufferCmd->mBufferHandle = uiElementsFrameData.mIndexBufferHandle;
+		pUpdateIndexBufferCmd->mpData        = indices.data();
+		pUpdateIndexBufferCmd->mDataSize     = sizeof(U32) * indices.size();
+		pUpdateIndexBufferCmd->mMapType      = E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD;
+
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CUIElementsRenderSystem::_initDefaultResources()
@@ -359,60 +483,6 @@ namespace TDEngine2
 
 		/// \note Text can't be a mask but can be a maskable item
 		mDefaultFontMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::MASK_EMITTER)] = mDefaultFontMaterialId[static_cast<USIZE>(E_UI_MATERIAL_TYPE::DEFAULT)];
-
-		/// \note Create vertex buffer and index one
-		auto createVertBufferResult = mpGraphicsObjectManager->CreateBuffer({ 
-				E_BUFFER_USAGE_TYPE::DYNAMIC, 
-				E_BUFFER_TYPE::STRUCTURED, 
-				sizeof(TUIElementsVertex) * mMaxVerticesCount, 
-				nullptr,
-				sizeof(TUIElementsVertex)* mMaxVerticesCount,
-				false,
-				sizeof(TUIElementsVertex),
-				E_STRUCTURED_BUFFER_TYPE::DEFAULT 
-			});
-		if (createVertBufferResult.HasError())
-		{
-			return createVertBufferResult.GetError();
-		}
-
-		mVertexBufferHandle = createVertBufferResult.Get();
-
-		auto createIndexBufferResult = mpGraphicsObjectManager->CreateBuffer({ 
-				E_BUFFER_USAGE_TYPE::DYNAMIC, 
-				E_BUFFER_TYPE::STRUCTURED, 
-				sizeof(U32) * mMaxVerticesCount * 3,
-				nullptr,
-				sizeof(U32) * mMaxVerticesCount * 3,
-				false,
-				sizeof(U32),
-				E_STRUCTURED_BUFFER_TYPE::DEFAULT 
-			});
-		if (createIndexBufferResult.HasError())
-		{
-			return createIndexBufferResult.GetError();
-		}
-
-		mIndexBufferHandle = createIndexBufferResult.Get();
-
-		return RC_OK;
-	}
-
-	E_RESULT_CODE CUIElementsRenderSystem::_updateGPUBuffers()
-	{
-		TPtr<CRenderQueue> pUIElementsRenderGroup = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_OVERLAY)];
-
-		TUpdateBufferCommand* pUpdateVertexBufferCmd = pUIElementsRenderGroup->SubmitDrawCommand<TUpdateBufferCommand>(0);
-		pUpdateVertexBufferCmd->mBufferHandle = mVertexBufferHandle;
-		pUpdateVertexBufferCmd->mpData        = mVertices.data();
-		pUpdateVertexBufferCmd->mDataSize     = sizeof(TUIElementsVertex) * mVertices.size();
-		pUpdateVertexBufferCmd->mMapType      = E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD;
-
-		TUpdateBufferCommand* pUpdateIndexBufferCmd = pUIElementsRenderGroup->SubmitDrawCommand<TUpdateBufferCommand>(0);
-		pUpdateIndexBufferCmd->mBufferHandle = mIndexBufferHandle;
-		pUpdateIndexBufferCmd->mpData = mIndices.data();
-		pUpdateIndexBufferCmd->mDataSize = sizeof(U32) * mIndices.size();
-		pUpdateIndexBufferCmd->mMapType = E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD;
 
 		return RC_OK;
 	}

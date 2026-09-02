@@ -49,6 +49,12 @@ namespace TDEngine2
 			Vector<TBufferHandleId> mSpritesPerInstanceDataHandles{};
 		};
 
+		struct TUIElementsFrameData
+		{
+			TBufferHandleId mVertexBufferHandle = TBufferHandleId::Invalid;
+			TBufferHandleId mIndexBufferHandle = TBufferHandleId::Invalid;
+		};
+
 		U32                       mFrameIndex = 0;
 		F32                       mDeltaTime = 0.0f; ///< Also it could be retrieved from mPerFrameData.mTime.y
 		
@@ -63,6 +69,7 @@ namespace TDEngine2
 
 		TImGUIFrameData           mImGUIFrameData{};
 		TSpritesFrameData         mSpritesBatchesData{};
+		TUIElementsFrameData      mUIElementsFrameData{};
 	} TFramePacket, *TFramePacketPtr;
 
 
