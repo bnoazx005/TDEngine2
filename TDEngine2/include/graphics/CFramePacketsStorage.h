@@ -64,6 +64,7 @@ namespace TDEngine2
 		TRenderQueuesArray        mpRenderQueues { nullptr }; /// PerRenderQueueMemoryBlockSize per render queue
 
 		TGPUParticleEmittersArray mGpuParticleEmitters;
+		Vector<TBufferHandleId>   mCpuParticlesInstancesBufferHandles{};
 
 		TLightsDataArray          mActiveLightSources;
 
