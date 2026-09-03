@@ -38,7 +38,6 @@ namespace TDEngine2
 		CBaseSystem(),
 		mSpritesVertexBufferHandle(TBufferHandleId::Invalid),
 		mSpritesIndexBufferHandle(TBufferHandleId::Invalid),
-		mUIElementsVertexBufferHandle(TBufferHandleId::Invalid),
 		mSelectionMaterialHandle(TResourceId::Invalid),
 		mSelectionSkinnedMaterialHandle(TResourceId::Invalid),
 		mSelectionUIMaterialHandle(TResourceId::Invalid),
@@ -62,7 +61,6 @@ namespace TDEngine2
 		}
 
 		mpGraphicsObjectManager = pGraphicsObjectManager;
-		mpFramePacketsStorage   = pRenderer->GetFramePacketsStorage().Get();
 		mpResourceManager       = pRenderer->GetResourceManager();
 
 		E_RESULT_CODE result = RC_OK;
@@ -72,8 +70,6 @@ namespace TDEngine2
 		{
 			return result;
 		}
-
-		mUIElementsVertexBufferHandle = TBufferHandleId::Invalid;
 
 		mIsInitialized = true;
 
@@ -128,7 +124,7 @@ namespace TDEngine2
 
 
 	static void ProcessStaticMeshEntity(CObjectsSelectionSystem::TSystemContext<CStaticMeshContainer>& context, TPtr<IResourceManager> pResourceManager,
-										U32 drawIndex, CRenderQueue* pCommandBuffer, USIZE index, TResourceId materialHandle)
+										U32 drawIndex, USIZE index, TResourceId materialHandle, CObjectsSelectionSystem::TMeshDrawCommands& drawCommands)
 	{
 		CStaticMeshContainer* pStaticMeshContainer = context.mpRenderables[index];
 		CTransform* pTransform = context.mpTransforms[index];
@@ -159,24 +155,22 @@ namespace TDEngine2
 
 		if (TPtr<IStaticMesh> pStaticMeshResource = DynamicPtrCast<IStaticMesh>(pMeshResource))
 		{
-			if (TDrawIndexedCommand* pDrawCommand = pCommandBuffer->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex))
-			{
-				pDrawCommand->mVertexBufferHandle = pStaticMeshResource->GetVertexBufferForStream(E_VERTEX_STREAM_TYPE::POSITIONS);
-				pDrawCommand->mIndexBufferHandle = pStaticMeshResource->GetSharedIndexBuffer();
-				pDrawCommand->mMaterialHandle = materialHandle;
-				pDrawCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
-				pDrawCommand->mObjectData.mObjectID = static_cast<U32>(context.mEntityIds[index]);
-				pDrawCommand->mStartIndex = subMeshInfo.mStartIndex;
-				pDrawCommand->mNumOfIndices = subMeshInfo.mIndicesCount;
-				pDrawCommand->mStartVertex = 0;
-			}
+			drawCommands.emplace_back(CObjectsSelectionSystem::TMeshDrawEntry
+				{
+					Transpose(pTransform->GetLocalToWorldTransform()),
+					pStaticMeshResource->GetVertexBufferForStream(E_VERTEX_STREAM_TYPE::POSITIONS),
+					pStaticMeshResource->GetSharedIndexBuffer(),
+					drawIndex,
+					subMeshInfo.mStartIndex,
+					subMeshInfo.mIndicesCount,
+					static_cast<U32>(context.mEntityIds[index])
+				});
 		}
 	}
 
 
 	static void ProcessSkinnedMeshEntity(CObjectsSelectionSystem::TSystemContext<CSkinnedMeshContainer>& context, TPtr<IResourceManager> pResourceManager,
-										U32 drawIndex, CRenderQueue* pCommandBuffer, USIZE index, TResourceId materialHandle)
+										U32 drawIndex, USIZE index, TResourceId materialHandle, CObjectsSelectionSystem::TMeshDrawCommands& drawCommands)
 	{
 		CSkinnedMeshContainer* pSkinnedMeshContainer = context.mpRenderables[index];
 		CTransform* pTransform = context.mpTransforms[index];
@@ -205,46 +199,36 @@ namespace TDEngine2
 
 			auto&& subMeshInfo = pSkinnedMeshContainer->GetSubMeshInfo();
 
-			if (TDrawIndexedCommand* pDrawCommand = pCommandBuffer->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex))
-			{
-				pDrawCommand->mVertexBufferHandle = pSkinnedMeshResource->GetVertexBufferForStream(E_VERTEX_STREAM_TYPE::POSITIONS);
-				pDrawCommand->mIndexBufferHandle = pSkinnedMeshResource->GetSharedIndexBuffer();
-				pDrawCommand->mMaterialHandle = materialHandle;
-				pDrawCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
-				pDrawCommand->mObjectData.mObjectID = static_cast<U32>(context.mEntityIds[index]);
-				pDrawCommand->mStartIndex = subMeshInfo.mStartIndex;
-				pDrawCommand->mNumOfIndices = subMeshInfo.mIndicesCount;
-				pDrawCommand->mStartVertex = 0;
-			}
+			drawCommands.emplace_back(CObjectsSelectionSystem::TMeshDrawEntry
+				{
+					Transpose(pTransform->GetLocalToWorldTransform()),
+					pSkinnedMeshResource->GetVertexBufferForStream(E_VERTEX_STREAM_TYPE::POSITIONS),
+					pSkinnedMeshResource->GetSharedIndexBuffer(),
+					drawIndex,
+					subMeshInfo.mStartIndex,
+					subMeshInfo.mIndicesCount,
+					static_cast<U32>(context.mEntityIds[index])
+				});
 		}
 	}
 
 
-	static void ProcessSpriteEntity(CObjectsSelectionSystem::TSystemContext<CQuadSprite>& context, TPtr<IResourceManager> pResourceManager, 
-									TBufferHandleId vertBufferHandle, TBufferHandleId indexBufferHandle, U32 drawIndex, CRenderQueue* pCommandBuffer, USIZE index, TResourceId materialHandle)
+	static void ProcessSpriteEntity(CObjectsSelectionSystem::TSystemContext<CQuadSprite>& context, U32 drawIndex, USIZE index, CObjectsSelectionSystem::TSpriteDrawCommands& drawCommands)
 	{
 		CQuadSprite* pSpriteComponent = context.mpRenderables[index];
 		CTransform* pTransform = context.mpTransforms[index];
 
-		if (TDrawIndexedCommand* pDrawCommand = pCommandBuffer->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex))
-		{
-			pDrawCommand->mVertexBufferHandle = vertBufferHandle;
-			pDrawCommand->mIndexBufferHandle = indexBufferHandle;
-			pDrawCommand->mMaterialHandle = materialHandle;
-			pDrawCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-			pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
-			pDrawCommand->mObjectData.mObjectID = static_cast<U32>(context.mEntityIds[index]);
-			pDrawCommand->mStartIndex = 0;
-			pDrawCommand->mStartVertex = 0;
-			pDrawCommand->mNumOfIndices = 6;
-		}
+		drawCommands.emplace_back(CObjectsSelectionSystem::TSpriteDrawEntry
+			{
+				Transpose(pTransform->GetLocalToWorldTransform()),
+				drawIndex,
+				static_cast<U32>(context.mEntityIds[index])
+			});
 	}
 
 
 	static void ProcessUIElementEntity(IWorld* pWorld, std::vector<TVector4>& vertsOutput, CObjectsSelectionSystem::TUIElementsContext& context, TPtr<IResourceManager> pResourceManager, 
-									TBufferHandleId vertBufferHandle, TBufferHandleId indexBufferHandle, U32 drawIndex,
-									CRenderQueue* pCommandBuffer, USIZE index, TResourceId materialHandle, USIZE& vertexBufferOffset)
+									U32 drawIndex, USIZE index, USIZE& vertexBufferOffset, CObjectsSelectionSystem::TUIElementDrawCommands& drawCommands)
 	{
 		CUIElementMeshData* pUIMeshData = context.mpRenderables[index];
 		CLayoutElement* pLayoutElement  = context.mLayoutElements[index];
@@ -261,26 +245,19 @@ namespace TDEngine2
 		CEntity* pCanvasEntity = pWorld->FindEntity(pLayoutElement->GetOwnerCanvasId());
 		CCanvas* pCanvasData = pCanvasEntity ? pCanvasEntity->GetComponent<CCanvas>() : nullptr;
 
-		if (TDrawIndexedCommand* pDrawCommand = pCommandBuffer->SubmitDrawCommand<TDrawIndexedCommand>(drawIndex))
-		{
-			pDrawCommand->mVertexBufferHandle = vertBufferHandle;
-			pDrawCommand->mIndexBufferHandle = indexBufferHandle;
-			pDrawCommand->mMaterialHandle = materialHandle;
-			pDrawCommand->mPrimitiveType = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-			pDrawCommand->mObjectData.mModelMatrix = IdentityMatrix4;
-			pDrawCommand->mObjectData.mObjectID = static_cast<U32>(context.mEntityIds[index]);
-			pDrawCommand->mStartIndex = 0;
-			pDrawCommand->mStartVertex = static_cast<U32>(vertexBufferOffset);
-			pDrawCommand->mNumOfIndices = 6;
+		auto&& rect = pLayoutElement->GetWorldRect();
+		auto pivot = rect.GetLeftBottom() + pLayoutElement->GetPivot() * rect.GetSizes();
 
-			auto&& rect = pLayoutElement->GetWorldRect();
-			auto pivot = rect.GetLeftBottom() + pLayoutElement->GetPivot() * rect.GetSizes();
+		auto pivotTranslation = TranslationMatrix(TVector3{ -pivot.x, -pivot.y, 0.0f });
+		TMatrix4 localObjectTransform = Inverse(pivotTranslation) * RotationMatrix(pTransform->GetRotation()) * ScaleMatrix(pTransform->GetScale()) * pivotTranslation;
 
-			auto pivotTranslation = TranslationMatrix(TVector3{ -pivot.x, -pivot.y, 0.0f });
-			TMatrix4 localObjectTransform = Inverse(pivotTranslation) * RotationMatrix(pTransform->GetRotation()) * ScaleMatrix(pTransform->GetScale()) * pivotTranslation;
-
-			pDrawCommand->mObjectData.mModelMatrix = Transpose((pCanvasData ? pCanvasData->GetProjMatrix() : IdentityMatrix4) * localObjectTransform);
-		}
+		drawCommands.emplace_back(CObjectsSelectionSystem::TUIElementDrawEntry
+			{
+				Transpose((pCanvasData ? pCanvasData->GetProjMatrix() : IdentityMatrix4) * localObjectTransform),
+				drawIndex,
+				static_cast<U32>(context.mEntityIds[index]),
+				static_cast<U32>(vertexBufferOffset)
+			});
 
 		vertexBufferOffset += 4;
 	}
@@ -312,11 +289,13 @@ namespace TDEngine2
 			}
 		*/
 
+		mMeshesCommands.clear();
+		mSelectedMeshesCommands.clear();
+		mSpritesCommands.clear();
+		mSelectedSpritesCommands.clear();
+		mUIElementsCommands.clear();
+
 		U32 commandIndex = 0;
-
-		CRenderQueue* pEditorOnlyRenderQueue = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)].Get();
-		CRenderQueue* pDebugRenderQueue = mpFramePacketsStorage->GetCurrentFrameForGameLogic().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_DEBUG)].Get();
-
 
 		/// \note Static meshes
 		for (USIZE i = 0; i < static_cast<U32>(mStaticMeshesContext.mpRenderables.size()); ++i)
@@ -326,12 +305,12 @@ namespace TDEngine2
 				continue;
 			}
 
-			ProcessStaticMeshEntity(mStaticMeshesContext, mpResourceManager, commandIndex++, pEditorOnlyRenderQueue, i, mSelectionMaterialHandle);
+			ProcessStaticMeshEntity(mStaticMeshesContext, mpResourceManager, commandIndex++, i, mSelectionMaterialHandle, mMeshesCommands);
 
 			if (mStaticMeshesContext.mHasSelectedEntityComponent[i])
 			{
 				ProcessStaticMeshEntity(mStaticMeshesContext, mpResourceManager, static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::SELECTION_OUTLINE),
-										pDebugRenderQueue, i, mSelectionOutlineMaterialHandle);
+										i, mSelectionOutlineMaterialHandle, mSelectedMeshesCommands);
 			}
 		}
 
@@ -343,12 +322,12 @@ namespace TDEngine2
 				continue;
 			}
 
-			ProcessSkinnedMeshEntity(mSkinnedMeshesContext, mpResourceManager, commandIndex++, pEditorOnlyRenderQueue, i, mSelectionSkinnedMaterialHandle);
+			ProcessSkinnedMeshEntity(mSkinnedMeshesContext, mpResourceManager, commandIndex++, i, mSelectionSkinnedMaterialHandle, mMeshesCommands);
 
 			if (mSkinnedMeshesContext.mHasSelectedEntityComponent[i])
 			{
 				ProcessSkinnedMeshEntity(mSkinnedMeshesContext, mpResourceManager, static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::SELECTION_OUTLINE),
-					pDebugRenderQueue, i, mSelectionSkinnedOutlineMaterialHandle);
+					i, mSelectionSkinnedOutlineMaterialHandle, mSelectedMeshesCommands);
 			}
 		}
 
@@ -360,78 +339,161 @@ namespace TDEngine2
 				continue;
 			}
 
-			ProcessSpriteEntity(mSpritesContext, mpResourceManager, mSpritesVertexBufferHandle, mSpritesIndexBufferHandle,
-				commandIndex++, pEditorOnlyRenderQueue, i, mSelectionMaterialHandle);
+			ProcessSpriteEntity(mSpritesContext, commandIndex++, i, mSpritesCommands);
 
 			if (mSpritesContext.mHasSelectedEntityComponent[i])
 			{
-				ProcessSpriteEntity(mSpritesContext, mpResourceManager, mSpritesVertexBufferHandle, mSpritesIndexBufferHandle,
-					static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::SELECTION_OUTLINE), pDebugRenderQueue, i, mSelectionOutlineMaterialHandle);
+				ProcessSpriteEntity(mSpritesContext, static_cast<U32>(E_GEOMETRY_SUBGROUP_TAGS::SELECTION_OUTLINE), i, mSelectedSpritesCommands);
 			}
 		}
 
 		/// \note UI elements 
+		mUIElementsVertexBufferCurrOffset = 0;
+		mUIElementsVertices.clear();
+
+		for (USIZE i = 0; i < static_cast<U32>(mUIElementsContext.mpRenderables.size()); ++i)
 		{
-			static constexpr USIZE MaxVerticesCount = 1024;
-			static constexpr USIZE VertexBufferDefaultSize = sizeof(TVector4) * MaxVerticesCount;
+			/// \note Use sprites' index buffer because ui elements are just quads too
+			ProcessUIElementEntity(pWorld, mUIElementsVertices, mUIElementsContext, mpResourceManager, commandIndex++, i, mUIElementsVertexBufferCurrOffset, mUIElementsCommands);
+		}
+	}
 
-			auto pUIElementsVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(mUIElementsVertexBufferHandle);
+	E_RESULT_CODE CObjectsSelectionSystem::FillFramePacket(TFramePacket& framePacket)
+	{
+		TDE2_PROFILER_SCOPE("CObjectsSelectionSystem::FillFramePacket");
 
-			/// \note If there is no a created vertex buffer or we go out of space extend/create it
-			if (!pUIElementsVertexBuffer || (pUIElementsVertexBuffer && pUIElementsVertexBuffer->GetSize() <= mUIElementsContext.mpRenderables.size() * 4))
+		CRenderQueue* pEditorOnlyRenderQueue = framePacket.mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)].Get();
+
+		for (const TMeshDrawEntry& currMeshCommandEntry : mMeshesCommands)
+		{
+			if (TDrawIndexedCommand* pDrawCommand = pEditorOnlyRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(currMeshCommandEntry.mDrawGroupKey))
 			{
-				if (!pUIElementsVertexBuffer)
-				{
-					mUIElementsVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer(
-						{ 
-							E_BUFFER_USAGE_TYPE::DYNAMIC,
-							E_BUFFER_TYPE::STRUCTURED,
-							VertexBufferDefaultSize,
-							nullptr,
-							VertexBufferDefaultSize,
-							false,
-							sizeof(TVector4),
-							E_STRUCTURED_BUFFER_TYPE::DEFAULT
-						}).Get();
-				}
-				else
-				{
-					mUIElementsVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer(
-						{
-							E_BUFFER_USAGE_TYPE::DYNAMIC,
-							E_BUFFER_TYPE::STRUCTURED,
-							pUIElementsVertexBuffer->GetSize() + VertexBufferDefaultSize,
-							nullptr,
-							VertexBufferDefaultSize,
-							false,
-							sizeof(TVector4),
-							E_STRUCTURED_BUFFER_TYPE::DEFAULT
-						}).Get();
-				}
-			}
-
-			mUIElementsVertexBufferCurrOffset = 0;
-
-			static std::vector<TVector4> uiElementsVerts;
-
-			uiElementsVerts.clear();
-
-			for (USIZE i = 0; i < static_cast<U32>(mUIElementsContext.mpRenderables.size()); ++i)
-			{
-				/// \note Use sprites' index buffer because ui elements are just quads too
-				ProcessUIElementEntity(pWorld, uiElementsVerts, mUIElementsContext, mpResourceManager, mUIElementsVertexBufferHandle, mSpritesIndexBufferHandle,
-									commandIndex++, pEditorOnlyRenderQueue, i, mSelectionUIMaterialHandle, mUIElementsVertexBufferCurrOffset);
-			}
-
-			if (pUIElementsVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(mUIElementsVertexBufferHandle))
-			{
-				E_RESULT_CODE result = pUIElementsVertexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
-				TDE2_ASSERT(RC_OK == result);
-
-				pUIElementsVertexBuffer->Write(uiElementsVerts.data(), sizeof(TVector4) * uiElementsVerts.size());
-				pUIElementsVertexBuffer->Unmap();
+				pDrawCommand->mVertexBufferHandle      = currMeshCommandEntry.mSharedPositionOnlyVertexBufferHandle;
+				pDrawCommand->mIndexBufferHandle       = currMeshCommandEntry.mSharedIndexBufferHandle;
+				pDrawCommand->mMaterialHandle          = mSelectionMaterialHandle;
+				pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+				pDrawCommand->mObjectData.mModelMatrix = currMeshCommandEntry.mModelMat;
+				pDrawCommand->mObjectData.mObjectID    = currMeshCommandEntry.mObjectID;
+				pDrawCommand->mStartIndex              = currMeshCommandEntry.mStartIndex;
+				pDrawCommand->mNumOfIndices            = currMeshCommandEntry.mIndicesCount;
+				pDrawCommand->mStartVertex             = 0;
 			}
 		}
+
+		for (const TSpriteDrawEntry& currSpriteCommandEntry : mSpritesCommands)
+		{
+			if (TDrawIndexedCommand* pDrawCommand = pEditorOnlyRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(currSpriteCommandEntry.mDrawGroupKey))
+			{
+				pDrawCommand->mVertexBufferHandle      = mSpritesVertexBufferHandle;
+				pDrawCommand->mIndexBufferHandle       = mSpritesIndexBufferHandle;
+				pDrawCommand->mMaterialHandle          = mSelectionMaterialHandle;
+				pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+				pDrawCommand->mObjectData.mModelMatrix = currSpriteCommandEntry.mModelMat;
+				pDrawCommand->mObjectData.mObjectID    = currSpriteCommandEntry.mObjectID;
+				pDrawCommand->mStartIndex              = 0;
+				pDrawCommand->mStartVertex             = 0;
+				pDrawCommand->mNumOfIndices            = 6;
+			}
+		}
+
+		TPtr<IBuffer> pUIElementsVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(framePacket.mSelectionSystemData.mUIElementsVertexBufferHandle);
+		
+		constexpr USIZE MAX_UI_ELEMENTS_VERTICES_COUNT = 1024;
+		constexpr USIZE UI_ELEMENTS_VERTEX_BUFFER_SIZE = sizeof(TVector4) * MAX_UI_ELEMENTS_VERTICES_COUNT;
+
+		/// \note If there is no a created vertex buffer or we go out of space extend/create it
+		if (!pUIElementsVertexBuffer || (pUIElementsVertexBuffer && pUIElementsVertexBuffer->GetSize() <= mUIElementsContext.mpRenderables.size() * 4))
+		{
+			if (!pUIElementsVertexBuffer)
+			{
+				framePacket.mSelectionSystemData.mUIElementsVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer(
+					{
+						E_BUFFER_USAGE_TYPE::DYNAMIC,
+						E_BUFFER_TYPE::STRUCTURED,
+						UI_ELEMENTS_VERTEX_BUFFER_SIZE,
+						nullptr,
+						UI_ELEMENTS_VERTEX_BUFFER_SIZE,
+						false,
+						sizeof(TVector4),
+						E_STRUCTURED_BUFFER_TYPE::DEFAULT
+					}).Get();
+			}
+			else
+			{
+				framePacket.mSelectionSystemData.mUIElementsVertexBufferHandle = mpGraphicsObjectManager->CreateBuffer(
+					{
+						E_BUFFER_USAGE_TYPE::DYNAMIC,
+						E_BUFFER_TYPE::STRUCTURED,
+						pUIElementsVertexBuffer->GetSize() + UI_ELEMENTS_VERTEX_BUFFER_SIZE,
+						nullptr,
+						UI_ELEMENTS_VERTEX_BUFFER_SIZE,
+						false,
+						sizeof(TVector4),
+						E_STRUCTURED_BUFFER_TYPE::DEFAULT
+					}).Get();
+			}
+		}
+
+		if (pUIElementsVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(framePacket.mSelectionSystemData.mUIElementsVertexBufferHandle))
+		{
+			E_RESULT_CODE result = pUIElementsVertexBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE_DISCARD);
+			TDE2_ASSERT(RC_OK == result);
+
+			pUIElementsVertexBuffer->Write(mUIElementsVertices.data(), sizeof(TVector4) * mUIElementsVertices.size());
+			pUIElementsVertexBuffer->Unmap();
+		}
+
+		for (const TUIElementDrawEntry& currUiElementCommandEntry : mUIElementsCommands)
+		{
+			if (TDrawIndexedCommand* pDrawCommand = pEditorOnlyRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(currUiElementCommandEntry.mDrawGroupKey))
+			{
+				pDrawCommand->mVertexBufferHandle      = framePacket.mSelectionSystemData.mUIElementsVertexBufferHandle;
+				pDrawCommand->mIndexBufferHandle       = mSpritesIndexBufferHandle;
+				pDrawCommand->mMaterialHandle          = mSelectionMaterialHandle;
+				pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+				pDrawCommand->mObjectData.mModelMatrix = currUiElementCommandEntry.mModelMat;
+				pDrawCommand->mObjectData.mObjectID    = currUiElementCommandEntry.mObjectID;
+				pDrawCommand->mStartIndex              = 0;
+				pDrawCommand->mStartVertex             = currUiElementCommandEntry.mStartVertex;
+				pDrawCommand->mNumOfIndices            = 6;
+			}
+		}
+
+		CRenderQueue* pDebugRenderQueue = framePacket.mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_DEBUG)].Get();
+
+		for (const TMeshDrawEntry& currMeshCommandEntry : mSelectedMeshesCommands)
+		{
+			if (TDrawIndexedCommand* pDrawCommand = pDebugRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(currMeshCommandEntry.mDrawGroupKey))
+			{
+				pDrawCommand->mVertexBufferHandle      = currMeshCommandEntry.mSharedPositionOnlyVertexBufferHandle;
+				pDrawCommand->mIndexBufferHandle       = currMeshCommandEntry.mSharedIndexBufferHandle;
+				pDrawCommand->mMaterialHandle          = mSelectionOutlineMaterialHandle;
+				pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+				pDrawCommand->mObjectData.mModelMatrix = currMeshCommandEntry.mModelMat;
+				pDrawCommand->mObjectData.mObjectID    = currMeshCommandEntry.mObjectID;
+				pDrawCommand->mStartIndex              = currMeshCommandEntry.mStartIndex;
+				pDrawCommand->mNumOfIndices            = currMeshCommandEntry.mIndicesCount;
+				pDrawCommand->mStartVertex             = 0;
+			}
+		}
+
+		for (const TSpriteDrawEntry& currSpriteCommandEntry : mSelectedSpritesCommands)
+		{
+			if (TDrawIndexedCommand* pDrawCommand = pEditorOnlyRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(currSpriteCommandEntry.mDrawGroupKey))
+			{
+				pDrawCommand->mVertexBufferHandle      = mSpritesVertexBufferHandle;
+				pDrawCommand->mIndexBufferHandle       = mSpritesIndexBufferHandle;
+				pDrawCommand->mMaterialHandle          = mSelectionOutlineMaterialHandle;
+				pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+				pDrawCommand->mObjectData.mModelMatrix = currSpriteCommandEntry.mModelMat;
+				pDrawCommand->mObjectData.mObjectID    = currSpriteCommandEntry.mObjectID;
+				pDrawCommand->mStartIndex              = 0;
+				pDrawCommand->mStartVertex             = 0;
+				pDrawCommand->mNumOfIndices            = 6;
+			}
+		}
+
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CObjectsSelectionSystem::_initSpriteBuffers()

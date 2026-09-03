@@ -8,6 +8,7 @@
 
 
 #include "CBaseSystem.h"
+#include "../math/TMatrix4.h"
 
 
 #if TDE2_EDITORS_ENABLED
@@ -29,7 +30,6 @@ namespace TDEngine2
 	class CUIElementMeshData;
 	class CLayoutElement;
 	class CBoundsComponent;
-	class CFramePacketsStorage;
 
 
 	enum class TBufferHandleId : U32;
@@ -58,7 +58,7 @@ namespace TDEngine2
 		\brief The class is a system that processes object picking
 	*/
 
-	class CObjectsSelectionSystem : public CBaseSystem
+	class CObjectsSelectionSystem : public CBaseSystem, public IRenderSystem
 	{
 		public:
 			friend TDE2_API ISystem* CreateObjectsSelectionSystem(IRenderer*, IGraphicsObjectManager*, E_RESULT_CODE&);
@@ -83,6 +83,38 @@ namespace TDEngine2
 			typedef TSystemContext<CSkinnedMeshContainer> TSkinnedMeshesContext;
 			typedef TSystemContext<CQuadSprite>           TSpritesMeshesContext;
 			typedef TUIElementsSystemContext              TUIElementsContext;
+
+			struct TMeshDrawEntry
+			{
+				TMatrix4                 mModelMat{};
+
+				TBufferHandleId          mSharedPositionOnlyVertexBufferHandle;
+				TBufferHandleId          mSharedIndexBufferHandle;
+
+				U32                      mDrawGroupKey = 0;
+				U32                      mStartIndex = 0;
+				U32                      mIndicesCount = 0;
+				U32                      mObjectID = 0;
+			};
+
+			struct TSpriteDrawEntry
+			{
+				TMatrix4 mModelMat{};
+				U32      mDrawGroupKey = 0;
+				U32      mObjectID = 0;
+			};
+
+			struct TUIElementDrawEntry
+			{
+				TMatrix4 mModelMat{};
+				U32      mDrawGroupKey = 0;
+				U32      mObjectID = 0;
+				U32      mStartVertex = 0;
+			};
+
+			typedef Vector<TMeshDrawEntry>      TMeshDrawCommands;
+			typedef Vector<TSpriteDrawEntry>    TSpriteDrawCommands;
+			typedef Vector<TUIElementDrawEntry> TUIElementDrawCommands;
 		public:
 			TDE2_SYSTEM(CObjectsSelectionSystem);
 
@@ -116,6 +148,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void Update(IWorld* pWorld, F32 dt) override;
+
+			TDE2_API E_RESULT_CODE FillFramePacket(TFramePacket& framePacket) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CObjectsSelectionSystem)
 
@@ -135,14 +169,10 @@ namespace TDEngine2
 
 			TPtr<IResourceManager>  mpResourceManager = nullptr;
 
-			CFramePacketsStorage*   mpFramePacketsStorage = nullptr;
-
 			TEntityId               mCameraEntityId = TEntityId::Invalid;
 
 			TBufferHandleId         mSpritesVertexBufferHandle;
 			TBufferHandleId         mSpritesIndexBufferHandle;
-
-			TBufferHandleId         mUIElementsVertexBufferHandle;
 
 			TResourceId             mSelectionMaterialHandle;
 			TResourceId             mSelectionSkinnedMaterialHandle;
@@ -152,6 +182,14 @@ namespace TDEngine2
 			TResourceId             mSelectionSkinnedOutlineMaterialHandle;
 
 			USIZE                   mUIElementsVertexBufferCurrOffset = 0;
+
+			TMeshDrawCommands       mMeshesCommands{};
+			TMeshDrawCommands       mSelectedMeshesCommands{};
+			TSpriteDrawCommands     mSpritesCommands{};
+			TSpriteDrawCommands     mSelectedSpritesCommands{};
+			TUIElementDrawCommands  mUIElementsCommands{};
+
+			std::vector<TVector4>   mUIElementsVertices{};
 	};
 }
 

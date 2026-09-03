@@ -55,6 +55,17 @@ namespace TDEngine2
 			TBufferHandleId mIndexBufferHandle = TBufferHandleId::Invalid;
 		};
 
+#if TDE2_EDITORS_ENABLED
+
+		struct TSelectionSystemFrameData
+		{
+			TBufferHandleId mUIElementsVertexBufferHandle = TBufferHandleId::Invalid;
+		};
+
+		TSelectionSystemFrameData mSelectionSystemData{};
+
+#endif
+
 		U32                       mFrameIndex = 0;
 		F32                       mDeltaTime = 0.0f; ///< Also it could be retrieved from mPerFrameData.mTime.y
 		
