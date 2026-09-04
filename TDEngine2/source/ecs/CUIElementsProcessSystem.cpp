@@ -811,6 +811,8 @@ namespace TDEngine2
 
 	void CUIElementsProcessSystem::InjectBindings(IWorld* pWorld)
 	{
+		TDE2_PROFILER_SCOPE("CUIElementsProcessSystem::InjectBindings");
+
 		SortLayoutElementEntities(pWorld, mLayoutElementsContext);
 
 		auto checkAndAssignLayoutElements = [this](TEntityId id, CLayoutElement* pLayoutElement)

@@ -55,6 +55,8 @@ namespace TDEngine2
 
 	void CAnimationSystem::InjectBindings(IWorld* pWorld)
 	{
+		TDE2_PROFILER_SCOPE("CAnimationSystem::InjectBindings");
+
 		mAnimationContainersContext.mpAnimationContainers.clear();
 		mAnimationContainersContext.mEntities.clear();
 

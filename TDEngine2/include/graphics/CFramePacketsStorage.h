@@ -113,15 +113,6 @@ namespace TDEngine2
 
 			TDE2_API TFramePacket& AcquireRenderLogicFramePacket();
 			TDE2_API E_RESULT_CODE SubmitRenderLogicFramePacket();
-
-			TDE2_API void IncrementGameLogicFrameCounter();
-			TDE2_API void IncrementRenderFrameCounter();
-
-			TDE2_API TFramePacket& GetCurrentFrameForGameLogic();
-			TDE2_API TFramePacket& GetCurrentFrameForRender();
-
-			TDE2_API U64 GetGameLogicFrameIndex() const;
-			TDE2_API U64 GetRenderFrameIndex() const;
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFramePacketsStorage)
 		private:

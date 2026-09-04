@@ -99,6 +99,8 @@ namespace TDEngine2
 
 	void CUIElementsRenderSystem::InjectBindings(IWorld* pWorld)
 	{
+		TDE2_PROFILER_SCOPE("CUIElementsRenderSystem::InjectBindings");
+
 		auto& transforms     = mUIElementsContext.mpTransforms;
 		auto& layoutElements = mUIElementsContext.mpLayoutElements;
 		auto& uiMeshData     = mUIElementsContext.mpUIMeshData;

@@ -62,6 +62,8 @@ namespace TDEngine2
 
 	void CStaticMeshRendererSystem::InjectBindings(IWorld* pWorld)
 	{
+		TDE2_PROFILER_SCOPE("CStaticMeshRendererSystem::InjectBindings");
+
 		TEntitiesArray entities = pWorld->FindEntitiesWithComponents<CTransform, CStaticMeshContainer, CBoundsComponent>();
 
 		mProcessingEntities.clear();

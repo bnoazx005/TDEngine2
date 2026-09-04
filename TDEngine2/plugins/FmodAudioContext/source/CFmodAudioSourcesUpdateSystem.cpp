@@ -12,6 +12,7 @@
 #include <fmod.hpp>
 #include <fmod_common.h>
 #include <fmod_errors.h>
+#include <editor/CPerfProfiler.h>
 
 
 namespace TDEngine2
@@ -43,6 +44,7 @@ namespace TDEngine2
 
 	void CAudioSourcesUpdateSystem::InjectBindings(IWorld* pWorld)
 	{
+		TDE2_PROFILER_SCOPE("CAudioSourcesUpdateSystem::InjectBindings");
 		mAudioSources = pWorld->FindEntitiesWithComponents<CAudioSourceComponent>();
 	}
 

@@ -106,36 +106,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void CFramePacketsStorage::IncrementGameLogicFrameCounter()
-	{
-		mCurrGameLogicFrameIndex = (mCurrGameLogicFrameIndex + 1) & (MAX_FRAME_PACKETS_COUNT - 1);
-	}
-
-	void CFramePacketsStorage::IncrementRenderFrameCounter()
-	{
-		mCurrRenderFrameIndex = (mCurrRenderFrameIndex + 1) & (MAX_FRAME_PACKETS_COUNT - 1);
-	}
-
-	TFramePacket& CFramePacketsStorage::GetCurrentFrameForGameLogic()
-	{
-		return mFramePackets[mCurrGameLogicFrameIndex];
-	}
-
-	TFramePacket& CFramePacketsStorage::GetCurrentFrameForRender()
-	{
-		return mFramePackets[mCurrRenderFrameIndex];
-	}
-
-	U64 CFramePacketsStorage::GetGameLogicFrameIndex() const
-	{
-		return mCurrGameLogicFrameIndex;
-	}
-
-	U64 CFramePacketsStorage::GetRenderFrameIndex() const
-	{
-		return mCurrRenderFrameIndex;
-	}
-
 
 	TDE2_API CFramePacketsStorage* CreateFramePacketsStorage(TAllocatorFactoryFunctor allocatorFactoryFunctor, E_RESULT_CODE& result)
 	{

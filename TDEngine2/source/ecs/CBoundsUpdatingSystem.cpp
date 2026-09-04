@@ -82,6 +82,8 @@ namespace TDEngine2
 
 	void CBoundsUpdatingSystem::InjectBindings(IWorld* pWorld)
 	{
+		TDE2_PROFILER_SCOPE("CBoundsUpdatingSystem::InjectBindings");
+
 		InitContext<CBoundsUpdatingSystem::TStaticMeshesBoundsContext, CStaticMeshContainer>(mStaticMeshesContext, pWorld);
 		InitContext<CBoundsUpdatingSystem::TSkinnedMeshesBoundsContext, CSkinnedMeshContainer>(mSkinnedMeshesContext, pWorld);
 		InitContext<CBoundsUpdatingSystem::TSpritesBoundsContext, CQuadSprite>(mSpritesContext, pWorld);

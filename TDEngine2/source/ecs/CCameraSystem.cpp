@@ -49,6 +49,8 @@ namespace TDEngine2
 
 	void CCameraSystem::InjectBindings(IWorld* pWorld)
 	{
+		TDE2_PROFILER_SCOPE("CCameraSystem::InjectBindings");
+
 		auto&& entities = pWorld->FindEntitiesWithAny<CCamera>();
 
 		auto& cameras = mCamerasContext.mpCameras;

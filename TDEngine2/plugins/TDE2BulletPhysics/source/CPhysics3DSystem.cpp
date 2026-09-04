@@ -282,6 +282,8 @@ namespace TDEngine2
 
 	void CPhysics3DSystem::InjectBindings(IWorld* pWorld)
 	{
+		TDE2_PROFILER_SCOPE("CPhysics3DSystem::InjectBindings");
+
 		auto& transforms = mPhysicsObjectsData.mpTransforms;
 		auto& physicsBodies = mPhysicsObjectsData.mpPhysicsBodies;
 		auto& collisionShapes = mPhysicsObjectsData.mpBulletColliderShapes;

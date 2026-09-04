@@ -73,6 +73,8 @@ namespace TDEngine2
 
 	void CSkinnedMeshRendererSystem::InjectBindings(IWorld* pWorld)
 	{
+		TDE2_PROFILER_SCOPE("CSkinnedMeshRendererSystem::InjectBindings");
+
 		TEntitiesArray entities = pWorld->FindEntitiesWithComponents<CTransform, CSkinnedMeshContainer, CBoundsComponent>();
 
 		mProcessingEntities.clear();

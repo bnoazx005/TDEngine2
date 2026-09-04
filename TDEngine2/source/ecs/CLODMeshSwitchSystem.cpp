@@ -33,6 +33,8 @@ namespace TDEngine2
 
 	void CLODMeshSwitchSystem::InjectBindings(IWorld* pWorld)
 	{
+		TDE2_PROFILER_SCOPE("CLODMeshSwitchSystem::InjectBindings");
+
 		mStaticMeshesLODs = pWorld->CreateLocalComponentsSlice<CLODStrategyComponent, CStaticMeshContainer, CTransform>();
 		mSkinnedMeshesLODs = pWorld->CreateLocalComponentsSlice<CLODStrategyComponent, CSkinnedMeshContainer, CTransform>();
 

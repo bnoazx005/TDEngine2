@@ -3526,8 +3526,6 @@ namespace TDEngine2
 		}
 #endif
 
-		mpFramePacketsStorage->IncrementRenderFrameCounter();
-
 		return RC_OK;
 	}
 

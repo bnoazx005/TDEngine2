@@ -265,6 +265,8 @@ namespace TDEngine2
 
 	void CObjectsSelectionSystem::InjectBindings(IWorld* pWorld)
 	{
+		TDE2_PROFILER_SCOPE("CObjectsSelectionSystem::InjectBindings");
+
 		mStaticMeshesContext  = CreateContext<CStaticMeshContainer>(pWorld);
 		mSkinnedMeshesContext = CreateContext<CSkinnedMeshContainer>(pWorld);
 		mSpritesContext       = CreateContext<CQuadSprite>(pWorld);

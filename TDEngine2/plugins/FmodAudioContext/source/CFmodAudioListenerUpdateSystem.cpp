@@ -4,6 +4,7 @@
 #include <ecs/CTransform.h>
 #include <ecs/IWorld.h>
 #include <ecs/CEntity.h>
+#include <editor/CPerfProfiler.h>
 #include <utils/CFileLogger.h>
 #include <stringUtils.hpp>
 
@@ -36,6 +37,8 @@ namespace TDEngine2
 
 	void CAudioListenerUpdateSystem::InjectBindings(IWorld* pWorld)
 	{
+		TDE2_PROFILER_SCOPE("CAudioListenerUpdateSystem::InjectBindings");
+
 		auto&& entities = pWorld->FindEntitiesWithComponents<CTransform, CAudioListenerComponent>();
 		if (entities.empty())
 		{

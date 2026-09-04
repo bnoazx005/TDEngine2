@@ -58,6 +58,8 @@ namespace TDEngine2
 
 	void CVideoProcessSystem::InjectBindings(IWorld* pWorld)
 	{
+		TDE2_PROFILER_SCOPE("CVideoProcessSystem::InjectBindings");
+
 		mpVideoContainers.clear();
 		mpVideoReceivers.clear();
 

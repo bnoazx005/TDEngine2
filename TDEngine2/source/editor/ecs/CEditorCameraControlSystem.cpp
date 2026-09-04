@@ -7,6 +7,7 @@
 #include "../../include/graphics/CCamera.h"
 #include "../../include/core/IInputContext.h"
 #include "../../include/editor/IEditorsManager.h"
+#include "../../include/editor/CPerfProfiler.h"
 #include "../../include/utils/CFileLogger.h"
 
 
@@ -43,6 +44,7 @@ namespace TDEngine2
 
 	void CEditorCameraControlSystem::InjectBindings(IWorld* pWorld)
 	{
+		TDE2_PROFILER_SCOPE("CEditorCameraControlSystem::InjectBindings");
 		mCameras = pWorld->FindEntitiesWithAny<CEditorCamera>();
 	}
 

@@ -80,6 +80,8 @@ namespace TDEngine2
 
 	void CLightingSystem::InjectBindings(IWorld* pWorld)
 	{
+		TDE2_PROFILER_SCOPE("CLightingSystem::InjectBindings");
+
 		mDirectionalLightsContext = pWorld->CreateLocalComponentsSlice<CDirectionalLight, CTransform>();
 		mPointLightsContext       = pWorld->CreateLocalComponentsSlice<CPointLight, CTransform>();
 		mSpotLightsContext        = pWorld->CreateLocalComponentsSlice<CSpotLight, CTransform>();

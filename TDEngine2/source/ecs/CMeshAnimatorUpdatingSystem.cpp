@@ -43,6 +43,7 @@ namespace TDEngine2
 
 	void CMeshAnimatorUpdatingSystem::InjectBindings(IWorld* pWorld)
 	{
+		TDE2_PROFILER_SCOPE("CMeshAnimatorUpdatingSystem::InjectBindings");
 		mEntitiesContext = pWorld->CreateLocalComponentsSlice<CSkinnedMeshContainer, CMeshAnimatorComponent, CAnimationContainerComponent, CBoundsComponent>();
 	}
 

@@ -55,6 +55,8 @@ namespace TDEngine2
 
 	void CWeatherSystem::InjectBindings(IWorld* pWorld)
 	{
+		TDE2_PROFILER_SCOPE("CWeatherSystem::InjectBindings");
+
 		auto&& entities = pWorld->FindEntitiesWithComponents<CWeatherComponent>();
 		if (entities.empty())
 		{

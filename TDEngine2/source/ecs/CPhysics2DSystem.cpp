@@ -305,7 +305,9 @@ namespace TDEngine2
 
 
 	void CPhysics2DSystem::InjectBindings(IWorld* pWorld)
-	{		
+	{
+		TDE2_PROFILER_SCOPE("CPhysics2DSystem::InjectBindings");
+
 		InitCollidersContext(mpWorldInstance.get(), pWorld, mBoxCollidersData, pWorld->FindEntitiesWithComponents<CBoxCollisionObject2D, CPhysicsBody2D>());
 		InitCollidersContext(mpWorldInstance.get(), pWorld, mCircleCollidersData, pWorld->FindEntitiesWithComponents<CCircleCollisionObject2D, CPhysicsBody2D>());
 	}
