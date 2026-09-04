@@ -94,6 +94,9 @@ namespace TDEngine2
 						currPos = DrawTextLine(mpImGUIContext, currPos, 25.0f, vOffset.y, "Audio Update (ms): ",
 							std::to_string(CPerfProfiler::Get()->GetAverageTimeByEventName(E_SPECIAL_PROFILE_EVENT::AUDIO_UPDATE) * 1000.0f));
 
+						currPos = DrawTextLine(mpImGUIContext, currPos, 20.0f, vOffset.y, "Pre-Render Sync (ms): ",
+							std::to_string(CPerfProfiler::Get()->GetAverageTimeByEventName(E_SPECIAL_PROFILE_EVENT::RENDER_DATA_SYNC) * 1000.0f));
+
 						currPos = DrawTextLine(mpImGUIContext, currPos, 20.0f, vOffset.y, "Render Time (ms): ",
 							std::to_string(CPerfProfiler::Get()->GetAverageTimeByEventName(E_SPECIAL_PROFILE_EVENT::RENDER) * 1000.0f));
 

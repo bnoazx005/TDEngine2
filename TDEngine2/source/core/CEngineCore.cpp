@@ -140,11 +140,6 @@ namespace TDEngine2
 
 #endif
 
-	// \fixme Remove later when logic and render threads will be separated properly
-	std::mutex              mRenderThreadMutex{};
-	std::condition_variable mRenderThreadSignal{};
-	std::atomic_bool        mIsGameFrameReady{ false };
-
 
 	E_RESULT_CODE CEngineCore::Run()
 	{
@@ -254,7 +249,13 @@ namespace TDEngine2
 		/// \todo replace _onFrameUpdateCallback with a user defined callback
 		pWindowSystem->Run(std::bind(&CEngineCore::_onFrameUpdateCallback, this));
 
-		mRenderThreadSignal.notify_all();
+		if (IRenderer* pRenderer = _getSubsystemAs<IRenderer>(EST_RENDERER))
+		{
+			if (TPtr<CFramePacketsStorage> pFramePacketsStorage = pRenderer->GetFramePacketsStorage())
+			{
+				pFramePacketsStorage->SubmitGameLogicFramePacket(); /// \note Imitate that another frame packet is ready to wake up render thread and finalize its execution
+			}
+		}
 
 		renderLogicThread.join();
 		
@@ -391,16 +392,30 @@ namespace TDEngine2
 		FrameMark;
 	}
 
+
+	static E_RESULT_CODE SyncFramePacketData(TFramePacket& currFramePacket, IImGUIContext* pImGUIContext, TPtr<IWorld> pWorld)
+	{
+		TDE2_PROFILER_SCOPE("CEngineCore::SyncFramePacketData");
+		TDE2_BUILTIN_SPEC_PROFILER_EVENT(E_SPECIAL_PROFILE_EVENT::RENDER_DATA_SYNC);
+
+		pWorld->FillFramePacket(currFramePacket);
+
+		if (pImGUIContext)
+		{
+			pImGUIContext->FillFramePacket(currFramePacket);
+		}
+
+		return RC_OK;
+	}
+
+
 	void CEngineCore::_onGameLogicUpdate()
 	{
 		TDE2_PROFILER_SCOPE("CEngineCore::_onGameLogicUpdate");
 		TDE2_BUILTIN_SPEC_PROFILER_EVENT(E_SPECIAL_PROFILE_EVENT::UPDATE);
 
-		// \fixme Remove later, for now it's used to wait for end of rendering in the separate thread
-		while (mIsGameFrameReady.load() != false)
-		{
-			std::this_thread::yield();
-		}
+		TPtr<CFramePacketsStorage> pFramePacketsStorage = _getSubsystemAs<IRenderer>(EST_RENDERER)->GetFramePacketsStorage();
+		TFramePacket& currFramePacket = pFramePacketsStorage->AcquireGameLogicFramePacket();
 
 		if (mpInputContext)
 		{
@@ -449,24 +464,8 @@ namespace TDEngine2
 			pAudioContext->Update();
 		}
 
-		// \todo Implement sync point here (where all the data will be copied into frame packet for the renderer)
-
-		if (IRenderer* pRenderer = _getSubsystemAs<IRenderer>(EST_RENDERER))
-		{
-			// \todo For now there is no special sync point where we copy all the relevant data into the frame packet fill it here
-			mpWorldInstance->FillFramePacket(pRenderer->GetFramePacketsStorage()->GetCurrentFrameForGameLogic());
-			
-			if (mpImGUIContext)
-			{
-				mpImGUIContext->FillFramePacket(pRenderer->GetFramePacketsStorage()->GetCurrentFrameForGameLogic());
-			}
-
-			pRenderer->GetFramePacketsStorage()->IncrementGameLogicFrameCounter();
-		}
-
-		// \fixme Remove later, for now it's used to synchronize game logic and render threads
-		mIsGameFrameReady.store(true);
-		mRenderThreadSignal.notify_one();
+		SyncFramePacketData(currFramePacket, mpImGUIContext, mpWorldInstance);
+		pFramePacketsStorage->SubmitGameLogicFramePacket();
 	}
 
 	void CEngineCore::_onRenderLogicUpdate()
@@ -478,17 +477,19 @@ namespace TDEngine2
 		IWindowSystem* pWindowSystem = _getSubsystemAs<IWindowSystem>(EST_WINDOW);
 		IRenderer* pRenderer         = _getSubsystemAs<IRenderer>(EST_RENDERER);
 
+		if (!pRenderer)
+		{
+			TDE2_ASSERT_MSG(false, "[CEngineCore] pRenderer is nullptr, render thread execution is skipped");
+			return;
+		}
+
+		TPtr<CFramePacketsStorage> pFramePacketsStorage = pRenderer->GetFramePacketsStorage();
+
 		while (pWindowSystem->IsRunning())
 		{
-			std::unique_lock<std::mutex> lock(mRenderThreadMutex);
-			mRenderThreadSignal.wait(lock, [pWindowSystem] { return mIsGameFrameReady.load() == true || !pWindowSystem->IsRunning(); });
-
-			if (pRenderer)
-			{
-				pRenderer->Draw(mpInternalTimer->GetCurrTime(), mpInternalTimer->GetDeltaTime());
-			}
-
-			mIsGameFrameReady.store(false);
+			TFramePacket& currFramePacket = pFramePacketsStorage->AcquireRenderLogicFramePacket();
+			pRenderer->Draw(currFramePacket, mpInternalTimer->GetCurrTime(), mpInternalTimer->GetDeltaTime());
+			pFramePacketsStorage->SubmitRenderLogicFramePacket();
 		}
 	}
 

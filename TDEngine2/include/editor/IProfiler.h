@@ -25,6 +25,7 @@ namespace TDEngine2
 		WORLD_UPDATE,
 		PRESENT,
 		WORLD_SYSTEMS_SYNC,
+		RENDER_DATA_SYNC,
 		UNUSED,
 	};
 

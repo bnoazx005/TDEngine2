@@ -2302,8 +2302,10 @@ namespace TDEngine2
 				TDE2_ASSERT(TComputePipelineStateId::Invalid != mInitDeadParticlesListComputeStateHandle);
 			}
 
-			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, TPtr<CFramePacketsStorage> pFramePacketsStorage)
+			void AddPass(TPtr<CFrameGraph> pFrameGraph, TFrameGraphBlackboard& frameGraphBlackboard, TFramePacket& currFramePacket)
 			{
+				mpCurrFramePacket = &currFramePacket;
+
 				if (auto pRandTexture = mContext.mpResourceManager->GetResource<ITexture2D>(mContext.mpResourceManager->Load<ITexture2D>(CProjectSettings::Get()->mGraphicsSettings.mRandomTextureId)))
 				{
 					frameGraphBlackboard.mRandomTextureHandle = pFrameGraph->ImportResource("RandTexture", TFrameGraphTexture::TDesc{ }, TFrameGraphTexture{ pRandTexture->GetHandle() });
@@ -2404,10 +2406,10 @@ namespace TDEngine2
 							mIsParticlesListInitialized = true;
 						}
 
-						auto& activeEmitters = pFramePacketsStorage->GetCurrentFrameForRender().mGpuParticleEmitters;
+						auto& activeEmitters = mpCurrFramePacket->mGpuParticleEmitters;
 
 						_emitParticles(executionContext, frameGraphBlackboard, data, activeEmitters);
-						_simulateParticles(executionContext, frameGraphBlackboard, data, pFramePacketsStorage->GetCurrentFrameForRender());
+						_simulateParticles(executionContext, frameGraphBlackboard, data, *mpCurrFramePacket);
 
 						activeEmitters.clear();
 
@@ -2600,6 +2602,8 @@ namespace TDEngine2
 			TComputePipelineStateId   mInitDeadParticlesListComputeStateHandle = TComputePipelineStateId::Invalid;
 
 			bool                      mIsParticlesListInitialized = false;
+			
+			TFramePacket*             mpCurrFramePacket = nullptr;
 	};
 
 
@@ -3304,7 +3308,7 @@ namespace TDEngine2
 #endif
 
 
-	E_RESULT_CODE CForwardRenderer::Draw(F32 currTime, F32 deltaTime)
+	E_RESULT_CODE CForwardRenderer::Draw(TFramePacket& currFramePacket, F32 currTime, F32 deltaTime)
 	{
 		TDE2_PROFILER_SCOPE("Renderer::Draw"); 
 
@@ -3313,7 +3317,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 		
-		TFramePacket::TRenderQueuesArray& pRenderQueues = mpFramePacketsStorage->GetCurrentFrameForRender().mpRenderQueues;
+		TFramePacket::TRenderQueuesArray& pRenderQueues = currFramePacket.mpRenderQueues;
 
 		{
 			TDE2_BUILTIN_SPEC_PROFILER_EVENT(E_SPECIAL_PROFILE_EVENT::RENDER);
@@ -3338,7 +3342,7 @@ namespace TDEngine2
 				return RC_OK;
 			}
 			
-			_prepareFrame(currTime, deltaTime);
+			_prepareFrame(currFramePacket, currTime, deltaTime);
 
 			mpFrameGraph->Reset();
 
@@ -3362,9 +3366,9 @@ namespace TDEngine2
 				mpWindowSystem->GetHeight()
 			};
 
-			if (CProjectSettings::Get()->mGraphicsSettings.mIsGPUParticlesSimulationEnabled && !mpFramePacketsStorage->GetCurrentFrameForRender().mGpuParticleEmitters.empty())
+			if (CProjectSettings::Get()->mGraphicsSettings.mIsGPUParticlesSimulationEnabled && !currFramePacket.mGpuParticleEmitters.empty())
 			{
-				pGPUParticlesSimulationPass->AddPass(mpFrameGraph, frameGraphBlackboard, mpFramePacketsStorage);
+				pGPUParticlesSimulationPass->AddPass(mpFrameGraph, frameGraphBlackboard, currFramePacket);
 
 				CGPUSortingPass{ passInvokeContext }
 					.AddPass(mpFrameGraph,
@@ -3376,7 +3380,7 @@ namespace TDEngine2
 				CGPUParticlesSubmitRenderPass{ passInvokeContext, pRenderQueues[static_cast<U8>(E_RENDER_QUEUE_GROUP::RQG_TRANSPARENT_GEOMETRY)] }.AddPass(mpFrameGraph, frameGraphBlackboard);
 			}
 
-			const auto& activeLightSources = mpFramePacketsStorage->GetCurrentFrameForRender().mActiveLightSources;
+			const auto& activeLightSources = currFramePacket.mActiveLightSources;
 
 			CUploadLightsPass{ passInvokeContext }.AddPass(mpFrameGraph, frameGraphBlackboard, activeLightSources);
 
@@ -3608,17 +3612,17 @@ namespace TDEngine2
 		return mpFramePacketsStorage;
 	}
 
-	void CForwardRenderer::_prepareFrame(F32 currTime, F32 deltaTime)
+	void CForwardRenderer::_prepareFrame(TFramePacket& currFramePacket, F32 currTime, F32 deltaTime)
 	{
 		TDE2_PROFILER_SCOPE("Renderer::PreRender");
 		TDE_RENDER_SECTION(mpGraphicsContext, "PreRender");
 		
-		const TPerFrameShaderData& perFrameShaderData = mpFramePacketsStorage->GetCurrentFrameForRender().mPerFrameData;
+		const TPerFrameShaderData& perFrameShaderData = currFramePacket.mPerFrameData;
 
 		mpGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_FRAME, reinterpret_cast<const U8*>(&perFrameShaderData), sizeof(perFrameShaderData));		
 		mpGlobalShaderProperties->Bind();
 
-		mpDebugUtility->PreRender(mpFramePacketsStorage->GetCurrentFrameForRender().mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_DEBUG)]);
+		mpDebugUtility->PreRender(currFramePacket.mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_DEBUG)]);
 
 		if (!mLightGridData.mIsTileFrustumsInitialized)
 		{
