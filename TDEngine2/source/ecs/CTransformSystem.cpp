@@ -56,44 +56,47 @@ namespace TDEngine2
 		hasCameras.clear();
 
 		/// \note Fill up relationships table to sort entities based on their dependencies 
-		std::unordered_map<TEntityId, TEntitiesArray> parentToChildRelations;
+		std::unordered_map<TEntityId, std::vector<std::tuple<CEntity*, CTransform*>>> parentToChildRelations;
 
 		for (TEntityId currEntityId : entities)
 		{
 			if (CEntity* pEntity = pWorld->FindEntity(currEntityId))
 			{
-				parentToChildRelations[pEntity->GetComponent<CTransform>()->GetParent()].push_back(pEntity->GetId());
+				CTransform* pTransform = pEntity->GetComponent<CTransform>();
+				parentToChildRelations[pTransform->GetParent()].emplace_back(pEntity, pTransform);
 			}
 		}
 
-		std::stack<std::tuple<TEntityId, U32>> entitiesToProcess;
+		std::vector<std::tuple<CEntity*, CTransform*, U32>> entitiesToProcess;
+		entitiesToProcess.reserve(entities.size());
 
-		for (TEntityId currEntityId : parentToChildRelations[TEntityId::Invalid])
+		for (auto [pCurrEntity, pCurrTransform] : parentToChildRelations[TEntityId::Invalid])
 		{
-			entitiesToProcess.push({ currEntityId, InvalidParentIndex });
+			entitiesToProcess.emplace_back(pCurrEntity, pCurrTransform, InvalidParentIndex);
 		}
 
-		TEntityId currEntityId;
-		U32 currParentElementIndex = 0;
-
-		while (!entitiesToProcess.empty())
 		{
-			std::tie(currEntityId, currParentElementIndex) = entitiesToProcess.top();
-			entitiesToProcess.pop();
+			TDE2_PROFILER_SCOPE("Sort");
+			CEntity* pCurrEntity = nullptr;
+			CTransform* pCurrTransform = nullptr;
+			U32 currParentElementIndex = 0;
 
-			if (CEntity* pEntity = pWorld->FindEntity(currEntityId))
+			while (!entitiesToProcess.empty())
 			{
-				transforms.push_back(pEntity->GetComponent<CTransform>());
-				bounds.push_back(pEntity->GetComponent<CBoundsComponent>());
-				hasCameras.push_back(pEntity->HasComponent<CCamera>());
+				std::tie(pCurrEntity, pCurrTransform, currParentElementIndex) = entitiesToProcess.back();
+				entitiesToProcess.pop_back();
+
+				transforms.push_back(pCurrTransform);
+				bounds.push_back(pCurrEntity->GetComponent<CBoundsComponent>());
+				hasCameras.push_back(pCurrEntity->HasComponent<CCamera>());
 				parentsTable.push_back(currParentElementIndex);
-			}
 
-			const U32 parentIndex = static_cast<U32>(transforms.size() - 1);
+				const U32 parentIndex = static_cast<U32>(transforms.size() - 1);
 
-			for (TEntityId currEntityId : parentToChildRelations[currEntityId])
-			{
-				entitiesToProcess.push({ currEntityId, parentIndex });
+				for (auto [pCurrChildEntity, pCurrChildTransform] : parentToChildRelations[pCurrEntity->GetId()])
+				{
+					entitiesToProcess.emplace_back(pCurrChildEntity, pCurrChildTransform, parentIndex);
+				}
 			}
 		}
 	}
