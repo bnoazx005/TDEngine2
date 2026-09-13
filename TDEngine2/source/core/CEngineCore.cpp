@@ -141,6 +141,15 @@ namespace TDEngine2
 #endif
 
 
+	static std::thread::id RenderThreadId;
+
+
+	TDE2_API bool IsRenderThread()
+	{
+		return RenderThreadId == std::this_thread::get_id();
+	}
+
+
 	E_RESULT_CODE CEngineCore::Run()
 	{
 		TDE2_PROFILER_SCOPE("CEngineCore::Run");
@@ -246,6 +255,8 @@ namespace TDEngine2
 		}
 
 		std::thread renderLogicThread{ std::bind(&CEngineCore::_onRenderLogicUpdate, this) };
+		RenderThreadId = renderLogicThread.get_id();
+
 		/// \todo replace _onFrameUpdateCallback with a user defined callback
 		pWindowSystem->Run(std::bind(&CEngineCore::_onFrameUpdateCallback, this));
 
