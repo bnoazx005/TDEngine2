@@ -39,6 +39,40 @@ namespace TDEngine2
 
 
 	/*!
+		\brief The structure is used to store material's parameters on render thread side
+	*/
+
+	struct TMaterialRenderProxy
+	{
+		typedef std::unordered_map<std::string, ITexture*>                         TTexturesHashTable;
+
+		typedef std::vector<U8>                                                    TUserUniformBufferData;
+		typedef std::array<TUserUniformBufferData, MaxNumberOfUserConstantBuffers> TUserUniformsArray;
+
+		TUserUniformsArray          mUserUniformBuffers{};
+		TTexturesHashTable          mTextures{};
+
+		TResourceId                 mShaderHandle = TResourceId::Invalid;
+		TGraphicsPipelineStateId    mPipelineHandle = TGraphicsPipelineStateId::Invalid;
+
+		bool                        mIsScissorTestEnabled = false;
+	};
+
+
+	TDE2_DECLARE_HANDLE_TYPE(TMaterialProxyId);
+
+
+	class IMaterialProxyProvider
+	{
+		public:
+			TDE2_API virtual ~IMaterialProxyProvider() = default;
+
+			TDE2_API virtual TMaterialProxyId GetOrCreateProxy(TMaterialRenderProxy&& proxy) = 0;
+			TDE2_API virtual const TMaterialRenderProxy* GetProxy(TMaterialProxyId id) const = 0;
+	};
+
+
+	/*!
 		struct TMaterialParameters
 
 		\brief The stucture contains fields for creation IMaterial objects
@@ -176,7 +210,7 @@ namespace TDEngine2
 			*/
 
 			template <typename T>
-			TDE2_API TResult<TPtr<IMaterialInstance>> SetVariable(const std::string& name, const T& value)
+			TResult<TPtr<IMaterialInstance>> SetVariable(const std::string& name, const T& value)
 			{
 				// \todo add validation of an input type
 
@@ -195,12 +229,20 @@ namespace TDEngine2
 			*/
 
 			template <typename T>
-			TDE2_API E_RESULT_CODE SetVariableForInstance(TMaterialInstanceId instanceId, const std::string& name, const T& value)
+			E_RESULT_CODE SetVariableForInstance(TMaterialInstanceId instanceId, const std::string& name, const T& value)
 			{
 				return _setVariableForInstance(instanceId, name, static_cast<const void*>(&value), sizeof(T));
-			}
+			}			
 
 			TDE2_API virtual E_RESULT_CODE SetVariableForInstance(TMaterialInstanceId instanceId, const std::string& name, const void* pValue, U32 size) = 0;
+			
+			template <typename T>
+			E_RESULT_CODE SetVariableForProxy(TMaterialRenderProxy& proxy, const std::string& name, const T& value)
+			{
+				return _setVariableForProxy(proxy, name, static_cast<const void*>(&value), sizeof(T));
+			}
+
+			TDE2_API virtual E_RESULT_CODE SetVariableForProxy(TMaterialRenderProxy& proxy, const std::string& name, const void* pValue, U32 size) = 0;
 
 			/*!
 				\brief The method sets up a state of depth buffer usage
@@ -365,6 +407,8 @@ namespace TDEngine2
 			TDE2_API virtual void ForEachVariable(const TVariableVisitAction& action) = 0;
 #endif
 
+			TDE2_API virtual TMaterialRenderProxy GetRenderProxyForInstance(TMaterialInstanceId instanceId = DefaultMaterialInstanceId) const = 0;
+
 			TDE2_API virtual const std::string& GetShaderId() const = 0;
 
 			TDE2_API virtual bool IsScissorTestEnabled() const = 0;
@@ -376,6 +420,7 @@ namespace TDEngine2
 
 			TDE2_API virtual TResult<TPtr<IMaterialInstance>> _setVariable(const std::string& name, const void* pValue, U32 size) = 0;
 			TDE2_API virtual E_RESULT_CODE _setVariableForInstance(TMaterialInstanceId instanceId, const std::string& name, const void* pValue, U32 size) = 0;
+			TDE2_API virtual E_RESULT_CODE _setVariableForProxy(TMaterialRenderProxy& proxy, const std::string& name, const void* pValue, U32 size) = 0;
 	};
 
 

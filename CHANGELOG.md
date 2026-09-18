@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.35] 2026-09-04
+## [0.6.35] 2026-09-21
 
 ### Added
 
@@ -20,6 +20,10 @@ mark up systems that require send their data into the renderer's thread.
 
 - A new special performance counter for render data synchronization timing was added.
 
+- A new proxy type was introduced **TMaterialRenderProxy** to represent material's data on render thread side.
+
+- The API of **CBaseMaterial** was extended with new public methods SetVariableForProxy<T> and SetVariableForProxy.
+
 ### Changed
 
 - The implementation of **CComponentManager::FindEntitiesWithAll** and **CComponentManager::FindEntitiesWithAny** was optimized using bitmasks. 
@@ -27,6 +31,8 @@ mark up systems that require send their data into the renderer's thread.
 - The API of **CFramePacketsStorage** class was extended to provide consumer - producer logic for game and render threads.
 
 - All math types are marked as constexpr and now trivially copyable.
+
+- The part of API of **CFramePacketsStorage** was removed.
 
 ### Fixed
 

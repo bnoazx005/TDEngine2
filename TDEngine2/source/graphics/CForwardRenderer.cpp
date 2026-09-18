@@ -57,8 +57,8 @@ namespace TDEngine2
 
 
 	static inline void ExecuteDrawCommands(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, 
-		TPtr<IGlobalShaderProperties> pGlobalShaderProperties, TPtr<CRenderQueue> pCommandsBuffer, bool shouldClearBuffers, 
-		U32 startRange = 0, U32 endRange = (std::numeric_limits<U32>::max)());
+		TPtr<IGlobalShaderProperties> pGlobalShaderProperties, TPtr<CRenderQueue> pCommandsBuffer, IMaterialProxyProvider* pMaterialsProxiesProvider,
+		bool shouldClearBuffers, U32 startRange = 0, U32 endRange = (std::numeric_limits<U32>::max)());
 
 
 	struct TLightCullData
@@ -129,6 +129,7 @@ namespace TDEngine2
 		TPtr<IGraphicsContext>        mpGraphicsContext = nullptr;
 		TPtr<IResourceManager>        mpResourceManager = nullptr;
 		TPtr<IGlobalShaderProperties> mpGlobalShaderProperties = nullptr;
+		IMaterialProxyProvider*       mpMaterialsProxiesProvider = nullptr;
 
 		U32                           mWindowWidth = 0;
 		U32                           mWindowHeight = 0;
@@ -281,7 +282,7 @@ namespace TDEngine2
 						pGraphicsContext->BeginRenderPass({ { { selectionMapTarget.mTextureHandle, TColor32F(0.0f) } }, TFramebufferInfo::TDepthStencilAttachment { depthBufferMapTarget.mTextureHandle } });
 						pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(mContext.mWindowWidth), static_cast<F32>(mContext.mWindowHeight), 0.0f, 1.0f);
 
-						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, true);
+						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, mContext.mpMaterialsProxiesProvider, true);
 
 						pGraphicsContext->EndRenderPass();
 
@@ -355,7 +356,7 @@ namespace TDEngine2
 					pGraphicsContext->BeginRenderPass({ {}, { { depthBufferTarget.mTextureHandle, 1.0f } } });
 					pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(mContext.mWindowWidth), static_cast<F32>(mContext.mWindowHeight), 0.0f, 1.0f);
 
-					ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, true);
+					ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, mContext.mpMaterialsProxiesProvider, true);
 
 					pGraphicsContext->EndRenderPass();
 
@@ -439,7 +440,7 @@ namespace TDEngine2
 
 					pGraphicsContext->SetStructuredBuffer(ACTIVE_LIGHTS_SLOT, activeLightsBuffer.mBufferHandle);
 
-					ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, false);
+					ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, mContext.mpMaterialsProxiesProvider, false);
 
 					pGraphicsContext->EndRenderPass();
 				});
@@ -520,7 +521,7 @@ namespace TDEngine2
 
 						pGraphicsContext->SetStructuredBuffer(ACTIVE_LIGHTS_SLOT, activeLightsBuffer.mBufferHandle);
 
-						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, false);
+						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, mContext.mpMaterialsProxiesProvider, false);
 
 						pGraphicsContext->EndRenderPass();
 					});
@@ -859,7 +860,7 @@ namespace TDEngine2
 						TFrameGraphBuffer& activeLightsBuffer = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(frameGraphBlackboard.mLightsBufferHandle);
 						pGraphicsContext->SetStructuredBuffer(ACTIVE_LIGHTS_SLOT, activeLightsBuffer.mBufferHandle);
 
-						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, true, 1);
+						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, mContext.mpMaterialsProxiesProvider, true, 1);
 
 						pGraphicsContext->EndRenderPass();
 					});
@@ -920,7 +921,7 @@ namespace TDEngine2
 						TFrameGraphBuffer& activeLightsBuffer = executionContext.mpOwnerGraph->GetResource<TFrameGraphBuffer>(frameGraphBlackboard.mLightsBufferHandle);
 						pGraphicsContext->SetStructuredBuffer(ACTIVE_LIGHTS_SLOT, activeLightsBuffer.mBufferHandle);
 
-						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, true);
+						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, mContext.mpMaterialsProxiesProvider, true);
 
 						pGraphicsContext->EndRenderPass();
 					});
@@ -964,7 +965,7 @@ namespace TDEngine2
 
 						pGraphicsContext->BeginRenderPass({ { { mainRenderTarget.mTextureHandle } }, TFramebufferInfo::TDepthStencilAttachment { depthBufferTarget.mTextureHandle } });
 
-						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, true);
+						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, mContext.mpMaterialsProxiesProvider, true);
 
 						pGraphicsContext->EndRenderPass();
 					});
@@ -1008,7 +1009,7 @@ namespace TDEngine2
 
 						pGraphicsContext->BeginRenderPass({ { { mainRenderTarget.mTextureHandle } }, TFramebufferInfo::TDepthStencilAttachment{ depthBufferTarget.mTextureHandle } });
 
-						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, true);
+						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, mContext.mpMaterialsProxiesProvider, true);
 
 						pGraphicsContext->EndRenderPass();
 
@@ -1079,7 +1080,7 @@ namespace TDEngine2
 
 						pGraphicsContext->BeginRenderPass({ { { mainRenderTarget.mTextureHandle, TColorUtils::mBlack } }, TFramebufferInfo::TDepthStencilAttachment{ depthBufferTarget.mTextureHandle } });
 
-						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, false, 0, 1);
+						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, mContext.mpMaterialsProxiesProvider, false, 0, 1);
 
 						pGraphicsContext->EndRenderPass();
 					});
@@ -1509,7 +1510,7 @@ namespace TDEngine2
 						pGraphicsContext->BeginRenderPass({ { { uiRenderTarget.mTextureHandle, TColor32F(0.0f) } } });
 						pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(mContext.mWindowWidth), static_cast<F32>(mContext.mWindowHeight), 0.0f, 1.0f);
 
-						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, true);
+						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, mContext.mpMaterialsProxiesProvider, true);
 
 						pGraphicsContext->EndRenderPass();
 					});
@@ -1554,7 +1555,7 @@ namespace TDEngine2
 						pGraphicsContext->BeginRenderPass({ { { backBufferTarget.mTextureHandle } } });
 						pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(mContext.mWindowWidth), static_cast<F32>(mContext.mWindowHeight), 0.0f, 1.0f);
 
-						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, true);
+						ExecuteDrawCommands(pGraphicsContext, mContext.mpResourceManager, mContext.mpGlobalShaderProperties, mpCommandsBuffer, mContext.mpMaterialsProxiesProvider, true);
 
 						pGraphicsContext->EndRenderPass();
 					});
@@ -2984,6 +2985,7 @@ namespace TDEngine2
 			pGraphicsContext,
 			pResourceManager,
 			pGlobalShaderProperties,
+			nullptr,
 			0, 0
 		};
 
@@ -3240,13 +3242,13 @@ namespace TDEngine2
 
 
 	static inline void SubmitCommandsToDraw(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties,
-									TPtr<CRenderQueue> pRenderQueue, U32 startRange, U32 endRange)
+									TPtr<CRenderQueue> pRenderQueue, IMaterialProxyProvider* pMaterialsProxiesProvider, U32 startRange, U32 endRange)
 	{
 		CRenderQueue::CRenderQueueIterator iter = pRenderQueue->GetIterator();
 
 		TRenderCommand* pCurrDrawCommand = nullptr;
 
-		const TRenderCommandSubmitParams drawContext { pGraphicsContext.Get(), pResourceManager.Get(), pGlobalShaderProperties.Get() };
+		const TRenderCommandSubmitParams drawContext { pGraphicsContext.Get(), pResourceManager.Get(), pGlobalShaderProperties.Get(), pMaterialsProxiesProvider };
 
 		while (iter.HasNext())
 		{
@@ -3274,7 +3276,7 @@ namespace TDEngine2
 
 
 	static inline void ExecuteDrawCommands(TPtr<IGraphicsContext> pGraphicsContext, TPtr<IResourceManager> pResourceManager, TPtr<IGlobalShaderProperties> pGlobalShaderProperties,
-									TPtr<CRenderQueue> pCommandsBuffer, bool shouldClearBuffers, U32 startRange, U32 endRange)
+									TPtr<CRenderQueue> pCommandsBuffer, IMaterialProxyProvider* pMaterialsProxiesProvider, bool shouldClearBuffers, U32 startRange, U32 endRange)
 	{
 		if (pCommandsBuffer->IsEmpty())
 		{
@@ -3282,7 +3284,7 @@ namespace TDEngine2
 		}
 
 		pCommandsBuffer->Sort();
-		SubmitCommandsToDraw(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pCommandsBuffer, startRange, endRange);
+		SubmitCommandsToDraw(pGraphicsContext, pResourceManager, pGlobalShaderProperties, pCommandsBuffer, pMaterialsProxiesProvider, startRange, endRange);
 
 		if (shouldClearBuffers)
 		{
@@ -3362,6 +3364,7 @@ namespace TDEngine2
 				mpGraphicsContext,
 				mpResourceManager,
 				mpGlobalShaderProperties,
+				&currFramePacket,
 				mpWindowSystem->GetWidth(),
 				mpWindowSystem->GetHeight()
 			};

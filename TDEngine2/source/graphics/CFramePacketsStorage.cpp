@@ -8,6 +8,40 @@
 
 namespace TDEngine2
 {
+	void TFramePacket::ClearTransientData()
+	{
+		mMaterialProxies.clear();
+	}
+
+	TMaterialProxyId TFramePacket::GetOrCreateProxy(TMaterialRenderProxy&& proxy)
+	{
+		const USIZE index = mMaterialProxies.size();		
+		mMaterialProxies.emplace_back(proxy);		
+		return static_cast<TMaterialProxyId>(index);
+	}
+
+	const TMaterialRenderProxy* TFramePacket::GetProxy(TMaterialProxyId id) const
+	{
+		if (id == TMaterialProxyId::Invalid)
+		{
+			return nullptr;
+		}
+
+		TDE2_ASSERT(static_cast<USIZE>(id) < mMaterialProxies.size());
+		if (static_cast<USIZE>(id) >= mMaterialProxies.size())
+		{
+			return nullptr;
+		}
+
+		return &mMaterialProxies[static_cast<USIZE>(id)];
+	}
+
+
+	/*!
+		\brief CFramePacketsStorage's definition
+	*/
+
+
 	CFramePacketsStorage::CFramePacketsStorage() :
 		CBaseObject()
 	{
@@ -69,6 +103,8 @@ namespace TDEngine2
 
 			std::this_thread::yield();
 		}
+
+		mFramePackets[nextIndex].ClearTransientData();
 
 		mFramePacketsState[nextIndex].store(E_PACKET_STATE::EMPTY);
 		++mCurrGameLogicFrameIndex;

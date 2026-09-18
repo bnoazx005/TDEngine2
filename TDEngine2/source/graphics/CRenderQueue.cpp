@@ -2,6 +2,7 @@
 #include "../../include/graphics/IRenderer.h"
 #include "../../include/graphics/IBuffer.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
+#include "../../include/graphics/IPipeline.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IResource.h"
 #include "../../include/graphics/CBaseMaterial.h"
@@ -51,6 +52,69 @@ namespace TDEngine2
 	}
 
 
+	static inline bool TryToBindMaterialProxy(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, IMaterialProxyProvider* pMaterialsProxyProvider,
+										TMaterialProxyId materialProxyId, const TRectU32 scissorRect)
+	{
+		const TMaterialRenderProxy* pMaterialRenderProxy = pMaterialsProxyProvider->GetProxy(materialProxyId);
+		if (!pMaterialRenderProxy)
+		{
+			return false;
+		}
+
+		auto pShaderInstance = pResourceManager->GetResource<IShader>(pMaterialRenderProxy->mShaderHandle);
+		TDE2_ASSERT(pShaderInstance);
+
+		U8 userUniformBufferId = 0;
+
+		for (const auto& currUserDataBuffer : pMaterialRenderProxy->mUserUniformBuffers)
+		{
+			if (!currUserDataBuffer.size())
+			{
+				continue;
+			}
+
+			PANIC_ON_FAILURE(pShaderInstance->SetUserUniformsBuffer(userUniformBufferId++, &currUserDataBuffer.front(), currUserDataBuffer.size()));
+		}
+
+		for (const auto& [resourceName, pTextureInstance] : pMaterialRenderProxy->mTextures)
+		{
+			pShaderInstance->SetTextureResource(resourceName, pTextureInstance);
+		}
+
+		if (auto pGraphicsPipeline = pGraphicsContext->GetGraphicsObjectManager()->GetGraphicsPipeline(pMaterialRenderProxy->mPipelineHandle))
+		{
+			pGraphicsPipeline->Bind();
+		}
+
+		if (pMaterialRenderProxy->mIsScissorTestEnabled)
+		{
+			pGraphicsContext->SetScissorRect(scissorRect);
+		}
+
+		return true;
+	}
+
+
+	static inline bool TryToBindMaterial(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, TResourceId materialHandle, 
+		TMaterialInstanceId materialInstanceId, const TRectU32 scissorRect)
+	{
+		TPtr<IMaterial> pMaterial = pResourceManager->GetResource<IMaterial>(materialHandle);
+		if (!pMaterial)
+		{
+			return false;
+		}
+		
+		pMaterial->Bind(materialInstanceId);
+
+		if (pMaterial->IsScissorTestEnabled())
+		{
+			pGraphicsContext->SetScissorRect(scissorRect);
+		}
+
+		return true;
+	}
+
+
 	E_RESULT_CODE TDrawCommand::Submit(const TRenderCommandSubmitParams& params)
 	{
 		if (TResourceId::Invalid == mMaterialHandle)
@@ -64,18 +128,13 @@ namespace TDEngine2
 		IGraphicsContext* pGraphicsContext = params.mpGraphicsContext;
 		IResourceManager* pResourceManager = params.mpResourceManager;
 		IGlobalShaderProperties* pGlobalShaderProperties = params.mpGlobalShaderProperties;
+		IMaterialProxyProvider* pMaterialsProxyProvider = params.mpMaterialProxiesProvider;
 
-		auto pGraphicsObjectManager = pGraphicsContext->GetGraphicsObjectManager();
+		TDE2_ASSERT(pMaterialsProxyProvider);
 
-		auto pMaterial = pResourceManager->GetResource<IMaterial>(mMaterialHandle);
-
-		auto pAttachedShader = pResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
-
-		pMaterial->Bind(mMaterialInstanceId);
-
-		if (pMaterial->IsScissorTestEnabled())
+		if (!TryToBindMaterialProxy(pResourceManager, pGraphicsContext, pMaterialsProxyProvider, mMaterialProxyHandle, mScissorRect)) // preferred way of working with materials
 		{
-			pGraphicsContext->SetScissorRect(mScissorRect);
+			TryToBindMaterial(pResourceManager, pGraphicsContext, mMaterialHandle, mMaterialInstanceId, mScissorRect); /// \note Now is used for backward compatibility prefer to use material proxies
 		}
 
 		pGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_OBJECT, reinterpret_cast<const U8*>(&mObjectData), sizeof(mObjectData));
@@ -104,29 +163,16 @@ namespace TDEngine2
 		IGraphicsContext* pGraphicsContext = params.mpGraphicsContext;
 		IResourceManager* pResourceManager = params.mpResourceManager;
 		IGlobalShaderProperties* pGlobalShaderProperties = params.mpGlobalShaderProperties;
+		IMaterialProxyProvider* pMaterialsProxyProvider = params.mpMaterialProxiesProvider;
 
-		auto pMaterial = pResourceManager->GetResource<IMaterial>(mMaterialHandle);
-		if (!pMaterial)
-		{
-			TDE2_ASSERT(false);
-			return RC_FAIL;
-		}
+		TDE2_ASSERT(pMaterialsProxyProvider);
 
-		auto pAttachedShader = pResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
-		if (!pAttachedShader)
+		if (!TryToBindMaterialProxy(pResourceManager, pGraphicsContext, pMaterialsProxyProvider, mMaterialProxyHandle, mScissorRect)) // preferred way of working with materials
 		{
-			TDE2_ASSERT(false);
-			return RC_FAIL;
+			TryToBindMaterial(pResourceManager, pGraphicsContext, mMaterialHandle, mMaterialInstanceId, mScissorRect); /// \note Now is used for backward compatibility prefer to use material proxies
 		}
 
 		TDE2_STATS_COUNTER_INCREMENT(mDrawCallsCount);
-
-		pMaterial->Bind(mMaterialInstanceId);
-
-		if (pMaterial->IsScissorTestEnabled())
-		{
-			pGraphicsContext->SetScissorRect(mScissorRect);
-		}
 
 		pGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_OBJECT, reinterpret_cast<const U8*>(&mObjectData), sizeof(mObjectData));
 		
@@ -162,16 +208,13 @@ namespace TDEngine2
 		IGraphicsContext* pGraphicsContext = params.mpGraphicsContext;
 		IResourceManager* pResourceManager = params.mpResourceManager;
 		IGlobalShaderProperties* pGlobalShaderProperties = params.mpGlobalShaderProperties;
+		IMaterialProxyProvider* pMaterialsProxyProvider = params.mpMaterialProxiesProvider;
 
-		auto pMaterial = pResourceManager->GetResource<IMaterial>(mMaterialHandle);
+		TDE2_ASSERT(pMaterialsProxyProvider);
 
-		auto pAttachedShader = pResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
-
-		pMaterial->Bind(mMaterialInstanceId);
-
-		if (pMaterial->IsScissorTestEnabled())
+		if (!TryToBindMaterialProxy(pResourceManager, pGraphicsContext, pMaterialsProxyProvider, mMaterialProxyHandle, mScissorRect)) // preferred way of working with materials
 		{
-			pGraphicsContext->SetScissorRect(mScissorRect);
+			TryToBindMaterial(pResourceManager, pGraphicsContext, mMaterialHandle, mMaterialInstanceId, mScissorRect); /// \note Now is used for backward compatibility prefer to use material proxies
 		}
 
 		pGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_OBJECT, reinterpret_cast<const U8*>(&mObjectData), sizeof(mObjectData));
@@ -203,16 +246,13 @@ namespace TDEngine2
 		IGraphicsContext* pGraphicsContext = params.mpGraphicsContext;
 		IResourceManager* pResourceManager = params.mpResourceManager;
 		IGlobalShaderProperties* pGlobalShaderProperties = params.mpGlobalShaderProperties;
+		IMaterialProxyProvider* pMaterialsProxyProvider = params.mpMaterialProxiesProvider;
 
-		auto pMaterial = pResourceManager->GetResource<IMaterial>(mMaterialHandle);
+		TDE2_ASSERT(pMaterialsProxyProvider);
 
-		auto pAttachedShader = pResourceManager->GetResource<IShader>(pMaterial->GetShaderHandle());
-
-		pMaterial->Bind(mMaterialInstanceId);
-
-		if (pMaterial->IsScissorTestEnabled())
+		if (!TryToBindMaterialProxy(pResourceManager, pGraphicsContext, pMaterialsProxyProvider, mMaterialProxyHandle, mScissorRect)) // preferred way of working with materials
 		{
-			pGraphicsContext->SetScissorRect(mScissorRect);
+			TryToBindMaterial(pResourceManager, pGraphicsContext, mMaterialHandle, mMaterialInstanceId, mScissorRect); /// \note Now is used for backward compatibility prefer to use material proxies
 		}
 
 		pGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_OBJECT, reinterpret_cast<const U8*>(&mObjectData), sizeof(mObjectData));

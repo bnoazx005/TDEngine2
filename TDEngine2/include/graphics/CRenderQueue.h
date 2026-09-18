@@ -30,6 +30,7 @@ namespace TDEngine2
 	class IResourceManager;
 	class IGlobalShaderProperties;
 	class IResourceHandler;
+	class IMaterialProxyProvider;
 
 
 	enum class E_BUFFER_MAP_TYPE : U8;
@@ -43,6 +44,7 @@ namespace TDEngine2
 		IGraphicsContext*        mpGraphicsContext = nullptr; 
 		IResourceManager*        mpResourceManager = nullptr;
 		IGlobalShaderProperties* mpGlobalShaderProperties = nullptr;
+		IMaterialProxyProvider*  mpMaterialProxiesProvider = nullptr;
 	} TRenderCommandSubmitParams, *TRenderCommandSubmitParamsPtr;
 
 
@@ -115,6 +117,8 @@ namespace TDEngine2
 		TResourceId               mMaterialHandle;
 
 		TMaterialInstanceId       mMaterialInstanceId = DefaultMaterialInstanceId;
+
+		TMaterialProxyId          mMaterialProxyHandle = TMaterialProxyId::Invalid;
 
 		TPerObjectShaderData      mObjectData;
 

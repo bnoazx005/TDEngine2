@@ -12,6 +12,7 @@
 #include "../graphics/IRenderer.h"
 #include "../graphics/effects/ParticleEmitters.h"
 #include "../graphics/IGraphicsObjectManager.h"
+#include "../graphics/CBaseMaterial.h"
 #include <array>
 #include <mutex>
 #include <condition_variable>
@@ -32,11 +33,12 @@ namespace TDEngine2
 		separate independent stages like described in https://www.gdcvault.com/play/1022186/Parallelizing-the-Naughty-Dog-Engine
 	*/
 
-	typedef struct TFramePacket
+	typedef struct TFramePacket: public IMaterialProxyProvider
 	{
 		typedef std::array<TPtr<CRenderQueue>, NumOfRenderQueuesGroup> TRenderQueuesArray;
 		typedef std::array<TPtr<IAllocator>, NumOfRenderQueuesGroup>   TAllocatorsArray;
 		typedef Vector<TEmitterUniformsData>                           TGPUParticleEmittersArray;
+		typedef Vector<TMaterialRenderProxy>                           TMaterialRenderProxiesArray;
 
 		struct TImGUIFrameData
 		{
@@ -66,22 +68,31 @@ namespace TDEngine2
 
 #endif
 
-		U32                       mFrameIndex = 0;
-		F32                       mDeltaTime = 0.0f; ///< Also it could be retrieved from mPerFrameData.mTime.y
+		TDE2_API virtual ~TFramePacket() = default;
+
+		TDE2_API void ClearTransientData();
+
+		TDE2_API TMaterialProxyId GetOrCreateProxy(TMaterialRenderProxy&& proxy) override;
+		TDE2_API const TMaterialRenderProxy* GetProxy(TMaterialProxyId id) const override;
+
+		U32                          mFrameIndex = 0;
+		F32                          mDeltaTime = 0.0f; ///< Also it could be retrieved from mPerFrameData.mTime.y
 		
-		TPerFrameShaderData       mPerFrameData;
+		TPerFrameShaderData          mPerFrameData;
 		
 		/// \note Per object data
-		TRenderQueuesArray        mpRenderQueues { nullptr }; /// PerRenderQueueMemoryBlockSize per render queue
+		TRenderQueuesArray           mpRenderQueues { nullptr }; /// PerRenderQueueMemoryBlockSize per render queue
 
-		TGPUParticleEmittersArray mGpuParticleEmitters;
-		Vector<TBufferHandleId>   mCpuParticlesInstancesBufferHandles{};
+		TGPUParticleEmittersArray    mGpuParticleEmitters;
+		Vector<TBufferHandleId>      mCpuParticlesInstancesBufferHandles{};
 
-		TLightsDataArray          mActiveLightSources;
+		TLightsDataArray            mActiveLightSources;
 
-		TImGUIFrameData           mImGUIFrameData{};
-		TSpritesFrameData         mSpritesBatchesData{};
-		TUIElementsFrameData      mUIElementsFrameData{};
+		TImGUIFrameData             mImGUIFrameData{};
+		TSpritesFrameData           mSpritesBatchesData{};
+		TUIElementsFrameData        mUIElementsFrameData{};
+
+		TMaterialRenderProxiesArray mMaterialProxies{};
 	} TFramePacket, *TFramePacketPtr;
 
 

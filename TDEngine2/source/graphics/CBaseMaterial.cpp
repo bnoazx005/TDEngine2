@@ -4,6 +4,7 @@
 #include "../../include/graphics/IShaderCompiler.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
 #include "../../include/graphics/BasePipelines.h"
+#include "../../include/graphics/IRenderer.h"
 #include "../../include/core/IGraphicsContext.h"
 #include "../../include/core/IResourceManager.h"
 #include "../../include/core/IFileSystem.h"
@@ -507,6 +508,7 @@ namespace TDEngine2
 	void CBaseMaterial::Bind(TMaterialInstanceId instanceId)
 	{
 		TDE2_MULTI_THREAD_ACCESS_CHECK(mMTCheckLock);
+		//TDE2_ASSERT(!IsRenderThread());
 
 		auto pShaderInstance = mpResourceManager->GetResource<IShader>(mShaderHandle);
 
@@ -569,6 +571,11 @@ namespace TDEngine2
 	E_RESULT_CODE CBaseMaterial::SetVariableForInstance(TMaterialInstanceId instanceId, const std::string& name, const void* pValue, U32 size)
 	{
 		return _setVariableForInstance(instanceId, name, pValue, size);
+	}
+
+	E_RESULT_CODE CBaseMaterial::SetVariableForProxy(TMaterialRenderProxy& proxy, const std::string& name, const void* pValue, U32 size)
+	{
+		return _setVariableForProxy(proxy, name, pValue, size);
 	}
 
 	void CBaseMaterial::SetDepthBufferEnabled(bool state)
@@ -739,6 +746,25 @@ namespace TDEngine2
 		return mGraphicsPipelineConfigDesc.mDepthStencilStateParams;
 	}
 
+	TMaterialRenderProxy CBaseMaterial::GetRenderProxyForInstance(TMaterialInstanceId instanceId) const
+	{
+		TDE2_PROFILER_SCOPE("CBaseMaterial::GetRenderProxyForInstance");
+
+		TMaterialRenderProxy renderProxy{};
+
+		TResult<TGraphicsPipelineStateId> pipelineCreationResult = mpGraphicsObjectManager->CreateGraphicsPipelineState(mGraphicsPipelineConfigDesc);
+
+		renderProxy.mUserUniformBuffers   = mpInstancesUserUniformBuffers.at(instanceId);
+		renderProxy.mPipelineHandle       = pipelineCreationResult.GetOrDefault(TGraphicsPipelineStateId::Invalid);
+		renderProxy.mShaderHandle         = mShaderHandle;
+		renderProxy.mIsScissorTestEnabled = mGraphicsPipelineConfigDesc.mRasterizerStateParams.mIsScissorTestEnabled;
+
+		const TTexturesHashTable& texturesTable = mInstancesAssignedTextures.at(instanceId);
+		renderProxy.mTextures = TMaterialRenderProxy::TTexturesHashTable{ texturesTable.cbegin(), texturesTable.cend() };
+
+		return renderProxy;
+	}
+
 #if TDE2_EDITORS_ENABLED
 	
 	void CBaseMaterial::ForEachTextureSlot(const TTextureResourceVisitAction& action)
@@ -804,29 +830,68 @@ namespace TDEngine2
 		return Wrench::TOkValue<TPtr<IMaterialInstance>>(pNewMaterialInstance);
 	}
 
-	E_RESULT_CODE CBaseMaterial::_setVariableForInstance(TMaterialInstanceId instanceId, const std::string& name, const void* pValue, U32 size)
+	TResult<CBaseMaterial::TVariableInfo> CBaseMaterial::_getVariableInfo(const std::string& name) const
 	{
+		TVariableInfo output{};
+
 		U32 variableHash = GetVariableHash(name);
 
 		auto&& iter = mUserVariablesHashTable.find(variableHash);
 		if (iter == mUserVariablesHashTable.cend())
 		{
 			LOG_ERROR(Wrench::StringUtils::Format("[Base Material] There is no a variable with corresponding name ({0})", name));
-			return RC_FAIL;
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
 
-		U32 bufferIndex = 0;
-		USIZE varOffset = 0;
-		std::tie(bufferIndex, varOffset) = iter->second; // first index is a buffer's id, the second one is variable's offset in bytes
+		std::tie(output.mBufferIndex, output.mBufferOffset) = iter->second; // first index is a buffer's id, the second one is variable's offset in bytes
+
+		return Wrench::TOkValue<TVariableInfo>(output);
+	}
+
+	E_RESULT_CODE CBaseMaterial::_setVariableForInstance(TMaterialInstanceId instanceId, const std::string& name, const void* pValue, U32 size)
+	{
+		TDE2_PROFILER_SCOPE("CBaseMaterial::_setVariableForInstance");
+
+		TResult<TVariableInfo> variableInfoResult = _getVariableInfo(name);
+		if (variableInfoResult.HasError())
+		{
+			return variableInfoResult.GetError();
+		}
+
+		TVariableInfo currVariableInfo = variableInfoResult.Get();
 
 		auto instanceBuffersIter = mpInstancesUserUniformBuffers.find(instanceId);
 		if (instanceBuffersIter != mpInstancesUserUniformBuffers.cend())
 		{
 			auto& instanceUniformBuffers = instanceBuffersIter->second;
 
-			TDE2_ASSERT((bufferIndex) >= 0 && (instanceUniformBuffers[bufferIndex].size() - varOffset) >= size);
-			memcpy(&instanceUniformBuffers[bufferIndex][varOffset], pValue, size);
+			TDE2_ASSERT((currVariableInfo.mBufferIndex) >= 0 && (instanceUniformBuffers[currVariableInfo.mBufferIndex].size() - currVariableInfo.mBufferOffset) >= size);
+			memcpy(&instanceUniformBuffers[currVariableInfo.mBufferIndex][currVariableInfo.mBufferOffset], pValue, size);
 		}
+
+		return RC_OK;
+	}
+
+	E_RESULT_CODE CBaseMaterial::_setVariableForProxy(TMaterialRenderProxy& proxy, const std::string& name, const void* pValue, U32 size)
+	{
+		TDE2_PROFILER_SCOPE("CBaseMaterial::_setVariableForProxy");
+
+		TResult<TVariableInfo> variableInfoResult = _getVariableInfo(name);
+		if (variableInfoResult.HasError())
+		{
+			return variableInfoResult.GetError();
+		}
+
+		TVariableInfo currVariableInfo = variableInfoResult.Get();
+
+		if (static_cast<USIZE>(currVariableInfo.mBufferIndex) >= proxy.mUserUniformBuffers.size())
+		{
+			TDE2_ASSERT(false);
+			return RC_FAIL;
+		}
+
+		TDE2_ASSERT((currVariableInfo.mBufferIndex) >= 0 && (proxy.mUserUniformBuffers[currVariableInfo.mBufferIndex].size() - currVariableInfo.mBufferOffset) >= size);
+		memcpy(&proxy.mUserUniformBuffers[currVariableInfo.mBufferIndex][currVariableInfo.mBufferOffset], pValue, size);
 
 		return RC_OK;
 	}

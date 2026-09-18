@@ -86,6 +86,12 @@ namespace TDEngine2
 			friend TDE2_API IMaterial* CreateBaseMaterial(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 														  const TMaterialParameters& params, E_RESULT_CODE& result);
 		protected:
+			struct TVariableInfo
+			{
+				U32   mBufferIndex = 0;
+				USIZE mBufferOffset = 0;
+			};
+
 			typedef std::unordered_map<std::string, ITexture*>                         TTexturesHashTable;
 
 			typedef std::vector<U8>                                                    TUserUniformBufferData;
@@ -218,6 +224,8 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE SetTextureResource(const std::string& resourceName, ITexture* pTexture, TMaterialInstanceId instanceId = DefaultMaterialInstanceId) override;
 
 			TDE2_API E_RESULT_CODE SetVariableForInstance(TMaterialInstanceId instanceId, const std::string& name, const void* pValue, U32 size) override;
+
+			TDE2_API E_RESULT_CODE SetVariableForProxy(TMaterialRenderProxy& proxy, const std::string& name, const void* pValue, U32 size) override;
 
 			/*!
 				\brief The method sets up a state of depth buffer usage
@@ -396,6 +404,8 @@ namespace TDEngine2
 			TDE2_API void ForEachVariable(const TVariableVisitAction& action) override;
 #endif
 
+			TDE2_API TMaterialRenderProxy GetRenderProxyForInstance(TMaterialInstanceId instanceId = DefaultMaterialInstanceId) const override;
+
 			TDE2_API bool IsScissorTestEnabled() const override;
 
 			TDE2_API const TBlendStateDesc& GetBlendingParams() const override;
@@ -405,12 +415,15 @@ namespace TDEngine2
 
 			TResult<TPtr<IMaterialInstance>> _setVariable(const std::string& name, const void* pValue, U32 size) override;
 			E_RESULT_CODE _setVariableForInstance(TMaterialInstanceId instanceId, const std::string& name, const void* pValue, U32 size) override;
+			TDE2_API E_RESULT_CODE _setVariableForProxy(TMaterialRenderProxy& proxy, const std::string& name, const void* pValue, U32 size) override;
 
 			E_RESULT_CODE _allocateUserDataBuffers(const TShaderCompilerOutput& metadata);
 
 			TResult<TMaterialInstanceId> _allocateNewInstance();
 
 			E_RESULT_CODE _initDefaultInstance(const TShaderCompilerOutput& metadata);
+
+			TResult<TVariableInfo> _getVariableInfo(const std::string& name) const;
 
 			TDE2_API const TPtr<IResourceLoader> _getResourceLoader() override;
 		protected:
