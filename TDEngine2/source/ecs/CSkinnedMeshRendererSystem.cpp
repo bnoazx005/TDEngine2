@@ -120,19 +120,20 @@ namespace TDEngine2
 				// \note construct commands for opaque geometry
 				for (USIZE i = 0; i < opaqueMaterialsCount; ++i)
 				{
-					_prepareLocalRenderCommands(mProcessingEntities, mCurrMaterialsArray[i], mpCameraComponent, mVisibleOpaqueMeshes);
+					_prepareLocalRenderCommands(mProcessingEntities, i, mCurrMaterialsArray[i], mpCameraComponent, mVisibleOpaqueMeshes);
 				}
 
 				// \note construct commands for transparent geometry
 				for (USIZE i = opaqueMaterialsCount; i < mCurrMaterialsArray.size(); ++i)
 				{
-					_prepareLocalRenderCommands(mProcessingEntities, mCurrMaterialsArray[i], mpCameraComponent, mVisibleTransparentMeshes);
+					_prepareLocalRenderCommands(mProcessingEntities, i, mCurrMaterialsArray[i], mpCameraComponent, mVisibleTransparentMeshes);
 				}
 			});
 	}
 
 
-	static void AddRenderCommandInternal(TPtr<IResourceManager> pResourceManager, TPtr<CRenderQueue> pMainRenderQueue, TPtr<CRenderQueue> pDepthOnlyRenderQueue, const CSkinnedMeshRendererSystem::TMeshDrawEntry& meshEntry)
+	static void AddRenderCommandInternal(TPtr<IResourceManager> pResourceManager, TPtr<CRenderQueue> pMainRenderQueue, TPtr<CRenderQueue> pDepthOnlyRenderQueue, const CSkinnedMeshRendererSystem::TMeshDrawEntry& meshEntry,
+		TMaterialProxyId materialRenderProxyHandle, TMaterialProxyId depthOnlyMaterialRenderProxyHandle)
 	{
 		TDE2_PROFILER_SCOPE("CSkinnedMeshRendererSystem::AddRenderCommandInternal");
 
@@ -153,8 +154,7 @@ namespace TDEngine2
 			pCommand->mAdditionalVertexBuffers[i - 1] = pSharedMeshResource->GetVertexBufferForStream(static_cast<E_VERTEX_STREAM_TYPE>(i));
 		}
 
-		pCommand->mMaterialHandle                = meshEntry.mMaterialHandle;
-		pCommand->mMaterialInstanceId            = meshEntry.mMaterialInstanceId;
+		pCommand->mMaterialProxyHandle           = materialRenderProxyHandle;
 		pCommand->mStartIndex                    = meshEntry.mStartIndex;
 		pCommand->mNumOfIndices                  = meshEntry.mIndicesCount;
 		pCommand->mPrimitiveType                 = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
@@ -169,7 +169,7 @@ namespace TDEngine2
 
 			pDepthOnlyCommand->mVertexBufferHandle           = pSharedMeshResource->GetVertexBufferForStream(E_VERTEX_STREAM_TYPE::POSITIONS);
 			pDepthOnlyCommand->mIndexBufferHandle            = pCommand->mIndexBufferHandle;
-			pDepthOnlyCommand->mMaterialHandle               = DepthOnlyMaterialHandle;
+			pDepthOnlyCommand->mMaterialProxyHandle          = depthOnlyMaterialRenderProxyHandle;
 			pDepthOnlyCommand->mStartIndex                   = pCommand->mStartIndex;
 			pDepthOnlyCommand->mNumOfIndices                 = pCommand->mNumOfIndices;
 			pDepthOnlyCommand->mPrimitiveType                = pCommand->mPrimitiveType;
@@ -185,19 +185,38 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("CSkinnedMeshRendererSystem::FillFramePacket");
 
+		TPtr<IMaterial> pDepthOnlyMaterial = mpResourceManager->GetResource<IMaterial>(DepthOnlyMaterialHandle);
+		if (!pDepthOnlyMaterial)
+		{
+			TDE2_ASSERT_MSG(false, "[CSkinnedMeshRendererSystem] Couldn't find depth-only material");
+			return RC_FAIL;
+		}
+
+		const TMaterialProxyId depthOnlyProxyHandle = framePacket.GetOrCreateProxy(std::move(pDepthOnlyMaterial->GetRenderProxyForInstance(DefaultMaterialInstanceId)));
+
+		Vector<TMaterialRenderProxy> cachedBaseMaterialsProxies{};
+		cachedBaseMaterialsProxies.reserve(mCurrMaterialsArray.size());
+
+		for (const TPtr<IMaterial> pCurrMaterial : mCurrMaterialsArray)
+		{
+			cachedBaseMaterialsProxies.emplace_back(pCurrMaterial->GetRenderProxyForInstance(DefaultMaterialInstanceId));
+		}
+
 		TPtr<CRenderQueue> pOpaqueRenderGroup    = framePacket.mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_OPAQUE_GEOMETRY)];
 		TPtr<CRenderQueue> pDepthOnlyRenderGroup = framePacket.mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_DEPTH_PREPASS)];
 
 		for (const TMeshDrawEntry& currMeshEntry : mVisibleOpaqueMeshes)
 		{
-			AddRenderCommandInternal(mpResourceManager, pOpaqueRenderGroup, pDepthOnlyRenderGroup, currMeshEntry);
+			const TMaterialProxyId currMaterialProxyHandle = _getMaterialProxyHandleForMesh(framePacket, currMeshEntry.mpMeshContainer, cachedBaseMaterialsProxies[currMeshEntry.mMaterialIndexInArray], currMeshEntry.mMaterialIndexInArray);
+			AddRenderCommandInternal(mpResourceManager, pOpaqueRenderGroup, pDepthOnlyRenderGroup, currMeshEntry, currMaterialProxyHandle, depthOnlyProxyHandle);
 		}
 
 		TPtr<CRenderQueue> pTransparentRenderGroup = framePacket.mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_TRANSPARENT_GEOMETRY)];
 
 		for (const TMeshDrawEntry& currMeshEntry : mVisibleTransparentMeshes)
 		{
-			AddRenderCommandInternal(mpResourceManager, pTransparentRenderGroup, nullptr, currMeshEntry);
+			const TMaterialProxyId currMaterialProxyHandle = _getMaterialProxyHandleForMesh(framePacket, currMeshEntry.mpMeshContainer, cachedBaseMaterialsProxies[currMeshEntry.mMaterialIndexInArray], currMeshEntry.mMaterialIndexInArray);
+			AddRenderCommandInternal(mpResourceManager, pTransparentRenderGroup, nullptr, currMeshEntry, currMaterialProxyHandle, TMaterialProxyId::Invalid);
 		}
 
 		mVisibleOpaqueMeshes.clear();
@@ -299,7 +318,8 @@ namespace TDEngine2
 	}
 
 
-	void CSkinnedMeshRendererSystem::_prepareLocalRenderCommands(const TSystemContext& entities, TPtr<IMaterial> pCurrMaterial, const ICamera* pCamera, Vector<TMeshDrawEntry>& visibleMeshes)
+	// materialIndex stores an index of material inside both mUsedMaterialsArray and mCachedBaseMaterialsProxies
+	void CSkinnedMeshRendererSystem::_prepareLocalRenderCommands(const TSystemContext& entities, USIZE materialIndex, TPtr<IMaterial> pCurrMaterial, const ICamera* pCamera, Vector<TMeshDrawEntry>& visibleMeshes)
 	{
 		auto iter = entities.begin();
 
@@ -358,10 +378,8 @@ namespace TDEngine2
 			const TSubMeshRenderInfo& subMeshInfo = pSkinnedMeshContainer->GetSubMeshInfo();
 
 			auto& currAnimationPose = pSkinnedMeshContainer->GetCurrentAnimationPose();
-			U32 jointsCount = static_cast<U32>(currAnimationPose.size());
-
 			auto&& skeletonName = pSkinnedMeshContainer->GetSkeletonName();
-			if (skeletonName.empty() || !jointsCount)
+			if (skeletonName.empty() || !static_cast<U32>(currAnimationPose.size()))
 			{
 				++iter;
 				continue;
@@ -376,21 +394,10 @@ namespace TDEngine2
 				continue;
 			}
 
-			/// \note Get or create a new material's instance
-			TMaterialInstanceId materialInstance = pSkinnedMeshContainer->GetMaterialInstanceHandle();
-			if (TMaterialInstanceId::Invalid == materialInstance)
-			{
-				materialInstance = pCastedMaterial->CreateInstance()->GetInstanceId();
-				pSkinnedMeshContainer->SetMaterialInstanceHandle(materialInstance);
-			}
-
 			if (pSkinnedMeshContainer->ShouldShowDebugSkeleton())
 			{
 				TDE2_ASSERT(RC_OK == ShowSkeletonDebugHierarchy(mpGraphicsObjectManager, mpResourceManager.Get(), mpRenderer, currAnimationPose, skeletonResourceId));
 			}
-
-			pCastedMaterial->SetVariableForInstance(materialInstance, CSkinnedMeshContainer::mJointsArrayUniformVariableId, &currAnimationPose.front(), static_cast<U32>(sizeof(TMatrix4) * currAnimationPose.size()));
-			pCastedMaterial->SetVariableForInstance(materialInstance, CSkinnedMeshContainer::mJointsCountUniformVariableId, &jointsCount, sizeof(U32));
 
 			auto&& objectTransformMatrix = pTransform->GetLocalToWorldTransform();
 
@@ -400,18 +407,33 @@ namespace TDEngine2
 			meshDrawCommandEntry.mSharedPositionOnlyVertexBufferHandle = pSharedMeshResource->GetVertexBufferForStream(E_VERTEX_STREAM_TYPE::POSITIONS);
 			meshDrawCommandEntry.mSharedIndexBufferHandle              = pSharedMeshResource->GetSharedIndexBuffer();
 			meshDrawCommandEntry.mMeshHandle                           = sharedMeshId;
-			meshDrawCommandEntry.mMaterialHandle                       = currMaterialId;
-			meshDrawCommandEntry.mMaterialInstanceId                   = materialInstance;
 			meshDrawCommandEntry.mModelMat                             = Transpose(objectTransformMatrix);
 			meshDrawCommandEntry.mInvModelMat                          = Transpose(Inverse(objectTransformMatrix));
 			meshDrawCommandEntry.mStartIndex                           = subMeshInfo.mStartIndex;
 			meshDrawCommandEntry.mIndicesCount                         = subMeshInfo.mIndicesCount;
 			meshDrawCommandEntry.mVertexFormatFlags                    = pSharedMeshResource->GetVertexFormatFlags();
+			meshDrawCommandEntry.mMaterialIndexInArray                 = materialIndex;
 
 			visibleMeshes.emplace_back(meshDrawCommandEntry);
 
 			++iter;
 		}
+	}
+
+	TMaterialProxyId CSkinnedMeshRendererSystem::_getMaterialProxyHandleForMesh(TFramePacket& framePacket, CSkinnedMeshContainer* pMeshContainer, const TMaterialRenderProxy& materialProxyDesc, USIZE materialIndex) const
+	{
+		auto& currAnimationPose = pMeshContainer->GetCurrentAnimationPose();
+		U32 jointsCount = static_cast<U32>(currAnimationPose.size());
+
+		TMaterialRenderProxy currMaterialRenderProxyDesc = materialProxyDesc;
+
+		if (TPtr<IMaterial> pCurrMaterial = mCurrMaterialsArray[materialIndex])
+		{
+			pCurrMaterial->SetVariableForProxy(currMaterialRenderProxyDesc, CSkinnedMeshContainer::mJointsArrayUniformVariableId, &currAnimationPose.front(), static_cast<U32>(sizeof(TMatrix4) * currAnimationPose.size()));
+			pCurrMaterial->SetVariableForProxy(currMaterialRenderProxyDesc, CSkinnedMeshContainer::mJointsCountUniformVariableId, &jointsCount, sizeof(U32));
+		}
+
+		return framePacket.GetOrCreateProxy(std::move(currMaterialRenderProxyDesc));
 	}
 
 

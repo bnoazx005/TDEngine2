@@ -99,7 +99,7 @@ namespace TDEngine2
 	struct TProcessParams
 	{
 		IResourceManager*   mpResourceManager;
-		TResourceId         mMaterialId;
+		TMaterialProxyId    mMaterialProxyId;
 		U32                 mDrawIndex;
 		CRenderQueue*       mpRenderQueue;
 	};
@@ -136,7 +136,7 @@ namespace TDEngine2
 			{
 				pDrawCommand->mVertexBufferHandle      = pStaticMeshResource->GetVertexBufferForStream(E_VERTEX_STREAM_TYPE::POSITIONS);
 				pDrawCommand->mIndexBufferHandle       = pStaticMeshResource->GetSharedIndexBuffer();
-				pDrawCommand->mMaterialHandle          = params.mMaterialId;
+				pDrawCommand->mMaterialProxyHandle     = params.mMaterialProxyId;
 				pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
 				pDrawCommand->mObjectData.mObjectID    = static_cast<U32>(params.mDrawIndex);
@@ -174,27 +174,13 @@ namespace TDEngine2
 				}
 			}
 
-			const auto& currAnimationPose = pSkinnedMeshContainer->GetCurrentAnimationPose();
-			const U32 jointsCount = static_cast<U32>(currAnimationPose.size());
-
-			if (auto pMaterial = pResourceManager->GetResource<IMaterial>(params.mMaterialId))
-			{
-				if (E_RESOURCE_STATE_TYPE::RST_LOADED != pResourceManager->GetResource<IResource>(params.mMaterialId)->GetState())
-				{
-					return params.mDrawIndex;
-				}
-
-				pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, CSkinnedMeshContainer::mJointsArrayUniformVariableId, &currAnimationPose.front(), static_cast<U32>(sizeof(TMatrix4) * currAnimationPose.size()));
-				pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, CSkinnedMeshContainer::mJointsCountUniformVariableId, &jointsCount, sizeof(U32));
-			}
-
 			auto&& subMeshInfo = pSkinnedMeshContainer->GetSubMeshInfo();
 
 			if (TDrawIndexedCommand* pDrawCommand = params.mpRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(params.mDrawIndex))
 			{
 				pDrawCommand->mVertexBufferHandle      = pSkinnedMeshResource->GetVertexBufferForStream(E_VERTEX_STREAM_TYPE::POSITIONS);
 				pDrawCommand->mIndexBufferHandle       = pSkinnedMeshResource->GetSharedIndexBuffer();
-				pDrawCommand->mMaterialHandle          = params.mMaterialId;
+				pDrawCommand->mMaterialProxyHandle     = params.mMaterialProxyId;
 				pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 				pDrawCommand->mObjectData.mModelMatrix = Transpose(pTransform->GetLocalToWorldTransform());
 				pDrawCommand->mObjectData.mObjectID    = static_cast<U32>(params.mDrawIndex);
@@ -565,21 +551,56 @@ namespace TDEngine2
 
 		CRenderQueue* pShadowPassRenderQueue = framePacket.mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)].Get();
 
+		TPtr<IMaterial> pStaticMeshShadowPassMaterial = mpResourceManager->GetResource<IMaterial>(mShadowPassMaterialHandle);
+		if (!pStaticMeshShadowPassMaterial)
+		{
+			TDE2_ASSERT_MSG(false, "[CLightingSystem] Shadow pass material for static meshes not found");
+			return RC_FAIL;
+		}
+
+		TPtr<IMaterial> pSkinnedMeshShadowPassMaterial = mpResourceManager->GetResource<IMaterial>(mShadowPassSkinnedMaterialHandle);
+		if (!pSkinnedMeshShadowPassMaterial)
+		{
+			TDE2_ASSERT_MSG(false, "[CLightingSystem] Shadow pass material for skinned meshes not found");
+			return RC_FAIL;
+		}
+
+		const TMaterialProxyId staticMeshesShadowPassMaterialProxyHandle = framePacket.GetOrCreateProxy(pStaticMeshShadowPassMaterial->GetRenderProxyForInstance(DefaultMaterialInstanceId));
+		TDE2_ASSERT(staticMeshesShadowPassMaterialProxyHandle != TMaterialProxyId::Invalid);
+
 		for (USIZE drawIndex = 0; drawIndex < mShadowCastersData.size(); ++drawIndex)
 		{
 			const TShadowCasterEntry& currShadowCasterEntry = mShadowCastersData[drawIndex];
 
-			std::visit([drawIndex, &currShadowCasterEntry, pShadowPassRenderQueue, this](auto* pMeshContainer)
+			std::visit([drawIndex, &currShadowCasterEntry, &framePacket, pShadowPassRenderQueue, staticMeshesShadowPassMaterialProxyHandle, this](auto* pMeshContainer)
 				{
 					using T = decltype(pMeshContainer);
 
-					if constexpr (std::is_same_v<T, CStaticMeshContainer*>) 
+					if constexpr (std::is_same_v<T, CStaticMeshContainer*>)
 					{
-						ProcessStaticMeshCasterEntity({ mpResourceManager.Get(), mShadowPassMaterialHandle, static_cast<U32>(drawIndex), pShadowPassRenderQueue }, currShadowCasterEntry.mpTransform, pMeshContainer);
+						ProcessStaticMeshCasterEntity({ mpResourceManager.Get(), staticMeshesShadowPassMaterialProxyHandle, static_cast<U32>(drawIndex), pShadowPassRenderQueue }, currShadowCasterEntry.mpTransform, pMeshContainer);
 					}
 					else if constexpr (std::is_same_v<T, CSkinnedMeshContainer*>)
 					{
-						ProcessSkinnedMeshCasterEntity({ mpResourceManager.Get(), mShadowPassSkinnedMaterialHandle, static_cast<U32>(drawIndex), pShadowPassRenderQueue }, currShadowCasterEntry.mpTransform, pMeshContainer);
+						const auto& currAnimationPose = pMeshContainer->GetCurrentAnimationPose();
+						const U32 jointsCount = static_cast<U32>(currAnimationPose.size());
+
+						TPtr<IMaterial> pMaterial = mpResourceManager->GetResource<IMaterial>(mShadowPassSkinnedMaterialHandle);
+						if (!pMaterial)
+						{
+							return;
+						}
+
+						if (E_RESOURCE_STATE_TYPE::RST_LOADED != DynamicPtrCast<IResource>(pMaterial)->GetState())
+						{
+							return;
+						}
+
+						TMaterialRenderProxy skinnedMeshShadowPassMaterialProxy = pMaterial->GetRenderProxyForInstance(DefaultMaterialInstanceId);
+						pMaterial->SetVariableForProxy(skinnedMeshShadowPassMaterialProxy, CSkinnedMeshContainer::mJointsArrayUniformVariableId, &currAnimationPose.front(), static_cast<U32>(sizeof(TMatrix4) * currAnimationPose.size()));
+						pMaterial->SetVariableForProxy(skinnedMeshShadowPassMaterialProxy, CSkinnedMeshContainer::mJointsCountUniformVariableId, &jointsCount, sizeof(U32));
+						
+						ProcessSkinnedMeshCasterEntity({ mpResourceManager.Get(), framePacket.GetOrCreateProxy(std::move(skinnedMeshShadowPassMaterialProxy)), static_cast<U32>(drawIndex), pShadowPassRenderQueue }, currShadowCasterEntry.mpTransform, pMeshContainer);
 					}
 				}, currShadowCasterEntry.mpMeshContainer);
 		}

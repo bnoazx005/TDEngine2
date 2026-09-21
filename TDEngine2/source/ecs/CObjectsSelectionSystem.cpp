@@ -191,12 +191,6 @@ namespace TDEngine2
 				return;
 			}
 
-			if (TPtr<IMaterial> pMaterial = pResourceManager->GetResource<IMaterial>(materialHandle))
-			{
-				pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, CSkinnedMeshContainer::mJointsArrayUniformVariableId, &currAnimationPose.front(), static_cast<U32>(sizeof(TMatrix4) * currAnimationPose.size()));
-				pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, CSkinnedMeshContainer::mJointsCountUniformVariableId, &jointsCount, sizeof(U32));
-			}
-
 			auto&& subMeshInfo = pSkinnedMeshContainer->GetSubMeshInfo();
 
 			drawCommands.emplace_back(CObjectsSelectionSystem::TMeshDrawEntry
@@ -207,7 +201,8 @@ namespace TDEngine2
 					drawIndex,
 					subMeshInfo.mStartIndex,
 					subMeshInfo.mIndicesCount,
-					static_cast<U32>(context.mEntityIds[index])
+					static_cast<U32>(context.mEntityIds[index]),
+					pSkinnedMeshContainer
 				});
 		}
 	}
@@ -366,13 +361,58 @@ namespace TDEngine2
 
 		CRenderQueue* pEditorOnlyRenderQueue = framePacket.mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_EDITOR_ONLY)].Get();
 
+		TPtr<IMaterial> pSelectIDWriteMaterial = mpResourceManager->GetResource<IMaterial>(mSelectionMaterialHandle);
+		if (!pSelectIDWriteMaterial)
+		{
+			TDE2_ASSERT_MSG(false, "[CObjectsSelectionSystem] Couldn't find mSelectionMaterialHandle material");
+			return RC_FAIL;
+		}
+
+		const TMaterialProxyId selectionMaterialProxyHandle = framePacket.GetOrCreateProxy(std::move(pSelectIDWriteMaterial->GetRenderProxyForInstance()));
+
 		for (const TMeshDrawEntry& currMeshCommandEntry : mMeshesCommands)
 		{
 			if (TDrawIndexedCommand* pDrawCommand = pEditorOnlyRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(currMeshCommandEntry.mDrawGroupKey))
 			{
 				pDrawCommand->mVertexBufferHandle      = currMeshCommandEntry.mSharedPositionOnlyVertexBufferHandle;
 				pDrawCommand->mIndexBufferHandle       = currMeshCommandEntry.mSharedIndexBufferHandle;
-				pDrawCommand->mMaterialHandle          = mSelectionMaterialHandle;
+				pDrawCommand->mMaterialProxyHandle     = selectionMaterialProxyHandle;
+				pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+				pDrawCommand->mObjectData.mModelMatrix = currMeshCommandEntry.mModelMat;
+				pDrawCommand->mObjectData.mObjectID    = currMeshCommandEntry.mObjectID;
+				pDrawCommand->mStartIndex              = currMeshCommandEntry.mStartIndex;
+				pDrawCommand->mNumOfIndices            = currMeshCommandEntry.mIndicesCount;
+				pDrawCommand->mStartVertex             = 0;
+			}
+		}
+
+		TPtr<IMaterial> pSkinnedSelectIDWriteMaterial = mpResourceManager->GetResource<IMaterial>(mSelectionSkinnedMaterialHandle);
+		if (!pSkinnedSelectIDWriteMaterial)
+		{
+			TDE2_ASSERT_MSG(false, "[CObjectsSelectionSystem] Couldn't find mSelectionSkinnedMaterialHandle material");
+			return RC_FAIL;
+		}
+
+		TMaterialRenderProxy baseSkinnedSelectionMaterialProxyDesc = pSkinnedSelectIDWriteMaterial->GetRenderProxyForInstance();
+
+		for (const TMeshDrawEntry& currMeshCommandEntry : mSkinnedMeshesCommands)
+		{
+			TMaterialRenderProxy currSkinnedSelectionMaterialProxyDesc = baseSkinnedSelectionMaterialProxyDesc;
+
+			const auto& currAnimationPose = currMeshCommandEntry.mpSkinnedMesh->GetCurrentAnimationPose();
+			const U32 jointsCount = static_cast<U32>(currAnimationPose.size());
+
+			pSkinnedSelectIDWriteMaterial->SetVariableForProxy(currSkinnedSelectionMaterialProxyDesc, CSkinnedMeshContainer::mJointsArrayUniformVariableId,
+				&currAnimationPose.front(), static_cast<U32>(sizeof(TMatrix4) * currAnimationPose.size()));
+			pSkinnedSelectIDWriteMaterial->SetVariableForProxy(currSkinnedSelectionMaterialProxyDesc, CSkinnedMeshContainer::mJointsCountUniformVariableId, &jointsCount, sizeof(U32));
+
+			const TMaterialProxyId skinnedSelectionMaterialProxyHandle = framePacket.GetOrCreateProxy(std::move(currSkinnedSelectionMaterialProxyDesc));
+
+			if (TDrawIndexedCommand* pDrawCommand = pEditorOnlyRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(currMeshCommandEntry.mDrawGroupKey))
+			{
+				pDrawCommand->mVertexBufferHandle      = currMeshCommandEntry.mSharedPositionOnlyVertexBufferHandle;
+				pDrawCommand->mIndexBufferHandle       = currMeshCommandEntry.mSharedIndexBufferHandle;
+				pDrawCommand->mMaterialProxyHandle     = skinnedSelectionMaterialProxyHandle;
 				pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 				pDrawCommand->mObjectData.mModelMatrix = currMeshCommandEntry.mModelMat;
 				pDrawCommand->mObjectData.mObjectID    = currMeshCommandEntry.mObjectID;
@@ -388,7 +428,7 @@ namespace TDEngine2
 			{
 				pDrawCommand->mVertexBufferHandle      = mSpritesVertexBufferHandle;
 				pDrawCommand->mIndexBufferHandle       = mSpritesIndexBufferHandle;
-				pDrawCommand->mMaterialHandle          = mSelectionMaterialHandle;
+				pDrawCommand->mMaterialProxyHandle     = selectionMaterialProxyHandle;
 				pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 				pDrawCommand->mObjectData.mModelMatrix = currSpriteCommandEntry.mModelMat;
 				pDrawCommand->mObjectData.mObjectID    = currSpriteCommandEntry.mObjectID;
@@ -451,7 +491,7 @@ namespace TDEngine2
 			{
 				pDrawCommand->mVertexBufferHandle      = framePacket.mSelectionSystemData.mUIElementsVertexBufferHandle;
 				pDrawCommand->mIndexBufferHandle       = mSpritesIndexBufferHandle;
-				pDrawCommand->mMaterialHandle          = mSelectionMaterialHandle;
+				pDrawCommand->mMaterialProxyHandle     = selectionMaterialProxyHandle;
 				pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 				pDrawCommand->mObjectData.mModelMatrix = currUiElementCommandEntry.mModelMat;
 				pDrawCommand->mObjectData.mObjectID    = currUiElementCommandEntry.mObjectID;
@@ -462,6 +502,15 @@ namespace TDEngine2
 		}
 
 		CRenderQueue* pDebugRenderQueue = framePacket.mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_DEBUG)].Get();
+		
+		TPtr<IMaterial> pSelectionOutlineMaterial = mpResourceManager->GetResource<IMaterial>(mSelectionOutlineMaterialHandle);
+		if (!pSelectionOutlineMaterial)
+		{
+			TDE2_ASSERT_MSG(false, "[CObjectsSelectionSystem] Couldn't find mSelectionOutlineMaterialHandle material");
+			return RC_FAIL;
+		}
+
+		const TMaterialProxyId selectionOutlineMaterialProxyHandle = framePacket.GetOrCreateProxy(std::move(pSelectionOutlineMaterial->GetRenderProxyForInstance()));
 
 		for (const TMeshDrawEntry& currMeshCommandEntry : mSelectedMeshesCommands)
 		{
@@ -469,7 +518,43 @@ namespace TDEngine2
 			{
 				pDrawCommand->mVertexBufferHandle      = currMeshCommandEntry.mSharedPositionOnlyVertexBufferHandle;
 				pDrawCommand->mIndexBufferHandle       = currMeshCommandEntry.mSharedIndexBufferHandle;
-				pDrawCommand->mMaterialHandle          = mSelectionOutlineMaterialHandle;
+				pDrawCommand->mMaterialProxyHandle     = selectionOutlineMaterialProxyHandle;
+				pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+				pDrawCommand->mObjectData.mModelMatrix = currMeshCommandEntry.mModelMat;
+				pDrawCommand->mObjectData.mObjectID    = currMeshCommandEntry.mObjectID;
+				pDrawCommand->mStartIndex              = currMeshCommandEntry.mStartIndex;
+				pDrawCommand->mNumOfIndices            = currMeshCommandEntry.mIndicesCount;
+				pDrawCommand->mStartVertex             = 0;
+			}
+		}
+
+		TPtr<IMaterial> pSkinnedSelectionOutlineMaterial = mpResourceManager->GetResource<IMaterial>(mSelectionSkinnedOutlineMaterialHandle);
+		if (!pSkinnedSelectionOutlineMaterial)
+		{
+			TDE2_ASSERT_MSG(false, "[CObjectsSelectionSystem] Couldn't find mSelectionSkinnedOutlineMaterialHandle material");
+			return RC_FAIL;
+		}
+
+		TMaterialRenderProxy baseSkinnedSelectionOutlineMaterialProxyDesc = pSkinnedSelectionOutlineMaterial->GetRenderProxyForInstance();
+
+		for (const TMeshDrawEntry& currMeshCommandEntry : mSelectedSkinnedMeshesCommands)
+		{
+			TMaterialRenderProxy currSkinnedSelectionOutlineMaterialProxyDesc = baseSkinnedSelectionOutlineMaterialProxyDesc;
+
+			const auto& currAnimationPose = currMeshCommandEntry.mpSkinnedMesh->GetCurrentAnimationPose();
+			const U32 jointsCount = static_cast<U32>(currAnimationPose.size());
+
+			pSkinnedSelectionOutlineMaterial->SetVariableForProxy(currSkinnedSelectionOutlineMaterialProxyDesc, CSkinnedMeshContainer::mJointsArrayUniformVariableId,
+				&currAnimationPose.front(), static_cast<U32>(sizeof(TMatrix4) * currAnimationPose.size()));
+			pSkinnedSelectionOutlineMaterial->SetVariableForProxy(currSkinnedSelectionOutlineMaterialProxyDesc, CSkinnedMeshContainer::mJointsCountUniformVariableId, &jointsCount, sizeof(U32));
+
+			const TMaterialProxyId skinnedSelectionOutlineMaterialProxyHandle = framePacket.GetOrCreateProxy(std::move(currSkinnedSelectionOutlineMaterialProxyDesc));
+
+			if (TDrawIndexedCommand* pDrawCommand = pDebugRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(currMeshCommandEntry.mDrawGroupKey))
+			{
+				pDrawCommand->mVertexBufferHandle      = currMeshCommandEntry.mSharedPositionOnlyVertexBufferHandle;
+				pDrawCommand->mIndexBufferHandle       = currMeshCommandEntry.mSharedIndexBufferHandle;
+				pDrawCommand->mMaterialProxyHandle     = skinnedSelectionOutlineMaterialProxyHandle;
 				pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 				pDrawCommand->mObjectData.mModelMatrix = currMeshCommandEntry.mModelMat;
 				pDrawCommand->mObjectData.mObjectID    = currMeshCommandEntry.mObjectID;
@@ -481,11 +566,11 @@ namespace TDEngine2
 
 		for (const TSpriteDrawEntry& currSpriteCommandEntry : mSelectedSpritesCommands)
 		{
-			if (TDrawIndexedCommand* pDrawCommand = pEditorOnlyRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(currSpriteCommandEntry.mDrawGroupKey))
+			if (TDrawIndexedCommand* pDrawCommand = pDebugRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(currSpriteCommandEntry.mDrawGroupKey))
 			{
 				pDrawCommand->mVertexBufferHandle      = mSpritesVertexBufferHandle;
 				pDrawCommand->mIndexBufferHandle       = mSpritesIndexBufferHandle;
-				pDrawCommand->mMaterialHandle          = mSelectionOutlineMaterialHandle;
+				pDrawCommand->mMaterialProxyHandle     = selectionOutlineMaterialProxyHandle;
 				pDrawCommand->mPrimitiveType           = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
 				pDrawCommand->mObjectData.mModelMatrix = currSpriteCommandEntry.mModelMat;
 				pDrawCommand->mObjectData.mObjectID    = currSpriteCommandEntry.mObjectID;

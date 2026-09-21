@@ -317,14 +317,40 @@ namespace TDEngine2
 
 		U32 batchId = 0;
 
+		TPtr<IMaterial> pSharedMaterial = mpResourceManager->GetResource<IMaterial>(mDefaultEditorMaterialHandle);
+		if (!pSharedMaterial)
+		{
+			return RC_FAIL;
+		}
+
+		const TMaterialRenderProxy sharedMaterialProxyDesc = pSharedMaterial->GetRenderProxyForInstance(DefaultMaterialInstanceId);
+
+		std::unordered_map<TResourceId, TMaterialProxyId> materialProxiesTable{};
+
 		for (const TImGUIFramePacketData::TImGUIDrawCommand& currDrawCommand : mpPendingFramePacketData->mCommands)
 		{
-			TDrawIndexedCommand* pCurrDrawCommand = pRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>((0xFFFFFFF0 - batchId++));
-
 			TPtr<ITexture> pTexture = mpResourceManager->GetResource<ITexture>(currDrawCommand.mTextureId);
 			if (!pTexture)
 			{
 				continue;
+			}
+
+			TDrawIndexedCommand* pCurrDrawCommand = pRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>((0xFFFFFFF0 - batchId++));
+
+			TMaterialProxyId currMaterialProxyHandle = TMaterialProxyId::Invalid;
+
+			auto it = materialProxiesTable.find(currDrawCommand.mTextureId);
+			if (it == materialProxiesTable.cend())
+			{
+				TMaterialRenderProxy currMaterialProxyDesc = sharedMaterialProxyDesc;
+				currMaterialProxyDesc.mTextures["Texture"] = pTexture.Get();
+
+				currMaterialProxyHandle = framePacket.GetOrCreateProxy(std::move(currMaterialProxyDesc));
+				materialProxiesTable.emplace(currDrawCommand.mTextureId, currMaterialProxyHandle);
+			}
+			else
+			{
+				currMaterialProxyHandle = it->second;
 			}
 
 			auto&& uvRect = pTexture ? pTexture->GetNormalizedTextureRect() : TRectF32{ 0.0f, 0.0f, 1.0f, 1.0f };
@@ -332,12 +358,12 @@ namespace TDEngine2
 			pCurrDrawCommand->mObjectData.mModelMatrix          = projectionMatrix; // \note assign it as ModelMat and don't use global ProjMat
 			pCurrDrawCommand->mObjectData.mTextureTransformDesc = TVector4(uvRect.x, uvRect.y, uvRect.width, uvRect.height);
 
-			pCurrDrawCommand->mVertexBufferHandle = imGuiData.mVertexBufferHandle;
-			pCurrDrawCommand->mIndexBufferHandle  = imGuiData.mIndexBufferHandle;
-			pCurrDrawCommand->mMaterialHandle     = mDefaultEditorMaterialHandle;
-			pCurrDrawCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-			pCurrDrawCommand->mNumOfIndices       = currDrawCommand.mElementsCount;
-			pCurrDrawCommand->mMaterialInstanceId = mUsingMaterials[currDrawCommand.mTextureId];
+			pCurrDrawCommand->mVertexBufferHandle  = imGuiData.mVertexBufferHandle;
+			pCurrDrawCommand->mIndexBufferHandle   = imGuiData.mIndexBufferHandle;
+			pCurrDrawCommand->mMaterialHandle      = mDefaultEditorMaterialHandle;
+			pCurrDrawCommand->mPrimitiveType       = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+			pCurrDrawCommand->mNumOfIndices        = currDrawCommand.mElementsCount;
+			pCurrDrawCommand->mMaterialProxyHandle = currMaterialProxyHandle;
 
 			pCurrDrawCommand->mObjectData.mStartVertexOffset = currDrawCommand.mVertexOffset;
 			pCurrDrawCommand->mObjectData.mStartIndexOffset  = currDrawCommand.mIndexOffset;
@@ -1485,8 +1511,6 @@ namespace TDEngine2
 
 		ImVec2 clipRect = pImGUIData->DisplayPos;
 
-		TPtr<IMaterial> pMaterial = mpResourceManager->GetResource<IMaterial>(mDefaultEditorMaterialHandle);
-
 		for (I32 n = 0; n < pImGUIData->CmdListsCount; ++n)
 		{
 			const ImDrawList* pCommandList = pImGUIData->CmdLists[n];
@@ -1497,17 +1521,7 @@ namespace TDEngine2
 			for (I32 currCommandIndex = 0; currCommandIndex < pCommandList->CmdBuffer.Size; ++currCommandIndex)
 			{
 				const ImDrawCmd* pCurrCommand = &pCommandList->CmdBuffer[currCommandIndex];
-
-				const TResourceId textureResourceHandle = *static_cast<const TResourceId*>(pCurrCommand->TextureId);
-				if (mUsingMaterials.find(textureResourceHandle) == mUsingMaterials.cend()) // \note create a new instance
-				{
-					mUsingMaterials.emplace(textureResourceHandle, pMaterial->CreateInstance()->GetInstanceId());
-				}
-
-				TPtr<ITexture> pTexture = mpResourceManager->GetResource<ITexture>(textureResourceHandle);
-
-				pMaterial->SetTextureResource("Texture", pTexture.Get(), mUsingMaterials[textureResourceHandle]);
-
+								
 				const TVector2 clipMin(pCurrCommand->ClipRect.x - clipRect.x, pCurrCommand->ClipRect.y - clipRect.y);
 				const TVector2 clipMax(pCurrCommand->ClipRect.z - clipRect.x, pCurrCommand->ClipRect.w - clipRect.y);
 
@@ -1516,7 +1530,7 @@ namespace TDEngine2
 						pCurrCommand->ElemCount,
 						static_cast<U32>(pCurrCommand->VtxOffset + currVertexOffset),
 						static_cast<U32>(pCurrCommand->IdxOffset + currIndexOffset),
-						textureResourceHandle,
+						*static_cast<const TResourceId*>(pCurrCommand->TextureId),
 						(clipMax.x < clipMin.x || clipMax.y < clipMin.y) ? std::nullopt : std::optional 
 						{
 							TRectU32

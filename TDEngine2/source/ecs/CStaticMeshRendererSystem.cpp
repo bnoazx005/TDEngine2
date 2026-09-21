@@ -111,20 +111,31 @@ namespace TDEngine2
 	}
 
 
-	static void AddRenderCommandInternal(TPtr<IResourceManager> pResourceManager, TPtr<CRenderQueue> pMainRenderQueue, TPtr<CRenderQueue> pDepthOnlyRenderQueue, const CStaticMeshRendererSystem::TMeshDrawEntry& meshEntry)
+	struct TRenderCommandParams
+	{
+		TPtr<IResourceManager>                           mpResourceManager = nullptr;
+		TPtr<CRenderQueue>                               mpMainRenderQueue = nullptr;
+		TPtr<CRenderQueue>                               mpDepthOnlyRenderQueue = nullptr;
+		const CStaticMeshRendererSystem::TMeshDrawEntry& mMeshEntry;
+		TMaterialProxyId                                 mMainMaterialProxyHandle = TMaterialProxyId::Invalid;
+		TMaterialProxyId                                 mDepthOnlyMaterialProxyHandle = TMaterialProxyId::Invalid;
+	};
+
+
+	static void AddRenderCommandInternal(const TRenderCommandParams& params)
 	{
 		TDE2_PROFILER_SCOPE("CStaticMeshRendererSystem::AddRenderCommandInternal");
 
-		TDrawIndexedCommand* pCommand = pMainRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(
-			static_cast<U32>(meshEntry.mGeometrySubGroupTag) + (static_cast<U32>(meshEntry.mMaterialHandle) << 16) | static_cast<U16>(fabs(meshEntry.mDistanceToCamera)));
+		TDrawIndexedCommand* pCommand = params.mpMainRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(
+			static_cast<U32>(params.mMeshEntry.mGeometrySubGroupTag) + (static_cast<U32>(params.mMeshEntry.mMaterialHandle) << 16) | static_cast<U16>(fabs(params.mMeshEntry.mDistanceToCamera)));
 
-		TPtr<IStaticMesh> pSharedMeshResource = pResourceManager->GetResource<IStaticMesh>(meshEntry.mMeshHandle);
+		TPtr<IStaticMesh> pSharedMeshResource = params.mpResourceManager->GetResource<IStaticMesh>(params.mMeshEntry.mMeshHandle);
 		if (!pSharedMeshResource)
 		{
 			return;
 		}
 
-		pCommand->mVertexBufferHandle = meshEntry.mSharedPositionOnlyVertexBufferHandle;
+		pCommand->mVertexBufferHandle = params.mMeshEntry.mSharedPositionOnlyVertexBufferHandle;
 		pCommand->mIndexBufferHandle = pSharedMeshResource->GetSharedIndexBuffer();
 
 		for (U32 i = 1; i < static_cast<U32>(E_VERTEX_STREAM_TYPE::SKINNING); ++i)
@@ -132,22 +143,24 @@ namespace TDEngine2
 			pCommand->mAdditionalVertexBuffers[i - 1] = pSharedMeshResource->GetVertexBufferForStream(static_cast<E_VERTEX_STREAM_TYPE>(i));
 		}
 
-		pCommand->mMaterialHandle                = meshEntry.mMaterialHandle;
-		pCommand->mStartIndex                    = meshEntry.mStartIndex;
-		pCommand->mNumOfIndices                  = meshEntry.mIndicesCount;
+		pCommand->mMaterialHandle                = params.mMeshEntry.mMaterialHandle;
+		pCommand->mMaterialProxyHandle           = params.mMainMaterialProxyHandle;
+		pCommand->mStartIndex                    = params.mMeshEntry.mStartIndex;
+		pCommand->mNumOfIndices                  = params.mMeshEntry.mIndicesCount;
 		pCommand->mPrimitiveType                 = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-		pCommand->mObjectData.mModelMatrix       = meshEntry.mModelMat;
-		pCommand->mObjectData.mInvModelMatrix    = meshEntry.mInvModelMat;
-		pCommand->mObjectData.mStartIndexOffset  = meshEntry.mStartIndex;
-		pCommand->mObjectData.mVertexFormatFlags = meshEntry.mVertexFormatFlags;
+		pCommand->mObjectData.mModelMatrix       = params.mMeshEntry.mModelMat;
+		pCommand->mObjectData.mInvModelMatrix    = params.mMeshEntry.mInvModelMat;
+		pCommand->mObjectData.mStartIndexOffset  = params.mMeshEntry.mStartIndex;
+		pCommand->mObjectData.mVertexFormatFlags = params.mMeshEntry.mVertexFormatFlags;
 
-		if (pDepthOnlyRenderQueue && E_GEOMETRY_SUBGROUP_TAGS::SKYBOX != meshEntry.mGeometrySubGroupTag)
+		if (params.mpDepthOnlyRenderQueue && E_GEOMETRY_SUBGROUP_TAGS::SKYBOX != params.mMeshEntry.mGeometrySubGroupTag)
 		{
-			auto pDepthOnlyCommand = pDepthOnlyRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(static_cast<U32>(fabs(meshEntry.mDistanceToCamera)));
+			auto pDepthOnlyCommand = params.mpDepthOnlyRenderQueue->SubmitDrawCommand<TDrawIndexedCommand>(static_cast<U32>(fabs(params.mMeshEntry.mDistanceToCamera)));
 
 			pDepthOnlyCommand->mVertexBufferHandle           = pSharedMeshResource->GetVertexBufferForStream(E_VERTEX_STREAM_TYPE::POSITIONS);
 			pDepthOnlyCommand->mIndexBufferHandle            = pCommand->mIndexBufferHandle;
 			pDepthOnlyCommand->mMaterialHandle               = DepthOnlyMaterialHandle;
+			pDepthOnlyCommand->mMaterialProxyHandle          = params.mDepthOnlyMaterialProxyHandle;
 			pDepthOnlyCommand->mStartIndex                   = pCommand->mStartIndex;
 			pDepthOnlyCommand->mNumOfIndices                 = pCommand->mNumOfIndices;
 			pDepthOnlyCommand->mPrimitiveType                = pCommand->mPrimitiveType;
@@ -159,6 +172,46 @@ namespace TDEngine2
 	}
 
 
+	struct TPopulateCommandsParams
+	{
+		TPtr<IResourceManager> mpResourceManager = nullptr;
+		TPtr<CRenderQueue>     mpMainRenderQueue = nullptr;
+		TPtr<CRenderQueue>     mpDepthOnlyRenderQueue = nullptr;
+		TMaterialProxyId       mDepthOnlyMaterialProxyHandle = TMaterialProxyId::Invalid;
+		TFramePacket&          mFramePacket;
+	};
+
+
+	static void PopulateCommandsInternal(const TPopulateCommandsParams& params, const Vector<CStaticMeshRendererSystem::TMeshDrawEntry>& meshEntries, CStaticMeshRendererSystem::TMaterialProxiesTable& cachedMaterialProxies)
+	{
+		TDE2_PROFILER_SCOPE("CStaticMeshRendererSystem::PopulateCommandsInternal");
+
+		for (const CStaticMeshRendererSystem::TMeshDrawEntry& currMeshEntry : meshEntries)
+		{
+			TPtr<IMaterial> pCurrMaterial = params.mpResourceManager->GetResource<IMaterial>(currMeshEntry.mMaterialHandle);
+			if (!pCurrMaterial)
+			{
+				return;
+			}
+
+			TMaterialProxyId currMaterialProxyHandle = TMaterialProxyId::Invalid;
+
+			auto it = cachedMaterialProxies.find(currMeshEntry.mMaterialHandle);
+			if (it == cachedMaterialProxies.cend())
+			{
+				currMaterialProxyHandle = params.mFramePacket.GetOrCreateProxy(std::move(pCurrMaterial->GetRenderProxyForInstance(DefaultMaterialInstanceId)));
+				cachedMaterialProxies.emplace(currMeshEntry.mMaterialHandle, currMaterialProxyHandle);
+			}
+			else
+			{
+				currMaterialProxyHandle = it->second;
+			}
+
+			AddRenderCommandInternal({ params.mpResourceManager, params.mpMainRenderQueue, params.mpDepthOnlyRenderQueue, currMeshEntry, currMaterialProxyHandle, params.mDepthOnlyMaterialProxyHandle });
+		}
+	}
+
+
 	E_RESULT_CODE CStaticMeshRendererSystem::FillFramePacket(TFramePacket& framePacket)
 	{
 		TDE2_PROFILER_SCOPE("CStaticMeshRendererSystem::FillFramePacket");
@@ -166,18 +219,20 @@ namespace TDEngine2
 		TPtr<CRenderQueue> pOpaqueRenderGroup      = framePacket.mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_OPAQUE_GEOMETRY)];
 		TPtr<CRenderQueue> pDepthOnlyRenderGroup   = framePacket.mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_DEPTH_PREPASS)];
 
-		for (const TMeshDrawEntry& currMeshEntry : mVisibleOpaqueMeshes)
+		TPtr<IMaterial> pDepthOnlyMaterial = mpResourceManager->GetResource<IMaterial>(DepthOnlyMaterialHandle);
+		if (!pDepthOnlyMaterial)
 		{
-			AddRenderCommandInternal(mpResourceManager, pOpaqueRenderGroup, pDepthOnlyRenderGroup, currMeshEntry);
+			TDE2_ASSERT_MSG(false, "[CStaticMeshRendererSystem] Couldn't find depth-only material");
+			return RC_FAIL;
 		}
 
-		TPtr<CRenderQueue> pTransparentRenderGroup = framePacket.mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_TRANSPARENT_GEOMETRY)];
+		const TMaterialProxyId depthOnlyProxyHandle = framePacket.GetOrCreateProxy(std::move(pDepthOnlyMaterial->GetRenderProxyForInstance(DefaultMaterialInstanceId)));
 
-		for (const TMeshDrawEntry& currMeshEntry : mVisibleTransparentMeshes)
-		{
-			AddRenderCommandInternal(mpResourceManager, pTransparentRenderGroup, nullptr, currMeshEntry);
-		}
+		mCachedMaterialsProxies.clear();
 
+		PopulateCommandsInternal({ mpResourceManager, pOpaqueRenderGroup, pDepthOnlyRenderGroup, depthOnlyProxyHandle, framePacket }, mVisibleOpaqueMeshes, mCachedMaterialsProxies);
+		PopulateCommandsInternal({ mpResourceManager, pOpaqueRenderGroup, nullptr, TMaterialProxyId::Invalid, framePacket }, mVisibleTransparentMeshes, mCachedMaterialsProxies);
+		
 		mVisibleOpaqueMeshes.clear();
 		mVisibleTransparentMeshes.clear();
 

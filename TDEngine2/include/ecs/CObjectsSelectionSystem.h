@@ -95,6 +95,8 @@ namespace TDEngine2
 				U32                      mStartIndex = 0;
 				U32                      mIndicesCount = 0;
 				U32                      mObjectID = 0;
+
+				CSkinnedMeshContainer*   mpSkinnedMesh = nullptr; ///< non-empty for skinned meshes
 			};
 
 			struct TSpriteDrawEntry
@@ -184,7 +186,9 @@ namespace TDEngine2
 			USIZE                   mUIElementsVertexBufferCurrOffset = 0;
 
 			TMeshDrawCommands       mMeshesCommands{};
+			TMeshDrawCommands       mSkinnedMeshesCommands{};
 			TMeshDrawCommands       mSelectedMeshesCommands{};
+			TMeshDrawCommands       mSelectedSkinnedMeshesCommands{};
 			TSpriteDrawCommands     mSpritesCommands{};
 			TSpriteDrawCommands     mSelectedSpritesCommands{};
 			TUIElementDrawCommands  mUIElementsCommands{};

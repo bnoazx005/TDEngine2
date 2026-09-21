@@ -28,7 +28,6 @@ namespace TDEngine2
 	struct TUIElementsFramePacketData;
 
 	enum class TResourceId : U32;
-	enum class TMaterialInstanceId : U32;
 	enum class TBufferHandleId : U32;
 
 
@@ -69,8 +68,6 @@ namespace TDEngine2
 		public:
 			friend TDE2_API ISystem* CreateUIElementsRenderSystem(IRenderer*, IGraphicsObjectManager*, E_RESULT_CODE&);
 		public:
-			typedef std::unordered_map<U64, TMaterialInstanceId> TMaterialsMap;
-
 			struct TSystemContext
 			{
 				std::vector<CTransform*>         mpTransforms;
@@ -139,8 +136,6 @@ namespace TDEngine2
 
 			Vector<TUIElementsVertex>       mIntermediateVertsBuffer;
 			Vector<U32>                     mIntermediateIndexBuffer;
-
-			TMaterialsMap                   mUsingMaterials;
 
 			TUIElementsFramePacketDataPtr   mpPendingFramePacketData;
 	};

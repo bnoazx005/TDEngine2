@@ -667,8 +667,6 @@ namespace TDEngine2
 
 			TDrawListsStack         mpDrawListsContext;
 
-			std::unordered_map<TResourceId, TMaterialInstanceId> mUsingMaterials;
-
 			std::unordered_map<U32, TVector2> mElementsPositionMap;
 
 			// \todo Refactor this later

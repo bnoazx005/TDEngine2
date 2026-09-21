@@ -41,7 +41,8 @@ namespace TDEngine2
 
 			TResourceId              mTextureId = TResourceId::Invalid;
 			TResourceId              mMaterialHandle = TResourceId::Invalid;
-			TMaterialInstanceId      mMaterialInstanceId = DefaultMaterialInstanceId;
+			bool                     mIsTextMesh = false;
+			bool                     mIsAlphaClipEnabled = false;
 		};
 
 		typedef Vector<TUIElementsVertex>      TVertexArray;
@@ -198,15 +199,12 @@ namespace TDEngine2
 
 		U32 index = 0;
 
-		TResourceId prevMaterialId = TResourceId::Invalid;
-		TMaterialInstanceId prevMaterialInstanceId = DefaultMaterialInstanceId;
-
 		auto& transforms     = mUIElementsContext.mpTransforms;
 		auto& layoutElements = mUIElementsContext.mpLayoutElements;
 		auto& uiMeshData     = mUIElementsContext.mpUIMeshData;
 		auto& priorities     = mUIElementsContext.mPriorities;
 
-		auto shouldBatchBeFlushed = [this, pWorld, &uiMeshData](const TResourceId currMaterialId, const TMaterialInstanceId currMaterialInstanceId, USIZE index)
+		auto shouldBatchBeFlushed = [this, pWorld, &uiMeshData](const TResourceId currMaterialId, U64 currHash, USIZE index)
 		{
 			if (index + 1 >= uiMeshData.size())
 			{
@@ -218,20 +216,10 @@ namespace TDEngine2
 				const TResourceId nextMaterialId = pMeshData->IsTextMesh() ? 
 					mDefaultFontMaterialId[static_cast<USIZE>(pMeshData->GetMaterialType())] : mDefaultUIMaterialId[static_cast<USIZE>(pMeshData->GetMaterialType())];
 
-				if (nextMaterialId != currMaterialId)
+				if (nextMaterialId != currMaterialId || currHash != ComputeTextureMaterialHash(nextMaterialId, pMeshData->GetTextureResourceId()))
 				{
 					return true;
 				}
-
-				const TResourceId nextTextureId = pMeshData->GetTextureResourceId();
-
-				auto it = mUsingMaterials.find(ComputeTextureMaterialHash(nextMaterialId, nextTextureId));
-				if (it == mUsingMaterials.cend())
-				{
-					return true;
-				}
-
-				return (currMaterialInstanceId != it->second);
 			}
 
 			return false;
@@ -250,9 +238,9 @@ namespace TDEngine2
 
 		for (USIZE i = 0; i < layoutElements.size(); ++i)
 		{
-			CUIElementMeshData* pMeshData = uiMeshData[i];
+			CUIElementMeshData* pMeshData  = uiMeshData[i];
 			CLayoutElement* pLayoutElement = layoutElements[i];
-			CTransform* pTransform = transforms[i];
+			CTransform* pTransform         = transforms[i];
 
 			/// \note Get entity that represents a canvas
 			if (!pCanvasEntity || (pCanvasEntity->GetId() != pLayoutElement->GetOwnerCanvasId()))
@@ -269,30 +257,10 @@ namespace TDEngine2
 
 			TDE2_ASSERT(pCurrCanvas && pCanvasEntity);
 
-			const bool isTextMesh = pMeshData->IsTextMesh();
-
-			const TResourceId currMaterialId = isTextMesh ? mDefaultFontMaterialId[static_cast<USIZE>(pMeshData->GetMaterialType())] : mDefaultUIMaterialId[static_cast<USIZE>(pMeshData->GetMaterialType())];
+			const TResourceId currMaterialId = pMeshData->IsTextMesh() ? mDefaultFontMaterialId[static_cast<USIZE>(pMeshData->GetMaterialType())] : mDefaultUIMaterialId[static_cast<USIZE>(pMeshData->GetMaterialType())];
 			const TResourceId currTextureId = pMeshData->GetTextureResourceId();
 
-			auto pMaterial = mpResourceManager->GetResource<IMaterial>(currMaterialId);
-
 			const U64 textureMaterialHash = ComputeTextureMaterialHash(currMaterialId, currTextureId);
-
-			if (mUsingMaterials.find(textureMaterialHash) == mUsingMaterials.cend()) // \note create a new instance if it doesn't exist yet
-			{
-				mUsingMaterials.emplace(textureMaterialHash, pMaterial->CreateInstance()->GetInstanceId());
-			}
-
-			auto pTexture = mpResourceManager->GetResource<ITexture>(currTextureId);
-
-			const TMaterialInstanceId currMaterialInstance = mUsingMaterials[textureMaterialHash];
-
-			pMaterial->SetTextureResource("Texture", pTexture.Get(), currMaterialInstance);
-			
-			if (!isTextMesh)
-			{
-				pMaterial->SetVariableForInstance<I32>(currMaterialInstance, "mIsAlphaClipEnabled", E_UI_MATERIAL_TYPE::MASK_EMITTER == pMeshData->GetMaterialType());
-			}
 
 			auto&& vertices = pMeshData->GetVertices();
 			auto&& indices = pMeshData->GetIndices();
@@ -308,9 +276,11 @@ namespace TDEngine2
 			}
 
 			std::copy(vertices.cbegin(), vertices.cend(), std::back_inserter(mIntermediateVertsBuffer));
-			
+
+			TPtr<ITexture> pTexture = mpResourceManager->GetResource<ITexture>(currTextureId);
+
 			/// \note Flush current buffers when the batch is splitted
-			if (shouldBatchBeFlushed(currMaterialId, currMaterialInstance, i) || (pCurrCanvas && pPrevCanvas != pCurrCanvas))
+			if (shouldBatchBeFlushed(currMaterialId, textureMaterialHash, i) || (pCurrCanvas && pPrevCanvas != pCurrCanvas))
 			{
 				const TRectF32 uvRect = pTexture ? pTexture->GetNormalizedTextureRect() : TRectF32{ 0.0f, 0.0f, 1.0f, 1.0f };
 
@@ -325,7 +295,8 @@ namespace TDEngine2
 						((0xFFFF - (pCurrCanvas->GetPriority() + (0xFFFF >> 1))) << 16) | (static_cast<U32>(layoutElements.size()) - index + (static_cast<U32>(priorities.size()) - priorities[i])),
 						currTextureId,
 						currMaterialId,
-						currMaterialInstance
+						pMeshData->IsTextMesh(),
+						E_UI_MATERIAL_TYPE::MASK_EMITTER == pMeshData->GetMaterialType()
 					});
 
 				std::copy(mIntermediateVertsBuffer.cbegin(), mIntermediateVertsBuffer.cend(), std::back_inserter(pendingVertices));
@@ -403,17 +374,46 @@ namespace TDEngine2
 		const TUIElementsFramePacketData::TVertexArray& vertices = mpPendingFramePacketData->mVertices;
 		const TUIElementsFramePacketData::TIndexArray& indices   = mpPendingFramePacketData->mIndices;
 
+		std::unordered_map<TResourceId, TMaterialProxyId> materialProxiesTable{};
+
 		for (const TUIElementsFramePacketData::TUIElementsDrawCommand& currDrawCommand : mpPendingFramePacketData->mCommands)
 		{
+			TMaterialProxyId currMaterialProxyHandle = TMaterialProxyId::Invalid;
+			
+			auto it = materialProxiesTable.find(currDrawCommand.mTextureId);
+			if (it == materialProxiesTable.cend())
+			{
+				TPtr<IMaterial> pMaterial = mpResourceManager->GetResource<IMaterial>(currDrawCommand.mMaterialHandle);
+				if (!pMaterial)
+				{
+					TDE2_ASSERT(false);
+					continue;
+				}
+
+				TMaterialRenderProxy currMaterialProxyDesc = pMaterial->GetRenderProxyForInstance(DefaultMaterialInstanceId);
+				currMaterialProxyDesc.mTextures["Texture"] = mpResourceManager->GetResource<ITexture>(currDrawCommand.mTextureId).Get();
+
+				if (!currDrawCommand.mIsTextMesh)
+				{
+					pMaterial->SetVariableForProxy<I32>(currMaterialProxyDesc, "mIsAlphaClipEnabled", currDrawCommand.mIsAlphaClipEnabled);
+				}
+				
+				currMaterialProxyHandle = framePacket.GetOrCreateProxy(std::move(currMaterialProxyDesc));
+				materialProxiesTable.emplace(currDrawCommand.mTextureId, currMaterialProxyHandle);
+			}
+			else
+			{
+				currMaterialProxyHandle = it->second;
+			}
+
 			auto pCurrCommand = pUIElementsRenderGroup->SubmitDrawCommand<TDrawIndexedCommand>(currDrawCommand.mDrawGroupKey);
-			pCurrCommand->mVertexBufferHandle = uiElementsFrameData.mVertexBufferHandle;
-			pCurrCommand->mIndexBufferHandle  = uiElementsFrameData.mIndexBufferHandle;
-			pCurrCommand->mPrimitiveType      = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
-			pCurrCommand->mMaterialHandle     = currDrawCommand.mMaterialHandle;
-			pCurrCommand->mMaterialInstanceId = currDrawCommand.mMaterialInstanceId;
-			pCurrCommand->mStartIndex         = currDrawCommand.mStartIndex;
-			pCurrCommand->mStartVertex        = currDrawCommand.mStartVertex;
-			pCurrCommand->mNumOfIndices       = currDrawCommand.mIndicesCount;
+			pCurrCommand->mVertexBufferHandle  = uiElementsFrameData.mVertexBufferHandle;
+			pCurrCommand->mIndexBufferHandle   = uiElementsFrameData.mIndexBufferHandle;
+			pCurrCommand->mPrimitiveType       = E_PRIMITIVE_TOPOLOGY_TYPE::PTT_TRIANGLE_LIST;
+			pCurrCommand->mStartIndex          = currDrawCommand.mStartIndex;
+			pCurrCommand->mStartVertex         = currDrawCommand.mStartVertex;
+			pCurrCommand->mNumOfIndices        = currDrawCommand.mIndicesCount;
+			pCurrCommand->mMaterialProxyHandle = currMaterialProxyHandle;
 
 			pCurrCommand->mObjectData.mStartIndexOffset     = currDrawCommand.mStartIndex;
 			pCurrCommand->mObjectData.mStartVertexOffset    = currDrawCommand.mStartVertex;

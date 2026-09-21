@@ -31,6 +31,7 @@ namespace TDEngine2
 
 
 	enum class TBufferHandleId : U32;
+	enum class TMaterialProxyId : U32;
 	enum class E_GEOMETRY_SUBGROUP_TAGS : U32;
 
 
@@ -74,6 +75,7 @@ namespace TDEngine2
 			typedef Vector<std::tuple<CTransform*, CStaticMeshContainer*, CBoundsComponent*>> TSystemContext;
 			typedef Vector<TPtr<IMaterial>>                                                   TMaterialsArray;
 			typedef Vector<TMeshBuffersEntry>                                                 TMeshBuffersMap;
+			typedef std::unordered_map<TResourceId, TMaterialProxyId>                         TMaterialProxiesTable;
 
 			struct TMeshDrawEntry
 			{
@@ -151,5 +153,7 @@ namespace TDEngine2
 			Vector<TMeshDrawEntry>  mVisibleTransparentMeshes{};
 
 			std::mutex              mMaterialsMutex;
+
+			TMaterialProxiesTable   mCachedMaterialsProxies{};
 	};
 }

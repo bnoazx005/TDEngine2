@@ -29,11 +29,13 @@ namespace TDEngine2
 	class CEntity;
 	class ICamera;
 	class CBoundsComponent;
+	struct TMaterialRenderProxy;
 
 
 	enum class TBufferHandleId : U32;
 	enum class E_GEOMETRY_SUBGROUP_TAGS : U32;
 	enum class TMaterialInstanceId : U32;
+	enum class TMaterialProxyId : U32;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IResourceManager)
@@ -72,7 +74,7 @@ namespace TDEngine2
 			} TMeshBuffersEntry, *TMeshBuffersEntryPtr;
 
 			typedef std::vector<std::tuple<CTransform*, CSkinnedMeshContainer*, CBoundsComponent*>> TSystemContext;
-			typedef std::vector<TPtr<IMaterial>>                                                    TMaterialsArray;
+			typedef Vector<TPtr<IMaterial>>                                                         TMaterialsArray;
 			typedef std::vector<TMeshBuffersEntry>                                                  TMeshBuffersMap;
 
 
@@ -89,11 +91,10 @@ namespace TDEngine2
 				U32                      mStartIndex = 0;
 				U32                      mIndicesCount = 0;
 				U32                      mVertexFormatFlags = 0;
+				USIZE                    mMaterialIndexInArray = 0;
 
 				F32                      mDistanceToCamera = 0.0f;
 				E_GEOMETRY_SUBGROUP_TAGS mGeometrySubGroupTag;
-
-				TMaterialInstanceId      mMaterialInstanceId;
 			};
 
 		public:
@@ -136,7 +137,9 @@ namespace TDEngine2
 
 			USIZE _collectUsedMaterials(const TSystemContext& entities, IResourceManager* pResourceManager, TMaterialsArray& usedMaterials);
 
-			void _prepareLocalRenderCommands(const TSystemContext& entities, TPtr<IMaterial> pCurrMaterial, const ICamera* pCamera, Vector<TMeshDrawEntry>& visibleMeshes);
+			void _prepareLocalRenderCommands(const TSystemContext& entities, USIZE materialIndex, TPtr<IMaterial> pCurrMaterial, const ICamera* pCamera, Vector<TMeshDrawEntry>& visibleMeshes);
+
+			TMaterialProxyId _getMaterialProxyHandleForMesh(TFramePacket& framePacket, CSkinnedMeshContainer* pMeshContainer, const TMaterialRenderProxy& materialProxyDesc, USIZE materialIndex) const;
 		protected:
 			TSystemContext          mProcessingEntities;
 
