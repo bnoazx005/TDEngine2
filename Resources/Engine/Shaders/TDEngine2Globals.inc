@@ -51,7 +51,12 @@ CBUFFER_SECTION_EX(TDEngine2PerObject, 1)
 CBUFFER_ENDSECTION
 
 
-CBUFFER_SECTION_EX(TDEngine2Constants, 2)
+CBUFFER_SECTION_EX(TDEngine2PerPass, 2)
+	int mIsSunLightEnabled;
+	int mPointLightIndex;
+CBUFFER_ENDSECTION
+
+CBUFFER_SECTION_EX(TDEngine2Constants, 3)
 	uint2    ScreenResolution;
 	uint     IsGPUParticlesEnabled;
 	uint     mUnused;

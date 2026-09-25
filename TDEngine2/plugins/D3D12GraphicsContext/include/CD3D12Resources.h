@@ -228,6 +228,7 @@ namespace TDEngine2
 			ComPtr<ID3D12RootSignature> GetRootSignature() const;
 
 			const TD3D12PipelineLayoutInfo& GetLayoutInfo() const;
+			const std::string& GetName() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CD3D12ShaderImpl)
 

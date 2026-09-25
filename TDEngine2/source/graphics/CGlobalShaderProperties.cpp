@@ -83,8 +83,11 @@ namespace TDEngine2
 
 		auto pGraphicsContext = mpGraphicsObjectManager->GetGraphicsContext();
 
-		// \note Per object buffer is bound when SetInternalUniformsBuffer is called
+		// \note Bind only those buffers that are not updated every frame
+		//result = result | pGraphicsContext->SetConstantBuffer(static_cast<U32>(E_INTERNAL_UNIFORM_BUFFER_REGISTERS::IUBR_PER_PASS), 
+		//	mInternalEngineUniforms[static_cast<U32>(E_INTERNAL_UNIFORM_BUFFER_REGISTERS::IUBR_PER_PASS)]);
 		result = result | pGraphicsContext->SetConstantBuffer(static_cast<U32>(E_INTERNAL_UNIFORM_BUFFER_REGISTERS::IUBR_PER_FRAME), mInternalEngineUniforms[static_cast<U32>(E_INTERNAL_UNIFORM_BUFFER_REGISTERS::IUBR_PER_FRAME)]);
+		result = result | pGraphicsContext->SetConstantBuffer(static_cast<U32>(E_INTERNAL_UNIFORM_BUFFER_REGISTERS::IUBR_PER_PASS), mInternalEngineUniforms[static_cast<U32>(E_INTERNAL_UNIFORM_BUFFER_REGISTERS::IUBR_PER_PASS)]);
 		result = result | pGraphicsContext->SetConstantBuffer(static_cast<U32>(E_INTERNAL_UNIFORM_BUFFER_REGISTERS::IUBR_CONSTANTS), mInternalEngineUniforms[static_cast<U32>(E_INTERNAL_UNIFORM_BUFFER_REGISTERS::IUBR_CONSTANTS)]);
 
 		return result;
@@ -99,6 +102,8 @@ namespace TDEngine2
 				return sizeof(TPerFrameShaderData);
 			case IUBR_PER_OBJECT:
 				return sizeof(TPerObjectShaderData);
+			case IUBR_PER_PASS:
+				return sizeof(TPerPassShaderData);
 			case IUBR_CONSTANTS:
 				return sizeof(TConstantShaderData);
 		}

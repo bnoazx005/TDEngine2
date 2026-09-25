@@ -427,16 +427,10 @@ namespace TDEngine2
 					pGraphicsContext->BeginRenderPass({ {}, TFramebufferInfo::TDepthStencilAttachment { shadowMapTarget.mTextureHandle, 1.0f }});
 					pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(shadowMapSizes), static_cast<F32>(shadowMapSizes), 0.0f, 1.0f);
 
-					TPtr<IResourceManager> pResourceManager = mContext.mpResourceManager;
+					TPerPassShaderData perPassShaderData{};
+					perPassShaderData.mIsSunLightEnabled = 1;
 
-					/// \todo Replace hardcoded identifiers
-					const TResourceId shadowPassMaterialHandle = pResourceManager->Load<IMaterial>("ShadowPassMaterial.material");
-					
-					/// \todo Assign "ShadowPass" material's variables that defines which type of a light casts shadows
-					if (auto pMaterial = pResourceManager->GetResource<IMaterial>(shadowPassMaterialHandle))
-					{
-						pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, "mIsSunLight", 1);
-					}
+					mContext.mpGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_PASS, reinterpret_cast<const U8*>(&perPassShaderData), sizeof(perPassShaderData));
 
 					pGraphicsContext->SetStructuredBuffer(ACTIVE_LIGHTS_SLOT, activeLightsBuffer.mBufferHandle);
 
@@ -507,17 +501,11 @@ namespace TDEngine2
 						pGraphicsContext->BeginRenderPass({ {}, { { shadowMapTarget.mTextureHandle, 1.0f } } });
 						pGraphicsContext->SetViewport(0.0f, 0.0f, static_cast<F32>(shadowMapSizes), static_cast<F32>(shadowMapSizes), 0.0f, 1.0f);
 
-						TPtr<IResourceManager> pResourceManager = mContext.mpResourceManager;
+						TPerPassShaderData perPassShaderData{};
+						perPassShaderData.mIsSunLightEnabled = 0;
+						perPassShaderData.mPointLightIndex   = lightIndex;
 
-						/// \todo Replace hardcoded identifiers
-						const TResourceId shadowPassMaterialHandle = pResourceManager->Load<IMaterial>("ShadowPassMaterial.material");
-
-						/// \todo Assign "ShadowPass" material's variables that defines which type of a light casts shadows
-						if (auto pMaterial = pResourceManager->GetResource<IMaterial>(shadowPassMaterialHandle))
-						{
-							pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, "mIsSunLight", 0);
-							pMaterial->SetVariableForInstance(DefaultMaterialInstanceId, "mPointLightIndex", lightIndex);
-						}
+						mContext.mpGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_PASS, reinterpret_cast<const U8*>(&perPassShaderData), sizeof(perPassShaderData));
 
 						pGraphicsContext->SetStructuredBuffer(ACTIVE_LIGHTS_SLOT, activeLightsBuffer.mBufferHandle);
 

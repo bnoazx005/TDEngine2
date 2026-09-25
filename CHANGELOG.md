@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.35] 2026-09-21
+## [0.6.35] 2026-09-26
 
 ### Added
 
@@ -23,6 +23,8 @@ mark up systems that require send their data into the renderer's thread.
 - A new proxy type was introduced **TMaterialRenderProxy** to represent material's data on render thread side.
 
 - The API of **CBaseMaterial** was extended with new public methods SetVariableForProxy<T> and SetVariableForProxy.
+
+- A new per-pass constant buffer was introduced into shaders. All user constant buffer indices should begin from 4th index. 
 
 ### Changed
 

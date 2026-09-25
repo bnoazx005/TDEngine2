@@ -6,7 +6,7 @@
 #define VERTEX_ENTRY main
 #define PIXEL_ENTRY main
 
-CBUFFER_SECTION_EX(Parameters, 3)
+CBUFFER_SECTION_EX(Parameters, 4)
 	uint  mIsTexturingEnabled;
 	uint  mIsSoftParticlesEnabled;
 	uint  mPadding;

@@ -109,6 +109,20 @@ namespace TDEngine2
 
 
 	/*!
+		struct TPerPassShaderData
+
+		\brief The structure contains shader uniform data that are changed per pass. For example, shadow pass data, etc
+	*/
+
+	typedef struct TPerPassShaderData
+	{
+		U32 mIsSunLightEnabled;
+		U32 mPointLightIndex;
+		U32 mPadding[2];
+	} TPerPassShaderData, *TPerPassShaderDataPtr;
+
+
+	/*!
 		struct TConstantShaderData
 
 		\brief The structure contains shader uniform data that stays constant during the application's execution

@@ -15,7 +15,7 @@ struct VertexOut
 };
 
 
-CBUFFER_SECTION_EX(Parameters, 3)
+CBUFFER_SECTION_EX(Parameters, 4)
 	uint  mIsTexturingEnabled;
 	uint  mIsSoftParticlesEnabled;
 	uint  mPadding;

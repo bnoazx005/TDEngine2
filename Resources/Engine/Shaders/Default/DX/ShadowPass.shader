@@ -17,11 +17,6 @@ struct GeometryOutput
 	uint mFaceIndex : SV_RenderTargetArrayIndex;
 };
 
-CBUFFER_SECTION_EX(Parameters, 3)
-	int mIsSunLight;
-	int mPointLightIndex;
-CBUFFER_ENDSECTION
-
 
 #program vertex
 
@@ -47,7 +42,7 @@ void mainGS(triangle VertexOutput gin[3], inout TriangleStream<GeometryOutput> t
 {
 	GeometryOutput output;
 
-	if (mIsSunLight == 1)
+	if (mIsSunLightEnabled == 1)
 	{
 		[unroll(3)]
 		for (int cascadeIndex = 0; cascadeIndex < ShadowCascadesCount; cascadeIndex++)
@@ -91,7 +86,7 @@ void mainGS(triangle VertexOutput gin[3], inout TriangleStream<GeometryOutput> t
 
 void mainPS(GeometryOutput input, out float depth : SV_Depth) 
 {
-	if (mIsSunLight == 1)
+	if (mIsSunLightEnabled == 1)
 	{
 		depth = input.mPos.z / input.mPos.w;
 		return;

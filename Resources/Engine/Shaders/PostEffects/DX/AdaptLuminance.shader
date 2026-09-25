@@ -31,7 +31,7 @@ DECLARE_TEX2D_EX(FrameTexture, 0);
 DECLARE_TEX2D_EX(FrameTexture1, 1);
 
 
-CBUFFER_SECTION_EX(ShaderParameters, 3)
+CBUFFER_SECTION_EX(ShaderParameters, 4)
 	float mAdaptationRate;
 CBUFFER_ENDSECTION
 

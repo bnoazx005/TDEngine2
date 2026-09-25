@@ -28,7 +28,7 @@ RWTexture2D<float4> OutputMip2Texture : register(u2);
 RWTexture2D<float4> OutputMip3Texture : register(u3);
 
 
-CBUFFER_SECTION_EX(Parameters, 3)
+CBUFFER_SECTION_EX(Parameters, 4)
 	uint   mCurrMipLevel;
 	uint   mAmountOfMipsToGenerate;
 	uint   mTextureFlags;

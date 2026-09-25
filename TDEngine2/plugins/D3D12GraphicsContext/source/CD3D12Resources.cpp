@@ -476,6 +476,11 @@ namespace TDEngine2
 		return mLayoutInfo;
 	}
 
+	const std::string& CD3D12ShaderImpl::GetName() const
+	{
+		return mName;
+	}
+
 	E_RESULT_CODE CD3D12ShaderImpl::_createInternalHandlers(const TShaderCompilerOutput* pCompilerData)
 	{
 		if (!pCompilerData)
@@ -1424,6 +1429,11 @@ namespace TDEngine2
 			TDE2_ASSERT_MSG(false, "[CD3D12GraphicsPipeline] PSO creation has failed");
 		}
 
+#if TDE2_DEBUG_MODE
+		const std::string& shaderName = pShader->GetName();
+		pPSO->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<U32>(shaderName.length()), shaderName.c_str());
+#endif
+
 		return pPSO;
 	}
 
@@ -1487,6 +1497,11 @@ namespace TDEngine2
 		mConfigHash = TDE2_STRING_ID(mShaderIdStr.c_str());
 		mpCachedRootSignature = pShader->GetRootSignature();
 		mLayoutInfo           = pShader->GetLayoutInfo();
+
+#if TDE2_DEBUG_MODE
+		const std::string& shaderName = pShader->GetName();
+		mpPipelineStateObject->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<U32>(shaderName.length()), shaderName.c_str());
+#endif
 
 		mIsInitialized = true;
 
