@@ -3298,7 +3298,7 @@ namespace TDEngine2
 #endif
 
 
-	E_RESULT_CODE CForwardRenderer::Draw(TFramePacket& currFramePacket, F32 currTime, F32 deltaTime)
+	E_RESULT_CODE CForwardRenderer::Draw(TFramePacket& currFramePacket)
 	{
 		TDE2_PROFILER_SCOPE("Renderer::Draw"); 
 
@@ -3332,7 +3332,7 @@ namespace TDEngine2
 				return RC_OK;
 			}
 			
-			_prepareFrame(currFramePacket, currTime, deltaTime);
+			_prepareFrame(currFramePacket);
 
 			mpFrameGraph->Reset();
 
@@ -3601,7 +3601,7 @@ namespace TDEngine2
 		return mpFramePacketsStorage;
 	}
 
-	void CForwardRenderer::_prepareFrame(TFramePacket& currFramePacket, F32 currTime, F32 deltaTime)
+	void CForwardRenderer::_prepareFrame(TFramePacket& currFramePacket)
 	{
 		TDE2_PROFILER_SCOPE("Renderer::PreRender");
 		TDE_RENDER_SECTION(mpGraphicsContext, "PreRender");

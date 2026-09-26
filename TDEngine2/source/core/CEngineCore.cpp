@@ -435,6 +435,9 @@ namespace TDEngine2
 
 		const F32 dt = mpInternalTimer->GetDeltaTime();
 
+		currFramePacket.mDeltaTime   = dt;
+		currFramePacket.mElapsedTime = mpInternalTimer->GetCurrTime();
+
 		mpWorldInstance->Update(dt);
 
 		if (mpImGUIContext)
@@ -499,7 +502,7 @@ namespace TDEngine2
 		while (pWindowSystem->IsRunning())
 		{
 			TFramePacket& currFramePacket = pFramePacketsStorage->AcquireRenderLogicFramePacket();
-			pRenderer->Draw(currFramePacket, mpInternalTimer->GetCurrTime(), mpInternalTimer->GetDeltaTime());
+			pRenderer->Draw(currFramePacket);
 			pFramePacketsStorage->SubmitRenderLogicFramePacket();
 		}
 	}

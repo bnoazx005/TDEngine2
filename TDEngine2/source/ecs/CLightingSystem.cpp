@@ -546,7 +546,6 @@ namespace TDEngine2
 
 		framePacket.mFrameIndex         = TFrameCounter::mGlobalFrameNumber;
 		framePacket.mPerFrameData       = mPerFrameShaderData;
-		framePacket.mDeltaTime          = mLocalDeltaTime;
 		framePacket.mActiveLightSources = mActiveLightsData;
 
 		CRenderQueue* pShadowPassRenderQueue = framePacket.mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_SHADOW_PASS)].Get();

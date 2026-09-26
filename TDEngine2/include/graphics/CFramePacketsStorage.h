@@ -77,6 +77,7 @@ namespace TDEngine2
 
 		U32                          mFrameIndex = 0;
 		F32                          mDeltaTime = 0.0f; ///< Also it could be retrieved from mPerFrameData.mTime.y
+		F32                          mElapsedTime = 0.0f; ///< Total time from application's start
 		
 		TPerFrameShaderData          mPerFrameData;
 		

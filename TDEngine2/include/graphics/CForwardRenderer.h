@@ -81,13 +81,11 @@ namespace TDEngine2
 				\brief The method sends all accumulated commands into GPU driver
 
 				\param[in, out] currFramePacket All the relevant render data that could be used safely during Draw call
-				\param[in] currTime Time elapsed since application launch
-				\param[in] deltaTime Time elapsed since last frame was rendered
 
 				\return RC_OK if everything went ok, or some other code, which describes an error
 			*/
 
-			TDE2_API E_RESULT_CODE Draw(TFramePacket& currFramePacket, F32 currTime, F32 deltaTime) override;
+			TDE2_API E_RESULT_CODE Draw(TFramePacket& currFramePacket) override;
 
 			/*!
 				\brief The method assigns a processing profile that defines post processing parameters
@@ -155,7 +153,7 @@ namespace TDEngine2
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CForwardRenderer)
 
-			void _prepareFrame(TFramePacket& currFramePacket, F32 currTime, F32 deltaTime);
+			void _prepareFrame(TFramePacket& currFramePacket);
 			E_RESULT_CODE _onFreeInternal() override;
 		protected:
 			TPtr<IGraphicsContext>        mpGraphicsContext;
