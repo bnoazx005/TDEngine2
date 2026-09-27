@@ -106,7 +106,6 @@ namespace TDEngine2
 
 		mFramePackets[nextIndex].ClearTransientData();
 
-		mFramePacketsState[nextIndex].store(E_PACKET_STATE::EMPTY);
 		++mCurrGameLogicFrameIndex;
 
 		return mFramePackets[nextIndex];
