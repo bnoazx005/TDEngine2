@@ -16,6 +16,7 @@
 #include <array>
 #include <mutex>
 #include <condition_variable>
+#include <chrono>
 
 
 namespace TDEngine2
@@ -105,14 +106,14 @@ namespace TDEngine2
 		public:
 			friend TDE2_API CFramePacketsStorage* CreateFramePacketsStorage(TAllocatorFactoryFunctor, E_RESULT_CODE&);
 		public:
-			TDE2_STATIC_CONSTEXPR U32 MAX_FRAME_PACKETS_COUNT = 1;
-			static_assert((MAX_FRAME_PACKETS_COUNT & (MAX_FRAME_PACKETS_COUNT - 1)) == 0, "MAX_FRAME_PACKETS_COUNT should be power of 2");
+			TDE2_STATIC_CONSTEXPR U64 MAX_FRAME_PACKETS_COUNT = 3;
 
 			enum class E_PACKET_STATE : U8
 			{
 				EMPTY,
 				WRITING,
-				READY
+				READY,
+				READING
 			};
 
 			typedef std::array<TFramePacket, MAX_FRAME_PACKETS_COUNT>                TFramePacketsArray;
@@ -123,16 +124,19 @@ namespace TDEngine2
 			TDE2_API TFramePacket& AcquireGameLogicFramePacket();
 			TDE2_API E_RESULT_CODE SubmitGameLogicFramePacket();
 
-			TDE2_API TFramePacket& AcquireRenderLogicFramePacket();
+			TDE2_API TFramePacket* AcquireRenderLogicFramePacket(std::chrono::milliseconds timeout = std::chrono::milliseconds(16));
 			TDE2_API E_RESULT_CODE SubmitRenderLogicFramePacket();
+
+			TDE2_API void NotifyAll();
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CFramePacketsStorage)
 		private:
 			TFramePacketsArray       mFramePackets;
 			TFramePacketsStatesArray mFramePacketsState;
 
-			std::atomic<U64>         mCurrGameLogicFrameIndex { 0 };
-			std::atomic<U64>         mCurrRenderFrameIndex{ 0 };
+			std::atomic<U64>         mLatestReadyPacketIndex { (std::numeric_limits<U64>::max)() };
+			std::atomic<U64>         mCurrReadingIndex { (std::numeric_limits<U64>::max)() };
+			std::atomic<U64>         mCurrWritingIndex { (std::numeric_limits<U64>::max)() };
 
 			mutable std::mutex       mMutex;
 			std::condition_variable  mSignal;

@@ -11,6 +11,16 @@ namespace TDEngine2
 	void TFramePacket::ClearTransientData()
 	{
 		mMaterialProxies.clear();
+
+		for (TPtr<CRenderQueue>& pQueue : mpRenderQueues)
+		{
+			if (!pQueue)
+			{
+				continue;
+			}
+
+			pQueue->Clear();
+		}
 	}
 
 	TMaterialProxyId TFramePacket::GetOrCreateProxy(TMaterialRenderProxy&& proxy)
@@ -90,55 +100,96 @@ namespace TDEngine2
 
 	TFramePacket& CFramePacketsStorage::AcquireGameLogicFramePacket()
 	{
-		const U64 nextIndex = static_cast<U64>((mCurrGameLogicFrameIndex.load() + 1) & (MAX_FRAME_PACKETS_COUNT - 1));
+		U64 slotIndex = (std::numeric_limits<U64>::max)();
 
-		while (true)
+		while (slotIndex == (std::numeric_limits<U64>::max)())
 		{
-			E_PACKET_STATE expectedState = E_PACKET_STATE::EMPTY;
-
-			if (mFramePacketsState[nextIndex].compare_exchange_weak(expectedState, E_PACKET_STATE::WRITING))
+			for (U64 i = 0; i < MAX_FRAME_PACKETS_COUNT; ++i)
 			{
-				break;
+				E_PACKET_STATE expected = E_PACKET_STATE::EMPTY;
+				if (mFramePacketsState[i].compare_exchange_strong(expected, E_PACKET_STATE::WRITING))
+				{
+					slotIndex = i;
+					break;
+				}
 			}
 
-			std::this_thread::yield();
+			if (slotIndex == (std::numeric_limits<U64>::max)())
+			{
+				std::this_thread::sleep_for(std::chrono::microseconds(100));
+			}
 		}
 
-		mFramePackets[nextIndex].ClearTransientData();
+		mCurrWritingIndex.store(slotIndex);
 
-		++mCurrGameLogicFrameIndex;
+		TFramePacket& packet = mFramePackets[slotIndex];
+		packet.ClearTransientData();
 
-		return mFramePackets[nextIndex];
+		return packet;
 	}
 
 	E_RESULT_CODE CFramePacketsStorage::SubmitGameLogicFramePacket()
 	{
-		const U64 currentIndex = static_cast<U64>((mCurrGameLogicFrameIndex.load()) & (MAX_FRAME_PACKETS_COUNT - 1));
-		mFramePacketsState[currentIndex].store(E_PACKET_STATE::READY);
+		const U64 slotIndex = mCurrWritingIndex.exchange((std::numeric_limits<U64>::max)());
+		if (slotIndex == (std::numeric_limits<U64>::max)())
+		{
+			TDE2_ASSERT_MSG(false, "[CFramePacketsStorage] Submit called without prior Acquire");
+			return RC_FAIL;
+		}
+
+		mFramePacketsState[slotIndex].store(E_PACKET_STATE::READY);
+
+		const U64 prevLatestIndex = mLatestReadyPacketIndex.exchange(slotIndex);
+
+		if (prevLatestIndex != (std::numeric_limits<U64>::max)() && prevLatestIndex != slotIndex)
+		{
+			E_PACKET_STATE expected = E_PACKET_STATE::READY;
+			mFramePacketsState[prevLatestIndex].compare_exchange_strong(expected, E_PACKET_STATE::EMPTY);
+		}
 
 		mSignal.notify_one();
 
 		return RC_OK;
 	}
 
-	TFramePacket& CFramePacketsStorage::AcquireRenderLogicFramePacket()
+	TFramePacket* CFramePacketsStorage::AcquireRenderLogicFramePacket(std::chrono::milliseconds timeout)
 	{
-		const U64 nextIndex = static_cast<U64>((mCurrRenderFrameIndex.load() + 1) & (MAX_FRAME_PACKETS_COUNT - 1));
-
 		std::unique_lock<std::mutex> lock(mMutex);
-		mSignal.wait(lock, [this, nextIndex] { return mFramePacketsState[nextIndex].load() == E_PACKET_STATE::READY; });
 
-		++mCurrRenderFrameIndex;
+		mSignal.wait_for(lock, timeout, [this] 
+			{
+				return mLatestReadyPacketIndex.load(std::memory_order_acquire) != (std::numeric_limits<U64>::max)(); 
+			});
 
-		return mFramePackets[nextIndex];
+		const U64 slotIndex = mLatestReadyPacketIndex.exchange((std::numeric_limits<U64>::max)(), std::memory_order_acq_rel);
+		if (slotIndex == (std::numeric_limits<U64>::max)())
+		{
+			return nullptr;
+		}
+
+		mFramePacketsState[slotIndex].store(E_PACKET_STATE::READING);
+		mCurrReadingIndex.store(slotIndex);
+
+		return &mFramePackets[slotIndex];
 	}
 
 	E_RESULT_CODE CFramePacketsStorage::SubmitRenderLogicFramePacket()
 	{
-		const U64 currentIndex = static_cast<U64>((mCurrRenderFrameIndex.load()) & (MAX_FRAME_PACKETS_COUNT - 1));
-		mFramePacketsState[currentIndex].store(E_PACKET_STATE::EMPTY);
+		const U64 slotIndex = mCurrReadingIndex.exchange((std::numeric_limits<U64>::max)());
+		if (slotIndex == (std::numeric_limits<U64>::max)())
+		{
+			return RC_FAIL;
+		}
+
+		mFramePacketsState[slotIndex].store(E_PACKET_STATE::EMPTY);
 
 		return RC_OK;
+	}
+
+	void CFramePacketsStorage::NotifyAll()
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		mSignal.notify_all();
 	}
 
 

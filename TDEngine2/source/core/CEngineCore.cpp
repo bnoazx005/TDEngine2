@@ -143,6 +143,8 @@ namespace TDEngine2
 
 	static std::thread::id RenderThreadId;
 
+	std::atomic<bool> IsRenderThreadRunning{ true };
+
 
 	TDE2_API bool IsRenderThread()
 	{
@@ -260,11 +262,13 @@ namespace TDEngine2
 		/// \todo replace _onFrameUpdateCallback with a user defined callback
 		pWindowSystem->Run(std::bind(&CEngineCore::_onFrameUpdateCallback, this));
 
+		IsRenderThreadRunning.store(false);
+
 		if (IRenderer* pRenderer = _getSubsystemAs<IRenderer>(EST_RENDERER))
 		{
 			if (TPtr<CFramePacketsStorage> pFramePacketsStorage = pRenderer->GetFramePacketsStorage())
 			{
-				pFramePacketsStorage->SubmitGameLogicFramePacket(); /// \note Imitate that another frame packet is ready to wake up render thread and finalize its execution
+				pFramePacketsStorage->NotifyAll();
 			}
 		}
 
@@ -499,10 +503,15 @@ namespace TDEngine2
 
 		TPtr<CFramePacketsStorage> pFramePacketsStorage = pRenderer->GetFramePacketsStorage();
 
-		while (pWindowSystem->IsRunning())
+		while (IsRenderThreadRunning.load())
 		{
-			TFramePacket& currFramePacket = pFramePacketsStorage->AcquireRenderLogicFramePacket();
-			pRenderer->Draw(currFramePacket);
+			TFramePacket* pCurrFramePacket = pFramePacketsStorage->AcquireRenderLogicFramePacket();
+			if (!pCurrFramePacket)
+			{
+				continue;
+			}
+
+			pRenderer->Draw(*pCurrFramePacket);
 			pFramePacketsStorage->SubmitRenderLogicFramePacket();
 		}
 	}
