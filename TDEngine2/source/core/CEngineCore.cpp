@@ -408,7 +408,7 @@ namespace TDEngine2
 	}
 
 
-	static E_RESULT_CODE SyncFramePacketData(TFramePacket& currFramePacket, IImGUIContext* pImGUIContext, TPtr<IWorld> pWorld)
+	static E_RESULT_CODE SyncFramePacketData(TFramePacket& currFramePacket, IImGUIContext* pImGUIContext, TPtr<IWorld> pWorld, IDebugUtility* pDebugUtility)
 	{
 		TDE2_PROFILER_SCOPE("CEngineCore::SyncFramePacketData");
 		TDE2_BUILTIN_SPEC_PROFILER_EVENT(E_SPECIAL_PROFILE_EVENT::RENDER_DATA_SYNC);
@@ -419,6 +419,8 @@ namespace TDEngine2
 		{
 			pImGUIContext->FillFramePacket(currFramePacket);
 		}
+
+		pDebugUtility->FillFramePacket(currFramePacket);
 
 		return RC_OK;
 	}
@@ -482,7 +484,7 @@ namespace TDEngine2
 			pAudioContext->Update();
 		}
 
-		SyncFramePacketData(currFramePacket, mpImGUIContext, mpWorldInstance);
+		SyncFramePacketData(currFramePacket, mpImGUIContext, mpWorldInstance, mpDebugUtility);
 		pFramePacketsStorage->SubmitGameLogicFramePacket();
 	}
 

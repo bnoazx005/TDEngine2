@@ -3327,8 +3327,6 @@ namespace TDEngine2
 					pRenderQueues[i]->Clear();
 				}
 
-				mpDebugUtility->PostRender();
-
 				return RC_OK;
 			}
 			
@@ -3508,8 +3506,6 @@ namespace TDEngine2
 			mpGraphicsContext->Present();
 		}
 
-		mpDebugUtility->PostRender();
-
 #if TDE2_EDITORS_ENABLED
 		if (TriggetDumpFrameGraph.Get())
 		{
@@ -3610,8 +3606,6 @@ namespace TDEngine2
 
 		mpGlobalShaderProperties->SetInternalUniformsBuffer(IUBR_PER_FRAME, reinterpret_cast<const U8*>(&perFrameShaderData), sizeof(perFrameShaderData));		
 		mpGlobalShaderProperties->Bind();
-
-		mpDebugUtility->PreRender(currFramePacket.mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_DEBUG)]);
 
 		if (!mLightGridData.mIsTileFrustumsInitialized)
 		{

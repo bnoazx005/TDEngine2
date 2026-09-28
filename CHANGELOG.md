@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.35] 2026-09-26
+## [0.6.35] 2026-09-28
 
 ### Added
 
@@ -35,6 +35,8 @@ mark up systems that require send their data into the renderer's thread.
 - All math types are marked as constexpr and now trivially copyable.
 
 - The part of API of **CFramePacketsStorage** was removed.
+
+- The API of **IDebugUtility** was changeed PreRender/PostRender group of methods was replaced with FillFramePacket.
 
 ### Fixed
 

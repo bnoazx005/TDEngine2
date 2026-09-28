@@ -25,6 +25,7 @@ namespace TDEngine2
 	class CRenderQueue;
 	struct TAABB;
 	union TMatrix4;
+	struct TFramePacket;
 
 
 	TDE2_DECLARE_SCOPED_PTR(CRenderQueue);
@@ -160,13 +161,7 @@ namespace TDEngine2
 				\brief The method prepares internal state of the helper before it will be actually rendered
 			*/
 
-			TDE2_API virtual void PreRender(TPtr<CRenderQueue> pRenderQueue) = 0;
-
-			/*!
-				\brief The method resets current state of the helper
-			*/
-
-			TDE2_API virtual void PostRender() = 0;
+			TDE2_API virtual void FillFramePacket(TFramePacket& framePacket) = 0;
 		protected:
 			DECLARE_INTERFACE_PROTECTED_MEMBERS(IDebugUtility)
 	};

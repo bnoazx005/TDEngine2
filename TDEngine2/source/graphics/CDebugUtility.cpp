@@ -110,8 +110,10 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	void CDebugUtility::PreRender(TPtr<CRenderQueue> pRenderQueue)
+	void CDebugUtility::FillFramePacket(TFramePacket& framePacket)
 	{
+		auto pRenderQueue = framePacket.mpRenderQueues[static_cast<U32>(E_RENDER_QUEUE_GROUP::RQG_DEBUG)];
+
 		auto pLinesVertexBuffer = mpGraphicsObjectManager->GetBufferPtr(mLinesVertexBufferHandle);
 		if (pLinesVertexBuffer && !mLinesDataBuffer.empty())
 		{
@@ -164,11 +166,6 @@ namespace TDEngine2
 			pDrawTextCommand->mNumOfIndices            = static_cast<U32>(mTextDataBuffer.size() * 1.5f); // \note 1.5 is hand-coded optimisation of 3 / 2 fracture
 			pDrawTextCommand->mObjectData.mModelMatrix = IdentityMatrix4;
 		}
-	}
-
-	void CDebugUtility::PostRender()
-	{
-		TDE2_PROFILER_SCOPE("CDebugUtility::PostRender");
 
 		mLinesDataBuffer.clear();
 		mTextDataBuffer.clear();

@@ -99,13 +99,7 @@ namespace TDEngine2
 				\brief The method prepares internal state of the helper before it will be actually rendered
 			*/
 
-			TDE2_API void PreRender(TPtr<CRenderQueue> pRenderQueue) override;
-
-			/*!
-				\brief The method resets current state of the helper
-			*/
-
-			TDE2_API void PostRender() override;
+			TDE2_API void FillFramePacket(TFramePacket& framePacket) override;
 
 			/*!
 				\brief The method adds a request to draw a line with a given parameters to rendering queue
