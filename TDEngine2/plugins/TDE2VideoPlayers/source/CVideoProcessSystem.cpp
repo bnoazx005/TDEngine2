@@ -6,6 +6,7 @@
 #include <ecs/IWorld.h>
 #include <graphics/ITexture2D.h>
 #include <graphics/UI/CImageComponent.h>
+#include <graphics/CFramePacketsStorage.h>
 #include <editor/CPerfProfiler.h>
 #include "../deps/theoraplay/theoraplay.h"
 
@@ -116,9 +117,31 @@ namespace TDEngine2
 				pVideoContainer->mpInternalData->mpDecoder = pCurrVideoDecoder;
 			}
 
-			if (!THEORAPLAY_isInitialized(pCurrVideoDecoder) || !THEORAPLAY_isDecoding(pCurrVideoDecoder))
+			if (!THEORAPLAY_isInitialized(pCurrVideoDecoder))
 			{
 				continue;
+			}
+
+			if (!THEORAPLAY_isDecoding(pCurrVideoDecoder))
+			{
+				if (pVideoContainer->mpInternalData->mCurrVideoFrameIndex <= 0)
+				{
+					continue;
+				}
+
+				if (videoContainerData.mIsLooped)
+				{
+					THEORAPLAY_stopDecode(pCurrVideoDecoder);
+					pVideoContainer->mpInternalData->mpDecoder            = nullptr;
+					pVideoContainer->mpInternalData->mpCurrVideoFrame     = nullptr;
+					pVideoContainer->mpInternalData->mCurrVideoFrameIndex = 0;
+
+					pVideoContainer->ResetState();
+				}
+				else
+				{
+					pVideoContainer->StopPlayback();
+				}
 			}
 
 			if (videoContainerData.mStopPlayback) // \note Received signal to stop the playback
@@ -140,26 +163,7 @@ namespace TDEngine2
 				pCurrVideoFrame = THEORAPLAY_getVideo(pCurrVideoDecoder);
 				if (!pCurrVideoFrame)
 				{
-					if (!videoContainerData.mIsLooped)
-					{
-						pVideoContainer->StopPlayback();
-						continue;
-					}
-
-					if (!pVideoContainer->mpInternalData->mCurrVideoFrameIndex)
-					{
-						continue;
-					}
-
-					THEORAPLAY_freeVideo(pCurrVideoFrame);
-					THEORAPLAY_stopDecode(pCurrVideoDecoder);
-
-					pVideoContainer->mpInternalData->mpDecoder = nullptr;
-					pVideoContainer->mpInternalData->mpCurrVideoFrame = nullptr;
-					pVideoContainer->mpInternalData->mCurrVideoFrameIndex = 0;
-
-					pVideoContainer->ResetState();
-
+					videoContainerData.mCurrTime += dt;
 					continue;
 				}
 			}
@@ -221,19 +225,48 @@ namespace TDEngine2
 				continue;
 			}
 
-			if (pTexture->GetWidth() != pCurrVideoFrame->width || pTexture->GetHeight() != pCurrVideoFrame->height)
-			{
-				pTexture->Resize(pCurrVideoFrame->width, pCurrVideoFrame->height);
-			}
+			pVideoContainer->mpInternalData->mCurrVideoFrameIndex++;
+			pVideoContainer->mpInternalData->mpCurrVideoFrame = nullptr;
+			pVideoContainer->mpInternalData->mTextureWidth    = pCurrVideoFrame->width;
+			pVideoContainer->mpInternalData->mTextureHeight   = pCurrVideoFrame->height;
 
-			pTexture->WriteData(TRectI32(0, 0, static_cast<I32>(pCurrVideoFrame->width), static_cast<I32>(pCurrVideoFrame->height)), pCurrVideoFrame->pixels);
+			const USIZE textureSize = static_cast<USIZE>(pCurrVideoFrame->width * pCurrVideoFrame->height * CFormatUtils::GetFormatSize(pTexture->GetFormat()));
+			auto& pixelData = pVideoContainer->mpInternalData->mCurrPixelData;
+
+			pixelData.resize(textureSize);
+			memcpy(pixelData.data(), pCurrVideoFrame->pixels, textureSize);
+
+			TDE2_ASSERT(!pixelData.empty());
 
 			THEORAPLAY_freeVideo(pCurrVideoFrame);
-			pVideoContainer->mpInternalData->mpCurrVideoFrame = nullptr;
-			pVideoContainer->mpInternalData->mCurrVideoFrameIndex++;
 
 			videoContainerData.mCurrTime += dt;
 		}
+	}
+
+	E_RESULT_CODE CVideoProcessSystem::FillFramePacket(TFramePacket& framePacket)
+	{
+		auto& videoUpdateData = framePacket.mVideoUpdateData;
+
+		for (USIZE i = 0; i < mpVideoContainers.size(); i++)
+		{
+			CUIVideoContainerComponent* pVideoContainer = mpVideoContainers[i];
+
+			if (pVideoContainer->mpInternalData->mCurrPixelData.empty())
+			{
+				continue;
+			}
+
+			videoUpdateData.push_back(
+				{
+					pVideoContainer->mpInternalData->mVideoTextureHandle,
+					pVideoContainer->mpInternalData->mTextureWidth,
+					pVideoContainer->mpInternalData->mTextureHeight,
+					pVideoContainer->mpInternalData->mCurrPixelData
+				});
+		}
+
+		return RC_OK;
 	}
 
 

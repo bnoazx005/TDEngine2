@@ -24,6 +24,7 @@ namespace TDEngine2
 	class CImage;
 	class IResourceManager;
 	class IFileSystem;
+	struct TFramePacket;
 
 
 	enum class TResourceId : U32;
@@ -37,6 +38,10 @@ namespace TDEngine2
 		const THEORAPLAY_VideoFrame* mpCurrVideoFrame = nullptr;
 		TResourceId                  mVideoTextureHandle = TResourceId::Invalid;
 		U32                          mCurrVideoFrameIndex = 0;
+
+		Vector<U8>                   mCurrPixelData{};
+		U32                          mTextureWidth = 0;
+		U32                          mTextureHeight = 0;
 	};
 
 
@@ -57,7 +62,7 @@ namespace TDEngine2
 		class CVideoProcessSystem
 	*/
 
-	class CVideoProcessSystem : public CBaseSystem
+	class CVideoProcessSystem : public CBaseSystem, public IRenderSystem
 	{
 		public:
 			friend TDE2_API ISystem* CreateVideoProcessSystem(IResourceManager*, IFileSystem*, E_RESULT_CODE&);
@@ -90,6 +95,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void Update(IWorld* pWorld, F32 dt) override;
+
+			TDE2_API E_RESULT_CODE FillFramePacket(TFramePacket& framePacket) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS_NO_DCTR(CVideoProcessSystem)
 			TDE2_API virtual ~CVideoProcessSystem();

@@ -11,6 +11,7 @@ namespace TDEngine2
 	void TFramePacket::ClearTransientData()
 	{
 		mMaterialProxies.clear();
+		mVideoUpdateData.clear();
 
 		for (TPtr<CRenderQueue>& pQueue : mpRenderQueues)
 		{

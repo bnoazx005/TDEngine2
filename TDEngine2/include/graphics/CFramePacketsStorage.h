@@ -58,6 +58,16 @@ namespace TDEngine2
 			TBufferHandleId mIndexBufferHandle = TBufferHandleId::Invalid;
 		};
 
+		struct TVideoUpdateData
+		{
+			TResourceId mTextureHandle;
+			U32         mWidth = 0;
+			U32         mHeight = 0;
+			Vector<U8>  mPixelData{};
+		};
+
+		typedef std::vector<TVideoUpdateData> TVideoUpdateDataArray;
+
 #if TDE2_EDITORS_ENABLED
 
 		struct TSelectionSystemFrameData
@@ -95,6 +105,8 @@ namespace TDEngine2
 		TUIElementsFrameData        mUIElementsFrameData{};
 
 		TMaterialRenderProxiesArray mMaterialProxies{};
+		
+		TVideoUpdateDataArray       mVideoUpdateData;
 	} TFramePacket, *TFramePacketPtr;
 
 

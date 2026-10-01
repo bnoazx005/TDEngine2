@@ -3612,6 +3612,22 @@ namespace TDEngine2
 			PrepareTileFrustums(mLightGridData, mpGraphicsContext, mpResourceManager);
 			mLightGridData.mIsTileFrustumsInitialized = true;
 		}
+
+		for (TFramePacket::TVideoUpdateData& currVideoData : currFramePacket.mVideoUpdateData)
+		{
+			TPtr<ITexture2D> pTexture = mpResourceManager->GetResource<ITexture2D>(currVideoData.mTextureHandle);
+			if (!pTexture)
+			{
+				continue;
+			}
+
+			if (pTexture->GetWidth() != currVideoData.mWidth || pTexture->GetHeight() != currVideoData.mHeight)
+			{
+				pTexture->Resize(currVideoData.mWidth, currVideoData.mHeight);
+			}
+
+			pTexture->WriteData(TRectI32(0, 0, static_cast<I32>(currVideoData.mWidth), static_cast<I32>(currVideoData.mHeight)), currVideoData.mPixelData.data());
+		}
 	}
 
 	E_RESULT_CODE CForwardRenderer::_onFreeInternal()
