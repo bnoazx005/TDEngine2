@@ -232,6 +232,7 @@ namespace TDEngine2
 			void WaitForIdle();
 
 			ComPtr<ID3D12Device5> GetDevice() const { return mp3dDevice; }
+			ComPtr<IDXGIAdapter1> GetAdapter() const { return mpAdapter; }
 
 			ComPtr<ID3D12CommandQueue> GetCommandQueue() { return mpCommandQueue; }
 
@@ -2659,7 +2660,43 @@ namespace TDEngine2
 
 	TVideoAdapterInfo CD3D12GraphicsContext::GetInfo() const
 	{
-		return {};
+		TVideoAdapterInfo resultAdapterInfo{};
+
+		ComPtr<IDXGIAdapter1> pDXGIAdapter = mpDeviceContext->GetAdapter();
+
+		DXGI_ADAPTER_DESC adapterInfo{};
+		if (FAILED(pDXGIAdapter->GetDesc(&adapterInfo)))
+		{
+			TDE2_ASSERT(false);
+			return resultAdapterInfo;
+		}
+
+		static const std::unordered_map<U32, TVideoAdapterInfo::E_VENDOR_TYPE> VENDORS_TABLE
+		{
+			{ 0x10DE, TVideoAdapterInfo::E_VENDOR_TYPE::NVIDIA },
+			{ 0x1002, TVideoAdapterInfo::E_VENDOR_TYPE::AMD },
+			{ 0x1022, TVideoAdapterInfo::E_VENDOR_TYPE::AMD },
+			{ 0x163C, TVideoAdapterInfo::E_VENDOR_TYPE::INTEL },
+			{ 0x8086, TVideoAdapterInfo::E_VENDOR_TYPE::INTEL },
+			{ 0x8087, TVideoAdapterInfo::E_VENDOR_TYPE::INTEL },
+		};
+
+		ComPtr<IDXGIAdapter3> pDXGIAdapter3 = nullptr;
+
+		if (SUCCEEDED(pDXGIAdapter->QueryInterface(IID_PPV_ARGS(&pDXGIAdapter3))))
+		{
+			DXGI_QUERY_VIDEO_MEMORY_INFO info = {};
+			pDXGIAdapter3->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info);
+
+			resultAdapterInfo.mUsedVideoMemory = static_cast<U64>(info.CurrentUsage);
+		}
+
+		auto&& it = VENDORS_TABLE.find(adapterInfo.VendorId);
+		
+		resultAdapterInfo.mAvailableVideoMemory = adapterInfo.DedicatedVideoMemory;
+		resultAdapterInfo.mVendorType           = it == VENDORS_TABLE.cend() ? TVideoAdapterInfo::E_VENDOR_TYPE::UNKNOWN : it->second;
+
+		return resultAdapterInfo;
 	}
 
 	const TGraphicsContextInfo& CD3D12GraphicsContext::GetContextInfo() const
