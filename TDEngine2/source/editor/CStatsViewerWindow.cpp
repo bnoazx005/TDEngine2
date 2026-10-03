@@ -1,6 +1,7 @@
 #include "../../include/editor/CStatsViewerWindow.h"
 #include "../../include/core/IImGUIContext.h"
 #include "../../include/core/IGraphicsContext.h"
+#include "../../include/core/CGameUserSettings.h"
 #include "../../include/editor/CPerfProfiler.h"
 #include "../../include/editor/CStatsCounters.h"
 
@@ -46,6 +47,12 @@ namespace TDEngine2
 		return carretPos + TVector2(0.0f, lineHeight);
 	}
 
+
+	void CStatsViewerWindow::_onUpdate(F32 dt)
+	{
+		CBaseEditorWindow::_onUpdate(dt);
+		SetVisible(static_cast<bool>(CGameUserSettings::Get()->mpIsEngineStatsWindowEnabledCVar->Get()));
+	}
 
 	void CStatsViewerWindow::_onDraw()
 	{

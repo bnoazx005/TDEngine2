@@ -328,6 +328,8 @@ namespace TDEngine2
 #if TDE2_EDITORS_ENABLED
 		mpIsVersionWatermarkEnabledCVar = std::make_unique<CInt32ConsoleVarDecl>(TUserSettingsKeys::mDebugGroupKeyId + ".show_version",
 			"Show version overlay at window's corner (0 - disabled, 1 - enabled)", 0);
+		mpIsEngineStatsWindowEnabledCVar = std::make_unique<CInt32ConsoleVarDecl>(TUserSettingsKeys::mDebugGroupKeyId + ".show_engine_statistics",
+			"Show engine statistics window if enabled (0 - disabled, 1 - enabled)", 0);
 
 		/// \note Render's debug switchers
 		mpIsUiRenderEnabledCVar = std::make_unique<CInt32ConsoleVarDecl>(TUserSettingsKeys::mDebugGroupKeyId + ".ui_render",

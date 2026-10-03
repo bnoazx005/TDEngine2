@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.35] 2026-09-28
+## [0.6.35] 2026-10-03
 
 ### Added
 
@@ -25,6 +25,8 @@ mark up systems that require send their data into the renderer's thread.
 - The API of **CBaseMaterial** was extended with new public methods SetVariableForProxy<T> and SetVariableForProxy.
 
 - A new per-pass constant buffer was introduced into shaders. All user constant buffer indices should begin from 4th index. 
+
+- A new game user setting for debug mode was added "show_engine_statistics".
 
 ### Changed
 

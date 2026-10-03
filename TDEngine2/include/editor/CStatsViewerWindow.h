@@ -62,7 +62,8 @@ namespace TDEngine2
 				once per frame only if the editor's window is visible
 			*/
 
-			TDE2_API void _onDraw() override;
+			void _onDraw() override;
+			void _onUpdate(F32 dt) override;
 		protected:
 			TPtr<IGraphicsContext> mpGraphicsContext;
 	};
