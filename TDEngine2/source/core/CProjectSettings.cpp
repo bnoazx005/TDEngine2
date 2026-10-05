@@ -62,6 +62,7 @@ namespace TDEngine2
 			static const std::string mParticleRenderMaterialKey;
 			static const std::string mRandTextureIdKey;
 			static const std::string mEmittersParamsAtlasIdKey;
+			static const std::string mIsGPUValidationEnabledKey;
 		};
 
 		struct TAudioSettingsKeys
@@ -151,6 +152,7 @@ namespace TDEngine2
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mSortComputeShaderKey = "sort_compute_shader_id";
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mRandTextureIdKey = "rand_tex_id";
 	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mEmittersParamsAtlasIdKey = "emitters_baked_data_atlas_id";
+	const std::string TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mIsGPUValidationEnabledKey = "is_gpu_validation_enabled";
 
 	const std::string TProjectSettingsArchiveKeys::TAudioSettingsKeys::mAudioTypeKey = "audio_plugin";
 
@@ -280,6 +282,10 @@ namespace TDEngine2
 
 			graphicsSettings.mRandomTextureId = pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mRandTextureIdKey, graphicsSettings.mRandomTextureId);
 			graphicsSettings.mEmittersParamsAtlasId = pFileReader->GetString(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mEmittersParamsAtlasIdKey, graphicsSettings.mEmittersParamsAtlasId);
+			
+#if TDE2_DEBUG_MODE
+			graphicsSettings.mIsGPUValidationEnabled = pFileReader->GetBool(TProjectSettingsArchiveKeys::TGraphicsSettingsKeys::mIsGPUValidationEnabledKey, graphicsSettings.mIsGPUValidationEnabled);
+#endif
 		}
 		result = result | pFileReader->EndGroup();
 

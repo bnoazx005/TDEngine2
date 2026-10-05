@@ -6,6 +6,7 @@
 #include "../include/CVulkanShaderCompiler.h"
 #include <core/IEventManager.h>
 #include <core/IWindowSystem.h>
+#include <core/CProjectSettings.h>
 #include <utils/CFileLogger.h>
 #include <editor/CPerfProfiler.h>
 #define DEFER_IMPLEMENTATION
@@ -222,8 +223,11 @@ namespace TDEngine2
 		createInfo.enabledLayerCount       = 0;
 
 #if TDE2_DEBUG_MODE
-		createInfo.ppEnabledLayerNames = ValidationLayers.data();
-		createInfo.enabledLayerCount = static_cast<U32>(ValidationLayers.size());
+		if (CProjectSettings::Get()->mGraphicsSettings.mIsGPUValidationEnabled)
+		{
+			createInfo.ppEnabledLayerNames = ValidationLayers.data();
+			createInfo.enabledLayerCount = static_cast<U32>(ValidationLayers.size());
+		}
 
 		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
 		PrepareDebugMessengerCreateInfo(debugCreateInfo);

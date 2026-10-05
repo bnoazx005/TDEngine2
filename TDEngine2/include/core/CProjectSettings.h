@@ -101,6 +101,10 @@ namespace TDEngine2
 
 				std::string mRandomTextureId = "DefaultResources/Textures/MainRndTexture";
 				std::string mEmittersParamsAtlasId = "DefaultResources/Textures/ParticlesEmittersBakedParamsAtlas";
+
+#if TDE2_DEBUG_MODE
+				bool        mIsGPUValidationEnabled = false;
+#endif
 			} mGraphicsSettings;
 
 			struct

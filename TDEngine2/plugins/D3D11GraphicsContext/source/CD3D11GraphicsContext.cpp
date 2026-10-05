@@ -10,6 +10,7 @@
 #include <utils/Utils.h>
 #include <core/IEventManager.h>
 #include <core/IWindowSystem.h>
+#include <core/CProjectSettings.h>
 #include <editor/CPerfProfiler.h>
 #include <unordered_map>
 #include <d3d11_4.h>
@@ -471,7 +472,10 @@ namespace TDEngine2
 		UINT flags = 0x0;
 
 #if defined(_DEBUG)
-		flags |= D3D11_CREATE_DEVICE_DEBUG;
+		if (CProjectSettings::Get()->mGraphicsSettings.mIsGPUValidationEnabled)
+		{
+			flags |= D3D11_CREATE_DEVICE_DEBUG;
+		}
 #endif
 		{
 			TDE2_PROFILER_SCOPE("D3D11CreateDevice");

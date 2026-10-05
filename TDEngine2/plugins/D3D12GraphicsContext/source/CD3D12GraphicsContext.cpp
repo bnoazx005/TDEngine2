@@ -6,6 +6,7 @@
 #include <core/IEventManager.h>
 #include <core/CBaseObject.h>
 #include <core/IWindowSystem.h>
+#include <core/CProjectSettings.h>
 #include <editor/CPerfProfiler.h>
 #include <utils/CContainers.h>
 #include <tuple>
@@ -64,7 +65,7 @@ namespace TDEngine2
 		}
 
 		outputDebugController->EnableDebugLayer();
-		outputDebugController->SetEnableGPUBasedValidation(true);
+		outputDebugController->SetEnableGPUBasedValidation(CProjectSettings::Get()->mGraphicsSettings.mIsGPUValidationEnabled);
 
 		return Wrench::TOkValue<ComPtr<ID3D12Debug1>>(outputDebugController);
 	}

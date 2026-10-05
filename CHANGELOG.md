@@ -28,6 +28,8 @@ mark up systems that require send their data into the renderer's thread.
 
 - A new game user setting for debug mode was added "show_engine_statistics".
 
+- A new property graphics_settings.is_gpu_validation_enabled was added into **CProjectSettings**.
+
 ### Changed
 
 - The implementation of **CComponentManager::FindEntitiesWithAll** and **CComponentManager::FindEntitiesWithAny** was optimized using bitmasks. 
