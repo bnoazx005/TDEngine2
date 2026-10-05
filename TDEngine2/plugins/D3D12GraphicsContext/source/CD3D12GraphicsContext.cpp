@@ -314,12 +314,12 @@ namespace TDEngine2
 
 	U64 CD3D12Fence::Signal()
 	{
-		++mFenceValue;
+		const U64 fenceValue = ++mFenceValue;
 
-		HRESULT result = mpDeviceContext->GetCommandQueue()->Signal(mpFence.Get(), mFenceValue);
+		HRESULT result = mpDeviceContext->GetCommandQueue()->Signal(mpFence.Get(), fenceValue);
 		TDE2_ASSERT(SUCCEEDED(result));
 
-		return mFenceValue;
+		return fenceValue;
 	}
 
 	void CD3D12Fence::WaitForSignal(U64 signalValue = 1)
@@ -337,7 +337,8 @@ namespace TDEngine2
 
 	void CD3D12Fence::WaitForIdle()
 	{
-		WaitForSignal(Signal());
+		const U64 target = mFenceValue;
+		WaitForSignal(target);
 	}
 
 	CD3D12Fence& CD3D12Fence::operator= (CD3D12Fence&& other) noexcept
@@ -493,6 +494,7 @@ namespace TDEngine2
 
 	void CD3D12DeviceContext::WaitForIdle()
 	{
+		mCommandQueueFence.Signal();
 		mCommandQueueFence.WaitForIdle();
 	}
 
@@ -951,6 +953,8 @@ namespace TDEngine2
 			mpDefaultDepthStencilAllocation = nullptr;
 		}
 
+		mpDefaulDepthStencilTarget = nullptr;
+
 		return RC_OK;
 	}
 
@@ -1116,7 +1120,17 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D12CommandBuffer::Reset()
 	{
-		return FAILED(mpCommandList->Reset(mpCommandListAllocator.Get(), nullptr)) ? RC_FAIL : RC_OK;
+		if (FAILED(mpCommandListAllocator->Reset()))
+		{
+			return RC_FAIL;
+		}
+
+		if (FAILED(mpCommandList->Reset(mpCommandListAllocator.Get(), nullptr)))
+		{
+			return RC_FAIL;
+		}
+		
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CD3D12CommandBuffer::_onFreeInternal()
@@ -1235,10 +1249,10 @@ namespace TDEngine2
 		std::fill(mpShaderResourcesDescriptorsHeaps.begin(), mpShaderResourcesDescriptorsHeaps.end(), nullptr);
 		std::fill(mpSamplersDescriptorsHeaps.begin(), mpSamplersDescriptorsHeaps.end(), nullptr);
 
+		mCachedPipelinesLibrary.clear();
+
 		mpGraphicsObjectManager          = nullptr;
 		mpGraphicsObjectManagerD3D12Impl = nullptr;
-
-		mCachedPipelinesLibrary.clear();
 
 		// \note Clean up is invoked only after all resources are freed in mpGraphicsObjectManager
 		for (TGarbageCollection& currGarbageCollection : mAwaitingDeletionObjects)
@@ -1503,8 +1517,7 @@ namespace TDEngine2
 		TPtr<CD3D12CommandBuffer> pCurrCommandBuffer = mpCommandBuffers[currFrameId];
 
 		CD3D12Fence& currCmdBufferFence = pCurrCommandBuffer->GetFenceEntry();
-		currCmdBufferFence.WaitForSignal();
-		currCmdBufferFence.Reset();
+		currCmdBufferFence.WaitForSignal(currCmdBufferFence.GetNextValue());
 
 		{
 			std::lock_guard<std::mutex> lock(mGarbageCollectorMutex);
@@ -1578,6 +1591,8 @@ namespace TDEngine2
 
 		CD3D12Fence& fence = mpImmediateCommandBuffer->GetFenceEntry();
 
+		fence.WaitForIdle();
+
 		E_RESULT_CODE result = mpImmediateCommandBuffer->Begin();
 
 		ID3D12GraphicsCommandList* pInternalCommandList = mpImmediateCommandBuffer->GetHandle().Get();
@@ -1589,8 +1604,8 @@ namespace TDEngine2
 		ID3D12CommandList* ppCommandLists[] = { pInternalCommandList };
 		mpDeviceContext->GetCommandQueue()->ExecuteCommandLists(1, ppCommandLists);
 
+		fence.Signal();
 		fence.WaitForIdle();
-		fence.Reset();
 
 		return result;
 	}
@@ -2686,9 +2701,12 @@ namespace TDEngine2
 		if (SUCCEEDED(pDXGIAdapter->QueryInterface(IID_PPV_ARGS(&pDXGIAdapter3))))
 		{
 			DXGI_QUERY_VIDEO_MEMORY_INFO info = {};
-			pDXGIAdapter3->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info);
 
+			pDXGIAdapter3->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info);
 			resultAdapterInfo.mUsedVideoMemory = static_cast<U64>(info.CurrentUsage);
+
+			pDXGIAdapter3->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL, &info);
+			resultAdapterInfo.mUsedSystemGPUMemory = static_cast<U64>(info.CurrentUsage);
 		}
 
 		auto&& it = VENDORS_TABLE.find(adapterInfo.VendorId);
