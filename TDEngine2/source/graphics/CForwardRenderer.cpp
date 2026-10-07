@@ -3597,6 +3597,40 @@ namespace TDEngine2
 		return mpFramePacketsStorage;
 	}
 
+
+	static void PrepareWeatherRenderData(TFramePacket& currFramePacket, TPtr<IResourceManager> pResourceManager)
+	{
+		const TResourceId volumetricCloudsShaderHandle = pResourceManager->Load<IShader>(CProjectSettings::Get()->mGraphicsSettings.mVolumetricCloudsMainShader);
+		TDE2_ASSERT(TResourceId::Invalid != volumetricCloudsShaderHandle);
+
+		if (auto pVolumetricCloudsMainShader = pResourceManager->GetResource<IShader>(volumetricCloudsShaderHandle))
+		{
+			pVolumetricCloudsMainShader->SetUserUniformsBuffer(1, reinterpret_cast<const U8*>(&currFramePacket.mWeatherData.mUniformsData), sizeof(currFramePacket.mWeatherData.mUniformsData));
+			pVolumetricCloudsMainShader->SetTextureResource("WeatherMap", pResourceManager->GetResource<ITexture2D>(currFramePacket.mWeatherData.mWeatherTextureHandle).Get());
+		}
+	}
+
+
+	static void PrepareVideoRenderData(TFramePacket& currFramePacket, TPtr<IResourceManager> pResourceManager)
+	{
+		for (TFramePacket::TVideoUpdateData& currVideoData : currFramePacket.mVideoUpdateData)
+		{
+			TPtr<ITexture2D> pTexture = pResourceManager->GetResource<ITexture2D>(currVideoData.mTextureHandle);
+			if (!pTexture)
+			{
+				continue;
+			}
+
+			if (pTexture->GetWidth() != currVideoData.mWidth || pTexture->GetHeight() != currVideoData.mHeight)
+			{
+				pTexture->Resize(currVideoData.mWidth, currVideoData.mHeight);
+			}
+
+			pTexture->WriteData(TRectI32(0, 0, static_cast<I32>(currVideoData.mWidth), static_cast<I32>(currVideoData.mHeight)), currVideoData.mPixelData.data());
+		}
+	}
+
+
 	void CForwardRenderer::_prepareFrame(TFramePacket& currFramePacket)
 	{
 		TDE2_PROFILER_SCOPE("Renderer::PreRender");
@@ -3613,21 +3647,8 @@ namespace TDEngine2
 			mLightGridData.mIsTileFrustumsInitialized = true;
 		}
 
-		for (TFramePacket::TVideoUpdateData& currVideoData : currFramePacket.mVideoUpdateData)
-		{
-			TPtr<ITexture2D> pTexture = mpResourceManager->GetResource<ITexture2D>(currVideoData.mTextureHandle);
-			if (!pTexture)
-			{
-				continue;
-			}
-
-			if (pTexture->GetWidth() != currVideoData.mWidth || pTexture->GetHeight() != currVideoData.mHeight)
-			{
-				pTexture->Resize(currVideoData.mWidth, currVideoData.mHeight);
-			}
-
-			pTexture->WriteData(TRectI32(0, 0, static_cast<I32>(currVideoData.mWidth), static_cast<I32>(currVideoData.mHeight)), currVideoData.mPixelData.data());
-		}
+		PrepareWeatherRenderData(currFramePacket, mpResourceManager);
+		PrepareVideoRenderData(currFramePacket, mpResourceManager);
 	}
 
 	E_RESULT_CODE CForwardRenderer::_onFreeInternal()

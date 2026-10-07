@@ -43,7 +43,7 @@ namespace TDEngine2
 	TDE2_API ISystem* CreateWeatherSystem(const TWeatherSystemInitParams& params, E_RESULT_CODE& result);
 
 
-	class CWeatherSystem : public CBaseSystem
+	class CWeatherSystem : public CBaseSystem, public IRenderSystem
 	{
 		public:
 			friend TDE2_API ISystem* CreateWeatherSystem(const TWeatherSystemInitParams&, E_RESULT_CODE& result);
@@ -79,6 +79,8 @@ namespace TDEngine2
 			*/
 
 			TDE2_API void Update(IWorld* pWorld, F32 dt) override;
+
+			TDE2_API E_RESULT_CODE FillFramePacket(TFramePacket& framePacket) override;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CWeatherSystem)
 		protected:

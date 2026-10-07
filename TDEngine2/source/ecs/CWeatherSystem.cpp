@@ -10,6 +10,7 @@
 #include "../../include/core/IJobManager.h"
 #include "../../include/core/CProjectSettings.h"
 #include "../../include/graphics/CBaseTexture3D.h"
+#include "../../include/graphics/CFramePacketsStorage.h"
 #include "../../include/graphics/IMaterial.h"
 #include "../../include/graphics/IShader.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
@@ -79,45 +80,30 @@ namespace TDEngine2
 	void CWeatherSystem::Update(IWorld* pWorld, F32 dt)
 	{
 		TDE2_PROFILER_SCOPE("CWeatherSystem::Update");
+	}
 
+	E_RESULT_CODE CWeatherSystem::FillFramePacket(TFramePacket& framePacket)
+	{
 		if (!mpWeatherComponent)
 		{
-			return;
+			return RC_OK;
 		}
-
-		struct
-		{
-			TVector4  mAtmosphereParameters; // x - Earth's radius, y - inner atmosphere's radius, z - thickness
-			TVector4  mWindParameters; // xy - direction, w - scale factor
-			TColor32F mAmbientCloudsColor;
-			F32       mAbsorption;
-			F32       mCoverage;
-			F32       mCurliness;
-			F32       mCrispiness;
-			F32       mDensityFactor;
-		} uniformsData;
 
 		const TWeatherComponentData& weatherData = mpWeatherComponent->GetData();
 
-		uniformsData.mAmbientCloudsColor   = weatherData.mAmbientCloudColor;
-		uniformsData.mAtmosphereParameters = TVector4{ EarthRadius, weatherData.mAtmosphereStartRadius, weatherData.mAtmosphereThickness, 0.0f };
-		uniformsData.mWindParameters       = TVector4{ weatherData.mWindDirection.x, weatherData.mWindDirection.y, 0.0f, weatherData.mWindScaleFactor };
-		uniformsData.mAbsorption           = weatherData.mSunLightAbsorption;
-		uniformsData.mCoverage             = weatherData.mCoverage;
-		uniformsData.mCurliness            = weatherData.mCurliness;
-		uniformsData.mCrispiness           = weatherData.mCrispiness;
-		uniformsData.mDensityFactor        = weatherData.mDensityFactor;
+		TFramePacket::TWeatherData& weatherRenderData = framePacket.mWeatherData;
 
-		const TResourceId volumetricCloudsShaderHandle = mpResourceManager->Load<IShader>(CProjectSettings::Get()->mGraphicsSettings.mVolumetricCloudsMainShader);
-		TDE2_ASSERT(TResourceId::Invalid != volumetricCloudsShaderHandle);
-
-		if (auto pVolumetricCloudsMainShader = mpResourceManager->GetResource<IShader>(volumetricCloudsShaderHandle))
-		{
-			pVolumetricCloudsMainShader->SetUserUniformsBuffer(1, reinterpret_cast<const U8*>(&uniformsData), sizeof(uniformsData));
-
-			auto pWeatherMapTexture = mpResourceManager->GetResource<ITexture2D>(mpResourceManager->Load<ITexture2D>(weatherData.mWeatherMapTextureId));
-			pVolumetricCloudsMainShader->SetTextureResource("WeatherMap", pWeatherMapTexture.Get());
-		}
+		weatherRenderData.mUniformsData.mAmbientCloudsColor   = weatherData.mAmbientCloudColor;
+		weatherRenderData.mUniformsData.mAtmosphereParameters = TVector4{ EarthRadius, weatherData.mAtmosphereStartRadius, weatherData.mAtmosphereThickness, 0.0f };
+		weatherRenderData.mUniformsData.mWindParameters       = TVector4{ weatherData.mWindDirection.x, weatherData.mWindDirection.y, 0.0f, weatherData.mWindScaleFactor };
+		weatherRenderData.mUniformsData.mAbsorption           = weatherData.mSunLightAbsorption;
+		weatherRenderData.mUniformsData.mCoverage             = weatherData.mCoverage;
+		weatherRenderData.mUniformsData.mCurliness            = weatherData.mCurliness;
+		weatherRenderData.mUniformsData.mCrispiness           = weatherData.mCrispiness;
+		weatherRenderData.mUniformsData.mDensityFactor        = weatherData.mDensityFactor;
+		weatherRenderData.mWeatherTextureHandle               = mpResourceManager->Load<ITexture2D>(weatherData.mWeatherMapTextureId);
+		
+		return RC_OK;
 	}
 
 

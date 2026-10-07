@@ -66,6 +66,23 @@ namespace TDEngine2
 			Vector<U8>  mPixelData{};
 		};
 
+		struct TWeatherData
+		{
+			struct
+			{
+				TVector4  mAtmosphereParameters; // x - Earth's radius, y - inner atmosphere's radius, z - thickness
+				TVector4  mWindParameters; // xy - direction, w - scale factor
+				TColor32F mAmbientCloudsColor;
+				F32       mAbsorption;
+				F32       mCoverage;
+				F32       mCurliness;
+				F32       mCrispiness;
+				F32       mDensityFactor;
+			} mUniformsData;
+
+			TResourceId mWeatherTextureHandle = TResourceId::Invalid;
+		};
+
 		typedef std::vector<TVideoUpdateData> TVideoUpdateDataArray;
 
 #if TDE2_EDITORS_ENABLED
@@ -107,6 +124,8 @@ namespace TDEngine2
 		TMaterialRenderProxiesArray mMaterialProxies{};
 		
 		TVideoUpdateDataArray       mVideoUpdateData;
+
+		TWeatherData                mWeatherData{};
 	} TFramePacket, *TFramePacketPtr;
 
 
