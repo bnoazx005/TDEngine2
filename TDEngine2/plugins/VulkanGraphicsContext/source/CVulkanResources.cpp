@@ -215,6 +215,10 @@ namespace TDEngine2
 			}
 
 			mpGraphicsContextImpl->DestroyObjectDeffered(mInternalBufferHandle, mAllocation, mInternalBufferViewHandle);
+
+			mInternalBufferHandle     = VK_NULL_HANDLE;
+			mAllocation               = VK_NULL_HANDLE;
+			mInternalBufferViewHandle = VK_NULL_HANDLE;
 		}
 
 		auto createBufferResult = CreateBufferInternal(mAllocator, newSize, mBufferType, mBufferUsageType, structuredBufferType);
@@ -319,23 +323,15 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanBuffer::Resize(USIZE newSize)
 	{
-		E_RESULT_CODE result = _discardCurrentBuffer(mBufferSize, mInitParams.mStructuredBufferType);
-		if (RC_OK != result)
-		{
-			return result;
-		}
-
 		if (mpMappedBufferData)
 		{
 			Unmap();
 		}
 
-		mpGraphicsContextImpl->DestroyObjectDeffered(mInternalBufferHandle, mAllocation, mInternalBufferViewHandle);
-
 		mInitParams.mTotalBufferSize = newSize;
 		mBufferSize = newSize;
 
-		return RC_OK;
+		return _discardCurrentBuffer(mBufferSize, mInitParams.mStructuredBufferType);
 	}
 
 	E_RESULT_CODE CVulkanBuffer::SetHandle(TBufferHandleId handle, const CPassKey<CBaseGraphicsObjectManager>& passkey)
