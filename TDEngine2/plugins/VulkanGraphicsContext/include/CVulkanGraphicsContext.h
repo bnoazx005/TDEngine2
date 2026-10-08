@@ -508,7 +508,7 @@ namespace TDEngine2
 
 			mutable std::mutex                                   mGarbageCollectorMutex {};
 
-			USIZE                                                mCurrFrameIndex = 0;
+			std::atomic<USIZE>                                   mCurrFrameIndex{ 0 };
 			
 #if TDE2_DEBUG_MODE
 			VkDebugUtilsMessengerEXT                             mDebugMessenger = VK_NULL_HANDLE;

@@ -92,7 +92,8 @@ namespace TDEngine2
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 		VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
 		VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME,
-		VK_EXT_ROBUSTNESS_2_EXTENSION_NAME
+		VK_EXT_ROBUSTNESS_2_EXTENSION_NAME,
+		VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME,
 	};
 
 	static std::vector<const C8*> SupportedDeviceExtensions{}; // RequiredDeviceExtensions minus unsupported extensions
@@ -510,6 +511,11 @@ namespace TDEngine2
 	CVulkanDeviceContext* CreateVulkanDeviceContext(TPtr<IWindowSystem>, TPtr<IWindowSurfaceFactory>, E_RESULT_CODE&);
 	CVulkanSwapchain* CreateSwapchain(CVulkanDeviceContext*, TPtr<IWindowSystem>, E_RESULT_CODE&); 
 	CVulkanCommandBuffer* CreateCommandBuffer(CVulkanDeviceContext*, E_RESULT_CODE&);
+
+
+	/*!
+		\brief CVulkanTimelineSemaphore's declaration
+	*/
 
 
 	/*!
@@ -1337,12 +1343,14 @@ namespace TDEngine2
 		garbageEntity.mAllocation         = allocation;
 		garbageEntity.mBufferViewHandle   = bufferViewHandle;
 
-		mAwaitingDeletionObjects[mCurrFrameIndex].emplace_back(garbageEntity);
+		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
 
-		auto it = std::find_if(mBufferBarriers[mCurrFrameIndex].begin(), mBufferBarriers[mCurrFrameIndex].end(), [bufferHandle](const VkBufferMemoryBarrier2& barrier) { return barrier.buffer == bufferHandle; });
-		if (it != mBufferBarriers[mCurrFrameIndex].end())
+		mAwaitingDeletionObjects[currFrameIndex].emplace_back(garbageEntity);
+
+		auto it = std::find_if(mBufferBarriers[currFrameIndex].begin(), mBufferBarriers[currFrameIndex].end(), [bufferHandle](const VkBufferMemoryBarrier2& barrier) { return barrier.buffer == bufferHandle; });
+		if (it != mBufferBarriers[currFrameIndex].end())
 		{
-			mBufferBarriers[mCurrFrameIndex].erase(it);
+			mBufferBarriers[currFrameIndex].erase(it);
 		}
 
 		return RC_OK;
@@ -1357,12 +1365,14 @@ namespace TDEngine2
 		garbageEntity.mType              = TGarbageEntity::E_TYPE::IMAGE;
 		garbageEntity.mAllocation        = allocation;
 
-		mAwaitingDeletionObjects[mCurrFrameIndex].emplace_back(garbageEntity);
+		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
 
-		auto it = std::find_if(mTextureBarriers[mCurrFrameIndex].begin(), mTextureBarriers[mCurrFrameIndex].end(), [imageHandle](const VkImageMemoryBarrier2& barrier) { return barrier.image == imageHandle; });
-		if (it != mTextureBarriers[mCurrFrameIndex].end())
+		mAwaitingDeletionObjects[currFrameIndex].emplace_back(garbageEntity);
+
+		auto it = std::find_if(mTextureBarriers[currFrameIndex].begin(), mTextureBarriers[currFrameIndex].end(), [imageHandle](const VkImageMemoryBarrier2& barrier) { return barrier.image == imageHandle; });
+		if (it != mTextureBarriers[currFrameIndex].end())
 		{
-			mTextureBarriers[mCurrFrameIndex].erase(it);
+			mTextureBarriers[currFrameIndex].erase(it);
 		}
 
 		return RC_OK;
@@ -1376,7 +1386,9 @@ namespace TDEngine2
 		garbageEntity.mData.mImageViewHandle = imageViewHandle;
 		garbageEntity.mType                  = TGarbageEntity::E_TYPE::IMAGE_VIEW;
 
-		mAwaitingDeletionObjects[mCurrFrameIndex].emplace_back(garbageEntity);
+		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
+
+		mAwaitingDeletionObjects[currFrameIndex].emplace_back(garbageEntity);
 
 		return RC_OK;
 	}
@@ -1389,7 +1401,9 @@ namespace TDEngine2
 		garbageEntity.mData.mPipelineHandle = pipelineHandle;
 		garbageEntity.mType                 = TGarbageEntity::E_TYPE::PIPELINE;
 
-		mAwaitingDeletionObjects[mCurrFrameIndex].emplace_back(garbageEntity);
+		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
+
+		mAwaitingDeletionObjects[currFrameIndex].emplace_back(garbageEntity);
 
 		return RC_OK;
 	}
@@ -1402,7 +1416,9 @@ namespace TDEngine2
 		garbageEntity.mData.mPipelineLayoutHandle = pipelineLayoutHandle;
 		garbageEntity.mType                       = TGarbageEntity::E_TYPE::PIPELINE_LAYOUT;
 
-		mAwaitingDeletionObjects[mCurrFrameIndex].emplace_back(garbageEntity);
+		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
+
+		mAwaitingDeletionObjects[currFrameIndex].emplace_back(garbageEntity);
 
 		return RC_OK;
 	}
@@ -1415,7 +1431,9 @@ namespace TDEngine2
 		garbageEntity.mData.mDescriptorSetLayoutHandle = descriptorSetLayoutHandle;
 		garbageEntity.mType                            = TGarbageEntity::E_TYPE::DESCRIPTOR_SET_LAYOUT;
 
-		mAwaitingDeletionObjects[mCurrFrameIndex].emplace_back(garbageEntity);
+		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
+
+		mAwaitingDeletionObjects[currFrameIndex].emplace_back(garbageEntity);
 
 		return RC_OK;
 	}
@@ -1428,7 +1446,9 @@ namespace TDEngine2
 		garbageEntity.mData.mSamplerHandle = samplerHandle;
 		garbageEntity.mType                = TGarbageEntity::E_TYPE::SAMPLER;
 
-		mAwaitingDeletionObjects[mCurrFrameIndex].emplace_back(garbageEntity);
+		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
+
+		mAwaitingDeletionObjects[currFrameIndex].emplace_back(garbageEntity);
 
 		return RC_OK;
 	}
@@ -1470,18 +1490,20 @@ namespace TDEngine2
 			TDE2_ASSERT(RC_OK == result);
 		}
 
-		const TPtr<CVulkanCommandBuffer>& pCurrCommandBuffer = mpCommandBuffers[mCurrFrameIndex];
+		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
+
+		const TPtr<CVulkanCommandBuffer>& pCurrCommandBuffer = mpCommandBuffers[currFrameIndex];
 		VkFence commandBufferFence = pCurrCommandBuffer->GetFence();
 
 		VK_SAFE_VOID_CALL(vkWaitForFences(mpVulkanDeviceContext->GetDevice(), 1, &commandBufferFence, VK_TRUE, UINT64_MAX));
 		VK_SAFE_VOID_CALL(vkResetFences(mpVulkanDeviceContext->GetDevice(), 1, &commandBufferFence));
 		mpVulkanDeviceContext->WaitForIdle(); // \todo Remove this later when sync issue will be fixed
 
-		mpSwapchain->AcquireNextImage(mImageReadySemaphores[mCurrFrameIndex]);
+		mpSwapchain->AcquireNextImage(mImageReadySemaphores[currFrameIndex]);
 
 		{
 			std::lock_guard<std::mutex> lock(mGarbageCollectorMutex);
-			CleanupGarbage(mAwaitingDeletionObjects[mCurrFrameIndex], mpVulkanDeviceContext->GetDevice(), mpVulkanDeviceContext->GetMemoryAllocator());
+			CleanupGarbage(mAwaitingDeletionObjects[currFrameIndex], mpVulkanDeviceContext->GetDevice(), mpVulkanDeviceContext->GetMemoryAllocator());
 		}
 
 		pCurrCommandBuffer->Reset();
@@ -1493,6 +1515,8 @@ namespace TDEngine2
 	void CVulkanGraphicsContext::Present()
 	{
 		TDE2_PROFILER_SCOPE("CVulkanGraphicsContext::Present");
+
+		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
 
 		// \note Add final barrier for current swapchain's image
 		VkImageMemoryBarrier2 barrier = {};
@@ -1518,13 +1542,13 @@ namespace TDEngine2
 		dependencyInfo.pImageMemoryBarriers    = &barrier;
 		vkCmdPipelineBarrier2(_getCurrCommandBufferHandle(), &dependencyInfo);
 
-		const TPtr<CVulkanCommandBuffer>& pCurrCommandBuffer = mpCommandBuffers[mCurrFrameIndex];
+		const TPtr<CVulkanCommandBuffer>& pCurrCommandBuffer = mpCommandBuffers[currFrameIndex];
 		pCurrCommandBuffer->End();
 
-		E_RESULT_CODE result = mpVulkanDeviceContext->SubmitCommands(pCurrCommandBuffer, mImageReadySemaphores[mCurrFrameIndex], mRenderFinishedSemaphores[mCurrFrameIndex], pCurrCommandBuffer->GetFence());
+		E_RESULT_CODE result = mpVulkanDeviceContext->SubmitCommands(pCurrCommandBuffer, mImageReadySemaphores[currFrameIndex], mRenderFinishedSemaphores[currFrameIndex], pCurrCommandBuffer->GetFence());
 		TDE2_ASSERT(RC_OK == result);
 
-		result = mpSwapchain->Present(mRenderFinishedSemaphores[mCurrFrameIndex]);
+		result = mpSwapchain->Present(mRenderFinishedSemaphores[currFrameIndex]);
 		TDE2_ASSERT(RC_OK == result);
 
 		if (!mpSwapchain->IsValid()) // \note Assume that window's sizes are changed 
@@ -1532,7 +1556,7 @@ namespace TDEngine2
 			return;
 		}
 
-		mCurrFrameIndex = (mCurrFrameIndex + 1) & (FRAMES_COUNT - 1);
+		mCurrFrameIndex.store((mCurrFrameIndex + 1) & (FRAMES_COUNT - 1), std::memory_order_release);
 	}
 
 	void CVulkanGraphicsContext::SetViewport(F32 x, F32 y, F32 width, F32 height, F32 minDepth, F32 maxDepth)
@@ -1582,7 +1606,8 @@ namespace TDEngine2
 		const VkBuffer vertexBuffers[] = { pBuffer->GetVulkanHandle() };
 		const VkDeviceSize offsets[] = { static_cast<USIZE>(offset) };
 
-		vkCmdBindVertexBuffers(mpCommandBuffers[mCurrFrameIndex]->GetHandle(), slot, 1, vertexBuffers, offsets);
+		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
+		vkCmdBindVertexBuffers(mpCommandBuffers[currFrameIndex]->GetHandle(), slot, 1, vertexBuffers, offsets);
 
 		return RC_OK;
 	}
@@ -1597,7 +1622,8 @@ namespace TDEngine2
 
 		TDE2_ASSERT(E_BUFFER_TYPE::INDEX == pBuffer->GetParams().mBufferType);
 
-		vkCmdBindIndexBuffer(mpCommandBuffers[mCurrFrameIndex]->GetHandle(), pBuffer->GetVulkanHandle(),
+		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
+		vkCmdBindIndexBuffer(mpCommandBuffers[currFrameIndex]->GetHandle(), pBuffer->GetVulkanHandle(),
 			static_cast<VkDeviceSize>(offset), CVulkanMappings::GetIndexFormat(pBuffer->GetParams().mIndexFormat));
 
 		return RC_OK;
@@ -2087,7 +2113,8 @@ namespace TDEngine2
 		memoryBarrier.srcAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT;
 		memoryBarrier.dstAccessMask = VK_ACCESS_2_MEMORY_READ_BIT;
 
-		mMemoryBarriers[mCurrFrameIndex].push_back(memoryBarrier);
+		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
+		mMemoryBarriers[currFrameIndex].push_back(memoryBarrier);
 	}
 
 
@@ -2146,7 +2173,8 @@ namespace TDEngine2
 		bufferMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		bufferMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 
-		mBufferBarriers[mCurrFrameIndex].emplace_back(bufferMemoryBarrier);
+		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
+		mBufferBarriers[currFrameIndex].emplace_back(bufferMemoryBarrier);
 	}
 
 	void CVulkanGraphicsContext::TransitionBarrier(const TTextureTransitionBarrierInfo& barrierInfo)
@@ -2186,7 +2214,8 @@ namespace TDEngine2
 			imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 		}
 
-		mTextureBarriers[mCurrFrameIndex].emplace_back(imageMemoryBarrier);
+		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
+		mTextureBarriers[currFrameIndex].emplace_back(imageMemoryBarrier);
 	}
 
 	void CVulkanGraphicsContext::DebugBarrier()
@@ -2386,7 +2415,9 @@ namespace TDEngine2
 			TDE2_ASSERT(mIsRenderPassActive);
 		}
 
-		mpActivePipelineStates[mCurrFrameIndex] = pPipeline;
+		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
+
+		mpActivePipelineStates[currFrameIndex] = pPipeline;
 
 		const U64 pipelineHash = isGraphicsPipeline ? (static_cast<U64>(ComputeStateDescHash(mCurrRenderPassInfo)) << 32) | pPipeline->GetHash() : pPipeline->GetHash();
 
@@ -2613,9 +2644,11 @@ namespace TDEngine2
 
 	void CVulkanGraphicsContext::FlushBarriers()
 	{
-		auto& memoryBarriers  = mMemoryBarriers[mCurrFrameIndex];
-		auto& textureBarriers = mTextureBarriers[mCurrFrameIndex];
-		auto& bufferBarriers  = mBufferBarriers[mCurrFrameIndex];
+		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
+
+		auto& memoryBarriers  = mMemoryBarriers[currFrameIndex];
+		auto& textureBarriers = mTextureBarriers[currFrameIndex];
+		auto& bufferBarriers  = mBufferBarriers[currFrameIndex];
 
 		if (!memoryBarriers.empty() || !textureBarriers.empty() || !bufferBarriers.empty())
 		{
@@ -2789,7 +2822,8 @@ namespace TDEngine2
 
 	VkCommandBuffer CVulkanGraphicsContext::_getCurrCommandBufferHandle() const
 	{
-		return mpCommandBuffers[mCurrFrameIndex]->GetHandle();
+		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
+		return mpCommandBuffers[currFrameIndex]->GetHandle();
 	}
 
 
@@ -2823,13 +2857,15 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("CVulkanGraphicsContext::FlushPipelineDescriptorsSet");
 
-		if (!mpActivePipelineStates[mCurrFrameIndex])
+		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
+
+		if (!mpActivePipelineStates[currFrameIndex])
 		{
 			TDE2_ASSERT(false);
 			return;
 		}
 
-		const auto pipelineType = E_PIPELINE_TYPE::GRAPHICS == mpActivePipelineStates[mCurrFrameIndex]->GetType() ? 
+		const auto pipelineType = E_PIPELINE_TYPE::GRAPHICS == mpActivePipelineStates[currFrameIndex]->GetType() ? 
 			VK_PIPELINE_BIND_POINT_GRAPHICS : VK_PIPELINE_BIND_POINT_COMPUTE;
 
 		if (pipelineType == VK_PIPELINE_BIND_POINT_GRAPHICS)
@@ -2841,7 +2877,7 @@ namespace TDEngine2
 		mDescriptorBufferInfos.clear();
 		mDescriptorImageInfos.clear();
 
-		const auto& currPipelineActiveSlots = mpActivePipelineStates[mCurrFrameIndex]->GetLayoutInfo();
+		const auto& currPipelineActiveSlots = mpActivePipelineStates[currFrameIndex]->GetLayoutInfo();
 
 		for (U32 i = 0; i < currPipelineActiveSlots.mCBVActiveSlots.size(); ++i)
 		{
@@ -3069,15 +3105,15 @@ namespace TDEngine2
 			currWriteDescriptorSet.dstBinding      = GetBindingOffsetByResourceType(E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D) + currBinding;
 		}
 
-		TDE2_ASSERT(mpActivePipelineStates[mCurrFrameIndex]);
-		if (!mpActivePipelineStates[mCurrFrameIndex])
+		TDE2_ASSERT(mpActivePipelineStates[currFrameIndex]);
+		if (!mpActivePipelineStates[currFrameIndex])
 		{
 			return;
 		}
 				
 		vkCmdPushDescriptorSetKHR(_getCurrCommandBufferHandle(), 
 			pipelineType,
-			mpActivePipelineStates[mCurrFrameIndex]->GetPipelineLayout(),
+			mpActivePipelineStates[currFrameIndex]->GetPipelineLayout(),
 			0, 
 			static_cast<U32>(mDescriptorWrites.size()), 
 			mDescriptorWrites.data());
