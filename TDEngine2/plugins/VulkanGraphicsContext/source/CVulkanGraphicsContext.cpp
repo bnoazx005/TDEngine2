@@ -93,7 +93,6 @@ namespace TDEngine2
 		VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
 		VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME,
 		VK_EXT_ROBUSTNESS_2_EXTENSION_NAME,
-		VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME,
 	};
 
 	static std::vector<const C8*> SupportedDeviceExtensions{}; // RequiredDeviceExtensions minus unsupported extensions
@@ -378,10 +377,15 @@ namespace TDEngine2
 			queuesInfos[i].pQueuePriorities = &queuesPriorities[i];
 		}
 
+		VkPhysicalDeviceTimelineSemaphoreFeatures timelineFeatures{};
+		timelineFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_FEATURES;
+		timelineFeatures.timelineSemaphore = VK_TRUE;
+
 		VkPhysicalDeviceVulkan13Features device13Features{};
 		device13Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
 		device13Features.dynamicRendering = VK_TRUE;
 		device13Features.synchronization2 = VK_TRUE;
+		device13Features.pNext            = &timelineFeatures;
 
 		VkPhysicalDeviceRobustness2FeaturesEXT robustnessFeatures{};
 		robustnessFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT;
@@ -390,7 +394,7 @@ namespace TDEngine2
 		IS_ROBUSTNESS2_EXTENSION_SUPPORTED = std::find_if(SupportedDeviceExtensions.cbegin(), SupportedDeviceExtensions.cend(), [](auto&& ext) { return strcmp(ext, VK_EXT_ROBUSTNESS_2_EXTENSION_NAME) == 0; }) != SupportedDeviceExtensions.cend();
 		if (IS_ROBUSTNESS2_EXTENSION_SUPPORTED)
 		{
-			device13Features.pNext = &robustnessFeatures;
+			timelineFeatures.pNext = &robustnessFeatures;
 		}
 
 		VkPhysicalDeviceFeatures deviceFeatures{};
@@ -567,7 +571,8 @@ namespace TDEngine2
 			VkSemaphore CreateSemaphore(VkSemaphoreCreateFlags flags = 0x0);
 			VkSemaphore CreateTimelineSemaphore();
 
-			E_RESULT_CODE SubmitCommands(TPtr<CVulkanCommandBuffer> pCommandBuffer, VkSemaphore waitSemaphore = VK_NULL_HANDLE, VkSemaphore signalSemaphore = VK_NULL_HANDLE, VkFence fence = VK_NULL_HANDLE);
+			E_RESULT_CODE SubmitCommands(TPtr<CVulkanCommandBuffer> pCommandBuffer, VkSemaphore waitSemaphore = VK_NULL_HANDLE, VkSemaphore signalSemaphore = VK_NULL_HANDLE, VkFence fence = VK_NULL_HANDLE, 
+				VkSemaphore timelineSemaphore = VK_NULL_HANDLE, U64 timelineValue = 0);
 			void WaitForIdle();
 			E_RESULT_CODE WaitForSemaphore(VkSemaphore semaphore, U64 value, U64 timeout = UINT64_MAX);
 
@@ -743,36 +748,57 @@ namespace TDEngine2
 	}
 
 
-	E_RESULT_CODE CVulkanDeviceContext::SubmitCommands(TPtr<CVulkanCommandBuffer> pCommandBuffer, VkSemaphore waitSemaphore, VkSemaphore signalSemaphore, VkFence fence)
+	E_RESULT_CODE CVulkanDeviceContext::SubmitCommands(TPtr<CVulkanCommandBuffer> pCommandBuffer, VkSemaphore waitSemaphore, VkSemaphore signalSemaphore, VkFence fence,
+		VkSemaphore timelineSemaphore, U64 timelineValue)
 	{
 		VkCommandBufferSubmitInfo cmdBufferSubmitInfo{};
-		cmdBufferSubmitInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO;
+		cmdBufferSubmitInfo.sType         = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO;
 		cmdBufferSubmitInfo.commandBuffer = pCommandBuffer->GetHandle();
-		cmdBufferSubmitInfo.deviceMask = 0;
+		cmdBufferSubmitInfo.deviceMask    = 0;
 
 		// semaphores
 		VkSemaphoreSubmitInfo waitSemaphoreSubmitInfo{};
-		waitSemaphoreSubmitInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
-		waitSemaphoreSubmitInfo.semaphore = waitSemaphore;
-		waitSemaphoreSubmitInfo.value = 1;
-		waitSemaphoreSubmitInfo.stageMask = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR;
+		waitSemaphoreSubmitInfo.sType       = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
+		waitSemaphoreSubmitInfo.semaphore   = waitSemaphore;
+		waitSemaphoreSubmitInfo.value       = 1;
+		waitSemaphoreSubmitInfo.stageMask   = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR;
 		waitSemaphoreSubmitInfo.deviceIndex = 0;
 
-		VkSemaphoreSubmitInfo signalSemaphoreSubmitInfo{};
-		signalSemaphoreSubmitInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
-		signalSemaphoreSubmitInfo.semaphore = signalSemaphore;
-		signalSemaphoreSubmitInfo.value = 1;
-		signalSemaphoreSubmitInfo.stageMask = VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT;
-		signalSemaphoreSubmitInfo.deviceIndex = 0;
+		std::array<VkSemaphoreSubmitInfo, 2> signalSemaphoreSubmitInfos{};
+		U32 signalsCount = 0;
+
+		if (signalSemaphore != VK_NULL_HANDLE)
+		{
+			VkSemaphoreSubmitInfo signalSemaphoreSubmitInfo{};
+			signalSemaphoreSubmitInfo.sType       = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
+			signalSemaphoreSubmitInfo.semaphore   = signalSemaphore;
+			signalSemaphoreSubmitInfo.value       = 1;
+			signalSemaphoreSubmitInfo.stageMask   = VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT;
+			signalSemaphoreSubmitInfo.deviceIndex = 0;
+
+			signalSemaphoreSubmitInfos[signalsCount++] = signalSemaphoreSubmitInfo;
+		}
+
+		if (timelineSemaphore != VK_NULL_HANDLE && timelineValue > 0)
+		{
+			VkSemaphoreSubmitInfo signalSemaphoreSubmitInfo{};
+			signalSemaphoreSubmitInfo.sType       = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
+			signalSemaphoreSubmitInfo.semaphore   = timelineSemaphore;
+			signalSemaphoreSubmitInfo.value       = timelineValue;
+			signalSemaphoreSubmitInfo.stageMask   = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+			signalSemaphoreSubmitInfo.deviceIndex = 0;
+
+			signalSemaphoreSubmitInfos[signalsCount++] = signalSemaphoreSubmitInfo;
+		}
 
 		VkSubmitInfo2 submitInfo{};
-		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
-		submitInfo.waitSemaphoreInfoCount = static_cast<uint32_t>(waitSemaphore == VK_NULL_HANDLE ? 0 : 1);
-		submitInfo.pWaitSemaphoreInfos = &waitSemaphoreSubmitInfo;
-		submitInfo.commandBufferInfoCount = 1;
-		submitInfo.pCommandBufferInfos = &cmdBufferSubmitInfo;
-		submitInfo.signalSemaphoreInfoCount = static_cast<uint32_t>(signalSemaphore == VK_NULL_HANDLE ? 0 : 1);
-		submitInfo.pSignalSemaphoreInfos = &signalSemaphoreSubmitInfo;
+		submitInfo.sType                    = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
+		submitInfo.waitSemaphoreInfoCount   = static_cast<uint32_t>(waitSemaphore == VK_NULL_HANDLE ? 0 : 1);
+		submitInfo.pWaitSemaphoreInfos      = &waitSemaphoreSubmitInfo;
+		submitInfo.commandBufferInfoCount   = 1;
+		submitInfo.pCommandBufferInfos      = &cmdBufferSubmitInfo;
+		submitInfo.signalSemaphoreInfoCount = signalsCount;
+		submitInfo.pSignalSemaphoreInfos    = signalSemaphoreSubmitInfos.data();
 
 		VK_SAFE_CALL(vkQueueSubmit2(mGraphicsQueue, 1, &submitInfo, fence));
 
@@ -799,7 +825,7 @@ namespace TDEngine2
 		waitInfo.pValues        = &value;
 
 		const VkResult result = vkWaitSemaphores(mDevice, &waitInfo, timeout);
-		if (VK_SUCCESS != result && VK_TIMEOUT != result)
+		if (VK_SUCCESS != result)
 		{
 			return CVulkanMappings::GetErrorCode(result);
 		}
@@ -1545,11 +1571,13 @@ namespace TDEngine2
 		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
 
 		const TPtr<CVulkanCommandBuffer>& pCurrCommandBuffer = mpCommandBuffers[currFrameIndex];
-		VkFence commandBufferFence = pCurrCommandBuffer->GetFence();
-
-		VK_SAFE_VOID_CALL(vkWaitForFences(mpVulkanDeviceContext->GetDevice(), 1, &commandBufferFence, VK_TRUE, UINT64_MAX));
-		VK_SAFE_VOID_CALL(vkResetFences(mpVulkanDeviceContext->GetDevice(), 1, &commandBufferFence));
-		mpVulkanDeviceContext->WaitForIdle(); // \todo Remove this later when sync issue will be fixed
+		
+		if (mFrameCounter >= FRAMES_COUNT)
+		{
+			const U64 waitValue = mFrameCounter - FRAMES_COUNT + 1;
+			E_RESULT_CODE result = mpVulkanDeviceContext->WaitForSemaphore(mTimelineSemaphore, waitValue, UINT64_MAX);
+			TDE2_ASSERT(RC_OK == result);
+		}
 
 		mpSwapchain->AcquireNextImage(mImageReadySemaphores[currFrameIndex]);
 
@@ -1597,7 +1625,15 @@ namespace TDEngine2
 		const TPtr<CVulkanCommandBuffer>& pCurrCommandBuffer = mpCommandBuffers[currFrameIndex];
 		pCurrCommandBuffer->End();
 
-		E_RESULT_CODE result = mpVulkanDeviceContext->SubmitCommands(pCurrCommandBuffer, mImageReadySemaphores[currFrameIndex], mRenderFinishedSemaphores[currFrameIndex], pCurrCommandBuffer->GetFence());
+		const U64 signalValue = mFrameCounter + 1;
+
+		E_RESULT_CODE result = mpVulkanDeviceContext->SubmitCommands(
+			pCurrCommandBuffer, 
+			mImageReadySemaphores[currFrameIndex],
+			mRenderFinishedSemaphores[currFrameIndex],
+			VK_NULL_HANDLE,
+			mTimelineSemaphore,
+			signalValue);
 		TDE2_ASSERT(RC_OK == result);
 
 		result = mpSwapchain->Present(mRenderFinishedSemaphores[currFrameIndex]);
@@ -1608,6 +1644,7 @@ namespace TDEngine2
 			return;
 		}
 
+		++mFrameCounter;
 		mCurrFrameIndex.store((mCurrFrameIndex + 1) & (FRAMES_COUNT - 1), std::memory_order_release);
 	}
 

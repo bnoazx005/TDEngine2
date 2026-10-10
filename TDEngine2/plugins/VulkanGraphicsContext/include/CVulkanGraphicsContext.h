@@ -511,6 +511,7 @@ namespace TDEngine2
 			mutable std::mutex                                   mBarriersMutex {};
 
 			std::atomic<USIZE>                                   mCurrFrameIndex{ 0 };
+			U64                                                  mFrameCounter = 0;
 			
 #if TDE2_DEBUG_MODE
 			VkDebugUtilsMessengerEXT                             mDebugMessenger = VK_NULL_HANDLE;
