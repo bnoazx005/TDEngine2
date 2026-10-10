@@ -565,9 +565,11 @@ namespace TDEngine2
 
 			VkFence CreateFence(bool signaled = true);
 			VkSemaphore CreateSemaphore(VkSemaphoreCreateFlags flags = 0x0);
+			VkSemaphore CreateTimelineSemaphore();
 
 			E_RESULT_CODE SubmitCommands(TPtr<CVulkanCommandBuffer> pCommandBuffer, VkSemaphore waitSemaphore = VK_NULL_HANDLE, VkSemaphore signalSemaphore = VK_NULL_HANDLE, VkFence fence = VK_NULL_HANDLE);
 			void WaitForIdle();
+			E_RESULT_CODE WaitForSemaphore(VkSemaphore semaphore, U64 value, U64 timeout = UINT64_MAX);
 
 			const VkPhysicalDevice GetPhysicalDevice() const { return mPhysicalDevice; }
 			const VkDevice GetDevice() const { return mDevice; }
@@ -715,6 +717,31 @@ namespace TDEngine2
 		return semaphore;
 	}
 
+	VkSemaphore CVulkanDeviceContext::CreateTimelineSemaphore()
+	{
+		VkSemaphoreTypeCreateInfo timelineCreateInfo{};
+		timelineCreateInfo.sType         = VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO;
+		timelineCreateInfo.pNext         = nullptr;
+		timelineCreateInfo.semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE;
+		timelineCreateInfo.initialValue  = 0;
+
+		VkSemaphoreCreateInfo semaphoreCreateInfo{};
+		semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+		semaphoreCreateInfo.flags = 0;
+		semaphoreCreateInfo.pNext = &timelineCreateInfo;
+
+		VkSemaphore semaphore = VK_NULL_HANDLE;
+
+		VkResult result = vkCreateSemaphore(mDevice, &semaphoreCreateInfo, nullptr, &semaphore);
+		if (VkResult::VK_SUCCESS != result)
+		{
+			TDE2_ASSERT(false);
+			return VK_NULL_HANDLE;
+		}
+
+		return semaphore;
+	}
+
 
 	E_RESULT_CODE CVulkanDeviceContext::SubmitCommands(TPtr<CVulkanCommandBuffer> pCommandBuffer, VkSemaphore waitSemaphore, VkSemaphore signalSemaphore, VkFence fence)
 	{
@@ -755,6 +782,29 @@ namespace TDEngine2
 	void CVulkanDeviceContext::WaitForIdle()
 	{
 		VK_SAFE_VOID_CALL(vkDeviceWaitIdle(mDevice));
+	}
+
+	E_RESULT_CODE CVulkanDeviceContext::WaitForSemaphore(VkSemaphore semaphore, U64 value, U64 timeout)
+	{
+		if (semaphore == VK_NULL_HANDLE || !value)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		VkSemaphoreWaitInfo waitInfo{};
+		waitInfo.sType          = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO;
+		waitInfo.flags          = 0;
+		waitInfo.semaphoreCount = 1;
+		waitInfo.pSemaphores    = &semaphore;
+		waitInfo.pValues        = &value;
+
+		const VkResult result = vkWaitSemaphores(mDevice, &waitInfo, timeout);
+		if (VK_SUCCESS != result && VK_TIMEOUT != result)
+		{
+			return CVulkanMappings::GetErrorCode(result);
+		}
+
+		return RC_OK;
 	}
 
 	E_RESULT_CODE CVulkanDeviceContext::_onFreeInternal()
@@ -1301,6 +1351,8 @@ namespace TDEngine2
 			vkDestroySemaphore(mpVulkanDeviceContext->GetDevice(), mRenderFinishedSemaphores[i], nullptr);
 		}
 
+		vkDestroySemaphore(mpVulkanDeviceContext->GetDevice(), mTimelineSemaphore, nullptr);
+
 		for (auto&& currCachedPipelineEntry : mCachedPipelinesLibrary)
 		{
 			vkDestroyPipeline(mpVulkanDeviceContext->GetDevice(), currCachedPipelineEntry.second, nullptr);
@@ -1318,7 +1370,7 @@ namespace TDEngine2
 
 		// \note Clean up is invoked only after all resources are freed in mpGraphicsObjectManager
 		{
-			std::lock_guard<std::mutex> lock(mGarbageCollectorMutex);
+			std::lock_guard<std::mutex> lock(mBarriersMutex);
 
 			for (auto&& currGarbageArray : mAwaitingDeletionObjects)
 			{
@@ -1335,7 +1387,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeffered(VkBuffer bufferHandle, VmaAllocation allocation, VkBufferView bufferViewHandle)
 	{
-		std::lock_guard<std::mutex> lock(mGarbageCollectorMutex);
+		std::lock_guard<std::mutex> lock(mBarriersMutex);
 
 		TGarbageEntity garbageEntity;
 		garbageEntity.mData.mBufferHandle = bufferHandle;
@@ -1358,7 +1410,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeffered(VkImage imageHandle, VmaAllocation allocation)
 	{
-		std::lock_guard<std::mutex> lock(mGarbageCollectorMutex);
+		std::lock_guard<std::mutex> lock(mBarriersMutex);
 
 		TGarbageEntity garbageEntity;
 		garbageEntity.mData.mImageHandle = imageHandle;
@@ -1380,7 +1432,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeffered(VkImageView imageViewHandle)
 	{
-		std::lock_guard<std::mutex> lock(mGarbageCollectorMutex);
+		std::lock_guard<std::mutex> lock(mBarriersMutex);
 
 		TGarbageEntity garbageEntity;
 		garbageEntity.mData.mImageViewHandle = imageViewHandle;
@@ -1395,7 +1447,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeffered(VkPipeline pipelineHandle)
 	{
-		std::lock_guard<std::mutex> lock(mGarbageCollectorMutex);
+		std::lock_guard<std::mutex> lock(mBarriersMutex);
 
 		TGarbageEntity garbageEntity;
 		garbageEntity.mData.mPipelineHandle = pipelineHandle;
@@ -1410,7 +1462,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeffered(VkPipelineLayout pipelineLayoutHandle)
 	{
-		std::lock_guard<std::mutex> lock(mGarbageCollectorMutex);
+		std::lock_guard<std::mutex> lock(mBarriersMutex);
 
 		TGarbageEntity garbageEntity;
 		garbageEntity.mData.mPipelineLayoutHandle = pipelineLayoutHandle;
@@ -1425,7 +1477,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeffered(VkDescriptorSetLayout descriptorSetLayoutHandle)
 	{
-		std::lock_guard<std::mutex> lock(mGarbageCollectorMutex);
+		std::lock_guard<std::mutex> lock(mBarriersMutex);
 
 		TGarbageEntity garbageEntity;
 		garbageEntity.mData.mDescriptorSetLayoutHandle = descriptorSetLayoutHandle;
@@ -1440,7 +1492,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeffered(VkSampler samplerHandle)
 	{
-		std::lock_guard<std::mutex> lock(mGarbageCollectorMutex);
+		std::lock_guard<std::mutex> lock(mBarriersMutex);
 
 		TGarbageEntity garbageEntity;
 		garbageEntity.mData.mSamplerHandle = samplerHandle;
@@ -1502,7 +1554,7 @@ namespace TDEngine2
 		mpSwapchain->AcquireNextImage(mImageReadySemaphores[currFrameIndex]);
 
 		{
-			std::lock_guard<std::mutex> lock(mGarbageCollectorMutex);
+			std::lock_guard<std::mutex> lock(mBarriersMutex);
 			CleanupGarbage(mAwaitingDeletionObjects[currFrameIndex], mpVulkanDeviceContext->GetDevice(), mpVulkanDeviceContext->GetMemoryAllocator());
 		}
 
@@ -2112,6 +2164,8 @@ namespace TDEngine2
 		memoryBarrier.dstStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
 		memoryBarrier.srcAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT;
 		memoryBarrier.dstAccessMask = VK_ACCESS_2_MEMORY_READ_BIT;
+		
+		std::lock_guard<std::mutex> lock(mBarriersMutex);
 
 		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
 		mMemoryBarriers[currFrameIndex].push_back(memoryBarrier);
@@ -2173,6 +2227,8 @@ namespace TDEngine2
 		bufferMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		bufferMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 
+		std::lock_guard<std::mutex> lock(mBarriersMutex);
+
 		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
 		mBufferBarriers[currFrameIndex].emplace_back(bufferMemoryBarrier);
 	}
@@ -2213,6 +2269,8 @@ namespace TDEngine2
 		{
 			imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 		}
+
+		std::lock_guard<std::mutex> lock(mBarriersMutex);
 
 		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
 		mTextureBarriers[currFrameIndex].emplace_back(imageMemoryBarrier);
@@ -2646,6 +2704,8 @@ namespace TDEngine2
 	{
 		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
 
+		std::lock_guard<std::mutex> lock(mBarriersMutex);
+
 		auto& memoryBarriers  = mMemoryBarriers[currFrameIndex];
 		auto& textureBarriers = mTextureBarriers[currFrameIndex];
 		auto& bufferBarriers  = mBufferBarriers[currFrameIndex];
@@ -2816,6 +2876,8 @@ namespace TDEngine2
 			mImageReadySemaphores[i] = mpVulkanDeviceContext->CreateSemaphore();
 			mRenderFinishedSemaphores[i] = mpVulkanDeviceContext->CreateSemaphore();
 		}
+
+		mTimelineSemaphore = mpVulkanDeviceContext->CreateTimelineSemaphore();
 
 		return RC_OK;
 	}

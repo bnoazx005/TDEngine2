@@ -499,6 +499,8 @@ namespace TDEngine2
 			std::array<VkSemaphore, FRAMES_COUNT>                mRenderFinishedSemaphores {};
 			std::array<TGarbageCollection, FRAMES_COUNT>         mAwaitingDeletionObjects {};
 
+			VkSemaphore                                          mTimelineSemaphore = VK_NULL_HANDLE;
+
 			std::array<TMemoryBarriers, FRAMES_COUNT>            mMemoryBarriers{};
 			std::array<TBufferBarriers, FRAMES_COUNT>            mBufferBarriers{};
 			std::array<TTextureBarriers, FRAMES_COUNT>           mTextureBarriers{};
@@ -506,7 +508,7 @@ namespace TDEngine2
 			std::array<CVulkanBasePipeline*, FRAMES_COUNT>       mpActivePipelineStates {};
 			std::unordered_map<U64, VkPipeline>                  mCachedPipelinesLibrary{};
 
-			mutable std::mutex                                   mGarbageCollectorMutex {};
+			mutable std::mutex                                   mBarriersMutex {};
 
 			std::atomic<USIZE>                                   mCurrFrameIndex{ 0 };
 			
