@@ -332,7 +332,8 @@ namespace TDEngine2
 		{
 			if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
 			{
-				info.mGraphicsQueueIndex = static_cast<U32>(i);
+				info.mGraphicsQueueIndex  = static_cast<U32>(i);
+				info.mGraphicsQueuesCount = std::min<U32>(queueFamilies[i].queueCount, TQueuesCreateInfo::RequiredGraphicsQueuesCount);
 			}
 
 			VkBool32 presentSupport = false;
@@ -342,10 +343,26 @@ namespace TDEngine2
 				info.mPresentQueueIndex = static_cast<U32>(i);
 			}
 
-			if (info.IsValid())
+			if (info.IsValid() && info.mGraphicsQueuesCount > 0)
 			{
 				break;
 			}
+		}
+
+		// Dedicated transfer family
+		for (USIZE i = 0; i < queueFamilies.size(); ++i)
+		{
+			const VkQueueFlags flags = queueFamilies[i].queueFlags;
+			if ((flags & VK_QUEUE_TRANSFER_BIT) && !(flags & VK_QUEUE_GRAPHICS_BIT) && !(flags & VK_QUEUE_COMPUTE_BIT))
+			{
+				info.mTransferQueueIndex = static_cast<U32>(i);
+				return info;
+			}
+		}
+
+		if (info.mGraphicsQueuesCount >= 2) // Fallback in case we can't find dedicated transfer queue
+		{
+			info.mTransferQueueIndex = info.mGraphicsQueueIndex;
 		}
 
 		return info;
@@ -359,9 +376,20 @@ namespace TDEngine2
 		VkDeviceQueueCreateInfo queueCreateInfo{};
 		queueCreateInfo.sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 		queueCreateInfo.queueFamilyIndex = info.mGraphicsQueueIndex;
-		queueCreateInfo.queueCount       = 1;
+		queueCreateInfo.queueCount       = info.mGraphicsQueuesCount > 0 ? info.mGraphicsQueuesCount : 1;
 
 		queues.emplace_back(queueCreateInfo);
+
+
+		if (info.HasDedicatedTransferQueue())
+		{
+			VkDeviceQueueCreateInfo queueCreateInfo{};
+			queueCreateInfo.sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			queueCreateInfo.queueFamilyIndex = info.mTransferQueueIndex;
+			queueCreateInfo.queueCount       = 1;
+
+			queues.emplace_back(queueCreateInfo);
+		}
 
 		return queues;
 	}
@@ -514,7 +542,7 @@ namespace TDEngine2
 
 	CVulkanDeviceContext* CreateVulkanDeviceContext(TPtr<IWindowSystem>, TPtr<IWindowSurfaceFactory>, E_RESULT_CODE&);
 	CVulkanSwapchain* CreateSwapchain(CVulkanDeviceContext*, TPtr<IWindowSystem>, E_RESULT_CODE&); 
-	CVulkanCommandBuffer* CreateCommandBuffer(CVulkanDeviceContext*, E_RESULT_CODE&);
+	CVulkanCommandBuffer* CreateCommandBuffer(CVulkanDeviceContext*, U32 queueIndex, E_RESULT_CODE&);
 
 
 	/*!
@@ -529,9 +557,9 @@ namespace TDEngine2
 	class CVulkanCommandBuffer : public CBaseObject
 	{
 		public:
-			friend CVulkanCommandBuffer* CreateCommandBuffer(CVulkanDeviceContext*, E_RESULT_CODE&);
+			friend CVulkanCommandBuffer* CreateCommandBuffer(CVulkanDeviceContext*, U32, E_RESULT_CODE&);
 		public:
-			E_RESULT_CODE Init(CVulkanDeviceContext* pDeviceContext);
+			E_RESULT_CODE Init(CVulkanDeviceContext* pDeviceContext, U32 queueIndex);
 
 			E_RESULT_CODE Begin(VkCommandBufferUsageFlags flags = 0);
 			E_RESULT_CODE End();
@@ -571,8 +599,8 @@ namespace TDEngine2
 			VkSemaphore CreateSemaphore(VkSemaphoreCreateFlags flags = 0x0);
 			VkSemaphore CreateTimelineSemaphore();
 
-			E_RESULT_CODE SubmitCommands(TPtr<CVulkanCommandBuffer> pCommandBuffer, VkSemaphore waitSemaphore = VK_NULL_HANDLE, VkSemaphore signalSemaphore = VK_NULL_HANDLE, VkFence fence = VK_NULL_HANDLE, 
-				VkSemaphore timelineSemaphore = VK_NULL_HANDLE, U64 timelineValue = 0);
+			E_RESULT_CODE SubmitCommands(TPtr<CVulkanCommandBuffer> pCommandBuffer, VkSemaphore waitSemaphore = VK_NULL_HANDLE, VkSemaphore signalSemaphore = VK_NULL_HANDLE, VkFence fence = VK_NULL_HANDLE,
+				VkSemaphore timelineSemaphore = VK_NULL_HANDLE, U64 timelineValue = 0, VkQueue queueHandle = VK_NULL_HANDLE);
 			void WaitForIdle();
 			E_RESULT_CODE WaitForSemaphore(VkSemaphore semaphore, U64 value, U64 timeout = UINT64_MAX);
 
@@ -582,7 +610,9 @@ namespace TDEngine2
 			const VkInstance GetInstance() const { return mInstance; }
 
 			const VkQueue GetGraphicsQueue() const { return mGraphicsQueue; }
+			const VkQueue GetTransferQueue() const { return mTransferQueue; }
 			const TQueuesCreateInfo& GetQueuesInfo() const { return mQueuesInfo; }
+			const CFixedVector<U32>& GetFamilies() const { return mFamilies; }
 
 			const VmaAllocator GetMemoryAllocator() const { return mMainAllocator; }
 		private:
@@ -602,8 +632,10 @@ namespace TDEngine2
 			// queues
 			VkQueue                     mGraphicsQueue = VK_NULL_HANDLE;
 			VkQueue                     mPresentQueue = VK_NULL_HANDLE;
+			VkQueue                     mTransferQueue = VK_NULL_HANDLE;
 
 			TQueuesCreateInfo           mQueuesInfo{};
+			CFixedVector<U32>           mFamilies{};
 
 #if TDE2_DEBUG_MODE
 			VkDebugUtilsMessengerEXT    mDebugMessenger = VK_NULL_HANDLE;
@@ -666,6 +698,23 @@ namespace TDEngine2
 
 		vkGetDeviceQueue(mDevice, mQueuesInfo.mGraphicsQueueIndex, 0, &mGraphicsQueue);
 		vkGetDeviceQueue(mDevice, mQueuesInfo.mPresentQueueIndex, 0, &mPresentQueue);
+
+		mFamilies.push_back(mQueuesInfo.mGraphicsQueueIndex);
+
+		if (mQueuesInfo.HasDedicatedTransferQueue())
+		{
+			vkGetDeviceQueue(mDevice, mQueuesInfo.mTransferQueueIndex, 0, &mTransferQueue);
+			mFamilies.push_back(mQueuesInfo.mTransferQueueIndex);
+		}
+		else if (mQueuesInfo.mGraphicsQueuesCount >= 2)
+		{
+			vkGetDeviceQueue(mDevice, mQueuesInfo.mGraphicsQueueIndex, 1, &mTransferQueue);
+		}
+		else
+		{
+			mTransferQueue = mGraphicsQueue;
+			TDE2_ASSERT(false);
+		}
 
 		auto allocatorCreateResult = InitMainAllocator(mPhysicalDevice, mDevice, mInstance);
 		if (allocatorCreateResult.HasError())
@@ -749,7 +798,7 @@ namespace TDEngine2
 
 
 	E_RESULT_CODE CVulkanDeviceContext::SubmitCommands(TPtr<CVulkanCommandBuffer> pCommandBuffer, VkSemaphore waitSemaphore, VkSemaphore signalSemaphore, VkFence fence,
-		VkSemaphore timelineSemaphore, U64 timelineValue)
+		VkSemaphore timelineSemaphore, U64 timelineValue, VkQueue queueHandle)
 	{
 		VkCommandBufferSubmitInfo cmdBufferSubmitInfo{};
 		cmdBufferSubmitInfo.sType         = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO;
@@ -800,7 +849,7 @@ namespace TDEngine2
 		submitInfo.signalSemaphoreInfoCount = signalsCount;
 		submitInfo.pSignalSemaphoreInfos    = signalSemaphoreSubmitInfos.data();
 
-		VK_SAFE_CALL(vkQueueSubmit2(mGraphicsQueue, 1, &submitInfo, fence));
+		VK_SAFE_CALL(vkQueueSubmit2(queueHandle, 1, &submitInfo, fence));
 
 		return RC_OK;
 	}
@@ -1035,7 +1084,7 @@ namespace TDEngine2
 		std::array<U32, 2> queuesIndices
 		{
 			queuesInfo.mGraphicsQueueIndex,
-				queuesInfo.mPresentQueueIndex,
+			queuesInfo.mPresentQueueIndex,
 		};
 
 		if (queuesInfo.mGraphicsQueueIndex != queuesInfo.mPresentQueueIndex)
@@ -1120,14 +1169,14 @@ namespace TDEngine2
 	{
 	}
 
-	E_RESULT_CODE CVulkanCommandBuffer::Init(CVulkanDeviceContext* pDeviceContext)
+	E_RESULT_CODE CVulkanCommandBuffer::Init(CVulkanDeviceContext* pDeviceContext, U32 queueIndex)
 	{
 		mpDeviceContext = pDeviceContext;
 		
 		VkCommandPoolCreateInfo commandPoolCreateInfo{};
 		commandPoolCreateInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
 		commandPoolCreateInfo.flags            = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-		commandPoolCreateInfo.queueFamilyIndex = pDeviceContext->GetQueuesInfo().mGraphicsQueueIndex;
+		commandPoolCreateInfo.queueFamilyIndex = queueIndex;
 
 		VK_SAFE_CALL(vkCreateCommandPool(pDeviceContext->GetDevice(), &commandPoolCreateInfo, nullptr, &mCommandPool));
 
@@ -1178,9 +1227,9 @@ namespace TDEngine2
 	}
 
 
-	CVulkanCommandBuffer* CreateCommandBuffer(CVulkanDeviceContext* pDeviceContext, E_RESULT_CODE& result)
+	CVulkanCommandBuffer* CreateCommandBuffer(CVulkanDeviceContext* pDeviceContext, U32 queueIndex, E_RESULT_CODE& result)
 	{
-		return CREATE_IMPL(CVulkanCommandBuffer, CVulkanCommandBuffer, result, pDeviceContext);
+		return CREATE_IMPL(CVulkanCommandBuffer, CVulkanCommandBuffer, result, pDeviceContext, queueIndex);
 	}
 
 
@@ -1315,7 +1364,7 @@ namespace TDEngine2
 			return result;
 		}
 
-		mpImmediateCommandBuffer = TPtr<CVulkanCommandBuffer>(CreateCommandBuffer(mpVulkanDeviceContext.Get(), result));
+		mpImmediateCommandBuffer = TPtr<CVulkanCommandBuffer>(CreateCommandBuffer(mpVulkanDeviceContext.Get(), mpVulkanDeviceContext->GetQueuesInfo().mTransferQueueIndex, result));
 		if (RC_OK != result)
 		{
 			return result;
@@ -1538,9 +1587,13 @@ namespace TDEngine2
 			return RC_INVALID_ARGS;
 		}
 
+		std::lock_guard<std::mutex> lock(mImmediateCommandBufferMutex);
+
 		VkFence cmdBufferFence = mpImmediateCommandBuffer->GetFence();
 
+		VK_SAFE_CALL(vkWaitForFences(mpVulkanDeviceContext->GetDevice(), 1, &cmdBufferFence, VK_TRUE, UINT64_MAX));
 		vkResetFences(mpVulkanDeviceContext->GetDevice(), 1, &cmdBufferFence);
+
 		mpImmediateCommandBuffer->Reset();
 
 		mpImmediateCommandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
@@ -1552,7 +1605,7 @@ namespace TDEngine2
 
 		mpImmediateCommandBuffer->End();
 
-		mpVulkanDeviceContext->SubmitCommands(mpImmediateCommandBuffer, VK_NULL_HANDLE, VK_NULL_HANDLE, cmdBufferFence);
+		mpVulkanDeviceContext->SubmitCommands(mpImmediateCommandBuffer, VK_NULL_HANDLE, VK_NULL_HANDLE, cmdBufferFence, VK_NULL_HANDLE, 0, mpVulkanDeviceContext->GetTransferQueue());
 		VK_SAFE_VOID_CALL(vkWaitForFences(mpVulkanDeviceContext->GetDevice(), 1, &cmdBufferFence, true, UINT64_MAX));
 
 		return RC_OK;
@@ -1633,7 +1686,8 @@ namespace TDEngine2
 			mRenderFinishedSemaphores[currFrameIndex],
 			VK_NULL_HANDLE,
 			mTimelineSemaphore,
-			signalValue);
+			signalValue,
+			mpVulkanDeviceContext->GetGraphicsQueue());
 		TDE2_ASSERT(RC_OK == result);
 
 		result = mpSwapchain->Present(mRenderFinishedSemaphores[currFrameIndex]);
@@ -1847,10 +1901,12 @@ namespace TDEngine2
 			VkImageMemoryBarrier imageBarrierToTransfer = {};
 			imageBarrierToTransfer.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 
-			imageBarrierToTransfer.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			imageBarrierToTransfer.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-			imageBarrierToTransfer.image = pTexture->GetTextureHandle();
-			imageBarrierToTransfer.subresourceRange = range;
+			imageBarrierToTransfer.oldLayout           = VK_IMAGE_LAYOUT_UNDEFINED;
+			imageBarrierToTransfer.newLayout           = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			imageBarrierToTransfer.image               = pTexture->GetTextureHandle();
+			imageBarrierToTransfer.subresourceRange    = range;
+			imageBarrierToTransfer.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+			imageBarrierToTransfer.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 
 			imageBarrierToTransfer.srcAccessMask = 0;
 			imageBarrierToTransfer.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
@@ -1881,10 +1937,10 @@ namespace TDEngine2
 			imageBarrierToReadable.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
 			imageBarrierToReadable.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-			imageBarrierToReadable.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+			imageBarrierToReadable.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
 
 			//barrier the image into the shader readable layout
-			vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrierToReadable);
+			vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrierToReadable);
 		});
 
 		return result;
@@ -1943,10 +1999,12 @@ namespace TDEngine2
 				VkImageMemoryBarrier imageBarrierToTransfer = {};
 				imageBarrierToTransfer.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 
-				imageBarrierToTransfer.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-				imageBarrierToTransfer.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-				imageBarrierToTransfer.image = pTexture->GetTextureHandle();
-				imageBarrierToTransfer.subresourceRange = range;
+				imageBarrierToTransfer.oldLayout           = VK_IMAGE_LAYOUT_UNDEFINED;
+				imageBarrierToTransfer.newLayout           = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+				imageBarrierToTransfer.image               = pTexture->GetTextureHandle();
+				imageBarrierToTransfer.subresourceRange    = range;
+				imageBarrierToTransfer.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+				imageBarrierToTransfer.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 
 				imageBarrierToTransfer.srcAccessMask = 0;
 				imageBarrierToTransfer.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
@@ -1977,10 +2035,10 @@ namespace TDEngine2
 				imageBarrierToReadable.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
 				imageBarrierToReadable.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-				imageBarrierToReadable.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+				imageBarrierToReadable.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
 
 				//barrier the image into the shader readable layout
-				vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrierToReadable);
+				vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrierToReadable);
 			});
 
 		return result;
@@ -2196,9 +2254,9 @@ namespace TDEngine2
 #endif
 
 		VkMemoryBarrier2 memoryBarrier{};
-		memoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2;
-		memoryBarrier.srcStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
-		memoryBarrier.dstStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+		memoryBarrier.sType         = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2;
+		memoryBarrier.srcStageMask  = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+		memoryBarrier.dstStageMask  = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
 		memoryBarrier.srcAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT;
 		memoryBarrier.dstAccessMask = VK_ACCESS_2_MEMORY_READ_BIT;
 		
@@ -2891,6 +2949,11 @@ namespace TDEngine2
 		return mpVulkanDeviceContext->GetMemoryAllocator();
 	}
 
+	const CFixedVector<U32>& CVulkanGraphicsContext::GetFamilies() const
+	{
+		return mpVulkanDeviceContext->GetFamilies();
+	}
+
 	E_RESULT_CODE CVulkanGraphicsContext::_prepareFrameData()
 	{
 		E_RESULT_CODE result = RC_OK;
@@ -2899,7 +2962,7 @@ namespace TDEngine2
 		{
 			E_RESULT_CODE localResult = RC_OK;
 			
-			mpCommandBuffers[i] = TPtr<CVulkanCommandBuffer>(CreateCommandBuffer(mpVulkanDeviceContext.Get(), localResult));
+			mpCommandBuffers[i] = TPtr<CVulkanCommandBuffer>(CreateCommandBuffer(mpVulkanDeviceContext.Get(), mpVulkanDeviceContext->GetQueuesInfo().mGraphicsQueueIndex,  localResult));
 			result = result | localResult;
 		}
 

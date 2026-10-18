@@ -58,13 +58,23 @@ namespace TDEngine2
 	};
 
 
-	static TResult<TCreatedBufferInfo> CreateBufferInternal(VmaAllocator allocator, U32 size, E_BUFFER_TYPE type, E_BUFFER_USAGE_TYPE usageType, std::optional<E_STRUCTURED_BUFFER_TYPE> structuredBufferType = std::nullopt)
+	static TResult<TCreatedBufferInfo> CreateBufferInternal(const CFixedVector<U32>& families, VmaAllocator allocator, U32 size, E_BUFFER_TYPE type, E_BUFFER_USAGE_TYPE usageType, std::optional<E_STRUCTURED_BUFFER_TYPE> structuredBufferType = std::nullopt)
 	{
 		VkBufferCreateInfo bufferCreateInfo{};
 		bufferCreateInfo.sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		bufferCreateInfo.size        = size;
 		bufferCreateInfo.usage       = GetBufferType(type, structuredBufferType ? *structuredBufferType : E_STRUCTURED_BUFFER_TYPE::DEFAULT) | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-		bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE; //mIsUnorderedAccessResource ? VK_SHARING_MODE_CONCURRENT : VK_SHARING_MODE_EXCLUSIVE;
+		
+		if (families.size() > 1)
+		{
+			bufferCreateInfo.sharingMode           = VK_SHARING_MODE_CONCURRENT;
+			bufferCreateInfo.pQueueFamilyIndices   = families.data();
+			bufferCreateInfo.queueFamilyIndexCount = families.size();
+		}
+		else
+		{
+			bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		}
 
 		if (structuredBufferType)
 		{
@@ -114,8 +124,8 @@ namespace TDEngine2
 	static E_RESULT_CODE InitBufferContent(CVulkanGraphicsContext* pGraphicsContext, const TInitBufferParams& params, VkBuffer destBufferHandle)
 	{
 		VmaAllocator allocator = pGraphicsContext->GetAllocator();
-
-		auto createStagingBufferResult = CreateBufferInternal(allocator, params.mDataSize, E_BUFFER_TYPE::GENERIC, E_BUFFER_USAGE_TYPE::DYNAMIC, params.mStructuredBufferType);
+		
+		auto createStagingBufferResult = CreateBufferInternal(pGraphicsContext->GetFamilies(), allocator, params.mDataSize, E_BUFFER_TYPE::GENERIC, E_BUFFER_USAGE_TYPE::DYNAMIC, params.mStructuredBufferType);
 		if (createStagingBufferResult.HasError())
 		{
 			return createStagingBufferResult.GetError();
@@ -221,7 +231,7 @@ namespace TDEngine2
 			mInternalBufferViewHandle = VK_NULL_HANDLE;
 		}
 
-		auto createBufferResult = CreateBufferInternal(mAllocator, newSize, mBufferType, mBufferUsageType, structuredBufferType);
+		auto createBufferResult = CreateBufferInternal(mpGraphicsContextImpl->GetFamilies(), mAllocator, newSize, mBufferType, mBufferUsageType, structuredBufferType);
 		if (createBufferResult.HasError())
 		{
 			return createBufferResult.GetError();
@@ -759,7 +769,7 @@ namespace TDEngine2
 	};
 
 
-	static TResult<TCreatedImageInfo> CreateTextureResourceInternal(VmaAllocator allocator, const TInitTextureImplParams& params)
+	static TResult<TCreatedImageInfo> CreateTextureResourceInternal(const CFixedVector<U32>& families, VmaAllocator allocator, const TInitTextureImplParams& params)
 	{
 		VkExtent3D imageExtent;
 		imageExtent.width = params.mWidth;
@@ -777,6 +787,17 @@ namespace TDEngine2
 		imageInfo.tiling      = VK_IMAGE_TILING_OPTIMAL;
 		imageInfo.samples     = CVulkanMappings::GetSamplesCount(params.mNumOfSamples);
 		imageInfo.flags       = E_TEXTURE_IMPL_TYPE::CUBEMAP == params.mType ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0x0;
+
+		if (families.size() > 1)
+		{
+			imageInfo.sharingMode           = VK_SHARING_MODE_CONCURRENT;
+			imageInfo.pQueueFamilyIndices   = families.data();
+			imageInfo.queueFamilyIndexCount = families.size();
+		}
+		else
+		{
+			imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		}
 
 		if (HasEnumFlag(params.mBindFlags, E_BIND_GRAPHICS_TYPE::BIND_RENDER_TARGET))
 		{
@@ -937,7 +958,7 @@ namespace TDEngine2
 				imageMemoryBarrier.image                           = mInternalImageHandle;
 				imageMemoryBarrier.srcStageMask                    = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
 				imageMemoryBarrier.srcAccessMask                   = VK_ACCESS_2_MEMORY_WRITE_BIT | VK_ACCESS_2_MEMORY_READ_BIT;
-				imageMemoryBarrier.dstStageMask                    = VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT;
+				imageMemoryBarrier.dstStageMask                    = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
 				imageMemoryBarrier.dstAccessMask                   = VK_ACCESS_2_MEMORY_WRITE_BIT | VK_ACCESS_2_MEMORY_READ_BIT;
 				imageMemoryBarrier.oldLayout                       = CVulkanMappings::GetResourceLayout(currSourceLayout);
 				imageMemoryBarrier.newLayout                       = CVulkanMappings::GetResourceLayout(E_RESOURCE_LAYOUT::COPY_SRC);
@@ -982,7 +1003,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanTextureImpl::_onInitInternal()
 	{
-		auto createResourceResult = CreateTextureResourceInternal(mAllocator, mInitParams);
+		auto createResourceResult = CreateTextureResourceInternal(mpGraphicsContextImpl->GetFamilies(), mAllocator, mInitParams);
 		if (createResourceResult.HasError())
 		{
 			return createResourceResult.GetError();

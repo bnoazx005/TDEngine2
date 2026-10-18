@@ -16,6 +16,7 @@
 #include <array>
 #include <functional>
 #include <mutex>
+#include <utils/CContainers.h>
 
 
 namespace TDEngine2
@@ -44,13 +45,22 @@ namespace TDEngine2
 	struct TQueuesCreateInfo
 	{
 		TDE2_STATIC_CONSTEXPR U32 InvalidIndex = std::numeric_limits<U32>::max();
+		TDE2_STATIC_CONSTEXPR U32 RequiredGraphicsQueuesCount = 2;
 
 		U32 mGraphicsQueueIndex = InvalidIndex;
+		U32 mGraphicsQueuesCount = 0;
+
+		U32 mTransferQueueIndex = InvalidIndex;
 		U32 mPresentQueueIndex = InvalidIndex;
 
 		bool inline IsValid() const
 		{
 			return mGraphicsQueueIndex != InvalidIndex && mPresentQueueIndex != InvalidIndex;
+		}
+
+		bool inline HasDedicatedTransferQueue() const
+		{
+			return mTransferQueueIndex != InvalidIndex && mTransferQueueIndex != mGraphicsQueueIndex;
 		}
 	};
 
@@ -463,6 +473,8 @@ namespace TDEngine2
 			VkPhysicalDevice GetPhysicalDevice();
 			VkInstance GetInstance();
 			VmaAllocator GetAllocator();
+
+			const CFixedVector<U32>& GetFamilies() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanGraphicsContext)
 			CVulkanGraphicsContext(TPtr<IWindowSurfaceFactory> pWindowSurfaceFactory);
@@ -492,6 +504,7 @@ namespace TDEngine2
 			TPtr<CVulkanDeviceContext>                           mpVulkanDeviceContext = nullptr;
 
 			TPtr<CVulkanCommandBuffer>                           mpImmediateCommandBuffer = nullptr;
+			std::mutex                                           mImmediateCommandBufferMutex{};
 
 			// commands
 			std::array<TPtr<CVulkanCommandBuffer>, FRAMES_COUNT> mpCommandBuffers {};
