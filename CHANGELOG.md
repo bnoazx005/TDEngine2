@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.35] 2026-10-05
+## [0.6.35] 2026-10-19
 
 ### Added
 
@@ -45,6 +45,8 @@ mark up systems that require send their data into the renderer's thread.
 ### Fixed
 
 - Incorrect CPU/GPU synchronization under D3D12 graphics context was fixed.
+
+- Incorrect work with missing sampler descriptors was fixed for Vulkan graphics context.
 
 ## [0.6.34] 2026-08-01
 

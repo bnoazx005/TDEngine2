@@ -3178,15 +3178,15 @@ namespace TDEngine2
 		for (U32 i = 0; i < currPipelineActiveSlots.mSamplersActiveSlots.size(); ++i)
 		{
 			const TTextureSamplerId currSamplerHandle = mDescriptorsBindingsTable.mSamplers[currPipelineActiveSlots.mSamplersActiveSlots[i]];
-			if (TTextureSamplerId::Invalid == currSamplerHandle)
-			{
-				continue;
-			}
-
+			
 			VkWriteDescriptorSet& currWriteDescriptorSet = mDescriptorWrites.emplace_back();
-
 			VkDescriptorImageInfo& currImageInfo = mDescriptorImageInfos.emplace_back();
-			currImageInfo.sampler     = mpGraphicsObjectManagerImpl->GetTextureSampler(currSamplerHandle).Get();
+			
+			currImageInfo.sampler     = mpGraphicsObjectManagerImpl->GetTextureSampler(
+				(TTextureSamplerId::Invalid == currSamplerHandle)
+				? mpGraphicsObjectManagerImpl->GetDefaultTextureSampler(E_TEXTURE_FILTER_TYPE::FT_BILINEAR) 
+				: currSamplerHandle).Get();
+
 			currImageInfo.imageView   = VK_NULL_HANDLE;
 			currImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
