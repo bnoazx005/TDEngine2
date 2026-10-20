@@ -2543,12 +2543,15 @@ namespace TDEngine2
 	void CVulkanGraphicsContext::DispatchCompute(U32 groupsCountX, U32 groupsCountY, U32 groupsCountZ)
 	{
 		_flushPipelineDescriptorsSet();
+		FlushBarriers();
+
 		vkCmdDispatch(_getCurrCommandBufferHandle(), groupsCountX, groupsCountY, groupsCountZ);
 	}
 
 	void CVulkanGraphicsContext::DispatchIndirectCompute(TBufferHandleId argsBufferHandle, U32 alignedOffset)
 	{
 		_flushPipelineDescriptorsSet();
+		FlushBarriers();
 
 		TPtr<CVulkanBuffer> pBuffer = mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(argsBufferHandle);
 		if (!pBuffer)
@@ -3279,10 +3282,6 @@ namespace TDEngine2
 			0, 
 			static_cast<U32>(mDescriptorWrites.size()), 
 			mDescriptorWrites.data());
-
-		FlushBarriers();
-
-		//mDescriptorsBindingsTable.Reset();
 	}
 
 

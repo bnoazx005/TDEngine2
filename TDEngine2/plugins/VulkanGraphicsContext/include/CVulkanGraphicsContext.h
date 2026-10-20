@@ -532,7 +532,7 @@ namespace TDEngine2
 
 			TDescriptorsBindingsTable                            mDescriptorsBindingsTable{};
 			TRenderPassInfo                                      mCurrRenderPassInfo{};
-			bool                                                 mIsRenderPassActive = false;
+			std::atomic_bool                                     mIsRenderPassActive = false;
 
 			std::vector<VkWriteDescriptorSet>                    mDescriptorWrites{};
 			std::vector<VkDescriptorBufferInfo>                  mDescriptorBufferInfos{};
