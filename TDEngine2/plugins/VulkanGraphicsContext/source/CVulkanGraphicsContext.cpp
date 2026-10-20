@@ -425,10 +425,14 @@ namespace TDEngine2
 			timelineFeatures.pNext = &robustnessFeatures;
 		}
 
+		VkPhysicalDeviceFeatures supportedFeatures{};
+		vkGetPhysicalDeviceFeatures(physicalDevice, &supportedFeatures);
+
 		VkPhysicalDeviceFeatures deviceFeatures{};
-		deviceFeatures.depthBiasClamp = VK_TRUE;
-		deviceFeatures.depthClamp     = VK_TRUE;
-		deviceFeatures.geometryShader = VK_TRUE;
+		deviceFeatures.depthBiasClamp   = VK_TRUE;
+		deviceFeatures.depthClamp       = VK_TRUE;
+		deviceFeatures.geometryShader   = VK_TRUE;
+		deviceFeatures.fillModeNonSolid = supportedFeatures.fillModeNonSolid ? VK_TRUE : VK_FALSE;
 
 		VkDeviceCreateInfo createInfo{};
 		createInfo.sType                = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
