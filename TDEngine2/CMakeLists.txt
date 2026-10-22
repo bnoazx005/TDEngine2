@@ -650,6 +650,9 @@ target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOU
 
 target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/debugbreak")
 
+#set up concurrentqueue library headers
+target_include_directories(${TDENGINE2_LIBRARY_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/concurrentqueue")
+
 # set up backtrace-cpp library
 target_link_libraries(${TDENGINE2_LIBRARY_NAME} PUBLIC ${BACKWARD_ENABLED})
 add_backward(${TDENGINE2_LIBRARY_NAME})

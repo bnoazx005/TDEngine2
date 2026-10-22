@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.35] 2026-10-20
+## [0.6.35] 2026-10-22
 
 ### Added
 
@@ -29,6 +29,8 @@ mark up systems that require send their data into the renderer's thread.
 - A new game user setting for debug mode was added "show_engine_statistics".
 
 - A new property graphics_settings.is_gpu_validation_enabled was added into **CProjectSettings**.
+
+- A new 3rd party library **concurrentqueue** was integrated.
 
 ### Changed
 
