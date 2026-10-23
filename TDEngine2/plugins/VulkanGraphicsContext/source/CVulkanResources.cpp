@@ -133,7 +133,7 @@ namespace TDEngine2
 
 		const TCreatedBufferInfo& stagingBufferInfo = createStagingBufferResult.Get();
 
-		defer([=] { pGraphicsContext->DestroyObjectDeffered(stagingBufferInfo.mHandle, stagingBufferInfo.mAllocation, VK_NULL_HANDLE); });
+		defer([=] { pGraphicsContext->DestroyObjectDeferred(stagingBufferInfo.mHandle, stagingBufferInfo.mAllocation, VK_NULL_HANDLE); });
 
 		void* pStagingBufferMappedData = nullptr;
 
@@ -224,7 +224,7 @@ namespace TDEngine2
 				Unmap();
 			}
 
-			mpGraphicsContextImpl->DestroyObjectDeffered(mInternalBufferHandle, mAllocation, mInternalBufferViewHandle);
+			mpGraphicsContextImpl->DestroyObjectDeferred(mInternalBufferHandle, mAllocation, mInternalBufferViewHandle);
 
 			mInternalBufferHandle     = VK_NULL_HANDLE;
 			mAllocation               = VK_NULL_HANDLE;
@@ -258,7 +258,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanBuffer::_onFreeInternal()
 	{
-		mpGraphicsContextImpl->DestroyObjectDeffered(mInternalBufferHandle, mAllocation, mInternalBufferViewHandle);
+		mpGraphicsContextImpl->DestroyObjectDeferred(mInternalBufferHandle, mAllocation, mInternalBufferViewHandle);
 
 		return RC_OK;
 	}
@@ -479,8 +479,8 @@ namespace TDEngine2
 			vkDestroyShaderModule(mDevice, currShaderModule, nullptr);
 		}
 
-		mpGraphicsContextImpl->DestroyObjectDeffered(mDescriptorsSetLayout);
-		mpGraphicsContextImpl->DestroyObjectDeffered(mPipelineLayout);
+		mpGraphicsContextImpl->DestroyObjectDeferred(mDescriptorsSetLayout);
+		mpGraphicsContextImpl->DestroyObjectDeferred(mPipelineLayout);
 
 		return RC_OK;
 	}
@@ -1052,8 +1052,8 @@ namespace TDEngine2
 	{
 		mIsInitialized = false;
 
-		mpGraphicsContextImpl->DestroyObjectDeffered(mInternalImageHandle, mAllocation);
-		mpGraphicsContextImpl->DestroyObjectDeffered(mInternalImageViewHandle);
+		mpGraphicsContextImpl->DestroyObjectDeferred(mInternalImageHandle, mAllocation);
+		mpGraphicsContextImpl->DestroyObjectDeferred(mInternalImageViewHandle);
 
 		return RC_OK;
 	}
@@ -1248,7 +1248,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanBasePipeline::_reset()
 	{
-		return mpVulkanGraphicsContext->DestroyObjectDeffered(mBasePipelineHandle);
+		return mpVulkanGraphicsContext->DestroyObjectDeferred(mBasePipelineHandle);
 	}
 
 
@@ -1466,7 +1466,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanGraphicsPipeline::_onFreeInternal()
 	{
-		return mpVulkanGraphicsContext->DestroyObjectDeffered(mBasePipelineHandle) | CBaseGraphicsPipeline::_onFreeInternal();
+		return mpVulkanGraphicsContext->DestroyObjectDeferred(mBasePipelineHandle) | CBaseGraphicsPipeline::_onFreeInternal();
 	}
 
 	TDE2_DEFINE_SCOPED_PTR(CVulkanGraphicsPipeline);
@@ -1553,7 +1553,7 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanComputePipeline::_onFreeInternal()
 	{
-		return mpVulkanGraphicsContext->DestroyObjectDeffered(mBasePipelineHandle) | CBaseComputePipeline::_onFreeInternal();
+		return mpVulkanGraphicsContext->DestroyObjectDeferred(mBasePipelineHandle) | CBaseComputePipeline::_onFreeInternal();
 	}
 
 

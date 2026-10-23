@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.35] 2026-10-22
+## [0.6.35] 2026-10-23
 
 ### Added
 
@@ -51,6 +51,8 @@ mark up systems that require send their data into the renderer's thread.
 - Incorrect work with missing sampler descriptors was fixed for Vulkan graphics context.
 
 - VUID-VkPipelineRasterizationStateCreateInfo-polygonMode-01507 issue when the dev menu is open under Vulkan graphics context was fixed.
+
+- Proper approach of destruction Vulkan related objects was implemented.
 
 ## [0.6.34] 2026-08-01
 

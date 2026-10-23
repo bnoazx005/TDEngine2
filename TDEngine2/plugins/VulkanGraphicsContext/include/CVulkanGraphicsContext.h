@@ -17,6 +17,7 @@
 #include <functional>
 #include <mutex>
 #include <utils/CContainers.h>
+#include <concurrentqueue.h>
 
 
 namespace TDEngine2
@@ -102,6 +103,20 @@ namespace TDEngine2
 				VkBufferView  mBufferViewHandle = VK_NULL_HANDLE;
 			};
 
+
+			struct TDeferredRequest
+			{
+				enum class E_TYPE : U8
+				{
+					DESTROY_REQUEST,
+				} mType;
+
+				union
+				{
+					TGarbageEntity mDestroyEntryRequest;
+				};
+			};
+
 			typedef std::vector<TGarbageEntity>         TGarbageCollection;
 			typedef std::vector<VkMemoryBarrier2>       TMemoryBarriers;
 			typedef std::vector<VkBufferMemoryBarrier2> TBufferBarriers;
@@ -131,13 +146,13 @@ namespace TDEngine2
 				\brief The method executes given destroyCommand at the end of a frame when all resources of current frame can be destructed
 			*/
 
-			E_RESULT_CODE DestroyObjectDeffered(VkBuffer bufferHandle, VmaAllocation allocation, VkBufferView bufferViewHandle);
-			E_RESULT_CODE DestroyObjectDeffered(VkImage imageHandle, VmaAllocation allocation);
-			E_RESULT_CODE DestroyObjectDeffered(VkImageView imageViewHandle);
-			E_RESULT_CODE DestroyObjectDeffered(VkPipeline pipelineHandle);
-			E_RESULT_CODE DestroyObjectDeffered(VkPipelineLayout pipelineLayoutHandle);
-			E_RESULT_CODE DestroyObjectDeffered(VkDescriptorSetLayout descriptorSetLayoutHandle);
-			E_RESULT_CODE DestroyObjectDeffered(VkSampler sampler);
+			E_RESULT_CODE DestroyObjectDeferred(VkBuffer bufferHandle, VmaAllocation allocation, VkBufferView bufferViewHandle);
+			E_RESULT_CODE DestroyObjectDeferred(VkImage imageHandle, VmaAllocation allocation);
+			E_RESULT_CODE DestroyObjectDeferred(VkImageView imageViewHandle);
+			E_RESULT_CODE DestroyObjectDeferred(VkPipeline pipelineHandle);
+			E_RESULT_CODE DestroyObjectDeferred(VkPipelineLayout pipelineLayoutHandle);
+			E_RESULT_CODE DestroyObjectDeferred(VkDescriptorSetLayout descriptorSetLayoutHandle);
+			E_RESULT_CODE DestroyObjectDeferred(VkSampler sampler);
 
 			E_RESULT_CODE ExecuteImmediate(const std::function<void(VkCommandBuffer)>& command);
 
@@ -540,6 +555,8 @@ namespace TDEngine2
 
 			TBufferHandleId                                      mEmptyStructuredBufferHandle;
 			TTextureHandleId                                     mEmptyTextureHandle;
+
+			moodycamel::ConcurrentQueue<TDeferredRequest>        mDeferredGraphicsRequests; ///< The queue contains all commands that were produced from threads that are not related with rendering
 	};
 
 

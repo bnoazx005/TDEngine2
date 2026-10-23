@@ -6,6 +6,7 @@
 #include "../include/CVulkanShaderCompiler.h"
 #include <core/IEventManager.h>
 #include <core/IWindowSystem.h>
+#include <graphics/IRenderer.h>
 #include <core/CProjectSettings.h>
 #include <utils/CFileLogger.h>
 #include <editor/CPerfProfiler.h>
@@ -1380,40 +1381,46 @@ namespace TDEngine2
 	}
 
 
+	static void CleanupGraphicsEntity(const CVulkanGraphicsContext::TGarbageEntity& graphicsEntity, VkDevice device, VmaAllocator allocator)
+	{
+		switch (graphicsEntity.mType)
+		{
+			case CVulkanGraphicsContext::TGarbageEntity::E_TYPE::BUFFER:
+				vmaDestroyBuffer(allocator, graphicsEntity.mData.mBufferHandle, graphicsEntity.mAllocation);
+
+				if (graphicsEntity.mBufferViewHandle != VK_NULL_HANDLE)
+				{
+					vkDestroyBufferView(device, graphicsEntity.mBufferViewHandle, nullptr);
+				}
+				break;
+			case CVulkanGraphicsContext::TGarbageEntity::E_TYPE::IMAGE:
+				vmaDestroyImage(allocator, graphicsEntity.mData.mImageHandle, graphicsEntity.mAllocation);
+				break;
+			case CVulkanGraphicsContext::TGarbageEntity::E_TYPE::IMAGE_VIEW:
+				vkDestroyImageView(device, graphicsEntity.mData.mImageViewHandle, nullptr);
+				break;
+			case CVulkanGraphicsContext::TGarbageEntity::E_TYPE::PIPELINE_LAYOUT:
+				vkDestroyPipelineLayout(device, graphicsEntity.mData.mPipelineLayoutHandle, nullptr);
+				break;
+			case CVulkanGraphicsContext::TGarbageEntity::E_TYPE::PIPELINE:
+				vkDestroyPipeline(device, graphicsEntity.mData.mPipelineHandle, nullptr);
+				break;
+			case CVulkanGraphicsContext::TGarbageEntity::E_TYPE::DESCRIPTOR_SET_LAYOUT:
+				vkDestroyDescriptorSetLayout(device, graphicsEntity.mData.mDescriptorSetLayoutHandle, nullptr);
+				break;
+			case CVulkanGraphicsContext::TGarbageEntity::E_TYPE::SAMPLER:
+				vkDestroySampler(device, graphicsEntity.mData.mSamplerHandle, nullptr);
+				break;
+		}
+	}
+
+
 	static void CleanupGarbage(CVulkanGraphicsContext::TGarbageCollection& garbageArray, VkDevice device, VmaAllocator allocator)
 	{
 		// destroy objects that were marked for deletion
 		for (auto&& currGarbageEntity : garbageArray)
 		{
-			switch (currGarbageEntity.mType)
-			{
-				case CVulkanGraphicsContext::TGarbageEntity::E_TYPE::BUFFER:
-					vmaDestroyBuffer(allocator, currGarbageEntity.mData.mBufferHandle, currGarbageEntity.mAllocation);
-
-					if (currGarbageEntity.mBufferViewHandle != VK_NULL_HANDLE)
-					{
-						vkDestroyBufferView(device, currGarbageEntity.mBufferViewHandle, nullptr);
-					}
-					break;
-				case CVulkanGraphicsContext::TGarbageEntity::E_TYPE::IMAGE:
-					vmaDestroyImage(allocator, currGarbageEntity.mData.mImageHandle, currGarbageEntity.mAllocation);
-					break;
-				case CVulkanGraphicsContext::TGarbageEntity::E_TYPE::IMAGE_VIEW:
-					vkDestroyImageView(device, currGarbageEntity.mData.mImageViewHandle, nullptr);
-					break;
-				case CVulkanGraphicsContext::TGarbageEntity::E_TYPE::PIPELINE_LAYOUT:
-					vkDestroyPipelineLayout(device, currGarbageEntity.mData.mPipelineLayoutHandle, nullptr);
-					break;
-				case CVulkanGraphicsContext::TGarbageEntity::E_TYPE::PIPELINE:
-					vkDestroyPipeline(device, currGarbageEntity.mData.mPipelineHandle, nullptr);
-					break;
-				case CVulkanGraphicsContext::TGarbageEntity::E_TYPE::DESCRIPTOR_SET_LAYOUT:
-					vkDestroyDescriptorSetLayout(device, currGarbageEntity.mData.mDescriptorSetLayoutHandle, nullptr);
-					break;
-				case CVulkanGraphicsContext::TGarbageEntity::E_TYPE::SAMPLER:
-					vkDestroySampler(device, currGarbageEntity.mData.mSamplerHandle, nullptr);
-					break;
-			}
+			CleanupGraphicsEntity(currGarbageEntity, device, allocator);
 		}
 
 		garbageArray.clear();
@@ -1464,7 +1471,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeffered(VkBuffer bufferHandle, VmaAllocation allocation, VkBufferView bufferViewHandle)
+	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeferred(VkBuffer bufferHandle, VmaAllocation allocation, VkBufferView bufferViewHandle)
 	{
 		std::lock_guard<std::mutex> lock(mBarriersMutex);
 
@@ -1473,6 +1480,12 @@ namespace TDEngine2
 		garbageEntity.mType               = TGarbageEntity::E_TYPE::BUFFER;
 		garbageEntity.mAllocation         = allocation;
 		garbageEntity.mBufferViewHandle   = bufferViewHandle;
+
+		if (!IsRenderThread())
+		{
+			mDeferredGraphicsRequests.enqueue(TDeferredRequest{ TDeferredRequest::E_TYPE::DESTROY_REQUEST, garbageEntity });
+			return RC_OK;
+		}
 
 		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
 
@@ -1487,7 +1500,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeffered(VkImage imageHandle, VmaAllocation allocation)
+	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeferred(VkImage imageHandle, VmaAllocation allocation)
 	{
 		std::lock_guard<std::mutex> lock(mBarriersMutex);
 
@@ -1495,6 +1508,12 @@ namespace TDEngine2
 		garbageEntity.mData.mImageHandle = imageHandle;
 		garbageEntity.mType              = TGarbageEntity::E_TYPE::IMAGE;
 		garbageEntity.mAllocation        = allocation;
+
+		if (!IsRenderThread())
+		{
+			mDeferredGraphicsRequests.enqueue(TDeferredRequest{ TDeferredRequest::E_TYPE::DESTROY_REQUEST, garbageEntity });
+			return RC_OK;
+		}
 
 		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
 
@@ -1509,7 +1528,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeffered(VkImageView imageViewHandle)
+	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeferred(VkImageView imageViewHandle)
 	{
 		std::lock_guard<std::mutex> lock(mBarriersMutex);
 
@@ -1517,6 +1536,12 @@ namespace TDEngine2
 		garbageEntity.mData.mImageViewHandle = imageViewHandle;
 		garbageEntity.mType                  = TGarbageEntity::E_TYPE::IMAGE_VIEW;
 
+		if (!IsRenderThread())
+		{
+			mDeferredGraphicsRequests.enqueue(TDeferredRequest{ TDeferredRequest::E_TYPE::DESTROY_REQUEST, garbageEntity });
+			return RC_OK;
+		}
+
 		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
 
 		mAwaitingDeletionObjects[currFrameIndex].emplace_back(garbageEntity);
@@ -1524,7 +1549,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeffered(VkPipeline pipelineHandle)
+	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeferred(VkPipeline pipelineHandle)
 	{
 		std::lock_guard<std::mutex> lock(mBarriersMutex);
 
@@ -1532,6 +1557,12 @@ namespace TDEngine2
 		garbageEntity.mData.mPipelineHandle = pipelineHandle;
 		garbageEntity.mType                 = TGarbageEntity::E_TYPE::PIPELINE;
 
+		if (!IsRenderThread())
+		{
+			mDeferredGraphicsRequests.enqueue(TDeferredRequest{ TDeferredRequest::E_TYPE::DESTROY_REQUEST, garbageEntity });
+			return RC_OK;
+		}
+
 		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
 
 		mAwaitingDeletionObjects[currFrameIndex].emplace_back(garbageEntity);
@@ -1539,7 +1570,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeffered(VkPipelineLayout pipelineLayoutHandle)
+	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeferred(VkPipelineLayout pipelineLayoutHandle)
 	{
 		std::lock_guard<std::mutex> lock(mBarriersMutex);
 
@@ -1547,6 +1578,12 @@ namespace TDEngine2
 		garbageEntity.mData.mPipelineLayoutHandle = pipelineLayoutHandle;
 		garbageEntity.mType                       = TGarbageEntity::E_TYPE::PIPELINE_LAYOUT;
 
+		if (!IsRenderThread())
+		{
+			mDeferredGraphicsRequests.enqueue(TDeferredRequest{ TDeferredRequest::E_TYPE::DESTROY_REQUEST, garbageEntity });
+			return RC_OK;
+		}
+
 		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
 
 		mAwaitingDeletionObjects[currFrameIndex].emplace_back(garbageEntity);
@@ -1554,7 +1591,7 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeffered(VkDescriptorSetLayout descriptorSetLayoutHandle)
+	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeferred(VkDescriptorSetLayout descriptorSetLayoutHandle)
 	{
 		std::lock_guard<std::mutex> lock(mBarriersMutex);
 
@@ -1562,6 +1599,12 @@ namespace TDEngine2
 		garbageEntity.mData.mDescriptorSetLayoutHandle = descriptorSetLayoutHandle;
 		garbageEntity.mType                            = TGarbageEntity::E_TYPE::DESCRIPTOR_SET_LAYOUT;
 
+		if (!IsRenderThread())
+		{
+			mDeferredGraphicsRequests.enqueue(TDeferredRequest{ TDeferredRequest::E_TYPE::DESTROY_REQUEST, garbageEntity });
+			return RC_OK;
+		}
+
 		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
 
 		mAwaitingDeletionObjects[currFrameIndex].emplace_back(garbageEntity);
@@ -1569,13 +1612,19 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeffered(VkSampler samplerHandle)
+	E_RESULT_CODE CVulkanGraphicsContext::DestroyObjectDeferred(VkSampler samplerHandle)
 	{
 		std::lock_guard<std::mutex> lock(mBarriersMutex);
 
 		TGarbageEntity garbageEntity;
 		garbageEntity.mData.mSamplerHandle = samplerHandle;
 		garbageEntity.mType                = TGarbageEntity::E_TYPE::SAMPLER;
+
+		if (!IsRenderThread())
+		{
+			mDeferredGraphicsRequests.enqueue(TDeferredRequest{ TDeferredRequest::E_TYPE::DESTROY_REQUEST, garbageEntity });
+			return RC_OK;
+		}
 
 		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
 
@@ -1615,6 +1664,38 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+
+	static void ProcessDestroyRequest(CVulkanGraphicsContext* pGraphicsContext, CVulkanGraphicsContext::TGarbageEntity destroyRequest)
+	{
+		using E_TYPE = CVulkanGraphicsContext::TGarbageEntity::E_TYPE;
+
+		switch (destroyRequest.mType)
+		{
+			case E_TYPE::BUFFER:
+				pGraphicsContext->DestroyObjectDeferred(destroyRequest.mData.mBufferHandle, destroyRequest.mAllocation, destroyRequest.mBufferViewHandle);
+				break;
+			case E_TYPE::IMAGE:
+				pGraphicsContext->DestroyObjectDeferred(destroyRequest.mData.mImageHandle, destroyRequest.mAllocation);
+				break;
+			case E_TYPE::IMAGE_VIEW:
+				pGraphicsContext->DestroyObjectDeferred(destroyRequest.mData.mImageViewHandle);
+				break;
+			case E_TYPE::PIPELINE:
+				pGraphicsContext->DestroyObjectDeferred(destroyRequest.mData.mPipelineHandle);
+				break;
+			case E_TYPE::PIPELINE_LAYOUT:
+				pGraphicsContext->DestroyObjectDeferred(destroyRequest.mData.mPipelineLayoutHandle);
+				break;
+			case E_TYPE::DESCRIPTOR_SET_LAYOUT:
+				pGraphicsContext->DestroyObjectDeferred(destroyRequest.mData.mDescriptorSetLayoutHandle);
+				break;
+			case E_TYPE::SAMPLER:
+				pGraphicsContext->DestroyObjectDeferred(destroyRequest.mData.mSamplerHandle);
+				break;
+		}
+	}
+
+
 	void CVulkanGraphicsContext::BeginFrame()
 	{
 		TDE2_PROFILER_SCOPE("CVulkanGraphicsContext::BeginFrame");
@@ -1641,6 +1722,19 @@ namespace TDEngine2
 		{
 			std::lock_guard<std::mutex> lock(mBarriersMutex);
 			CleanupGarbage(mAwaitingDeletionObjects[currFrameIndex], mpVulkanDeviceContext->GetDevice(), mpVulkanDeviceContext->GetMemoryAllocator());
+		}
+
+		/// \note Execute all requests that came from other threads
+		TDeferredRequest currRequest{};
+
+		while (mDeferredGraphicsRequests.try_dequeue(currRequest))
+		{
+			switch (currRequest.mType)
+			{
+			case TDeferredRequest::E_TYPE::DESTROY_REQUEST:
+				ProcessDestroyRequest(this, currRequest.mDestroyEntryRequest);
+				break;
+			}
 		}
 
 		pCurrCommandBuffer->Reset();

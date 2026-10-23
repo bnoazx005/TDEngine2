@@ -314,7 +314,7 @@ namespace TDEngine2
 
 		for (VkSampler currTextureSampler : mTextureSamplersArray)
 		{
-			result = result | pVulkanGraphicsContextImpl->DestroyObjectDeffered(currTextureSampler);
+			result = result | pVulkanGraphicsContextImpl->DestroyObjectDeferred(currTextureSampler);
 		}
 
 		return result;
