@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.35] 2026-10-23
+## [0.6.35] 2026-10-24
 
 ### Added
 
@@ -43,6 +43,8 @@ mark up systems that require send their data into the renderer's thread.
 - The part of API of **CFramePacketsStorage** was removed.
 
 - The API of **IDebugUtility** was changeed PreRender/PostRender group of methods was replaced with FillFramePacket.
+
+- tracy profiler was migrated up to 0.14.1
 
 ### Fixed
 
