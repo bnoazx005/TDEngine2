@@ -10,6 +10,7 @@
 #include <core/CProjectSettings.h>
 #include <utils/CFileLogger.h>
 #include <editor/CPerfProfiler.h>
+#include <core/CGameUserSettings.h>
 #define DEFER_IMPLEMENTATION
 #include "deferOperation.hpp"
 #include "stringUtils.hpp"
@@ -20,6 +21,9 @@
 
 namespace TDEngine2
 {
+	CInt32ConsoleVarDecl TriggetDumpVmaStatistics("graphics.dump_vma_stats", "", 0); // \todo For now triggers are not supported so mimic them using usual cvars
+
+
 	static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugMessage(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 															VkDebugUtilsMessageTypeFlagsEXT messageType,
 															const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
@@ -1709,6 +1713,18 @@ namespace TDEngine2
 	}
 
 
+#if TDE2_EDITORS_ENABLED
+	static inline void DumpVmaStatistics(CVulkanGraphicsContext* pGraphicsContext)
+	{
+		C8* pStatisticsStr = nullptr;
+		vmaBuildStatsString(pGraphicsContext->GetAllocator(), &pStatisticsStr, VK_TRUE);
+		LOG_MESSAGE(Wrench::StringUtils::Format("VMA statistics:\n{0}", pStatisticsStr));
+		vmaFreeStatsString(pGraphicsContext->GetAllocator(), pStatisticsStr);
+	}
+
+#endif
+
+
 	void CVulkanGraphicsContext::BeginFrame()
 	{
 		TDE2_PROFILER_SCOPE("CVulkanGraphicsContext::BeginFrame");
@@ -1719,6 +1735,15 @@ namespace TDEngine2
 			E_RESULT_CODE result = mpSwapchain->TryProcessInvalidateState();
 			TDE2_ASSERT(RC_OK == result);
 		}
+
+
+#if TDE2_EDITORS_ENABLED
+		if (TriggetDumpVmaStatistics.Get())
+		{
+			DumpVmaStatistics(this);
+			TriggetDumpVmaStatistics.Set(0);
+		}
+#endif
 
 		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
 
