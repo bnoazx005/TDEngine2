@@ -34,6 +34,8 @@ mark up systems that require send their data into the renderer's thread.
 
 - New debug trigger was added "graphics.dump_vma_stats" to dump Vulkan mem allocator's statistics 
 
+- Add ASAN_ENABLED option to provide support of ASAN builds.
+
 ### Changed
 
 - The implementation of **CComponentManager::FindEntitiesWithAll** and **CComponentManager::FindEntitiesWithAny** was optimized using bitmasks. 
@@ -57,6 +59,8 @@ mark up systems that require send their data into the renderer's thread.
 - VUID-VkPipelineRasterizationStateCreateInfo-polygonMode-01507 issue when the dev menu is open under Vulkan graphics context was fixed.
 
 - Proper approach of destruction Vulkan related objects was implemented.
+
+- Enormous memory consumption that caused with Tracy was fixed.
 
 ## [0.6.34] 2026-08-01
 

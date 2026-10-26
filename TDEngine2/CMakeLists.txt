@@ -16,6 +16,7 @@ option(USE_EXTERNAL_BULLET_LIBRARY "The options determines whether bullet from d
 option(USE_EXTERNAL_ZLIB_LIBRARY "The options determines whether zlib from deps/ directory or system one will be used" OFF)
 option(OPTICK_PROFILER_ENABLED "The option enables/disables usage of optick as a main profiler" ON)
 option(TRACY_PROFILER_ENABLED "The option enables/disables usage of tracy as a main profiler" ON)
+option(ASAN_ENABLED "Enable AddressSanitizer" OFF)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/$<CONFIGURATION>/")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/$<CONFIGURATION>/")
@@ -537,6 +538,7 @@ set(TDENGINE2_SOURCES
 
 if (TRACY_PROFILER_ENABLED)
 	add_definitions(-DTRACY_ENABLE)
+	add_definitions(-DTRACY_ON_DEMAND)
 	add_definitions(-DTRACY_EXPORTS)
 	add_definitions(-DTRACY_FIBERS)
 	set(TDENGINE2_SOURCES ${TDENGINE2_SOURCES} "${CMAKE_CURRENT_SOURCE_DIR}/deps/tracy/public/TracyClient.cpp")
@@ -544,6 +546,22 @@ endif ()
 
 source_group("includes" FILES ${TDENGINE2_HEADERS})
 source_group("sources" FILES ${TDENGINE2_SOURCES})
+
+
+if(ASAN_ENABLED)
+    message(STATUS "AddressSanitizer: ON")
+
+    if(MSVC)
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
+        add_compile_options(/fsanitize=address)
+        add_link_options(/fsanitize=address)
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        add_compile_options(-fsanitize=address -fno-omit-frame-pointer)
+        add_link_options(-fsanitize=address)
+    else()
+        message(WARNING "ASAN_ENABLED: Unknown compiler detected ${CMAKE_CXX_COMPILER_ID}, ignore")
+    endif()
+endif()
 
 
 if (MSVC) 	#cl.exe compiler's options
