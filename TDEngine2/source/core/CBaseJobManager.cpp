@@ -28,6 +28,8 @@ namespace TDEngine2
 	{
 	}
 
+	static std::thread::id MainThreadId;
+
 	E_RESULT_CODE CBaseJobManager::Init(const TJobManagerInitParams& desc)
 	{
 		if (mIsInitialized)
@@ -68,6 +70,8 @@ namespace TDEngine2
 		}
 
 		mNextFreeCounterIndex.store(0);
+		
+		MainThreadId = std::this_thread::get_id();
 
 		mIsInitialized = true;
 
@@ -85,10 +89,6 @@ namespace TDEngine2
 
 		return RC_OK;
 	}
-
-
-	static const auto MainThreadId = std::this_thread::get_id();
-
 
 	bool CBaseJobManager::IsMainThread()
 	{
