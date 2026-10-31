@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.36] 2026-10-27
+## [0.6.36] 2026-10-31
 
+### Changed
 
+- CVulkanGraphicsContext's work with descriptor sets was refactored to allow to disable VK_KHR_push_descriptor extension.
+
+### Fixed
+
+- Renderdoc's debugging under Vulkan graphics context was fixed.
 
 ## [0.6.35] 2026-10-26
 

@@ -102,8 +102,6 @@ namespace TDEngine2
 
 	static std::vector<const C8*> SupportedDeviceExtensions{}; // RequiredDeviceExtensions minus unsupported extensions
 
-	bool IS_ROBUSTNESS2_EXTENSION_SUPPORTED = false;
-
 
 	static bool CheckUpValidationLayers()
 	{
@@ -400,7 +398,7 @@ namespace TDEngine2
 	}
 
 
-	static TResult<VkDevice> CreateLogicDevice(VkPhysicalDevice physicalDevice, const TQueuesCreateInfo& queueCreateInfo)
+	static TResult<VkDevice> CreateLogicDevice(VkPhysicalDevice physicalDevice, const TQueuesCreateInfo& queueCreateInfo, E_VULKAN_DEVICE_CAPABILITY_FLAG& capabilitiesFlags)
 	{
 		auto&& queuesInfos = PrepareQueuesCreateInfo(queueCreateInfo);
 		std::vector<F32> queuesPriorities(queuesInfos.size(), 1.0f);
@@ -424,9 +422,11 @@ namespace TDEngine2
 		robustnessFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT;
 		robustnessFeatures.nullDescriptor = true;
 
-		IS_ROBUSTNESS2_EXTENSION_SUPPORTED = std::find_if(SupportedDeviceExtensions.cbegin(), SupportedDeviceExtensions.cend(), [](auto&& ext) { return strcmp(ext, VK_EXT_ROBUSTNESS_2_EXTENSION_NAME) == 0; }) != SupportedDeviceExtensions.cend();
-		if (IS_ROBUSTNESS2_EXTENSION_SUPPORTED)
+		capabilitiesFlags = E_VULKAN_DEVICE_CAPABILITY_FLAG::NONE;
+
+		if (std::find_if(SupportedDeviceExtensions.cbegin(), SupportedDeviceExtensions.cend(), [](auto&& ext) { return strcmp(ext, VK_EXT_ROBUSTNESS_2_EXTENSION_NAME) == 0; }) != SupportedDeviceExtensions.cend())
 		{
+			capabilitiesFlags = capabilitiesFlags | E_VULKAN_DEVICE_CAPABILITY_FLAG::ROBUSTNESS2_EXTENSION_ENABLED;
 			timelineFeatures.pNext = &robustnessFeatures;
 		}
 
@@ -552,6 +552,7 @@ namespace TDEngine2
 	CVulkanDeviceContext* CreateVulkanDeviceContext(TPtr<IWindowSystem>, TPtr<IWindowSurfaceFactory>, E_RESULT_CODE&);
 	CVulkanSwapchain* CreateSwapchain(CVulkanDeviceContext*, TPtr<IWindowSystem>, E_RESULT_CODE&); 
 	CVulkanCommandBuffer* CreateCommandBuffer(CVulkanDeviceContext*, U32 queueIndex, E_RESULT_CODE&);
+	CVulkanDescriptorSetAllocator* CreateDescriptorSetAllocator(CVulkanDeviceContext*, U32 maxFramesCount, E_RESULT_CODE&);
 
 
 	/*!
@@ -624,33 +625,37 @@ namespace TDEngine2
 			const CFixedVector<U32>& GetFamilies() const { return mFamilies; }
 
 			const VmaAllocator GetMemoryAllocator() const { return mMainAllocator; }
+
+			E_VULKAN_DEVICE_CAPABILITY_FLAG GetDeviceCapabilities() const { return mCapabilityFlags; }
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanDeviceContext)
 
 			E_RESULT_CODE _onFreeInternal() override;
 		private:
-			TPtr<IWindowSystem>         mpWindowSystem = nullptr;
-			TPtr<IWindowSurfaceFactory> mpWindowSurfaceFactory = nullptr;
+			TPtr<IWindowSystem>             mpWindowSystem = nullptr;
+			TPtr<IWindowSurfaceFactory>     mpWindowSurfaceFactory = nullptr;
 
-			VkInstance                  mInstance = VK_NULL_HANDLE;
-			VkPhysicalDevice            mPhysicalDevice = VK_NULL_HANDLE;
-			VkDevice                    mDevice = VK_NULL_HANDLE;
+			VkInstance                      mInstance = VK_NULL_HANDLE;
+			VkPhysicalDevice                mPhysicalDevice = VK_NULL_HANDLE;
+			VkDevice                        mDevice = VK_NULL_HANDLE;
 
-			VkSurfaceKHR                mSwapChainSurface = VK_NULL_HANDLE;
+			VkSurfaceKHR                    mSwapChainSurface = VK_NULL_HANDLE;
 
 			// queues
-			VkQueue                     mGraphicsQueue = VK_NULL_HANDLE;
-			VkQueue                     mPresentQueue = VK_NULL_HANDLE;
-			VkQueue                     mTransferQueue = VK_NULL_HANDLE;
+			VkQueue                         mGraphicsQueue = VK_NULL_HANDLE;
+			VkQueue                         mPresentQueue = VK_NULL_HANDLE;
+			VkQueue                         mTransferQueue = VK_NULL_HANDLE;
 
-			TQueuesCreateInfo           mQueuesInfo{};
-			CFixedVector<U32>           mFamilies{};
+			TQueuesCreateInfo               mQueuesInfo{};
+			CFixedVector<U32>               mFamilies{};
 
 #if TDE2_DEBUG_MODE
-			VkDebugUtilsMessengerEXT    mDebugMessenger = VK_NULL_HANDLE;
+			VkDebugUtilsMessengerEXT        mDebugMessenger = VK_NULL_HANDLE;
 #endif
 
-			VmaAllocator                mMainAllocator = VK_NULL_HANDLE;
+			VmaAllocator                    mMainAllocator = VK_NULL_HANDLE;
+
+			E_VULKAN_DEVICE_CAPABILITY_FLAG mCapabilityFlags = E_VULKAN_DEVICE_CAPABILITY_FLAG::NONE;
 	};
 
 
@@ -697,7 +702,7 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		auto createLogicalDeviceResult = CreateLogicDevice(mPhysicalDevice, mQueuesInfo);
+		auto createLogicalDeviceResult = CreateLogicDevice(mPhysicalDevice, mQueuesInfo, mCapabilityFlags);
 		if (createLogicalDeviceResult.HasError())
 		{
 			return createLogicalDeviceResult.GetError();
@@ -1245,6 +1250,249 @@ namespace TDEngine2
 	TDE2_DEFINE_SCOPED_PTR(CVulkanCommandBuffer);
 
 
+	class CVulkanDescriptorPool* CreateDescriptorPool(VkDevice, const VkDescriptorPoolCreateInfo&, E_RESULT_CODE&);
+
+
+	class CVulkanDescriptorPool : public CBaseObject
+	{
+		public:
+			friend CVulkanDescriptorPool* CreateDescriptorPool(VkDevice, const VkDescriptorPoolCreateInfo&, E_RESULT_CODE&);
+		public:
+			E_RESULT_CODE Init(VkDevice device, const VkDescriptorPoolCreateInfo& createInfo);
+
+			VkDescriptorSet TryAllocate(VkDescriptorSetLayout layout);
+			void Reset();
+
+			VkDescriptorPool GetHandle() const { return mPool; }
+		private:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanDescriptorPool)
+
+			E_RESULT_CODE _onFreeInternal() override;
+		private:
+			VkDevice         mDevice = VK_NULL_HANDLE;
+			VkDescriptorPool mPool = VK_NULL_HANDLE;
+			bool             mIsFull = false;
+	};
+
+
+	/*!
+		\brief CVulkanDescriptorPool's definition
+	*/
+
+	CVulkanDescriptorPool::CVulkanDescriptorPool() :
+		CBaseObject()
+	{
+	}
+
+	E_RESULT_CODE CVulkanDescriptorPool::Init(VkDevice device, const VkDescriptorPoolCreateInfo& createInfo)
+	{
+		if (device == VK_NULL_HANDLE)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mDevice = device;
+		mIsFull = false;
+
+		VK_SAFE_CALL(vkCreateDescriptorPool(mDevice, &createInfo, nullptr, &mPool));
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	VkDescriptorSet CVulkanDescriptorPool::TryAllocate(VkDescriptorSetLayout layout)
+	{
+		if (mIsFull)
+		{
+			return VK_NULL_HANDLE;
+		}
+
+		VkDescriptorSetAllocateInfo allocInfo{};
+		allocInfo.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		allocInfo.descriptorPool     = mPool;
+		allocInfo.descriptorSetCount = 1;
+		allocInfo.pSetLayouts        = &layout;
+
+		VkDescriptorSet set = VK_NULL_HANDLE;
+		
+		const VkResult result = vkAllocateDescriptorSets(mDevice, &allocInfo, &set);
+		if (result == VK_ERROR_OUT_OF_POOL_MEMORY || result == VK_ERROR_FRAGMENTED_POOL)
+		{
+			mIsFull = true;
+			return VK_NULL_HANDLE;
+		}
+
+		return set;
+	}
+
+	void CVulkanDescriptorPool::Reset()
+	{
+		VK_SAFE_VOID_CALL(vkResetDescriptorPool(mDevice, mPool, 0));
+		mIsFull = false;
+	}
+
+	E_RESULT_CODE CVulkanDescriptorPool::_onFreeInternal()
+	{
+		if (mPool != VK_NULL_HANDLE)
+		{
+			vkDestroyDescriptorPool(mDevice, mPool, nullptr);
+		}
+
+		return CBaseObject::_onFreeInternal();
+	}
+
+
+	CVulkanDescriptorPool* CreateDescriptorPool(VkDevice device, const VkDescriptorPoolCreateInfo& createInfo, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(CVulkanDescriptorPool, CVulkanDescriptorPool, result, device, createInfo);
+	}
+
+
+	class CVulkanDescriptorSetAllocator : public CBaseObject
+	{
+		public:
+			friend CVulkanDescriptorSetAllocator* CreateDescriptorSetAllocator(CVulkanDeviceContext*, U32, E_RESULT_CODE&);
+		public:
+			E_RESULT_CODE Init(CVulkanDeviceContext* pDeviceContext, U32 maxFramesCount);
+
+			VkDescriptorSet Allocate(VkDescriptorSetLayout layout);
+			
+			void Flip(U32 frameIndex);
+		private:
+			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanDescriptorSetAllocator)
+
+			CVulkanDescriptorPool* _getOrCreatePool();
+		private:
+			CVulkanDeviceContext*                                 mpDeviceContext = nullptr;
+			
+			U32                                                   mMaxFramesCount = 0;
+			U32                                                   mCurrentFrame = 0;
+
+			std::vector<std::vector<TPtr<CVulkanDescriptorPool>>> mFramePools;
+			std::vector<TPtr<CVulkanDescriptorPool>>              mFreePools;
+
+			CVulkanDescriptorPool*                                mpCurrentPool = nullptr;
+	};
+
+
+	/*!
+		\brief CVulkanDescriptorSetAllocator's definition
+	*/
+
+	CVulkanDescriptorSetAllocator::CVulkanDescriptorSetAllocator():
+		CBaseObject()
+	{
+	}
+
+	E_RESULT_CODE CVulkanDescriptorSetAllocator::Init(CVulkanDeviceContext* pDeviceContext, U32 maxFramesCount)
+	{
+		if (!pDeviceContext || !maxFramesCount)
+		{
+			return RC_INVALID_ARGS;
+		}
+
+		mpDeviceContext = pDeviceContext;
+		mMaxFramesCount = maxFramesCount;
+
+		mFramePools.resize(mMaxFramesCount);
+
+		mIsInitialized = true;
+
+		return RC_OK;
+	}
+
+	VkDescriptorSet CVulkanDescriptorSetAllocator::Allocate(VkDescriptorSetLayout layout)
+	{
+		if (mpCurrentPool == nullptr)
+		{
+			mpCurrentPool = _getOrCreatePool();
+		}
+
+		VkDescriptorSet set = mpCurrentPool->TryAllocate(layout);
+		if (set != VK_NULL_HANDLE)
+		{
+			return set;
+		}
+
+		mpCurrentPool = _getOrCreatePool();
+
+		return mpCurrentPool->TryAllocate(layout);
+	}
+
+	void CVulkanDescriptorSetAllocator::Flip(U32 frameIndex)
+	{
+		mCurrentFrame = frameIndex % mMaxFramesCount;
+
+		for (TPtr<CVulkanDescriptorPool>& pCurrPool : mFramePools[mCurrentFrame])
+		{
+			pCurrPool->Reset();
+			mFreePools.push_back(std::move(pCurrPool));
+		}
+
+		mFramePools[mCurrentFrame].clear();
+		mpCurrentPool = nullptr;
+	}
+
+
+	static TPtr<CVulkanDescriptorPool> CreateNewDescriptorPool(VkDevice device)
+	{
+		VkDescriptorPoolSize poolSizes[] =
+		{
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+			{ VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+		};
+
+		VkDescriptorPoolCreateInfo poolInfo{};
+		poolInfo.sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		poolInfo.flags         = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+		poolInfo.maxSets       = 1000;
+		poolInfo.poolSizeCount = sizeof(poolSizes) / sizeof(poolSizes[0]);
+		poolInfo.pPoolSizes    = poolSizes;
+
+		E_RESULT_CODE result = RC_OK;
+
+		return TPtr<CVulkanDescriptorPool>(CreateDescriptorPool(device, poolInfo, result));
+	}
+
+
+	CVulkanDescriptorPool* CVulkanDescriptorSetAllocator::_getOrCreatePool()
+	{
+		auto& currFramePools = mFramePools[mCurrentFrame];
+		if (!currFramePools.empty())
+		{
+			return currFramePools.back().Get();
+		}
+
+		// \note Use first free pool if it already created
+		if (!mFreePools.empty())
+		{
+			TPtr<CVulkanDescriptorPool> pFreePool = std::move(mFreePools.back());
+			mFreePools.pop_back();
+
+			currFramePools.push_back(std::move(pFreePool));
+
+			return currFramePools.back().Get();
+		}
+
+		currFramePools.push_back(std::move(CreateNewDescriptorPool(mpDeviceContext->GetDevice())));
+
+		return currFramePools.back().Get();
+	}
+
+
+	CVulkanDescriptorSetAllocator* CreateDescriptorSetAllocator(CVulkanDeviceContext* pDeviceContext, U32 maxFramesCount, E_RESULT_CODE& result)
+	{
+		return CREATE_IMPL(CVulkanDescriptorSetAllocator, CVulkanDescriptorSetAllocator, result, pDeviceContext, maxFramesCount);
+	}
+
+
+	TDE2_DEFINE_SCOPED_PTR(CVulkanDescriptorSetAllocator);
+
+
 	/*!
 		\brief CVulkanGraphicsContext's definition
 	*/
@@ -1315,7 +1563,7 @@ namespace TDEngine2
 			TDescriptorsBindingsTable::MAX_SAMPLERS_COUNT +
 			TDescriptorsBindingsTable::MAX_UAV_COUNT);
 
-		if (!IS_ROBUSTNESS2_EXTENSION_SUPPORTED)
+		if (!HasEnumFlag(mpVulkanDeviceContext->GetDeviceCapabilities(), E_VULKAN_DEVICE_CAPABILITY_FLAG::ROBUSTNESS2_EXTENSION_ENABLED))
 		{
 			mEmptyStructuredBufferHandle = mpGraphicsObjectManager->CreateBuffer(
 				{
@@ -1374,6 +1622,12 @@ namespace TDEngine2
 		}
 
 		mpImmediateCommandBuffer = TPtr<CVulkanCommandBuffer>(CreateCommandBuffer(mpVulkanDeviceContext.Get(), mpVulkanDeviceContext->GetQueuesInfo().mTransferQueueIndex, result));
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		mpDescriptorSetsAllocator = TPtr<CVulkanDescriptorSetAllocator>(CreateDescriptorSetAllocator(mpVulkanDeviceContext.Get(), FRAMES_COUNT, result));
 		if (RC_OK != result)
 		{
 			return result;
@@ -1757,6 +2011,7 @@ namespace TDEngine2
 		}
 
 		mpSwapchain->AcquireNextImage(mImageReadySemaphores[currFrameIndex]);
+		mpDescriptorSetsAllocator->Flip(currFrameIndex);
 
 		{
 			std::lock_guard<std::mutex> lock(mBarriersMutex);
@@ -3094,6 +3349,11 @@ namespace TDEngine2
 		return mpVulkanDeviceContext->GetFamilies();
 	}
 
+	E_VULKAN_DEVICE_CAPABILITY_FLAG CVulkanGraphicsContext::GetDeviceCapabilities() const
+	{
+		return mpVulkanDeviceContext->GetDeviceCapabilities();
+	}
+
 	E_RESULT_CODE CVulkanGraphicsContext::_prepareFrameData()
 	{
 		E_RESULT_CODE result = RC_OK;
@@ -3200,7 +3460,7 @@ namespace TDEngine2
 			VkWriteDescriptorSet currWriteDescriptorSet{};
 
 			currWriteDescriptorSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			currWriteDescriptorSet.dstSet          = 0;
+			currWriteDescriptorSet.dstSet          = VK_NULL_HANDLE;
 			currWriteDescriptorSet.descriptorCount = 1;
 			currWriteDescriptorSet.descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 			currWriteDescriptorSet.dstBinding      = currPipelineActiveSlots.mCBVActiveSlots[i];
@@ -3208,6 +3468,8 @@ namespace TDEngine2
 			
 			mDescriptorWrites.emplace_back(currWriteDescriptorSet);
 		}
+
+		const bool isRobustness2ExtSupported = HasEnumFlag(mpVulkanDeviceContext->GetDeviceCapabilities(), E_VULKAN_DEVICE_CAPABILITY_FLAG::ROBUSTNESS2_EXTENSION_ENABLED);
 
 		for (U32 i = 0; i < currPipelineActiveSlots.mSRVActiveSlots.size(); ++i)
 		{
@@ -3225,7 +3487,7 @@ namespace TDEngine2
 					case TVulkanPipelineLayoutInfo::TBindingInfo::E_TYPE::BUFFER:
 					{
 						VkDescriptorBufferInfo& currBufferInfo = mDescriptorBufferInfos.emplace_back();
-						currBufferInfo.buffer = IS_ROBUSTNESS2_EXTENSION_SUPPORTED ? VK_NULL_HANDLE : mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(mEmptyStructuredBufferHandle)->GetVulkanHandle();
+						currBufferInfo.buffer = isRobustness2ExtSupported ? VK_NULL_HANDLE : mpGraphicsObjectManagerImpl->GetVulkanBufferPtr(mEmptyStructuredBufferHandle)->GetVulkanHandle();
 						currBufferInfo.offset = 0;
 						currBufferInfo.range  = VK_WHOLE_SIZE;
 
@@ -3236,7 +3498,7 @@ namespace TDEngine2
 					case TVulkanPipelineLayoutInfo::TBindingInfo::E_TYPE::TEXTURE:
 					{
 						VkDescriptorImageInfo& currImageInfo = mDescriptorImageInfos.emplace_back();
-						currImageInfo.imageView   = IS_ROBUSTNESS2_EXTENSION_SUPPORTED ? VK_NULL_HANDLE : mpGraphicsObjectManagerImpl->GetVulkanTexturePtr(mEmptyTextureHandle)->GetTextureViewHandle();
+						currImageInfo.imageView   = isRobustness2ExtSupported ? VK_NULL_HANDLE : mpGraphicsObjectManagerImpl->GetVulkanTexturePtr(mEmptyTextureHandle)->GetTextureViewHandle();
 						currImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 						currImageInfo.sampler     = VK_NULL_HANDLE;
 
@@ -3247,7 +3509,7 @@ namespace TDEngine2
 				}
 
 				currWriteDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-				currWriteDescriptorSet.dstSet = 0;
+				currWriteDescriptorSet.dstSet = VK_NULL_HANDLE;
 				currWriteDescriptorSet.descriptorCount = 1;
 				currWriteDescriptorSet.dstBinding = GetBindingOffsetByResourceType(E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D) + currBinding;
 
@@ -3310,7 +3572,7 @@ namespace TDEngine2
 			}
 
 			currWriteDescriptorSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			currWriteDescriptorSet.dstSet          = 0;
+			currWriteDescriptorSet.dstSet          = VK_NULL_HANDLE;
 			currWriteDescriptorSet.descriptorCount = 1;
 			currWriteDescriptorSet.dstBinding      = GetBindingOffsetByResourceType(E_SHADER_RESOURCE_TYPE::SRT_TEXTURE2D) + currBinding;
 		}
@@ -3331,7 +3593,7 @@ namespace TDEngine2
 			currImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
 			currWriteDescriptorSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			currWriteDescriptorSet.dstSet          = 0;
+			currWriteDescriptorSet.dstSet          = VK_NULL_HANDLE;
 			currWriteDescriptorSet.descriptorCount = 1;
 			currWriteDescriptorSet.descriptorType  = VK_DESCRIPTOR_TYPE_SAMPLER;
 			currWriteDescriptorSet.dstBinding      = GetBindingOffsetByResourceType(E_SHADER_RESOURCE_TYPE::SRT_SAMPLER_STATE) + currPipelineActiveSlots.mSamplersActiveSlots[i];
@@ -3402,7 +3664,7 @@ namespace TDEngine2
 			}
 
 			currWriteDescriptorSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			currWriteDescriptorSet.dstSet          = 0;
+			currWriteDescriptorSet.dstSet          = VK_NULL_HANDLE;
 			currWriteDescriptorSet.descriptorCount = 1;
 			currWriteDescriptorSet.dstBinding      = GetBindingOffsetByResourceType(E_SHADER_RESOURCE_TYPE::SRT_RW_IMAGE2D) + currBinding;
 		}
@@ -3412,13 +3674,30 @@ namespace TDEngine2
 		{
 			return;
 		}
-				
-		vkCmdPushDescriptorSetKHR(_getCurrCommandBufferHandle(), 
-			pipelineType,
-			mpActivePipelineStates[currFrameIndex]->GetPipelineLayout(),
-			0, 
-			static_cast<U32>(mDescriptorWrites.size()), 
-			mDescriptorWrites.data());
+
+		if (HasEnumFlag(mpVulkanDeviceContext->GetDeviceCapabilities(), E_VULKAN_DEVICE_CAPABILITY_FLAG::PUSH_DESCRIPTORS_ENABLED))
+		{
+			vkCmdPushDescriptorSetKHR(_getCurrCommandBufferHandle(),
+				pipelineType,
+				mpActivePipelineStates[currFrameIndex]->GetPipelineLayout(),
+				0,
+				static_cast<U32>(mDescriptorWrites.size()),
+				mDescriptorWrites.data());
+
+			return;
+		}
+
+		VkDescriptorSet descriptorSet = mpDescriptorSetsAllocator->Allocate(mpActivePipelineStates[currFrameIndex]->GetDescriptorSetLayout());
+
+		for (VkWriteDescriptorSet& descriptorSetWrite : mDescriptorWrites)
+		{
+			descriptorSetWrite.dstSet = descriptorSet;
+		}
+
+		VkPipelineLayout pipelineLayout = mpActivePipelineStates[currFrameIndex]->GetPipelineLayout();
+
+		vkUpdateDescriptorSets(mpVulkanDeviceContext->GetDevice(), static_cast<U32>(mDescriptorWrites.size()), mDescriptorWrites.data(), 0, nullptr);
+		vkCmdBindDescriptorSets(_getCurrCommandBufferHandle(), pipelineType, pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
 	}
 
 

@@ -304,6 +304,7 @@ namespace TDEngine2
 			virtual E_RESULT_CODE Init(IGraphicsContext* pGraphicsContext);
 
 			virtual VkPipelineLayout GetPipelineLayout() const;
+			virtual VkDescriptorSetLayout GetDescriptorSetLayout() const;
 			virtual const TVulkanPipelineLayoutInfo& GetLayoutInfo() const;
 
 			virtual VkPipeline GetBasePipelineHandle() const;
@@ -318,6 +319,7 @@ namespace TDEngine2
 
 			VkPipeline                    mBasePipelineHandle = VK_NULL_HANDLE;
 			VkPipelineLayout              mCachedPipelineLayoutHandle = VK_NULL_HANDLE;
+			VkDescriptorSetLayout         mCachedDescriptorSetLayoutHandle = VK_NULL_HANDLE;
 
 			TVulkanPipelineLayoutInfo     mLayoutInfo{};
 

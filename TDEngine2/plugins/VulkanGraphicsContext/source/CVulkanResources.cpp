@@ -697,7 +697,11 @@ namespace TDEngine2
 		shaderDescriptorSetLayoutCreateInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 		shaderDescriptorSetLayoutCreateInfo.bindingCount = static_cast<U32>(bindings.size());
 		shaderDescriptorSetLayoutCreateInfo.pBindings    = bindings.data();
-		shaderDescriptorSetLayoutCreateInfo.flags        = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR;
+
+		if (HasEnumFlag(mpGraphicsContextImpl->GetDeviceCapabilities(), E_VULKAN_DEVICE_CAPABILITY_FLAG::PUSH_DESCRIPTORS_ENABLED))
+		{
+			shaderDescriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR;
+		}
 
 		VK_SAFE_CALL(vkCreateDescriptorSetLayout(mDevice, &shaderDescriptorSetLayoutCreateInfo, nullptr, &mDescriptorsSetLayout));
 
@@ -1236,6 +1240,11 @@ namespace TDEngine2
 		return mCachedPipelineLayoutHandle;
 	}
 
+	VkDescriptorSetLayout CVulkanBasePipeline::GetDescriptorSetLayout() const
+	{
+		return mCachedDescriptorSetLayoutHandle;
+	}
+
 	const TVulkanPipelineLayoutInfo& CVulkanBasePipeline::GetLayoutInfo() const
 	{
 		return mLayoutInfo;
@@ -1333,7 +1342,8 @@ namespace TDEngine2
 		dynamicInfo.pDynamicStates    = dynamicStates.data();
 		dynamicInfo.dynamicStateCount = static_cast<U32>(dynamicStates.size());
 
-		mCachedPipelineLayoutHandle = pShader->GetPipelineLayout();
+		mCachedPipelineLayoutHandle      = pShader->GetPipelineLayout();
+		mCachedDescriptorSetLayoutHandle = pShader->GetDescriptorSetLayout();
 
 		mBasePipelineConfig.sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		mBasePipelineConfig.pNext               = &renderingInfo;
@@ -1515,7 +1525,8 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
-		mCachedPipelineLayoutHandle = pShader->GetPipelineLayout();
+		mCachedPipelineLayoutHandle      = pShader->GetPipelineLayout();
+		mCachedDescriptorSetLayoutHandle = pShader->GetDescriptorSetLayout();
 
 		VkComputePipelineCreateInfo computePipelineCreateInfo{};
 		computePipelineCreateInfo.sType              = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;

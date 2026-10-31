@@ -31,6 +31,7 @@ namespace TDEngine2
 	class CVulkanGraphicsPipeline;
 	class CVulkanComputePipeline;
 	class CVulkanBasePipeline;
+	class CVulkanDescriptorSetAllocator;
 
 
 	TDE2_DECLARE_SCOPED_PTR(IEventManager)
@@ -41,6 +42,7 @@ namespace TDEngine2
 	TDE2_DECLARE_SCOPED_PTR(CVulkanCommandBuffer)
 	TDE2_DECLARE_SCOPED_PTR(CVulkanGraphicsPipeline)
 	TDE2_DECLARE_SCOPED_PTR(CVulkanComputePipeline)
+	TDE2_DECLARE_SCOPED_PTR(CVulkanDescriptorSetAllocator)
 
 
 	struct TQueuesCreateInfo
@@ -64,6 +66,17 @@ namespace TDEngine2
 			return mTransferQueueIndex != InvalidIndex && mTransferQueueIndex != mGraphicsQueueIndex;
 		}
 	};
+
+
+	enum class E_VULKAN_DEVICE_CAPABILITY_FLAG : U32
+	{
+		ROBUSTNESS2_EXTENSION_ENABLED = 1 << 0,
+		PUSH_DESCRIPTORS_ENABLED      = 1 << 1,
+		NONE = 0
+	};
+
+
+	TDE2_DECLARE_BITMASK_OPERATORS_INTERNAL(E_VULKAN_DEVICE_CAPABILITY_FLAG);
 
 
 	/*!
@@ -490,6 +503,8 @@ namespace TDEngine2
 			VmaAllocator GetAllocator();
 
 			const CFixedVector<U32>& GetFamilies() const;
+
+			E_VULKAN_DEVICE_CAPABILITY_FLAG GetDeviceCapabilities() const;
 		protected:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanGraphicsContext)
 			CVulkanGraphicsContext(TPtr<IWindowSurfaceFactory> pWindowSurfaceFactory);
@@ -535,6 +550,8 @@ namespace TDEngine2
 
 			std::array<CVulkanBasePipeline*, FRAMES_COUNT>       mpActivePipelineStates {};
 			std::unordered_map<U64, VkPipeline>                  mCachedPipelinesLibrary{};
+
+			TPtr<CVulkanDescriptorSetAllocator>                  mpDescriptorSetsAllocator = nullptr;
 
 			mutable std::mutex                                   mBarriersMutex {};
 
