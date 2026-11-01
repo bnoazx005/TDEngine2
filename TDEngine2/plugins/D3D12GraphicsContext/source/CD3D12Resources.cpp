@@ -16,6 +16,7 @@
 
 #if defined(TDE2_USE_WINPLATFORM) /// Used only on Windows platform
 
+#include "../deps/dx12/d3dx12_barriers.h"
 #include "../deps/dx12/d3dx12_root_signature.h"
 
 
@@ -42,13 +43,13 @@ namespace TDEngine2
 		}
 
 		D3D12_RESOURCE_DESC bufferDesc{};
-		bufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-		bufferDesc.Width = E_BUFFER_TYPE::CONSTANT == type ? static_cast<U32>(Align(static_cast<I32>(size), CBV_SIZE_ALIGNMENT)) : static_cast<U32>(size);
-		bufferDesc.Height = 1;
+		bufferDesc.Dimension        = D3D12_RESOURCE_DIMENSION_BUFFER;
+		bufferDesc.Width            = E_BUFFER_TYPE::CONSTANT == type ? static_cast<U32>(Align(static_cast<I32>(size), CBV_SIZE_ALIGNMENT)) : static_cast<U32>(size);
+		bufferDesc.Height           = 1;
 		bufferDesc.DepthOrArraySize = 1;
-		bufferDesc.MipLevels = 1;
+		bufferDesc.MipLevels        = 1;
 		bufferDesc.SampleDesc.Count = 1;
-		bufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+		bufferDesc.Layout           = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
 		if (isUAVResource)
 		{
@@ -56,11 +57,26 @@ namespace TDEngine2
 		}
 
 		D3D12MA::ALLOCATION_DESC allocationDesc{};
-		allocationDesc.HeapType = (/*E_BUFFER_TYPE::GENERIC == type && */E_BUFFER_USAGE_TYPE::DYNAMIC == usageType) ? D3D12_HEAP_TYPE_UPLOAD : D3D12_HEAP_TYPE_DEFAULT;
+		D3D12_RESOURCE_STATES initialState = D3D12_RESOURCE_STATE_COMMON;
+
+		switch (usageType)
+		{
+			case E_BUFFER_USAGE_TYPE::DYNAMIC:
+				allocationDesc.HeapType = D3D12_HEAP_TYPE_UPLOAD;
+				initialState = D3D12_RESOURCE_STATE_GENERIC_READ;
+				break;
+			case E_BUFFER_USAGE_TYPE::READBACK:
+				allocationDesc.HeapType = D3D12_HEAP_TYPE_READBACK;
+				initialState = D3D12_RESOURCE_STATE_COPY_DEST;
+				break;
+			default:
+				allocationDesc.HeapType = D3D12_HEAP_TYPE_DEFAULT;
+				break;
+		}
 
 		TCreatedBufferInfo output{};
 
-		if (FAILED(pAllocator->CreateResource(&allocationDesc, &bufferDesc, (allocationDesc.HeapType == D3D12_HEAP_TYPE_UPLOAD) ? D3D12_RESOURCE_STATE_GENERIC_READ : D3D12_RESOURCE_STATE_COMMON, nullptr, &output.mpAllocation, IID_PPV_ARGS(&output.mpResource))))
+		if (FAILED(pAllocator->CreateResource(&allocationDesc, &bufferDesc, initialState, nullptr, &output.mpAllocation, IID_PPV_ARGS(&output.mpResource))))
 		{
 			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
 		}
@@ -254,10 +270,17 @@ namespace TDEngine2
 		}
 
 		D3D12_RANGE readRange{};
-		readRange.Begin = offset;
-		readRange.End = mBufferSize - offset - 1;
+		D3D12_RANGE* pReadRange = nullptr;
 
-		if (FAILED(mpResource->Map(0, offset > 0 ? &readRange : nullptr, &mpMappedBufferData)))
+		if (E_BUFFER_MAP_TYPE::BMT_READ == mapType || offset > 0)
+		{
+			readRange.Begin = offset;
+			readRange.End   = mBufferSize;
+			
+			pReadRange = &readRange;
+		}
+
+		if (FAILED(mpResource->Map(0, pReadRange, &mpMappedBufferData)))
 		{
 			return RC_FAIL;
 		}
@@ -1098,51 +1121,60 @@ namespace TDEngine2
 
 		Vector<U8> outputBytes(static_cast<size_t>(mInitParams.mWidth * mInitParams.mHeight * mInitParams.mDepth * CFormatUtils::GetFormatSize(mInitParams.mFormat)));
 
-		//mpGraphicsContextImpl->ExecuteImmediate([this, &outputBytes](VkCommandBuffer commandBuffer)
-		//	{
-		//		VkBufferImageCopy regionsInfo{};
-		//		regionsInfo.imageSubresource.aspectMask = CD3D12Mappings::IsDepthTextureFormat(mInitParams.mFormat) ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
-		//		regionsInfo.imageSubresource.layerCount = 1;
-		//		regionsInfo.imageExtent.width = mInitParams.mWidth;
-		//		regionsInfo.imageExtent.height = mInitParams.mHeight;
-		//		regionsInfo.imageExtent.depth = mInitParams.mDepth;
+		const E_RESOURCE_LAYOUT currSourceLayout = GetLayout();
 
-		//		const E_RESOURCE_LAYOUT currSourceLayout = GetLayout();
+		const D3D12_RESOURCE_DESC& textureDesc = mpResource->GetDesc();
 
-		//		VkImageMemoryBarrier2 imageMemoryBarrier{};
-		//		imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
-		//		imageMemoryBarrier.image = mInternalImageHandle;
-		//		imageMemoryBarrier.srcStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
-		//		imageMemoryBarrier.srcAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT | VK_ACCESS_2_MEMORY_READ_BIT;
-		//		imageMemoryBarrier.dstStageMask = VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT;
-		//		imageMemoryBarrier.dstAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT | VK_ACCESS_2_MEMORY_READ_BIT;
-		//		imageMemoryBarrier.oldLayout = CD3D12Mappings::GetResourceLayout(currSourceLayout);
-		//		imageMemoryBarrier.newLayout = CD3D12Mappings::GetResourceLayout(E_RESOURCE_LAYOUT::COPY_SRC);
-		//		imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		//		imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		//		imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
-		//		imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
-		//		imageMemoryBarrier.subresourceRange.aspectMask = regionsInfo.imageSubresource.aspectMask;
-		//		imageMemoryBarrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
-		//		imageMemoryBarrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+		D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint{};
 
-		//		VkDependencyInfo dependencyInfo{};
-		//		dependencyInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
-		//		dependencyInfo.imageMemoryBarrierCount = 1;
-		//		dependencyInfo.pImageMemoryBarriers = &imageMemoryBarrier;
+		U32 numRows        = 0;
+		U64 rowSizeInBytes = 0;
+		U64 totalBytes     = 0;
 
-		//		vkCmdPipelineBarrier2(commandBuffer, &dependencyInfo);
-		//		vkCmdCopyImageToBuffer(commandBuffer, mInternalImageHandle, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, mpReadbackBuffer->GetD3D12Handle(), 1, &regionsInfo);
+		mpGraphicsContextImpl->GetDeviceContext()->GetCopyableFootprints(
+			&textureDesc, index, 1, 0, &footprint, &numRows, &rowSizeInBytes, &totalBytes);
 
-		//		imageMemoryBarrier.oldLayout = CD3D12Mappings::GetResourceLayout(E_RESOURCE_LAYOUT::COPY_SRC);
-		//		imageMemoryBarrier.newLayout = CD3D12Mappings::GetResourceLayout(currSourceLayout);
+		mpGraphicsContextImpl->ExecuteImmediate([this, &outputBytes, currSourceLayout, footprint, index](ID3D12GraphicsCommandList* pCommandList)
+			{
+				CD3DX12_RESOURCE_BARRIER transitionBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
+					mpResource.Get(), 
+					CD3D12Mappings::GetInternalResourceState(currSourceLayout),
+					D3D12_RESOURCE_STATE_COPY_SOURCE);
 
-		//		vkCmdPipelineBarrier2(commandBuffer, &dependencyInfo);
+				pCommandList->ResourceBarrier(1, &transitionBarrier);
+				
+				D3D12_TEXTURE_COPY_LOCATION sourceLocation{};
+				sourceLocation.pResource        = mpResource.Get();
+				sourceLocation.Type             = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+				sourceLocation.SubresourceIndex = index;
 
-		//		mpReadbackBuffer->Map(E_BUFFER_MAP_TYPE::BMT_READ, 0);
-		//		memcpy(outputBytes.data(), mpReadbackBuffer->Read(), outputBytes.size());
-		//		mpReadbackBuffer->Unmap();
-		//	});
+				D3D12_TEXTURE_COPY_LOCATION destLocation{};
+				destLocation.pResource       = mpReadbackBuffer->GetHandle().Get();
+				destLocation.Type            = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+				destLocation.PlacedFootprint = footprint;
+
+				pCommandList->CopyTextureRegion(&destLocation, 0, 0, 0, &sourceLocation, nullptr);
+
+				transitionBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
+					mpResource.Get(), 
+					D3D12_RESOURCE_STATE_COPY_SOURCE, 
+					CD3D12Mappings::GetInternalResourceState(currSourceLayout));
+
+				pCommandList->ResourceBarrier(1, &transitionBarrier);
+			});
+
+		mpReadbackBuffer->Map(E_BUFFER_MAP_TYPE::BMT_READ, 0);
+
+		const U8* pSrcData = reinterpret_cast<const U8*>(mpReadbackBuffer->Read());
+		U8* pDstData = outputBytes.data();
+
+		// copy each line aligned up to 256
+		for (U32 row = 0; row < numRows; ++row)
+		{
+			memcpy(pDstData + row * rowSizeInBytes, pSrcData + row * footprint.Footprint.RowPitch, rowSizeInBytes);
+		}
+
+		mpReadbackBuffer->Unmap();
 
 		return outputBytes;
 	}
@@ -1191,11 +1223,19 @@ namespace TDEngine2
 
 		if (E_TEXTURE_IMPL_USAGE_TYPE::DYNAMIC == mInitParams.mUsageType)
 		{
+			D3D12_PLACED_SUBRESOURCE_FOOTPRINT largestFootprint{};
+			U64 largestSubresourceBytes = 0;
+
+			const D3D12_RESOURCE_DESC resourceDesc = mpResource->GetDesc();
+
+			mpGraphicsContextImpl->GetDeviceContext()->GetCopyableFootprints(
+				&resourceDesc, 0, 1, 0, &largestFootprint, nullptr, nullptr, &largestSubresourceBytes);
+
 			mpReadbackBuffer = DynamicPtrCast<CD3D12Buffer>(TPtr<IBuffer>(CreateD3D12Buffer(mpGraphicsContextImpl,
 				{
-					E_BUFFER_USAGE_TYPE::DYNAMIC,
+					E_BUFFER_USAGE_TYPE::READBACK,
 					E_BUFFER_TYPE::GENERIC,
-					static_cast<USIZE>(mInitParams.mWidth * mInitParams.mHeight * mInitParams.mDepth * CFormatUtils::GetFormatSize(mInitParams.mFormat)),
+					static_cast<USIZE>(largestSubresourceBytes),
 					nullptr
 				}, result)));
 		}

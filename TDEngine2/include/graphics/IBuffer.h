@@ -28,6 +28,7 @@ namespace TDEngine2
 	{
 		DYNAMIC,				///< A CPU can write data into a buffer and read it
 		STATIC,					///< A buffer's content cannot be changed after initialization
+		READBACK,				///< The buffer of that type can only be used to read GPU texture data
 		DEFAULT					///< A GPU will have access to read and write
 	};
 

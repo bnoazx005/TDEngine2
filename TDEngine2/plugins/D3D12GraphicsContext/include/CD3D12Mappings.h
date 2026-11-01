@@ -224,6 +224,8 @@ namespace TDEngine2
 			static D3D12_RASTERIZER_DESC GetRasterizerState(const TRasterizerStateDesc& rasterizerDesc);
 			static D3D12_BLEND_DESC GetBlendState(const TBlendStateDesc& blendStateDesc);
 			static D3D12_DEPTH_STENCIL_DESC GetDepthStencilState(const TDepthStencilStateDesc& depthStencilDesc);
+
+			static D3D12_RESOURCE_STATES GetInternalResourceState(E_RESOURCE_LAYOUT layout);
 	};
 }
 

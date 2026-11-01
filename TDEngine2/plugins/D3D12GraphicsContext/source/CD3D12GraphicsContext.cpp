@@ -1774,35 +1774,6 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
-
-	static D3D12_RESOURCE_STATES GetInternalResourceState(E_RESOURCE_LAYOUT layout)
-	{
-		switch (layout)
-		{
-			case E_RESOURCE_LAYOUT::RENDER_TARGET:
-				return D3D12_RESOURCE_STATE_RENDER_TARGET;
-			case E_RESOURCE_LAYOUT::DEPTH_STENCIL:
-				return D3D12_RESOURCE_STATE_DEPTH_WRITE;
-			case E_RESOURCE_LAYOUT::DEPTH_STENCIL_READONLY:
-				return D3D12_RESOURCE_STATE_DEPTH_READ;
-			case E_RESOURCE_LAYOUT::COPY_SRC:
-				return D3D12_RESOURCE_STATE_COPY_SOURCE;
-			case E_RESOURCE_LAYOUT::COPY_DEST:
-				return D3D12_RESOURCE_STATE_COPY_DEST;
-			case E_RESOURCE_LAYOUT::SHADER_RESOURCE:
-				return D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
-			case E_RESOURCE_LAYOUT::INDIRECT_ARGS_BUFFER:
-				return D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT;
-			case E_RESOURCE_LAYOUT::CONSTANT_BUFFER:
-				return D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
-			case E_RESOURCE_LAYOUT::UAV_RESOURCE:
-				return D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-		}
-
-		return D3D12_RESOURCE_STATE_COMMON;
-	}
-
-
 	E_RESULT_CODE CD3D12GraphicsContext::UpdateTexture2D(TTextureHandleId textureHandle, U32 mipLevel, const TRectI32& regionRect, const void* pData, USIZE dataSize)
 	{
 		if (!mIsInitialized)
@@ -1844,7 +1815,7 @@ namespace TDEngine2
 		
 		result = ExecuteImmediate([=](ID3D12GraphicsCommandList* pCommandList)
 			{
-				CD3DX12_RESOURCE_BARRIER transitionBarrier = CD3DX12_RESOURCE_BARRIER::Transition(pTexture->GetHandle().Get(), GetInternalResourceState(pTexture->GetLayout()), D3D12_RESOURCE_STATE_COPY_DEST);
+				CD3DX12_RESOURCE_BARRIER transitionBarrier = CD3DX12_RESOURCE_BARRIER::Transition(pTexture->GetHandle().Get(), CD3D12Mappings::GetInternalResourceState(pTexture->GetLayout()), D3D12_RESOURCE_STATE_COPY_DEST);
 				pCommandList->ResourceBarrier(1, &transitionBarrier);
 
 				const D3D12_RESOURCE_DESC& textureDesc = pTexture->GetHandle()->GetDesc();
@@ -1861,7 +1832,7 @@ namespace TDEngine2
 
 				pCommandList->CopyTextureRegion(&dst, static_cast<U32>(regionRect.x), static_cast<U32>(regionRect.y), 0, &src, nullptr);
 
-				transitionBarrier = CD3DX12_RESOURCE_BARRIER::Transition(pTexture->GetHandle().Get(), D3D12_RESOURCE_STATE_COPY_DEST, GetInternalResourceState(pTexture->GetLayout()));
+				transitionBarrier = CD3DX12_RESOURCE_BARRIER::Transition(pTexture->GetHandle().Get(), D3D12_RESOURCE_STATE_COPY_DEST, CD3D12Mappings::GetInternalResourceState(pTexture->GetLayout()));
 				pCommandList->ResourceBarrier(1, &transitionBarrier);
 			});
 
@@ -1910,7 +1881,7 @@ namespace TDEngine2
 
 		result = ExecuteImmediate([=](ID3D12GraphicsCommandList* pCommandList)
 			{
-				CD3DX12_RESOURCE_BARRIER transitionBarrier = CD3DX12_RESOURCE_BARRIER::Transition(pTexture->GetHandle().Get(), GetInternalResourceState(pTexture->GetLayout()), D3D12_RESOURCE_STATE_COPY_DEST);
+				CD3DX12_RESOURCE_BARRIER transitionBarrier = CD3DX12_RESOURCE_BARRIER::Transition(pTexture->GetHandle().Get(), CD3D12Mappings::GetInternalResourceState(pTexture->GetLayout()), D3D12_RESOURCE_STATE_COPY_DEST);
 				pCommandList->ResourceBarrier(1, &transitionBarrier);
 
 				const D3D12_RESOURCE_DESC& textureDesc = pTexture->GetHandle()->GetDesc();
@@ -1927,7 +1898,7 @@ namespace TDEngine2
 
 				pCommandList->CopyTextureRegion(&dst, static_cast<U32>(regionRect.x), static_cast<U32>(regionRect.y), 0, &src, nullptr);
 
-				transitionBarrier = CD3DX12_RESOURCE_BARRIER::Transition(pTexture->GetHandle().Get(), D3D12_RESOURCE_STATE_COPY_DEST, GetInternalResourceState(pTexture->GetLayout()));
+				transitionBarrier = CD3DX12_RESOURCE_BARRIER::Transition(pTexture->GetHandle().Get(), D3D12_RESOURCE_STATE_COPY_DEST, CD3D12Mappings::GetInternalResourceState(pTexture->GetLayout()));
 				pCommandList->ResourceBarrier(1, &transitionBarrier);
 			});
 
@@ -2112,13 +2083,13 @@ namespace TDEngine2
 
 		TBarriersArray& pendingBarriers = mResourceBarriers[mpSwapchain->GetBackBufferTargetIndex()];
 
-		if (TrySimplifyPendingBarriers(pendingBarriers, pBuffer->GetHandle().Get(), GetInternalResourceState(barrierInfo.mCurrLayout), GetInternalResourceState(barrierInfo.mNewLayout)))
+		if (TrySimplifyPendingBarriers(pendingBarriers, pBuffer->GetHandle().Get(), CD3D12Mappings::GetInternalResourceState(barrierInfo.mCurrLayout), CD3D12Mappings::GetInternalResourceState(barrierInfo.mNewLayout)))
 		{
 			return;
 		}
 
 		mResourceBarriers[mpSwapchain->GetBackBufferTargetIndex()].emplace_back(
-			CD3DX12_RESOURCE_BARRIER::Transition(pBuffer->GetHandle().Get(), GetInternalResourceState(barrierInfo.mCurrLayout), GetInternalResourceState(barrierInfo.mNewLayout)));
+			CD3DX12_RESOURCE_BARRIER::Transition(pBuffer->GetHandle().Get(), CD3D12Mappings::GetInternalResourceState(barrierInfo.mCurrLayout), CD3D12Mappings::GetInternalResourceState(barrierInfo.mNewLayout)));
 	}
 
 	void CD3D12GraphicsContext::TransitionBarrier(const TTextureTransitionBarrierInfo& barrierInfo)
@@ -2133,13 +2104,13 @@ namespace TDEngine2
 
 		TBarriersArray& pendingBarriers = mResourceBarriers[mpSwapchain->GetBackBufferTargetIndex()];
 
-		if (TrySimplifyPendingBarriers(pendingBarriers, pTextureImpl->GetHandle().Get(), GetInternalResourceState(barrierInfo.mCurrLayout), GetInternalResourceState(barrierInfo.mNewLayout), subresourceId))
+		if (TrySimplifyPendingBarriers(pendingBarriers, pTextureImpl->GetHandle().Get(), CD3D12Mappings::GetInternalResourceState(barrierInfo.mCurrLayout), CD3D12Mappings::GetInternalResourceState(barrierInfo.mNewLayout), subresourceId))
 		{
 			return;
 		}
 
 		mResourceBarriers[mpSwapchain->GetBackBufferTargetIndex()].emplace_back(
-			CD3DX12_RESOURCE_BARRIER::Transition(pTextureImpl->GetHandle().Get(), GetInternalResourceState(barrierInfo.mCurrLayout), GetInternalResourceState(barrierInfo.mNewLayout), subresourceId));
+			CD3DX12_RESOURCE_BARRIER::Transition(pTextureImpl->GetHandle().Get(), CD3D12Mappings::GetInternalResourceState(barrierInfo.mCurrLayout), CD3D12Mappings::GetInternalResourceState(barrierInfo.mNewLayout), subresourceId));
 	}
 
 	void CD3D12GraphicsContext::DebugBarrier()
