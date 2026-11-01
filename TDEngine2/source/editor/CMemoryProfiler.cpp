@@ -11,6 +11,9 @@
 
 namespace TDEngine2
 {
+	TDE2_STATIC_CONSTEXPR U32 MAX_CALLSTACK_DEPTH = 10;
+
+
 	CMemoryProfiler::CMemoryProfiler() :
 		CBaseObject()
 	{
@@ -81,7 +84,7 @@ namespace TDEngine2
 	{
 		std::lock_guard<std::mutex> lock(mMutex);
 
-		TracyAlloc(reinterpret_cast<const void*>(address), size);
+		TracyAllocS(reinterpret_cast<const void*>(address), size, MAX_CALLSTACK_DEPTH);
 
 		auto& entity = mLivingBaseObjectsTable[address];
 
@@ -104,7 +107,7 @@ namespace TDEngine2
 			return RC_OK;
 		}
 
-		TracyFree(reinterpret_cast<const void*>(address));
+		TracyFreeS(reinterpret_cast<const void*>(address), MAX_CALLSTACK_DEPTH);
 
 		auto it = mLivingBaseObjectsTable.find(address);
 
@@ -127,13 +130,18 @@ namespace TDEngine2
 
 		std::lock_guard<std::mutex> lock(mMutex);
 
+		if (mAllocationsStats.find(reinterpret_cast<uintptr_t>(pPtr)) != mAllocationsStats.cend())
+		{
+			return RC_FAIL;
+		}
+
 		if (name)
 		{
-			TracyAllocN(pPtr, size, name);
+			TracyAllocNS(pPtr, size, MAX_CALLSTACK_DEPTH, name);
 		}
 		else
 		{
-			TracyAlloc(pPtr, size);
+			TracyAllocS(pPtr, size, MAX_CALLSTACK_DEPTH);
 		}
 
 		mAllocationsStats[reinterpret_cast<U32Ptr>(pPtr)] = size;
@@ -151,13 +159,19 @@ namespace TDEngine2
 			return RC_OK;
 		}
 
+		auto it = mAllocationsStats.find(reinterpret_cast<uintptr_t>(pPtr));
+		if (it == mAllocationsStats.cend())
+		{
+			return RC_FAIL;
+		}
+
 		if (name)
 		{
-			TracyFreeN(pPtr, name);
+			TracyFreeNS(pPtr, MAX_CALLSTACK_DEPTH, name);
 		}
 		else
 		{
-			TracyFree(pPtr);
+			TracyFreeS(pPtr, MAX_CALLSTACK_DEPTH);
 		}
 
 		TDE2_ASSERT(mAllocationsStats.find(reinterpret_cast<U32Ptr>(pPtr)) != mAllocationsStats.cend());
