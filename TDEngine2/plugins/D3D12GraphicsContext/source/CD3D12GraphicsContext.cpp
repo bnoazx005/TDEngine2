@@ -1250,6 +1250,15 @@ namespace TDEngine2
 		std::fill(mpShaderResourcesDescriptorsHeaps.begin(), mpShaderResourcesDescriptorsHeaps.end(), nullptr);
 		std::fill(mpSamplersDescriptorsHeaps.begin(), mpSamplersDescriptorsHeaps.end(), nullptr);
 
+		if (mpBackBufferReadbackAllocation)
+		{
+			mpBackBufferReadbackAllocation->Release();
+			mpBackBufferReadbackAllocation = nullptr;
+		}
+
+		mpBackBufferReadbackBuffer = nullptr;
+		mIsBackBufferCaptureReady = false;
+
 		mCachedPipelinesLibrary.clear();
 
 		mpGraphicsObjectManager          = nullptr;
@@ -1511,6 +1520,58 @@ namespace TDEngine2
 		return mpCommandBuffers[mpSwapchain->GetBackBufferTargetIndex()]->GetHandle().Get();
 	}
 
+	bool CD3D12GraphicsContext::_ensureBackBufferReadbackBufferExists()
+	{
+		if (!mpSwapchain || !mpSwapchain->IsValid() || !mpSwapchain->GetCurrRenderTarget())
+		{
+			return false;
+		}
+
+		const D3D12_RESOURCE_DESC& backBufferDesc = mpSwapchain->GetCurrRenderTarget()->GetDesc();
+		const U32 width  = static_cast<U32>(backBufferDesc.Width);
+		const U32 height = backBufferDesc.Height;
+
+		if (mpBackBufferReadbackBuffer && mBackBufferReadbackWidth == width && mBackBufferReadbackHeight == height)
+		{
+			return true;
+		}
+
+		if (mpBackBufferReadbackAllocation)
+		{
+			mpBackBufferReadbackAllocation->Release();
+			mpBackBufferReadbackAllocation = nullptr;
+		}
+
+		mIsBackBufferCaptureReady = false;
+
+		D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint{};
+		U64 totalBytes = 0;
+		mpDeviceContext->GetDevice()->GetCopyableFootprints(&backBufferDesc, 0, 1, 0, &footprint, nullptr, nullptr, &totalBytes);
+
+		D3D12_RESOURCE_DESC readbackTextureDesc{};
+		readbackTextureDesc.Dimension        = D3D12_RESOURCE_DIMENSION_BUFFER;
+		readbackTextureDesc.Width            = totalBytes;
+		readbackTextureDesc.Height           = 1;
+		readbackTextureDesc.DepthOrArraySize = 1;
+		readbackTextureDesc.MipLevels        = 1;
+		readbackTextureDesc.SampleDesc.Count = 1;
+		readbackTextureDesc.Layout           = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+		D3D12MA::ALLOCATION_DESC allocDesc{};
+		allocDesc.HeapType = D3D12_HEAP_TYPE_READBACK;
+		
+		if (FAILED(mpDeviceContext->GetMemoryAllocator()->CreateResource(&allocDesc, &readbackTextureDesc, D3D12_RESOURCE_STATE_COPY_DEST,
+			nullptr, &mpBackBufferReadbackAllocation, IID_PPV_ARGS(&mpBackBufferReadbackBuffer))))
+		{
+			return false;
+		}
+
+		mBackBufferReadbackWidth  = width;
+		mBackBufferReadbackHeight = height;
+
+		return true;
+	}
+
 	void CD3D12GraphicsContext::BeginFrame()
 	{
 		const U32 currFrameId = mpSwapchain->GetBackBufferTargetIndex();
@@ -1548,11 +1609,47 @@ namespace TDEngine2
 	{
 		TDE2_PROFILER_SCOPE("CD3D12GraphicsContext::Present");
 		
-		TPtr<CD3D12CommandBuffer> pCurrCommandBuffer = mpCommandBuffers[mpSwapchain->GetBackBufferTargetIndex()];
+		const U32 currFrameIndex = mpSwapchain->GetBackBufferTargetIndex();
+
+		TPtr<CD3D12CommandBuffer> pCurrCommandBuffer = mpCommandBuffers[currFrameIndex];
 		ID3D12GraphicsCommandList* pCurrCommandList = pCurrCommandBuffer->GetHandle().Get();
 
-		CD3DX12_RESOURCE_BARRIER rtTransitionBarrier = CD3DX12_RESOURCE_BARRIER::Transition(mpSwapchain->GetCurrRenderTarget().Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-		pCurrCommandList->ResourceBarrier(1, &rtTransitionBarrier);
+		ComPtr<ID3D12Resource> pBackBuffer = mpSwapchain->GetCurrRenderTarget();
+
+		const D3D12_RESOURCE_STATES currBackBufferState = (mpSwapchain->GetCurrRenderTargetLayout() == E_RESOURCE_LAYOUT::RENDER_TARGET)
+			? D3D12_RESOURCE_STATE_RENDER_TARGET : D3D12_RESOURCE_STATE_PRESENT;
+
+		const bool shouldCapture = mIsBackBufferCaptureEnabled && _ensureBackBufferReadbackBufferExists();
+		if (shouldCapture)
+		{
+			CD3DX12_RESOURCE_BARRIER toCopySource = CD3DX12_RESOURCE_BARRIER::Transition(pBackBuffer.Get(), currBackBufferState, D3D12_RESOURCE_STATE_COPY_SOURCE);
+			pCurrCommandList->ResourceBarrier(1, &toCopySource);
+
+			const D3D12_RESOURCE_DESC backBufferDesc = pBackBuffer->GetDesc();
+
+			D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint{};
+			mpDeviceContext->GetDevice()->GetCopyableFootprints(&backBufferDesc, 0, 1, 0, &footprint, nullptr, nullptr, nullptr);
+
+			D3D12_TEXTURE_COPY_LOCATION src{};
+			src.pResource        = pBackBuffer.Get();
+			src.Type             = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+			src.SubresourceIndex = 0;
+
+			D3D12_TEXTURE_COPY_LOCATION dst{};
+			dst.pResource       = mpBackBufferReadbackBuffer.Get();
+			dst.Type            = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+			dst.PlacedFootprint = footprint;
+
+			pCurrCommandList->CopyTextureRegion(&dst, 0, 0, 0, &src, nullptr);
+
+			CD3DX12_RESOURCE_BARRIER rtTransitionBarrier = CD3DX12_RESOURCE_BARRIER::Transition(pBackBuffer.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PRESENT);
+			pCurrCommandList->ResourceBarrier(1, &rtTransitionBarrier);
+		}
+		else if (currBackBufferState != D3D12_RESOURCE_STATE_PRESENT)
+		{
+			CD3DX12_RESOURCE_BARRIER rtTransitionBarrier = CD3DX12_RESOURCE_BARRIER::Transition(mpSwapchain->GetCurrRenderTarget().Get(), currBackBufferState, D3D12_RESOURCE_STATE_PRESENT);
+			pCurrCommandList->ResourceBarrier(1, &rtTransitionBarrier);
+		}
 
 		mpSwapchain->SetCurrRenderTargetLayout(E_RESOURCE_LAYOUT::UNDEFINED);
 
@@ -1562,6 +1659,10 @@ namespace TDEngine2
 		mpDeviceContext->GetCommandQueue()->ExecuteCommandLists(1, ppCommandLists);
 
 		pCurrCommandBuffer->GetFenceEntry().Signal();
+
+		mBackBufferCaptureFenceValue = pCurrCommandBuffer->GetFenceEntry().Signal();
+		mBackBufferCaptureFrameIndex = currFrameIndex;
+		mIsBackBufferCaptureReady    = shouldCapture;
 
 		mpSwapchain->Present();
 	}
@@ -2588,6 +2689,16 @@ namespace TDEngine2
 		return RC_OK;
 	}
 
+	void CD3D12GraphicsContext::SetBackBufferCaptureEnabled(bool state)
+	{
+		mIsBackBufferCaptureEnabled = state;
+	}
+
+	bool CD3D12GraphicsContext::IsBackBufferCaptureEnabled() const
+	{
+		return mIsBackBufferCaptureEnabled;
+	}
+
 	const TGraphicsCtxInternalData& CD3D12GraphicsContext::GetInternalData() const
 	{
 		TDE2_UNREACHABLE();
@@ -2710,7 +2821,49 @@ namespace TDEngine2
 	{
 		Vector<U8> backBufferData;
 
-		TDE2_UNIMPLEMENTED();
+		if (!mIsInitialized || !mIsBackBufferCaptureReady || !mpBackBufferReadbackBuffer || !mpSwapchain || !mpSwapchain->IsValid())
+		{
+			return backBufferData;
+		}
+
+		mpCommandBuffers[mBackBufferCaptureFrameIndex]->GetFenceEntry().WaitForSignal(mBackBufferCaptureFenceValue);
+
+		D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint{};
+
+		U32 numRows = 0;
+		U64 rowSizeInBytes = 0;
+
+		const D3D12_RESOURCE_DESC backBufferDesc = mpSwapchain->GetCurrRenderTarget()->GetDesc();
+
+		mpDeviceContext->GetDevice()->GetCopyableFootprints(&backBufferDesc, 0, 1, 0, &footprint, &numRows, &rowSizeInBytes, nullptr);
+
+		void* pMappedData = nullptr;
+
+		if (FAILED(mpBackBufferReadbackBuffer->Map(0, nullptr, &pMappedData)))
+		{
+			return backBufferData;
+		}
+
+		const USIZE tightRowBytes = static_cast<USIZE>(rowSizeInBytes);
+		const USIZE rowPitch      = footprint.Footprint.RowPitch;
+
+		backBufferData.resize(tightRowBytes * numRows);
+
+		const U8* pSrc = static_cast<const U8*>(pMappedData);
+		for (U32 row = 0; row < numRows; ++row)
+		{
+			memcpy(backBufferData.data() + row * tightRowBytes,
+				pSrc + row * rowPitch,
+				tightRowBytes);
+		}
+
+		mpBackBufferReadbackBuffer->Unmap(0, nullptr);
+
+		/// \fixme Maybe there is a way to simplify this with proper format
+		for (USIZE i = 3; i < backBufferData.size(); i += 4)
+		{
+			backBufferData[i] = 0xff;
+		}
 
 		return std::move(backBufferData);
 	}

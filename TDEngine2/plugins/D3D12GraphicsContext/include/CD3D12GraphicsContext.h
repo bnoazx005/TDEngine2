@@ -342,6 +342,9 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE BeginRenderPass(const TFramebufferInfo& framebufferInfo) override;
 			TDE2_API E_RESULT_CODE EndRenderPass() override;
 
+			TDE2_API void SetBackBufferCaptureEnabled(bool state) override;
+			TDE2_API bool IsBackBufferCaptureEnabled() const override;
+
 			/*!
 				\brief The method returns an object that contains internal handlers that are used by the system.
 
@@ -434,34 +437,12 @@ namespace TDEngine2
 			void _waitForIdle();
 			void _preparePipelineState();
 
+			bool _ensureBackBufferReadbackBufferExists();
+
 			ID3D12GraphicsCommandList4* _getCurrCommandListPtr();
 		public:
 			TDE2_STATIC_CONSTEXPR      U32 BACK_BUFFERS_COUNT = 2;
 		protected:
-
-			//		constexpr static U8      mMaxNumOfRenderTargets = D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT;
-			//
-			//		ID3D12Device* mp3dDevice;
-			//		ID3D12DeviceContext* mp3dDeviceContext;
-			//		TGraphicsCtxInternalData mInternalDataObject;
-			//
-			//
-			//		ID3D12RenderTargetView* mpBackBufferView;
-			//
-			//		ID3D12DepthStencilView* mpCurrDepthStencilView;
-			//		ID3D12DepthStencilView* mpDefaultDepthStencilView;
-			//		ID3D12DepthStencilView* mpPrevDepthStencilView;
-			//		ID3D12Texture2D* mpDefaultDepthStencilBuffer;
-			//
-			//		D3D_FEATURE_LEVEL        mCurrFeatureLevel;
-			//#if _DEBUG
-			//		ID3D12Debug* mpDebuggerInstance;
-			//#endif
-			//
-			//		bool                     mIsVSyncEnabled;
-			//
-			//		DXGI_FORMAT              mCurrBackBufferFormat;
-			//
 			TPtr<IGraphicsObjectManager>                                         mpGraphicsObjectManager = nullptr;
 			CD3D12GraphicsObjectManager*                                         mpGraphicsObjectManagerD3D12Impl = nullptr;
 			
@@ -491,6 +472,17 @@ namespace TDEngine2
 
 			std::array<CD3D12BasePipeline*, BACK_BUFFERS_COUNT>                  mpActivePipelineStates{};
 			std::unordered_map<U64, Microsoft::WRL::ComPtr<ID3D12PipelineState>> mCachedPipelinesLibrary{};
+
+			// Members to provide implementation for GetBackBufferData()
+			mutable Microsoft::WRL::ComPtr<ID3D12Resource>                       mpBackBufferReadbackBuffer = nullptr;
+			mutable D3D12MA::Allocation*                                         mpBackBufferReadbackAllocation = nullptr;
+			U32                                                                  mBackBufferReadbackWidth = 0;
+			U32                                                                  mBackBufferReadbackHeight = 0;
+
+			bool                                                                 mIsBackBufferCaptureEnabled = false;
+			mutable bool                                                         mIsBackBufferCaptureReady = false;
+			U64                                                                  mBackBufferCaptureFenceValue = 0;
+			U32                                                                  mBackBufferCaptureFrameIndex = 0;
 
 	};
 

@@ -948,6 +948,8 @@ namespace TDEngine2
 
 			const VkSwapchainKHR GetHandle() const { return mSwapChain; }
 
+			const VkExtent2D& GetExtent() const { return mSwapChainExtents; }
+
 			bool IsValid() const { return mIsValid; }
 		private:
 			DECLARE_INTERFACE_IMPL_PROTECTED_MEMBERS(CVulkanSwapchain)
@@ -1735,6 +1737,15 @@ namespace TDEngine2
 			vkDestroyPipeline(mpVulkanDeviceContext->GetDevice(), currCachedPipelineEntry.second, nullptr);
 		}
 
+		if (mpBackBufferReadbackBuffer != VK_NULL_HANDLE)
+		{
+			vmaDestroyBuffer(mpVulkanDeviceContext->GetMemoryAllocator(), mpBackBufferReadbackBuffer, mpBackBufferReadbackAllocation);
+			
+			mpBackBufferReadbackBuffer     = VK_NULL_HANDLE;
+			mpBackBufferReadbackAllocation = VK_NULL_HANDLE;
+			mIsBackBufferCaptureReady = false;
+		}
+
 		mCachedPipelinesLibrary.clear();
 
 		for (TPtr<CVulkanCommandBuffer>& pCommandBuffer : mpCommandBuffers)
@@ -2043,31 +2054,87 @@ namespace TDEngine2
 
 		const USIZE currFrameIndex = mCurrFrameIndex.load(std::memory_order_acquire);
 
-		// \note Add final barrier for current swapchain's image
-		VkImageMemoryBarrier2 barrier = {};
-		barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
-		barrier.image                           = mpSwapchain->GetCurrImage();
-		barrier.oldLayout                       = VK_IMAGE_LAYOUT_UNDEFINED;
-		barrier.newLayout                       = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-		barrier.srcStageMask                    = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
-		barrier.srcAccessMask                   = VK_ACCESS_2_MEMORY_WRITE_BIT;
-		barrier.dstStageMask                    = VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT;
-		barrier.dstAccessMask                   = VK_ACCESS_2_MEMORY_WRITE_BIT | VK_ACCESS_2_MEMORY_READ_BIT;
-		barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-		barrier.subresourceRange.baseMipLevel   = 0;
-		barrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
-		barrier.subresourceRange.baseArrayLayer = 0;
-		barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
-		barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-		barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-
-		VkDependencyInfo dependencyInfo {};
-		dependencyInfo.sType                   = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
-		dependencyInfo.imageMemoryBarrierCount = 1;
-		dependencyInfo.pImageMemoryBarriers    = &barrier;
-		vkCmdPipelineBarrier2(_getCurrCommandBufferHandle(), &dependencyInfo);
-
 		const TPtr<CVulkanCommandBuffer>& pCurrCommandBuffer = mpCommandBuffers[currFrameIndex];
+		VkCommandBuffer currCommandBufferHandle = _getCurrCommandBufferHandle();
+
+		const bool shouldCapture = mIsBackBufferCaptureEnabled && _ensureBackBufferReadbackBuffer();
+		if (shouldCapture)
+		{
+			// \note COLOR_ATTACHMENT_OPTIMAL -> TRANSFER_SRC_OPTIMAL
+			VkImageMemoryBarrier2 toTransferBarrier{};
+			toTransferBarrier.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
+			toTransferBarrier.image               = mpSwapchain->GetCurrImage();
+			toTransferBarrier.oldLayout           = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			toTransferBarrier.newLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+			toTransferBarrier.srcStageMask        = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+			toTransferBarrier.srcAccessMask       = VK_ACCESS_2_MEMORY_WRITE_BIT;
+			toTransferBarrier.dstStageMask        = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+			toTransferBarrier.dstAccessMask       = VK_ACCESS_2_TRANSFER_READ_BIT;
+			toTransferBarrier.subresourceRange    = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+			toTransferBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+			toTransferBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+			VkDependencyInfo dependencyInfo{};
+			dependencyInfo.sType                   = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+			dependencyInfo.imageMemoryBarrierCount = 1;
+			dependencyInfo.pImageMemoryBarriers    = &toTransferBarrier;
+			vkCmdPipelineBarrier2(currCommandBufferHandle, &dependencyInfo);
+
+			// Actual copy
+			VkBufferImageCopy copyBackBufferRegion{};
+			copyBackBufferRegion.imageSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+			copyBackBufferRegion.imageSubresource.mipLevel       = 0;
+			copyBackBufferRegion.imageSubresource.baseArrayLayer = 0;
+			copyBackBufferRegion.imageSubresource.layerCount     = 1;
+			copyBackBufferRegion.imageOffset                     = { 0, 0, 0 };
+			copyBackBufferRegion.imageExtent                     = { mBackBufferReadbackWidth, mBackBufferReadbackHeight, 1 };
+
+			vkCmdCopyImageToBuffer(currCommandBufferHandle, mpSwapchain->GetCurrImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, mpBackBufferReadbackBuffer, 1, &copyBackBufferRegion);
+
+			// \note TRANSFER_SRC_OPTIMAL -> PRESENT_SRC_KHR
+			VkImageMemoryBarrier2 toPresentBarrier{};
+			toPresentBarrier.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
+			toPresentBarrier.image               = mpSwapchain->GetCurrImage();
+			toPresentBarrier.oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+			toPresentBarrier.newLayout           = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+			toPresentBarrier.srcStageMask        = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+			toPresentBarrier.srcAccessMask       = VK_ACCESS_2_TRANSFER_READ_BIT;
+			toPresentBarrier.dstStageMask        = VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT;
+			toPresentBarrier.dstAccessMask       = VK_ACCESS_2_MEMORY_WRITE_BIT | VK_ACCESS_2_MEMORY_READ_BIT;
+			toPresentBarrier.subresourceRange    = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+			toPresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+			toPresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+			dependencyInfo.pImageMemoryBarriers = &toPresentBarrier;
+			vkCmdPipelineBarrier2(currCommandBufferHandle, &dependencyInfo);
+		}
+		else
+		{			
+			// \note Add final barrier for current swapchain's image
+			VkImageMemoryBarrier2 barrier{};
+			barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
+			barrier.image                           = mpSwapchain->GetCurrImage();
+			barrier.oldLayout                       = VK_IMAGE_LAYOUT_UNDEFINED;
+			barrier.newLayout                       = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+			barrier.srcStageMask                    = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+			barrier.srcAccessMask                   = VK_ACCESS_2_MEMORY_WRITE_BIT;
+			barrier.dstStageMask                    = VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT;
+			barrier.dstAccessMask                   = VK_ACCESS_2_MEMORY_WRITE_BIT | VK_ACCESS_2_MEMORY_READ_BIT;
+			barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+			barrier.subresourceRange.baseMipLevel   = 0;
+			barrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
+			barrier.subresourceRange.baseArrayLayer = 0;
+			barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
+			barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+			barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+
+			VkDependencyInfo dependencyInfo{};
+			dependencyInfo.sType                   = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+			dependencyInfo.imageMemoryBarrierCount = 1;
+			dependencyInfo.pImageMemoryBarriers    = &barrier;
+			vkCmdPipelineBarrier2(currCommandBufferHandle, &dependencyInfo);
+		}
+
 		pCurrCommandBuffer->End();
 
 		const U64 signalValue = mFrameCounter + 1;
@@ -2084,6 +2151,9 @@ namespace TDEngine2
 
 		result = mpSwapchain->Present(mRenderFinishedSemaphores[currFrameIndex]);
 		TDE2_ASSERT(RC_OK == result);
+
+		mBackBufferCaptureFenceValue = signalValue;
+		mIsBackBufferCaptureReady    = shouldCapture;
 
 		if (!mpSwapchain->IsValid()) // \note Assume that window's sizes are changed 
 		{
@@ -3219,6 +3289,16 @@ namespace TDEngine2
 		}
 	}
 
+	void CVulkanGraphicsContext::SetBackBufferCaptureEnabled(bool state)
+	{
+		mIsBackBufferCaptureEnabled = state;
+	}
+
+	bool CVulkanGraphicsContext::IsBackBufferCaptureEnabled() const
+	{
+		return mIsBackBufferCaptureEnabled;
+	}
+
 	const TGraphicsCtxInternalData& CVulkanGraphicsContext::GetInternalData() const
 	{
 		return mInternalDataObject;
@@ -3241,8 +3321,45 @@ namespace TDEngine2
 
 	Vector<U8> CVulkanGraphicsContext::GetBackBufferData() const
 	{
-		TDE2_UNIMPLEMENTED();
-		return {};
+		TDE2_PROFILER_SCOPE("CVulkanGraphicsContext::GetBackBufferData");
+
+		Vector<U8> backBufferData;
+
+		if(!mIsInitialized || !mIsBackBufferCaptureReady || mpBackBufferReadbackBuffer == VK_NULL_HANDLE)
+		{
+			return backBufferData;
+		}
+
+		// This smells but for now it's the only solution
+		CVulkanGraphicsContext* pThis = const_cast<CVulkanGraphicsContext*>(this);
+
+		if (RC_OK != pThis->mpVulkanDeviceContext->WaitForSemaphore(mTimelineSemaphore, mBackBufferCaptureFenceValue, UINT64_MAX))
+		{
+			return backBufferData;
+		}
+
+		VmaAllocator allocator = pThis->mpVulkanDeviceContext->GetMemoryAllocator();
+
+		void* pMappedData = nullptr;
+		if (VK_SUCCESS != vmaMapMemory(allocator, mpBackBufferReadbackAllocation, &pMappedData))
+		{
+			return backBufferData;
+		}
+
+		vmaInvalidateAllocation(allocator, mpBackBufferReadbackAllocation, 0, VK_WHOLE_SIZE);
+
+		backBufferData.resize(mBackBufferReadbackSize);
+		memcpy(backBufferData.data(), pMappedData, mBackBufferReadbackSize);
+
+		vmaUnmapMemory(allocator, mpBackBufferReadbackAllocation);
+
+		/// \fixme Maybe there is a way to simplify this with proper format
+		for (USIZE i = 3; i < backBufferData.size(); i += 4)
+		{
+			backBufferData[i] = 0xff;
+		}
+
+		return backBufferData;
 	}
 
 	F32 CVulkanGraphicsContext::GetPositiveZAxisDirection() const
@@ -3698,6 +3815,67 @@ namespace TDEngine2
 
 		vkUpdateDescriptorSets(mpVulkanDeviceContext->GetDevice(), static_cast<U32>(mDescriptorWrites.size()), mDescriptorWrites.data(), 0, nullptr);
 		vkCmdBindDescriptorSets(_getCurrCommandBufferHandle(), pipelineType, pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+	}
+
+	bool CVulkanGraphicsContext::_ensureBackBufferReadbackBuffer()
+	{
+		if (!mpSwapchain || !mpSwapchain->IsValid())
+		{
+			return false;
+		}
+
+		const VkExtent2D extent = mpSwapchain->GetExtent();
+		const U32 width  = extent.width;
+		const U32 height = extent.height;
+
+		if (!width || !height)
+		{
+			return false;
+		}
+
+		if (mpBackBufferReadbackBuffer != VK_NULL_HANDLE && mBackBufferReadbackWidth == width && mBackBufferReadbackHeight == height)
+		{
+			return true;
+		}
+
+		VmaAllocator allocator = mpVulkanDeviceContext->GetMemoryAllocator();
+
+		if (mpBackBufferReadbackBuffer != VK_NULL_HANDLE)
+		{
+			vmaDestroyBuffer(allocator, mpBackBufferReadbackBuffer, mpBackBufferReadbackAllocation);
+			
+			mpBackBufferReadbackBuffer     = VK_NULL_HANDLE;
+			mpBackBufferReadbackAllocation = VK_NULL_HANDLE;
+			mIsBackBufferCaptureReady = false;
+		}
+
+		const VkDeviceSize backbufferSize = static_cast<VkDeviceSize>(width) * height * 4;
+
+		VkBufferCreateInfo bufferInfo{};
+		bufferInfo.sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		bufferInfo.size        = backbufferSize;
+		bufferInfo.usage       = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+		VmaAllocationCreateInfo allocInfo{};
+		allocInfo.usage = VMA_MEMORY_USAGE_GPU_TO_CPU;
+
+		const VkResult result = vmaCreateBuffer(allocator, &bufferInfo, &allocInfo,
+			&mpBackBufferReadbackBuffer, &mpBackBufferReadbackAllocation, nullptr);
+
+		if (VK_SUCCESS != result)
+		{
+			mpBackBufferReadbackBuffer     = VK_NULL_HANDLE;
+			mpBackBufferReadbackAllocation = VK_NULL_HANDLE;
+
+			return false;
+		}
+
+		mBackBufferReadbackWidth  = width;
+		mBackBufferReadbackHeight = height;
+		mBackBufferReadbackSize   = backbufferSize;
+
+		return true;
 	}
 
 

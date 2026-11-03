@@ -419,6 +419,9 @@ namespace TDEngine2
 			TDE2_API virtual void EndSectionMarker() = 0;
 #endif
 
+			TDE2_API virtual void SetBackBufferCaptureEnabled(bool state) = 0;
+			TDE2_API virtual bool IsBackBufferCaptureEnabled() const = 0;
+
 			/*!
 				\brief The method returns an object that contains internal handlers that are used by the system.
 

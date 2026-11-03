@@ -304,6 +304,9 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE BeginRenderPass(const TFramebufferInfo& framebufferInfo) override;
 			TDE2_API E_RESULT_CODE EndRenderPass() override;
 
+			TDE2_API void SetBackBufferCaptureEnabled(bool state) override;
+			TDE2_API bool IsBackBufferCaptureEnabled() const override;
+
 			/*!
 				\brief The method returns an object that contains internal handlers that are used by the system.
 
@@ -400,38 +403,39 @@ namespace TDEngine2
 		protected:
 			constexpr static U8      mMaxNumOfRenderTargets = D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT;
 
-			ID3D11Device*            mp3dDevice;
-			ID3D11DeviceContext*     mp3dDeviceContext;
-			TGraphicsCtxInternalData mInternalDataObject;
-			ID3D11Multithread*       mpMultithreadLock = nullptr;
+			ID3D11Device*                mp3dDevice;
+			ID3D11DeviceContext*         mp3dDeviceContext;
+			TGraphicsCtxInternalData     mInternalDataObject;
+			ID3D11Multithread*           mpMultithreadLock = nullptr;
 
-			IDXGISwapChain* mpSwapChain;
+			IDXGISwapChain*              mpSwapChain;
 
-			ID3D11RenderTargetView* mpBackBufferView;
+			ID3D11RenderTargetView*      mpBackBufferView;
 
-			ID3D11DepthStencilView* mpCurrDepthStencilView;
-			ID3D11DepthStencilView* mpDefaultDepthStencilView;
-			ID3D11DepthStencilView* mpPrevDepthStencilView;
-			ID3D11Texture2D*        mpDefaultDepthStencilBuffer;
+			ID3D11DepthStencilView*      mpCurrDepthStencilView;
+			ID3D11DepthStencilView*      mpDefaultDepthStencilView;
+			ID3D11DepthStencilView*      mpPrevDepthStencilView;
+			ID3D11Texture2D*             mpDefaultDepthStencilBuffer;
 
-			D3D_FEATURE_LEVEL        mCurrFeatureLevel;
+			D3D_FEATURE_LEVEL            mCurrFeatureLevel;
 	#if _DEBUG
-			ID3D11Debug* mpDebuggerInstance;
+			ID3D11Debug*                 mpDebuggerInstance;
 	#endif
 
-			bool                     mIsVSyncEnabled;
+			bool                         mIsVSyncEnabled;
+			bool                         mIsBackBufferCaptureEnabled = false;
 
-			DXGI_FORMAT              mCurrBackBufferFormat;
+			DXGI_FORMAT                  mCurrBackBufferFormat;
 
 			TPtr<IGraphicsObjectManager> mpGraphicsObjectManager = nullptr;
 			CD3D11GraphicsObjectManager* mpGraphicsObjectManagerD3D11Impl = nullptr;
 
-			TPtr<IWindowSystem>      mpWindowSystem = nullptr;
-			TPtr<IEventManager>      mpEventManager = nullptr;
-			TPtr<IFileSystem>        mpFileSystem = nullptr;
+			TPtr<IWindowSystem>          mpWindowSystem = nullptr;
+			TPtr<IEventManager>          mpEventManager = nullptr;
+			TPtr<IFileSystem>            mpFileSystem = nullptr;
 
-			ID3D11RenderTargetView* mpRenderTargets[mMaxNumOfRenderTargets];
-			U8                      mCurrNumOfActiveRenderTargets = 0;
+			ID3D11RenderTargetView*      mpRenderTargets[mMaxNumOfRenderTargets];
+			U8                           mCurrNumOfActiveRenderTargets = 0;
 	};
 
 
@@ -1197,6 +1201,16 @@ namespace TDEngine2
 		mp3dDeviceContext->OMSetRenderTargets(1, &mpBackBufferView, mpCurrDepthStencilView);
 
 		return RC_OK;
+	}
+
+	void CD3D11GraphicsContext::SetBackBufferCaptureEnabled(bool state)
+	{
+		mIsBackBufferCaptureEnabled = state;
+	}
+
+	bool CD3D11GraphicsContext::IsBackBufferCaptureEnabled() const
+	{
+		return mIsBackBufferCaptureEnabled;
 	}
 
 	const TGraphicsCtxInternalData& CD3D11GraphicsContext::GetInternalData() const

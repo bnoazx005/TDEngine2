@@ -301,6 +301,9 @@ namespace TDEngine2
 			TDE2_API E_RESULT_CODE BeginRenderPass(const TFramebufferInfo& framebufferInfo) override;
 			TDE2_API E_RESULT_CODE EndRenderPass() override;
 
+			TDE2_API void SetBackBufferCaptureEnabled(bool state) override;
+			TDE2_API bool IsBackBufferCaptureEnabled() const override;
+
 			/*!
 				\brief The method returns an object that contains internal handlers that are used by the system.
 
@@ -409,6 +412,8 @@ namespace TDEngine2
 			GLuint                          mCurrDepthBufferHandle;
 
 			GLuint                          mRenderTargets[mMaxNumOfRenderTargets];
+
+			bool                            mIsBackBufferCaptureEnabled = false;
 	};
 
 
@@ -1233,6 +1238,16 @@ namespace TDEngine2
 	E_RESULT_CODE COGLGraphicsContext::EndRenderPass()
 	{
 		return RC_NOT_IMPLEMENTED_YET;
+	}
+
+	void COGLGraphicsContext::SetBackBufferCaptureEnabled(bool state)
+	{
+		mIsBackBufferCaptureEnabled = state;
+	}
+
+	bool COGLGraphicsContext::IsBackBufferCaptureEnabled() const
+	{
+		return mIsBackBufferCaptureEnabled;
 	}
 
 	const TGraphicsCtxInternalData& COGLGraphicsContext::GetInternalData() const

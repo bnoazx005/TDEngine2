@@ -10,6 +10,8 @@ using namespace TDEngine2;
 
 E_RESULT_CODE CCustomEngineListener::OnStart()
 {
+	mpGraphicsContext->SetBackBufferCaptureEnabled(true);
+
 	E_RESULT_CODE result = CTestContext::Get()->SetArtifactsOutputDirectory(
 		CProgramOptions::Get()->GetValueOrDefault("output-artifacts-dir", mpFileSystem->CombinePath(mpFileSystem->GetCurrDirectory(), "TestArtifacts/")));
 

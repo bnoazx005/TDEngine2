@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.36] 2026-10-31
+## [0.6.36] 2026-11-03
+
+### Added
+
+- A new value **READBACK** for **E_BUFFER_USAGE_TYPE** was added to distinguish a new buffer type that is used for CPU readback operations.
+
+- The API of **IGraphicsContext** was extended with new methods SetBackBufferCaptureEnabled(bool)/IsBackBufferCaptureEnabled().
 
 ### Changed
 
@@ -16,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Renderdoc's debugging under Vulkan graphics context was fixed.
+
+- The implementation of **CD3D12TextureImpl::ReadBytes** was fixed.
 
 ## [0.6.35] 2026-10-26
 

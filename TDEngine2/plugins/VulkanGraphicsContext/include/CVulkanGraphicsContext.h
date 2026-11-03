@@ -416,6 +416,9 @@ namespace TDEngine2
 
 			void FlushBarriers();
 
+			TDE2_API void SetBackBufferCaptureEnabled(bool state) override;
+			TDE2_API bool IsBackBufferCaptureEnabled() const override;
+
 			/*!
 				\brief The method returns an object that contains internal handlers that are used by the system.
 
@@ -517,6 +520,8 @@ namespace TDEngine2
 			VkCommandBuffer _getCurrCommandBufferHandle() const;
 
 			void _flushPipelineDescriptorsSet();
+
+			bool _ensureBackBufferReadbackBuffer();
 		protected:
 			static const USIZE                                   FRAMES_COUNT = 2;
 
@@ -574,6 +579,18 @@ namespace TDEngine2
 			TTextureHandleId                                     mEmptyTextureHandle;
 
 			moodycamel::ConcurrentQueue<TDeferredRequest>        mDeferredGraphicsRequests; ///< The queue contains all commands that were produced from threads that are not related with rendering
+
+			bool                                                 mIsBackBufferCaptureEnabled = false;
+
+			// Persistent readback buffer
+			VkBuffer                                             mpBackBufferReadbackBuffer = VK_NULL_HANDLE;
+			VmaAllocation                                        mpBackBufferReadbackAllocation = VK_NULL_HANDLE;
+			U32                                                  mBackBufferReadbackWidth = 0;
+			U32                                                  mBackBufferReadbackHeight = 0;
+			VkDeviceSize                                         mBackBufferReadbackSize = 0;
+
+			mutable U64                                          mBackBufferCaptureFenceValue = 0;
+			mutable bool                                         mIsBackBufferCaptureReady = false;
 	};
 
 

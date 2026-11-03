@@ -257,6 +257,15 @@ namespace TDEngine2
 
 #endif
 
+	void CProxyGraphicsContext::SetBackBufferCaptureEnabled(bool state)
+	{
+	}
+
+	bool CProxyGraphicsContext::IsBackBufferCaptureEnabled() const
+	{
+		return false;
+	}
+
 	const TGraphicsCtxInternalData& CProxyGraphicsContext::GetInternalData() const
 	{
 		static TGraphicsCtxInternalData data;
