@@ -891,19 +891,26 @@ namespace TDEngine2
 			return RC_FAIL;
 		}
 
+		if (depthTo <= depthFrom)
+		{
+			TDE2_ASSERT_MSG(false, "[UpdateTexture3D] Empty depth range");
+			return RC_INVALID_ARGS;
+		}
+
 		D3D11_BOX region;
+		region.left   = static_cast<UINT>(regionRect.x);
+		region.top    = static_cast<UINT>(regionRect.y);
+		region.right  = static_cast<UINT>(regionRect.x + regionRect.width);
+		region.bottom = static_cast<UINT>(regionRect.y + regionRect.height);
+		region.front  = depthFrom;
+		region.back   = depthTo;
 
-		region.left = regionRect.x;
-		region.top = regionRect.y;
-		region.right = regionRect.x + regionRect.width;
-		region.bottom = regionRect.y + regionRect.height;
-		region.front = depthFrom;
-		region.back = region.front + (depthTo - depthFrom);
+		const U32 bytesPerPixel = CD3D11Mappings::GetFormatSize(pTexture->GetParams().mFormat);
+		const U32 rowPitch      = static_cast<U32>(regionRect.width) * bytesPerPixel;
+		const U32 depthPitch    = rowPitch * static_cast<U32>(regionRect.height);
 
-		U32 rowPitch = regionRect.width * CD3D11Mappings::GetNumOfChannelsOfFormat(pTexture->GetParams().mFormat);
-
-		mp3dDeviceContext->UpdateSubresource(pTexture->GetTextureResource(),
-			D3D11CalcSubresource(0, 0, pTexture->GetParams().mNumOfMipLevels), &region, pData, rowPitch, rowPitch * regionRect.height);
+		mp3dDeviceContext->UpdateSubresource(pTexture->GetTextureResource(), D3D11CalcSubresource(0, 0, pTexture->GetParams().mNumOfMipLevels),
+			&region, pData, rowPitch, depthPitch);
 
 		return RC_OK;
 	}

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.36] 2026-11-10
+## [0.6.36] 2026-11-11
 
 ### Added
 
@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Renderdoc's debugging under Vulkan graphics context was fixed.
 
 - The implementation of **CD3D12TextureImpl::ReadBytes** was fixed.
+
+- The implementation of **CD3D11GraphicsContext::UpdateTexture3D** was fixed to provide correct update of 3d textures.
 
 ## [0.6.35] 2026-10-26
 
