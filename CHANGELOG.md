@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.36] 2026-11-03
+## [0.6.36] 2026-11-10
 
 ### Added
 
 - A new value **READBACK** for **E_BUFFER_USAGE_TYPE** was added to distinguish a new buffer type that is used for CPU readback operations.
 
 - The API of **IGraphicsContext** was extended with new methods SetBackBufferCaptureEnabled(bool)/IsBackBufferCaptureEnabled().
+
+- CBaseTexture3DLoader::LoadResource was implemented.
 
 ### Changed
 

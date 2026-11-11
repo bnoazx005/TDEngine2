@@ -408,6 +408,66 @@ namespace TDEngine2
 	}
 
 
+#define TDE2_DECLARE_SERIALIZABLE_TYPE(Type)	                                     \
+	TDE2_API static TResult<Type> Load(IArchiveReader* pReader);                     \
+	TDE2_API static E_RESULT_CODE Save(IArchiveWriter* pWriter, const Type& data);   
+
+
+#define TDE2_DEFINE_SERIALIZABLE_TYPE(Type)	                                                                                        \
+	TResult<Type> Type::Load(IArchiveReader* pReader)																				\
+	{																																\
+		Type resultData{};																											\
+		E_RESULT_CODE resultCode = RC_OK;																							\
+		Meta::VisitSerializableClassFields(resultData, [pReader, &resultCode](const C8* pFieldNamePtr, auto& fieldValue)			\
+		{																															\
+			if constexpr (TIsVector<typename std::decay_t<decltype(fieldValue)>>::value)											\
+			{																														\
+				auto&& result = Deserialize<typename std::decay_t<decltype(fieldValue)>>(pReader, pFieldNamePtr, "item");			\
+				if (result.HasError())																								\
+				{																													\
+					resultCode = result.GetError();																					\
+					return;																											\
+				}																													\
+																																	\
+				fieldValue = result.Get();																							\
+			}																														\
+			else																													\
+			{																														\
+				auto&& result = Deserialize<typename std::decay_t<decltype(fieldValue)>>(pReader, pFieldNamePtr);					\
+				if (result.IsOk())																									\
+				{																													\
+					fieldValue = result.Get();																						\
+					return;																											\
+				}																													\
+			}																														\
+		});																															\
+																																	\
+		if (RC_OK != resultCode)																									\
+		{																															\
+			return Wrench::TErrValue<E_RESULT_CODE>(resultCode);																	\
+		}																															\
+		return Wrench::TOkValue<Type>(resultData);																					\
+	}																																\
+																																	\
+	E_RESULT_CODE Type::Save(IArchiveWriter* pWriter, const Type& data)																\
+	{																																\
+		E_RESULT_CODE result = RC_OK;																								\
+		Meta::VisitSerializableClassFields(data, [pWriter, &result](const C8* pFieldNamePtr, const auto& fieldValue)				\
+		{																															\
+			if constexpr (TIsVector<typename std::decay_t<decltype(fieldValue)>>::value)											\
+			{																														\
+				result = result | Serialize(pWriter, pFieldNamePtr, fieldValue, "item");											\
+			}																														\
+			else																													\
+			{																														\
+				result = result | Serialize(pWriter, pFieldNamePtr, fieldValue);													\
+			}																														\
+		});																															\
+		return result;																												\
+	}																																\
+																																	\
+
+
 	class IPropertyWrapper;
 
 

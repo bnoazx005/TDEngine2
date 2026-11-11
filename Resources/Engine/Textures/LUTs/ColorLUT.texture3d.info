@@ -1,0 +1,8 @@
+format: FT_NORM_UBYTE4
+width: 32
+height: 32
+depth: 32
+mip_levels_count: 1
+input_sheet_rows_count: 1
+input_sheet_cols_count: 32
+atlas_path: DefaultResources/Textures/LUTs/ColorLUT.png

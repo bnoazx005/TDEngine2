@@ -17,6 +17,22 @@ namespace TDEngine2
 	enum class TTextureHandleId : U32;
 
 
+	CLASS_META(SECTION = resources, flags = SERIALIZE_MARKED_ONLY_FIELDS)
+	struct TTexture3DMetaInfo
+	{
+		FIELD_META(name = format) E_FORMAT_TYPE       mFormat = FT_UNKNOWN;
+		FIELD_META(name = width) U32                  mWidth = 0;
+		FIELD_META(name = height) U32                 mHeight = 0;
+		FIELD_META(name = depth) U32                  mDepth = 0;
+		FIELD_META(name = mip_levels_count) U16       mMipLevelsCount = 1;
+		FIELD_META(name = input_sheet_rows_count) U32 mSheetRowsCount = 1;
+		FIELD_META(name = input_sheet_cols_count) U32 mSheetColsCount = 1;
+		FIELD_META(name = atlas_path) std::string     mAtlasPath;
+
+		TDE2_DECLARE_SERIALIZABLE_TYPE(TTexture3DMetaInfo)
+	};
+
+
 	TDE2_API ITexture3D* CreateTexture3D(IResourceManager* pResourceManager, IGraphicsContext* pGraphicsContext, const std::string& name,
 		const TTexture3DParameters& params, E_RESULT_CODE& result);
 

@@ -5,14 +5,19 @@
 #include "../../include/core/IJobManager.h"
 #include "../../include/graphics/IGraphicsObjectManager.h"
 #define META_EXPORT_GRAPHICS_SECTION
+#define META_EXPORT_RESOURCES_SECTION
 #include "../../include/metadata.h"
 #include "../../include/editor/CPerfProfiler.h"
+#include "deferOperation.hpp"
 #include <stb_image.h>
 #include <string>
 
 
 namespace TDEngine2
 {
+	TDE2_DEFINE_SERIALIZABLE_TYPE(TTexture3DMetaInfo);
+
+
 	struct TTexture3DParametersArchiveKeys
 	{
 		static const std::string mSheetRowsCountKeyId;
@@ -27,7 +32,7 @@ namespace TDEngine2
 		\note The declaration of TTexture3DParameters is placed at ITexture3D.h
 	*/
 
-	TTexture3DParameters::TTexture3DParameters(U32 width, U32 height, U32 depth, E_FORMAT_TYPE format, U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality):
+	TTexture3DParameters::TTexture3DParameters(U32 width, U32 height, U32 depth, E_FORMAT_TYPE format, U32 mipLevelsCount, U32 samplesCount, U32 samplingQuality) :
 		TTexture2DParameters(width, height, format, mipLevelsCount, samplesCount, samplingQuality), mDepth(depth)
 	{
 	}
@@ -45,7 +50,7 @@ namespace TDEngine2
 	E_RESULT_CODE TTexture3DParameters::Save(IArchiveWriter* pWriter)
 	{
 		E_RESULT_CODE result = TTexture2DParameters::Save(pWriter);
-		
+
 		result = result | pWriter->SetUInt32("type_id", static_cast<U32>(TDE2_TYPE_ID(TTexture3DParameters)));
 		result = result | pWriter->SetUInt32(TTexture3DParametersArchiveKeys::mSheetRowsCountKeyId, mInputSheetRowsCount);
 		result = result | pWriter->SetUInt32(TTexture3DParametersArchiveKeys::mSheetColsCountKeyId, mInputSheetColsCount);
@@ -80,7 +85,7 @@ namespace TDEngine2
 		mpGraphicsContext = pGraphicsContext;
 
 		mLoadingPolicy = params.mLoadingPolicy;
-		
+
 		mTextureSamplerParams = params.mTexSamplerDesc;
 		mTextureSamplerParams.mUseMipMaps = params.mNumOfMipLevels > 1;
 
@@ -140,7 +145,7 @@ namespace TDEngine2
 
 		return result;
 	}
-	
+
 	E_RESULT_CODE CBaseTexture3D::WriteData(const TRectI32& regionRect, U32 depthFirstSlice, U32 depthLastSlice, const U8* pData)
 	{
 		return mpGraphicsContext->UpdateTexture3D(mCurrTextureHandle, depthFirstSlice, depthLastSlice, regionRect, pData, 0);
@@ -220,7 +225,7 @@ namespace TDEngine2
 	Vector<U8> CBaseTexture3D::GetInternalData()
 	{
 		auto pGraphicsObjectManager = mpGraphicsContext->GetGraphicsObjectManager();
-		
+
 		auto pTexture = pGraphicsObjectManager->GetTexturePtr(mCurrTextureHandle);
 		if (!pTexture)
 		{
@@ -273,17 +278,143 @@ namespace TDEngine2
 		{
 			return RC_INVALID_ARGS;
 		}
-		
+
 		mpResourceManager = pResourceManager;
 
 		mpFileSystem = pFileSystem;
 
 		mpGraphicsContext = pGraphicsContext;
-		
+
 		mIsInitialized = true;
 
 		return RC_OK;
 	}
+
+
+	static TResult<TTexture3DMetaInfo> ReadTexture3DMetaInfo(IFileSystem* pFileSystem, const std::string& filename)
+	{
+		auto&& fileReadingResult = pFileSystem->Open<IYAMLFileReader>(filename);
+		if (fileReadingResult.HasError())
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(fileReadingResult.GetError());
+		}
+
+		auto&& pYAMLFileReader = pFileSystem->Get<IYAMLFileReader>(fileReadingResult.Get());
+		if (!pYAMLFileReader)
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(RC_FAIL);
+		}
+
+		defer([pYAMLFileReader] { pYAMLFileReader->Close(); });
+
+		auto&& load3DTextureMetaResult = TTexture3DMetaInfo::Load(pYAMLFileReader);
+		if (load3DTextureMetaResult.HasError())
+		{
+			return Wrench::TErrValue<E_RESULT_CODE>(load3DTextureMetaResult.GetError());
+		}
+
+		return Wrench::TOkValue<TTexture3DMetaInfo>(load3DTextureMetaResult.Get());
+	}
+
+
+	E_RESULT_CODE LoadAtlasTexture(IFileSystem* pFileSystem, ITexture3D* pTexture, const TTexture3DMetaInfo& info, const std::string& atlasFilename)
+	{
+		I32 atlasWidth = 0, atlasHeight = 0, format = 0;
+		if (!stbi_info(atlasFilename.c_str(), &atlasWidth, &atlasHeight, &format))
+		{
+			return RC_FILE_NOT_FOUND;
+		}
+
+		if (static_cast<U32>(atlasWidth) != info.mWidth * info.mSheetColsCount || static_cast<U32>(atlasHeight) != info.mHeight * info.mSheetRowsCount)
+		{
+			return RC_FAIL;
+		}
+
+		IJobManager* pJobManager = pFileSystem->GetJobManager();
+		if (!pJobManager)
+		{
+			return RC_FAIL;
+		}
+
+		auto loadAtlasRoutine = [pJobManager, pTexture, info, atlasFilename, w = atlasWidth, h = atlasHeight, fmt = format](auto&&)
+			{
+				TDE2_PROFILER_SCOPE("LoadTexture3DAtlasJob");
+
+				I32 width = w, height = h, format = fmt;
+				const I32 desiredChannels = (format < 3 ? format : 4);
+
+				U8* pAtlasData = stbi_load(atlasFilename.c_str(), &width, &height, &format, desiredChannels);
+				if (!pAtlasData)
+				{
+					return;
+				}
+
+				E_FORMAT_TYPE internalFormat = FT_NORM_UBYTE4;
+				switch (desiredChannels)
+				{
+					case 1: internalFormat = FT_NORM_UBYTE1;
+						break;
+					case 2: internalFormat = FT_NORM_UBYTE2;
+						break;
+				}
+
+				if (internalFormat != info.mFormat)
+				{
+					TDE2_ASSERT(false);
+					stbi_image_free(pAtlasData);
+
+					return;
+				}
+
+				pJobManager->ExecuteInMainThread([pTexture, info, pAtlasData, desiredChannels, width, height]()
+					{
+						const U32 c = static_cast<U32>(desiredChannels);
+						const U32 atlasRowPitch = static_cast<U32>(width) * c;
+						const U32 sliceRowPitch = info.mWidth * c;
+						const U32 sliceSize = sliceRowPitch * info.mHeight;
+
+						std::vector<U8> packed(static_cast<size_t>(sliceSize) * info.mDepth);
+
+						for (U32 slice = 0; slice < info.mDepth; ++slice)
+						{
+							const U32 row = slice / info.mSheetColsCount;
+							const U32 col = slice % info.mSheetColsCount;
+
+							for (U32 y = 0; y < info.mHeight; ++y)
+							{
+								const U8* pSrc = pAtlasData
+									+ static_cast<size_t>(row * info.mHeight + y) * atlasRowPitch
+									+ static_cast<size_t>(col) * info.mWidth * c;
+								std::memcpy(packed.data() + slice * sliceSize + y * sliceRowPitch, pSrc, sliceRowPitch);
+							}
+						}
+
+						if (RC_OK != pTexture->WriteData({ 0, 0, static_cast<I32>(info.mWidth), static_cast<I32>(info.mHeight) }, 0, info.mDepth, packed.data()))
+						{
+							TDE2_ASSERT(false);
+						}
+
+						stbi_image_free(pAtlasData);
+					});
+			};
+
+		IResource* pResource = dynamic_cast<IResource*>(pTexture);
+		if (!pResource)
+		{
+			return RC_FAIL;
+		}
+
+		if (E_RESOURCE_LOADING_POLICY::STREAMING != pResource->GetLoadingPolicy())
+		{
+			loadAtlasRoutine(TJobArgs{});
+			return RC_OK;
+		}
+
+		pJobManager->SubmitJob(nullptr, loadAtlasRoutine, { E_JOB_PRIORITY_TYPE::NORMAL, true });
+
+		return RC_OK;
+	}
+
 
 	E_RESULT_CODE CBaseTexture3DLoader::LoadResource(IResource* pResource) const
 	{
@@ -293,123 +424,45 @@ namespace TDEngine2
 		{
 			return RC_FAIL;
 		}
-		/*
-		IJobManager* pJobManager = mpFileSystem->GetJobManager();
-		
-		I32 width = 0;
-		I32 height = 0;
-		I32 format = 0;
 
-		const std::string filename = mpFileSystem->ResolveVirtualPath(pResource->GetName(), false);
-
-		U8* pTextureData = nullptr;
-
-		/// \todo Reimplement this later using reading from in-memory block rather than using explicit file I/O
-		if (!stbi_info(filename.c_str(), &width, &height, &format))
+		auto&& loadMetaInfoResult = ReadTexture3DMetaInfo(mpFileSystem, mpFileSystem->ResolveVirtualPath(pResource->GetName(), false));
+		if (loadMetaInfoResult.HasError())
 		{
-			return RC_FILE_NOT_FOUND;
+			return loadMetaInfoResult.GetError();
 		}
 
-		auto loadTextureRoutine = [pResource, pJobManager, w = width, h = height, fmt = format, filename, this](auto&&)
+		/// reset old texture data
+		E_RESULT_CODE result = pResource->Reset();
+
+		if (result != RC_OK)
 		{
-			TDE2_PROFILER_SCOPE("LoadTextureRoutineJob");
+			return result;
+		}
 
-			U8* pTextureData = nullptr;
+		ITexture3D* pTextureResource = dynamic_cast<ITexture3D*>(pResource);
+		if (!pTextureResource)
+		{
+			return RC_INVALID_ARGS;
+		}
 
-			I32 width = w;
-			I32 height = h;
-			I32 format = fmt;
+		const TTexture3DMetaInfo metaInfo = loadMetaInfoResult.Get();
 
-			const bool isHDREnabled = stbi_is_hdr(filename.c_str());
-
-			if (isHDREnabled)
-			{
-				pTextureData = reinterpret_cast<U8*>(stbi_loadf(filename.c_str(), &width, &height, &format, (format < 3 ? format : 4))); /// D3D11 doesn't work with 24 bits textures
-			}
-			else
-			{
-				pTextureData = stbi_load(filename.c_str(), &width, &height, &format, (format < 3 ? format : 4)); /// D3D11 doesn't work with 24 bits textures
-			}
-			
-			if (!pTextureData)
-			{
-				return;
-			}
-
-			E_FORMAT_TYPE internalFormat = isHDREnabled ? FT_FLOAT4 : FT_NORM_UBYTE4;
-
-			switch (format)
-			{
-				case 1:
-					internalFormat = isHDREnabled ? FT_FLOAT1 : FT_NORM_UBYTE1;
-					break;
-				case 2:
-					internalFormat = isHDREnabled ? FT_FLOAT2 : FT_NORM_UBYTE2;
-					break;
-			}
-
-			pJobManager->ExecuteInMainThread([pResource, pTextureData, width, height, internalFormat, this]()
-			{
-				/// reset old texture data
-				E_RESULT_CODE result = pResource->Reset();
-				if (RC_OK != result)
-				{
-					TDE2_ASSERT(false);
-					return;
-				}
-
-				/// create new internal texture
-				ITexture3D* pTextureResource = dynamic_cast<ITexture3D*>(pResource);
-
-				const TTexture3DParameters* pTextureMetaInfo = dynamic_cast<const TTexture3DParameters*>(mpResourceManager->GetResourceMeta(pResource->GetName()));
-				TTexture3DParameters textureParams = pTextureMetaInfo ? *pTextureMetaInfo : TTexture3DParameters { static_cast<U32>(width), static_cast<U32>(height), internalFormat, 1, 1, 0 };
-
-				textureParams.mWidth  = static_cast<U32>(width);
-				textureParams.mHeight = static_cast<U32>(height);
-				textureParams.mFormat = internalFormat;
-
-				/// \todo replace magic constants with proper computations
-				result = pTextureResource->Init(mpResourceManager, mpGraphicsContext, pResource->GetName(), textureParams);
-
-				if (RC_OK != result)
-				{
-					/// \todo restore default 2x2 black texture if something went wrong
-					TDE2_ASSERT(false);
-					return;
-				}
-
-				/// update subresource
-				if (RC_OK != (result = pTextureResource->WriteData({ 0, 0, width, height }, pTextureData)))
-				{
-					TDE2_ASSERT(false);
-					return;
-				}
-
-				pResource->SetState(E_RESOURCE_STATE_TYPE::RST_LOADED);
-
-				/// \note Update parameters of the texture
-				if (pTextureMetaInfo)
-				{
-					pTextureResource->SetUWrapMode(textureParams.mTexSamplerDesc.mUAddressMode);
-					pTextureResource->SetVWrapMode(textureParams.mTexSamplerDesc.mVAddressMode);
-					pTextureResource->SetWWrapMode(textureParams.mTexSamplerDesc.mWAddressMode);
-
-					pTextureResource->SetFilterType(textureParams.mTexSamplerDesc.mFilteringType);
-				}
-
-				stbi_image_free(pTextureData);
-			});
+		TTexture3DParameters textureParams
+		{
+			metaInfo.mWidth, metaInfo.mHeight, metaInfo.mDepth,
+			metaInfo.mFormat, metaInfo.mMipLevelsCount, 1, 0
 		};
 
-		if (E_RESOURCE_LOADING_POLICY::STREAMING != pResource->GetLoadingPolicy())
+		textureParams.mLoadingPolicy       = pResource->GetLoadingPolicy();
+		textureParams.mInputSheetRowsCount = metaInfo.mSheetRowsCount;
+		textureParams.mInputSheetColsCount = metaInfo.mSheetColsCount;
+
+		if (RC_OK != (result = pTextureResource->Init(mpResourceManager, mpGraphicsContext, pResource->GetName(), textureParams)))
 		{
-			loadTextureRoutine(TJobArgs{});
-			return RC_OK;
+			return result;
 		}
 
-		pJobManager->SubmitJob(nullptr, loadTextureRoutine, { E_JOB_PRIORITY_TYPE::NORMAL, true });
-		*/
-		return RC_OK;
+		return LoadAtlasTexture(mpFileSystem, pTextureResource, metaInfo, mpFileSystem->ResolveVirtualPath(metaInfo.mAtlasPath, false));
 	}
 
 	TypeId CBaseTexture3DLoader::GetResourceTypeId() const

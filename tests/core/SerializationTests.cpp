@@ -244,4 +244,35 @@ TEST_CASE("Serialize function Tests")
 
 		REQUIRE(actualEntity == expectedEntity);
 	}
+
+	SECTION("TestSerializeTTexture3DMetaInfo_PassReaderWithValueTryDeserializeItBack_CorrectlyCreatesAnInstanceOfTTexture3DMetaInfo")
+	{
+		E_RESULT_CODE result = RC_OK;
+
+		for (U32 value = static_cast<U32>(FT_FLOAT1); value != static_cast<U32>(FT_UNKNOWN); value++)
+		{
+			auto pMemoryMappedStream = TPtr<TDEngine2::IStream>(CreateMemoryIOStream(Wrench::StringUtils::GetEmptyStr(), {}, result));
+			REQUIRE(pMemoryMappedStream);
+
+			IYAMLFileWriter* pFileWriter = dynamic_cast<IYAMLFileWriter*>(CreateYAMLFileWriter(nullptr, pMemoryMappedStream, result));
+			REQUIRE(pFileWriter);
+
+			TTexture3DMetaInfo expectedMetaInfo{};
+			expectedMetaInfo.mFormat = static_cast<E_FORMAT_TYPE>(value);
+
+			REQUIRE(RC_OK == TTexture3DMetaInfo::Save(pFileWriter, expectedMetaInfo));
+
+			pFileWriter->Close();
+
+			/// \note Read back the value
+			IYAMLFileReader* pFileReader = dynamic_cast<IYAMLFileReader*>(CreateYAMLFileReader(nullptr, pMemoryMappedStream, result));
+			REQUIRE(pFileReader);
+
+			TTexture3DMetaInfo actualValue = TTexture3DMetaInfo::Load(pFileReader).Get();
+
+			pFileReader->Close();
+
+			REQUIRE(actualValue.mFormat == expectedMetaInfo.mFormat);
+		}
+	}
 }

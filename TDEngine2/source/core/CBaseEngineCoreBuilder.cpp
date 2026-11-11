@@ -286,6 +286,7 @@ namespace TDEngine2
 		/// \todo Replace it with reading policies from config file 
 #if TDE2_RESOURCES_STREAMING_ENABLED
 		mpResourceManagerInstance->RegisterTypeGlobalLoadingPolicy(ITexture2D::GetTypeId(), E_RESOURCE_LOADING_POLICY::STREAMING);
+		mpResourceManagerInstance->RegisterTypeGlobalLoadingPolicy(ITexture3D::GetTypeId(), E_RESOURCE_LOADING_POLICY::STREAMING);
 		mpResourceManagerInstance->RegisterTypeGlobalLoadingPolicy(ICubemapTexture::GetTypeId(), E_RESOURCE_LOADING_POLICY::STREAMING);
 		mpResourceManagerInstance->RegisterTypeGlobalLoadingPolicy(IStaticMesh::GetTypeId(), E_RESOURCE_LOADING_POLICY::STREAMING);
 		mpResourceManagerInstance->RegisterTypeGlobalLoadingPolicy(ISkinnedMesh::GetTypeId(), E_RESOURCE_LOADING_POLICY::STREAMING);
