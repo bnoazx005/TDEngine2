@@ -2013,8 +2013,138 @@ namespace TDEngine2
 
 	E_RESULT_CODE CD3D12GraphicsContext::UpdateTexture3D(TTextureHandleId textureHandle, U32 depthFrom, U32 depthTo, const TRectI32& regionRect, const void* pData, USIZE dataSize)
 	{
-		TDE2_UNIMPLEMENTED();
-		return RC_OK;
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		if (!pData || regionRect.width <= 0 || regionRect.height <= 0 || depthTo <= depthFrom)
+		{
+			TDE2_ASSERT_MSG(false, "[CD3D12GraphicsContext::UpdateTexture3D] Invalid input parameters");
+			return RC_INVALID_ARGS;
+		}
+
+		auto pTexture = mpGraphicsObjectManagerD3D12Impl->GetD3D12TexturePtr(textureHandle);
+		if (!pTexture)
+		{
+			return RC_FAIL;
+		}
+
+		const D3D12_RESOURCE_DESC& textureDesc = pTexture->GetHandle()->GetDesc();
+		if (textureDesc.Dimension != D3D12_RESOURCE_DIMENSION_TEXTURE3D)
+		{
+			TDE2_ASSERT_MSG(false, "[CD3D12GraphicsContext::UpdateTexture3D] The target texture is not a 3D texture");
+			return RC_INVALID_ARGS;
+		}
+
+		const U32 depthCount    = depthTo - depthFrom;
+		const U32 bytesPerPixel = CFormatUtils::GetFormatSize(pTexture->GetParams().mFormat);
+
+		const USIZE tightRowPitch  = static_cast<USIZE>(regionRect.width) * bytesPerPixel;
+		const USIZE tightSliceSize = tightRowPitch * static_cast<USIZE>(regionRect.height);
+		const USIZE tightTotalSize = tightSliceSize * depthCount;
+
+		constexpr USIZE ROW_ALIGNMENT = D3D12_TEXTURE_DATA_PITCH_ALIGNMENT; // 256
+		const USIZE alignedRowPitch  = (tightRowPitch + ROW_ALIGNMENT - 1) & ~(ROW_ALIGNMENT - 1);
+		const USIZE alignedSliceSize = alignedRowPitch * static_cast<USIZE>(regionRect.height);
+		const USIZE alignedTotalSize = alignedSliceSize * depthCount;
+
+		E_RESULT_CODE result = RC_OK;
+
+		TPtr<IBuffer> pStagingBuffer = TPtr<IBuffer>(
+			CreateD3D12Buffer(this, { E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::GENERIC, alignedTotalSize, nullptr }, result));
+		if (RC_OK != result || !pStagingBuffer)
+		{
+			return RC_OK != result ? result : RC_FAIL;
+		}
+
+		TPtr<CD3D12Buffer> pInternalStagingBuffer = DynamicPtrCast<CD3D12Buffer>(pStagingBuffer);
+
+		result = pStagingBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		if (alignedRowPitch == tightRowPitch)
+		{
+			result = pStagingBuffer->Write(pData, tightTotalSize);
+		}
+		else
+		{
+			Vector<U8> alignedBuffer(alignedTotalSize, 0);
+
+			const U8* pSrcData = static_cast<const U8*>(pData);
+
+			for (U32 slice = 0; slice < depthCount; ++slice)
+			{
+				for (U32 row = 0; row < static_cast<U32>(regionRect.height); ++row)
+				{
+					const U8* pSrcRow = pSrcData + slice * tightSliceSize + row * tightRowPitch;
+					U8* pDstRow = alignedBuffer.data() + slice * alignedSliceSize + row * alignedRowPitch;
+					memcpy(pDstRow, pSrcRow, tightRowPitch);
+				}
+			}
+
+			result = pStagingBuffer->Write(alignedBuffer.data(), alignedTotalSize);
+		}
+
+		pStagingBuffer->Unmap();
+
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		const E_RESOURCE_LAYOUT initialLayout = pTexture->GetLayout();
+		const U32 dstZ = depthFrom;
+
+		result = ExecuteImmediate([=](ID3D12GraphicsCommandList* pCommandList)
+			{
+				CD3DX12_RESOURCE_BARRIER transitionBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
+					pTexture->GetHandle().Get(),
+					CD3D12Mappings::GetInternalResourceState(initialLayout),
+					D3D12_RESOURCE_STATE_COPY_DEST);
+				pCommandList->ResourceBarrier(1, &transitionBarrier);
+
+				D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout{};
+				layout.Offset             = 0;
+				layout.Footprint.Format   = textureDesc.Format;
+				layout.Footprint.Width    = static_cast<U32>(regionRect.width);
+				layout.Footprint.Height   = static_cast<U32>(regionRect.height);
+				layout.Footprint.Depth    = depthCount;
+				layout.Footprint.RowPitch = static_cast<U32>(alignedRowPitch);
+
+				D3D12_TEXTURE_COPY_LOCATION dst{};
+				dst.pResource        = pTexture->GetHandle().Get();
+				dst.Type             = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+				dst.SubresourceIndex = 0;
+
+				D3D12_TEXTURE_COPY_LOCATION src{};
+				src.pResource       = pInternalStagingBuffer->GetHandle().Get();
+				src.Type            = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+				src.PlacedFootprint = layout;
+
+				D3D12_BOX srcBox{};
+				srcBox.left   = 0;
+				srcBox.top    = 0;
+				srcBox.front  = 0;
+				srcBox.right  = static_cast<U32>(regionRect.width);
+				srcBox.bottom = static_cast<U32>(regionRect.height);
+				srcBox.back   = depthCount;
+
+				pCommandList->CopyTextureRegion(&dst,
+					static_cast<U32>(regionRect.x),
+					static_cast<U32>(regionRect.y),
+					dstZ,
+					&src,
+					&srcBox);
+
+				transitionBarrier = CD3DX12_RESOURCE_BARRIER::Transition(pTexture->GetHandle().Get(), D3D12_RESOURCE_STATE_COPY_DEST, CD3D12Mappings::GetInternalResourceState(initialLayout));
+				pCommandList->ResourceBarrier(1, &transitionBarrier);
+			});
+
+		return result;
 	}
 
 	E_RESULT_CODE CD3D12GraphicsContext::CopyResource(TTextureHandleId sourceHandle, TTextureHandleId destHandle)

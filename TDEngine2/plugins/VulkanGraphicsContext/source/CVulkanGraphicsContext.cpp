@@ -2036,9 +2036,9 @@ namespace TDEngine2
 		{
 			switch (currRequest.mType)
 			{
-			case TDeferredRequest::E_TYPE::DESTROY_REQUEST:
-				ProcessDestroyRequest(this, currRequest.mDestroyEntryRequest);
-				break;
+				case TDeferredRequest::E_TYPE::DESTROY_REQUEST:
+					ProcessDestroyRequest(this, currRequest.mDestroyEntryRequest);
+					break;
 			}
 		}
 
@@ -2513,8 +2513,137 @@ namespace TDEngine2
 
 	E_RESULT_CODE CVulkanGraphicsContext::UpdateTexture3D(TTextureHandleId textureHandle, U32 depthFrom, U32 depthTo, const TRectI32& regionRect, const void* pData, USIZE dataSize)
 	{
-		TDE2_UNIMPLEMENTED();
-		return RC_NOT_IMPLEMENTED_YET;
+		if (!mIsInitialized)
+		{
+			return RC_FAIL;
+		}
+
+		if (!pData || regionRect.width <= 0 || regionRect.height <= 0 || depthTo <= depthFrom)
+		{
+			TDE2_ASSERT_MSG(false, "[CVulkanGraphicsContext::UpdateTexture3D] Invalid input parameters");
+			return RC_INVALID_ARGS;
+		}
+
+		auto pTexture = mpGraphicsObjectManagerImpl->GetVulkanTexturePtr(textureHandle);
+		if (!pTexture)
+		{
+			return RC_FAIL;
+		}
+
+		const TInitTextureParams& textureParams = pTexture->GetParams();
+		if (depthTo > textureParams.mDepth)
+		{
+			TDE2_ASSERT_MSG(false, "[CVulkanGraphicsContext::UpdateTexture3D] depthTo exceeds the texture's depth");
+			return RC_INVALID_ARGS;
+		}
+
+		const U32   depthCount    = depthTo - depthFrom;
+		const USIZE bytesPerPixel = CFormatUtils::GetFormatSize(textureParams.mFormat);
+		const USIZE stagingSize   = static_cast<USIZE>(regionRect.width) * static_cast<USIZE>(regionRect.height) * static_cast<USIZE>(depthCount) * bytesPerPixel;
+
+		E_RESULT_CODE result = RC_OK;
+
+		TPtr<IBuffer> pStagingBuffer = TPtr<IBuffer>(CreateVulkanBuffer(this, { E_BUFFER_USAGE_TYPE::DYNAMIC, E_BUFFER_TYPE::GENERIC, stagingSize, nullptr }, result));
+		if (RC_OK != result || !pStagingBuffer)
+		{
+			return RC_OK != result ? result : RC_FAIL;
+		}
+
+		TPtr<CVulkanBuffer> pVulkanStagingBuffer = DynamicPtrCast<CVulkanBuffer>(pStagingBuffer);
+
+		result = pStagingBuffer->Map(E_BUFFER_MAP_TYPE::BMT_WRITE);
+		if (RC_OK != result)
+		{
+			return result;
+		}
+
+		result = pStagingBuffer->Write(pData, stagingSize);
+		if (RC_OK != result)
+		{
+			pStagingBuffer->Unmap();
+			return result;
+		}
+
+		pStagingBuffer->Unmap();
+
+		const bool isFullDepthUpdate = (0 == depthFrom) && (depthTo == textureParams.mDepth);
+		const E_RESOURCE_LAYOUT currLayout = pTexture->GetLayout();
+		const VkImageLayout vkSrcLayout = (isFullDepthUpdate || E_RESOURCE_LAYOUT::UNDEFINED == currLayout)
+			? VK_IMAGE_LAYOUT_UNDEFINED
+			: CVulkanMappings::GetResourceLayout(currLayout);
+
+		const VkImageAspectFlags aspectMask = CVulkanMappings::IsDepthTextureFormat(textureParams.mFormat)
+			? VK_IMAGE_ASPECT_DEPTH_BIT
+			: VK_IMAGE_ASPECT_COLOR_BIT;
+
+		result = ExecuteImmediate([=](VkCommandBuffer cmdBuffer)
+			{
+				VkImageSubresourceRange range;
+				range.aspectMask     = aspectMask;
+				range.baseMipLevel   = 0;
+				range.levelCount     = 1;
+				range.baseArrayLayer = 0;
+				range.layerCount     = 1;
+
+				// UNDEFINED -> TRANSFER_DST_OPTIMAL
+				VkImageMemoryBarrier2 toTransfer{};
+				toTransfer.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
+				toTransfer.pNext               = nullptr;
+				toTransfer.srcStageMask        = (VK_IMAGE_LAYOUT_UNDEFINED == vkSrcLayout) ? VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT : VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+				toTransfer.srcAccessMask       = (VK_IMAGE_LAYOUT_UNDEFINED == vkSrcLayout) ? 0 : (VK_ACCESS_2_MEMORY_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT);
+				toTransfer.dstStageMask        = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+				toTransfer.dstAccessMask       = VK_ACCESS_2_TRANSFER_WRITE_BIT;
+				toTransfer.oldLayout           = vkSrcLayout;
+				toTransfer.newLayout           = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+				toTransfer.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+				toTransfer.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+				toTransfer.image               = pTexture->GetTextureHandle();
+				toTransfer.subresourceRange    = range;
+
+				VkDependencyInfo depInfo{};
+				depInfo.sType                   = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+				depInfo.imageMemoryBarrierCount = 1;
+				depInfo.pImageMemoryBarriers    = &toTransfer;
+				vkCmdPipelineBarrier2(cmdBuffer, &depInfo);
+
+				VkBufferImageCopy copyRegion = {};
+				copyRegion.bufferOffset                    = 0;
+				copyRegion.bufferRowLength                 = 0;
+				copyRegion.bufferImageHeight               = 0;
+				copyRegion.imageSubresource.aspectMask     = aspectMask;
+				copyRegion.imageSubresource.mipLevel       = 0;
+				copyRegion.imageSubresource.baseArrayLayer = 0;
+				copyRegion.imageSubresource.layerCount     = 1;
+				copyRegion.imageExtent                     = {
+					static_cast<U32>(regionRect.width),
+					static_cast<U32>(regionRect.height),
+					depthCount
+				};
+				copyRegion.imageOffset = {
+					regionRect.x,
+					regionRect.y,
+					static_cast<I32>(depthFrom)
+				};
+
+				vkCmdCopyBufferToImage(cmdBuffer, pVulkanStagingBuffer->GetVulkanHandle(), pTexture->GetTextureHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
+
+				// TRANSFER_DST_OPTIMAL -> SHADER_READ_ONLY_OPTIMAL
+				VkImageMemoryBarrier2 toReadable = toTransfer;
+				toReadable.srcStageMask  = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+				toReadable.srcAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT;
+				toReadable.dstStageMask  = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+				toReadable.dstAccessMask = VK_ACCESS_2_MEMORY_READ_BIT;
+				toReadable.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+				toReadable.newLayout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+				VkDependencyInfo depInfo2{};
+				depInfo2.sType                   = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+				depInfo2.imageMemoryBarrierCount = 1;
+				depInfo2.pImageMemoryBarriers    = &toReadable;
+				vkCmdPipelineBarrier2(cmdBuffer, &depInfo2);
+			});
+
+		return result;
 	}
 
 	E_RESULT_CODE CVulkanGraphicsContext::CopyResource(TTextureHandleId sourceHandle, TTextureHandleId destHandle)
