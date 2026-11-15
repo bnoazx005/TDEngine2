@@ -1022,6 +1022,8 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 			}
 		});
 
+		pTestCase->Wait(0.5f);
+
 		for (USIZE i = 0; i < testCases.size(); i++)
 		{
 			pTestCase->ExecuteAction([&, i]
@@ -1112,7 +1114,7 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 			}
 		});
 
-		pTestCase->WaitForNextFrame();
+		pTestCase->Wait(0.5f);
 
 		pTestCase->ExecuteAction([&]
 		{
@@ -1161,7 +1163,7 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 			GroupEntities(pWorld.Get(), pCanvasEntity->GetId(), pTestButtonEntity->GetId());
 		});
 
-		pTestCase->WaitForNextFrame();
+		pTestCase->Wait(0.5f);
 
 		pTestCase->ExecuteAction([&]
 		{
@@ -1342,7 +1344,6 @@ TDE2_TEST_FIXTURE("UI Elements Tests")
 			});
 
 			pTestCase->Wait(0.5f);
-			pTestCase->WaitForNextFrame();
 
 			pTestCase->ExecuteAction([&, x = std::get<1>(currTestCase), y = std::get<2>(currTestCase), expectedColor = std::get<3>(currTestCase)]
 			{	
