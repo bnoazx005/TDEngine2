@@ -307,7 +307,7 @@ namespace TDEngine2
 		}
 
 		/// \note If there is no given entity in the context add it
-		for (const TEntityId currEntityId : pWorld->FindEntitiesWithAny<CBoxCollisionObject3D, CSphereCollisionObject3D, CConvexHullCollisionObject3D>())
+		for (const TEntityId currEntityId : pWorld->FindEntitiesWithAny<IBoxCollisionObject3D, ISphereCollisionObject3D, IConvexHullCollisionObject3D>())
 		{
 			auto it = std::find_if(entities.begin(), entities.end(), [currEntityId](auto&& entityId) { return entityId == currEntityId; });
 			if (it != entities.end())

@@ -46,7 +46,7 @@ namespace TDEngine2
 		public:
 			friend TDE2_API IComponent* CreateSphereCollisionObject3D(E_RESULT_CODE& result);
 		public:
-			TDE2_REGISTER_COMPONENT_TYPE(CSphereCollisionObject3D)
+			TDE2_REGISTER_COMPONENT_TYPE(ISphereCollisionObject3D)
 
 			/*!
 				\brief The method sets up a radius of a collider

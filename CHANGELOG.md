@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **CComponentsManager::FindEntitiesWithAny** behaviour for entities with partial set of components was fixed.
 
+- **CPhysics3DSystem** work was fixed.
+
 ## [0.6.36] 2026-11-12
 
 ### Added
