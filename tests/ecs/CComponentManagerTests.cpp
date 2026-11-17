@@ -10,6 +10,9 @@ namespace
 	TDE2_DECLARE_FLAG_COMPONENT(TestComponent);
 	TDE2_DEFINE_FLAG_COMPONENT(TestComponent);
 
+	TDE2_DECLARE_FLAG_COMPONENT(Test2Component);
+	TDE2_DEFINE_FLAG_COMPONENT(Test2Component);
+
 	TDE2_DECLARE_FLAG_COMPONENT(UniqueComponent);
 	TDE2_DEFINE_FLAG_COMPONENT(UniqueComponent);
 	TDE2_REGISTER_UNIQUE_COMPONENT(CUniqueComponent);
@@ -222,5 +225,33 @@ TEST_CASE("CComponentManager Tests")
 		REQUIRE(pComponentManager->CreateComponent<CTestComponent>(entityId));
 		REQUIRE(RC_OK == pComponentManager->RemoveComponents(entityId));
 		REQUIRE(!pComponentManager->FindComponentsOfType<CTestComponent>().HasNext());
+	}
+
+	SECTION("TestFindEntitiesWithAny_CreateOneEntityWithAComponent_FindEntitiesWithAnyShouldReturnIt")
+	{
+		auto pFactory = TPtr<IComponentFactory>(CreateTestComponentFactory(result));
+		REQUIRE((pFactory && RC_OK == pComponentManager->RegisterFactory(pFactory)));
+
+		const TEntityId entity1Id = TEntityId(1);
+
+		REQUIRE(pComponentManager->CreateComponent<CTestComponent>(entity1Id));
+
+		auto&& entities = pComponentManager->FindEntitiesWithAny({ CTestComponent::GetTypeId(), CTest2Component::GetTypeId() });
+		REQUIRE((entities.size() == 1 && entities[0] == entity1Id));
+	}
+
+	SECTION("TestFindEntitiesWithAny_CreateTwoEntitiesWithTwoDifferentComponents_FindEntitiesWithAnyShouldReturnBothOfThem")
+	{
+		auto pFactory = TPtr<IComponentFactory>(CreateTestComponentFactory(result));
+		REQUIRE((pFactory && RC_OK == pComponentManager->RegisterFactory(pFactory)));
+
+		const TEntityId entity1Id = TEntityId(1);
+		const TEntityId entity2Id = TEntityId(2);
+
+		REQUIRE(pComponentManager->CreateComponent<CTestComponent>(entity1Id));
+		REQUIRE(pComponentManager->CreateComponent<CTest2Component>(entity2Id));
+
+		auto&& entities = pComponentManager->FindEntitiesWithAny({ CTestComponent::GetTypeId(), CTest2Component::GetTypeId() });
+		REQUIRE((entities.size() == 2 && entities[0] == entity1Id && entities[1] == entity2Id));
 	}
 }

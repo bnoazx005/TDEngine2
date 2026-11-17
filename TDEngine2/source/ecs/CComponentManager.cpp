@@ -543,9 +543,7 @@ namespace TDEngine2
 			auto it = mComponentsHashTable.find(currType);
 			if (it == mComponentsHashTable.cend())
 			{
-				// \note Early exit because there are no entities with component of corresponding type
-				// mComponentsHashTable[currType] should exist if there is at least one component
-				return filter;
+				continue;
 			}
 
 			queryMask.set(it->second);
@@ -562,7 +560,7 @@ namespace TDEngine2
 				continue;
 			}
 
-			if ((entityComponentsMask & queryMask).none())
+			if (!(entityComponentsMask & queryMask).any())
 			{
 				continue;
 			}
