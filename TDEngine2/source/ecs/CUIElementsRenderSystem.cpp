@@ -374,13 +374,13 @@ namespace TDEngine2
 		const TUIElementsFramePacketData::TVertexArray& vertices = mpPendingFramePacketData->mVertices;
 		const TUIElementsFramePacketData::TIndexArray& indices   = mpPendingFramePacketData->mIndices;
 
-		std::unordered_map<TResourceId, TMaterialProxyId> materialProxiesTable{};
+		std::unordered_map<U32, TMaterialProxyId> materialProxiesTable{};
 
 		for (const TUIElementsFramePacketData::TUIElementsDrawCommand& currDrawCommand : mpPendingFramePacketData->mCommands)
 		{
 			TMaterialProxyId currMaterialProxyHandle = TMaterialProxyId::Invalid;
 			
-			auto it = materialProxiesTable.find(currDrawCommand.mTextureId);
+			auto it = materialProxiesTable.find(currDrawCommand.mDrawGroupKey);
 			if (it == materialProxiesTable.cend())
 			{
 				TPtr<IMaterial> pMaterial = mpResourceManager->GetResource<IMaterial>(currDrawCommand.mMaterialHandle);
@@ -399,7 +399,7 @@ namespace TDEngine2
 				}
 				
 				currMaterialProxyHandle = framePacket.GetOrCreateProxy(std::move(currMaterialProxyDesc));
-				materialProxiesTable.emplace(currDrawCommand.mTextureId, currMaterialProxyHandle);
+				materialProxiesTable.emplace(currDrawCommand.mDrawGroupKey, currMaterialProxyHandle);
 			}
 			else
 			{
